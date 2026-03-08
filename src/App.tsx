@@ -49,6 +49,7 @@ const AppRoutes = () => (
       <Route path="/bestiaire" element={<ProtectedRoute><BestiairePage /></ProtectedRoute>} />
       <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
       <Route path="/moderation" element={<ProtectedRoute><ModerationPage /></ProtectedRoute>} />
+      <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
       <Route path="/legal" element={<LegalPage />} />
       <Route path="/u/:username" element={<ShareProfilePage />} />
       <Route path="*" element={<NotFound />} />
