@@ -139,8 +139,9 @@ const NotificationsPage = () => {
         ) : (
           <div className="space-y-1">
             {notifications.map(notif => {
-              const actorName = notif.actor?.display_name || notif.actor?.username || 'Quelqu\'un';
-              const avatarUrl = notif.actor?.avatar_url;
+              const isModerationNotif = notif.type === 'capture_approved' || notif.type === 'capture_rejected';
+              const actorName = isModerationNotif ? 'Faunex' : (notif.actor?.display_name || notif.actor?.username || 'Quelqu\'un');
+              const avatarUrl = isModerationNotif ? null : notif.actor?.avatar_url;
               const isLike = notif.type === 'like';
               const isComment = notif.type === 'comment';
               const isFriendRequest = notif.type === 'friend_request';
@@ -197,7 +198,9 @@ const NotificationsPage = () => {
                   {/* Avatar */}
                   <div className="relative shrink-0">
                     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-display font-bold text-primary overflow-hidden">
-                      {avatarUrl ? (
+                      {isModerationNotif ? (
+                        <span className="text-lg">🌿</span>
+                      ) : avatarUrl ? (
                         <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
                       ) : (
                         actorName.charAt(0).toUpperCase()
