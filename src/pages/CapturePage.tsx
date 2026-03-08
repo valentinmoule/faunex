@@ -138,7 +138,8 @@ const CapturePage = () => {
       if (data?.success && data.animal) {
         setAnimalResult(data.animal);
       } else {
-        toast.error(data?.error || "Impossible d'identifier l'animal");
+        // Identification failed — offer manual entry
+        setManualMode(true);
       }
     } catch (err: any) {
       console.error(err);
