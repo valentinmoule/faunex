@@ -12,6 +12,7 @@ import ExplorersPage from "./pages/ExplorersPage";
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
 import FriendCollectionPage from "./pages/FriendCollectionPage";
+import BestiairePage from "./pages/BestiairePage";
 import NotificationsPage from "./pages/NotificationsPage";
 import ModerationPage from "./pages/ModerationPage";
 import LegalPage from "./pages/LegalPage";
