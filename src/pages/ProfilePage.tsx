@@ -85,7 +85,7 @@ const ProfilePage = () => {
 
       const captures = capturesRes.data || [];
       const totalCaptures = captures.length;
-      const sharedCount = sharedRes.count || 0;
+      
 
       // Update profile stats
       if (data && data.total_captures !== totalCaptures) {
