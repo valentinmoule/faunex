@@ -71,6 +71,33 @@ const CollectionPage = () => {
     fetchCaptures();
   }, [session]);
 
+  // Auto-open capture from notification link
+  useEffect(() => {
+    const captureId = searchParams.get('capture');
+    if (!captureId || captures.length === 0) return;
+    const found = captures.find(c => c.id === captureId);
+    if (found) {
+      setSelectedCard(found);
+      setSearchParams({}, { replace: true });
+    } else {
+      // Capture might not be in our own collection — fetch it directly
+      const fetchCapture = async () => {
+        const { data } = await supabase.from('captures').select('*').eq('id', captureId).single();
+        if (data) {
+          setSelectedCard({
+            id: data.id, name: data.animal_name, scientificName: data.scientific_name || '',
+            image: data.image_url, rarity: data.rarity as Rarity, category: data.category || '',
+            description: data.description || '', habitat: data.habitat || '', diet: data.diet || '',
+            conservation: data.conservation || '', funFact: data.fun_fact || '',
+            discoveredAt: data.created_at, location: data.location || '',
+          });
+          setSearchParams({}, { replace: true });
+        }
+      };
+      fetchCapture();
+    }
+  }, [captures, searchParams]);
+
   const filtered = captures.filter(c => {
     if (filter !== 'all' && c.rarity !== filter) return false;
     if (search && !c.name.toLowerCase().includes(search.toLowerCase())) return false;
