@@ -137,7 +137,7 @@ const FeedPage = () => {
           <div className="text-center py-16">
             <p className="text-4xl mb-3">🌿</p>
             <p className="text-muted-foreground font-display">Aucune capture partagée</p>
-            <p className="text-muted-foreground/60 text-xs mt-1">Ajoute des amis explorateurs ou partage tes captures !</p>
+            <p className="text-muted-foreground/60 text-xs mt-1">Ajoute des explorateurs ou partage tes captures !</p>
           </div>
         ) : (
           posts.map(post => {

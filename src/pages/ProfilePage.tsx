@@ -237,7 +237,7 @@ const ProfilePage = () => {
         <div className="flex items-center justify-center gap-8 py-3">
           <div className="text-center">
             <p className="text-lg font-display font-bold text-foreground">{friendsCount}</p>
-            <p className="text-xs text-muted-foreground">Amis</p>
+            <p className="text-xs text-muted-foreground">Explorateurs</p>
           </div>
         </div>
 
