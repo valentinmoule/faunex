@@ -21,19 +21,6 @@ const FeedPage = () => {
         </div>
       </header>
 
-      {/* Weekly Challenge Banner */}
-      <div className="max-w-lg mx-auto px-4 pt-4">
-        <div className="bg-primary rounded-2xl p-4 flex items-center gap-3">
-          <span className="text-3xl">🐦</span>
-          <div className="flex-1">
-            <p className="text-primary-foreground font-display font-bold text-sm">Défi de la semaine</p>
-            <p className="text-primary-foreground/80 text-xs">Semaine des oiseaux — 3/5 espèces</p>
-          </div>
-          <div className="w-12 h-12 rounded-full border-2 border-primary-foreground/30 flex items-center justify-center">
-            <span className="text-primary-foreground font-display font-bold text-sm">3/5</span>
-          </div>
-        </div>
-      </div>
 
       {/* Feed */}
       <div className="max-w-lg mx-auto px-4 pt-4 space-y-4">
