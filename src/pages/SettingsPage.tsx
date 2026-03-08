@@ -86,7 +86,6 @@ const SettingsPage = () => {
   };
 
   const handleChangePassword = async () => {
-  const handleChangePassword = async () => {
     if (!oldPassword) { toast.error('Entre ton ancien mot de passe'); return; }
     if (newPassword.length < 6) { toast.error('Le mot de passe doit faire au moins 6 caractères'); return; }
     if (newPassword !== confirmPassword) { toast.error('Les mots de passe ne correspondent pas'); return; }
