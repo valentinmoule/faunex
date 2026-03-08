@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Search, SlidersHorizontal } from 'lucide-react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Search, SlidersHorizontal, Bell } from 'lucide-react';
 import AnimalCardComponent from '@/components/AnimalCardComponent';
 import CardDetailSheet from '@/components/CardDetailSheet';
 import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
@@ -10,11 +11,33 @@ const rarityFilters: (Rarity | 'all')[] = ['all', 'common', 'uncommon', 'rare', 
 
 const CollectionPage = () => {
   const { session } = useAuth();
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [filter, setFilter] = useState<Rarity | 'all'>('all');
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [search, setSearch] = useState('');
   const [captures, setCaptures] = useState<AnimalCard[]>([]);
   const [loading, setLoading] = useState(true);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // Fetch unread notifications
+  useEffect(() => {
+    if (!session?.user) return;
+    const fetchUnread = async () => {
+      const { count } = await supabase
+        .from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', session.user.id)
+        .eq('read', false);
+      setUnreadCount(count || 0);
+    };
+    fetchUnread();
+    const channel = supabase
+      .channel('notif-count-collection')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${session.user.id}` }, () => fetchUnread())
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [session]);
 
   useEffect(() => {
     if (!session?.user) return;
@@ -48,6 +71,33 @@ const CollectionPage = () => {
     fetchCaptures();
   }, [session]);
 
+  // Auto-open capture from notification link
+  useEffect(() => {
+    const captureId = searchParams.get('capture');
+    if (!captureId || captures.length === 0) return;
+    const found = captures.find(c => c.id === captureId);
+    if (found) {
+      setSelectedCard(found);
+      setSearchParams({}, { replace: true });
+    } else {
+      // Capture might not be in our own collection — fetch it directly
+      const fetchCapture = async () => {
+        const { data } = await supabase.from('captures').select('*').eq('id', captureId).single();
+        if (data) {
+          setSelectedCard({
+            id: data.id, name: data.animal_name, scientificName: data.scientific_name || '',
+            image: data.image_url, rarity: data.rarity as Rarity, category: data.category || '',
+            description: data.description || '', habitat: data.habitat || '', diet: data.diet || '',
+            conservation: data.conservation || '', funFact: data.fun_fact || '',
+            discoveredAt: data.created_at, location: data.location || '',
+          });
+          setSearchParams({}, { replace: true });
+        }
+      };
+      fetchCapture();
+    }
+  }, [captures, searchParams]);
+
   const filtered = captures.filter(c => {
     if (filter !== 'all' && c.rarity !== filter) return false;
     if (search && !c.name.toLowerCase().includes(search.toLowerCase())) return false;
@@ -59,8 +109,18 @@ const CollectionPage = () => {
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center justify-between mb-3">
-            <h1 className="text-2xl font-display font-bold text-foreground">Mon Faunex</h1>
-            <span className="text-sm text-muted-foreground font-display">{captures.length} espèces</span>
+            <h1 className="text-2xl font-display font-bold text-primary">Mon Faunex</h1>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground font-display">{captures.length} espèces</span>
+              <button onClick={() => navigate('/notifications')} className="relative p-2 rounded-full hover:bg-muted transition-colors">
+                <Bell className="w-5 h-5 text-foreground" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />

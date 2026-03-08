@@ -7,7 +7,6 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import Index from "./pages/Index";
 import CapturePage from "./pages/CapturePage";
 import CollectionPage from "./pages/CollectionPage";
-import FeedPage from "./pages/FeedPage";
 import ProfilePage from "./pages/ProfilePage";
 import ExplorersPage from "./pages/ExplorersPage";
 import AuthPage from "./pages/AuthPage";
@@ -38,7 +37,6 @@ const AppRoutes = () => (
       <Route path="/auth" element={<AuthRoute><AuthPage /></AuthRoute>} />
       <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
       <Route path="/collection" element={<ProtectedRoute><CollectionPage /></ProtectedRoute>} />
-      <Route path="/feed" element={<ProtectedRoute><FeedPage /></ProtectedRoute>} />
       <Route path="/capture" element={<ProtectedRoute><CapturePage /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
       <Route path="/explorers" element={<ProtectedRoute><ExplorersPage /></ProtectedRoute>} />
