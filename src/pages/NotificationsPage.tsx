@@ -202,7 +202,7 @@ const NotificationsPage = () => {
                       />
                     </div>
                   )}
-                </div>
+                </button>
               );
             })}
           </div>
