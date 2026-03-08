@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
-import { MapPin, Leaf, UtensilsCrossed, Shield, Sparkles, Star, Heart, MessageCircle, Send } from 'lucide-react';
+import { MapPin, Leaf, UtensilsCrossed, Shield, Sparkles, Heart, MessageCircle, Send } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -50,9 +50,6 @@ const rarityText: Record<Rarity, string> = {
   mythic: 'text-rarity-mythic',
 };
 
-const rarityStars: Record<Rarity, number> = {
-  common: 1, uncommon: 2, rare: 3, epic: 4, legendary: 5, mythic: 6,
-};
 
 const CardDetailSheet = ({ card, open, onClose }: Props) => {
   const { session } = useAuth();
@@ -165,11 +162,6 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
           </div>
 
           <div className="relative z-10 text-center px-6 pt-4 pb-5">
-            <div className="flex items-center justify-center gap-1.5 mb-2">
-              {Array.from({ length: rarityStars[card.rarity] }).map((_, i) => (
-                <Star key={i} className={`w-3.5 h-3.5 fill-current ${isMythic ? 'text-white/90' : isLegendary ? 'text-amber-light' : 'text-white/70'}`} />
-              ))}
-            </div>
             <h2 className="text-2xl font-display font-bold text-white drop-shadow-lg">{card.name}</h2>
             <p className="text-white/60 text-sm italic font-body mt-0.5">{card.scientificName}</p>
           </div>
