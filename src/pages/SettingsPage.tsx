@@ -18,6 +18,7 @@ interface SettingsProps {
 const SettingsPage = () => {
   const { session, signOut } = useAuth();
   const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
   const [section, setSection] = useState<'menu' | 'edit' | 'password' | 'delete'>('menu');
   const [profile, setProfile] = useState<{ display_name: string; username: string; avatar_url: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
