@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Heart, MessageCircle, UserPlus, UserCheck } from 'lucide-react';
+import { ArrowLeft, Heart, MessageCircle, UserPlus, UserCheck, CheckCircle, XCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -145,12 +145,22 @@ const NotificationsPage = () => {
               const isComment = notif.type === 'comment';
               const isFriendRequest = notif.type === 'friend_request';
               const isFriendAccepted = notif.type === 'friend_accepted';
+              const isCaptureApproved = notif.type === 'capture_approved';
+              const isCaptureRejected = notif.type === 'capture_rejected';
 
-              const iconBg = isFriendRequest || isFriendAccepted
+              const iconBg = isCaptureApproved
+                ? 'bg-primary'
+                : isCaptureRejected
+                ? 'bg-destructive'
+                : isFriendRequest || isFriendAccepted
                 ? 'bg-accent'
                 : isLike ? 'bg-destructive' : 'bg-primary';
 
-              const IconComp = isFriendRequest
+              const IconComp = isCaptureApproved
+                ? CheckCircle
+                : isCaptureRejected
+                ? XCircle
+                : isFriendRequest
                 ? UserPlus
                 : isFriendAccepted
                 ? UserCheck
@@ -158,7 +168,11 @@ const NotificationsPage = () => {
                 ? Heart
                 : MessageCircle;
 
-              const message = isFriendRequest
+              const message = isCaptureApproved
+                ? ` a approuvé ta capture${notif.capture?.animal_name ? ` de ${notif.capture.animal_name}` : ''} ! Elle est maintenant dans ton Faunex 🎉`
+                : isCaptureRejected
+                ? ` a rejeté ta soumission${notif.comment_text ? ` "${notif.comment_text}"` : ''}. L'animal n'a pas pu être vérifié.`
+                : isFriendRequest
                 ? ' t\'a envoyé une demande d\'ami'
                 : isFriendAccepted
                 ? ' a accepté ta demande d\'ami'

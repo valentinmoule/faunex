@@ -66,6 +66,15 @@ const ModerationPage = () => {
     if (error) {
       toast.error('Erreur lors de l\'approbation');
     } else {
+      // Notify the user that their capture was approved
+      if (session?.user) {
+        await supabase.from('notifications').insert({
+          user_id: capture.user_id,
+          type: 'capture_approved',
+          actor_id: session.user.id,
+          capture_id: capture.id,
+        });
+      }
       toast.success(`${capture.animal_name} approuvé !`);
       setCaptures(prev => prev.filter(c => c.id !== capture.id));
     }
@@ -74,6 +83,16 @@ const ModerationPage = () => {
 
   const reject = async (capture: PendingCapture) => {
     setProcessing(capture.id);
+    // Notify the user BEFORE deleting (we need capture_id)
+    if (session?.user) {
+      await supabase.from('notifications').insert({
+        user_id: capture.user_id,
+        type: 'capture_rejected',
+        actor_id: session.user.id,
+        comment_text: capture.animal_name,
+      });
+    }
+
     const { error } = await supabase
       .from('captures')
       .delete()
