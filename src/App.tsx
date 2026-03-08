@@ -37,6 +37,7 @@ const AppRoutes = () => (
       <Route path="/capture" element={<ProtectedRoute><CapturePage /></ProtectedRoute>} />
       <Route path="/collection" element={<ProtectedRoute><CollectionPage /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+      <Route path="/explorers" element={<ProtectedRoute><ExplorersPage /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
     <BottomNav />
