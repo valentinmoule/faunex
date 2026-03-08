@@ -173,8 +173,9 @@ const CapturePage = () => {
     if (!capturedPhoto || !session?.user) return;
     const trimmedName = manualName.trim();
     const trimmedSpecies = manualSpecies.trim();
-    if (!trimmedName || !trimmedSpecies) {
-      toast.error('Remplis le nom et l\'espèce');
+    const trimmedDesc = manualDescription.trim();
+    if (!trimmedName || !trimmedDesc) {
+      toast.error('Remplis au moins le nom et la description');
       return;
     }
     setSaving(true);
