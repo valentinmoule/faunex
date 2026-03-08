@@ -223,13 +223,17 @@ const SettingsPage = () => {
 
         {section === 'password' && (
           <div className="space-y-4">
-            <p className="text-sm text-muted-foreground font-body">Choisis un nouveau mot de passe (6 caractères minimum).</p>
+            <p className="text-sm text-muted-foreground font-body">Entre ton ancien mot de passe puis choisis-en un nouveau (6 caractères minimum).</p>
+            <div>
+              <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">Ancien mot de passe</label>
+              <input type="password" value={oldPassword} onChange={e => setOldPassword(e.target.value)} className="w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
+            </div>
             <div>
               <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">Nouveau mot de passe</label>
               <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} className="w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
             </div>
             <div>
-              <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">Confirmer le mot de passe</label>
+              <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">Confirmer le nouveau mot de passe</label>
               <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
             </div>
             <button
