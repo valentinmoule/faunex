@@ -172,16 +172,17 @@ const AuthPage = () => {
           </form>
         )}
 
-        {/* Toggle */}
-        <p className="text-center text-sm text-muted-foreground">
-          {isLogin ? "Pas encore de compte ?" : 'Déjà un compte ?'}{' '}
-          <button
-            onClick={() => setIsLogin(!isLogin)}
-            className="text-primary font-display font-semibold hover:underline"
-          >
-            {isLogin ? "S'inscrire" : 'Se connecter'}
-          </button>
-        </p>
+        {!isForgot && (
+          <p className="text-center text-sm text-muted-foreground">
+            {isLogin ? "Pas encore de compte ?" : 'Déjà un compte ?'}{' '}
+            <button
+              onClick={() => setIsLogin(!isLogin)}
+              className="text-primary font-display font-semibold hover:underline"
+            >
+              {isLogin ? "S'inscrire" : 'Se connecter'}
+            </button>
+          </p>
+        )}
       </div>
     </main>
   );
