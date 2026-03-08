@@ -54,6 +54,7 @@ const CollectionPage = () => {
         .from('captures')
         .select('*')
         .eq('user_id', session.user.id)
+        .eq('status', 'approved')
         .order('created_at', { ascending: false });
 
       if (!error && data) {
