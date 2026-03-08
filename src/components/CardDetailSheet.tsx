@@ -274,16 +274,20 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
   );
 };
 
-const StatCard = ({ icon, label, value, color, bg }: {
-  icon: React.ReactNode; label: string; value: string; color: string; bg: string;
-}) => (
-  <div className={`${bg} rounded-xl p-3 space-y-1.5`}>
-    <div className="flex items-center gap-1.5">
-      <span className={color}>{icon}</span>
-      <p className="text-[10px] font-display font-bold uppercase tracking-wider text-muted-foreground">{label}</p>
+const StatCard = ({ icon, label, value, color, bg, link }: {
+  icon: React.ReactNode; label: string; value: string; color: string; bg: string; link?: string;
+}) => {
+  const content = (
+    <div className={`${bg} rounded-xl p-3 space-y-1.5`}>
+      <div className="flex items-center gap-1.5">
+        <span className={color}>{icon}</span>
+        <p className="text-[10px] font-display font-bold uppercase tracking-wider text-muted-foreground">{label}</p>
+      </div>
+      <p className={`text-xs leading-snug ${link ? 'text-primary underline' : 'text-foreground'}`}>{value}</p>
     </div>
-    <p className="text-xs text-foreground leading-snug">{value}</p>
-  </div>
-);
+  );
+  if (link) return <a href={link} target="_blank" rel="noopener noreferrer">{content}</a>;
+  return content;
+};
 
 export default CardDetailSheet;
