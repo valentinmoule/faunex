@@ -560,7 +560,7 @@ const CapturePage = () => {
         ) : manualMode ? (
           <button
             onClick={saveManualEntry}
-            disabled={saving || !manualName.trim() || !manualSpecies.trim()}
+            disabled={saving || !manualName.trim() || !manualDescription.trim()}
             className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-amber text-foreground font-display text-sm disabled:opacity-50"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <PenLine className="w-4 h-4" />}
