@@ -198,7 +198,9 @@ const NotificationsPage = () => {
                   {/* Avatar */}
                   <div className="relative shrink-0">
                     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-display font-bold text-primary overflow-hidden">
-                      {avatarUrl ? (
+                      {isModerationNotif ? (
+                        <span className="text-lg">🌿</span>
+                      ) : avatarUrl ? (
                         <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
                       ) : (
                         actorName.charAt(0).toUpperCase()
