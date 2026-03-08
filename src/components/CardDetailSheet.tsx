@@ -17,9 +17,15 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
   return (
     <Sheet open={open} onOpenChange={onClose}>
       <SheetContent side="bottom" className="h-[85vh] rounded-t-3xl overflow-y-auto p-0">
-        <div className="relative">
+        <div className={`relative ${isMythic ? 'mythic-shiny' : ''}`}>
           <img src={card.image} alt={card.name} className="w-full aspect-[4/3] object-cover" />
-          {isShiny && <div className="absolute inset-0 holographic-card card-shimmer pointer-events-none" style={{ backgroundImage: 'var(--gradient-holographic)', backgroundSize: '200% 200%', opacity: 0.3 }} />}
+          {isMythic && <div className="mythic-image-overlay" />}
+          {isMythic && (
+            <div className="mythic-sparkles">
+              <span /><span /><span /><span /><span /><span />
+            </div>
+          )}
+          {isShiny && !isMythic && <div className="absolute inset-0 holographic-card card-shimmer pointer-events-none" style={{ backgroundImage: 'var(--gradient-holographic)', backgroundSize: '200% 200%', opacity: 0.3 }} />}
           <div className="absolute bottom-0 inset-x-0 h-20 bg-gradient-to-t from-card to-transparent" />
         </div>
 

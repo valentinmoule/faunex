@@ -37,10 +37,16 @@ const FeedPostCard = ({ post, onCardClick }: Props) => {
       {/* Image */}
       <button
         onClick={() => onCardClick(post.animal.id)}
-        className="relative w-full aspect-square overflow-hidden"
+        className={`relative w-full aspect-square overflow-hidden ${isMythic ? 'mythic-shiny' : ''}`}
       >
         <img src={post.animal.image} alt={post.animal.name} className="w-full h-full object-cover" />
-        {isShiny && <div className="absolute inset-0 holographic-card card-shimmer pointer-events-none" style={{ backgroundImage: 'var(--gradient-holographic)', backgroundSize: '200% 200%', opacity: 0.2 }} />}
+        {isMythic && <div className="mythic-image-overlay" />}
+        {isMythic && (
+          <div className="mythic-sparkles">
+            <span /><span /><span /><span /><span /><span />
+          </div>
+        )}
+        {isShiny && !isMythic && <div className="absolute inset-0 holographic-card card-shimmer pointer-events-none" style={{ backgroundImage: 'var(--gradient-holographic)', backgroundSize: '200% 200%', opacity: 0.2 }} />}
         <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-foreground/60 to-transparent p-4 pt-12">
           <p className="text-primary-foreground font-display font-bold text-lg">{post.animal.name}</p>
           <p className="text-primary-foreground/70 text-xs italic">{post.animal.scientificName}</p>

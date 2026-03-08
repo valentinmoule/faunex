@@ -26,13 +26,19 @@ interface Props {
 
 const AnimalCardComponent = ({ card, onClick, compact }: Props) => {
   const isShiny = card.rarity === 'legendary' || card.rarity === 'mythic';
+  const isMythic = card.rarity === 'mythic';
 
   return (
     <button
       onClick={onClick}
-      className={`relative overflow-hidden rounded-xl border-2 transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1 animate-card-appear text-left w-full ${rarityStyles[card.rarity]} ${isShiny ? 'holographic-card' : ''}`}
-      style={isShiny ? { backgroundImage: 'var(--gradient-holographic)', backgroundSize: '200% 200%' } : undefined}
+      className={`relative overflow-hidden rounded-xl border-2 transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1 animate-card-appear text-left w-full ${rarityStyles[card.rarity]} ${isMythic ? 'mythic-shiny' : isShiny ? 'holographic-card' : ''}`}
+      style={isShiny && !isMythic ? { backgroundImage: 'var(--gradient-holographic)', backgroundSize: '200% 200%' } : undefined}
     >
+      {isMythic && (
+        <div className="mythic-sparkles">
+          <span /><span /><span /><span /><span /><span />
+        </div>
+      )}
       <div className="relative aspect-square overflow-hidden rounded-t-lg">
         <img
           src={card.image}
@@ -40,7 +46,8 @@ const AnimalCardComponent = ({ card, onClick, compact }: Props) => {
           className="w-full h-full object-cover"
           loading="lazy"
         />
-        {isShiny && <div className="absolute inset-0 card-shimmer pointer-events-none" />}
+        {isMythic && <div className="mythic-image-overlay" />}
+        {isShiny && !isMythic && <div className="absolute inset-0 card-shimmer pointer-events-none" />}
         <div className={`absolute top-2 right-2 px-2 py-0.5 rounded-full text-[10px] font-display font-bold uppercase tracking-wider ${rarityBadgeStyles[card.rarity]}`}>
           {RARITY_LABELS[card.rarity]}
         </div>
