@@ -304,8 +304,24 @@ const ProfilePage = () => {
           </div>
         </div>
 
-        {/* Legal & Logout */}
+        {/* Share & Legal & Logout */}
         <div className="space-y-2">
+          <button
+            onClick={() => {
+              const username = profile.username?.replace(/^@/, '') || session?.user?.id;
+              const shareUrl = `${window.location.origin}/u/${username}`;
+              if (navigator.share) {
+                navigator.share({ title: 'Mon profil Faunex', text: `Rejoins-moi sur Faunex !`, url: shareUrl });
+              } else {
+                navigator.clipboard.writeText(shareUrl);
+                toast.success('Lien copié !');
+              }
+            }}
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-primary-foreground font-display text-sm font-semibold hover:bg-primary/90 transition-colors"
+          >
+            <Share2 className="w-4 h-4" />
+            Partager mon profil
+          </button>
           <button
             onClick={() => navigate('/legal')}
             className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-muted text-muted-foreground font-display text-sm font-semibold hover:bg-muted/80 transition-colors"
