@@ -70,8 +70,6 @@ const ProfilePage = () => {
       const data = profileRes.data;
       if (data) {
         setProfile(data as Profile);
-        setEditName(data.display_name || '');
-        setEditUsername(data.username || '');
       }
 
       const fCount = friendsRes.count || 0;
