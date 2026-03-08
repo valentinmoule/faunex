@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Search, SlidersHorizontal, Bell } from 'lucide-react';
+import NearbyAnimalsSection from '@/components/NearbyAnimalsSection';
 import AnimalCardComponent from '@/components/AnimalCardComponent';
 import CardDetailSheet from '@/components/CardDetailSheet';
 import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
@@ -161,6 +162,7 @@ const CollectionPage = () => {
 
       {/* Card grid */}
       <div className="max-w-lg mx-auto px-4 pt-3">
+        <NearbyAnimalsSection capturedNames={captures.map(c => c.name)} />
         {loading ? (
           <div className="text-center py-16">
             <p className="text-muted-foreground font-display">Chargement…</p>
