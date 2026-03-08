@@ -249,7 +249,9 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
             <StatCard icon={<MapPin className="w-4 h-4" />} label="Habitat" value={card.habitat} color="text-primary" bg="bg-primary/8" />
             <StatCard icon={<UtensilsCrossed className="w-4 h-4" />} label="Alimentation" value={card.diet} color="text-amber" bg="bg-amber/8" />
             <StatCard icon={<Shield className="w-4 h-4" />} label="Conservation" value={card.conservation} color="text-sky" bg="bg-sky/8" />
-            <StatCard icon={<Leaf className="w-4 h-4" />} label="Lieu" value={card.location} color="text-forest-light" bg="bg-forest-light/8" />
+            <StatCard icon={<Leaf className="w-4 h-4" />} label="Lieu" value={card.location || 'Non renseigné'} color="text-forest-light" bg="bg-forest-light/8"
+              link={card.latitude && card.longitude ? `https://www.google.com/maps?q=${card.latitude},${card.longitude}` : undefined}
+            />
           </div>
 
           {/* Fun Fact */}
