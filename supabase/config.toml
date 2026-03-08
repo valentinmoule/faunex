@@ -1,1 +1,4 @@
 project_id = "pakwuooxumrghsbwczwx"
+
+[functions.identify-animal]
+verify_jwt = false
