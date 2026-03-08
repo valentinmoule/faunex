@@ -16,20 +16,43 @@ Avant de répondre, analyse systématiquement :
 
 ## Règles d'identification
 - Identifie au niveau le plus précis possible : sous-espèce > race > espèce > genre > famille
-- Pour les CHIENS : identifie toujours la race précise (ex: "Golden Retriever", "Berger Australien", "Shiba Inu"). Si croisé, indique les races probables (ex: "Croisé Labrador-Berger"). Le animal_name = la race, le scientific_name = "Canis lupus familiaris".
-- Pour les CHATS : identifie la race si identifiable (ex: "Maine Coon", "Siamois", "British Shorthair"). Si chat européen sans race distincte, utilise "Chat Européen". Le scientific_name = "Felis catus".
-- Pour les CHEVAUX : identifie la race (ex: "Pur-sang Arabe", "Frison", "Shetland").
-- Pour la FAUNE SAUVAGE : sois le plus précis possible sur l'espèce et la sous-espèce si identifiable.
-- Si l'image ne contient pas d'animal ou si c'est totalement non identifiable, utilise animal_name "Inconnu".
+
+### CHIENS
+- Identifie TOUJOURS la race précise (ex: "Golden Retriever", "Berger Australien", "Shiba Inu").
+- Si croisé, indique les races probables (ex: "Croisé Labrador-Berger").
+- animal_name = la race. scientific_name = "Canis lupus familiaris".
+
+### CHATS — IDENTIFICATION DÉTAILLÉE DES RACES
+Analyse ces critères pour déterminer la race :
+- **Morphologie faciale** : face ronde (Persan, British), triangulaire (Siamois, Oriental), en cœur (Birman)
+- **Type corporel** : cobby/trapu (Persan, Exotic, British), svelte/longiligne (Siamois, Oriental, Abyssin), semi-cobby (Ragdoll, Birman)
+- **Oreilles** : grandes droites (Maine Coon, Abyssin), pliées (Scottish Fold), très grandes (Sphynx, Oriental), arrondies (British)
+- **Pelage** : long et soyeux (Persan, Ragdoll), mi-long avec collerette (Maine Coon, Norvégien), court et dense (British, Chartreux), absence (Sphynx), ticked (Abyssin)
+- **Queue** : très touffue (Maine Coon, Norvégien), courte (Manx, Bobtail), fine (Siamois)
+- **Couleurs/Motifs** : colourpoint (Siamois, Birman, Ragdoll), bleu uni (Chartreux, Bleu Russe), tabby, bicolore, écaille
+- **Yeux** : bleus (Siamois, Ragdoll), cuivrés (Persan, British), verts (Bleu Russe, Chartreux), hétérochromie (Angora Turc)
+
+Races courantes à reconnaître : Maine Coon, Persan, Siamois, British Shorthair, Ragdoll, Bengal, Abyssin, Sphynx, Chartreux, Bleu Russe, Scottish Fold, Birman, Norvégien, Exotic Shorthair, Oriental, Angora Turc, Savannah, Bombay, Tonkinois, Burmese, Devon Rex, Cornish Rex.
+
+Si aucune race n'est clairement identifiable → "Chat Européen" (le chat de gouttière standard).
+animal_name = la race. scientific_name = "Felis catus".
+
+### CHEVAUX
+- Identifie la race (ex: "Pur-sang Arabe", "Frison", "Shetland").
+
+### FAUNE SAUVAGE
+- Sois le plus précis possible sur l'espèce et la sous-espèce.
+
+Si l'image ne contient pas d'animal → animal_name "Inconnu".
 
 ## Évaluation de la rareté
-Évalue la rareté selon la probabilité d'observation en Europe/France :
-- **common** : observation quotidienne facile (pigeon, moineau, merle, chat européen, Labrador, Berger Allemand)
-- **uncommon** : courant mais pas omniprésent (hérisson, écureuil roux, héron cendré, Shiba Inu, Maine Coon)
-- **rare** : observation nécessitant patience ou chance (martin-pêcheur, hermine, blaireau, Azawakh, Mudi)
-- **epic** : très rare ou limité géographiquement (lynx boréal, gypaète barbu, loutre d'Europe, Otterhound)
-- **legendary** : exceptionnel, espèce menacée ou très discrète (ours brun, aigle royal, phoque moine, vison d'Europe)
-- **mythic** : quasi-impossible à observer en liberté (loup gris en France, panthère des neiges, léopard de l'Amour)
+Évalue selon la probabilité d'observation en Europe/France :
+- **common** : observation quotidienne (pigeon, moineau, merle, chat européen, Labrador)
+- **uncommon** : courant mais pas omniprésent (hérisson, écureuil, héron, Shiba Inu, Maine Coon)
+- **rare** : observation nécessitant patience (martin-pêcheur, hermine, Bengal, Savannah)
+- **epic** : très rare ou limité géographiquement (lynx, gypaète, loutre)
+- **legendary** : exceptionnel, espèce menacée (ours brun, aigle royal, phoque moine)
+- **mythic** : quasi-impossible en liberté (loup gris en France, panthère des neiges)
 
 Réponds UNIQUEMENT via l'appel de fonction identify_animal.`;
 
@@ -45,6 +68,13 @@ serve(async (req) => {
       });
     }
 
+    // Ensure valid data URL format
+    let imageUrl = imageBase64;
+    if (imageUrl.startsWith("data:") && !imageUrl.match(/^data:image\/(png|jpeg|jpg|gif|webp);base64,/)) {
+      // Fix malformed mime types
+      imageUrl = imageUrl.replace(/^data:[^;]*;base64,/, "data:image/jpeg;base64,");
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
@@ -55,7 +85,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-pro",
+        model: "google/gemini-2.5-flash",
         temperature: 0,
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
@@ -64,9 +94,9 @@ serve(async (req) => {
             content: [
               {
                 type: "text",
-                text: "Analyse cette photo en détail et identifie l'animal avec la plus grande précision possible. Examine attentivement la morphologie, le pelage/plumage, les proportions et tout trait distinctif."
+                text: "Analyse cette photo en détail et identifie l'animal avec la plus grande précision possible. Examine attentivement la morphologie, le pelage/plumage, les proportions et tout trait distinctif. Si c'est un chat ou un chien, détermine la race exacte."
               },
-              { type: "image_url", image_url: { url: imageBase64 } }
+              { type: "image_url", image_url: { url: imageUrl } }
             ]
           }
         ],
@@ -81,11 +111,11 @@ serve(async (req) => {
                 properties: {
                   animal_name: {
                     type: "string",
-                    description: "Nom précis en français. Pour les animaux domestiques, utiliser le nom de la race (ex: 'Golden Retriever', 'Maine Coon'). Pour la faune sauvage, le nom commun le plus précis (ex: 'Mésange bleue', 'Renard roux')."
+                    description: "Nom précis en français. Pour les domestiques: nom de la race (ex: 'Golden Retriever', 'Maine Coon'). Pour la faune sauvage: nom commun précis (ex: 'Mésange bleue')."
                   },
                   scientific_name: {
                     type: "string",
-                    description: "Nom scientifique latin complet (genre + espèce, et sous-espèce si identifiable). Ex: 'Parus caeruleus', 'Vulpes vulpes'."
+                    description: "Nom scientifique latin complet (genre + espèce). Ex: 'Parus caeruleus', 'Canis lupus familiaris'."
                   },
                   category: {
                     type: "string",
@@ -94,23 +124,23 @@ serve(async (req) => {
                   },
                   description: {
                     type: "string",
-                    description: "Description de 2-3 phrases incluant les caractéristiques physiques distinctives et le comportement typique de cette espèce/race."
+                    description: "Description de 2-3 phrases : caractéristiques physiques distinctives et comportement typique."
                   },
                   habitat: {
                     type: "string",
-                    description: "Habitat naturel principal et répartition géographique. Ex: 'Forêts mixtes et jardins d'Europe occidentale'."
+                    description: "Habitat naturel et répartition géographique."
                   },
                   diet: {
                     type: "string",
-                    description: "Régime alimentaire détaillé (omnivore/herbivore/carnivore + aliments principaux)."
+                    description: "Régime alimentaire détaillé."
                   },
                   conservation: {
                     type: "string",
-                    description: "Statut UICN précis : LC (Préoccupation mineure), NT (Quasi menacé), VU (Vulnérable), EN (En danger), CR (En danger critique), ou 'Domestique' pour les animaux de compagnie."
+                    description: "Statut UICN : LC, NT, VU, EN, CR, ou 'Domestique'."
                   },
                   fun_fact: {
                     type: "string",
-                    description: "Un fait surprenant, méconnu et vérifié scientifiquement sur cette espèce/race. Doit être captivant et éducatif."
+                    description: "Un fait surprenant et vérifié scientifiquement sur cette espèce/race."
                   },
                   rarity: {
                     type: "string",
