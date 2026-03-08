@@ -148,48 +148,23 @@ const ProfilePage = () => {
       <div className="max-w-lg mx-auto px-4 pt-6 space-y-6">
         {/* Profile Header */}
         <div className="flex items-center gap-4">
-          <input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploadingAvatar}
-            className="relative w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center text-3xl font-display font-bold text-primary border-2 border-primary/30 overflow-hidden group shrink-0"
-          >
+          <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center text-3xl font-display font-bold text-primary border-2 border-primary/30 overflow-hidden shrink-0">
             {profile.avatar_url ? (
               <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
             ) : (
               <span>{(profile.display_name || '?').charAt(0).toUpperCase()}</span>
             )}
-            <div className="absolute inset-0 bg-foreground/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-              {uploadingAvatar ? <Loader2 className="w-5 h-5 text-primary-foreground animate-spin" /> : <Camera className="w-5 h-5 text-primary-foreground" />}
-            </div>
-          </button>
+          </div>
           <div className="flex-1">
-            {editing ? (
-              <div className="space-y-2">
-                <input type="text" value={editName} onChange={e => setEditName(e.target.value)} placeholder="Nom d'affichage" maxLength={50} className="w-full px-3 py-2 bg-muted rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
-                <input type="text" value={editUsername} onChange={e => setEditUsername(e.target.value)} placeholder="@pseudo" maxLength={30} className="w-full px-3 py-2 bg-muted rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
-                <div className="flex gap-2">
-                  <button onClick={handleSave} disabled={saving} className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-display font-semibold disabled:opacity-50">
-                    {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />} Sauvegarder
-                  </button>
-                  <button onClick={() => { setEditing(false); setEditName(profile.display_name || ''); setEditUsername(profile.username || ''); }} className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-muted text-muted-foreground text-xs font-display font-semibold">
-                    <X className="w-3.5 h-3.5" /> Annuler
-                  </button>
-                </div>
+            <h2 className="text-xl font-display font-bold text-foreground">{profile.display_name || 'Sans nom'}</h2>
+            <p className="text-sm text-muted-foreground">{profile.username || '@inconnu'}</p>
+            <div className="mt-2">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-xs font-display font-semibold text-primary">Niv. {profile.level}</span>
+                <span className="text-[10px] text-muted-foreground">{profile.xp}/{profile.xp_to_next} XP</span>
               </div>
-            ) : (
-              <>
-                <h2 className="text-xl font-display font-bold text-foreground">{profile.display_name || 'Sans nom'}</h2>
-                <p className="text-sm text-muted-foreground">{profile.username || '@inconnu'}</p>
-                <div className="mt-2">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-display font-semibold text-primary">Niv. {profile.level}</span>
-                    <span className="text-[10px] text-muted-foreground">{profile.xp}/{profile.xp_to_next} XP</span>
-                  </div>
-                  <Progress value={xpPercent} className="h-2 bg-muted [&>div]:bg-primary" />
-                </div>
-              </>
-            )}
+              <Progress value={xpPercent} className="h-2 bg-muted [&>div]:bg-primary" />
+            </div>
           </div>
         </div>
 
