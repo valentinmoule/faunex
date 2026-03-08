@@ -456,6 +456,37 @@ const CapturePage = () => {
             </div>
           </div>
         )}
+
+        {/* Manual entry form when AI can't identify */}
+        {manualMode && !identifying && !animalResult && (
+          <div className="relative z-20 flex-1 flex flex-col justify-end px-5 pb-4">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <PenLine className="w-5 h-5 text-amber" />
+                <h2 className="text-lg font-display font-bold text-primary-foreground">Animal non reconnu</h2>
+              </div>
+              <p className="text-primary-foreground/70 text-sm">
+                Renseigne le nom et l'espèce. Ta capture sera soumise à validation avant d'être ajoutée.
+              </p>
+              <input
+                type="text"
+                placeholder="Nom de l'animal (ex: Lynx boréal)"
+                value={manualName}
+                onChange={e => setManualName(e.target.value)}
+                maxLength={100}
+                className="w-full px-4 py-2.5 bg-primary-foreground/10 rounded-xl text-sm text-primary-foreground placeholder:text-primary-foreground/30 focus:outline-none focus:ring-2 focus:ring-primary/30 font-body"
+              />
+              <input
+                type="text"
+                placeholder="Nom scientifique (ex: Lynx lynx)"
+                value={manualSpecies}
+                onChange={e => setManualSpecies(e.target.value)}
+                maxLength={100}
+                className="w-full px-4 py-2.5 bg-primary-foreground/10 rounded-xl text-sm text-primary-foreground placeholder:text-primary-foreground/30 focus:outline-none focus:ring-2 focus:ring-primary/30 font-body italic"
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Duplicate detection dialog */}
