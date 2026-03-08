@@ -44,6 +44,7 @@ const CapturePage = () => {
   const [manualMode, setManualMode] = useState(false);
   const [manualName, setManualName] = useState('');
   const [manualSpecies, setManualSpecies] = useState('');
+  const [manualDescription, setManualDescription] = useState('');
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
