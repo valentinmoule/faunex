@@ -39,7 +39,7 @@ const AnimalCardComponent = ({ card, onClick, compact }: Props) => {
           <span /><span /><span /><span /><span /><span />
         </div>
       )}
-      <div className="relative aspect-square overflow-hidden rounded-t-lg">
+      <div className="relative aspect-square overflow-hidden">
         <img
           src={card.image}
           alt={card.name}
