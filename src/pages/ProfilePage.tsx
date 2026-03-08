@@ -37,7 +37,7 @@ const BADGE_DEFS: BadgeDef[] = [
   { id: 'legendary_1', name: 'Légende vivante', icon: '⭐', description: 'Trouver un animal légendaire', total: 1 },
   { id: 'mythic_1', name: 'Mythique !', icon: '🔥', description: 'Trouver un animal mythique', total: 1 },
   { id: 'social_3', name: 'Sociable', icon: '🤝', description: 'Avoir 3 amis explorateurs', total: 3 },
-  { id: 'shared_5', name: 'Partageur', icon: '📢', description: 'Partager 5 captures', total: 5 },
+  
   { id: 'level_5', name: 'Niveau 5', icon: '🏅', description: 'Atteindre le niveau 5', total: 5 },
 ];
 
@@ -67,11 +67,10 @@ const ProfilePage = () => {
       setLoading(true);
       const userId = session.user.id;
 
-      const [profileRes, friendsRes, capturesRes, sharedRes] = await Promise.all([
+      const [profileRes, friendsRes, capturesRes] = await Promise.all([
         supabase.from('profiles').select('*').eq('user_id', userId).single(),
         supabase.from('explorer_friends').select('*', { count: 'exact', head: true }).eq('status', 'accepted').or(`requester_id.eq.${userId},addressee_id.eq.${userId}`),
         supabase.from('captures').select('category, rarity').eq('user_id', userId),
-        supabase.from('captures').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('shared', true),
       ]);
 
       const data = profileRes.data;
@@ -86,7 +85,7 @@ const ProfilePage = () => {
 
       const captures = capturesRes.data || [];
       const totalCaptures = captures.length;
-      const sharedCount = sharedRes.count || 0;
+      
 
       // Update profile stats
       if (data && data.total_captures !== totalCaptures) {
@@ -113,7 +112,7 @@ const ProfilePage = () => {
         legendary_1: hasLegendary ? 1 : 0,
         mythic_1: hasMythic ? 1 : 0,
         social_3: Math.min(fCount, 3),
-        shared_5: Math.min(sharedCount, 5),
+        
         level_5: Math.min(level, 5),
       };
 

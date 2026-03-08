@@ -36,8 +36,6 @@ const CapturePage = () => {
   const [animalResult, setAnimalResult] = useState<AnimalResult | null>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [shareOnFeed, setShareOnFeed] = useState(false);
-  const [caption, setCaption] = useState('');
   const [duplicateCapture, setDuplicateCapture] = useState<{ id: string; image_url: string; animal_name: string } | null>(null);
   const [geoCoords, setGeoCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [geoName, setGeoName] = useState<string | null>(null);
@@ -101,8 +99,6 @@ const CapturePage = () => {
     setCapturedPhoto(dataUrl);
     setAnimalResult(null);
     setSaved(false);
-    setShareOnFeed(false);
-    setCaption('');
 
     // Grab GPS location
     if (navigator.geolocation) {
@@ -158,8 +154,6 @@ const CapturePage = () => {
     setCapturedPhoto(null);
     setAnimalResult(null);
     setSaved(false);
-    setShareOnFeed(false);
-    setCaption('');
     setDuplicateCapture(null);
     setGeoCoords(null);
     setGeoName(null);
@@ -338,8 +332,8 @@ const CapturePage = () => {
           conservation: animalResult.conservation,
           fun_fact: animalResult.fun_fact,
           rarity: animalResult.rarity,
-          shared: shareOnFeed,
-          caption: caption || null,
+          shared: false,
+          caption: null,
           location: geoName || null,
           latitude: geoCoords?.lat || null,
           longitude: geoCoords?.lng || null,
