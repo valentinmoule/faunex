@@ -29,6 +29,7 @@ const SettingsPage = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Password state
+  const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [changingPassword, setChangingPassword] = useState(false);
@@ -85,13 +86,24 @@ const SettingsPage = () => {
   };
 
   const handleChangePassword = async () => {
+    if (!oldPassword) { toast.error('Entre ton ancien mot de passe'); return; }
     if (newPassword.length < 6) { toast.error('Le mot de passe doit faire au moins 6 caractères'); return; }
     if (newPassword !== confirmPassword) { toast.error('Les mots de passe ne correspondent pas'); return; }
     setChangingPassword(true);
+    // Verify old password by re-signing in
+    const email = session?.user?.email;
+    if (!email) { toast.error('Erreur: email introuvable'); setChangingPassword(false); return; }
+    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password: oldPassword });
+    if (signInError) {
+      toast.error('Ancien mot de passe incorrect');
+      setChangingPassword(false);
+      return;
+    }
     const { error } = await supabase.auth.updateUser({ password: newPassword });
     if (error) toast.error(error.message);
     else {
       toast.success('Mot de passe modifié !');
+      setOldPassword('');
       setNewPassword('');
       setConfirmPassword('');
       setSection('menu');
@@ -210,13 +222,17 @@ const SettingsPage = () => {
 
         {section === 'password' && (
           <div className="space-y-4">
-            <p className="text-sm text-muted-foreground font-body">Choisis un nouveau mot de passe (6 caractères minimum).</p>
+            <p className="text-sm text-muted-foreground font-body">Entre ton ancien mot de passe puis choisis-en un nouveau (6 caractères minimum).</p>
+            <div>
+              <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">Ancien mot de passe</label>
+              <input type="password" value={oldPassword} onChange={e => setOldPassword(e.target.value)} className="w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
+            </div>
             <div>
               <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">Nouveau mot de passe</label>
               <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} className="w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
             </div>
             <div>
-              <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">Confirmer le mot de passe</label>
+              <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">Confirmer le nouveau mot de passe</label>
               <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
             </div>
             <button
