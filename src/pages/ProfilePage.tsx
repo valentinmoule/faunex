@@ -67,11 +67,10 @@ const ProfilePage = () => {
       setLoading(true);
       const userId = session.user.id;
 
-      const [profileRes, friendsRes, capturesRes, sharedRes] = await Promise.all([
+      const [profileRes, friendsRes, capturesRes] = await Promise.all([
         supabase.from('profiles').select('*').eq('user_id', userId).single(),
         supabase.from('explorer_friends').select('*', { count: 'exact', head: true }).eq('status', 'accepted').or(`requester_id.eq.${userId},addressee_id.eq.${userId}`),
         supabase.from('captures').select('category, rarity').eq('user_id', userId),
-        supabase.from('captures').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('shared', true),
       ]);
 
       const data = profileRes.data;
