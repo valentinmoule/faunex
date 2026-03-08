@@ -163,6 +163,7 @@ const CollectionPage = () => {
       {/* Card grid */}
       <div className="max-w-lg mx-auto px-4 pt-3">
         <NearbyAnimalsSection capturedNames={captures.map(c => c.name)} />
+        {loading ? (
           <div className="text-center py-16">
             <p className="text-muted-foreground font-display">Chargement…</p>
           </div>
