@@ -377,30 +377,6 @@ const CapturePage = () => {
                 <p className="text-primary-foreground/90 text-xs font-display">💡 {animalResult.fun_fact}</p>
               </div>
 
-              {/* Share toggle */}
-              {!saved && (
-                <div className="space-y-2">
-                  <button
-                    onClick={() => setShareOnFeed(!shareOnFeed)}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-display transition-colors w-full ${
-                      shareOnFeed ? 'bg-primary/20 text-primary' : 'bg-primary-foreground/10 text-primary-foreground/60'
-                    }`}
-                  >
-                    <Share2 className="w-4 h-4" />
-                    <span>{shareOnFeed ? 'Sera partagé sur le feed' : 'Partager sur le feed ?'}</span>
-                  </button>
-
-                  {shareOnFeed && (
-                    <input
-                      type="text"
-                      placeholder="Ajoute une légende… (optionnel)"
-                      value={caption}
-                      onChange={e => setCaption(e.target.value)}
-                      className="w-full px-4 py-2.5 bg-primary-foreground/10 rounded-xl text-sm text-primary-foreground placeholder:text-primary-foreground/30 focus:outline-none focus:ring-2 focus:ring-primary/30 font-body"
-                    />
-                  )}
-                </div>
-              )}
             </div>
           </div>
         )}
