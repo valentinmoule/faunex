@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Search, SlidersHorizontal } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Search, SlidersHorizontal, Bell } from 'lucide-react';
 import AnimalCardComponent from '@/components/AnimalCardComponent';
 import CardDetailSheet from '@/components/CardDetailSheet';
 import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
