@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Lock, Bell } from 'lucide-react';
+import { Search, Lock, Bell, CheckCircle } from 'lucide-react';
 import { type Rarity, RARITY_LABELS } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -8,7 +8,6 @@ import { useAuth } from '@/contexts/AuthContext';
 interface BestiaryAnimal {
   animal_name: string;
   scientific_name: string | null;
-  image_url: string;
   rarity: string;
   category: string | null;
   captured: boolean;
@@ -18,6 +17,24 @@ const rarityFilters: (Rarity | 'all')[] = ['all', 'common', 'uncommon', 'rare', 
 
 const rarityOrder: Record<string, number> = {
   common: 0, uncommon: 1, rare: 2, epic: 3, legendary: 4, mythic: 5,
+};
+
+const rarityIconBg: Record<string, string> = {
+  common: 'bg-rarity-common/10 text-rarity-common border-rarity-common/30',
+  uncommon: 'bg-rarity-uncommon/10 text-rarity-uncommon border-rarity-uncommon/30',
+  rare: 'bg-rarity-rare/10 text-rarity-rare border-rarity-rare/30',
+  epic: 'bg-rarity-epic/10 text-rarity-epic border-rarity-epic/30',
+  legendary: 'bg-rarity-legendary/10 text-rarity-legendary border-rarity-legendary/30',
+  mythic: 'bg-rarity-mythic/10 text-rarity-mythic border-rarity-mythic/30',
+};
+
+const rarityEmoji: Record<string, string> = {
+  common: '🐾',
+  uncommon: '🦎',
+  rare: '💎',
+  epic: '🔮',
+  legendary: '⭐',
+  mythic: '🔥',
 };
 
 const BestiairePage = () => {
@@ -38,7 +55,7 @@ const BestiairePage = () => {
       // Fetch all distinct approved animals (from all users)
       const { data: allCaptures } = await supabase
         .from('captures')
-        .select('animal_name, scientific_name, image_url, rarity, category')
+        .select('animal_name, scientific_name, rarity, category')
         .eq('status', 'approved');
 
       // Fetch user's own approved captures
@@ -52,7 +69,7 @@ const BestiairePage = () => {
         (userCaptures || []).map((c) => c.animal_name.toLowerCase())
       );
 
-      // Deduplicate by animal_name (keep first occurrence)
+      // Deduplicate by animal_name
       const seen = new Set<string>();
       const unique: BestiaryAnimal[] = [];
       for (const c of allCaptures || []) {
@@ -62,17 +79,16 @@ const BestiairePage = () => {
         unique.push({
           animal_name: c.animal_name,
           scientific_name: c.scientific_name,
-          image_url: c.image_url,
           rarity: c.rarity,
           category: c.category,
           captured: userCapturedNames.has(key),
         });
       }
 
-      // Sort: captured first, then by rarity
+      // Sort: captured first, then by rarity desc (rarest first)
       unique.sort((a, b) => {
         if (a.captured !== b.captured) return a.captured ? -1 : 1;
-        return (rarityOrder[a.rarity] || 0) - (rarityOrder[b.rarity] || 0);
+        return (rarityOrder[b.rarity] || 0) - (rarityOrder[a.rarity] || 0);
       });
 
       setAnimals(unique);
@@ -108,7 +124,7 @@ const BestiairePage = () => {
             <h1 className="text-2xl font-display font-bold text-primary">Bestiaire</h1>
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground font-display">
-                {discoveredCount}/{animals.length} découverts
+                {discoveredCount}/{animals.length}
               </span>
               <button
                 onClick={() => navigate('/notifications')}
@@ -155,67 +171,60 @@ const BestiairePage = () => {
         </div>
       </div>
 
-      {/* Grid */}
-      <div className="max-w-lg mx-auto px-4 pt-3">
+      {/* List */}
+      <div className="max-w-lg mx-auto px-4 pt-3 space-y-2">
         {loading ? (
           <div className="text-center py-16">
             <p className="text-muted-foreground font-display">Chargement…</p>
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 gap-3">
-              {filtered.map((animal, i) => (
-                <div
-                  key={animal.animal_name}
-                  className="relative overflow-hidden rounded-2xl border-2 border-border bg-muted/30 text-left w-full"
-                  style={{ animationDelay: `${i * 60}ms` }}
-                >
-                  {/* Image */}
-                  <div className="relative aspect-square overflow-hidden">
-                    <img
-                      src={animal.image_url}
-                      alt={animal.captured ? animal.animal_name : '???'}
-                      className={`w-full h-full object-cover transition-all ${
-                        animal.captured ? '' : 'grayscale brightness-[0.3]'
-                      }`}
-                      loading="lazy"
-                    />
-                    {!animal.captured && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-12 h-12 rounded-full bg-background/60 backdrop-blur-sm flex items-center justify-center">
-                          <Lock className="w-5 h-5 text-muted-foreground" />
-                        </div>
-                      </div>
-                    )}
-                    {/* Rarity badge */}
-                    <div
-                      className={`absolute top-2 right-2 px-2 py-0.5 rounded-full text-[10px] font-display font-bold uppercase tracking-wider ${
-                        animal.captured
-                          ? 'bg-primary/20 text-primary'
-                          : 'bg-muted-foreground/20 text-muted-foreground'
-                      }`}
-                    >
-                      {RARITY_LABELS[animal.rarity as Rarity] || animal.rarity}
-                    </div>
-                  </div>
-
-                  {/* Info */}
-                  <div className="p-3">
-                    <h3 className={`font-display font-bold text-sm leading-tight ${
-                      animal.captured ? 'text-foreground' : 'text-muted-foreground'
-                    }`}>
-                      {animal.captured ? animal.animal_name : '???'}
-                    </h3>
-                    <p className="text-[11px] text-muted-foreground italic">
-                      {animal.captured ? animal.scientific_name : '???'}
-                    </p>
-                    <p className="text-[11px] text-muted-foreground">
-                      {animal.captured ? animal.category : '???'}
-                    </p>
-                  </div>
+            {filtered.map((animal) => (
+              <div
+                key={animal.animal_name}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-colors ${
+                  animal.captured
+                    ? 'bg-card border-border'
+                    : 'bg-muted/40 border-border/50'
+                }`}
+              >
+                {/* Rarity icon */}
+                <div className={`w-10 h-10 shrink-0 rounded-xl border flex items-center justify-center text-lg ${
+                  animal.captured
+                    ? rarityIconBg[animal.rarity] || 'bg-muted text-muted-foreground border-border'
+                    : 'bg-muted/60 text-muted-foreground/40 border-border/40'
+                }`}>
+                  {animal.captured ? (rarityEmoji[animal.rarity] || '🐾') : '?'}
                 </div>
-              ))}
-            </div>
+
+                {/* Info */}
+                <div className="flex-1 min-w-0">
+                  <h3 className={`font-display font-bold text-sm leading-tight truncate ${
+                    animal.captured ? 'text-foreground' : 'text-muted-foreground/50'
+                  }`}>
+                    {animal.captured ? animal.animal_name : '???'}
+                  </h3>
+                  <p className={`text-[11px] italic truncate ${
+                    animal.captured ? 'text-muted-foreground' : 'text-muted-foreground/30'
+                  }`}>
+                    {animal.captured ? (animal.scientific_name || '—') : '???'}
+                  </p>
+                </div>
+
+                {/* Category + status */}
+                <div className="flex items-center gap-2 shrink-0">
+                  {animal.captured ? (
+                    <>
+                      <span className="text-[10px] text-muted-foreground font-display">{animal.category}</span>
+                      <CheckCircle className="w-4 h-4 text-primary" />
+                    </>
+                  ) : (
+                    <Lock className="w-4 h-4 text-muted-foreground/30" />
+                  )}
+                </div>
+              </div>
+            ))}
+
             {filtered.length === 0 && (
               <div className="text-center py-16">
                 <p className="text-4xl mb-3">🔍</p>
