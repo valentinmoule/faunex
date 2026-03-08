@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Settings, ChevronRight, Award, MapPin, Camera as CameraIcon, BookOpen, LogOut, Pencil, X, Check, Loader2 } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Settings, ChevronRight, Award, MapPin, Camera as CameraIcon, BookOpen, LogOut, Pencil, X, Check, Loader2, Camera } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -26,6 +26,8 @@ const ProfilePage = () => {
   const [editName, setEditName] = useState('');
   const [editUsername, setEditUsername] = useState('');
   const [friendsCount, setFriendsCount] = useState(0);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!session?.user) return;
@@ -71,6 +73,40 @@ const ProfilePage = () => {
     };
     fetch();
   }, [session]);
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !session?.user) return;
+    if (!file.type.startsWith('image/')) { toast.error('Seules les images sont acceptées'); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error('Image trop lourde (max 5 Mo)'); return; }
+
+    setUploadingAvatar(true);
+    try {
+      const ext = file.name.split('.').pop() || 'jpg';
+      const filePath = `${session.user.id}/avatar.${ext}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, { cacheControl: '3600', upsert: true });
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
+      const avatarUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+
+      const { error: updateError } = await supabase.from('profiles').update({
+        avatar_url: avatarUrl,
+      }).eq('user_id', session.user.id);
+      if (updateError) throw updateError;
+
+      setProfile(prev => prev ? { ...prev, avatar_url: avatarUrl } : prev);
+      toast.success('Photo de profil mise à jour !');
+    } catch (err) {
+      console.error(err);
+      toast.error("Erreur lors de l'upload");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
 
   const handleSave = async () => {
     if (!session?.user || !profile) return;
@@ -130,9 +166,21 @@ const ProfilePage = () => {
       <div className="max-w-lg mx-auto px-4 pt-6 space-y-6">
         {/* Profile Header */}
         <div className="flex items-center gap-4">
-          <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center text-3xl font-display font-bold text-primary border-2 border-primary/30">
-            {(profile.display_name || '?').charAt(0).toUpperCase()}
-          </div>
+          <input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploadingAvatar}
+            className="relative w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center text-3xl font-display font-bold text-primary border-2 border-primary/30 overflow-hidden group shrink-0"
+          >
+            {profile.avatar_url ? (
+              <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+            ) : (
+              <span>{(profile.display_name || '?').charAt(0).toUpperCase()}</span>
+            )}
+            <div className="absolute inset-0 bg-foreground/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              {uploadingAvatar ? <Loader2 className="w-5 h-5 text-primary-foreground animate-spin" /> : <Camera className="w-5 h-5 text-primary-foreground" />}
+            </div>
+          </button>
           <div className="flex-1">
             {editing ? (
               <div className="space-y-2">
