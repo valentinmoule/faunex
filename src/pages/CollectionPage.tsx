@@ -12,6 +12,7 @@ const rarityFilters: (Rarity | 'all')[] = ['all', 'common', 'uncommon', 'rare', 
 const CollectionPage = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [filter, setFilter] = useState<Rarity | 'all'>('all');
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [search, setSearch] = useState('');
