@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Settings, ChevronRight, Award, MapPin, Camera as CameraIcon, BookOpen, LogOut, Pencil, X, Check, Loader2 } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Settings, ChevronRight, Award, MapPin, Camera as CameraIcon, BookOpen, LogOut, Pencil, X, Check, Loader2, Camera } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
