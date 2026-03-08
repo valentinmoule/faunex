@@ -48,18 +48,12 @@ interface BadgeProgress {
 }
 
 const ProfilePage = () => {
-  const { session, signOut } = useAuth();
+  const { session } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [editName, setEditName] = useState('');
-  const [editUsername, setEditUsername] = useState('');
   const [friendsCount, setFriendsCount] = useState(0);
-  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [badges, setBadges] = useState<BadgeProgress[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!session?.user) return;
