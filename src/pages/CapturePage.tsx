@@ -158,6 +158,53 @@ const CapturePage = () => {
     setDuplicateCapture(null);
     setGeoCoords(null);
     setGeoName(null);
+    setManualMode(false);
+    setManualName('');
+    setManualSpecies('');
+  };
+
+  const saveManualEntry = async () => {
+    if (!capturedPhoto || !session?.user) return;
+    const trimmedName = manualName.trim();
+    const trimmedSpecies = manualSpecies.trim();
+    if (!trimmedName || !trimmedSpecies) {
+      toast.error('Remplis le nom et l\'espèce');
+      return;
+    }
+    setSaving(true);
+    try {
+      const imageUrl = await uploadImage();
+      if (!imageUrl) return;
+
+      const { error: insertError } = await supabase.from('captures').insert({
+        user_id: session.user.id,
+        image_url: imageUrl,
+        animal_name: trimmedName,
+        scientific_name: trimmedSpecies,
+        category: null,
+        description: null,
+        habitat: null,
+        diet: null,
+        conservation: null,
+        fun_fact: null,
+        rarity: 'common',
+        shared: false,
+        caption: null,
+        location: geoName || null,
+        latitude: geoCoords?.lat || null,
+        longitude: geoCoords?.lng || null,
+        status: 'pending_review',
+      });
+      if (insertError) throw insertError;
+
+      setSaved(true);
+      toast.success('Soumis pour validation ! Tu seras notifié une fois approuvé.');
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Erreur lors de la soumission");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const uploadImage = async () => {
