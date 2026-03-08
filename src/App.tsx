@@ -17,6 +17,7 @@ import NotificationsPage from "./pages/NotificationsPage";
 import ModerationPage from "./pages/ModerationPage";
 import LegalPage from "./pages/LegalPage";
 import ShareProfilePage from "./pages/ShareProfilePage";
+import SettingsPage from "./pages/SettingsPage";
 import BottomNav from "./components/BottomNav";
 
 const queryClient = new QueryClient();
