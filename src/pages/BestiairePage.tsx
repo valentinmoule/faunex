@@ -218,9 +218,9 @@ const BestiairePage = () => {
                 {/* Info */}
                 <div className="flex-1 min-w-0">
                   <h3 className={`font-display font-bold text-sm leading-tight truncate ${
-                    animal.captured ? 'text-foreground' : 'text-muted-foreground/50'
+                    animal.captured ? 'text-foreground' : 'text-muted-foreground/60'
                   }`}>
-                    {animal.captured ? animal.animal_name : '???'}
+                    {animal.animal_name}
                   </h3>
                   <p className={`text-[11px] italic truncate ${
                     animal.captured ? 'text-muted-foreground' : 'text-muted-foreground/30'
