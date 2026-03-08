@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Pencil, KeyRound, Share2, Scale, LogOut, Trash2, Loader2, Camera, Check, X, ChevronRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -39,7 +39,7 @@ const SettingsPage = () => {
   const [deleting, setDeleting] = useState(false);
 
   // Fetch profile on mount
-  useState(() => {
+  useEffect(() => {
     if (!session?.user) return;
     supabase.from('profiles').select('display_name, username, avatar_url').eq('user_id', session.user.id).single().then(({ data }) => {
       if (data) {
@@ -49,7 +49,7 @@ const SettingsPage = () => {
       }
       setLoading(false);
     });
-  });
+  }, [session]);
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
