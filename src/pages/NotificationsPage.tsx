@@ -144,9 +144,10 @@ const NotificationsPage = () => {
               const isLike = notif.type === 'like';
 
               return (
-                <div
+                <button
                   key={notif.id}
-                  className={`flex items-start gap-3 p-3 rounded-xl transition-colors ${
+                  onClick={() => notif.capture_id && navigate(`/?capture=${notif.capture_id}`)}
+                  className={`flex items-start gap-3 p-3 rounded-xl transition-colors w-full text-left ${
                     !notif.read ? 'bg-primary/5' : 'hover:bg-muted/50'
                   }`}
                 >
