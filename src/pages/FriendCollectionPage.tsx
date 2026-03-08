@@ -70,6 +70,13 @@ const FriendCollectionPage = () => {
     return true;
   });
 
+  const removeFriend = async () => {
+    if (!friendRelationId) return;
+    await supabase.from('explorer_friends').delete().eq('id', friendRelationId);
+    toast.info('Ami retiré');
+    navigate(-1);
+  };
+
   return (
     <main className="min-h-screen bg-background pb-24">
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
@@ -82,6 +89,14 @@ const FriendCollectionPage = () => {
               <h1 className="text-xl font-display font-bold text-foreground truncate">Faunex de {profileName}</h1>
               <p className="text-xs text-muted-foreground">{captures.length} espèces partagées</p>
             </div>
+            {friendRelationId && (
+              <button
+                onClick={removeFriend}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-display font-semibold text-destructive hover:bg-destructive/10 transition-colors"
+              >
+                <UserMinus className="w-4 h-4" /> Retirer
+              </button>
+            )}
           </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
