@@ -343,7 +343,7 @@ const CapturePage = () => {
           )}
           <div className="flex items-center gap-1.5 bg-primary-foreground/10 rounded-full px-3 py-1.5">
             <MapPin className="w-3.5 h-3.5 text-primary" />
-            <span className="text-primary-foreground/60 text-xs font-display">Localisation active</span>
+            <span className="text-primary-foreground/60 text-xs font-display">{geoName || 'Localisation…'}</span>
           </div>
         </div>
 
