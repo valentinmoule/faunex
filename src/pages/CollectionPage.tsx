@@ -20,10 +20,15 @@ const CollectionPage = () => {
   const [captures, setCaptures] = useState<AnimalCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [displayName, setDisplayName] = useState('');
 
-  // Fetch unread notifications
+  // Fetch profile name & unread notifications
   useEffect(() => {
     if (!session?.user) return;
+    const fetchProfile = async () => {
+      const { data } = await supabase.from('profiles').select('display_name, username').eq('user_id', session.user.id).single();
+      if (data) setDisplayName(data.display_name || data.username || '');
+    };
     const fetchUnread = async () => {
       const { count } = await supabase
         .from('notifications')
@@ -32,6 +37,7 @@ const CollectionPage = () => {
         .eq('read', false);
       setUnreadCount(count || 0);
     };
+    fetchProfile();
     fetchUnread();
     const channel = supabase
       .channel('notif-count-collection')
@@ -112,7 +118,7 @@ const CollectionPage = () => {
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center justify-between mb-3">
-            <h1 className="text-2xl font-display font-bold text-primary">Mon Faunex</h1>
+            <h1 className="text-2xl font-display font-bold text-primary">Faunex de {displayName || '…'}</h1>
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground font-display">{captures.length} espèces</span>
               <button onClick={() => navigate('/notifications')} className="relative p-2 rounded-full hover:bg-muted transition-colors">
