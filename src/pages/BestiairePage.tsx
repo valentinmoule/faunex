@@ -6,10 +6,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface BestiaryAnimal {
-  animal_name: string;
+  name: string;
   scientific_name: string | null;
   rarity: string;
-  category: string | null;
+  category: string;
   captured: boolean;
 }
 
@@ -37,6 +37,8 @@ const rarityEmoji: Record<string, string> = {
   mythic: '🔥',
 };
 
+const categoryFilters = ['Tous', 'Mammifères', 'Oiseaux', 'Reptiles', 'Amphibiens', 'Insectes', 'Poissons', 'Autres'];
+
 const BestiairePage = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
@@ -44,6 +46,7 @@ const BestiairePage = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<Rarity | 'all'>('all');
+  const [categoryFilter, setCategoryFilter] = useState('Tous');
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
@@ -52,46 +55,30 @@ const BestiairePage = () => {
     const fetchData = async () => {
       setLoading(true);
 
-      // Fetch all distinct approved animals (from all users)
-      const { data: allCaptures } = await supabase
-        .from('captures')
-        .select('animal_name, scientific_name, rarity, category')
-        .eq('status', 'approved');
-
-      // Fetch user's own approved captures
-      const { data: userCaptures } = await supabase
-        .from('captures')
-        .select('animal_name')
-        .eq('user_id', session.user.id)
-        .eq('status', 'approved');
+      const [{ data: allAnimals }, { data: userCaptures }] = await Promise.all([
+        supabase.from('animals').select('name, scientific_name, rarity, category').order('name'),
+        supabase.from('captures').select('animal_name').eq('user_id', session.user.id).eq('status', 'approved'),
+      ]);
 
       const userCapturedNames = new Set(
         (userCaptures || []).map((c) => c.animal_name.toLowerCase())
       );
 
-      // Deduplicate by animal_name
-      const seen = new Set<string>();
-      const unique: BestiaryAnimal[] = [];
-      for (const c of allCaptures || []) {
-        const key = c.animal_name.toLowerCase();
-        if (seen.has(key)) continue;
-        seen.add(key);
-        unique.push({
-          animal_name: c.animal_name,
-          scientific_name: c.scientific_name,
-          rarity: c.rarity,
-          category: c.category,
-          captured: userCapturedNames.has(key),
-        });
-      }
+      const list: BestiaryAnimal[] = (allAnimals || []).map((a: any) => ({
+        name: a.name,
+        scientific_name: a.scientific_name,
+        rarity: a.rarity,
+        category: a.category,
+        captured: userCapturedNames.has(a.name.toLowerCase()),
+      }));
 
-      // Sort: captured first, then by rarity desc (rarest first)
-      unique.sort((a, b) => {
+      // Sort: captured first, then by rarity desc
+      list.sort((a, b) => {
         if (a.captured !== b.captured) return a.captured ? -1 : 1;
         return (rarityOrder[b.rarity] || 0) - (rarityOrder[a.rarity] || 0);
       });
 
-      setAnimals(unique);
+      setAnimals(list);
       setLoading(false);
     };
 
@@ -110,13 +97,20 @@ const BestiairePage = () => {
 
   const filtered = animals.filter((a) => {
     if (filter !== 'all' && a.rarity !== filter) return false;
-    if (search && !a.animal_name.toLowerCase().includes(search.toLowerCase())) return false;
+    if (categoryFilter !== 'Tous') {
+      const mainCats = ['Mammifères', 'Oiseaux', 'Reptiles', 'Amphibiens', 'Insectes', 'Poissons'];
+      if (categoryFilter === 'Autres') {
+        if (mainCats.some(c => a.category.includes(c))) return false;
+      } else {
+        if (!a.category.includes(categoryFilter)) return false;
+      }
+    }
+    if (search && !a.name.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
 
   const discoveredCount = animals.filter((a) => a.captured).length;
 
-  // Compteurs par rareté
   const countByRarity = rarityFilters.filter(r => r !== 'all').map(r => {
     const total = animals.filter(a => a.rarity === r).length;
     const captured = animals.filter(a => a.rarity === r && a.captured).length;
@@ -170,8 +164,27 @@ const BestiairePage = () => {
         </div>
       </header>
 
-      {/* Rarity filter chips */}
+      {/* Category filter */}
       <div className="max-w-lg mx-auto px-4 pt-3">
+        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+          {categoryFilters.map((c) => (
+            <button
+              key={c}
+              onClick={() => setCategoryFilter(c)}
+              className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-display font-semibold transition-colors ${
+                categoryFilter === c
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              }`}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Rarity filter chips */}
+      <div className="max-w-lg mx-auto px-4 pt-1">
         <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
           {rarityFilters.map((r) => (
             <button
@@ -179,35 +192,37 @@ const BestiairePage = () => {
               onClick={() => setFilter(r)}
               className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-display font-semibold transition-colors ${
                 filter === r
-                  ? 'bg-primary text-primary-foreground'
+                  ? 'bg-accent text-accent-foreground'
                   : 'bg-muted text-muted-foreground hover:bg-muted/80'
               }`}
             >
-              {r === 'all' ? 'Tous' : RARITY_LABELS[r]}
+              {r === 'all' ? 'Toutes raretés' : RARITY_LABELS[r]}
             </button>
           ))}
         </div>
       </div>
 
       {/* List */}
-      <div className="max-w-lg mx-auto px-4 pt-3 space-y-2">
+      <div className="max-w-lg mx-auto px-4 pt-2">
+        <p className="text-xs text-muted-foreground font-display mb-2">{filtered.length} espèces</p>
+
         {loading ? (
           <div className="text-center py-16">
             <p className="text-muted-foreground font-display">Chargement…</p>
           </div>
         ) : (
-          <>
+          <div className="space-y-1.5">
             {filtered.map((animal) => (
               <div
-                key={animal.animal_name}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-colors ${
+                key={animal.name}
+                className={`flex items-center gap-3 px-4 py-2.5 rounded-xl border transition-colors ${
                   animal.captured
                     ? 'bg-card border-border'
                     : 'bg-muted/40 border-border/50'
                 }`}
               >
                 {/* Rarity icon */}
-                <div className={`w-10 h-10 shrink-0 rounded-xl border flex items-center justify-center text-lg ${
+                <div className={`w-9 h-9 shrink-0 rounded-lg border flex items-center justify-center text-base ${
                   animal.captured
                     ? rarityIconBg[animal.rarity] || 'bg-muted text-muted-foreground border-border'
                     : 'bg-muted/60 text-muted-foreground/40 border-border/40'
@@ -220,7 +235,7 @@ const BestiairePage = () => {
                   <h3 className={`font-display font-bold text-sm leading-tight truncate ${
                     animal.captured ? 'text-foreground' : 'text-muted-foreground/60'
                   }`}>
-                    {animal.animal_name}
+                    {animal.name}
                   </h3>
                   <p className={`text-[11px] italic truncate ${
                     animal.captured ? 'text-muted-foreground' : 'text-muted-foreground/30'
@@ -231,13 +246,13 @@ const BestiairePage = () => {
 
                 {/* Category + status */}
                 <div className="flex items-center gap-2 shrink-0">
+                  <span className={`text-[10px] font-display ${animal.captured ? 'text-muted-foreground' : 'text-muted-foreground/30'}`}>
+                    {animal.category}
+                  </span>
                   {animal.captured ? (
-                    <>
-                      <span className="text-[10px] text-muted-foreground font-display">{animal.category}</span>
-                      <CheckCircle className="w-4 h-4 text-primary" />
-                    </>
+                    <CheckCircle className="w-4 h-4 text-primary" />
                   ) : (
-                    <Lock className="w-4 h-4 text-muted-foreground/30" />
+                    <Lock className="w-3.5 h-3.5 text-muted-foreground/30" />
                   )}
                 </div>
               </div>
@@ -249,7 +264,7 @@ const BestiairePage = () => {
                 <p className="text-muted-foreground font-display">Aucun animal trouvé</p>
               </div>
             )}
-          </>
+          </div>
         )}
       </div>
     </main>
