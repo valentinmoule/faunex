@@ -166,6 +166,7 @@ const CapturePage = () => {
     setManualMode(false);
     setManualName('');
     setManualSpecies('');
+    setManualDescription('');
   };
 
   const saveManualEntry = async () => {
