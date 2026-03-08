@@ -35,6 +35,7 @@ export type Database = {
           rarity: string
           scientific_name: string | null
           shared: boolean
+          status: string
           user_id: string
         }
         Insert: {
@@ -57,6 +58,7 @@ export type Database = {
           rarity?: string
           scientific_name?: string | null
           shared?: boolean
+          status?: string
           user_id: string
         }
         Update: {
@@ -79,6 +81,7 @@ export type Database = {
           rarity?: string
           scientific_name?: string | null
           shared?: boolean
+          status?: string
           user_id?: string
         }
         Relationships: []
