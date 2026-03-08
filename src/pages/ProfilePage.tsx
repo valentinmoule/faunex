@@ -37,7 +37,7 @@ const BADGE_DEFS: BadgeDef[] = [
   { id: 'legendary_1', name: 'Légende vivante', icon: '⭐', description: 'Trouver un animal légendaire', total: 1 },
   { id: 'mythic_1', name: 'Mythique !', icon: '🔥', description: 'Trouver un animal mythique', total: 1 },
   { id: 'social_3', name: 'Sociable', icon: '🤝', description: 'Avoir 3 amis explorateurs', total: 3 },
-  { id: 'shared_5', name: 'Partageur', icon: '📢', description: 'Partager 5 captures', total: 5 },
+  
   { id: 'level_5', name: 'Niveau 5', icon: '🏅', description: 'Atteindre le niveau 5', total: 5 },
 ];
 
