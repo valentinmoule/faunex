@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Pencil, KeyRound, Share2, Scale, LogOut, Trash2, Loader2, Camera, Check, X, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Pencil, KeyRound, Share2, Scale, LogOut, Trash2, Loader2, Camera, Check, X, ChevronRight, Sun, Moon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { useTheme } from 'next-themes';
 
 interface SettingsProps {
   profile: {
@@ -17,6 +18,7 @@ interface SettingsProps {
 const SettingsPage = () => {
   const { session, signOut } = useAuth();
   const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
   const [section, setSection] = useState<'menu' | 'edit' | 'password' | 'delete'>('menu');
   const [profile, setProfile] = useState<{ display_name: string; username: string; avatar_url: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -166,6 +168,20 @@ const SettingsPage = () => {
       <div className="max-w-lg mx-auto px-4 pt-4">
         {section === 'menu' && (
           <div className="space-y-1">
+            {/* Theme toggle */}
+            <div className="flex items-center justify-between px-4 py-3.5 rounded-xl hover:bg-muted transition-colors">
+              <div className="flex items-center gap-3">
+                {theme === 'dark' ? <Moon className="w-5 h-5 text-foreground" /> : <Sun className="w-5 h-5 text-foreground" />}
+                <span className="text-sm font-display font-semibold text-foreground">Mode sombre</span>
+              </div>
+              <button
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                className={`relative w-11 h-6 rounded-full transition-colors ${theme === 'dark' ? 'bg-primary' : 'bg-muted-foreground/30'}`}
+              >
+                <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card shadow transition-transform ${theme === 'dark' ? 'translate-x-5' : 'translate-x-0'}`} />
+              </button>
+            </div>
+
             <MenuItem icon={<Pencil className="w-5 h-5" />} label="Modifier le profil" onClick={() => setSection('edit')} />
             <MenuItem icon={<KeyRound className="w-5 h-5" />} label="Changer le mot de passe" onClick={() => setSection('password')} />
             <MenuItem icon={<Share2 className="w-5 h-5" />} label="Partager mon profil" onClick={handleShare} />
