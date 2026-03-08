@@ -387,7 +387,7 @@ const CapturePage = () => {
         </div>
 
         {/* Overlay gradient for readability */}
-        {(animalResult || identifying) && (
+        {(animalResult || identifying || manualMode) && (
           <div className="absolute inset-0 bg-gradient-to-t from-foreground via-foreground/70 to-transparent" />
         )}
 
