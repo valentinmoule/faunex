@@ -171,14 +171,14 @@ const SettingsPage = () => {
             {/* Theme toggle */}
             <div className="flex items-center justify-between px-4 py-3.5 rounded-xl hover:bg-muted transition-colors">
               <div className="flex items-center gap-3">
-                {theme === 'dark' ? <Moon className="w-5 h-5 text-foreground" /> : <Sun className="w-5 h-5 text-foreground" />}
+                {resolvedTheme === 'dark' ? <Moon className="w-5 h-5 text-foreground" /> : <Sun className="w-5 h-5 text-foreground" />}
                 <span className="text-sm font-display font-semibold text-foreground">Mode sombre</span>
               </div>
               <button
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                className={`relative w-11 h-6 rounded-full transition-colors ${theme === 'dark' ? 'bg-primary' : 'bg-muted-foreground/30'}`}
+                onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+                className={`relative w-11 h-6 rounded-full transition-colors ${resolvedTheme === 'dark' ? 'bg-primary' : 'bg-muted-foreground/30'}`}
               >
-                <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card shadow transition-transform ${theme === 'dark' ? 'translate-x-5' : 'translate-x-0'}`} />
+                <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card shadow transition-transform ${resolvedTheme === 'dark' ? 'translate-x-5' : 'translate-x-0'}`} />
               </button>
             </div>
 
