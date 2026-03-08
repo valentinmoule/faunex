@@ -1,5 +1,5 @@
-import FeedPage from './FeedPage';
+import CollectionPage from './CollectionPage';
 
-const Index = () => <FeedPage />;
+const Index = () => <CollectionPage />;
 
 export default Index;
