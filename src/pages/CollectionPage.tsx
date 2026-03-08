@@ -64,6 +64,8 @@ const CollectionPage = () => {
           funFact: c.fun_fact || '',
           discoveredAt: c.created_at,
           location: c.location || '',
+          latitude: c.latitude,
+          longitude: c.longitude,
         })));
       }
       setLoading(false);
