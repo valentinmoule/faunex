@@ -249,7 +249,9 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
             <StatCard icon={<MapPin className="w-4 h-4" />} label="Habitat" value={card.habitat} color="text-primary" bg="bg-primary/8" />
             <StatCard icon={<UtensilsCrossed className="w-4 h-4" />} label="Alimentation" value={card.diet} color="text-amber" bg="bg-amber/8" />
             <StatCard icon={<Shield className="w-4 h-4" />} label="Conservation" value={card.conservation} color="text-sky" bg="bg-sky/8" />
-            <StatCard icon={<Leaf className="w-4 h-4" />} label="Lieu" value={card.location} color="text-forest-light" bg="bg-forest-light/8" />
+            <StatCard icon={<Leaf className="w-4 h-4" />} label="Lieu" value={card.location || 'Non renseigné'} color="text-forest-light" bg="bg-forest-light/8"
+              link={card.latitude && card.longitude ? `https://www.google.com/maps?q=${card.latitude},${card.longitude}` : undefined}
+            />
           </div>
 
           {/* Fun Fact */}
@@ -272,16 +274,20 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
   );
 };
 
-const StatCard = ({ icon, label, value, color, bg }: {
-  icon: React.ReactNode; label: string; value: string; color: string; bg: string;
-}) => (
-  <div className={`${bg} rounded-xl p-3 space-y-1.5`}>
-    <div className="flex items-center gap-1.5">
-      <span className={color}>{icon}</span>
-      <p className="text-[10px] font-display font-bold uppercase tracking-wider text-muted-foreground">{label}</p>
+const StatCard = ({ icon, label, value, color, bg, link }: {
+  icon: React.ReactNode; label: string; value: string; color: string; bg: string; link?: string;
+}) => {
+  const content = (
+    <div className={`${bg} rounded-xl p-3 space-y-1.5`}>
+      <div className="flex items-center gap-1.5">
+        <span className={color}>{icon}</span>
+        <p className="text-[10px] font-display font-bold uppercase tracking-wider text-muted-foreground">{label}</p>
+      </div>
+      <p className={`text-xs leading-snug ${link ? 'text-primary underline' : 'text-foreground'}`}>{value}</p>
     </div>
-    <p className="text-xs text-foreground leading-snug">{value}</p>
-  </div>
-);
+  );
+  if (link) return <a href={link} target="_blank" rel="noopener noreferrer">{content}</a>;
+  return content;
+};
 
 export default CardDetailSheet;

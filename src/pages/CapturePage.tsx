@@ -39,6 +39,8 @@ const CapturePage = () => {
   const [shareOnFeed, setShareOnFeed] = useState(false);
   const [caption, setCaption] = useState('');
   const [duplicateCapture, setDuplicateCapture] = useState<{ id: string; image_url: string; animal_name: string } | null>(null);
+  const [geoCoords, setGeoCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [geoName, setGeoName] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -98,6 +100,31 @@ const CapturePage = () => {
     setShareOnFeed(false);
     setCaption('');
 
+    // Grab GPS location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          setGeoCoords(coords);
+          // Reverse geocode
+          try {
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${coords.lat}&lon=${coords.lng}&format=json&zoom=10&accept-language=fr`);
+            const data = await res.json();
+            const city = data.address?.city || data.address?.town || data.address?.village || '';
+            const country = data.address?.country || '';
+            setGeoName([city, country].filter(Boolean).join(', ') || `${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`);
+          } catch {
+            setGeoName(`${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`);
+          }
+        },
+        () => {
+          setGeoCoords(null);
+          setGeoName(null);
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    }
+
     // Identify
     setIdentifying(true);
     try {
@@ -125,6 +152,8 @@ const CapturePage = () => {
     setShareOnFeed(false);
     setCaption('');
     setDuplicateCapture(null);
+    setGeoCoords(null);
+    setGeoName(null);
   };
 
   const uploadImage = async () => {
@@ -190,6 +219,9 @@ const CapturePage = () => {
         rarity: animalResult.rarity,
         shared: shareOnFeed,
         caption: caption || null,
+        location: geoName || null,
+        latitude: geoCoords?.lat || null,
+        longitude: geoCoords?.lng || null,
       });
       if (insertError) throw insertError;
 
@@ -225,6 +257,9 @@ const CapturePage = () => {
           rarity: animalResult.rarity,
           shared: shareOnFeed,
           caption: caption || null,
+          location: geoName || null,
+          latitude: geoCoords?.lat || null,
+          longitude: geoCoords?.lng || null,
         })
         .eq('id', duplicateCapture.id);
       if (updateError) throw updateError;
@@ -308,7 +343,7 @@ const CapturePage = () => {
           )}
           <div className="flex items-center gap-1.5 bg-primary-foreground/10 rounded-full px-3 py-1.5">
             <MapPin className="w-3.5 h-3.5 text-primary" />
-            <span className="text-primary-foreground/60 text-xs font-display">Localisation active</span>
+            <span className="text-primary-foreground/60 text-xs font-display">{geoName || 'Localisation…'}</span>
           </div>
         </div>
 

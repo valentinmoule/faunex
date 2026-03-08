@@ -1,0 +1,1 @@
+ALTER TABLE public.captures ADD COLUMN latitude double precision, ADD COLUMN longitude double precision;
