@@ -127,26 +127,58 @@ const CapturePage = () => {
     setDuplicateCapture(null);
   };
 
+  const uploadImage = async () => {
+    if (!capturedPhoto || !session?.user) return null;
+    const fileName = `${session.user.id}/${Date.now()}.jpg`;
+    const base64Data = capturedPhoto.split(',')[1];
+    const byteArray = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+    const { error: uploadError } = await supabase.storage
+      .from('captures')
+      .upload(fileName, byteArray, { contentType: 'image/jpeg' });
+    if (uploadError) throw uploadError;
+    const { data: urlData } = supabase.storage.from('captures').getPublicUrl(fileName);
+    return urlData.publicUrl;
+  };
+
   const saveToCollection = async () => {
     if (!capturedPhoto || !animalResult || !session?.user) return;
     setSaving(true);
     try {
-      // Upload image to storage
-      const fileName = `${session.user.id}/${Date.now()}.jpg`;
-      const base64Data = capturedPhoto.split(',')[1];
-      const byteArray = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
-
-      const { error: uploadError } = await supabase.storage
+      // Check for duplicate animal (case-insensitive match on animal_name)
+      const { data: existing } = await supabase
         .from('captures')
-        .upload(fileName, byteArray, { contentType: 'image/jpeg' });
-      if (uploadError) throw uploadError;
+        .select('id, image_url, animal_name')
+        .eq('user_id', session.user.id)
+        .ilike('animal_name', animalResult.animal_name)
+        .limit(1);
 
-      const { data: urlData } = supabase.storage.from('captures').getPublicUrl(fileName);
+      if (existing && existing.length > 0) {
+        // Duplicate found — ask user
+        setDuplicateCapture(existing[0]);
+        setSaving(false);
+        return;
+      }
 
-      // Insert capture
+      // No duplicate — save normally
+      await doSaveNew();
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Erreur lors de la sauvegarde");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const doSaveNew = async () => {
+    if (!capturedPhoto || !animalResult || !session?.user) return;
+    setSaving(true);
+    try {
+      const imageUrl = await uploadImage();
+      if (!imageUrl) return;
+
       const { error: insertError } = await supabase.from('captures').insert({
         user_id: session.user.id,
-        image_url: urlData.publicUrl,
+        image_url: imageUrl,
         animal_name: animalResult.animal_name,
         scientific_name: animalResult.scientific_name,
         category: animalResult.category,
@@ -162,6 +194,7 @@ const CapturePage = () => {
       if (insertError) throw insertError;
 
       setSaved(true);
+      setDuplicateCapture(null);
       toast.success(`${animalResult.animal_name} ajouté à ton Faunex !`);
     } catch (err: any) {
       console.error(err);
@@ -169,6 +202,48 @@ const CapturePage = () => {
     } finally {
       setSaving(false);
     }
+  };
+
+  const doReplaceExisting = async () => {
+    if (!capturedPhoto || !animalResult || !session?.user || !duplicateCapture) return;
+    setSaving(true);
+    try {
+      const imageUrl = await uploadImage();
+      if (!imageUrl) return;
+
+      const { error: updateError } = await supabase
+        .from('captures')
+        .update({
+          image_url: imageUrl,
+          scientific_name: animalResult.scientific_name,
+          category: animalResult.category,
+          description: animalResult.description,
+          habitat: animalResult.habitat,
+          diet: animalResult.diet,
+          conservation: animalResult.conservation,
+          fun_fact: animalResult.fun_fact,
+          rarity: animalResult.rarity,
+          shared: shareOnFeed,
+          caption: caption || null,
+        })
+        .eq('id', duplicateCapture.id);
+      if (updateError) throw updateError;
+
+      setSaved(true);
+      setDuplicateCapture(null);
+      toast.success(`${animalResult.animal_name} mis à jour dans ton Faunex !`);
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Erreur lors de la mise à jour");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const keepExisting = () => {
+    setDuplicateCapture(null);
+    toast.info("Photo existante conservée");
+    resetCapture();
   };
 
   return (
