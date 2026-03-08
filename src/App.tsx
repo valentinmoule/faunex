@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import CapturePage from "./pages/CapturePage";
 import CollectionPage from "./pages/CollectionPage";
 import ProfilePage from "./pages/ProfilePage";
+import ExplorersPage from "./pages/ExplorersPage";
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
 import BottomNav from "./components/BottomNav";
@@ -36,6 +37,7 @@ const AppRoutes = () => (
       <Route path="/capture" element={<ProtectedRoute><CapturePage /></ProtectedRoute>} />
       <Route path="/collection" element={<ProtectedRoute><CollectionPage /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+      <Route path="/explorers" element={<ProtectedRoute><ExplorersPage /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
     <BottomNav />
