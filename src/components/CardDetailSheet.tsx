@@ -80,7 +80,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
       setLikeCount((allLikes as any).count || 0);
 
       if ((commentsRes as any).data && (commentsRes as any).data.length > 0) {
-        const userIds = [...new Set((commentsRes as any).data.map((c: any) => c.user_id))];
+        const userIds: string[] = [...new Set((commentsRes as any).data.map((c: any) => c.user_id as string))];
         const { data: profiles } = await supabase.from('profiles').select('user_id, display_name, username, avatar_url').in('user_id', userIds);
         const profileMap = new Map((profiles || []).map((p: any) => [p.user_id, p]));
         setComments((commentsRes as any).data.map((c: any) => ({ ...c, profile: profileMap.get(c.user_id) })));
