@@ -112,7 +112,7 @@ const ProfilePage = () => {
         legendary_1: hasLegendary ? 1 : 0,
         mythic_1: hasMythic ? 1 : 0,
         social_3: Math.min(fCount, 3),
-        shared_5: Math.min(sharedCount, 5),
+        
         level_5: Math.min(level, 5),
       };
 
