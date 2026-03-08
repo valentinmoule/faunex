@@ -154,8 +154,6 @@ const CapturePage = () => {
     setCapturedPhoto(null);
     setAnimalResult(null);
     setSaved(false);
-    setShareOnFeed(false);
-    setCaption('');
     setDuplicateCapture(null);
     setGeoCoords(null);
     setGeoName(null);
