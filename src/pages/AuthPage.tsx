@@ -81,59 +81,96 @@ const AuthPage = () => {
           </p>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {!isLogin && (
+        {isForgot ? (
+          <form onSubmit={handleForgotPassword} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="displayName">Nom d'explorateur</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
-                id="displayName"
-                placeholder="Alex Moreau"
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                required={!isLogin}
-              />
-            </div>
-          )}
-
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="explorateur@nature.fr"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="password">Mot de passe</Label>
-            <div className="relative">
-              <Input
-                id="password"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                id="email"
+                type="email"
+                placeholder="explorateur@nature.fr"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
-                minLength={6}
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
             </div>
-          </div>
+            <Button type="submit" className="w-full font-display font-semibold" disabled={loading}>
+              {loading ? 'Envoi...' : 'Envoyer le lien'}
+            </Button>
+            <p className="text-center text-sm text-muted-foreground">
+              <button
+                onClick={() => setIsForgot(false)}
+                className="text-primary font-display font-semibold hover:underline"
+              >
+                Retour à la connexion
+              </button>
+            </p>
+          </form>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {!isLogin && (
+              <div className="space-y-2">
+                <Label htmlFor="displayName">Nom d'explorateur</Label>
+                <Input
+                  id="displayName"
+                  placeholder="Alex Moreau"
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  required={!isLogin}
+                />
+              </div>
+            )}
 
-          <Button type="submit" className="w-full font-display font-semibold" disabled={loading}>
-            {loading ? 'Chargement...' : isLogin ? 'Se connecter' : 'Créer mon compte'}
-          </Button>
-        </form>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="explorateur@nature.fr"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Mot de passe</Label>
+                {isLogin && (
+                  <button
+                    type="button"
+                    onClick={() => setIsForgot(true)}
+                    className="text-xs text-primary font-display font-semibold hover:underline"
+                  >
+                    Mot de passe oublié ?
+                  </button>
+                )}
+              </div>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength={6}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            <Button type="submit" className="w-full font-display font-semibold" disabled={loading}>
+              {loading ? 'Chargement...' : isLogin ? 'Se connecter' : 'Créer mon compte'}
+            </Button>
+          </form>
+        )}
 
         {/* Toggle */}
         <p className="text-center text-sm text-muted-foreground">
