@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import Index from "./pages/Index";
 import CapturePage from "./pages/CapturePage";
 import CollectionPage from "./pages/CollectionPage";
+import FeedPage from "./pages/FeedPage";
 import ProfilePage from "./pages/ProfilePage";
 import ExplorersPage from "./pages/ExplorersPage";
 import AuthPage from "./pages/AuthPage";
