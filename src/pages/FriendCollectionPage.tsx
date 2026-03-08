@@ -23,27 +23,31 @@ const FriendCollectionPage = () => {
   const [friendRelationId, setFriendRelationId] = useState<string | null>(null);
   useEffect(() => {
     if (!userId) return;
+    const myId = session?.user?.id;
 
     const fetchData = async () => {
       setLoading(true);
 
-      // Fetch profile and shared captures in parallel
-      const [profileRes, capturesRes] = await Promise.all([
-        supabase
-          .from('profiles')
-          .select('display_name, username')
-          .eq('user_id', userId)
-          .single(),
-        supabase
-          .from('captures')
-          .select('*')
-          .eq('user_id', userId)
-          .eq('shared', true)
-          .order('created_at', { ascending: false }),
-      ]);
+      const queries: Promise<any>[] = [
+        supabase.from('profiles').select('display_name, username').eq('user_id', userId).single(),
+        supabase.from('captures').select('*').eq('user_id', userId).eq('shared', true).order('created_at', { ascending: false }),
+      ];
+
+      // Check friend relation
+      if (myId && myId !== userId) {
+        queries.push(
+          supabase.from('explorer_friends').select('id').or(`and(requester_id.eq.${myId},addressee_id.eq.${userId}),and(requester_id.eq.${userId},addressee_id.eq.${myId})`).eq('status', 'accepted').limit(1)
+        );
+      }
+
+      const [profileRes, capturesRes, friendRes] = await Promise.all(queries);
 
       if (profileRes.data) {
         setProfileName(profileRes.data.display_name || profileRes.data.username || 'Explorateur');
+      }
+
+      if (friendRes?.data?.length > 0) {
+        setFriendRelationId(friendRes.data[0].id);
       }
 
       if (!capturesRes.error && capturesRes.data) {
@@ -67,7 +71,7 @@ const FriendCollectionPage = () => {
     };
 
     fetchData();
-  }, [userId]);
+  }, [userId, session]);
 
   const filtered = captures.filter(c => {
     if (filter !== 'all' && c.rarity !== filter) return false;
