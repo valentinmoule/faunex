@@ -14,6 +14,7 @@ import NotFound from "./pages/NotFound";
 import FriendCollectionPage from "./pages/FriendCollectionPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import ModerationPage from "./pages/ModerationPage";
+import LegalPage from "./pages/LegalPage";
 import BottomNav from "./components/BottomNav";
 
 const queryClient = new QueryClient();
