@@ -45,6 +45,7 @@ interface Comment {
 const FeedPage = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [posts, setPosts] = useState<FeedCapture[]>([]);
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [loading, setLoading] = useState(true);
