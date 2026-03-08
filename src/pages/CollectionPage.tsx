@@ -22,9 +22,13 @@ const CollectionPage = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [displayName, setDisplayName] = useState('');
 
-  // Fetch unread notifications
+  // Fetch profile name & unread notifications
   useEffect(() => {
     if (!session?.user) return;
+    const fetchProfile = async () => {
+      const { data } = await supabase.from('profiles').select('display_name, username').eq('user_id', session.user.id).single();
+      if (data) setDisplayName(data.display_name || data.username || '');
+    };
     const fetchUnread = async () => {
       const { count } = await supabase
         .from('notifications')
@@ -33,6 +37,7 @@ const CollectionPage = () => {
         .eq('read', false);
       setUnreadCount(count || 0);
     };
+    fetchProfile();
     fetchUnread();
     const channel = supabase
       .channel('notif-count-collection')
