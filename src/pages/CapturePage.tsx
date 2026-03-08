@@ -152,6 +152,8 @@ const CapturePage = () => {
     setShareOnFeed(false);
     setCaption('');
     setDuplicateCapture(null);
+    setGeoCoords(null);
+    setGeoName(null);
   };
 
   const uploadImage = async () => {
