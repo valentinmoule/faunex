@@ -12,6 +12,7 @@ import ExplorersPage from "./pages/ExplorersPage";
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
 import FriendCollectionPage from "./pages/FriendCollectionPage";
+import BestiairePage from "./pages/BestiairePage";
 import NotificationsPage from "./pages/NotificationsPage";
 import ModerationPage from "./pages/ModerationPage";
 import LegalPage from "./pages/LegalPage";
@@ -43,6 +44,7 @@ const AppRoutes = () => (
       <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
       <Route path="/explorers" element={<ProtectedRoute><ExplorersPage /></ProtectedRoute>} />
       <Route path="/explorer/:userId/collection" element={<ProtectedRoute><FriendCollectionPage /></ProtectedRoute>} />
+      <Route path="/bestiaire" element={<ProtectedRoute><BestiairePage /></ProtectedRoute>} />
       <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
       <Route path="/moderation" element={<ProtectedRoute><ModerationPage /></ProtectedRoute>} />
       <Route path="/legal" element={<LegalPage />} />
