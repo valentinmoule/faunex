@@ -81,8 +81,18 @@ const CollectionPage = () => {
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center justify-between mb-3">
-            <h1 className="text-2xl font-display font-bold text-foreground">Mon Faunex</h1>
-            <span className="text-sm text-muted-foreground font-display">{captures.length} espèces</span>
+            <h1 className="text-2xl font-display font-bold text-primary">Mon Faunex</h1>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground font-display">{captures.length} espèces</span>
+              <button onClick={() => navigate('/notifications')} className="relative p-2 rounded-full hover:bg-muted transition-colors">
+                <Bell className="w-5 h-5 text-foreground" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
