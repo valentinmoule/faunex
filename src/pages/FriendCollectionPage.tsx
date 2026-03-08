@@ -28,26 +28,17 @@ const FriendCollectionPage = () => {
     const fetchData = async () => {
       setLoading(true);
 
-      const queries: Promise<any>[] = [
-        supabase.from('profiles').select('display_name, username').eq('user_id', userId).single(),
-        supabase.from('captures').select('*').eq('user_id', userId).eq('shared', true).order('created_at', { ascending: false }),
-      ];
+      const profilePromise = supabase.from('profiles').select('display_name, username').eq('user_id', userId).single();
+      const capturesPromise = supabase.from('captures').select('*').eq('user_id', userId).eq('shared', true).order('created_at', { ascending: false });
+
+      const [profileRes, capturesRes] = await Promise.all([profilePromise, capturesPromise]);
 
       // Check friend relation
       if (myId && myId !== userId) {
-        queries.push(
-          supabase.from('explorer_friends').select('id').or(`and(requester_id.eq.${myId},addressee_id.eq.${userId}),and(requester_id.eq.${userId},addressee_id.eq.${myId})`).eq('status', 'accepted').limit(1)
-        );
-      }
-
-      const [profileRes, capturesRes, friendRes] = await Promise.all(queries);
-
-      if (profileRes.data) {
-        setProfileName(profileRes.data.display_name || profileRes.data.username || 'Explorateur');
-      }
-
-      if (friendRes?.data?.length > 0) {
-        setFriendRelationId(friendRes.data[0].id);
+        const { data: friendData } = await supabase.from('explorer_friends').select('id').or(`and(requester_id.eq.${myId},addressee_id.eq.${userId}),and(requester_id.eq.${userId},addressee_id.eq.${myId})`).eq('status', 'accepted').limit(1);
+        if (friendData && friendData.length > 0) {
+          setFriendRelationId(friendData[0].id);
+        }
       }
 
       if (!capturesRes.error && capturesRes.data) {
