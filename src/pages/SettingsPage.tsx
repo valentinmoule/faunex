@@ -86,13 +86,25 @@ const SettingsPage = () => {
   };
 
   const handleChangePassword = async () => {
+  const handleChangePassword = async () => {
+    if (!oldPassword) { toast.error('Entre ton ancien mot de passe'); return; }
     if (newPassword.length < 6) { toast.error('Le mot de passe doit faire au moins 6 caractères'); return; }
     if (newPassword !== confirmPassword) { toast.error('Les mots de passe ne correspondent pas'); return; }
     setChangingPassword(true);
+    // Verify old password by re-signing in
+    const email = session?.user?.email;
+    if (!email) { toast.error('Erreur: email introuvable'); setChangingPassword(false); return; }
+    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password: oldPassword });
+    if (signInError) {
+      toast.error('Ancien mot de passe incorrect');
+      setChangingPassword(false);
+      return;
+    }
     const { error } = await supabase.auth.updateUser({ password: newPassword });
     if (error) toast.error(error.message);
     else {
       toast.success('Mot de passe modifié !');
+      setOldPassword('');
       setNewPassword('');
       setConfirmPassword('');
       setSection('menu');
