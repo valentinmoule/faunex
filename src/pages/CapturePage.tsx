@@ -257,6 +257,9 @@ const CapturePage = () => {
           rarity: animalResult.rarity,
           shared: shareOnFeed,
           caption: caption || null,
+          location: geoName || null,
+          latitude: geoCoords?.lat || null,
+          longitude: geoCoords?.lng || null,
         })
         .eq('id', duplicateCapture.id);
       if (updateError) throw updateError;
