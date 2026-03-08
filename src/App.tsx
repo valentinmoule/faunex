@@ -13,6 +13,7 @@ import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
 import FriendCollectionPage from "./pages/FriendCollectionPage";
 import NotificationsPage from "./pages/NotificationsPage";
+import ModerationPage from "./pages/ModerationPage";
 import BottomNav from "./components/BottomNav";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const AppRoutes = () => (
       <Route path="/explorers" element={<ProtectedRoute><ExplorersPage /></ProtectedRoute>} />
       <Route path="/explorer/:userId/collection" element={<ProtectedRoute><FriendCollectionPage /></ProtectedRoute>} />
       <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
+      <Route path="/moderation" element={<ProtectedRoute><ModerationPage /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
     <BottomNav />

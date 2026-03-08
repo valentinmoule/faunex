@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Camera, Zap, MapPin, Image, SwitchCamera, X, Loader2, Share2, Plus, Check, RefreshCw } from 'lucide-react';
+import { Camera, Zap, MapPin, Image, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -41,6 +41,9 @@ const CapturePage = () => {
   const [duplicateCapture, setDuplicateCapture] = useState<{ id: string; image_url: string; animal_name: string } | null>(null);
   const [geoCoords, setGeoCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [geoName, setGeoName] = useState<string | null>(null);
+  const [manualMode, setManualMode] = useState(false);
+  const [manualName, setManualName] = useState('');
+  const [manualSpecies, setManualSpecies] = useState('');
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -135,11 +138,12 @@ const CapturePage = () => {
       if (data?.success && data.animal) {
         setAnimalResult(data.animal);
       } else {
-        toast.error(data?.error || "Impossible d'identifier l'animal");
+        // Identification failed — offer manual entry
+        setManualMode(true);
       }
     } catch (err: any) {
       console.error(err);
-      toast.error("Erreur lors de l'identification");
+      setManualMode(true);
     } finally {
       setIdentifying(false);
     }
@@ -154,6 +158,53 @@ const CapturePage = () => {
     setDuplicateCapture(null);
     setGeoCoords(null);
     setGeoName(null);
+    setManualMode(false);
+    setManualName('');
+    setManualSpecies('');
+  };
+
+  const saveManualEntry = async () => {
+    if (!capturedPhoto || !session?.user) return;
+    const trimmedName = manualName.trim();
+    const trimmedSpecies = manualSpecies.trim();
+    if (!trimmedName || !trimmedSpecies) {
+      toast.error('Remplis le nom et l\'espèce');
+      return;
+    }
+    setSaving(true);
+    try {
+      const imageUrl = await uploadImage();
+      if (!imageUrl) return;
+
+      const { error: insertError } = await supabase.from('captures').insert({
+        user_id: session.user.id,
+        image_url: imageUrl,
+        animal_name: trimmedName,
+        scientific_name: trimmedSpecies,
+        category: null,
+        description: null,
+        habitat: null,
+        diet: null,
+        conservation: null,
+        fun_fact: null,
+        rarity: 'common',
+        shared: false,
+        caption: null,
+        location: geoName || null,
+        latitude: geoCoords?.lat || null,
+        longitude: geoCoords?.lng || null,
+        status: 'pending_review',
+      });
+      if (insertError) throw insertError;
+
+      setSaved(true);
+      toast.success('Soumis pour validation ! Tu seras notifié une fois approuvé.');
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Erreur lors de la soumission");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const uploadImage = async () => {
@@ -336,7 +387,7 @@ const CapturePage = () => {
         </div>
 
         {/* Overlay gradient for readability */}
-        {(animalResult || identifying) && (
+        {(animalResult || identifying || manualMode) && (
           <div className="absolute inset-0 bg-gradient-to-t from-foreground via-foreground/70 to-transparent" />
         )}
 
@@ -405,6 +456,37 @@ const CapturePage = () => {
             </div>
           </div>
         )}
+
+        {/* Manual entry form when AI can't identify */}
+        {manualMode && !identifying && !animalResult && (
+          <div className="relative z-20 flex-1 flex flex-col justify-end px-5 pb-4">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <PenLine className="w-5 h-5 text-amber" />
+                <h2 className="text-lg font-display font-bold text-primary-foreground">Animal non reconnu</h2>
+              </div>
+              <p className="text-primary-foreground/70 text-sm">
+                Renseigne le nom et l'espèce. Ta capture sera soumise à validation avant d'être ajoutée.
+              </p>
+              <input
+                type="text"
+                placeholder="Nom de l'animal (ex: Lynx boréal)"
+                value={manualName}
+                onChange={e => setManualName(e.target.value)}
+                maxLength={100}
+                className="w-full px-4 py-2.5 bg-primary-foreground/10 rounded-xl text-sm text-primary-foreground placeholder:text-primary-foreground/30 focus:outline-none focus:ring-2 focus:ring-primary/30 font-body"
+              />
+              <input
+                type="text"
+                placeholder="Nom scientifique (ex: Lynx lynx)"
+                value={manualSpecies}
+                onChange={e => setManualSpecies(e.target.value)}
+                maxLength={100}
+                className="w-full px-4 py-2.5 bg-primary-foreground/10 rounded-xl text-sm text-primary-foreground placeholder:text-primary-foreground/30 focus:outline-none focus:ring-2 focus:ring-primary/30 font-body italic"
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Duplicate detection dialog */}
@@ -458,6 +540,15 @@ const CapturePage = () => {
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
             {saving ? 'Sauvegarde…' : 'Ajouter au Faunex'}
+          </button>
+        ) : manualMode ? (
+          <button
+            onClick={saveManualEntry}
+            disabled={saving || !manualName.trim() || !manualSpecies.trim()}
+            className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-amber text-foreground font-display text-sm disabled:opacity-50"
+          >
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <PenLine className="w-4 h-4" />}
+            {saving ? 'Envoi…' : 'Soumettre pour validation'}
           </button>
         ) : identifying ? null : capturedPhoto ? null : (
           <>
