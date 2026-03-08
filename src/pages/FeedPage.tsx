@@ -44,6 +44,7 @@ interface Comment {
 
 const FeedPage = () => {
   const { session } = useAuth();
+  const navigate = useNavigate();
   const [posts, setPosts] = useState<FeedCapture[]>([]);
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [loading, setLoading] = useState(true);
@@ -55,6 +56,33 @@ const FeedPage = () => {
   const [newComment, setNewComment] = useState('');
   const [loadingComments, setLoadingComments] = useState(false);
   const [submittingComment, setSubmittingComment] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // Fetch unread notifications count
+  useEffect(() => {
+    if (!session?.user) return;
+    const fetchUnread = async () => {
+      const { count } = await supabase
+        .from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', session.user.id)
+        .eq('read', false);
+      setUnreadCount(count || 0);
+    };
+    fetchUnread();
+
+    const channel = supabase
+      .channel('notif-count')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'notifications',
+        filter: `user_id=eq.${session.user.id}`,
+      }, () => fetchUnread())
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [session]);
 
   useEffect(() => {
     if (!session?.user) return;
