@@ -20,6 +20,7 @@ const CollectionPage = () => {
   const [captures, setCaptures] = useState<AnimalCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [displayName, setDisplayName] = useState('');
 
   // Fetch unread notifications
   useEffect(() => {
