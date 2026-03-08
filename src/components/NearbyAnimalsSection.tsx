@@ -86,7 +86,7 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
   }, []);
 
   const capturedNamesLower = new Set(capturedNames.map(n => n.toLowerCase()));
-  const displayed = expanded ? animals : animals.slice(0, 4);
+  const displayed = expanded ? animals : animals.slice(0, 2);
 
   if (!hasLoaded && !loading && !error) return null;
 
