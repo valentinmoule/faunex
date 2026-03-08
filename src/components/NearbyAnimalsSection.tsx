@@ -86,7 +86,7 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
   }, []);
 
   const capturedNamesLower = new Set(capturedNames.map(n => n.toLowerCase()));
-  const displayed = expanded ? animals : animals.slice(0, 4);
+  const displayed = expanded ? animals : animals.slice(0, 2);
 
   if (!hasLoaded && !loading && !error) return null;
 
@@ -154,12 +154,12 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
             })}
           </div>
 
-          {animals.length > 4 && (
+          {animals.length > 2 && (
             <button
               onClick={() => setExpanded(!expanded)}
               className="flex items-center justify-center gap-1 w-full mt-2 py-2 text-xs font-display font-semibold text-primary"
             >
-              {expanded ? 'Voir moins' : `Voir les ${animals.length - 4} autres`}
+              {expanded ? 'Voir moins' : `Voir les ${animals.length - 2} autres`}
               <ChevronRight className={`w-3.5 h-3.5 transition-transform ${expanded ? 'rotate-90' : ''}`} />
             </button>
           )}
