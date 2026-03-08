@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Camera, Zap, MapPin, Image, SwitchCamera, X, Loader2, Share2, Plus, Check } from 'lucide-react';
+import { Camera, Zap, MapPin, Image, SwitchCamera, X, Loader2, Share2, Plus, Check, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -38,6 +38,7 @@ const CapturePage = () => {
   const [saved, setSaved] = useState(false);
   const [shareOnFeed, setShareOnFeed] = useState(false);
   const [caption, setCaption] = useState('');
+  const [duplicateCapture, setDuplicateCapture] = useState<{ id: string; image_url: string; animal_name: string } | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -123,28 +124,61 @@ const CapturePage = () => {
     setSaved(false);
     setShareOnFeed(false);
     setCaption('');
+    setDuplicateCapture(null);
+  };
+
+  const uploadImage = async () => {
+    if (!capturedPhoto || !session?.user) return null;
+    const fileName = `${session.user.id}/${Date.now()}.jpg`;
+    const base64Data = capturedPhoto.split(',')[1];
+    const byteArray = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+    const { error: uploadError } = await supabase.storage
+      .from('captures')
+      .upload(fileName, byteArray, { contentType: 'image/jpeg' });
+    if (uploadError) throw uploadError;
+    const { data: urlData } = supabase.storage.from('captures').getPublicUrl(fileName);
+    return urlData.publicUrl;
   };
 
   const saveToCollection = async () => {
     if (!capturedPhoto || !animalResult || !session?.user) return;
     setSaving(true);
     try {
-      // Upload image to storage
-      const fileName = `${session.user.id}/${Date.now()}.jpg`;
-      const base64Data = capturedPhoto.split(',')[1];
-      const byteArray = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
-
-      const { error: uploadError } = await supabase.storage
+      // Check for duplicate animal (case-insensitive match on animal_name)
+      const { data: existing } = await supabase
         .from('captures')
-        .upload(fileName, byteArray, { contentType: 'image/jpeg' });
-      if (uploadError) throw uploadError;
+        .select('id, image_url, animal_name')
+        .eq('user_id', session.user.id)
+        .ilike('animal_name', animalResult.animal_name)
+        .limit(1);
 
-      const { data: urlData } = supabase.storage.from('captures').getPublicUrl(fileName);
+      if (existing && existing.length > 0) {
+        // Duplicate found — ask user
+        setDuplicateCapture(existing[0]);
+        setSaving(false);
+        return;
+      }
 
-      // Insert capture
+      // No duplicate — save normally
+      await doSaveNew();
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Erreur lors de la sauvegarde");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const doSaveNew = async () => {
+    if (!capturedPhoto || !animalResult || !session?.user) return;
+    setSaving(true);
+    try {
+      const imageUrl = await uploadImage();
+      if (!imageUrl) return;
+
       const { error: insertError } = await supabase.from('captures').insert({
         user_id: session.user.id,
-        image_url: urlData.publicUrl,
+        image_url: imageUrl,
         animal_name: animalResult.animal_name,
         scientific_name: animalResult.scientific_name,
         category: animalResult.category,
@@ -160,6 +194,7 @@ const CapturePage = () => {
       if (insertError) throw insertError;
 
       setSaved(true);
+      setDuplicateCapture(null);
       toast.success(`${animalResult.animal_name} ajouté à ton Faunex !`);
     } catch (err: any) {
       console.error(err);
@@ -167,6 +202,48 @@ const CapturePage = () => {
     } finally {
       setSaving(false);
     }
+  };
+
+  const doReplaceExisting = async () => {
+    if (!capturedPhoto || !animalResult || !session?.user || !duplicateCapture) return;
+    setSaving(true);
+    try {
+      const imageUrl = await uploadImage();
+      if (!imageUrl) return;
+
+      const { error: updateError } = await supabase
+        .from('captures')
+        .update({
+          image_url: imageUrl,
+          scientific_name: animalResult.scientific_name,
+          category: animalResult.category,
+          description: animalResult.description,
+          habitat: animalResult.habitat,
+          diet: animalResult.diet,
+          conservation: animalResult.conservation,
+          fun_fact: animalResult.fun_fact,
+          rarity: animalResult.rarity,
+          shared: shareOnFeed,
+          caption: caption || null,
+        })
+        .eq('id', duplicateCapture.id);
+      if (updateError) throw updateError;
+
+      setSaved(true);
+      setDuplicateCapture(null);
+      toast.success(`${animalResult.animal_name} mis à jour dans ton Faunex !`);
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Erreur lors de la mise à jour");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const keepExisting = () => {
+    setDuplicateCapture(null);
+    toast.info("Photo existante conservée");
+    resetCapture();
   };
 
   return (
@@ -294,6 +371,42 @@ const CapturePage = () => {
         )}
       </div>
 
+      {/* Duplicate detection dialog */}
+      {duplicateCapture && (
+        <div className="relative z-30 bg-foreground/95 backdrop-blur-sm px-5 py-4 space-y-3 border-t border-primary-foreground/10">
+          <p className="text-primary-foreground font-display font-semibold text-sm text-center">
+            ⚠️ {duplicateCapture.animal_name} est déjà dans ton Faunex !
+          </p>
+          <div className="flex gap-3 items-center justify-center">
+            <div className="text-center">
+              <p className="text-[10px] text-primary-foreground/50 font-display mb-1">Actuelle</p>
+              <img src={duplicateCapture.image_url} alt="" className="w-20 h-20 rounded-xl object-cover border border-primary-foreground/20" />
+            </div>
+            <div className="text-primary-foreground/40 text-lg">→</div>
+            <div className="text-center">
+              <p className="text-[10px] text-primary-foreground/50 font-display mb-1">Nouvelle</p>
+              {capturedPhoto && <img src={capturedPhoto} alt="" className="w-20 h-20 rounded-xl object-cover border-2 border-primary" />}
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={keepExisting}
+              className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary-foreground/10 text-primary-foreground/70 text-xs font-display font-semibold"
+            >
+              <X className="w-3.5 h-3.5" /> Garder l'actuelle
+            </button>
+            <button
+              onClick={doReplaceExisting}
+              disabled={saving}
+              className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-display font-semibold disabled:opacity-50"
+            >
+              {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+              Remplacer la photo
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Bottom controls */}
       <div className="relative z-10 flex items-center justify-center gap-6 py-6 px-6">
         {saved ? (
@@ -301,7 +414,7 @@ const CapturePage = () => {
             <Camera className="w-4 h-4" />
             Nouvelle capture
           </button>
-        ) : animalResult ? (
+        ) : duplicateCapture ? null : animalResult ? (
           <button
             onClick={saveToCollection}
             disabled={saving}
