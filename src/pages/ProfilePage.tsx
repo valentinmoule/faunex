@@ -166,8 +166,21 @@ const ProfilePage = () => {
       <div className="max-w-lg mx-auto px-4 pt-6 space-y-6">
         {/* Profile Header */}
         <div className="flex items-center gap-4">
-          <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center text-3xl font-display font-bold text-primary border-2 border-primary/30">
-            {(profile.display_name || '?').charAt(0).toUpperCase()}
+          <input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploadingAvatar}
+            className="relative w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center text-3xl font-display font-bold text-primary border-2 border-primary/30 overflow-hidden group shrink-0"
+          >
+            {profile.avatar_url ? (
+              <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+            ) : (
+              <span>{(profile.display_name || '?').charAt(0).toUpperCase()}</span>
+            )}
+            <div className="absolute inset-0 bg-foreground/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              {uploadingAvatar ? <Loader2 className="w-5 h-5 text-primary-foreground animate-spin" /> : <Camera className="w-5 h-5 text-primary-foreground" />}
+            </div>
+          </button>
           </div>
           <div className="flex-1">
             {editing ? (
