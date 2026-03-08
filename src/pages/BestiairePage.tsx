@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Lock, Bell, CheckCircle } from 'lucide-react';
 import { type Rarity, RARITY_LABELS } from '@/data/mockData';
@@ -37,8 +37,6 @@ const rarityEmoji: Record<string, string> = {
   mythic: '🔥',
 };
 
-const categoryFilters = ['Tous', 'Mammifères', 'Oiseaux', 'Reptiles', 'Amphibiens', 'Insectes', 'Poissons', 'Autres'];
-
 const BestiairePage = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
@@ -48,6 +46,7 @@ const BestiairePage = () => {
   const [filter, setFilter] = useState<Rarity | 'all'>('all');
   const [categoryFilter, setCategoryFilter] = useState('Tous');
   const [unreadCount, setUnreadCount] = useState(0);
+  const [displayCount, setDisplayCount] = useState(100);
 
   useEffect(() => {
     if (!session?.user) return;
@@ -55,16 +54,33 @@ const BestiairePage = () => {
     const fetchData = async () => {
       setLoading(true);
 
-      const [{ data: allAnimals }, { data: userCaptures }] = await Promise.all([
-        supabase.from('animals').select('name, scientific_name, rarity, category').order('name'),
-        supabase.from('captures').select('animal_name').eq('user_id', session.user.id).eq('status', 'approved'),
-      ]);
+      // Fetch ALL animals with pagination (Supabase default limit is 1000)
+      let allAnimals: any[] = [];
+      let page = 0;
+      const pageSize = 1000;
+      while (true) {
+        const { data } = await supabase
+          .from('animals')
+          .select('name, scientific_name, rarity, category')
+          .order('name')
+          .range(page * pageSize, (page + 1) * pageSize - 1);
+        if (!data || data.length === 0) break;
+        allAnimals = allAnimals.concat(data);
+        if (data.length < pageSize) break;
+        page++;
+      }
+
+      const { data: userCaptures } = await supabase
+        .from('captures')
+        .select('animal_name')
+        .eq('user_id', session.user.id)
+        .eq('status', 'approved');
 
       const userCapturedNames = new Set(
         (userCaptures || []).map((c) => c.animal_name.toLowerCase())
       );
 
-      const list: BestiaryAnimal[] = (allAnimals || []).map((a: any) => ({
+      const list: BestiaryAnimal[] = allAnimals.map((a: any) => ({
         name: a.name,
         scientific_name: a.scientific_name,
         rarity: a.rarity,
@@ -72,10 +88,10 @@ const BestiairePage = () => {
         captured: userCapturedNames.has(a.name.toLowerCase()),
       }));
 
-      // Sort: captured first, then by rarity desc
+      // Sort: captured first, then alphabetical
       list.sort((a, b) => {
         if (a.captured !== b.captured) return a.captured ? -1 : 1;
-        return (rarityOrder[b.rarity] || 0) - (rarityOrder[a.rarity] || 0);
+        return a.name.localeCompare(b.name, 'fr');
       });
 
       setAnimals(list);
@@ -95,27 +111,28 @@ const BestiairePage = () => {
     fetchUnread();
   }, [session]);
 
-  const filtered = animals.filter((a) => {
-    if (filter !== 'all' && a.rarity !== filter) return false;
-    if (categoryFilter !== 'Tous') {
-      const mainCats = ['Mammifères', 'Oiseaux', 'Reptiles', 'Amphibiens', 'Insectes', 'Poissons'];
-      if (categoryFilter === 'Autres') {
-        if (mainCats.some(c => a.category.includes(c))) return false;
-      } else {
-        if (!a.category.includes(categoryFilter)) return false;
-      }
-    }
-    if (search && !a.name.toLowerCase().includes(search.toLowerCase())) return false;
-    return true;
-  });
+  // Get unique categories
+  const categories = useMemo(() => {
+    const cats = new Set(animals.map(a => a.category));
+    return ['Tous', ...Array.from(cats).sort()];
+  }, [animals]);
+
+  const filtered = useMemo(() => {
+    return animals.filter((a) => {
+      if (filter !== 'all' && a.rarity !== filter) return false;
+      if (categoryFilter !== 'Tous' && a.category !== categoryFilter) return false;
+      if (search && !a.name.toLowerCase().includes(search.toLowerCase())) return false;
+      return true;
+    });
+  }, [animals, filter, categoryFilter, search]);
+
+  // Reset display count when filters change
+  useEffect(() => {
+    setDisplayCount(100);
+  }, [filter, categoryFilter, search]);
 
   const discoveredCount = animals.filter((a) => a.captured).length;
-
-  const countByRarity = rarityFilters.filter(r => r !== 'all').map(r => {
-    const total = animals.filter(a => a.rarity === r).length;
-    const captured = animals.filter(a => a.rarity === r && a.captured).length;
-    return { rarity: r as Rarity, total, captured };
-  }).filter(c => c.total > 0);
+  const visibleAnimals = filtered.slice(0, displayCount);
 
   return (
     <main className="min-h-screen bg-background pb-24">
@@ -141,9 +158,6 @@ const BestiairePage = () => {
             </div>
           </div>
 
-
-
-
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
@@ -160,7 +174,7 @@ const BestiairePage = () => {
       {/* Category filter */}
       <div className="max-w-lg mx-auto px-4 pt-3">
         <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-          {categoryFilters.map((c) => (
+          {categories.map((c) => (
             <button
               key={c}
               onClick={() => setCategoryFilter(c)}
@@ -205,7 +219,7 @@ const BestiairePage = () => {
           </div>
         ) : (
           <div className="space-y-1.5">
-            {filtered.map((animal) => (
+            {visibleAnimals.map((animal) => (
               <div
                 key={animal.name}
                 className={`flex items-center gap-3 px-4 py-2.5 rounded-xl border transition-colors ${
@@ -239,7 +253,7 @@ const BestiairePage = () => {
 
                 {/* Category + status */}
                 <div className="flex items-center gap-2 shrink-0">
-                  <span className={`text-[10px] font-display ${animal.captured ? 'text-muted-foreground' : 'text-muted-foreground/30'}`}>
+                  <span className={`text-[10px] font-display hidden sm:inline ${animal.captured ? 'text-muted-foreground' : 'text-muted-foreground/30'}`}>
                     {animal.category}
                   </span>
                   {animal.captured ? (
@@ -250,6 +264,16 @@ const BestiairePage = () => {
                 </div>
               </div>
             ))}
+
+            {/* Load more button */}
+            {displayCount < filtered.length && (
+              <button
+                onClick={() => setDisplayCount(prev => prev + 100)}
+                className="w-full py-3 text-sm font-display font-semibold text-primary hover:bg-muted rounded-xl transition-colors"
+              >
+                Voir plus ({filtered.length - displayCount} restants)
+              </button>
+            )}
 
             {filtered.length === 0 && (
               <div className="text-center py-16">
