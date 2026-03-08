@@ -124,6 +124,7 @@ const CapturePage = () => {
     setSaved(false);
     setShareOnFeed(false);
     setCaption('');
+    setDuplicateCapture(null);
   };
 
   const saveToCollection = async () => {
