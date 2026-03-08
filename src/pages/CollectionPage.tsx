@@ -118,7 +118,7 @@ const CollectionPage = () => {
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center justify-between mb-3">
-            <h1 className="text-2xl font-display font-bold text-primary">Mon Faunex</h1>
+            <h1 className="text-2xl font-display font-bold text-primary">Faunex de {displayName || '…'}</h1>
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground font-display">{captures.length} espèces</span>
               <button onClick={() => navigate('/notifications')} className="relative p-2 rounded-full hover:bg-muted transition-colors">
