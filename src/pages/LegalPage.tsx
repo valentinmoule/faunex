@@ -55,32 +55,30 @@ const LegalPage = () => {
         {/* Données personnelles / RGPD */}
         <section>
           <h2 className="text-lg font-display font-bold text-foreground mb-2">4. Protection des données personnelles (RGPD)</h2>
+          <div className="bg-primary/5 border border-primary/20 rounded-xl px-4 py-3 mb-4">
+            <p className="font-display font-semibold text-foreground text-sm">
+              🔒 Faunex ne collecte, ne revend et ne partage aucune donnée personnelle à des tiers.
+            </p>
+          </div>
           <p>
-            Conformément au Règlement Général sur la Protection des Données (UE) 2016/679, nous collectons et traitons les données personnelles suivantes :
+            Les seules informations stockées sont celles strictement nécessaires au fonctionnement de l'application :
           </p>
           <ul className="mt-2 space-y-1 list-disc list-inside">
-            <li>Adresse e-mail (inscription et authentification)</li>
-            <li>Nom d'affichage et pseudonyme</li>
+            <li>Adresse e-mail (uniquement pour l'authentification)</li>
+            <li>Nom d'affichage et pseudonyme (choisis par l'utilisateur)</li>
             <li>Photo de profil (optionnelle)</li>
-            <li>Données de géolocalisation (optionnelles, pour localiser les captures)</li>
+            <li>Données de géolocalisation (optionnelles, stockées localement pour localiser les captures)</li>
             <li>Photographies d'animaux soumises par l'utilisateur</li>
           </ul>
-
-          <h3 className="text-base font-display font-semibold text-foreground mt-4 mb-1">Finalités du traitement</h3>
-          <ul className="space-y-1 list-disc list-inside">
-            <li>Gestion du compte utilisateur</li>
-            <li>Fonctionnement de l'application (collection, progression, social)</li>
-            <li>Identification des animaux via intelligence artificielle</li>
-          </ul>
-
-          <h3 className="text-base font-display font-semibold text-foreground mt-4 mb-1">Base légale</h3>
-          <p>Le traitement est fondé sur le consentement de l'utilisateur (article 6.1.a du RGPD) et l'exécution du contrat (article 6.1.b).</p>
+          <p className="mt-3">
+            <strong>Ces données ne sont ni vendues, ni transmises, ni exploitées à des fins commerciales ou publicitaires.</strong> Elles sont utilisées uniquement pour le fonctionnement de l'application (collection, progression, fonctionnalités sociales).
+          </p>
 
           <h3 className="text-base font-display font-semibold text-foreground mt-4 mb-1">Durée de conservation</h3>
           <p>Les données sont conservées tant que le compte est actif. Elles sont supprimées dans un délai de 30 jours après la suppression du compte.</p>
 
           <h3 className="text-base font-display font-semibold text-foreground mt-4 mb-1">Vos droits</h3>
-          <p>Vous disposez des droits suivants :</p>
+          <p>Conformément au RGPD, vous disposez des droits suivants :</p>
           <ul className="mt-1 space-y-1 list-disc list-inside">
             <li>Droit d'accès à vos données</li>
             <li>Droit de rectification</li>
