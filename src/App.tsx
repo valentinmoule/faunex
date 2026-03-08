@@ -18,6 +18,7 @@ import ModerationPage from "./pages/ModerationPage";
 import LegalPage from "./pages/LegalPage";
 import ShareProfilePage from "./pages/ShareProfilePage";
 import SettingsPage from "./pages/SettingsPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import BottomNav from "./components/BottomNav";
 
 const queryClient = new QueryClient();
@@ -40,6 +41,7 @@ const AppRoutes = () => (
   <>
     <Routes>
       <Route path="/auth" element={<AuthRoute><AuthPage /></AuthRoute>} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
       <Route path="/collection" element={<ProtectedRoute><CollectionPage /></ProtectedRoute>} />
       <Route path="/capture" element={<ProtectedRoute><CapturePage /></ProtectedRoute>} />
