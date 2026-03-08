@@ -49,6 +49,7 @@ interface BadgeProgress {
 
 const ProfilePage = () => {
   const { session, signOut } = useAuth();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
