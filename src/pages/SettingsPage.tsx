@@ -29,6 +29,7 @@ const SettingsPage = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Password state
+  const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [changingPassword, setChangingPassword] = useState(false);
