@@ -181,7 +181,6 @@ const ProfilePage = () => {
               {uploadingAvatar ? <Loader2 className="w-5 h-5 text-primary-foreground animate-spin" /> : <Camera className="w-5 h-5 text-primary-foreground" />}
             </div>
           </button>
-          </div>
           <div className="flex-1">
             {editing ? (
               <div className="space-y-2">
