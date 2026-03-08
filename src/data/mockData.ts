@@ -14,6 +14,8 @@ export interface AnimalCard {
   funFact: string;
   discoveredAt: string;
   location: string;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 export interface FeedPost {
