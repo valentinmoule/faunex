@@ -45,6 +45,7 @@ const AppRoutes = () => (
       <Route path="/explorer/:userId/collection" element={<ProtectedRoute><FriendCollectionPage /></ProtectedRoute>} />
       <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
       <Route path="/moderation" element={<ProtectedRoute><ModerationPage /></ProtectedRoute>} />
+      <Route path="/legal" element={<LegalPage />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
     <BottomNav />
