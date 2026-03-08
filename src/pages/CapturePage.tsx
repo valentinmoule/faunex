@@ -219,6 +219,9 @@ const CapturePage = () => {
         rarity: animalResult.rarity,
         shared: shareOnFeed,
         caption: caption || null,
+        location: geoName || null,
+        latitude: geoCoords?.lat || null,
+        longitude: geoCoords?.lng || null,
       });
       if (insertError) throw insertError;
 
