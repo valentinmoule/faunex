@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react';
-import { Bell } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Bell, Heart, MessageCircle, Share2, Send, X } from 'lucide-react';
 import CardDetailSheet from '@/components/CardDetailSheet';
 import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { Heart, MessageCircle, Share2 } from 'lucide-react';
 
 interface FeedCapture {
   id: string;
@@ -30,11 +29,31 @@ interface FeedCapture {
   } | null;
 }
 
+interface Comment {
+  id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+  profile?: {
+    display_name: string | null;
+    username: string | null;
+    avatar_url: string | null;
+  };
+}
+
 const FeedPage = () => {
   const { session } = useAuth();
   const [posts, setPosts] = useState<FeedCapture[]>([]);
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [loading, setLoading] = useState(true);
+  const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
+  const [likeCounts, setLikeCounts] = useState<Record<string, number>>({});
+  const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
+  const [openComments, setOpenComments] = useState<string | null>(null);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [newComment, setNewComment] = useState('');
+  const [loadingComments, setLoadingComments] = useState(false);
+  const [submittingComment, setSubmittingComment] = useState(false);
 
   useEffect(() => {
     if (!session?.user) return;
@@ -42,7 +61,6 @@ const FeedPage = () => {
       setLoading(true);
       const userId = session.user.id;
 
-      // Get accepted friend IDs
       const { data: friendsData } = await supabase
         .from('explorer_friends')
         .select('requester_id, addressee_id')
@@ -53,7 +71,6 @@ const FeedPage = () => {
         f.requester_id === userId ? f.addressee_id : f.requester_id
       );
 
-      // Include own posts + friends' posts
       const allIds = [userId, ...friendIds];
 
       const { data, error } = await supabase
@@ -65,31 +82,143 @@ const FeedPage = () => {
         .limit(50);
 
       if (!error && data) {
-        // Fetch profiles
         const userIds = [...new Set(data.map((c: any) => c.user_id))];
-        if (userIds.length > 0) {
-          const { data: profilesData } = await supabase
-            .from('profiles')
-            .select('user_id, display_name, username, avatar_url')
-            .in('user_id', userIds);
+        const captureIds = data.map((c: any) => c.id);
 
-          const profileMap = new Map(
-            (profilesData || []).map((p: any) => [p.user_id, p])
-          );
+        // Fetch profiles, user likes, and counts in parallel
+        const [profilesRes, likesRes, likeCountsRes, commentCountsRes] = await Promise.all([
+          userIds.length > 0
+            ? supabase.from('profiles').select('user_id, display_name, username, avatar_url').in('user_id', userIds)
+            : { data: [] },
+          captureIds.length > 0
+            ? supabase.from('feed_likes').select('capture_id').eq('user_id', userId).in('capture_id', captureIds)
+            : { data: [] },
+          captureIds.length > 0
+            ? supabase.from('feed_likes').select('capture_id').in('capture_id', captureIds)
+            : { data: [] },
+          captureIds.length > 0
+            ? supabase.from('feed_comments').select('capture_id').in('capture_id', captureIds)
+            : { data: [] },
+        ]);
 
-          const postsWithProfiles = data.map((c: any) => ({
-            ...c,
-            profiles: profileMap.get(c.user_id) || null,
-          }));
-          setPosts(postsWithProfiles as any);
-        } else {
-          setPosts([]);
-        }
+        const profileMap = new Map(
+          ((profilesRes as any).data || []).map((p: any) => [p.user_id, p])
+        );
+
+        // User's liked posts
+        const likedSet = new Set<string>(
+          ((likesRes as any).data || []).map((l: any) => l.capture_id)
+        );
+        setLikedPosts(likedSet);
+
+        // Like counts per capture
+        const lCounts: Record<string, number> = {};
+        ((likeCountsRes as any).data || []).forEach((l: any) => {
+          lCounts[l.capture_id] = (lCounts[l.capture_id] || 0) + 1;
+        });
+        setLikeCounts(lCounts);
+
+        // Comment counts per capture
+        const cCounts: Record<string, number> = {};
+        ((commentCountsRes as any).data || []).forEach((c: any) => {
+          cCounts[c.capture_id] = (cCounts[c.capture_id] || 0) + 1;
+        });
+        setCommentCounts(cCounts);
+
+        const postsWithProfiles = data.map((c: any) => ({
+          ...c,
+          profiles: profileMap.get(c.user_id) || null,
+        }));
+        setPosts(postsWithProfiles as any);
       }
       setLoading(false);
     };
     fetchFeed();
   }, [session]);
+
+  const handleLike = useCallback(async (captureId: string) => {
+    if (!session?.user) return;
+    const userId = session.user.id;
+    const isLiked = likedPosts.has(captureId);
+
+    // Optimistic update
+    setLikedPosts(prev => {
+      const next = new Set(prev);
+      if (isLiked) next.delete(captureId);
+      else next.add(captureId);
+      return next;
+    });
+    setLikeCounts(prev => ({
+      ...prev,
+      [captureId]: (prev[captureId] || 0) + (isLiked ? -1 : 1),
+    }));
+
+    if (isLiked) {
+      await supabase.from('feed_likes').delete().eq('user_id', userId).eq('capture_id', captureId);
+    } else {
+      await supabase.from('feed_likes').insert({ user_id: userId, capture_id: captureId });
+    }
+  }, [session, likedPosts]);
+
+  const loadComments = useCallback(async (captureId: string) => {
+    setLoadingComments(true);
+    const { data } = await supabase
+      .from('feed_comments')
+      .select('*')
+      .eq('capture_id', captureId)
+      .order('created_at', { ascending: true });
+
+    if (data && data.length > 0) {
+      const userIds = [...new Set(data.map((c: any) => c.user_id))];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, display_name, username, avatar_url')
+        .in('user_id', userIds);
+
+      const profileMap = new Map(
+        (profiles || []).map((p: any) => [p.user_id, p])
+      );
+
+      setComments(data.map((c: any) => ({
+        ...c,
+        profile: profileMap.get(c.user_id) || undefined,
+      })));
+    } else {
+      setComments([]);
+    }
+    setLoadingComments(false);
+  }, []);
+
+  const handleOpenComments = useCallback((captureId: string) => {
+    if (openComments === captureId) {
+      setOpenComments(null);
+      setComments([]);
+      return;
+    }
+    setOpenComments(captureId);
+    loadComments(captureId);
+  }, [openComments, loadComments]);
+
+  const handleSubmitComment = useCallback(async (captureId: string) => {
+    if (!session?.user || !newComment.trim()) return;
+    setSubmittingComment(true);
+
+    const { error } = await supabase.from('feed_comments').insert({
+      user_id: session.user.id,
+      capture_id: captureId,
+      content: newComment.trim(),
+    });
+
+    if (!error) {
+      setNewComment('');
+      setCommentCounts(prev => ({
+        ...prev,
+        [captureId]: (prev[captureId] || 0) + 1,
+      }));
+      await loadComments(captureId);
+    }
+    setSubmittingComment(false);
+  }, [session, newComment, loadComments]);
 
   const toAnimalCard = (post: FeedCapture): AnimalCard => ({
     id: post.id,
@@ -145,6 +274,11 @@ const FeedPage = () => {
             const userName = profile?.display_name || profile?.username || 'Anonyme';
             const avatarUrl = profile?.avatar_url;
             const isShiny = post.rarity === 'legendary' || post.rarity === 'mythic';
+            const isMythic = post.rarity === 'mythic';
+            const isLiked = likedPosts.has(post.id);
+            const likeCount = likeCounts[post.id] || 0;
+            const commentCount = commentCounts[post.id] || 0;
+            const isCommentsOpen = openComments === post.id;
 
             return (
               <article key={post.id} className="bg-card rounded-2xl border border-border overflow-hidden shadow-card">
@@ -167,10 +301,16 @@ const FeedPage = () => {
 
                 <button
                   onClick={() => setSelectedCard(toAnimalCard(post))}
-                  className="relative w-full aspect-square overflow-hidden"
+                  className={`relative w-full aspect-square overflow-hidden ${isMythic ? 'mythic-shiny' : ''}`}
                 >
                   <img src={post.image_url} alt={post.animal_name} className="w-full h-full object-cover" />
-                  {isShiny && <div className="absolute inset-0 holographic-card card-shimmer pointer-events-none" style={{ backgroundImage: 'var(--gradient-holographic)', backgroundSize: '200% 200%', opacity: 0.2 }} />}
+                  {isMythic && <div className="mythic-image-overlay" />}
+                  {isMythic && (
+                    <div className="mythic-sparkles">
+                      <span /><span /><span /><span /><span /><span />
+                    </div>
+                  )}
+                  {isShiny && !isMythic && <div className="absolute inset-0 holographic-card card-shimmer pointer-events-none" style={{ backgroundImage: 'var(--gradient-holographic)', backgroundSize: '200% 200%', opacity: 0.2 }} />}
                   <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-foreground/60 to-transparent p-4 pt-12">
                     <p className="text-primary-foreground font-display font-bold text-lg">{post.animal_name}</p>
                     <p className="text-primary-foreground/70 text-xs italic">{post.scientific_name}</p>
@@ -183,19 +323,73 @@ const FeedPage = () => {
                   </div>
                 )}
 
+                {/* Actions */}
                 <div className="flex items-center gap-5 px-4 py-3">
-                  <button className="flex items-center gap-1.5 group">
-                    <Heart className="w-5 h-5 text-muted-foreground group-hover:text-destructive transition-colors" />
-                    <span className="text-sm text-muted-foreground">{post.likes_count}</span>
+                  <button onClick={() => handleLike(post.id)} className="flex items-center gap-1.5 group">
+                    <Heart className={`w-5 h-5 transition-all ${isLiked ? 'fill-destructive text-destructive scale-110' : 'text-muted-foreground group-hover:text-destructive'}`} />
+                    <span className={`text-sm ${isLiked ? 'text-destructive font-semibold' : 'text-muted-foreground'}`}>{likeCount}</span>
                   </button>
-                  <button className="flex items-center gap-1.5 group">
-                    <MessageCircle className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                    <span className="text-sm text-muted-foreground">{post.comments_count}</span>
+                  <button onClick={() => handleOpenComments(post.id)} className="flex items-center gap-1.5 group">
+                    <MessageCircle className={`w-5 h-5 transition-colors ${isCommentsOpen ? 'text-primary fill-primary/20' : 'text-muted-foreground group-hover:text-primary'}`} />
+                    <span className={`text-sm ${isCommentsOpen ? 'text-primary font-semibold' : 'text-muted-foreground'}`}>{commentCount}</span>
                   </button>
                   <button className="ml-auto group">
                     <Share2 className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
                   </button>
                 </div>
+
+                {/* Comments section */}
+                {isCommentsOpen && (
+                  <div className="border-t border-border px-4 py-3 space-y-3">
+                    {loadingComments ? (
+                      <p className="text-xs text-muted-foreground text-center py-2">Chargement…</p>
+                    ) : comments.length === 0 ? (
+                      <p className="text-xs text-muted-foreground text-center py-2">Aucun commentaire — sois le premier !</p>
+                    ) : (
+                      <div className="space-y-2.5 max-h-60 overflow-y-auto">
+                        {comments.map(comment => (
+                          <div key={comment.id} className="flex gap-2">
+                            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-display font-bold text-primary shrink-0 overflow-hidden">
+                              {comment.profile?.avatar_url ? (
+                                <img src={comment.profile.avatar_url} alt="" className="w-full h-full object-cover" />
+                              ) : (
+                                (comment.profile?.display_name || comment.profile?.username || '?').charAt(0).toUpperCase()
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-baseline gap-2">
+                                <span className="text-xs font-display font-semibold text-foreground">
+                                  {comment.profile?.display_name || comment.profile?.username || 'Anonyme'}
+                                </span>
+                                <span className="text-[10px] text-muted-foreground">{timeAgo(comment.created_at)}</span>
+                              </div>
+                              <p className="text-sm text-foreground/80 leading-snug">{comment.content}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* New comment input */}
+                    <div className="flex items-center gap-2 pt-1">
+                      <input
+                        type="text"
+                        value={newComment}
+                        onChange={(e) => setNewComment(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSubmitComment(post.id)}
+                        placeholder="Ajouter un commentaire…"
+                        className="flex-1 bg-muted rounded-full px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body"
+                      />
+                      <button
+                        onClick={() => handleSubmitComment(post.id)}
+                        disabled={!newComment.trim() || submittingComment}
+                        className="p-2 rounded-full bg-primary text-primary-foreground disabled:opacity-40 transition-opacity"
+                      >
+                        <Send className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                )}
               </article>
             );
           })
