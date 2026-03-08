@@ -16,6 +16,7 @@ import BestiairePage from "./pages/BestiairePage";
 import NotificationsPage from "./pages/NotificationsPage";
 import ModerationPage from "./pages/ModerationPage";
 import LegalPage from "./pages/LegalPage";
+import ShareProfilePage from "./pages/ShareProfilePage";
 import BottomNav from "./components/BottomNav";
 
 const queryClient = new QueryClient();
