@@ -250,6 +250,19 @@ const FeedPage = () => {
     setSubmittingComment(false);
   }, [session, newComment, loadComments]);
 
+  // Auto-open capture from notification link
+  useEffect(() => {
+    const captureId = searchParams.get('capture');
+    if (captureId && posts.length > 0) {
+      const post = posts.find(p => p.id === captureId);
+      if (post) {
+        setSelectedCard(toAnimalCard(post));
+        setSearchParams({}, { replace: true });
+      }
+    }
+  }, [posts, searchParams]);
+
+
   const toAnimalCard = (post: FeedCapture): AnimalCard => ({
     id: post.id,
     name: post.animal_name,
