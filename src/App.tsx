@@ -11,6 +11,7 @@ import ProfilePage from "./pages/ProfilePage";
 import ExplorersPage from "./pages/ExplorersPage";
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
+import FriendCollectionPage from "./pages/FriendCollectionPage";
 import BottomNav from "./components/BottomNav";
 
 const queryClient = new QueryClient();
