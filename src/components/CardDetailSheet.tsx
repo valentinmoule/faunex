@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
-import { MapPin, Leaf, UtensilsCrossed, Shield, Sparkles, Star, Heart, MessageCircle, Send } from 'lucide-react';
+import { MapPin, Leaf, UtensilsCrossed, Shield, Sparkles, Heart, MessageCircle, Send } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
