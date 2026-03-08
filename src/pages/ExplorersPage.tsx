@@ -25,6 +25,7 @@ interface FriendRelation {
 
 const ExplorersPage = () => {
   const { session } = useAuth();
+  const navigate = useNavigate();
   const [tab, setTab] = useState<'search' | 'friends' | 'requests'>('friends');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchUser[]>([]);
