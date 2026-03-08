@@ -371,6 +371,42 @@ const CapturePage = () => {
         )}
       </div>
 
+      {/* Duplicate detection dialog */}
+      {duplicateCapture && (
+        <div className="relative z-30 bg-foreground/95 backdrop-blur-sm px-5 py-4 space-y-3 border-t border-primary-foreground/10">
+          <p className="text-primary-foreground font-display font-semibold text-sm text-center">
+            ⚠️ {duplicateCapture.animal_name} est déjà dans ton Faunex !
+          </p>
+          <div className="flex gap-3 items-center justify-center">
+            <div className="text-center">
+              <p className="text-[10px] text-primary-foreground/50 font-display mb-1">Actuelle</p>
+              <img src={duplicateCapture.image_url} alt="" className="w-20 h-20 rounded-xl object-cover border border-primary-foreground/20" />
+            </div>
+            <div className="text-primary-foreground/40 text-lg">→</div>
+            <div className="text-center">
+              <p className="text-[10px] text-primary-foreground/50 font-display mb-1">Nouvelle</p>
+              {capturedPhoto && <img src={capturedPhoto} alt="" className="w-20 h-20 rounded-xl object-cover border-2 border-primary" />}
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={keepExisting}
+              className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary-foreground/10 text-primary-foreground/70 text-xs font-display font-semibold"
+            >
+              <X className="w-3.5 h-3.5" /> Garder l'actuelle
+            </button>
+            <button
+              onClick={doReplaceExisting}
+              disabled={saving}
+              className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-display font-semibold disabled:opacity-50"
+            >
+              {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+              Remplacer la photo
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Bottom controls */}
       <div className="relative z-10 flex items-center justify-center gap-6 py-6 px-6">
         {saved ? (
@@ -378,7 +414,7 @@ const CapturePage = () => {
             <Camera className="w-4 h-4" />
             Nouvelle capture
           </button>
-        ) : animalResult ? (
+        ) : duplicateCapture ? null : animalResult ? (
           <button
             onClick={saveToCollection}
             disabled={saving}
