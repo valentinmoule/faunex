@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
-import { Settings, ChevronRight, Award, MapPin, Camera as CameraIcon, BookOpen, LogOut, Pencil, X, Check, Loader2, Camera, Lock, Scale, Share2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Settings, Award, MapPin, Camera as CameraIcon, BookOpen, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { toast } from 'sonner';
+
 
 interface Profile {
   display_name: string | null;
@@ -48,18 +48,12 @@ interface BadgeProgress {
 }
 
 const ProfilePage = () => {
-  const { session, signOut } = useAuth();
+  const { session } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [editName, setEditName] = useState('');
-  const [editUsername, setEditUsername] = useState('');
   const [friendsCount, setFriendsCount] = useState(0);
-  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [badges, setBadges] = useState<BadgeProgress[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!session?.user) return;
@@ -76,8 +70,6 @@ const ProfilePage = () => {
       const data = profileRes.data;
       if (data) {
         setProfile(data as Profile);
-        setEditName(data.display_name || '');
-        setEditUsername(data.username || '');
       }
 
       const fCount = friendsRes.count || 0;
@@ -127,50 +119,7 @@ const ProfilePage = () => {
     fetchAll();
   }, [session]);
 
-  // ... keep existing code for handleAvatarUpload, handleSave, handleLogout ...
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !session?.user) return;
-    if (!file.type.startsWith('image/')) { toast.error('Seules les images sont acceptées'); return; }
-    if (file.size > 5 * 1024 * 1024) { toast.error('Image trop lourde (max 5 Mo)'); return; }
 
-    setUploadingAvatar(true);
-    try {
-      const ext = file.name.split('.').pop() || 'jpg';
-      const filePath = `${session.user.id}/avatar.${ext}`;
-      const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file, { cacheControl: '3600', upsert: true });
-      if (uploadError) throw uploadError;
-      const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
-      const avatarUrl = `${urlData.publicUrl}?t=${Date.now()}`;
-      const { error: updateError } = await supabase.from('profiles').update({ avatar_url: avatarUrl }).eq('user_id', session.user.id);
-      if (updateError) throw updateError;
-      setProfile(prev => prev ? { ...prev, avatar_url: avatarUrl } : prev);
-      toast.success('Photo de profil mise à jour !');
-    } catch (err) {
-      console.error(err);
-      toast.error("Erreur lors de l'upload");
-    } finally {
-      setUploadingAvatar(false);
-    }
-  };
-
-  const handleSave = async () => {
-    if (!session?.user || !profile) return;
-    const trimmedName = editName.trim();
-    const trimmedUsername = editUsername.trim();
-    if (!trimmedName) { toast.error('Le nom ne peut pas être vide'); return; }
-    setSaving(true);
-    const { error } = await supabase.from('profiles').update({ display_name: trimmedName, username: trimmedUsername || null }).eq('user_id', session.user.id);
-    if (error) { toast.error('Erreur lors de la sauvegarde'); }
-    else {
-      setProfile(prev => prev ? { ...prev, display_name: trimmedName, username: trimmedUsername } : prev);
-      setEditing(false);
-      toast.success('Profil mis à jour !');
-    }
-    setSaving(false);
-  };
-
-  const handleLogout = async () => { await signOut(); toast.success('Déconnecté'); };
 
   if (loading || !profile) {
     return (
@@ -188,64 +137,32 @@ const ProfilePage = () => {
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="flex items-center justify-between max-w-lg mx-auto">
           <h1 className="text-2xl font-display font-bold text-foreground">Profil</h1>
-          <div className="flex items-center gap-2">
-            {!editing && (
-              <button onClick={() => setEditing(true)} className="p-2 rounded-full hover:bg-muted transition-colors">
-                <Pencil className="w-5 h-5 text-foreground" />
-              </button>
-            )}
-            <button onClick={handleLogout} className="p-2 rounded-full hover:bg-destructive/10 transition-colors">
-              <LogOut className="w-5 h-5 text-destructive" />
-            </button>
-          </div>
+          <button onClick={() => navigate('/settings')} className="p-2 rounded-full hover:bg-muted transition-colors">
+            <Settings className="w-5 h-5 text-foreground" />
+          </button>
         </div>
       </header>
 
       <div className="max-w-lg mx-auto px-4 pt-6 space-y-6">
         {/* Profile Header */}
         <div className="flex items-center gap-4">
-          <input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploadingAvatar}
-            className="relative w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center text-3xl font-display font-bold text-primary border-2 border-primary/30 overflow-hidden group shrink-0"
-          >
+          <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center text-3xl font-display font-bold text-primary border-2 border-primary/30 overflow-hidden shrink-0">
             {profile.avatar_url ? (
               <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
             ) : (
               <span>{(profile.display_name || '?').charAt(0).toUpperCase()}</span>
             )}
-            <div className="absolute inset-0 bg-foreground/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-              {uploadingAvatar ? <Loader2 className="w-5 h-5 text-primary-foreground animate-spin" /> : <Camera className="w-5 h-5 text-primary-foreground" />}
-            </div>
-          </button>
+          </div>
           <div className="flex-1">
-            {editing ? (
-              <div className="space-y-2">
-                <input type="text" value={editName} onChange={e => setEditName(e.target.value)} placeholder="Nom d'affichage" maxLength={50} className="w-full px-3 py-2 bg-muted rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
-                <input type="text" value={editUsername} onChange={e => setEditUsername(e.target.value)} placeholder="@pseudo" maxLength={30} className="w-full px-3 py-2 bg-muted rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
-                <div className="flex gap-2">
-                  <button onClick={handleSave} disabled={saving} className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-display font-semibold disabled:opacity-50">
-                    {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />} Sauvegarder
-                  </button>
-                  <button onClick={() => { setEditing(false); setEditName(profile.display_name || ''); setEditUsername(profile.username || ''); }} className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-muted text-muted-foreground text-xs font-display font-semibold">
-                    <X className="w-3.5 h-3.5" /> Annuler
-                  </button>
-                </div>
+            <h2 className="text-xl font-display font-bold text-foreground">{profile.display_name || 'Sans nom'}</h2>
+            <p className="text-sm text-muted-foreground">{profile.username || '@inconnu'}</p>
+            <div className="mt-2">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-xs font-display font-semibold text-primary">Niv. {profile.level}</span>
+                <span className="text-[10px] text-muted-foreground">{profile.xp}/{profile.xp_to_next} XP</span>
               </div>
-            ) : (
-              <>
-                <h2 className="text-xl font-display font-bold text-foreground">{profile.display_name || 'Sans nom'}</h2>
-                <p className="text-sm text-muted-foreground">{profile.username || '@inconnu'}</p>
-                <div className="mt-2">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-display font-semibold text-primary">Niv. {profile.level}</span>
-                    <span className="text-[10px] text-muted-foreground">{profile.xp}/{profile.xp_to_next} XP</span>
-                  </div>
-                  <Progress value={xpPercent} className="h-2 bg-muted [&>div]:bg-primary" />
-                </div>
-              </>
-            )}
+              <Progress value={xpPercent} className="h-2 bg-muted [&>div]:bg-primary" />
+            </div>
           </div>
         </div>
 
@@ -304,39 +221,6 @@ const ProfilePage = () => {
           </div>
         </div>
 
-        {/* Share & Legal & Logout */}
-        <div className="space-y-2">
-          <button
-            onClick={() => {
-              const username = profile.username?.replace(/^@/, '') || session?.user?.id;
-              const shareUrl = `${window.location.origin}/u/${username}`;
-              if (navigator.share) {
-                navigator.share({ title: 'Mon profil Faunex', text: `Rejoins-moi sur Faunex !`, url: shareUrl });
-              } else {
-                navigator.clipboard.writeText(shareUrl);
-                toast.success('Lien copié !');
-              }
-            }}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-primary-foreground font-display text-sm font-semibold hover:bg-primary/90 transition-colors"
-          >
-            <Share2 className="w-4 h-4" />
-            Partager mon profil
-          </button>
-          <button
-            onClick={() => navigate('/legal')}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-muted text-muted-foreground font-display text-sm font-semibold hover:bg-muted/80 transition-colors"
-          >
-            <Scale className="w-4 h-4" />
-            Mentions légales
-          </button>
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-destructive/10 text-destructive font-display text-sm font-semibold hover:bg-destructive/20 transition-colors"
-          >
-            <LogOut className="w-4 h-4" />
-            Se déconnecter
-          </button>
-        </div>
       </div>
     </main>
   );
