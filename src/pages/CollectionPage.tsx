@@ -1,17 +1,54 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, SlidersHorizontal } from 'lucide-react';
 import AnimalCardComponent from '@/components/AnimalCardComponent';
 import CardDetailSheet from '@/components/CardDetailSheet';
-import { mockCards, type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
+import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 const rarityFilters: (Rarity | 'all')[] = ['all', 'common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'];
 
 const CollectionPage = () => {
+  const { session } = useAuth();
   const [filter, setFilter] = useState<Rarity | 'all'>('all');
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [search, setSearch] = useState('');
+  const [captures, setCaptures] = useState<AnimalCard[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filtered = mockCards.filter(c => {
+  useEffect(() => {
+    if (!session?.user) return;
+    const fetchCaptures = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('captures')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .order('created_at', { ascending: false });
+
+      if (!error && data) {
+        setCaptures(data.map((c: any) => ({
+          id: c.id,
+          name: c.animal_name,
+          scientificName: c.scientific_name || '',
+          image: c.image_url,
+          rarity: c.rarity as Rarity,
+          category: c.category || '',
+          description: c.description || '',
+          habitat: c.habitat || '',
+          diet: c.diet || '',
+          conservation: c.conservation || '',
+          funFact: c.fun_fact || '',
+          discoveredAt: c.created_at,
+          location: c.location || '',
+        })));
+      }
+      setLoading(false);
+    };
+    fetchCaptures();
+  }, [session]);
+
+  const filtered = captures.filter(c => {
     if (filter !== 'all' && c.rarity !== filter) return false;
     if (search && !c.name.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
@@ -23,7 +60,7 @@ const CollectionPage = () => {
         <div className="max-w-lg mx-auto">
           <div className="flex items-center justify-between mb-3">
             <h1 className="text-2xl font-display font-bold text-foreground">Mon Faunex</h1>
-            <span className="text-sm text-muted-foreground font-display">{mockCards.length} espèces</span>
+            <span className="text-sm text-muted-foreground font-display">{captures.length} espèces</span>
           </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -62,22 +99,32 @@ const CollectionPage = () => {
 
       {/* Card grid */}
       <div className="max-w-lg mx-auto px-4 pt-3">
-        <div className="grid grid-cols-2 gap-3">
-          {filtered.map((card, i) => (
-            <div key={card.id} style={{ animationDelay: `${i * 80}ms` }}>
-              <AnimalCardComponent
-                card={card}
-                compact
-                onClick={() => setSelectedCard(card)}
-              />
-            </div>
-          ))}
-        </div>
-        {filtered.length === 0 && (
+        {loading ? (
           <div className="text-center py-16">
-            <p className="text-4xl mb-3">🔍</p>
-            <p className="text-muted-foreground font-display">Aucune espèce trouvée</p>
+            <p className="text-muted-foreground font-display">Chargement…</p>
           </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 gap-3">
+              {filtered.map((card, i) => (
+                <div key={card.id} style={{ animationDelay: `${i * 80}ms` }}>
+                  <AnimalCardComponent
+                    card={card}
+                    compact
+                    onClick={() => setSelectedCard(card)}
+                  />
+                </div>
+              ))}
+            </div>
+            {filtered.length === 0 && (
+              <div className="text-center py-16">
+                <p className="text-4xl mb-3">{captures.length === 0 ? '📷' : '🔍'}</p>
+                <p className="text-muted-foreground font-display">
+                  {captures.length === 0 ? 'Aucune capture encore — prends ta première photo !' : 'Aucune espèce trouvée'}
+                </p>
+              </div>
+            )}
+          </>
         )}
       </div>
 
