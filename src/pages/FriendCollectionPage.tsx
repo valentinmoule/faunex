@@ -12,6 +12,7 @@ const rarityFilters: (Rarity | 'all')[] = ['all', 'common', 'uncommon', 'rare', 
 
 const FriendCollectionPage = () => {
   const { userId } = useParams<{ userId: string }>();
+  const { session } = useAuth();
   const navigate = useNavigate();
   const [filter, setFilter] = useState<Rarity | 'all'>('all');
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
@@ -19,7 +20,7 @@ const FriendCollectionPage = () => {
   const [captures, setCaptures] = useState<AnimalCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [profileName, setProfileName] = useState('');
-
+  const [friendRelationId, setFriendRelationId] = useState<string | null>(null);
   useEffect(() => {
     if (!userId) return;
 
