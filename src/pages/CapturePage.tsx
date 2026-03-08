@@ -99,8 +99,6 @@ const CapturePage = () => {
     setCapturedPhoto(dataUrl);
     setAnimalResult(null);
     setSaved(false);
-    setShareOnFeed(false);
-    setCaption('');
 
     // Grab GPS location
     if (navigator.geolocation) {
