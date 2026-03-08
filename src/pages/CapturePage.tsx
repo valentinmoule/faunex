@@ -198,10 +198,32 @@ const CapturePage = () => {
     }
   };
 
+  const checkLevelUp = async (previousLevel: number) => {
+    if (!session?.user) return;
+    const { data } = await supabase
+      .from('profiles')
+      .select('level')
+      .eq('user_id', session.user.id)
+      .maybeSingle();
+    if (data && data.level > previousLevel) {
+      toast.success(`🎉 Niveau ${data.level} atteint ! Bravo, explorateur !`, {
+        duration: 5000,
+      });
+    }
+  };
+
   const doSaveNew = async () => {
     if (!capturedPhoto || !animalResult || !session?.user) return;
     setSaving(true);
     try {
+      // Get current level before save
+      const { data: profileBefore } = await supabase
+        .from('profiles')
+        .select('level')
+        .eq('user_id', session.user.id)
+        .maybeSingle();
+      const levelBefore = profileBefore?.level || 1;
+
       const imageUrl = await uploadImage();
       if (!imageUrl) return;
 
@@ -217,8 +239,8 @@ const CapturePage = () => {
         conservation: animalResult.conservation,
         fun_fact: animalResult.fun_fact,
         rarity: animalResult.rarity,
-        shared: shareOnFeed,
-        caption: caption || null,
+        shared: false,
+        caption: null,
         location: geoName || null,
         latitude: geoCoords?.lat || null,
         longitude: geoCoords?.lng || null,
@@ -228,6 +250,9 @@ const CapturePage = () => {
       setSaved(true);
       setDuplicateCapture(null);
       toast.success(`${animalResult.animal_name} ajouté à ton Faunex !`);
+
+      // Check for level up after a short delay (trigger needs time)
+      setTimeout(() => checkLevelUp(levelBefore), 1000);
     } catch (err: any) {
       console.error(err);
       toast.error("Erreur lors de la sauvegarde");
