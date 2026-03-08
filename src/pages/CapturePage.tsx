@@ -541,6 +541,15 @@ const CapturePage = () => {
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
             {saving ? 'Sauvegarde…' : 'Ajouter au Faunex'}
           </button>
+        ) : manualMode ? (
+          <button
+            onClick={saveManualEntry}
+            disabled={saving || !manualName.trim() || !manualSpecies.trim()}
+            className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-amber text-foreground font-display text-sm disabled:opacity-50"
+          >
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <PenLine className="w-4 h-4" />}
+            {saving ? 'Envoi…' : 'Soumettre pour validation'}
+          </button>
         ) : identifying ? null : capturedPhoto ? null : (
           <>
             <button className="w-12 h-12 rounded-xl bg-primary-foreground/10 flex items-center justify-center">
