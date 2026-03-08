@@ -143,7 +143,7 @@ const CapturePage = () => {
       }
     } catch (err: any) {
       console.error(err);
-      toast.error("Erreur lors de l'identification");
+      setManualMode(true);
     } finally {
       setIdentifying(false);
     }
