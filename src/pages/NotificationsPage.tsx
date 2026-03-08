@@ -146,7 +146,7 @@ const NotificationsPage = () => {
               return (
                 <button
                   key={notif.id}
-                  onClick={() => notif.capture_id && navigate(`/feed?capture=${notif.capture_id}`)}
+                  onClick={() => notif.capture_id && navigate(`/?capture=${notif.capture_id}`)}
                   className={`flex items-start gap-3 p-3 rounded-xl transition-colors w-full text-left ${
                     !notif.read ? 'bg-primary/5' : 'hover:bg-muted/50'
                   }`}
