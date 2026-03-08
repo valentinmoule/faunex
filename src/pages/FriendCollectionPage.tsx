@@ -29,7 +29,7 @@ const FriendCollectionPage = () => {
       setLoading(true);
 
       const profilePromise = supabase.from('profiles').select('display_name, username').eq('user_id', userId).maybeSingle();
-      const capturesPromise = supabase.from('captures').select('*').eq('user_id', userId).eq('shared', true).order('created_at', { ascending: false });
+      const capturesPromise = supabase.from('captures').select('*').eq('user_id', userId).eq('status', 'approved').order('created_at', { ascending: false });
 
       const [profileRes, capturesRes] = await Promise.all([profilePromise, capturesPromise]);
       setProfileName(profileRes.data?.display_name || profileRes.data?.username || 'Explorateur');
