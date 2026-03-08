@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Search, UserPlus, UserCheck, Clock, X, Users, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Search, UserPlus, UserCheck, Clock, X, Users, ChevronRight, BookOpen } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
