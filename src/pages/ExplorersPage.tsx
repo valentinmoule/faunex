@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Search, UserPlus, UserCheck, Clock, X, Users, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Search, UserPlus, UserCheck, Clock, X, Users, ChevronRight, BookOpen } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -24,6 +25,7 @@ interface FriendRelation {
 
 const ExplorersPage = () => {
   const { session } = useAuth();
+  const navigate = useNavigate();
   const [tab, setTab] = useState<'search' | 'friends' | 'requests'>('friends');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchUser[]>([]);
@@ -280,9 +282,17 @@ const ExplorersPage = () => {
                   key={rel.id}
                   user={rel.profile}
                   action={
-                    <button onClick={() => removeFriend(rel.id)} className="text-xs text-muted-foreground hover:text-destructive transition-colors font-display">
-                      Retirer
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => navigate(`/explorer/${rel.profile!.user_id}/collection`)}
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-display font-semibold"
+                      >
+                        <BookOpen className="w-3.5 h-3.5" /> Faunex
+                      </button>
+                      <button onClick={() => removeFriend(rel.id)} className="text-xs text-muted-foreground hover:text-destructive transition-colors font-display">
+                        Retirer
+                      </button>
+                    </div>
                   }
                 />
               ))}

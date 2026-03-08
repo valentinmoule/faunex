@@ -11,6 +11,7 @@ import ProfilePage from "./pages/ProfilePage";
 import ExplorersPage from "./pages/ExplorersPage";
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
+import FriendCollectionPage from "./pages/FriendCollectionPage";
 import BottomNav from "./components/BottomNav";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const AppRoutes = () => (
       <Route path="/collection" element={<ProtectedRoute><CollectionPage /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
       <Route path="/explorers" element={<ProtectedRoute><ExplorersPage /></ProtectedRoute>} />
+      <Route path="/explorer/:userId/collection" element={<ProtectedRoute><FriendCollectionPage /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
     <BottomNav />
