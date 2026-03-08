@@ -282,9 +282,17 @@ const ExplorersPage = () => {
                   key={rel.id}
                   user={rel.profile}
                   action={
-                    <button onClick={() => removeFriend(rel.id)} className="text-xs text-muted-foreground hover:text-destructive transition-colors font-display">
-                      Retirer
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => navigate(`/explorer/${rel.profile!.user_id}/collection`)}
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-display font-semibold"
+                      >
+                        <BookOpen className="w-3.5 h-3.5" /> Faunex
+                      </button>
+                      <button onClick={() => removeFriend(rel.id)} className="text-xs text-muted-foreground hover:text-destructive transition-colors font-display">
+                        Retirer
+                      </button>
+                    </div>
                   }
                 />
               ))}
