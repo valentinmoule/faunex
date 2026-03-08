@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Bell, Heart, MessageCircle, Share2, Send, X } from 'lucide-react';
 import CardDetailSheet from '@/components/CardDetailSheet';
 import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
@@ -45,6 +45,7 @@ interface Comment {
 const FeedPage = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [posts, setPosts] = useState<FeedCapture[]>([]);
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [loading, setLoading] = useState(true);
@@ -248,6 +249,19 @@ const FeedPage = () => {
     }
     setSubmittingComment(false);
   }, [session, newComment, loadComments]);
+
+  // Auto-open capture from notification link
+  useEffect(() => {
+    const captureId = searchParams.get('capture');
+    if (captureId && posts.length > 0) {
+      const post = posts.find(p => p.id === captureId);
+      if (post) {
+        setSelectedCard(toAnimalCard(post));
+        setSearchParams({}, { replace: true });
+      }
+    }
+  }, [posts, searchParams]);
+
 
   const toAnimalCard = (post: FeedCapture): AnimalCard => ({
     id: post.id,
