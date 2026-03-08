@@ -188,16 +188,9 @@ const ProfilePage = () => {
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="flex items-center justify-between max-w-lg mx-auto">
           <h1 className="text-2xl font-display font-bold text-foreground">Profil</h1>
-          <div className="flex items-center gap-2">
-            {!editing && (
-              <button onClick={() => setEditing(true)} className="p-2 rounded-full hover:bg-muted transition-colors">
-                <Pencil className="w-5 h-5 text-foreground" />
-              </button>
-            )}
-            <button onClick={handleLogout} className="p-2 rounded-full hover:bg-destructive/10 transition-colors">
-              <LogOut className="w-5 h-5 text-destructive" />
-            </button>
-          </div>
+          <button onClick={() => navigate('/settings')} className="p-2 rounded-full hover:bg-muted transition-colors">
+            <Settings className="w-5 h-5 text-foreground" />
+          </button>
         </div>
       </header>
 
