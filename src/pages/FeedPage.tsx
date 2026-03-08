@@ -3,6 +3,7 @@ import { Bell } from 'lucide-react';
 import CardDetailSheet from '@/components/CardDetailSheet';
 import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { Heart, MessageCircle, Share2 } from 'lucide-react';
 
 interface FeedCapture {
@@ -30,46 +31,65 @@ interface FeedCapture {
 }
 
 const FeedPage = () => {
+  const { session } = useAuth();
   const [posts, setPosts] = useState<FeedCapture[]>([]);
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!session?.user) return;
     const fetchFeed = async () => {
       setLoading(true);
+      const userId = session.user.id;
+
+      // Get accepted friend IDs
+      const { data: friendsData } = await supabase
+        .from('explorer_friends')
+        .select('requester_id, addressee_id')
+        .eq('status', 'accepted')
+        .or(`requester_id.eq.${userId},addressee_id.eq.${userId}`);
+
+      const friendIds = (friendsData || []).map(f =>
+        f.requester_id === userId ? f.addressee_id : f.requester_id
+      );
+
+      // Include own posts + friends' posts
+      const allIds = [userId, ...friendIds];
+
       const { data, error } = await supabase
         .from('captures')
         .select('*')
         .eq('shared', true)
+        .in('user_id', allIds)
         .order('created_at', { ascending: false })
         .limit(50);
 
       if (!error && data) {
-        // Fetch profiles for unique user_ids
+        // Fetch profiles
         const userIds = [...new Set(data.map((c: any) => c.user_id))];
-        const { data: profilesData } = await supabase
-          .from('profiles')
-          .select('user_id, display_name, username, avatar_url')
-          .in('user_id', userIds);
-        
-        const profileMap = new Map(
-          (profilesData || []).map((p: any) => [p.user_id, p])
-        );
-        
-        const postsWithProfiles = data.map((c: any) => ({
-          ...c,
-          profiles: profileMap.get(c.user_id) || null,
-        }));
-        setPosts(postsWithProfiles as any);
-      }
+        if (userIds.length > 0) {
+          const { data: profilesData } = await supabase
+            .from('profiles')
+            .select('user_id, display_name, username, avatar_url')
+            .in('user_id', userIds);
 
-      if (!error && data) {
-        setPosts(data as any);
+          const profileMap = new Map(
+            (profilesData || []).map((p: any) => [p.user_id, p])
+          );
+
+          const postsWithProfiles = data.map((c: any) => ({
+            ...c,
+            profiles: profileMap.get(c.user_id) || null,
+          }));
+          setPosts(postsWithProfiles as any);
+        } else {
+          setPosts([]);
+        }
       }
       setLoading(false);
     };
     fetchFeed();
-  }, []);
+  }, [session]);
 
   const toAnimalCard = (post: FeedCapture): AnimalCard => ({
     id: post.id,
@@ -116,19 +136,25 @@ const FeedPage = () => {
         ) : posts.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-4xl mb-3">🌿</p>
-            <p className="text-muted-foreground font-display">Aucune capture partagée pour le moment</p>
+            <p className="text-muted-foreground font-display">Aucune capture partagée</p>
+            <p className="text-muted-foreground/60 text-xs mt-1">Ajoute des amis explorateurs ou partage tes captures !</p>
           </div>
         ) : (
           posts.map(post => {
-            const profile = Array.isArray(post.profiles) ? post.profiles[0] : post.profiles;
+            const profile = post.profiles;
             const userName = profile?.display_name || profile?.username || 'Anonyme';
+            const avatarUrl = profile?.avatar_url;
             const isShiny = post.rarity === 'legendary' || post.rarity === 'mythic';
 
             return (
               <article key={post.id} className="bg-card rounded-2xl border border-border overflow-hidden shadow-card">
                 <div className="flex items-center gap-3 p-4 pb-2">
-                  <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-sm font-display font-bold text-primary">
-                    {userName.charAt(0)}
+                  <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-sm font-display font-bold text-primary overflow-hidden">
+                    {avatarUrl ? (
+                      <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      userName.charAt(0).toUpperCase()
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-display font-semibold text-foreground truncate">{userName}</p>
