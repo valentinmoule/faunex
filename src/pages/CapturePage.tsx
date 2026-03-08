@@ -38,6 +38,7 @@ const CapturePage = () => {
   const [saved, setSaved] = useState(false);
   const [shareOnFeed, setShareOnFeed] = useState(false);
   const [caption, setCaption] = useState('');
+  const [duplicateCapture, setDuplicateCapture] = useState<{ id: string; image_url: string; animal_name: string } | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
