@@ -199,8 +199,70 @@ const ModerationPage = () => {
             ))}
           </div>
         )}
+
+        {/* Populate bestiary section */}
+        <div className="mt-8 p-4 rounded-xl border border-border bg-card">
+          <h2 className="font-display font-bold text-foreground mb-2">Bestiaire</h2>
+          <p className="text-xs text-muted-foreground mb-3">Peuple le bestiaire avec des milliers d'espèces via l'IA. Chaque clic traite une catégorie.</p>
+          <BestiaryPopulator />
+        </div>
       </div>
     </main>
+  );
+};
+
+const BestiaryPopulator = () => {
+  const [populating, setPopulating] = useState(false);
+  const [progress, setProgress] = useState('');
+  const [nextIndex, setNextIndex] = useState(0);
+  const [totalInDb, setTotalInDb] = useState<number | null>(null);
+  const [done, setDone] = useState(false);
+
+  const populate = async () => {
+    setPopulating(true);
+    setProgress('Génération en cours…');
+    try {
+      const { data, error } = await supabase.functions.invoke('populate-bestiary', {
+        body: { startIndex: nextIndex },
+      });
+      if (error) throw error;
+      setProgress(`✅ ${data.processed} — ${data.results?.[0]?.inserted || 0} espèces ajoutées`);
+      setTotalInDb(data.totalInDb);
+      if (data.done) {
+        setDone(true);
+        toast.success('Bestiaire complet !');
+      } else {
+        setNextIndex(data.nextIndex);
+      }
+    } catch (err: any) {
+      console.error(err);
+      setProgress(`❌ Erreur: ${err.message}`);
+      toast.error('Erreur lors de la génération');
+    } finally {
+      setPopulating(false);
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      {totalInDb !== null && (
+        <p className="text-sm font-display text-foreground">{totalInDb} espèces en base</p>
+      )}
+      {progress && <p className="text-xs text-muted-foreground">{progress}</p>}
+      <button
+        onClick={populate}
+        disabled={populating || done}
+        className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-display font-semibold disabled:opacity-50"
+      >
+        {populating ? (
+          <span className="flex items-center gap-1.5"><Loader2 className="w-3.5 h-3.5 animate-spin" /> Génération…</span>
+        ) : done ? (
+          'Terminé ✅'
+        ) : (
+          `Générer la catégorie ${nextIndex + 1}/15`
+        )}
+      </button>
+    </div>
   );
 };
 
