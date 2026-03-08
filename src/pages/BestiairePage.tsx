@@ -116,6 +116,13 @@ const BestiairePage = () => {
 
   const discoveredCount = animals.filter((a) => a.captured).length;
 
+  // Compteurs par rareté
+  const countByRarity = rarityFilters.filter(r => r !== 'all').map(r => {
+    const total = animals.filter(a => a.rarity === r).length;
+    const captured = animals.filter(a => a.rarity === r && a.captured).length;
+    return { rarity: r as Rarity, total, captured };
+  }).filter(c => c.total > 0);
+
   return (
     <main className="min-h-screen bg-background pb-24">
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
@@ -139,6 +146,17 @@ const BestiairePage = () => {
               </button>
             </div>
           </div>
+
+          {/* Compteurs par rareté */}
+          <div className="flex gap-2 overflow-x-auto no-scrollbar mb-3">
+            {countByRarity.map(({ rarity, total, captured }) => (
+              <div key={rarity} className={`shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[11px] font-display font-semibold ${rarityIconBg[rarity]}`}>
+                <span>{rarityEmoji[rarity]}</span>
+                <span>{captured}/{total}</span>
+              </div>
+            ))}
+          </div>
+
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
