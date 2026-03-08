@@ -2,3 +2,6 @@ project_id = "pakwuooxumrghsbwczwx"
 
 [functions.identify-animal]
 verify_jwt = false
+
+[functions.search-users]
+verify_jwt = false
