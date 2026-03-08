@@ -141,15 +141,8 @@ const BestiairePage = () => {
             </div>
           </div>
 
-          {/* Compteurs par rareté */}
-          <div className="flex gap-2 overflow-x-auto no-scrollbar mb-3">
-            {countByRarity.map(({ rarity, total, captured }) => (
-              <div key={rarity} className={`shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[11px] font-display font-semibold ${rarityIconBg[rarity]}`}>
-                <span>{rarityEmoji[rarity]}</span>
-                <span>{captured}/{total}</span>
-              </div>
-            ))}
-          </div>
+
+
 
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
