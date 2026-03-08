@@ -28,8 +28,10 @@ export type Database = {
           habitat: string | null
           id: string
           image_url: string
+          latitude: number | null
           likes_count: number
           location: string | null
+          longitude: number | null
           rarity: string
           scientific_name: string | null
           shared: boolean
@@ -48,8 +50,10 @@ export type Database = {
           habitat?: string | null
           id?: string
           image_url: string
+          latitude?: number | null
           likes_count?: number
           location?: string | null
+          longitude?: number | null
           rarity?: string
           scientific_name?: string | null
           shared?: boolean
@@ -68,8 +72,10 @@ export type Database = {
           habitat?: string | null
           id?: string
           image_url?: string
+          latitude?: number | null
           likes_count?: number
           location?: string | null
+          longitude?: number | null
           rarity?: string
           scientific_name?: string | null
           shared?: boolean
