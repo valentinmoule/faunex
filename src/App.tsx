@@ -18,6 +18,7 @@ import ModerationPage from "./pages/ModerationPage";
 import LegalPage from "./pages/LegalPage";
 import ShareProfilePage from "./pages/ShareProfilePage";
 import SettingsPage from "./pages/SettingsPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import BottomNav from "./components/BottomNav";
 
 const queryClient = new QueryClient();
