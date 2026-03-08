@@ -12,6 +12,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
   if (!card) return null;
 
   const isShiny = card.rarity === 'legendary' || card.rarity === 'mythic';
+  const isMythic = card.rarity === 'mythic';
 
   return (
     <Sheet open={open} onOpenChange={onClose}>
