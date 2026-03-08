@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Heart, MessageCircle, Check, CheckCheck } from 'lucide-react';
+import { ArrowLeft, Heart, MessageCircle, UserPlus, UserCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -142,11 +142,40 @@ const NotificationsPage = () => {
               const actorName = notif.actor?.display_name || notif.actor?.username || 'Quelqu\'un';
               const avatarUrl = notif.actor?.avatar_url;
               const isLike = notif.type === 'like';
+              const isComment = notif.type === 'comment';
+              const isFriendRequest = notif.type === 'friend_request';
+              const isFriendAccepted = notif.type === 'friend_accepted';
+
+              const iconBg = isFriendRequest || isFriendAccepted
+                ? 'bg-accent'
+                : isLike ? 'bg-destructive' : 'bg-primary';
+
+              const IconComp = isFriendRequest
+                ? UserPlus
+                : isFriendAccepted
+                ? UserCheck
+                : isLike
+                ? Heart
+                : MessageCircle;
+
+              const message = isFriendRequest
+                ? ' t\'a envoyé une demande d\'ami'
+                : isFriendAccepted
+                ? ' a accepté ta demande d\'ami'
+                : isLike
+                ? ' a aimé ta capture'
+                : ' a commenté ta capture';
 
               return (
                 <button
                   key={notif.id}
-                  onClick={() => notif.capture_id && navigate(`/?capture=${notif.capture_id}`)}
+                  onClick={() => {
+                    if (isFriendRequest || isFriendAccepted) {
+                      navigate('/explorers');
+                    } else if (notif.capture_id) {
+                      navigate(`/?capture=${notif.capture_id}`);
+                    }
+                  }}
                   className={`flex items-start gap-3 p-3 rounded-xl transition-colors w-full text-left ${
                     !notif.read ? 'bg-primary/5' : 'hover:bg-muted/50'
                   }`}
@@ -160,14 +189,8 @@ const NotificationsPage = () => {
                         actorName.charAt(0).toUpperCase()
                       )}
                     </div>
-                    <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center ${
-                      isLike ? 'bg-destructive' : 'bg-primary'
-                    }`}>
-                      {isLike ? (
-                        <Heart className="w-3 h-3 text-destructive-foreground fill-current" />
-                      ) : (
-                        <MessageCircle className="w-3 h-3 text-primary-foreground fill-current" />
-                      )}
+                    <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center ${iconBg}`}>
+                      <IconComp className="w-3 h-3 text-primary-foreground fill-current" />
                     </div>
                   </div>
 
@@ -175,16 +198,12 @@ const NotificationsPage = () => {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-foreground leading-snug">
                       <span className="font-display font-semibold">{actorName}</span>
-                      {isLike ? (
-                        <span className="text-foreground/70"> a aimé ta capture</span>
-                      ) : (
-                        <span className="text-foreground/70"> a commenté ta capture</span>
-                      )}
+                      <span className="text-foreground/70">{message}</span>
                       {notif.capture && (
                         <span className="font-display font-semibold text-primary"> {notif.capture.animal_name}</span>
                       )}
                     </p>
-                    {!isLike && notif.comment_text && (
+                    {isComment && notif.comment_text && (
                       <p className="text-xs text-muted-foreground mt-1 line-clamp-2 italic">
                         « {notif.comment_text} »
                       </p>
