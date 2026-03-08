@@ -16,6 +16,7 @@ import BestiairePage from "./pages/BestiairePage";
 import NotificationsPage from "./pages/NotificationsPage";
 import ModerationPage from "./pages/ModerationPage";
 import LegalPage from "./pages/LegalPage";
+import ShareProfilePage from "./pages/ShareProfilePage";
 import BottomNav from "./components/BottomNav";
 
 const queryClient = new QueryClient();
@@ -48,6 +49,7 @@ const AppRoutes = () => (
       <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
       <Route path="/moderation" element={<ProtectedRoute><ModerationPage /></ProtectedRoute>} />
       <Route path="/legal" element={<LegalPage />} />
+      <Route path="/u/:username" element={<ShareProfilePage />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
     <BottomNav />
