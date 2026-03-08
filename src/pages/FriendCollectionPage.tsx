@@ -1,15 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search } from 'lucide-react';
+import { ArrowLeft, Search, UserMinus } from 'lucide-react';
 import AnimalCardComponent from '@/components/AnimalCardComponent';
 import CardDetailSheet from '@/components/CardDetailSheet';
 import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 const rarityFilters: (Rarity | 'all')[] = ['all', 'common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'];
 
 const FriendCollectionPage = () => {
   const { userId } = useParams<{ userId: string }>();
+  const { session } = useAuth();
   const navigate = useNavigate();
   const [filter, setFilter] = useState<Rarity | 'all'>('all');
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
@@ -17,30 +20,25 @@ const FriendCollectionPage = () => {
   const [captures, setCaptures] = useState<AnimalCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [profileName, setProfileName] = useState('');
-
+  const [friendRelationId, setFriendRelationId] = useState<string | null>(null);
   useEffect(() => {
     if (!userId) return;
+    const myId = session?.user?.id;
 
     const fetchData = async () => {
       setLoading(true);
 
-      // Fetch profile and shared captures in parallel
-      const [profileRes, capturesRes] = await Promise.all([
-        supabase
-          .from('profiles')
-          .select('display_name, username')
-          .eq('user_id', userId)
-          .single(),
-        supabase
-          .from('captures')
-          .select('*')
-          .eq('user_id', userId)
-          .eq('shared', true)
-          .order('created_at', { ascending: false }),
-      ]);
+      const profilePromise = supabase.from('profiles').select('display_name, username').eq('user_id', userId).single();
+      const capturesPromise = supabase.from('captures').select('*').eq('user_id', userId).eq('shared', true).order('created_at', { ascending: false });
 
-      if (profileRes.data) {
-        setProfileName(profileRes.data.display_name || profileRes.data.username || 'Explorateur');
+      const [profileRes, capturesRes] = await Promise.all([profilePromise, capturesPromise]);
+
+      // Check friend relation
+      if (myId && myId !== userId) {
+        const { data: friendData } = await supabase.from('explorer_friends').select('id').or(`and(requester_id.eq.${myId},addressee_id.eq.${userId}),and(requester_id.eq.${userId},addressee_id.eq.${myId})`).eq('status', 'accepted').limit(1);
+        if (friendData && friendData.length > 0) {
+          setFriendRelationId(friendData[0].id);
+        }
       }
 
       if (!capturesRes.error && capturesRes.data) {
@@ -64,13 +62,20 @@ const FriendCollectionPage = () => {
     };
 
     fetchData();
-  }, [userId]);
+  }, [userId, session]);
 
   const filtered = captures.filter(c => {
     if (filter !== 'all' && c.rarity !== filter) return false;
     if (search && !c.name.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
+
+  const removeFriend = async () => {
+    if (!friendRelationId) return;
+    await supabase.from('explorer_friends').delete().eq('id', friendRelationId);
+    toast.info('Ami retiré');
+    navigate(-1);
+  };
 
   return (
     <main className="min-h-screen bg-background pb-24">
@@ -84,6 +89,14 @@ const FriendCollectionPage = () => {
               <h1 className="text-xl font-display font-bold text-foreground truncate">Faunex de {profileName}</h1>
               <p className="text-xs text-muted-foreground">{captures.length} espèces partagées</p>
             </div>
+            {friendRelationId && (
+              <button
+                onClick={removeFriend}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-display font-semibold text-destructive hover:bg-destructive/10 transition-colors"
+              >
+                <UserMinus className="w-4 h-4" /> Retirer
+              </button>
+            )}
           </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
