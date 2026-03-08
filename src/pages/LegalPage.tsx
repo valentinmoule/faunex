@@ -26,7 +26,7 @@ const LegalPage = () => {
           <ul className="mt-2 space-y-1 list-none">
             <li><strong>Nom :</strong> Valentin Moulay</li>
             <li><strong>Statut :</strong> Personne physique</li>
-            <li><strong>Contact :</strong> contact@faunex.app</li>
+            <li><strong>Contact :</strong> valentinmoulay@gmail.com</li>
           </ul>
         </section>
 
@@ -89,7 +89,7 @@ const LegalPage = () => {
             <li>Droit d'opposition et de limitation du traitement</li>
           </ul>
           <p className="mt-2">
-            Pour exercer ces droits, contactez : <strong>contact@faunex.app</strong>
+            Pour exercer ces droits, contactez : <strong>valentinmoulay@gmail.com</strong>
           </p>
           <p className="mt-2">
             En cas de litige, vous pouvez introduire une réclamation auprès de la <a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer" className="text-primary underline">CNIL</a> (Commission Nationale de l'Informatique et des Libertés).
