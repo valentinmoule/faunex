@@ -120,6 +120,31 @@
   100% { opacity: 1; transform: scale(1) rotateY(0); }
 }
 
+/* Mythic rainbow sweep */
+@keyframes mythic-sweep {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes mythic-sparkle {
+  0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1) rotate(180deg); }
+}
+
+@keyframes mythic-glow-pulse {
+  0%, 100% { box-shadow: 0 0 12px hsla(340, 75%, 55%, 0.3), 0 0 30px hsla(270, 60%, 60%, 0.15); }
+  33% { box-shadow: 0 0 18px hsla(200, 70%, 55%, 0.4), 0 0 40px hsla(340, 75%, 55%, 0.2); }
+  66% { box-shadow: 0 0 14px hsla(42, 80%, 55%, 0.35), 0 0 35px hsla(200, 70%, 55%, 0.18); }
+}
+
+@keyframes mythic-hue-shift {
+  0% { filter: hue-rotate(0deg) brightness(1.05); }
+  25% { filter: hue-rotate(30deg) brightness(1.1); }
+  50% { filter: hue-rotate(0deg) brightness(1.05); }
+  75% { filter: hue-rotate(-30deg) brightness(1.1); }
+  100% { filter: hue-rotate(0deg) brightness(1.05); }
+}
+
 .holographic-card {
   background-size: 200% 200%;
   animation: holographic 3s ease infinite;
@@ -139,6 +164,90 @@
   inset: 0;
   background: linear-gradient(90deg, transparent, hsla(0, 0%, 100%, 0.2), transparent);
   animation: shimmer 2s infinite;
+}
+
+/* ── Mythic Shiny Card ── */
+.mythic-shiny {
+  position: relative;
+  overflow: hidden;
+  animation: mythic-glow-pulse 4s ease-in-out infinite;
+}
+
+.mythic-shiny::before {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  z-index: 1;
+  background: conic-gradient(
+    from 0deg,
+    hsla(340, 80%, 60%, 0.25),
+    hsla(270, 70%, 60%, 0.25),
+    hsla(200, 80%, 55%, 0.25),
+    hsla(150, 70%, 50%, 0.25),
+    hsla(42, 85%, 55%, 0.25),
+    hsla(15, 85%, 55%, 0.25),
+    hsla(340, 80%, 60%, 0.25)
+  );
+  animation: mythic-sweep 6s linear infinite;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+.mythic-shiny::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background:
+    radial-gradient(circle at 30% 20%, hsla(0, 0%, 100%, 0.35) 0%, transparent 40%),
+    radial-gradient(circle at 70% 80%, hsla(0, 0%, 100%, 0.2) 0%, transparent 35%);
+  pointer-events: none;
+  animation: mythic-hue-shift 5s ease-in-out infinite;
+}
+
+/* Sparkle dots on mythic cards */
+.mythic-sparkles {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.mythic-sparkles span {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: hsla(0, 0%, 100%, 0.9);
+  box-shadow: 0 0 6px 2px hsla(0, 0%, 100%, 0.6);
+  animation: mythic-sparkle 2s ease-in-out infinite;
+}
+
+.mythic-sparkles span:nth-child(1) { top: 15%; left: 20%; animation-delay: 0s; }
+.mythic-sparkles span:nth-child(2) { top: 35%; left: 75%; animation-delay: 0.5s; }
+.mythic-sparkles span:nth-child(3) { top: 65%; left: 40%; animation-delay: 1s; }
+.mythic-sparkles span:nth-child(4) { top: 80%; left: 85%; animation-delay: 1.5s; }
+.mythic-sparkles span:nth-child(5) { top: 10%; left: 60%; animation-delay: 0.3s; }
+.mythic-sparkles span:nth-child(6) { top: 50%; left: 10%; animation-delay: 0.8s; }
+
+/* Mythic image overlay */
+.mythic-image-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    135deg,
+    hsla(340, 80%, 60%, 0.12) 0%,
+    hsla(270, 70%, 60%, 0.08) 25%,
+    hsla(200, 80%, 55%, 0.12) 50%,
+    hsla(42, 85%, 55%, 0.08) 75%,
+    hsla(340, 80%, 60%, 0.12) 100%
+  );
+  background-size: 300% 300%;
+  animation: holographic 4s ease infinite;
+  mix-blend-mode: color-dodge;
 }
 
 /* Safe area for mobile */
