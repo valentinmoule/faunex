@@ -31,7 +31,7 @@ const AnimalCardComponent = ({ card, onClick, compact }: Props) => {
   return (
     <button
       onClick={onClick}
-      className={`relative overflow-hidden rounded-xl border-2 transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1 animate-card-appear text-left w-full ${rarityStyles[card.rarity]} ${isMythic ? 'mythic-shiny' : isShiny ? 'holographic-card' : ''}`}
+      className={`relative overflow-hidden rounded-2xl border-2 transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1 animate-card-appear text-left w-full ${rarityStyles[card.rarity]} ${isMythic ? 'mythic-shiny' : isShiny ? 'holographic-card' : ''}`}
       style={isShiny && !isMythic ? { backgroundImage: 'var(--gradient-holographic)', backgroundSize: '200% 200%' } : undefined}
     >
       {isMythic && (
@@ -39,7 +39,7 @@ const AnimalCardComponent = ({ card, onClick, compact }: Props) => {
           <span /><span /><span /><span /><span /><span />
         </div>
       )}
-      <div className="relative aspect-square overflow-hidden rounded-t-lg">
+      <div className="relative aspect-square overflow-hidden">
         <img
           src={card.image}
           alt={card.name}
