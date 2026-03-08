@@ -73,7 +73,11 @@ const AuthPage = () => {
           </div>
           <h1 className="text-3xl font-display font-bold text-foreground">Faunex</h1>
           <p className="text-sm text-muted-foreground">
-            {isLogin ? 'Content de te revoir, explorateur !' : 'Rejoins la communauté des naturalistes'}
+            {isForgot
+              ? 'Entre ton email pour réinitialiser ton mot de passe'
+              : isLogin
+                ? 'Content de te revoir, explorateur !'
+                : 'Rejoins la communauté des naturalistes'}
           </p>
         </div>
 
