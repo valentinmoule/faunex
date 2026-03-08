@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { Settings, ChevronRight, Award, MapPin, Camera as CameraIcon, BookOpen, LogOut, Pencil, X, Check, Loader2, Camera, Lock } from 'lucide-react';
+import { Settings, ChevronRight, Award, MapPin, Camera as CameraIcon, BookOpen, LogOut, Pencil, X, Check, Loader2, Camera, Lock, Scale } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -48,6 +49,7 @@ interface BadgeProgress {
 
 const ProfilePage = () => {
   const { session, signOut } = useAuth();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
@@ -303,14 +305,23 @@ const ProfilePage = () => {
           </div>
         </div>
 
-        {/* Logout button */}
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-destructive/10 text-destructive font-display text-sm font-semibold hover:bg-destructive/20 transition-colors"
-        >
-          <LogOut className="w-4 h-4" />
-          Se déconnecter
-        </button>
+        {/* Legal & Logout */}
+        <div className="space-y-2">
+          <button
+            onClick={() => navigate('/legal')}
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-muted text-muted-foreground font-display text-sm font-semibold hover:bg-muted/80 transition-colors"
+          >
+            <Scale className="w-4 h-4" />
+            Mentions légales
+          </button>
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-destructive/10 text-destructive font-display text-sm font-semibold hover:bg-destructive/20 transition-colors"
+          >
+            <LogOut className="w-4 h-4" />
+            Se déconnecter
+          </button>
+        </div>
       </div>
     </main>
   );
