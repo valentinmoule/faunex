@@ -117,7 +117,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
       // Refetch comments
       const { data } = await supabase.from('feed_comments').select('*').eq('capture_id', card.id).order('created_at', { ascending: true });
       if (data && data.length > 0) {
-        const userIds = [...new Set(data.map((c: any) => c.user_id))];
+        const userIds = Array.from(new Set(data.map((c: any) => c.user_id))) as string[];
         const { data: profiles } = await supabase.from('profiles').select('user_id, display_name, username, avatar_url').in('user_id', userIds);
         const profileMap = new Map((profiles || []).map((p: any) => [p.user_id, p]));
         setComments(data.map((c: any) => ({ ...c, profile: profileMap.get(c.user_id) })));
