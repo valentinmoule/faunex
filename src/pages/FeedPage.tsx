@@ -39,10 +39,29 @@ const FeedPage = () => {
       setLoading(true);
       const { data, error } = await supabase
         .from('captures')
-        .select('*, profiles!captures_user_id_fkey(display_name, username, avatar_url)')
+        .select('*')
         .eq('shared', true)
         .order('created_at', { ascending: false })
         .limit(50);
+
+      if (!error && data) {
+        // Fetch profiles for unique user_ids
+        const userIds = [...new Set(data.map((c: any) => c.user_id))];
+        const { data: profilesData } = await supabase
+          .from('profiles')
+          .select('user_id, display_name, username, avatar_url')
+          .in('user_id', userIds);
+        
+        const profileMap = new Map(
+          (profilesData || []).map((p: any) => [p.user_id, p])
+        );
+        
+        const postsWithProfiles = data.map((c: any) => ({
+          ...c,
+          profiles: profileMap.get(c.user_id) || null,
+        }));
+        setPosts(postsWithProfiles as any);
+      }
 
       if (!error && data) {
         setPosts(data as any);
