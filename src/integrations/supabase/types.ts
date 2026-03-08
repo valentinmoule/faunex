@@ -14,6 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
+      captures: {
+        Row: {
+          animal_name: string
+          caption: string | null
+          category: string | null
+          comments_count: number
+          conservation: string | null
+          created_at: string
+          description: string | null
+          diet: string | null
+          fun_fact: string | null
+          habitat: string | null
+          id: string
+          image_url: string
+          likes_count: number
+          location: string | null
+          rarity: string
+          scientific_name: string | null
+          shared: boolean
+          user_id: string
+        }
+        Insert: {
+          animal_name: string
+          caption?: string | null
+          category?: string | null
+          comments_count?: number
+          conservation?: string | null
+          created_at?: string
+          description?: string | null
+          diet?: string | null
+          fun_fact?: string | null
+          habitat?: string | null
+          id?: string
+          image_url: string
+          likes_count?: number
+          location?: string | null
+          rarity?: string
+          scientific_name?: string | null
+          shared?: boolean
+          user_id: string
+        }
+        Update: {
+          animal_name?: string
+          caption?: string | null
+          category?: string | null
+          comments_count?: number
+          conservation?: string | null
+          created_at?: string
+          description?: string | null
+          diet?: string | null
+          fun_fact?: string | null
+          habitat?: string | null
+          id?: string
+          image_url?: string
+          likes_count?: number
+          location?: string | null
+          rarity?: string
+          scientific_name?: string | null
+          shared?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
