@@ -51,7 +51,7 @@ async function generateBatch(
   );
 
   // Use Lovable AI directly
-  const aiUrl = "https://ai-gateway.lovable.dev/v1/chat/completions";
+  const aiUrl = "https://ai.gateway.lovable.dev/v1/chat/completions";
   const lovableKey = Deno.env.get("LOVABLE_API_KEY");
 
   const aiResponse = await fetch(aiUrl, {
