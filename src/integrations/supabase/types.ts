@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      animals: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          name: string
+          rarity: string
+          scientific_name: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          name: string
+          rarity?: string
+          scientific_name?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          name?: string
+          rarity?: string
+          scientific_name?: string | null
+        }
+        Relationships: []
+      }
       captures: {
         Row: {
           animal_name: string
