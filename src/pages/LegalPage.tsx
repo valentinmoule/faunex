@@ -26,7 +26,7 @@ const LegalPage = () => {
           <ul className="mt-2 space-y-1 list-none">
             <li><strong>Nom :</strong> Valentin Moulay</li>
             <li><strong>Statut :</strong> Personne physique</li>
-            <li><strong>Contact :</strong> contact@faunex.app</li>
+            <li><strong>Contact :</strong> valentinmoulay@gmail.com</li>
           </ul>
         </section>
 
