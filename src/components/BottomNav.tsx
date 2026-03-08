@@ -5,7 +5,7 @@ const tabs = [
   { path: '/', label: 'Feed', icon: Compass },
   { path: '/capture', label: 'Capture', icon: Camera },
   { path: '/collection', label: 'Faunex', icon: BookOpen },
-  { path: '/explorers', label: 'Amis', icon: Users },
+  { path: '/explorers', label: 'Explorateurs', icon: Users },
   { path: '/profile', label: 'Profil', icon: User },
 ];
 

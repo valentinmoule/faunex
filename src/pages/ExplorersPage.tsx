@@ -214,7 +214,7 @@ const ExplorersPage = () => {
               onClick={() => setTab('friends')}
               className={`px-4 py-1.5 rounded-full text-xs font-display font-semibold transition-colors ${tab === 'friends' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
             >
-              Amis ({friends.length})
+              Explorateurs ({friends.length})
             </button>
             <button
               onClick={() => setTab('requests')}
