@@ -136,9 +136,13 @@ const CapturePage = () => {
       });
       if (error) throw error;
       if (data?.success && data.animal) {
-        setAnimalResult(data.animal);
+        if (data.animal.animal_name === 'Inconnu' || data.animal.animal_name.toLowerCase() === 'inconnu') {
+          // AI couldn't identify — force manual mode with moderation
+          setManualMode(true);
+        } else {
+          setAnimalResult(data.animal);
+        }
       } else {
-        // Identification failed — offer manual entry
         setManualMode(true);
       }
     } catch (err: any) {
