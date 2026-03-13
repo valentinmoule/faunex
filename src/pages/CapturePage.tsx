@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback, TouchEvent as ReactTouchEvent } from 'react';
-import { Camera, Zap, MapPin, Image, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine, ZoomIn } from 'lucide-react';
+import { Camera, Zap, MapPin, Image, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine, ZoomIn, Focus, Crosshair } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -46,8 +46,13 @@ const CapturePage = () => {
   const [zoomLevel, setZoomLevel] = useState(1);
   const [maxZoom, setMaxZoom] = useState(5);
   const [supportsNativeZoom, setSupportsNativeZoom] = useState(false);
+  const [focusMode, setFocusMode] = useState<'auto' | 'manual'>('auto');
+  const [focusPoint, setFocusPoint] = useState<{ x: number; y: number } | null>(null);
+  const [focusAnimating, setFocusAnimating] = useState(false);
+  const [supportsFocus, setSupportsFocus] = useState(false);
   const pinchStartDistance = useRef<number | null>(null);
   const pinchStartZoom = useRef<number>(1);
+  const focusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -81,6 +86,15 @@ const CapturePage = () => {
         setMaxZoom(5);
       }
       setZoomLevel(1);
+
+      // Check focus support
+      const hasFocusMode = !!(capabilities?.focusMode);
+      setSupportsFocus(hasFocusMode);
+      if (hasFocusMode && capabilities.focusMode.includes('continuous')) {
+        try {
+          await (track as any).applyConstraints({ advanced: [{ focusMode: 'continuous' } as any] });
+        } catch {}
+      }
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
@@ -131,6 +145,57 @@ const CapturePage = () => {
   const handleTouchEnd = useCallback(() => {
     pinchStartDistance.current = null;
   }, []);
+
+  // Tap-to-focus handler
+  const handleTapToFocus = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (capturedPhoto || !cameraActive || !streamRef.current) return;
+
+    const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
+
+    // Show focus indicator
+    setFocusPoint({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    setFocusAnimating(true);
+    if (focusTimeoutRef.current) clearTimeout(focusTimeoutRef.current);
+    focusTimeoutRef.current = setTimeout(() => {
+      setFocusAnimating(false);
+      setTimeout(() => setFocusPoint(null), 300);
+    }, 1000);
+
+    // Apply focus point if supported
+    if (supportsFocus) {
+      const track = streamRef.current.getVideoTracks()[0];
+      try {
+        const constraints: any = {
+          advanced: [{
+            focusMode: 'manual',
+            pointsOfInterest: [{ x, y }],
+          }],
+        };
+        (track as any).applyConstraints(constraints);
+        setFocusMode('manual');
+      } catch {}
+    }
+  }, [capturedPhoto, cameraActive, supportsFocus]);
+
+  // Toggle between auto and manual focus
+  const toggleFocusMode = useCallback(() => {
+    if (!streamRef.current) return;
+    const track = streamRef.current.getVideoTracks()[0];
+    const newMode = focusMode === 'auto' ? 'manual' : 'auto';
+
+    if (supportsFocus) {
+      try {
+        const mode = newMode === 'auto' ? 'continuous' : 'manual';
+        (track as any).applyConstraints({ advanced: [{ focusMode: mode } as any] });
+      } catch {}
+    }
+
+    setFocusMode(newMode);
+    setFocusPoint(null);
+    toast.info(newMode === 'auto' ? 'Mise au point automatique' : 'Mise au point manuelle — touchez pour faire le point');
+  }, [focusMode, supportsFocus]);
 
   useEffect(() => {
     startCamera();
@@ -229,6 +294,8 @@ const CapturePage = () => {
     setManualSpecies('');
     setManualDescription('');
     setZoomLevel(1);
+    setFocusPoint(null);
+    setFocusMode('auto');
   };
 
   const saveManualEntry = async () => {
@@ -439,6 +506,7 @@ const CapturePage = () => {
           onTouchStart={!capturedPhoto ? handleTouchStart : undefined}
           onTouchMove={!capturedPhoto ? handleTouchMove : undefined}
           onTouchEnd={!capturedPhoto ? handleTouchEnd : undefined}
+          onClick={!capturedPhoto ? handleTapToFocus : undefined}
         >
           {capturedPhoto ? (
             <img src={capturedPhoto} alt="Captured" className="w-full h-full object-cover" />
@@ -459,6 +527,18 @@ const CapturePage = () => {
                 </div>
               )}
             </>
+          )}
+
+          {/* Focus point indicator */}
+          {focusPoint && (
+            <div
+              className={`absolute pointer-events-none z-30 transition-all duration-300 ${focusAnimating ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}
+              style={{ left: focusPoint.x - 28, top: focusPoint.y - 28 }}
+            >
+              <div className="w-14 h-14 border-2 border-amber rounded-lg flex items-center justify-center">
+                <Crosshair className="w-5 h-5 text-amber" />
+              </div>
+            </div>
           )}
         </div>
 
@@ -505,12 +585,20 @@ const CapturePage = () => {
               <X className="w-5 h-5" />
             </button>
           ) : (
-            <button
-              onClick={() => setFlash(!flash)}
-              className={`p-3 rounded-full transition-colors ${flash ? 'bg-amber text-amber-dark' : 'bg-primary-foreground/10 text-primary-foreground/60'}`}
-            >
-              <Zap className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setFlash(!flash)}
+                className={`p-3 rounded-full transition-colors ${flash ? 'bg-amber text-amber-dark' : 'bg-primary-foreground/10 text-primary-foreground/60'}`}
+              >
+                <Zap className="w-5 h-5" />
+              </button>
+              <button
+                onClick={toggleFocusMode}
+                className={`p-3 rounded-full transition-colors ${focusMode === 'manual' ? 'bg-amber text-amber-dark' : 'bg-primary-foreground/10 text-primary-foreground/60'}`}
+              >
+                <Focus className="w-5 h-5" />
+              </button>
+            </div>
           )}
           <div className="flex items-center gap-1.5 bg-primary-foreground/10 rounded-full px-3 py-1.5">
             <MapPin className="w-3.5 h-3.5 text-primary" />
