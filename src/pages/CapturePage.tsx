@@ -432,7 +432,13 @@ const CapturePage = () => {
       {/* Camera / photo / result */}
       <div className="flex-1 relative flex flex-col overflow-hidden">
         {/* Camera or captured photo background */}
-        <div className="absolute inset-0">
+        <div
+          ref={videoContainerRef}
+          className="absolute inset-0 touch-none"
+          onTouchStart={!capturedPhoto ? handleTouchStart : undefined}
+          onTouchMove={!capturedPhoto ? handleTouchMove : undefined}
+          onTouchEnd={!capturedPhoto ? handleTouchEnd : undefined}
+        >
           {capturedPhoto ? (
             <img src={capturedPhoto} alt="Captured" className="w-full h-full object-cover" />
           ) : (
@@ -441,6 +447,7 @@ const CapturePage = () => {
                 ref={videoRef}
                 autoPlay playsInline muted
                 className={`w-full h-full object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
+                style={!supportsNativeZoom && zoomLevel > 1 ? { transform: `${facingMode === 'user' ? 'scaleX(-1) ' : ''}scale(${zoomLevel})`, transformOrigin: 'center center' } : undefined}
               />
               {!cameraActive && (
                 <div className="absolute inset-0 bg-foreground flex items-center justify-center">
@@ -457,6 +464,25 @@ const CapturePage = () => {
         {/* Overlay gradient for readability */}
         {(animalResult || identifying || manualMode) && (
           <div className="absolute inset-0 bg-gradient-to-t from-foreground via-foreground/70 to-transparent" />
+        )}
+
+        {/* Zoom indicator + slider */}
+        {!capturedPhoto && cameraActive && (
+          <div className="absolute bottom-32 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2">
+            <div className="flex items-center gap-2 bg-foreground/60 backdrop-blur-sm rounded-full px-4 py-2">
+              <ZoomIn className="w-4 h-4 text-primary-foreground/70" />
+              <input
+                type="range"
+                min={1}
+                max={maxZoom}
+                step={0.1}
+                value={zoomLevel}
+                onChange={(e) => applyZoom(parseFloat(e.target.value))}
+                className="w-32 h-1 accent-primary cursor-pointer"
+              />
+              <span className="text-primary-foreground text-xs font-display min-w-[2.5rem] text-center">{zoomLevel.toFixed(1)}x</span>
+            </div>
+          </div>
         )}
 
         {/* Viewfinder (only when camera live) */}
