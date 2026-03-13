@@ -38,7 +38,7 @@ const AuthPromptModal = ({ open, onClose, message }: Props) => {
         <div className="flex gap-2">
           <Button
             className="flex-1 font-display font-semibold"
-            onClick={() => navigate('/auth')}
+            onClick={() => navigate('/auth?mode=signup')}
           >
             S'inscrire
           </Button>
