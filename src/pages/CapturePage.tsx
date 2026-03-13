@@ -561,7 +561,7 @@ const CapturePage = () => {
   return (
     <main className="min-h-screen bg-foreground flex flex-col pb-24">
       <canvas ref={canvasRef} className="hidden" />
-
+      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleGalleryPick} />
       {/* Camera / photo / result */}
       <div className="flex-1 relative flex flex-col overflow-hidden">
         {/* Camera or captured photo background */}
