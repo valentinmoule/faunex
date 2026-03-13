@@ -62,28 +62,33 @@ const AuthRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-const AppRoutes = () => (
-  <>
-    <Routes>
-      <Route path="/auth" element={<AuthRoute><AuthPage /></AuthRoute>} />
-      <Route path="/reset-password" element={<ResetPasswordPage />} />
-      <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-      <Route path="/collection" element={<ProtectedRoute><CollectionPage /></ProtectedRoute>} />
-      <Route path="/capture" element={<ProtectedRoute><CapturePage /></ProtectedRoute>} />
-      <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-      <Route path="/explorers" element={<ProtectedRoute><ExplorersPage /></ProtectedRoute>} />
-      <Route path="/explorer/:userId/collection" element={<ProtectedRoute><FriendCollectionPage /></ProtectedRoute>} />
-      <Route path="/bestiaire" element={<ProtectedRoute><BestiairePage /></ProtectedRoute>} />
-      <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
-      <Route path="/moderation" element={<AdminRoute><ModerationPage /></AdminRoute>} />
-      <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
-      <Route path="/legal" element={<LegalPage />} />
-      <Route path="/u/:username" element={<ShareProfilePage />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
-    <BottomNav />
-  </>
-);
+const AppRoutes = () => {
+  const location = useLocation();
+  const isCapturePage = location.pathname === '/capture';
+
+  return (
+    <>
+      <Routes>
+        <Route path="/auth" element={<AuthRoute><AuthPage /></AuthRoute>} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+        <Route path="/collection" element={<ProtectedRoute><CollectionPage /></ProtectedRoute>} />
+        <Route path="/capture" element={<ProtectedRoute><CapturePage /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+        <Route path="/explorers" element={<ProtectedRoute><ExplorersPage /></ProtectedRoute>} />
+        <Route path="/explorer/:userId/collection" element={<ProtectedRoute><FriendCollectionPage /></ProtectedRoute>} />
+        <Route path="/bestiaire" element={<ProtectedRoute><BestiairePage /></ProtectedRoute>} />
+        <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
+        <Route path="/moderation" element={<AdminRoute><ModerationPage /></AdminRoute>} />
+        <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+        <Route path="/legal" element={<LegalPage />} />
+        <Route path="/u/:username" element={<ShareProfilePage />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      {!isCapturePage && <BottomNav />}
+    </>
+  );
+};
 
 const App = () => (
   <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
