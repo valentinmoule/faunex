@@ -27,6 +27,24 @@ const rarityColors: Record<string, string> = {
   mythic: 'bg-rarity-mythic/20 text-rarity-mythic border-rarity-mythic/40',
 };
 
+/** Compress an image dataURL to a max dimension and lower JPEG quality for AI */
+const compressForAI = (dataUrl: string, maxSize = 1024, quality = 0.6): Promise<string> => {
+  return new Promise((resolve) => {
+    const img = new window.Image();
+    img.onload = () => {
+      const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+      const w = Math.round(img.width * scale);
+      const h = Math.round(img.height * scale);
+      const c = document.createElement('canvas');
+      c.width = w;
+      c.height = h;
+      c.getContext('2d')!.drawImage(img, 0, 0, w, h);
+      resolve(c.toDataURL('image/jpeg', quality));
+    };
+    img.src = dataUrl;
+  });
+};
+
 const CapturePage = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
