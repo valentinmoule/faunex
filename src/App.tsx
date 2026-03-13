@@ -111,7 +111,9 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <AuthProvider>
-            <AppRoutes />
+            <PwaInstallProvider>
+              <AppRoutes />
+            </PwaInstallProvider>
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
