@@ -188,11 +188,69 @@ const CollectionPage = () => {
               ))}
             </div>
             {filtered.length === 0 && (
-              <div className="text-center py-16">
-                <p className="text-4xl mb-3">{captures.length === 0 ? '📷' : '🔍'}</p>
-                <p className="text-muted-foreground font-display">
-                  {captures.length === 0 ? 'Aucune capture encore — prends ta première photo !' : 'Aucune espèce trouvée'}
-                </p>
+              <div className="text-center py-16 px-6">
+                {captures.length === 0 ? (
+                  <>
+                    <p className="text-4xl mb-3">📷</p>
+                    <p className="text-foreground font-display font-semibold text-sm mb-2">Aucune capture encore</p>
+                    <p className="text-muted-foreground text-xs leading-relaxed max-w-xs mx-auto">
+                      Pars en exploration et photographie les animaux que tu croises ! Chaque espèce capturée rejoint ton Faunex.
+                    </p>
+                  </>
+                ) : filter === 'common' ? (
+                  <>
+                    <p className="text-4xl mb-3">🐦</p>
+                    <p className="text-foreground font-display font-semibold text-sm mb-2">Aucune espèce commune</p>
+                    <p className="text-muted-foreground text-xs leading-relaxed max-w-xs mx-auto">
+                      Les espèces communes sont celles que l'on croise facilement au quotidien : moineaux, pigeons, écureuils… Ouvre l'œil lors de tes prochaines sorties !
+                    </p>
+                  </>
+                ) : filter === 'uncommon' ? (
+                  <>
+                    <p className="text-4xl mb-3">🦔</p>
+                    <p className="text-foreground font-display font-semibold text-sm mb-2">Aucune espèce peu commune</p>
+                    <p className="text-muted-foreground text-xs leading-relaxed max-w-xs mx-auto">
+                      Les espèces peu communes se font plus discrètes. Il faut un peu de patience et de chance pour les croiser dans leur habitat naturel.
+                    </p>
+                  </>
+                ) : filter === 'rare' ? (
+                  <>
+                    <p className="text-4xl mb-3">🦊</p>
+                    <p className="text-foreground font-display font-semibold text-sm mb-2">Aucune espèce rare</p>
+                    <p className="text-muted-foreground text-xs leading-relaxed max-w-xs mx-auto">
+                      Les espèces rares sont des animaux dont les populations diminuent. Les observer dans la nature est un vrai privilège — leur conservation est importante.
+                    </p>
+                  </>
+                ) : filter === 'epic' ? (
+                  <>
+                    <p className="text-4xl mb-3">🦅</p>
+                    <p className="text-foreground font-display font-semibold text-sm mb-2">Aucune espèce épique</p>
+                    <p className="text-muted-foreground text-xs leading-relaxed max-w-xs mx-auto">
+                      Les espèces épiques sont vulnérables et menacées. Leur nombre décline sérieusement — chaque observation compte pour suivre leur état dans la nature.
+                    </p>
+                  </>
+                ) : filter === 'legendary' ? (
+                  <>
+                    <p className="text-4xl mb-3">🐺</p>
+                    <p className="text-foreground font-display font-semibold text-sm mb-2">Aucune espèce légendaire</p>
+                    <p className="text-muted-foreground text-xs leading-relaxed max-w-xs mx-auto">
+                      Les espèces légendaires sont en danger d'extinction. Elles sont extrêmement rares à observer — croiser leur chemin est un moment inoubliable.
+                    </p>
+                  </>
+                ) : filter === 'mythic' ? (
+                  <>
+                    <p className="text-4xl mb-3">🐋</p>
+                    <p className="text-foreground font-display font-semibold text-sm mb-2">Aucune espèce mythique</p>
+                    <p className="text-muted-foreground text-xs leading-relaxed max-w-xs mx-auto">
+                      Les espèces mythiques sont en danger critique d'extinction. Il ne reste que très peu d'individus dans la nature — les capturer sur Faunex est un exploit.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-4xl mb-3">🔍</p>
+                    <p className="text-muted-foreground font-display text-sm">Aucune espèce trouvée</p>
+                  </>
+                )}
               </div>
             )}
           </>
