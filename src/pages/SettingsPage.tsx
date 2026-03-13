@@ -40,6 +40,9 @@ const SettingsPage = () => {
   const [deleteConfirm, setDeleteConfirm] = useState('');
   const [deleting, setDeleting] = useState(false);
 
+  // Marketing emails
+  const [marketingEmails, setMarketingEmails] = useState(true);
+
   // Fetch profile on mount
   useEffect(() => {
     if (!session?.user) return;
