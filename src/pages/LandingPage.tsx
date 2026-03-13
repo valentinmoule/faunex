@@ -123,6 +123,13 @@ const LandingPage = () => {
           </Button>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="px-6 pb-8 text-center">
+        <a href="/legal" className="text-xs text-muted-foreground/50 hover:text-muted-foreground underline font-body">
+          Mentions légales
+        </a>
+      </footer>
     </main>
   );
 };
