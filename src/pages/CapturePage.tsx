@@ -259,11 +259,12 @@ const CapturePage = () => {
       );
     }
 
-    // Identify
+    // Identify — compress image before sending to AI
     setIdentifying(true);
     try {
+      const compressedUrl = await compressForAI(dataUrl, 1024, 0.6);
       const { data, error } = await supabase.functions.invoke('identify-animal', {
-        body: { imageBase64: dataUrl },
+        body: { imageBase64: compressedUrl },
       });
       if (error) throw error;
       if (data?.success && data.animal) {
