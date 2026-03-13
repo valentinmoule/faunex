@@ -38,6 +38,7 @@ const CapturePage = () => {
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
   const [identifying, setIdentifying] = useState(false);
   const [animalResult, setAnimalResult] = useState<AnimalResult | null>(null);
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [duplicateCapture, setDuplicateCapture] = useState<{ id: string; image_url: string; animal_name: string } | null>(null);
