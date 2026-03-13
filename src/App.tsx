@@ -6,6 +6,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { PwaInstallProvider } from "./contexts/PwaInstallContext";
+import PwaInstallBanner from "./components/PwaInstallBanner";
 import Index from "./pages/Index";
 import CapturePage from "./pages/CapturePage";
 import CollectionPage from "./pages/CollectionPage";
@@ -96,6 +98,7 @@ const AppRoutes = () => {
         <Route path="*" element={<NotFound />} />
       </Routes>
       {!isCapturePage && !isLandingPage && <BottomNav />}
+      <PwaInstallBanner />
     </>
   );
 };
@@ -108,7 +111,9 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <AuthProvider>
-            <AppRoutes />
+            <PwaInstallProvider>
+              <AppRoutes />
+            </PwaInstallProvider>
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
