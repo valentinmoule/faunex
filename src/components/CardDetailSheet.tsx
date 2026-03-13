@@ -275,6 +275,16 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
           </div>
         </div>
       </SheetContent>
+
+      <Dialog open={imageFullscreen} onOpenChange={setImageFullscreen}>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-black/95 border-0 flex items-center justify-center">
+          <img
+            src={card.image}
+            alt={card.name}
+            className="max-w-full max-h-[90vh] object-contain rounded-lg"
+          />
+        </DialogContent>
+      </Dialog>
     </Sheet>
   );
 };
