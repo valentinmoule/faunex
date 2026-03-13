@@ -592,7 +592,7 @@ const CapturePage = () => {
           ) : (
             <div className="flex items-center gap-2">
               <button
-                onClick={() => navigate('/')}
+                onClick={() => navigate(session ? '/home' : '/')}
                 className="p-3 rounded-full bg-primary-foreground/10 text-primary-foreground/60"
               >
                 <ArrowLeft className="w-5 h-5" />

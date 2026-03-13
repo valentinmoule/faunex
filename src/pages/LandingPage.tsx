@@ -44,9 +44,17 @@ const LandingPage = () => {
           <Button
             size="lg"
             className="font-display font-semibold gap-2 text-base px-6"
+            onClick={() => navigate('/capture')}
+          >
+            Capturer un animal <ChevronRight className="w-4 h-4" />
+          </Button>
+          <Button
+            size="lg"
+            variant="outline"
+            className="font-display font-semibold text-base px-6"
             onClick={() => navigate('/auth')}
           >
-            Commencer <ChevronRight className="w-4 h-4" />
+            Se connecter
           </Button>
         </div>
       </section>
