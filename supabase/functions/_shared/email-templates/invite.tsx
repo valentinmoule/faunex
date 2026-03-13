@@ -9,6 +9,7 @@ import {
   Head,
   Heading,
   Html,
+  Img,
   Link,
   Preview,
   Text,
@@ -25,26 +26,25 @@ export const InviteEmail = ({
   siteUrl,
   confirmationUrl,
 }: InviteEmailProps) => (
-  <Html lang="en" dir="ltr">
+  <Html lang="fr" dir="ltr">
     <Head />
-    <Preview>You've been invited to join {siteName}</Preview>
+    <Preview>Tu es invité à rejoindre Faunex ! 🌿</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Heading style={h1}>You've been invited</Heading>
+        <Img src="https://faunex.lovable.app/pwa-icon-192.png" width="48" height="48" alt="Faunex" style={logo} />
+        <Heading style={h1}>Tu es invité ! 🦉</Heading>
         <Text style={text}>
-          You've been invited to join{' '}
+          Tu as été invité à rejoindre{' '}
           <Link href={siteUrl} style={link}>
-            <strong>{siteName}</strong>
+            <strong>Faunex</strong>
           </Link>
-          . Click the button below to accept the invitation and create your
-          account.
+          , la communauté des naturalistes. Clique ci-dessous pour accepter l'invitation et créer ton compte.
         </Text>
         <Button style={button} href={confirmationUrl}>
-          Accept Invitation
+          Accepter l'invitation
         </Button>
         <Text style={footer}>
-          If you weren't expecting this invitation, you can safely ignore this
-          email.
+          Si tu n'attendais pas cette invitation, tu peux ignorer cet email.
         </Text>
       </Container>
     </Body>
@@ -53,27 +53,29 @@ export const InviteEmail = ({
 
 export default InviteEmail
 
-const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
-const container = { padding: '20px 25px' }
+const main = { backgroundColor: '#f7faf7', fontFamily: "'Space Grotesk', 'DM Sans', Arial, sans-serif" }
+const container = { padding: '30px 25px' }
+const logo = { marginBottom: '20px' }
 const h1 = {
   fontSize: '22px',
   fontWeight: 'bold' as const,
-  color: '#000000',
+  color: 'hsl(160, 30%, 8%)',
   margin: '0 0 20px',
 }
 const text = {
   fontSize: '14px',
-  color: '#55575d',
-  lineHeight: '1.5',
+  color: 'hsl(155, 10%, 45%)',
+  lineHeight: '1.6',
   margin: '0 0 25px',
 }
 const link = { color: 'inherit', textDecoration: 'underline' }
 const button = {
-  backgroundColor: '#000000',
-  color: '#ffffff',
+  backgroundColor: 'hsl(152, 55%, 28%)',
+  color: 'hsl(60, 20%, 97%)',
   fontSize: '14px',
-  borderRadius: '8px',
-  padding: '12px 20px',
+  fontWeight: '600' as const,
+  borderRadius: '16px',
+  padding: '12px 24px',
   textDecoration: 'none',
 }
 const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }
