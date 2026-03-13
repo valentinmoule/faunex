@@ -186,29 +186,8 @@ const SettingsPage = () => {
               </button>
             </div>
 
-            {/* Marketing emails toggle */}
-            <div className="flex items-center justify-between px-4 py-3.5 rounded-xl hover:bg-muted transition-colors">
-              <div className="flex items-center gap-3">
-                <Mail className="w-5 h-5 text-foreground" />
-                <div>
-                  <span className="text-sm font-display font-semibold text-foreground block">Emails de relance</span>
-                  <span className="text-[11px] text-muted-foreground">Conseils, rappels et astuces</span>
-                </div>
-              </div>
-              <button
-                onClick={async () => {
-                  const newVal = !marketingEmails;
-                  setMarketingEmails(newVal);
-                  if (session?.user) {
-                    await supabase.from('profiles').update({ marketing_emails: newVal } as any).eq('user_id', session.user.id);
-                    toast.success(newVal ? 'Emails de relance activés' : 'Emails de relance désactivés');
-                  }
-                }}
-                className={`relative w-11 h-6 rounded-full transition-colors ${marketingEmails ? 'bg-primary' : 'bg-muted-foreground/30'}`}
-              >
-                <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card shadow transition-transform ${marketingEmails ? 'translate-x-5' : 'translate-x-0'}`} />
-              </button>
-            </div>
+
+
 
             <MenuItem icon={<Pencil className="w-5 h-5" />} label="Modifier le profil" onClick={() => setSection('edit')} />
             <MenuItem icon={<KeyRound className="w-5 h-5" />} label="Changer le mot de passe" onClick={() => setSection('password')} />
