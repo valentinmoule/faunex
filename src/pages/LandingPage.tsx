@@ -88,10 +88,10 @@ const LandingPage = () => {
         </p>
         <div className="flex gap-3 overflow-x-auto pb-2 -mx-2 px-2 snap-x snap-mandatory scrollbar-hide">
           {[
-            { img: '/images/fox.jpg', name: 'Renard roux', rarity: 'Commun' },
-            { img: '/images/kingfisher.jpg', name: 'Martin-pêcheur', rarity: 'Rare' },
-            { img: '/images/owl.jpg', name: 'Harfang des neiges', rarity: 'Légendaire' },
-            { img: '/images/wolf.jpg', name: 'Loup gris', rarity: 'Mythique' },
+            { img: '/images/fox.jpg', name: 'Renard roux', status: 'Préoccupation mineure' },
+            { img: '/images/kingfisher.jpg', name: 'Martin-pêcheur', status: 'Préoccupation mineure' },
+            { img: '/images/owl.jpg', name: 'Harfang des neiges', status: 'Vulnérable' },
+            { img: '/images/wolf.jpg', name: 'Loup gris', status: 'Protégé en Europe' },
           ].map((a, i) => (
             <div
               key={i}
@@ -100,7 +100,7 @@ const LandingPage = () => {
               <img src={a.img} alt={a.name} className="w-full h-28 object-cover" loading="lazy" />
               <div className="p-2.5">
                 <p className="font-display font-semibold text-sm truncate">{a.name}</p>
-                <p className="text-xs text-muted-foreground font-body">{a.rarity}</p>
+                <p className="text-xs text-muted-foreground font-body">{a.status}</p>
               </div>
             </div>
           ))}
