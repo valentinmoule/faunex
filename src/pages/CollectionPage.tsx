@@ -110,7 +110,6 @@ const CollectionPage = () => {
 
   const filtered = captures.filter(c => {
     if (filter !== 'all' && c.rarity !== filter) return false;
-    if (search && !c.name.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
 
