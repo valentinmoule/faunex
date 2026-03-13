@@ -639,13 +639,25 @@ const CapturePage = () => {
                 <p className="text-primary-foreground/60 text-sm italic">{animalResult.scientific_name}</p>
               </div>
 
-              {/* Description */}
-              <p className="text-primary-foreground/80 text-sm leading-relaxed">{animalResult.description}</p>
-
-              {/* Fun fact */}
-              <div className="bg-primary-foreground/10 rounded-xl px-4 py-3">
-                <p className="text-primary-foreground/90 text-xs font-display">💡 {animalResult.fun_fact}</p>
-              </div>
+              {/* Description - hidden for guests */}
+              {isGuest ? (
+                <button
+                  onClick={() => setShowAuthPrompt(true)}
+                  className="flex items-center gap-2 bg-primary-foreground/10 rounded-xl px-4 py-3 w-full text-left"
+                >
+                  <Lock className="w-4 h-4 text-primary-foreground/50 shrink-0" />
+                  <p className="text-primary-foreground/60 text-sm font-display">
+                    Crée un compte pour voir la description, l'habitat et sauvegarder ta capture
+                  </p>
+                </button>
+              ) : (
+                <>
+                  <p className="text-primary-foreground/80 text-sm leading-relaxed">{animalResult.description}</p>
+                  <div className="bg-primary-foreground/10 rounded-xl px-4 py-3">
+                    <p className="text-primary-foreground/90 text-xs font-display">💡 {animalResult.fun_fact}</p>
+                  </div>
+                </>
+              )}
 
             </div>
           </div>
