@@ -143,6 +143,14 @@ const CapturePage = () => {
     if (!videoRef.current || !canvasRef.current) return;
     const video = videoRef.current;
     const canvas = canvasRef.current;
+    
+    // If using digital zoom (no native zoom), crop the center of the frame
+    const useDigitalCrop = !supportsNativeZoom && zoomLevel > 1;
+    const srcW = useDigitalCrop ? video.videoWidth / zoomLevel : video.videoWidth;
+    const srcH = useDigitalCrop ? video.videoHeight / zoomLevel : video.videoHeight;
+    const srcX = useDigitalCrop ? (video.videoWidth - srcW) / 2 : 0;
+    const srcY = useDigitalCrop ? (video.videoHeight - srcH) / 2 : 0;
+
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     const ctx = canvas.getContext('2d');
@@ -152,7 +160,7 @@ const CapturePage = () => {
       ctx.translate(canvas.width, 0);
       ctx.scale(-1, 1);
     }
-    ctx.drawImage(video, 0, 0);
+    ctx.drawImage(video, srcX, srcY, srcW, srcH, 0, 0, canvas.width, canvas.height);
 
     const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
     setCapturedPhoto(dataUrl);
