@@ -142,150 +142,168 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
   const isShiny = isLegendary || isMythic;
 
   return (
-    <Sheet open={open} onOpenChange={onClose}>
-      <SheetContent side="bottom" className="h-[92vh] rounded-t-3xl overflow-y-auto p-0 bg-background border-0">
-        {/* Hero Image Section */}
-        <div className={`relative overflow-hidden ${isMythic ? 'mythic-shiny' : ''}`}>
-          <div className={`absolute inset-0 z-0 bg-gradient-to-b ${rarityGradients[card.rarity]} opacity-90`} />
+    <>
+      <Sheet open={open} onOpenChange={onClose}>
+        <SheetContent side="bottom" className="h-[92vh] rounded-t-3xl overflow-y-auto p-0 bg-background border-0">
+          {/* Hero Image Section */}
+          <div className={`relative overflow-hidden ${isMythic ? 'mythic-shiny' : ''}`}>
+            <div className={`absolute inset-0 z-0 bg-gradient-to-b ${rarityGradients[card.rarity]} opacity-90`} />
 
-          <div className="relative z-10 pt-6 px-6 pb-0">
-            <div
-              className="relative mx-auto max-w-[280px] aspect-square rounded-2xl overflow-hidden shadow-xl border-2 border-white/20 cursor-pointer active:scale-95 transition-transform"
-              onClick={() => setImageFullscreen(true)}
-            >
-              <img src={card.image} alt={card.name} className="w-full h-full object-cover" />
-              {isMythic && <div className="mythic-image-overlay" />}
-              {isMythic && (
-                <div className="mythic-sparkles">
-                  <span /><span /><span /><span /><span /><span />
-                </div>
-              )}
-              {isShiny && !isMythic && (
-                <div className="absolute inset-0 holographic-card card-shimmer pointer-events-none" style={{ backgroundImage: 'var(--gradient-holographic)', backgroundSize: '200% 200%', opacity: 0.25 }} />
-              )}
+            <div className="relative z-10 pt-6 px-6 pb-0">
+              <div
+                className="relative mx-auto max-w-[280px] aspect-square rounded-2xl overflow-hidden shadow-xl border-2 border-white/20 cursor-pointer active:scale-95 transition-transform"
+                role="button"
+                tabIndex={0}
+                onPointerUp={(e) => {
+                  e.stopPropagation();
+                  setImageFullscreen(true);
+                }}
+              >
+                <img src={card.image} alt={card.name} className="w-full h-full object-cover pointer-events-none" draggable={false} />
+                {isMythic && <div className="mythic-image-overlay pointer-events-none" />}
+                {isMythic && (
+                  <div className="mythic-sparkles pointer-events-none">
+                    <span /><span /><span /><span /><span /><span />
+                  </div>
+                )}
+                {isShiny && !isMythic && (
+                  <div className="absolute inset-0 holographic-card card-shimmer pointer-events-none" style={{ backgroundImage: 'var(--gradient-holographic)', backgroundSize: '200% 200%', opacity: 0.25 }} />
+                )}
+              </div>
+            </div>
+
+            <div className="relative z-10 text-center px-6 pt-4 pb-5">
+              <h2 className="text-2xl font-display font-bold text-white drop-shadow-lg">{card.name}</h2>
+              <p className="text-white/60 text-sm italic font-body mt-0.5">{card.scientificName}</p>
             </div>
           </div>
 
-          <div className="relative z-10 text-center px-6 pt-4 pb-5">
-            <h2 className="text-2xl font-display font-bold text-white drop-shadow-lg">{card.name}</h2>
-            <p className="text-white/60 text-sm italic font-body mt-0.5">{card.scientificName}</p>
-          </div>
-        </div>
+          {/* Card Body */}
+          <div className="relative -mt-3 bg-background rounded-t-3xl px-5 pb-10 pt-5 space-y-5">
 
-        {/* Card Body */}
-        <div className="relative -mt-3 bg-background rounded-t-3xl px-5 pb-10 pt-5 space-y-5">
+            {/* Like & Comment bar */}
+            <div className="flex items-center justify-center gap-6">
+              <button onClick={handleLike} className="flex items-center gap-2 group">
+                <Heart className={`w-6 h-6 transition-all ${liked ? 'fill-destructive text-destructive scale-110' : 'text-muted-foreground group-hover:text-destructive'}`} />
+                <span className={`text-sm font-display font-semibold ${liked ? 'text-destructive' : 'text-muted-foreground'}`}>{likeCount}</span>
+              </button>
+              <button onClick={() => setShowComments(!showComments)} className="flex items-center gap-2 group">
+                <MessageCircle className={`w-6 h-6 transition-colors ${showComments ? 'text-primary fill-primary/20' : 'text-muted-foreground group-hover:text-primary'}`} />
+                <span className={`text-sm font-display font-semibold ${showComments ? 'text-primary' : 'text-muted-foreground'}`}>{comments.length}</span>
+              </button>
+            </div>
 
-          {/* Like & Comment bar */}
-          <div className="flex items-center justify-center gap-6">
-            <button onClick={handleLike} className="flex items-center gap-2 group">
-              <Heart className={`w-6 h-6 transition-all ${liked ? 'fill-destructive text-destructive scale-110' : 'text-muted-foreground group-hover:text-destructive'}`} />
-              <span className={`text-sm font-display font-semibold ${liked ? 'text-destructive' : 'text-muted-foreground'}`}>{likeCount}</span>
-            </button>
-            <button onClick={() => setShowComments(!showComments)} className="flex items-center gap-2 group">
-              <MessageCircle className={`w-6 h-6 transition-colors ${showComments ? 'text-primary fill-primary/20' : 'text-muted-foreground group-hover:text-primary'}`} />
-              <span className={`text-sm font-display font-semibold ${showComments ? 'text-primary' : 'text-muted-foreground'}`}>{comments.length}</span>
-            </button>
-          </div>
-
-          {/* Comments section */}
-          {showComments && (
-            <div className="bg-muted/50 rounded-2xl p-4 space-y-3">
-              {comments.length === 0 ? (
-                <p className="text-xs text-muted-foreground text-center py-2">Aucun commentaire — sois le premier !</p>
-              ) : (
-                <div className="space-y-3 max-h-48 overflow-y-auto">
-                  {comments.map(comment => (
-                    <div key={comment.id} className="flex gap-2.5">
-                      <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-display font-bold text-primary shrink-0 overflow-hidden">
-                        {comment.profile?.avatar_url ? (
-                          <img src={comment.profile.avatar_url} alt="" className="w-full h-full object-cover" />
-                        ) : (
-                          (comment.profile?.display_name || '?').charAt(0).toUpperCase()
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-baseline gap-2">
-                          <span className="text-xs font-display font-semibold text-foreground">
-                            {comment.profile?.display_name || comment.profile?.username || 'Anonyme'}
-                          </span>
-                          <span className="text-[10px] text-muted-foreground">{timeAgo(comment.created_at)}</span>
+            {/* Comments section */}
+            {showComments && (
+              <div className="bg-muted/50 rounded-2xl p-4 space-y-3">
+                {comments.length === 0 ? (
+                  <p className="text-xs text-muted-foreground text-center py-2">Aucun commentaire — sois le premier !</p>
+                ) : (
+                  <div className="space-y-3 max-h-48 overflow-y-auto">
+                    {comments.map(comment => (
+                      <div key={comment.id} className="flex gap-2.5">
+                        <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-display font-bold text-primary shrink-0 overflow-hidden">
+                          {comment.profile?.avatar_url ? (
+                            <img src={comment.profile.avatar_url} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            (comment.profile?.display_name || '?').charAt(0).toUpperCase()
+                          )}
                         </div>
-                        <p className="text-sm text-foreground/80 leading-snug">{comment.content}</p>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-xs font-display font-semibold text-foreground">
+                              {comment.profile?.display_name || comment.profile?.username || 'Anonyme'}
+                            </span>
+                            <span className="text-[10px] text-muted-foreground">{timeAgo(comment.created_at)}</span>
+                          </div>
+                          <p className="text-sm text-foreground/80 leading-snug">{comment.content}</p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+                    ))}
+                  </div>
+                )}
 
-              <div className="flex items-center gap-2 pt-1">
-                <input
-                  type="text"
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSubmitComment()}
-                  placeholder="Ajouter un commentaire…"
-                  className="flex-1 bg-background rounded-full px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body"
-                />
-                <button
-                  onClick={handleSubmitComment}
-                  disabled={!newComment.trim() || submitting}
-                  className="p-2 rounded-full bg-primary text-primary-foreground disabled:opacity-40 transition-opacity"
-                >
-                  <Send className="w-4 h-4" />
-                </button>
+                <div className="flex items-center gap-2 pt-1">
+                  <input
+                    type="text"
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSubmitComment()}
+                    placeholder="Ajouter un commentaire…"
+                    className="flex-1 bg-background rounded-full px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body"
+                  />
+                  <button
+                    onClick={handleSubmitComment}
+                    disabled={!newComment.trim() || submitting}
+                    className="p-2 rounded-full bg-primary text-primary-foreground disabled:opacity-40 transition-opacity"
+                  >
+                    <Send className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Rarity + Category chips */}
+            <div className="flex items-center justify-center gap-2">
+              <span className={`px-3 py-1 rounded-full text-[11px] font-display font-bold uppercase tracking-wider ${rarityBg[card.rarity]} ${rarityText[card.rarity]}`}>
+                {RARITY_LABELS[card.rarity]}
+              </span>
+              <span className="px-3 py-1 rounded-full text-[11px] font-display font-semibold bg-muted text-muted-foreground">
+                {card.category}
+              </span>
+            </div>
+
+            <p className="text-sm text-foreground/80 leading-relaxed text-center max-w-sm mx-auto">{card.description}</p>
+
+            {/* Stats Grid */}
+            <div className="grid grid-cols-2 gap-2.5">
+              <StatCard icon={<MapPin className="w-4 h-4" />} label="Habitat" value={card.habitat} color="text-primary" bg="bg-primary/8" />
+              <StatCard icon={<UtensilsCrossed className="w-4 h-4" />} label="Alimentation" value={card.diet} color="text-amber" bg="bg-amber/8" />
+              <StatCard icon={<Shield className="w-4 h-4" />} label="Conservation" value={card.conservation} color="text-sky" bg="bg-sky/8" />
+              <StatCard icon={<Leaf className="w-4 h-4" />} label="Lieu" value={card.location || 'Non renseigné'} color="text-forest-light" bg="bg-forest-light/8"
+                link={card.latitude && card.longitude ? `https://www.google.com/maps?q=${card.latitude},${card.longitude}` : undefined}
+              />
+            </div>
+
+            {/* Fun Fact */}
+            <div className={`relative overflow-hidden rounded-2xl border ${isMythic ? 'border-rarity-mythic/30 bg-rarity-mythic/5' : isLegendary ? 'border-rarity-legendary/30 bg-rarity-legendary/5' : 'border-amber/20 bg-amber/5'}`}>
+              <div className="px-4 py-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${isMythic ? 'bg-rarity-mythic/15' : 'bg-amber/15'}`}>
+                    <Sparkles className={`w-4 h-4 ${isMythic ? 'text-rarity-mythic' : 'text-amber'}`} />
+                  </div>
+                  <p className={`text-xs font-display font-bold uppercase tracking-wider ${isMythic ? 'text-rarity-mythic' : 'text-amber-dark'}`}>
+                    Le saviez-vous ?
+                  </p>
+                </div>
+                <p className="text-sm text-foreground/80 leading-relaxed">{card.funFact}</p>
               </div>
             </div>
-          )}
-
-          {/* Rarity + Category chips */}
-          <div className="flex items-center justify-center gap-2">
-            <span className={`px-3 py-1 rounded-full text-[11px] font-display font-bold uppercase tracking-wider ${rarityBg[card.rarity]} ${rarityText[card.rarity]}`}>
-              {RARITY_LABELS[card.rarity]}
-            </span>
-            <span className="px-3 py-1 rounded-full text-[11px] font-display font-semibold bg-muted text-muted-foreground">
-              {card.category}
-            </span>
           </div>
+        </SheetContent>
+      </Sheet>
 
-          <p className="text-sm text-foreground/80 leading-relaxed text-center max-w-sm mx-auto">{card.description}</p>
-
-          {/* Stats Grid */}
-          <div className="grid grid-cols-2 gap-2.5">
-            <StatCard icon={<MapPin className="w-4 h-4" />} label="Habitat" value={card.habitat} color="text-primary" bg="bg-primary/8" />
-            <StatCard icon={<UtensilsCrossed className="w-4 h-4" />} label="Alimentation" value={card.diet} color="text-amber" bg="bg-amber/8" />
-            <StatCard icon={<Shield className="w-4 h-4" />} label="Conservation" value={card.conservation} color="text-sky" bg="bg-sky/8" />
-            <StatCard icon={<Leaf className="w-4 h-4" />} label="Lieu" value={card.location || 'Non renseigné'} color="text-forest-light" bg="bg-forest-light/8"
-              link={card.latitude && card.longitude ? `https://www.google.com/maps?q=${card.latitude},${card.longitude}` : undefined}
-            />
-          </div>
-
-          {/* Fun Fact */}
-          <div className={`relative overflow-hidden rounded-2xl border ${isMythic ? 'border-rarity-mythic/30 bg-rarity-mythic/5' : isLegendary ? 'border-rarity-legendary/30 bg-rarity-legendary/5' : 'border-amber/20 bg-amber/5'}`}>
-            <div className="px-4 py-4">
-              <div className="flex items-center gap-2 mb-2">
-                <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${isMythic ? 'bg-rarity-mythic/15' : 'bg-amber/15'}`}>
-                  <Sparkles className={`w-4 h-4 ${isMythic ? 'text-rarity-mythic' : 'text-amber'}`} />
-                </div>
-                <p className={`text-xs font-display font-bold uppercase tracking-wider ${isMythic ? 'text-rarity-mythic' : 'text-amber-dark'}`}>
-                  Le saviez-vous ?
-                </p>
-              </div>
-              <p className="text-sm text-foreground/80 leading-relaxed">{card.funFact}</p>
-            </div>
-          </div>
-        </div>
-      </SheetContent>
-
-      <Dialog open={imageFullscreen} onOpenChange={setImageFullscreen}>
-        <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-black/95 border-0 flex items-center justify-center">
+      {/* Fullscreen image - outside Sheet to avoid portal conflicts */}
+      {imageFullscreen && (
+        <div
+          className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center p-4"
+          onClick={() => setImageFullscreen(false)}
+        >
           <img
             src={card.image}
             alt={card.name}
             className="max-w-full max-h-[90vh] object-contain rounded-lg"
+            onClick={(e) => e.stopPropagation()}
           />
-        </DialogContent>
-      </Dialog>
-    </Sheet>
+          <button
+            onClick={() => setImageFullscreen(false)}
+            className="absolute top-6 right-6 text-white/70 hover:text-white text-3xl font-light"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+    </>
   );
 };
 
