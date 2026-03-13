@@ -504,6 +504,7 @@ const CapturePage = () => {
           onTouchStart={!capturedPhoto ? handleTouchStart : undefined}
           onTouchMove={!capturedPhoto ? handleTouchMove : undefined}
           onTouchEnd={!capturedPhoto ? handleTouchEnd : undefined}
+          onClick={!capturedPhoto ? handleTapToFocus : undefined}
         >
           {capturedPhoto ? (
             <img src={capturedPhoto} alt="Captured" className="w-full h-full object-cover" />
@@ -524,6 +525,18 @@ const CapturePage = () => {
                 </div>
               )}
             </>
+          )}
+
+          {/* Focus point indicator */}
+          {focusPoint && (
+            <div
+              className={`absolute pointer-events-none z-30 transition-all duration-300 ${focusAnimating ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}
+              style={{ left: focusPoint.x - 28, top: focusPoint.y - 28 }}
+            >
+              <div className="w-14 h-14 border-2 border-amber rounded-lg flex items-center justify-center">
+                <Crosshair className="w-5 h-5 text-amber" />
+              </div>
+            </div>
           )}
         </div>
 
