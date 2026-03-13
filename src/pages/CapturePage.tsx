@@ -228,6 +228,7 @@ const CapturePage = () => {
     setManualName('');
     setManualSpecies('');
     setManualDescription('');
+    setZoomLevel(1);
   };
 
   const saveManualEntry = async () => {
