@@ -294,6 +294,8 @@ const CapturePage = () => {
     setManualSpecies('');
     setManualDescription('');
     setZoomLevel(1);
+    setFocusPoint(null);
+    setFocusMode('auto');
   };
 
   const saveManualEntry = async () => {
