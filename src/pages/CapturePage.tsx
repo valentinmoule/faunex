@@ -323,7 +323,12 @@ const CapturePage = () => {
         );
       }
 
-      // Identify
+      // Identify — only for logged-in users
+      if (isGuest) {
+        setShowAuthPrompt(true);
+        return;
+      }
+
       setIdentifying(true);
       try {
         const { data, error } = await supabase.functions.invoke('identify-animal', {
