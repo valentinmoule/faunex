@@ -81,14 +81,24 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
     );
   };
 
-  useEffect(() => {
-    fetchNearby();
-  }, []);
-
-  const capturedNamesLower = new Set(capturedNames.map(n => n.toLowerCase()));
-  const displayed = expanded ? animals : animals.slice(0, 2);
-
-  if (!hasLoaded && !loading && !error) return null;
+  if (!hasLoaded && !loading && !error) {
+    return (
+      <div className="mb-4">
+        <button
+          onClick={fetchNearby}
+          className="w-full flex items-center gap-3 p-4 bg-muted/50 rounded-2xl hover:bg-muted transition-colors"
+        >
+          <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+            <MapPin className="w-4 h-4 text-primary" />
+          </div>
+          <div className="text-left">
+            <h2 className="text-sm font-display font-bold text-foreground">Autour de toi</h2>
+            <p className="text-[10px] text-muted-foreground">Appuie pour découvrir les espèces à proximité</p>
+          </div>
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="mb-4">
