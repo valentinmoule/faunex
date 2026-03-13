@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
 import { MapPin, Leaf, UtensilsCrossed, Shield, Sparkles, Heart, MessageCircle, Send } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -59,6 +60,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
   const [newComment, setNewComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [showComments, setShowComments] = useState(false);
+  const [imageFullscreen, setImageFullscreen] = useState(false);
 
   // Fetch likes & comments when card opens
   useEffect(() => {
@@ -147,7 +149,10 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
           <div className={`absolute inset-0 z-0 bg-gradient-to-b ${rarityGradients[card.rarity]} opacity-90`} />
 
           <div className="relative z-10 pt-6 px-6 pb-0">
-            <div className="relative mx-auto max-w-[280px] aspect-square rounded-2xl overflow-hidden shadow-xl border-2 border-white/20">
+            <div
+              className="relative mx-auto max-w-[280px] aspect-square rounded-2xl overflow-hidden shadow-xl border-2 border-white/20 cursor-pointer active:scale-95 transition-transform"
+              onClick={() => setImageFullscreen(true)}
+            >
               <img src={card.image} alt={card.name} className="w-full h-full object-cover" />
               {isMythic && <div className="mythic-image-overlay" />}
               {isMythic && (
@@ -270,6 +275,16 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
           </div>
         </div>
       </SheetContent>
+
+      <Dialog open={imageFullscreen} onOpenChange={setImageFullscreen}>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-black/95 border-0 flex items-center justify-center">
+          <img
+            src={card.image}
+            alt={card.name}
+            className="max-w-full max-h-[90vh] object-contain rounded-lg"
+          />
+        </DialogContent>
+      </Dialog>
     </Sheet>
   );
 };
