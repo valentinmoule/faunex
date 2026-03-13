@@ -748,14 +748,24 @@ const CapturePage = () => {
             Nouvelle capture
           </button>
         ) : duplicateCapture ? null : animalResult ? (
-          <button
-            onClick={saveToCollection}
-            disabled={saving}
-            className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-primary text-primary-foreground font-display text-sm disabled:opacity-50"
-          >
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-            {saving ? 'Sauvegarde…' : 'Ajouter au Faunex'}
-          </button>
+          isGuest ? (
+            <button
+              onClick={() => setShowAuthPrompt(true)}
+              className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-primary text-primary-foreground font-display text-sm"
+            >
+              <LogIn className="w-4 h-4" />
+              Créer un compte pour sauvegarder
+            </button>
+          ) : (
+            <button
+              onClick={saveToCollection}
+              disabled={saving}
+              className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-primary text-primary-foreground font-display text-sm disabled:opacity-50"
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+              {saving ? 'Sauvegarde…' : 'Ajouter au Faunex'}
+            </button>
+          )
         ) : manualMode ? (
           <button
             onClick={saveManualEntry}
