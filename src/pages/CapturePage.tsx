@@ -781,14 +781,24 @@ const CapturePage = () => {
             </button>
           )
         ) : manualMode ? (
-          <button
-            onClick={saveManualEntry}
-            disabled={saving || !manualName.trim() || !manualDescription.trim()}
-            className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-amber text-foreground font-display text-sm disabled:opacity-50"
-          >
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <PenLine className="w-4 h-4" />}
-            {saving ? 'Envoi…' : 'Soumettre pour validation'}
-          </button>
+          isGuest ? (
+            <button
+              onClick={() => setShowAuthPrompt(true)}
+              className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-primary text-primary-foreground font-display text-sm"
+            >
+              <LogIn className="w-4 h-4" />
+              Créer un compte pour soumettre
+            </button>
+          ) : (
+            <button
+              onClick={saveManualEntry}
+              disabled={saving || !manualName.trim() || !manualDescription.trim()}
+              className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-amber text-foreground font-display text-sm disabled:opacity-50"
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <PenLine className="w-4 h-4" />}
+              {saving ? 'Envoi…' : 'Soumettre pour validation'}
+            </button>
+          )
         ) : identifying ? null : capturedPhoto ? null : (
           <>
             <button className="w-12 h-12 rounded-xl bg-primary-foreground/10 flex items-center justify-center">
