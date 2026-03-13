@@ -35,9 +35,15 @@ const LegalPage = () => {
           <h2 className="text-lg font-display font-bold text-foreground mb-2">2. Hébergement</h2>
           <p>Le site est hébergé par :</p>
           <ul className="mt-2 space-y-1 list-none">
-            <li><strong>Lovable</strong> (via Supabase & Cloudflare)</li>
+            <li><strong>Hébergeur :</strong> Lovable (via Cloudflare)</li>
             <li>San Francisco, CA, États-Unis</li>
             <li>Site : <a href="https://lovable.dev" target="_blank" rel="noopener noreferrer" className="text-primary underline">lovable.dev</a></li>
+          </ul>
+          <p className="mt-3">Le nom de domaine est enregistré auprès de :</p>
+          <ul className="mt-2 space-y-1 list-none">
+            <li><strong>OVHcloud</strong></li>
+            <li>2, rue Kellermann – 59100 Roubaix, France</li>
+            <li>Site : <a href="https://www.ovhcloud.com" target="_blank" rel="noopener noreferrer" className="text-primary underline">ovhcloud.com</a></li>
           </ul>
         </section>
 
