@@ -138,7 +138,9 @@ const LegalPage = () => {
           </p>
         </section>
 
-        <p className="text-xs text-muted-foreground pt-4 pb-8">Dernière mise à jour : 8 mars 2026</p>
+        <p className="text-xs text-muted-foreground pt-4 pb-8">
+          Première publication (V.0.0) : 8 mars 2026 · Dernière mise à jour : 13 mars 2026
+        </p>
       </div>
     </main>
   );
