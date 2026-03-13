@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect, useCallback, TouchEvent as ReactTouchEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Camera, Zap, MapPin, Image, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine, ZoomIn, Focus, Crosshair, ArrowLeft } from 'lucide-react';
+import { Camera, Zap, MapPin, Image, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine, ZoomIn, Focus, Crosshair, ArrowLeft, Lock, LogIn } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { type Rarity, RARITY_LABELS } from '@/data/mockData';
+import AuthPromptModal from '@/components/AuthPromptModal';
 
 interface AnimalResult {
   animal_name: string;
@@ -29,6 +30,7 @@ const rarityColors: Record<string, string> = {
 
 const CapturePage = () => {
   const { session } = useAuth();
+  const isGuest = !session?.user;
   const navigate = useNavigate();
   const [flash, setFlash] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
@@ -36,6 +38,7 @@ const CapturePage = () => {
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
   const [identifying, setIdentifying] = useState(false);
   const [animalResult, setAnimalResult] = useState<AnimalResult | null>(null);
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [duplicateCapture, setDuplicateCapture] = useState<{ id: string; image_url: string; animal_name: string } | null>(null);
@@ -589,7 +592,7 @@ const CapturePage = () => {
           ) : (
             <div className="flex items-center gap-2">
               <button
-                onClick={() => navigate('/')}
+                onClick={() => navigate(session ? '/home' : '/')}
                 className="p-3 rounded-full bg-primary-foreground/10 text-primary-foreground/60"
               >
                 <ArrowLeft className="w-5 h-5" />
@@ -636,13 +639,25 @@ const CapturePage = () => {
                 <p className="text-primary-foreground/60 text-sm italic">{animalResult.scientific_name}</p>
               </div>
 
-              {/* Description */}
-              <p className="text-primary-foreground/80 text-sm leading-relaxed">{animalResult.description}</p>
-
-              {/* Fun fact */}
-              <div className="bg-primary-foreground/10 rounded-xl px-4 py-3">
-                <p className="text-primary-foreground/90 text-xs font-display">💡 {animalResult.fun_fact}</p>
-              </div>
+              {/* Description - hidden for guests */}
+              {isGuest ? (
+                <button
+                  onClick={() => setShowAuthPrompt(true)}
+                  className="flex items-center gap-2 bg-primary-foreground/10 rounded-xl px-4 py-3 w-full text-left"
+                >
+                  <Lock className="w-4 h-4 text-primary-foreground/50 shrink-0" />
+                  <p className="text-primary-foreground/60 text-sm font-display">
+                    Crée un compte pour voir la description, l'habitat et sauvegarder ta capture
+                  </p>
+                </button>
+              ) : (
+                <>
+                  <p className="text-primary-foreground/80 text-sm leading-relaxed">{animalResult.description}</p>
+                  <div className="bg-primary-foreground/10 rounded-xl px-4 py-3">
+                    <p className="text-primary-foreground/90 text-xs font-display">💡 {animalResult.fun_fact}</p>
+                  </div>
+                </>
+              )}
 
             </div>
           </div>
@@ -733,14 +748,24 @@ const CapturePage = () => {
             Nouvelle capture
           </button>
         ) : duplicateCapture ? null : animalResult ? (
-          <button
-            onClick={saveToCollection}
-            disabled={saving}
-            className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-primary text-primary-foreground font-display text-sm disabled:opacity-50"
-          >
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-            {saving ? 'Sauvegarde…' : 'Ajouter au Faunex'}
-          </button>
+          isGuest ? (
+            <button
+              onClick={() => setShowAuthPrompt(true)}
+              className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-primary text-primary-foreground font-display text-sm"
+            >
+              <LogIn className="w-4 h-4" />
+              Créer un compte pour sauvegarder
+            </button>
+          ) : (
+            <button
+              onClick={saveToCollection}
+              disabled={saving}
+              className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-primary text-primary-foreground font-display text-sm disabled:opacity-50"
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+              {saving ? 'Sauvegarde…' : 'Ajouter au Faunex'}
+            </button>
+          )
         ) : manualMode ? (
           <button
             onClick={saveManualEntry}
@@ -769,6 +794,12 @@ const CapturePage = () => {
           </>
         )}
       </div>
+
+      <AuthPromptModal
+        open={showAuthPrompt}
+        onClose={() => setShowAuthPrompt(false)}
+        message="Crée un compte gratuit pour sauvegarder cette capture dans ta collection et accéder à tous les détails : description, habitat, alimentation, anecdotes…"
+      />
     </main>
   );
 };

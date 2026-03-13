@@ -86,11 +86,11 @@ const AppRoutes = () => {
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/home" element={<ProtectedRoute><Index /></ProtectedRoute>} />
         <Route path="/collection" element={<ProtectedRoute><CollectionPage /></ProtectedRoute>} />
-        <Route path="/capture" element={<ProtectedRoute><CapturePage /></ProtectedRoute>} />
+        <Route path="/capture" element={<CapturePage />} />
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         <Route path="/explorers" element={<ProtectedRoute><ExplorersPage /></ProtectedRoute>} />
         <Route path="/explorer/:userId/collection" element={<ProtectedRoute><FriendCollectionPage /></ProtectedRoute>} />
-        <Route path="/bestiaire" element={<ProtectedRoute><BestiairePage /></ProtectedRoute>} />
+        <Route path="/bestiaire" element={<BestiairePage />} />
         <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
         <Route path="/moderation" element={<AdminRoute><ModerationPage /></AdminRoute>} />
         <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
