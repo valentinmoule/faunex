@@ -131,19 +131,6 @@ const CollectionPage = () => {
               </button>
             </div>
           </div>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Rechercher une espèce..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-10 py-2.5 bg-muted rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body"
-            />
-            <button className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-lg hover:bg-background transition-colors">
-              <SlidersHorizontal className="w-4 h-4 text-muted-foreground" />
-            </button>
-          </div>
         </div>
       </header>
 
