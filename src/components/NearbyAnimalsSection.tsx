@@ -67,7 +67,7 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
         } catch (err: any) {
           console.error(err);
           setError(true);
-          toast.info("Fonctionnalité indisponible pour le moment");
+          toast.error("Impossible de charger les animaux à proximité");
         } finally {
           setLoading(false);
         }
