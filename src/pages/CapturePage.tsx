@@ -29,6 +29,7 @@ const rarityColors: Record<string, string> = {
 
 const CapturePage = () => {
   const { session } = useAuth();
+  const navigate = useNavigate();
   const [flash, setFlash] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
   const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
