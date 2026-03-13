@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, TouchEvent as ReactTouchEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Camera, Zap, MapPin, Image, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine, ZoomIn, Focus, Crosshair, ArrowLeft, Lock } from 'lucide-react';
+import { Camera, Zap, MapPin, Image, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine, ZoomIn, Focus, Crosshair, ArrowLeft, Lock, LogIn } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
