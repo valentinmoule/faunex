@@ -60,6 +60,7 @@ const CapturePage = () => {
   const focusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const videoContainerRef = useRef<HTMLDivElement>(null);
 
@@ -287,6 +288,65 @@ const CapturePage = () => {
     }
   };
 
+  const handleGalleryPick = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const dataUrl = reader.result as string;
+      setCapturedPhoto(dataUrl);
+      setAnimalResult(null);
+      setSaved(false);
+
+      // Grab GPS
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          async (pos) => {
+            const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+            setGeoCoords(coords);
+            try {
+              const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${coords.lat}&lon=${coords.lng}&format=json&zoom=10&accept-language=fr`);
+              const data = await res.json();
+              const city = data.address?.city || data.address?.town || data.address?.village || '';
+              const country = data.address?.country || '';
+              setGeoName([city, country].filter(Boolean).join(', ') || `${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`);
+            } catch {
+              setGeoName(`${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`);
+            }
+          },
+          () => { setGeoCoords(null); setGeoName(null); },
+          { enableHighAccuracy: true, timeout: 10000 }
+        );
+      }
+
+      // Identify
+      setIdentifying(true);
+      try {
+        const { data, error } = await supabase.functions.invoke('identify-animal', {
+          body: { imageBase64: dataUrl },
+        });
+        if (error) throw error;
+        if (data?.success && data.animal) {
+          if (data.animal.animal_name === 'Inconnu' || data.animal.animal_name.toLowerCase() === 'inconnu') {
+            setManualMode(true);
+          } else {
+            setAnimalResult(data.animal);
+          }
+        } else {
+          setManualMode(true);
+        }
+      } catch (err: any) {
+        console.error(err);
+        setManualMode(true);
+      } finally {
+        setIdentifying(false);
+      }
+    };
+    reader.readAsDataURL(file);
+    // Reset input so same file can be picked again
+    e.target.value = '';
+  };
+
   const resetCapture = () => {
     setCapturedPhoto(null);
     setAnimalResult(null);
@@ -501,7 +561,7 @@ const CapturePage = () => {
   return (
     <main className="min-h-screen bg-foreground flex flex-col pb-24">
       <canvas ref={canvasRef} className="hidden" />
-
+      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleGalleryPick} />
       {/* Camera / photo / result */}
       <div className="flex-1 relative flex flex-col overflow-hidden">
         {/* Camera or captured photo background */}
@@ -801,7 +861,7 @@ const CapturePage = () => {
           )
         ) : identifying ? null : capturedPhoto ? null : (
           <>
-            <button className="w-12 h-12 rounded-xl bg-primary-foreground/10 flex items-center justify-center">
+            <button onClick={() => fileInputRef.current?.click()} className="w-12 h-12 rounded-xl bg-primary-foreground/10 flex items-center justify-center">
               <Image className="w-5 h-5 text-primary-foreground/60" />
             </button>
             <button
