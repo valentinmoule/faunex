@@ -67,6 +67,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
     if (!card || !open || !session?.user) return;
     setShowComments(false);
     setNewComment('');
+    setImageFullscreen(false);
 
     const fetchSocial = async () => {
       const [myLike, allLikes, commentsRes] = await Promise.all([
