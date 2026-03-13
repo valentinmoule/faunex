@@ -98,7 +98,7 @@ const AppRoutes = () => {
         <Route path="/u/:username" element={<ShareProfilePage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-      {!isCapturePage && !isLandingPage && <BottomNav />}
+      {!isCapturePage && !isLandingPage && !isAuthPage && <BottomNav />}
       <PwaInstallBanner />
     </>
   );
