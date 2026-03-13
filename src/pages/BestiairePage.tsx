@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Lock, Bell, CheckCircle } from 'lucide-react';
+import { Search, Lock, Bell, CheckCircle, PawPrint, Bird, Fish, Bug, Turtle, Rabbit, Shell, Waves, type LucideIcon } from 'lucide-react';
 import { type Rarity, RARITY_LABELS } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -28,13 +28,19 @@ const rarityIconBg: Record<string, string> = {
   mythic: 'bg-rarity-mythic/10 text-rarity-mythic border-rarity-mythic/30',
 };
 
-const rarityEmoji: Record<string, string> = {
-  common: '🐾',
-  uncommon: '🦎',
-  rare: '💎',
-  epic: '🔮',
-  legendary: '⭐',
-  mythic: '🔥',
+const getCategoryIcon = (category: string): LucideIcon => {
+  const cat = category.toLowerCase();
+  if (cat.includes('oiseau')) return Bird;
+  if (cat.includes('poisson') || cat.includes('vie marine')) return Fish;
+  if (cat.includes('insecte')) return Bug;
+  if (cat.includes('reptile')) return Turtle;
+  if (cat.includes('amphibien')) return Rabbit;
+  if (cat.includes('arachnide')) return Bug;
+  if (cat.includes('crustacé')) return Shell;
+  if (cat.includes('mollusque')) return Shell;
+  if (cat.includes('mammifère') && cat.includes('marin')) return Waves;
+  if (cat.includes('mammifère')) return PawPrint;
+  return PawPrint;
 };
 
 const BestiairePage = () => {
@@ -228,14 +234,19 @@ const BestiairePage = () => {
                     : 'bg-muted/40 border-border/50'
                 }`}
               >
-                {/* Rarity icon */}
-                <div className={`w-9 h-9 shrink-0 rounded-lg border flex items-center justify-center text-base ${
-                  animal.captured
-                    ? rarityIconBg[animal.rarity] || 'bg-muted text-muted-foreground border-border'
-                    : 'bg-muted/60 text-muted-foreground/40 border-border/40'
-                }`}>
-                  {animal.captured ? (rarityEmoji[animal.rarity] || '🐾') : '?'}
-                </div>
+                {/* Category icon */}
+                {(() => {
+                  const Icon = getCategoryIcon(animal.category);
+                  return (
+                    <div className={`w-9 h-9 shrink-0 rounded-full border flex items-center justify-center ${
+                      animal.captured
+                        ? 'bg-primary/10 text-primary border-primary/20'
+                        : 'bg-muted/60 text-muted-foreground/40 border-border/40'
+                    }`}>
+                      <Icon className="w-4 h-4" />
+                    </div>
+                  );
+                })()}
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
