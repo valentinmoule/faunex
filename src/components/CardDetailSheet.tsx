@@ -149,7 +149,10 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
           <div className={`absolute inset-0 z-0 bg-gradient-to-b ${rarityGradients[card.rarity]} opacity-90`} />
 
           <div className="relative z-10 pt-6 px-6 pb-0">
-            <div className="relative mx-auto max-w-[280px] aspect-square rounded-2xl overflow-hidden shadow-xl border-2 border-white/20">
+            <div
+              className="relative mx-auto max-w-[280px] aspect-square rounded-2xl overflow-hidden shadow-xl border-2 border-white/20 cursor-pointer active:scale-95 transition-transform"
+              onClick={() => setImageFullscreen(true)}
+            >
               <img src={card.image} alt={card.name} className="w-full h-full object-cover" />
               {isMythic && <div className="mythic-image-overlay" />}
               {isMythic && (
