@@ -117,9 +117,11 @@ const BestiairePage = () => {
     fetchUnread();
   }, [session]);
 
-  // Get unique categories
+  // Get unique categories (merge "X" and "X (monde)" into one)
+  const normalizeCategory = (cat: string) => cat.replace(/\s*\(monde\)$/i, '');
+
   const categories = useMemo(() => {
-    const cats = new Set(animals.map(a => a.category));
+    const cats = new Set(animals.map(a => normalizeCategory(a.category)));
     return ['Tous', ...Array.from(cats).sort()];
   }, [animals]);
 
