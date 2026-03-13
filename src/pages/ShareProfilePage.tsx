@@ -83,6 +83,10 @@ const ShareProfilePage = () => {
     } else {
       setFriendStatus('pending_sent');
       toast.success('Demande d\'ami envoyée !');
+      // Send email notification (fire & forget)
+      supabase.functions.invoke('notify-friend-request', {
+        body: { requester_id: session.user.id, addressee_id: profile.user_id },
+      }).catch(console.error);
     }
     setSending(false);
   };
