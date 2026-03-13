@@ -794,6 +794,12 @@ const CapturePage = () => {
           </>
         )}
       </div>
+
+      <AuthPromptModal
+        open={showAuthPrompt}
+        onClose={() => setShowAuthPrompt(false)}
+        message="Crée un compte gratuit pour sauvegarder cette capture dans ta collection et accéder à tous les détails : description, habitat, alimentation, anecdotes…"
+      />
     </main>
   );
 };
