@@ -583,12 +583,20 @@ const CapturePage = () => {
               <X className="w-5 h-5" />
             </button>
           ) : (
-            <button
-              onClick={() => setFlash(!flash)}
-              className={`p-3 rounded-full transition-colors ${flash ? 'bg-amber text-amber-dark' : 'bg-primary-foreground/10 text-primary-foreground/60'}`}
-            >
-              <Zap className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setFlash(!flash)}
+                className={`p-3 rounded-full transition-colors ${flash ? 'bg-amber text-amber-dark' : 'bg-primary-foreground/10 text-primary-foreground/60'}`}
+              >
+                <Zap className="w-5 h-5" />
+              </button>
+              <button
+                onClick={toggleFocusMode}
+                className={`p-3 rounded-full transition-colors ${focusMode === 'manual' ? 'bg-amber text-amber-dark' : 'bg-primary-foreground/10 text-primary-foreground/60'}`}
+              >
+                <Focus className="w-5 h-5" />
+              </button>
+            </div>
           )}
           <div className="flex items-center gap-1.5 bg-primary-foreground/10 rounded-full px-3 py-1.5">
             <MapPin className="w-3.5 h-3.5 text-primary" />
