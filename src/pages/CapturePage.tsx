@@ -43,9 +43,15 @@ const CapturePage = () => {
   const [manualName, setManualName] = useState('');
   const [manualSpecies, setManualSpecies] = useState('');
   const [manualDescription, setManualDescription] = useState('');
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [maxZoom, setMaxZoom] = useState(5);
+  const [supportsNativeZoom, setSupportsNativeZoom] = useState(false);
+  const pinchStartDistance = useRef<number | null>(null);
+  const pinchStartZoom = useRef<number>(1);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const videoContainerRef = useRef<HTMLDivElement>(null);
 
   const stopCamera = useCallback(() => {
     if (streamRef.current) {
