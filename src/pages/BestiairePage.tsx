@@ -128,7 +128,7 @@ const BestiairePage = () => {
   const filtered = useMemo(() => {
     return animals.filter((a) => {
       if (filter !== 'all' && a.rarity !== filter) return false;
-      if (categoryFilter !== 'Tous' && a.category !== categoryFilter) return false;
+      if (categoryFilter !== 'Tous' && normalizeCategory(a.category) !== categoryFilter) return false;
       if (search && !a.name.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
     });
