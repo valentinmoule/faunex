@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Pencil, KeyRound, Share2, Scale, LogOut, Trash2, Loader2, Camera, Check, X, ChevronRight, Sun, Moon } from 'lucide-react';
+import { ArrowLeft, Pencil, KeyRound, Share2, Scale, LogOut, Trash2, Loader2, Camera, Check, X, ChevronRight, Sun, Moon, Mail } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -40,14 +40,18 @@ const SettingsPage = () => {
   const [deleteConfirm, setDeleteConfirm] = useState('');
   const [deleting, setDeleting] = useState(false);
 
+  // Marketing emails
+  const [marketingEmails, setMarketingEmails] = useState(true);
+
   // Fetch profile on mount
   useEffect(() => {
     if (!session?.user) return;
-    supabase.from('profiles').select('display_name, username, avatar_url').eq('user_id', session.user.id).single().then(({ data }) => {
+    supabase.from('profiles').select('display_name, username, avatar_url, marketing_emails').eq('user_id', session.user.id).single().then(({ data }) => {
       if (data) {
         setProfile({ display_name: data.display_name || '', username: data.username || '', avatar_url: data.avatar_url });
         setEditName(data.display_name || '');
         setEditUsername(data.username || '');
+        setMarketingEmails(data.marketing_emails ?? true);
       }
       setLoading(false);
     });
@@ -179,6 +183,30 @@ const SettingsPage = () => {
                 className={`relative w-11 h-6 rounded-full transition-colors ${resolvedTheme === 'dark' ? 'bg-primary' : 'bg-muted-foreground/30'}`}
               >
                 <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card shadow transition-transform ${resolvedTheme === 'dark' ? 'translate-x-5' : 'translate-x-0'}`} />
+              </button>
+            </div>
+
+            {/* Marketing emails toggle */}
+            <div className="flex items-center justify-between px-4 py-3.5 rounded-xl hover:bg-muted transition-colors">
+              <div className="flex items-center gap-3">
+                <Mail className="w-5 h-5 text-foreground" />
+                <div>
+                  <span className="text-sm font-display font-semibold text-foreground block">Emails de relance</span>
+                  <span className="text-[11px] text-muted-foreground">Conseils, rappels et astuces</span>
+                </div>
+              </div>
+              <button
+                onClick={async () => {
+                  const newVal = !marketingEmails;
+                  setMarketingEmails(newVal);
+                  if (session?.user) {
+                    await supabase.from('profiles').update({ marketing_emails: newVal } as any).eq('user_id', session.user.id);
+                    toast.success(newVal ? 'Emails de relance activés' : 'Emails de relance désactivés');
+                  }
+                }}
+                className={`relative w-11 h-6 rounded-full transition-colors ${marketingEmails ? 'bg-primary' : 'bg-muted-foreground/30'}`}
+              >
+                <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card shadow transition-transform ${marketingEmails ? 'translate-x-5' : 'translate-x-0'}`} />
               </button>
             </div>
 

@@ -24,12 +24,13 @@ Deno.serve(async (req) => {
     const windowStart = new Date(twoDaysAgo.getTime() - 30 * 60 * 1000) // -30min
     const windowEnd = new Date(twoDaysAgo.getTime() + 30 * 60 * 1000)   // +30min
 
-    // Get profiles created ~2 days ago
+    // Get profiles created ~2 days ago that have marketing emails enabled
     const { data: profiles, error: profilesError } = await supabase
       .from('profiles')
-      .select('user_id, display_name, username')
+      .select('user_id, display_name, username, marketing_emails')
       .gte('created_at', windowStart.toISOString())
       .lte('created_at', windowEnd.toISOString())
+      .eq('marketing_emails', true)
 
     if (profilesError) throw profilesError
 

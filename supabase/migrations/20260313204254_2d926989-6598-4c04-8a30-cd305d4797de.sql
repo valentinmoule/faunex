@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS marketing_emails boolean NOT NULL DEFAULT true;
