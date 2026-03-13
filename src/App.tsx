@@ -21,6 +21,7 @@ import LegalPage from "./pages/LegalPage";
 import ShareProfilePage from "./pages/ShareProfilePage";
 import SettingsPage from "./pages/SettingsPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
+import LandingPage from "./pages/LandingPage";
 import BottomNav from "./components/BottomNav";
 
 const queryClient = new QueryClient();
