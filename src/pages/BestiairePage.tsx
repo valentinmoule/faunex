@@ -234,14 +234,19 @@ const BestiairePage = () => {
                     : 'bg-muted/40 border-border/50'
                 }`}
               >
-                {/* Rarity icon */}
-                <div className={`w-9 h-9 shrink-0 rounded-lg border flex items-center justify-center text-base ${
-                  animal.captured
-                    ? rarityIconBg[animal.rarity] || 'bg-muted text-muted-foreground border-border'
-                    : 'bg-muted/60 text-muted-foreground/40 border-border/40'
-                }`}>
-                  {animal.captured ? (rarityEmoji[animal.rarity] || '🐾') : '?'}
-                </div>
+                {/* Category icon */}
+                {(() => {
+                  const Icon = getCategoryIcon(animal.category);
+                  return (
+                    <div className={`w-9 h-9 shrink-0 rounded-full border flex items-center justify-center ${
+                      animal.captured
+                        ? 'bg-primary/10 text-primary border-primary/20'
+                        : 'bg-muted/60 text-muted-foreground/40 border-border/40'
+                    }`}>
+                      <Icon className="w-4 h-4" />
+                    </div>
+                  );
+                })()}
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
