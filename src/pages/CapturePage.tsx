@@ -263,7 +263,12 @@ const CapturePage = () => {
       );
     }
 
-    // Identify
+    // Identify — only for logged-in users
+    if (isGuest) {
+      setShowAuthPrompt(true);
+      return;
+    }
+
     setIdentifying(true);
     try {
       const { data, error } = await supabase.functions.invoke('identify-animal', {
@@ -272,7 +277,6 @@ const CapturePage = () => {
       if (error) throw error;
       if (data?.success && data.animal) {
         if (data.animal.animal_name === 'Inconnu' || data.animal.animal_name.toLowerCase() === 'inconnu') {
-          // AI couldn't identify — force manual mode with moderation
           setManualMode(true);
         } else {
           setAnimalResult(data.animal);
