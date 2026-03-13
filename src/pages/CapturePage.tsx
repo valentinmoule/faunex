@@ -347,7 +347,7 @@ const CapturePage = () => {
     e.target.value = '';
   };
 
-
+  const resetCapture = () => {
     setCapturedPhoto(null);
     setAnimalResult(null);
     setSaved(false);
