@@ -336,6 +336,7 @@ export type Database = {
           display_name: string | null
           id: string
           level: number
+          marketing_emails: boolean
           regions_explored: number
           species_count: number
           total_captures: number
@@ -351,6 +352,7 @@ export type Database = {
           display_name?: string | null
           id?: string
           level?: number
+          marketing_emails?: boolean
           regions_explored?: number
           species_count?: number
           total_captures?: number
@@ -366,6 +368,7 @@ export type Database = {
           display_name?: string | null
           id?: string
           level?: number
+          marketing_emails?: boolean
           regions_explored?: number
           species_count?: number
           total_captures?: number
