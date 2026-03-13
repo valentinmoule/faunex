@@ -75,8 +75,13 @@ const AuthPage = () => {
               ? 'Entre ton email pour réinitialiser ton mot de passe'
               : isLogin
                 ? 'Content de te revoir, explorateur !'
-                : 'Rejoins la communauté des naturalistes'}
+                : 'Ouvre les yeux sur la faune qui t\'entoure.'}
           </p>
+          {!isLogin && !isForgot && (
+            <p className="text-xs text-muted-foreground/70 max-w-[280px] mx-auto leading-relaxed mt-1">
+              Photographie, identifie et collectionne les animaux que tu croises au quotidien. Chaque sortie devient une aventure 🌿
+            </p>
+          )}
         </div>
 
         {isForgot ? (
