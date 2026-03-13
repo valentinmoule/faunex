@@ -46,11 +46,12 @@ const SettingsPage = () => {
   // Fetch profile on mount
   useEffect(() => {
     if (!session?.user) return;
-    supabase.from('profiles').select('display_name, username, avatar_url').eq('user_id', session.user.id).single().then(({ data }) => {
+    supabase.from('profiles').select('display_name, username, avatar_url, marketing_emails').eq('user_id', session.user.id).single().then(({ data }) => {
       if (data) {
         setProfile({ display_name: data.display_name || '', username: data.username || '', avatar_url: data.avatar_url });
         setEditName(data.display_name || '');
         setEditUsername(data.username || '');
+        setMarketingEmails(data.marketing_emails ?? true);
       }
       setLoading(false);
     });
