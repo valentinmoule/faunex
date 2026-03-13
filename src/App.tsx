@@ -95,7 +95,7 @@ const AppRoutes = () => {
         <Route path="/u/:username" element={<ShareProfilePage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-      {!isCapturePage && <BottomNav />}
+      {!isCapturePage && !isLandingPage && <BottomNav />}
     </>
   );
 };
