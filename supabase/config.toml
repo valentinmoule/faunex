@@ -11,3 +11,5 @@ project_id = "pakwuooxumrghsbwczwx"
     verify_jwt = true
   [functions.send-reengagement]
     verify_jwt = true
+  [functions.notify-friend-request]
+    verify_jwt = false

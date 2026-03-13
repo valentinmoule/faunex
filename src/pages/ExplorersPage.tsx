@@ -142,6 +142,10 @@ const ExplorersPage = () => {
     }
     toast.success('Demande envoyée !');
     setPendingIds(prev => new Set(prev).add(targetId));
+    // Send email notification (fire & forget)
+    supabase.functions.invoke('notify-friend-request', {
+      body: { requester_id: userId, addressee_id: targetId },
+    }).catch(console.error);
     fetchRelations();
   };
 
