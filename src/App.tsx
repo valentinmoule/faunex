@@ -1,3 +1,4 @@
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -31,6 +32,29 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+const AdminRoute = ({ children }: { children: React.ReactNode }) => {
+  const { session, loading } = useAuth();
+  const [isAdmin, setIsAdmin] = React.useState<boolean | null>(null);
+
+  React.useEffect(() => {
+    if (!session?.user) return;
+    import("@/integrations/supabase/client").then(({ supabase }) => {
+      supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", session.user.id)
+        .eq("role", "admin")
+        .maybeSingle()
+        .then(({ data }) => setIsAdmin(!!data));
+    });
+  }, [session]);
+
+  if (loading || isAdmin === null) return <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-3"><img src="/pwa-icon-512.png" alt="Faunex" className="w-20 h-20" /><span className="text-muted-foreground font-display text-sm">Chargement...</span></div>;
+  if (!session) return <Navigate to="/auth" replace />;
+  if (!isAdmin) return <Navigate to="/" replace />;
+  return <>{children}</>;
+};
+
 const AuthRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, loading } = useAuth();
   if (loading) return null;
@@ -51,7 +75,7 @@ const AppRoutes = () => (
       <Route path="/explorer/:userId/collection" element={<ProtectedRoute><FriendCollectionPage /></ProtectedRoute>} />
       <Route path="/bestiaire" element={<ProtectedRoute><BestiairePage /></ProtectedRoute>} />
       <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
-      <Route path="/moderation" element={<ProtectedRoute><ModerationPage /></ProtectedRoute>} />
+      <Route path="/moderation" element={<AdminRoute><ModerationPage /></AdminRoute>} />
       <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
       <Route path="/legal" element={<LegalPage />} />
       <Route path="/u/:username" element={<ShareProfilePage />} />
