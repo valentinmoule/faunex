@@ -1,7 +1,11 @@
 project_id = "pakwuooxumrghsbwczwx"
 
-[functions.identify-animal]
-verify_jwt = false
-
-[functions.search-users]
-verify_jwt = false
+[functions]
+  [functions.auth-email-hook]
+    verify_jwt = false
+  [functions.identify-animal]
+    verify_jwt = false
+  [functions.search-users]
+    verify_jwt = false
+  [functions.process-email-queue]
+    verify_jwt = true
