@@ -46,7 +46,7 @@ const LandingPage = () => {
             className="font-display font-semibold gap-2 text-base px-6"
             onClick={() => navigate('/capture')}
           >
-            Capturer un animal <ChevronRight className="w-4 h-4" />
+            Identifier un animal <ChevronRight className="w-4 h-4" />
           </Button>
           <Button
             size="lg"
