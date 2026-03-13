@@ -286,6 +286,7 @@ const CapturePage = () => {
       }
     } catch (err: any) {
       console.error(err);
+      toast.info("Identification IA indisponible — passe en mode manuel");
       setManualMode(true);
     } finally {
       setIdentifying(false);
