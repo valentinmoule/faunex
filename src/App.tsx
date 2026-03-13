@@ -63,16 +63,25 @@ const AuthRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+const LandingRoute = ({ children }: { children: React.ReactNode }) => {
+  const { session, loading } = useAuth();
+  if (loading) return null;
+  if (session) return <Navigate to="/home" replace />;
+  return <>{children}</>;
+};
+
 const AppRoutes = () => {
   const location = useLocation();
   const isCapturePage = location.pathname === '/capture';
+  const isLandingPage = location.pathname === '/';
 
   return (
     <>
       <Routes>
+        <Route path="/" element={<LandingRoute><LandingPage /></LandingRoute>} />
         <Route path="/auth" element={<AuthRoute><AuthPage /></AuthRoute>} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+        <Route path="/home" element={<ProtectedRoute><Index /></ProtectedRoute>} />
         <Route path="/collection" element={<ProtectedRoute><CollectionPage /></ProtectedRoute>} />
         <Route path="/capture" element={<ProtectedRoute><CapturePage /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
