@@ -33,7 +33,7 @@ export const EmailChangeEmail = ({
     <Preview>Confirme ton changement d'email Faunex</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Img src="https://faunex.lovable.app/pwa-icon-192.png" width="48" height="48" alt="Faunex" style={logo} />
+        <Img src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png" width="48" height="48" alt="Faunex" style={logo} />
         <Heading style={h1}>Changement d'email 📧</Heading>
         <Text style={text}>
           Tu as demandé à changer ton adresse email Faunex de{' '}
