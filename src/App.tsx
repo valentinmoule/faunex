@@ -76,6 +76,7 @@ const AppRoutes = () => {
   const location = useLocation();
   const isCapturePage = location.pathname === '/capture';
   const isLandingPage = location.pathname === '/';
+  const isAuthPage = location.pathname === '/auth';
 
   return (
     <>
@@ -97,7 +98,7 @@ const AppRoutes = () => {
         <Route path="/u/:username" element={<ShareProfilePage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-      {!isCapturePage && !isLandingPage && <BottomNav />}
+      {!isCapturePage && !isLandingPage && !isAuthPage && <BottomNav />}
       <PwaInstallBanner />
     </>
   );
