@@ -16,7 +16,7 @@ const CollectionPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [filter, setFilter] = useState<Rarity | 'all'>('all');
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
-  const [search, setSearch] = useState('');
+  
   const [captures, setCaptures] = useState<AnimalCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
