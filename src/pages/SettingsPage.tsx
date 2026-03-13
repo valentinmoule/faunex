@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Pencil, KeyRound, Share2, Scale, LogOut, Trash2, Loader2, Camera, Check, X, ChevronRight, Sun, Moon, Mail } from 'lucide-react';
+import { ArrowLeft, Pencil, KeyRound, Share2, Scale, LogOut, Trash2, Loader2, Camera, Check, X, ChevronRight, Sun, Moon, Monitor, Mail } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -172,18 +172,32 @@ const SettingsPage = () => {
       <div className="max-w-lg mx-auto px-4 pt-4">
         {section === 'menu' && (
           <div className="space-y-1">
-            {/* Theme toggle */}
-            <div className="flex items-center justify-between px-4 py-3.5 rounded-xl hover:bg-muted transition-colors">
-              <div className="flex items-center gap-3">
+            {/* Theme selector */}
+            <div className="px-4 py-3.5 rounded-xl hover:bg-muted transition-colors">
+              <div className="flex items-center gap-3 mb-2.5">
                 {resolvedTheme === 'dark' ? <Moon className="w-5 h-5 text-foreground" /> : <Sun className="w-5 h-5 text-foreground" />}
-                <span className="text-sm font-display font-semibold text-foreground">Mode sombre</span>
+                <span className="text-sm font-display font-semibold text-foreground">Apparence</span>
               </div>
-              <button
-                onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-                className={`relative w-11 h-6 rounded-full transition-colors ${resolvedTheme === 'dark' ? 'bg-primary' : 'bg-muted-foreground/30'}`}
-              >
-                <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card shadow transition-transform ${resolvedTheme === 'dark' ? 'translate-x-5' : 'translate-x-0'}`} />
-              </button>
+              <div className="flex gap-1.5 ml-8">
+                {([
+                  { value: 'system', label: 'Auto', icon: Monitor },
+                  { value: 'light', label: 'Clair', icon: Sun },
+                  { value: 'dark', label: 'Sombre', icon: Moon },
+                ] as const).map(({ value, label, icon: Icon }) => (
+                  <button
+                    key={value}
+                    onClick={() => setTheme(value)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-display font-semibold transition-colors ${
+                      theme === value
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    {label}
+                  </button>
+                ))}
+              </div>
             </div>
 
 
