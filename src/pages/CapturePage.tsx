@@ -69,6 +69,19 @@ const CapturePage = () => {
         audio: false,
       });
       streamRef.current = stream;
+
+      // Check native zoom support
+      const track = stream.getVideoTracks()[0];
+      const capabilities = track.getCapabilities?.() as any;
+      if (capabilities?.zoom) {
+        setSupportsNativeZoom(true);
+        setMaxZoom(Math.min(capabilities.zoom.max, 10));
+      } else {
+        setSupportsNativeZoom(false);
+        setMaxZoom(5);
+      }
+      setZoomLevel(1);
+
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
@@ -78,6 +91,46 @@ const CapturePage = () => {
       toast.error("Impossible d'accéder à la caméra. Vérifiez les permissions.");
     }
   }, [facingMode, stopCamera]);
+
+  // Apply zoom
+  const applyZoom = useCallback((newZoom: number) => {
+    const clamped = Math.max(1, Math.min(newZoom, maxZoom));
+    setZoomLevel(clamped);
+
+    if (supportsNativeZoom && streamRef.current) {
+      const track = streamRef.current.getVideoTracks()[0];
+      try {
+        (track as any).applyConstraints({ advanced: [{ zoom: clamped } as any] });
+      } catch {}
+    }
+  }, [maxZoom, supportsNativeZoom]);
+
+  // Pinch-to-zoom handlers
+  const getDistance = (touches: globalThis.TouchList) => {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  };
+
+  const handleTouchStart = useCallback((e: ReactTouchEvent) => {
+    if (e.touches.length === 2) {
+      pinchStartDistance.current = getDistance(e.nativeEvent.touches);
+      pinchStartZoom.current = zoomLevel;
+    }
+  }, [zoomLevel]);
+
+  const handleTouchMove = useCallback((e: ReactTouchEvent) => {
+    if (e.touches.length === 2 && pinchStartDistance.current !== null) {
+      e.preventDefault();
+      const currentDistance = getDistance(e.nativeEvent.touches);
+      const scale = currentDistance / pinchStartDistance.current;
+      applyZoom(pinchStartZoom.current * scale);
+    }
+  }, [applyZoom]);
+
+  const handleTouchEnd = useCallback(() => {
+    pinchStartDistance.current = null;
+  }, []);
 
   useEffect(() => {
     startCamera();
