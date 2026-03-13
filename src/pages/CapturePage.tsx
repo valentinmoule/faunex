@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback, TouchEvent as ReactTouchEvent } from 'react';
-import { Camera, Zap, MapPin, Image, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine, ZoomIn, Focus, Crosshair } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Camera, Zap, MapPin, Image, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine, ZoomIn, Focus, Crosshair, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -28,6 +29,7 @@ const rarityColors: Record<string, string> = {
 
 const CapturePage = () => {
   const { session } = useAuth();
+  const navigate = useNavigate();
   const [flash, setFlash] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
   const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
@@ -586,6 +588,12 @@ const CapturePage = () => {
             </button>
           ) : (
             <div className="flex items-center gap-2">
+              <button
+                onClick={() => navigate('/')}
+                className="p-3 rounded-full bg-primary-foreground/10 text-primary-foreground/60"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </button>
               <button
                 onClick={() => setFlash(!flash)}
                 className={`p-3 rounded-full transition-colors ${flash ? 'bg-amber text-amber-dark' : 'bg-primary-foreground/10 text-primary-foreground/60'}`}
