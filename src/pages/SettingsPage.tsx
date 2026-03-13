@@ -229,7 +229,28 @@ const SettingsPage = () => {
               <div>
                 <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">Pseudo</label>
                 <input type="text" value={editUsername} onChange={e => setEditUsername(e.target.value)} maxLength={30} placeholder="@pseudo" className="w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
+            </div>
+
+            {/* Marketing emails toggle */}
+            <div className="flex items-center justify-between px-4 py-3 bg-muted rounded-xl">
+              <div>
+                <span className="text-sm font-display font-semibold text-foreground block">Emails de relance</span>
+                <span className="text-[11px] text-muted-foreground">Conseils, rappels et astuces</span>
               </div>
+              <button
+                onClick={async () => {
+                  const newVal = !marketingEmails;
+                  setMarketingEmails(newVal);
+                  if (session?.user) {
+                    await supabase.from('profiles').update({ marketing_emails: newVal } as any).eq('user_id', session.user.id);
+                    toast.success(newVal ? 'Emails de relance activés' : 'Emails de relance désactivés');
+                  }
+                }}
+                className={`relative w-11 h-6 rounded-full transition-colors ${marketingEmails ? 'bg-primary' : 'bg-muted-foreground/30'}`}
+              >
+                <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card shadow transition-transform ${marketingEmails ? 'translate-x-5' : 'translate-x-0'}`} />
+              </button>
+            </div>
             </div>
 
             <button
