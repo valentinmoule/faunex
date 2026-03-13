@@ -28,13 +28,19 @@ const rarityIconBg: Record<string, string> = {
   mythic: 'bg-rarity-mythic/10 text-rarity-mythic border-rarity-mythic/30',
 };
 
-const rarityEmoji: Record<string, string> = {
-  common: '🐾',
-  uncommon: '🦎',
-  rare: '💎',
-  epic: '🔮',
-  legendary: '⭐',
-  mythic: '🔥',
+const getCategoryIcon = (category: string): LucideIcon => {
+  const cat = category.toLowerCase();
+  if (cat.includes('oiseau')) return Bird;
+  if (cat.includes('poisson') || cat.includes('vie marine')) return Fish;
+  if (cat.includes('insecte')) return Bug;
+  if (cat.includes('reptile')) return Turtle;
+  if (cat.includes('amphibien')) return Rabbit;
+  if (cat.includes('arachnide')) return Bug;
+  if (cat.includes('crustacé')) return Shell;
+  if (cat.includes('mollusque')) return Shell;
+  if (cat.includes('mammifère') && cat.includes('marin')) return Waves;
+  if (cat.includes('mammifère')) return PawPrint;
+  return PawPrint;
 };
 
 const BestiairePage = () => {
