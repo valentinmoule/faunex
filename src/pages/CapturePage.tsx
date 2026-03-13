@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { Camera, Zap, MapPin, Image, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback, TouchEvent as ReactTouchEvent } from 'react';
+import { Camera, Zap, MapPin, Image, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine, ZoomIn } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -43,9 +43,15 @@ const CapturePage = () => {
   const [manualName, setManualName] = useState('');
   const [manualSpecies, setManualSpecies] = useState('');
   const [manualDescription, setManualDescription] = useState('');
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [maxZoom, setMaxZoom] = useState(5);
+  const [supportsNativeZoom, setSupportsNativeZoom] = useState(false);
+  const pinchStartDistance = useRef<number | null>(null);
+  const pinchStartZoom = useRef<number>(1);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const videoContainerRef = useRef<HTMLDivElement>(null);
 
   const stopCamera = useCallback(() => {
     if (streamRef.current) {
@@ -63,6 +69,19 @@ const CapturePage = () => {
         audio: false,
       });
       streamRef.current = stream;
+
+      // Check native zoom support
+      const track = stream.getVideoTracks()[0];
+      const capabilities = track.getCapabilities?.() as any;
+      if (capabilities?.zoom) {
+        setSupportsNativeZoom(true);
+        setMaxZoom(Math.min(capabilities.zoom.max, 10));
+      } else {
+        setSupportsNativeZoom(false);
+        setMaxZoom(5);
+      }
+      setZoomLevel(1);
+
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
@@ -72,6 +91,46 @@ const CapturePage = () => {
       toast.error("Impossible d'accéder à la caméra. Vérifiez les permissions.");
     }
   }, [facingMode, stopCamera]);
+
+  // Apply zoom
+  const applyZoom = useCallback((newZoom: number) => {
+    const clamped = Math.max(1, Math.min(newZoom, maxZoom));
+    setZoomLevel(clamped);
+
+    if (supportsNativeZoom && streamRef.current) {
+      const track = streamRef.current.getVideoTracks()[0];
+      try {
+        (track as any).applyConstraints({ advanced: [{ zoom: clamped } as any] });
+      } catch {}
+    }
+  }, [maxZoom, supportsNativeZoom]);
+
+  // Pinch-to-zoom handlers
+  const getDistance = (touches: globalThis.TouchList) => {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  };
+
+  const handleTouchStart = useCallback((e: ReactTouchEvent) => {
+    if (e.touches.length === 2) {
+      pinchStartDistance.current = getDistance(e.nativeEvent.touches);
+      pinchStartZoom.current = zoomLevel;
+    }
+  }, [zoomLevel]);
+
+  const handleTouchMove = useCallback((e: ReactTouchEvent) => {
+    if (e.touches.length === 2 && pinchStartDistance.current !== null) {
+      e.preventDefault();
+      const currentDistance = getDistance(e.nativeEvent.touches);
+      const scale = currentDistance / pinchStartDistance.current;
+      applyZoom(pinchStartZoom.current * scale);
+    }
+  }, [applyZoom]);
+
+  const handleTouchEnd = useCallback(() => {
+    pinchStartDistance.current = null;
+  }, []);
 
   useEffect(() => {
     startCamera();
@@ -84,6 +143,14 @@ const CapturePage = () => {
     if (!videoRef.current || !canvasRef.current) return;
     const video = videoRef.current;
     const canvas = canvasRef.current;
+    
+    // If using digital zoom (no native zoom), crop the center of the frame
+    const useDigitalCrop = !supportsNativeZoom && zoomLevel > 1;
+    const srcW = useDigitalCrop ? video.videoWidth / zoomLevel : video.videoWidth;
+    const srcH = useDigitalCrop ? video.videoHeight / zoomLevel : video.videoHeight;
+    const srcX = useDigitalCrop ? (video.videoWidth - srcW) / 2 : 0;
+    const srcY = useDigitalCrop ? (video.videoHeight - srcH) / 2 : 0;
+
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     const ctx = canvas.getContext('2d');
@@ -93,7 +160,7 @@ const CapturePage = () => {
       ctx.translate(canvas.width, 0);
       ctx.scale(-1, 1);
     }
-    ctx.drawImage(video, 0, 0);
+    ctx.drawImage(video, srcX, srcY, srcW, srcH, 0, 0, canvas.width, canvas.height);
 
     const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
     setCapturedPhoto(dataUrl);
@@ -161,6 +228,7 @@ const CapturePage = () => {
     setManualName('');
     setManualSpecies('');
     setManualDescription('');
+    setZoomLevel(1);
   };
 
   const saveManualEntry = async () => {
@@ -365,7 +433,13 @@ const CapturePage = () => {
       {/* Camera / photo / result */}
       <div className="flex-1 relative flex flex-col overflow-hidden">
         {/* Camera or captured photo background */}
-        <div className="absolute inset-0">
+        <div
+          ref={videoContainerRef}
+          className="absolute inset-0 touch-none"
+          onTouchStart={!capturedPhoto ? handleTouchStart : undefined}
+          onTouchMove={!capturedPhoto ? handleTouchMove : undefined}
+          onTouchEnd={!capturedPhoto ? handleTouchEnd : undefined}
+        >
           {capturedPhoto ? (
             <img src={capturedPhoto} alt="Captured" className="w-full h-full object-cover" />
           ) : (
@@ -374,6 +448,7 @@ const CapturePage = () => {
                 ref={videoRef}
                 autoPlay playsInline muted
                 className={`w-full h-full object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
+                style={!supportsNativeZoom && zoomLevel > 1 ? { transform: `${facingMode === 'user' ? 'scaleX(-1) ' : ''}scale(${zoomLevel})`, transformOrigin: 'center center' } : undefined}
               />
               {!cameraActive && (
                 <div className="absolute inset-0 bg-foreground flex items-center justify-center">
@@ -390,6 +465,25 @@ const CapturePage = () => {
         {/* Overlay gradient for readability */}
         {(animalResult || identifying || manualMode) && (
           <div className="absolute inset-0 bg-gradient-to-t from-foreground via-foreground/70 to-transparent" />
+        )}
+
+        {/* Zoom indicator + slider */}
+        {!capturedPhoto && cameraActive && (
+          <div className="absolute bottom-32 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2">
+            <div className="flex items-center gap-2 bg-foreground/60 backdrop-blur-sm rounded-full px-4 py-2">
+              <ZoomIn className="w-4 h-4 text-primary-foreground/70" />
+              <input
+                type="range"
+                min={1}
+                max={maxZoom}
+                step={0.1}
+                value={zoomLevel}
+                onChange={(e) => applyZoom(parseFloat(e.target.value))}
+                className="w-32 h-1 accent-primary cursor-pointer"
+              />
+              <span className="text-primary-foreground text-xs font-display min-w-[2.5rem] text-center">{zoomLevel.toFixed(1)}x</span>
+            </div>
+          </div>
         )}
 
         {/* Viewfinder (only when camera live) */}
