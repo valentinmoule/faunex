@@ -38,8 +38,8 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 // Configuration
 const SITE_NAME = "faunex"
 const SENDER_DOMAIN = "notify.faunex.fr"
-const ROOT_DOMAIN = "faunex.fr"
-const FROM_DOMAIN = "faunex.fr" // Domain shown in From address (may be root or sender subdomain)
+const ROOT_DOMAIN = "notify.faunex.fr"
+const FROM_DOMAIN = "notify.faunex.fr"
 
 // Sample data for preview mode ONLY (not used in actual email sending).
 // URLs are baked in at scaffold time from the project's real data.

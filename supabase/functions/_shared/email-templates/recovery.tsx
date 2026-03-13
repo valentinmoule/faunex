@@ -28,7 +28,7 @@ export const RecoveryEmail = ({
     <Preview>Réinitialise ton mot de passe Faunex</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Img src="https://faunex.lovable.app/pwa-icon-192.png" width="48" height="48" alt="Faunex" style={logo} />
+        <Img src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png" width="48" height="48" alt="Faunex" style={logo} />
         <Heading style={h1}>Mot de passe oublié ? 🔑</Heading>
         <Text style={text}>
           On a reçu une demande de réinitialisation de ton mot de passe Faunex.
