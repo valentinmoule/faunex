@@ -44,17 +44,9 @@ const LandingPage = () => {
           <Button
             size="lg"
             className="font-display font-semibold gap-2 text-base px-6"
-            onClick={() => navigate('/capture')}
-          >
-            <Camera className="w-4 h-4" /> Identifier un animal
-          </Button>
-          <Button
-            size="lg"
-            variant="outline"
-            className="font-display font-semibold text-base px-6"
             onClick={() => navigate('/auth')}
           >
-            Se connecter
+            Commencer <ChevronRight className="w-4 h-4" />
           </Button>
         </div>
       </section>
@@ -88,10 +80,10 @@ const LandingPage = () => {
         </p>
         <div className="flex gap-3 overflow-x-auto pb-2 -mx-2 px-2 snap-x snap-mandatory scrollbar-hide">
           {[
-            { img: '/images/fox.jpg', name: 'Renard roux', status: 'Préoccupation mineure' },
-            { img: '/images/kingfisher.jpg', name: 'Martin-pêcheur', status: 'Préoccupation mineure' },
-            { img: '/images/owl.jpg', name: 'Harfang des neiges', status: 'Vulnérable' },
-            { img: '/images/wolf.jpg', name: 'Loup gris', status: 'Protégé en Europe' },
+            { img: '/images/fox.jpg', name: 'Renard roux', rarity: 'Commun' },
+            { img: '/images/kingfisher.jpg', name: 'Martin-pêcheur', rarity: 'Rare' },
+            { img: '/images/owl.jpg', name: 'Harfang des neiges', rarity: 'Légendaire' },
+            { img: '/images/wolf.jpg', name: 'Loup gris', rarity: 'Mythique' },
           ].map((a, i) => (
             <div
               key={i}
@@ -100,7 +92,7 @@ const LandingPage = () => {
               <img src={a.img} alt={a.name} className="w-full h-28 object-cover" loading="lazy" />
               <div className="p-2.5">
                 <p className="font-display font-semibold text-sm truncate">{a.name}</p>
-                <p className="text-xs text-muted-foreground font-body">{a.status}</p>
+                <p className="text-xs text-muted-foreground font-body">{a.rarity}</p>
               </div>
             </div>
           ))}
@@ -123,13 +115,6 @@ const LandingPage = () => {
           </Button>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="px-6 pb-8 text-center">
-        <a href="/legal" className="text-xs text-muted-foreground/50 hover:text-muted-foreground underline font-body">
-          Mentions légales
-        </a>
-      </footer>
     </main>
   );
 };

@@ -1,11 +1,10 @@
 import { useState, useRef, useEffect, useCallback, TouchEvent as ReactTouchEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Camera, Zap, MapPin, Image, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine, ZoomIn, Focus, Crosshair, ArrowLeft, Lock, LogIn } from 'lucide-react';
+import { Camera, Zap, MapPin, Image, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine, ZoomIn, Focus, Crosshair, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { type Rarity, RARITY_LABELS } from '@/data/mockData';
-import AuthPromptModal from '@/components/AuthPromptModal';
 
 interface AnimalResult {
   animal_name: string;
@@ -30,7 +29,6 @@ const rarityColors: Record<string, string> = {
 
 const CapturePage = () => {
   const { session } = useAuth();
-  const isGuest = !session?.user;
   const navigate = useNavigate();
   const [flash, setFlash] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
@@ -38,7 +36,6 @@ const CapturePage = () => {
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
   const [identifying, setIdentifying] = useState(false);
   const [animalResult, setAnimalResult] = useState<AnimalResult | null>(null);
-  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [duplicateCapture, setDuplicateCapture] = useState<{ id: string; image_url: string; animal_name: string } | null>(null);
@@ -60,7 +57,6 @@ const CapturePage = () => {
   const focusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const videoContainerRef = useRef<HTMLDivElement>(null);
 
@@ -263,12 +259,7 @@ const CapturePage = () => {
       );
     }
 
-    // Identify — only for logged-in users
-    if (isGuest) {
-      setShowAuthPrompt(true);
-      return;
-    }
-
+    // Identify
     setIdentifying(true);
     try {
       const { data, error } = await supabase.functions.invoke('identify-animal', {
@@ -277,6 +268,7 @@ const CapturePage = () => {
       if (error) throw error;
       if (data?.success && data.animal) {
         if (data.animal.animal_name === 'Inconnu' || data.animal.animal_name.toLowerCase() === 'inconnu') {
+          // AI couldn't identify — force manual mode with moderation
           setManualMode(true);
         } else {
           setAnimalResult(data.animal);
@@ -290,70 +282,6 @@ const CapturePage = () => {
     } finally {
       setIdentifying(false);
     }
-  };
-
-  const handleGalleryPick = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const dataUrl = reader.result as string;
-      setCapturedPhoto(dataUrl);
-      setAnimalResult(null);
-      setSaved(false);
-
-      // Grab GPS
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          async (pos) => {
-            const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-            setGeoCoords(coords);
-            try {
-              const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${coords.lat}&lon=${coords.lng}&format=json&zoom=10&accept-language=fr`);
-              const data = await res.json();
-              const city = data.address?.city || data.address?.town || data.address?.village || '';
-              const country = data.address?.country || '';
-              setGeoName([city, country].filter(Boolean).join(', ') || `${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`);
-            } catch {
-              setGeoName(`${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`);
-            }
-          },
-          () => { setGeoCoords(null); setGeoName(null); },
-          { enableHighAccuracy: true, timeout: 10000 }
-        );
-      }
-
-      // Identify — only for logged-in users
-      if (isGuest) {
-        setShowAuthPrompt(true);
-        return;
-      }
-
-      setIdentifying(true);
-      try {
-        const { data, error } = await supabase.functions.invoke('identify-animal', {
-          body: { imageBase64: dataUrl },
-        });
-        if (error) throw error;
-        if (data?.success && data.animal) {
-          if (data.animal.animal_name === 'Inconnu' || data.animal.animal_name.toLowerCase() === 'inconnu') {
-            setManualMode(true);
-          } else {
-            setAnimalResult(data.animal);
-          }
-        } else {
-          setManualMode(true);
-        }
-      } catch (err: any) {
-        console.error(err);
-        setManualMode(true);
-      } finally {
-        setIdentifying(false);
-      }
-    };
-    reader.readAsDataURL(file);
-    // Reset input so same file can be picked again
-    e.target.value = '';
   };
 
   const resetCapture = () => {
@@ -570,7 +498,7 @@ const CapturePage = () => {
   return (
     <main className="min-h-screen bg-foreground flex flex-col pb-24">
       <canvas ref={canvasRef} className="hidden" />
-      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleGalleryPick} />
+
       {/* Camera / photo / result */}
       <div className="flex-1 relative flex flex-col overflow-hidden">
         {/* Camera or captured photo background */}
@@ -661,7 +589,7 @@ const CapturePage = () => {
           ) : (
             <div className="flex items-center gap-2">
               <button
-                onClick={() => navigate(session ? '/home' : '/')}
+                onClick={() => navigate('/')}
                 className="p-3 rounded-full bg-primary-foreground/10 text-primary-foreground/60"
               >
                 <ArrowLeft className="w-5 h-5" />
@@ -708,25 +636,13 @@ const CapturePage = () => {
                 <p className="text-primary-foreground/60 text-sm italic">{animalResult.scientific_name}</p>
               </div>
 
-              {/* Description - hidden for guests */}
-              {isGuest ? (
-                <button
-                  onClick={() => setShowAuthPrompt(true)}
-                  className="flex items-center gap-2 bg-primary-foreground/10 rounded-xl px-4 py-3 w-full text-left"
-                >
-                  <Lock className="w-4 h-4 text-primary-foreground/50 shrink-0" />
-                  <p className="text-primary-foreground/60 text-sm font-display">
-                    Crée un compte pour voir la description, l'habitat et sauvegarder ta capture
-                  </p>
-                </button>
-              ) : (
-                <>
-                  <p className="text-primary-foreground/80 text-sm leading-relaxed">{animalResult.description}</p>
-                  <div className="bg-primary-foreground/10 rounded-xl px-4 py-3">
-                    <p className="text-primary-foreground/90 text-xs font-display">💡 {animalResult.fun_fact}</p>
-                  </div>
-                </>
-              )}
+              {/* Description */}
+              <p className="text-primary-foreground/80 text-sm leading-relaxed">{animalResult.description}</p>
+
+              {/* Fun fact */}
+              <div className="bg-primary-foreground/10 rounded-xl px-4 py-3">
+                <p className="text-primary-foreground/90 text-xs font-display">💡 {animalResult.fun_fact}</p>
+              </div>
 
             </div>
           </div>
@@ -740,48 +656,34 @@ const CapturePage = () => {
                 <PenLine className="w-5 h-5 text-amber" />
                 <h2 className="text-lg font-display font-bold text-primary-foreground">Animal non reconnu</h2>
               </div>
-              {isGuest ? (
-                <button
-                  onClick={() => setShowAuthPrompt(true)}
-                  className="flex items-center gap-2 bg-primary-foreground/10 rounded-xl px-4 py-3 w-full text-left"
-                >
-                  <Lock className="w-4 h-4 text-primary-foreground/50 shrink-0" />
-                  <p className="text-primary-foreground/60 text-sm font-display">
-                    Crée un compte pour soumettre cet animal à un modérateur et l'ajouter à ton Faunex
-                  </p>
-                </button>
-              ) : (
-                <>
-                  <p className="text-primary-foreground/70 text-sm">
-                    Décris l'animal que tu as observé. Ta capture sera vérifiée par un modérateur avant d'être ajoutée à ton Faunex.
-                  </p>
-                  <input
-                    type="text"
-                    placeholder="Nom de l'animal (ex: Lynx boréal)"
-                    value={manualName}
-                    onChange={e => setManualName(e.target.value)}
-                    maxLength={100}
-                    className="w-full px-4 py-2.5 bg-primary-foreground/10 rounded-xl text-sm text-primary-foreground placeholder:text-primary-foreground/30 focus:outline-none focus:ring-2 focus:ring-primary/30 font-body"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Nom scientifique (optionnel)"
-                    value={manualSpecies}
-                    onChange={e => setManualSpecies(e.target.value)}
-                    maxLength={100}
-                    className="w-full px-4 py-2.5 bg-primary-foreground/10 rounded-xl text-sm text-primary-foreground placeholder:text-primary-foreground/30 focus:outline-none focus:ring-2 focus:ring-primary/30 font-body italic"
-                  />
-                  <textarea
-                    placeholder="Décris l'animal : couleur, taille, comportement, lieu d'observation…"
-                    value={manualDescription}
-                    onChange={e => setManualDescription(e.target.value)}
-                    maxLength={500}
-                    rows={3}
-                    className="w-full px-4 py-2.5 bg-primary-foreground/10 rounded-xl text-sm text-primary-foreground placeholder:text-primary-foreground/30 focus:outline-none focus:ring-2 focus:ring-primary/30 font-body resize-none"
-                  />
-                  <p className="text-primary-foreground/40 text-[10px] text-right">{manualDescription.length}/500</p>
-                </>
-              )}
+              <p className="text-primary-foreground/70 text-sm">
+                Décris l'animal que tu as observé. Ta capture sera vérifiée par un modérateur avant d'être ajoutée à ton Faunex.
+              </p>
+              <input
+                type="text"
+                placeholder="Nom de l'animal (ex: Lynx boréal)"
+                value={manualName}
+                onChange={e => setManualName(e.target.value)}
+                maxLength={100}
+                className="w-full px-4 py-2.5 bg-primary-foreground/10 rounded-xl text-sm text-primary-foreground placeholder:text-primary-foreground/30 focus:outline-none focus:ring-2 focus:ring-primary/30 font-body"
+              />
+              <input
+                type="text"
+                placeholder="Nom scientifique (optionnel)"
+                value={manualSpecies}
+                onChange={e => setManualSpecies(e.target.value)}
+                maxLength={100}
+                className="w-full px-4 py-2.5 bg-primary-foreground/10 rounded-xl text-sm text-primary-foreground placeholder:text-primary-foreground/30 focus:outline-none focus:ring-2 focus:ring-primary/30 font-body italic"
+              />
+              <textarea
+                placeholder="Décris l'animal : couleur, taille, comportement, lieu d'observation…"
+                value={manualDescription}
+                onChange={e => setManualDescription(e.target.value)}
+                maxLength={500}
+                rows={3}
+                className="w-full px-4 py-2.5 bg-primary-foreground/10 rounded-xl text-sm text-primary-foreground placeholder:text-primary-foreground/30 focus:outline-none focus:ring-2 focus:ring-primary/30 font-body resize-none"
+              />
+              <p className="text-primary-foreground/40 text-[10px] text-right">{manualDescription.length}/500</p>
             </div>
           </div>
         )}
@@ -831,46 +733,26 @@ const CapturePage = () => {
             Nouvelle capture
           </button>
         ) : duplicateCapture ? null : animalResult ? (
-          isGuest ? (
-            <button
-              onClick={() => setShowAuthPrompt(true)}
-              className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-primary text-primary-foreground font-display text-sm"
-            >
-              <LogIn className="w-4 h-4" />
-              Créer un compte pour sauvegarder
-            </button>
-          ) : (
-            <button
-              onClick={saveToCollection}
-              disabled={saving}
-              className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-primary text-primary-foreground font-display text-sm disabled:opacity-50"
-            >
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-              {saving ? 'Sauvegarde…' : 'Ajouter au Faunex'}
-            </button>
-          )
+          <button
+            onClick={saveToCollection}
+            disabled={saving}
+            className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-primary text-primary-foreground font-display text-sm disabled:opacity-50"
+          >
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+            {saving ? 'Sauvegarde…' : 'Ajouter au Faunex'}
+          </button>
         ) : manualMode ? (
-          isGuest ? (
-            <button
-              onClick={() => setShowAuthPrompt(true)}
-              className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-primary text-primary-foreground font-display text-sm"
-            >
-              <LogIn className="w-4 h-4" />
-              Créer un compte pour soumettre
-            </button>
-          ) : (
-            <button
-              onClick={saveManualEntry}
-              disabled={saving || !manualName.trim() || !manualDescription.trim()}
-              className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-amber text-foreground font-display text-sm disabled:opacity-50"
-            >
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <PenLine className="w-4 h-4" />}
-              {saving ? 'Envoi…' : 'Soumettre pour validation'}
-            </button>
-          )
+          <button
+            onClick={saveManualEntry}
+            disabled={saving || !manualName.trim() || !manualDescription.trim()}
+            className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-amber text-foreground font-display text-sm disabled:opacity-50"
+          >
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <PenLine className="w-4 h-4" />}
+            {saving ? 'Envoi…' : 'Soumettre pour validation'}
+          </button>
         ) : identifying ? null : capturedPhoto ? null : (
           <>
-            <button onClick={() => fileInputRef.current?.click()} className="w-12 h-12 rounded-xl bg-primary-foreground/10 flex items-center justify-center">
+            <button className="w-12 h-12 rounded-xl bg-primary-foreground/10 flex items-center justify-center">
               <Image className="w-5 h-5 text-primary-foreground/60" />
             </button>
             <button
@@ -887,12 +769,6 @@ const CapturePage = () => {
           </>
         )}
       </div>
-
-      <AuthPromptModal
-        open={showAuthPrompt}
-        onClose={() => setShowAuthPrompt(false)}
-        message="Crée un compte gratuit pour sauvegarder cette capture dans ta collection et accéder à tous les détails : description, habitat, alimentation, anecdotes…"
-      />
     </main>
   );
 };
