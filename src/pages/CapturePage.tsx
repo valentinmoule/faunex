@@ -87,6 +87,15 @@ const CapturePage = () => {
       }
       setZoomLevel(1);
 
+      // Check focus support
+      const hasFocusMode = !!(capabilities?.focusMode);
+      setSupportsFocus(hasFocusMode);
+      if (hasFocusMode && capabilities.focusMode.includes('continuous')) {
+        try {
+          await (track as any).applyConstraints({ advanced: [{ focusMode: 'continuous' } as any] });
+        } catch {}
+      }
+
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
