@@ -146,6 +146,57 @@ const CapturePage = () => {
     pinchStartDistance.current = null;
   }, []);
 
+  // Tap-to-focus handler
+  const handleTapToFocus = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (capturedPhoto || !cameraActive || !streamRef.current) return;
+
+    const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
+
+    // Show focus indicator
+    setFocusPoint({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    setFocusAnimating(true);
+    if (focusTimeoutRef.current) clearTimeout(focusTimeoutRef.current);
+    focusTimeoutRef.current = setTimeout(() => {
+      setFocusAnimating(false);
+      setTimeout(() => setFocusPoint(null), 300);
+    }, 1000);
+
+    // Apply focus point if supported
+    if (supportsFocus) {
+      const track = streamRef.current.getVideoTracks()[0];
+      try {
+        const constraints: any = {
+          advanced: [{
+            focusMode: 'manual',
+            pointsOfInterest: [{ x, y }],
+          }],
+        };
+        (track as any).applyConstraints(constraints);
+        setFocusMode('manual');
+      } catch {}
+    }
+  }, [capturedPhoto, cameraActive, supportsFocus]);
+
+  // Toggle between auto and manual focus
+  const toggleFocusMode = useCallback(() => {
+    if (!streamRef.current) return;
+    const track = streamRef.current.getVideoTracks()[0];
+    const newMode = focusMode === 'auto' ? 'manual' : 'auto';
+
+    if (supportsFocus) {
+      try {
+        const mode = newMode === 'auto' ? 'continuous' : 'manual';
+        (track as any).applyConstraints({ advanced: [{ focusMode: mode } as any] });
+      } catch {}
+    }
+
+    setFocusMode(newMode);
+    setFocusPoint(null);
+    toast.info(newMode === 'auto' ? 'Mise au point automatique' : 'Mise au point manuelle — touchez pour faire le point');
+  }, [focusMode, supportsFocus]);
+
   useEffect(() => {
     startCamera();
     return () => stopCamera();
