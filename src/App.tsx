@@ -76,6 +76,7 @@ const AppRoutes = () => {
   const location = useLocation();
   const isCapturePage = location.pathname === '/capture';
   const isLandingPage = location.pathname === '/';
+  const isAuthPage = location.pathname === '/auth';
 
   return (
     <>
