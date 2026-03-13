@@ -46,8 +46,13 @@ const CapturePage = () => {
   const [zoomLevel, setZoomLevel] = useState(1);
   const [maxZoom, setMaxZoom] = useState(5);
   const [supportsNativeZoom, setSupportsNativeZoom] = useState(false);
+  const [focusMode, setFocusMode] = useState<'auto' | 'manual'>('auto');
+  const [focusPoint, setFocusPoint] = useState<{ x: number; y: number } | null>(null);
+  const [focusAnimating, setFocusAnimating] = useState(false);
+  const [supportsFocus, setSupportsFocus] = useState(false);
   const pinchStartDistance = useRef<number | null>(null);
   const pinchStartZoom = useRef<number>(1);
+  const focusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
