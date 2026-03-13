@@ -671,34 +671,48 @@ const CapturePage = () => {
                 <PenLine className="w-5 h-5 text-amber" />
                 <h2 className="text-lg font-display font-bold text-primary-foreground">Animal non reconnu</h2>
               </div>
-              <p className="text-primary-foreground/70 text-sm">
-                Décris l'animal que tu as observé. Ta capture sera vérifiée par un modérateur avant d'être ajoutée à ton Faunex.
-              </p>
-              <input
-                type="text"
-                placeholder="Nom de l'animal (ex: Lynx boréal)"
-                value={manualName}
-                onChange={e => setManualName(e.target.value)}
-                maxLength={100}
-                className="w-full px-4 py-2.5 bg-primary-foreground/10 rounded-xl text-sm text-primary-foreground placeholder:text-primary-foreground/30 focus:outline-none focus:ring-2 focus:ring-primary/30 font-body"
-              />
-              <input
-                type="text"
-                placeholder="Nom scientifique (optionnel)"
-                value={manualSpecies}
-                onChange={e => setManualSpecies(e.target.value)}
-                maxLength={100}
-                className="w-full px-4 py-2.5 bg-primary-foreground/10 rounded-xl text-sm text-primary-foreground placeholder:text-primary-foreground/30 focus:outline-none focus:ring-2 focus:ring-primary/30 font-body italic"
-              />
-              <textarea
-                placeholder="Décris l'animal : couleur, taille, comportement, lieu d'observation…"
-                value={manualDescription}
-                onChange={e => setManualDescription(e.target.value)}
-                maxLength={500}
-                rows={3}
-                className="w-full px-4 py-2.5 bg-primary-foreground/10 rounded-xl text-sm text-primary-foreground placeholder:text-primary-foreground/30 focus:outline-none focus:ring-2 focus:ring-primary/30 font-body resize-none"
-              />
-              <p className="text-primary-foreground/40 text-[10px] text-right">{manualDescription.length}/500</p>
+              {isGuest ? (
+                <button
+                  onClick={() => setShowAuthPrompt(true)}
+                  className="flex items-center gap-2 bg-primary-foreground/10 rounded-xl px-4 py-3 w-full text-left"
+                >
+                  <Lock className="w-4 h-4 text-primary-foreground/50 shrink-0" />
+                  <p className="text-primary-foreground/60 text-sm font-display">
+                    Crée un compte pour soumettre cet animal à un modérateur et l'ajouter à ton Faunex
+                  </p>
+                </button>
+              ) : (
+                <>
+                  <p className="text-primary-foreground/70 text-sm">
+                    Décris l'animal que tu as observé. Ta capture sera vérifiée par un modérateur avant d'être ajoutée à ton Faunex.
+                  </p>
+                  <input
+                    type="text"
+                    placeholder="Nom de l'animal (ex: Lynx boréal)"
+                    value={manualName}
+                    onChange={e => setManualName(e.target.value)}
+                    maxLength={100}
+                    className="w-full px-4 py-2.5 bg-primary-foreground/10 rounded-xl text-sm text-primary-foreground placeholder:text-primary-foreground/30 focus:outline-none focus:ring-2 focus:ring-primary/30 font-body"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Nom scientifique (optionnel)"
+                    value={manualSpecies}
+                    onChange={e => setManualSpecies(e.target.value)}
+                    maxLength={100}
+                    className="w-full px-4 py-2.5 bg-primary-foreground/10 rounded-xl text-sm text-primary-foreground placeholder:text-primary-foreground/30 focus:outline-none focus:ring-2 focus:ring-primary/30 font-body italic"
+                  />
+                  <textarea
+                    placeholder="Décris l'animal : couleur, taille, comportement, lieu d'observation…"
+                    value={manualDescription}
+                    onChange={e => setManualDescription(e.target.value)}
+                    maxLength={500}
+                    rows={3}
+                    className="w-full px-4 py-2.5 bg-primary-foreground/10 rounded-xl text-sm text-primary-foreground placeholder:text-primary-foreground/30 focus:outline-none focus:ring-2 focus:ring-primary/30 font-body resize-none"
+                  />
+                  <p className="text-primary-foreground/40 text-[10px] text-right">{manualDescription.length}/500</p>
+                </>
+              )}
             </div>
           </div>
         )}
