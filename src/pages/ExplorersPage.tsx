@@ -274,10 +274,12 @@ const ExplorersPage = () => {
           loading ? (
             <p className="text-center py-8 text-muted-foreground text-sm font-display">Chargement…</p>
           ) : friends.length === 0 ? (
-            <div className="text-center py-16">
+            <div className="text-center py-16 px-6">
               <Users className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
-              <p className="text-muted-foreground font-display text-sm">Aucun ami explorateur</p>
-              <p className="text-muted-foreground/60 text-xs mt-1">Recherche des explorateurs pour les ajouter !</p>
+              <p className="text-foreground font-display font-semibold text-sm mb-2">Aucun ami explorateur</p>
+              <p className="text-muted-foreground text-xs leading-relaxed max-w-xs mx-auto">
+                Ajoute des amis pour découvrir leurs captures, comparer vos collections et explorer ensemble ! Utilise la barre de recherche ci-dessus pour trouver des explorateurs par nom ou pseudo.
+              </p>
             </div>
           ) : (
             <div className="divide-y divide-border">
