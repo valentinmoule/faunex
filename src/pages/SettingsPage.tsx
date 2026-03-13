@@ -211,6 +211,7 @@ const SettingsPage = () => {
             </div>
 
             <MenuItem icon={<Pencil className="w-5 h-5" />} label="Modifier le profil" onClick={() => setSection('edit')} />
+            <MenuItem icon={<KeyRound className="w-5 h-5" />} label="Changer le mot de passe" onClick={() => setSection('password')} />
             <MenuItem icon={<Share2 className="w-5 h-5" />} label="Partager mon profil" onClick={handleShare} />
             <MenuItem icon={<Scale className="w-5 h-5" />} label="Mentions légales" onClick={() => navigate('/legal')} />
             <div className="pt-4 space-y-1">
