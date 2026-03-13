@@ -117,16 +117,18 @@ const BestiairePage = () => {
     fetchUnread();
   }, [session]);
 
-  // Get unique categories
+  // Get unique categories (merge "X" and "X (monde)" into one)
+  const normalizeCategory = (cat: string) => cat.replace(/\s*\(monde\)$/i, '');
+
   const categories = useMemo(() => {
-    const cats = new Set(animals.map(a => a.category));
+    const cats = new Set(animals.map(a => normalizeCategory(a.category)));
     return ['Tous', ...Array.from(cats).sort()];
   }, [animals]);
 
   const filtered = useMemo(() => {
     return animals.filter((a) => {
       if (filter !== 'all' && a.rarity !== filter) return false;
-      if (categoryFilter !== 'Tous' && a.category !== categoryFilter) return false;
+      if (categoryFilter !== 'Tous' && normalizeCategory(a.category) !== categoryFilter) return false;
       if (search && !a.name.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
     });
