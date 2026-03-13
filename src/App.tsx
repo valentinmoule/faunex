@@ -26,7 +26,7 @@ const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, loading } = useAuth();
-  if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><span className="text-muted-foreground font-display">Chargement...</span></div>;
+  if (loading) return <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-3"><img src="/pwa-icon-512.png" alt="Faunex" className="w-20 h-20" /><span className="text-muted-foreground font-display text-sm">Chargement...</span></div>;
   if (!session) return <Navigate to="/auth" replace />;
   return <>{children}</>;
 };
