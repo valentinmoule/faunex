@@ -60,6 +60,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
   const [newComment, setNewComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [showComments, setShowComments] = useState(false);
+  const [imageFullscreen, setImageFullscreen] = useState(false);
 
   // Fetch likes & comments when card opens
   useEffect(() => {
