@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 import { Loader2, User } from 'lucide-react';
 
 const CompleteProfilePage = () => {
-  const { session } = useAuth();
+  const { session, recheckUsername } = useAuth();
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(false);
