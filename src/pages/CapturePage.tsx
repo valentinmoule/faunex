@@ -837,7 +837,7 @@ const CapturePage = () => {
           </button>
         ) : identifying ? null : capturedPhoto ? null : (
           <>
-            <button className="w-12 h-12 rounded-xl bg-primary-foreground/10 flex items-center justify-center">
+            <button onClick={() => fileInputRef.current?.click()} className="w-12 h-12 rounded-xl bg-primary-foreground/10 flex items-center justify-center">
               <Image className="w-5 h-5 text-primary-foreground/60" />
             </button>
             <button
