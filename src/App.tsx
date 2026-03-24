@@ -24,14 +24,17 @@ import ShareProfilePage from "./pages/ShareProfilePage";
 import SettingsPage from "./pages/SettingsPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import LandingPage from "./pages/LandingPage";
+import CompleteProfilePage from "./pages/CompleteProfilePage";
 import BottomNav from "./components/BottomNav";
 
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { session, loading } = useAuth();
+  const { session, loading, needsUsername } = useAuth();
+  const location = useLocation();
   if (loading) return <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-3"><img src="/pwa-icon-512.png" alt="Faunex" className="w-20 h-20" /><span className="text-muted-foreground font-display text-sm">Chargement...</span></div>;
   if (!session) return <Navigate to="/auth" replace />;
+  if (needsUsername && location.pathname !== '/complete-profile') return <Navigate to="/complete-profile" replace />;
   return <>{children}</>;
 };
 
@@ -77,6 +80,7 @@ const AppRoutes = () => {
   const isCapturePage = location.pathname === '/capture';
   const isLandingPage = location.pathname === '/';
   const isAuthPage = location.pathname === '/auth';
+  const isCompleteProfile = location.pathname === '/complete-profile';
 
   return (
     <>
@@ -84,6 +88,7 @@ const AppRoutes = () => {
         <Route path="/" element={<LandingRoute><LandingPage /></LandingRoute>} />
         <Route path="/auth" element={<AuthRoute><AuthPage /></AuthRoute>} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/complete-profile" element={<ProtectedRoute><CompleteProfilePage /></ProtectedRoute>} />
         <Route path="/home" element={<ProtectedRoute><Index /></ProtectedRoute>} />
         <Route path="/collection" element={<ProtectedRoute><CollectionPage /></ProtectedRoute>} />
         <Route path="/capture" element={<ProtectedRoute><CapturePage /></ProtectedRoute>} />
@@ -98,7 +103,7 @@ const AppRoutes = () => {
         <Route path="/u/:username" element={<ShareProfilePage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-      {!isCapturePage && !isLandingPage && !isAuthPage && <BottomNav />}
+      {!isCapturePage && !isLandingPage && !isAuthPage && !isCompleteProfile && <BottomNav />}
       <PwaInstallBanner />
     </>
   );
