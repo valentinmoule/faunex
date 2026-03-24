@@ -30,9 +30,11 @@ import BottomNav from "./components/BottomNav";
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { session, loading } = useAuth();
+  const { session, loading, needsUsername } = useAuth();
+  const location = useLocation();
   if (loading) return <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-3"><img src="/pwa-icon-512.png" alt="Faunex" className="w-20 h-20" /><span className="text-muted-foreground font-display text-sm">Chargement...</span></div>;
   if (!session) return <Navigate to="/auth" replace />;
+  if (needsUsername && location.pathname !== '/complete-profile') return <Navigate to="/complete-profile" replace />;
   return <>{children}</>;
 };
 
