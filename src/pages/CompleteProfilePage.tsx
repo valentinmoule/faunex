@@ -55,6 +55,7 @@ const CompleteProfilePage = () => {
         .eq('user_id', session!.user.id);
 
       if (error) throw error;
+      await recheckUsername();
       toast.success('Bienvenue sur Faunex ! 🌿');
       navigate('/home', { replace: true });
     } catch (err: any) {
