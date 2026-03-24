@@ -50,6 +50,7 @@ interface BadgeProgress {
 
 const ProfilePage = () => {
   const { session } = useAuth();
+  const { canInstall, isInstalled, promptInstall } = usePwaInstall();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
