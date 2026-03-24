@@ -77,6 +77,7 @@ const CapturePage = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const videoContainerRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const stopCamera = useCallback(() => {
     if (streamRef.current) {
