@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Settings, Award, MapPin, Camera as CameraIcon, BookOpen, Lock } from 'lucide-react';
+import { Settings, Award, MapPin, Camera as CameraIcon, BookOpen, Lock, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { usePwaInstall } from '@/contexts/PwaInstallContext';
 
 
 interface Profile {
@@ -49,6 +50,7 @@ interface BadgeProgress {
 
 const ProfilePage = () => {
   const { session } = useAuth();
+  const { canInstall, isInstalled, promptInstall } = usePwaInstall();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -180,6 +182,25 @@ const ProfilePage = () => {
           <StatCard icon={<CameraIcon className="w-5 h-5 text-amber" />} value={profile.total_captures} label="Captures" />
           <StatCard icon={<MapPin className="w-5 h-5 text-sky" />} value={profile.regions_explored} label="Régions" />
         </div>
+
+        {/* PWA Install Card */}
+        {canInstall && !isInstalled && (
+          <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+              <Download className="w-5 h-5 text-primary" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-display font-semibold text-foreground">Installer Faunex</p>
+              <p className="text-xs text-muted-foreground">Accède à l'app depuis ton écran d'accueil</p>
+            </div>
+            <button
+              onClick={promptInstall}
+              className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-display font-semibold shrink-0"
+            >
+              Installer
+            </button>
+          </div>
+        )}
 
         {/* Badges Section */}
         <div>
