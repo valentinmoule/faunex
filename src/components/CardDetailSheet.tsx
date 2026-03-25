@@ -25,29 +25,23 @@ interface Comment {
 }
 
 const rarityGradients: Record<Rarity, string> = {
-  common: 'from-[hsl(150,30%,50%)] to-[hsl(150,30%,35%)]',
-  uncommon: 'from-[hsl(200,70%,55%)] to-[hsl(200,70%,38%)]',
-  rare: 'from-[hsl(270,60%,60%)] to-[hsl(270,60%,42%)]',
-  epic: 'from-[hsl(42,80%,55%)] to-[hsl(38,75%,40%)]',
-  legendary: 'from-[hsl(15,85%,55%)] to-[hsl(15,85%,38%)]',
-  mythic: 'from-[hsl(340,75%,55%)] to-[hsl(270,60%,45%)]',
+  common: 'from-[hsl(210,5%,55%)] to-[hsl(210,5%,40%)]',
+  rare: 'from-[hsl(210,70%,55%)] to-[hsl(210,70%,38%)]',
+  epic: 'from-[hsl(270,70%,60%)] to-[hsl(270,70%,42%)]',
+  mythic: 'from-[hsl(42,85%,55%)] to-[hsl(38,75%,40%)]',
 };
 
 const rarityBg: Record<Rarity, string> = {
   common: 'bg-rarity-common/15',
-  uncommon: 'bg-rarity-uncommon/15',
   rare: 'bg-rarity-rare/15',
   epic: 'bg-rarity-epic/15',
-  legendary: 'bg-rarity-legendary/15',
   mythic: 'bg-rarity-mythic/15',
 };
 
 const rarityText: Record<Rarity, string> = {
   common: 'text-rarity-common',
-  uncommon: 'text-rarity-uncommon',
   rare: 'text-rarity-rare',
   epic: 'text-rarity-epic',
-  legendary: 'text-rarity-legendary',
   mythic: 'text-rarity-mythic',
 };
 
@@ -139,8 +133,8 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
   if (!card) return null;
 
   const isMythic = card.rarity === 'mythic';
-  const isLegendary = card.rarity === 'legendary';
-  const isShiny = isLegendary || isMythic;
+  const isEpic = card.rarity === 'epic';
+  const isShiny = isEpic || isMythic;
 
   return (
     <>
@@ -168,7 +162,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
                   </div>
                 )}
                 {isShiny && !isMythic && (
-                  <div className="absolute inset-0 holographic-card card-shimmer pointer-events-none" style={{ backgroundImage: 'var(--gradient-holographic)', backgroundSize: '200% 200%', opacity: 0.25 }} />
+                  <div className="epic-image-overlay pointer-events-none" />
                 )}
               </div>
             </div>
@@ -267,13 +261,13 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
             </div>
 
             {/* Fun Fact */}
-            <div className={`relative overflow-hidden rounded-2xl border ${isMythic ? 'border-rarity-mythic/30 bg-rarity-mythic/5' : isLegendary ? 'border-rarity-legendary/30 bg-rarity-legendary/5' : 'border-amber/20 bg-amber/5'}`}>
+            <div className={`relative overflow-hidden rounded-2xl border ${isMythic ? 'border-rarity-mythic/30 bg-rarity-mythic/5' : isEpic ? 'border-rarity-epic/30 bg-rarity-epic/5' : 'border-border bg-muted/30'}`}>
               <div className="px-4 py-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${isMythic ? 'bg-rarity-mythic/15' : 'bg-amber/15'}`}>
-                    <Sparkles className={`w-4 h-4 ${isMythic ? 'text-rarity-mythic' : 'text-amber'}`} />
+                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${isMythic ? 'bg-rarity-mythic/15' : 'bg-primary/15'}`}>
+                    <Sparkles className={`w-4 h-4 ${isMythic ? 'text-rarity-mythic' : 'text-primary'}`} />
                   </div>
-                  <p className={`text-xs font-display font-bold uppercase tracking-wider ${isMythic ? 'text-rarity-mythic' : 'text-amber-dark'}`}>
+                  <p className={`text-xs font-display font-bold uppercase tracking-wider ${isMythic ? 'text-rarity-mythic' : 'text-muted-foreground'}`}>
                     Le saviez-vous ?
                   </p>
                 </div>

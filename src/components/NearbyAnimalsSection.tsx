@@ -15,18 +15,16 @@ interface NearbyAnimal {
 
 const rarityDot: Record<string, string> = {
   common: 'bg-rarity-common',
-  uncommon: 'bg-rarity-uncommon',
   rare: 'bg-rarity-rare',
   epic: 'bg-rarity-epic',
-  legendary: 'bg-rarity-legendary',
+  mythic: 'bg-rarity-mythic',
 };
 
 const rarityBadge: Record<string, string> = {
   common: 'bg-rarity-common/15 text-rarity-common',
-  uncommon: 'bg-rarity-uncommon/15 text-rarity-uncommon',
   rare: 'bg-rarity-rare/15 text-rarity-rare',
   epic: 'bg-rarity-epic/15 text-rarity-epic',
-  legendary: 'bg-rarity-legendary/15 text-rarity-legendary',
+  mythic: 'bg-rarity-mythic/15 text-rarity-mythic',
 };
 
 interface Props {

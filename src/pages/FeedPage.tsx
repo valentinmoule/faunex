@@ -321,7 +321,7 @@ const FeedPage = () => {
             const profile = post.profiles;
             const userName = profile?.display_name || profile?.username || 'Anonyme';
             const avatarUrl = profile?.avatar_url;
-            const isShiny = post.rarity === 'legendary' || post.rarity === 'mythic';
+            const isShiny = post.rarity === 'epic' || post.rarity === 'mythic';
             const isMythic = post.rarity === 'mythic';
             const isLiked = likedPosts.has(post.id);
             const likeCount = likeCounts[post.id] || 0;
