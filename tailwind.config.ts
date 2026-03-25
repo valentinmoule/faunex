@@ -66,10 +66,8 @@ export default {
         sky: "hsl(var(--sky))",
         rarity: {
           common: "hsl(var(--rarity-common))",
-          uncommon: "hsl(var(--rarity-uncommon))",
           rare: "hsl(var(--rarity-rare))",
           epic: "hsl(var(--rarity-epic))",
-          legendary: "hsl(var(--rarity-legendary))",
           mythic: "hsl(var(--rarity-mythic))",
         },
         sidebar: {
