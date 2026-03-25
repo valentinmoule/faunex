@@ -23,8 +23,6 @@ const rarityIconBg: Record<string, string> = {
   common: 'bg-rarity-common/10 text-rarity-common border-rarity-common/30',
   rare: 'bg-rarity-rare/10 text-rarity-rare border-rarity-rare/30',
   epic: 'bg-rarity-epic/10 text-rarity-epic border-rarity-epic/30',
-  epic: 'bg-rarity-epic/10 text-rarity-epic border-rarity-epic/30',
-  epic: 'bg-rarity-epic/10 text-rarity-epic border-rarity-epic/30',
   mythic: 'bg-rarity-mythic/10 text-rarity-mythic border-rarity-mythic/30',
 };
 
