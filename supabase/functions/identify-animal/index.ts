@@ -47,12 +47,10 @@ Si l'image ne contient pas d'animal → animal_name "Inconnu".
 
 ## Évaluation de la rareté
 Évalue selon la probabilité d'observation en Europe/France :
-- **common** : observation quotidienne (pigeon, moineau, merle, chat européen, Labrador)
-- **uncommon** : courant mais pas omniprésent (hérisson, écureuil, héron, Shiba Inu, Maine Coon)
-- **rare** : observation nécessitant patience (martin-pêcheur, hermine, Bengal, Savannah)
-- **epic** : très rare ou limité géographiquement (lynx, gypaète, loutre)
-- **legendary** : exceptionnel, espèce menacée (ours brun, aigle royal, phoque moine)
-- **mythic** : quasi-impossible en liberté (loup gris en France, panthère des neiges)
+- **common** : observation quotidienne ou fréquente (pigeon, moineau, merle, chat européen, Labrador, hérisson, écureuil)
+- **rare** : observation nécessitant patience ou chance (martin-pêcheur, hermine, Bengal, Savannah, héron)
+- **epic** : très rare, espèce vulnérable ou en danger (lynx, gypaète, loutre, ours brun, aigle royal)
+- **mythic** : quasi-impossible, espèce en danger critique (loup gris en France, panthère des neiges, phoque moine)
 
 Réponds UNIQUEMENT via l'appel de fonction identify_animal.`;
 
@@ -144,7 +142,7 @@ serve(async (req) => {
                   },
                   rarity: {
                     type: "string",
-                    enum: ["common", "uncommon", "rare", "epic", "legendary", "mythic"]
+                    enum: ["common", "rare", "epic", "mythic"]
                   }
                 },
                 required: ["animal_name", "scientific_name", "category", "description", "habitat", "diet", "conservation", "fun_fact", "rarity"],

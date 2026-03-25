@@ -10,7 +10,7 @@ interface Props {
 const FeedPostCard = ({ post, onCardClick }: Props) => {
   const [liked, setLiked] = useState(post.liked);
   const [likes, setLikes] = useState(post.likes);
-  const isShiny = post.animal.rarity === 'legendary' || post.animal.rarity === 'mythic';
+  const isShiny = post.animal.rarity === 'epic' || post.animal.rarity === 'mythic';
   const isMythic = post.animal.rarity === 'mythic';
 
   const handleLike = () => {

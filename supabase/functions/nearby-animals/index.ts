@@ -26,7 +26,7 @@ Pour chaque animal, donne :
 - name: nom commun en français
 - scientific_name: nom scientifique
 - category: catégorie (Mammifères, Oiseaux, Reptiles, Amphibiens, Insectes, Poissons)
-- rarity: une rareté parmi common, uncommon, rare, epic, legendary (basée sur la difficulté réelle d'observation)
+- rarity: une rareté parmi common, rare, epic, mythic (basée sur la difficulté réelle d'observation)
 - description: une phrase courte décrivant l'animal
 - tip: un conseil pour l'observer (lieu, moment de la journée, comportement à guetter)
 
@@ -62,7 +62,7 @@ Sois réaliste et précis selon la géographie et l'écosystème local.`;
                         name: { type: "string" },
                         scientific_name: { type: "string" },
                         category: { type: "string" },
-                        rarity: { type: "string", enum: ["common", "uncommon", "rare", "epic", "legendary"] },
+                        rarity: { type: "string", enum: ["common", "rare", "epic", "mythic"] },
                         description: { type: "string" },
                         tip: { type: "string" },
                       },

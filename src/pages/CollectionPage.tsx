@@ -8,7 +8,7 @@ import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
-const rarityFilters: (Rarity | 'all')[] = ['all', 'common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'];
+const rarityFilters: (Rarity | 'all')[] = ['all', 'common', 'rare', 'epic', 'mythic'];
 
 const CollectionPage = () => {
   const { session } = useAuth();
@@ -191,14 +191,6 @@ const CollectionPage = () => {
                       Les espèces communes sont celles que l'on croise facilement au quotidien : moineaux, pigeons, écureuils… Ouvre l'œil lors de tes prochaines sorties !
                     </p>
                   </>
-                ) : filter === 'uncommon' ? (
-                  <>
-                    <p className="text-4xl mb-3">🦔</p>
-                    <p className="text-foreground font-display font-semibold text-sm mb-2">Aucune espèce peu commune</p>
-                    <p className="text-muted-foreground text-xs leading-relaxed max-w-xs mx-auto">
-                      Les espèces peu communes se font plus discrètes. Il faut un peu de patience et de chance pour les croiser dans leur habitat naturel.
-                    </p>
-                  </>
                 ) : filter === 'rare' ? (
                   <>
                     <p className="text-4xl mb-3">🦊</p>
@@ -212,15 +204,7 @@ const CollectionPage = () => {
                     <p className="text-4xl mb-3">🦅</p>
                     <p className="text-foreground font-display font-semibold text-sm mb-2">Aucune espèce épique</p>
                     <p className="text-muted-foreground text-xs leading-relaxed max-w-xs mx-auto">
-                      Les espèces épiques sont vulnérables et menacées. Leur nombre décline sérieusement — chaque observation compte pour suivre leur état dans la nature.
-                    </p>
-                  </>
-                ) : filter === 'legendary' ? (
-                  <>
-                    <p className="text-4xl mb-3">🐺</p>
-                    <p className="text-foreground font-display font-semibold text-sm mb-2">Aucune espèce légendaire</p>
-                    <p className="text-muted-foreground text-xs leading-relaxed max-w-xs mx-auto">
-                      Les espèces légendaires sont en danger d'extinction. Elles sont extrêmement rares à observer — croiser leur chemin est un moment inoubliable.
+                      Les espèces épiques sont vulnérables ou en danger. Leur nombre décline sérieusement — chaque observation compte pour suivre leur état dans la nature.
                     </p>
                   </>
                 ) : filter === 'mythic' ? (

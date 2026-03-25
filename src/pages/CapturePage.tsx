@@ -20,10 +20,8 @@ interface AnimalResult {
 
 const rarityColors: Record<string, string> = {
   common: 'bg-rarity-common/20 text-rarity-common border-rarity-common/40',
-  uncommon: 'bg-rarity-uncommon/20 text-rarity-uncommon border-rarity-uncommon/40',
   rare: 'bg-rarity-rare/20 text-rarity-rare border-rarity-rare/40',
   epic: 'bg-rarity-epic/20 text-rarity-epic border-rarity-epic/40',
-  legendary: 'bg-rarity-legendary/20 text-rarity-legendary border-rarity-legendary/40',
   mythic: 'bg-rarity-mythic/20 text-rarity-mythic border-rarity-mythic/40',
 };
 

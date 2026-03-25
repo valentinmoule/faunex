@@ -13,18 +13,16 @@ interface BestiaryAnimal {
   captured: boolean;
 }
 
-const rarityFilters: (Rarity | 'all')[] = ['all', 'common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'];
+const rarityFilters: (Rarity | 'all')[] = ['all', 'common', 'rare', 'epic', 'mythic'];
 
 const rarityOrder: Record<string, number> = {
-  common: 0, uncommon: 1, rare: 2, epic: 3, legendary: 4, mythic: 5,
+  common: 0, rare: 1, epic: 2, mythic: 3,
 };
 
 const rarityIconBg: Record<string, string> = {
   common: 'bg-rarity-common/10 text-rarity-common border-rarity-common/30',
-  uncommon: 'bg-rarity-uncommon/10 text-rarity-uncommon border-rarity-uncommon/30',
   rare: 'bg-rarity-rare/10 text-rarity-rare border-rarity-rare/30',
   epic: 'bg-rarity-epic/10 text-rarity-epic border-rarity-epic/30',
-  legendary: 'bg-rarity-legendary/10 text-rarity-legendary border-rarity-legendary/30',
   mythic: 'bg-rarity-mythic/10 text-rarity-mythic border-rarity-mythic/30',
 };
 

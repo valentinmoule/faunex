@@ -1,4 +1,4 @@
-export type Rarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary' | 'mythic';
+export type Rarity = 'common' | 'rare' | 'epic' | 'mythic';
 
 export interface AnimalCard {
   id: string;
@@ -58,10 +58,8 @@ export interface UserProfile {
 
 export const RARITY_LABELS: Record<Rarity, string> = {
   common: 'Commun',
-  uncommon: 'Peu commun',
   rare: 'Rare',
   epic: 'Épique',
-  legendary: 'Légendaire',
   mythic: 'Mythique',
 };
 
@@ -101,7 +99,7 @@ export const mockCards: AnimalCard[] = [
     name: 'Faon (Chevreuil)',
     scientificName: 'Capreolus capreolus',
     image: '/images/deer.jpg',
-    rarity: 'uncommon',
+    rarity: 'common',
     category: 'Mammifères',
     description: 'Le chevreuil est le plus petit cervidé européen. Gracieux et discret, il vit dans les forêts et lisières.',
     habitat: 'Forêts, bocages, prairies',
@@ -116,7 +114,7 @@ export const mockCards: AnimalCard[] = [
     name: 'Rainette verte',
     scientificName: 'Hyla arborea',
     image: '/images/frog.jpg',
-    rarity: 'uncommon',
+    rarity: 'common',
     category: 'Amphibiens',
     description: 'Petite grenouille arboricole au vert éclatant, capable de grimper sur les surfaces lisses grâce à ses ventouses.',
     habitat: 'Mares, haies, forêts humides',
@@ -131,7 +129,7 @@ export const mockCards: AnimalCard[] = [
     name: 'Harfang des neiges',
     scientificName: 'Bubo scandiacus',
     image: '/images/owl.jpg',
-    rarity: 'legendary',
+    rarity: 'epic',
     category: 'Oiseaux',
     description: 'Majestueux rapace de l\'Arctique, le harfang est l\'un des plus grands hiboux au monde.',
     habitat: 'Toundra arctique, plaines enneigées',
