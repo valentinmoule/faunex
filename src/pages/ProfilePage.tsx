@@ -35,7 +35,7 @@ const BADGE_DEFS: BadgeDef[] = [
   { id: 'birds_5', name: 'Ornithologue', icon: '🐦', description: 'Capturer 5 oiseaux', total: 5 },
   { id: 'mammals_5', name: 'Mammalogiste', icon: '🦊', description: 'Capturer 5 mammifères', total: 5 },
   { id: 'rare_1', name: 'Chasseur rare', icon: '💎', description: 'Trouver un animal rare ou mieux', total: 1 },
-  { id: 'legendary_1', name: 'Légende vivante', icon: '⭐', description: 'Trouver un animal légendaire', total: 1 },
+  { id: 'legendary_1', name: 'Légende vivante', icon: '⭐', description: 'Trouver un animal épique', total: 1 },
   { id: 'mythic_1', name: 'Mythique !', icon: '🔥', description: 'Trouver un animal mythique', total: 1 },
   { id: 'social_3', name: 'Sociable', icon: '🤝', description: 'Avoir 3 amis explorateurs', total: 3 },
   
@@ -90,8 +90,8 @@ const ProfilePage = () => {
       // Compute badges
       const birdCount = captures.filter(c => c.category?.toLowerCase().includes('oiseau')).length;
       const mammalCount = captures.filter(c => c.category?.toLowerCase().includes('mammif')).length;
-      const hasRare = captures.some(c => ['rare', 'epic', 'legendary', 'mythic'].includes(c.rarity));
-      const hasLegendary = captures.some(c => ['legendary', 'mythic'].includes(c.rarity));
+      const hasRare = captures.some(c => ['rare', 'epic', 'mythic'].includes(c.rarity));
+      const hasLegendary = captures.some(c => ['epic', 'mythic'].includes(c.rarity));
       const hasMythic = captures.some(c => c.rarity === 'mythic');
       const level = data?.level || 1;
 

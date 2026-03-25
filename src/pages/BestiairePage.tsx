@@ -16,7 +16,7 @@ interface BestiaryAnimal {
 const rarityFilters: (Rarity | 'all')[] = ['all', 'common', 'rare', 'epic', 'mythic'];
 
 const rarityOrder: Record<string, number> = {
-  common: 0, uncommon: 1, rare: 2, epic: 3, legendary: 4, mythic: 5,
+  common: 0, rare: 1, epic: 2, mythic: 3,
 };
 
 const rarityIconBg: Record<string, string> = {
