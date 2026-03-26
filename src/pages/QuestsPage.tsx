@@ -214,6 +214,17 @@ const QuestsPage = () => {
                       </div>
                     </div>
 
+                    {/* Share button for share_app quests */}
+                    {quest.quest_type === 'share_app' && !quest.completed && !quest.claimed && (
+                      <button
+                        onClick={() => handleShareApp(quest.id)}
+                        className="shrink-0 mt-1 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-display font-bold flex items-center gap-1.5"
+                      >
+                        <Share2 className="w-3.5 h-3.5" />
+                        Partager
+                      </button>
+                    )}
+
                     {quest.completed && !quest.claimed && (
                       <button
                         onClick={() => claimReward(quest.id)}
