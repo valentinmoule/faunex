@@ -20,7 +20,7 @@ const DailyQuestPopup = () => {
       setVisible(true);
       setPhase('in');
       setTimeout(() => setPhase('visible'), 50);
-    }, 100);
+    }, 4000); // Wait for LevelSplash to finish (3.6s)
 
     return () => clearTimeout(timer);
   }, [session]);
