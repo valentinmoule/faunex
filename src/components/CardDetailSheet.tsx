@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
@@ -67,6 +67,21 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
   const [submitting, setSubmitting] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [imageFullscreen, setImageFullscreen] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Close sheet when user scrolls to bottom
+  useEffect(() => {
+    const node = scrollRef.current;
+    if (!node || !open) return;
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = node;
+      if (scrollTop + clientHeight >= scrollHeight - 10) {
+        onClose();
+      }
+    };
+    node.addEventListener('scroll', handleScroll, { passive: true });
+    return () => node.removeEventListener('scroll', handleScroll);
+  }, [open, onClose]);
 
   // Fetch likes & comments when card opens
   useEffect(() => {
@@ -160,7 +175,8 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
   return (
     <>
       <Sheet open={open} onOpenChange={onClose}>
-        <SheetContent side="bottom" className="h-[92vh] rounded-t-3xl overflow-y-auto p-0 bg-background border-0">
+        <SheetContent side="bottom" className="h-[92vh] rounded-t-3xl overflow-hidden p-0 bg-background border-0">
+          <div ref={scrollRef} className="h-full overflow-y-auto">
           {/* Sticky close button */}
           <button
             onClick={onClose}
@@ -334,6 +350,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
                 <p className="text-sm text-foreground/80 leading-relaxed">{card.funFact}</p>
               </div>
             </div>
+          </div>
           </div>
         </SheetContent>
       </Sheet>
