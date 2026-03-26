@@ -83,9 +83,12 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
           if (fnError) throw fnError;
           if (data?.success) {
             const fetched: NearbyAnimal[] = (data.animals || []).slice(0, 3);
+            const loc = data.location_name || '';
             setAnimals(fetched);
-            setLocationName(data.location_name || '');
+            setLocationName(loc);
             setHasLoaded(true);
+            // Cache in sessionStorage
+            try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ animals: fetched, locationName: loc })); } catch {}
 
             // Find best rare+ animal for surprise alert
             const special = fetched.find(a => a.rarity === 'mythic')
