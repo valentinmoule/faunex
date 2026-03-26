@@ -157,27 +157,28 @@ const DailyQuestsSection = () => {
 
       {expanded && (
         <div className="space-y-2">
-          {quests.map((quest) => {
+          {quests.map((quest, index) => {
             const pct = Math.min((quest.progress / quest.target) * 100, 100);
             return (
               <div
                 key={quest.id}
-                className={`relative p-3 rounded-xl border transition-all ${
+                className={`quest-card-enter relative p-3 rounded-xl border transition-all ${
                   quest.claimed
                     ? 'bg-muted/30 border-border opacity-60'
                     : quest.completed
                     ? 'border-primary/30 bg-primary/5 quest-complete-glow'
                     : questGlowClass[quest.quest_type] || 'bg-muted/50 border-transparent'
                 }`}
+                style={{ animationDelay: `${index * 100}ms` }}
               >
                 <div className="flex items-start gap-3">
-                  <span className="text-lg mt-0.5">{quest.icon}</span>
+                  <span className="text-lg mt-0.5 quest-icon-bounce" style={{ animationDelay: `${index * 100 + 150}ms` }}>{quest.icon}</span>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-0.5">
                       <span className="text-sm font-display font-semibold text-foreground">
                         {quest.title}
                       </span>
-                      <span className="text-[10px] font-display font-bold text-amber">
+                      <span className="text-[10px] font-display font-bold text-amber quest-xp-pop" style={{ animationDelay: `${index * 100 + 300}ms` }}>
                         +{quest.xp_reward} XP
                       </span>
                     </div>
@@ -187,10 +188,10 @@ const DailyQuestsSection = () => {
                     <div className="flex items-center gap-2">
                       <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
                         <div
-                          className={`h-full rounded-full transition-all duration-500 ${
+                          className={`h-full rounded-full quest-progress-fill ${
                             quest.completed ? 'bg-primary' : 'bg-amber'
                           }`}
-                          style={{ width: `${pct}%` }}
+                          style={{ width: `${pct}%`, animationDelay: `${index * 100 + 200}ms` }}
                         />
                       </div>
                       <span className="text-[10px] font-display text-muted-foreground min-w-[2rem] text-right">
@@ -204,7 +205,7 @@ const DailyQuestsSection = () => {
                     <button
                       onClick={() => claimReward(quest.id)}
                       disabled={claiming === quest.id}
-                      className="shrink-0 mt-1 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-[10px] font-display font-bold flex items-center gap-1 quest-claim-pulse"
+                      className="shrink-0 mt-1 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-[10px] font-display font-bold flex items-center gap-1 quest-claim-appear"
                     >
                       {claiming === quest.id ? (
                         <Loader2 className="w-3 h-3 animate-spin" />
