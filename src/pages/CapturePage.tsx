@@ -649,9 +649,18 @@ const CapturePage = () => {
           )}
         </div>
 
+        {/* Freeze flash overlay */}
+        {freezeFlash && (
+          <div className="absolute inset-0 z-30 bg-white pointer-events-none animate-capture-flash" />
+        )}
+
         {/* Overlay gradient for readability */}
-        {(animalResult || identifying || manualMode) && (
-          <div className="absolute inset-0 bg-gradient-to-t from-foreground via-foreground/70 to-transparent" />
+        {(animalResult || identifying || manualMode || revealPhase === 'freeze' || revealPhase === 'shaking') && (
+          <div className={`absolute inset-0 transition-opacity duration-300 ${
+            revealPhase === 'freeze' ? 'bg-black/60' :
+            revealPhase === 'shaking' ? 'bg-gradient-to-t from-black/90 via-black/60 to-black/40' :
+            'bg-gradient-to-t from-foreground via-foreground/70 to-transparent'
+          }`} />
         )}
 
         {/* Zoom indicator + slider */}
