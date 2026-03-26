@@ -150,8 +150,36 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
       <Sheet open={open} onOpenChange={onClose}>
         <SheetContent side="bottom" className="h-[92vh] rounded-t-3xl overflow-y-auto p-0 bg-background border-0">
           {/* Hero Image Section */}
-          <div className={`relative overflow-hidden ${isMythic ? 'mythic-shiny' : ''}`}>
+          <div className={`relative overflow-hidden detail-hero-${card.rarity}`}>
             <div className={`absolute inset-0 z-0 bg-gradient-to-b ${rarityGradients[card.rarity]} opacity-90`} />
+            
+            {/* Rarity ambient effects */}
+            {isMythic && (
+              <>
+                <div className="detail-golden-rays pointer-events-none" />
+                <div className="detail-golden-dust pointer-events-none">
+                  <span /><span /><span /><span /><span /><span /><span /><span /><span /><span /><span /><span />
+                </div>
+                <div className="detail-aura-mythic pointer-events-none" />
+              </>
+            )}
+            {isEpic && (
+              <>
+                <div className="detail-epic-rays pointer-events-none" />
+                <div className="detail-epic-dust pointer-events-none">
+                  <span /><span /><span /><span /><span /><span /><span /><span />
+                </div>
+                <div className="detail-aura-epic pointer-events-none" />
+              </>
+            )}
+            {isRare && (
+              <>
+                <div className="detail-rare-dust pointer-events-none">
+                  <span /><span /><span /><span /><span /><span />
+                </div>
+                <div className="detail-aura-rare pointer-events-none" />
+              </>
+            )}
 
             <div className="relative z-10 pt-6 px-6 pb-0">
               <div
@@ -165,14 +193,16 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
               >
                 <img src={card.image} alt={card.name} className="w-full h-full object-cover pointer-events-none" draggable={false} />
                 {isMythic && <div className="mythic-image-overlay pointer-events-none" />}
+                {isMythic && <div className="mythic-shine-bar pointer-events-none" />}
                 {isMythic && (
                   <div className="mythic-sparkles pointer-events-none">
                     <span /><span /><span /><span /><span /><span />
                   </div>
                 )}
-                {isShiny && !isMythic && (
-                  <div className="epic-image-overlay pointer-events-none" />
-                )}
+                {isEpic && <div className="epic-image-overlay pointer-events-none" />}
+                {isEpic && <div className="epic-shine-bar pointer-events-none" />}
+                {isRare && <div className="absolute inset-0 card-shimmer pointer-events-none" />}
+                {isRare && <div className="rare-shine-bar pointer-events-none" />}
               </div>
             </div>
 
