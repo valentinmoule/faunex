@@ -168,13 +168,6 @@ const ProfilePage = () => {
           </div>
         </div>
 
-        {/* Social stats */}
-        <div className="flex items-center justify-center gap-8 py-3">
-          <div className="text-center">
-            <p className="text-lg font-display font-bold text-foreground">{friendsCount}</p>
-            <p className="text-xs text-muted-foreground">Explorateurs</p>
-          </div>
-        </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-3 gap-3">
