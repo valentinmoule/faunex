@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Users, UserPlus, UserCheck, Award } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import AnimalCardComponent from '@/components/AnimalCardComponent';
 import CardDetailSheet from '@/components/CardDetailSheet';
 import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
@@ -52,10 +53,9 @@ const FriendCollectionPage = () => {
   const { userId } = useParams<{ userId: string }>();
   const { session } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'collection' | 'following'>('collection');
   const [filter, setFilter] = useState<Rarity | 'all'>('all');
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
-  
+
   const [captures, setCaptures] = useState<AnimalCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [profileName, setProfileName] = useState('');
@@ -66,9 +66,14 @@ const FriendCollectionPage = () => {
   const [amIFollowing, setAmIFollowing] = useState(false);
   const [badges, setBadges] = useState<BadgeProgress[]>([]);
 
-  // Their follows state
-  const [theirFollowing, setTheirFollowing] = useState<FollowProfile[]>([]);
-  const [loadingFollowing, setLoadingFollowing] = useState(false);
+  // Counts
+  const [followingCount, setFollowingCount] = useState(0);
+  const [followersCount, setFollowersCount] = useState(0);
+
+  // Sheet state
+  const [sheetOpen, setSheetOpen] = useState<'following' | 'followers' | null>(null);
+  const [sheetProfiles, setSheetProfiles] = useState<FollowProfile[]>([]);
+  const [loadingSheet, setLoadingSheet] = useState(false);
   const [myFollowingIds, setMyFollowingIds] = useState<Set<string>>(new Set());
 
   const myId = session?.user?.id;
@@ -79,18 +84,21 @@ const FriendCollectionPage = () => {
     const fetchData = async () => {
       setLoading(true);
 
-      const profilePromise = supabase.from('profiles').select('display_name, username, level, xp, xp_to_next, avatar_url').eq('user_id', userId).maybeSingle();
-      const capturesPromise = supabase.from('captures').select('*').eq('user_id', userId).eq('status', 'approved').order('created_at', { ascending: false });
-      const followCountPromise = supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('follower_id', userId);
+      const [profileRes, capturesRes, followingCountRes, followersCountRes] = await Promise.all([
+        supabase.from('profiles').select('display_name, username, level, xp, xp_to_next, avatar_url').eq('user_id', userId).maybeSingle(),
+        supabase.from('captures').select('*').eq('user_id', userId).eq('status', 'approved').order('created_at', { ascending: false }),
+        supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('follower_id', userId),
+        supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('following_id', userId),
+      ]);
 
-      const [profileRes, capturesRes, followCountRes] = await Promise.all([profilePromise, capturesPromise, followCountPromise]);
       setProfileName(profileRes.data?.display_name || profileRes.data?.username || 'Explorateur');
       setProfileLevel(profileRes.data?.level || 0);
       setProfileXp(profileRes.data?.xp || 0);
       setProfileXpToNext(profileRes.data?.xp_to_next || 1000);
       setProfileAvatar(profileRes.data?.avatar_url || null);
+      setFollowingCount(followingCountRes.count || 0);
+      setFollowersCount(followersCountRes.count || 0);
 
-      // Check if I follow this person
       if (myId && myId !== userId) {
         const { data: followData } = await supabase.from('explorer_follows')
           .select('id')
@@ -129,7 +137,7 @@ const FriendCollectionPage = () => {
       const hasLegendary = rawCaptures.some((c: any) => ['epic', 'mythic'].includes(c.rarity));
       const hasMythic = rawCaptures.some((c: any) => c.rarity === 'mythic');
       const level = profileRes.data?.level || 1;
-      const followCount = followCountRes.count || 0;
+      const followCount = followingCountRes.count || 0;
 
       const progressMap: Record<string, number> = {
         first_capture: Math.min(totalCaptures, 1),
@@ -157,40 +165,36 @@ const FriendCollectionPage = () => {
     fetchData();
   }, [userId, myId]);
 
-  // Fetch this explorer's following list and my own follows
-  const fetchTheirFollowing = useCallback(async () => {
+  const openSheet = useCallback(async (type: 'following' | 'followers') => {
     if (!userId || !myId) return;
-    setLoadingFollowing(true);
+    setSheetOpen(type);
+    setLoadingSheet(true);
 
-    const [{ data: theirData }, { data: myData }] = await Promise.all([
-      supabase.from('explorer_follows').select('following_id').eq('follower_id', userId),
+    const [{ data: listData }, { data: myData }] = await Promise.all([
+      type === 'following'
+        ? supabase.from('explorer_follows').select('following_id').eq('follower_id', userId)
+        : supabase.from('explorer_follows').select('follower_id').eq('following_id', userId),
       supabase.from('explorer_follows').select('following_id').eq('follower_id', myId),
     ]);
 
     setMyFollowingIds(new Set((myData || []).map(f => f.following_id)));
 
-    const theirFollowingIds = (theirData || [])
-      .map(f => f.following_id)
-      .filter(id => id !== myId);
+    const ids = (listData || [])
+      .map((f: any) => type === 'following' ? f.following_id : f.follower_id)
+      .filter((id: string) => id !== myId);
 
-    if (theirFollowingIds.length > 0) {
+    if (ids.length > 0) {
       const { data: profiles } = await supabase
         .from('profiles')
         .select('user_id, display_name, username, avatar_url, level, species_count')
-        .in('user_id', theirFollowingIds);
-      setTheirFollowing((profiles || []) as FollowProfile[]);
+        .in('user_id', ids);
+      setSheetProfiles((profiles || []) as FollowProfile[]);
     } else {
-      setTheirFollowing([]);
+      setSheetProfiles([]);
     }
 
-    setLoadingFollowing(false);
+    setLoadingSheet(false);
   }, [userId, myId]);
-
-  useEffect(() => {
-    if (activeTab === 'following') {
-      fetchTheirFollowing();
-    }
-  }, [activeTab, fetchTheirFollowing]);
 
   const filtered = captures.filter(c => {
     if (filter !== 'all' && c.rarity !== filter) return false;
@@ -202,16 +206,18 @@ const FriendCollectionPage = () => {
     if (amIFollowing) {
       await supabase.from('explorer_follows').delete().eq('follower_id', myId).eq('following_id', userId);
       setAmIFollowing(false);
+      setFollowersCount(prev => Math.max(0, prev - 1));
       toast.info('Désabonné');
     } else {
       const { error } = await supabase.from('explorer_follows').insert({ follower_id: myId, following_id: userId });
       if (error) { toast.error("Erreur"); return; }
       setAmIFollowing(true);
+      setFollowersCount(prev => prev + 1);
       toast.success('Abonné !');
     }
   };
 
-  const followFromList = async (targetId: string) => {
+  const followFromSheet = async (targetId: string) => {
     if (!myId) return;
     const { error } = await supabase.from('explorer_follows').insert({ follower_id: myId, following_id: targetId });
     if (error) {
@@ -223,7 +229,7 @@ const FriendCollectionPage = () => {
     setMyFollowingIds(prev => new Set(prev).add(targetId));
   };
 
-  const unfollowFromList = async (targetId: string) => {
+  const unfollowFromSheet = async (targetId: string) => {
     if (!myId) return;
     await supabase.from('explorer_follows').delete().eq('follower_id', myId).eq('following_id', targetId);
     toast.info('Désabonné');
@@ -276,169 +282,174 @@ const FriendCollectionPage = () => {
             )}
           </div>
 
-          {/* Tabs */}
-          <div className="flex gap-2 mb-3">
-            <button
-              onClick={() => setActiveTab('collection')}
-              className={`px-4 py-1.5 rounded-full text-xs font-display font-semibold transition-colors ${activeTab === 'collection' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
-            >
-              Collection ({captures.length})
+          {/* Stats row: captures, following, followers */}
+          <div className="flex items-center justify-center gap-6">
+            <div className="text-center">
+              <p className="text-lg font-display font-bold text-foreground">{captures.length}</p>
+              <p className="text-[10px] text-muted-foreground font-display">Captures</p>
+            </div>
+            <div className="w-px h-8 bg-border" />
+            <button onClick={() => openSheet('following')} className="text-center active:opacity-70 transition-opacity">
+              <p className="text-lg font-display font-bold text-foreground">{followingCount}</p>
+              <p className="text-[10px] text-muted-foreground font-display">Abonnements</p>
             </button>
-            <button
-              onClick={() => setActiveTab('following')}
-              className={`px-4 py-1.5 rounded-full text-xs font-display font-semibold transition-colors flex items-center gap-1.5 ${activeTab === 'following' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
-            >
-              <Users className="w-3.5 h-3.5" />
-              Abonnements
+            <div className="w-px h-8 bg-border" />
+            <button onClick={() => openSheet('followers')} className="text-center active:opacity-70 transition-opacity">
+              <p className="text-lg font-display font-bold text-foreground">{followersCount}</p>
+              <p className="text-[10px] text-muted-foreground font-display">Abonnés</p>
             </button>
           </div>
-
         </div>
       </header>
 
-      {/* Collection tab */}
-      {activeTab === 'collection' && (
-        <>
-          <div className="max-w-lg mx-auto px-4 pt-3">
-            <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-2">
-              {rarityFilters.map((r) => {
-                const isActive = filter === r;
-                const colorClasses = r === 'all'
-                  ? isActive ? 'bg-foreground text-background border-foreground shadow-md' : 'bg-muted text-muted-foreground border-border hover:bg-muted/80'
-                  : r === 'common'
-                  ? isActive ? 'bg-rarity-common/20 text-rarity-common border-rarity-common/50 shadow-[0_0_10px_hsla(0,0%,60%,0.2)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-common/10 hover:text-rarity-common hover:border-rarity-common/30'
-                  : r === 'rare'
-                  ? isActive ? 'bg-rarity-rare/20 text-rarity-rare border-rarity-rare/50 shadow-[0_0_12px_hsla(210,70%,55%,0.25)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-rare/10 hover:text-rarity-rare hover:border-rarity-rare/30'
-                  : r === 'epic'
-                  ? isActive ? 'bg-rarity-epic/20 text-rarity-epic border-rarity-epic/50 shadow-[0_0_14px_hsla(270,70%,60%,0.3)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-epic/10 hover:text-rarity-epic hover:border-rarity-epic/30'
-                  : isActive ? 'bg-rarity-mythic/20 text-rarity-mythic border-rarity-mythic/50 shadow-[0_0_16px_hsla(42,85%,55%,0.35)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-mythic/10 hover:text-rarity-mythic hover:border-rarity-mythic/30';
+      {/* Collection - always visible */}
+      <div className="max-w-lg mx-auto px-4 pt-3">
+        <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-2">
+          {rarityFilters.map((r) => {
+            const isActive = filter === r;
+            const colorClasses = r === 'all'
+              ? isActive ? 'bg-foreground text-background border-foreground shadow-md' : 'bg-muted text-muted-foreground border-border hover:bg-muted/80'
+              : r === 'common'
+              ? isActive ? 'bg-rarity-common/20 text-rarity-common border-rarity-common/50 shadow-[0_0_10px_hsla(0,0%,60%,0.2)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-common/10 hover:text-rarity-common hover:border-rarity-common/30'
+              : r === 'rare'
+              ? isActive ? 'bg-rarity-rare/20 text-rarity-rare border-rarity-rare/50 shadow-[0_0_12px_hsla(210,70%,55%,0.25)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-rare/10 hover:text-rarity-rare hover:border-rarity-rare/30'
+              : r === 'epic'
+              ? isActive ? 'bg-rarity-epic/20 text-rarity-epic border-rarity-epic/50 shadow-[0_0_14px_hsla(270,70%,60%,0.3)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-epic/10 hover:text-rarity-epic hover:border-rarity-epic/30'
+              : isActive ? 'bg-rarity-mythic/20 text-rarity-mythic border-rarity-mythic/50 shadow-[0_0_16px_hsla(42,85%,55%,0.35)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-mythic/10 hover:text-rarity-mythic hover:border-rarity-mythic/30';
 
-                const dot = r === 'common' ? 'bg-rarity-common' : r === 'rare' ? 'bg-rarity-rare' : r === 'epic' ? 'bg-rarity-epic' : r === 'mythic' ? 'bg-rarity-mythic' : '';
+            const dot = r === 'common' ? 'bg-rarity-common' : r === 'rare' ? 'bg-rarity-rare' : r === 'epic' ? 'bg-rarity-epic' : r === 'mythic' ? 'bg-rarity-mythic' : '';
 
-                return (
-                  <button
-                    key={r}
-                    onClick={() => setFilter(r)}
-                    className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-display font-bold border transition-all duration-300 flex items-center gap-1 active:scale-95 ${colorClasses} ${isActive && r !== 'all' ? 'bestiary-filter-glow' : ''} ${r === 'mythic' ? 'mythic-filter-shimmer' : ''}`}
-                  >
-                    {r !== 'all' && <span className={`w-1.5 h-1.5 rounded-full ${dot} ${isActive ? 'animate-pulse' : ''}`} />}
-                    {r === 'all' ? 'Tous' : RARITY_LABELS[r]}
-                  </button>
-                );
-              })}
-            </div>
+            return (
+              <button
+                key={r}
+                onClick={() => setFilter(r)}
+                className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-display font-bold border transition-all duration-300 flex items-center gap-1 active:scale-95 ${colorClasses} ${isActive && r !== 'all' ? 'bestiary-filter-glow' : ''} ${r === 'mythic' ? 'mythic-filter-shimmer' : ''}`}
+              >
+                {r !== 'all' && <span className={`w-1.5 h-1.5 rounded-full ${dot} ${isActive ? 'animate-pulse' : ''}`} />}
+                {r === 'all' ? 'Tous' : RARITY_LABELS[r]}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="max-w-lg mx-auto px-4 pt-3">
+        {loading ? (
+          <div className="text-center py-16">
+            <p className="text-muted-foreground font-display">Chargement…</p>
           </div>
-
-          <div className="max-w-lg mx-auto px-4 pt-3">
-            {loading ? (
-              <div className="text-center py-16">
-                <p className="text-muted-foreground font-display">Chargement…</p>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 gap-3">
+              {filtered.map((card, i) => (
+                <div key={card.id} style={{ animationDelay: `${i * 80}ms` }}>
+                  <AnimalCardComponent
+                    card={card}
+                    compact
+                    onClick={() => setSelectedCard(card)}
+                  />
+                </div>
+              ))}
+            </div>
+            {filtered.length === 0 && (
+              <div className="text-center py-16 px-6">
+                {filter !== 'all' && captures.length > 0 ? (
+                  <>
+                    <p className="text-4xl mb-3">
+                      {filter === 'common' ? '🌿' : filter === 'rare' ? '💎' : filter === 'epic' ? '⚡' : '✨'}
+                    </p>
+                    <p className="text-foreground font-display font-semibold text-sm mb-2">
+                      Aucune espèce {RARITY_LABELS[filter].toLowerCase()} capturée
+                    </p>
+                    <p className="text-muted-foreground text-xs leading-relaxed">
+                      {filter === 'common'
+                        ? 'Les espèces communes sont les plus fréquentes. Elles sont faciles à trouver et idéales pour débuter sa collection.'
+                        : filter === 'rare'
+                        ? 'Les espèces rares sont plus difficiles à croiser. Elles se cachent dans des habitats spécifiques et demandent de l\'exploration.'
+                        : filter === 'epic'
+                        ? 'Les espèces épiques sont exceptionnelles. Très peu d\'explorateurs parviennent à les capturer — un vrai trophée !'
+                        : 'Les espèces mythiques sont légendaires. Extrêmement rares, elles représentent le graal de tout explorateur Faunex.'}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-4xl mb-3">🔍</p>
+                    <p className="text-muted-foreground font-display">
+                      {captures.length === 0 ? 'Aucune capture partagée' : 'Aucune espèce trouvée'}
+                    </p>
+                  </>
+                )}
               </div>
-            ) : (
-              <>
-                <div className="grid grid-cols-2 gap-3">
-                  {filtered.map((card, i) => (
-                    <div key={card.id} style={{ animationDelay: `${i * 80}ms` }}>
-                      <AnimalCardComponent
-                        card={card}
-                        compact
-                        onClick={() => setSelectedCard(card)}
-                      />
+            )}
+
+            {/* Earned badges at bottom */}
+            {badges.filter(b => b.earned).length > 0 && (
+              <div className="mt-8 mb-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-7 h-7 rounded-lg bg-amber/15 border border-amber/25 flex items-center justify-center">
+                    <Award className="w-4 h-4 text-amber" />
+                  </div>
+                  <h3 className="text-sm font-display font-black text-foreground">Badges débloqués</h3>
+                  <span className="text-[10px] font-display font-semibold text-amber bg-amber/10 border border-amber/20 px-2 py-0.5 rounded-full">
+                    🏆 {badges.filter(b => b.earned).length}
+                  </span>
+                </div>
+                <div className="grid grid-cols-4 gap-2">
+                  {badges.filter(b => b.earned).map(({ badge }, i) => (
+                    <div
+                      key={badge.id}
+                      className="relative rounded-xl p-2.5 text-center bg-gradient-to-b from-amber/10 via-amber/5 to-card border border-amber/30 shadow-[0_0_12px_hsla(42,85%,55%,0.1)] game-card-appear"
+                      style={{ animationDelay: `${i * 60}ms` }}
+                    >
+                      <div className="mx-auto w-10 h-10 rounded-lg bg-amber/15 border border-amber/30 flex items-center justify-center mb-1.5">
+                        <span className="text-xl badge-icon-float">{badge.icon}</span>
+                      </div>
+                      <p className="text-[10px] font-display font-black leading-tight text-foreground">{badge.name}</p>
                     </div>
                   ))}
                 </div>
-                {filtered.length === 0 && (
-                  <div className="text-center py-16 px-6">
-                    {filter !== 'all' && captures.length > 0 ? (
-                      <>
-                        <p className="text-4xl mb-3">
-                          {filter === 'common' ? '🌿' : filter === 'rare' ? '💎' : filter === 'epic' ? '⚡' : '✨'}
-                        </p>
-                        <p className="text-foreground font-display font-semibold text-sm mb-2">
-                          Aucune espèce {RARITY_LABELS[filter].toLowerCase()} capturée
-                        </p>
-                        <p className="text-muted-foreground text-xs leading-relaxed">
-                          {filter === 'common'
-                            ? 'Les espèces communes sont les plus fréquentes. Elles sont faciles à trouver et idéales pour débuter sa collection.'
-                            : filter === 'rare'
-                            ? 'Les espèces rares sont plus difficiles à croiser. Elles se cachent dans des habitats spécifiques et demandent de l\'exploration.'
-                            : filter === 'epic'
-                            ? 'Les espèces épiques sont exceptionnelles. Très peu d\'explorateurs parviennent à les capturer — un vrai trophée !'
-                            : 'Les espèces mythiques sont légendaires. Extrêmement rares, elles représentent le graal de tout explorateur Faunex.'}
-                        </p>
-                      </>
-                    ) : (
-                      <>
-                        <p className="text-4xl mb-3">🔍</p>
-                        <p className="text-muted-foreground font-display">
-                          {captures.length === 0 ? 'Aucune capture partagée' : 'Aucune espèce trouvée'}
-                        </p>
-                      </>
-                    )}
-                  </div>
-                )}
-
-                {/* Earned badges at bottom */}
-                {badges.filter(b => b.earned).length > 0 && (
-                  <div className="mt-8 mb-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="w-7 h-7 rounded-lg bg-amber/15 border border-amber/25 flex items-center justify-center">
-                        <Award className="w-4 h-4 text-amber" />
-                      </div>
-                      <h3 className="text-sm font-display font-black text-foreground">Badges débloqués</h3>
-                      <span className="text-[10px] font-display font-semibold text-amber bg-amber/10 border border-amber/20 px-2 py-0.5 rounded-full">
-                        🏆 {badges.filter(b => b.earned).length}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-4 gap-2">
-                      {badges.filter(b => b.earned).map(({ badge }, i) => (
-                        <div
-                          key={badge.id}
-                          className="relative rounded-xl p-2.5 text-center bg-gradient-to-b from-amber/10 via-amber/5 to-card border border-amber/30 shadow-[0_0_12px_hsla(42,85%,55%,0.1)] game-card-appear"
-                          style={{ animationDelay: `${i * 60}ms` }}
-                        >
-                          <div className="mx-auto w-10 h-10 rounded-lg bg-amber/15 border border-amber/30 flex items-center justify-center mb-1.5">
-                            <span className="text-xl badge-icon-float">{badge.icon}</span>
-                          </div>
-                          <p className="text-[10px] font-display font-black leading-tight text-foreground">{badge.name}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </>
+              </div>
             )}
-          </div>
-        </>
-      )}
+          </>
+        )}
+      </div>
 
-      {/* Following tab */}
-      {activeTab === 'following' && (
-        <div className="max-w-lg mx-auto px-4 pt-4">
-          {loadingFollowing ? (
-            <div className="text-center py-16">
+      {/* Following / Followers Sheet */}
+      <Sheet open={!!sheetOpen} onOpenChange={(open) => !open && setSheetOpen(null)}>
+        <SheetContent side="bottom" className="max-h-[70vh] rounded-t-2xl px-4 pb-8">
+          <SheetHeader className="mb-4">
+            <SheetTitle className="font-display text-base">
+              {sheetOpen === 'following' ? 'Abonnements' : 'Abonnés'}
+            </SheetTitle>
+          </SheetHeader>
+          {loadingSheet ? (
+            <div className="text-center py-12">
               <p className="text-muted-foreground font-display text-sm">Chargement…</p>
             </div>
-          ) : theirFollowing.length === 0 ? (
-            <div className="text-center py-16 px-6">
+          ) : sheetProfiles.length === 0 ? (
+            <div className="text-center py-12 px-6">
               <Users className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
-              <p className="text-foreground font-display font-semibold text-sm mb-2">Aucun abonnement</p>
-              <p className="text-muted-foreground text-xs leading-relaxed">
-                {profileName} ne suit encore personne.
+              <p className="text-foreground font-display font-semibold text-sm mb-1">
+                {sheetOpen === 'following' ? 'Aucun abonnement' : 'Aucun abonné'}
+              </p>
+              <p className="text-muted-foreground text-xs">
+                {sheetOpen === 'following'
+                  ? `${profileName} ne suit encore personne.`
+                  : `Personne ne suit encore ${profileName}.`}
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-border">
-              {theirFollowing.map((friend, i) => {
+            <div className="divide-y divide-border overflow-y-auto max-h-[55vh]">
+              {sheetProfiles.map((friend, i) => {
                 const status = getFollowStatus(friend.user_id);
                 return (
                   <div
                     key={friend.user_id}
                     className="flex items-center gap-3 py-3 quest-card-enter"
-                    style={{ animationDelay: `${i * 80}ms` }}
+                    style={{ animationDelay: `${i * 60}ms` }}
                   >
                     <button
-                      onClick={() => navigate(`/explorer/${friend.user_id}/collection`)}
+                      onClick={() => { setSheetOpen(null); navigate(`/explorer/${friend.user_id}/collection`); }}
                       className="flex items-center gap-3 flex-1 min-w-0 active:opacity-70 transition-opacity"
                     >
                       <div className="w-11 h-11 rounded-full bg-primary/20 flex items-center justify-center text-sm font-display font-bold text-primary shrink-0 overflow-hidden">
@@ -458,14 +469,14 @@ const FriendCollectionPage = () => {
                         <span className="text-[10px] text-muted-foreground font-display">Toi</span>
                       ) : status === 'following' ? (
                         <button
-                          onClick={() => unfollowFromList(friend.user_id)}
+                          onClick={() => unfollowFromSheet(friend.user_id)}
                           className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-muted text-foreground text-xs font-display font-semibold"
                         >
                           <UserCheck className="w-3.5 h-3.5" /> Abonné
                         </button>
                       ) : (
                         <button
-                          onClick={() => followFromList(friend.user_id)}
+                          onClick={() => followFromSheet(friend.user_id)}
                           className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-display font-semibold active:scale-95 transition-transform"
                         >
                           <UserPlus className="w-3.5 h-3.5" /> S'abonner
@@ -477,8 +488,8 @@ const FriendCollectionPage = () => {
               })}
             </div>
           )}
-        </div>
-      )}
+        </SheetContent>
+      </Sheet>
 
       <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} />
     </main>
