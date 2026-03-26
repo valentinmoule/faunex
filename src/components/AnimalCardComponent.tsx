@@ -2,9 +2,9 @@ import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
 
 const rarityStyles: Record<Rarity, string> = {
   common: 'border-rarity-common/30 bg-card card-hover-effect',
-  rare: 'border-rarity-rare/40 bg-card rarity-rare-glow card-hover-effect',
-  epic: 'border-rarity-epic/40 bg-card rarity-epic-glow card-hover-effect',
-  mythic: 'border-rarity-mythic/40 bg-card mythic-shiny card-hover-effect',
+  rare: 'border-rarity-rare/40 bg-card card-hover-effect',
+  epic: 'border-rarity-epic/40 bg-card card-hover-effect',
+  mythic: 'border-rarity-mythic/40 bg-card card-hover-effect',
 };
 
 const rarityBadgeStyles: Record<Rarity, string> = {
