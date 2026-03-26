@@ -22,9 +22,16 @@ serve(async (req) => {
 
     const systemPrompt = `Tu es un expert naturaliste et zoologue. L'utilisateur te donne des coordonnées GPS. Tu dois retourner une liste de exactement 3 animaux sauvages qu'on peut réellement observer dans cette zone géographique, en tenant compte de la saison actuelle (${new Date().toLocaleDateString('fr-FR', { month: 'long' })}).
 
-IMPORTANT : Priorise les espèces par ordre de pertinence :
-1. Rareté (privilégie au moins 1 espèce rare/epic/mythic si réaliste)
-2. Proximité (espèces typiques de cet écosystème précis)
+RÈGLES DE SÉLECTION :
+- Retourne exactement 3 espèces.
+- Si une espèce rare, menacée, protégée ou difficile à observer existe RÉELLEMENT dans cette zone (même si l'observation est peu fréquente), inclus-la avec la rareté appropriée (rare, epic ou mythic).
+- Ne JAMAIS inventer une espèce qui n'est pas présente dans cette région. La précision géographique est primordiale.
+- Si aucune espèce rare n'est réaliste pour cette zone, retourne 3 espèces communes. Ne force jamais une rareté élevée.
+- La rareté doit refléter la difficulté réelle d'observation : common = facile à voir, rare = peu fréquent, epic = très difficile / espèce protégée, mythic = extrêmement rare / en danger critique.
+
+PRIORITÉ :
+1. Proximité (espèces typiques de cet écosystème précis)
+2. Rareté (inclure une espèce rare+ SI elle existe vraiment ici)
 3. Nouveauté (espèces surprenantes ou peu connues du grand public)
 
 Pour chaque animal, donne :
