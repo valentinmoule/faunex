@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Camera, Target, ChevronRight, Bell, Flame, Zap, Trophy, BookOpen } from 'lucide-react';
+import { Camera, Target, ChevronRight, Bell, Flame, Zap, Trophy, BookOpen, Users } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -309,6 +309,20 @@ const Index = () => {
                   </span>
                 ) : null
               ))}
+            </div>
+          </button>
+
+          {/* Explorateurs Card */}
+          <button
+            onClick={() => navigate('/explorers')}
+            className="relative flex flex-col gap-2 p-4 rounded-2xl border border-border bg-card hover:bg-muted/50 transition-colors text-left"
+          >
+            <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
+              <Users className="w-4 h-4 text-foreground" />
+            </div>
+            <div>
+              <h3 className="text-sm font-display font-bold text-foreground">Explorateurs</h3>
+              <p className="text-[10px] text-muted-foreground">Amis & communauté</p>
             </div>
           </button>
         </div>
