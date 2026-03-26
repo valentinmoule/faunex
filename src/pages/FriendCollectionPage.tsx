@@ -187,11 +187,33 @@ const FriendCollectionPage = () => {
               ))}
             </div>
             {filtered.length === 0 && (
-              <div className="text-center py-16">
-                <p className="text-4xl mb-3">🔍</p>
-                <p className="text-muted-foreground font-display">
-                  {captures.length === 0 ? 'Aucune capture partagée' : 'Aucune espèce trouvée'}
-                </p>
+              <div className="text-center py-16 px-6">
+                {filter !== 'all' && captures.length > 0 ? (
+                  <>
+                    <p className="text-4xl mb-3">
+                      {filter === 'common' ? '🌿' : filter === 'rare' ? '💎' : filter === 'epic' ? '⚡' : '✨'}
+                    </p>
+                    <p className="text-foreground font-display font-semibold text-sm mb-2">
+                      Aucune espèce {RARITY_LABELS[filter].toLowerCase()} capturée
+                    </p>
+                    <p className="text-muted-foreground text-xs leading-relaxed">
+                      {filter === 'common'
+                        ? 'Les espèces communes sont les plus fréquentes. Elles sont faciles à trouver et idéales pour débuter sa collection.'
+                        : filter === 'rare'
+                        ? 'Les espèces rares sont plus difficiles à croiser. Elles se cachent dans des habitats spécifiques et demandent de l\'exploration.'
+                        : filter === 'epic'
+                        ? 'Les espèces épiques sont exceptionnelles. Très peu d\'explorateurs parviennent à les capturer — un vrai trophée !'
+                        : 'Les espèces mythiques sont légendaires. Extrêmement rares, elles représentent le graal de tout explorateur Faunex.'}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-4xl mb-3">🔍</p>
+                    <p className="text-muted-foreground font-display">
+                      {captures.length === 0 ? 'Aucune capture partagée' : 'Aucune espèce trouvée'}
+                    </p>
+                  </>
+                )}
               </div>
             )}
           </>
