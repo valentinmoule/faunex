@@ -113,6 +113,54 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_quests: {
+        Row: {
+          claimed: boolean
+          completed: boolean
+          created_at: string
+          description: string
+          icon: string
+          id: string
+          progress: number
+          quest_date: string
+          quest_type: string
+          target: number
+          title: string
+          user_id: string
+          xp_reward: number
+        }
+        Insert: {
+          claimed?: boolean
+          completed?: boolean
+          created_at?: string
+          description: string
+          icon?: string
+          id?: string
+          progress?: number
+          quest_date?: string
+          quest_type: string
+          target?: number
+          title: string
+          user_id: string
+          xp_reward?: number
+        }
+        Update: {
+          claimed?: boolean
+          completed?: boolean
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          progress?: number
+          quest_date?: string
+          quest_type?: string
+          target?: number
+          title?: string
+          user_id?: string
+          xp_reward?: number
+        }
+        Relationships: []
+      }
       email_send_log: {
         Row: {
           created_at: string
@@ -427,6 +475,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      claim_quest_reward: { Args: { p_quest_id: string }; Returns: boolean }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
