@@ -152,125 +152,144 @@ const Index = () => {
   return (
     <main className="min-h-screen bg-background pb-24">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-3">
-        <div className="max-w-lg mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary/20 border-2 border-primary/30 overflow-hidden shrink-0">
-              {profile.avatar_url ? (
-                <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-sm font-display font-bold text-primary">
-                  {firstName.charAt(0).toUpperCase()}
+      {/* Immersive Header */}
+      <header className="relative z-40 bg-gradient-to-b from-primary/15 via-primary/5 to-background px-5 pt-4 pb-6">
+        <div className="max-w-lg mx-auto">
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-3">
+              <div className="relative w-12 h-12 rounded-full border-2 border-primary/40 overflow-hidden shrink-0 game-avatar-ring">
+                {profile.avatar_url ? (
+                  <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-primary/20 flex items-center justify-center text-sm font-display font-bold text-primary">
+                    {firstName.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                {/* Level badge on avatar */}
+                <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-primary border-2 border-background flex items-center justify-center">
+                  <span className="text-[8px] font-display font-black text-primary-foreground">{profile.level}</span>
                 </div>
-              )}
+              </div>
+              <div>
+                <h1 className="text-lg font-display font-black text-foreground leading-tight">{firstName}</h1>
+                <p className="text-[10px] text-muted-foreground font-display flex items-center gap-1">
+                  Explorateur
+                  {streak > 0 && (
+                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber/15 border border-amber/20 text-amber">
+                      <Flame className="w-2.5 h-2.5" />
+                      <span className="font-bold">{streak}j</span>
+                    </span>
+                  )}
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-base font-display font-bold text-foreground leading-tight">Salut {firstName} 👋</h1>
-              <p className="text-[10px] text-muted-foreground font-display">Prêt pour l'aventure ?</p>
+            <button onClick={() => navigate('/notifications')} className="relative p-2.5 rounded-xl bg-card/50 backdrop-blur border border-border/50 hover:bg-muted transition-colors">
+              <Bell className="w-5 h-5 text-foreground" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center game-notif-bounce">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </button>
+          </div>
+
+          {/* XP Bar — full width, gaming style */}
+          <div className="relative">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-xs font-display font-bold text-foreground">Niv. {profile.level}</span>
+              <span className="text-[10px] font-display font-semibold text-muted-foreground">{profile.xp} / {profile.xp_to_next} XP</span>
+            </div>
+            <div className="relative h-3 rounded-full bg-muted/60 overflow-hidden border border-primary/10">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-primary via-primary to-amber transition-all duration-1000 ease-out game-xp-glow"
+                style={{ width: `${xpPercent}%` }}
+              />
+              {/* Shimmer effect on XP bar */}
+              <div className="absolute inset-0 game-xp-shimmer pointer-events-none" />
             </div>
           </div>
-          <button onClick={() => navigate('/notifications')} className="relative p-2 rounded-full hover:bg-muted transition-colors">
-            <Bell className="w-5 h-5 text-foreground" />
-            {unreadCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center">
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </span>
-            )}
-          </button>
         </div>
       </header>
 
-      <div className="max-w-lg mx-auto px-4 pt-4 space-y-4">
-        {/* Hero Stats Card */}
-        <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 via-card to-amber/5 p-5">
-          {/* Level & XP row */}
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center level-splash-badge shrink-0">
-              <span className="text-lg font-display font-black text-primary">{profile.level}</span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between mb-1">
-                <p className="text-sm font-display font-bold text-foreground">Niveau {profile.level}</p>
-                <div className="flex items-center gap-2">
-                  {streak > 0 && (
-                    <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber/10 border border-amber/20">
-                      <Flame className="w-3 h-3 text-amber" />
-                      <span className="text-[10px] font-display font-bold text-amber">{streak}j</span>
-                    </div>
-                  )}
-                  <p className="text-[10px] text-muted-foreground font-display">{profile.xp}/{profile.xp_to_next} XP</p>
-                </div>
-              </div>
-              <Progress value={xpPercent} className="h-2 bg-muted/50 [&>div]:bg-gradient-to-r [&>div]:from-primary [&>div]:to-amber" />
-            </div>
-          </div>
+      <div className="max-w-lg mx-auto px-4 -mt-2 space-y-4 pb-24">
 
-          {/* Inline stats */}
-          <div className="flex items-center justify-between pt-2 border-t border-border/50">
-            <div className="flex items-center gap-1.5">
-              <span className="text-base font-display font-black text-foreground">{profile.species_count}</span>
-              <span className="text-[10px] text-muted-foreground font-display">espèces</span>
-            </div>
-            <div className="w-px h-4 bg-border/50" />
-            <div className="flex items-center gap-1.5">
-              <span className="text-base font-display font-black text-foreground">{profile.total_captures}</span>
-              <span className="text-[10px] text-muted-foreground font-display">captures</span>
-            </div>
-            <div className="w-px h-4 bg-border/50" />
-            <div className="flex items-center gap-1">
-              {RARITY_ORDER.map(r => (
-                rarityCounts[r] ? (
-                  <span key={r} className={`text-[9px] font-display font-bold px-1.5 py-0.5 rounded ${
-                    r === 'mythic' ? 'text-rarity-mythic bg-rarity-mythic/10' :
-                    r === 'epic' ? 'text-rarity-epic bg-rarity-epic/10' :
-                    r === 'rare' ? 'text-rarity-rare bg-rarity-rare/10' :
-                    'text-rarity-common bg-rarity-common/10'
-                  }`}>
-                    {rarityCounts[r]}
-                  </span>
-                ) : null
-              ))}
-            </div>
+        {/* Stats pills — scrollable row */}
+        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
+          <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-card border border-border shrink-0 game-stat-appear" style={{ animationDelay: '0ms' }}>
+            <span className="text-sm">🎯</span>
+            <span className="text-xs font-display font-black text-foreground">{profile.species_count}</span>
+            <span className="text-[10px] text-muted-foreground">espèces</span>
           </div>
+          <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-card border border-border shrink-0 game-stat-appear" style={{ animationDelay: '80ms' }}>
+            <span className="text-sm">📸</span>
+            <span className="text-xs font-display font-black text-foreground">{profile.total_captures}</span>
+            <span className="text-[10px] text-muted-foreground">captures</span>
+          </div>
+          {RARITY_ORDER.map((r, i) => (
+            rarityCounts[r] ? (
+              <div key={r} className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border shrink-0 game-stat-appear ${
+                r === 'mythic' ? 'bg-rarity-mythic/5 border-rarity-mythic/20' :
+                r === 'epic' ? 'bg-rarity-epic/5 border-rarity-epic/20' :
+                r === 'rare' ? 'bg-rarity-rare/5 border-rarity-rare/20' :
+                'bg-card border-border'
+              }`} style={{ animationDelay: `${(i + 2) * 80}ms` }}>
+                <span className={`text-xs font-display font-black ${
+                  r === 'mythic' ? 'text-rarity-mythic' :
+                  r === 'epic' ? 'text-rarity-epic' :
+                  r === 'rare' ? 'text-rarity-rare' : 'text-rarity-common'
+                }`}>{rarityCounts[r]}</span>
+                <span className="text-[10px] text-muted-foreground">{RARITY_LABELS[r]}</span>
+              </div>
+            ) : null
+          ))}
         </div>
 
-        {/* Quêtes du jour */}
+        {/* Quêtes du jour — gaming card */}
         <button
           onClick={() => navigate('/quests')}
-          className="w-full relative overflow-hidden flex items-center gap-3 p-4 rounded-2xl border border-amber/20 bg-amber/5 hover:bg-amber/10 transition-colors text-left"
+          className="w-full relative overflow-hidden flex items-center gap-3 p-4 rounded-2xl border border-amber/20 bg-gradient-to-r from-amber/5 via-amber/10 to-amber/5 hover:from-amber/10 hover:to-amber/10 transition-all text-left group active:scale-[0.98] transform"
         >
-          <div className="w-10 h-10 rounded-xl bg-amber/10 flex items-center justify-center shrink-0">
-            <Target className="w-5 h-5 text-amber" />
+          {/* Animated background pulse */}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber/5 to-transparent game-quest-sweep pointer-events-none" />
+          <div className="relative w-11 h-11 rounded-xl bg-amber/15 border border-amber/20 flex items-center justify-center shrink-0">
+            <Target className="w-5 h-5 text-amber game-icon-bounce" />
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between">
+          <div className="relative flex-1 min-w-0">
+            <div className="flex items-center justify-between mb-0.5">
               <h3 className="text-sm font-display font-bold text-foreground">Quêtes du jour</h3>
               {questSummary.claimable > 0 && (
-                <span className="px-2 py-0.5 rounded-full bg-amber text-white text-[10px] font-display font-bold quest-claim-pulse">
-                  {questSummary.claimable} 🎁
+                <span className="px-2 py-0.5 rounded-full bg-amber text-white text-[10px] font-display font-bold quest-claim-pulse flex items-center gap-0.5">
+                  🎁 {questSummary.claimable}
                 </span>
               )}
             </div>
             <p className="text-[10px] text-muted-foreground mb-1.5">{questSummary.completed}/{questSummary.total} terminées</p>
             <div className="flex gap-1">
               {Array.from({ length: questSummary.total }).map((_, i) => (
-                <div key={i} className={`h-1 flex-1 rounded-full ${i < questSummary.completed ? 'bg-amber' : 'bg-muted'}`} />
+                <div key={i} className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${
+                  i < questSummary.completed 
+                    ? 'bg-gradient-to-r from-amber to-amber-light shadow-[0_0_6px_hsla(42,85%,55%,0.4)]' 
+                    : 'bg-muted/60'
+                }`} style={{ transitionDelay: `${i * 100}ms` }} />
               ))}
             </div>
           </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+          <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0 group-hover:translate-x-0.5 transition-transform" />
         </button>
 
         {/* Autour de moi */}
         <NearbyAnimalsSection capturedNames={allCapturedNames} />
 
-        {/* All Captures */}
+        {/* Collection */}
         {allCaptures.length > 0 && (
           <div>
-            <h2 className="text-base font-display font-bold text-foreground mb-3">Ma collection</h2>
+            <div className="flex items-center gap-2 mb-3">
+              <h2 className="text-base font-display font-bold text-foreground">Ma collection</h2>
+              <span className="text-[10px] font-display font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-full">{allCaptures.length}</span>
+            </div>
             <div className="grid grid-cols-2 gap-3">
               {allCaptures.map((card, i) => (
-                <div key={card.id} style={{ animationDelay: `${Math.min(i, 8) * 60}ms` }}>
+                <div key={card.id} className="game-card-appear" style={{ animationDelay: `${Math.min(i, 8) * 80}ms` }}>
                   <AnimalCardComponent card={card} compact onClick={() => setSelectedCard(card)} />
                 </div>
               ))}
@@ -280,15 +299,15 @@ const Index = () => {
 
         {/* Empty state */}
         {allCaptures.length === 0 && !loading && (
-          <div className="text-center py-12 px-6">
-            <div className="text-5xl mb-4">🌿</div>
-            <h3 className="text-foreground font-display font-bold text-base mb-2">Commence ton aventure !</h3>
-            <p className="text-muted-foreground text-sm leading-relaxed max-w-xs mx-auto mb-5">
+          <div className="text-center py-16 px-6">
+            <div className="text-6xl mb-4 game-float">🌿</div>
+            <h3 className="text-foreground font-display font-bold text-lg mb-2">Commence ton aventure !</h3>
+            <p className="text-muted-foreground text-sm leading-relaxed max-w-xs mx-auto mb-6">
               Photographie les animaux autour de toi pour les identifier et les ajouter à ta collection.
             </p>
             <button
               onClick={() => navigate('/capture')}
-              className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-display font-bold text-sm"
+              className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-display font-bold text-sm shadow-[0_4px_15px_hsla(var(--primary),0.3)] hover:shadow-[0_6px_20px_hsla(var(--primary),0.4)] transition-shadow active:scale-[0.97] transform"
             >
               📸 Ma première capture
             </button>
