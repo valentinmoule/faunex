@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Bell } from 'lucide-react';
 import NearbyAnimalsSection from '@/components/NearbyAnimalsSection';
+import DailyQuestsSection from '@/components/DailyQuestsSection';
 import AnimalCardComponent from '@/components/AnimalCardComponent';
 import CardDetailSheet from '@/components/CardDetailSheet';
 import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
@@ -155,6 +156,7 @@ const CollectionPage = () => {
 
       {/* Card grid */}
       <div className="max-w-lg mx-auto px-4 pt-3">
+        <DailyQuestsSection />
         <NearbyAnimalsSection capturedNames={captures.map(c => c.name)} />
         {loading ? (
           <div className="text-center py-16">

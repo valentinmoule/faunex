@@ -443,6 +443,27 @@
   animation: splash-badge-glow 2s ease-in-out infinite;
 }
 
+/* ═══════════════════════════════════════════════════
+   DAILY QUESTS
+   ═══════════════════════════════════════════════════ */
+@keyframes quest-claim-pulse {
+  0%, 100% { box-shadow: 0 0 0 hsla(152, 55%, 28%, 0); }
+  50% { box-shadow: 0 0 12px hsla(152, 55%, 28%, 0.4); }
+}
+
+@keyframes quest-complete-glow {
+  0%, 100% { box-shadow: 0 0 0 hsla(152, 55%, 38%, 0); }
+  50% { box-shadow: 0 0 8px hsla(152, 55%, 38%, 0.2); }
+}
+
+.quest-claim-pulse {
+  animation: quest-claim-pulse 1.5s ease-in-out infinite;
+}
+
+.quest-complete-glow {
+  animation: quest-complete-glow 2s ease-in-out infinite;
+}
+
 /*
 @keyframes nearby-alert-in {
   0% { opacity: 0; transform: translateY(-8px) scale(0.96); }
