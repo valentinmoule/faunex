@@ -118,7 +118,16 @@ serve(async (req) => {
         .eq("user_id", profile.user_id)
         .eq("quest_date", today);
 
-      if (count && count > 0) continue;
+      if (count && count >= 3) continue;
+
+      // Delete any partial/duplicate quests for today before regenerating
+      if (count && count > 0) {
+        await supabase
+          .from("daily_quests")
+          .delete()
+          .eq("user_id", profile.user_id)
+          .eq("quest_date", today);
+      }
 
       // Pick 3 quests from different types
       const byType = new Map<string, typeof QUEST_POOL>();
