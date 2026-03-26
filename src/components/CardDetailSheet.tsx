@@ -205,7 +205,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
               </>
             )}
 
-            <div className="relative z-10 pt-6 px-6 pb-0">
+            <div className="relative z-10 pt-14 px-6 pb-0">
               <div
                 className={`relative mx-auto max-w-[280px] aspect-square rounded-2xl overflow-hidden cursor-pointer active:scale-95 transition-transform ${detailAppearClass}`}
                 style={{ boxShadow: isMythic ? '0 0 40px 8px hsla(42,100%,65%,0.3), 0 8px 32px rgba(0,0,0,0.4)' : isEpic ? '0 0 35px 6px hsla(270,80%,65%,0.25), 0 8px 32px rgba(0,0,0,0.4)' : isRare ? '0 0 25px 4px hsla(210,70%,60%,0.2), 0 8px 32px rgba(0,0,0,0.4)' : '0 8px 32px rgba(0,0,0,0.4)' }}
