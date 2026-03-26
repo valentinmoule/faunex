@@ -318,6 +318,8 @@ const BestiairePage = () => {
           </div>
         )}
       </div>
+
+      <CardDetailSheet card={selectedCard} onClose={() => setSelectedCard(null)} />
     </main>
   );
 };
