@@ -286,6 +286,13 @@ const FriendCollectionPage = () => {
               Collection ({captures.length})
             </button>
             <button
+              onClick={() => setActiveTab('badges')}
+              className={`px-4 py-1.5 rounded-full text-xs font-display font-semibold transition-colors flex items-center gap-1.5 ${activeTab === 'badges' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
+            >
+              <Award className="w-3.5 h-3.5" />
+              Badges ({badges.filter(b => b.earned).length})
+            </button>
+            <button
               onClick={() => setActiveTab('following')}
               className={`px-4 py-1.5 rounded-full text-xs font-display font-semibold transition-colors flex items-center gap-1.5 ${activeTab === 'following' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
             >
