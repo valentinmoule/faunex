@@ -189,52 +189,53 @@ const Index = () => {
       <div className="max-w-lg mx-auto px-4 pt-4 space-y-4">
         {/* Hero Stats Card */}
         <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 via-card to-amber/5 p-5">
-          {/* Level & XP */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <div className="w-12 h-12 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center level-splash-badge">
-                <span className="text-lg font-display font-black text-primary">{profile.level}</span>
-              </div>
-              <div>
-                <p className="text-xs font-display font-bold text-foreground">Niveau {profile.level}</p>
-                <p className="text-[10px] text-muted-foreground">{profile.xp}/{profile.xp_to_next} XP</p>
-              </div>
+          {/* Level & XP row */}
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-12 h-12 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center level-splash-badge shrink-0">
+              <span className="text-lg font-display font-black text-primary">{profile.level}</span>
             </div>
-            {streak > 0 && (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber/10 border border-amber/20">
-                <Flame className="w-4 h-4 text-amber" />
-                <span className="text-xs font-display font-bold text-amber">{streak}j</span>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-sm font-display font-bold text-foreground">Niveau {profile.level}</p>
+                <div className="flex items-center gap-2">
+                  {streak > 0 && (
+                    <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber/10 border border-amber/20">
+                      <Flame className="w-3 h-3 text-amber" />
+                      <span className="text-[10px] font-display font-bold text-amber">{streak}j</span>
+                    </div>
+                  )}
+                  <p className="text-[10px] text-muted-foreground font-display">{profile.xp}/{profile.xp_to_next} XP</p>
+                </div>
               </div>
-            )}
+              <Progress value={xpPercent} className="h-2 bg-muted/50 [&>div]:bg-gradient-to-r [&>div]:from-primary [&>div]:to-amber" />
+            </div>
           </div>
-          <Progress value={xpPercent} className="h-2.5 bg-muted/50 [&>div]:bg-gradient-to-r [&>div]:from-primary [&>div]:to-amber" />
-          
-          {/* Quick stats */}
-          <div className="grid grid-cols-3 gap-3 mt-4">
-            <div className="text-center">
-              <p className="text-xl font-display font-black text-foreground">{profile.species_count}</p>
-              <p className="text-[10px] text-muted-foreground font-display">Espèces</p>
+
+          {/* Inline stats */}
+          <div className="flex items-center justify-between pt-2 border-t border-border/50">
+            <div className="flex items-center gap-1.5">
+              <span className="text-base font-display font-black text-foreground">{profile.species_count}</span>
+              <span className="text-[10px] text-muted-foreground font-display">espèces</span>
             </div>
-            <div className="text-center">
-              <p className="text-xl font-display font-black text-foreground">{profile.total_captures}</p>
-              <p className="text-[10px] text-muted-foreground font-display">Captures</p>
+            <div className="w-px h-4 bg-border/50" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-base font-display font-black text-foreground">{profile.total_captures}</span>
+              <span className="text-[10px] text-muted-foreground font-display">captures</span>
             </div>
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-0.5">
-                {RARITY_ORDER.map(r => (
-                  rarityCounts[r] ? (
-                    <span key={r} className={`text-[10px] font-display font-bold px-1.5 py-0.5 rounded ${
-                      r === 'mythic' ? 'text-rarity-mythic bg-rarity-mythic/10' :
-                      r === 'epic' ? 'text-rarity-epic bg-rarity-epic/10' :
-                      r === 'rare' ? 'text-rarity-rare bg-rarity-rare/10' :
-                      'text-rarity-common bg-rarity-common/10'
-                    }`}>
-                      {rarityCounts[r]}
-                    </span>
-                  ) : null
-                ))}
-              </div>
-              <p className="text-[10px] text-muted-foreground font-display mt-0.5">Raretés</p>
+            <div className="w-px h-4 bg-border/50" />
+            <div className="flex items-center gap-1">
+              {RARITY_ORDER.map(r => (
+                rarityCounts[r] ? (
+                  <span key={r} className={`text-[9px] font-display font-bold px-1.5 py-0.5 rounded ${
+                    r === 'mythic' ? 'text-rarity-mythic bg-rarity-mythic/10' :
+                    r === 'epic' ? 'text-rarity-epic bg-rarity-epic/10' :
+                    r === 'rare' ? 'text-rarity-rare bg-rarity-rare/10' :
+                    'text-rarity-common bg-rarity-common/10'
+                  }`}>
+                    {rarityCounts[r]}
+                  </span>
+                ) : null
+              ))}
             </div>
           </div>
         </div>
