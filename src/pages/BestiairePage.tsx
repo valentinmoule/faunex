@@ -239,7 +239,7 @@ const BestiairePage = () => {
               <button
                 key={r}
                 onClick={() => setFilter(r)}
-                className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-display font-bold border transition-all duration-300 flex items-center gap-1.5 active:scale-95 ${colorClasses} ${isActive && r !== 'all' ? 'bestiary-filter-glow' : ''}`}
+                className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-display font-bold border transition-all duration-300 flex items-center gap-1.5 active:scale-95 ${colorClasses} ${isActive && r !== 'all' ? 'bestiary-filter-glow' : ''} ${r === 'mythic' ? 'mythic-filter-shimmer' : ''}`}
               >
                 {r !== 'all' && <span className={`w-1.5 h-1.5 rounded-full ${dot} ${isActive ? 'animate-pulse' : ''}`} />}
                 {r === 'all' ? 'Tous' : RARITY_LABELS[r]}
