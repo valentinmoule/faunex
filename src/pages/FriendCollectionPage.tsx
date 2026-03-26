@@ -283,20 +283,20 @@ const FriendCollectionPage = () => {
           </div>
 
           {/* Stats row: captures, following, followers */}
-          <div className="flex items-center justify-center gap-6">
+          <div className="flex items-center gap-5">
             <div className="text-center">
-              <p className="text-lg font-display font-bold text-foreground">{captures.length}</p>
-              <p className="text-[10px] text-muted-foreground font-display">Captures</p>
+              <p className="text-sm font-display font-bold text-foreground">{captures.length}</p>
+              <p className="text-[9px] text-muted-foreground font-display">Captures</p>
             </div>
-            <div className="w-px h-8 bg-border" />
+            <div className="w-px h-6 bg-border" />
             <button onClick={() => openSheet('following')} className="text-center active:opacity-70 transition-opacity">
-              <p className="text-lg font-display font-bold text-foreground">{followingCount}</p>
-              <p className="text-[10px] text-muted-foreground font-display">Abonnements</p>
+              <p className="text-sm font-display font-bold text-foreground">{followingCount}</p>
+              <p className="text-[9px] text-muted-foreground font-display">Abonnements</p>
             </button>
-            <div className="w-px h-8 bg-border" />
+            <div className="w-px h-6 bg-border" />
             <button onClick={() => openSheet('followers')} className="text-center active:opacity-70 transition-opacity">
-              <p className="text-lg font-display font-bold text-foreground">{followersCount}</p>
-              <p className="text-[10px] text-muted-foreground font-display">Abonnés</p>
+              <p className="text-sm font-display font-bold text-foreground">{followersCount}</p>
+              <p className="text-[9px] text-muted-foreground font-display">Abonnés</p>
             </button>
           </div>
         </div>
