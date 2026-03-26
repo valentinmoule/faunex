@@ -149,41 +149,41 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
     <>
       <Sheet open={open} onOpenChange={onClose}>
         <SheetContent side="bottom" className="h-[92vh] rounded-t-3xl overflow-y-auto p-0 bg-background border-0">
-          {/* Hero Image Section */}
+          {/* Hero Image Section — Aurora / Blur style */}
           <div className={`relative overflow-hidden detail-hero-${card.rarity}`}>
-            <div className={`absolute inset-0 z-0 bg-gradient-to-b ${rarityGradients[card.rarity]} opacity-90`} />
             
-            {/* Rarity ambient effects */}
+            {/* Mythic: blurred aurora orbs + light leak */}
             {isMythic && (
               <>
-                <div className="detail-golden-rays pointer-events-none" />
-                <div className="detail-golden-dust pointer-events-none">
-                  <span /><span /><span /><span /><span /><span /><span /><span /><span /><span /><span /><span />
-                </div>
-                <div className="detail-aura-mythic pointer-events-none" />
+                <div className="detail-mythic-orb-1 pointer-events-none" />
+                <div className="detail-mythic-orb-2 pointer-events-none" />
+                <div className="detail-mythic-orb-3 pointer-events-none" />
+                <div className="detail-mythic-vignette pointer-events-none" />
+                <div className="detail-mythic-leak" />
               </>
             )}
             {isEpic && (
               <>
-                <div className="detail-epic-rays pointer-events-none" />
-                <div className="detail-epic-dust pointer-events-none">
-                  <span /><span /><span /><span /><span /><span /><span /><span />
-                </div>
-                <div className="detail-aura-epic pointer-events-none" />
+                <div className="detail-epic-orb-1 pointer-events-none" />
+                <div className="detail-epic-orb-2 pointer-events-none" />
+                <div className="detail-epic-orb-3 pointer-events-none" />
+                <div className="detail-epic-vignette pointer-events-none" />
+                <div className="detail-epic-leak" />
               </>
             )}
             {isRare && (
               <>
-                <div className="detail-rare-dust pointer-events-none">
-                  <span /><span /><span /><span /><span /><span />
-                </div>
-                <div className="detail-aura-rare pointer-events-none" />
+                <div className="detail-rare-orb-1 pointer-events-none" />
+                <div className="detail-rare-orb-2 pointer-events-none" />
+                <div className="detail-rare-vignette pointer-events-none" />
+                <div className="detail-rare-leak" />
               </>
             )}
 
             <div className="relative z-10 pt-6 px-6 pb-0">
               <div
-                className={`relative mx-auto max-w-[280px] aspect-square rounded-2xl overflow-hidden shadow-xl border-2 border-white/20 cursor-pointer active:scale-95 transition-transform ${detailAppearClass}`}
+                className={`relative mx-auto max-w-[280px] aspect-square rounded-2xl overflow-hidden cursor-pointer active:scale-95 transition-transform ${detailAppearClass}`}
+                style={{ boxShadow: isMythic ? '0 0 40px 8px hsla(42,100%,65%,0.3), 0 8px 32px rgba(0,0,0,0.4)' : isEpic ? '0 0 35px 6px hsla(270,80%,65%,0.25), 0 8px 32px rgba(0,0,0,0.4)' : isRare ? '0 0 25px 4px hsla(210,70%,60%,0.2), 0 8px 32px rgba(0,0,0,0.4)' : '0 8px 32px rgba(0,0,0,0.4)' }}
                 role="button"
                 tabIndex={0}
                 onPointerUp={(e) => {
@@ -192,17 +192,10 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
                 }}
               >
                 <img src={card.image} alt={card.name} className="w-full h-full object-cover pointer-events-none" draggable={false} />
-                {isMythic && <div className="mythic-image-overlay pointer-events-none" />}
-                {isMythic && <div className="mythic-shine-bar pointer-events-none" />}
-                {isMythic && (
-                  <div className="mythic-sparkles pointer-events-none">
-                    <span /><span /><span /><span /><span /><span />
-                  </div>
-                )}
-                {isEpic && <div className="epic-image-overlay pointer-events-none" />}
-                {isEpic && <div className="epic-shine-bar pointer-events-none" />}
-                {isRare && <div className="absolute inset-0 card-shimmer pointer-events-none" />}
-                {isRare && <div className="rare-shine-bar pointer-events-none" />}
+                {/* Glass shimmer overlay on image */}
+                {isMythic && <div className="detail-mythic-glass" />}
+                {isEpic && <div className="detail-epic-glass" />}
+                {isRare && <div className="detail-rare-glass" />}
               </div>
             </div>
 
