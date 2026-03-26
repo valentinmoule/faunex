@@ -30,6 +30,7 @@ interface Props {
 const AnimalCardComponent = ({ card, onClick, compact }: Props) => {
   const isMythic = card.rarity === 'mythic';
   const isEpic = card.rarity === 'epic';
+  const isRare = card.rarity === 'rare';
 
   return (
     <button
@@ -38,7 +39,12 @@ const AnimalCardComponent = ({ card, onClick, compact }: Props) => {
     >
       {isMythic && (
         <div className="mythic-sparkles">
-          <span /><span /><span /><span /><span /><span />
+          <span /><span /><span /><span /><span /><span /><span /><span />
+        </div>
+      )}
+      {isEpic && (
+        <div className="epic-sparkles">
+          <span /><span /><span /><span />
         </div>
       )}
       <div className="relative aspect-[4/5] overflow-hidden rounded-t-xl">
@@ -50,8 +56,11 @@ const AnimalCardComponent = ({ card, onClick, compact }: Props) => {
         />
         {/* Rarity-specific overlays */}
         {isMythic && <div className="mythic-image-overlay" />}
+        {isMythic && <div className="mythic-shine-bar" />}
         {isEpic && <div className="epic-image-overlay" />}
-        {card.rarity === 'rare' && <div className="absolute inset-0 card-shimmer pointer-events-none" />}
+        {isEpic && <div className="epic-shine-bar" />}
+        {isRare && <div className="absolute inset-0 card-shimmer pointer-events-none" />}
+        {isRare && <div className="rare-shine-bar" />}
         {/* Bottom gradient */}
         <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none" />
         {/* Rarity badge */}
