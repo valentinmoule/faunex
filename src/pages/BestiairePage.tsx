@@ -250,9 +250,10 @@ const BestiairePage = () => {
             {visibleAnimals.map((animal) => (
               <div
                 key={animal.name}
+                onClick={() => animal.captured && animal.captureData && setSelectedCard(animal.captureData)}
                 className={`flex items-center gap-3 px-4 py-2.5 rounded-xl border transition-colors ${
                   animal.captured
-                    ? 'bg-card border-border'
+                    ? 'bg-card border-border cursor-pointer active:bg-muted/50'
                     : 'bg-muted/40 border-border/50'
                 }`}
               >
