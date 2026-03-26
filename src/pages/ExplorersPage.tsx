@@ -204,19 +204,30 @@ const ExplorersPage = () => {
 
       {tab !== 'search' && (
         <div className="max-w-lg mx-auto px-4 pt-3">
-          <div className="flex gap-2 pb-2">
+          <div className="flex gap-2 pb-2 overflow-x-auto">
             <button
               onClick={() => setTab('following')}
-              className={`px-4 py-1.5 rounded-full text-xs font-display font-semibold transition-colors ${tab === 'following' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
+              className={`px-4 py-1.5 rounded-full text-xs font-display font-semibold transition-colors whitespace-nowrap ${tab === 'following' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
             >
               Abonnements ({following.length})
             </button>
             <button
               onClick={() => setTab('followers')}
-              className={`px-4 py-1.5 rounded-full text-xs font-display font-semibold transition-colors ${tab === 'followers' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
+              className={`px-4 py-1.5 rounded-full text-xs font-display font-semibold transition-colors whitespace-nowrap ${tab === 'followers' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
             >
               Abonnés ({followers.length})
             </button>
+            {pendingRequests.length > 0 && (
+              <button
+                onClick={() => setTab('requests')}
+                className={`px-4 py-1.5 rounded-full text-xs font-display font-semibold transition-colors whitespace-nowrap relative ${tab === 'requests' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
+              >
+                Demandes ({pendingRequests.length})
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-destructive text-destructive-foreground text-[9px] font-bold flex items-center justify-center">
+                  {pendingRequests.length}
+                </span>
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -245,9 +256,16 @@ const ExplorersPage = () => {
                     >
                       <UserCheck className="w-3.5 h-3.5" /> Abonné
                     </button>
+                  ) : isPending(user.user_id) ? (
+                    <button
+                      disabled
+                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-muted text-muted-foreground text-xs font-display font-semibold"
+                    >
+                      <Clock className="w-3.5 h-3.5" /> En attente
+                    </button>
                   ) : (
                     <button
-                      onClick={() => followUser(user.user_id)}
+                      onClick={() => handleFollow(user.user_id)}
                       className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-display font-semibold"
                     >
                       <UserPlus className="w-3.5 h-3.5" /> S'abonner
@@ -312,14 +330,62 @@ const ExplorersPage = () => {
                       >
                         <UserCheck className="w-3.5 h-3.5" /> Abonné
                       </button>
+                    ) : isPending(f.user_id) ? (
+                      <button
+                        disabled
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-muted text-muted-foreground text-xs font-display font-semibold"
+                      >
+                        <Clock className="w-3.5 h-3.5" /> En attente
+                      </button>
                     ) : (
                       <button
-                        onClick={() => followUser(f.user_id)}
+                        onClick={() => handleFollow(f.user_id)}
                         className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-display font-semibold"
                       >
                         <UserPlus className="w-3.5 h-3.5" /> S'abonner
                       </button>
                     )
+                  }
+                />
+              ))}
+            </div>
+          )
+        )}
+
+        {/* Pending requests */}
+        {tab === 'requests' && (
+          loading ? (
+            <p className="text-center py-8 text-muted-foreground text-sm font-display">Chargement…</p>
+          ) : pendingRequests.length === 0 ? (
+            <div className="text-center py-16 px-6">
+              <Clock className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
+              <p className="text-foreground font-display font-semibold text-sm mb-2">Aucune demande</p>
+              <p className="text-muted-foreground text-xs leading-relaxed max-w-xs mx-auto">
+                Tu n'as aucune demande d'abonnement en attente.
+              </p>
+            </div>
+          ) : (
+            <div className="divide-y divide-border">
+              {pendingRequests.map(f => f.profile && (
+                <UserRow
+                  key={f.user_id}
+                  user={f.profile}
+                  onClick={() => navigate(`/explorer/${f.user_id}/collection`)}
+                  action={
+                    <div className="flex gap-1.5">
+                      <button
+                        onClick={() => acceptRequest(f.user_id)}
+                        className="p-2 rounded-lg bg-primary text-primary-foreground"
+                      >
+                        <CheckIcon className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => rejectRequest(f.user_id)}
+                        className="p-2 rounded-lg bg-muted text-muted-foreground hover:text-destructive"
+                      >
+                        <XCircle className="w-4 h-4" />
+                      </button>
+                    </div>
                   }
                 />
               ))}
