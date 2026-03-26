@@ -2,9 +2,9 @@ import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
 
 const rarityStyles: Record<Rarity, string> = {
   common: 'border-rarity-common/30 bg-card card-hover-effect',
-  rare: 'border-rarity-rare/40 bg-card rarity-rare-glow card-hover-effect',
-  epic: 'border-rarity-epic/40 bg-card rarity-epic-glow card-hover-effect',
-  mythic: 'border-rarity-mythic/40 bg-card mythic-shiny card-hover-effect',
+  rare: 'border-rarity-rare/40 bg-card card-hover-effect',
+  epic: 'border-rarity-epic/40 bg-card card-hover-effect',
+  mythic: 'border-rarity-mythic/40 bg-card card-hover-effect',
 };
 
 const rarityBadgeStyles: Record<Rarity, string> = {
@@ -28,25 +28,11 @@ interface Props {
 }
 
 const AnimalCardComponent = ({ card, onClick, compact }: Props) => {
-  const isMythic = card.rarity === 'mythic';
-  const isEpic = card.rarity === 'epic';
-  const isRare = card.rarity === 'rare';
-
   return (
     <button
       onClick={onClick}
       className={`group relative overflow-hidden rounded-2xl border-2 transition-all duration-300 animate-card-appear text-left w-full ${rarityStyles[card.rarity]}`}
     >
-      {isMythic && (
-        <div className="mythic-sparkles">
-          <span /><span /><span /><span /><span /><span /><span /><span />
-        </div>
-      )}
-      {isEpic && (
-        <div className="epic-sparkles">
-          <span /><span /><span /><span />
-        </div>
-      )}
       <div className="relative aspect-[4/5] overflow-hidden rounded-t-xl">
         <img
           src={card.image}
@@ -54,13 +40,6 @@ const AnimalCardComponent = ({ card, onClick, compact }: Props) => {
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           loading="lazy"
         />
-        {/* Rarity-specific overlays */}
-        {isMythic && <div className="mythic-image-overlay" />}
-        {isMythic && <div className="mythic-shine-bar" />}
-        {isEpic && <div className="epic-image-overlay" />}
-        {isEpic && <div className="epic-shine-bar" />}
-        {isRare && <div className="absolute inset-0 card-shimmer pointer-events-none" />}
-        {isRare && <div className="rare-shine-bar" />}
         {/* Bottom gradient */}
         <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none" />
         {/* Rarity badge */}
