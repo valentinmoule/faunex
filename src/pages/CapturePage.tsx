@@ -784,7 +784,7 @@ const CapturePage = () => {
           </div>
         )}
 
-        {animalResult && !identifying && (
+        {animalResult && !identifying && revealPhase === 'done' && (
           <div className="relative z-20 flex-1 flex flex-col justify-end px-5 pb-4">
             <div className="space-y-3">
               {/* Rarity badge + name */}
