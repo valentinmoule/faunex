@@ -611,6 +611,15 @@
   animation: game-float 3s ease-in-out infinite;
 }
 
+/* Bestiary filter glow pulse */
+@keyframes bestiary-glow {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.15); }
+}
+.bestiary-filter-glow {
+  animation: bestiary-glow 2s ease-in-out infinite;
+}
+
 /* ═══════════════════════════════════════════════════
    CAPTURE REVEAL ENHANCED EFFECTS
    ═══════════════════════════════════════════════════ */
