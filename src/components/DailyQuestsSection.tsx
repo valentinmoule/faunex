@@ -139,8 +139,9 @@ const DailyQuestsSection = () => {
         className="w-full flex items-center justify-between mb-2.5"
       >
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-amber/10 flex items-center justify-center quest-header-icon">
-            <Target className="w-4 h-4 text-amber" />
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center quest-header-icon">
+            <Target className="w-4 h-4 text-amber relative z-10" />
+            <span className="quest-sparkle" />
           </div>
           <div className="text-left">
             <h2 className="text-sm font-display font-bold text-foreground">Quêtes du jour</h2>
