@@ -128,7 +128,22 @@ const CapturePage = () => {
     }
   }, [facingMode, stopCamera]);
 
-  // Apply zoom
+  // Toggle torch (flash) on the active camera track
+  useEffect(() => {
+    if (!streamRef.current) return;
+    const track = streamRef.current.getVideoTracks()[0];
+    if (!track) return;
+    const capabilities = track.getCapabilities?.() as any;
+    if (capabilities?.torch) {
+      try {
+        (track as any).applyConstraints({ advanced: [{ torch: flash } as any] });
+      } catch (e) {
+        console.warn('Torch not supported', e);
+      }
+    }
+  }, [flash, cameraActive]);
+
+
   const applyZoom = useCallback((newZoom: number) => {
     const clamped = Math.max(1, Math.min(newZoom, maxZoom));
     setZoomLevel(clamped);
