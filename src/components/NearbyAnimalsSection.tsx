@@ -173,7 +173,7 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
       )}
 
       <div className="flex items-center justify-between mb-2.5">
-        <button onClick={() => setCollapsed(!collapsed)} className="flex items-center gap-2 group">
+        <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
             <MapPin className="w-4 h-4 text-primary" />
           </div>
@@ -181,11 +181,15 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
             <h2 className="text-sm font-display font-bold text-foreground">Autour de toi</h2>
             {locationName && <p className="text-[10px] text-muted-foreground">{locationName}</p>}
           </div>
-          <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-300 ${collapsed ? '-rotate-90' : ''}`} />
-        </button>
-        <button onClick={fetchNearby} disabled={loading} className="p-1.5 rounded-lg hover:bg-muted transition-colors">
-          <RefreshCw className={`w-4 h-4 text-muted-foreground ${loading ? 'animate-spin' : ''}`} />
-        </button>
+        </div>
+        <div className="flex items-center gap-1">
+          <button onClick={fetchNearby} disabled={loading} className="p-1.5 rounded-lg hover:bg-muted transition-colors">
+            <RefreshCw className={`w-4 h-4 text-muted-foreground ${loading ? 'animate-spin' : ''}`} />
+          </button>
+          <button onClick={() => setCollapsed(!collapsed)} className="p-1.5 rounded-lg hover:bg-muted transition-colors">
+            <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-300 ${collapsed ? '-rotate-90' : ''}`} />
+          </button>
+        </div>
       </div>
 
       <div className={`transition-all duration-300 overflow-hidden ${collapsed ? 'max-h-0 opacity-0' : 'max-h-[1000px] opacity-100'}`}>
