@@ -288,11 +288,10 @@ const CapturePage = () => {
       if (error) throw error;
       if (data?.success && data.animal) {
         if (data.animal.animal_name === 'Inconnu' || data.animal.animal_name.toLowerCase() === 'inconnu') {
-          // AI couldn't identify — force manual mode with moderation
-          setManualMode(true);
-        } else {
-          setAnimalResult(data.animal);
-        }
+            setManualMode(true);
+          } else {
+            triggerReveal(data.animal);
+          }
       } else {
         setManualMode(true);
       }
@@ -351,7 +350,7 @@ const CapturePage = () => {
           if (data.animal.animal_name === 'Inconnu' || data.animal.animal_name.toLowerCase() === 'inconnu') {
             setManualMode(true);
           } else {
-            setAnimalResult(data.animal);
+            triggerReveal(data.animal);
           }
         } else {
           setManualMode(true);
