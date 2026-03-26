@@ -197,14 +197,19 @@ const BestiairePage = () => {
                 className="w-full pl-9 pr-4 py-2.5 bg-muted rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body"
               />
             </div>
-            {filter !== 'all' && (
-              <button
-                onClick={() => setFilter('all')}
-                className="shrink-0 px-3 py-2 rounded-xl bg-foreground text-background text-[11px] font-display font-bold border border-foreground shadow-md active:scale-95 transition-all"
+            {/* Category dropdown next to search */}
+            <div className="relative shrink-0">
+              <select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className="appearance-none pl-3 pr-7 py-2.5 rounded-xl text-xs font-display font-semibold bg-muted border-none text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors"
               >
-                ✕ Reset
-              </button>
-            )}
+                {categories.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
+            </div>
           </div>
         </div>
       </header>
