@@ -180,8 +180,7 @@ const FriendCollectionPage = () => {
     setMyFollowingIds(new Set((myData || []).map(f => f.following_id)));
 
     const ids = (listData || [])
-      .map((f: any) => type === 'following' ? f.following_id : f.follower_id)
-      .filter((id: string) => id !== myId);
+      .map((f: any) => type === 'following' ? f.following_id : f.follower_id);
 
     if (ids.length > 0) {
       const { data: profiles } = await supabase
