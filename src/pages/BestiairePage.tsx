@@ -1,9 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Lock, Bell, CheckCircle, PawPrint, Bird, Fish, Bug, Turtle, Rabbit, Shell, Waves, type LucideIcon } from 'lucide-react';
-import { type Rarity, RARITY_LABELS } from '@/data/mockData';
+import { type Rarity, type AnimalCard, RARITY_LABELS } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import CardDetailSheet from '@/components/CardDetailSheet';
 
 interface BestiaryAnimal {
   name: string;
@@ -11,6 +12,7 @@ interface BestiaryAnimal {
   rarity: string;
   category: string;
   captured: boolean;
+  captureData?: AnimalCard;
 }
 
 const rarityFilters: (Rarity | 'all')[] = ['all', 'common', 'rare', 'epic', 'mythic'];
