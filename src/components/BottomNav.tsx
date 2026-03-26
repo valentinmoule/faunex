@@ -3,7 +3,7 @@ import { Camera, BookOpen, User, Users, PawPrint, Globe } from 'lucide-react';
 
 const tabs = [
   { path: '/home', label: 'Accueil', icon: PawPrint },
-  { path: '/collection', label: 'Collection', icon: BookOpen },
+  { path: '/collection', label: 'Mon Faunex', icon: BookOpen },
   { path: '/capture', label: 'Capture', icon: Camera },
   { path: '/bestiaire', label: 'Bestiaire', icon: Globe },
   { path: '/profile', label: 'Profil', icon: User },
