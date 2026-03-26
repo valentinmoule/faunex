@@ -280,33 +280,6 @@ const Index = () => {
             </div>
           </button>
 
-          {/* Collection Card */}
-          <button
-            onClick={() => navigate('/collection')}
-            className="relative flex flex-col gap-2 p-4 rounded-2xl border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors text-left"
-          >
-            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-              <BookOpen className="w-4 h-4 text-primary" />
-            </div>
-            <div>
-              <h3 className="text-sm font-display font-bold text-foreground">Collection</h3>
-              <p className="text-[10px] text-muted-foreground">{profile.species_count} espèces collectées</p>
-            </div>
-            <div className="flex gap-1">
-              {RARITY_ORDER.map(r => (
-                rarityCounts[r] ? (
-                  <span key={r} className={`text-[9px] font-display font-bold px-1 rounded ${
-                    r === 'mythic' ? 'text-rarity-mythic' :
-                    r === 'epic' ? 'text-rarity-epic' :
-                    r === 'rare' ? 'text-rarity-rare' : 'text-rarity-common'
-                  }`}>
-                    {rarityCounts[r]} {RARITY_LABELS[r]}
-                  </span>
-                ) : null
-              ))}
-            </div>
-          </button>
-
           {/* Explorateurs Card */}
           <button
             onClick={() => navigate('/explorers')}
