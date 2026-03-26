@@ -390,8 +390,60 @@
 }
 
 /* ═══════════════════════════════════════════════════
-   NEARBY ANIMALS ALERTS
+   LEVEL SPLASH & LEVEL-UP CELEBRATION
    ═══════════════════════════════════════════════════ */
+@keyframes levelup-particle-float {
+  0% { opacity: 0; transform: scale(0) translateY(0); }
+  20% { opacity: 1; transform: scale(1) translateY(-20px); }
+  100% { opacity: 0; transform: scale(0.5) translateY(-120px) rotate(180deg); }
+}
+
+@keyframes levelup-ring-pulse {
+  0%, 100% { box-shadow: 0 0 0 hsla(42, 80%, 55%, 0); transform: scale(1); }
+  50% { box-shadow: 0 0 40px hsla(42, 80%, 55%, 0.4), 0 0 80px hsla(42, 80%, 55%, 0.15); transform: scale(1.03); }
+}
+
+@keyframes levelup-badge-bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+@keyframes levelup-star-pulse {
+  0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(0.8); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.3); }
+}
+
+@keyframes splash-badge-glow {
+  0%, 100% { box-shadow: 0 0 20px hsla(152, 55%, 28%, 0.3); }
+  50% { box-shadow: 0 0 40px hsla(42, 80%, 55%, 0.5), 0 0 60px hsla(42, 80%, 55%, 0.2); }
+}
+
+.levelup-particle {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: hsla(42, 85%, 60%, 0.9);
+  box-shadow: 0 0 6px hsla(42, 85%, 55%, 0.6);
+  animation: levelup-particle-float 2s ease-out forwards;
+}
+
+.levelup-ring {
+  animation: levelup-ring-pulse 2s ease-in-out infinite;
+}
+
+.levelup-badge {
+  animation: levelup-badge-bounce 1.5s ease-in-out infinite;
+}
+
+.levelup-star {
+  animation: levelup-star-pulse 1.2s ease-in-out infinite;
+}
+
+.level-splash-badge {
+  animation: splash-badge-glow 2s ease-in-out infinite;
+}
+
+/*
 @keyframes nearby-alert-in {
   0% { opacity: 0; transform: translateY(-8px) scale(0.96); }
   60% { opacity: 1; transform: translateY(2px) scale(1.01); }
