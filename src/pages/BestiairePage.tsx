@@ -1,9 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Lock, Bell, CheckCircle, PawPrint, Bird, Fish, Bug, Turtle, Rabbit, Shell, Waves, type LucideIcon } from 'lucide-react';
-import { type Rarity, RARITY_LABELS } from '@/data/mockData';
+import { type Rarity, type AnimalCard, RARITY_LABELS } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import CardDetailSheet from '@/components/CardDetailSheet';
 
 interface BestiaryAnimal {
   name: string;
@@ -11,6 +12,7 @@ interface BestiaryAnimal {
   rarity: string;
   category: string;
   captured: boolean;
+  captureData?: AnimalCard;
 }
 
 const rarityFilters: (Rarity | 'all')[] = ['all', 'common', 'rare', 'epic', 'mythic'];
@@ -51,6 +53,7 @@ const BestiairePage = () => {
   const [categoryFilter, setCategoryFilter] = useState('Tous');
   const [unreadCount, setUnreadCount] = useState(0);
   const [displayCount, setDisplayCount] = useState(100);
+  const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
 
   useEffect(() => {
     if (!session?.user) return;
@@ -76,21 +79,40 @@ const BestiairePage = () => {
 
       const { data: userCaptures } = await supabase
         .from('captures')
-        .select('animal_name')
+        .select('*')
         .eq('user_id', session.user.id)
         .eq('status', 'approved');
 
-      const userCapturedNames = new Set(
-        (userCaptures || []).map((c) => c.animal_name.toLowerCase())
-      );
+      const capturesByName = new Map<string, any>();
+      (userCaptures || []).forEach((c) => {
+        capturesByName.set(c.animal_name.toLowerCase(), c);
+      });
 
-      const list: BestiaryAnimal[] = allAnimals.map((a: any) => ({
-        name: a.name,
-        scientific_name: a.scientific_name,
-        rarity: a.rarity,
-        category: a.category,
-        captured: userCapturedNames.has(a.name.toLowerCase()),
-      }));
+      const list: BestiaryAnimal[] = allAnimals.map((a: any) => {
+        const capture = capturesByName.get(a.name.toLowerCase());
+        return {
+          name: a.name,
+          scientific_name: a.scientific_name,
+          rarity: a.rarity,
+          category: a.category,
+          captured: !!capture,
+          captureData: capture ? {
+            id: capture.id,
+            name: capture.animal_name,
+            scientificName: capture.scientific_name || '',
+            image: capture.image_url,
+            rarity: capture.rarity as Rarity,
+            category: capture.category || '',
+            description: capture.description || '',
+            habitat: capture.habitat || '',
+            diet: capture.diet || '',
+            conservation: capture.conservation || '',
+            funFact: capture.fun_fact || '',
+            discoveredAt: capture.created_at,
+            location: capture.location || '',
+          } : undefined,
+        };
+      });
 
       // Sort: captured first, then alphabetical
       list.sort((a, b) => {
@@ -228,9 +250,10 @@ const BestiairePage = () => {
             {visibleAnimals.map((animal) => (
               <div
                 key={animal.name}
+                onClick={() => animal.captured && animal.captureData && setSelectedCard(animal.captureData)}
                 className={`flex items-center gap-3 px-4 py-2.5 rounded-xl border transition-colors ${
                   animal.captured
-                    ? 'bg-card border-border'
+                    ? 'bg-card border-border cursor-pointer active:bg-muted/50'
                     : 'bg-muted/40 border-border/50'
                 }`}
               >
@@ -295,6 +318,8 @@ const BestiairePage = () => {
           </div>
         )}
       </div>
+
+      <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} />
     </main>
   );
 };
