@@ -49,7 +49,7 @@ const Index = () => {
     const fetchAll = async () => {
       const [profileRes, capturesRes, questsRes, notifRes] = await Promise.all([
         supabase.from('profiles').select('display_name, username, avatar_url, level, xp, xp_to_next, species_count, total_captures').eq('user_id', uid).single(),
-        supabase.from('captures').select('*').eq('user_id', uid).eq('status', 'approved').order('created_at', { ascending: false }).limit(6),
+        supabase.from('captures').select('*').eq('user_id', uid).eq('status', 'approved').order('created_at', { ascending: false }),
         supabase.from('daily_quests').select('completed, claimed').eq('user_id', uid).eq('quest_date', new Date().toISOString().split('T')[0]),
         supabase.from('notifications').select('*', { count: 'exact', head: true }).eq('user_id', uid).eq('read', false),
       ]);
@@ -333,19 +333,14 @@ const Index = () => {
         {/* Autour de moi */}
         <NearbyAnimalsSection capturedNames={allCapturedNames} />
 
-        {/* Recent Captures */}
-        {recentCaptures.length > 0 && (
+        {/* All Captures */}
+        {allCaptures.length > 0 && (
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-base font-display font-bold text-foreground">Dernières captures</h2>
-              <button onClick={() => navigate('/collection')} className="text-xs font-display font-semibold text-primary flex items-center gap-0.5">
-                Tout voir <ChevronRight className="w-3 h-3" />
-              </button>
-            </div>
+            <h2 className="text-base font-display font-bold text-foreground mb-3">Ma collection</h2>
             <div className="grid grid-cols-2 gap-3">
-              {recentCaptures.slice(0, 6).map((card, i) => (
-                <div key={card.id} style={{ animationDelay: `${i * 60}ms` }}>
-                  <AnimalCardComponent card={card} compact onClick={() => navigate('/collection')} />
+              {allCaptures.map((card, i) => (
+                <div key={card.id} style={{ animationDelay: `${Math.min(i, 8) * 60}ms` }}>
+                  <AnimalCardComponent card={card} compact onClick={() => setSelectedCard(card)} />
                 </div>
               ))}
             </div>
@@ -353,7 +348,7 @@ const Index = () => {
         )}
 
         {/* Empty state */}
-        {recentCaptures.length === 0 && !loading && (
+        {allCaptures.length === 0 && !loading && (
           <div className="text-center py-12 px-6">
             <div className="text-5xl mb-4">🌿</div>
             <h3 className="text-foreground font-display font-bold text-base mb-2">Commence ton aventure !</h3>
@@ -369,6 +364,8 @@ const Index = () => {
           </div>
         )}
       </div>
+
+      <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} />
     </main>
   );
 };
