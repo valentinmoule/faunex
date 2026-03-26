@@ -160,6 +160,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
                 <div className="detail-mythic-orb-3 pointer-events-none" />
                 <div className="detail-mythic-vignette pointer-events-none" />
                 <div className="detail-mythic-leak" />
+                <div className="detail-mythic-geo" />
               </>
             )}
             {isEpic && (
@@ -169,6 +170,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
                 <div className="detail-epic-orb-3 pointer-events-none" />
                 <div className="detail-epic-vignette pointer-events-none" />
                 <div className="detail-epic-leak" />
+                <div className="detail-epic-geo" />
               </>
             )}
             {isRare && (
@@ -177,6 +179,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
                 <div className="detail-rare-orb-2 pointer-events-none" />
                 <div className="detail-rare-vignette pointer-events-none" />
                 <div className="detail-rare-leak" />
+                <div className="detail-rare-geo" />
               </>
             )}
 
