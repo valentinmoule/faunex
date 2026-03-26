@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { type Rarity, RARITY_LABELS } from '@/data/mockData';
 import AnimalCardComponent from '@/components/AnimalCardComponent';
+import NearbyAnimalsSection from '@/components/NearbyAnimalsSection';
 import type { AnimalCard } from '@/data/mockData';
 
 interface Profile {
@@ -309,6 +310,9 @@ const Index = () => {
             </div>
           </button>
         </div>
+
+        {/* Autour de moi */}
+        <NearbyAnimalsSection />
 
         {/* Recent Captures */}
         {recentCaptures.length > 0 && (
