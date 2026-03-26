@@ -172,16 +172,25 @@ const ExplorersPage = () => {
     return 'none';
   };
 
-  const UserRow = ({ user, action }: { user: SearchUser; action: React.ReactNode }) => (
-    <div className="flex items-center gap-3 py-3">
-      <div className="w-11 h-11 rounded-full bg-primary/20 flex items-center justify-center text-sm font-display font-bold text-primary shrink-0">
-        {(user.display_name || user.username || '?').charAt(0).toUpperCase()}
+  const UserRow = ({ user, action, onClick }: { user: SearchUser; action: React.ReactNode; onClick?: () => void }) => (
+    <div
+      className={`flex items-center gap-3 py-3 ${onClick ? 'cursor-pointer active:bg-muted/50 transition-colors rounded-lg -mx-2 px-2' : ''}`}
+      onClick={onClick}
+    >
+      <div className="w-11 h-11 rounded-full bg-primary/20 flex items-center justify-center text-sm font-display font-bold text-primary shrink-0 overflow-hidden">
+        {user.avatar_url ? (
+          <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
+        ) : (
+          (user.display_name || user.username || '?').charAt(0).toUpperCase()
+        )}
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-display font-semibold text-foreground truncate">{user.display_name || 'Sans nom'}</p>
         <p className="text-[11px] text-muted-foreground truncate">{user.username} · Niv. {user.level} · {user.species_count} espèces</p>
       </div>
-      {action}
+      <div onClick={e => e.stopPropagation()}>
+        {action}
+      </div>
     </div>
   );
 
@@ -287,13 +296,9 @@ const ExplorersPage = () => {
                 <UserRow
                   key={rel.id}
                   user={rel.profile}
+                  onClick={() => navigate(`/explorer/${rel.profile!.user_id}/collection`)}
                   action={
-                    <button
-                      onClick={() => navigate(`/explorer/${rel.profile!.user_id}/collection`)}
-                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-display font-semibold"
-                    >
-                      <BookOpen className="w-3.5 h-3.5" /> Faunex
-                    </button>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
                   }
                 />
               ))}
