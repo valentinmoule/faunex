@@ -738,32 +738,75 @@ const CapturePage = () => {
           </div>
         )}
 
-        {/* Reveal animation overlay */}
+        {/* Freeze phase — suspense */}
+        {revealPhase === 'freeze' && (
+          <div className="relative z-20 flex-1 flex items-center justify-center">
+            <div className="text-center capture-freeze-pulse">
+              <div className={`w-20 h-20 mx-auto rounded-full border-2 flex items-center justify-center mb-4 ${
+                revealRarity === 'mythic' ? 'border-rarity-mythic/60 bg-rarity-mythic/10' :
+                revealRarity === 'epic' ? 'border-rarity-epic/60 bg-rarity-epic/10' :
+                revealRarity === 'rare' ? 'border-rarity-rare/60 bg-rarity-rare/10' :
+                'border-muted-foreground/30 bg-muted/10'
+              }`}>
+                <div className="w-3 h-3 rounded-full bg-primary-foreground/80 animate-pulse" />
+              </div>
+              <p className="text-primary-foreground/50 font-display text-xs tracking-widest uppercase">Analyse en cours</p>
+            </div>
+          </div>
+        )}
+
+        {/* Reveal animation — shaking phase */}
         {revealPhase === 'shaking' && (
           <div className="relative z-20 flex-1 flex items-center justify-center">
-            <div className={`text-center reveal-shake`} style={{ animationDuration: `${REVEAL_TIMINGS[revealRarity].shake}ms`, animationIterationCount: revealRarity === 'mythic' ? 3 : revealRarity === 'epic' ? 2 : 1 }}>
-              <div className={`w-24 h-24 mx-auto rounded-2xl border-4 flex items-center justify-center
-                ${revealRarity === 'mythic' ? 'border-rarity-mythic bg-rarity-mythic/20 shadow-glow-amber' :
-                  revealRarity === 'epic' ? 'border-rarity-epic bg-rarity-epic/20' :
-                  revealRarity === 'rare' ? 'border-rarity-rare bg-rarity-rare/20' :
+            <div className="text-center reveal-shake" style={{ animationDuration: `${REVEAL_TIMINGS[revealRarity].shake}ms`, animationIterationCount: revealRarity === 'mythic' ? 3 : revealRarity === 'epic' ? 2 : 1 }}>
+              <div className={`w-28 h-28 mx-auto rounded-2xl border-4 flex items-center justify-center relative overflow-hidden
+                ${revealRarity === 'mythic' ? 'border-rarity-mythic bg-rarity-mythic/20 shadow-glow-amber capture-suspense-mythic' :
+                  revealRarity === 'epic' ? 'border-rarity-epic bg-rarity-epic/20 capture-suspense-epic' :
+                  revealRarity === 'rare' ? 'border-rarity-rare bg-rarity-rare/20 capture-suspense-rare' :
                   'border-muted-foreground/40 bg-muted/20'}`}
               >
-                <span className="text-4xl">❓</span>
+                {capturedPhoto && <img src={capturedPhoto} alt="" className="w-full h-full object-cover blur-sm brightness-75" />}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-5xl">❓</span>
+                </div>
               </div>
-              <p className="text-primary-foreground/70 font-display text-sm mt-4">
+              <p className="text-primary-foreground/80 font-display text-sm mt-4 font-semibold">
                 {revealRarity === 'mythic' ? '✨ Quelque chose de légendaire…' :
-                 revealRarity === 'epic' ? '💎 Découverte rare en cours…' :
+                 revealRarity === 'epic' ? '💎 Découverte exceptionnelle…' :
                  revealRarity === 'rare' ? '🔹 Ça brille…' :
-                 'Analyse…'}
+                 '🔍 Identification…'}
               </p>
             </div>
           </div>
         )}
 
+        {/* Reveal animation — burst phase */}
         {revealPhase === 'burst' && animalResult && (
           <div className="relative z-20 flex-1 flex items-center justify-center">
-            <div className={`reveal-${revealRarity} text-center px-6`}>
-              <div className={`w-28 h-28 mx-auto rounded-2xl border-4 flex items-center justify-center relative overflow-hidden
+            {/* Particle explosion for epic/mythic */}
+            {(revealRarity === 'mythic' || revealRarity === 'epic') && (
+              <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
+                {Array.from({ length: revealRarity === 'mythic' ? 20 : 10 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="capture-burst-particle"
+                    style={{
+                      left: '50%',
+                      top: '50%',
+                      '--angle': `${(360 / (revealRarity === 'mythic' ? 20 : 10)) * i}deg`,
+                      '--distance': `${80 + Math.random() * 120}px`,
+                      '--delay': `${Math.random() * 0.3}s`,
+                      '--size': `${4 + Math.random() * 6}px`,
+                      '--color': revealRarity === 'mythic'
+                        ? `hsla(${42 + Math.random() * 20}, 85%, ${55 + Math.random() * 20}%, 0.9)`
+                        : `hsla(${270 + Math.random() * 30}, 70%, ${55 + Math.random() * 15}%, 0.8)`,
+                    } as React.CSSProperties}
+                  />
+                ))}
+              </div>
+            )}
+            <div className={`reveal-${revealRarity} text-center px-6 z-20`}>
+              <div className={`w-32 h-32 mx-auto rounded-2xl border-4 flex items-center justify-center relative overflow-hidden
                 ${revealRarity === 'mythic' ? 'border-rarity-mythic mythic-shiny' :
                   revealRarity === 'epic' ? 'border-rarity-epic rarity-epic-glow' :
                   revealRarity === 'rare' ? 'border-rarity-rare rarity-rare-glow' :
