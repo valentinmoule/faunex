@@ -319,7 +319,7 @@ const Index = () => {
                 Tout voir <ChevronRight className="w-3 h-3" />
               </button>
             </div>
-            <div className="grid grid-cols-3 gap-2.5">
+            <div className="grid grid-cols-2 gap-3">
               {recentCaptures.slice(0, 6).map((card, i) => (
                 <div key={card.id} style={{ animationDelay: `${i * 60}ms` }}>
                   <AnimalCardComponent card={card} compact onClick={() => navigate('/collection')} />
