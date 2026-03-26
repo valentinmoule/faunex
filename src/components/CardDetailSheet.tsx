@@ -134,7 +134,16 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
 
   const isMythic = card.rarity === 'mythic';
   const isEpic = card.rarity === 'epic';
+  const isRare = card.rarity === 'rare';
   const isShiny = isEpic || isMythic;
+
+  const detailAppearClass = isMythic
+    ? 'animate-card-appear-mythic'
+    : isEpic
+    ? 'animate-card-appear-epic'
+    : isRare
+    ? 'animate-card-appear-rare'
+    : '';
 
   return (
     <>
