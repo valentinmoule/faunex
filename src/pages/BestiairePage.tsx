@@ -186,15 +186,25 @@ const BestiairePage = () => {
             </div>
           </div>
 
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Rechercher un animal..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 bg-muted rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body"
-            />
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Rechercher un animal..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-9 pr-4 py-2.5 bg-muted rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body"
+              />
+            </div>
+            {filter !== 'all' && (
+              <button
+                onClick={() => setFilter('all')}
+                className="shrink-0 px-3 py-2 rounded-xl bg-foreground text-background text-[11px] font-display font-bold border border-foreground shadow-md active:scale-95 transition-all"
+              >
+                ✕ Reset
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -221,11 +231,9 @@ const BestiairePage = () => {
 
           {/* Rarity chips */}
           <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
-            {rarityFilters.map((r) => {
+            {rarityFilters.filter(r => r !== 'all').map((r) => {
               const isActive = filter === r;
-              const colorClasses = r === 'all'
-                ? isActive ? 'bg-foreground text-background border-foreground shadow-md' : 'bg-muted text-muted-foreground border-border hover:bg-muted/80'
-                : r === 'common'
+              const colorClasses = r === 'common'
                 ? isActive ? 'bg-rarity-common/20 text-rarity-common border-rarity-common/50 shadow-[0_0_10px_hsla(0,0%,60%,0.2)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-common/10 hover:text-rarity-common hover:border-rarity-common/30'
                 : r === 'rare'
                 ? isActive ? 'bg-rarity-rare/20 text-rarity-rare border-rarity-rare/50 shadow-[0_0_12px_hsla(210,70%,55%,0.25)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-rare/10 hover:text-rarity-rare hover:border-rarity-rare/30'
@@ -238,11 +246,11 @@ const BestiairePage = () => {
               return (
                 <button
                   key={r}
-                  onClick={() => setFilter(r)}
-                  className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-display font-bold border transition-all duration-300 flex items-center gap-1 active:scale-95 ${colorClasses} ${isActive && r !== 'all' ? 'bestiary-filter-glow' : ''} ${r === 'mythic' ? 'mythic-filter-shimmer' : ''}`}
+                  onClick={() => setFilter(filter === r ? 'all' : r)}
+                  className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-display font-bold border transition-all duration-300 flex items-center gap-1 active:scale-95 ${colorClasses} ${isActive ? 'bestiary-filter-glow' : ''} ${r === 'mythic' ? 'mythic-filter-shimmer' : ''}`}
                 >
-                  {r !== 'all' && <span className={`w-1.5 h-1.5 rounded-full ${dot} ${isActive ? 'animate-pulse' : ''}`} />}
-                  {r === 'all' ? 'Tous' : RARITY_LABELS[r]}
+                  <span className={`w-1.5 h-1.5 rounded-full ${dot} ${isActive ? 'animate-pulse' : ''}`} />
+                  {RARITY_LABELS[r as Rarity]}
                 </button>
               );
             })}
