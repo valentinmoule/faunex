@@ -67,8 +67,12 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
   const [submitting, setSubmitting] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [imageFullscreen, setImageFullscreen] = useState(false);
-  const sheetContentRef = useCallback((node: HTMLDivElement | null) => {
-    if (!node) return;
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Close sheet when user scrolls to bottom
+  useEffect(() => {
+    const node = scrollRef.current;
+    if (!node || !open) return;
     const handleScroll = () => {
       const { scrollTop, scrollHeight, clientHeight } = node;
       if (scrollTop + clientHeight >= scrollHeight - 10) {
@@ -77,7 +81,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
     };
     node.addEventListener('scroll', handleScroll, { passive: true });
     return () => node.removeEventListener('scroll', handleScroll);
-  }, [onClose]);
+  }, [open, onClose]);
 
   // Fetch likes & comments when card opens
   useEffect(() => {
