@@ -64,20 +64,12 @@ const Index = () => {
           conservation: c.conservation || '', funFact: c.fun_fact || '',
           discoveredAt: c.created_at, location: c.location || '',
         }));
-        setRecentCaptures(cards);
+        setAllCaptures(cards);
+        setAllCapturedNames(cards.map(c => c.name));
 
-        // Count by rarity
         const counts: Record<string, number> = {};
         capturesRes.data.forEach((c: any) => { counts[c.rarity] = (counts[c.rarity] || 0) + 1; });
-      }
-
-      // Get full rarity counts
-      const { data: allCaptures } = await supabase.from('captures').select('rarity, animal_name').eq('user_id', uid).eq('status', 'approved');
-      if (allCaptures) {
-        const counts: Record<string, number> = {};
-        allCaptures.forEach((c: any) => { counts[c.rarity] = (counts[c.rarity] || 0) + 1; });
         setRarityCounts(counts);
-        setAllCapturedNames(allCaptures.map((c: any) => c.animal_name));
       }
 
       if (questsRes.data) {
