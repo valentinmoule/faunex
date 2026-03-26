@@ -105,9 +105,6 @@ const FriendCollectionPage = () => {
                   {profileName.charAt(0).toUpperCase()}
                 </div>
               )}
-              <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-primary border-2 border-background flex items-center justify-center">
-                <span className="text-[8px] font-display font-black text-primary-foreground">{profileLevel}</span>
-              </div>
             </div>
             <div className="flex-1 min-w-0">
               <h1 className="text-base font-display font-bold text-foreground truncate">{profileName}</h1>
