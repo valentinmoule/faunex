@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
-import { MapPin, Leaf, UtensilsCrossed, Shield, Sparkles, Heart, MessageCircle, Send } from 'lucide-react';
+import { MapPin, Leaf, UtensilsCrossed, Shield, Sparkles, Heart, MessageCircle, Send, PawPrint, Bird, Fish, Bug, Turtle, Rabbit, Shell, Waves, type LucideIcon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -43,6 +43,18 @@ const rarityText: Record<Rarity, string> = {
   rare: 'text-rarity-rare',
   epic: 'text-rarity-epic',
   mythic: 'text-rarity-mythic',
+};
+const getCategoryIcon = (category: string): LucideIcon => {
+  const cat = category.toLowerCase();
+  if (cat.includes('oiseau')) return Bird;
+  if (cat.includes('poisson') || cat.includes('vie marine')) return Fish;
+  if (cat.includes('insecte') || cat.includes('arachnide')) return Bug;
+  if (cat.includes('reptile')) return Turtle;
+  if (cat.includes('amphibien')) return Rabbit;
+  if (cat.includes('crustacé') || cat.includes('mollusque')) return Shell;
+  if (cat.includes('mammifère') && cat.includes('marin')) return Waves;
+  if (cat.includes('mammifère')) return PawPrint;
+  return PawPrint;
 };
 
 
@@ -285,9 +297,15 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
               <span className={`px-3 py-1 rounded-full text-[11px] font-display font-bold uppercase tracking-wider ${rarityBg[card.rarity]} ${rarityText[card.rarity]}`}>
                 {RARITY_LABELS[card.rarity]}
               </span>
-              <span className="px-3 py-1 rounded-full text-[11px] font-display font-semibold bg-muted text-muted-foreground">
-                {card.category}
-              </span>
+              {(() => {
+                const CatIcon = getCategoryIcon(card.category);
+                return (
+                  <span className="px-3 py-1 rounded-full text-[11px] font-display font-semibold bg-muted text-muted-foreground inline-flex items-center gap-1">
+                    <CatIcon className="w-3 h-3" />
+                    {card.category}
+                  </span>
+                );
+              })()}
             </div>
 
             <p className="text-sm text-foreground/80 leading-relaxed text-center max-w-sm mx-auto">{card.description}</p>
