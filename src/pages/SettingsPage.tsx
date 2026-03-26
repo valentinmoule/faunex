@@ -267,6 +267,29 @@ const SettingsPage = () => {
                 <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card shadow transition-transform ${marketingEmails ? 'translate-x-5' : 'translate-x-0'}`} />
               </button>
             </div>
+
+            {/* Private account toggle */}
+            <div className="flex items-center justify-between px-4 py-3 bg-muted rounded-xl">
+              <div>
+                <span className="text-sm font-display font-semibold text-foreground flex items-center gap-1.5">
+                  <Lock className="w-3.5 h-3.5" /> Compte privé
+                </span>
+                <span className="text-[11px] text-muted-foreground">Les abonnements nécessitent ton approbation</span>
+              </div>
+              <button
+                onClick={async () => {
+                  const newVal = !isPrivate;
+                  setIsPrivate(newVal);
+                  if (session?.user) {
+                    await supabase.from('profiles').update({ is_private: newVal } as any).eq('user_id', session.user.id);
+                    toast.success(newVal ? 'Compte passé en privé' : 'Compte passé en public');
+                  }
+                }}
+                className={`relative w-11 h-6 rounded-full transition-colors ${isPrivate ? 'bg-primary' : 'bg-muted-foreground/30'}`}
+              >
+                <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card shadow transition-transform ${isPrivate ? 'translate-x-5' : 'translate-x-0'}`} />
+              </button>
+            </div>
             </div>
 
             <button
