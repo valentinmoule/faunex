@@ -53,6 +53,7 @@ const BestiairePage = () => {
   const [categoryFilter, setCategoryFilter] = useState('Tous');
   const [unreadCount, setUnreadCount] = useState(0);
   const [displayCount, setDisplayCount] = useState(100);
+  const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
 
   useEffect(() => {
     if (!session?.user) return;
@@ -78,21 +79,40 @@ const BestiairePage = () => {
 
       const { data: userCaptures } = await supabase
         .from('captures')
-        .select('animal_name')
+        .select('*')
         .eq('user_id', session.user.id)
         .eq('status', 'approved');
 
-      const userCapturedNames = new Set(
-        (userCaptures || []).map((c) => c.animal_name.toLowerCase())
-      );
+      const capturesByName = new Map<string, any>();
+      (userCaptures || []).forEach((c) => {
+        capturesByName.set(c.animal_name.toLowerCase(), c);
+      });
 
-      const list: BestiaryAnimal[] = allAnimals.map((a: any) => ({
-        name: a.name,
-        scientific_name: a.scientific_name,
-        rarity: a.rarity,
-        category: a.category,
-        captured: userCapturedNames.has(a.name.toLowerCase()),
-      }));
+      const list: BestiaryAnimal[] = allAnimals.map((a: any) => {
+        const capture = capturesByName.get(a.name.toLowerCase());
+        return {
+          name: a.name,
+          scientific_name: a.scientific_name,
+          rarity: a.rarity,
+          category: a.category,
+          captured: !!capture,
+          captureData: capture ? {
+            id: capture.id,
+            name: capture.animal_name,
+            scientificName: capture.scientific_name || '',
+            image: capture.image_url,
+            rarity: capture.rarity as Rarity,
+            category: capture.category || '',
+            description: capture.description || '',
+            habitat: capture.habitat || '',
+            diet: capture.diet || '',
+            conservation: capture.conservation || '',
+            funFact: capture.fun_fact || '',
+            discoveredAt: capture.created_at,
+            location: capture.location || '',
+          } : undefined,
+        };
+      });
 
       // Sort: captured first, then alphabetical
       list.sort((a, b) => {
