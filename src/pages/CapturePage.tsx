@@ -735,6 +735,55 @@ const CapturePage = () => {
           </div>
         )}
 
+        {/* Reveal animation overlay */}
+        {revealPhase === 'shaking' && (
+          <div className="relative z-20 flex-1 flex items-center justify-center">
+            <div className={`text-center reveal-shake`} style={{ animationDuration: `${REVEAL_TIMINGS[revealRarity].shake}ms`, animationIterationCount: revealRarity === 'mythic' ? 3 : revealRarity === 'epic' ? 2 : 1 }}>
+              <div className={`w-24 h-24 mx-auto rounded-2xl border-4 flex items-center justify-center
+                ${revealRarity === 'mythic' ? 'border-rarity-mythic bg-rarity-mythic/20 shadow-glow-amber' :
+                  revealRarity === 'epic' ? 'border-rarity-epic bg-rarity-epic/20' :
+                  revealRarity === 'rare' ? 'border-rarity-rare bg-rarity-rare/20' :
+                  'border-muted-foreground/40 bg-muted/20'}`}
+              >
+                <span className="text-4xl">❓</span>
+              </div>
+              <p className="text-primary-foreground/70 font-display text-sm mt-4">
+                {revealRarity === 'mythic' ? '✨ Quelque chose de légendaire…' :
+                 revealRarity === 'epic' ? '💎 Découverte rare en cours…' :
+                 revealRarity === 'rare' ? '🔹 Ça brille…' :
+                 'Analyse…'}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {revealPhase === 'burst' && animalResult && (
+          <div className="relative z-20 flex-1 flex items-center justify-center">
+            <div className={`reveal-${revealRarity} text-center px-6`}>
+              <div className={`w-28 h-28 mx-auto rounded-2xl border-4 flex items-center justify-center relative overflow-hidden
+                ${revealRarity === 'mythic' ? 'border-rarity-mythic mythic-shiny' :
+                  revealRarity === 'epic' ? 'border-rarity-epic rarity-epic-glow' :
+                  revealRarity === 'rare' ? 'border-rarity-rare rarity-rare-glow' :
+                  'border-muted-foreground/40'}`}
+              >
+                {capturedPhoto && <img src={capturedPhoto} alt="" className="w-full h-full object-cover" />}
+                {revealRarity === 'mythic' && (
+                  <div className="mythic-sparkles">
+                    <span /><span /><span /><span /><span /><span />
+                  </div>
+                )}
+                {revealRarity === 'epic' && <div className="epic-image-overlay" />}
+                {revealRarity === 'mythic' && <div className="mythic-image-overlay" />}
+              </div>
+              <span className={`inline-block mt-4 px-3 py-1 rounded-full text-xs font-display font-bold uppercase tracking-wider border ${rarityColors[revealRarity]}`}>
+                {RARITY_LABELS[revealRarity]}
+              </span>
+              <h2 className="text-2xl font-display font-bold text-primary-foreground mt-2">{animalResult.animal_name}</h2>
+              <p className="text-primary-foreground/60 text-sm italic">{animalResult.scientific_name}</p>
+            </div>
+          </div>
+        )}
+
         {animalResult && !identifying && (
           <div className="relative z-20 flex-1 flex flex-col justify-end px-5 pb-4">
             <div className="space-y-3">
