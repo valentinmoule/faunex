@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Target, Gift, Check, Loader2, ArrowLeft } from 'lucide-react';
+import { Target, Gift, Check, Loader2, ArrowLeft, Share2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -24,6 +24,7 @@ const questGlowClass: Record<string, string> = {
   capture_count: 'border-primary/20 bg-primary/5',
   capture_different: 'border-amber/20 bg-amber/5',
   new_zone: 'border-sky/20 bg-sky/5',
+  share_app: 'border-primary/20 bg-primary/5',
 };
 
 const QuestsPage = () => {
@@ -107,6 +108,34 @@ const QuestsPage = () => {
     }
   };
 
+  const handleShareApp = async (questId: string) => {
+    const shareData = {
+      title: 'Faunex — Découvre la faune autour de toi !',
+      text: 'Rejoins-moi sur Faunex 🌿 Capture et collectionne les animaux autour de toi !',
+      url: window.location.origin,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`);
+        toast.success('Lien copié !');
+      }
+
+      // Mark quest as completed
+      await supabase
+        .from('daily_quests')
+        .update({ progress: 1, completed: true })
+        .eq('id', questId);
+
+      setQuests(prev => prev.map(q => q.id === questId ? { ...q, progress: 1, completed: true } : q));
+      toast.success('Quête complétée ! 🎉');
+    } catch (err) {
+      // User cancelled share dialog — don't mark as complete
+    }
+  };
+
   const completedCount = quests.filter((q) => q.completed).length;
 
   return (
@@ -184,6 +213,17 @@ const QuestsPage = () => {
                         </span>
                       </div>
                     </div>
+
+                    {/* Share button for share_app quests */}
+                    {quest.quest_type === 'share_app' && !quest.completed && !quest.claimed && (
+                      <button
+                        onClick={() => handleShareApp(quest.id)}
+                        className="shrink-0 mt-1 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-display font-bold flex items-center gap-1.5"
+                      >
+                        <Share2 className="w-3.5 h-3.5" />
+                        Partager
+                      </button>
+                    )}
 
                     {quest.completed && !quest.claimed && (
                       <button

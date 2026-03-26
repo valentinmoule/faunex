@@ -32,6 +32,11 @@ const QUEST_POOL = [
   { quest_type: "new_zone", title: "Globe-trotter", description: "Explore 2 zones différentes", icon: "🌍", target: 2, xp_reward: 180 },
   { quest_type: "new_zone", title: "Aventurier", description: "Capture dans un nouveau lieu", icon: "🧭", target: 1, xp_reward: 100 },
   { quest_type: "new_zone", title: "Nomade", description: "Explore 3 zones différentes", icon: "🏕️", target: 3, xp_reward: 250 },
+
+  // share_app variants
+  { quest_type: "share_app", title: "Ambassadeur", description: "Partage Faunex avec un ami", icon: "🔗", target: 1, xp_reward: 25 },
+  { quest_type: "share_app", title: "Recruteur", description: "Invite un ami à rejoindre Faunex", icon: "📢", target: 1, xp_reward: 25 },
+  { quest_type: "share_app", title: "Bouche-à-oreille", description: "Fais découvrir Faunex autour de toi", icon: "🗣️", target: 1, xp_reward: 25 },
 ];
 
 // Seeded random to get consistent but daily-varying results
