@@ -186,15 +186,25 @@ const BestiairePage = () => {
             </div>
           </div>
 
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Rechercher un animal..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 bg-muted rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body"
-            />
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Rechercher un animal..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-9 pr-4 py-2.5 bg-muted rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body"
+              />
+            </div>
+            {filter !== 'all' && (
+              <button
+                onClick={() => setFilter('all')}
+                className="shrink-0 px-3 py-2 rounded-xl bg-foreground text-background text-[11px] font-display font-bold border border-foreground shadow-md active:scale-95 transition-all"
+              >
+                ✕ Reset
+              </button>
+            )}
           </div>
         </div>
       </header>
