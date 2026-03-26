@@ -217,6 +217,16 @@ const BestiairePage = () => {
       {/* Rarity filter chips */}
       <div className="max-w-lg mx-auto px-4 pt-3">
         <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
+            <button
+              onClick={() => setFilter('all')}
+              className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-display font-bold border transition-all duration-300 flex items-center gap-1 active:scale-95 ${
+                filter === 'all'
+                  ? 'bg-foreground/10 text-foreground border-foreground/30 shadow-sm'
+                  : 'bg-muted text-muted-foreground border-border hover:bg-foreground/5 hover:text-foreground hover:border-foreground/20'
+              }`}
+            >
+              Tous
+            </button>
             {rarityFilters.filter(r => r !== 'all').map((r) => {
               const isActive = filter === r;
               const colorClasses = r === 'common'
