@@ -64,6 +64,7 @@ const FriendCollectionPage = () => {
   const [profileXpToNext, setProfileXpToNext] = useState(1000);
   const [profileAvatar, setProfileAvatar] = useState<string | null>(null);
   const [amIFollowing, setAmIFollowing] = useState(false);
+  const [badges, setBadges] = useState<BadgeProgress[]>([]);
 
   // Their follows state
   const [theirFollowing, setTheirFollowing] = useState<FollowProfile[]>([]);
@@ -80,8 +81,9 @@ const FriendCollectionPage = () => {
 
       const profilePromise = supabase.from('profiles').select('display_name, username, level, xp, xp_to_next, avatar_url').eq('user_id', userId).maybeSingle();
       const capturesPromise = supabase.from('captures').select('*').eq('user_id', userId).eq('status', 'approved').order('created_at', { ascending: false });
+      const followCountPromise = supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('follower_id', userId);
 
-      const [profileRes, capturesRes] = await Promise.all([profilePromise, capturesPromise]);
+      const [profileRes, capturesRes, followCountRes] = await Promise.all([profilePromise, capturesPromise, followCountPromise]);
       setProfileName(profileRes.data?.display_name || profileRes.data?.username || 'Explorateur');
       setProfileLevel(profileRes.data?.level || 0);
       setProfileXp(profileRes.data?.xp || 0);
