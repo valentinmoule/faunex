@@ -38,6 +38,7 @@ const Index = () => {
   const [streak, setStreak] = useState(0);
   const [rarityCounts, setRarityCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
+  const [allCapturedNames, setAllCapturedNames] = useState<string[]>([]);
 
   useEffect(() => {
     if (!session?.user) return;
@@ -69,11 +70,12 @@ const Index = () => {
       }
 
       // Get full rarity counts
-      const { data: allCaptures } = await supabase.from('captures').select('rarity').eq('user_id', uid).eq('status', 'approved');
+      const { data: allCaptures } = await supabase.from('captures').select('rarity, animal_name').eq('user_id', uid).eq('status', 'approved');
       if (allCaptures) {
         const counts: Record<string, number> = {};
         allCaptures.forEach((c: any) => { counts[c.rarity] = (counts[c.rarity] || 0) + 1; });
         setRarityCounts(counts);
+        setAllCapturedNames(allCaptures.map((c: any) => c.animal_name));
       }
 
       if (questsRes.data) {
@@ -312,7 +314,7 @@ const Index = () => {
         </div>
 
         {/* Autour de moi */}
-        <NearbyAnimalsSection capturedNames={recentCaptures.map(c => c.name)} />
+        <NearbyAnimalsSection capturedNames={allCapturedNames} />
 
         {/* Recent Captures */}
         {recentCaptures.length > 0 && (
