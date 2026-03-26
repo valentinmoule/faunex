@@ -52,7 +52,7 @@ const FriendCollectionPage = () => {
   const { userId } = useParams<{ userId: string }>();
   const { session } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'collection' | 'badges' | 'following'>('collection');
+  const [activeTab, setActiveTab] = useState<'collection' | 'following'>('collection');
   const [filter, setFilter] = useState<Rarity | 'all'>('all');
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [search, setSearch] = useState('');
