@@ -1,19 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Target, X, Sparkles } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 const DailyQuestPopup = () => {
   const { session } = useAuth();
+  const hasShown = useRef(false);
   const navigate = useNavigate();
   const [visible, setVisible] = useState(false);
   const [phase, setPhase] = useState<'hidden' | 'in' | 'visible' | 'out'>('hidden');
 
   useEffect(() => {
-    if (!session?.user) return;
+    if (!session?.user || hasShown.current) return;
 
     const key = `faunex_quest_popup_${session.user.id}_${new Date().toISOString().split('T')[0]}`;
     if (localStorage.getItem(key)) return;
+    hasShown.current = true;
     localStorage.setItem(key, '1');
 
     const timer = setTimeout(() => {

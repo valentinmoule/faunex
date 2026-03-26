@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Shield } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
 const LevelSplash = () => {
   const { session } = useAuth();
+  const hasShown = useRef(false);
   const [visible, setVisible] = useState(false);
   const [phase, setPhase] = useState<'in' | 'hold' | 'out'>('in');
   const [level, setLevel] = useState(0);
@@ -13,12 +14,12 @@ const LevelSplash = () => {
   const [displayName, setDisplayName] = useState('');
 
   useEffect(() => {
-    if (!session?.user) return;
+    if (!session?.user || hasShown.current) return;
 
-    // Only show once per day
     const today = new Date().toISOString().split('T')[0];
     const key = `faunex_splash_${session.user.id}_${today}`;
     if (localStorage.getItem(key)) return;
+    hasShown.current = true;
     localStorage.setItem(key, '1');
 
     const load = async () => {
