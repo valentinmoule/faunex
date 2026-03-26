@@ -892,7 +892,7 @@ const CapturePage = () => {
             <Camera className="w-4 h-4" />
             Nouvelle capture
           </button>
-        ) : duplicateCapture ? null : animalResult ? (
+        ) : duplicateCapture ? null : (animalResult && revealPhase === 'done') ? (
           <button
             onClick={saveToCollection}
             disabled={saving}
