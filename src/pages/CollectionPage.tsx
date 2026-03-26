@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Bell } from 'lucide-react';
+import { Bell, Target, ChevronRight } from 'lucide-react';
 import NearbyAnimalsSection from '@/components/NearbyAnimalsSection';
-import DailyQuestsSection from '@/components/DailyQuestsSection';
 import AnimalCardComponent from '@/components/AnimalCardComponent';
 import CardDetailSheet from '@/components/CardDetailSheet';
 import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
@@ -156,7 +155,20 @@ const CollectionPage = () => {
 
       {/* Card grid */}
       <div className="max-w-lg mx-auto px-4 pt-3">
-        <DailyQuestsSection />
+        {/* Daily quests link card */}
+        <button
+          onClick={() => navigate('/quests')}
+          className="w-full mb-4 flex items-center gap-3 p-3.5 rounded-2xl border border-amber/20 bg-amber/5 hover:bg-amber/10 transition-colors"
+        >
+          <div className="w-9 h-9 rounded-xl bg-amber/10 flex items-center justify-center">
+            <Target className="w-5 h-5 text-amber" />
+          </div>
+          <div className="flex-1 text-left">
+            <h3 className="text-sm font-display font-bold text-foreground">Quêtes du jour</h3>
+            <p className="text-[10px] text-muted-foreground">Complète tes défis pour gagner de l'XP</p>
+          </div>
+          <ChevronRight className="w-4 h-4 text-muted-foreground" />
+        </button>
         <NearbyAnimalsSection capturedNames={captures.map(c => c.name)} />
         {loading ? (
           <div className="text-center py-16">
