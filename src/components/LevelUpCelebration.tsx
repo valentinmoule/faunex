@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Trophy, Star, X } from 'lucide-react';
+import { Trophy, Star } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -114,10 +114,6 @@ const LevelUpCelebration = () => {
       <div className={`relative z-10 flex flex-col items-center gap-5 px-8 transition-all duration-700
         ${phase === 'burst' ? 'scale-50 opacity-0' : 'scale-100 opacity-100'}`}
       >
-        {/* Dismiss */}
-        <button onClick={dismiss} className="absolute -top-2 -right-2 p-2 text-primary-foreground/40 hover:text-primary-foreground/70">
-          <X className="w-5 h-5" />
-        </button>
 
         {/* Stars ring */}
         <div className="relative">
