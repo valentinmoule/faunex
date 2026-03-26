@@ -149,41 +149,39 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
     <>
       <Sheet open={open} onOpenChange={onClose}>
         <SheetContent side="bottom" className="h-[92vh] rounded-t-3xl overflow-y-auto p-0 bg-background border-0">
-          {/* Hero Image Section — Aurora / Blur style */}
+          {/* Hero Image Section — Brawl Stars inspired */}
           <div className={`relative overflow-hidden detail-hero-${card.rarity}`}>
             
-            {/* Mythic: blurred aurora orbs + light leak */}
+            {/* Mythic effects */}
             {isMythic && (
               <>
-                <div className="detail-mythic-orb-1 pointer-events-none" />
-                <div className="detail-mythic-orb-2 pointer-events-none" />
-                <div className="detail-mythic-orb-3 pointer-events-none" />
-                <div className="detail-mythic-vignette pointer-events-none" />
-                <div className="detail-mythic-leak" />
+                <div className="detail-mythic-stripes" />
+                <div className="detail-mythic-burst" />
+                <div className="detail-mythic-energy" />
+                <div className="detail-mythic-shine" />
               </>
             )}
             {isEpic && (
               <>
-                <div className="detail-epic-orb-1 pointer-events-none" />
-                <div className="detail-epic-orb-2 pointer-events-none" />
-                <div className="detail-epic-orb-3 pointer-events-none" />
-                <div className="detail-epic-vignette pointer-events-none" />
-                <div className="detail-epic-leak" />
+                <div className="detail-epic-stripes" />
+                <div className="detail-epic-burst" />
+                <div className="detail-epic-energy" />
+                <div className="detail-epic-shine" />
               </>
             )}
             {isRare && (
               <>
-                <div className="detail-rare-orb-1 pointer-events-none" />
-                <div className="detail-rare-orb-2 pointer-events-none" />
-                <div className="detail-rare-vignette pointer-events-none" />
-                <div className="detail-rare-leak" />
+                <div className="detail-rare-stripes" />
+                <div className="detail-rare-energy" />
+                <div className="detail-rare-shine" />
               </>
             )}
 
             <div className="relative z-10 pt-6 px-6 pb-0">
               <div
-                className={`relative mx-auto max-w-[280px] aspect-square rounded-2xl overflow-hidden cursor-pointer active:scale-95 transition-transform ${detailAppearClass}`}
-                style={{ boxShadow: isMythic ? '0 0 40px 8px hsla(42,100%,65%,0.3), 0 8px 32px rgba(0,0,0,0.4)' : isEpic ? '0 0 35px 6px hsla(270,80%,65%,0.25), 0 8px 32px rgba(0,0,0,0.4)' : isRare ? '0 0 25px 4px hsla(210,70%,60%,0.2), 0 8px 32px rgba(0,0,0,0.4)' : '0 8px 32px rgba(0,0,0,0.4)' }}
+                className={`relative mx-auto max-w-[280px] aspect-square rounded-2xl overflow-hidden cursor-pointer active:scale-95 transition-transform ${
+                  isMythic ? 'detail-mythic-frame' : isEpic ? 'detail-epic-frame' : isRare ? 'detail-rare-frame' : 'border border-white/10'
+                } ${detailAppearClass}`}
                 role="button"
                 tabIndex={0}
                 onPointerUp={(e) => {
@@ -192,7 +190,6 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
                 }}
               >
                 <img src={card.image} alt={card.name} className="w-full h-full object-cover pointer-events-none" draggable={false} />
-                {/* Glass shimmer overlay on image */}
                 {isMythic && <div className="detail-mythic-glass" />}
                 {isEpic && <div className="detail-epic-glass" />}
                 {isRare && <div className="detail-rare-glass" />}
@@ -200,7 +197,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
             </div>
 
             <div className="relative z-10 text-center px-6 pt-4 pb-5">
-              <h2 className="text-2xl font-display font-bold text-white drop-shadow-lg">{card.name}</h2>
+              <h2 className="text-2xl font-display font-bold text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">{card.name}</h2>
               <p className="text-white/60 text-sm italic font-body mt-0.5">{card.scientificName}</p>
             </div>
           </div>
