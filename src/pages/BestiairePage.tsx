@@ -240,7 +240,6 @@ const BestiairePage = () => {
                 </button>
               );
             })}
-          </div>
         </div>
       </div>
 
