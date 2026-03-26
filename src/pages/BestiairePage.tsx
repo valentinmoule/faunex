@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Lock, Bell, CheckCircle, PawPrint, Bird, Fish, Bug, Turtle, Rabbit, Shell, Waves, type LucideIcon } from 'lucide-react';
+import { Search, Lock, Bell, CheckCircle, PawPrint, Bird, Fish, Bug, Turtle, Rabbit, Shell, Waves, ChevronDown, type LucideIcon } from 'lucide-react';
 import { type Rarity, type AnimalCard, RARITY_LABELS } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -199,53 +199,54 @@ const BestiairePage = () => {
         </div>
       </header>
 
-      {/* Category filter */}
+      {/* Combined filter bar */}
       <div className="max-w-lg mx-auto px-4 pt-3">
-        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-          {categories.map((c) => (
-            <button
-              key={c}
-              onClick={() => setCategoryFilter(c)}
-              className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-display font-semibold transition-colors ${
-                categoryFilter === c
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
-              }`}
+        <div className="flex items-center gap-2">
+          {/* Category dropdown */}
+          <div className="relative shrink-0">
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="appearance-none pl-3 pr-7 py-1.5 rounded-full text-xs font-display font-semibold bg-card border border-border text-foreground cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary/50 transition-colors"
             >
-              {c}
-            </button>
-          ))}
-        </div>
-      </div>
+              {categories.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
+          </div>
 
-      {/* Rarity filter chips — gaming style */}
-      <div className="max-w-lg mx-auto px-4 pt-1">
-        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
-          {rarityFilters.map((r) => {
-            const isActive = filter === r;
-            const colorClasses = r === 'all'
-              ? isActive ? 'bg-foreground text-background border-foreground shadow-md' : 'bg-muted text-muted-foreground border-border hover:bg-muted/80'
-              : r === 'common'
-              ? isActive ? 'bg-rarity-common/20 text-rarity-common border-rarity-common/50 shadow-[0_0_10px_hsla(0,0%,60%,0.2)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-common/10 hover:text-rarity-common hover:border-rarity-common/30'
-              : r === 'rare'
-              ? isActive ? 'bg-rarity-rare/20 text-rarity-rare border-rarity-rare/50 shadow-[0_0_12px_hsla(210,70%,55%,0.25)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-rare/10 hover:text-rarity-rare hover:border-rarity-rare/30'
-              : r === 'epic'
-              ? isActive ? 'bg-rarity-epic/20 text-rarity-epic border-rarity-epic/50 shadow-[0_0_14px_hsla(270,70%,60%,0.3)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-epic/10 hover:text-rarity-epic hover:border-rarity-epic/30'
-              : isActive ? 'bg-rarity-mythic/20 text-rarity-mythic border-rarity-mythic/50 shadow-[0_0_16px_hsla(42,85%,55%,0.35)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-mythic/10 hover:text-rarity-mythic hover:border-rarity-mythic/30';
+          {/* Divider */}
+          <div className="w-px h-5 bg-border shrink-0" />
 
-            const dot = r === 'common' ? 'bg-rarity-common' : r === 'rare' ? 'bg-rarity-rare' : r === 'epic' ? 'bg-rarity-epic' : r === 'mythic' ? 'bg-rarity-mythic' : '';
+          {/* Rarity chips */}
+          <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
+            {rarityFilters.map((r) => {
+              const isActive = filter === r;
+              const colorClasses = r === 'all'
+                ? isActive ? 'bg-foreground text-background border-foreground shadow-md' : 'bg-muted text-muted-foreground border-border hover:bg-muted/80'
+                : r === 'common'
+                ? isActive ? 'bg-rarity-common/20 text-rarity-common border-rarity-common/50 shadow-[0_0_10px_hsla(0,0%,60%,0.2)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-common/10 hover:text-rarity-common hover:border-rarity-common/30'
+                : r === 'rare'
+                ? isActive ? 'bg-rarity-rare/20 text-rarity-rare border-rarity-rare/50 shadow-[0_0_12px_hsla(210,70%,55%,0.25)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-rare/10 hover:text-rarity-rare hover:border-rarity-rare/30'
+                : r === 'epic'
+                ? isActive ? 'bg-rarity-epic/20 text-rarity-epic border-rarity-epic/50 shadow-[0_0_14px_hsla(270,70%,60%,0.3)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-epic/10 hover:text-rarity-epic hover:border-rarity-epic/30'
+                : isActive ? 'bg-rarity-mythic/20 text-rarity-mythic border-rarity-mythic/50 shadow-[0_0_16px_hsla(42,85%,55%,0.35)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-mythic/10 hover:text-rarity-mythic hover:border-rarity-mythic/30';
 
-            return (
-              <button
-                key={r}
-                onClick={() => setFilter(r)}
-                className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-display font-bold border transition-all duration-300 flex items-center gap-1.5 active:scale-95 ${colorClasses} ${isActive && r !== 'all' ? 'bestiary-filter-glow' : ''} ${r === 'mythic' ? 'mythic-filter-shimmer' : ''}`}
-              >
-                {r !== 'all' && <span className={`w-1.5 h-1.5 rounded-full ${dot} ${isActive ? 'animate-pulse' : ''}`} />}
-                {r === 'all' ? 'Tous' : RARITY_LABELS[r]}
-              </button>
-            );
-          })}
+              const dot = r === 'common' ? 'bg-rarity-common' : r === 'rare' ? 'bg-rarity-rare' : r === 'epic' ? 'bg-rarity-epic' : r === 'mythic' ? 'bg-rarity-mythic' : '';
+
+              return (
+                <button
+                  key={r}
+                  onClick={() => setFilter(r)}
+                  className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-display font-bold border transition-all duration-300 flex items-center gap-1 active:scale-95 ${colorClasses} ${isActive && r !== 'all' ? 'bestiary-filter-glow' : ''} ${r === 'mythic' ? 'mythic-filter-shimmer' : ''}`}
+                >
+                  {r !== 'all' && <span className={`w-1.5 h-1.5 rounded-full ${dot} ${isActive ? 'animate-pulse' : ''}`} />}
+                  {r === 'all' ? 'Tous' : RARITY_LABELS[r]}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
