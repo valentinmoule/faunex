@@ -134,7 +134,16 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
 
   const isMythic = card.rarity === 'mythic';
   const isEpic = card.rarity === 'epic';
+  const isRare = card.rarity === 'rare';
   const isShiny = isEpic || isMythic;
+
+  const detailAppearClass = isMythic
+    ? 'animate-card-appear-mythic'
+    : isEpic
+    ? 'animate-card-appear-epic'
+    : isRare
+    ? 'animate-card-appear-rare'
+    : '';
 
   return (
     <>
@@ -146,7 +155,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
 
             <div className="relative z-10 pt-6 px-6 pb-0">
               <div
-                className="relative mx-auto max-w-[280px] aspect-square rounded-2xl overflow-hidden shadow-xl border-2 border-white/20 cursor-pointer active:scale-95 transition-transform"
+                className={`relative mx-auto max-w-[280px] aspect-square rounded-2xl overflow-hidden shadow-xl border-2 border-white/20 cursor-pointer active:scale-95 transition-transform ${detailAppearClass}`}
                 role="button"
                 tabIndex={0}
                 onPointerUp={(e) => {

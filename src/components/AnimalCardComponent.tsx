@@ -32,18 +32,10 @@ const AnimalCardComponent = ({ card, onClick, compact }: Props) => {
   const isEpic = card.rarity === 'epic';
   const isRare = card.rarity === 'rare';
 
-  const appearClass = isMythic
-    ? 'animate-card-appear-mythic'
-    : isEpic
-    ? 'animate-card-appear-epic'
-    : isRare
-    ? 'animate-card-appear-rare'
-    : 'animate-card-appear';
-
   return (
     <button
       onClick={onClick}
-      className={`group relative overflow-hidden rounded-2xl border-2 transition-all duration-300 ${appearClass} text-left w-full ${rarityStyles[card.rarity]}`}
+      className={`group relative overflow-hidden rounded-2xl border-2 transition-all duration-300 animate-card-appear text-left w-full ${rarityStyles[card.rarity]}`}
     >
       {isMythic && (
         <div className="mythic-sparkles">
