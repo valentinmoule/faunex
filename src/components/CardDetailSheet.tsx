@@ -150,7 +150,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
       <Sheet open={open} onOpenChange={onClose}>
         <SheetContent side="bottom" className="h-[92vh] rounded-t-3xl overflow-y-auto p-0 bg-background border-0">
           {/* Hero Image Section — Aurora / Blur style */}
-          <div className={`relative overflow-hidden detail-hero-${card.rarity}`}>
+          <div className={`relative overflow-hidden detail-hero-${card.rarity}`} style={{ zIndex: 0 }}>
             
             {/* Mythic: blurred aurora orbs + light leak */}
             {isMythic && (
