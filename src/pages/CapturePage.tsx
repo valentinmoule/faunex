@@ -54,6 +54,8 @@ const CapturePage = () => {
   const [animalResult, setAnimalResult] = useState<AnimalResult | null>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [revealPhase, setRevealPhase] = useState<'idle' | 'shaking' | 'burst' | 'done'>('idle');
+  const [revealRarity, setRevealRarity] = useState<Rarity>('common');
   const [duplicateCapture, setDuplicateCapture] = useState<{ id: string; image_url: string; animal_name: string } | null>(null);
   const [geoCoords, setGeoCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [geoName, setGeoName] = useState<string | null>(null);
