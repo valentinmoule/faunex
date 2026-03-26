@@ -186,7 +186,7 @@ const BestiairePage = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-stretch gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
@@ -194,15 +194,14 @@ const BestiairePage = () => {
                 placeholder="Rechercher un animal..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-9 pr-4 py-2.5 bg-muted rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body"
+                className="w-full h-full pl-9 pr-4 py-2.5 bg-muted rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body"
               />
             </div>
-            {/* Category dropdown next to search */}
-            <div className="relative shrink-0 min-w-[90px]">
+            <div className="relative w-1/4 min-w-[80px]">
               <select
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
-                className="appearance-none w-full pl-3 pr-7 py-2.5 rounded-xl text-xs font-display font-semibold bg-muted border-none text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors"
+                className="appearance-none w-full h-full pl-3 pr-7 rounded-xl text-xs font-display font-semibold bg-muted border-none text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors"
               >
                 {categories.map((c) => (
                   <option key={c} value={c}>{c}</option>
