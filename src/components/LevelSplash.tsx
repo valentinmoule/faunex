@@ -15,10 +15,11 @@ const LevelSplash = () => {
   useEffect(() => {
     if (!session?.user) return;
 
-    // Only show once per session
-    const key = `faunex_splash_${session.user.id}`;
-    if (sessionStorage.getItem(key)) return;
-    sessionStorage.setItem(key, '1');
+    // Only show once per day
+    const today = new Date().toISOString().split('T')[0];
+    const key = `faunex_splash_${session.user.id}_${today}`;
+    if (localStorage.getItem(key)) return;
+    localStorage.setItem(key, '1');
 
     const load = async () => {
       const { data } = await supabase

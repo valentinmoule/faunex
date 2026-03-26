@@ -13,8 +13,8 @@ const DailyQuestPopup = () => {
     if (!session?.user) return;
 
     const key = `faunex_quest_popup_${session.user.id}_${new Date().toISOString().split('T')[0]}`;
-    if (sessionStorage.getItem(key)) return;
-    sessionStorage.setItem(key, '1');
+    if (localStorage.getItem(key)) return;
+    localStorage.setItem(key, '1');
 
     const timer = setTimeout(() => {
       setVisible(true);
