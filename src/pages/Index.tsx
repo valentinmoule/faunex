@@ -166,10 +166,6 @@ const Index = () => {
                     {firstName.charAt(0).toUpperCase()}
                   </div>
                 )}
-                {/* Level badge on avatar */}
-                <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-primary border-2 border-background flex items-center justify-center">
-                  <span className="text-[8px] font-display font-black text-primary-foreground">{profile.level}</span>
-                </div>
               </div>
               <div>
                 <h1 className="text-lg font-display font-black text-foreground leading-tight">{firstName}</h1>
