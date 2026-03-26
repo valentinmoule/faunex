@@ -234,66 +234,32 @@ const Index = () => {
           </div>
         </div>
 
-        {/* CTA Capture */}
+        {/* Quêtes du jour */}
         <button
-          onClick={() => navigate('/capture')}
-          className="w-full flex items-center gap-4 p-4 rounded-2xl bg-primary text-primary-foreground hover:opacity-90 transition-opacity active:scale-[0.98] transform"
+          onClick={() => navigate('/quests')}
+          className="w-full relative overflow-hidden flex items-center gap-3 p-4 rounded-2xl border border-amber/20 bg-amber/5 hover:bg-amber/10 transition-colors text-left"
         >
-          <div className="w-12 h-12 rounded-xl bg-primary-foreground/20 flex items-center justify-center">
-            <Camera className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-xl bg-amber/10 flex items-center justify-center shrink-0">
+            <Target className="w-5 h-5 text-amber" />
           </div>
-          <div className="flex-1 text-left">
-            <h3 className="text-base font-display font-bold">Nouvelle capture</h3>
-            <p className="text-xs opacity-80">Photographie une espèce pour l'identifier</p>
-          </div>
-          <Zap className="w-5 h-5 opacity-60" />
-        </button>
-
-        {/* Action Cards Row */}
-        <div className="grid grid-cols-2 gap-3">
-          {/* Quests Card */}
-          <button
-            onClick={() => navigate('/quests')}
-            className="relative overflow-hidden flex flex-col gap-2 p-4 rounded-2xl border border-amber/20 bg-amber/5 hover:bg-amber/10 transition-colors text-left"
-          >
+          <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between">
-              <div className="w-8 h-8 rounded-lg bg-amber/10 flex items-center justify-center">
-                <Target className="w-4 h-4 text-amber" />
-              </div>
+              <h3 className="text-sm font-display font-bold text-foreground">Quêtes du jour</h3>
               {questSummary.claimable > 0 && (
                 <span className="px-2 py-0.5 rounded-full bg-amber text-white text-[10px] font-display font-bold quest-claim-pulse">
                   {questSummary.claimable} 🎁
                 </span>
               )}
             </div>
-            <div>
-              <h3 className="text-sm font-display font-bold text-foreground">Quêtes</h3>
-              <p className="text-[10px] text-muted-foreground">
-                {questSummary.completed}/{questSummary.total} terminées
-              </p>
-            </div>
-            {/* Progress dots */}
+            <p className="text-[10px] text-muted-foreground mb-1.5">{questSummary.completed}/{questSummary.total} terminées</p>
             <div className="flex gap-1">
               {Array.from({ length: questSummary.total }).map((_, i) => (
                 <div key={i} className={`h-1 flex-1 rounded-full ${i < questSummary.completed ? 'bg-amber' : 'bg-muted'}`} />
               ))}
             </div>
-          </button>
-
-          {/* Explorateurs Card */}
-          <button
-            onClick={() => navigate('/explorers')}
-            className="relative flex flex-col gap-2 p-4 rounded-2xl border border-border bg-card hover:bg-muted/50 transition-colors text-left"
-          >
-            <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
-              <Users className="w-4 h-4 text-foreground" />
-            </div>
-            <div>
-              <h3 className="text-sm font-display font-bold text-foreground">Explorateurs</h3>
-              <p className="text-[10px] text-muted-foreground">Amis & communauté</p>
-            </div>
-          </button>
-        </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+        </button>
 
         {/* Autour de moi */}
         <NearbyAnimalsSection capturedNames={allCapturedNames} />
