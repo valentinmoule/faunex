@@ -33,7 +33,8 @@ const Index = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [recentCaptures, setRecentCaptures] = useState<AnimalCard[]>([]);
+  const [allCaptures, setAllCaptures] = useState<AnimalCard[]>([]);
+  const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [questSummary, setQuestSummary] = useState<QuestSummary>({ total: 0, completed: 0, claimable: 0 });
   const [unreadCount, setUnreadCount] = useState(0);
   const [streak, setStreak] = useState(0);
