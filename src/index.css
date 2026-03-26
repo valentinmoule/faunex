@@ -608,6 +608,39 @@
   pointer-events: none;
 }
 
+/* Geometric diagonal lines — mythic */
+.detail-mythic-geo {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+}
+.detail-mythic-geo::before,
+.detail-mythic-geo::after {
+  content: '';
+  position: absolute;
+  background: hsla(42, 100%, 70%, 0.12);
+}
+.detail-mythic-geo::before {
+  width: 200%;
+  height: 1px;
+  top: 35%;
+  left: -50%;
+  transform: rotate(-25deg);
+  box-shadow: 0 40px 0 hsla(42, 100%, 70%, 0.08), 0 80px 0 hsla(42, 100%, 70%, 0.05);
+  animation: detail-geo-slide 8s ease-in-out infinite;
+}
+.detail-mythic-geo::after {
+  width: 200%;
+  height: 1px;
+  top: 55%;
+  left: -50%;
+  transform: rotate(20deg);
+  box-shadow: 0 -35px 0 hsla(42, 100%, 70%, 0.07), 0 -70px 0 hsla(42, 100%, 70%, 0.04);
+  animation: detail-geo-slide-alt 10s ease-in-out infinite;
+}
+
 /* ── EPIC ── */
 .detail-hero-epic {
   background: linear-gradient(160deg, hsla(270, 40%, 14%, 1) 0%, hsla(260, 35%, 8%, 1) 100%);
@@ -679,6 +712,39 @@
   pointer-events: none;
 }
 
+/* Geometric diagonal lines — epic */
+.detail-epic-geo {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+}
+.detail-epic-geo::before,
+.detail-epic-geo::after {
+  content: '';
+  position: absolute;
+  background: hsla(270, 90%, 75%, 0.1);
+}
+.detail-epic-geo::before {
+  width: 200%;
+  height: 1px;
+  top: 30%;
+  left: -50%;
+  transform: rotate(-30deg);
+  box-shadow: 0 50px 0 hsla(270, 90%, 75%, 0.06), 0 100px 0 hsla(270, 90%, 75%, 0.03);
+  animation: detail-geo-slide 9s ease-in-out infinite;
+}
+.detail-epic-geo::after {
+  width: 200%;
+  height: 1px;
+  top: 60%;
+  left: -50%;
+  transform: rotate(22deg);
+  box-shadow: 0 -45px 0 hsla(270, 90%, 75%, 0.05);
+  animation: detail-geo-slide-alt 11s ease-in-out infinite;
+}
+
 /* ── RARE ── */
 .detail-hero-rare {
   background: linear-gradient(160deg, hsla(210, 45%, 14%, 1) 0%, hsla(210, 40%, 8%, 1) 100%);
@@ -738,6 +804,27 @@
   z-index: 2;
   background: radial-gradient(ellipse at center 40%, transparent 45%, hsla(210, 40%, 8%, 0.5) 100%);
   pointer-events: none;
+}
+
+/* Geometric diagonal lines — rare */
+.detail-rare-geo {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+}
+.detail-rare-geo::before {
+  content: '';
+  position: absolute;
+  width: 200%;
+  height: 1px;
+  top: 40%;
+  left: -50%;
+  transform: rotate(-20deg);
+  background: hsla(210, 80%, 70%, 0.08);
+  box-shadow: 0 55px 0 hsla(210, 80%, 70%, 0.05);
+  animation: detail-geo-slide 10s ease-in-out infinite;
 }
 
 /* ── COMMON ── */
