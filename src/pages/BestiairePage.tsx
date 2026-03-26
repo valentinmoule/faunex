@@ -198,11 +198,11 @@ const BestiairePage = () => {
               />
             </div>
             {/* Category dropdown next to search */}
-            <div className="relative shrink-0">
+            <div className="relative shrink-0 min-w-[90px]">
               <select
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
-                className="appearance-none pl-3 pr-7 py-2.5 rounded-xl text-xs font-display font-semibold bg-muted border-none text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors"
+                className="appearance-none w-full pl-3 pr-7 py-2.5 rounded-xl text-xs font-display font-semibold bg-muted border-none text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors"
               >
                 {categories.map((c) => (
                   <option key={c} value={c}>{c}</option>
