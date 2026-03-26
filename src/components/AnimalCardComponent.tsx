@@ -41,7 +41,7 @@ const AnimalCardComponent = ({ card, onClick, compact }: Props) => {
           <span /><span /><span /><span /><span /><span />
         </div>
       )}
-      <div className="relative aspect-square overflow-hidden">
+      <div className="relative aspect-[4/5] overflow-hidden rounded-t-xl">
         <img
           src={card.image}
           alt={card.name}
@@ -53,16 +53,16 @@ const AnimalCardComponent = ({ card, onClick, compact }: Props) => {
         {isEpic && <div className="epic-image-overlay" />}
         {card.rarity === 'rare' && <div className="absolute inset-0 card-shimmer pointer-events-none" />}
         {/* Bottom gradient */}
-        <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
+        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none" />
         {/* Rarity badge */}
-        <div className={`absolute top-2 right-2 px-2 py-0.5 rounded-full text-[9px] font-display font-bold uppercase tracking-wider backdrop-blur-sm ${rarityBadgeStyles[card.rarity]}`}>
+        <div className={`absolute top-2 right-2 px-2 py-0.5 rounded-full text-[9px] font-display font-bold uppercase tracking-wider backdrop-blur-md ${rarityBadgeStyles[card.rarity]}`}>
           {RARITY_LABELS[card.rarity]}
         </div>
       </div>
       {/* Rarity accent bar */}
-      <div className={`h-0.5 ${rarityAccentBar[card.rarity]}`} />
-      <div className={`p-2.5 ${compact ? '' : 'space-y-0.5'}`}>
-        <h3 className="font-display font-bold text-sm text-foreground leading-tight truncate">{card.name}</h3>
+      <div className={`h-[3px] ${rarityAccentBar[card.rarity]}`} />
+      <div className={`px-3 py-2.5 ${compact ? '' : 'space-y-0.5'}`}>
+        <h3 className="font-display font-bold text-[13px] text-foreground leading-tight truncate">{card.name}</h3>
         {!compact && card.scientificName && (
           <p className="text-[10px] text-muted-foreground italic truncate">{card.scientificName}</p>
         )}
