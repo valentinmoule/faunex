@@ -381,6 +381,33 @@ const CapturePage = () => {
     setZoomLevel(1);
     setFocusPoint(null);
     setFocusMode('auto');
+    setRevealPhase('idle');
+  };
+
+  const REVEAL_TIMINGS: Record<Rarity, { shake: number; burst: number }> = {
+    common: { shake: 400, burst: 500 },
+    rare: { shake: 600, burst: 700 },
+    epic: { shake: 900, burst: 900 },
+    mythic: { shake: 1200, burst: 1100 },
+  };
+
+  const triggerReveal = (animal: AnimalResult) => {
+    const rarity = animal.rarity as Rarity;
+    setRevealRarity(rarity);
+    const t = REVEAL_TIMINGS[rarity];
+
+    // Phase 1: shaking
+    setRevealPhase('shaking');
+
+    setTimeout(() => {
+      // Phase 2: burst reveal
+      setRevealPhase('burst');
+      setAnimalResult(animal);
+
+      setTimeout(() => {
+        setRevealPhase('done');
+      }, t.burst);
+    }, t.shake);
   };
 
   const saveManualEntry = async () => {
