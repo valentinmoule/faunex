@@ -162,9 +162,9 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
       <Drawer.Root open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 z-50 bg-black/80" />
-          <Drawer.Content className="fixed inset-x-0 bottom-0 z-50 h-[92vh] rounded-t-3xl bg-background border-0 outline-none">
-            <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-white/30 mt-3 mb-1" />
-            <div className="h-[calc(100%-24px)] overflow-y-auto">
+          <Drawer.Content className="fixed inset-x-0 bottom-0 z-50 h-[92vh] rounded-t-3xl border-0 outline-none overflow-hidden">
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 w-12 h-1.5 rounded-full bg-white/30" />
+            <div className="h-full overflow-y-auto">
           {/* Sticky close button */}
           <button
             onClick={onClose}
@@ -173,7 +173,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
             <span className="text-white text-lg font-light leading-none">✕</span>
           </button>
           {/* Hero Image Section — Aurora / Blur style */}
-          <div className={`relative overflow-hidden detail-hero-${card.rarity} -mt-12`} style={{ zIndex: 0 }}>
+          <div className={`relative overflow-hidden detail-hero-${card.rarity}`} style={{ zIndex: 0 }}>
             
             {/* Mythic: blurred aurora orbs + light leak */}
             {isMythic && (
