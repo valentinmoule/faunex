@@ -214,7 +214,7 @@ const Index = () => {
       <div className="max-w-lg mx-auto px-4 -mt-2 space-y-4 pb-24">
 
         {/* Stats pills — scrollable row */}
-        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
+        <div className="flex gap-2 pb-1 -mx-1 px-1">
           <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-card border border-border shrink-0 game-stat-appear" style={{ animationDelay: '0ms' }}>
             <span className="text-sm">🎯</span>
             <span className="text-xs font-display font-black text-foreground">{profile.species_count}</span>
@@ -225,23 +225,6 @@ const Index = () => {
             <span className="text-xs font-display font-black text-foreground">{profile.total_captures}</span>
             <span className="text-[10px] text-muted-foreground">captures</span>
           </div>
-          {RARITY_ORDER.map((r, i) => (
-            rarityCounts[r] ? (
-              <div key={r} className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border shrink-0 game-stat-appear ${
-                r === 'mythic' ? 'bg-rarity-mythic/5 border-rarity-mythic/20' :
-                r === 'epic' ? 'bg-rarity-epic/5 border-rarity-epic/20' :
-                r === 'rare' ? 'bg-rarity-rare/5 border-rarity-rare/20' :
-                'bg-card border-border'
-              }`} style={{ animationDelay: `${(i + 2) * 80}ms` }}>
-                <span className={`text-xs font-display font-black ${
-                  r === 'mythic' ? 'text-rarity-mythic' :
-                  r === 'epic' ? 'text-rarity-epic' :
-                  r === 'rare' ? 'text-rarity-rare' : 'text-rarity-common'
-                }`}>{rarityCounts[r]}</span>
-                <span className="text-[10px] text-muted-foreground">{RARITY_LABELS[r]}</span>
-              </div>
-            ) : null
-          ))}
         </div>
 
         {/* Quêtes du jour — gaming card */}
