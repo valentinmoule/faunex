@@ -163,16 +163,15 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 z-50 bg-black/80" />
           <Drawer.Content className="fixed inset-x-0 bottom-0 z-50 h-[92vh] rounded-t-3xl border-0 outline-none overflow-hidden">
-            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 w-12 h-1.5 rounded-full bg-white/30" />
+            {/* Handle + close: absolute over content */}
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 w-12 h-1.5 rounded-full bg-white/40" />
+            <button
+              onClick={onClose}
+              className="absolute top-3 right-3 z-20 w-9 h-9 rounded-full bg-foreground/20 backdrop-blur-md flex items-center justify-center hover:bg-foreground/30 transition-colors"
+            >
+              <span className="text-white text-lg font-light leading-none">✕</span>
+            </button>
             <div className="h-full overflow-y-auto">
-          {/* Sticky close button */}
-          <button
-            onClick={onClose}
-            className="sticky top-3 right-3 z-50 ml-auto mr-3 w-9 h-9 rounded-full bg-foreground/20 backdrop-blur-md flex items-center justify-center hover:bg-foreground/30 transition-colors"
-          >
-            <span className="text-white text-lg font-light leading-none">✕</span>
-          </button>
-          {/* Hero Image Section — Aurora / Blur style */}
           <div className={`relative overflow-hidden detail-hero-${card.rarity}`} style={{ zIndex: 0 }}>
             
             {/* Mythic: blurred aurora orbs + light leak */}
