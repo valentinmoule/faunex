@@ -510,6 +510,15 @@
   animation: nearby-pulse-mythic 2.5s ease-in-out infinite;
 }
 
+/* Radar dot pulses */
+@keyframes radar-dot-pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.4); }
+}
+.radar-dot-pulse-rare .w-3 { animation: radar-dot-pulse 2.5s ease-in-out infinite; }
+.radar-dot-pulse-epic .w-3 { animation: radar-dot-pulse 2s ease-in-out infinite; }
+.radar-dot-pulse-mythic .w-3 { animation: radar-dot-pulse 1.5s ease-in-out infinite; }
+
 /* ═══════════════════════════════════════════════════
    CARD HOVER & INTERACTION EFFECTS
    ═══════════════════════════════════════════════════ */

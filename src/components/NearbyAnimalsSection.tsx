@@ -3,6 +3,7 @@ import { MapPin, Loader2, RefreshCw, Sparkles, Flame, Zap, ChevronDown } from 'l
 import { supabase } from '@/integrations/supabase/client';
 import { type Rarity, RARITY_LABELS } from '@/data/mockData';
 import { toast } from 'sonner';
+import NearbyRadar from './NearbyRadar';
 
 interface NearbyAnimal {
   name: string;
@@ -203,7 +204,12 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
         )}
 
         {hasLoaded && animals.length > 0 && (
-          <div className="space-y-2">
+          <div className="space-y-3">
+            {/* Radar */}
+            <div className="bg-card/50 rounded-2xl border border-border/50 overflow-hidden">
+              <NearbyRadar animals={animals} />
+            </div>
+            {/* Animal list */}
             {animals.map((animal, i) => {
               const alreadyCaptured = capturedNamesLower.has(animal.name.toLowerCase());
               const isSpecial = animal.rarity === 'epic' || animal.rarity === 'mythic';
