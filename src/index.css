@@ -503,7 +503,191 @@
   animation: mythic-shine-sweep 5s ease-in-out infinite;
 }
 
-/* ── Card appearance ── */
+/* ═══════════════════════════════════════════════════
+   DETAIL HERO — Rarity-specific ambient effects
+   ═══════════════════════════════════════════════════ */
+
+/* ── MYTHIC: Golden rays, dust, aura ── */
+.detail-hero-mythic {
+  animation: detail-mythic-pulse 3s ease-in-out infinite;
+}
+@keyframes detail-mythic-pulse {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.08); }
+}
+
+/* Golden rotating rays */
+.detail-golden-rays {
+  position: absolute;
+  inset: -50%;
+  z-index: 1;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg, hsla(42, 90%, 70%, 0.12) 20deg, transparent 40deg,
+    transparent 60deg, hsla(42, 90%, 70%, 0.08) 80deg, transparent 100deg,
+    transparent 120deg, hsla(42, 90%, 70%, 0.15) 140deg, transparent 160deg,
+    transparent 180deg, hsla(42, 90%, 70%, 0.1) 200deg, transparent 220deg,
+    transparent 240deg, hsla(42, 90%, 70%, 0.12) 260deg, transparent 280deg,
+    transparent 300deg, hsla(42, 90%, 70%, 0.08) 320deg, transparent 340deg,
+    transparent 360deg
+  );
+  animation: detail-rays-spin 12s linear infinite;
+}
+@keyframes detail-rays-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Golden dust particles */
+.detail-golden-dust {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+}
+.detail-golden-dust span {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: hsla(42, 90%, 80%, 0.9);
+  box-shadow: 0 0 6px 2px hsla(42, 85%, 65%, 0.6), 0 0 12px 4px hsla(42, 85%, 55%, 0.3);
+  animation: detail-dust-float 4s ease-in-out infinite;
+}
+@keyframes detail-dust-float {
+  0% { opacity: 0; transform: translateY(20px) scale(0); }
+  20% { opacity: 1; transform: translateY(0) scale(1); }
+  80% { opacity: 0.8; transform: translateY(-30px) scale(0.8); }
+  100% { opacity: 0; transform: translateY(-50px) scale(0); }
+}
+.detail-golden-dust span:nth-child(1) { top: 25%; left: 10%; animation-delay: 0s; width: 3px; height: 3px; }
+.detail-golden-dust span:nth-child(2) { top: 15%; left: 85%; animation-delay: 0.5s; width: 5px; height: 5px; }
+.detail-golden-dust span:nth-child(3) { top: 60%; left: 5%; animation-delay: 1s; }
+.detail-golden-dust span:nth-child(4) { top: 70%; left: 90%; animation-delay: 1.5s; width: 3px; height: 3px; }
+.detail-golden-dust span:nth-child(5) { top: 40%; left: 20%; animation-delay: 0.8s; width: 5px; height: 5px; }
+.detail-golden-dust span:nth-child(6) { top: 30%; left: 75%; animation-delay: 2s; }
+.detail-golden-dust span:nth-child(7) { top: 80%; left: 30%; animation-delay: 0.3s; width: 3px; height: 3px; }
+.detail-golden-dust span:nth-child(8) { top: 50%; left: 95%; animation-delay: 1.2s; width: 5px; height: 5px; }
+.detail-golden-dust span:nth-child(9) { top: 10%; left: 50%; animation-delay: 2.5s; }
+.detail-golden-dust span:nth-child(10) { top: 85%; left: 60%; animation-delay: 0.7s; width: 3px; height: 3px; }
+.detail-golden-dust span:nth-child(11) { top: 45%; left: 45%; animation-delay: 1.8s; width: 6px; height: 6px; }
+.detail-golden-dust span:nth-child(12) { top: 20%; left: 35%; animation-delay: 3s; }
+
+/* Mythic aura glow around card area */
+.detail-aura-mythic {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 320px;
+  height: 320px;
+  transform: translate(-50%, -55%);
+  z-index: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, hsla(42, 90%, 60%, 0.25) 0%, hsla(42, 85%, 55%, 0.1) 40%, transparent 70%);
+  animation: detail-aura-pulse 2.5s ease-in-out infinite;
+}
+@keyframes detail-aura-pulse {
+  0%, 100% { transform: translate(-50%, -55%) scale(1); opacity: 0.6; }
+  50% { transform: translate(-50%, -55%) scale(1.15); opacity: 1; }
+}
+
+/* ── EPIC: Purple rays, dust, aura ── */
+.detail-hero-epic {
+  animation: detail-epic-pulse 3.5s ease-in-out infinite;
+}
+@keyframes detail-epic-pulse {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.05); }
+}
+
+.detail-epic-rays {
+  position: absolute;
+  inset: -50%;
+  z-index: 1;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg, hsla(270, 80%, 70%, 0.1) 30deg, transparent 60deg,
+    transparent 90deg, hsla(270, 80%, 70%, 0.07) 120deg, transparent 150deg,
+    transparent 180deg, hsla(270, 80%, 70%, 0.1) 210deg, transparent 240deg,
+    transparent 270deg, hsla(270, 80%, 70%, 0.07) 300deg, transparent 330deg,
+    transparent 360deg
+  );
+  animation: detail-rays-spin 15s linear infinite;
+}
+
+.detail-epic-dust {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+}
+.detail-epic-dust span {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: hsla(270, 80%, 85%, 0.9);
+  box-shadow: 0 0 5px 1px hsla(270, 80%, 70%, 0.5), 0 0 10px 3px hsla(270, 70%, 60%, 0.25);
+  animation: detail-dust-float 4.5s ease-in-out infinite;
+}
+.detail-epic-dust span:nth-child(1) { top: 20%; left: 8%; animation-delay: 0s; }
+.detail-epic-dust span:nth-child(2) { top: 30%; left: 88%; animation-delay: 0.6s; width: 4px; height: 4px; }
+.detail-epic-dust span:nth-child(3) { top: 55%; left: 12%; animation-delay: 1.2s; }
+.detail-epic-dust span:nth-child(4) { top: 65%; left: 85%; animation-delay: 0.9s; width: 4px; height: 4px; }
+.detail-epic-dust span:nth-child(5) { top: 40%; left: 25%; animation-delay: 1.8s; }
+.detail-epic-dust span:nth-child(6) { top: 75%; left: 50%; animation-delay: 2.4s; width: 4px; height: 4px; }
+.detail-epic-dust span:nth-child(7) { top: 15%; left: 60%; animation-delay: 0.3s; }
+.detail-epic-dust span:nth-child(8) { top: 85%; left: 35%; animation-delay: 1.5s; }
+
+.detail-aura-epic {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300px;
+  height: 300px;
+  transform: translate(-50%, -55%);
+  z-index: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, hsla(270, 70%, 65%, 0.2) 0%, hsla(270, 70%, 60%, 0.08) 40%, transparent 70%);
+  animation: detail-aura-pulse 3s ease-in-out infinite;
+}
+
+/* ── RARE: Blue dust, subtle aura ── */
+.detail-rare-dust {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+}
+.detail-rare-dust span {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: hsla(210, 80%, 85%, 0.8);
+  box-shadow: 0 0 4px 1px hsla(210, 70%, 65%, 0.4);
+  animation: detail-dust-float 5s ease-in-out infinite;
+}
+.detail-rare-dust span:nth-child(1) { top: 25%; left: 10%; animation-delay: 0s; }
+.detail-rare-dust span:nth-child(2) { top: 35%; left: 85%; animation-delay: 0.8s; }
+.detail-rare-dust span:nth-child(3) { top: 60%; left: 15%; animation-delay: 1.6s; }
+.detail-rare-dust span:nth-child(4) { top: 70%; left: 80%; animation-delay: 1.2s; }
+.detail-rare-dust span:nth-child(5) { top: 45%; left: 50%; animation-delay: 2s; }
+.detail-rare-dust span:nth-child(6) { top: 15%; left: 65%; animation-delay: 0.4s; }
+
+.detail-aura-rare {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 280px;
+  height: 280px;
+  transform: translate(-50%, -55%);
+  z-index: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, hsla(210, 70%, 60%, 0.12) 0%, transparent 60%);
+  animation: detail-aura-pulse 3.5s ease-in-out infinite;
+}
+
 .animate-float {
   animation: float 3s ease-in-out infinite;
 }
