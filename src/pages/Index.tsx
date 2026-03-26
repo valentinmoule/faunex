@@ -283,6 +283,7 @@ const Index = () => {
       </div>
 
       <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} />
+      <DailyQuestPopup />
     </main>
   );
 };
