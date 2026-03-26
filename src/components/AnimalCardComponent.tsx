@@ -33,7 +33,7 @@ const AnimalCardComponent = ({ card, onClick, compact }: Props) => {
       onClick={onClick}
       className={`group relative overflow-hidden rounded-2xl border-2 transition-all duration-300 animate-card-appear text-left w-full ${rarityStyles[card.rarity]}`}
     >
-      <div className="relative aspect-[4/5] overflow-hidden rounded-t-xl">
+      <div className="relative aspect-[4/5] overflow-hidden">
         <img
           src={card.image}
           alt={card.name}
