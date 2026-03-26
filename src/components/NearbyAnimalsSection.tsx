@@ -63,6 +63,7 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
   const [error, setError] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(!!cached);
   const [alertAnimal, setAlertAnimal] = useState<NearbyAnimal | null>(null);
+  const [collapsed, setCollapsed] = useState(false);
 
   const fetchNearby = () => {
     if (!navigator.geolocation) {
