@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { Sheet, SheetContent } from '@/components/ui/sheet';
+import { useState, useEffect, useCallback } from 'react';
+import { Drawer } from 'vaul';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
 import { MapPin, Leaf, UtensilsCrossed, Shield, Sparkles, Heart, MessageCircle, Send, PawPrint, Bird, Fish, Bug, Turtle, Rabbit, Shell, Waves, type LucideIcon } from 'lucide-react';
@@ -67,21 +67,6 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
   const [submitting, setSubmitting] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [imageFullscreen, setImageFullscreen] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  // Close sheet when user scrolls to bottom
-  useEffect(() => {
-    const node = scrollRef.current;
-    if (!node || !open) return;
-    const handleScroll = () => {
-      const { scrollTop, scrollHeight, clientHeight } = node;
-      if (scrollTop + clientHeight >= scrollHeight - 10) {
-        onClose();
-      }
-    };
-    node.addEventListener('scroll', handleScroll, { passive: true });
-    return () => node.removeEventListener('scroll', handleScroll);
-  }, [open, onClose]);
 
   // Fetch likes & comments when card opens
   useEffect(() => {
@@ -174,13 +159,16 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
 
   return (
     <>
-      <Sheet open={open} onOpenChange={onClose}>
-        <SheetContent side="bottom" className="h-[92vh] rounded-t-3xl overflow-hidden p-0 bg-background border-0">
-          <div ref={scrollRef} className="h-full overflow-y-auto">
+      <Drawer.Root open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+        <Drawer.Portal>
+          <Drawer.Overlay className="fixed inset-0 z-50 bg-black/80" />
+          <Drawer.Content className="fixed inset-x-0 bottom-0 z-50 h-[92vh] rounded-t-3xl bg-background border-0 outline-none">
+            <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted-foreground/30 mt-3 mb-1" />
+            <div className="h-[calc(100%-24px)] overflow-y-auto">
           {/* Sticky close button */}
           <button
             onClick={onClose}
-            className="sticky top-3 right-3 z-50 ml-auto mr-3 mt-3 w-9 h-9 rounded-full bg-foreground/20 backdrop-blur-md flex items-center justify-center hover:bg-foreground/30 transition-colors"
+            className="sticky top-3 right-3 z-50 ml-auto mr-3 w-9 h-9 rounded-full bg-foreground/20 backdrop-blur-md flex items-center justify-center hover:bg-foreground/30 transition-colors"
           >
             <span className="text-white text-lg font-light leading-none">✕</span>
           </button>
@@ -352,8 +340,9 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
             </div>
           </div>
           </div>
-        </SheetContent>
-      </Sheet>
+          </Drawer.Content>
+        </Drawer.Portal>
+      </Drawer.Root>
 
       {/* Fullscreen image - outside Sheet to avoid portal conflicts */}
       {imageFullscreen && (
