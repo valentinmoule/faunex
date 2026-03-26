@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { UserPlus, Clock, UserCheck, Loader2 } from 'lucide-react';
+import { UserPlus, UserCheck, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -21,7 +21,8 @@ const ShareProfilePage = () => {
   const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
-  const [friendStatus, setFriendStatus] = useState<'none' | 'pending_sent' | 'pending_received' | 'accepted' | 'self'>('none');
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [isSelf, setIsSelf] = useState(false);
   const [sending, setSending] = useState(false);
 
   useEffect(() => {
@@ -43,22 +44,17 @@ const ShareProfilePage = () => {
 
       setProfile(data as PublicProfile);
 
-      // Check friend status if logged in
       if (session?.user) {
         if (data.user_id === session.user.id) {
-          setFriendStatus('self');
+          setIsSelf(true);
         } else {
-          const { data: relations } = await supabase
-            .from('explorer_friends')
-            .select('*')
-            .or(`and(requester_id.eq.${session.user.id},addressee_id.eq.${data.user_id}),and(requester_id.eq.${data.user_id},addressee_id.eq.${session.user.id})`);
-
-          if (relations && relations.length > 0) {
-            const rel = relations[0];
-            if (rel.status === 'accepted') setFriendStatus('accepted');
-            else if (rel.requester_id === session.user.id) setFriendStatus('pending_sent');
-            else setFriendStatus('pending_received');
-          }
+          const { data: followData } = await supabase
+            .from('explorer_follows')
+            .select('id')
+            .eq('follower_id', session.user.id)
+            .eq('following_id', data.user_id)
+            .limit(1);
+          setIsFollowing(!!followData && followData.length > 0);
         }
       }
 
@@ -67,42 +63,30 @@ const ShareProfilePage = () => {
     fetchProfile();
   }, [username, session]);
 
-  const handleAddFriend = async () => {
+  const handleFollow = async () => {
     if (!session?.user || !profile) {
       navigate('/auth');
       return;
     }
     setSending(true);
-    const { error } = await supabase.from('explorer_friends').insert({
-      requester_id: session.user.id,
-      addressee_id: profile.user_id,
-    });
-    if (error) {
-      if (error.code === '23505') toast.info('Demande déjà envoyée');
-      else toast.error("Erreur lors de l'envoi");
+    if (isFollowing) {
+      await supabase.from('explorer_follows').delete()
+        .eq('follower_id', session.user.id)
+        .eq('following_id', profile.user_id);
+      setIsFollowing(false);
+      toast.info('Désabonné');
     } else {
-      setFriendStatus('pending_sent');
-      toast.success('Demande d\'ami envoyée !');
-      // Send email notification (fire & forget)
-      supabase.functions.invoke('notify-friend-request', {
-        body: { requester_id: session.user.id, addressee_id: profile.user_id },
-      }).catch(console.error);
-    }
-    setSending(false);
-  };
-
-  const handleAccept = async () => {
-    if (!session?.user || !profile) return;
-    setSending(true);
-    const { error } = await supabase
-      .from('explorer_friends')
-      .update({ status: 'accepted' })
-      .eq('requester_id', profile.user_id)
-      .eq('addressee_id', session.user.id);
-    if (error) toast.error('Erreur');
-    else {
-      setFriendStatus('accepted');
-      toast.success('Ami ajouté !');
+      const { error } = await supabase.from('explorer_follows').insert({
+        follower_id: session.user.id,
+        following_id: profile.user_id,
+      });
+      if (error) {
+        if (error.code === '23505') toast.info('Déjà abonné');
+        else toast.error("Erreur");
+      } else {
+        setIsFollowing(true);
+        toast.success('Abonné !');
+      }
     }
     setSending(false);
   };
@@ -134,14 +118,11 @@ const ShareProfilePage = () => {
   return (
     <main className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-6">
-        {/* Logo */}
         <div className="text-center">
           <h1 className="text-2xl font-display font-bold text-primary">Faunex</h1>
         </div>
 
-        {/* Profile card */}
         <div className="bg-card rounded-2xl border border-border p-6 text-center shadow-card space-y-4">
-          {/* Avatar */}
           <div className="flex justify-center">
             <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center text-3xl font-display font-bold text-primary border-2 border-primary/30 overflow-hidden">
               {profile.avatar_url ? (
@@ -152,7 +133,6 @@ const ShareProfilePage = () => {
             </div>
           </div>
 
-          {/* Name & username */}
           <div>
             <h2 className="text-xl font-display font-bold text-foreground">
               {profile.display_name || 'Explorateur'}
@@ -160,7 +140,6 @@ const ShareProfilePage = () => {
             <p className="text-sm text-muted-foreground">{profile.username || '@inconnu'}</p>
           </div>
 
-          {/* Mini stats */}
           <div className="flex justify-center gap-6">
             <div className="text-center">
               <p className="text-lg font-display font-bold text-foreground">{profile.level}</p>
@@ -172,46 +151,34 @@ const ShareProfilePage = () => {
             </div>
           </div>
 
-          {/* Action button */}
-          {friendStatus === 'self' ? (
+          {isSelf ? (
             <button
               onClick={() => navigate('/profile')}
               className="w-full py-3 rounded-xl bg-muted text-muted-foreground font-display font-semibold text-sm"
             >
               C'est toi ! Voir mon profil
             </button>
-          ) : friendStatus === 'accepted' ? (
-            <div className="flex items-center justify-center gap-2 py-3 text-primary font-display font-semibold text-sm">
-              <UserCheck className="w-5 h-5" />
-              Déjà amis
-            </div>
-          ) : friendStatus === 'pending_sent' ? (
-            <div className="flex items-center justify-center gap-2 py-3 text-muted-foreground font-display font-semibold text-sm">
-              <Clock className="w-5 h-5" />
-              Demande envoyée
-            </div>
-          ) : friendStatus === 'pending_received' ? (
-            <button
-              onClick={handleAccept}
-              disabled={sending}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-primary-foreground font-display font-semibold text-sm disabled:opacity-50"
-            >
-              {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserCheck className="w-4 h-4" />}
-              Accepter la demande
-            </button>
           ) : (
             <button
-              onClick={handleAddFriend}
+              onClick={handleFollow}
               disabled={sending}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-primary-foreground font-display font-semibold text-sm disabled:opacity-50"
+              className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl font-display font-semibold text-sm disabled:opacity-50 transition-colors ${
+                isFollowing
+                  ? 'bg-muted text-foreground'
+                  : 'bg-primary text-primary-foreground'
+              }`}
             >
-              {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
-              {session ? 'Ajouter en ami' : 'Se connecter pour ajouter'}
+              {sending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : isFollowing ? (
+                <><UserCheck className="w-4 h-4" /> Abonné</>
+              ) : (
+                <><UserPlus className="w-4 h-4" /> {session ? "S'abonner" : "Se connecter pour s'abonner"}</>
+              )}
             </button>
           )}
         </div>
 
-        {/* Back link */}
         {session && (
           <button
             onClick={() => navigate('/')}

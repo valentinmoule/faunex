@@ -144,7 +144,7 @@ const NotificationsPage = () => {
               const avatarUrl = isModerationNotif ? null : notif.actor?.avatar_url;
               const isLike = notif.type === 'like';
               const isComment = notif.type === 'comment';
-              const isFriendRequest = notif.type === 'friend_request';
+              const isFriendRequest = notif.type === 'friend_request' || notif.type === 'new_follower';
               const isFriendAccepted = notif.type === 'friend_accepted';
               const isCaptureApproved = notif.type === 'capture_approved';
               const isCaptureRejected = notif.type === 'capture_rejected';
@@ -174,7 +174,7 @@ const NotificationsPage = () => {
                 : isCaptureRejected
                 ? ` a rejeté ta soumission${notif.comment_text ? ` "${notif.comment_text}"` : ''}. L'animal n'a pas pu être vérifié.`
                 : isFriendRequest
-                ? ' t\'a envoyé une demande d\'ami'
+                ? ' s\'est abonné(e) à ton profil'
                 : isFriendAccepted
                 ? ' a accepté ta demande d\'ami'
                 : isLike
