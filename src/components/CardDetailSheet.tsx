@@ -347,6 +347,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
               </div>
             </div>
           </div>
+          </div>
         </SheetContent>
       </Sheet>
 
