@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { type Rarity, RARITY_LABELS } from '@/data/mockData';
 import AnimalCardComponent from '@/components/AnimalCardComponent';
+import CardDetailSheet from '@/components/CardDetailSheet';
 import NearbyAnimalsSection from '@/components/NearbyAnimalsSection';
 import type { AnimalCard } from '@/data/mockData';
 
@@ -32,7 +33,8 @@ const Index = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [recentCaptures, setRecentCaptures] = useState<AnimalCard[]>([]);
+  const [allCaptures, setAllCaptures] = useState<AnimalCard[]>([]);
+  const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [questSummary, setQuestSummary] = useState<QuestSummary>({ total: 0, completed: 0, claimable: 0 });
   const [unreadCount, setUnreadCount] = useState(0);
   const [streak, setStreak] = useState(0);
@@ -47,7 +49,7 @@ const Index = () => {
     const fetchAll = async () => {
       const [profileRes, capturesRes, questsRes, notifRes] = await Promise.all([
         supabase.from('profiles').select('display_name, username, avatar_url, level, xp, xp_to_next, species_count, total_captures').eq('user_id', uid).single(),
-        supabase.from('captures').select('*').eq('user_id', uid).eq('status', 'approved').order('created_at', { ascending: false }).limit(6),
+        supabase.from('captures').select('*').eq('user_id', uid).eq('status', 'approved').order('created_at', { ascending: false }),
         supabase.from('daily_quests').select('completed, claimed').eq('user_id', uid).eq('quest_date', new Date().toISOString().split('T')[0]),
         supabase.from('notifications').select('*', { count: 'exact', head: true }).eq('user_id', uid).eq('read', false),
       ]);
@@ -62,20 +64,12 @@ const Index = () => {
           conservation: c.conservation || '', funFact: c.fun_fact || '',
           discoveredAt: c.created_at, location: c.location || '',
         }));
-        setRecentCaptures(cards);
+        setAllCaptures(cards);
+        setAllCapturedNames(cards.map(c => c.name));
 
-        // Count by rarity
         const counts: Record<string, number> = {};
         capturesRes.data.forEach((c: any) => { counts[c.rarity] = (counts[c.rarity] || 0) + 1; });
-      }
-
-      // Get full rarity counts
-      const { data: allCaptures } = await supabase.from('captures').select('rarity, animal_name').eq('user_id', uid).eq('status', 'approved');
-      if (allCaptures) {
-        const counts: Record<string, number> = {};
-        allCaptures.forEach((c: any) => { counts[c.rarity] = (counts[c.rarity] || 0) + 1; });
         setRarityCounts(counts);
-        setAllCapturedNames(allCaptures.map((c: any) => c.animal_name));
       }
 
       if (questsRes.data) {
@@ -286,33 +280,6 @@ const Index = () => {
             </div>
           </button>
 
-          {/* Collection Card */}
-          <button
-            onClick={() => navigate('/collection')}
-            className="relative flex flex-col gap-2 p-4 rounded-2xl border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors text-left"
-          >
-            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-              <BookOpen className="w-4 h-4 text-primary" />
-            </div>
-            <div>
-              <h3 className="text-sm font-display font-bold text-foreground">Collection</h3>
-              <p className="text-[10px] text-muted-foreground">{profile.species_count} espèces collectées</p>
-            </div>
-            <div className="flex gap-1">
-              {RARITY_ORDER.map(r => (
-                rarityCounts[r] ? (
-                  <span key={r} className={`text-[9px] font-display font-bold px-1 rounded ${
-                    r === 'mythic' ? 'text-rarity-mythic' :
-                    r === 'epic' ? 'text-rarity-epic' :
-                    r === 'rare' ? 'text-rarity-rare' : 'text-rarity-common'
-                  }`}>
-                    {rarityCounts[r]} {RARITY_LABELS[r]}
-                  </span>
-                ) : null
-              ))}
-            </div>
-          </button>
-
           {/* Explorateurs Card */}
           <button
             onClick={() => navigate('/explorers')}
@@ -331,19 +298,14 @@ const Index = () => {
         {/* Autour de moi */}
         <NearbyAnimalsSection capturedNames={allCapturedNames} />
 
-        {/* Recent Captures */}
-        {recentCaptures.length > 0 && (
+        {/* All Captures */}
+        {allCaptures.length > 0 && (
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-base font-display font-bold text-foreground">Dernières captures</h2>
-              <button onClick={() => navigate('/collection')} className="text-xs font-display font-semibold text-primary flex items-center gap-0.5">
-                Tout voir <ChevronRight className="w-3 h-3" />
-              </button>
-            </div>
+            <h2 className="text-base font-display font-bold text-foreground mb-3">Ma collection</h2>
             <div className="grid grid-cols-2 gap-3">
-              {recentCaptures.slice(0, 6).map((card, i) => (
-                <div key={card.id} style={{ animationDelay: `${i * 60}ms` }}>
-                  <AnimalCardComponent card={card} compact onClick={() => navigate('/collection')} />
+              {allCaptures.map((card, i) => (
+                <div key={card.id} style={{ animationDelay: `${Math.min(i, 8) * 60}ms` }}>
+                  <AnimalCardComponent card={card} compact onClick={() => setSelectedCard(card)} />
                 </div>
               ))}
             </div>
@@ -351,7 +313,7 @@ const Index = () => {
         )}
 
         {/* Empty state */}
-        {recentCaptures.length === 0 && !loading && (
+        {allCaptures.length === 0 && !loading && (
           <div className="text-center py-12 px-6">
             <div className="text-5xl mb-4">🌿</div>
             <h3 className="text-foreground font-display font-bold text-base mb-2">Commence ton aventure !</h3>
@@ -367,6 +329,8 @@ const Index = () => {
           </div>
         )}
       </div>
+
+      <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} />
     </main>
   );
 };
