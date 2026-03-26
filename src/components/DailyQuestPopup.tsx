@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Target, X, Sparkles } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
