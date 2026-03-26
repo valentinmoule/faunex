@@ -8,6 +8,7 @@ import { type Rarity, RARITY_LABELS } from '@/data/mockData';
 import AnimalCardComponent from '@/components/AnimalCardComponent';
 import CardDetailSheet from '@/components/CardDetailSheet';
 import NearbyAnimalsSection from '@/components/NearbyAnimalsSection';
+import DailyQuestPopup from '@/components/DailyQuestPopup';
 import type { AnimalCard } from '@/data/mockData';
 
 interface Profile {
@@ -282,6 +283,7 @@ const Index = () => {
       </div>
 
       <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} />
+      <DailyQuestPopup />
     </main>
   );
 };

@@ -583,7 +583,16 @@
   animation: quest-sweep 3s ease-in-out infinite;
 }
 
-/* Icon subtle bounce */
+/* Quest popup bounce */
+@keyframes quest-popup-bounce {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.05) rotate(-2deg); }
+  75% { transform: scale(1.05) rotate(2deg); }
+}
+.quest-popup-bounce {
+  animation: quest-popup-bounce 2s ease-in-out infinite;
+}
+
 @keyframes icon-bounce {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-2px); }
