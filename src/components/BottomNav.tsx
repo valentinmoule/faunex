@@ -1,11 +1,11 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Camera, BookOpen, User, Users, PawPrint } from 'lucide-react';
+import { Camera, BookOpen, User, Users, PawPrint, Globe } from 'lucide-react';
 
 const tabs = [
   { path: '/home', label: 'Accueil', icon: PawPrint },
   { path: '/collection', label: 'Collection', icon: BookOpen },
   { path: '/capture', label: 'Capture', icon: Camera },
-  { path: '/explorers', label: 'Explorateurs', icon: Users },
+  { path: '/bestiaire', label: 'Bestiaire', icon: Globe },
   { path: '/profile', label: 'Profil', icon: User },
 ];
 
