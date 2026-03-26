@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { type Rarity, RARITY_LABELS } from '@/data/mockData';
 import AnimalCardComponent from '@/components/AnimalCardComponent';
+import CardDetailSheet from '@/components/CardDetailSheet';
 import NearbyAnimalsSection from '@/components/NearbyAnimalsSection';
 import type { AnimalCard } from '@/data/mockData';
 
