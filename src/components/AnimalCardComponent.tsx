@@ -28,10 +28,6 @@ interface Props {
 }
 
 const AnimalCardComponent = ({ card, onClick, compact }: Props) => {
-  const isMythic = card.rarity === 'mythic';
-  const isEpic = card.rarity === 'epic';
-  const isRare = card.rarity === 'rare';
-
   return (
     <button
       onClick={onClick}
