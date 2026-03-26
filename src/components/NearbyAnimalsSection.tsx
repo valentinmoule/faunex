@@ -187,53 +187,55 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
         </button>
       </div>
 
-      {loading && !hasLoaded && (
-        <div className="flex items-center justify-center py-8 bg-muted/50 rounded-2xl">
-          <Loader2 className="w-5 h-5 text-primary animate-spin mr-2" />
-          <span className="text-sm text-muted-foreground font-display">Analyse de ta zone…</span>
-        </div>
-      )}
+      <div className={`transition-all duration-300 overflow-hidden ${collapsed ? 'max-h-0 opacity-0' : 'max-h-[1000px] opacity-100'}`}>
+        {loading && !hasLoaded && (
+          <div className="flex items-center justify-center py-8 bg-muted/50 rounded-2xl">
+            <Loader2 className="w-5 h-5 text-primary animate-spin mr-2" />
+            <span className="text-sm text-muted-foreground font-display">Analyse de ta zone…</span>
+          </div>
+        )}
 
-      {error && !hasLoaded && (
-        <button onClick={fetchNearby} className="w-full py-6 bg-muted/50 rounded-2xl text-center">
-          <p className="text-sm text-muted-foreground font-display">Impossible de charger</p>
-          <p className="text-xs text-primary font-display mt-1">Réessayer</p>
-        </button>
-      )}
+        {error && !hasLoaded && (
+          <button onClick={fetchNearby} className="w-full py-6 bg-muted/50 rounded-2xl text-center">
+            <p className="text-sm text-muted-foreground font-display">Impossible de charger</p>
+            <p className="text-xs text-primary font-display mt-1">Réessayer</p>
+          </button>
+        )}
 
-      {hasLoaded && animals.length > 0 && (
-        <div className="space-y-2">
-          {animals.map((animal, i) => {
-            const alreadyCaptured = capturedNamesLower.has(animal.name.toLowerCase());
-            const isSpecial = animal.rarity === 'epic' || animal.rarity === 'mythic';
-            return (
-              <div
-                key={i}
-                className={`relative flex items-start gap-3 p-3 rounded-xl border transition-all ${
-                  alreadyCaptured
-                    ? 'bg-primary/5 border-primary/20'
-                    : `${rarityCardBg[animal.rarity]} ${rarityCardBorder[animal.rarity]}`
-                } ${isSpecial ? 'nearby-card-glow-' + animal.rarity : ''}`}
-              >
-                <div className={`w-2.5 h-2.5 rounded-full mt-1.5 shrink-0 ${rarityDot[animal.rarity] || 'bg-muted-foreground'} ${isSpecial ? 'animate-pulse' : ''}`} />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-sm font-display font-semibold text-foreground">{animal.name}</span>
-                    <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-display font-bold uppercase ${rarityBadge[animal.rarity] || 'bg-muted text-muted-foreground'}`}>
-                      {RARITY_LABELS[animal.rarity as Rarity] || animal.rarity}
-                    </span>
-                    {alreadyCaptured && (
-                      <span className="text-[9px] font-display font-bold text-primary uppercase">✓ Capturé</span>
-                    )}
+        {hasLoaded && animals.length > 0 && (
+          <div className="space-y-2">
+            {animals.map((animal, i) => {
+              const alreadyCaptured = capturedNamesLower.has(animal.name.toLowerCase());
+              const isSpecial = animal.rarity === 'epic' || animal.rarity === 'mythic';
+              return (
+                <div
+                  key={i}
+                  className={`relative flex items-start gap-3 p-3 rounded-xl border transition-all ${
+                    alreadyCaptured
+                      ? 'bg-primary/5 border-primary/20'
+                      : `${rarityCardBg[animal.rarity]} ${rarityCardBorder[animal.rarity]}`
+                  } ${isSpecial ? 'nearby-card-glow-' + animal.rarity : ''}`}
+                >
+                  <div className={`w-2.5 h-2.5 rounded-full mt-1.5 shrink-0 ${rarityDot[animal.rarity] || 'bg-muted-foreground'} ${isSpecial ? 'animate-pulse' : ''}`} />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-sm font-display font-semibold text-foreground">{animal.name}</span>
+                      <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-display font-bold uppercase ${rarityBadge[animal.rarity] || 'bg-muted text-muted-foreground'}`}>
+                        {RARITY_LABELS[animal.rarity as Rarity] || animal.rarity}
+                      </span>
+                      {alreadyCaptured && (
+                        <span className="text-[9px] font-display font-bold text-primary uppercase">✓ Capturé</span>
+                      )}
+                    </div>
+                    <p className="text-[11px] text-muted-foreground italic">{animal.scientific_name}</p>
+                    <p className="text-xs text-foreground/70 mt-1 leading-relaxed">{animal.tip}</p>
                   </div>
-                  <p className="text-[11px] text-muted-foreground italic">{animal.scientific_name}</p>
-                  <p className="text-xs text-foreground/70 mt-1 leading-relaxed">{animal.tip}</p>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
