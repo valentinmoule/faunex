@@ -193,39 +193,22 @@ const Index = () => {
             </button>
           </div>
 
-          {/* XP Bar — full width, gaming style */}
-          <div className="relative">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs font-display font-bold text-foreground">Niv. {profile.level}</span>
-              <span className="text-[10px] font-display font-semibold text-muted-foreground">{profile.xp} / {profile.xp_to_next} XP</span>
-            </div>
-            <div className="relative h-3 rounded-full bg-muted/60 overflow-hidden border border-primary/10">
+          {/* XP Bar — light */}
+          <div className="flex items-center gap-2.5">
+            <span className="text-[11px] font-display font-bold text-primary shrink-0">Niv. {profile.level}</span>
+            <div className="relative flex-1 h-2 rounded-full bg-muted/50 overflow-hidden">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-primary via-primary to-amber transition-all duration-1000 ease-out game-xp-glow"
+                className="h-full rounded-full bg-gradient-to-r from-primary to-amber transition-all duration-1000 ease-out game-xp-glow"
                 style={{ width: `${xpPercent}%` }}
               />
-              {/* Shimmer effect on XP bar */}
               <div className="absolute inset-0 game-xp-shimmer pointer-events-none" />
             </div>
+            <span className="text-[10px] font-display text-muted-foreground shrink-0">{profile.xp}/{profile.xp_to_next}</span>
           </div>
         </div>
       </header>
 
-      <div className="max-w-lg mx-auto px-4 -mt-2 space-y-4 pb-24">
-
-        {/* Stats pills — scrollable row */}
-        <div className="flex gap-2 pb-1 -mx-1 px-1">
-          <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-card border border-border shrink-0 game-stat-appear" style={{ animationDelay: '0ms' }}>
-            <span className="text-sm">🎯</span>
-            <span className="text-xs font-display font-black text-foreground">{profile.species_count}</span>
-            <span className="text-[10px] text-muted-foreground">espèces</span>
-          </div>
-          <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-card border border-border shrink-0 game-stat-appear" style={{ animationDelay: '80ms' }}>
-            <span className="text-sm">📸</span>
-            <span className="text-xs font-display font-black text-foreground">{profile.total_captures}</span>
-            <span className="text-[10px] text-muted-foreground">captures</span>
-          </div>
-        </div>
+      <div className="max-w-lg mx-auto px-4 pt-3 space-y-4 pb-24">
 
         {/* Quêtes du jour — gaming card */}
         <button
