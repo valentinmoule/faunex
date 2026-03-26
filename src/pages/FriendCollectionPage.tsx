@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Search, UserMinus } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 import AnimalCardComponent from '@/components/AnimalCardComponent';
 import CardDetailSheet from '@/components/CardDetailSheet';
 import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
@@ -20,6 +21,10 @@ const FriendCollectionPage = () => {
   const [captures, setCaptures] = useState<AnimalCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [profileName, setProfileName] = useState('');
+  const [profileLevel, setProfileLevel] = useState(0);
+  const [profileXp, setProfileXp] = useState(0);
+  const [profileXpToNext, setProfileXpToNext] = useState(1000);
+  const [profileAvatar, setProfileAvatar] = useState<string | null>(null);
   const [friendRelationId, setFriendRelationId] = useState<string | null>(null);
   useEffect(() => {
     if (!userId) return;
@@ -28,11 +33,15 @@ const FriendCollectionPage = () => {
     const fetchData = async () => {
       setLoading(true);
 
-      const profilePromise = supabase.from('profiles').select('display_name, username').eq('user_id', userId).maybeSingle();
+      const profilePromise = supabase.from('profiles').select('display_name, username, level, xp, xp_to_next, avatar_url').eq('user_id', userId).maybeSingle();
       const capturesPromise = supabase.from('captures').select('*').eq('user_id', userId).eq('status', 'approved').order('created_at', { ascending: false });
 
       const [profileRes, capturesRes] = await Promise.all([profilePromise, capturesPromise]);
       setProfileName(profileRes.data?.display_name || profileRes.data?.username || 'Explorateur');
+      setProfileLevel(profileRes.data?.level || 0);
+      setProfileXp(profileRes.data?.xp || 0);
+      setProfileXpToNext(profileRes.data?.xp_to_next || 1000);
+      setProfileAvatar(profileRes.data?.avatar_url || null);
 
       // Check friend relation
       if (myId && myId !== userId) {
@@ -88,19 +97,37 @@ const FriendCollectionPage = () => {
             <button onClick={() => navigate(-1)} className="p-1.5 rounded-lg hover:bg-muted transition-colors">
               <ArrowLeft className="w-5 h-5 text-foreground" />
             </button>
+            <div className="relative w-11 h-11 rounded-full border-2 border-primary/30 overflow-hidden shrink-0">
+              {profileAvatar ? (
+                <img src={profileAvatar} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full bg-primary/20 flex items-center justify-center text-sm font-display font-bold text-primary">
+                  {profileName.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-primary border-2 border-background flex items-center justify-center">
+                <span className="text-[8px] font-display font-black text-primary-foreground">{profileLevel}</span>
+              </div>
+            </div>
             <div className="flex-1 min-w-0">
-              <h1 className="text-xl font-display font-bold text-foreground truncate">Faunex de {profileName}</h1>
-              <p className="text-xs text-muted-foreground">{captures.length} espèces partagées</p>
+              <h1 className="text-base font-display font-bold text-foreground truncate">{profileName}</h1>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-muted-foreground font-display">Niv. {profileLevel}</span>
+                <span className="text-[10px] text-muted-foreground">·</span>
+                <span className="text-[10px] text-muted-foreground font-display">{profileXp}/{profileXpToNext} XP</span>
+              </div>
+              <Progress value={profileXpToNext > 0 ? (profileXp / profileXpToNext) * 100 : 0} className="h-1.5 mt-1 bg-muted/50 [&>div]:bg-gradient-to-r [&>div]:from-primary [&>div]:to-amber" />
             </div>
             {friendRelationId && (
               <button
                 onClick={removeFriend}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-display font-semibold text-destructive hover:bg-destructive/10 transition-colors"
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-display font-semibold text-destructive hover:bg-destructive/10 transition-colors shrink-0"
               >
-                <UserMinus className="w-4 h-4" /> Retirer
+                <UserMinus className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
+          <p className="text-xs text-muted-foreground mb-3 pl-1">{captures.length} espèces capturées</p>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
