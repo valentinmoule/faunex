@@ -497,19 +497,8 @@ const CapturePage = () => {
     }
   };
 
-  const checkLevelUp = async (previousLevel: number) => {
-    if (!session?.user) return;
-    const { data } = await supabase
-      .from('profiles')
-      .select('level')
-      .eq('user_id', session.user.id)
-      .maybeSingle();
-    if (data && data.level > previousLevel) {
-      toast.success(`🎉 Niveau ${data.level} atteint ! Bravo, explorateur !`, {
-        duration: 5000,
-      });
-    }
-  };
+  // Level-up is now handled by the LevelUpCelebration overlay via realtime
+  // No need for manual checkLevelUp anymore
 
   const doSaveNew = async () => {
     if (!capturedPhoto || !animalResult || !session?.user) return;
