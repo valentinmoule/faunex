@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, UserMinus, Users, UserPlus, UserCheck, Clock, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Search, UserMinus, Users, UserPlus, UserCheck, ChevronRight } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import AnimalCardComponent from '@/components/AnimalCardComponent';
 import CardDetailSheet from '@/components/CardDetailSheet';
@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 
 const rarityFilters: (Rarity | 'all')[] = ['all', 'common', 'rare', 'epic', 'mythic'];
 
-interface FriendProfile {
+interface FollowProfile {
   user_id: string;
   display_name: string | null;
   username: string | null;
@@ -24,7 +24,7 @@ const FriendCollectionPage = () => {
   const { userId } = useParams<{ userId: string }>();
   const { session } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'collection' | 'friends'>('collection');
+  const [activeTab, setActiveTab] = useState<'collection' | 'following'>('collection');
   const [filter, setFilter] = useState<Rarity | 'all'>('all');
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [search, setSearch] = useState('');
@@ -35,14 +35,12 @@ const FriendCollectionPage = () => {
   const [profileXp, setProfileXp] = useState(0);
   const [profileXpToNext, setProfileXpToNext] = useState(1000);
   const [profileAvatar, setProfileAvatar] = useState<string | null>(null);
-  const [friendRelationId, setFriendRelationId] = useState<string | null>(null);
+  const [amIFollowing, setAmIFollowing] = useState(false);
 
-  // Friend-of-friend state
-  const [theirFriends, setTheirFriends] = useState<FriendProfile[]>([]);
-  const [loadingFriends, setLoadingFriends] = useState(false);
-  const [myFriendIds, setMyFriendIds] = useState<Set<string>>(new Set());
-  const [myPendingIds, setMyPendingIds] = useState<Set<string>>(new Set());
-  const [sendingRequest, setSendingRequest] = useState<string | null>(null);
+  // Their follows state
+  const [theirFollowing, setTheirFollowing] = useState<FollowProfile[]>([]);
+  const [loadingFollowing, setLoadingFollowing] = useState(false);
+  const [myFollowingIds, setMyFollowingIds] = useState<Set<string>>(new Set());
 
   const myId = session?.user?.id;
 
@@ -62,12 +60,14 @@ const FriendCollectionPage = () => {
       setProfileXpToNext(profileRes.data?.xp_to_next || 1000);
       setProfileAvatar(profileRes.data?.avatar_url || null);
 
-      // Check friend relation
+      // Check if I follow this person
       if (myId && myId !== userId) {
-        const { data: friendData } = await supabase.from('explorer_friends').select('id').or(`and(requester_id.eq.${myId},addressee_id.eq.${userId}),and(requester_id.eq.${userId},addressee_id.eq.${myId})`).eq('status', 'accepted').limit(1);
-        if (friendData && friendData.length > 0) {
-          setFriendRelationId(friendData[0].id);
-        }
+        const { data: followData } = await supabase.from('explorer_follows')
+          .select('id')
+          .eq('follower_id', myId)
+          .eq('following_id', userId)
+          .limit(1);
+        setAmIFollowing(!!followData && followData.length > 0);
       }
 
       if (!capturesRes.error && capturesRes.data) {
@@ -95,58 +95,40 @@ const FriendCollectionPage = () => {
     fetchData();
   }, [userId, myId]);
 
-  // Fetch this explorer's friends and my own relations
-  const fetchTheirFriends = useCallback(async () => {
+  // Fetch this explorer's following list and my own follows
+  const fetchTheirFollowing = useCallback(async () => {
     if (!userId || !myId) return;
-    setLoadingFriends(true);
+    setLoadingFollowing(true);
 
-    // Get their accepted friend relations
-    const { data: theirRels } = await supabase
-      .from('explorer_friends')
-      .select('requester_id, addressee_id')
-      .or(`requester_id.eq.${userId},addressee_id.eq.${userId}`)
-      .eq('status', 'accepted');
+    const [{ data: theirData }, { data: myData }] = await Promise.all([
+      supabase.from('explorer_follows').select('following_id').eq('follower_id', userId),
+      supabase.from('explorer_follows').select('following_id').eq('follower_id', myId),
+    ]);
 
-    // Get my relations
-    const { data: myRels } = await supabase
-      .from('explorer_friends')
-      .select('requester_id, addressee_id, status')
-      .or(`requester_id.eq.${myId},addressee_id.eq.${myId}`);
+    setMyFollowingIds(new Set((myData || []).map(f => f.following_id)));
 
-    // Build my friend/pending sets
-    const fIds = new Set<string>();
-    const pIds = new Set<string>();
-    (myRels || []).forEach(r => {
-      const otherId = r.requester_id === myId ? r.addressee_id : r.requester_id;
-      if (r.status === 'accepted') fIds.add(otherId);
-      else if (r.status === 'pending') pIds.add(otherId);
-    });
-    setMyFriendIds(fIds);
-    setMyPendingIds(pIds);
-
-    // Extract their friend user IDs (excluding me and the viewed user)
-    const theirFriendIds = (theirRels || [])
-      .map(r => r.requester_id === userId ? r.addressee_id : r.requester_id)
+    const theirFollowingIds = (theirData || [])
+      .map(f => f.following_id)
       .filter(id => id !== myId);
 
-    if (theirFriendIds.length > 0) {
+    if (theirFollowingIds.length > 0) {
       const { data: profiles } = await supabase
         .from('profiles')
         .select('user_id, display_name, username, avatar_url, level, species_count')
-        .in('user_id', theirFriendIds);
-      setTheirFriends((profiles || []) as FriendProfile[]);
+        .in('user_id', theirFollowingIds);
+      setTheirFollowing((profiles || []) as FollowProfile[]);
     } else {
-      setTheirFriends([]);
+      setTheirFollowing([]);
     }
 
-    setLoadingFriends(false);
+    setLoadingFollowing(false);
   }, [userId, myId]);
 
   useEffect(() => {
-    if (activeTab === 'friends') {
-      fetchTheirFriends();
+    if (activeTab === 'following') {
+      fetchTheirFollowing();
     }
-  }, [activeTab, fetchTheirFriends]);
+  }, [activeTab, fetchTheirFollowing]);
 
   const filtered = captures.filter(c => {
     if (filter !== 'all' && c.rarity !== filter) return false;
@@ -154,37 +136,42 @@ const FriendCollectionPage = () => {
     return true;
   });
 
-  const removeFriend = async () => {
-    if (!friendRelationId) return;
-    await supabase.from('explorer_friends').delete().eq('id', friendRelationId);
-    toast.info('Ami retiré');
-    navigate(-1);
-  };
-
-  const sendRequest = async (targetId: string) => {
-    if (!myId) return;
-    setSendingRequest(targetId);
-    const { error } = await supabase.from('explorer_friends').insert({
-      requester_id: myId,
-      addressee_id: targetId,
-    });
-    if (error) {
-      if (error.code === '23505') toast.info('Demande déjà envoyée');
-      else toast.error("Erreur lors de l'envoi");
+  const toggleFollow = async () => {
+    if (!myId || !userId) return;
+    if (amIFollowing) {
+      await supabase.from('explorer_follows').delete().eq('follower_id', myId).eq('following_id', userId);
+      setAmIFollowing(false);
+      toast.info('Désabonné');
     } else {
-      toast.success('Demande envoyée !');
-      setMyPendingIds(prev => new Set(prev).add(targetId));
-      supabase.functions.invoke('notify-friend-request', {
-        body: { requester_id: myId, addressee_id: targetId },
-      }).catch(console.error);
+      const { error } = await supabase.from('explorer_follows').insert({ follower_id: myId, following_id: userId });
+      if (error) { toast.error("Erreur"); return; }
+      setAmIFollowing(true);
+      toast.success('Abonné !');
     }
-    setSendingRequest(null);
   };
 
-  const getFriendStatus = (uid: string): 'me' | 'friend' | 'pending' | 'none' => {
+  const followFromList = async (targetId: string) => {
+    if (!myId) return;
+    const { error } = await supabase.from('explorer_follows').insert({ follower_id: myId, following_id: targetId });
+    if (error) {
+      if (error.code === '23505') toast.info('Déjà abonné');
+      else toast.error("Erreur");
+      return;
+    }
+    toast.success('Abonné !');
+    setMyFollowingIds(prev => new Set(prev).add(targetId));
+  };
+
+  const unfollowFromList = async (targetId: string) => {
+    if (!myId) return;
+    await supabase.from('explorer_follows').delete().eq('follower_id', myId).eq('following_id', targetId);
+    toast.info('Désabonné');
+    setMyFollowingIds(prev => { const s = new Set(prev); s.delete(targetId); return s; });
+  };
+
+  const getFollowStatus = (uid: string): 'me' | 'following' | 'none' => {
     if (uid === myId) return 'me';
-    if (myFriendIds.has(uid)) return 'friend';
-    if (myPendingIds.has(uid)) return 'pending';
+    if (myFollowingIds.has(uid)) return 'following';
     return 'none';
   };
 
@@ -214,12 +201,16 @@ const FriendCollectionPage = () => {
               </div>
               <Progress value={profileXpToNext > 0 ? (profileXp / profileXpToNext) * 100 : 0} className="h-1.5 mt-1 bg-muted/50 [&>div]:bg-gradient-to-r [&>div]:from-primary [&>div]:to-amber" />
             </div>
-            {friendRelationId && (
+            {myId && myId !== userId && (
               <button
-                onClick={removeFriend}
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-display font-semibold text-destructive hover:bg-destructive/10 transition-colors shrink-0"
+                onClick={toggleFollow}
+                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-display font-semibold shrink-0 transition-colors ${
+                  amIFollowing
+                    ? 'bg-muted text-foreground'
+                    : 'bg-primary text-primary-foreground'
+                }`}
               >
-                <UserMinus className="w-3.5 h-3.5" />
+                {amIFollowing ? <><UserCheck className="w-3.5 h-3.5" /> Abonné</> : <><UserPlus className="w-3.5 h-3.5" /> S'abonner</>}
               </button>
             )}
           </div>
@@ -233,11 +224,11 @@ const FriendCollectionPage = () => {
               Collection ({captures.length})
             </button>
             <button
-              onClick={() => setActiveTab('friends')}
-              className={`px-4 py-1.5 rounded-full text-xs font-display font-semibold transition-colors flex items-center gap-1.5 ${activeTab === 'friends' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
+              onClick={() => setActiveTab('following')}
+              className={`px-4 py-1.5 rounded-full text-xs font-display font-semibold transition-colors flex items-center gap-1.5 ${activeTab === 'following' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
             >
               <Users className="w-3.5 h-3.5" />
-              Amis
+              Abonnements
             </button>
           </div>
 
@@ -343,25 +334,25 @@ const FriendCollectionPage = () => {
         </>
       )}
 
-      {/* Friends tab */}
-      {activeTab === 'friends' && (
+      {/* Following tab */}
+      {activeTab === 'following' && (
         <div className="max-w-lg mx-auto px-4 pt-4">
-          {loadingFriends ? (
+          {loadingFollowing ? (
             <div className="text-center py-16">
               <p className="text-muted-foreground font-display text-sm">Chargement…</p>
             </div>
-          ) : theirFriends.length === 0 ? (
+          ) : theirFollowing.length === 0 ? (
             <div className="text-center py-16 px-6">
               <Users className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
-              <p className="text-foreground font-display font-semibold text-sm mb-2">Aucun ami explorateur</p>
+              <p className="text-foreground font-display font-semibold text-sm mb-2">Aucun abonnement</p>
               <p className="text-muted-foreground text-xs leading-relaxed">
-                {profileName} n'a pas encore d'amis explorateurs.
+                {profileName} ne suit encore personne.
               </p>
             </div>
           ) : (
             <div className="divide-y divide-border">
-              {theirFriends.map((friend, i) => {
-                const status = getFriendStatus(friend.user_id);
+              {theirFollowing.map((friend, i) => {
+                const status = getFollowStatus(friend.user_id);
                 return (
                   <div
                     key={friend.user_id}
@@ -387,26 +378,19 @@ const FriendCollectionPage = () => {
                     <div className="shrink-0">
                       {status === 'me' ? (
                         <span className="text-[10px] text-muted-foreground font-display">Toi</span>
-                      ) : status === 'friend' ? (
+                      ) : status === 'following' ? (
                         <button
-                          onClick={() => navigate(`/explorer/${friend.user_id}/collection`)}
-                          className="flex items-center gap-1 text-xs text-primary font-display"
+                          onClick={() => unfollowFromList(friend.user_id)}
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-muted text-foreground text-xs font-display font-semibold"
                         >
-                          <UserCheck className="w-4 h-4" />
-                          <ChevronRight className="w-3.5 h-3.5" />
+                          <UserCheck className="w-3.5 h-3.5" /> Abonné
                         </button>
-                      ) : status === 'pending' ? (
-                        <span className="flex items-center gap-1 text-xs text-muted-foreground font-display">
-                          <Clock className="w-3.5 h-3.5" /> En attente
-                        </span>
                       ) : (
                         <button
-                          onClick={() => sendRequest(friend.user_id)}
-                          disabled={sendingRequest === friend.user_id}
+                          onClick={() => followFromList(friend.user_id)}
                           className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-display font-semibold active:scale-95 transition-transform"
                         >
-                          <UserPlus className="w-3.5 h-3.5" />
-                          Ajouter
+                          <UserPlus className="w-3.5 h-3.5" /> S'abonner
                         </button>
                       )}
                     </div>

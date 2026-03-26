@@ -124,7 +124,7 @@ const SettingsPage = () => {
     if (session?.user) {
       await supabase.from('captures').delete().eq('user_id', session.user.id);
       await supabase.from('profiles').delete().eq('user_id', session.user.id);
-      await supabase.from('explorer_friends').delete().or(`requester_id.eq.${session.user.id},addressee_id.eq.${session.user.id}`);
+      await supabase.from('explorer_follows').delete().eq('follower_id', session.user.id);
     }
     await signOut();
     toast.success('Compte supprimé');

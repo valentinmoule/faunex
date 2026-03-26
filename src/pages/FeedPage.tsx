@@ -91,15 +91,12 @@ const FeedPage = () => {
       setLoading(true);
       const userId = session.user.id;
 
-      const { data: friendsData } = await supabase
-        .from('explorer_friends')
-        .select('requester_id, addressee_id')
-        .eq('status', 'accepted')
-        .or(`requester_id.eq.${userId},addressee_id.eq.${userId}`);
+      const { data: followsData } = await supabase
+        .from('explorer_follows')
+        .select('following_id')
+        .eq('follower_id', userId);
 
-      const friendIds = (friendsData || []).map(f =>
-        f.requester_id === userId ? f.addressee_id : f.requester_id
-      );
+      const friendIds = (followsData || []).map(f => f.following_id);
 
       const allIds = [userId, ...friendIds];
 

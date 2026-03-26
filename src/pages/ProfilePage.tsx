@@ -65,7 +65,7 @@ const ProfilePage = () => {
 
       const [profileRes, friendsRes, capturesRes] = await Promise.all([
         supabase.from('profiles').select('*').eq('user_id', userId).single(),
-        supabase.from('explorer_friends').select('*', { count: 'exact', head: true }).eq('status', 'accepted').or(`requester_id.eq.${userId},addressee_id.eq.${userId}`),
+        supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('follower_id', userId),
         supabase.from('captures').select('category, rarity').eq('user_id', userId),
       ]);
 
