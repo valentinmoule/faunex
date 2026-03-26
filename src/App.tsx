@@ -8,6 +8,8 @@ import { ThemeProvider } from "next-themes";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { PwaInstallProvider } from "./contexts/PwaInstallContext";
 import PwaInstallBanner from "./components/PwaInstallBanner";
+import LevelSplash from "./components/LevelSplash";
+import LevelUpCelebration from "./components/LevelUpCelebration";
 import Index from "./pages/Index";
 import CapturePage from "./pages/CapturePage";
 import CollectionPage from "./pages/CollectionPage";
@@ -105,6 +107,8 @@ const AppRoutes = () => {
       </Routes>
       {!isCapturePage && !isLandingPage && !isAuthPage && !isCompleteProfile && <BottomNav />}
       <PwaInstallBanner />
+      <LevelSplash />
+      <LevelUpCelebration />
     </>
   );
 };
