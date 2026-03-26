@@ -529,6 +529,87 @@
 /* No scrollbar utility */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ═══════════════════════════════════════════════════
+   GAMING UI ANIMATIONS
+   ═══════════════════════════════════════════════════ */
+
+/* Avatar ring glow */
+.game-avatar-ring {
+  box-shadow: 0 0 0 2px hsla(var(--primary) / 0.15), 0 0 12px hsla(var(--primary) / 0.1);
+}
+
+/* Notification bounce */
+@keyframes game-notif-bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+.game-notif-bounce {
+  animation: game-notif-bounce 0.6s ease-in-out;
+}
+
+/* XP bar glow */
+.game-xp-glow {
+  box-shadow: 0 0 8px hsla(var(--primary) / 0.4), inset 0 1px 0 hsla(0, 0%, 100%, 0.2);
+}
+
+/* XP bar shimmer sweep */
+@keyframes xp-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.game-xp-shimmer {
+  background: linear-gradient(90deg, transparent, hsla(0, 0%, 100%, 0.15), transparent);
+  animation: xp-shimmer 2.5s ease-in-out infinite;
+}
+
+/* Stat pills appear */
+@keyframes stat-appear {
+  0% { opacity: 0; transform: translateY(8px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.game-stat-appear {
+  animation: stat-appear 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+
+/* Quest card sweep */
+@keyframes quest-sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+.game-quest-sweep {
+  animation: quest-sweep 3s ease-in-out infinite;
+}
+
+/* Icon subtle bounce */
+@keyframes icon-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+.game-icon-bounce {
+  animation: icon-bounce 2s ease-in-out infinite;
+}
+
+/* Card appear with gaming feel */
+@keyframes game-card-pop {
+  0% { opacity: 0; transform: translateY(15px) scale(0.92); }
+  60% { transform: translateY(-3px) scale(1.02); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.game-card-appear {
+  animation: game-card-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+
+/* Floating animation */
+@keyframes game-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.game-float {
+  animation: game-float 3s ease-in-out infinite;
+}
 
 /* ═══════════════════════════════════════════════════
    CAPTURE REVEAL ENHANCED EFFECTS
