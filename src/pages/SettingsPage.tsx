@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Pencil, KeyRound, Share2, Scale, LogOut, Trash2, Loader2, Camera, Check, X, ChevronRight, Sun, Moon, Monitor, Mail } from 'lucide-react';
+import { ArrowLeft, Pencil, KeyRound, Share2, Scale, LogOut, Trash2, Loader2, Camera, Check, X, ChevronRight, Sun, Moon, Monitor, Mail, Lock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -42,16 +42,18 @@ const SettingsPage = () => {
 
   // Marketing emails
   const [marketingEmails, setMarketingEmails] = useState(true);
+  const [isPrivate, setIsPrivate] = useState(false);
 
   // Fetch profile on mount
   useEffect(() => {
     if (!session?.user) return;
-    supabase.from('profiles').select('display_name, username, avatar_url, marketing_emails').eq('user_id', session.user.id).single().then(({ data }) => {
+    supabase.from('profiles').select('display_name, username, avatar_url, marketing_emails, is_private').eq('user_id', session.user.id).single().then(({ data }) => {
       if (data) {
         setProfile({ display_name: data.display_name || '', username: data.username || '', avatar_url: data.avatar_url });
         setEditName(data.display_name || '');
         setEditUsername(data.username || '');
         setMarketingEmails(data.marketing_emails ?? true);
+        setIsPrivate((data as any).is_private ?? false);
       }
       setLoading(false);
     });

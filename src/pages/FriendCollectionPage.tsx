@@ -9,6 +9,7 @@ import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { followUser as followUserUtil } from '@/lib/followUtils';
 
 interface BadgeDef {
   id: string;
@@ -208,24 +209,29 @@ const FriendCollectionPage = () => {
       setFollowersCount(prev => Math.max(0, prev - 1));
       toast.info('Désabonné');
     } else {
-      const { error } = await supabase.from('explorer_follows').insert({ follower_id: myId, following_id: userId });
-      if (error) { toast.error("Erreur"); return; }
-      setAmIFollowing(true);
-      setFollowersCount(prev => prev + 1);
-      toast.success('Abonné !');
+      const result = await followUserUtil(myId, userId);
+      if (result.error) { toast.error("Erreur"); return; }
+      if (result.status === 'pending') {
+        toast.success('Demande envoyée !');
+      } else {
+        setAmIFollowing(true);
+        setFollowersCount(prev => prev + 1);
+        toast.success('Abonné !');
+      }
     }
   };
 
   const followFromSheet = async (targetId: string) => {
     if (!myId) return;
-    const { error } = await supabase.from('explorer_follows').insert({ follower_id: myId, following_id: targetId });
-    if (error) {
-      if (error.code === '23505') toast.info('Déjà abonné');
-      else toast.error("Erreur");
-      return;
+    const result = await followUserUtil(myId, targetId);
+    if (result.error === 'already_following') { toast.info('Déjà abonné'); return; }
+    if (result.error) { toast.error("Erreur"); return; }
+    if (result.status === 'pending') {
+      toast.success('Demande envoyée !');
+    } else {
+      toast.success('Abonné !');
+      setMyFollowingIds(prev => new Set(prev).add(targetId));
     }
-    toast.success('Abonné !');
-    setMyFollowingIds(prev => new Set(prev).add(targetId));
   };
 
   const unfollowFromSheet = async (targetId: string) => {

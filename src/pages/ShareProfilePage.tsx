@@ -76,13 +76,14 @@ const ShareProfilePage = () => {
       setIsFollowing(false);
       toast.info('Désabonné');
     } else {
-      const { error } = await supabase.from('explorer_follows').insert({
-        follower_id: session.user.id,
-        following_id: profile.user_id,
-      });
-      if (error) {
-        if (error.code === '23505') toast.info('Déjà abonné');
-        else toast.error("Erreur");
+      const { followUser: followUserUtil } = await import('@/lib/followUtils');
+      const result = await followUserUtil(session.user.id, profile.user_id);
+      if (result.error === 'already_following') {
+        toast.info('Déjà abonné');
+      } else if (result.error) {
+        toast.error("Erreur");
+      } else if (result.status === 'pending') {
+        toast.success('Demande envoyée !');
       } else {
         setIsFollowing(true);
         toast.success('Abonné !');
