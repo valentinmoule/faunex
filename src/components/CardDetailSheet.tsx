@@ -149,6 +149,13 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
     <>
       <Sheet open={open} onOpenChange={onClose}>
         <SheetContent side="bottom" className="h-[92vh] rounded-t-3xl overflow-y-auto p-0 bg-background border-0">
+          {/* Sticky close button */}
+          <button
+            onClick={onClose}
+            className="sticky top-3 right-3 z-50 ml-auto mr-3 mt-3 w-9 h-9 rounded-full bg-foreground/20 backdrop-blur-md flex items-center justify-center hover:bg-foreground/30 transition-colors"
+          >
+            <span className="text-white text-lg font-light leading-none">✕</span>
+          </button>
           {/* Hero Image Section — Aurora / Blur style */}
           <div className={`relative overflow-hidden detail-hero-${card.rarity}`} style={{ zIndex: 0 }}>
             
