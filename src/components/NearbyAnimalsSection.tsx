@@ -3,6 +3,7 @@ import { MapPin, Loader2, RefreshCw, Sparkles, Flame, Zap, ChevronDown } from 'l
 import { supabase } from '@/integrations/supabase/client';
 import { type Rarity, RARITY_LABELS } from '@/data/mockData';
 import { toast } from 'sonner';
+import NearbyRadar from './NearbyRadar';
 
 interface NearbyAnimal {
   name: string;
