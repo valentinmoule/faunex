@@ -171,7 +171,8 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
   return (
     <>
       <Sheet open={open} onOpenChange={onClose}>
-        <SheetContent side="bottom" className="h-[92vh] rounded-t-3xl overflow-y-auto p-0 bg-background border-0">
+        <SheetContent side="bottom" className="h-[92vh] rounded-t-3xl overflow-hidden p-0 bg-background border-0">
+          <div ref={sheetContentRef} className="h-full overflow-y-auto">
           {/* Sticky close button */}
           <button
             onClick={onClose}
