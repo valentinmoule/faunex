@@ -45,12 +45,23 @@ interface Props {
   capturedNames: string[];
 }
 
+const CACHE_KEY = 'faunex_nearby_cache';
+
 const NearbyAnimalsSection = ({ capturedNames }: Props) => {
-  const [animals, setAnimals] = useState<NearbyAnimal[]>([]);
-  const [locationName, setLocationName] = useState('');
+  // Restore from sessionStorage on mount
+  const cached = (() => {
+    try {
+      const raw = sessionStorage.getItem(CACHE_KEY);
+      if (raw) return JSON.parse(raw) as { animals: NearbyAnimal[]; locationName: string };
+    } catch {}
+    return null;
+  })();
+
+  const [animals, setAnimals] = useState<NearbyAnimal[]>(cached?.animals || []);
+  const [locationName, setLocationName] = useState(cached?.locationName || '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
-  const [hasLoaded, setHasLoaded] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(!!cached);
   const [alertAnimal, setAlertAnimal] = useState<NearbyAnimal | null>(null);
 
   const fetchNearby = () => {
