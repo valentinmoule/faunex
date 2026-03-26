@@ -20,7 +20,12 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    const systemPrompt = `Tu es un expert naturaliste et zoologue. L'utilisateur te donne des coordonnées GPS. Tu dois retourner une liste de 6 à 8 animaux sauvages qu'on peut réellement observer dans cette zone géographique, en tenant compte de la saison actuelle (${new Date().toLocaleDateString('fr-FR', { month: 'long' })}).
+    const systemPrompt = `Tu es un expert naturaliste et zoologue. L'utilisateur te donne des coordonnées GPS. Tu dois retourner une liste de exactement 3 animaux sauvages qu'on peut réellement observer dans cette zone géographique, en tenant compte de la saison actuelle (${new Date().toLocaleDateString('fr-FR', { month: 'long' })}).
+
+IMPORTANT : Priorise les espèces par ordre de pertinence :
+1. Rareté (privilégie au moins 1 espèce rare/epic/mythic si réaliste)
+2. Proximité (espèces typiques de cet écosystème précis)
+3. Nouveauté (espèces surprenantes ou peu connues du grand public)
 
 Pour chaque animal, donne :
 - name: nom commun en français

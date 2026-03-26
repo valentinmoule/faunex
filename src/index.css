@@ -389,6 +389,54 @@
   animation: reveal-shake 0.8s ease-in-out, reveal-burst 0.8s 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), reveal-glow-mythic 2s 0.8s ease-out;
 }
 
+/* ═══════════════════════════════════════════════════
+   NEARBY ANIMALS ALERTS
+   ═══════════════════════════════════════════════════ */
+@keyframes nearby-alert-in {
+  0% { opacity: 0; transform: translateY(-8px) scale(0.96); }
+  60% { opacity: 1; transform: translateY(2px) scale(1.01); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes nearby-pulse-rare {
+  0%, 100% { box-shadow: 0 0 0 hsla(210, 70%, 55%, 0); }
+  50% { box-shadow: 0 0 16px hsla(210, 70%, 55%, 0.25); }
+}
+
+@keyframes nearby-pulse-epic {
+  0%, 100% { box-shadow: 0 0 0 hsla(270, 70%, 60%, 0); }
+  50% { box-shadow: 0 0 20px hsla(270, 70%, 60%, 0.3); }
+}
+
+@keyframes nearby-pulse-mythic {
+  0%, 100% { box-shadow: 0 0 0 hsla(42, 85%, 55%, 0); }
+  50% { box-shadow: 0 0 24px hsla(42, 85%, 55%, 0.4); }
+}
+
+@keyframes nearby-icon-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+.animate-nearby-alert-in {
+  animation: nearby-alert-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.nearby-alert-rare { animation: nearby-pulse-rare 2s ease-in-out infinite; }
+.nearby-alert-epic { animation: nearby-pulse-epic 2s ease-in-out infinite; }
+.nearby-alert-mythic { animation: nearby-pulse-mythic 1.5s ease-in-out infinite; }
+
+.nearby-alert-icon {
+  animation: nearby-icon-pulse 1.5s ease-in-out infinite;
+}
+
+.nearby-card-glow-epic {
+  animation: nearby-pulse-epic 3s ease-in-out infinite;
+}
+.nearby-card-glow-mythic {
+  animation: nearby-pulse-mythic 2.5s ease-in-out infinite;
+}
+
 /* Safe area for mobile */
 .safe-bottom {
   padding-bottom: env(safe-area-inset-bottom, 0px);
