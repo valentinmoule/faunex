@@ -54,8 +54,9 @@ const CapturePage = () => {
   const [animalResult, setAnimalResult] = useState<AnimalResult | null>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [revealPhase, setRevealPhase] = useState<'idle' | 'shaking' | 'burst' | 'done'>('idle');
+  const [revealPhase, setRevealPhase] = useState<'idle' | 'freeze' | 'shaking' | 'burst' | 'done'>('idle');
   const [revealRarity, setRevealRarity] = useState<Rarity>('common');
+  const [freezeFlash, setFreezeFlash] = useState(false);
   const [duplicateCapture, setDuplicateCapture] = useState<{ id: string; image_url: string; animal_name: string } | null>(null);
   const [geoCoords, setGeoCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [geoName, setGeoName] = useState<string | null>(null);
@@ -384,11 +385,11 @@ const CapturePage = () => {
     setRevealPhase('idle');
   };
 
-  const REVEAL_TIMINGS: Record<Rarity, { shake: number; burst: number }> = {
-    common: { shake: 400, burst: 500 },
-    rare: { shake: 600, burst: 700 },
-    epic: { shake: 900, burst: 900 },
-    mythic: { shake: 1200, burst: 1100 },
+  const REVEAL_TIMINGS: Record<Rarity, { freeze: number; shake: number; burst: number }> = {
+    common: { freeze: 500, shake: 400, burst: 500 },
+    rare: { freeze: 700, shake: 600, burst: 700 },
+    epic: { freeze: 900, shake: 900, burst: 900 },
+    mythic: { freeze: 1200, shake: 1200, burst: 1100 },
   };
 
   const triggerReveal = (animal: AnimalResult) => {
@@ -396,18 +397,33 @@ const CapturePage = () => {
     setRevealRarity(rarity);
     const t = REVEAL_TIMINGS[rarity];
 
-    // Phase 1: shaking
-    setRevealPhase('shaking');
+    // Phase 0: freeze — white flash + frozen image
+    setFreezeFlash(true);
+    setRevealPhase('freeze');
+    // Haptic feedback
+    if (navigator.vibrate) {
+      navigator.vibrate(rarity === 'mythic' ? [50, 30, 50, 30, 80] : rarity === 'epic' ? [40, 20, 60] : [30]);
+    }
+    setTimeout(() => setFreezeFlash(false), 150);
 
     setTimeout(() => {
-      // Phase 2: burst reveal
-      setRevealPhase('burst');
-      setAnimalResult(animal);
+      // Phase 1: shaking with suspense
+      setRevealPhase('shaking');
 
       setTimeout(() => {
-        setRevealPhase('done');
-      }, t.burst);
-    }, t.shake);
+        // Phase 2: burst reveal
+        setRevealPhase('burst');
+        setAnimalResult(animal);
+        // Haptic on reveal
+        if (navigator.vibrate) {
+          navigator.vibrate(rarity === 'mythic' ? [100, 50, 100, 50, 200] : rarity === 'epic' ? [80, 40, 120] : rarity === 'rare' ? [60, 30, 80] : [40]);
+        }
+
+        setTimeout(() => {
+          setRevealPhase('done');
+        }, t.burst);
+      }, t.shake);
+    }, t.freeze);
   };
 
   const saveManualEntry = async () => {
