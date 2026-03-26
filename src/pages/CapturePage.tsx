@@ -504,14 +504,6 @@ const CapturePage = () => {
     if (!capturedPhoto || !animalResult || !session?.user) return;
     setSaving(true);
     try {
-      // Get current level before save
-      const { data: profileBefore } = await supabase
-        .from('profiles')
-        .select('level')
-        .eq('user_id', session.user.id)
-        .maybeSingle();
-      const levelBefore = profileBefore?.level || 1;
-
       const imageUrl = await uploadImage();
       if (!imageUrl) return;
 
@@ -538,9 +530,6 @@ const CapturePage = () => {
       setSaved(true);
       setDuplicateCapture(null);
       toast.success(`${animalResult.animal_name} ajouté à ton Faunex !`);
-
-      // Check for level up after a short delay (trigger needs time)
-      setTimeout(() => checkLevelUp(levelBefore), 1000);
     } catch (err: any) {
       console.error(err);
       toast.error("Erreur lors de la sauvegarde");
