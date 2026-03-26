@@ -199,7 +199,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
               </div>
             </div>
 
-            <div className="relative z-10 text-center px-6 pt-4 pb-5">
+            <div className="relative z-10 text-center px-6 pt-4 pb-10">
               <h2 className="text-2xl font-display font-bold text-white drop-shadow-lg">{card.name}</h2>
               <p className="text-white/60 text-sm italic font-body mt-0.5">{card.scientificName}</p>
             </div>
