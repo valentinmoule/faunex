@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
@@ -176,7 +176,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
     <>
       <Sheet open={open} onOpenChange={onClose}>
         <SheetContent side="bottom" className="h-[92vh] rounded-t-3xl overflow-hidden p-0 bg-background border-0">
-          <div ref={sheetContentRef} className="h-full overflow-y-auto">
+          <div ref={scrollRef} className="h-full overflow-y-auto">
           {/* Sticky close button */}
           <button
             onClick={onClose}
