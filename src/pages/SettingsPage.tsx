@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Pencil, KeyRound, Share2, Scale, LogOut, Trash2, Loader2, Camera, Check, X, ChevronRight, Sun, Moon, Monitor, Mail } from 'lucide-react';
+import { ArrowLeft, Pencil, KeyRound, Share2, Scale, LogOut, Trash2, Loader2, Camera, Check, X, ChevronRight, Sun, Moon, Monitor, Mail, Lock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -42,16 +42,18 @@ const SettingsPage = () => {
 
   // Marketing emails
   const [marketingEmails, setMarketingEmails] = useState(true);
+  const [isPrivate, setIsPrivate] = useState(false);
 
   // Fetch profile on mount
   useEffect(() => {
     if (!session?.user) return;
-    supabase.from('profiles').select('display_name, username, avatar_url, marketing_emails').eq('user_id', session.user.id).single().then(({ data }) => {
+    supabase.from('profiles').select('display_name, username, avatar_url, marketing_emails, is_private').eq('user_id', session.user.id).single().then(({ data }) => {
       if (data) {
         setProfile({ display_name: data.display_name || '', username: data.username || '', avatar_url: data.avatar_url });
         setEditName(data.display_name || '');
         setEditUsername(data.username || '');
         setMarketingEmails(data.marketing_emails ?? true);
+        setIsPrivate((data as any).is_private ?? false);
       }
       setLoading(false);
     });
@@ -263,6 +265,29 @@ const SettingsPage = () => {
                 className={`relative w-11 h-6 rounded-full transition-colors ${marketingEmails ? 'bg-primary' : 'bg-muted-foreground/30'}`}
               >
                 <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card shadow transition-transform ${marketingEmails ? 'translate-x-5' : 'translate-x-0'}`} />
+              </button>
+            </div>
+
+            {/* Private account toggle */}
+            <div className="flex items-center justify-between px-4 py-3 bg-muted rounded-xl">
+              <div>
+                <span className="text-sm font-display font-semibold text-foreground flex items-center gap-1.5">
+                  <Lock className="w-3.5 h-3.5" /> Compte privé
+                </span>
+                <span className="text-[11px] text-muted-foreground">Les abonnements nécessitent ton approbation</span>
+              </div>
+              <button
+                onClick={async () => {
+                  const newVal = !isPrivate;
+                  setIsPrivate(newVal);
+                  if (session?.user) {
+                    await supabase.from('profiles').update({ is_private: newVal } as any).eq('user_id', session.user.id);
+                    toast.success(newVal ? 'Compte passé en privé' : 'Compte passé en public');
+                  }
+                }}
+                className={`relative w-11 h-6 rounded-full transition-colors ${isPrivate ? 'bg-primary' : 'bg-muted-foreground/30'}`}
+              >
+                <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card shadow transition-transform ${isPrivate ? 'translate-x-5' : 'translate-x-0'}`} />
               </button>
             </div>
             </div>

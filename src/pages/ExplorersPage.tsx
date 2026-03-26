@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, UserPlus, UserCheck, X, Users, ChevronRight } from 'lucide-react';
+import { Search, UserPlus, UserCheck, X, Users, ChevronRight, Clock, Check as CheckIcon, XCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { followUser as followUserUtil } from '@/lib/followUtils';
 
 interface SearchUser {
   user_id: string;
@@ -22,13 +23,15 @@ interface FollowProfile {
 const ExplorersPage = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
-  const [tab, setTab] = useState<'search' | 'following' | 'followers'>('following');
+  const [tab, setTab] = useState<'search' | 'following' | 'followers' | 'requests'>('following');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchUser[]>([]);
   const [searching, setSearching] = useState(false);
   const [following, setFollowing] = useState<FollowProfile[]>([]);
   const [followers, setFollowers] = useState<FollowProfile[]>([]);
   const [followingIds, setFollowingIds] = useState<Set<string>>(new Set());
+  const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
+  const [pendingRequests, setPendingRequests] = useState<FollowProfile[]>([]);
   const [loading, setLoading] = useState(true);
 
   const userId = session?.user?.id;
@@ -37,16 +40,23 @@ const ExplorersPage = () => {
     if (!userId) return;
     setLoading(true);
 
-    const [{ data: followingData }, { data: followersData }] = await Promise.all([
-      supabase.from('explorer_follows').select('following_id').eq('follower_id', userId),
-      supabase.from('explorer_follows').select('follower_id').eq('following_id', userId),
+    const [{ data: followingData }, { data: followersData }, { data: pendingData }] = await Promise.all([
+      supabase.from('explorer_follows').select('following_id').eq('follower_id', userId).eq('status', 'accepted'),
+      supabase.from('explorer_follows').select('follower_id').eq('following_id', userId).eq('status', 'accepted'),
+      supabase.from('explorer_follows').select('follower_id').eq('following_id', userId).eq('status', 'pending'),
     ]);
+
+    // Also get my pending outgoing requests
+    const { data: myPendingData } = await supabase.from('explorer_follows').select('following_id').eq('follower_id', userId).eq('status', 'pending');
 
     const followingUserIds = (followingData || []).map(f => f.following_id);
     const followerUserIds = (followersData || []).map(f => f.follower_id);
-    const allIds = [...new Set([...followingUserIds, ...followerUserIds])];
+    const pendingUserIds = (pendingData || []).map(f => f.follower_id);
+    const myPendingUserIds = (myPendingData || []).map(f => f.following_id);
+    const allIds = [...new Set([...followingUserIds, ...followerUserIds, ...pendingUserIds, ...myPendingUserIds])];
 
     setFollowingIds(new Set(followingUserIds));
+    setPendingIds(new Set(myPendingUserIds));
 
     if (allIds.length > 0) {
       const { data: profiles } = await supabase
@@ -57,9 +67,11 @@ const ExplorersPage = () => {
       const profileMap = new Map((profiles || []).map(p => [p.user_id, p]));
       setFollowing(followingUserIds.map(id => ({ user_id: id, profile: profileMap.get(id) as SearchUser | undefined })));
       setFollowers(followerUserIds.map(id => ({ user_id: id, profile: profileMap.get(id) as SearchUser | undefined })));
+      setPendingRequests(pendingUserIds.map(id => ({ user_id: id, profile: profileMap.get(id) as SearchUser | undefined })));
     } else {
       setFollowing([]);
       setFollowers([]);
+      setPendingRequests([]);
     }
 
     setLoading(false);
@@ -92,19 +104,42 @@ const ExplorersPage = () => {
     }
   }, [searchQuery]);
 
-  const followUser = async (targetId: string) => {
+  const handleFollow = async (targetId: string) => {
     if (!userId) return;
-    const { error } = await supabase.from('explorer_follows').insert({
-      follower_id: userId,
-      following_id: targetId,
-    });
-    if (error) {
-      if (error.code === '23505') toast.info('Déjà abonné');
-      else toast.error("Erreur lors de l'abonnement");
+    const result = await followUserUtil(userId, targetId);
+    if (result.error === 'already_following') {
+      toast.info('Déjà abonné');
       return;
     }
-    toast.success('Abonné !');
-    setFollowingIds(prev => new Set(prev).add(targetId));
+    if (result.error) {
+      toast.error("Erreur lors de l'abonnement");
+      return;
+    }
+    if (result.status === 'pending') {
+      toast.success('Demande envoyée !');
+      setPendingIds(prev => new Set(prev).add(targetId));
+    } else {
+      toast.success('Abonné !');
+      setFollowingIds(prev => new Set(prev).add(targetId));
+    }
+    fetchFollows();
+  };
+
+  const acceptRequest = async (requesterId: string) => {
+    await supabase.from('explorer_follows')
+      .update({ status: 'accepted' })
+      .eq('follower_id', requesterId)
+      .eq('following_id', userId);
+    toast.success('Demande acceptée !');
+    fetchFollows();
+  };
+
+  const rejectRequest = async (requesterId: string) => {
+    await supabase.from('explorer_follows')
+      .delete()
+      .eq('follower_id', requesterId)
+      .eq('following_id', userId);
+    toast.info('Demande refusée');
     fetchFollows();
   };
 
@@ -119,6 +154,7 @@ const ExplorersPage = () => {
   };
 
   const isFollowing = (uid: string) => followingIds.has(uid);
+  const isPending = (uid: string) => pendingIds.has(uid);
 
   const UserRow = ({ user, action, onClick }: { user: SearchUser; action: React.ReactNode; onClick?: () => void }) => (
     <div
@@ -168,19 +204,30 @@ const ExplorersPage = () => {
 
       {tab !== 'search' && (
         <div className="max-w-lg mx-auto px-4 pt-3">
-          <div className="flex gap-2 pb-2">
+          <div className="flex gap-2 pb-2 overflow-x-auto">
             <button
               onClick={() => setTab('following')}
-              className={`px-4 py-1.5 rounded-full text-xs font-display font-semibold transition-colors ${tab === 'following' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
+              className={`px-4 py-1.5 rounded-full text-xs font-display font-semibold transition-colors whitespace-nowrap ${tab === 'following' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
             >
               Abonnements ({following.length})
             </button>
             <button
               onClick={() => setTab('followers')}
-              className={`px-4 py-1.5 rounded-full text-xs font-display font-semibold transition-colors ${tab === 'followers' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
+              className={`px-4 py-1.5 rounded-full text-xs font-display font-semibold transition-colors whitespace-nowrap ${tab === 'followers' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
             >
               Abonnés ({followers.length})
             </button>
+            {pendingRequests.length > 0 && (
+              <button
+                onClick={() => setTab('requests')}
+                className={`px-4 py-1.5 rounded-full text-xs font-display font-semibold transition-colors whitespace-nowrap relative ${tab === 'requests' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
+              >
+                Demandes ({pendingRequests.length})
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-destructive text-destructive-foreground text-[9px] font-bold flex items-center justify-center">
+                  {pendingRequests.length}
+                </span>
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -209,9 +256,16 @@ const ExplorersPage = () => {
                     >
                       <UserCheck className="w-3.5 h-3.5" /> Abonné
                     </button>
+                  ) : isPending(user.user_id) ? (
+                    <button
+                      disabled
+                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-muted text-muted-foreground text-xs font-display font-semibold"
+                    >
+                      <Clock className="w-3.5 h-3.5" /> En attente
+                    </button>
                   ) : (
                     <button
-                      onClick={() => followUser(user.user_id)}
+                      onClick={() => handleFollow(user.user_id)}
                       className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-display font-semibold"
                     >
                       <UserPlus className="w-3.5 h-3.5" /> S'abonner
@@ -276,14 +330,62 @@ const ExplorersPage = () => {
                       >
                         <UserCheck className="w-3.5 h-3.5" /> Abonné
                       </button>
+                    ) : isPending(f.user_id) ? (
+                      <button
+                        disabled
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-muted text-muted-foreground text-xs font-display font-semibold"
+                      >
+                        <Clock className="w-3.5 h-3.5" /> En attente
+                      </button>
                     ) : (
                       <button
-                        onClick={() => followUser(f.user_id)}
+                        onClick={() => handleFollow(f.user_id)}
                         className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-display font-semibold"
                       >
                         <UserPlus className="w-3.5 h-3.5" /> S'abonner
                       </button>
                     )
+                  }
+                />
+              ))}
+            </div>
+          )
+        )}
+
+        {/* Pending requests */}
+        {tab === 'requests' && (
+          loading ? (
+            <p className="text-center py-8 text-muted-foreground text-sm font-display">Chargement…</p>
+          ) : pendingRequests.length === 0 ? (
+            <div className="text-center py-16 px-6">
+              <Clock className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
+              <p className="text-foreground font-display font-semibold text-sm mb-2">Aucune demande</p>
+              <p className="text-muted-foreground text-xs leading-relaxed max-w-xs mx-auto">
+                Tu n'as aucune demande d'abonnement en attente.
+              </p>
+            </div>
+          ) : (
+            <div className="divide-y divide-border">
+              {pendingRequests.map(f => f.profile && (
+                <UserRow
+                  key={f.user_id}
+                  user={f.profile}
+                  onClick={() => navigate(`/explorer/${f.user_id}/collection`)}
+                  action={
+                    <div className="flex gap-1.5">
+                      <button
+                        onClick={() => acceptRequest(f.user_id)}
+                        className="p-2 rounded-lg bg-primary text-primary-foreground"
+                      >
+                        <CheckIcon className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => rejectRequest(f.user_id)}
+                        className="p-2 rounded-lg bg-muted text-muted-foreground hover:text-destructive"
+                      >
+                        <XCircle className="w-4 h-4" />
+                      </button>
+                    </div>
                   }
                 />
               ))}
