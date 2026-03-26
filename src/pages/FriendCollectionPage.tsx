@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, UserMinus, Users, UserPlus, UserCheck, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Search, Users, UserPlus, UserCheck, Award, Lock } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import AnimalCardComponent from '@/components/AnimalCardComponent';
 import CardDetailSheet from '@/components/CardDetailSheet';
@@ -8,6 +8,34 @@ import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+
+interface BadgeDef {
+  id: string;
+  name: string;
+  icon: string;
+  description: string;
+  total: number;
+}
+
+const BADGE_DEFS: BadgeDef[] = [
+  { id: 'first_capture', name: 'Première capture', icon: '📸', description: 'Capturer ton premier animal', total: 1 },
+  { id: 'explorer_10', name: 'Explorateur', icon: '🧭', description: 'Découvrir 10 espèces', total: 10 },
+  { id: 'explorer_25', name: 'Naturaliste', icon: '🌿', description: 'Découvrir 25 espèces', total: 25 },
+  { id: 'explorer_50', name: 'Expert faune', icon: '🔬', description: 'Découvrir 50 espèces', total: 50 },
+  { id: 'birds_5', name: 'Ornithologue', icon: '🐦', description: 'Capturer 5 oiseaux', total: 5 },
+  { id: 'mammals_5', name: 'Mammalogiste', icon: '🦊', description: 'Capturer 5 mammifères', total: 5 },
+  { id: 'rare_1', name: 'Chasseur rare', icon: '💎', description: 'Trouver un animal rare ou mieux', total: 1 },
+  { id: 'legendary_1', name: 'Légende vivante', icon: '⭐', description: 'Trouver un animal épique', total: 1 },
+  { id: 'mythic_1', name: 'Mythique !', icon: '🔥', description: 'Trouver un animal mythique', total: 1 },
+  { id: 'social_3', name: 'Sociable', icon: '🤝', description: 'Suivre 3 explorateurs', total: 3 },
+  { id: 'level_5', name: 'Niveau 5', icon: '🏅', description: 'Atteindre le niveau 5', total: 5 },
+];
+
+interface BadgeProgress {
+  badge: BadgeDef;
+  progress: number;
+  earned: boolean;
+}
 
 const rarityFilters: (Rarity | 'all')[] = ['all', 'common', 'rare', 'epic', 'mythic'];
 
@@ -24,7 +52,7 @@ const FriendCollectionPage = () => {
   const { userId } = useParams<{ userId: string }>();
   const { session } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'collection' | 'following'>('collection');
+  const [activeTab, setActiveTab] = useState<'collection' | 'badges' | 'following'>('collection');
   const [filter, setFilter] = useState<Rarity | 'all'>('all');
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [search, setSearch] = useState('');
@@ -36,6 +64,7 @@ const FriendCollectionPage = () => {
   const [profileXpToNext, setProfileXpToNext] = useState(1000);
   const [profileAvatar, setProfileAvatar] = useState<string | null>(null);
   const [amIFollowing, setAmIFollowing] = useState(false);
+  const [badges, setBadges] = useState<BadgeProgress[]>([]);
 
   // Their follows state
   const [theirFollowing, setTheirFollowing] = useState<FollowProfile[]>([]);
@@ -52,8 +81,9 @@ const FriendCollectionPage = () => {
 
       const profilePromise = supabase.from('profiles').select('display_name, username, level, xp, xp_to_next, avatar_url').eq('user_id', userId).maybeSingle();
       const capturesPromise = supabase.from('captures').select('*').eq('user_id', userId).eq('status', 'approved').order('created_at', { ascending: false });
+      const followCountPromise = supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('follower_id', userId);
 
-      const [profileRes, capturesRes] = await Promise.all([profilePromise, capturesPromise]);
+      const [profileRes, capturesRes, followCountRes] = await Promise.all([profilePromise, capturesPromise, followCountPromise]);
       setProfileName(profileRes.data?.display_name || profileRes.data?.username || 'Explorateur');
       setProfileLevel(profileRes.data?.level || 0);
       setProfileXp(profileRes.data?.xp || 0);
@@ -89,6 +119,38 @@ const FriendCollectionPage = () => {
           longitude: c.longitude,
         })));
       }
+
+      // Compute badges
+      const rawCaptures = capturesRes.data || [];
+      const totalCaptures = rawCaptures.length;
+      const birdCount = rawCaptures.filter((c: any) => c.category?.toLowerCase().includes('oiseau')).length;
+      const mammalCount = rawCaptures.filter((c: any) => c.category?.toLowerCase().includes('mammif')).length;
+      const hasRare = rawCaptures.some((c: any) => ['rare', 'epic', 'mythic'].includes(c.rarity));
+      const hasLegendary = rawCaptures.some((c: any) => ['epic', 'mythic'].includes(c.rarity));
+      const hasMythic = rawCaptures.some((c: any) => c.rarity === 'mythic');
+      const level = profileRes.data?.level || 1;
+      const followCount = followCountRes.count || 0;
+
+      const progressMap: Record<string, number> = {
+        first_capture: Math.min(totalCaptures, 1),
+        explorer_10: Math.min(totalCaptures, 10),
+        explorer_25: Math.min(totalCaptures, 25),
+        explorer_50: Math.min(totalCaptures, 50),
+        birds_5: Math.min(birdCount, 5),
+        mammals_5: Math.min(mammalCount, 5),
+        rare_1: hasRare ? 1 : 0,
+        legendary_1: hasLegendary ? 1 : 0,
+        mythic_1: hasMythic ? 1 : 0,
+        social_3: Math.min(followCount, 3),
+        level_5: Math.min(level, 5),
+      };
+
+      setBadges(BADGE_DEFS.map(b => ({
+        badge: b,
+        progress: progressMap[b.id] || 0,
+        earned: (progressMap[b.id] || 0) >= b.total,
+      })));
+
       setLoading(false);
     };
 
@@ -224,6 +286,13 @@ const FriendCollectionPage = () => {
               Collection ({captures.length})
             </button>
             <button
+              onClick={() => setActiveTab('badges')}
+              className={`px-4 py-1.5 rounded-full text-xs font-display font-semibold transition-colors flex items-center gap-1.5 ${activeTab === 'badges' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
+            >
+              <Award className="w-3.5 h-3.5" />
+              Badges ({badges.filter(b => b.earned).length})
+            </button>
+            <button
               onClick={() => setActiveTab('following')}
               className={`px-4 py-1.5 rounded-full text-xs font-display font-semibold transition-colors flex items-center gap-1.5 ${activeTab === 'following' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
             >
@@ -332,6 +401,79 @@ const FriendCollectionPage = () => {
             )}
           </div>
         </>
+      )}
+
+      {/* Badges tab */}
+      {activeTab === 'badges' && (
+        <div className="max-w-lg mx-auto px-4 pt-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-amber/15 border border-amber/25 flex items-center justify-center">
+                <Award className="w-4.5 h-4.5 text-amber" />
+              </div>
+              <h3 className="text-lg font-display font-black text-foreground">Badges</h3>
+            </div>
+            <span className="text-[11px] font-display font-semibold text-amber bg-amber/10 border border-amber/20 px-2.5 py-1 rounded-full">
+              🏆 {badges.filter(b => b.earned).length}/{badges.length}
+            </span>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            {badges.map(({ badge, progress, earned }, i) => {
+              const pct = Math.round((progress / badge.total) * 100);
+              return (
+                <div
+                  key={badge.id}
+                  className={`relative rounded-2xl p-3.5 text-center transition-all duration-500 game-card-appear ${
+                    earned
+                      ? 'bg-gradient-to-b from-amber/10 via-amber/5 to-card border-2 border-amber/40 shadow-[0_0_20px_hsla(42,85%,55%,0.15)] badge-earned-glow'
+                      : 'bg-card/80 border border-border/60 hover:border-border'
+                  }`}
+                  style={{ animationDelay: `${i * 60}ms` }}
+                >
+                  {earned && (
+                    <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-amber flex items-center justify-center shadow-[0_0_8px_hsla(42,85%,55%,0.5)] badge-sparkle">
+                      <span className="text-[8px]">✓</span>
+                    </div>
+                  )}
+                  {!earned && (
+                    <div className="absolute top-2 right-2">
+                      <Lock className="w-3 h-3 text-muted-foreground/30" />
+                    </div>
+                  )}
+                  <div className={`relative mx-auto w-12 h-12 rounded-xl flex items-center justify-center mb-2 transition-all ${
+                    earned
+                      ? 'bg-amber/15 border border-amber/30 shadow-[0_0_12px_hsla(42,85%,55%,0.2)]'
+                      : 'bg-muted/60 border border-border/40'
+                  }`}>
+                    <span className={`text-2xl ${earned ? 'badge-icon-float' : 'grayscale opacity-40'}`}>{badge.icon}</span>
+                  </div>
+                  <p className={`text-[11px] font-display font-black leading-tight mb-0.5 ${earned ? 'text-foreground' : 'text-muted-foreground'}`}>
+                    {badge.name}
+                  </p>
+                  <p className={`text-[9px] leading-tight mb-2 ${earned ? 'text-muted-foreground' : 'text-muted-foreground/60'}`}>
+                    {badge.description}
+                  </p>
+                  {!earned && (
+                    <div className="space-y-1">
+                      <div className="h-1.5 bg-muted/80 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-primary/60 to-primary transition-all duration-700 ease-out"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                      <p className="text-[9px] font-display font-bold text-muted-foreground/70">{progress}/{badge.total}</p>
+                    </div>
+                  )}
+                  {earned && (
+                    <span className="inline-block text-[9px] font-display font-bold text-amber bg-amber/10 px-2 py-0.5 rounded-full">
+                      Débloqué ✨
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
       )}
 
       {/* Following tab */}
