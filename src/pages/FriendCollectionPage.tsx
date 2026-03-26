@@ -119,6 +119,38 @@ const FriendCollectionPage = () => {
           longitude: c.longitude,
         })));
       }
+
+      // Compute badges
+      const rawCaptures = capturesRes.data || [];
+      const totalCaptures = rawCaptures.length;
+      const birdCount = rawCaptures.filter((c: any) => c.category?.toLowerCase().includes('oiseau')).length;
+      const mammalCount = rawCaptures.filter((c: any) => c.category?.toLowerCase().includes('mammif')).length;
+      const hasRare = rawCaptures.some((c: any) => ['rare', 'epic', 'mythic'].includes(c.rarity));
+      const hasLegendary = rawCaptures.some((c: any) => ['epic', 'mythic'].includes(c.rarity));
+      const hasMythic = rawCaptures.some((c: any) => c.rarity === 'mythic');
+      const level = profileRes.data?.level || 1;
+      const followCount = followCountRes.count || 0;
+
+      const progressMap: Record<string, number> = {
+        first_capture: Math.min(totalCaptures, 1),
+        explorer_10: Math.min(totalCaptures, 10),
+        explorer_25: Math.min(totalCaptures, 25),
+        explorer_50: Math.min(totalCaptures, 50),
+        birds_5: Math.min(birdCount, 5),
+        mammals_5: Math.min(mammalCount, 5),
+        rare_1: hasRare ? 1 : 0,
+        legendary_1: hasLegendary ? 1 : 0,
+        mythic_1: hasMythic ? 1 : 0,
+        social_3: Math.min(followCount, 3),
+        level_5: Math.min(level, 5),
+      };
+
+      setBadges(BADGE_DEFS.map(b => ({
+        badge: b,
+        progress: progressMap[b.id] || 0,
+        earned: (progressMap[b.id] || 0) >= b.total,
+      })));
+
       setLoading(false);
     };
 
