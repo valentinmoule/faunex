@@ -312,7 +312,7 @@ const Index = () => {
         </div>
 
         {/* Autour de moi */}
-        <NearbyAnimalsSection />
+        <NearbyAnimalsSection capturedNames={recentCaptures.map(c => c.name)} />
 
         {/* Recent Captures */}
         {recentCaptures.length > 0 && (
