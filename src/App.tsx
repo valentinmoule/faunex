@@ -25,6 +25,7 @@ import LegalPage from "./pages/LegalPage";
 import ShareProfilePage from "./pages/ShareProfilePage";
 import SettingsPage from "./pages/SettingsPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
+import QuestsPage from "./pages/QuestsPage";
 import LandingPage from "./pages/LandingPage";
 import CompleteProfilePage from "./pages/CompleteProfilePage";
 import BottomNav from "./components/BottomNav";
@@ -100,6 +101,7 @@ const AppRoutes = () => {
         <Route path="/bestiaire" element={<ProtectedRoute><BestiairePage /></ProtectedRoute>} />
         <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
         <Route path="/moderation" element={<AdminRoute><ModerationPage /></AdminRoute>} />
+        <Route path="/quests" element={<ProtectedRoute><QuestsPage /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
         <Route path="/legal" element={<LegalPage />} />
         <Route path="/u/:username" element={<ShareProfilePage />} />

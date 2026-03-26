@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Bell } from 'lucide-react';
 import NearbyAnimalsSection from '@/components/NearbyAnimalsSection';
-import DailyQuestsSection from '@/components/DailyQuestsSection';
+import { Target, ChevronRight } from 'lucide-react';
 import AnimalCardComponent from '@/components/AnimalCardComponent';
 import CardDetailSheet from '@/components/CardDetailSheet';
 import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
