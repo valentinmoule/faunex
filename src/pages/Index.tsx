@@ -212,11 +212,13 @@ const Index = () => {
           onClick={() => navigate('/quests')}
           className="w-full relative overflow-hidden flex items-center gap-3 p-4 rounded-2xl border border-amber/30 bg-gradient-to-br from-amber/10 via-amber/15 to-amber-dark/10 hover:from-amber/15 hover:to-amber-dark/15 transition-all text-left group active:scale-[0.97] transform shadow-[0_0_20px_hsla(42,80%,55%,0.15)] hover:shadow-[0_0_30px_hsla(42,80%,55%,0.25)]"
         >
-          {/* Radiating lines across full card */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none quest-rays-card">
-            {Array.from({ length: 12 }).map((_, i) => (
-              <div key={i} className="absolute w-[1.5px] bg-gradient-to-t from-amber/30 via-amber/15 to-transparent origin-bottom quest-ray-card" style={{ height: '120%', transform: `rotate(${i * 30}deg)` }} />
-            ))}
+          {/* Sunburst rays background */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden rounded-2xl">
+            <div className="quest-sunburst">
+              {Array.from({ length: 16 }).map((_, i) => (
+                <div key={i} className="quest-sunburst-ray" style={{ transform: `rotate(${i * 22.5}deg)` }} />
+              ))}
+            </div>
           </div>
           
           {/* Icon container */}
