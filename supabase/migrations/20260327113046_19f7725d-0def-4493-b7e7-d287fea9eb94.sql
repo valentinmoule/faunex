@@ -1,0 +1,1 @@
+ALTER TABLE public.captures ALTER COLUMN shared SET DEFAULT true;
