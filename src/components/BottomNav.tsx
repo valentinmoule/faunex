@@ -1,12 +1,11 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Camera, Users, PawPrint, Globe, Newspaper } from 'lucide-react';
+import { Camera, Users, PawPrint, Globe } from 'lucide-react';
 
 const tabs = [
   { path: '/home', label: 'Mon Faunex', icon: PawPrint },
   { path: '/bestiaire', label: 'Bestiaire', icon: Globe },
   { path: '/capture', label: 'Capture', icon: Camera },
   { path: '/explorers', label: 'Explorateurs', icon: Users },
-  { path: '/feed', label: 'Actu', icon: Newspaper },
 ];
 
 const BottomNav = () => {
@@ -17,7 +16,7 @@ const BottomNav = () => {
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card/90 backdrop-blur-xl border-t border-border safe-bottom">
       <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-2">
         {tabs.map((tab) => {
-          const isActive = location.pathname === tab.path || (tab.path === '/home' && location.pathname === '/home');
+          const isActive = location.pathname === tab.path;
           const Icon = tab.icon;
           const isCapture = tab.path === '/capture';
 
