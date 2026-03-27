@@ -378,7 +378,7 @@ const FeedPage = () => {
                         <span className="text-sm font-display font-semibold text-foreground truncate">{userName}</span>
                         <span className="text-xs text-muted-foreground">a capturé</span>
                       </div>
-                      <span className="text-[11px] text-muted-foreground">{timeAgo(post.created_at)}{post.location ? ` à ${post.location}` : ''}</span>
+                      <span className="text-[11px] text-muted-foreground">{timeAgo(post.created_at)}</span>
                     </div>
                   </div>
 
