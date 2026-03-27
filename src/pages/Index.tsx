@@ -212,14 +212,12 @@ const Index = () => {
           onClick={() => navigate('/quests')}
           className="w-full relative overflow-hidden flex items-center gap-3 p-4 rounded-2xl border border-amber/30 bg-gradient-to-br from-amber/10 via-amber/15 to-amber-dark/10 hover:from-amber/15 hover:to-amber-dark/15 transition-all text-left group active:scale-[0.97] transform shadow-[0_0_20px_hsla(42,80%,55%,0.15)] hover:shadow-[0_0_30px_hsla(42,80%,55%,0.25)]"
         >
-          {/* Animated sweep */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber/10 to-transparent game-quest-sweep pointer-events-none" />
-          
-          {/* Floating sparkles */}
-          <div className="absolute top-2 left-8 w-1 h-1 rounded-full bg-amber quest-sparkle-1 pointer-events-none" />
-          <div className="absolute top-4 right-16 w-1.5 h-1.5 rounded-full bg-amber-light quest-sparkle-2 pointer-events-none" />
-          <div className="absolute bottom-3 left-20 w-1 h-1 rounded-full bg-amber quest-sparkle-3 pointer-events-none" />
-          <div className="absolute top-6 left-14 w-0.5 h-0.5 rounded-full bg-white quest-sparkle-4 pointer-events-none" />
+          {/* Radiating lines across full card */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none quest-rays-card">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <div key={i} className="absolute w-[1.5px] bg-gradient-to-t from-amber/30 via-amber/15 to-transparent origin-bottom quest-ray-card" style={{ height: '120%', transform: `rotate(${i * 30}deg)` }} />
+            ))}
+          </div>
           
           {/* Icon container with radiating beams */}
           <div className="relative w-12 h-12 flex items-center justify-center shrink-0">
