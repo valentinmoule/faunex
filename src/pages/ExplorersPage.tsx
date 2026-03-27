@@ -521,8 +521,8 @@ const ExplorersPage = () => {
                       <div className="flex items-baseline gap-1.5">
                         <span className="text-sm font-display font-semibold text-foreground truncate">{userName}</span>
                         <span className="text-xs text-muted-foreground">a capturé</span>
+                        <span className="text-[11px] text-muted-foreground">· {timeAgo(post.created_at)}</span>
                       </div>
-                      <span className="text-[11px] text-muted-foreground">{timeAgo(post.created_at)}</span>
                     </div>
                   </div>
 
