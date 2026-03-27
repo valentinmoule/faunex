@@ -340,7 +340,7 @@ const FeedPage = () => {
         </div>
       </header>
 
-      <div className="max-w-lg mx-auto px-4 pt-4 space-y-4">
+      <div className="max-w-lg mx-auto">
         {loading ? (
           <div className="text-center py-16">
             <p className="text-muted-foreground font-display">Chargement…</p>
@@ -352,130 +352,125 @@ const FeedPage = () => {
             <p className="text-muted-foreground/60 text-xs mt-1">Ajoute des explorateurs ou partage tes captures !</p>
           </div>
         ) : (
-          posts.map(post => {
-            const profile = post.profiles;
-            const userName = profile?.display_name || profile?.username || 'Anonyme';
-            const avatarUrl = profile?.avatar_url;
-            const isShiny = post.rarity === 'epic' || post.rarity === 'mythic';
-            const isMythic = post.rarity === 'mythic';
-            const isLiked = likedPosts.has(post.id);
-            const likeCount = likeCounts[post.id] || 0;
-            const commentCount = commentCounts[post.id] || 0;
-            const isCommentsOpen = openComments === post.id;
+          <div className="divide-y divide-border">
+            {posts.map(post => {
+              const profile = post.profiles;
+              const userName = profile?.display_name || profile?.username || 'Anonyme';
+              const avatarUrl = profile?.avatar_url;
+              const isLiked = likedPosts.has(post.id);
+              const likeCount = likeCounts[post.id] || 0;
+              const commentCount = commentCounts[post.id] || 0;
+              const isCommentsOpen = openComments === post.id;
 
-            return (
-              <article key={post.id} className="bg-card rounded-2xl border border-border overflow-hidden shadow-card">
-                <div className="flex items-center gap-3 p-4 pb-2">
-                  <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-sm font-display font-bold text-primary overflow-hidden">
-                    {avatarUrl ? (
-                      <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      userName.charAt(0).toUpperCase()
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-display font-semibold text-foreground truncate">{userName}</p>
-                    <p className="text-[11px] text-muted-foreground">{timeAgo(post.created_at)}</p>
-                  </div>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-display font-bold uppercase tracking-wider bg-primary/10 text-primary">
-                    {RARITY_LABELS[post.rarity as Rarity] || post.rarity}
-                  </span>
-                </div>
-
-                <button
-                  onClick={() => setSelectedCard(toAnimalCard(post))}
-                  className={`relative w-full aspect-square overflow-hidden ${isMythic ? 'mythic-shiny' : ''}`}
-                >
-                  <img src={post.image_url} alt={post.animal_name} className="w-full h-full object-cover" />
-                  {isMythic && <div className="mythic-image-overlay" />}
-                  {isMythic && (
-                    <div className="mythic-sparkles">
-                      <span /><span /><span /><span /><span /><span />
+              return (
+                <article key={post.id} className="px-4 py-3">
+                  <div className="flex items-center gap-3">
+                    {/* Avatar */}
+                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-display font-bold text-primary overflow-hidden shrink-0">
+                      {avatarUrl ? (
+                        <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        userName.charAt(0).toUpperCase()
+                      )}
                     </div>
-                  )}
-                  {isShiny && !isMythic && <div className="absolute inset-0 holographic-card card-shimmer pointer-events-none" style={{ backgroundImage: 'var(--gradient-holographic)', backgroundSize: '200% 200%', opacity: 0.2 }} />}
-                  <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-foreground/60 to-transparent p-4 pt-12">
-                    <p className="text-primary-foreground font-display font-bold text-lg">{post.animal_name}</p>
-                    <p className="text-primary-foreground/70 text-xs italic">{post.scientific_name}</p>
-                  </div>
-                </button>
 
-                {post.caption && (
-                  <div className="px-4 pt-3">
-                    <p className="text-sm text-foreground leading-relaxed">{post.caption}</p>
-                  </div>
-                )}
-
-                {/* Actions */}
-                <div className="flex items-center gap-5 px-4 py-3">
-                  <button onClick={() => handleLike(post.id)} className="flex items-center gap-1.5 group">
-                    <Heart className={`w-5 h-5 transition-all ${isLiked ? 'fill-destructive text-destructive scale-110' : 'text-muted-foreground group-hover:text-destructive'}`} />
-                    <span className={`text-sm ${isLiked ? 'text-destructive font-semibold' : 'text-muted-foreground'}`}>{likeCount}</span>
-                  </button>
-                  <button onClick={() => handleOpenComments(post.id)} className="flex items-center gap-1.5 group">
-                    <MessageCircle className={`w-5 h-5 transition-colors ${isCommentsOpen ? 'text-primary fill-primary/20' : 'text-muted-foreground group-hover:text-primary'}`} />
-                    <span className={`text-sm ${isCommentsOpen ? 'text-primary font-semibold' : 'text-muted-foreground'}`}>{commentCount}</span>
-                  </button>
-                  <button className="ml-auto group">
-                    <Share2 className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                  </button>
-                </div>
-
-                {/* Comments section */}
-                {isCommentsOpen && (
-                  <div className="border-t border-border px-4 py-3 space-y-3">
-                    {loadingComments ? (
-                      <p className="text-xs text-muted-foreground text-center py-2">Chargement…</p>
-                    ) : comments.length === 0 ? (
-                      <p className="text-xs text-muted-foreground text-center py-2">Aucun commentaire — sois le premier !</p>
-                    ) : (
-                      <div className="space-y-2.5 max-h-60 overflow-y-auto">
-                        {comments.map(comment => (
-                          <div key={comment.id} className="flex gap-2">
-                            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-display font-bold text-primary shrink-0 overflow-hidden">
-                              {comment.profile?.avatar_url ? (
-                                <img src={comment.profile.avatar_url} alt="" className="w-full h-full object-cover" />
-                              ) : (
-                                (comment.profile?.display_name || comment.profile?.username || '?').charAt(0).toUpperCase()
-                              )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-baseline gap-2">
-                                <span className="text-xs font-display font-semibold text-foreground">
-                                  {comment.profile?.display_name || comment.profile?.username || 'Anonyme'}
-                                </span>
-                                <span className="text-[10px] text-muted-foreground">{timeAgo(comment.created_at)}</span>
-                              </div>
-                              <p className="text-sm text-foreground/80 leading-snug">{comment.content}</p>
-                            </div>
-                          </div>
-                        ))}
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-baseline gap-1.5">
+                        <span className="text-sm font-display font-semibold text-foreground truncate">{userName}</span>
+                        <span className="text-xs text-muted-foreground">a capturé</span>
                       </div>
-                    )}
-
-                    {/* New comment input */}
-                    <div className="flex items-center gap-2 pt-1">
-                      <input
-                        type="text"
-                        value={newComment}
-                        onChange={(e) => setNewComment(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSubmitComment(post.id)}
-                        placeholder="Ajouter un commentaire…"
-                        className="flex-1 bg-muted rounded-full px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body"
-                      />
                       <button
-                        onClick={() => handleSubmitComment(post.id)}
-                        disabled={!newComment.trim() || submittingComment}
-                        className="p-2 rounded-full bg-primary text-primary-foreground disabled:opacity-40 transition-opacity"
+                        onClick={() => setSelectedCard(toAnimalCard(post))}
+                        className="flex items-center gap-2 mt-1 group"
                       >
-                        <Send className="w-4 h-4" />
+                        <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-border">
+                          <img src={post.image_url} alt={post.animal_name} className="w-full h-full object-cover" />
+                        </div>
+                        <div className="text-left min-w-0">
+                          <p className="text-sm font-display font-bold text-foreground group-hover:text-primary transition-colors truncate">{post.animal_name}</p>
+                          <p className="text-[11px] text-muted-foreground italic truncate">{post.scientific_name}</p>
+                        </div>
+                        <span className="ml-auto px-1.5 py-0.5 rounded-full text-[9px] font-display font-bold uppercase tracking-wider bg-primary/10 text-primary shrink-0">
+                          {RARITY_LABELS[post.rarity as Rarity] || post.rarity}
+                        </span>
                       </button>
                     </div>
+
+                    {/* Time */}
+                    <span className="text-[10px] text-muted-foreground shrink-0 self-start mt-0.5">{timeAgo(post.created_at)}</span>
                   </div>
-                )}
-              </article>
-            );
-          })
+
+                  {post.caption && (
+                    <p className="text-xs text-foreground/70 mt-1.5 ml-11 leading-relaxed">{post.caption}</p>
+                  )}
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-4 ml-11 mt-2">
+                    <button onClick={() => handleLike(post.id)} className="flex items-center gap-1 group">
+                      <Heart className={`w-4 h-4 transition-all ${isLiked ? 'fill-destructive text-destructive scale-110' : 'text-muted-foreground group-hover:text-destructive'}`} />
+                      {likeCount > 0 && <span className={`text-xs ${isLiked ? 'text-destructive font-semibold' : 'text-muted-foreground'}`}>{likeCount}</span>}
+                    </button>
+                    <button onClick={() => handleOpenComments(post.id)} className="flex items-center gap-1 group">
+                      <MessageCircle className={`w-4 h-4 transition-colors ${isCommentsOpen ? 'text-primary fill-primary/20' : 'text-muted-foreground group-hover:text-primary'}`} />
+                      {commentCount > 0 && <span className={`text-xs ${isCommentsOpen ? 'text-primary font-semibold' : 'text-muted-foreground'}`}>{commentCount}</span>}
+                    </button>
+                  </div>
+
+                  {/* Comments section */}
+                  {isCommentsOpen && (
+                    <div className="ml-11 mt-2 space-y-2">
+                      {loadingComments ? (
+                        <p className="text-xs text-muted-foreground py-1">Chargement…</p>
+                      ) : comments.length === 0 ? (
+                        <p className="text-xs text-muted-foreground py-1">Aucun commentaire — sois le premier !</p>
+                      ) : (
+                        <div className="space-y-2 max-h-48 overflow-y-auto">
+                          {comments.map(comment => (
+                            <div key={comment.id} className="flex gap-2">
+                              <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[9px] font-display font-bold text-primary shrink-0 overflow-hidden">
+                                {comment.profile?.avatar_url ? (
+                                  <img src={comment.profile.avatar_url} alt="" className="w-full h-full object-cover" />
+                                ) : (
+                                  (comment.profile?.display_name || comment.profile?.username || '?').charAt(0).toUpperCase()
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-baseline gap-1.5">
+                                  <span className="text-[11px] font-display font-semibold text-foreground">
+                                    {comment.profile?.display_name || comment.profile?.username || 'Anonyme'}
+                                  </span>
+                                  <span className="text-[9px] text-muted-foreground">{timeAgo(comment.created_at)}</span>
+                                </div>
+                                <p className="text-xs text-foreground/80 leading-snug">{comment.content}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={newComment}
+                          onChange={(e) => setNewComment(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSubmitComment(post.id)}
+                          placeholder="Commenter…"
+                          className="flex-1 bg-muted rounded-full px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body"
+                        />
+                        <button
+                          onClick={() => handleSubmitComment(post.id)}
+                          disabled={!newComment.trim() || submittingComment}
+                          className="p-1.5 rounded-full bg-primary text-primary-foreground disabled:opacity-40 transition-opacity"
+                        >
+                          <Send className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </article>
+              );
+            })}
+          </div>
         )}
       </div>
 
