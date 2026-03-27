@@ -60,18 +60,26 @@ const FeedPage = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [userProfile, setUserProfile] = useState<{ avatar_url: string | null; display_name: string | null } | null>(null);
 
-  // Fetch unread notifications count
+  // Fetch user profile and unread notifications count
   useEffect(() => {
     if (!session?.user) return;
-    const fetchUnread = async () => {
-      const { count } = await supabase
-        .from('notifications')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', session.user.id)
-        .eq('read', false);
+    const fetchData = async () => {
+      const [{ count }, { data: profile }] = await Promise.all([
+        supabase
+          .from('notifications')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', session.user.id)
+          .eq('read', false),
+        supabase
+          .from('profiles')
+          .select('avatar_url, display_name')
+          .eq('user_id', session.user.id)
+          .maybeSingle(),
+      ]);
       setUnreadCount(count || 0);
+      setUserProfile(profile);
     };
-    fetchUnread();
+    fetchData();
 
     const channel = supabase
       .channel('notif-count')
@@ -80,7 +88,14 @@ const FeedPage = () => {
         schema: 'public',
         table: 'notifications',
         filter: `user_id=eq.${session.user.id}`,
-      }, () => fetchUnread())
+      }, () => {
+        supabase
+          .from('notifications')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', session.user.id)
+          .eq('read', false)
+          .then(({ count }) => setUnreadCount(count || 0));
+      })
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
