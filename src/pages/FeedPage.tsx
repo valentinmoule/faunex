@@ -58,19 +58,28 @@ const FeedPage = () => {
   const [loadingComments, setLoadingComments] = useState(false);
   const [submittingComment, setSubmittingComment] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [userProfile, setUserProfile] = useState<{ avatar_url: string | null; display_name: string | null } | null>(null);
 
-  // Fetch unread notifications count
+  // Fetch user profile and unread notifications count
   useEffect(() => {
     if (!session?.user) return;
-    const fetchUnread = async () => {
-      const { count } = await supabase
-        .from('notifications')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', session.user.id)
-        .eq('read', false);
+    const fetchData = async () => {
+      const [{ count }, { data: profile }] = await Promise.all([
+        supabase
+          .from('notifications')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', session.user.id)
+          .eq('read', false),
+        supabase
+          .from('profiles')
+          .select('avatar_url, display_name')
+          .eq('user_id', session.user.id)
+          .maybeSingle(),
+      ]);
       setUnreadCount(count || 0);
+      setUserProfile(profile);
     };
-    fetchUnread();
+    fetchData();
 
     const channel = supabase
       .channel('notif-count')
@@ -79,7 +88,14 @@ const FeedPage = () => {
         schema: 'public',
         table: 'notifications',
         filter: `user_id=eq.${session.user.id}`,
-      }, () => fetchUnread())
+      }, () => {
+        supabase
+          .from('notifications')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', session.user.id)
+          .eq('read', false)
+          .then(({ count }) => setUnreadCount(count || 0));
+      })
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
@@ -291,14 +307,25 @@ const FeedPage = () => {
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="flex items-center justify-between max-w-lg mx-auto">
           <h1 className="text-2xl font-display font-bold text-primary">Faunex</h1>
-          <button onClick={() => navigate('/notifications')} className="relative p-2 rounded-full hover:bg-muted transition-colors">
-            <Bell className="w-5 h-5 text-foreground" />
-            {unreadCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center">
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </span>
-            )}
-          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={() => navigate('/notifications')} className="relative p-2 rounded-full hover:bg-muted transition-colors">
+              <Bell className="w-5 h-5 text-foreground" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </button>
+            <button onClick={() => navigate('/profile')} className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden hover:ring-2 hover:ring-primary/30 transition-all">
+              {userProfile?.avatar_url ? (
+                <img src={userProfile.avatar_url} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-sm font-display font-bold text-primary">
+                  {(userProfile?.display_name || '?').charAt(0).toUpperCase()}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
       </header>
 

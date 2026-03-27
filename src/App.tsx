@@ -18,6 +18,7 @@ import ExplorersPage from "./pages/ExplorersPage";
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
 import FriendCollectionPage from "./pages/FriendCollectionPage";
+import FeedPage from "./pages/FeedPage";
 import BestiairePage from "./pages/BestiairePage";
 import NotificationsPage from "./pages/NotificationsPage";
 import ModerationPage from "./pages/ModerationPage";
@@ -96,6 +97,7 @@ const AppRoutes = () => {
         <Route path="/collection" element={<ProtectedRoute><CollectionPage /></ProtectedRoute>} />
         <Route path="/capture" element={<ProtectedRoute><CapturePage /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+        <Route path="/feed" element={<ProtectedRoute><FeedPage /></ProtectedRoute>} />
         <Route path="/explorers" element={<ProtectedRoute><ExplorersPage /></ProtectedRoute>} />
         <Route path="/explorer/:userId/collection" element={<ProtectedRoute><FriendCollectionPage /></ProtectedRoute>} />
         <Route path="/bestiaire" element={<ProtectedRoute><BestiairePage /></ProtectedRoute>} />
