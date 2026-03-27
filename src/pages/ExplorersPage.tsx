@@ -487,11 +487,6 @@ const ExplorersPage = () => {
                 </span>
               )}
             </button>
-            <button onClick={() => navigate('/profile')} className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden hover:ring-2 hover:ring-primary/30 transition-all">
-              {userProfile?.avatar_url ? <img src={userProfile.avatar_url} alt="" className="w-full h-full object-cover" /> : (
-                <span className="text-sm font-display font-bold text-primary">{(userProfile?.display_name || '?').charAt(0).toUpperCase()}</span>
-              )}
-            </button>
           </div>
         </div>
       </header>
