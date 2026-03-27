@@ -116,11 +116,22 @@ const FeedPage = () => {
 
       const allIds = [userId, ...friendIds];
 
+      // Get private profile IDs to exclude
+      const { data: privateProfiles } = await supabase
+        .from('profiles')
+        .select('user_id')
+        .eq('is_private', true)
+        .in('user_id', allIds);
+
+      const privateIds = new Set((privateProfiles || []).map(p => p.user_id));
+      // Keep own captures + non-private followed users
+      const visibleIds = allIds.filter(id => id === userId || !privateIds.has(id));
+
       const { data, error } = await supabase
         .from('captures')
         .select('*')
-        .eq('shared', true)
-        .in('user_id', allIds)
+        .eq('status', 'approved')
+        .in('user_id', visibleIds)
         .order('created_at', { ascending: false })
         .limit(50);
 
