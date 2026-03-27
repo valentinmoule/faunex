@@ -1,11 +1,12 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Camera, Users, PawPrint, Globe } from 'lucide-react';
+import { Camera, Users, PawPrint, Globe, User } from 'lucide-react';
 
 const tabs = [
   { path: '/home', label: 'Mon Faunex', icon: PawPrint },
   { path: '/bestiaire', label: 'Bestiaire', icon: Globe },
   { path: '/capture', label: 'Capture', icon: Camera },
   { path: '/explorers', label: 'Explorateurs', icon: Users },
+  { path: '/profile', label: 'Profil', icon: User },
 ];
 
 const BottomNav = () => {
