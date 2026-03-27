@@ -382,18 +382,22 @@ const FeedPage = () => {
                       </div>
                       <button
                         onClick={() => setSelectedCard(toAnimalCard(post))}
-                        className="flex items-center gap-2 mt-1 group"
+                        className="block w-full mt-2 group"
                       >
-                        <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-border">
+                        <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden border border-border">
                           <img src={post.image_url} alt={post.animal_name} className="w-full h-full object-cover" />
+                          <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-foreground/60 to-transparent p-3 pt-8">
+                            <div className="flex items-end justify-between">
+                              <div>
+                                <p className="text-primary-foreground font-display font-bold text-base">{post.animal_name}</p>
+                                <p className="text-primary-foreground/70 text-[11px] italic">{post.scientific_name}</p>
+                              </div>
+                              <span className="px-1.5 py-0.5 rounded-full text-[9px] font-display font-bold uppercase tracking-wider bg-white/20 text-white backdrop-blur-sm">
+                                {RARITY_LABELS[post.rarity as Rarity] || post.rarity}
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                        <div className="text-left min-w-0">
-                          <p className="text-sm font-display font-bold text-foreground group-hover:text-primary transition-colors truncate">{post.animal_name}</p>
-                          <p className="text-[11px] text-muted-foreground italic truncate">{post.scientific_name}</p>
-                        </div>
-                        <span className="ml-auto px-1.5 py-0.5 rounded-full text-[9px] font-display font-bold uppercase tracking-wider bg-primary/10 text-primary shrink-0">
-                          {RARITY_LABELS[post.rarity as Rarity] || post.rarity}
-                        </span>
                       </button>
                     </div>
 
