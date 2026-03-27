@@ -221,11 +221,18 @@ const Index = () => {
           <div className="absolute bottom-3 left-20 w-1 h-1 rounded-full bg-amber quest-sparkle-3 pointer-events-none" />
           <div className="absolute top-6 left-14 w-0.5 h-0.5 rounded-full bg-white quest-sparkle-4 pointer-events-none" />
           
-          {/* Icon container with glow */}
-          <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-amber/25 to-amber-dark/20 border border-amber/30 flex items-center justify-center shrink-0 quest-icon-container">
-            <div className="absolute inset-0 rounded-xl quest-icon-glow pointer-events-none" />
-            <div className="absolute inset-[-4px] rounded-2xl quest-icon-ring pointer-events-none" />
-            <Target className="w-6 h-6 text-amber quest-icon-spin relative z-10" />
+          {/* Icon container with radiating beams */}
+          <div className="relative w-12 h-12 flex items-center justify-center shrink-0">
+            {/* Radiating lines */}
+            <div className="absolute inset-[-10px] quest-rays pointer-events-none">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="absolute top-1/2 left-1/2 w-[2px] h-5 bg-gradient-to-t from-amber/40 to-transparent origin-bottom quest-ray" style={{ transform: `translate(-50%, -100%) rotate(${i * 45}deg)`, transformOrigin: '50% 100%' }} />
+              ))}
+            </div>
+            <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-amber/25 to-amber-dark/20 border border-amber/30 flex items-center justify-center quest-icon-container">
+              <div className="absolute inset-0 rounded-xl quest-icon-glow pointer-events-none" />
+              <Target className="w-6 h-6 text-amber quest-icon-spin relative z-10" />
+            </div>
           </div>
           
           <div className="relative flex-1 min-w-0">
