@@ -1345,33 +1345,71 @@
   animation: quest-container-breathe 2.5s ease-in-out infinite;
 }
 
-/* Sunburst rays — smooth rotating sun rays */
+/* Sunburst rays — conic gradient rotating */
 .quest-sunburst {
   position: absolute;
-  width: 250%;
-  height: 250%;
+  top: 50%;
+  left: 50%;
+  width: 300%;
+  height: 300%;
+  transform: translate(-50%, -50%);
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    hsla(42, 80%, 55%, 0.12) 5deg,
+    transparent 10deg,
+    transparent 22.5deg,
+    hsla(42, 80%, 55%, 0.08) 27.5deg,
+    transparent 32.5deg,
+    transparent 45deg,
+    hsla(42, 80%, 55%, 0.12) 50deg,
+    transparent 55deg,
+    transparent 67.5deg,
+    hsla(42, 80%, 55%, 0.08) 72.5deg,
+    transparent 77.5deg,
+    transparent 90deg,
+    hsla(42, 80%, 55%, 0.12) 95deg,
+    transparent 100deg,
+    transparent 112.5deg,
+    hsla(42, 80%, 55%, 0.08) 117.5deg,
+    transparent 122.5deg,
+    transparent 135deg,
+    hsla(42, 80%, 55%, 0.12) 140deg,
+    transparent 145deg,
+    transparent 157.5deg,
+    hsla(42, 80%, 55%, 0.08) 162.5deg,
+    transparent 167.5deg,
+    transparent 180deg,
+    hsla(42, 80%, 55%, 0.12) 185deg,
+    transparent 190deg,
+    transparent 202.5deg,
+    hsla(42, 80%, 55%, 0.08) 207.5deg,
+    transparent 212.5deg,
+    transparent 225deg,
+    hsla(42, 80%, 55%, 0.12) 230deg,
+    transparent 235deg,
+    transparent 247.5deg,
+    hsla(42, 80%, 55%, 0.08) 252.5deg,
+    transparent 257.5deg,
+    transparent 270deg,
+    hsla(42, 80%, 55%, 0.12) 275deg,
+    transparent 280deg,
+    transparent 292.5deg,
+    hsla(42, 80%, 55%, 0.08) 297.5deg,
+    transparent 302.5deg,
+    transparent 315deg,
+    hsla(42, 80%, 55%, 0.12) 320deg,
+    transparent 325deg,
+    transparent 337.5deg,
+    hsla(42, 80%, 55%, 0.08) 342.5deg,
+    transparent 347.5deg,
+    transparent 360deg
+  );
   animation: quest-sunburst-rotate 20s linear infinite;
 }
 @keyframes quest-sunburst-rotate {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-.quest-sunburst-ray {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 0;
-  height: 50%;
-  transform-origin: bottom center;
-  border-left: 18px solid transparent;
-  border-right: 18px solid transparent;
-  border-bottom: none;
-  margin-left: -18px;
-  background: linear-gradient(to bottom, hsla(42, 80%, 55%, 0.12) 0%, transparent 70%);
-  clip-path: polygon(50% 0%, 30% 100%, 70% 100%);
-}
-.quest-sunburst-ray:nth-child(2n) {
-  opacity: 0.6;
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
 /* Card appear with gaming feel */
