@@ -1345,28 +1345,28 @@
   animation: quest-container-breathe 2.5s ease-in-out infinite;
 }
 
-/* Radiating beams rotating around icon */
-@keyframes quest-rays-rotate {
+/* Radiating beams across full card */
+@keyframes quest-rays-card-rotate {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
-@keyframes quest-ray-pulse {
-  0%, 100% { opacity: 0.3; height: 16px; }
-  50% { opacity: 0.7; height: 22px; }
+@keyframes quest-ray-card-pulse {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.5; }
 }
-.quest-rays {
-  animation: quest-rays-rotate 8s linear infinite;
+.quest-rays-card {
+  animation: quest-rays-card-rotate 12s linear infinite;
 }
-.quest-ray {
-  animation: quest-ray-pulse 2s ease-in-out infinite;
+.quest-ray-card {
+  animation: quest-ray-card-pulse 3s ease-in-out infinite;
 }
-.quest-ray:nth-child(2n) {
-  animation-delay: 0.5s;
-  height: 14px;
-  opacity: 0.5;
+.quest-ray-card:nth-child(2n) {
+  animation-delay: 0.8s;
+  opacity: 0.15;
 }
-.quest-ray:nth-child(3n) {
-  animation-delay: 1s;
+.quest-ray-card:nth-child(3n) {
+  animation-delay: 1.5s;
+  opacity: 0.25;
 }
 
 /* Card appear with gaming feel */
