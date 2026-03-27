@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Settings, Award, MapPin, Camera as CameraIcon, BookOpen, Lock, Download } from 'lucide-react';
+import { Settings, Award, MapPin, Camera as CameraIcon, BookOpen, Lock, Download, Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
@@ -139,9 +139,14 @@ const ProfilePage = () => {
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="flex items-center justify-between max-w-lg mx-auto">
           <h1 className="text-2xl font-display font-bold text-primary">Profil</h1>
-          <button onClick={() => navigate('/settings')} className="p-2 rounded-full hover:bg-muted transition-colors">
-            <Settings className="w-5 h-5 text-foreground" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={() => navigate('/notifications')} className="relative p-2 rounded-full hover:bg-muted transition-colors">
+              <Bell className="w-5 h-5 text-foreground" />
+            </button>
+            <button onClick={() => navigate('/settings')} className="p-2 rounded-full hover:bg-muted transition-colors">
+              <Settings className="w-5 h-5 text-foreground" />
+            </button>
+          </div>
         </div>
       </header>
 
