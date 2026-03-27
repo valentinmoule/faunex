@@ -158,7 +158,7 @@ const Index = () => {
         <div className="max-w-lg mx-auto">
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
-              <div className="relative w-12 h-12 rounded-full border-2 border-primary/40 overflow-hidden shrink-0 game-avatar-ring">
+              <button onClick={() => navigate('/profile')} className="relative w-12 h-12 rounded-full border-2 border-primary/40 overflow-hidden shrink-0 game-avatar-ring cursor-pointer">
                 {profile.avatar_url ? (
                   <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
                 ) : (
@@ -166,7 +166,7 @@ const Index = () => {
                     {firstName.charAt(0).toUpperCase()}
                   </div>
                 )}
-              </div>
+              </button>
               <div>
                 <h1 className="text-lg font-display font-black text-foreground leading-tight">{firstName}</h1>
                 <p className="text-[10px] text-muted-foreground font-display flex items-center gap-1">
