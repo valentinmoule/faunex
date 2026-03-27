@@ -220,9 +220,8 @@ const Index = () => {
           </div>
           
           {/* Icon container */}
-          <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-amber/25 to-amber-dark/20 border border-amber/30 flex items-center justify-center shrink-0 quest-icon-container">
-            <div className="absolute inset-0 rounded-xl quest-icon-glow pointer-events-none" />
-            <Target className="w-6 h-6 text-amber quest-icon-spin relative z-10" />
+          <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-amber/25 to-amber-dark/20 border border-amber/30 flex items-center justify-center shrink-0">
+            <Target className="w-6 h-6 text-amber relative z-10" />
           </div>
           
           <div className="relative flex-1 min-w-0">
