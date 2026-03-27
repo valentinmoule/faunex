@@ -363,54 +363,52 @@ const FeedPage = () => {
               const isCommentsOpen = openComments === post.id;
 
               return (
-                <article key={post.id} className="px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    {/* Avatar */}
-                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-display font-bold text-primary overflow-hidden shrink-0">
+                <article key={post.id} className="py-3">
+                  {/* User header */}
+                  <div className="flex items-center gap-3 px-4">
+                    <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-xs font-display font-bold text-primary overflow-hidden shrink-0">
                       {avatarUrl ? (
                         <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
                       ) : (
                         userName.charAt(0).toUpperCase()
                       )}
                     </div>
-
-                    {/* Content */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-baseline gap-1.5">
                         <span className="text-sm font-display font-semibold text-foreground truncate">{userName}</span>
                         <span className="text-xs text-muted-foreground">a capturé</span>
                       </div>
-                      <button
-                        onClick={() => setSelectedCard(toAnimalCard(post))}
-                        className="block w-full mt-2 group"
-                      >
-                        <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden border border-border">
-                          <img src={post.image_url} alt={post.animal_name} className="w-full h-full object-cover" />
-                          <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-foreground/60 to-transparent p-3 pt-8">
-                            <div className="flex items-end justify-between">
-                              <div>
-                                <p className="text-primary-foreground font-display font-bold text-base">{post.animal_name}</p>
-                                <p className="text-primary-foreground/70 text-[11px] italic">{post.scientific_name}</p>
-                              </div>
-                              <span className="px-1.5 py-0.5 rounded-full text-[9px] font-display font-bold uppercase tracking-wider bg-white/20 text-white backdrop-blur-sm">
-                                {RARITY_LABELS[post.rarity as Rarity] || post.rarity}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </button>
+                      <span className="text-[11px] text-muted-foreground">{timeAgo(post.created_at)}{post.location ? ` à ${post.location}` : ''}</span>
                     </div>
+                  </div>
 
-                    {/* Time */}
-                    <span className="text-[10px] text-muted-foreground shrink-0 self-start mt-0.5">{timeAgo(post.created_at)}</span>
+                  {/* Full-width image */}
+                  <button
+                    onClick={() => setSelectedCard(toAnimalCard(post))}
+                    className="block w-full mt-2"
+                  >
+                    <div className="w-full aspect-[4/3] overflow-hidden">
+                      <img src={post.image_url} alt={post.animal_name} className="w-full h-full object-cover" />
+                    </div>
+                  </button>
+
+                  {/* Animal info */}
+                  <div className="flex items-center justify-between px-4 mt-2">
+                    <div className="min-w-0">
+                      <p className="text-sm font-display font-bold text-foreground">{post.animal_name}</p>
+                      <p className="text-[11px] text-muted-foreground italic">{post.scientific_name}</p>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-display font-bold uppercase tracking-wider bg-muted text-muted-foreground shrink-0">
+                      {RARITY_LABELS[post.rarity as Rarity] || post.rarity}
+                    </span>
                   </div>
 
                   {post.caption && (
-                    <p className="text-xs text-foreground/70 mt-1.5 ml-11 leading-relaxed">{post.caption}</p>
+                    <p className="text-xs text-foreground/70 mt-1.5 px-4 leading-relaxed">{post.caption}</p>
                   )}
 
                   {/* Actions */}
-                  <div className="flex items-center gap-4 ml-11 mt-2">
+                  <div className="flex items-center gap-4 px-4 mt-2">
                     <button onClick={() => handleLike(post.id)} className="flex items-center gap-1 group">
                       <Heart className={`w-4 h-4 transition-all ${isLiked ? 'fill-destructive text-destructive scale-110' : 'text-muted-foreground group-hover:text-destructive'}`} />
                       {likeCount > 0 && <span className={`text-xs ${isLiked ? 'text-destructive font-semibold' : 'text-muted-foreground'}`}>{likeCount}</span>}
@@ -423,7 +421,7 @@ const FeedPage = () => {
 
                   {/* Comments section */}
                   {isCommentsOpen && (
-                    <div className="ml-11 mt-2 space-y-2">
+                    <div className="px-4 mt-2 space-y-2">
                       {loadingComments ? (
                         <p className="text-xs text-muted-foreground py-1">Chargement…</p>
                       ) : comments.length === 0 ? (
