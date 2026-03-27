@@ -207,22 +207,33 @@ const Index = () => {
 
       <div className="max-w-lg mx-auto px-4 pt-3 space-y-4 pb-24">
 
-        {/* Quêtes du jour — gaming card */}
+        {/* Quêtes du jour — explosive gaming card */}
         <button
           onClick={() => navigate('/quests')}
-          className="w-full relative overflow-hidden flex items-center gap-3 p-4 rounded-2xl border border-amber/20 bg-gradient-to-r from-amber/5 via-amber/10 to-amber/5 hover:from-amber/10 hover:to-amber/10 transition-all text-left group active:scale-[0.98] transform"
+          className="w-full relative overflow-hidden flex items-center gap-3 p-4 rounded-2xl border border-amber/30 bg-gradient-to-br from-amber/10 via-amber/15 to-amber-dark/10 hover:from-amber/15 hover:to-amber-dark/15 transition-all text-left group active:scale-[0.97] transform shadow-[0_0_20px_hsla(42,80%,55%,0.15)] hover:shadow-[0_0_30px_hsla(42,80%,55%,0.25)]"
         >
-          {/* Animated background pulse */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber/5 to-transparent game-quest-sweep pointer-events-none" />
-          <div className="relative w-11 h-11 rounded-xl bg-amber/15 border border-amber/20 flex items-center justify-center shrink-0">
-            <Target className="w-5 h-5 text-amber game-icon-bounce" />
+          {/* Animated sweep */}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber/10 to-transparent game-quest-sweep pointer-events-none" />
+          
+          {/* Floating sparkles */}
+          <div className="absolute top-2 left-8 w-1 h-1 rounded-full bg-amber quest-sparkle-1 pointer-events-none" />
+          <div className="absolute top-4 right-16 w-1.5 h-1.5 rounded-full bg-amber-light quest-sparkle-2 pointer-events-none" />
+          <div className="absolute bottom-3 left-20 w-1 h-1 rounded-full bg-amber quest-sparkle-3 pointer-events-none" />
+          <div className="absolute top-6 left-14 w-0.5 h-0.5 rounded-full bg-white quest-sparkle-4 pointer-events-none" />
+          
+          {/* Icon container with glow */}
+          <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-amber/25 to-amber-dark/20 border border-amber/30 flex items-center justify-center shrink-0 quest-icon-container">
+            <div className="absolute inset-0 rounded-xl quest-icon-glow pointer-events-none" />
+            <div className="absolute inset-[-4px] rounded-2xl quest-icon-ring pointer-events-none" />
+            <Target className="w-6 h-6 text-amber quest-icon-spin relative z-10" />
           </div>
+          
           <div className="relative flex-1 min-w-0">
             <div className="flex items-center justify-between mb-0.5">
               <h3 className="text-sm font-display font-bold text-foreground">Quêtes du jour</h3>
               {questSummary.claimable > 0 && (
-                <span className="px-2 py-0.5 rounded-full bg-amber text-white text-[10px] font-display font-bold quest-claim-pulse flex items-center gap-0.5">
-                  🎁 {questSummary.claimable}
+                <span className="px-2.5 py-1 rounded-full bg-gradient-to-r from-amber to-amber-light text-white text-[10px] font-display font-bold quest-claim-pulse flex items-center gap-1 shadow-[0_0_12px_hsla(42,80%,55%,0.5)]">
+                  🎁 {questSummary.claimable} récompense{questSummary.claimable > 1 ? 's' : ''}
                 </span>
               )}
             </div>
@@ -231,13 +242,13 @@ const Index = () => {
               {Array.from({ length: questSummary.total }).map((_, i) => (
                 <div key={i} className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${
                   i < questSummary.completed 
-                    ? 'bg-gradient-to-r from-amber to-amber-light shadow-[0_0_6px_hsla(42,85%,55%,0.4)]' 
+                    ? 'bg-gradient-to-r from-amber to-amber-light shadow-[0_0_8px_hsla(42,85%,55%,0.5)]' 
                     : 'bg-muted/60'
                 }`} style={{ transitionDelay: `${i * 100}ms` }} />
               ))}
             </div>
           </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0 group-hover:translate-x-0.5 transition-transform" />
+          <ChevronRight className="w-4 h-4 text-amber/60 shrink-0 group-hover:translate-x-1 group-hover:text-amber transition-all" />
         </button>
 
         {/* Autour de moi */}
