@@ -97,7 +97,7 @@ const AppRoutes = () => {
         <Route path="/collection" element={<ProtectedRoute><CollectionPage /></ProtectedRoute>} />
         <Route path="/capture" element={<ProtectedRoute><CapturePage /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-        <Route path="/feed" element={<ProtectedRoute><FeedPage /></ProtectedRoute>} />
+        <Route path="/feed" element={<Navigate to="/explorers" replace />} />
         <Route path="/explorers" element={<ProtectedRoute><ExplorersPage /></ProtectedRoute>} />
         <Route path="/explorer/:userId/collection" element={<ProtectedRoute><FriendCollectionPage /></ProtectedRoute>} />
         <Route path="/bestiaire" element={<ProtectedRoute><BestiairePage /></ProtectedRoute>} />
