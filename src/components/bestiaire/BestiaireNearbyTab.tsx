@@ -258,29 +258,67 @@ const BestiaireNearbyTab = ({ capturedNames }: Props) => {
   );
 };
 
-const PremiumTeaser = () => (
-  <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-card p-5">
-    <div className="absolute top-3 right-3">
-      <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-        <Lock className="w-4 h-4 text-muted-foreground" />
-      </div>
-    </div>
-    <div className="flex items-start gap-3">
-      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-        <Globe className="w-5 h-5 text-primary" />
-      </div>
-      <div className="flex-1 pr-8">
-        <h3 className="text-sm font-display font-bold text-foreground mb-1">Explorer d'autres zones</h3>
-        <p className="text-xs text-muted-foreground leading-relaxed">
-          Débloque l'accès à toutes les régions, les hotspots d'espèces rares et la recherche avancée.
+const PremiumTeaser = () => {
+  const [dismissed, setDismissed] = useState(false);
+
+  if (dismissed) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center pointer-events-none">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/40 backdrop-blur-[2px] pointer-events-auto"
+        onClick={() => setDismissed(true)}
+      />
+      {/* Sheet */}
+      <div className="relative w-full max-w-lg pointer-events-auto bg-background rounded-t-3xl px-6 pt-6 pb-8 animate-in slide-in-from-bottom duration-400 shadow-2xl">
+        {/* Handle */}
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-muted-foreground/20" />
+        {/* Close */}
+        <button
+          onClick={() => setDismissed(true)}
+          className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-muted transition-colors"
+        >
+          <X className="w-4 h-4 text-muted-foreground" />
+        </button>
+
+        <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center mb-4">
+          <Lock className="w-5 h-5 text-muted-foreground" />
+        </div>
+
+        <h2 className="text-xl font-display font-bold text-foreground mb-2">
+          Explore sans limites
+        </h2>
+        <p className="text-sm text-muted-foreground leading-relaxed mb-6">
+          Recherche des espèces partout dans le monde, accède aux hotspots d'espèces rares et aux guides exclusifs.
         </p>
+
+        <button className="w-full py-3.5 rounded-xl bg-primary text-primary-foreground font-display font-bold text-sm active:scale-95 transition-all">
+          S'abonner
+        </button>
+
+        {/* Feature list */}
+        <div className="mt-5 space-y-3">
+          {[
+            { icon: Map, label: 'Carte interactive', desc: 'Explore toutes les régions et hotspots' },
+            { icon: Search, label: 'Recherche avancée', desc: 'Trouve n\'importe quelle espèce par nom' },
+            { icon: BookOpen, label: 'Guides exclusifs', desc: 'Conseils de pros et sorties thématiques' },
+            { icon: Globe, label: 'Zones illimitées', desc: 'Pas de restriction géographique' },
+          ].map(({ icon: Icon, label, desc }) => (
+            <div key={label} className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                <Icon className="w-4 h-4 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm font-display font-bold text-foreground">{label}</p>
+                <p className="text-xs text-muted-foreground">{desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
-    <button className="mt-4 w-full py-2.5 rounded-xl bg-muted text-muted-foreground font-display font-bold text-xs flex items-center justify-center gap-2 cursor-not-allowed opacity-70">
-      <Lock className="w-3.5 h-3.5" />
-      Bientôt disponible
-    </button>
-  </div>
-);
+  );
+};
 
 export default BestiaireNearbyTab;
