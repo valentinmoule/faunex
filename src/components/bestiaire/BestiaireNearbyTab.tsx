@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MapPin, Loader2, RefreshCw, Sparkles, Flame, Zap, Navigation, Lock, Globe } from 'lucide-react';
+import { MapPin, Loader2, RefreshCw, Sparkles, Flame, Zap, Navigation, Lock, Globe, Map, Search, BookOpen, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { type Rarity, RARITY_LABELS } from '@/data/mockData';
 import { toast } from 'sonner';
