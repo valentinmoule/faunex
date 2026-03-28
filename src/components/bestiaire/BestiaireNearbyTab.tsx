@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MapPin, Loader2, RefreshCw, Sparkles, Flame, Zap, Navigation } from 'lucide-react';
+import { MapPin, Loader2, RefreshCw, Sparkles, Flame, Zap, Navigation, Lock, Globe } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { type Rarity, RARITY_LABELS } from '@/data/mockData';
 import { toast } from 'sonner';
@@ -126,21 +126,26 @@ const BestiaireNearbyTab = ({ capturedNames }: Props) => {
   // Activation state
   if (!hasLoaded && !loading && !error) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 px-4">
-        <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-5">
-          <Navigation className="w-9 h-9 text-primary" />
+      <div className="px-4 pt-4 space-y-6">
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-5">
+            <Navigation className="w-9 h-9 text-primary" />
+          </div>
+          <h3 className="text-lg font-display font-bold text-foreground mb-2 text-center">Découvre ce qui t'entoure</h3>
+          <p className="text-sm text-muted-foreground text-center mb-6 max-w-[260px]">
+            Active ta position pour voir les espèces observables autour de toi en ce moment.
+          </p>
+          <button
+            onClick={fetchNearby}
+            className="px-6 py-3 bg-primary text-primary-foreground font-display font-bold text-sm rounded-xl hover:bg-primary/90 active:scale-95 transition-all"
+          >
+            <MapPin className="w-4 h-4 inline mr-2" />
+            Activer la localisation
+          </button>
         </div>
-        <h3 className="text-lg font-display font-bold text-foreground mb-2 text-center">Découvre ce qui t'entoure</h3>
-        <p className="text-sm text-muted-foreground text-center mb-6 max-w-[260px]">
-          Active ta position pour voir les espèces observables autour de toi en ce moment.
-        </p>
-        <button
-          onClick={fetchNearby}
-          className="px-6 py-3 bg-primary text-primary-foreground font-display font-bold text-sm rounded-xl hover:bg-primary/90 active:scale-95 transition-all"
-        >
-          <MapPin className="w-4 h-4 inline mr-2" />
-          Activer la localisation
-        </button>
+
+        {/* Premium teaser */}
+        <PremiumTeaser />
       </div>
     );
   }
@@ -246,8 +251,36 @@ const BestiaireNearbyTab = ({ capturedNames }: Props) => {
           🎯 Commencer une quête
         </button>
       )}
+
+      {/* Premium teaser */}
+      <PremiumTeaser />
     </div>
   );
 };
+
+const PremiumTeaser = () => (
+  <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-card p-5">
+    <div className="absolute top-3 right-3">
+      <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+        <Lock className="w-4 h-4 text-muted-foreground" />
+      </div>
+    </div>
+    <div className="flex items-start gap-3">
+      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+        <Globe className="w-5 h-5 text-primary" />
+      </div>
+      <div className="flex-1 pr-8">
+        <h3 className="text-sm font-display font-bold text-foreground mb-1">Explorer d'autres zones</h3>
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          Débloque l'accès à toutes les régions, les hotspots d'espèces rares et la recherche avancée.
+        </p>
+      </div>
+    </div>
+    <button className="mt-4 w-full py-2.5 rounded-xl bg-muted text-muted-foreground font-display font-bold text-xs flex items-center justify-center gap-2 cursor-not-allowed opacity-70">
+      <Lock className="w-3.5 h-3.5" />
+      Bientôt disponible
+    </button>
+  </div>
+);
 
 export default BestiaireNearbyTab;
