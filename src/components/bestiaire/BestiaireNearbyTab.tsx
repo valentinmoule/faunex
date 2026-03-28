@@ -286,12 +286,12 @@ const PremiumTeaser = ({ onClose }: { onClose: () => void }) => {
         onClick={onClose}
       />
       {/* Sheet */}
-      <div className="relative w-full max-w-lg pointer-events-auto bg-background rounded-t-3xl px-6 pt-6 pb-8 animate-in slide-in-from-bottom duration-400 shadow-2xl">
+      <div className="relative w-full max-w-lg bg-background rounded-t-3xl px-6 pt-6 pb-8 animate-in slide-in-from-bottom duration-400 shadow-2xl">
         {/* Handle */}
         <div className="absolute top-3 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-muted-foreground/20" />
         {/* Close */}
         <button
-          onClick={() => setDismissed(true)}
+          onClick={onClose}
           className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-muted transition-colors"
         >
           <X className="w-4 h-4 text-muted-foreground" />
