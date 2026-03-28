@@ -262,23 +262,28 @@ const BestiaireNearbyTab = ({ capturedNames }: Props) => {
         </button>
       )}
 
-      {/* Premium teaser */}
-      <PremiumTeaser />
+      {/* Premium teaser trigger */}
+      <button
+        onClick={() => setShowPremium(true)}
+        className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border/50 bg-card hover:bg-muted/50 transition-colors w-full"
+      >
+        <Globe className="w-4 h-4 text-primary" />
+        <span className="text-xs font-display font-bold text-foreground">Explorer d'autres zones</span>
+        <Lock className="w-3 h-3 text-muted-foreground ml-auto" />
+      </button>
+
+      {showPremium && <PremiumTeaser onClose={() => setShowPremium(false)} />}
     </div>
   );
 };
 
-const PremiumTeaser = () => {
-  const [dismissed, setDismissed] = useState(false);
-
-  if (dismissed) return null;
-
+const PremiumTeaser = ({ onClose }: { onClose: () => void }) => {
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center pointer-events-none">
+    <div className="fixed inset-0 z-50 flex items-end justify-center">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-[2px] pointer-events-auto"
-        onClick={() => setDismissed(true)}
+        className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+        onClick={onClose}
       />
       {/* Sheet */}
       <div className="relative w-full max-w-lg pointer-events-auto bg-background rounded-t-3xl px-6 pt-6 pb-8 animate-in slide-in-from-bottom duration-400 shadow-2xl">
