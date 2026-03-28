@@ -39,8 +39,8 @@ const guides: Guide[] = [
   },
   {
     icon: Sunrise,
-    title: 'L'aube : le moment idéal',
-    description: 'Pourquoi se lever tôt multiplie tes chances de découvrir des espèces rares.',
+    title: "L'aube : le moment idéal",
+    description: "Pourquoi se lever tôt multiplie tes chances de découvrir des espèces rares.",
     species: ['Renard roux', 'Biche', 'Chouette hulotte'],
     difficulty: 'difficile',
   },
