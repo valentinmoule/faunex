@@ -63,6 +63,7 @@ const BestiaireNearbyTab = ({ capturedNames }: Props) => {
   const [error, setError] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(!!cached);
   const [alertAnimal, setAlertAnimal] = useState<NearbyAnimal | null>(null);
+  const [showPremium, setShowPremium] = useState(false);
 
   const capturedNamesLower = new Set(capturedNames.map(n => n.toLowerCase()));
 
@@ -144,8 +145,17 @@ const BestiaireNearbyTab = ({ capturedNames }: Props) => {
           </button>
         </div>
 
-        {/* Premium teaser */}
-        <PremiumTeaser />
+        {/* Premium teaser trigger */}
+        <button
+          onClick={() => setShowPremium(true)}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border/50 bg-card hover:bg-muted/50 transition-colors"
+        >
+          <Globe className="w-4 h-4 text-primary" />
+          <span className="text-xs font-display font-bold text-foreground">Explorer d'autres zones</span>
+          <Lock className="w-3 h-3 text-muted-foreground ml-auto" />
+        </button>
+
+        {showPremium && <PremiumTeaser onClose={() => setShowPremium(false)} />}
       </div>
     );
   }
