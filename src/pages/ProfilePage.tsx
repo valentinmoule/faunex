@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Settings, Award, MapPin, Camera as CameraIcon, BookOpen, Lock, Download, Bell } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Settings, Award, MapPin, Camera as CameraIcon, BookOpen, Lock, Download, Bell, Gift } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
