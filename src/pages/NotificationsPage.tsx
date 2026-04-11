@@ -185,10 +185,10 @@ const NotificationsPage = () => {
                 <button
                   key={notif.id}
                   onClick={() => {
-                    if (isFriendRequest || isFriendAccepted) {
-                      navigate('/explorers');
-                    } else if (notif.capture_id) {
+                    if (isModerationNotif && notif.capture_id) {
                       navigate(`/?capture=${notif.capture_id}`);
+                    } else {
+                      navigate(`/explorer/${notif.actor_id}/collection`);
                     }
                   }}
                   className={`flex items-start gap-3 p-3 rounded-xl transition-colors w-full text-left ${
