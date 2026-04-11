@@ -77,10 +77,11 @@ const ProfilePage = () => {
       setLoading(true);
       const userId = session.user.id;
 
-      const [profileRes, friendsRes, capturesRes] = await Promise.all([
+      const [profileRes, friendsRes, capturesRes, claimedBadgesRes] = await Promise.all([
         supabase.from('profiles').select('*').eq('user_id', userId).single(),
         supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('follower_id', userId),
         supabase.from('captures').select('category, rarity').eq('user_id', userId),
+        supabase.from('user_badges').select('badge_id').eq('user_id', userId),
       ]);
 
       const data = profileRes.data;
@@ -93,15 +94,14 @@ const ProfilePage = () => {
 
       const captures = capturesRes.data || [];
       const totalCaptures = captures.length;
-      
 
-      // Update profile stats
       if (data && data.total_captures !== totalCaptures) {
         await supabase.from('profiles').update({ total_captures: totalCaptures, species_count: totalCaptures }).eq('user_id', userId);
         setProfile(prev => prev ? { ...prev, total_captures: totalCaptures, species_count: totalCaptures } : prev);
       }
 
-      // Compute badges
+      const claimedSet = new Set((claimedBadgesRes.data || []).map((b: any) => b.badge_id));
+
       const birdCount = captures.filter(c => c.category?.toLowerCase().includes('oiseau')).length;
       const mammalCount = captures.filter(c => c.category?.toLowerCase().includes('mammif')).length;
       const hasRare = captures.some(c => ['rare', 'epic', 'mythic'].includes(c.rarity));
@@ -120,7 +120,6 @@ const ProfilePage = () => {
         legendary_1: hasLegendary ? 1 : 0,
         mythic_1: hasMythic ? 1 : 0,
         social_3: Math.min(fCount, 3),
-        
         level_5: Math.min(level, 5),
       };
 
@@ -128,6 +127,7 @@ const ProfilePage = () => {
         badge: b,
         progress: progressMap[b.id] || 0,
         earned: (progressMap[b.id] || 0) >= b.total,
+        claimed: claimedSet.has(b.id),
       })));
 
       setLoading(false);
