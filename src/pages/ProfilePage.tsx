@@ -136,6 +136,34 @@ const ProfilePage = () => {
   }, [session]);
 
 
+  const [claiming, setClaiming] = useState<string | null>(null);
+
+  const claimBadge = useCallback(async (badgeId: string) => {
+    if (!session?.user || claiming) return;
+    setClaiming(badgeId);
+    const xpReward = BADGE_XP_REWARDS[badgeId] || 50;
+    
+    const { error } = await supabase.from('user_badges').insert({
+      user_id: session.user.id,
+      badge_id: badgeId,
+      xp_reward: xpReward,
+    });
+
+    if (!error) {
+      // Grant XP
+      await supabase.rpc('grant_xp', { p_user_id: session.user.id, p_amount: xpReward });
+      
+      // Update local state
+      setBadges(prev => prev.map(b => b.badge.id === badgeId ? { ...b, claimed: true } : b));
+      
+      // Refresh profile for XP update
+      const { data: refreshed } = await supabase.from('profiles').select('*').eq('user_id', session.user.id).single();
+      if (refreshed) setProfile(refreshed as Profile);
+      
+      toast.success(`Badge débloqué ! +${xpReward} XP 🎉`);
+    }
+    setClaiming(null);
+  }, [session, claiming]);
 
   if (loading || !profile) {
     return (
@@ -146,7 +174,7 @@ const ProfilePage = () => {
   }
 
   const xpPercent = Math.round((profile.xp / profile.xp_to_next) * 100);
-  const earnedCount = badges.filter(b => b.earned).length;
+  const claimedCount = badges.filter(b => b.claimed).length;
 
   return (
     <main className="min-h-screen bg-background pb-24">
