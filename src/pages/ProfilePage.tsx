@@ -38,14 +38,28 @@ const BADGE_DEFS: BadgeDef[] = [
   { id: 'legendary_1', name: 'Légende vivante', icon: '⭐', description: 'Trouver un animal épique', total: 1 },
   { id: 'mythic_1', name: 'Mythique !', icon: '🔥', description: 'Trouver un animal mythique', total: 1 },
   { id: 'social_3', name: 'Sociable', icon: '🤝', description: 'Suivre 3 explorateurs', total: 3 },
-  
   { id: 'level_5', name: 'Niveau 5', icon: '🏅', description: 'Atteindre le niveau 5', total: 5 },
 ];
+
+const BADGE_XP_REWARDS: Record<string, number> = {
+  first_capture: 50,
+  explorer_10: 100,
+  explorer_25: 200,
+  explorer_50: 500,
+  birds_5: 100,
+  mammals_5: 100,
+  rare_1: 150,
+  legendary_1: 300,
+  mythic_1: 500,
+  social_3: 75,
+  level_5: 150,
+};
 
 interface BadgeProgress {
   badge: BadgeDef;
   progress: number;
   earned: boolean;
+  claimed: boolean;
 }
 
 const ProfilePage = () => {
