@@ -514,12 +514,14 @@ const ExplorersPage = () => {
               return (
                 <article key={post.id} className="py-3">
                   <div className="flex items-center gap-3 px-4">
-                    <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-xs font-display font-bold text-primary overflow-hidden shrink-0">
+                    <button onClick={() => navigate(`/explorer/${post.user_id}/collection`)} className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-xs font-display font-bold text-primary overflow-hidden shrink-0">
                       {avatarUrl ? <img src={avatarUrl} alt="" className="w-full h-full object-cover" /> : userName.charAt(0).toUpperCase()}
-                    </div>
+                    </button>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-baseline gap-1.5">
-                        <span className="text-sm font-display font-semibold text-foreground truncate">{userName}</span>
+                        <button onClick={() => navigate(`/explorer/${post.user_id}/collection`)} className="text-sm font-display font-semibold text-foreground truncate hover:underline">
+                          {userName}
+                        </button>
                         <span className="text-xs text-muted-foreground">a capturé</span>
                         <span className="text-[11px] text-muted-foreground">· {timeAgo(post.created_at)}</span>
                       </div>
