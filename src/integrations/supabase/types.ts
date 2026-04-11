@@ -479,6 +479,30 @@ export type Database = {
         }
         Relationships: []
       }
+      user_badges: {
+        Row: {
+          badge_id: string
+          claimed_at: string
+          id: string
+          user_id: string
+          xp_reward: number
+        }
+        Insert: {
+          badge_id: string
+          claimed_at?: string
+          id?: string
+          user_id: string
+          xp_reward?: number
+        }
+        Update: {
+          badge_id?: string
+          claimed_at?: string
+          id?: string
+          user_id?: string
+          xp_reward?: number
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
