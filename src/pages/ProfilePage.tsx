@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePwaInstall } from '@/contexts/PwaInstallContext';
+import XpParticles from '@/components/XpParticles';
 
 
 interface Profile {
@@ -138,6 +139,7 @@ const ProfilePage = () => {
 
 
   const [claiming, setClaiming] = useState<string | null>(null);
+  const [showXpParticles, setShowXpParticles] = useState(false);
 
   const claimBadge = useCallback(async (badgeId: string) => {
     if (!session?.user || claiming) return;
@@ -151,13 +153,12 @@ const ProfilePage = () => {
     });
 
     if (!error) {
-      // Grant XP
       await supabase.rpc('grant_xp', { p_user_id: session.user.id, p_amount: xpReward });
-      
-      // Update local state
       setBadges(prev => prev.map(b => b.badge.id === badgeId ? { ...b, claimed: true } : b));
       
-      // Refresh profile for XP update
+      // Show XP particles
+      setShowXpParticles(true);
+      
       const { data: refreshed } = await supabase.from('profiles').select('*').eq('user_id', session.user.id).single();
       if (refreshed) setProfile(refreshed as Profile);
       
@@ -178,6 +179,8 @@ const ProfilePage = () => {
   const claimedCount = badges.filter(b => b.claimed).length;
 
   return (
+    <>
+    <XpParticles active={showXpParticles} onComplete={() => setShowXpParticles(false)} />
     <main className="min-h-screen bg-background pb-24">
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="flex items-center justify-between max-w-lg mx-auto">
@@ -339,6 +342,7 @@ const ProfilePage = () => {
 
       </div>
     </main>
+    </>
   );
 };
 
