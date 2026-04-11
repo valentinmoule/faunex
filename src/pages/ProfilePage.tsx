@@ -138,6 +138,7 @@ const ProfilePage = () => {
 
 
   const [claiming, setClaiming] = useState<string | null>(null);
+  const [showXpParticles, setShowXpParticles] = useState(false);
 
   const claimBadge = useCallback(async (badgeId: string) => {
     if (!session?.user || claiming) return;
@@ -151,13 +152,12 @@ const ProfilePage = () => {
     });
 
     if (!error) {
-      // Grant XP
       await supabase.rpc('grant_xp', { p_user_id: session.user.id, p_amount: xpReward });
-      
-      // Update local state
       setBadges(prev => prev.map(b => b.badge.id === badgeId ? { ...b, claimed: true } : b));
       
-      // Refresh profile for XP update
+      // Show XP particles
+      setShowXpParticles(true);
+      
       const { data: refreshed } = await supabase.from('profiles').select('*').eq('user_id', session.user.id).single();
       if (refreshed) setProfile(refreshed as Profile);
       

@@ -1237,7 +1237,26 @@
   animation: xp-shimmer 2.5s ease-in-out infinite;
 }
 
-/* Stat pills appear */
+/* XP floating particles */
+@keyframes xp-float-up {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-40vh) scale(0.9);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-70vh) scale(0.5);
+  }
+}
+
+.xp-particle {
+  animation: xp-float-up 0.8s ease-out forwards;
+}
+
 @keyframes stat-appear {
   0% { opacity: 0; transform: translateY(8px) scale(0.95); }
   100% { opacity: 1; transform: translateY(0) scale(1); }
