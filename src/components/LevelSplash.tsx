@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Shield } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { isFirstLogin } from '@/components/WelcomeInstallPopup';
 
 const LevelSplash = () => {
   const { session } = useAuth();
@@ -15,6 +16,7 @@ const LevelSplash = () => {
 
   useEffect(() => {
     if (!session?.user || hasShown.current) return;
+    if (isFirstLogin(session.user.id)) return;
 
     const today = new Date().toISOString().split('T')[0];
     const key = `faunex_splash_${session.user.id}_${today}`;
