@@ -53,7 +53,7 @@ const LevelSplash = () => {
 
   return (
     <div
-      className={`fixed inset-0 z-[100] flex items-center justify-center pointer-events-none transition-all duration-500
+      className={`fixed inset-0 z-[100] flex items-center justify-center transition-all duration-500
         ${phase === 'in' ? 'opacity-0 scale-95' : phase === 'hold' ? 'opacity-100 scale-100' : 'opacity-0 scale-105'}`}
     >
       {/* Backdrop */}
