@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Target, X, Sparkles } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { isFirstLogin } from '@/components/WelcomeInstallPopup';
 
 const DailyQuestPopup = () => {
   const { session } = useAuth();
@@ -12,6 +13,7 @@ const DailyQuestPopup = () => {
 
   useEffect(() => {
     if (!session?.user || hasShown.current) return;
+    if (isFirstLogin(session.user.id)) return;
 
     const key = `faunex_quest_popup_${session.user.id}_${new Date().toISOString().split('T')[0]}`;
     if (localStorage.getItem(key)) return;
