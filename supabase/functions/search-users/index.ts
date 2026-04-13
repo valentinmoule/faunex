@@ -51,7 +51,13 @@ serve(async (req) => {
       });
     }
 
-    const searchTerm = query.trim().toLowerCase();
+    // Sanitize search term: remove special SQL/PostgREST characters to prevent injection
+    const searchTerm = query.trim().toLowerCase().replace(/[%_\\*(),.]/g, '');
+    if (searchTerm.length < 2) {
+      return new Response(JSON.stringify({ users: [] }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     // Search profiles by display_name or username, exclude current user
     const { data: profiles, error } = await supabase
