@@ -257,135 +257,146 @@ const BestiairePage = () => {
         </div>
       </header>
 
-      {/* Rarity filter chips */}
-      <div className="max-w-lg mx-auto px-4 pt-3">
-        <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
-            <button
-              onClick={() => setFilter('all')}
-              className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-display font-bold border transition-all duration-300 flex items-center gap-1 active:scale-95 ${
-                filter === 'all'
-                  ? 'bg-foreground/10 text-foreground border-foreground/30 shadow-sm'
-                  : 'bg-muted text-muted-foreground border-border hover:bg-foreground/5 hover:text-foreground hover:border-foreground/20'
-              }`}
-            >
-              Tous
-            </button>
-            {rarityFilters.filter(r => r !== 'all').map((r) => {
-              const isActive = filter === r;
-              const colorClasses = r === 'common'
-                ? isActive ? 'bg-rarity-common/20 text-rarity-common border-rarity-common/50 shadow-[0_0_10px_hsla(0,0%,60%,0.2)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-common/10 hover:text-rarity-common hover:border-rarity-common/30'
-                : r === 'rare'
-                ? isActive ? 'bg-rarity-rare/20 text-rarity-rare border-rarity-rare/50 shadow-[0_0_12px_hsla(210,70%,55%,0.25)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-rare/10 hover:text-rarity-rare hover:border-rarity-rare/30'
-                : r === 'epic'
-                ? isActive ? 'bg-rarity-epic/20 text-rarity-epic border-rarity-epic/50 shadow-[0_0_14px_hsla(270,70%,60%,0.3)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-epic/10 hover:text-rarity-epic hover:border-rarity-epic/30'
-                : isActive ? 'bg-rarity-mythic/20 text-rarity-mythic border-rarity-mythic/50 shadow-[0_0_16px_hsla(42,85%,55%,0.35)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-mythic/10 hover:text-rarity-mythic hover:border-rarity-mythic/30';
-
-              const dot = r === 'common' ? 'bg-rarity-common' : r === 'rare' ? 'bg-rarity-rare' : r === 'epic' ? 'bg-rarity-epic' : r === 'mythic' ? 'bg-rarity-mythic' : '';
-
-              return (
+      {activeTab === 'list' && (
+        <>
+          {/* Rarity filter chips */}
+          <div className="max-w-lg mx-auto px-4 pt-3">
+            <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
                 <button
-                  key={r}
-                  onClick={() => setFilter(filter === r ? 'all' : r)}
-                  className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-display font-bold border transition-all duration-300 flex items-center gap-1 active:scale-95 ${colorClasses} ${isActive ? 'bestiary-filter-glow' : ''} ${r === 'mythic' ? 'mythic-filter-shimmer' : ''}`}
+                  onClick={() => setFilter('all')}
+                  className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-display font-bold border transition-all duration-300 flex items-center gap-1 active:scale-95 ${
+                    filter === 'all'
+                      ? 'bg-foreground/10 text-foreground border-foreground/30 shadow-sm'
+                      : 'bg-muted text-muted-foreground border-border hover:bg-foreground/5 hover:text-foreground hover:border-foreground/20'
+                  }`}
                 >
-                  <span className={`w-1.5 h-1.5 rounded-full ${dot} ${isActive ? 'animate-pulse' : ''}`} />
-                  {RARITY_LABELS[r as Rarity]}
+                  Tous
                 </button>
-              );
-            })}
-        </div>
-      </div>
+                {rarityFilters.filter(r => r !== 'all').map((r) => {
+                  const isActive = filter === r;
+                  const colorClasses = r === 'common'
+                    ? isActive ? 'bg-rarity-common/20 text-rarity-common border-rarity-common/50 shadow-[0_0_10px_hsla(0,0%,60%,0.2)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-common/10 hover:text-rarity-common hover:border-rarity-common/30'
+                    : r === 'rare'
+                    ? isActive ? 'bg-rarity-rare/20 text-rarity-rare border-rarity-rare/50 shadow-[0_0_12px_hsla(210,70%,55%,0.25)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-rare/10 hover:text-rarity-rare hover:border-rarity-rare/30'
+                    : r === 'epic'
+                    ? isActive ? 'bg-rarity-epic/20 text-rarity-epic border-rarity-epic/50 shadow-[0_0_14px_hsla(270,70%,60%,0.3)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-epic/10 hover:text-rarity-epic hover:border-rarity-epic/30'
+                    : isActive ? 'bg-rarity-mythic/20 text-rarity-mythic border-rarity-mythic/50 shadow-[0_0_16px_hsla(42,85%,55%,0.35)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-mythic/10 hover:text-rarity-mythic hover:border-rarity-mythic/30';
 
-      {/* List */}
-      <div className="max-w-lg mx-auto px-4 pt-2">
-        <p className="text-xs text-muted-foreground font-display mb-2">{filtered.length} espèces</p>
+                  const dot = r === 'common' ? 'bg-rarity-common' : r === 'rare' ? 'bg-rarity-rare' : r === 'epic' ? 'bg-rarity-epic' : r === 'mythic' ? 'bg-rarity-mythic' : '';
 
-        {loading ? (
-          <div className="text-center py-16">
-            <p className="text-muted-foreground font-display">Chargement…</p>
-          </div>
-        ) : (
-          <div className="space-y-1.5">
-            {visibleAnimals.map((animal) => (
-              <div
-                key={animal.name}
-                onClick={() => animal.captured && animal.captureData && setSelectedCard(animal.captureData)}
-                className={`flex items-center gap-3 px-4 py-2.5 rounded-xl border transition-colors ${
-                  animal.captured
-                    ? 'bg-card border-border cursor-pointer active:bg-muted/50'
-                    : 'bg-muted/40 border-border/50'
-                }`}
-              >
-                {/* Category icon */}
-                {(() => {
-                  const Icon = getCategoryIcon(animal.category);
                   return (
-                    <div className={`w-9 h-9 shrink-0 rounded-full border flex items-center justify-center ${
-                      animal.captured
-                        ? 'bg-primary/10 text-primary border-primary/20'
-                        : 'bg-muted/60 text-muted-foreground/40 border-border/40'
-                    }`}>
-                      <Icon className="w-4 h-4" />
-                    </div>
+                    <button
+                      key={r}
+                      onClick={() => setFilter(filter === r ? 'all' : r)}
+                      className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-display font-bold border transition-all duration-300 flex items-center gap-1 active:scale-95 ${colorClasses} ${isActive ? 'bestiary-filter-glow' : ''} ${r === 'mythic' ? 'mythic-filter-shimmer' : ''}`}
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full ${dot} ${isActive ? 'animate-pulse' : ''}`} />
+                      {RARITY_LABELS[r as Rarity]}
+                    </button>
                   );
-                })()}
+                })}
+            </div>
+          </div>
 
-                {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <h3 className={`font-display font-bold text-sm leading-tight truncate ${
-                    animal.captured ? 'text-foreground' : 'text-muted-foreground/60'
-                  }`}>
-                    {animal.name}
-                  </h3>
-                  <p className={`text-[11px] italic truncate ${
-                    animal.captured ? 'text-muted-foreground' : 'text-muted-foreground/30'
-                  }`}>
-                    {animal.captured ? (animal.scientific_name || '—') : '???'}
-                  </p>
-                  {/* Zone hint for uncaptured animals */}
-                  {!animal.captured && (animal.zone || animal.habitat) && (
-                    <div className="flex items-center gap-1 mt-0.5">
-                      <MapPin className="w-3 h-3 text-primary/50 shrink-0" />
-                      <p className="text-[10px] text-primary/60 font-display truncate">
-                        {animal.zone || animal.habitat}
-                      </p>
-                    </div>
-                  )}
-                </div>
+          {/* List */}
+          <div className="max-w-lg mx-auto px-4 pt-2">
+            <p className="text-xs text-muted-foreground font-display mb-2">{filtered.length} espèces</p>
 
-                {/* Category + status */}
-                <div className="flex items-center gap-2 shrink-0">
-                  <span className={`text-[10px] font-display hidden sm:inline ${animal.captured ? 'text-muted-foreground' : 'text-muted-foreground/30'}`}>
-                    {animal.category}
-                  </span>
-                  {animal.captured ? (
-                    <CheckCircle className="w-4 h-4 text-primary" />
-                  ) : (
-                    <Lock className="w-3.5 h-3.5 text-muted-foreground/30" />
-                  )}
-                </div>
-              </div>
-            ))}
-
-            {/* Load more button */}
-            {displayCount < filtered.length && (
-              <button
-                onClick={() => setDisplayCount(prev => prev + 100)}
-                className="w-full py-3 text-sm font-display font-semibold text-primary hover:bg-muted rounded-xl transition-colors"
-              >
-                Voir plus ({filtered.length - displayCount} restants)
-              </button>
-            )}
-
-            {filtered.length === 0 && (
+            {loading ? (
               <div className="text-center py-16">
-                <p className="text-4xl mb-3">🔍</p>
-                <p className="text-muted-foreground font-display">Aucun animal trouvé</p>
+                <p className="text-muted-foreground font-display">Chargement…</p>
+              </div>
+            ) : (
+              <div className="space-y-1.5">
+                {visibleAnimals.map((animal) => (
+                  <div
+                    key={animal.name}
+                    onClick={() => animal.captured && animal.captureData && setSelectedCard(animal.captureData)}
+                    className={`flex items-center gap-3 px-4 py-2.5 rounded-xl border transition-colors ${
+                      animal.captured
+                        ? 'bg-card border-border cursor-pointer active:bg-muted/50'
+                        : 'bg-muted/40 border-border/50'
+                    }`}
+                  >
+                    {(() => {
+                      const Icon = getCategoryIcon(animal.category);
+                      return (
+                        <div className={`w-9 h-9 shrink-0 rounded-full border flex items-center justify-center ${
+                          animal.captured
+                            ? 'bg-primary/10 text-primary border-primary/20'
+                            : 'bg-muted/60 text-muted-foreground/40 border-border/40'
+                        }`}>
+                          <Icon className="w-4 h-4" />
+                        </div>
+                      );
+                    })()}
+
+                    <div className="flex-1 min-w-0">
+                      <h3 className={`font-display font-bold text-sm leading-tight truncate ${
+                        animal.captured ? 'text-foreground' : 'text-muted-foreground/60'
+                      }`}>
+                        {animal.name}
+                      </h3>
+                      <p className={`text-[11px] italic truncate ${
+                        animal.captured ? 'text-muted-foreground' : 'text-muted-foreground/30'
+                      }`}>
+                        {animal.captured ? (animal.scientific_name || '—') : '???'}
+                      </p>
+                      {!animal.captured && (animal.zone || animal.habitat) && (
+                        <div className="flex items-center gap-1 mt-0.5">
+                          <MapPin className="w-3 h-3 text-primary/50 shrink-0" />
+                          <p className="text-[10px] text-primary/60 font-display truncate">
+                            {animal.zone || animal.habitat}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className={`text-[10px] font-display hidden sm:inline ${animal.captured ? 'text-muted-foreground' : 'text-muted-foreground/30'}`}>
+                        {animal.category}
+                      </span>
+                      {animal.captured ? (
+                        <CheckCircle className="w-4 h-4 text-primary" />
+                      ) : (
+                        <Lock className="w-3.5 h-3.5 text-muted-foreground/30" />
+                      )}
+                    </div>
+                  </div>
+                ))}
+
+                {displayCount < filtered.length && (
+                  <button
+                    onClick={() => setDisplayCount(prev => prev + 100)}
+                    className="w-full py-3 text-sm font-display font-semibold text-primary hover:bg-muted rounded-xl transition-colors"
+                  >
+                    Voir plus ({filtered.length - displayCount} restants)
+                  </button>
+                )}
+
+                {filtered.length === 0 && (
+                  <div className="text-center py-16">
+                    <p className="text-4xl mb-3">🔍</p>
+                    <p className="text-muted-foreground font-display">Aucun animal trouvé</p>
+                  </div>
+                )}
               </div>
             )}
           </div>
-        )}
-      </div>
+        </>
+      )}
+
+      {activeTab === 'map' && (
+        <div className="max-w-lg mx-auto px-4 pt-3">
+          <Suspense fallback={
+            <div className="flex items-center justify-center py-20">
+              <span className="text-sm text-muted-foreground font-display">Chargement de la carte…</span>
+            </div>
+          }>
+            <BestiaryHeatmap />
+          </Suspense>
+        </div>
+      )}
 
       <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} />
     </main>
