@@ -58,6 +58,7 @@ const BestiairePage = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [displayCount, setDisplayCount] = useState(100);
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
+  const [activeTab, setActiveTab] = useState<'list' | 'map'>('list');
 
   useEffect(() => {
     if (!session?.user) return;
