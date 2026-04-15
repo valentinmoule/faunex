@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Lock, Bell, CheckCircle, PawPrint, Bird, Fish, Bug, Turtle, Rabbit, Shell, Waves, ChevronDown, type LucideIcon } from 'lucide-react';
+import { Search, Lock, Bell, CheckCircle, PawPrint, Bird, Fish, Bug, Turtle, Rabbit, Shell, Waves, ChevronDown, MapPin, type LucideIcon } from 'lucide-react';
 import { type Rarity, type AnimalCard, RARITY_LABELS } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -13,6 +13,8 @@ interface BestiaryAnimal {
   category: string;
   captured: boolean;
   captureData?: AnimalCard;
+  habitat?: string;
+  zone?: string; // location where others found it
 }
 
 const rarityFilters: (Rarity | 'all')[] = ['all', 'common', 'rare', 'epic', 'mythic'];
@@ -83,6 +85,25 @@ const BestiairePage = () => {
         .eq('user_id', session.user.id)
         .eq('status', 'approved');
 
+      // Fetch zone hints from ALL approved captures (location + habitat per animal)
+      const { data: allCaptures } = await supabase
+        .from('captures')
+        .select('animal_name, location, habitat')
+        .eq('status', 'approved')
+        .not('location', 'is', null);
+
+      // Build a map: animal_name -> { locations, habitat }
+      const zoneHints = new Map<string, { locations: Set<string>; habitat: string }>();
+      (allCaptures || []).forEach((c) => {
+        const key = c.animal_name.toLowerCase();
+        if (!zoneHints.has(key)) {
+          zoneHints.set(key, { locations: new Set(), habitat: '' });
+        }
+        const hint = zoneHints.get(key)!;
+        if (c.location && c.location.trim()) hint.locations.add(c.location.trim());
+        if (c.habitat && !hint.habitat) hint.habitat = c.habitat;
+      });
+
       const capturesByName = new Map<string, any>();
       (userCaptures || []).forEach((c) => {
         capturesByName.set(c.animal_name.toLowerCase(), c);
@@ -90,12 +111,15 @@ const BestiairePage = () => {
 
       const list: BestiaryAnimal[] = allAnimals.map((a: any) => {
         const capture = capturesByName.get(a.name.toLowerCase());
+        const hint = zoneHints.get(a.name.toLowerCase());
         return {
           name: a.name,
           scientific_name: a.scientific_name,
           rarity: a.rarity,
           category: a.category,
           captured: !!capture,
+          zone: hint ? Array.from(hint.locations).slice(0, 2).join(', ') : undefined,
+          habitat: hint?.habitat || undefined,
           captureData: capture ? {
             id: capture.id,
             name: capture.animal_name,
@@ -298,6 +322,15 @@ const BestiairePage = () => {
                   }`}>
                     {animal.captured ? (animal.scientific_name || '—') : '???'}
                   </p>
+                  {/* Zone hint for uncaptured animals */}
+                  {!animal.captured && (animal.zone || animal.habitat) && (
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <MapPin className="w-3 h-3 text-primary/50 shrink-0" />
+                      <p className="text-[10px] text-primary/60 font-display truncate">
+                        {animal.zone || animal.habitat}
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Category + status */}
