@@ -13,6 +13,8 @@ interface BestiaryAnimal {
   category: string;
   captured: boolean;
   captureData?: AnimalCard;
+  habitat?: string;
+  zone?: string; // location where others found it
 }
 
 const rarityFilters: (Rarity | 'all')[] = ['all', 'common', 'rare', 'epic', 'mythic'];
