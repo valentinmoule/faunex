@@ -1581,3 +1581,13 @@
 .safe-bottom {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
+
+/* Fix iOS Safari fixed positioning during scroll */
+@supports (-webkit-touch-callout: none) {
+  nav.fixed.bottom-0 {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+}
