@@ -196,6 +196,21 @@ const BestiairePage = () => {
           <div className="flex items-center justify-between mb-3">
             <h1 className="text-2xl font-display font-bold text-primary">Bestiaire</h1>
             <div className="flex items-center gap-2">
+              {/* Tab toggle */}
+              <div className="flex items-center bg-muted rounded-lg p-0.5">
+                <button
+                  onClick={() => setActiveTab('list')}
+                  className={`p-1.5 rounded-md transition-colors ${activeTab === 'list' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground'}`}
+                >
+                  <List className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setActiveTab('map')}
+                  className={`p-1.5 rounded-md transition-colors ${activeTab === 'map' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground'}`}
+                >
+                  <MapIcon className="w-4 h-4" />
+                </button>
+              </div>
               <span className="text-sm text-muted-foreground font-display">
                 {discoveredCount}/{animals.length}
               </span>
