@@ -322,6 +322,15 @@ const BestiairePage = () => {
                   }`}>
                     {animal.captured ? (animal.scientific_name || '—') : '???'}
                   </p>
+                  {/* Zone hint for uncaptured animals */}
+                  {!animal.captured && (animal.zone || animal.habitat) && (
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <MapPin className="w-3 h-3 text-primary/50 shrink-0" />
+                      <p className="text-[10px] text-primary/60 font-display truncate">
+                        {animal.zone || animal.habitat}
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Category + status */}
