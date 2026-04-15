@@ -6,6 +6,7 @@ import { type Rarity, type AnimalCard, RARITY_LABELS } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import CardDetailSheet from '@/components/CardDetailSheet';
+const BestiaryHeatmap = lazy(() => import('@/components/BestiaryHeatmap'));
 
 interface BestiaryAnimal {
   name: string;
