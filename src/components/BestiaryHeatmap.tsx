@@ -238,13 +238,13 @@ const BestiaryHeatmap = () => {
         <div className="absolute bottom-2 left-2 bg-card/90 backdrop-blur-sm rounded-lg px-2.5 py-1.5 border border-border/50 flex items-center gap-2 text-[9px] font-display">
           <span className="text-muted-foreground">Densité :</span>
           <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-green-500" /> Faible
+            <span className="w-2 h-2 rounded-full bg-primary/60" /> Faible
           </span>
           <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-purple-500" /> Moyenne
+            <span className="w-2 h-2 rounded-full bg-rarity-epic/60" /> Moyenne
           </span>
           <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-red-500" /> Élevée
+            <span className="w-2 h-2 rounded-full bg-destructive/60" /> Élevée
           </span>
         </div>
       </div>
