@@ -85,6 +85,25 @@ const BestiairePage = () => {
         .eq('user_id', session.user.id)
         .eq('status', 'approved');
 
+      // Fetch zone hints from ALL approved captures (location + habitat per animal)
+      const { data: allCaptures } = await supabase
+        .from('captures')
+        .select('animal_name, location, habitat')
+        .eq('status', 'approved')
+        .not('location', 'is', null);
+
+      // Build a map: animal_name -> { locations, habitat }
+      const zoneHints = new Map<string, { locations: Set<string>; habitat: string }>();
+      (allCaptures || []).forEach((c) => {
+        const key = c.animal_name.toLowerCase();
+        if (!zoneHints.has(key)) {
+          zoneHints.set(key, { locations: new Set(), habitat: '' });
+        }
+        const hint = zoneHints.get(key)!;
+        if (c.location && c.location.trim()) hint.locations.add(c.location.trim());
+        if (c.habitat && !hint.habitat) hint.habitat = c.habitat;
+      });
+
       const capturesByName = new Map<string, any>();
       (userCaptures || []).forEach((c) => {
         capturesByName.set(c.animal_name.toLowerCase(), c);
@@ -92,12 +111,15 @@ const BestiairePage = () => {
 
       const list: BestiaryAnimal[] = allAnimals.map((a: any) => {
         const capture = capturesByName.get(a.name.toLowerCase());
+        const hint = zoneHints.get(a.name.toLowerCase());
         return {
           name: a.name,
           scientific_name: a.scientific_name,
           rarity: a.rarity,
           category: a.category,
           captured: !!capture,
+          zone: hint ? Array.from(hint.locations).slice(0, 2).join(', ') : undefined,
+          habitat: hint?.habitat || undefined,
           captureData: capture ? {
             id: capture.id,
             name: capture.animal_name,
