@@ -267,7 +267,7 @@ const BestiairePage = () => {
         {/* 3x3 TCG binder grid */}
         <div className="grid grid-cols-3 gap-2">
           {categoryAnimals.map((animal, index) => (
-            <button
+              <div
               key={animal.name}
               onClick={() => {
                 if (animal.captured && animal.captureData) {
@@ -276,8 +276,8 @@ const BestiairePage = () => {
               }}
               className={`relative aspect-[3/4] rounded-xl border-2 overflow-hidden transition-all ${
                 animal.captured
-                  ? `${rarityBorderColor[animal.rarity] || 'border-border'} bg-card active:scale-[0.96]`
-                  : 'border-border/40 bg-muted/30'
+                  ? `${rarityBorderColor[animal.rarity] || 'border-border'} bg-card active:scale-[0.96] cursor-pointer`
+                  : 'border-border/40 bg-muted/30 cursor-default'
               }`}
             >
               {animal.captured && animal.captureData ? (
@@ -307,7 +307,7 @@ const BestiairePage = () => {
                   <div className={`w-1.5 h-1.5 rounded-full ${rarityDot[animal.rarity] || 'bg-muted-foreground'} opacity-30`} />
                 </div>
               )}
-            </button>
+            </div>
           ))}
         </div>
 
