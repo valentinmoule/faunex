@@ -307,7 +307,7 @@ const BestiairePage = () => {
                   <div className={`w-1.5 h-1.5 rounded-full ${rarityDot[animal.rarity] || 'bg-muted-foreground'} opacity-30`} />
                 </div>
               )}
-            </button>
+            </div>
           ))}
         </div>
 
