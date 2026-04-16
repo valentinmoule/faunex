@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Lock, Bell, CheckCircle, PawPrint, Bird, Fish, Bug, Turtle, Rabbit, Shell, Waves, ChevronDown, type LucideIcon } from 'lucide-react';
+import { Bell, ChevronLeft, PawPrint, Bird, Fish, Bug, Turtle, Rabbit, Shell, Waves, type LucideIcon } from 'lucide-react';
 import { type Rarity, type AnimalCard, RARITY_LABELS } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -14,19 +14,6 @@ interface BestiaryAnimal {
   captured: boolean;
   captureData?: AnimalCard;
 }
-
-const rarityFilters: (Rarity | 'all')[] = ['all', 'common', 'rare', 'epic', 'mythic'];
-
-const rarityOrder: Record<string, number> = {
-  common: 0, rare: 1, epic: 2, mythic: 3,
-};
-
-const rarityIconBg: Record<string, string> = {
-  common: 'bg-rarity-common/10 text-rarity-common border-rarity-common/30',
-  rare: 'bg-rarity-rare/10 text-rarity-rare border-rarity-rare/30',
-  epic: 'bg-rarity-epic/10 text-rarity-epic border-rarity-epic/30',
-  mythic: 'bg-rarity-mythic/10 text-rarity-mythic border-rarity-mythic/30',
-};
 
 const getCategoryIcon = (category: string): LucideIcon => {
   const cat = category.toLowerCase();
@@ -43,16 +30,44 @@ const getCategoryIcon = (category: string): LucideIcon => {
   return PawPrint;
 };
 
+const getCategoryEmoji = (category: string): string => {
+  const cat = category.toLowerCase();
+  if (cat.includes('oiseau')) return '🐦';
+  if (cat.includes('poisson') || cat.includes('vie marine')) return '🐟';
+  if (cat.includes('insecte')) return '🦋';
+  if (cat.includes('reptile')) return '🦎';
+  if (cat.includes('amphibien')) return '🐸';
+  if (cat.includes('arachnide')) return '🕷️';
+  if (cat.includes('crustacé')) return '🦀';
+  if (cat.includes('mollusque')) return '🐌';
+  if (cat.includes('mammifère') && cat.includes('marin')) return '🐋';
+  if (cat.includes('mammifère')) return '🦊';
+  return '🐾';
+};
+
+const rarityBorderColor: Record<string, string> = {
+  common: 'border-rarity-common/40',
+  rare: 'border-rarity-rare/50',
+  epic: 'border-rarity-epic/50',
+  mythic: 'border-rarity-mythic/50',
+};
+
+const rarityDot: Record<string, string> = {
+  common: 'bg-rarity-common',
+  rare: 'bg-rarity-rare',
+  epic: 'bg-rarity-epic',
+  mythic: 'bg-rarity-mythic',
+};
+
+const normalizeCategory = (cat: string) => cat.replace(/\s*\(monde\)$/i, '');
+
 const BestiairePage = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
   const [animals, setAnimals] = useState<BestiaryAnimal[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState<Rarity | 'all'>('all');
-  const [categoryFilter, setCategoryFilter] = useState('Tous');
   const [unreadCount, setUnreadCount] = useState(0);
-  const [displayCount, setDisplayCount] = useState(100);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
 
   useEffect(() => {
@@ -61,7 +76,6 @@ const BestiairePage = () => {
     const fetchData = async () => {
       setLoading(true);
 
-      // Fetch ALL animals with pagination (Supabase default limit is 1000)
       let allAnimals: any[] = [];
       let page = 0;
       const pageSize = 1000;
@@ -114,11 +128,8 @@ const BestiairePage = () => {
         };
       });
 
-      // Sort: captured first, then alphabetical
-      list.sort((a, b) => {
-        if (a.captured !== b.captured) return a.captured ? -1 : 1;
-        return a.name.localeCompare(b.name, 'fr');
-      });
+      // Sort alphabetically
+      list.sort((a, b) => a.name.localeCompare(b.name, 'fr'));
 
       setAnimals(list);
       setLoading(false);
@@ -137,199 +148,173 @@ const BestiairePage = () => {
     fetchUnread();
   }, [session]);
 
-  // Get unique categories (merge "X" and "X (monde)" into one)
-  const normalizeCategory = (cat: string) => cat.replace(/\s*\(monde\)$/i, '');
-
-  const categories = useMemo(() => {
-    const cats = new Set(animals.map(a => normalizeCategory(a.category)));
-    return ['Tous', ...Array.from(cats).sort()];
+  // Categories with counts
+  const categoryData = useMemo(() => {
+    const map = new Map<string, { total: number; captured: number }>();
+    animals.forEach(a => {
+      const norm = normalizeCategory(a.category);
+      const entry = map.get(norm) || { total: 0, captured: 0 };
+      entry.total++;
+      if (a.captured) entry.captured++;
+      map.set(norm, entry);
+    });
+    return Array.from(map.entries())
+      .sort(([a], [b]) => a.localeCompare(b, 'fr'))
+      .map(([name, data]) => ({ name, ...data }));
   }, [animals]);
 
-  const filtered = useMemo(() => {
-    return animals.filter((a) => {
-      if (filter !== 'all' && a.rarity !== filter) return false;
-      if (categoryFilter !== 'Tous' && normalizeCategory(a.category) !== categoryFilter) return false;
-      if (search && !a.name.toLowerCase().includes(search.toLowerCase())) return false;
-      return true;
-    });
-  }, [animals, filter, categoryFilter, search]);
+  // Animals for selected category
+  const categoryAnimals = useMemo(() => {
+    if (!selectedCategory) return [];
+    return animals.filter(a => normalizeCategory(a.category) === selectedCategory);
+  }, [animals, selectedCategory]);
 
-  // Reset display count when filters change
-  useEffect(() => {
-    setDisplayCount(100);
-  }, [filter, categoryFilter, search]);
+  const totalCaptured = animals.filter(a => a.captured).length;
 
-  const discoveredCount = animals.filter((a) => a.captured).length;
-  const visibleAnimals = filtered.slice(0, displayCount);
+  // Category grid view
+  if (!selectedCategory) {
+    return (
+      <main className="min-h-screen bg-background pb-24">
+        <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
+          <div className="max-w-lg mx-auto">
+            <div className="flex items-center justify-between">
+              <h1 className="text-2xl font-display font-bold text-primary">Bestiaire</h1>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground font-display">
+                  {totalCaptured}/{animals.length}
+                </span>
+                <button
+                  onClick={() => navigate('/notifications')}
+                  className="relative p-2 rounded-full hover:bg-muted transition-colors"
+                >
+                  <Bell className="w-5 h-5 text-foreground" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <div className="max-w-lg mx-auto px-4 pt-4">
+          {loading ? (
+            <div className="text-center py-16">
+              <p className="text-muted-foreground font-display">Chargement…</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-3">
+              {categoryData.map(cat => {
+                const emoji = getCategoryEmoji(cat.name);
+                const progress = cat.total > 0 ? Math.round((cat.captured / cat.total) * 100) : 0;
+                return (
+                  <button
+                    key={cat.name}
+                    onClick={() => setSelectedCategory(cat.name)}
+                    className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-md"
+                  >
+                    <div className="text-3xl mb-2">{emoji}</div>
+                    <h3 className="font-display font-bold text-sm text-foreground leading-tight mb-1 truncate">{cat.name}</h3>
+                    <p className="text-[11px] text-muted-foreground font-display mb-3">
+                      {cat.captured}/{cat.total} capturés
+                    </p>
+                    {/* Progress bar */}
+                    <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-primary transition-all duration-500"
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </main>
+    );
+  }
+
+  // Category detail: 3x3 binder grid
+  const catInfo = categoryData.find(c => c.name === selectedCategory);
 
   return (
     <main className="min-h-screen bg-background pb-24">
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="max-w-lg mx-auto">
-          <div className="flex items-center justify-between mb-3">
-            <h1 className="text-2xl font-display font-bold text-primary">Bestiaire</h1>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground font-display">
-                {discoveredCount}/{animals.length}
-              </span>
-              <button
-                onClick={() => navigate('/notifications')}
-                className="relative p-2 rounded-full hover:bg-muted transition-colors"
-              >
-                <Bell className="w-5 h-5 text-foreground" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center">
-                    {unreadCount > 9 ? '9+' : unreadCount}
-                  </span>
-                )}
-              </button>
-            </div>
-          </div>
-
-          <div className="flex items-stretch gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Rechercher un animal..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full h-full pl-9 pr-4 py-2.5 bg-muted rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body"
-              />
-            </div>
-            <div className="relative w-1/4 min-w-[80px]">
-              <select
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                className="appearance-none w-full h-full pl-3 pr-7 rounded-xl text-xs font-display font-semibold bg-muted border-none text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors"
-              >
-                {categories.map((c) => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setSelectedCategory(null)}
+              className="p-1.5 rounded-full hover:bg-muted transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5 text-foreground" />
+            </button>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-lg font-display font-bold text-foreground truncate">
+                {getCategoryEmoji(selectedCategory)} {selectedCategory}
+              </h1>
+              <p className="text-[11px] text-muted-foreground font-display">
+                {catInfo?.captured || 0}/{catInfo?.total || 0} capturés
+              </p>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Rarity filter chips */}
-      <div className="max-w-lg mx-auto px-4 pt-3">
-        <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
+      <div className="max-w-lg mx-auto px-3 pt-3">
+        {/* 3x3 TCG binder grid */}
+        <div className="grid grid-cols-3 gap-2">
+          {categoryAnimals.map((animal, index) => (
             <button
-              onClick={() => setFilter('all')}
-              className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-display font-bold border transition-all duration-300 flex items-center gap-1 active:scale-95 ${
-                filter === 'all'
-                  ? 'bg-foreground/10 text-foreground border-foreground/30 shadow-sm'
-                  : 'bg-muted text-muted-foreground border-border hover:bg-foreground/5 hover:text-foreground hover:border-foreground/20'
+              key={animal.name}
+              onClick={() => {
+                if (animal.captured && animal.captureData) {
+                  setSelectedCard(animal.captureData);
+                }
+              }}
+              className={`relative aspect-[3/4] rounded-xl border-2 overflow-hidden transition-all ${
+                animal.captured
+                  ? `${rarityBorderColor[animal.rarity] || 'border-border'} bg-card active:scale-[0.96]`
+                  : 'border-border/40 bg-muted/30'
               }`}
             >
-              Tous
-            </button>
-            {rarityFilters.filter(r => r !== 'all').map((r) => {
-              const isActive = filter === r;
-              const colorClasses = r === 'common'
-                ? isActive ? 'bg-rarity-common/20 text-rarity-common border-rarity-common/50 shadow-[0_0_10px_hsla(0,0%,60%,0.2)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-common/10 hover:text-rarity-common hover:border-rarity-common/30'
-                : r === 'rare'
-                ? isActive ? 'bg-rarity-rare/20 text-rarity-rare border-rarity-rare/50 shadow-[0_0_12px_hsla(210,70%,55%,0.25)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-rare/10 hover:text-rarity-rare hover:border-rarity-rare/30'
-                : r === 'epic'
-                ? isActive ? 'bg-rarity-epic/20 text-rarity-epic border-rarity-epic/50 shadow-[0_0_14px_hsla(270,70%,60%,0.3)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-epic/10 hover:text-rarity-epic hover:border-rarity-epic/30'
-                : isActive ? 'bg-rarity-mythic/20 text-rarity-mythic border-rarity-mythic/50 shadow-[0_0_16px_hsla(42,85%,55%,0.35)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-mythic/10 hover:text-rarity-mythic hover:border-rarity-mythic/30';
-
-              const dot = r === 'common' ? 'bg-rarity-common' : r === 'rare' ? 'bg-rarity-rare' : r === 'epic' ? 'bg-rarity-epic' : r === 'mythic' ? 'bg-rarity-mythic' : '';
-
-              return (
-                <button
-                  key={r}
-                  onClick={() => setFilter(filter === r ? 'all' : r)}
-                  className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-display font-bold border transition-all duration-300 flex items-center gap-1 active:scale-95 ${colorClasses} ${isActive ? 'bestiary-filter-glow' : ''} ${r === 'mythic' ? 'mythic-filter-shimmer' : ''}`}
-                >
-                  <span className={`w-1.5 h-1.5 rounded-full ${dot} ${isActive ? 'animate-pulse' : ''}`} />
-                  {RARITY_LABELS[r as Rarity]}
-                </button>
-              );
-            })}
-        </div>
-      </div>
-
-      {/* List */}
-      <div className="max-w-lg mx-auto px-4 pt-2">
-        <p className="text-xs text-muted-foreground font-display mb-2">{filtered.length} espèces</p>
-
-        {loading ? (
-          <div className="text-center py-16">
-            <p className="text-muted-foreground font-display">Chargement…</p>
-          </div>
-        ) : (
-          <div className="space-y-1.5">
-            {visibleAnimals.map((animal) => (
-              <div
-                key={animal.name}
-                onClick={() => animal.captured && animal.captureData && setSelectedCard(animal.captureData)}
-                className={`flex items-center gap-3 px-4 py-2.5 rounded-xl border transition-colors ${
-                  animal.captured
-                    ? 'bg-card border-border cursor-pointer active:bg-muted/50'
-                    : 'bg-muted/40 border-border/50'
-                }`}
-              >
-                {/* Category icon */}
-                {(() => {
-                  const Icon = getCategoryIcon(animal.category);
-                  return (
-                    <div className={`w-9 h-9 shrink-0 rounded-full border flex items-center justify-center ${
-                      animal.captured
-                        ? 'bg-primary/10 text-primary border-primary/20'
-                        : 'bg-muted/60 text-muted-foreground/40 border-border/40'
-                    }`}>
-                      <Icon className="w-4 h-4" />
-                    </div>
-                  );
-                })()}
-
-                {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <h3 className={`font-display font-bold text-sm leading-tight truncate ${
-                    animal.captured ? 'text-foreground' : 'text-muted-foreground/60'
-                  }`}>
-                    {animal.name}
-                  </h3>
-                  <p className={`text-[11px] italic truncate ${
-                    animal.captured ? 'text-muted-foreground' : 'text-muted-foreground/30'
-                  }`}>
-                    {animal.captured ? (animal.scientific_name || '—') : '???'}
-                  </p>
+              {animal.captured && animal.captureData ? (
+                // Captured: show photo card
+                <div className="w-full h-full flex flex-col">
+                  <div className="flex-1 overflow-hidden relative">
+                    <img
+                      src={animal.captureData.image}
+                      alt={animal.name}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                    {/* Rarity dot */}
+                    <div className={`absolute top-1.5 right-1.5 w-2 h-2 rounded-full ${rarityDot[animal.rarity] || 'bg-muted-foreground'}`} />
+                  </div>
+                  <div className="px-1.5 py-1 bg-card">
+                    <p className="text-[9px] font-display font-bold text-foreground truncate leading-tight">{animal.name}</p>
+                  </div>
                 </div>
-
-                {/* Category + status */}
-                <div className="flex items-center gap-2 shrink-0">
-                  <span className={`text-[10px] font-display hidden sm:inline ${animal.captured ? 'text-muted-foreground' : 'text-muted-foreground/30'}`}>
-                    {animal.category}
+              ) : (
+                // Uncaptured: placeholder with number
+                <div className="w-full h-full flex flex-col items-center justify-center gap-1">
+                  <span className="text-lg font-display font-bold text-muted-foreground/30">
+                    {String(index + 1).padStart(3, '0')}
                   </span>
-                  {animal.captured ? (
-                    <CheckCircle className="w-4 h-4 text-primary" />
-                  ) : (
-                    <Lock className="w-3.5 h-3.5 text-muted-foreground/30" />
-                  )}
+                  {/* Rarity hint dot */}
+                  <div className={`w-1.5 h-1.5 rounded-full ${rarityDot[animal.rarity] || 'bg-muted-foreground'} opacity-30`} />
                 </div>
-              </div>
-            ))}
+              )}
+            </button>
+          ))}
+        </div>
 
-            {/* Load more button */}
-            {displayCount < filtered.length && (
-              <button
-                onClick={() => setDisplayCount(prev => prev + 100)}
-                className="w-full py-3 text-sm font-display font-semibold text-primary hover:bg-muted rounded-xl transition-colors"
-              >
-                Voir plus ({filtered.length - displayCount} restants)
-              </button>
-            )}
-
-            {filtered.length === 0 && (
-              <div className="text-center py-16">
-                <p className="text-4xl mb-3">🔍</p>
-                <p className="text-muted-foreground font-display">Aucun animal trouvé</p>
-              </div>
-            )}
+        {categoryAnimals.length === 0 && !loading && (
+          <div className="text-center py-16">
+            <p className="text-4xl mb-3">📭</p>
+            <p className="text-muted-foreground font-display text-sm">Aucune espèce dans cette catégorie</p>
           </div>
         )}
       </div>
