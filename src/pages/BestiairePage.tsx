@@ -315,13 +315,15 @@ const BestiairePage = () => {
                   </div>
                 </div>
               ) : (
-                // Uncaptured: placeholder with number
-                <div className="w-full h-full flex flex-col items-center justify-center gap-1">
-                  <span className="text-lg font-display font-bold text-muted-foreground/30">
-                    {String(index + 1).padStart(3, '0')}
-                  </span>
-                  {/* Rarity hint dot */}
-                  <div className={`w-1.5 h-1.5 rounded-full ${rarityDot[animal.rarity] || 'bg-muted-foreground'} opacity-30`} />
+                // Uncaptured: show category emoji + name
+                <div className="w-full h-full flex flex-col">
+                  <div className="flex-1 flex items-center justify-center bg-muted/40 relative">
+                    <span className="text-2xl opacity-40">{getCategoryEmoji(animal.category)}</span>
+                    <div className={`absolute top-1.5 right-1.5 w-2 h-2 rounded-full ${rarityDot[animal.rarity] || 'bg-muted-foreground'} opacity-30`} />
+                  </div>
+                  <div className="px-1.5 py-1 bg-card">
+                    <p className="text-[9px] font-display font-bold text-muted-foreground/50 truncate leading-tight">???</p>
+                  </div>
                 </div>
               )}
             </div>
