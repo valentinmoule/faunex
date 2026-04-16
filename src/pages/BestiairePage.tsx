@@ -272,12 +272,29 @@ const BestiairePage = () => {
               onClick={() => {
                 if (animal.captured && animal.captureData) {
                   setSelectedCard(animal.captureData);
+                } else {
+                  // Show basic info for uncaptured animals
+                  setSelectedCard({
+                    id: `uncaptured-${animal.name}`,
+                    name: animal.name,
+                    scientificName: animal.scientific_name || '',
+                    image: '',
+                    rarity: animal.rarity as Rarity,
+                    category: animal.category,
+                    description: '',
+                    habitat: '',
+                    diet: '',
+                    conservation: '',
+                    funFact: '',
+                    discoveredAt: '',
+                    location: '',
+                  });
                 }
               }}
-              className={`relative aspect-[3/4] rounded-xl border-2 overflow-hidden transition-all ${
+              className={`relative aspect-[3/4] rounded-xl border-2 overflow-hidden transition-all cursor-pointer active:scale-[0.96] ${
                 animal.captured
-                  ? `${rarityBorderColor[animal.rarity] || 'border-border'} bg-card active:scale-[0.96] cursor-pointer`
-                  : 'border-border/40 bg-muted/30 cursor-default'
+                  ? `${rarityBorderColor[animal.rarity] || 'border-border'} bg-card`
+                  : 'border-border/40 bg-muted/30'
               }`}
             >
               {animal.captured && animal.captureData ? (
