@@ -264,8 +264,8 @@ const BestiairePage = () => {
       </header>
 
       <div className="max-w-lg mx-auto px-3 pt-3">
-        {/* 3x3 TCG binder grid */}
-        <div className="grid grid-cols-3 gap-2">
+        {/* 4x4 TCG binder grid */}
+        <div className="grid grid-cols-4 gap-1.5">
           {categoryAnimals.map((animal, index) => (
               <div
               key={animal.name}
