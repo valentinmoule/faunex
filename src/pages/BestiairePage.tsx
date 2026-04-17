@@ -1,10 +1,11 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, ChevronLeft, PawPrint, Bird, Fish, Bug, Turtle, Rabbit, Shell, Waves, type LucideIcon } from 'lucide-react';
 import { type Rarity, type AnimalCard, RARITY_LABELS } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import CardDetailSheet from '@/components/CardDetailSheet';
+import { consumePendingShelve, peekPendingShelve, type PendingShelve } from '@/lib/shelveAnimation';
 
 interface BestiaryAnimal {
   name: string;
@@ -69,6 +70,11 @@ const BestiairePage = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
+  const [pendingShelve, setPendingShelveState] = useState<PendingShelve | null>(null);
+  const [flyingCardStyle, setFlyingCardStyle] = useState<React.CSSProperties | null>(null);
+  const [flashSlotName, setFlashSlotName] = useState<string | null>(null);
+  const slotRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const shelveAnimationRan = useRef(false);
 
   useEffect(() => {
     if (!session?.user) return;
@@ -147,6 +153,96 @@ const BestiairePage = () => {
     fetchData();
     fetchUnread();
   }, [session]);
+
+  // Detect pending shelve animation request on mount
+  useEffect(() => {
+    const peeked = peekPendingShelve();
+    if (peeked && !shelveAnimationRan.current) {
+      setPendingShelveState(peeked);
+    }
+  }, []);
+
+  // Auto-open the target category as soon as data is ready
+  useEffect(() => {
+    if (!pendingShelve || loading || shelveAnimationRan.current) return;
+    const targetCat = normalizeCategory(pendingShelve.category);
+    // Find the animal entry to confirm category exists
+    const match = animals.find(
+      a => a.name.toLowerCase() === pendingShelve.animalName.toLowerCase(),
+    );
+    const catName = match ? normalizeCategory(match.category) : targetCat;
+    if (selectedCategory !== catName) {
+      setSelectedCategory(catName);
+    }
+  }, [pendingShelve, loading, animals, selectedCategory]);
+
+  // Play the glide-into-slot animation once the slot is mounted
+  useEffect(() => {
+    if (!pendingShelve || shelveAnimationRan.current) return;
+    if (!selectedCategory) return;
+
+    const slotKey = pendingShelve.animalName.toLowerCase();
+    // Wait next frame to ensure slot is rendered
+    const raf = requestAnimationFrame(() => {
+      const slotEl = slotRefs.current[slotKey];
+      if (!slotEl) return;
+      shelveAnimationRan.current = true;
+      consumePendingShelve(); // clear storage so it doesn't replay
+
+      // Scroll the slot into view (centered)
+      slotEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      // After scroll settles, measure & launch flying card
+      setTimeout(() => {
+        const rect = slotEl.getBoundingClientRect();
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        // Start: large card at center of viewport
+        const startSize = Math.min(280, vw * 0.7);
+        const startLeft = (vw - startSize) / 2;
+        const startTop = (vh - startSize) / 2;
+
+        // Mount flying card at start position
+        setFlyingCardStyle({
+          left: `${startLeft}px`,
+          top: `${startTop}px`,
+          width: `${startSize}px`,
+          height: `${startSize}px`,
+          transform: 'rotate(-4deg) scale(1)',
+          opacity: 1,
+        });
+
+        // Next frame: animate to slot position
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            setFlyingCardStyle({
+              left: `${rect.left}px`,
+              top: `${rect.top}px`,
+              width: `${rect.width}px`,
+              height: `${rect.height}px`,
+              transform: 'rotate(0deg) scale(1)',
+              opacity: 1,
+            });
+          });
+        });
+
+        // When animation completes: trigger flash + remove flying card
+        setTimeout(() => {
+          setFlashSlotName(slotKey);
+          setFlyingCardStyle(prev => prev ? { ...prev, opacity: 0 } : null);
+          if (navigator.vibrate) navigator.vibrate([30, 20, 60]);
+          setTimeout(() => {
+            setFlyingCardStyle(null);
+            setPendingShelveState(null);
+          }, 250);
+          // Clear flash after animation
+          setTimeout(() => setFlashSlotName(null), 1200);
+        }, 900);
+      }, 450);
+    });
+
+    return () => cancelAnimationFrame(raf);
+  }, [pendingShelve, selectedCategory, animals, loading]);
 
   // Categories with counts
   const categoryData = useMemo(() => {
@@ -274,66 +370,66 @@ const BestiairePage = () => {
       <div className="max-w-lg mx-auto px-3 pt-3">
         {/* 4x4 TCG binder grid */}
         <div className="grid grid-cols-4 gap-1.5">
-          {categoryAnimals.map((animal, index) => (
+          {categoryAnimals.map((animal, index) => {
+            const slotKey = animal.name.toLowerCase();
+            const isFlashing = flashSlotName === slotKey;
+            return (
               <div
-              key={animal.name}
-              onClick={() => {
-                if (animal.captured && animal.captureData) {
-                  setSelectedCard(animal.captureData);
-                } else {
-                  // Show basic info for uncaptured animals
-                  setSelectedCard({
-                    id: `uncaptured-${animal.name}`,
-                    name: animal.name,
-                    scientificName: animal.scientific_name || '',
-                    image: '',
-                    rarity: animal.rarity as Rarity,
-                    category: animal.category,
-                    description: '',
-                    habitat: '',
-                    diet: '',
-                    conservation: '',
-                    funFact: '',
-                    discoveredAt: '',
-                    location: '',
-                  });
-                }
-              }}
-              className={`relative aspect-[3/4] rounded-xl border-2 overflow-hidden transition-all cursor-pointer active:scale-[0.96] ${
-                animal.captured
-                  ? `${rarityBorderColor[animal.rarity] || 'border-border'} bg-card`
-                  : 'border-border/40 bg-muted/30'
-              }`}
-            >
-              {animal.captured && animal.captureData ? (
-                // Captured: show photo card
-                <div className="w-full h-full flex flex-col">
-                  <div className="flex-1 overflow-hidden relative">
-                    <img
-                      src={animal.captureData.image}
-                      alt={animal.name}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                    {/* Rarity dot */}
-                    <div className={`absolute top-1.5 right-1.5 w-2 h-2 rounded-full ${rarityDot[animal.rarity] || 'bg-muted-foreground'}`} />
+                key={animal.name}
+                ref={(el) => { slotRefs.current[slotKey] = el; }}
+                onClick={() => {
+                  if (animal.captured && animal.captureData) {
+                    setSelectedCard(animal.captureData);
+                  } else {
+                    setSelectedCard({
+                      id: `uncaptured-${animal.name}`,
+                      name: animal.name,
+                      scientificName: animal.scientific_name || '',
+                      image: '',
+                      rarity: animal.rarity as Rarity,
+                      category: animal.category,
+                      description: '',
+                      habitat: '',
+                      diet: '',
+                      conservation: '',
+                      funFact: '',
+                      discoveredAt: '',
+                      location: '',
+                    });
+                  }
+                }}
+                className={`relative aspect-[3/4] rounded-xl border-2 overflow-hidden transition-all cursor-pointer active:scale-[0.96] ${
+                  animal.captured
+                    ? `${rarityBorderColor[animal.rarity] || 'border-border'} bg-card`
+                    : 'border-border/40 bg-muted/30'
+                } ${isFlashing ? 'shelve-slot-flash' : ''}`}
+              >
+                {animal.captured && animal.captureData ? (
+                  <div className="w-full h-full flex flex-col">
+                    <div className="flex-1 overflow-hidden relative">
+                      <img
+                        src={animal.captureData.image}
+                        alt={animal.name}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                      <div className={`absolute top-1.5 right-1.5 w-2 h-2 rounded-full ${rarityDot[animal.rarity] || 'bg-muted-foreground'}`} />
+                    </div>
+                    <div className="px-1.5 py-1 bg-card">
+                      <p className="text-[9px] font-display font-bold text-foreground truncate leading-tight">{animal.name}</p>
+                    </div>
                   </div>
-                  <div className="px-1.5 py-1 bg-card">
-                    <p className="text-[9px] font-display font-bold text-foreground truncate leading-tight">{animal.name}</p>
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center gap-1">
+                    <span className="text-lg font-display font-bold text-muted-foreground/30">
+                      {String(index + 1).padStart(3, '0')}
+                    </span>
+                    <div className={`w-1.5 h-1.5 rounded-full ${rarityDot[animal.rarity] || 'bg-muted-foreground'} opacity-30`} />
                   </div>
-                </div>
-              ) : (
-                // Uncaptured: placeholder with number
-                <div className="w-full h-full flex flex-col items-center justify-center gap-1">
-                  <span className="text-lg font-display font-bold text-muted-foreground/30">
-                    {String(index + 1).padStart(3, '0')}
-                  </span>
-                  {/* Rarity hint dot */}
-                  <div className={`w-1.5 h-1.5 rounded-full ${rarityDot[animal.rarity] || 'bg-muted-foreground'} opacity-30`} />
-                </div>
-              )}
-            </div>
-          ))}
+                )}
+              </div>
+            );
+          })}
         </div>
 
         {categoryAnimals.length === 0 && !loading && (
@@ -345,6 +441,13 @@ const BestiairePage = () => {
       </div>
 
       <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} />
+
+      {/* Flying card overlay for shelve animation */}
+      {flyingCardStyle && pendingShelve && (
+        <div className="shelve-flying-card" style={flyingCardStyle}>
+          <img src={pendingShelve.imageUrl} alt={pendingShelve.animalName} />
+        </div>
+      )}
     </main>
   );
 };
