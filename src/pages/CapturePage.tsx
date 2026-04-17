@@ -5,7 +5,6 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { type Rarity, RARITY_LABELS } from '@/data/mockData';
-import { setPendingShelve } from '@/lib/shelveAnimation';
 
 interface AnimalResult {
   animal_name: string;
@@ -563,13 +562,7 @@ const CapturePage = () => {
       setSaved(true);
       setDuplicateCapture(null);
       toast.success(`${animalResult.animal_name} ajouté à ton Faunex !`);
-      setPendingShelve({
-        animalName: animalResult.animal_name,
-        category: animalResult.category,
-        rarity: animalResult.rarity,
-        imageUrl,
-      });
-      setTimeout(() => navigate('/bestiaire'), 900);
+      setTimeout(() => navigate('/home'), 1500);
     } catch (err: any) {
       console.error(err);
       toast.error("Erreur lors de la sauvegarde");
@@ -609,13 +602,7 @@ const CapturePage = () => {
       setSaved(true);
       setDuplicateCapture(null);
       toast.success(`${animalResult.animal_name} mis à jour dans ton Faunex !`);
-      setPendingShelve({
-        animalName: animalResult.animal_name,
-        category: animalResult.category,
-        rarity: animalResult.rarity,
-        imageUrl,
-      });
-      setTimeout(() => navigate('/bestiaire'), 900);
+      setTimeout(() => navigate('/home'), 1500);
     } catch (err: any) {
       console.error(err);
       toast.error("Erreur lors de la mise à jour");
