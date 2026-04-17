@@ -207,20 +207,32 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
 
             <div className="relative z-10 pt-14 px-6 pb-0">
               <div
-                className={`relative mx-auto max-w-[280px] aspect-square rounded-2xl overflow-hidden cursor-pointer active:scale-95 transition-transform ${detailAppearClass}`}
+                className={`relative mx-auto max-w-[280px] aspect-square rounded-2xl overflow-hidden ${card.image ? 'cursor-pointer active:scale-95' : ''} transition-transform ${detailAppearClass}`}
                 style={{ boxShadow: isMythic ? '0 0 40px 8px hsla(42,100%,65%,0.3), 0 8px 32px rgba(0,0,0,0.4)' : isEpic ? '0 0 35px 6px hsla(270,80%,65%,0.25), 0 8px 32px rgba(0,0,0,0.4)' : isRare ? '0 0 25px 4px hsla(210,70%,60%,0.2), 0 8px 32px rgba(0,0,0,0.4)' : '0 8px 32px rgba(0,0,0,0.4)' }}
-                role="button"
-                tabIndex={0}
+                role={card.image ? 'button' : undefined}
+                tabIndex={card.image ? 0 : undefined}
                 onPointerUp={(e) => {
+                  if (!card.image) return;
                   e.stopPropagation();
                   setImageFullscreen(true);
                 }}
               >
-                <img src={card.image} alt={card.name} className="w-full h-full object-cover pointer-events-none" draggable={false} />
+                {card.image ? (
+                  <img src={card.image} alt={card.name} className="w-full h-full object-cover pointer-events-none" draggable={false} />
+                ) : (
+                  (() => {
+                    const CatIcon = getCategoryIcon(card.category);
+                    return (
+                      <div className="w-full h-full flex items-center justify-center bg-muted/40">
+                        <CatIcon className="w-24 h-24 text-muted-foreground/50" strokeWidth={1.5} />
+                      </div>
+                    );
+                  })()
+                )}
                 {/* Glass shimmer overlay on image */}
-                {isMythic && <div className="detail-mythic-glass" />}
-                {isEpic && <div className="detail-epic-glass" />}
-                {isRare && <div className="detail-rare-glass" />}
+                {card.image && isMythic && <div className="detail-mythic-glass" />}
+                {card.image && isEpic && <div className="detail-epic-glass" />}
+                {card.image && isRare && <div className="detail-rare-glass" />}
               </div>
             </div>
 
