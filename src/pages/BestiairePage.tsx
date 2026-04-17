@@ -253,13 +253,19 @@ const BestiairePage = () => {
             >
               <ChevronLeft className="w-5 h-5 text-foreground" />
             </button>
-            <div className="flex-1 min-w-0">
-              <h1 className="text-lg font-display font-bold text-foreground truncate">
-                {getCategoryEmoji(selectedCategory)} {selectedCategory}
-              </h1>
-              <p className="text-[11px] text-muted-foreground font-display">
-                {catInfo?.captured || 0}/{catInfo?.total || 0} capturés
-              </p>
+            <div className="flex-1 min-w-0 flex items-center gap-2">
+              {(() => {
+                const HeaderIcon = getCategoryIcon(selectedCategory);
+                return <HeaderIcon className="w-5 h-5 text-primary shrink-0" strokeWidth={1.75} />;
+              })()}
+              <div className="min-w-0">
+                <h1 className="text-lg font-display font-bold text-foreground truncate">
+                  {selectedCategory}
+                </h1>
+                <p className="text-[11px] text-muted-foreground font-display">
+                  {catInfo?.captured || 0}/{catInfo?.total || 0} capturés
+                </p>
+              </div>
             </div>
           </div>
         </div>
