@@ -563,7 +563,13 @@ const CapturePage = () => {
       setSaved(true);
       setDuplicateCapture(null);
       toast.success(`${animalResult.animal_name} ajouté à ton Faunex !`);
-      setTimeout(() => navigate('/home'), 1500);
+      setPendingShelve({
+        animalName: animalResult.animal_name,
+        category: animalResult.category,
+        rarity: animalResult.rarity,
+        imageUrl,
+      });
+      setTimeout(() => navigate('/bestiaire'), 900);
     } catch (err: any) {
       console.error(err);
       toast.error("Erreur lors de la sauvegarde");
@@ -603,7 +609,13 @@ const CapturePage = () => {
       setSaved(true);
       setDuplicateCapture(null);
       toast.success(`${animalResult.animal_name} mis à jour dans ton Faunex !`);
-      setTimeout(() => navigate('/home'), 1500);
+      setPendingShelve({
+        animalName: animalResult.animal_name,
+        category: animalResult.category,
+        rarity: animalResult.rarity,
+        imageUrl,
+      });
+      setTimeout(() => navigate('/bestiaire'), 900);
     } catch (err: any) {
       console.error(err);
       toast.error("Erreur lors de la mise à jour");
