@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { type Rarity, RARITY_LABELS } from '@/data/mockData';
+import { setPendingShelve } from '@/lib/shelveAnimation';
 
 interface AnimalResult {
   animal_name: string;
