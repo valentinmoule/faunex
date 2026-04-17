@@ -441,6 +441,13 @@ const BestiairePage = () => {
       </div>
 
       <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} />
+
+      {/* Flying card overlay for shelve animation */}
+      {flyingCardStyle && pendingShelve && (
+        <div className="shelve-flying-card" style={flyingCardStyle}>
+          <img src={pendingShelve.imageUrl} alt={pendingShelve.animalName} />
+        </div>
+      )}
     </main>
   );
 };
