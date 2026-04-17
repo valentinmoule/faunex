@@ -70,6 +70,11 @@ const BestiairePage = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
+  const [pendingShelve, setPendingShelveState] = useState<PendingShelve | null>(null);
+  const [flyingCardStyle, setFlyingCardStyle] = useState<React.CSSProperties | null>(null);
+  const [flashSlotName, setFlashSlotName] = useState<string | null>(null);
+  const slotRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const shelveAnimationRan = useRef(false);
 
   useEffect(() => {
     if (!session?.user) return;
