@@ -154,6 +154,96 @@ const BestiairePage = () => {
     fetchUnread();
   }, [session]);
 
+  // Detect pending shelve animation request on mount
+  useEffect(() => {
+    const peeked = peekPendingShelve();
+    if (peeked && !shelveAnimationRan.current) {
+      setPendingShelveState(peeked);
+    }
+  }, []);
+
+  // Auto-open the target category as soon as data is ready
+  useEffect(() => {
+    if (!pendingShelve || loading || shelveAnimationRan.current) return;
+    const targetCat = normalizeCategory(pendingShelve.category);
+    // Find the animal entry to confirm category exists
+    const match = animals.find(
+      a => a.name.toLowerCase() === pendingShelve.animalName.toLowerCase(),
+    );
+    const catName = match ? normalizeCategory(match.category) : targetCat;
+    if (selectedCategory !== catName) {
+      setSelectedCategory(catName);
+    }
+  }, [pendingShelve, loading, animals, selectedCategory]);
+
+  // Play the glide-into-slot animation once the slot is mounted
+  useEffect(() => {
+    if (!pendingShelve || shelveAnimationRan.current) return;
+    if (!selectedCategory) return;
+
+    const slotKey = pendingShelve.animalName.toLowerCase();
+    // Wait next frame to ensure slot is rendered
+    const raf = requestAnimationFrame(() => {
+      const slotEl = slotRefs.current[slotKey];
+      if (!slotEl) return;
+      shelveAnimationRan.current = true;
+      consumePendingShelve(); // clear storage so it doesn't replay
+
+      // Scroll the slot into view (centered)
+      slotEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      // After scroll settles, measure & launch flying card
+      setTimeout(() => {
+        const rect = slotEl.getBoundingClientRect();
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        // Start: large card at center of viewport
+        const startSize = Math.min(280, vw * 0.7);
+        const startLeft = (vw - startSize) / 2;
+        const startTop = (vh - startSize) / 2;
+
+        // Mount flying card at start position
+        setFlyingCardStyle({
+          left: `${startLeft}px`,
+          top: `${startTop}px`,
+          width: `${startSize}px`,
+          height: `${startSize}px`,
+          transform: 'rotate(-4deg) scale(1)',
+          opacity: 1,
+        });
+
+        // Next frame: animate to slot position
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            setFlyingCardStyle({
+              left: `${rect.left}px`,
+              top: `${rect.top}px`,
+              width: `${rect.width}px`,
+              height: `${rect.height}px`,
+              transform: 'rotate(0deg) scale(1)',
+              opacity: 1,
+            });
+          });
+        });
+
+        // When animation completes: trigger flash + remove flying card
+        setTimeout(() => {
+          setFlashSlotName(slotKey);
+          setFlyingCardStyle(prev => prev ? { ...prev, opacity: 0 } : null);
+          if (navigator.vibrate) navigator.vibrate([30, 20, 60]);
+          setTimeout(() => {
+            setFlyingCardStyle(null);
+            setPendingShelveState(null);
+          }, 250);
+          // Clear flash after animation
+          setTimeout(() => setFlashSlotName(null), 1200);
+        }, 900);
+      }, 450);
+    });
+
+    return () => cancelAnimationFrame(raf);
+  }, [pendingShelve, selectedCategory, animals, loading]);
+
   // Categories with counts
   const categoryData = useMemo(() => {
     const map = new Map<string, { total: number; captured: number }>();
