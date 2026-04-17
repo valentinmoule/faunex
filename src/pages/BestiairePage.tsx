@@ -207,7 +207,7 @@ const BestiairePage = () => {
           ) : (
             <div className="grid grid-cols-2 gap-3">
               {categoryData.map(cat => {
-                const emoji = getCategoryEmoji(cat.name);
+                const CatIcon = getCategoryIcon(cat.name);
                 const progress = cat.total > 0 ? Math.round((cat.captured / cat.total) * 100) : 0;
                 return (
                   <button
@@ -215,7 +215,9 @@ const BestiairePage = () => {
                     onClick={() => setSelectedCategory(cat.name)}
                     className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-md"
                   >
-                    <div className="text-3xl mb-2">{emoji}</div>
+                    <div className="mb-2">
+                      <CatIcon className="w-7 h-7 text-primary" strokeWidth={1.75} />
+                    </div>
                     <h3 className="font-display font-bold text-sm text-foreground leading-tight mb-1 truncate">{cat.name}</h3>
                     <p className="text-[11px] text-muted-foreground font-display mb-3">
                       {cat.captured}/{cat.total} capturés
