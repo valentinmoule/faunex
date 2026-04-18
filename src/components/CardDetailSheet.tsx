@@ -357,20 +357,38 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
       </Drawer.Root>
 
       {/* Fullscreen image - outside Sheet to avoid portal conflicts */}
-      {imageFullscreen && (
+      {imageFullscreen && card.image && (
         <div
           className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center p-4"
           onClick={() => setImageFullscreen(false)}
         >
-          <img
-            src={card.image}
-            alt={card.name}
-            className="max-w-full max-h-[90vh] object-contain rounded-lg"
+          <div
+            className="relative w-full max-w-[440px] aspect-square"
             onClick={(e) => e.stopPropagation()}
-          />
+          >
+            <HolographicCard
+              rarity={card.rarity}
+              className="relative w-full h-full rounded-2xl"
+            >
+              <div
+                className="relative w-full h-full rounded-2xl overflow-hidden"
+                style={{ boxShadow: isMythic ? '0 0 60px 12px hsla(42,100%,65%,0.4), 0 12px 40px rgba(0,0,0,0.6)' : isEpic ? '0 0 50px 10px hsla(270,80%,65%,0.35), 0 12px 40px rgba(0,0,0,0.6)' : isRare ? '0 0 35px 6px hsla(210,70%,60%,0.3), 0 12px 40px rgba(0,0,0,0.6)' : '0 12px 40px rgba(0,0,0,0.6)' }}
+              >
+                <img
+                  src={card.image}
+                  alt={card.name}
+                  className="w-full h-full object-cover pointer-events-none select-none"
+                  draggable={false}
+                />
+                {isMythic && <div className="detail-mythic-glass" />}
+                {isEpic && <div className="detail-epic-glass" />}
+                {isRare && <div className="detail-rare-glass" />}
+              </div>
+            </HolographicCard>
+          </div>
           <button
             onClick={() => setImageFullscreen(false)}
-            className="absolute top-6 right-6 text-white/70 hover:text-white text-3xl font-light"
+            className="absolute top-6 right-6 text-white/70 hover:text-white text-3xl font-light z-10"
           >
             ✕
           </button>
