@@ -20,7 +20,7 @@ const CATEGORIES = [
   { name: "Grands mammifères et prédateurs du monde (hors France)", category: "Mammifères (monde)", count: 200 },
   { name: "Oiseaux emblématiques du monde (hors France)", category: "Oiseaux (monde)", count: 200 },
   { name: "Reptiles et amphibiens emblématiques du monde (hors France)", category: "Reptiles (monde)", count: 100 },
-  { name: "Poissons et créatures marines remarquables du monde", category: "Vie marine (monde)", count: 150 },
+  { name: "Poissons et créatures marines remarquables du monde", category: "Poissons", count: 150 },
   { name: "Insectes et invertébrés remarquables du monde (hors France)", category: "Insectes (monde)", count: 100 },
 ];
 
