@@ -359,11 +359,43 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
       {/* Fullscreen image - outside Sheet to avoid portal conflicts */}
       {imageFullscreen && card.image && (
         <div
-          className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center p-4"
+          className={`fixed inset-0 z-[9999] flex items-center justify-center p-4 overflow-hidden detail-hero-${card.rarity}`}
           onClick={() => setImageFullscreen(false)}
         >
+          {/* Animated rarity backdrop */}
+          <div className="absolute inset-0 bg-black/85 pointer-events-none" />
+          {isMythic && (
+            <>
+              <div className="detail-mythic-orb-1 pointer-events-none" />
+              <div className="detail-mythic-orb-2 pointer-events-none" />
+              <div className="detail-mythic-orb-3 pointer-events-none" />
+              <div className="detail-mythic-vignette pointer-events-none" />
+              <div className="detail-mythic-leak pointer-events-none" />
+              <div className="detail-mythic-geo pointer-events-none" />
+            </>
+          )}
+          {isEpic && (
+            <>
+              <div className="detail-epic-orb-1 pointer-events-none" />
+              <div className="detail-epic-orb-2 pointer-events-none" />
+              <div className="detail-epic-orb-3 pointer-events-none" />
+              <div className="detail-epic-vignette pointer-events-none" />
+              <div className="detail-epic-leak pointer-events-none" />
+              <div className="detail-epic-geo pointer-events-none" />
+            </>
+          )}
+          {isRare && (
+            <>
+              <div className="detail-rare-orb-1 pointer-events-none" />
+              <div className="detail-rare-orb-2 pointer-events-none" />
+              <div className="detail-rare-vignette pointer-events-none" />
+              <div className="detail-rare-leak pointer-events-none" />
+              <div className="detail-rare-geo pointer-events-none" />
+            </>
+          )}
+
           <div
-            className="relative w-full max-w-[440px] aspect-square"
+            className="relative w-full max-w-[440px] aspect-square z-10"
             onClick={(e) => e.stopPropagation()}
           >
             <HolographicCard
@@ -388,7 +420,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
           </div>
           <button
             onClick={() => setImageFullscreen(false)}
-            className="absolute top-6 right-6 text-white/70 hover:text-white text-3xl font-light z-10"
+            className="absolute top-6 right-6 text-white/70 hover:text-white text-3xl font-light z-20"
           >
             ✕
           </button>
