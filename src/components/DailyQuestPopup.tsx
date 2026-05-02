@@ -15,7 +15,15 @@ const DailyQuestPopup = () => {
     if (!session?.user || hasShown.current) return;
     if (isFirstLogin(session.user.id)) return;
 
-    const key = `faunex_quest_popup_${session.user.id}_${new Date().toISOString().split('T')[0]}`;
+    // One popup per week per user
+    const weekRef = (() => {
+      const d = new Date();
+      const day = d.getDay();
+      const diff = day === 0 ? -6 : 1 - day;
+      d.setDate(d.getDate() + diff);
+      return d.toISOString().split('T')[0];
+    })();
+    const key = `faunex_quest_popup_${session.user.id}_${weekRef}`;
     if (localStorage.getItem(key)) return;
     hasShown.current = true;
     localStorage.setItem(key, '1');
@@ -71,10 +79,10 @@ const DailyQuestPopup = () => {
           </div>
 
           <h3 className="text-lg font-display font-black text-foreground mb-1.5">
-            🎯 Quêtes du jour
+            🎯 Quêtes de la semaine
           </h3>
           <p className="text-sm text-muted-foreground leading-relaxed mb-5">
-            De nouvelles quêtes t'attendent !<br />
+            De nouvelles quêtes t'attendent pour 7 jours !<br />
             Complète-les pour gagner de l'XP et monter de niveau.
           </p>
 

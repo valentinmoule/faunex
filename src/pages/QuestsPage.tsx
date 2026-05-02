@@ -4,6 +4,7 @@ import { Target, Gift, Check, Loader2, ArrowLeft, Share2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { startOfWeekISO } from '@/lib/weekUtils';
 
 interface Quest {
   id: string;
@@ -36,13 +37,13 @@ const QuestsPage = () => {
 
   const fetchQuests = async () => {
     if (!session?.user) return;
-    const today = new Date().toISOString().split('T')[0];
+    const weekStart = startOfWeekISO();
 
     const { data, error } = await supabase
       .from('daily_quests')
       .select('*')
       .eq('user_id', session.user.id)
-      .eq('quest_date', today)
+      .eq('quest_date', weekStart)
       .order('created_at');
 
     if (!error && data) {
@@ -55,7 +56,7 @@ const QuestsPage = () => {
         .from('daily_quests')
         .select('*')
         .eq('user_id', session.user.id)
-        .eq('quest_date', today)
+        .eq('quest_date', weekStart)
         .order('created_at');
       if (retryData) setQuests(retryData as Quest[]);
     }
@@ -150,7 +151,7 @@ const QuestsPage = () => {
               <Target className="w-4.5 h-4.5 text-amber" />
             </div>
             <div>
-              <h1 className="text-lg font-display font-bold text-foreground">Quêtes du jour</h1>
+              <h1 className="text-lg font-display font-bold text-foreground">Quêtes de la semaine</h1>
               <p className="text-[11px] text-muted-foreground">
                 {completedCount}/{quests.length} terminées
               </p>
@@ -167,8 +168,8 @@ const QuestsPage = () => {
         ) : quests.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-4xl mb-3">🎯</p>
-            <p className="text-foreground font-display font-semibold text-sm mb-2">Aucune quête aujourd'hui</p>
-            <p className="text-muted-foreground text-xs">Les quêtes se renouvellent chaque jour. Reviens demain !</p>
+            <p className="text-foreground font-display font-semibold text-sm mb-2">Aucune quête cette semaine</p>
+            <p className="text-muted-foreground text-xs">Les quêtes se renouvellent chaque lundi. Reviens vite !</p>
           </div>
         ) : (
           <div className="space-y-3">
