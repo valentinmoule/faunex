@@ -3,6 +3,7 @@ import { Target, Gift, Check, Loader2, ChevronRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { startOfWeekISO } from '@/lib/weekUtils';
 
 interface Quest {
   id: string;
@@ -34,28 +35,27 @@ const DailyQuestsSection = () => {
 
   const fetchQuests = async () => {
     if (!session?.user) return;
-    const today = new Date().toISOString().split('T')[0];
+    const weekStart = startOfWeekISO();
 
     const { data, error } = await supabase
       .from('daily_quests')
       .select('*')
       .eq('user_id', session.user.id)
-      .eq('quest_date', today)
+      .eq('quest_date', weekStart)
       .order('created_at');
 
     if (!error && data) {
       setQuests(data as Quest[]);
     }
 
-    // If no quests for today, trigger generation for this user
+    // If no quests for this week, trigger generation
     if (!error && (!data || data.length === 0)) {
       await supabase.functions.invoke('generate-daily-quests');
-      // Re-fetch
       const { data: retryData } = await supabase
         .from('daily_quests')
         .select('*')
         .eq('user_id', session.user.id)
-        .eq('quest_date', today)
+        .eq('quest_date', weekStart)
         .order('created_at');
       if (retryData) setQuests(retryData as Quest[]);
     }
@@ -118,7 +118,7 @@ const DailyQuestsSection = () => {
           <div className="w-7 h-7 rounded-lg bg-amber/10 flex items-center justify-center">
             <Target className="w-4 h-4 text-amber" />
           </div>
-          <h2 className="text-sm font-display font-bold text-foreground">Quêtes du jour</h2>
+          <h2 className="text-sm font-display font-bold text-foreground">Quêtes de la semaine</h2>
         </div>
         <div className="flex items-center justify-center py-6 bg-muted/50 rounded-2xl">
           <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
@@ -144,7 +144,7 @@ const DailyQuestsSection = () => {
             <span className="quest-sparkle" />
           </div>
           <div className="text-left">
-            <h2 className="text-sm font-display font-bold text-foreground">Quêtes du jour</h2>
+            <h2 className="text-sm font-display font-bold text-foreground">Quêtes de la semaine</h2>
             <p className="text-[10px] text-muted-foreground">
               {completedCount}/{quests.length} terminées
               {allClaimed && ' ✓ Toutes récoltées'}

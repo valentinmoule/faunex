@@ -10,6 +10,7 @@ import CardDetailSheet from '@/components/CardDetailSheet';
 import NearbyAnimalsSection from '@/components/NearbyAnimalsSection';
 import DailyQuestPopup from '@/components/DailyQuestPopup';
 import WelcomeInstallPopup from '@/components/WelcomeInstallPopup';
+import { startOfWeekISO } from '@/lib/weekUtils';
 import type { AnimalCard } from '@/data/mockData';
 
 interface Profile {
@@ -52,7 +53,7 @@ const Index = () => {
       const [profileRes, capturesRes, questsRes, notifRes] = await Promise.all([
         supabase.from('profiles').select('display_name, username, avatar_url, level, xp, xp_to_next, species_count, total_captures').eq('user_id', uid).single(),
         supabase.from('captures').select('*').eq('user_id', uid).eq('status', 'approved').order('created_at', { ascending: false }),
-        supabase.from('daily_quests').select('completed, claimed').eq('user_id', uid).eq('quest_date', new Date().toISOString().split('T')[0]),
+        supabase.from('daily_quests').select('completed, claimed').eq('user_id', uid).eq('quest_date', startOfWeekISO()),
         supabase.from('notifications').select('*', { count: 'exact', head: true }).eq('user_id', uid).eq('read', false),
       ]);
 
@@ -208,7 +209,7 @@ const Index = () => {
 
       <div className="max-w-lg mx-auto px-4 pt-3 space-y-4 pb-24">
 
-        {/* Quêtes du jour — explosive gaming card */}
+        {/* Quêtes de la semaine — explosive gaming card */}
         <button
           onClick={() => navigate('/quests')}
           className="w-full relative overflow-hidden flex items-center gap-3 p-4 rounded-2xl border border-amber/30 bg-gradient-to-br from-amber/10 via-amber/15 to-amber-dark/10 hover:from-amber/15 hover:to-amber-dark/15 transition-all text-left group active:scale-[0.97] transform shadow-[0_0_20px_hsla(42,80%,55%,0.15)] hover:shadow-[0_0_30px_hsla(42,80%,55%,0.25)]"
@@ -225,7 +226,7 @@ const Index = () => {
           
           <div className="relative flex-1 min-w-0">
             <div className="flex items-center justify-between mb-0.5">
-              <h3 className="text-sm font-display font-bold text-foreground">Quêtes du jour</h3>
+              <h3 className="text-sm font-display font-bold text-foreground">Quêtes de la semaine</h3>
               {questSummary.claimable > 0 && (
                 <span className="px-2.5 py-1 rounded-full bg-gradient-to-r from-amber to-amber-light text-white text-[10px] font-display font-bold quest-claim-pulse flex items-center gap-1 shadow-[0_0_12px_hsla(42,80%,55%,0.5)]">
                   🎁 {questSummary.claimable} récompense{questSummary.claimable > 1 ? 's' : ''}
