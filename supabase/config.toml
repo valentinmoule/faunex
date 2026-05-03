@@ -13,3 +13,5 @@ project_id = "pakwuooxumrghsbwczwx"
     verify_jwt = true
   [functions.notify-friend-request]
     verify_jwt = false
+  [functions.public-stats]
+    verify_jwt = false
