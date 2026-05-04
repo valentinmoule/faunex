@@ -7,6 +7,8 @@ interface Props {
   className?: string;
   onTap?: () => void;
   appearAnimation?: string;
+  /** Disable the mobile auto-shimmer (tilt loop). Useful in marketing layouts where rotated faces leak outside the card. */
+  disableAutoShimmer?: boolean;
 }
 
 /**
@@ -23,7 +25,7 @@ interface Props {
  *   4: glossy pointer reflection
  *   5: rim highlight
  */
-const HolographicCard = ({ rarity, children, className = '', onTap, appearAnimation = '' }: Props) => {
+const HolographicCard = ({ rarity, children, className = '', onTap, appearAnimation = '', disableAutoShimmer = false }: Props) => {
   const wrapRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const [tilt, setTilt] = useState({ rx: 0, ry: 0, mx: 50, my: 50, active: false });
