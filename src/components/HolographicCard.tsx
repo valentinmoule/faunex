@@ -99,7 +99,7 @@ const HolographicCard = ({ rarity, children, className = '', onTap, appearAnimat
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasHolo]);
+  }, [hasHolo, disableAutoShimmer]);
 
   return (
     <div
