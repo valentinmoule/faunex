@@ -77,7 +77,7 @@ const HolographicCard = ({ rarity, children, className = '', onTap, appearAnimat
     if (typeof window === 'undefined') return;
     // Only for non-touch idle: gentle auto-shimmer when not interacting
     const isCoarse = window.matchMedia('(pointer: coarse)').matches;
-    if (!isCoarse || !hasHolo) return;
+    if (!isCoarse || !hasHolo || disableAutoShimmer) return;
 
     let frame = 0;
     let active = true;
