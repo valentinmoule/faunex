@@ -245,8 +245,8 @@ const LandingPage = () => {
 
           {/* Hero card preview — mythic for max wow */}
           <div className="mt-10 flex justify-center">
-            <div className="w-44 sm:w-52">
-              <HolographicCard rarity="mythic">
+            <div className="w-44 sm:w-52 rounded-2xl overflow-hidden">
+              <HolographicCard rarity="mythic" disableAutoShimmer>
                 <div className="rounded-2xl overflow-hidden bg-card border border-rarity-mythic/30">
                   <img
                     src="/images/wolf.jpg"
@@ -329,8 +329,8 @@ const LandingPage = () => {
 
           <div className="grid grid-cols-2 gap-4">
             {heroCards.map((card) => (
-              <div key={card.name}>
-                <HolographicCard rarity={card.rarity}>
+              <div key={card.name} className="rounded-2xl overflow-hidden">
+                <HolographicCard rarity={card.rarity} disableAutoShimmer>
                   <div className="rounded-2xl overflow-hidden bg-card border border-border">
                     <img
                       src={card.img}
