@@ -330,7 +330,7 @@ const LandingPage = () => {
           <div className="grid grid-cols-2 gap-4">
             {heroCards.map((card) => (
               <div key={card.name}>
-                <HolographicCard rarity={card.rarity}>
+                <HolographicCard rarity={card.rarity} className="rounded-2xl overflow-hidden">
                   <div className="rounded-2xl overflow-hidden bg-card border border-border">
                     <img
                       src={card.img}
