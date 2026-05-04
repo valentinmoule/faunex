@@ -245,8 +245,8 @@ const LandingPage = () => {
 
           {/* Hero card preview — mythic for max wow */}
           <div className="mt-10 flex justify-center">
-            <div className="w-44 sm:w-52">
-              <HolographicCard rarity="mythic" className="rounded-2xl overflow-hidden">
+            <div className="w-44 sm:w-52 rounded-2xl overflow-hidden">
+              <HolographicCard rarity="mythic">
                 <div className="rounded-2xl overflow-hidden bg-card border border-rarity-mythic/30">
                   <img
                     src="/images/wolf.jpg"
