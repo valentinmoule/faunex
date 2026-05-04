@@ -265,9 +265,6 @@ const LandingPage = () => {
             </div>
           </div>
 
-          <p className="mt-4 text-[11px] text-muted-foreground font-display italic">
-            Bouge ton téléphone pour voir l'effet ✨
-          </p>
         </div>
       </section>
 
