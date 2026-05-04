@@ -1690,11 +1690,12 @@
 /* ── Pattern background (rarity-specific decoration around image) ── */
 .holo-pattern {
   position: absolute;
-  inset: -8%;
+  inset: 0;
   z-index: 1;
   border-radius: inherit;
   pointer-events: none;
   opacity: 0;
+  overflow: hidden;
   transition: opacity 0.4s ease-out;
   filter: blur(0.5px);
 }
