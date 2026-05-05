@@ -35,6 +35,8 @@ const RARITY_ORDER: Rarity[] = ['mythic', 'epic', 'rare', 'common'];
 const Index = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
+  if (!session) return <Navigate to="/landing-page" replace />;
+
   const [profile, setProfile] = useState<Profile | null>(null);
   const [allCaptures, setAllCaptures] = useState<AnimalCard[]>([]);
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
