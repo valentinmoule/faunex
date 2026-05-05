@@ -237,6 +237,7 @@ const ExplorersPage = () => {
 
   // ── Follow actions ──
   const handleFollow = async (targetId: string) => {
+    if (!requireAuth("Connecte-toi pour t'abonner à un explorateur")) return;
     if (!userId) return;
     const result = await followUserUtil(userId, targetId);
     if (result.error === 'already_following') { toast.info('Déjà abonné'); return; }
@@ -269,6 +270,7 @@ const ExplorersPage = () => {
 
   // ── Feed helpers ──
   const handleLike = useCallback(async (captureId: string) => {
+    if (!requireAuth('Connecte-toi pour aimer une capture')) return;
     if (!session?.user) return;
     const uid = session.user.id;
     const liked = likedPosts.has(captureId);
