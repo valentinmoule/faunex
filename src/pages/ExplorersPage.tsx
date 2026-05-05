@@ -101,7 +101,7 @@ const ExplorersPage = () => {
 
   // ── Header data ──
   useEffect(() => {
-    if (!session?.user) return;
+    if (!session?.user) { setUnreadCount(0); setUserProfile(null); return; }
     const fetchData = async () => {
       const [{ count }, { data: profile }] = await Promise.all([
         supabase.from('notifications').select('*', { count: 'exact', head: true }).eq('user_id', session.user.id).eq('read', false),
