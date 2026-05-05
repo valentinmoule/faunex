@@ -5,6 +5,7 @@ import CardDetailSheet from '@/components/CardDetailSheet';
 import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useRequireAuth } from '@/lib/requireAuth';
 import { toast } from 'sonner';
 import { followUser as followUserUtil } from '@/lib/followUtils';
 
@@ -62,6 +63,7 @@ interface FollowProfile {
 
 const ExplorersPage = () => {
   const { session } = useAuth();
+  const requireAuth = useRequireAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
