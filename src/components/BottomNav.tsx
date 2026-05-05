@@ -37,7 +37,7 @@ const BottomNav = () => {
             return (
               <button
                 key={tab.path}
-                onClick={() => navigate(tab.path)}
+                onClick={() => go(tab)}
                 className="flex flex-col items-center justify-center -mt-5"
               >
                 <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center shadow-card-hover">
@@ -53,7 +53,7 @@ const BottomNav = () => {
           return (
             <button
               key={tab.path}
-              onClick={() => navigate(tab.path)}
+              onClick={() => go(tab)}
               className="flex flex-col items-center justify-center gap-0.5 py-2 px-3 transition-colors"
             >
               <Icon
