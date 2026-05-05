@@ -87,6 +87,15 @@ const AuthRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+/** Root: logged-in users see Index; guests are redirected to the bestiary in guest mode. */
+const HomeOrGuest = () => {
+  const { session, loading, needsUsername } = useAuth();
+  if (loading) return null;
+  if (!session) return <Navigate to="/bestiaire" replace />;
+  if (needsUsername) return <Navigate to="/complete-profile" replace />;
+  return <Index />;
+};
+
 const AppRoutes = () => {
   const location = useLocation();
   const isCapturePage = location.pathname === '/capture';
@@ -101,7 +110,7 @@ const AppRoutes = () => {
         <Route path="/auth" element={<AuthRoute><AuthPage /></AuthRoute>} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/complete-profile" element={<ProtectedRoute><CompleteProfilePage /></ProtectedRoute>} />
-        <Route path="/" element={<PublicRoute><Index /></PublicRoute>} />
+        <Route path="/" element={<HomeOrGuest />} />
         <Route path="/home" element={<Navigate to="/" replace />} />
         <Route path="/collection" element={<ProtectedRoute><CollectionPage /></ProtectedRoute>} />
         <Route path="/capture" element={<ProtectedRoute><CapturePage /></ProtectedRoute>} />
