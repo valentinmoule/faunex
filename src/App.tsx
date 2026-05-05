@@ -37,8 +37,19 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, loading, needsUsername } = useAuth();
   const location = useLocation();
   if (loading) return <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-3"><img src="/pwa-icon-512.png" alt="Faunex" className="w-20 h-20" /><span className="text-muted-foreground font-display text-sm">Chargement...</span></div>;
-  if (!session) return <Navigate to="/auth" replace />;
+  if (!session) return <Navigate to="/auth" replace state={{ from: location.pathname }} />;
   if (needsUsername && location.pathname !== '/complete-profile') return <Navigate to="/complete-profile" replace />;
+  return <>{children}</>;
+};
+
+/** Public route — accessible to guests AND logged-in users. */
+const PublicRoute = ({ children }: { children: React.ReactNode }) => {
+  const { loading, needsUsername, session } = useAuth();
+  const location = useLocation();
+  if (loading) return null;
+  if (session && needsUsername && location.pathname !== '/complete-profile') {
+    return <Navigate to="/complete-profile" replace />;
+  }
   return <>{children}</>;
 };
 
@@ -67,40 +78,38 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
 
 const AuthRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, loading } = useAuth();
+  const location = useLocation() as any;
   if (loading) return null;
-  if (session) return <Navigate to="/home" replace />;
-  return <>{children}</>;
-};
-
-const LandingRoute = ({ children }: { children: React.ReactNode }) => {
-  const { session, loading } = useAuth();
-  if (loading) return null;
-  if (session) return <Navigate to="/home" replace />;
+  if (session) {
+    const from = location.state?.from as string | undefined;
+    return <Navigate to={from && from !== '/auth' ? from : '/'} replace />;
+  }
   return <>{children}</>;
 };
 
 const AppRoutes = () => {
   const location = useLocation();
   const isCapturePage = location.pathname === '/capture';
-  const isLandingPage = location.pathname === '/';
+  const isLandingPage = location.pathname === '/landing-page';
   const isAuthPage = location.pathname === '/auth';
   const isCompleteProfile = location.pathname === '/complete-profile';
 
   return (
     <>
       <Routes>
-        <Route path="/" element={<LandingRoute><LandingPage /></LandingRoute>} />
+        <Route path="/landing-page" element={<LandingPage />} />
         <Route path="/auth" element={<AuthRoute><AuthPage /></AuthRoute>} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/complete-profile" element={<ProtectedRoute><CompleteProfilePage /></ProtectedRoute>} />
-        <Route path="/home" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+        <Route path="/" element={<PublicRoute><Index /></PublicRoute>} />
+        <Route path="/home" element={<Navigate to="/" replace />} />
         <Route path="/collection" element={<ProtectedRoute><CollectionPage /></ProtectedRoute>} />
         <Route path="/capture" element={<ProtectedRoute><CapturePage /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         <Route path="/feed" element={<Navigate to="/explorers" replace />} />
-        <Route path="/explorers" element={<ProtectedRoute><ExplorersPage /></ProtectedRoute>} />
-        <Route path="/explorer/:userId/collection" element={<ProtectedRoute><FriendCollectionPage /></ProtectedRoute>} />
-        <Route path="/bestiaire" element={<ProtectedRoute><BestiairePage /></ProtectedRoute>} />
+        <Route path="/explorers" element={<PublicRoute><ExplorersPage /></PublicRoute>} />
+        <Route path="/explorer/:userId/collection" element={<PublicRoute><FriendCollectionPage /></PublicRoute>} />
+        <Route path="/bestiaire" element={<PublicRoute><BestiairePage /></PublicRoute>} />
         <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
         <Route path="/moderation" element={<AdminRoute><ModerationPage /></AdminRoute>} />
         <Route path="/quests" element={<ProtectedRoute><QuestsPage /></ProtectedRoute>} />
