@@ -123,27 +123,44 @@ const ExplorersPage = () => {
 
   // ── Feed data ──
   useEffect(() => {
-    if (!session?.user) return;
     const fetchFeed = async () => {
       setFeedLoading(true);
-      const uid = session.user.id;
-      const { data: followsData } = await supabase.from('explorer_follows').select('following_id').eq('follower_id', uid);
-      const friendIds = (followsData || []).map(f => f.following_id);
-      const allIds = [uid, ...friendIds];
+      const uid = session?.user?.id;
 
-      const { data: privateProfiles } = await supabase.from('profiles').select('user_id').eq('is_private', true).in('user_id', allIds);
-      const privateSet = new Set((privateProfiles || []).map(p => p.user_id));
-      const visibleIds = allIds.filter(id => id === uid || !privateSet.has(id));
+      let visibleIds: string[] | null = null;
+      if (uid) {
+        const { data: followsData } = await supabase.from('explorer_follows').select('following_id').eq('follower_id', uid);
+        const friendIds = (followsData || []).map(f => f.following_id);
+        const allIds = [uid, ...friendIds];
+        const { data: privateProfiles } = await supabase.from('profiles').select('user_id').eq('is_private', true).in('user_id', allIds);
+        const privateSet = new Set((privateProfiles || []).map(p => p.user_id));
+        visibleIds = allIds.filter(id => id === uid || !privateSet.has(id));
+      }
 
-      const { data, error } = await supabase.from('captures').select('*').eq('status', 'approved').in('user_id', visibleIds).order('created_at', { ascending: false }).limit(50);
+      // Guest mode: show recent public approved captures from non-private profiles
+      let query = supabase.from('captures').select('*').eq('status', 'approved').order('created_at', { ascending: false }).limit(50);
+      if (visibleIds) {
+        query = supabase.from('captures').select('*').eq('status', 'approved').in('user_id', visibleIds).order('created_at', { ascending: false }).limit(50);
+      }
+      const { data, error } = await query;
 
       if (!error && data) {
-        const uids = [...new Set(data.map((c: any) => c.user_id))];
-        const captureIds = data.map((c: any) => c.id);
+        // For guest mode, filter out private profiles' posts
+        let filtered = data;
+        if (!uid) {
+          const uids = [...new Set(data.map((c: any) => c.user_id))];
+          if (uids.length > 0) {
+            const { data: privates } = await supabase.from('profiles').select('user_id').eq('is_private', true).in('user_id', uids);
+            const privateSet = new Set((privates || []).map(p => p.user_id));
+            filtered = data.filter((c: any) => !privateSet.has(c.user_id));
+          }
+        }
+        const uids = [...new Set(filtered.map((c: any) => c.user_id))];
+        const captureIds = filtered.map((c: any) => c.id);
 
         const [profilesRes, likesRes, likeCountsRes, commentCountsRes] = await Promise.all([
           uids.length > 0 ? supabase.from('profiles').select('user_id, display_name, username, avatar_url').in('user_id', uids) : { data: [] },
-          captureIds.length > 0 ? supabase.from('feed_likes').select('capture_id').eq('user_id', uid).in('capture_id', captureIds) : { data: [] },
+          uid && captureIds.length > 0 ? supabase.from('feed_likes').select('capture_id').eq('user_id', uid).in('capture_id', captureIds) : { data: [] },
           captureIds.length > 0 ? supabase.from('feed_likes').select('capture_id').in('capture_id', captureIds) : { data: [] },
           captureIds.length > 0 ? supabase.from('feed_comments').select('capture_id').in('capture_id', captureIds) : { data: [] },
         ]);
@@ -159,7 +176,7 @@ const ExplorersPage = () => {
         ((commentCountsRes as any).data || []).forEach((c: any) => { cC[c.capture_id] = (cC[c.capture_id] || 0) + 1; });
         setCommentCounts(cC);
 
-        setPosts(data.map((c: any) => ({ ...c, profiles: profileMap.get(c.user_id) || null })) as any);
+        setPosts(filtered.map((c: any) => ({ ...c, profiles: profileMap.get(c.user_id) || null })) as any);
       }
       setFeedLoading(false);
     };
