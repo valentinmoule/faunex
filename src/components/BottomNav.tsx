@@ -1,17 +1,29 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Camera, Users, PawPrint, Globe, User } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRequireAuth } from '@/lib/requireAuth';
 
 const tabs = [
-  { path: '/home', label: 'Mon Faunex', icon: PawPrint },
-  { path: '/bestiaire', label: 'Bestiaire', icon: Globe },
-  { path: '/capture', label: 'Capture', icon: Camera },
-  { path: '/explorers', label: 'Explorateurs', icon: Users },
-  { path: '/profile', label: 'Profil', icon: User },
+  { path: '/', label: 'Mon Faunex', icon: PawPrint, requiresAuth: true, authMessage: 'Connecte-toi pour accéder à ton Faunex' },
+  { path: '/bestiaire', label: 'Bestiaire', icon: Globe, requiresAuth: false },
+  { path: '/capture', label: 'Capture', icon: Camera, requiresAuth: true, authMessage: 'Connecte-toi pour capturer un animal' },
+  { path: '/explorers', label: 'Explorateurs', icon: Users, requiresAuth: false },
+  { path: '/profile', label: 'Profil', icon: User, requiresAuth: true, authMessage: 'Connecte-toi pour accéder à ton profil' },
 ];
 
 const BottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { session } = useAuth();
+  const requireAuth = useRequireAuth();
+
+  const go = (tab: typeof tabs[number]) => {
+    if (tab.requiresAuth && !session) {
+      requireAuth(tab.authMessage);
+      return;
+    }
+    navigate(tab.path);
+  };
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card/90 backdrop-blur-xl border-t border-border safe-bottom" style={{ WebkitTransform: 'translate3d(0,0,0)', transform: 'translate3d(0,0,0)' }}>
@@ -25,7 +37,7 @@ const BottomNav = () => {
             return (
               <button
                 key={tab.path}
-                onClick={() => navigate(tab.path)}
+                onClick={() => go(tab)}
                 className="flex flex-col items-center justify-center -mt-5"
               >
                 <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center shadow-card-hover">
@@ -41,7 +53,7 @@ const BottomNav = () => {
           return (
             <button
               key={tab.path}
-              onClick={() => navigate(tab.path)}
+              onClick={() => go(tab)}
               className="flex flex-col items-center justify-center gap-0.5 py-2 px-3 transition-colors"
             >
               <Icon
