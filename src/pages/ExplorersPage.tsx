@@ -298,12 +298,13 @@ const ExplorersPage = () => {
   }, [openComments, loadComments]);
 
   const handleSubmitComment = useCallback(async (captureId: string) => {
+    if (!requireAuth('Connecte-toi pour commenter')) return;
     if (!session?.user || !newComment.trim()) return;
     setSubmittingComment(true);
     const { error } = await supabase.from('feed_comments').insert({ user_id: session.user.id, capture_id: captureId, content: newComment.trim() });
     if (!error) { setNewComment(''); setCommentCounts(prev => ({ ...prev, [captureId]: (prev[captureId] || 0) + 1 })); await loadComments(captureId); }
     setSubmittingComment(false);
-  }, [session, newComment, loadComments]);
+  }, [session, newComment, loadComments, requireAuth]);
 
   // Auto-open capture from notification link
   useEffect(() => {
