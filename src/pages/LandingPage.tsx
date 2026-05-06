@@ -13,12 +13,12 @@ interface Stats {
   totalRegions: number;
 }
 
-// Real wildlife photos (Wikimedia Commons) — diversifié : insecte, oiseau, mammifère
+// Real wildlife photos hosted locally (Wikimedia Commons originals)
 const heroCards: { img: string; name: string; rarity: Rarity; label: string }[] = [
-  { img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Coccinella_magnifica01.jpg/640px-Coccinella_magnifica01.jpg', name: 'Coccinelle', rarity: 'common', label: 'Commun' },
-  { img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Blaumeise_Cyanistes_caeruleus.jpg/640px-Blaumeise_Cyanistes_caeruleus.jpg', name: 'Mésange bleue', rarity: 'rare', label: 'Rare' },
-  { img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Sciurus_vulgaris_-Red_squirrel.jpg/640px-Sciurus_vulgaris_-Red_squirrel.jpg', name: 'Écureuil roux', rarity: 'epic', label: 'Épique' },
-  { img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Rotwild_Brunft.jpg/640px-Rotwild_Brunft.jpg', name: 'Cerf élaphe', rarity: 'mythic', label: 'Mythique' },
+  { img: '/landing/ladybug.jpg', name: 'Coccinelle', rarity: 'common', label: 'Commun' },
+  { img: '/landing/bluetit.jpg', name: 'Mésange bleue', rarity: 'rare', label: 'Rare' },
+  { img: '/landing/squirrel.jpg', name: 'Écureuil roux', rarity: 'epic', label: 'Épique' },
+  { img: '/landing/reddeer.jpg', name: 'Cerf élaphe', rarity: 'mythic', label: 'Mythique' },
 ];
 
 const rarityChip: Record<Rarity, string> = {
