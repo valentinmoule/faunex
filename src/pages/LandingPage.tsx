@@ -13,11 +13,12 @@ interface Stats {
   totalRegions: number;
 }
 
+// Real wildlife photos (Unsplash) — diversifié : insecte, oiseau, mammifère
 const heroCards: { img: string; name: string; rarity: Rarity; label: string }[] = [
-  { img: '/images/fox.jpg', name: 'Renard roux', rarity: 'common', label: 'Commun' },
-  { img: '/images/kingfisher.jpg', name: 'Martin-pêcheur', rarity: 'rare', label: 'Rare' },
-  { img: '/images/owl.jpg', name: 'Harfang des neiges', rarity: 'epic', label: 'Épique' },
-  { img: '/images/wolf.jpg', name: 'Loup gris', rarity: 'mythic', label: 'Mythique' },
+  { img: 'https://images.unsplash.com/photo-1559535332-db9971090158?auto=format&fit=crop&w=800&q=80', name: 'Papillon machaon', rarity: 'common', label: 'Commun' },
+  { img: 'https://images.unsplash.com/photo-1452570053594-1b985d6ea890?auto=format&fit=crop&w=800&q=80', name: 'Mésange bleue', rarity: 'rare', label: 'Rare' },
+  { img: 'https://images.unsplash.com/photo-1507666405895-422eee7d517f?auto=format&fit=crop&w=800&q=80', name: 'Écureuil roux', rarity: 'epic', label: 'Épique' },
+  { img: 'https://images.unsplash.com/photo-1484406566174-9da000fda645?auto=format&fit=crop&w=800&q=80', name: 'Cerf élaphe', rarity: 'mythic', label: 'Mythique' },
 ];
 
 const rarityChip: Record<Rarity, string> = {
@@ -249,13 +250,13 @@ const LandingPage = () => {
               <HolographicCard rarity="mythic" disableAutoShimmer>
                 <div className="rounded-2xl overflow-hidden bg-card border border-rarity-mythic/30">
                   <img
-                    src="/images/wolf.jpg"
-                    alt="Loup gris — carte mythique"
+                    src="https://images.unsplash.com/photo-1484406566174-9da000fda645?auto=format&fit=crop&w=800&q=80"
+                    alt="Cerf élaphe — carte mythique"
                     className="w-full aspect-[3/4] object-cover"
                     loading="eager"
                   />
                   <div className="p-2.5 bg-card">
-                    <p className="font-display font-bold text-sm text-foreground truncate">Loup gris</p>
+                    <p className="font-display font-bold text-sm text-foreground truncate">Cerf élaphe</p>
                     <p className="text-[10px] font-display font-semibold uppercase tracking-wider text-rarity-mythic">
                       Mythique
                     </p>
