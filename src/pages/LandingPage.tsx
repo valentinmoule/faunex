@@ -13,12 +13,12 @@ interface Stats {
   totalRegions: number;
 }
 
-// Real wildlife photos (Unsplash) — diversifié : insecte, oiseau, mammifère
+// Real wildlife photos (Wikimedia Commons) — diversifié : insecte, oiseau, mammifère
 const heroCards: { img: string; name: string; rarity: Rarity; label: string }[] = [
-  { img: 'https://images.unsplash.com/photo-1559535332-db9971090158?auto=format&fit=crop&w=800&q=80', name: 'Papillon machaon', rarity: 'common', label: 'Commun' },
-  { img: 'https://images.unsplash.com/photo-1452570053594-1b985d6ea890?auto=format&fit=crop&w=800&q=80', name: 'Mésange bleue', rarity: 'rare', label: 'Rare' },
-  { img: 'https://images.unsplash.com/photo-1507666405895-422eee7d517f?auto=format&fit=crop&w=800&q=80', name: 'Écureuil roux', rarity: 'epic', label: 'Épique' },
-  { img: 'https://images.unsplash.com/photo-1484406566174-9da000fda645?auto=format&fit=crop&w=800&q=80', name: 'Cerf élaphe', rarity: 'mythic', label: 'Mythique' },
+  { img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Coccinella_magnifica01.jpg/640px-Coccinella_magnifica01.jpg', name: 'Coccinelle', rarity: 'common', label: 'Commun' },
+  { img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Blaumeise_Cyanistes_caeruleus.jpg/640px-Blaumeise_Cyanistes_caeruleus.jpg', name: 'Mésange bleue', rarity: 'rare', label: 'Rare' },
+  { img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Sciurus_vulgaris_-Red_squirrel.jpg/640px-Sciurus_vulgaris_-Red_squirrel.jpg', name: 'Écureuil roux', rarity: 'epic', label: 'Épique' },
+  { img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Rotwild_Brunft.jpg/640px-Rotwild_Brunft.jpg', name: 'Cerf élaphe', rarity: 'mythic', label: 'Mythique' },
 ];
 
 const rarityChip: Record<Rarity, string> = {
@@ -250,7 +250,7 @@ const LandingPage = () => {
               <HolographicCard rarity="mythic" disableAutoShimmer>
                 <div className="rounded-2xl overflow-hidden bg-card border border-rarity-mythic/30">
                   <img
-                    src="https://images.unsplash.com/photo-1484406566174-9da000fda645?auto=format&fit=crop&w=800&q=80"
+                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Rotwild_Brunft.jpg/640px-Rotwild_Brunft.jpg"
                     alt="Cerf élaphe — carte mythique"
                     className="w-full aspect-[3/4] object-cover"
                     loading="eager"
@@ -346,6 +346,31 @@ const LandingPage = () => {
                 </HolographicCard>
               </div>
             ))}
+          </div>
+
+          {/* Rarity explanation */}
+          <div className="mt-8 rounded-2xl bg-card border border-border p-5 space-y-3">
+            <p className="text-xs text-muted-foreground font-body text-center mb-1">
+              La rareté d'une carte dépend du <strong className="text-foreground">statut de conservation</strong> de l'espèce dans la nature.
+            </p>
+            <div className="space-y-2.5">
+              <div className="flex items-start gap-3">
+                <span className={`flex-shrink-0 mt-0.5 px-2 py-0.5 rounded text-[10px] font-display font-bold uppercase tracking-wider ${rarityChip.common}`}>Commun</span>
+                <p className="text-xs text-muted-foreground font-body flex-1">Espèces fréquentes, faciles à croiser (moineau, coccinelle…).</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className={`flex-shrink-0 mt-0.5 px-2 py-0.5 rounded text-[10px] font-display font-bold uppercase tracking-wider ${rarityChip.rare}`}>Rare</span>
+                <p className="text-xs text-muted-foreground font-body flex-1">Espèces peu communes ou discrètes, demandent de la patience.</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className={`flex-shrink-0 mt-0.5 px-2 py-0.5 rounded text-[10px] font-display font-bold uppercase tracking-wider ${rarityChip.epic}`}>Épique</span>
+                <p className="text-xs text-muted-foreground font-body flex-1">Espèces vulnérables ou en déclin, observation marquante.</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className={`flex-shrink-0 mt-0.5 px-2 py-0.5 rounded text-[10px] font-display font-bold uppercase tracking-wider ${rarityChip.mythic}`}>Mythique</span>
+                <p className="text-xs text-muted-foreground font-body flex-1">Espèces en danger critique, rencontre exceptionnelle.</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
