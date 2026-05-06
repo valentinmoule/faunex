@@ -244,28 +244,6 @@ const LandingPage = () => {
             </div>
           </div>
 
-          {/* Hero card preview — mythic for max wow */}
-          <div className="mt-10 flex justify-center">
-            <div className="w-44 sm:w-52 rounded-2xl overflow-hidden">
-              <HolographicCard rarity="mythic" disableAutoShimmer>
-                <div className="rounded-2xl overflow-hidden bg-card border border-rarity-mythic/30">
-                  <img
-                    src="/landing/reddeer.jpg"
-                    alt="Cerf élaphe — carte mythique"
-                    className="w-full aspect-[3/4] object-cover"
-                    loading="eager"
-                  />
-                  <div className="p-2.5 bg-card">
-                    <p className="font-display font-bold text-sm text-foreground truncate">Cerf élaphe</p>
-                    <p className="text-[10px] font-display font-semibold uppercase tracking-wider text-rarity-mythic">
-                      Mythique
-                    </p>
-                  </div>
-                </div>
-              </HolographicCard>
-            </div>
-          </div>
-
         </div>
       </section>
 
