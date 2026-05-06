@@ -5,7 +5,6 @@ import CardDetailSheet from '@/components/CardDetailSheet';
 import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { useRequireAuth } from '@/lib/requireAuth';
 import { toast } from 'sonner';
 import { followUser as followUserUtil } from '@/lib/followUtils';
 
@@ -63,7 +62,6 @@ interface FollowProfile {
 
 const ExplorersPage = () => {
   const { session } = useAuth();
-  const requireAuth = useRequireAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -101,7 +99,7 @@ const ExplorersPage = () => {
 
   // ── Header data ──
   useEffect(() => {
-    if (!session?.user) { setUnreadCount(0); setUserProfile(null); return; }
+    if (!session?.user) return;
     const fetchData = async () => {
       const [{ count }, { data: profile }] = await Promise.all([
         supabase.from('notifications').select('*', { count: 'exact', head: true }).eq('user_id', session.user.id).eq('read', false),
@@ -123,44 +121,27 @@ const ExplorersPage = () => {
 
   // ── Feed data ──
   useEffect(() => {
+    if (!session?.user) return;
     const fetchFeed = async () => {
       setFeedLoading(true);
-      const uid = session?.user?.id;
+      const uid = session.user.id;
+      const { data: followsData } = await supabase.from('explorer_follows').select('following_id').eq('follower_id', uid);
+      const friendIds = (followsData || []).map(f => f.following_id);
+      const allIds = [uid, ...friendIds];
 
-      let visibleIds: string[] | null = null;
-      if (uid) {
-        const { data: followsData } = await supabase.from('explorer_follows').select('following_id').eq('follower_id', uid);
-        const friendIds = (followsData || []).map(f => f.following_id);
-        const allIds = [uid, ...friendIds];
-        const { data: privateProfiles } = await supabase.from('profiles').select('user_id').eq('is_private', true).in('user_id', allIds);
-        const privateSet = new Set((privateProfiles || []).map(p => p.user_id));
-        visibleIds = allIds.filter(id => id === uid || !privateSet.has(id));
-      }
+      const { data: privateProfiles } = await supabase.from('profiles').select('user_id').eq('is_private', true).in('user_id', allIds);
+      const privateSet = new Set((privateProfiles || []).map(p => p.user_id));
+      const visibleIds = allIds.filter(id => id === uid || !privateSet.has(id));
 
-      // Guest mode: show recent public approved captures from non-private profiles
-      let query = supabase.from('captures').select('*').eq('status', 'approved').order('created_at', { ascending: false }).limit(50);
-      if (visibleIds) {
-        query = supabase.from('captures').select('*').eq('status', 'approved').in('user_id', visibleIds).order('created_at', { ascending: false }).limit(50);
-      }
-      const { data, error } = await query;
+      const { data, error } = await supabase.from('captures').select('*').eq('status', 'approved').in('user_id', visibleIds).order('created_at', { ascending: false }).limit(50);
 
       if (!error && data) {
-        // For guest mode, filter out private profiles' posts
-        let filtered = data;
-        if (!uid) {
-          const uids = [...new Set(data.map((c: any) => c.user_id))];
-          if (uids.length > 0) {
-            const { data: privates } = await supabase.from('profiles').select('user_id').eq('is_private', true).in('user_id', uids);
-            const privateSet = new Set((privates || []).map(p => p.user_id));
-            filtered = data.filter((c: any) => !privateSet.has(c.user_id));
-          }
-        }
-        const uids = [...new Set(filtered.map((c: any) => c.user_id))];
-        const captureIds = filtered.map((c: any) => c.id);
+        const uids = [...new Set(data.map((c: any) => c.user_id))];
+        const captureIds = data.map((c: any) => c.id);
 
         const [profilesRes, likesRes, likeCountsRes, commentCountsRes] = await Promise.all([
           uids.length > 0 ? supabase.from('profiles').select('user_id, display_name, username, avatar_url').in('user_id', uids) : { data: [] },
-          uid && captureIds.length > 0 ? supabase.from('feed_likes').select('capture_id').eq('user_id', uid).in('capture_id', captureIds) : { data: [] },
+          captureIds.length > 0 ? supabase.from('feed_likes').select('capture_id').eq('user_id', uid).in('capture_id', captureIds) : { data: [] },
           captureIds.length > 0 ? supabase.from('feed_likes').select('capture_id').in('capture_id', captureIds) : { data: [] },
           captureIds.length > 0 ? supabase.from('feed_comments').select('capture_id').in('capture_id', captureIds) : { data: [] },
         ]);
@@ -176,7 +157,7 @@ const ExplorersPage = () => {
         ((commentCountsRes as any).data || []).forEach((c: any) => { cC[c.capture_id] = (cC[c.capture_id] || 0) + 1; });
         setCommentCounts(cC);
 
-        setPosts(filtered.map((c: any) => ({ ...c, profiles: profileMap.get(c.user_id) || null })) as any);
+        setPosts(data.map((c: any) => ({ ...c, profiles: profileMap.get(c.user_id) || null })) as any);
       }
       setFeedLoading(false);
     };
@@ -237,7 +218,6 @@ const ExplorersPage = () => {
 
   // ── Follow actions ──
   const handleFollow = async (targetId: string) => {
-    if (!requireAuth("Connecte-toi pour t'abonner à un explorateur")) return;
     if (!userId) return;
     const result = await followUserUtil(userId, targetId);
     if (result.error === 'already_following') { toast.info('Déjà abonné'); return; }
@@ -270,7 +250,6 @@ const ExplorersPage = () => {
 
   // ── Feed helpers ──
   const handleLike = useCallback(async (captureId: string) => {
-    if (!requireAuth('Connecte-toi pour aimer une capture')) return;
     if (!session?.user) return;
     const uid = session.user.id;
     const liked = likedPosts.has(captureId);
@@ -298,13 +277,12 @@ const ExplorersPage = () => {
   }, [openComments, loadComments]);
 
   const handleSubmitComment = useCallback(async (captureId: string) => {
-    if (!requireAuth('Connecte-toi pour commenter')) return;
     if (!session?.user || !newComment.trim()) return;
     setSubmittingComment(true);
     const { error } = await supabase.from('feed_comments').insert({ user_id: session.user.id, capture_id: captureId, content: newComment.trim() });
     if (!error) { setNewComment(''); setCommentCounts(prev => ({ ...prev, [captureId]: (prev[captureId] || 0) + 1 })); await loadComments(captureId); }
     setSubmittingComment(false);
-  }, [session, newComment, loadComments, requireAuth]);
+  }, [session, newComment, loadComments]);
 
   // Auto-open capture from notification link
   useEffect(() => {

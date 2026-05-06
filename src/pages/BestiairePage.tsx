@@ -77,6 +77,8 @@ const BestiairePage = () => {
   const shelveAnimationRan = useRef(false);
 
   useEffect(() => {
+    if (!session?.user) return;
+
     const fetchData = async () => {
       setLoading(true);
 
@@ -95,13 +97,11 @@ const BestiairePage = () => {
         page++;
       }
 
-      const userCaptures = session?.user
-        ? (await supabase
-            .from('captures')
-            .select('*')
-            .eq('user_id', session.user.id)
-            .eq('status', 'approved')).data
-        : [];
+      const { data: userCaptures } = await supabase
+        .from('captures')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .eq('status', 'approved');
 
       const capturesByName = new Map<string, any>();
       (userCaptures || []).forEach((c) => {
@@ -142,7 +142,6 @@ const BestiairePage = () => {
     };
 
     const fetchUnread = async () => {
-      if (!session?.user) { setUnreadCount(0); return; }
       const { count } = await supabase
         .from('notifications')
         .select('*', { count: 'exact', head: true })
