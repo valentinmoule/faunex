@@ -347,6 +347,31 @@ const LandingPage = () => {
               </div>
             ))}
           </div>
+
+          {/* Rarity explanation */}
+          <div className="mt-8 rounded-2xl bg-card border border-border p-5 space-y-3">
+            <p className="text-xs text-muted-foreground font-body text-center mb-1">
+              La rareté d'une carte dépend du <strong className="text-foreground">statut de conservation</strong> de l'espèce dans la nature.
+            </p>
+            <div className="space-y-2.5">
+              <div className="flex items-start gap-3">
+                <span className={`flex-shrink-0 mt-0.5 px-2 py-0.5 rounded text-[10px] font-display font-bold uppercase tracking-wider ${rarityChip.common}`}>Commun</span>
+                <p className="text-xs text-muted-foreground font-body flex-1">Espèces fréquentes, faciles à croiser (moineau, coccinelle…).</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className={`flex-shrink-0 mt-0.5 px-2 py-0.5 rounded text-[10px] font-display font-bold uppercase tracking-wider ${rarityChip.rare}`}>Rare</span>
+                <p className="text-xs text-muted-foreground font-body flex-1">Espèces peu communes ou discrètes, demandent de la patience.</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className={`flex-shrink-0 mt-0.5 px-2 py-0.5 rounded text-[10px] font-display font-bold uppercase tracking-wider ${rarityChip.epic}`}>Épique</span>
+                <p className="text-xs text-muted-foreground font-body flex-1">Espèces vulnérables ou en déclin, observation marquante.</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className={`flex-shrink-0 mt-0.5 px-2 py-0.5 rounded text-[10px] font-display font-bold uppercase tracking-wider ${rarityChip.mythic}`}>Mythique</span>
+                <p className="text-xs text-muted-foreground font-body flex-1">Espèces en danger critique, rencontre exceptionnelle.</p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
