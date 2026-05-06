@@ -250,7 +250,7 @@ const LandingPage = () => {
               <HolographicCard rarity="mythic" disableAutoShimmer>
                 <div className="rounded-2xl overflow-hidden bg-card border border-rarity-mythic/30">
                   <img
-                    src="https://images.unsplash.com/photo-1484406566174-9da000fda645?auto=format&fit=crop&w=800&q=80"
+                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Rotwild_Brunft.jpg/640px-Rotwild_Brunft.jpg"
                     alt="Cerf élaphe — carte mythique"
                     className="w-full aspect-[3/4] object-cover"
                     loading="eager"
