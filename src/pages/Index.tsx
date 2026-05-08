@@ -194,17 +194,19 @@ const Index = () => {
           </div>
 
           {/* XP Bar — light */}
-          <div className="flex items-center gap-2.5">
-            <span className="text-[11px] font-display font-bold text-primary shrink-0">Niv. {profile.level}</span>
-            <div className="relative flex-1 h-2 rounded-full bg-muted/50 overflow-hidden">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-primary to-amber transition-all duration-1000 ease-out game-xp-glow"
-                style={{ width: `${xpPercent}%` }}
-              />
-              <div className="absolute inset-0 game-xp-shimmer pointer-events-none" />
+          {!isFirstTime && (
+            <div className="flex items-center gap-2.5">
+              <span className="text-[11px] font-display font-bold text-primary shrink-0">Niv. {profile.level}</span>
+              <div className="relative flex-1 h-2 rounded-full bg-muted/50 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-primary to-amber transition-all duration-1000 ease-out game-xp-glow"
+                  style={{ width: `${xpPercent}%` }}
+                />
+                <div className="absolute inset-0 game-xp-shimmer pointer-events-none" />
+              </div>
+              <span className="text-[10px] font-display text-muted-foreground shrink-0">{profile.xp}/{profile.xp_to_next}</span>
             </div>
-            <span className="text-[10px] font-display text-muted-foreground shrink-0">{profile.xp}/{profile.xp_to_next}</span>
-          </div>
+          )}
         </div>
       </header>
 
