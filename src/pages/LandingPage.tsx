@@ -199,7 +199,12 @@ const LandingPage = () => {
 
   const handleCta = (location: string) => {
     console.log('[landing-cta]', location);
-    navigate('/auth');
+    navigate('/auth?mode=signup');
+  };
+
+  const handleLogin = () => {
+    console.log('[landing-cta]', 'login');
+    navigate('/auth?mode=login');
   };
 
   return (
