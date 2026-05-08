@@ -71,14 +71,9 @@ const AuthPage = () => {
         {/* Logo */}
         <div className="text-center space-y-2">
           <img src="/pwa-icon-512.png" alt="Faunex" className="w-24 h-24 mx-auto" />
-          <h1 className="text-3xl font-display font-bold text-foreground">Faunex</h1>
-          <p className="text-sm text-muted-foreground">
-            {isForgot
-              ? 'Entre ton email pour réinitialiser ton mot de passe'
-              : isLogin
-                ? 'Content de te revoir, explorateur !'
-                : 'Ouvre les yeux sur la faune qui t\'entoure.'}
-          </p>
+          <h1 className="text-3xl font-display font-bold text-foreground">
+            {isForgot ? 'Mot de passe oublié' : isLogin ? 'Se connecter' : 'Créer un compte'}
+          </h1>
           {!isLogin && !isForgot && (
             <p className="text-xs text-muted-foreground/70 max-w-[280px] mx-auto leading-relaxed mt-1">
               Photographie, identifie et collectionne les animaux que tu croises au quotidien. Chaque sortie devient une aventure 🌿
