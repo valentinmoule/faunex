@@ -44,6 +44,7 @@ const Index = () => {
   const [rarityCounts, setRarityCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [allCapturedNames, setAllCapturedNames] = useState<string[]>([]);
+  const isFirstTime = !!session?.user && isFirstLogin(session.user.id);
 
   useEffect(() => {
     if (!session?.user) return;
