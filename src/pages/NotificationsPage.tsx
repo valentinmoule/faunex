@@ -140,8 +140,9 @@ const NotificationsPage = () => {
           <div className="space-y-1">
             {notifications.map(notif => {
               const isModerationNotif = notif.type === 'capture_approved' || notif.type === 'capture_rejected';
-              const actorName = isModerationNotif ? 'Faunex' : (notif.actor?.display_name || notif.actor?.username || 'Quelqu\'un');
-              const avatarUrl = isModerationNotif ? null : notif.actor?.avatar_url;
+              const isBadgeEarned = notif.type === 'badge_earned';
+              const actorName = isModerationNotif || isBadgeEarned ? 'Faunex' : (notif.actor?.display_name || notif.actor?.username || 'Quelqu\'un');
+              const avatarUrl = isModerationNotif || isBadgeEarned ? null : notif.actor?.avatar_url;
               const isLike = notif.type === 'like';
               const isComment = notif.type === 'comment';
               const isFriendRequest = notif.type === 'friend_request' || notif.type === 'new_follower';
@@ -149,7 +150,9 @@ const NotificationsPage = () => {
               const isCaptureApproved = notif.type === 'capture_approved';
               const isCaptureRejected = notif.type === 'capture_rejected';
 
-              const iconBg = isCaptureApproved
+              const iconBg = isBadgeEarned
+                ? 'bg-amber'
+                : isCaptureApproved
                 ? 'bg-primary'
                 : isCaptureRejected
                 ? 'bg-destructive'
@@ -157,7 +160,9 @@ const NotificationsPage = () => {
                 ? 'bg-accent'
                 : isLike ? 'bg-destructive' : 'bg-primary';
 
-              const IconComp = isCaptureApproved
+              const IconComp = isBadgeEarned
+                ? Award
+                : isCaptureApproved
                 ? CheckCircle
                 : isCaptureRejected
                 ? XCircle
@@ -169,7 +174,9 @@ const NotificationsPage = () => {
                 ? Heart
                 : MessageCircle;
 
-              const message = isCaptureApproved
+              const message = isBadgeEarned
+                ? ' 🏆 Tu as débloqué un nouveau badge ! Récupère ta récompense XP.'
+                : isCaptureApproved
                 ? ` a approuvé ta capture${notif.capture?.animal_name ? ` de ${notif.capture.animal_name}` : ''} ! Elle est maintenant dans ton Faunex 🎉`
                 : isCaptureRejected
                 ? ` a rejeté ta soumission${notif.comment_text ? ` "${notif.comment_text}"` : ''}. L'animal n'a pas pu être vérifié.`
@@ -185,7 +192,9 @@ const NotificationsPage = () => {
                 <button
                   key={notif.id}
                   onClick={() => {
-                    if (isModerationNotif && notif.capture_id) {
+                    if (isBadgeEarned) {
+                      navigate('/profile#badges');
+                    } else if (isModerationNotif && notif.capture_id) {
                       navigate(`/?capture=${notif.capture_id}`);
                     } else {
                       navigate(`/explorer/${notif.actor_id}/collection`);
@@ -198,8 +207,8 @@ const NotificationsPage = () => {
                   {/* Avatar */}
                   <div className="relative shrink-0">
                     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-display font-bold text-primary overflow-hidden">
-                      {isModerationNotif ? (
-                        <span className="text-lg">🌿</span>
+                      {isModerationNotif || isBadgeEarned ? (
+                        <span className="text-lg">{isBadgeEarned ? '🏆' : '🌿'}</span>
                       ) : avatarUrl ? (
                         <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
                       ) : (
