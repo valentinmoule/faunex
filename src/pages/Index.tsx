@@ -9,7 +9,7 @@ import AnimalCardComponent from '@/components/AnimalCardComponent';
 import CardDetailSheet from '@/components/CardDetailSheet';
 import NearbyAnimalsSection from '@/components/NearbyAnimalsSection';
 import DailyQuestPopup from '@/components/DailyQuestPopup';
-import WelcomeInstallPopup from '@/components/WelcomeInstallPopup';
+import WelcomeInstallPopup, { isFirstLogin } from '@/components/WelcomeInstallPopup';
 import { startOfWeekISO } from '@/lib/weekUtils';
 import type { AnimalCard } from '@/data/mockData';
 
