@@ -213,6 +213,7 @@ const Index = () => {
       <div className="max-w-lg mx-auto px-4 pt-3 space-y-4 pb-24">
 
         {/* Quêtes de la semaine — explosive gaming card */}
+        {!isFirstTime && (
         <button
           onClick={() => navigate('/quests')}
           className="w-full relative overflow-hidden flex items-center gap-3 p-4 rounded-2xl border border-amber/30 bg-gradient-to-br from-amber/10 via-amber/15 to-amber-dark/10 hover:from-amber/15 hover:to-amber-dark/15 transition-all text-left group active:scale-[0.97] transform shadow-[0_0_20px_hsla(42,80%,55%,0.15)] hover:shadow-[0_0_30px_hsla(42,80%,55%,0.25)]"
@@ -249,6 +250,7 @@ const Index = () => {
           </div>
           <ChevronRight className="w-4 h-4 text-amber/60 shrink-0 group-hover:translate-x-1 group-hover:text-amber transition-all" />
         </button>
+        )}
 
         {/* Autour de moi */}
         <NearbyAnimalsSection capturedNames={allCapturedNames} />
