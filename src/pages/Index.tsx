@@ -126,6 +126,11 @@ const Index = () => {
         setStreak(currentStreak);
       }
 
+      // Check for earned-but-unclaimed badges and create notifications
+      if (capturesRes.data && profileRes.data) {
+        await checkBadgeNotifications(uid, capturesRes.data as any[], profileRes.data as any);
+      }
+
       setLoading(false);
     };
 
