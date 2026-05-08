@@ -9,7 +9,7 @@ import AnimalCardComponent from '@/components/AnimalCardComponent';
 import CardDetailSheet from '@/components/CardDetailSheet';
 import NearbyAnimalsSection from '@/components/NearbyAnimalsSection';
 import DailyQuestPopup from '@/components/DailyQuestPopup';
-import WelcomeInstallPopup from '@/components/WelcomeInstallPopup';
+import WelcomeInstallPopup, { isFirstLogin } from '@/components/WelcomeInstallPopup';
 import { startOfWeekISO } from '@/lib/weekUtils';
 import type { AnimalCard } from '@/data/mockData';
 
@@ -44,6 +44,7 @@ const Index = () => {
   const [rarityCounts, setRarityCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [allCapturedNames, setAllCapturedNames] = useState<string[]>([]);
+  const isFirstTime = !!session?.user && isFirstLogin(session.user.id);
 
   useEffect(() => {
     if (!session?.user) return;
@@ -193,23 +194,26 @@ const Index = () => {
           </div>
 
           {/* XP Bar — light */}
-          <div className="flex items-center gap-2.5">
-            <span className="text-[11px] font-display font-bold text-primary shrink-0">Niv. {profile.level}</span>
-            <div className="relative flex-1 h-2 rounded-full bg-muted/50 overflow-hidden">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-primary to-amber transition-all duration-1000 ease-out game-xp-glow"
-                style={{ width: `${xpPercent}%` }}
-              />
-              <div className="absolute inset-0 game-xp-shimmer pointer-events-none" />
+          {!isFirstTime && (
+            <div className="flex items-center gap-2.5">
+              <span className="text-[11px] font-display font-bold text-primary shrink-0">Niv. {profile.level}</span>
+              <div className="relative flex-1 h-2 rounded-full bg-muted/50 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-primary to-amber transition-all duration-1000 ease-out game-xp-glow"
+                  style={{ width: `${xpPercent}%` }}
+                />
+                <div className="absolute inset-0 game-xp-shimmer pointer-events-none" />
+              </div>
+              <span className="text-[10px] font-display text-muted-foreground shrink-0">{profile.xp}/{profile.xp_to_next}</span>
             </div>
-            <span className="text-[10px] font-display text-muted-foreground shrink-0">{profile.xp}/{profile.xp_to_next}</span>
-          </div>
+          )}
         </div>
       </header>
 
       <div className="max-w-lg mx-auto px-4 pt-3 space-y-4 pb-24">
 
         {/* Quêtes de la semaine — explosive gaming card */}
+        {!isFirstTime && (
         <button
           onClick={() => navigate('/quests')}
           className="w-full relative overflow-hidden flex items-center gap-3 p-4 rounded-2xl border border-amber/30 bg-gradient-to-br from-amber/10 via-amber/15 to-amber-dark/10 hover:from-amber/15 hover:to-amber-dark/15 transition-all text-left group active:scale-[0.97] transform shadow-[0_0_20px_hsla(42,80%,55%,0.15)] hover:shadow-[0_0_30px_hsla(42,80%,55%,0.25)]"
@@ -246,6 +250,7 @@ const Index = () => {
           </div>
           <ChevronRight className="w-4 h-4 text-amber/60 shrink-0 group-hover:translate-x-1 group-hover:text-amber transition-all" />
         </button>
+        )}
 
         {/* Autour de moi */}
         <NearbyAnimalsSection capturedNames={allCapturedNames} />
