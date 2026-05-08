@@ -32,64 +32,6 @@ interface QuestSummary {
 
 const RARITY_ORDER: Rarity[] = ['mythic', 'epic', 'rare', 'common'];
 
-const BADGE_DEFS = [
-  { id: 'first_capture', total: 1, type: 'captures' as const },
-  { id: 'explorer_10', total: 10, type: 'captures' as const },
-  { id: 'explorer_25', total: 25, type: 'captures' as const },
-  { id: 'explorer_50', total: 50, type: 'captures' as const },
-  { id: 'birds_5', total: 5, type: 'birds' as const },
-  { id: 'mammals_5', total: 5, type: 'mammals' as const },
-  { id: 'rare_1', total: 1, type: 'rare' as const },
-  { id: 'legendary_1', total: 1, type: 'epic' as const },
-  { id: 'mythic_1', total: 1, type: 'mythic' as const },
-  { id: 'social_3', total: 3, type: 'follows' as const },
-  { id: 'level_5', total: 5, type: 'level' as const },
-];
-
-async function checkBadgeNotifications(uid: string, captures: any[], profile: any) {
-  const [claimedRes, followsRes, existingNotifRes] = await Promise.all([
-    supabase.from('user_badges').select('badge_id').eq('user_id', uid),
-    supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('follower_id', uid),
-    supabase.from('notifications').select('comment_text').eq('user_id', uid).eq('type', 'badge_earned'),
-  ]);
-  const claimed = new Set((claimedRes.data || []).map((b: any) => b.badge_id));
-  const notified = new Set((existingNotifRes.data || []).map((n: any) => n.comment_text));
-  const followsCount = followsRes.count || 0;
-
-  const total = captures.length;
-  const birds = captures.filter(c => c.category?.toLowerCase().includes('oiseau')).length;
-  const mammals = captures.filter(c => c.category?.toLowerCase().includes('mammif')).length;
-  const hasRare = captures.some(c => ['rare', 'epic', 'mythic'].includes(c.rarity));
-  const hasEpic = captures.some(c => ['epic', 'mythic'].includes(c.rarity));
-  const hasMythic = captures.some(c => c.rarity === 'mythic');
-  const level = profile.level || 0;
-
-  const earned = (b: typeof BADGE_DEFS[number]) => {
-    switch (b.type) {
-      case 'captures': return total >= b.total;
-      case 'birds': return birds >= b.total;
-      case 'mammals': return mammals >= b.total;
-      case 'rare': return hasRare;
-      case 'epic': return hasEpic;
-      case 'mythic': return hasMythic;
-      case 'follows': return followsCount >= b.total;
-      case 'level': return level >= b.total;
-    }
-  };
-
-  const toNotify = BADGE_DEFS.filter(b => earned(b) && !claimed.has(b.id) && !notified.has(b.id));
-  if (toNotify.length === 0) return;
-
-  await supabase.from('notifications').insert(
-    toNotify.map(b => ({
-      user_id: uid,
-      type: 'badge_earned',
-      actor_id: uid,
-      comment_text: b.id,
-    }))
-  );
-}
-
 const Index = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
@@ -182,11 +124,6 @@ const Index = () => {
           }
         }
         setStreak(currentStreak);
-      }
-
-      // Check for earned-but-unclaimed badges and create notifications
-      if (capturesRes.data && profileRes.data) {
-        await checkBadgeNotifications(uid, capturesRes.data as any[], profileRes.data as any);
       }
 
       setLoading(false);

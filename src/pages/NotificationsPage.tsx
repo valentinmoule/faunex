@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Heart, MessageCircle, UserPlus, UserCheck, CheckCircle, XCircle, Award } from 'lucide-react';
+import { ArrowLeft, Heart, MessageCircle, UserPlus, UserCheck, CheckCircle, XCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -140,9 +140,8 @@ const NotificationsPage = () => {
           <div className="space-y-1">
             {notifications.map(notif => {
               const isModerationNotif = notif.type === 'capture_approved' || notif.type === 'capture_rejected';
-              const isBadgeEarned = notif.type === 'badge_earned';
-              const actorName = isModerationNotif || isBadgeEarned ? 'Faunex' : (notif.actor?.display_name || notif.actor?.username || 'Quelqu\'un');
-              const avatarUrl = isModerationNotif || isBadgeEarned ? null : notif.actor?.avatar_url;
+              const actorName = isModerationNotif ? 'Faunex' : (notif.actor?.display_name || notif.actor?.username || 'Quelqu\'un');
+              const avatarUrl = isModerationNotif ? null : notif.actor?.avatar_url;
               const isLike = notif.type === 'like';
               const isComment = notif.type === 'comment';
               const isFriendRequest = notif.type === 'friend_request' || notif.type === 'new_follower';
@@ -150,9 +149,7 @@ const NotificationsPage = () => {
               const isCaptureApproved = notif.type === 'capture_approved';
               const isCaptureRejected = notif.type === 'capture_rejected';
 
-              const iconBg = isBadgeEarned
-                ? 'bg-amber'
-                : isCaptureApproved
+              const iconBg = isCaptureApproved
                 ? 'bg-primary'
                 : isCaptureRejected
                 ? 'bg-destructive'
@@ -160,9 +157,7 @@ const NotificationsPage = () => {
                 ? 'bg-accent'
                 : isLike ? 'bg-destructive' : 'bg-primary';
 
-              const IconComp = isBadgeEarned
-                ? Award
-                : isCaptureApproved
+              const IconComp = isCaptureApproved
                 ? CheckCircle
                 : isCaptureRejected
                 ? XCircle
@@ -174,9 +169,7 @@ const NotificationsPage = () => {
                 ? Heart
                 : MessageCircle;
 
-              const message = isBadgeEarned
-                ? ' 🏆 Tu as débloqué un nouveau badge ! Récupère ta récompense XP.'
-                : isCaptureApproved
+              const message = isCaptureApproved
                 ? ` a approuvé ta capture${notif.capture?.animal_name ? ` de ${notif.capture.animal_name}` : ''} ! Elle est maintenant dans ton Faunex 🎉`
                 : isCaptureRejected
                 ? ` a rejeté ta soumission${notif.comment_text ? ` "${notif.comment_text}"` : ''}. L'animal n'a pas pu être vérifié.`
@@ -192,9 +185,7 @@ const NotificationsPage = () => {
                 <button
                   key={notif.id}
                   onClick={() => {
-                    if (isBadgeEarned) {
-                      navigate('/profile#badges');
-                    } else if (isModerationNotif && notif.capture_id) {
+                    if (isModerationNotif && notif.capture_id) {
                       navigate(`/?capture=${notif.capture_id}`);
                     } else {
                       navigate(`/explorer/${notif.actor_id}/collection`);
@@ -207,8 +198,8 @@ const NotificationsPage = () => {
                   {/* Avatar */}
                   <div className="relative shrink-0">
                     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-display font-bold text-primary overflow-hidden">
-                      {isModerationNotif || isBadgeEarned ? (
-                        <span className="text-lg">{isBadgeEarned ? '🏆' : '🌿'}</span>
+                      {isModerationNotif ? (
+                        <span className="text-lg">🌿</span>
                       ) : avatarUrl ? (
                         <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
                       ) : (
