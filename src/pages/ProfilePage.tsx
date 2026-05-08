@@ -74,6 +74,14 @@ const ProfilePage = () => {
   const [badges, setBadges] = useState<BadgeProgress[]>([]);
 
   useEffect(() => {
+    if (window.location.hash === '#badges') {
+      setTimeout(() => {
+        document.getElementById('badges')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300);
+    }
+  }, [loading]);
+
+  useEffect(() => {
     if (!session?.user) return;
     const fetchAll = async () => {
       setLoading(true);
@@ -247,7 +255,7 @@ const ProfilePage = () => {
         )}
 
         {/* Badges Section — Gaming Style */}
-        <div>
+        <div id="badges" className="scroll-mt-20">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-amber/15 border border-amber/25 flex items-center justify-center">
