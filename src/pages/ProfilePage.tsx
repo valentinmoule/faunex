@@ -74,6 +74,14 @@ const ProfilePage = () => {
   const [badges, setBadges] = useState<BadgeProgress[]>([]);
 
   useEffect(() => {
+    if (window.location.hash === '#badges') {
+      setTimeout(() => {
+        document.getElementById('badges')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300);
+    }
+  }, [loading]);
+
+  useEffect(() => {
     if (!session?.user) return;
     const fetchAll = async () => {
       setLoading(true);
