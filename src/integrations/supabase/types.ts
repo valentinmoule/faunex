@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      animal_departments: {
+        Row: {
+          animal_name: string
+          created_at: string
+          department_code: string
+        }
+        Insert: {
+          animal_name: string
+          created_at?: string
+          department_code: string
+        }
+        Update: {
+          animal_name?: string
+          created_at?: string
+          department_code?: string
+        }
+        Relationships: []
+      }
       animals: {
         Row: {
           category: string
@@ -500,6 +518,27 @@ export type Database = {
           id?: string
           user_id?: string
           xp_reward?: number
+        }
+        Relationships: []
+      }
+      user_department_subscriptions: {
+        Row: {
+          created_at: string
+          department_code: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          department_code: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          department_code?: string
+          id?: string
+          user_id?: string
         }
         Relationships: []
       }
