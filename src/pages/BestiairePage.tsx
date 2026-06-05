@@ -299,6 +299,88 @@ const BestiairePage = () => {
     return animals.filter(a => normalizeCategory(a.category) === selectedCategory);
   }, [animals, selectedCategory]);
 
+  // Animals for selected department
+  const deptAnimals = useMemo(() => {
+    if (!selectedDept) return [];
+    const set = animalsByDept[selectedDept];
+    if (!set) return [];
+    return animals
+      .filter((a) => set.has(a.name.toLowerCase()))
+      .sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+  }, [animals, animalsByDept, selectedDept]);
+
+  // Dept progress map
+  const deptProgress = useMemo(() => {
+    const map: Record<string, { total: number; captured: number }> = {};
+    subscribedDepts.forEach((code) => {
+      const set = animalsByDept[code];
+      if (!set) { map[code] = { total: 0, captured: 0 }; return; }
+      let total = 0, captured = 0;
+      animals.forEach((a) => {
+        if (set.has(a.name.toLowerCase())) {
+          total++;
+          if (a.captured) captured++;
+        }
+      });
+      map[code] = { total, captured };
+    });
+    return map;
+  }, [animals, animalsByDept, subscribedDepts]);
+
+  const handleAddDept = async (code: string) => {
+    if (!session?.user) return;
+    if (subscribedDepts.includes(code)) {
+      setShowDeptPicker(false);
+      setSelectedDept(code);
+      return;
+    }
+    setLoadingDept(true);
+    try {
+      const { error } = await supabase
+        .from('user_department_subscriptions')
+        .insert({ user_id: session.user.id, department_code: code });
+      if (error) throw error;
+      setSubscribedDepts((prev) => [...prev, code]);
+
+      // Populate fauna if needed
+      let set = await loadDeptAnimals(code);
+      if (set.size === 0) {
+        toast.info('Préparation de la faune locale…');
+        const { error: fnErr } = await supabase.functions.invoke('populate-department-fauna', {
+          body: { department_code: code },
+        });
+        if (fnErr) throw fnErr;
+        set = await loadDeptAnimals(code);
+      }
+      setShowDeptPicker(false);
+      setDeptSearch('');
+      setSelectedDept(code);
+    } catch (e: any) {
+      toast.error(e.message || 'Erreur lors de l\'ajout');
+    } finally {
+      setLoadingDept(false);
+    }
+  };
+
+  const handleRemoveDept = async (code: string) => {
+    if (!session?.user) return;
+    if (!confirm('Supprimer cette rubrique ?')) return;
+    await supabase
+      .from('user_department_subscriptions')
+      .delete()
+      .eq('user_id', session.user.id)
+      .eq('department_code', code);
+    setSubscribedDepts((prev) => prev.filter((c) => c !== code));
+    setSelectedDept(null);
+  };
+
+  const filteredDeptOptions = useMemo(() => {
+    const q = deptSearch.trim().toLowerCase();
+    return DEPARTEMENTS.filter((d) =>
+      !q || d.name.toLowerCase().includes(q) || d.code.toLowerCase().includes(q) || d.region.toLowerCase().includes(q)
+    );
+  }, [deptSearch]);
+
   const totalCaptured = animals.filter(a => a.captured).length;
 
   // Category grid view
