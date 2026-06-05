@@ -79,6 +79,24 @@ const BestiairePage = () => {
   const slotRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const shelveAnimationRan = useRef(false);
 
+  // Departments
+  const [subscribedDepts, setSubscribedDepts] = useState<string[]>([]);
+  const [animalsByDept, setAnimalsByDept] = useState<Record<string, Set<string>>>({});
+  const [selectedDept, setSelectedDept] = useState<string | null>(null);
+  const [showDeptPicker, setShowDeptPicker] = useState(false);
+  const [deptSearch, setDeptSearch] = useState('');
+  const [loadingDept, setLoadingDept] = useState(false);
+
+  const loadDeptAnimals = async (code: string) => {
+    const { data } = await supabase
+      .from('animal_departments')
+      .select('animal_name')
+      .eq('department_code', code);
+    const set = new Set<string>((data || []).map((r: any) => r.animal_name.toLowerCase()));
+    setAnimalsByDept((prev) => ({ ...prev, [code]: set }));
+    return set;
+  };
+
   useEffect(() => {
     if (!session?.user) return;
 
