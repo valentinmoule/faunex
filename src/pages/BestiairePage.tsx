@@ -171,8 +171,21 @@ const BestiairePage = () => {
       setUnreadCount(count || 0);
     };
 
+    const fetchSubs = async () => {
+      const { data } = await supabase
+        .from('user_department_subscriptions')
+        .select('department_code')
+        .eq('user_id', session.user.id)
+        .order('created_at', { ascending: true });
+      const codes = (data || []).map((r: any) => r.department_code);
+      setSubscribedDepts(codes);
+      // Preload animals for each
+      for (const c of codes) loadDeptAnimals(c);
+    };
+
     fetchData();
     fetchUnread();
+    fetchSubs();
   }, [session]);
 
   // Detect pending shelve animation request on mount
