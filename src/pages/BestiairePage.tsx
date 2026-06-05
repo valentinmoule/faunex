@@ -383,6 +383,156 @@ const BestiairePage = () => {
 
   const totalCaptured = animals.filter(a => a.captured).length;
 
+  // Department picker sheet (shared)
+  const deptPickerSheet = (
+    <Sheet open={showDeptPicker} onOpenChange={setShowDeptPicker}>
+      <SheetContent side="bottom" className="h-[85vh] p-0 flex flex-col">
+        <SheetHeader className="px-5 py-4 border-b border-border">
+          <SheetTitle className="font-display">Ajouter un département</SheetTitle>
+        </SheetHeader>
+        <div className="px-5 py-3 border-b border-border">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              autoFocus
+              type="text"
+              value={deptSearch}
+              onChange={(e) => setDeptSearch(e.target.value)}
+              placeholder="Rechercher (nom, n° ou région)"
+              className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-muted border-0 text-sm font-display focus:outline-none focus:ring-2 focus:ring-primary/30"
+            />
+          </div>
+        </div>
+        <div className="flex-1 overflow-y-auto px-2 py-2">
+          {filteredDeptOptions.map((d) => {
+            const already = subscribedDepts.includes(d.code);
+            return (
+              <button
+                key={d.code}
+                disabled={loadingDept}
+                onClick={() => handleAddDept(d.code)}
+                className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-muted transition text-left disabled:opacity-50"
+              >
+                <span className="w-10 text-xs font-display font-bold text-muted-foreground tabular-nums">{d.code}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-display font-semibold text-foreground truncate">{d.name}</p>
+                  <p className="text-[11px] text-muted-foreground font-display truncate">{d.region}</p>
+                </div>
+                {already ? (
+                  <span className="text-[10px] font-display text-primary">Déjà ajouté</span>
+                ) : (
+                  <Plus className="w-4 h-4 text-primary" />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+
+  // Department detail view
+  if (selectedDept) {
+    const dept = getDepartement(selectedDept);
+    const prog = deptProgress[selectedDept] || { total: 0, captured: 0 };
+    return (
+      <main className="min-h-screen bg-background pb-24">
+        <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
+          <div className="max-w-lg mx-auto">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setSelectedDept(null)}
+                className="p-1.5 rounded-full hover:bg-muted transition-colors"
+              >
+                <ChevronLeft className="w-5 h-5 text-foreground" />
+              </button>
+              <div className="flex-1 min-w-0 flex items-center gap-2">
+                <MapPin className="w-5 h-5 text-primary shrink-0" strokeWidth={1.75} />
+                <div className="min-w-0">
+                  <h1 className="text-lg font-display font-bold text-foreground truncate">
+                    {dept ? `${dept.name} (${dept.code})` : selectedDept}
+                  </h1>
+                  <p className="text-[11px] text-muted-foreground font-display">
+                    {prog.captured}/{prog.total} capturés
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => handleRemoveDept(selectedDept)}
+                className="p-2 rounded-full hover:bg-destructive/10 text-destructive transition"
+                aria-label="Supprimer la rubrique"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <div className="max-w-lg mx-auto px-3 pt-3">
+          {deptAnimals.length === 0 ? (
+            <div className="text-center py-16">
+              <p className="text-4xl mb-3">📭</p>
+              <p className="text-muted-foreground font-display text-sm">
+                Aucune espèce répertoriée pour ce département pour le moment.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-4 gap-1.5">
+              {deptAnimals.map((animal, index) => (
+                <div
+                  key={animal.name}
+                  onClick={() => {
+                    if (animal.captured && animal.captureData) {
+                      setSelectedCard(animal.captureData);
+                    } else {
+                      setSelectedCard({
+                        id: `uncaptured-${animal.name}`,
+                        name: animal.name,
+                        scientificName: animal.scientific_name || '',
+                        image: '',
+                        rarity: animal.rarity as Rarity,
+                        category: animal.category,
+                        description: '', habitat: '', diet: '', conservation: '', funFact: '',
+                        discoveredAt: '', location: '',
+                      });
+                    }
+                  }}
+                  className={`relative aspect-[3/4] rounded-xl border-2 overflow-hidden transition-all cursor-pointer active:scale-[0.96] ${
+                    animal.captured
+                      ? `${rarityBorderColor[animal.rarity] || 'border-border'} bg-card`
+                      : 'border-border/40 bg-muted/30'
+                  }`}
+                >
+                  {animal.captured && animal.captureData ? (
+                    <div className="w-full h-full flex flex-col">
+                      <div className="flex-1 overflow-hidden relative">
+                        <img src={animal.captureData.image} alt={animal.name} className="w-full h-full object-cover" loading="lazy" />
+                        <div className={`absolute top-1.5 right-1.5 w-2 h-2 rounded-full ${rarityDot[animal.rarity] || 'bg-muted-foreground'}`} />
+                      </div>
+                      <div className="px-1.5 py-1 bg-card">
+                        <p className="text-[9px] font-display font-bold text-foreground truncate leading-tight">{animal.name}</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center gap-1">
+                      <span className="text-lg font-display font-bold text-muted-foreground/30">
+                        {String(index + 1).padStart(3, '0')}
+                      </span>
+                      <div className={`w-1.5 h-1.5 rounded-full ${rarityDot[animal.rarity] || 'bg-muted-foreground'} opacity-30`} />
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} />
+        {deptPickerSheet}
+      </main>
+    );
+  }
+
   // Category grid view
   if (!selectedCategory) {
     return (
