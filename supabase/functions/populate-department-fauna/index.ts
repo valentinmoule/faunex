@@ -60,6 +60,8 @@ Deno.serve(async (req) => {
       });
     }
 
+    console.log(`[dept ${department_code}] ${allAnimals.length} animals to check`);
+
     // Ask AI which animals are observable in this department
     const animalList = allAnimals.map((a) => a.name).join('\n');
     const prompt = `Voici une liste d'animaux. Indique uniquement ceux qui sont naturellement observables dans le département français "${deptName}" (${department_code}), en incluant les animaux communs (oiseaux de jardin, mammifères courants, insectes, etc.) ainsi que les espèces spécifiques à la région. Inclus aussi les animaux domestiques courants (chien, chat, etc.) car ils sont partout.
@@ -67,7 +69,7 @@ Deno.serve(async (req) => {
 Liste:
 ${animalList}
 
-Réponds UNIQUEMENT avec un tableau JSON des noms exacts (string[]). Aucun texte autour.`;
+Réponds UNIQUEMENT avec un objet JSON de la forme {"animals": ["nom1","nom2",...]} contenant les noms exacts. Aucun texte autour.`;
 
     const aiRes = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -82,15 +84,18 @@ Réponds UNIQUEMENT avec un tableau JSON des noms exacts (string[]). Aucun texte
       }),
     });
 
+    console.log(`[dept ${department_code}] AI status ${aiRes.status}`);
+
     if (!aiRes.ok) {
       const txt = await aiRes.text();
+      console.error(`[dept ${department_code}] AI error`, txt);
       return new Response(JSON.stringify({ error: 'AI error', details: txt }), {
         status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
     const aiJson = await aiRes.json();
-    const content = aiJson.choices?.[0]?.message?.content ?? '[]';
+    const content = aiJson.choices?.[0]?.message?.content ?? '{}';
     let names: string[] = [];
     try {
       const parsed = JSON.parse(content);
@@ -98,15 +103,18 @@ Réponds UNIQUEMENT avec un tableau JSON des noms exacts (string[]). Aucun texte
       else if (Array.isArray(parsed.animals)) names = parsed.animals;
       else if (Array.isArray(parsed.names)) names = parsed.names;
       else {
-        // grab first array value
         const v = Object.values(parsed).find((x) => Array.isArray(x));
         if (v) names = v as string[];
       }
-    } catch {
-      // try regex fallback
+    } catch (err) {
+      console.error(`[dept ${department_code}] JSON parse failed`, err);
       const m = content.match(/\[[\s\S]*\]/);
-      if (m) names = JSON.parse(m[0]);
+      if (m) {
+        try { names = JSON.parse(m[0]); } catch {}
+      }
     }
+
+    console.log(`[dept ${department_code}] AI returned ${names.length} names`);
 
     // Filter to known animals (case-insensitive match)
     const knownLower = new Map(allAnimals.map((a) => [a.name.toLowerCase(), a.name]));
@@ -115,8 +123,13 @@ Réponds UNIQUEMENT avec un tableau JSON des noms exacts (string[]). Aucun texte
       .filter((n): n is string => !!n)
       .map((animal_name) => ({ animal_name, department_code }));
 
+    console.log(`[dept ${department_code}] inserting ${rows.length} rows`);
+
     if (rows.length > 0) {
-      await supabase.from('animal_departments').upsert(rows, { onConflict: 'department_code,animal_name' });
+      const { error: upErr } = await supabase
+        .from('animal_departments')
+        .upsert(rows, { onConflict: 'department_code,animal_name' });
+      if (upErr) console.error(`[dept ${department_code}] upsert error`, upErr);
     }
 
     return new Response(JSON.stringify({ ok: true, count: rows.length }), {
