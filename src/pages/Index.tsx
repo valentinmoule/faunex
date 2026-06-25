@@ -121,18 +121,9 @@ const Index = () => {
       let resolvedCaptureCards: AnimalCard[] = [];
 
       if (capturesRes.data) {
-        // Get latest rarity from animals table (capture.rarity is a snapshot at capture time).
-        // Fetching the bestiary names avoids exact-case mismatches like "Succise" vs "succise".
-        const rarityByName: Record<string, string> = {};
-        const { data: animalsData } = await supabase
-          .from('animals')
-          .select('name, rarity');
-        (animalsData || []).forEach((a: any) => { rarityByName[(a.name || '').trim().toLowerCase()] = a.rarity; });
-        const resolveRarity = (c: any): Rarity => (rarityByName[(c.animal_name || '').trim().toLowerCase()] || c.rarity) as Rarity;
-
         const cards = capturesRes.data.map((c: any) => ({
           id: c.id, name: c.animal_name, scientificName: c.scientific_name || '',
-          image: c.image_url, cutoutUrl: c.cutout_url, rarity: resolveRarity(c), category: c.category || '',
+          image: c.image_url, cutoutUrl: c.cutout_url, rarity: c.rarity as Rarity, category: c.category || '',
           description: c.description || '', habitat: c.habitat || '', diet: c.diet || '',
           conservation: c.conservation || '', funFact: c.fun_fact || '',
           discoveredAt: c.created_at, location: c.location || '',
