@@ -761,101 +761,143 @@ const BestiairePage = () => {
 
   const totalCaptured = animals.filter(a => a.captured).length;
 
-  // Zone picker sheet (shared) — supports department + city tabs
+  const hasHomeZone = subscribedZones.some((z) => z.isHome);
+
+  // Zone picker sheet — hub with presets + explore mode
   const deptPickerSheet = (
-    <Sheet open={showDeptPicker} onOpenChange={setShowDeptPicker}>
+    <Sheet
+      open={showDeptPicker}
+      onOpenChange={(o) => {
+        setShowDeptPicker(o);
+        if (!o) setPickerMode('hub');
+      }}
+    >
       <SheetContent side="bottom" className="h-[85vh] p-0 flex flex-col">
         <SheetHeader className="px-5 py-4 border-b border-border">
-          <SheetTitle className="font-display">Ajouter une zone</SheetTitle>
-        </SheetHeader>
-        <div className="px-5 pt-3 flex gap-2">
-          <button
-            onClick={() => setPickerTab('department')}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-display font-semibold transition ${
-              pickerTab === 'department' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-            }`}
-          >
-            <MapIcon className="w-3.5 h-3.5" strokeWidth={2} />
-            Département
-          </button>
-          <button
-            onClick={() => setPickerTab('city')}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-display font-semibold transition ${
-              pickerTab === 'city' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-            }`}
-          >
-            <Building2 className="w-3.5 h-3.5" strokeWidth={2} />
-            Ville
-          </button>
-        </div>
-        <div className="px-5 py-3 border-b border-border">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input
-              key={pickerTab}
-              autoFocus
-              type="text"
-              value={pickerTab === 'department' ? deptSearch : citySearch}
-              onChange={(e) => pickerTab === 'department' ? setDeptSearch(e.target.value) : setCitySearch(e.target.value)}
-              placeholder={pickerTab === 'department' ? 'Rechercher (nom, n° ou région)' : 'Rechercher une ville…'}
-              className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-muted border-0 text-sm font-display focus:outline-none focus:ring-2 focus:ring-primary/30"
-            />
-          </div>
-        </div>
-        <div className="flex-1 overflow-y-auto px-2 py-2">
-          {pickerTab === 'department' && filteredDeptOptions.map((d) => {
-            const already = subscribedZones.some((z) => z.kind === 'department' && z.departmentCode === d.code);
-            return (
+          <div className="flex items-center gap-2">
+            {pickerMode === 'explore' && (
               <button
-                key={d.code}
-                disabled={loadingDept}
-                onClick={() => handleAddDept(d.code)}
-                className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-muted transition text-left disabled:opacity-50"
+                onClick={() => setPickerMode('hub')}
+                className="p-1 -ml-1 rounded-full hover:bg-muted transition"
+                aria-label="Retour"
               >
-                <span className="w-10 text-xs font-display font-bold text-muted-foreground tabular-nums">{d.code}</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-display font-semibold text-foreground truncate">{d.name}</p>
-                  <p className="text-[11px] text-muted-foreground font-display truncate">{d.region}</p>
-                </div>
-                {already ? (
-                  <span className="text-[10px] font-display text-primary">Déjà ajouté</span>
-                ) : (
-                  <Plus className="w-4 h-4 text-primary" />
-                )}
+                <ChevronLeft className="w-4 h-4" />
               </button>
-            );
-          })}
-          {pickerTab === 'city' && (
-            <>
-              {citySearch.trim().length < 2 && (
-                <p className="text-center text-xs text-muted-foreground font-display py-8 px-4">
-                  Tape au moins 2 lettres pour rechercher une commune française.
-                </p>
-              )}
-              {cityLoading && (
-                <p className="text-center text-xs text-muted-foreground font-display py-4">Recherche…</p>
-              )}
-              {!cityLoading && citySearch.trim().length >= 2 && cityResults.length === 0 && (
-                <p className="text-center text-xs text-muted-foreground font-display py-8">Aucune commune trouvée</p>
-              )}
-              {cityResults.map((c) => {
-                const postcode = c.codesPostaux?.[0] || '';
-                const already = subscribedZones.some(
-                  (z) => z.kind === 'city' && z.cityName === c.nom && z.cityPostcode === postcode,
-                );
+            )}
+            <SheetTitle className="font-display">
+              {pickerMode === 'hub' ? 'Ajouter un territoire' : 'Explorer une zone'}
+            </SheetTitle>
+          </div>
+        </SheetHeader>
+
+        {pickerMode === 'hub' && (
+          <div className="flex-1 overflow-y-auto px-5 py-5 space-y-3">
+            <p className="text-xs text-muted-foreground font-display leading-relaxed">
+              Suis la faune locale là où tu vis, ou prépare ta prochaine sortie nature.
+            </p>
+
+            <button
+              onClick={handleDetectHome}
+              disabled={detectingHome}
+              className="w-full relative overflow-hidden rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-5 text-left transition active:scale-[0.98] disabled:opacity-60"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-primary/15 flex items-center justify-center shrink-0">
+                  {detectingHome ? (
+                    <Loader2 className="w-6 h-6 text-primary animate-spin" />
+                  ) : (
+                    <Home className="w-6 h-6 text-primary" strokeWidth={2} />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-display font-bold text-base text-foreground">Chez moi</h3>
+                    <span className="text-[9px] font-display font-bold uppercase tracking-wide text-primary bg-primary/15 px-1.5 py-0.5 rounded-full">
+                      Auto
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground font-display leading-relaxed mt-0.5">
+                    {hasHomeZone
+                      ? 'Mettre à jour ton territoire principal via ta position.'
+                      : 'Détecte ta commune et suis la faune autour de toi au quotidien.'}
+                  </p>
+                </div>
+              </div>
+            </button>
+
+            <button
+              onClick={() => { setPickerMode('explore'); setPickerTab('city'); }}
+              className="w-full rounded-2xl border border-border bg-card p-5 text-left transition active:scale-[0.98] hover:border-primary/30"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center shrink-0">
+                  <Compass className="w-6 h-6 text-foreground" strokeWidth={2} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-display font-bold text-base text-foreground">Explorer une zone</h3>
+                  <p className="text-[11px] text-muted-foreground font-display leading-relaxed mt-0.5">
+                    Prépare un voyage, une rando ou une visite : ajoute n'importe quelle ville ou département.
+                  </p>
+                </div>
+              </div>
+            </button>
+
+            <p className="text-[10px] text-muted-foreground font-display text-center pt-2">
+              Tu peux ajouter plusieurs territoires et changer ton « Chez moi » à tout moment.
+            </p>
+          </div>
+        )}
+
+        {pickerMode === 'explore' && (
+          <>
+            <div className="px-5 pt-3 flex gap-2">
+              <button
+                onClick={() => setPickerTab('department')}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-display font-semibold transition ${
+                  pickerTab === 'department' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                }`}
+              >
+                <MapIcon className="w-3.5 h-3.5" strokeWidth={2} />
+                Département
+              </button>
+              <button
+                onClick={() => setPickerTab('city')}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-display font-semibold transition ${
+                  pickerTab === 'city' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                }`}
+              >
+                <Building2 className="w-3.5 h-3.5" strokeWidth={2} />
+                Ville
+              </button>
+            </div>
+            <div className="px-5 py-3 border-b border-border">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input
+                  key={pickerTab}
+                  autoFocus
+                  type="text"
+                  value={pickerTab === 'department' ? deptSearch : citySearch}
+                  onChange={(e) => pickerTab === 'department' ? setDeptSearch(e.target.value) : setCitySearch(e.target.value)}
+                  placeholder={pickerTab === 'department' ? 'Rechercher (nom, n° ou région)' : 'Rechercher une ville…'}
+                  className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-muted border-0 text-sm font-display focus:outline-none focus:ring-2 focus:ring-primary/30"
+                />
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto px-2 py-2">
+              {pickerTab === 'department' && filteredDeptOptions.map((d) => {
+                const already = subscribedZones.some((z) => z.kind === 'department' && z.departmentCode === d.code);
                 return (
                   <button
-                    key={c.code}
+                    key={d.code}
                     disabled={loadingDept}
-                    onClick={() => handleAddCity(c)}
+                    onClick={() => handleAddDept(d.code)}
                     className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-muted transition text-left disabled:opacity-50"
                   >
-                    <Building2 className="w-5 h-5 text-primary shrink-0" strokeWidth={1.75} />
+                    <span className="w-10 text-xs font-display font-bold text-muted-foreground tabular-nums">{d.code}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-display font-semibold text-foreground truncate">{c.nom}</p>
-                      <p className="text-[11px] text-muted-foreground font-display truncate">
-                        {postcode} · {c.codeDepartement}
-                      </p>
+                      <p className="text-sm font-display font-semibold text-foreground truncate">{d.name}</p>
+                      <p className="text-[11px] text-muted-foreground font-display truncate">{d.region}</p>
                     </div>
                     {already ? (
                       <span className="text-[10px] font-display text-primary">Déjà ajouté</span>
@@ -865,9 +907,51 @@ const BestiairePage = () => {
                   </button>
                 );
               })}
-            </>
-          )}
-        </div>
+              {pickerTab === 'city' && (
+                <>
+                  {citySearch.trim().length < 2 && (
+                    <p className="text-center text-xs text-muted-foreground font-display py-8 px-4">
+                      Tape au moins 2 lettres pour rechercher une commune française.
+                    </p>
+                  )}
+                  {cityLoading && (
+                    <p className="text-center text-xs text-muted-foreground font-display py-4">Recherche…</p>
+                  )}
+                  {!cityLoading && citySearch.trim().length >= 2 && cityResults.length === 0 && (
+                    <p className="text-center text-xs text-muted-foreground font-display py-8">Aucune commune trouvée</p>
+                  )}
+                  {cityResults.map((c) => {
+                    const postcode = c.codesPostaux?.[0] || '';
+                    const already = subscribedZones.some(
+                      (z) => z.kind === 'city' && z.cityName === c.nom && z.cityPostcode === postcode,
+                    );
+                    return (
+                      <button
+                        key={c.code}
+                        disabled={loadingDept}
+                        onClick={() => handleAddCity(c)}
+                        className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-muted transition text-left disabled:opacity-50"
+                      >
+                        <Building2 className="w-5 h-5 text-primary shrink-0" strokeWidth={1.75} />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-display font-semibold text-foreground truncate">{c.nom}</p>
+                          <p className="text-[11px] text-muted-foreground font-display truncate">
+                            {postcode} · {c.codeDepartement}
+                          </p>
+                        </div>
+                        {already ? (
+                          <span className="text-[10px] font-display text-primary">Déjà ajouté</span>
+                        ) : (
+                          <Plus className="w-4 h-4 text-primary" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </>
+              )}
+            </div>
+          </>
+        )}
       </SheetContent>
     </Sheet>
   );
