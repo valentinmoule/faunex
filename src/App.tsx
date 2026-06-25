@@ -29,6 +29,7 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import QuestsPage from "./pages/QuestsPage";
 import LandingPage from "./pages/LandingPage";
 import CompleteProfilePage from "./pages/CompleteProfilePage";
+import UnsubscribePage from "./pages/UnsubscribePage";
 import BottomNav from "./components/BottomNav";
 
 const queryClient = new QueryClient();
@@ -107,6 +108,7 @@ const AppRoutes = () => {
         <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
         <Route path="/legal" element={<LegalPage />} />
         <Route path="/u/:username" element={<ShareProfilePage />} />
+        <Route path="/unsubscribe" element={<UnsubscribePage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       {!isCapturePage && !isLandingPage && !isAuthPage && !isCompleteProfile && <BottomNav />}

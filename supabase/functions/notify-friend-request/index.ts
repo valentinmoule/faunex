@@ -1,16 +1,11 @@
-import * as React from 'npm:react@18.3.1'
-import { renderAsync } from 'npm:@react-email/components@0.0.22'
 import { createClient } from 'npm:@supabase/supabase-js@2'
-import { FriendRequestEmail } from '../_shared/email-templates/friend-request.tsx'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
+  'Access-Control-Allow-Headers':
+    'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 }
 
-const SITE_NAME = 'faunex'
-const SENDER_DOMAIN = 'notify.faunex.fr'
-const FROM_DOMAIN = 'notify.faunex.fr'
 const APP_URL = 'https://faunex.lovable.app'
 
 Deno.serve(async (req) => {
@@ -19,12 +14,10 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    )
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    const supabase = createClient(supabaseUrl, serviceKey)
 
-    // Get requester_id and addressee_id from body
     const { requester_id, addressee_id } = await req.json()
 
     if (!requester_id || !addressee_id) {
@@ -34,12 +27,16 @@ Deno.serve(async (req) => {
       })
     }
 
-    // Fetch both profiles and the addressee's email
-    const [{ data: requesterProfile }, { data: addresseeProfile }, { data: addresseeAuth }] = await Promise.all([
-      supabase.from('profiles').select('display_name, username').eq('user_id', requester_id).single(),
-      supabase.from('profiles').select('display_name, username, marketing_emails').eq('user_id', addressee_id).single(),
-      supabase.auth.admin.getUserById(addressee_id),
-    ])
+    const [{ data: requesterProfile }, { data: addresseeProfile }, { data: addresseeAuth }] =
+      await Promise.all([
+        supabase.from('profiles').select('display_name, username').eq('user_id', requester_id).single(),
+        supabase
+          .from('profiles')
+          .select('display_name, username, marketing_emails')
+          .eq('user_id', addressee_id)
+          .single(),
+        supabase.auth.admin.getUserById(addressee_id),
+      ])
 
     if (!requesterProfile || !addresseeProfile || !addresseeAuth?.user?.email) {
       console.error('Could not fetch profiles or email')
@@ -49,7 +46,6 @@ Deno.serve(async (req) => {
       })
     }
 
-    // Respect marketing_emails preference
     if (!addresseeProfile.marketing_emails) {
       console.log('User has opted out of non-essential emails', { addressee_id })
       return new Response(JSON.stringify({ skipped: true }), {
@@ -58,68 +54,35 @@ Deno.serve(async (req) => {
       })
     }
 
-    const requesterName = requesterProfile.display_name || requesterProfile.username || 'Un explorateur'
-    const recipientName = addresseeProfile.display_name || addresseeProfile.username || 'Explorateur'
+    const requesterName =
+      requesterProfile.display_name || requesterProfile.username || 'Un explorateur'
+    const recipientName =
+      addresseeProfile.display_name || addresseeProfile.username || 'Explorateur'
     const recipientEmail = addresseeAuth.user.email
 
-    const html = await renderAsync(
-      React.createElement(FriendRequestEmail, {
-        requesterName,
-        recipientName,
-        profileUrl: `${APP_URL}/explorers`,
-      })
-    )
-    const text = await renderAsync(
-      React.createElement(FriendRequestEmail, {
-        requesterName,
-        recipientName,
-        profileUrl: `${APP_URL}/explorers`,
-      }),
-      { plainText: true }
-    )
-
-    const messageId = crypto.randomUUID()
-
-    await supabase.from('email_send_log').insert({
-      message_id: messageId,
-      template_name: 'friend_request',
-      recipient_email: recipientEmail,
-      status: 'pending',
-    })
-
-    const { error: enqueueError } = await supabase.rpc('enqueue_email', {
-      queue_name: 'transactional_emails',
-      payload: {
-        message_id: messageId,
-        to: recipientEmail,
-        from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
-        sender_domain: SENDER_DOMAIN,
-        subject: `${requesterName} veut être ton ami sur Faunex 🦊`,
-        html,
-        text,
-        purpose: 'transactional',
-        idempotency_key: `friend-request-${requester_id}-${addressee_id}-${messageId}`,
-        label: 'friend_request',
-        queued_at: new Date().toISOString(),
+    // Send via the app emails (transactional) pipeline so it appears in App emails dashboard
+    const { data, error } = await supabase.functions.invoke('send-transactional-email', {
+      body: {
+        templateName: 'friend-request',
+        recipientEmail,
+        idempotencyKey: `friend-request-${requester_id}-${addressee_id}-${Date.now()}`,
+        templateData: {
+          requesterName,
+          recipientName,
+          profileUrl: `${APP_URL}/explorers`,
+        },
       },
     })
 
-    if (enqueueError) {
-      console.error('Failed to enqueue friend request email', enqueueError)
-      await supabase.from('email_send_log').insert({
-        message_id: messageId,
-        template_name: 'friend_request',
-        recipient_email: recipientEmail,
-        status: 'failed',
-        error_message: 'Failed to enqueue',
-      })
-      return new Response(JSON.stringify({ error: 'Failed to enqueue' }), {
+    if (error) {
+      console.error('send-transactional-email invocation failed', error)
+      return new Response(JSON.stringify({ error: 'Failed to send email' }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
 
-    console.log('Friend request email enqueued', { to: recipientEmail, messageId })
+    console.log('Friend request app email queued', { to: recipientEmail, data })
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
