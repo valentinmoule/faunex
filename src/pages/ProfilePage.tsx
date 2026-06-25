@@ -69,7 +69,8 @@ const ProfilePage = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [friendsCount, setFriendsCount] = useState(0);
+  const [followersCount, setFollowersCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
   const [badges, setBadges] = useState<BadgeProgress[]>([]);
 
   useEffect(() => {
