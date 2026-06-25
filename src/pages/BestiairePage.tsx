@@ -467,11 +467,28 @@ const BestiairePage = () => {
       .map(([name, data]) => ({ name, ...data }));
   }, [animals]);
 
-  // Animals for selected category
+  // Animals for selected category (with rarity filter)
   const categoryAnimals = useMemo(() => {
     if (!selectedCategory) return [];
-    return animals.filter(a => normalizeCategory(a.category) === selectedCategory);
-  }, [animals, selectedCategory]);
+    return animals
+      .filter(a => normalizeCategory(a.category) === selectedCategory)
+      .filter(a => rarityFilter === 'all' || a.rarity === rarityFilter);
+  }, [animals, selectedCategory, rarityFilter]);
+
+  // Flat list of my own captured animals (with rarity filter), most recent first
+  const myCapturedAnimals = useMemo(() => {
+    const rank: Record<string, number> = { mythic: 0, epic: 1, rare: 2, common: 3 };
+    return animals
+      .filter(a => a.captured && a.captureData)
+      .filter(a => rarityFilter === 'all' || a.rarity === rarityFilter)
+      .sort((a, b) => {
+        const r = (rank[a.rarity] ?? 4) - (rank[b.rarity] ?? 4);
+        if (r !== 0) return r;
+        const da = a.captureData?.discoveredAt || '';
+        const db = b.captureData?.discoveredAt || '';
+        return db.localeCompare(da);
+      });
+  }, [animals, rarityFilter]);
 
   const selectedZone = useMemo(
     () => subscribedZones.find((z) => z.id === selectedZoneId) || null,
