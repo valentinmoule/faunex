@@ -205,8 +205,8 @@ const CollectionPage = () => {
         ) : (
           <>
             <div className="grid grid-cols-2 gap-3">
-              {filtered.map((card, i) => (
-                <div key={card.id} style={{ animationDelay: `${i * 80}ms` }}>
+              {visible.map((card, i) => (
+                <div key={card.id} style={{ animationDelay: `${Math.min(i, 10) * 80}ms` }}>
                   <AnimalCardComponent
                     card={card}
                     compact
@@ -215,6 +215,11 @@ const CollectionPage = () => {
                 </div>
               ))}
             </div>
+            {visibleCount < filtered.length && (
+              <div ref={sentinelRef} className="py-6 text-center">
+                <p className="text-muted-foreground font-display text-xs">Chargement…</p>
+              </div>
+            )}
             {filtered.length === 0 && (
               <div className="text-center py-16 px-6">
                 {captures.length === 0 ? (
