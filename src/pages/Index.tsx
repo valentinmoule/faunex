@@ -118,18 +118,17 @@ const Index = () => {
 
       if (profileRes.data) setProfile(profileRes.data as Profile);
       
+      let resolvedCaptureCards: AnimalCard[] = [];
+
       if (capturesRes.data) {
-        // Get latest rarity from animals table (capture.rarity is a snapshot at capture time)
-        const uniqueNames = Array.from(new Set(capturesRes.data.map((c: any) => c.animal_name).filter(Boolean)));
+        // Get latest rarity from animals table (capture.rarity is a snapshot at capture time).
+        // Fetching the bestiary names avoids exact-case mismatches like "Succise" vs "succise".
         const rarityByName: Record<string, string> = {};
-        if (uniqueNames.length) {
-          const { data: animalsData } = await supabase
-            .from('animals')
-            .select('name, rarity')
-            .in('name', uniqueNames);
-          (animalsData || []).forEach((a: any) => { rarityByName[a.name.toLowerCase()] = a.rarity; });
-        }
-        const resolveRarity = (c: any): Rarity => (rarityByName[(c.animal_name || '').toLowerCase()] || c.rarity) as Rarity;
+        const { data: animalsData } = await supabase
+          .from('animals')
+          .select('name, rarity');
+        (animalsData || []).forEach((a: any) => { rarityByName[(a.name || '').trim().toLowerCase()] = a.rarity; });
+        const resolveRarity = (c: any): Rarity => (rarityByName[(c.animal_name || '').trim().toLowerCase()] || c.rarity) as Rarity;
 
         const cards = capturesRes.data.map((c: any) => ({
           id: c.id, name: c.animal_name, scientificName: c.scientific_name || '',
@@ -138,6 +137,7 @@ const Index = () => {
           conservation: c.conservation || '', funFact: c.fun_fact || '',
           discoveredAt: c.created_at, location: c.location || '',
         }));
+        resolvedCaptureCards = cards;
         setAllCaptures(cards);
         setAllCapturedNames(cards.map(c => c.name));
 
@@ -198,7 +198,7 @@ const Index = () => {
 
       // Check for earned-but-unclaimed badges and create notifications
       if (capturesRes.data && profileRes.data) {
-        await checkBadgeNotifications(uid, capturesRes.data as any[], profileRes.data as any);
+        await checkBadgeNotifications(uid, resolvedCaptureCards as any[], profileRes.data as any);
       }
 
       setLoading(false);
