@@ -810,42 +810,48 @@ const BestiairePage = () => {
           {/* Mes régions */}
           <section>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Mes régions</h2>
+              <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Mes zones</h2>
               <button
-                onClick={() => setShowDeptPicker(true)}
+                onClick={() => { setPickerTab('department'); setShowDeptPicker(true); }}
                 className="flex items-center gap-1 text-xs font-display font-semibold text-primary px-2 py-1 rounded-lg hover:bg-primary/10 transition"
               >
                 <Plus className="w-3.5 h-3.5" />
                 Ajouter
               </button>
             </div>
-            {subscribedDepts.length === 0 ? (
+            {subscribedZones.length === 0 ? (
               <button
-                onClick={() => setShowDeptPicker(true)}
+                onClick={() => { setPickerTab('department'); setShowDeptPicker(true); }}
                 className="w-full rounded-2xl border-2 border-dashed border-border p-5 text-center hover:border-primary/50 transition"
               >
                 <MapPin className="w-6 h-6 text-muted-foreground mx-auto mb-1.5" strokeWidth={1.75} />
                 <p className="text-xs font-display text-muted-foreground">
-                  Crée une rubrique par département pour suivre la faune locale (ex. Paris, Bouches-du-Rhône…)
+                  Ajoute un département ou une ville pour suivre la faune locale (ex. Paris, Marseille, Gironde…)
                 </p>
               </button>
             ) : (
               <div className="grid grid-cols-2 gap-3">
-                {subscribedDepts.map((code) => {
-                  const d = getDepartement(code);
-                  const p = deptProgress[code] || { total: 0, captured: 0 };
+                {subscribedZones.map((zone) => {
+                  const d = getDepartement(zone.departmentCode);
+                  const p = zoneProgress[zone.id] || { total: 0, captured: 0 };
                   const pct = p.total > 0 ? Math.round((p.captured / p.total) * 100) : 0;
+                  const isCity = zone.kind === 'city';
+                  const ZoneIcon = isCity ? Building2 : MapPin;
+                  const title = isCity ? (zone.cityName || 'Ville') : (d?.name || zone.departmentCode);
+                  const sub = isCity
+                    ? `${zone.cityPostcode || ''}${d ? ` · ${d.name}` : ''}`
+                    : zone.departmentCode;
                   return (
                     <button
-                      key={code}
-                      onClick={() => setSelectedDept(code)}
+                      key={zone.id}
+                      onClick={() => setSelectedZoneId(zone.id)}
                       className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-md"
                     >
                       <div className="flex items-center gap-1.5 mb-2">
-                        <MapPin className="w-5 h-5 text-primary" strokeWidth={1.75} />
-                        <span className="text-[10px] font-display font-bold text-muted-foreground tabular-nums">{code}</span>
+                        <ZoneIcon className="w-5 h-5 text-primary" strokeWidth={1.75} />
+                        <span className="text-[10px] font-display font-bold text-muted-foreground tabular-nums truncate">{sub}</span>
                       </div>
-                      <h3 className="font-display font-bold text-sm text-foreground leading-tight mb-1 truncate">{d?.name || code}</h3>
+                      <h3 className="font-display font-bold text-sm text-foreground leading-tight mb-1 truncate">{title}</h3>
                       <p className="text-[11px] text-muted-foreground font-display mb-3">
                         {p.captured}/{p.total} capturés
                       </p>
