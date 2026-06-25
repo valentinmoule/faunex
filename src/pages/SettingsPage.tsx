@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Pencil, KeyRound, Share2, Scale, LogOut, Trash2, Loader2, Camera, Check, X, ChevronRight, Sun, Moon, Monitor, Mail, Lock } from 'lucide-react';
+import { ArrowLeft, Pencil, KeyRound, Share2, Scale, LogOut, Trash2, Loader2, Camera, Check, X, ChevronRight, Sun, Moon, Monitor, Mail, Lock, Smartphone } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { useTheme } from 'next-themes';
+import { usePwaInstall } from '@/contexts/PwaInstallContext';
 
 interface SettingsProps {
   profile: {
@@ -19,6 +20,7 @@ const SettingsPage = () => {
   const { session, signOut } = useAuth();
   const navigate = useNavigate();
   const { theme, resolvedTheme, setTheme } = useTheme();
+  const { isInstalled, canInstall, isIos, resetDismiss } = usePwaInstall();
   const [section, setSection] = useState<'menu' | 'edit' | 'password' | 'delete'>('menu');
   const [profile, setProfile] = useState<{ display_name: string; username: string; avatar_url: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -209,6 +211,17 @@ const SettingsPage = () => {
             <MenuItem icon={<KeyRound className="w-5 h-5" />} label="Changer le mot de passe" onClick={() => setSection('password')} />
             <MenuItem icon={<Share2 className="w-5 h-5" />} label="Partager mon profil" onClick={handleShare} />
             <MenuItem icon={<Scale className="w-5 h-5" />} label="Mentions légales" onClick={() => navigate('/legal')} />
+            {!isInstalled && (
+              <MenuItem
+                icon={<Smartphone className="w-5 h-5" />}
+                label={canInstall || isIos ? "Installer sur l'écran d'accueil" : "Installer l'application"}
+                onClick={() => {
+                  resetDismiss();
+                  toast.success("La carte d'installation est réaffichée en bas de l'écran.");
+                  navigate('/home');
+                }}
+              />
+            )}
             <div className="pt-4 space-y-1">
               <MenuItem icon={<LogOut className="w-5 h-5 text-destructive" />} label="Se déconnecter" onClick={async () => { await signOut(); toast.success('Déconnecté'); }} destructive />
               <MenuItem icon={<Trash2 className="w-5 h-5 text-destructive" />} label="Supprimer mon compte" onClick={() => setSection('delete')} destructive />

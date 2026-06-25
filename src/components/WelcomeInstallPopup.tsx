@@ -15,10 +15,11 @@ export const markFirstLoginDone = (userId: string) => {
 
 const WelcomeInstallPopup = () => {
   const { session } = useAuth();
-  const { promptInstall, canInstall } = usePwaInstall();
+  const { promptInstall, canInstall, isIos } = usePwaInstall();
   const hasShown = useRef(false);
   const [visible, setVisible] = useState(false);
   const [phase, setPhase] = useState<'hidden' | 'in' | 'visible' | 'out'>('hidden');
+  const [showIosHelp, setShowIosHelp] = useState(false);
 
   useEffect(() => {
     if (!session?.user || hasShown.current) return;
@@ -44,8 +45,12 @@ const WelcomeInstallPopup = () => {
   const handleInstall = async () => {
     if (canInstall) {
       await promptInstall();
+      dismiss();
+    } else if (isIos) {
+      setShowIosHelp(true);
+    } else {
+      dismiss();
     }
-    dismiss();
   };
 
   if (!visible) return null;
@@ -87,8 +92,19 @@ const WelcomeInstallPopup = () => {
             className="w-full py-3 rounded-xl bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-display font-bold text-sm shadow-[0_4px_15px_hsla(var(--primary),0.3)] hover:shadow-[0_6px_20px_hsla(var(--primary),0.4)] transition-all active:scale-[0.97] transform flex items-center justify-center gap-2"
           >
             <Download className="w-4 h-4" />
-            Installer Faunex
+            {isIos ? "Comment installer" : "Installer Faunex"}
           </button>
+
+          {showIosHelp && (
+            <div className="mt-3 p-3 rounded-xl bg-primary-foreground/5 border border-primary/20 text-xs text-muted-foreground text-left">
+              <p className="font-semibold text-foreground mb-1">Sur iPhone / iPad :</p>
+              <ol className="list-decimal list-inside space-y-1">
+                <li>Appuie sur le bouton <strong>Partager</strong> en bas de Safari.</li>
+                <li>Fais défiler et sélectionne <strong>Sur l'écran d'accueil</strong>.</li>
+                <li>Appuie sur <strong>Ajouter</strong>.</li>
+              </ol>
+            </div>
+          )}
 
           <button onClick={dismiss} className="mt-3 text-xs text-muted-foreground hover:text-foreground transition-colors font-display">
             Continuer sans installer
