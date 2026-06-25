@@ -249,7 +249,7 @@ const LandingPage = () => {
           De la photo à la carte collectionnée, en moins de 10 secondes.
         </p>
 
-        <div className="space-y-4">
+        <div className="flex sm:flex-col gap-4 overflow-x-auto snap-x snap-mandatory pb-4 sm:pb-0 -mx-5 px-5 sm:mx-0 sm:px-0">
           {[
             { icon: Camera, num: '1', title: 'Photographie', desc: 'Prends en photo un animal que tu croises lors de tes balades.', color: 'primary' },
             { icon: Brain, num: '2', title: "L'IA identifie", desc: "Espèce, habitat, régime, anecdotes : tout en 3 secondes.", color: 'amber' },
@@ -257,7 +257,7 @@ const LandingPage = () => {
           ].map((step, i) => (
             <div
               key={i}
-              className="relative flex items-start gap-4 rounded-2xl bg-card border border-border p-5 shadow-card"
+              className="flex-shrink-0 w-[85%] sm:w-auto snap-start relative flex items-start gap-4 rounded-2xl bg-card border border-border p-5 shadow-card"
             >
               <div className="flex-shrink-0 relative">
                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
