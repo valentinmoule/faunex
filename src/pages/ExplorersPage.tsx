@@ -348,7 +348,7 @@ const ExplorersPage = () => {
   }, [posts, searchParams]);
 
   const toAnimalCard = (post: FeedCapture): AnimalCard => ({
-    id: post.id, name: post.animal_name, scientificName: post.scientific_name || '', image: post.image_url,
+    id: post.id, name: post.animal_name, scientificName: post.scientific_name || '', image: post.image_url, cutoutUrl: post.cutout_url,
     rarity: post.rarity as Rarity, category: post.category || '', description: post.description || '',
     habitat: post.habitat || '', diet: post.diet || '', conservation: post.conservation || '',
     funFact: post.fun_fact || '', discoveredAt: post.created_at, location: '',
