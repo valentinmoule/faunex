@@ -973,7 +973,6 @@ const CapturePage = () => {
               onClick={resetCapture}
               className="flex-1 flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl bg-primary-foreground/10 text-primary-foreground/80 font-display text-sm"
             >
-              <X className="w-4 h-4" />
               Ne pas ajouter
             </button>
             <button
