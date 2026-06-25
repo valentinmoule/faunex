@@ -8,16 +8,20 @@ interface BeforeInstallPromptEvent extends Event {
 interface PwaInstallContextType {
   canInstall: boolean;
   isInstalled: boolean;
+  isIos: boolean;
   promptInstall: () => Promise<void>;
   dismissInstall: () => void;
+  resetDismiss: () => void;
   shouldShowPrompt: boolean;
 }
 
 const PwaInstallContext = createContext<PwaInstallContextType>({
   canInstall: false,
   isInstalled: false,
+  isIos: false,
   promptInstall: async () => {},
   dismissInstall: () => {},
+  resetDismiss: () => {},
   shouldShowPrompt: false,
 });
 
