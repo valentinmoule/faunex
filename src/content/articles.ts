@@ -20,271 +20,253 @@ export const articles: Article[] = [
   {
     slug: 'identifier-oiseau-photo-ia',
     type: 'guide',
-    title: 'Comment identifier un oiseau avec une photo et une IA',
+    title: "Identifier un oiseau avec une photo : ce qui marche, ce qui foire",
     description:
-      "Reconnaître un oiseau en 3 secondes grâce à une photo : méthode, astuces de cadrage, limites de l'IA et comparaison avec les guides papier.",
+      "Méthode honnête pour reconnaître un oiseau depuis une photo de téléphone : cadrage, lumière, pièges des juvéniles, et quand l'IA se plante.",
     category: 'Identification',
     readingMinutes: 5,
     publishedAt: '2026-06-20',
-    body: `# Comment identifier un oiseau avec une photo et une IA
+    body: `# Identifier un oiseau avec une photo : ce qui marche, ce qui foire
 
-Reconnaître un oiseau de jardin demandait hier un guide papier, des jumelles et un peu de patience. Aujourd'hui, une simple photo prise au téléphone suffit : une **IA d'identification d'oiseaux** compare ta photo à des milliers d'espèces et te donne un nom commun, un nom latin et souvent l'habitat probable.
+La première fois que j'ai voulu mettre un nom sur "le petit truc gris qui chante super fort dans la haie", j'ai tourné dix minutes dans un guide papier sans rien trouver. C'était un troglodyte mignon — l'oiseau qui chante le plus fort d'Europe rapporté à son poids. Cinq grammes, et un volume sonore de moineau enragé. Quand on sait, on l'entend partout. Quand on ne sait pas, il n'existe pas.
 
-## Pourquoi identifier les oiseaux change ta façon de te balader
+C'est tout l'enjeu de l'identification : faire passer un animal du statut de "truc" à celui de présence reconnue. Et aujourd'hui, une photo suffit.
 
-Mettre un nom sur ce qu'on voit transforme une promenade banale en chasse au trésor. Une mésange charbonnière devient soudain une rencontre, pas un "petit oiseau jaune". C'est aussi le premier pas vers une démarche **naturaliste amateur** : on commence à reconnaître les chants, à noter les habitudes, à comprendre les saisons.
+## La photo qui rate à tous les coups
 
-## Les 3 règles pour une bonne photo d'identification
+Tu vois l'oiseau, tu sors le téléphone, tu zoomes au doigt, tu déclenches. Résultat : un point flou au milieu d'un ciel pâle. Ni l'IA ni un ornitho aguerri ne pourra rien en faire.
 
-1. **Cadre serré** — Si l'oiseau occupe moins de 10 % de la photo, l'IA aura du mal. Zoome optique avant de déclencher.
-2. **Lumière sur le sujet** — Évite le contre-jour. La couleur du plumage est un des marqueurs principaux.
-3. **Profil de côté** — Le profil donne la silhouette, la longueur du bec et la coloration du flanc. C'est le meilleur angle pour une IA.
+Trois trucs simples changent tout :
 
-## Ce que l'IA voit vraiment
+- **Zoome optique si tu peux**, jamais au doigt. Le zoom numérique te donne un timbre-poste agrandi en bouillie.
+- **Place le soleil derrière toi**, pas derrière l'oiseau. Le contre-jour avale les couleurs, et la couleur est souvent le seul indice qui sépare deux espèces.
+- **Vise le profil**. Pas le dos, pas le ventre — le profil. La silhouette, le bec, la queue : c'est là que tout se joue.
 
-Une IA de reconnaissance ne "regarde" pas comme nous. Elle analyse des motifs : la forme du bec, la silhouette de la queue, le contraste tête/corps. C'est pour ça qu'une photo floue mais bien cadrée marche souvent mieux qu'une photo nette mais lointaine.
+Une photo floue mais bien cadrée et bien éclairée vaut dix photos nettes prises au mauvais angle.
 
-## Les pièges courants
+## Ce que "l'IA" voit vraiment
 
-- **Les juvéniles** ressemblent rarement aux adultes. Un rouge-gorge juvénile n'a pas la tache rouge.
-- **Les femelles** sont souvent plus ternes et confondues avec d'autres espèces.
-- **Les races domestiques** (canards, poules, pigeons) sont parfois mal identifiées car trop variables.
+Le mot fait un peu peur, mais le principe est simple. Le modèle a vu des centaines de milliers de photos étiquetées. Il a appris à repérer des motifs : la forme du bec, la longueur de la queue par rapport au corps, les zones de contraste sur la tête, la présence d'un sourcil clair, la couleur du croupion.
 
-## IA ou guide papier : faut-il choisir ?
+C'est pour ça qu'il se trompe sur les juvéniles : un rouge-gorge juvénile n'a pas la bavette orange, il est entièrement moucheté beige. Pour le modèle, c'est presque un autre oiseau. Pareil pour les femelles de pinsons, beaucoup plus ternes que les mâles photogéniques des manuels.
 
-Les deux sont complémentaires. L'IA gagne en vitesse et en accessibilité — un enfant peut identifier un oiseau sans rien connaître. Le guide papier reste imbattable pour **apprendre les groupes d'espèces** et comprendre les liens entre eux. L'idéal : identifier avec l'app, lire la fiche, puis revenir à un guide pour creuser.
+Garde aussi ça en tête : sur les races domestiques (canards de mare, pigeons de ville, poules de jardin), l'IA hésite. Trop de croisements, trop de variabilité. Souvent elle te donnera le groupe, rarement la race exacte. C'est une limite honnête, pas un bug.
 
-## Aller plus loin : collectionner ses observations
+## L'identification, étape 1 d'un truc plus grand
 
-Une fois l'identification automatisée, l'étape suivante est la **collection**. Sauvegarder ses observations crée un journal personnel de la faune autour de toi — saisons, lieux, fréquences. C'est exactement ce que propose Faunex : chaque photo devient une carte, chaque espèce une entrée dans ton bestiaire personnel.
+Identifier un oiseau, c'est satisfaisant. Mais le vrai déclic vient après : tu commences à reconnaître son chant sans la photo. Tu sais que ton jardin abrite un couple de mésanges bleues qui nichent dans le nichoir depuis trois ans. Tu repères le faucon crécerelle qui passe tous les jours à 18h au-dessus de la rue.
 
-> Astuce : commence par 5 espèces autour de chez toi avant de partir en forêt. Le moineau, la mésange, le pigeon, le rouge-gorge et le merle sont partout — et déjà très satisfaisants à "attraper".
+Tu deviens un habitant attentif de ton quartier, pas juste un passant. Et ça, aucune app ne peut te le donner — elle peut juste t'ouvrir la porte.
+
+> Un conseil de débutant qui m'aurait fait gagner des mois : commence par cinq espèces. Moineau, mésange charbonnière, merle, pigeon, rouge-gorge. Apprends-les en profondeur — chant, comportement, saison. Le reste se construit dessus.
 `,
   },
   {
     slug: 'animaux-jardin-france',
     type: 'guide',
-    title: '12 animaux que tu peux observer dans ton jardin en France',
+    title: "Les animaux que tu croises sans les voir (et comment les voir)",
     description:
-      "Mésange, hérisson, écureuil, lézard… La liste des 12 espèces les plus faciles à observer chez soi, avec saison, habitat et astuces d'observation.",
+      "12 espèces sauvages présentes dans la majorité des jardins français : où les chercher, à quelle heure, et le détail qui les trahit.",
     category: 'Espèces',
     readingMinutes: 7,
     publishedAt: '2026-06-22',
-    body: `# 12 animaux que tu peux observer dans ton jardin en France
+    body: `# Les animaux que tu croises sans les voir (et comment les voir)
 
-Pas besoin de partir en safari : ton jardin, ton balcon ou le parc d'à côté abritent déjà une faune surprenante. Voici 12 espèces faciles à croiser en France, avec la saison idéale et les bons réflexes pour les observer.
+Il y a un truc fascinant quand on commence à observer : la faune ne change pas, mais ton œil change. Tu marches dans le même parc depuis dix ans, et un jour tu te rends compte qu'un pic épeiche tape sur le tronc à trois mètres au-dessus de ta tête. Il était là tous les jours. C'est toi qui n'étais pas là.
 
-## Oiseaux faciles à reconnaître
+Voici douze espèces ultra-communes en France métropolitaine. Aucune n'est rare. Toutes te sont probablement passées sous le nez cette semaine.
 
-### 1. Mésange charbonnière
-Petit oiseau noir-jaune avec une cravate noire au ventre. Présente toute l'année, très active aux mangeoires en hiver.
+## Cinq oiseaux à apprendre en premier
 
-### 2. Rouge-gorge familier
-Reconnaissable à sa bavette orange. Solitaire et territorial, il s'approche volontiers d'un jardinier qui retourne la terre.
+**La mésange charbonnière** porte une cravate noire qui descend tout le long du ventre — large chez le mâle, fine chez la femelle. C'est l'oiseau le plus actif aux mangeoires l'hiver, le premier à venir si tu mets des graines de tournesol.
 
-### 3. Merle noir
-Mâle entièrement noir avec bec orange, femelle brune. Chant flûté caractéristique au crépuscule au printemps.
+**Le rouge-gorge** s'approche de toi quand tu retournes la terre. Il attend les vers. Il est solitaire toute l'année et chante même en hiver, ce qui est rare — c'est ce chant flûté un peu mélancolique qu'on entend en novembre.
 
-### 4. Moineau domestique
-Le compagnon historique de l'humain. En déclin dans les grandes villes, mais encore très présent en zone pavillonnaire.
+**Le merle noir** : mâle entièrement noir au bec orange, femelle brun chocolat. Son chant du printemps au crépuscule est l'un des plus beaux d'Europe, et tout le monde l'entend sans y prêter attention.
 
-### 5. Pinson des arbres
-L'un des oiseaux les plus nombreux de France. Mâle au plumage rosé et bleu, femelle plus discrète.
+**Le moineau domestique** vit avec nous depuis le néolithique. Il est en chute libre dans les centres-villes mais reste très présent en zone pavillonnaire. Si tu n'en vois plus dans ton quartier, c'est mauvais signe pour ton quartier.
 
-## Petits mammifères
+**Le pinson des arbres** est probablement l'oiseau le plus nombreux de France. Le mâle a la tête bleu-gris et la poitrine rose ; la femelle, bien plus discrète, beige verdâtre. Son cri d'alarme métallique "pink pink" trahit sa présence avant qu'on le voie.
 
-### 6. Écureuil roux
-Plutôt en lisière de forêt ou parcs arborés. Période la plus active : matins d'automne, quand il fait ses provisions.
+## Mammifères : sors à la bonne heure
 
-### 7. Hérisson d'Europe
-Protégé en France. Sort à la tombée de la nuit. Laisse un coin de jardin "sauvage" pour l'attirer.
+**L'écureuil roux** se voit surtout les matins d'automne, quand il fait ses réserves. Il aime les conifères et les vieux feuillus. Si ton parc a des cèdres, va voir au pied : tu trouveras des pommes de pin rongées comme des trognons de pomme, c'est sa signature.
 
-### 8. Chauve-souris (pipistrelle)
-La plus commune. Se voit au crépuscule chassant les moustiques. Toutes les espèces sont protégées.
+**Le hérisson** est protégé en France et il en a besoin : la moitié des hérissons meurent en traversant des routes. Pour en avoir au jardin, garde un coin sauvage — orties, tas de bois, feuilles non ramassées. Il sort à la tombée de la nuit, jamais avant.
 
-## Reptiles et amphibiens
+**La pipistrelle commune** est la chauve-souris que tu vois zigzaguer au-dessus des lampadaires en été. Elle chasse au sonar, parfois 3000 moustiques par nuit. Toutes les chauves-souris sont protégées en France.
 
-### 9. Lézard des murailles
-Petit lézard gris-brun qui se chauffe au soleil sur les murs en pierre. Très commun, même en ville.
+## Les discrets de surface
 
-### 10. Grenouille rousse
-Présente près des points d'eau au printemps. Pond en gros amas gélatineux dans les mares.
+**Le lézard des murailles** se chauffe au soleil sur les vieux murs en pierre, même en pleine ville. Approche en glissant doucement de côté, jamais frontalement — son cerveau est câblé pour fuir tout ce qui vient droit dessus.
 
-## Insectes remarquables
+**La grenouille rousse** est la grenouille des mares, brun-roux avec un masque sombre sur l'œil. Elle pond en février-mars en gros amas gélatineux. Au pire moment, tu peux trouver une mare avec littéralement des kilos d'œufs.
 
-### 11. Coccinelle à 7 points
-La native. À ne pas confondre avec la coccinelle asiatique (souvent orange, avec un "M" blanc sur la tête).
+## Insectes : deux à connaître
 
-### 12. Paon-du-jour
-Papillon brun-rouge avec 4 grands "yeux" colorés. Très commun de mars à octobre sur les fleurs violettes.
+**La coccinelle à sept points** est la "vraie", l'européenne. Rouge vif, sept points noirs bien comptés. Sa cousine asiatique (souvent orange, avec un "M" blanc sur la tête) est arrivée en France dans les années 2000 et la concurrence sévèrement.
 
-## Comment maximiser ses observations
+**Le paon-du-jour** est ce papillon brun-rouge avec quatre grands yeux bleus sur les ailes. Il adore les buddleias et les massifs de lavande. Tu peux l'observer à 30 cm, il ne s'envolera pas.
 
-- **Patiente 10 minutes immobile** — la plupart des animaux reviennent vite.
-- **Garde un coin sauvage** — orties, bois mort, tas de feuilles.
-- **Évite les pesticides** — ils éliminent la base de la chaîne alimentaire.
-- **Note tes observations** — une app de collection comme Faunex transforme chaque rencontre en carte et te montre les espèces dominantes de ta zone au fil des saisons.
+## Le vrai conseil
 
-> Plus tu observes, plus tu vois. La plupart des espèces de cette liste sont là depuis toujours — il "suffit" de lever les yeux.
+Reste immobile dix minutes. C'est tout. La plupart des animaux ont fui ton arrivée et reviennent dès que tu te tais. Quatre-vingt-dix pour cent de l'observation, c'est de la patience — pas du matériel, pas des connaissances. Juste la décision de ne pas bouger.
+
+> Un dernier truc : tiens un carnet, ou utilise une app de collection. Pas pour faire un score, mais parce que la mémoire ment. Tu jureras avoir vu un rouge-gorge en juillet, alors qu'en réalité tu l'avais vu en mai et qu'il ne chante plus en juillet. Les dates précises changent tout.
 `,
   },
   {
     slug: 'difference-animaux-communs-rares',
     type: 'guide',
-    title: 'Espèce commune, rare, mythique : comment se mesure la rareté ?',
+    title: "Pourquoi une carte mythique est mythique : la vraie rareté du vivant",
     description:
-      "Pourquoi certains animaux sont 'communs' et d'autres 'mythiques' ? Statut de conservation UICN, fréquence d'observation et logique des cartes à collectionner.",
+      "Liste rouge UICN, statuts de conservation, fréquence réelle d'observation : ce que veut dire 'rare' quand on parle d'animaux sauvages.",
     category: 'Conservation',
     readingMinutes: 4,
     publishedAt: '2026-06-24',
-    body: `# Espèce commune, rare, mythique : comment se mesure la rareté ?
+    body: `# Pourquoi une carte mythique est mythique : la vraie rareté du vivant
 
-Sur Faunex comme dans les guides naturalistes, on parle d'espèces "communes", "rares", "épiques" ou "mythiques". Mais sur quoi se base cette classification ? Ce n'est pas qu'une mécanique de jeu : c'est une lecture du **statut de conservation** réel des espèces.
+Dans un jeu de cartes classique, la rareté est arbitraire. L'éditeur décide qu'un Dracaufeu sortira moins souvent qu'un Roucool. Point.
 
-## La liste rouge de l'UICN, le référentiel mondial
+Dans la faune réelle, c'est l'inverse. Personne n'a décidé que la loutre serait rare. Elle l'est devenue. Et c'est ce qui rend une observation de loutre infiniment plus intense qu'une observation de pigeon : tu ne tombes pas dessus parce que le hasard te sourit, tu tombes dessus parce qu'il en reste juste assez pour qu'une rencontre soit encore possible.
 
-L'**Union Internationale pour la Conservation de la Nature** (UICN) tient une liste rouge mondiale qui classe chaque espèce sur une échelle :
+## La liste rouge, c'est sérieux
 
-- **LC** — Préoccupation mineure (l'espèce va bien)
+L'**Union Internationale pour la Conservation de la Nature** (UICN) classe chaque espèce dans une catégorie de risque, et cette liste fait autorité partout dans le monde. Du plus tranquille au plus inquiétant :
+
+- **LC** — Préoccupation mineure
 - **NT** — Quasi menacée
 - **VU** — Vulnérable
 - **EN** — En danger
 - **CR** — En danger critique
 - **EW / EX** — Éteinte à l'état sauvage / Éteinte
 
-C'est ce statut qui sert de base à la plupart des classifications de rareté, y compris dans les apps naturalistes.
+C'est froid, c'est administratif, mais derrière chaque lettre il y a une réalité de terrain : un effectif compté, une tendance mesurée, des habitats qui rétrécissent ou qui se reconstruisent.
 
-## La logique de Faunex
+## Comment Faunex traduit ça
 
-Sur Faunex, on traduit ces statuts en quatre paliers visuels, pour rendre la collection lisible :
+On a quatre paliers visuels, pour rendre la collection lisible sans appauvrir le message :
 
-| Palier | Couleur | Correspondance | Exemples |
+| Palier | Couleur | Correspondance | Exemple |
 |---|---|---|---|
 | Commun | Gris | LC très répandu | Moineau, coccinelle |
 | Rare | Bleu | LC discret, NT | Mésange à longue queue, écureuil |
 | Épique | Violet | VU, EN | Hérisson, chauve-souris |
 | Mythique | Doré | CR, EW | Lynx boréal, loutre |
 
-## Pourquoi ce n'est pas juste un jeu
+Une carte mythique n'est pas mythique parce qu'on a décidé de la faire briller plus fort. Elle est mythique parce que la croiser, c'est croiser quelque chose qu'on est en train de perdre — ou de retrouver, dans les meilleurs cas.
 
-Mettre des couleurs sur la rareté a un effet concret : on **valorise** l'observation d'espèces en déclin, on **comprend** que croiser un hérisson n'est plus banal, on **apprend** ce qui mérite d'être protégé.
+## Quelques vérités utiles
 
-C'est aussi pour ça que les apps de collection naturaliste séduisent : elles transforment un savoir parfois aride (la liste rouge) en quelque chose d'**émotionnel** — la joie d'attraper une carte rare.
+**La rareté dépend du territoire.** Un cerf est commun dans les Vosges, quasi-impossible à Paris. Un milan royal est banal dans le Massif central, rarissime sur la côte nord. Ton "rare" n'est pas celui du voisin.
 
-## Limites à connaître
+**La rareté change vite.** Le loup est revenu en France dans les années 90. Le castor a recolonisé la Loire. À l'inverse, le moineau domestique, encore très commun, s'effondre en ville européenne — peut-être moins une décennie avant qu'il rejoigne la liste rouge sérieuse.
 
-- La rareté **dépend du territoire** : un cerf est commun en forêt, rarissime en ville.
-- La rareté **change vite** : certaines espèces remontent (loup, castor), d'autres s'effondrent (moineau urbain).
-- Une **espèce commune mais en chute libre** (le moineau, encore) peut être plus inquiétante qu'une espèce déjà classée rare et stable.
+**Une espèce "commune mais en chute" peut être plus inquiétante qu'une rare et stable.** Le moineau est l'exemple classique : encore partout, mais sa population a baissé de 60 % en Europe en quarante ans. Le hérisson aussi. On ne s'en rend pas compte parce que "il y en a encore". Jusqu'au jour où il n'y en a plus.
 
-## Ce que tu peux faire
+## Pourquoi collectionner aide
 
-- Observer et **noter** — chaque observation alimente la connaissance globale.
-- Partager tes captures avec une communauté naturaliste.
-- Soutenir les habitats : haies, mares, prairies non tondues.
+Mettre des paliers visuels sur la conservation, c'est une astuce pédagogique honnête. Personne ne va lire la liste rouge UICN un samedi soir. Mais tout le monde se souvient avoir ouvert un booster avec une carte dorée à l'intérieur. Si cette carte dorée représente une loutre observée pour de vrai dans une rivière vosgienne, le savoir entre par un autre canal — émotionnel — et il y reste.
 
-> La rareté n'est pas qu'un score. C'est une mémoire de ce qu'on est en train de perdre — ou de retrouver.
+> La rareté n'est pas une mécanique de jeu. C'est une mémoire. Et chaque observation qu'on note quelque part, c'est un point sauvegardé dans cette mémoire collective.
 `,
   },
   {
     slug: 'app-collection-animaux-balade',
     type: 'usecase',
-    title: 'Transformer une balade en collection de cartes faune',
+    title: "De la balade à la collection : comment Faunex marche vraiment",
     description:
-      "Comment Faunex transforme une promenade ordinaire en chasse aux trésors : capture photo, identification IA, cartes à rareté, progression et bestiaire.",
+      "Pourquoi on a fait Faunex, comment fonctionne la capture, le bestiaire et la rareté. Une visite honnête de l'app, sans baratin marketing.",
     category: 'Faunex',
     readingMinutes: 4,
     publishedAt: '2026-06-23',
-    body: `# Transformer une balade en collection de cartes faune
+    body: `# De la balade à la collection : comment Faunex marche vraiment
 
-Tu connais cette sensation : tu marches, tu vois un animal, tu n'as pas le nom, tu passes. Trois jours plus tard, tu as oublié. Et si chaque rencontre devenait une **carte à collectionner** dans ta poche ?
+Faunex est né d'une frustration. On adore marcher en nature, on voit des animaux, on n'a pas les noms, on oublie. Les guides papier marchent mais ne tiennent pas dans une poche pendant qu'on court après un enfant. Les apps existantes sont soit techniques soit moches.
 
-## L'idée
+L'idée nous est venue en jouant aux cartes Pokémon avec un neveu. Il connaissait les noms latins d'animaux fictifs. Pas un seul nom de l'oiseau qui chantait juste à côté de nous. C'était absurde. On s'est dit : et si on construisait pour les animaux réels exactement la même expérience qui rend les cartes Pokémon irrésistibles ?
 
-Faunex est une **app mobile gratuite** qui combine deux choses simples :
+## Ce qui se passe quand tu prends une photo
 
-1. Une IA d'identification d'animaux à partir d'une photo
-2. Un système de **collection façon cartes Pokémon** avec quatre niveaux de rareté
+Tu sors l'app, tu cadres, tu déclenches. L'image est compressée localement (1024 px max, qualité 60 %) avant d'être envoyée — pour économiser ton forfait data et accélérer le traitement.
 
-Tu prends une photo, l'IA reconnaît l'espèce en 3 secondes, et la carte rejoint ton bestiaire personnel. Avec habitat, régime, anecdotes, et une rareté qui reflète le **vrai statut de conservation** de l'espèce.
+Le modèle identifie l'espèce, récupère le **nom commun**, le **nom latin**, l'**habitat** principal, le **régime alimentaire**, et la **rareté** déduite du statut de conservation UICN. La carte se révèle avec une animation type ouverture de booster — plus la rareté est haute, plus l'animation est intense (légère vibration pour les mythiques sur mobile).
 
-## En 30 secondes
+Et la carte rejoint ton bestiaire. Définitivement. Avec la date, le lieu, ta photo.
 
-- **Tu vois** un oiseau, un insecte, un mammifère.
-- **Tu photographies** depuis l'app (ou tu importes depuis ta galerie).
-- **L'IA identifie** l'espèce.
-- **La carte se révèle** avec une animation type "ouverture de booster".
-- **Elle entre dans ton bestiaire** et te donne de l'XP.
+## Le bestiaire, c'est le cœur
 
-## Pourquoi ça marche mieux qu'un guide naturaliste
+C'est ton journal de bord visuel. Toutes les espèces que tu as croisées, classées par rareté, par catégorie, par région. Tu peux ouvrir une fiche pour la consulter en détail, voir ta photo en plein écran, lire les anecdotes.
 
-Un guide naturaliste classique demande un effort : ouvrir, chercher, comparer. Une app de collection joue sur la **dopamine de la découverte** : envie d'attraper une carte rare, de compléter une catégorie, de remplir le bestiaire de sa région.
+À mesure que tu remplis, tu vois deux choses : la diversité réelle de ta zone (souvent surprenante), et les manques (tu n'as toujours pas attrapé de pinson des arbres, et pourtant ils sont partout — c'est qu'il faut mieux regarder).
 
-C'est exactement ce qui fait que les enfants apprennent les noms de 150 Pokémons sans effort — alors qu'on peine à leur apprendre 10 espèces locales. Faunex utilise ce ressort pour servir une cause sérieuse : **redonner envie d'observer le vivant**.
+## La rareté, on l'a déjà dit, mais bon
 
-## Pour qui ?
+C'est pas du vent. Le système des quatre paliers (commun gris, rare bleu, épique violet, mythique doré) repose sur la liste rouge UICN. Quand tu attrapes une mythique, tu as littéralement observé une espèce en danger critique. C'est ce qui rend la collection signifiante.
 
-- **Familles** — un prétexte parfait pour les balades du week-end.
-- **Curieux urbains** — découvrir qu'il y a 30 espèces dans son quartier.
-- **Naturalistes amateurs** — un journal photo facile à tenir.
-- **Profs et animateurs** — un outil ludique pour les sorties scolaires.
+## Le social, version pas toxique
 
-## Et le côté social ?
+On a ajouté un mode "explorateurs" : tu peux suivre d'autres utilisateurs, voir leurs captures dans un fil chronologique simple, comparer ton bestiaire au leur. Les profils sont privés par défaut, on doit accepter pour être suivi. Pas de pub, pas de scroll infini, pas de like sur des inconnus — juste tes amis et leurs balades.
 
-Tu peux suivre d'autres **explorateurs**, voir leurs captures dans un fil d'actualité, comparer ton bestiaire à un ami. Sans réseau social toxique : pas de pub, pas de scroll infini, juste du contenu nature.
+## Ce que ce n'est pas
 
-## Comment démarrer
+C'est pas un outil scientifique. Si tu fais du baguage ou des inventaires rigoureux, prends iNaturalist ou Faune-France, qui sont rattachés à des bases de données nationales.
 
-L'app est gratuite, sans inscription par carte bancaire, sans publicité. Tu installes la PWA depuis ton navigateur (pas besoin d'app store), tu crées un compte en 30 secondes, et tu pars marcher.
+C'est pas non plus un jeu. On ne te bombarde pas de notifications, il n'y a pas de système de gemmes à acheter, on ne te pousse pas à ouvrir l'app dix fois par jour.
 
-> La meilleure capture de ta vie est probablement à 200 mètres de chez toi. Il manque juste l'outil pour la voir.
+C'est entre les deux : un journal naturaliste avec des codes de jeu de cartes, pour rendre l'observation contagieuse, surtout chez les gens qui ne savent pas qu'ils aiment ça.
+
+> Le meilleur retour qu'on ait eu venait d'un mec de 40 ans qui dit avoir mis dix ans à essayer de s'intéresser aux oiseaux, et qui en trois semaines d'app en connaît trente. Lui résume mieux que nous pourquoi ça marche : "Avant je voyais des oiseaux. Maintenant je vois Marcel, Léon et Roger, et je m'inquiète quand ils ne sont pas là."
 `,
   },
   {
     slug: 'reconnaissance-animaux-ia-famille',
     type: 'usecase',
-    title: 'Une app IA pour reconnaître les animaux en famille',
+    title: "Reconnaître les animaux en famille (sans devenir naturaliste)",
     description:
-      "Faunex est conçu pour les balades en famille : identification IA simple, pas de pub, collection ludique, données privées. Guide d'utilisation parent/enfant.",
+      "Faunex pour les balades parents-enfants : comment ça change vraiment une promenade, idées de jeux en sortie, et ce que les enfants retiennent.",
     category: 'Famille',
     readingMinutes: 4,
     publishedAt: '2026-06-25',
-    body: `# Une app IA pour reconnaître les animaux en famille
+    body: `# Reconnaître les animaux en famille (sans devenir naturaliste)
 
-Sortir en forêt avec un enfant, c'est dix fois la même question : "C'est quoi cet oiseau ?", "Et celui-là ?". Si tu n'es pas naturaliste, tu réponds vite "un moineau" à tout. Une **app de reconnaissance d'animaux par IA** change radicalement l'expérience.
+Une promenade en forêt avec un enfant de 6 ans, c'est environ quarante questions par heure. Trois sur les arbres, deux sur les champignons, et le reste sur ce qui vole, court, gratte ou rampe.
 
-## Pourquoi une app spécialisée plutôt qu'un Google Images
+Si tu ne sais pas répondre, deux options : inventer (option pratiquée par tous les parents un jour ou l'autre — désolé pour le "pic-vert" qui était en fait un pinson), ou tu sors une app.
 
-Google Images marche pour identifier une photo nette d'un objet net. Pour un animal en mouvement, à 15 mètres, photographié au téléphone, les résultats sont décevants. Une app pensée pour la faune intègre :
+## Pourquoi pas juste Google Images
 
-- Un **modèle entraîné spécifiquement** sur des espèces sauvages
-- Une **base d'animaux locaux** (la faune française, pas mondiale)
-- Une **fiche pédagogique** adaptée à un enfant (habitat, régime, anecdote)
+Google Images marche pour identifier une chaise IKEA, pas pour identifier un oiseau qui passe à quinze mètres au-dessus d'un sentier. Le modèle généraliste n'a aucune idée de la faune européenne, et il te proposera des photos d'un perroquet d'Amazonie pour une mésange.
 
-## Conçue pour les enfants, utile aux parents
+Une app spécialisée, c'est un modèle entraîné sur la faune locale, une base d'espèces françaises, et des fiches écrites pour être lues à voix haute à un enfant — pas pour passer un examen d'ornitho.
 
-Faunex est minimaliste exprès : un bouton "photo", une carte qui se révèle, un bestiaire qui se remplit. Pas de menu compliqué, pas de pub, pas de notifications agressives.
+## Ce que les enfants captent vraiment
 
-L'enfant joue avec un outil qui ressemble à un jeu de cartes ; les parents, eux, apprennent en silence à reconnaître la faune de leur région.
+On a observé plein de familles utiliser Faunex et c'est toujours la même mécanique :
 
-## 4 idées pour rendre la balade géniale
+L'enfant veut le téléphone. Il prend la photo. La carte se révèle. Il s'extasie cinq secondes sur la rareté ("OH UNE BLEUE !"). Puis il pose la question intéressante : "Il mange quoi ?". Et là, comme la fiche est courte et illustrée, il lit. À 6 ans. De son plein gré. Une fiche sur le régime alimentaire d'un écureuil roux.
 
-1. **Le défi du jour** — Choisir une espèce à attraper avant de partir (un oiseau bleu, un papillon orange).
-2. **Le bingo nature** — Lister 5 animaux à croiser ; le premier qui complète gagne.
-3. **La carte la plus rare** — Compter les points en fin de balade selon la rareté.
-4. **Le bestiaire du quartier** — Construire en plusieurs sorties la "carte" de tout ce qui vit autour de chez vous.
+Trois balades plus tard, il connaît dix espèces. Il les nomme avant toi. Il corrige ta prononciation de "mésange à longue queue". Et il commence à demander pourquoi certaines sont mythiques.
 
-## Côté sécurité et données
+C'est là que le truc devient éducatif sans le dire.
 
-- Les comptes enfants n'ont **pas de réseau social agressif** : profils privés par défaut, pas d'inconnus.
-- **Aucune publicité**, aucun pistage publicitaire.
-- Les photos restent **privées** sauf si tu les partages explicitement.
+## Quatre idées de jeux en sortie
 
-## Pour commencer
+**Le bingo nature** — Avant de partir, chacun liste cinq espèces à essayer d'attraper. Le premier à compléter sa grille gagne. Marche très bien pour les frères et sœurs compétitifs.
 
-L'installation se fait depuis le navigateur (PWA) — pas besoin d'app store. L'app fonctionne hors-ligne pour consulter le bestiaire déjà collecté.
+**La carte la plus rare** — Tout le monde capture pendant la balade. À la fin, on compare. La rareté donne les points (1 pour commun, 5 pour mythique). Souvent c'est l'enfant qui gagne, parce que les enfants regardent par terre alors que les adultes regardent loin.
 
-> Un enfant qui connaît le nom des animaux ne les ignore plus. Et un adulte qui a réappris cinq oiseaux n'écoute plus jamais la forêt de la même façon.
+**Le défi du jour** — Une espèce à attraper avant le déjeuner. Un papillon orange. Un oiseau qui chante. Une plante avec une fleur jaune (si tu pars sur la végétation un jour). Ça force à *chercher*, pas juste à se promener.
+
+**Le bestiaire du quartier** — Sur plusieurs semaines, construire la carte de tout ce qui vit dans un rayon de 500 mètres autour de la maison. Tu seras surpris : trente espèces, facile.
+
+## Côté sérieux
+
+L'app est gratuite, pas de pub, pas de pistage publicitaire. Les profils enfants sont privés par défaut — pas de réseau social ouvert, pas de messages d'inconnus. Les photos restent dans ton compte sauf si tu choisis de les partager.
+
+On installe depuis le navigateur (PWA), pas d'app store, pas de téléchargement compliqué. Et ça marche hors-ligne pour consulter ce qu'on a déjà collecté — utile en forêt sans réseau.
+
+> Ce qu'on entend le plus souvent : "Maintenant, dès qu'on entend un oiseau, il faut absolument l'attraper." C'est exactement ce qu'on voulait.
 `,
   },
 ];
