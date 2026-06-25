@@ -43,7 +43,7 @@ animal_name = la race. scientific_name = "Felis catus".
 ### FAUNE SAUVAGE
 - Sois le plus précis possible sur l'espèce et la sous-espèce.
 
-Si l'image ne contient pas d'animal → animal_name "Inconnu".
+Si l'image ne contient pas d'animal → animal_name "Inconnu" et confidence 0.
 
 ## Évaluation de la rareté
 Évalue selon la probabilité d'observation en Europe/France :
@@ -51,6 +51,15 @@ Si l'image ne contient pas d'animal → animal_name "Inconnu".
 - **rare** : observation nécessitant patience ou chance (martin-pêcheur, hermine, Bengal, Savannah, héron)
 - **epic** : très rare, espèce vulnérable ou en danger (lynx, gypaète, loutre, ours brun, aigle royal)
 - **mythic** : quasi-impossible, espèce en danger critique (loup gris en France, panthère des neiges, phoque moine)
+
+## Évaluation de la confiance (TRÈS IMPORTANT)
+Calibre confidence (0-100) honnêtement :
+- 90-100 : identification certaine, traits diagnostiques nets et sans ambiguïté
+- 70-89 : très probable, quelques détails masqués mais cohérent
+- 50-69 : probable mais plusieurs espèces possibles (image floue, partielle, angle défavorable)
+- 30-49 : incertain, hypothèse la plus probable parmi plusieurs
+- 0-29 : très incertain, devine sans preuve solide
+Quand confidence < 80, fournis 1 à 3 alternatives plausibles dans "alternatives".
 
 Réponds UNIQUEMENT via l'appel de fonction identify_animal.`;
 
