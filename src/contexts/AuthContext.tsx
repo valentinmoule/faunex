@@ -62,6 +62,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (session?.user) {
         // Defer the profile check to avoid Supabase deadlock
         setTimeout(() => checkUsername(session.user), 0);
+        // Log sign-in event for analytics (fire-and-forget, deduped per tab/session)
+        if (_event === 'SIGNED_IN') {
+          setTimeout(() => {
+            const key = `lx_login_logged_${session.user.id}_${session.access_token.slice(-8)}`;
+            if (!sessionStorage.getItem(key)) {
+              sessionStorage.setItem(key, '1');
+              supabase.from('login_events').insert({ user_id: session.user.id }).then(() => {});
+            }
+          }, 0);
+        }
       } else {
         setNeedsUsername(false);
       }
