@@ -1,4 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
+import webpush from 'npm:web-push@3.6.7'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -14,17 +15,15 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    const supabase = createClient(supabaseUrl, serviceKey)
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+    )
 
     const { requester_id, addressee_id } = await req.json()
 
     if (!requester_id || !addressee_id) {
-      return new Response(JSON.stringify({ error: 'Missing requester_id or addressee_id' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
+      return json({ error: 'Missing requester_id or addressee_id' }, 400)
     }
 
     const [{ data: requesterProfile }, { data: addresseeProfile }, { data: addresseeAuth }] =
@@ -32,7 +31,7 @@ Deno.serve(async (req) => {
         supabase.from('profiles').select('display_name, username').eq('user_id', requester_id).single(),
         supabase
           .from('profiles')
-          .select('display_name, username, marketing_emails')
+          .select('display_name, username, marketing_emails, notify_email_follows, notify_push_follows')
           .eq('user_id', addressee_id)
           .single(),
         supabase.auth.admin.getUserById(addressee_id),
@@ -40,18 +39,7 @@ Deno.serve(async (req) => {
 
     if (!requesterProfile || !addresseeProfile || !addresseeAuth?.user?.email) {
       console.error('Could not fetch profiles or email')
-      return new Response(JSON.stringify({ error: 'User not found' }), {
-        status: 404,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
-    }
-
-    if (!addresseeProfile.marketing_emails) {
-      console.log('User has opted out of non-essential emails', { addressee_id })
-      return new Response(JSON.stringify({ skipped: true }), {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
+      return json({ error: 'User not found' }, 404)
     }
 
     const requesterName =
@@ -60,39 +48,80 @@ Deno.serve(async (req) => {
       addresseeProfile.display_name || addresseeProfile.username || 'Explorateur'
     const recipientEmail = addresseeAuth.user.email
 
-    // Send via the app emails (transactional) pipeline so it appears in App emails dashboard
-    const { data, error } = await supabase.functions.invoke('send-transactional-email', {
-      body: {
-        templateName: 'new-follower',
-        recipientEmail,
-        idempotencyKey: `new-follower-${requester_id}-${addressee_id}-${Date.now()}`,
-        templateData: {
-          followerName: requesterName,
-          recipientName,
-          profileUrl: `${APP_URL}/explorers`,
+    let emailResult: unknown = 'skipped'
+    if (addresseeProfile.marketing_emails && addresseeProfile.notify_email_follows) {
+      const { data, error } = await supabase.functions.invoke('send-transactional-email', {
+        body: {
+          templateName: 'new-follower',
+          recipientEmail,
+          idempotencyKey: `new-follower-${requester_id}-${addressee_id}-${Date.now()}`,
+          templateData: {
+            followerName: requesterName,
+            recipientName,
+            profileUrl: `${APP_URL}/explorers`,
+          },
         },
-      },
-    })
+      })
+      if (error) console.error('send-transactional-email invocation failed', error)
+      emailResult = error ? 'failed' : data
+    }
 
-    if (error) {
-      console.error('send-transactional-email invocation failed', error)
-      return new Response(JSON.stringify({ error: 'Failed to send email' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    let pushResult: unknown = 'skipped'
+    if (addresseeProfile.notify_push_follows) {
+      pushResult = await sendPushToUser(supabase, addressee_id, {
+        title: `${requesterName} veut te suivre 👀`,
+        body: 'Ouvre Faunex pour accepter ou refuser la demande.',
+        url: '/explorers',
+        tag: `follow-${requester_id}-${addressee_id}`,
       })
     }
 
-    console.log('Friend request app email queued', { to: recipientEmail, data })
-
-    return new Response(JSON.stringify({ success: true }), {
-      status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    })
+    return json({ success: true, email: emailResult, push: pushResult })
   } catch (error) {
     console.error('Error in notify-friend-request:', error)
-    return new Response(JSON.stringify({ error: 'Internal error' }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    })
+    return json({ error: 'Internal error' }, 500)
   }
 })
+
+async function sendPushToUser(supabase: any, userId: string, payload: { title: string; body: string; url: string; tag: string }) {
+  const VAPID_PUBLIC = Deno.env.get('VAPID_PUBLIC_KEY')
+  const VAPID_PRIVATE = Deno.env.get('VAPID_PRIVATE_KEY')
+  const VAPID_SUBJECT = Deno.env.get('VAPID_SUBJECT') ?? 'mailto:hello@faunex.fr'
+  if (!VAPID_PUBLIC || !VAPID_PRIVATE) return 'no_vapid'
+
+  webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC, VAPID_PRIVATE)
+
+  const { data: subs } = await supabase
+    .from('push_subscriptions')
+    .select('id, endpoint, p256dh, auth')
+    .eq('user_id', userId)
+
+  if (!subs || subs.length === 0) return 'no_subs'
+
+  let success = 0
+  let failure = 0
+  for (const sub of subs) {
+    try {
+      await webpush.sendNotification(
+        { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+        JSON.stringify(payload),
+      )
+      success++
+    } catch (e: any) {
+      failure++
+      if (e?.statusCode === 410 || e?.statusCode === 404) {
+        await supabase.from('push_subscriptions').delete().eq('id', sub.id)
+      } else {
+        console.error('push send error', e?.statusCode, e?.body)
+      }
+    }
+  }
+  return { success, failure }
+}
+
+function json(b: unknown, status = 200) {
+  return new Response(JSON.stringify(b), {
+    status,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  })
+}
