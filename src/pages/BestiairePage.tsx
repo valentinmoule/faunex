@@ -296,6 +296,7 @@ const BestiairePage = () => {
             name: capture.animal_name,
             scientificName: capture.scientific_name || '',
             image: capture.image_url,
+            cutoutUrl: (capture as any).cutout_url,
             rarity: capture.rarity as Rarity,
             category: capture.category || '',
             description: capture.description || '',

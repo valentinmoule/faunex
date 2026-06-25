@@ -5,6 +5,8 @@ export interface AnimalCard {
   name: string;
   scientificName: string;
   image: string;
+  /** Optional AI-generated transparent PNG of just the animal subject. */
+  cutoutUrl?: string | null;
   rarity: Rarity;
   category: string;
   description: string;
