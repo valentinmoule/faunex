@@ -249,7 +249,7 @@ const LandingPage = () => {
           De la photo à la carte collectionnée, en moins de 10 secondes.
         </p>
 
-        <div className="flex sm:flex-col gap-4 overflow-x-auto snap-x snap-mandatory pb-4 sm:pb-0 -mx-5 px-5 sm:mx-0 sm:px-0">
+        <div className="flex sm:flex-col gap-4 overflow-x-auto snap-x snap-mandatory pb-4 sm:pb-0">
           {[
             { icon: Camera, num: '1', title: 'Photographie', desc: 'Prends en photo un animal que tu croises lors de tes balades.', color: 'primary' },
             { icon: Brain, num: '2', title: "L'IA identifie", desc: "Espèce, habitat, régime, anecdotes : tout en 3 secondes.", color: 'amber' },
@@ -286,7 +286,7 @@ const LandingPage = () => {
             4 niveaux de rareté, du commun au mythique.
           </p>
 
-          <div className="flex sm:grid sm:grid-cols-2 gap-4 overflow-x-auto snap-x snap-mandatory pb-4 sm:pb-0 -mx-5 px-5 sm:mx-0 sm:px-0">
+          <div className="flex sm:grid sm:grid-cols-2 gap-4 overflow-x-auto snap-x snap-mandatory pb-4 sm:pb-0">
             {heroCards.map((card) => (
               <div key={card.name} className="flex-shrink-0 w-[72%] sm:w-auto snap-start rounded-2xl overflow-hidden">
                 <HolographicCard rarity={card.rarity} disableAutoShimmer>
@@ -341,7 +341,7 @@ const LandingPage = () => {
         <h2 className="text-2xl sm:text-3xl font-display font-black text-center mb-8">
           Pourquoi tu vas adorer
         </h2>
-        <div className="flex sm:flex-col gap-4 overflow-x-auto snap-x snap-mandatory pb-4 sm:pb-0 -mx-5 px-5 sm:mx-0 sm:px-0">
+        <div className="flex sm:flex-col gap-4 overflow-x-auto snap-x snap-mandatory pb-4 sm:pb-0">
           {benefits.map((b, i) => (
             <div key={i} className="flex-shrink-0 w-[85%] sm:w-auto snap-start flex items-start gap-4 p-4 rounded-2xl bg-card border border-border">
               <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
