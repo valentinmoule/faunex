@@ -500,4 +500,16 @@ const MenuItem = ({ icon, label, onClick, destructive }: { icon: React.ReactNode
   </button>
 );
 
+const NotifToggle = ({ on, onClick }: { on: boolean; onClick: () => void }) => (
+  <button
+    onClick={onClick}
+    aria-pressed={on}
+    className={`relative w-10 h-5.5 rounded-full transition-colors ${on ? 'bg-primary' : 'bg-muted-foreground/30'}`}
+    style={{ width: '2.5rem', height: '1.375rem' }}
+  >
+    <span className={`absolute top-0.5 left-0.5 w-[1rem] h-[1rem] rounded-full bg-card shadow transition-transform ${on ? 'translate-x-[1.125rem]' : 'translate-x-0'}`} />
+  </button>
+);
+
+
 export default SettingsPage;
