@@ -135,15 +135,30 @@ const ExplorersPage = () => {
     const fetchFeed = async () => {
       setFeedLoading(true);
       const uid = session.user.id;
-      const { data: followsData } = await supabase.from('explorer_follows').select('following_id').eq('follower_id', uid);
-      const friendIds = (followsData || []).map(f => f.following_id);
-      const allIds = [uid, ...friendIds];
+      const { data: followsData } = await supabase
+        .from('explorer_follows')
+        .select('following_id')
+        .eq('follower_id', uid)
+        .eq('status', 'accepted');
+      const followingIds = (followsData || []).map(f => f.following_id);
 
-      const { data: privateProfiles } = await supabase.from('profiles').select('user_id').eq('is_private', true).in('user_id', allIds);
-      const privateSet = new Set((privateProfiles || []).map(p => p.user_id));
-      const visibleIds = allIds.filter(id => id === uid || !privateSet.has(id));
+      if (followingIds.length === 0) {
+        setPosts([]);
+        setLikedPosts(new Set());
+        setLikeCounts({});
+        setCommentCounts({});
+        setFeedLoading(false);
+        return;
+      }
 
-      const { data, error } = await supabase.from('captures').select('*').eq('status', 'approved').in('user_id', visibleIds).order('created_at', { ascending: false }).limit(50);
+      const { data, error } = await supabase
+        .from('captures')
+        .select('*')
+        .eq('status', 'approved')
+        .eq('shared', true)
+        .in('user_id', followingIds)
+        .order('created_at', { ascending: false })
+        .limit(50);
 
       if (!error && data) {
         const uids = [...new Set(data.map((c: any) => c.user_id))];
