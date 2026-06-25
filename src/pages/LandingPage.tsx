@@ -163,12 +163,12 @@ const LandingPage = () => {
     <main className="min-h-screen bg-background text-foreground overflow-x-hidden pb-20">
       <Helmet>
         <title>Faunex — Identifie & collectionne la faune sauvage</title>
-        <meta name="description" content="Photographie un animal, l'IA l'identifie en 3s. Collectionne +1000 espèces autour de toi. Gratuit, sans pub." />
+        <meta name="description" content="Photographie un animal, l'IA l'identifie en 3s. Collectionne des cartes de faune autour de toi, du commun au mythique. Gratuit, sans pub." />
         <link rel="canonical" href="https://faunex.fr/" />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://faunex.fr/" />
         <meta property="og:title" content="Faunex — Transforme tes balades en chasse aux trésors" />
-        <meta property="og:description" content="Photographie un animal, l'IA l'identifie en 3s. Collectionne +1000 espèces autour de toi." />
+        <meta property="og:description" content="Photographie un animal, l'IA l'identifie en 3s. Collectionne des cartes de faune autour de toi, du commun au mythique." />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'MobileApplication',
