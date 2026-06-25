@@ -91,6 +91,7 @@ const ContentIndexPage = ({ type }: { type: 'guide' | 'usecase' }) => {
           </Button>
         </div>
       </section>
+      <Footer />
     </main>
   );
 };

@@ -129,8 +129,9 @@ const ArticlePage = ({ type }: { type: ArticleType }) => {
               </Link>
             ))}
           </div>
-        </section>
+      </section>
       )}
+      <Footer />
     </main>
   );
 };

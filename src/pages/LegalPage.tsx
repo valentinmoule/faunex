@@ -150,6 +150,7 @@ const LegalPage = () => {
           Première publication (V.0.0) : 8 mars 2026 · Dernière mise à jour : 13 mars 2026
         </p>
       </div>
+      <Footer />
     </main>
   );
 };

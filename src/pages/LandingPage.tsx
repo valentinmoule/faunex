@@ -444,6 +444,7 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
+      <Footer />
 
       {/* STICKY MOBILE CTA */}
       <div
