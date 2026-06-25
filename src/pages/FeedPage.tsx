@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 interface FeedCapture {
   id: string;
   image_url: string;
+  cutout_url?: string | null;
   animal_name: string;
   scientific_name: string;
   category: string;
