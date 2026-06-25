@@ -18,6 +18,8 @@ interface Profile {
   xp_to_next: number;
   species_count: number;
   regions_explored: number;
+  followers_count: number;
+  following_count: number;
 }
 
 interface BadgeDef {
