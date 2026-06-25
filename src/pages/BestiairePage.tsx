@@ -1,6 +1,7 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, type ComponentType } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, ChevronLeft, PawPrint, Bird, Fish, Bug, Turtle, Rabbit, Shell, Waves, MapPin, Plus, Search, Trash2, X, type LucideIcon } from 'lucide-react';
+import { Bell, ChevronLeft, PawPrint, Bird, Fish, Bug, Turtle, Shell, Waves, MapPin, Plus, Search, Trash2, X, type LucideIcon } from 'lucide-react';
+import { FrogIcon } from '@/components/icons/FrogIcon';
 import { type Rarity, type AnimalCard, RARITY_LABELS } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -19,13 +20,13 @@ interface BestiaryAnimal {
   captureData?: AnimalCard;
 }
 
-const getCategoryIcon = (category: string): LucideIcon => {
+const getCategoryIcon = (category: string): ComponentType<{ className?: string; strokeWidth?: string | number }> => {
   const cat = category.toLowerCase();
   if (cat.includes('oiseau')) return Bird;
   if (cat.includes('poisson') || cat.includes('vie marine')) return Fish;
   if (cat.includes('insecte')) return Bug;
   if (cat.includes('reptile')) return Turtle;
-  if (cat.includes('amphibien')) return Rabbit;
+  if (cat.includes('amphibien')) return FrogIcon;
   if (cat.includes('arachnide')) return Bug;
   if (cat.includes('crustacé')) return Shell;
   if (cat.includes('mollusque')) return Shell;

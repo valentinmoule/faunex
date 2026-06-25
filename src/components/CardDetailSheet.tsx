@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, type ComponentType } from 'react';
 import { Drawer } from 'vaul';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
-import { MapPin, Leaf, UtensilsCrossed, Shield, Sparkles, Heart, MessageCircle, Send, PawPrint, Bird, Fish, Bug, Turtle, Rabbit, Shell, Waves, type LucideIcon } from 'lucide-react';
+import { MapPin, Leaf, UtensilsCrossed, Shield, Sparkles, Heart, MessageCircle, Send, PawPrint, Bird, Fish, Bug, Turtle, Shell, Waves, type LucideIcon } from 'lucide-react';
+import { FrogIcon } from '@/components/icons/FrogIcon';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import HolographicCard from '@/components/HolographicCard';
@@ -45,13 +46,13 @@ const rarityText: Record<Rarity, string> = {
   epic: 'text-rarity-epic',
   mythic: 'text-rarity-mythic',
 };
-const getCategoryIcon = (category: string): LucideIcon => {
+const getCategoryIcon = (category: string): ComponentType<{ className?: string; strokeWidth?: string | number }> => {
   const cat = category.toLowerCase();
   if (cat.includes('oiseau')) return Bird;
   if (cat.includes('poisson') || cat.includes('vie marine')) return Fish;
   if (cat.includes('insecte') || cat.includes('arachnide')) return Bug;
   if (cat.includes('reptile')) return Turtle;
-  if (cat.includes('amphibien')) return Rabbit;
+  if (cat.includes('amphibien')) return FrogIcon;
   if (cat.includes('crustacé') || cat.includes('mollusque')) return Shell;
   if (cat.includes('mammifère') && cat.includes('marin')) return Waves;
   if (cat.includes('mammifère')) return PawPrint;
