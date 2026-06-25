@@ -87,8 +87,9 @@ const ProfilePage = () => {
       setLoading(true);
       const userId = session.user.id;
 
-      const [profileRes, friendsRes, capturesRes, claimedBadgesRes] = await Promise.all([
+      const [profileRes, followersRes, followingRes, capturesRes, claimedBadgesRes] = await Promise.all([
         supabase.from('profiles').select('*').eq('user_id', userId).single(),
+        supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('following_id', userId),
         supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('follower_id', userId),
         supabase.from('captures').select('category, rarity').eq('user_id', userId),
         supabase.from('user_badges').select('badge_id').eq('user_id', userId),
@@ -99,8 +100,9 @@ const ProfilePage = () => {
         setProfile(data as Profile);
       }
 
-      const fCount = friendsRes.count || 0;
-      setFriendsCount(fCount);
+      setFollowersCount(followersRes.count || 0);
+      setFollowingCount(followingRes.count || 0);
+      const fCount = followingRes.count || 0;
 
       const captures = capturesRes.data || [];
       const totalCaptures = captures.length;
