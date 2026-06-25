@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, useCallback, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { type Rarity } from '@/data/mockData';
 
 interface Props {
@@ -7,133 +7,82 @@ interface Props {
   className?: string;
   onTap?: () => void;
   appearAnimation?: string;
-  /** Disable the mobile auto-shimmer (tilt loop). Useful in marketing layouts where rotated faces leak outside the card. */
+  /** Kept for backwards compatibility — animations are now always autonomous. */
   disableAutoShimmer?: boolean;
 }
 
 /**
- * Pokémon TCG-inspired holographic card with:
- * - 3D parallax tilt on pointer move (mouse + touch + device orientation)
- * - Glossy shine following pointer
- * - Rarity-specific holo patterns layered around the image
+ * Faunex collectible card — Pokémon-TCG-inspired holographic surface.
  *
- * Pattern layers (z-index order):
- *   0: card container (perspective)
- *   1: holo background pattern (rarity)
- *   2: image (children)
- *   3: holo overlay shine
- *   4: glossy pointer reflection
- *   5: rim highlight
+ * Fully autonomous animations (no pointer parallax, mobile-first):
+ *   - Iridescent oily grain that scrolls slowly
+ *   - Diagonal rainbow scan bar sweeping across the card
+ *   - Rarity-specific aura / conic spin / sparkle stars
+ *   - Continuous rim shimmer that pulses
+ *
+ * Layer stack (z-index):
+ *   1: rarity aura / pattern behind image
+ *   2: image / content
+ *   3: foil grain (oily iridescence)
+ *   4: scan bar (sweeping rainbow)
+ *   5: sparkle stars (mythic) / glints (epic, rare)
+ *   6: rim shimmer
+ *   7: outer glow halo (mythic / epic)
  */
-const HolographicCard = ({ rarity, children, className = '', onTap, appearAnimation = '', disableAutoShimmer = false }: Props) => {
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
-  const [tilt, setTilt] = useState({ rx: 0, ry: 0, mx: 50, my: 50, active: false });
-  const rafRef = useRef<number | null>(null);
-
+const HolographicCard = ({ rarity, children, className = '', onTap, appearAnimation = '' }: Props) => {
   const isMythic = rarity === 'mythic';
   const isEpic = rarity === 'epic';
   const isRare = rarity === 'rare';
   const hasHolo = isRare || isEpic || isMythic;
 
-  // Apply tilt + glossy via CSS variables (avoid React re-render per move)
-  const applyTransform = useCallback((rx: number, ry: number, mx: number, my: number, active: boolean) => {
-    const card = cardRef.current;
-    if (!card) return;
-    card.style.setProperty('--rx', `${rx}deg`);
-    card.style.setProperty('--ry', `${ry}deg`);
-    card.style.setProperty('--mx', `${mx}%`);
-    card.style.setProperty('--my', `${my}%`);
-    card.style.setProperty('--active', active ? '1' : '0');
-  }, []);
-
-  const handlePointerMove = useCallback((e: React.PointerEvent) => {
-    const wrap = wrapRef.current;
-    if (!wrap) return;
-    const rect = wrap.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const px = x / rect.width;
-    const py = y / rect.height;
-    // Max tilt 14° for premium feel
-    const maxTilt = 14;
-    const ry = (px - 0.5) * 2 * maxTilt;
-    const rx = -(py - 0.5) * 2 * maxTilt;
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    rafRef.current = requestAnimationFrame(() => {
-      applyTransform(rx, ry, px * 100, py * 100, true);
-      setTilt({ rx, ry, mx: px * 100, my: py * 100, active: true });
-    });
-  }, [applyTransform]);
-
-  const handlePointerLeave = useCallback(() => {
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    applyTransform(0, 0, 50, 50, false);
-    setTilt({ rx: 0, ry: 0, mx: 50, my: 50, active: false });
-  }, [applyTransform]);
-
-  // Mobile: subtle device-orientation parallax (auto-shimmer)
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    // Only for non-touch idle: gentle auto-shimmer when not interacting
-    const isCoarse = window.matchMedia('(pointer: coarse)').matches;
-    if (!isCoarse || !hasHolo || disableAutoShimmer) return;
-
-    let frame = 0;
-    let active = true;
-    const tick = () => {
-      if (!active) return;
-      frame++;
-      // Slow figure-8 motion to give the holo life on mobile
-      const t = frame * 0.012;
-      const ry = Math.sin(t) * 6;
-      const rx = Math.sin(t * 1.3) * 4;
-      const mx = 50 + Math.sin(t) * 35;
-      const my = 50 + Math.cos(t * 0.8) * 35;
-      if (!tilt.active) applyTransform(rx, ry, mx, my, true);
-      rafRef.current = requestAnimationFrame(tick);
-    };
-    rafRef.current = requestAnimationFrame(tick);
-    return () => {
-      active = false;
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasHolo, disableAutoShimmer]);
-
   return (
     <div
-      ref={wrapRef}
-      className={`holo-wrap ${className} ${appearAnimation}`}
-      style={{ perspective: '1000px' }}
-      onPointerMove={handlePointerMove}
-      onPointerLeave={handlePointerLeave}
-      onPointerCancel={handlePointerLeave}
+      className={`holo-wrap holo-wrap-${rarity} ${className} ${appearAnimation}`}
       onClick={onTap}
+      role={onTap ? 'button' : undefined}
+      tabIndex={onTap ? 0 : undefined}
     >
-      <div
-        ref={cardRef}
-        className={`holo-card holo-${rarity}`}
-        style={{
-          transform: 'rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg))',
-        }}
-      >
-        {/* Holo pattern layer (behind image) */}
-        {hasHolo && (
-          <div className={`holo-pattern holo-pattern-${rarity}`} aria-hidden />
-        )}
+      {/* Outer aura halo (mythic + epic) — sits BEHIND the card */}
+      {(isMythic || isEpic) && <div className={`holo-halo holo-halo-${rarity}`} aria-hidden />}
+
+      <div className={`holo-card holo-${rarity}`}>
+        {/* Rarity aura behind image */}
+        {hasHolo && <div className={`holo-aura holo-aura-${rarity}`} aria-hidden />}
 
         {/* Image / content */}
         <div className="holo-content">{children}</div>
 
-        {/* Holo overlay layered on top of image */}
-        {hasHolo && (
-          <>
-            <div className={`holo-foil holo-foil-${rarity}`} aria-hidden />
-            <div className="holo-gloss" aria-hidden />
-            <div className="holo-rim" aria-hidden />
-          </>
+        {/* Oily iridescent grain on top of image */}
+        {hasHolo && <div className={`holo-grain holo-grain-${rarity}`} aria-hidden />}
+
+        {/* Pokémon-style diagonal rainbow scan */}
+        {hasHolo && <div className={`holo-scan holo-scan-${rarity}`} aria-hidden />}
+
+        {/* Sparkles / stars */}
+        {isMythic && (
+          <div className="holo-sparkles" aria-hidden>
+            {Array.from({ length: 14 }).map((_, i) => (
+              <span key={i} className="holo-spark" style={{ ['--i' as never]: i } as React.CSSProperties} />
+            ))}
+          </div>
         )}
+        {isEpic && (
+          <div className="holo-sparkles holo-sparkles-epic" aria-hidden>
+            {Array.from({ length: 10 }).map((_, i) => (
+              <span key={i} className="holo-spark" style={{ ['--i' as never]: i } as React.CSSProperties} />
+            ))}
+          </div>
+        )}
+        {isRare && (
+          <div className="holo-sparkles holo-sparkles-rare" aria-hidden>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <span key={i} className="holo-spark" style={{ ['--i' as never]: i } as React.CSSProperties} />
+            ))}
+          </div>
+        )}
+
+        {/* Pulsing rim glow */}
+        {hasHolo && <div className={`holo-rim holo-rim-${rarity}`} aria-hidden />}
       </div>
     </div>
   );
