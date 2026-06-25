@@ -523,21 +523,30 @@ export type Database = {
       }
       user_department_subscriptions: {
         Row: {
+          city_name: string | null
+          city_postcode: string | null
           created_at: string
           department_code: string
           id: string
+          kind: string
           user_id: string
         }
         Insert: {
+          city_name?: string | null
+          city_postcode?: string | null
           created_at?: string
           department_code: string
           id?: string
+          kind?: string
           user_id: string
         }
         Update: {
+          city_name?: string | null
+          city_postcode?: string | null
           created_at?: string
           department_code?: string
           id?: string
+          kind?: string
           user_id?: string
         }
         Relationships: []

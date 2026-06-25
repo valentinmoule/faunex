@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef, type ComponentType } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, ChevronLeft, PawPrint, Bird, Fish, Bug, Turtle, Shell, Waves, MapPin, Plus, Search, Trash2, X, type LucideIcon } from 'lucide-react';
+import { Bell, ChevronLeft, PawPrint, Bird, Fish, Bug, Turtle, Shell, Waves, MapPin, Plus, Search, Trash2, X, Building2, Map as MapIcon, type LucideIcon } from 'lucide-react';
 import { FrogIcon } from '@/components/icons/FrogIcon';
 import { type Rarity, type AnimalCard, RARITY_LABELS } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
@@ -149,12 +149,23 @@ const BestiairePage = () => {
   const slotRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const shelveAnimationRan = useRef(false);
 
-  // Departments
-  const [subscribedDepts, setSubscribedDepts] = useState<string[]>([]);
+  // Zones (departments + cities)
+  type ZoneSub = {
+    id: string;
+    kind: 'department' | 'city';
+    departmentCode: string;
+    cityName: string | null;
+    cityPostcode: string | null;
+  };
+  const [subscribedZones, setSubscribedZones] = useState<ZoneSub[]>([]);
   const [animalsByDept, setAnimalsByDept] = useState<Record<string, Set<string>>>({});
-  const [selectedDept, setSelectedDept] = useState<string | null>(null);
+  const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
   const [showDeptPicker, setShowDeptPicker] = useState(false);
+  const [pickerTab, setPickerTab] = useState<'department' | 'city'>('department');
   const [deptSearch, setDeptSearch] = useState('');
+  const [citySearch, setCitySearch] = useState('');
+  const [cityResults, setCityResults] = useState<Array<{ nom: string; code: string; codeDepartement: string; codesPostaux: string[] }>>([]);
+  const [cityLoading, setCityLoading] = useState(false);
   const [loadingDept, setLoadingDept] = useState(false);
 
   const loadDeptAnimals = async (code: string, sourceAnimals = animals, useFallback = true) => {
@@ -248,13 +259,19 @@ const BestiairePage = () => {
     const fetchSubs = async (sourceAnimals: BestiaryAnimal[]) => {
       const { data } = await supabase
         .from('user_department_subscriptions')
-        .select('department_code')
+        .select('id, department_code, kind, city_name, city_postcode')
         .eq('user_id', session.user.id)
         .order('created_at', { ascending: true });
-      const codes = (data || []).map((r: any) => r.department_code);
-      setSubscribedDepts(codes);
-      // Preload animals for each
-      for (const c of codes) loadDeptAnimals(c, sourceAnimals);
+      const zones: ZoneSub[] = (data || []).map((r: any) => ({
+        id: r.id,
+        kind: (r.kind || 'department') as 'department' | 'city',
+        departmentCode: r.department_code,
+        cityName: r.city_name,
+        cityPostcode: r.city_postcode,
+      }));
+      setSubscribedZones(zones);
+      const uniqueDepts = Array.from(new Set(zones.map((z) => z.departmentCode)));
+      for (const c of uniqueDepts) loadDeptAnimals(c, sourceAnimals);
     };
 
     fetchData().then((list) => fetchSubs(list || []));
@@ -262,14 +279,15 @@ const BestiairePage = () => {
   }, [session]);
 
   useEffect(() => {
-    if (animals.length === 0 || subscribedDepts.length === 0) return;
-    subscribedDepts.forEach((code) => {
+    if (animals.length === 0 || subscribedZones.length === 0) return;
+    const uniqueDepts = Array.from(new Set(subscribedZones.map((z) => z.departmentCode)));
+    uniqueDepts.forEach((code) => {
       const existing = animalsByDept[code];
       if (!existing || existing.size === 0) {
         loadDeptAnimals(code, animals);
       }
     });
-  }, [animals, subscribedDepts, animalsByDept]);
+  }, [animals, subscribedZones, animalsByDept]);
 
   // Detect pending shelve animation request on mount
   useEffect(() => {
@@ -382,22 +400,27 @@ const BestiairePage = () => {
     return animals.filter(a => normalizeCategory(a.category) === selectedCategory);
   }, [animals, selectedCategory]);
 
-  // Animals for selected department
-  const deptAnimals = useMemo(() => {
-    if (!selectedDept) return [];
-    const set = animalsByDept[selectedDept];
+  const selectedZone = useMemo(
+    () => subscribedZones.find((z) => z.id === selectedZoneId) || null,
+    [subscribedZones, selectedZoneId],
+  );
+
+  // Animals for selected zone (department or city — both use parent department fauna)
+  const zoneAnimals = useMemo(() => {
+    if (!selectedZone) return [];
+    const set = animalsByDept[selectedZone.departmentCode];
     if (!set) return [];
     return animals
       .filter((a) => set.has(a.name.toLowerCase()))
       .sort((a, b) => a.name.localeCompare(b.name, 'fr'));
-  }, [animals, animalsByDept, selectedDept]);
+  }, [animals, animalsByDept, selectedZone]);
 
-  // Dept progress map
-  const deptProgress = useMemo(() => {
+  // Progress map keyed by zone id
+  const zoneProgress = useMemo(() => {
     const map: Record<string, { total: number; captured: number }> = {};
-    subscribedDepts.forEach((code) => {
-      const set = animalsByDept[code];
-      if (!set) { map[code] = { total: 0, captured: 0 }; return; }
+    subscribedZones.forEach((z) => {
+      const set = animalsByDept[z.departmentCode];
+      if (!set) { map[z.id] = { total: 0, captured: 0 }; return; }
       let total = 0, captured = 0;
       animals.forEach((a) => {
         if (set.has(a.name.toLowerCase())) {
@@ -405,34 +428,37 @@ const BestiairePage = () => {
           if (a.captured) captured++;
         }
       });
-      map[code] = { total, captured };
+      map[z.id] = { total, captured };
     });
     return map;
-  }, [animals, animalsByDept, subscribedDepts]);
+  }, [animals, animalsByDept, subscribedZones]);
 
   const handleAddDept = async (code: string) => {
     if (!session?.user) return;
-    if (subscribedDepts.includes(code)) {
+    const existing = subscribedZones.find((z) => z.kind === 'department' && z.departmentCode === code);
+    if (existing) {
       setShowDeptPicker(false);
-      setSelectedDept(code);
+      setSelectedZoneId(existing.id);
       return;
     }
     setLoadingDept(true);
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('user_department_subscriptions')
-        .insert({ user_id: session.user.id, department_code: code });
+        .insert({ user_id: session.user.id, department_code: code, kind: 'department' })
+        .select('id')
+        .single();
       if (error) throw error;
-      setSubscribedDepts((prev) => [...prev, code]);
+      const newZone: ZoneSub = { id: data.id, kind: 'department', departmentCode: code, cityName: null, cityPostcode: null };
+      setSubscribedZones((prev) => [...prev, newZone]);
 
-      // Display a local collection immediately, then let the backend persist a refined list.
       await loadDeptAnimals(code, animals);
       void supabase.functions.invoke('populate-department-fauna', {
         body: { department_code: code },
       }).then(() => loadDeptAnimals(code, animals));
       setShowDeptPicker(false);
       setDeptSearch('');
-      setSelectedDept(code);
+      setSelectedZoneId(newZone.id);
     } catch (e: any) {
       toast.error(e.message || 'Erreur lors de l\'ajout');
     } finally {
@@ -440,16 +466,65 @@ const BestiairePage = () => {
     }
   };
 
-  const handleRemoveDept = async (code: string) => {
+  const handleAddCity = async (city: { nom: string; codeDepartement: string; codesPostaux: string[] }) => {
+    if (!session?.user) return;
+    const postcode = city.codesPostaux?.[0] || '';
+    const existing = subscribedZones.find(
+      (z) => z.kind === 'city' && z.cityName === city.nom && z.cityPostcode === postcode,
+    );
+    if (existing) {
+      setShowDeptPicker(false);
+      setSelectedZoneId(existing.id);
+      return;
+    }
+    setLoadingDept(true);
+    try {
+      const { data, error } = await supabase
+        .from('user_department_subscriptions')
+        .insert({
+          user_id: session.user.id,
+          department_code: city.codeDepartement,
+          kind: 'city',
+          city_name: city.nom,
+          city_postcode: postcode,
+        })
+        .select('id')
+        .single();
+      if (error) throw error;
+      const newZone: ZoneSub = {
+        id: data.id,
+        kind: 'city',
+        departmentCode: city.codeDepartement,
+        cityName: city.nom,
+        cityPostcode: postcode,
+      };
+      setSubscribedZones((prev) => [...prev, newZone]);
+
+      await loadDeptAnimals(city.codeDepartement, animals);
+      void supabase.functions.invoke('populate-department-fauna', {
+        body: { department_code: city.codeDepartement },
+      }).then(() => loadDeptAnimals(city.codeDepartement, animals));
+      setShowDeptPicker(false);
+      setCitySearch('');
+      setCityResults([]);
+      setSelectedZoneId(newZone.id);
+    } catch (e: any) {
+      toast.error(e.message || 'Erreur lors de l\'ajout');
+    } finally {
+      setLoadingDept(false);
+    }
+  };
+
+  const handleRemoveZone = async (zoneId: string) => {
     if (!session?.user) return;
     if (!confirm('Supprimer cette rubrique ?')) return;
     await supabase
       .from('user_department_subscriptions')
       .delete()
       .eq('user_id', session.user.id)
-      .eq('department_code', code);
-    setSubscribedDepts((prev) => prev.filter((c) => c !== code));
-    setSelectedDept(null);
+      .eq('id', zoneId);
+    setSubscribedZones((prev) => prev.filter((z) => z.id !== zoneId));
+    setSelectedZoneId(null);
   };
 
   const filteredDeptOptions = useMemo(() => {
@@ -459,31 +534,74 @@ const BestiairePage = () => {
     );
   }, [deptSearch]);
 
+  // Debounced city search via geo.api.gouv.fr
+  useEffect(() => {
+    if (pickerTab !== 'city') return;
+    const q = citySearch.trim();
+    if (q.length < 2) { setCityResults([]); return; }
+    let cancelled = false;
+    setCityLoading(true);
+    const t = setTimeout(async () => {
+      try {
+        const url = `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(q)}&fields=nom,code,codeDepartement,codesPostaux&boost=population&limit=20`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (!cancelled) setCityResults(Array.isArray(data) ? data : []);
+      } catch {
+        if (!cancelled) setCityResults([]);
+      } finally {
+        if (!cancelled) setCityLoading(false);
+      }
+    }, 250);
+    return () => { cancelled = true; clearTimeout(t); };
+  }, [citySearch, pickerTab]);
+
   const totalCaptured = animals.filter(a => a.captured).length;
 
-  // Department picker sheet (shared)
+  // Zone picker sheet (shared) — supports department + city tabs
   const deptPickerSheet = (
     <Sheet open={showDeptPicker} onOpenChange={setShowDeptPicker}>
       <SheetContent side="bottom" className="h-[85vh] p-0 flex flex-col">
         <SheetHeader className="px-5 py-4 border-b border-border">
-          <SheetTitle className="font-display">Ajouter un département</SheetTitle>
+          <SheetTitle className="font-display">Ajouter une zone</SheetTitle>
         </SheetHeader>
+        <div className="px-5 pt-3 flex gap-2">
+          <button
+            onClick={() => setPickerTab('department')}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-display font-semibold transition ${
+              pickerTab === 'department' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+            }`}
+          >
+            <MapIcon className="w-3.5 h-3.5" strokeWidth={2} />
+            Département
+          </button>
+          <button
+            onClick={() => setPickerTab('city')}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-display font-semibold transition ${
+              pickerTab === 'city' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+            }`}
+          >
+            <Building2 className="w-3.5 h-3.5" strokeWidth={2} />
+            Ville
+          </button>
+        </div>
         <div className="px-5 py-3 border-b border-border">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
+              key={pickerTab}
               autoFocus
               type="text"
-              value={deptSearch}
-              onChange={(e) => setDeptSearch(e.target.value)}
-              placeholder="Rechercher (nom, n° ou région)"
+              value={pickerTab === 'department' ? deptSearch : citySearch}
+              onChange={(e) => pickerTab === 'department' ? setDeptSearch(e.target.value) : setCitySearch(e.target.value)}
+              placeholder={pickerTab === 'department' ? 'Rechercher (nom, n° ou région)' : 'Rechercher une ville…'}
               className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-muted border-0 text-sm font-display focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
           </div>
         </div>
         <div className="flex-1 overflow-y-auto px-2 py-2">
-          {filteredDeptOptions.map((d) => {
-            const already = subscribedDepts.includes(d.code);
+          {pickerTab === 'department' && filteredDeptOptions.map((d) => {
+            const already = subscribedZones.some((z) => z.kind === 'department' && z.departmentCode === d.code);
             return (
               <button
                 key={d.code}
@@ -504,39 +622,83 @@ const BestiairePage = () => {
               </button>
             );
           })}
+          {pickerTab === 'city' && (
+            <>
+              {citySearch.trim().length < 2 && (
+                <p className="text-center text-xs text-muted-foreground font-display py-8 px-4">
+                  Tape au moins 2 lettres pour rechercher une commune française.
+                </p>
+              )}
+              {cityLoading && (
+                <p className="text-center text-xs text-muted-foreground font-display py-4">Recherche…</p>
+              )}
+              {!cityLoading && citySearch.trim().length >= 2 && cityResults.length === 0 && (
+                <p className="text-center text-xs text-muted-foreground font-display py-8">Aucune commune trouvée</p>
+              )}
+              {cityResults.map((c) => {
+                const postcode = c.codesPostaux?.[0] || '';
+                const already = subscribedZones.some(
+                  (z) => z.kind === 'city' && z.cityName === c.nom && z.cityPostcode === postcode,
+                );
+                return (
+                  <button
+                    key={c.code}
+                    disabled={loadingDept}
+                    onClick={() => handleAddCity(c)}
+                    className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-muted transition text-left disabled:opacity-50"
+                  >
+                    <Building2 className="w-5 h-5 text-primary shrink-0" strokeWidth={1.75} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-display font-semibold text-foreground truncate">{c.nom}</p>
+                      <p className="text-[11px] text-muted-foreground font-display truncate">
+                        {postcode} · {c.codeDepartement}
+                      </p>
+                    </div>
+                    {already ? (
+                      <span className="text-[10px] font-display text-primary">Déjà ajouté</span>
+                    ) : (
+                      <Plus className="w-4 h-4 text-primary" />
+                    )}
+                  </button>
+                );
+              })}
+            </>
+          )}
         </div>
       </SheetContent>
     </Sheet>
   );
 
-  // Department detail view
-  if (selectedDept) {
-    const dept = getDepartement(selectedDept);
-    const prog = deptProgress[selectedDept] || { total: 0, captured: 0 };
+  // Zone detail view
+  if (selectedZone) {
+    const dept = getDepartement(selectedZone.departmentCode);
+    const prog = zoneProgress[selectedZone.id] || { total: 0, captured: 0 };
+    const isCity = selectedZone.kind === 'city';
+    const title = isCity ? (selectedZone.cityName || 'Ville') : (dept ? `${dept.name} (${dept.code})` : selectedZone.departmentCode);
+    const subtitle = isCity
+      ? `${selectedZone.cityPostcode || ''}${dept ? ` · ${dept.name}` : ''} · ${prog.captured}/${prog.total} capturés`
+      : `${prog.captured}/${prog.total} capturés`;
+    const HeaderIcon = isCity ? Building2 : MapPin;
     return (
       <main className="min-h-screen bg-background pb-24">
         <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
           <div className="max-w-lg mx-auto">
             <div className="flex items-center gap-3">
               <button
-                onClick={() => setSelectedDept(null)}
+                onClick={() => setSelectedZoneId(null)}
                 className="p-1.5 rounded-full hover:bg-muted transition-colors"
               >
                 <ChevronLeft className="w-5 h-5 text-foreground" />
               </button>
               <div className="flex-1 min-w-0 flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-primary shrink-0" strokeWidth={1.75} />
+                <HeaderIcon className="w-5 h-5 text-primary shrink-0" strokeWidth={1.75} />
                 <div className="min-w-0">
-                  <h1 className="text-lg font-display font-bold text-foreground truncate">
-                    {dept ? `${dept.name} (${dept.code})` : selectedDept}
-                  </h1>
-                  <p className="text-[11px] text-muted-foreground font-display">
-                    {prog.captured}/{prog.total} capturés
-                  </p>
+                  <h1 className="text-lg font-display font-bold text-foreground truncate">{title}</h1>
+                  <p className="text-[11px] text-muted-foreground font-display truncate">{subtitle}</p>
                 </div>
               </div>
               <button
-                onClick={() => handleRemoveDept(selectedDept)}
+                onClick={() => handleRemoveZone(selectedZone.id)}
                 className="p-2 rounded-full hover:bg-destructive/10 text-destructive transition"
                 aria-label="Supprimer la rubrique"
               >
@@ -547,16 +709,21 @@ const BestiairePage = () => {
         </header>
 
         <div className="max-w-lg mx-auto px-3 pt-3">
-          {deptAnimals.length === 0 ? (
+          {isCity && (
+            <p className="text-[11px] text-muted-foreground font-display text-center mb-3 px-3">
+              Espèces présentes dans le territoire de {dept?.name || selectedZone.departmentCode}.
+            </p>
+          )}
+          {zoneAnimals.length === 0 ? (
             <div className="text-center py-16">
               <p className="text-4xl mb-3">📭</p>
               <p className="text-muted-foreground font-display text-sm">
-                Aucune espèce répertoriée pour ce département pour le moment.
+                Aucune espèce répertoriée pour cette zone pour le moment.
               </p>
             </div>
           ) : (
             <div className="grid grid-cols-4 gap-1.5">
-              {deptAnimals.map((animal, index) => (
+              {zoneAnimals.map((animal, index) => (
                 <div
                   key={animal.name}
                   onClick={() => {
@@ -643,42 +810,48 @@ const BestiairePage = () => {
           {/* Mes régions */}
           <section>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Mes régions</h2>
+              <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Mes zones</h2>
               <button
-                onClick={() => setShowDeptPicker(true)}
+                onClick={() => { setPickerTab('department'); setShowDeptPicker(true); }}
                 className="flex items-center gap-1 text-xs font-display font-semibold text-primary px-2 py-1 rounded-lg hover:bg-primary/10 transition"
               >
                 <Plus className="w-3.5 h-3.5" />
                 Ajouter
               </button>
             </div>
-            {subscribedDepts.length === 0 ? (
+            {subscribedZones.length === 0 ? (
               <button
-                onClick={() => setShowDeptPicker(true)}
+                onClick={() => { setPickerTab('department'); setShowDeptPicker(true); }}
                 className="w-full rounded-2xl border-2 border-dashed border-border p-5 text-center hover:border-primary/50 transition"
               >
                 <MapPin className="w-6 h-6 text-muted-foreground mx-auto mb-1.5" strokeWidth={1.75} />
                 <p className="text-xs font-display text-muted-foreground">
-                  Crée une rubrique par département pour suivre la faune locale (ex. Paris, Bouches-du-Rhône…)
+                  Ajoute un département ou une ville pour suivre la faune locale (ex. Paris, Marseille, Gironde…)
                 </p>
               </button>
             ) : (
               <div className="grid grid-cols-2 gap-3">
-                {subscribedDepts.map((code) => {
-                  const d = getDepartement(code);
-                  const p = deptProgress[code] || { total: 0, captured: 0 };
+                {subscribedZones.map((zone) => {
+                  const d = getDepartement(zone.departmentCode);
+                  const p = zoneProgress[zone.id] || { total: 0, captured: 0 };
                   const pct = p.total > 0 ? Math.round((p.captured / p.total) * 100) : 0;
+                  const isCity = zone.kind === 'city';
+                  const ZoneIcon = isCity ? Building2 : MapPin;
+                  const title = isCity ? (zone.cityName || 'Ville') : (d?.name || zone.departmentCode);
+                  const sub = isCity
+                    ? `${zone.cityPostcode || ''}${d ? ` · ${d.name}` : ''}`
+                    : zone.departmentCode;
                   return (
                     <button
-                      key={code}
-                      onClick={() => setSelectedDept(code)}
+                      key={zone.id}
+                      onClick={() => setSelectedZoneId(zone.id)}
                       className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-md"
                     >
                       <div className="flex items-center gap-1.5 mb-2">
-                        <MapPin className="w-5 h-5 text-primary" strokeWidth={1.75} />
-                        <span className="text-[10px] font-display font-bold text-muted-foreground tabular-nums">{code}</span>
+                        <ZoneIcon className="w-5 h-5 text-primary" strokeWidth={1.75} />
+                        <span className="text-[10px] font-display font-bold text-muted-foreground tabular-nums truncate">{sub}</span>
                       </div>
-                      <h3 className="font-display font-bold text-sm text-foreground leading-tight mb-1 truncate">{d?.name || code}</h3>
+                      <h3 className="font-display font-bold text-sm text-foreground leading-tight mb-1 truncate">{title}</h3>
                       <p className="text-[11px] text-muted-foreground font-display mb-3">
                         {p.captured}/{p.total} capturés
                       </p>
