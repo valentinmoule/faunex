@@ -127,7 +127,7 @@ const AppRoutes = () => {
         <Route path="/fonctionnalites/:slug" element={<ArticlePage type="usecase" />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-      {!isCapturePage && !isLandingPage && !isAuthPage && !isCompleteProfile && !isModerationPage && <BottomNav />}
+      {!isCapturePage && !isModerationPage && !isPublicPage && <BottomNav />}
       <PwaInstallBanner />
       <PushPermissionPrompt />
       <LevelSplash />
