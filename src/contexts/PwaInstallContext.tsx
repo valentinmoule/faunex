@@ -32,11 +32,17 @@ const DISMISSED_KEY = 'faunex_pwa_install_dismissed';
 export const PwaInstallProvider = ({ children }: { children: ReactNode }) => {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
+  const [isIos, setIsIos] = useState(false);
   const [dismissed, setDismissed] = useState(() => {
     return localStorage.getItem(DISMISSED_KEY) === 'true';
   });
 
   useEffect(() => {
+    // Detect iOS/iPadOS Safari
+    const ua = window.navigator.userAgent.toLowerCase();
+    const isIosDevice = /iphone|ipad|ipod/.test(ua) || (ua.includes('macintosh') && 'ontouchend' in document);
+    setIsIos(isIosDevice);
+
     // Check if already installed as standalone
     const mq = window.matchMedia('(display-mode: standalone)');
     if (mq.matches || (navigator as any).standalone) {
@@ -77,11 +83,16 @@ export const PwaInstallProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem(DISMISSED_KEY, 'true');
   }, []);
 
+  const resetDismiss = useCallback(() => {
+    setDismissed(false);
+    localStorage.removeItem(DISMISSED_KEY);
+  }, []);
+
   const canInstall = !!deferredPrompt && !isInstalled;
-  const shouldShowPrompt = canInstall && !dismissed;
+  const shouldShowPrompt = (canInstall || (isIos && !isInstalled)) && !dismissed;
 
   return (
-    <PwaInstallContext.Provider value={{ canInstall, isInstalled, promptInstall, dismissInstall, shouldShowPrompt }}>
+    <PwaInstallContext.Provider value={{ canInstall, isInstalled, isIos, promptInstall, dismissInstall, resetDismiss, shouldShowPrompt }}>
       {children}
     </PwaInstallContext.Provider>
   );
