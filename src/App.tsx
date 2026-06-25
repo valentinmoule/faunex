@@ -112,7 +112,7 @@ const AppRoutes = () => {
         <Route path="/unsubscribe" element={<UnsubscribePage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-      {!isCapturePage && !isLandingPage && !isAuthPage && !isCompleteProfile && <BottomNav />}
+      {!isCapturePage && !isLandingPage && !isAuthPage && !isCompleteProfile && !isModerationPage && <BottomNav />}
       <PwaInstallBanner />
       <LevelSplash />
       <LevelUpCelebration />
