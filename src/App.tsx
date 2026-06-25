@@ -86,6 +86,7 @@ const AppRoutes = () => {
   const isLandingPage = location.pathname === '/';
   const isAuthPage = location.pathname === '/auth';
   const isCompleteProfile = location.pathname === '/complete-profile';
+  const isModerationPage = location.pathname === '/moderation';
 
   return (
     <>
@@ -111,7 +112,7 @@ const AppRoutes = () => {
         <Route path="/unsubscribe" element={<UnsubscribePage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-      {!isCapturePage && !isLandingPage && !isAuthPage && !isCompleteProfile && <BottomNav />}
+      {!isCapturePage && !isLandingPage && !isAuthPage && !isCompleteProfile && !isModerationPage && <BottomNav />}
       <PwaInstallBanner />
       <LevelSplash />
       <LevelUpCelebration />

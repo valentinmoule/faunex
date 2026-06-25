@@ -119,14 +119,14 @@ const ModerationPage = () => {
   };
 
   return (
-    <main className="min-h-screen bg-background pb-24">
+    <main className="min-h-screen bg-background pb-8">
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="flex items-center gap-3 max-w-lg mx-auto">
           <button onClick={() => navigate(-1)} className="p-1.5 rounded-full hover:bg-muted transition-colors">
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
           <div className="flex-1">
-            <h1 className="text-xl font-display font-bold text-foreground">Modération</h1>
+            <h1 className="text-xl font-display font-bold text-foreground">Backoffice</h1>
             <p className="text-xs text-muted-foreground">{captures.length} en attente</p>
           </div>
         </div>
