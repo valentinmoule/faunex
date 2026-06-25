@@ -882,7 +882,7 @@ const BestiairePage = () => {
           {/* Mes régions */}
           <section>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Mes zones</h2>
+              <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Mes territoires à explorer</h2>
               <button
                 onClick={() => { setPickerTab('department'); setShowDeptPicker(true); }}
                 className="flex items-center gap-1 text-xs font-display font-semibold text-primary px-2 py-1 rounded-lg hover:bg-primary/10 transition"
