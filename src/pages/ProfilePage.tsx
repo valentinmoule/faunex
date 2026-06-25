@@ -17,7 +17,6 @@ interface Profile {
   xp: number;
   xp_to_next: number;
   species_count: number;
-  total_captures: number;
   regions_explored: number;
 }
 
@@ -105,9 +104,9 @@ const ProfilePage = () => {
       const captures = capturesRes.data || [];
       const totalCaptures = captures.length;
 
-      if (data && data.total_captures !== totalCaptures) {
+      if (data && data.species_count !== totalCaptures) {
         await supabase.from('profiles').update({ total_captures: totalCaptures, species_count: totalCaptures }).eq('user_id', userId);
-        setProfile(prev => prev ? { ...prev, total_captures: totalCaptures, species_count: totalCaptures } : prev);
+        setProfile(prev => prev ? { ...prev, species_count: totalCaptures } : prev);
       }
 
       const claimedSet = new Set((claimedBadgesRes.data || []).map((b: any) => b.badge_id));
