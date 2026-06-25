@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import AnalyticsDashboard from '@/components/AnalyticsDashboard';
 
 interface PendingCapture {
   id: string;
@@ -130,82 +132,95 @@ const ModerationPage = () => {
         </div>
       </header>
 
-      <div className="max-w-lg mx-auto px-4 pt-4">
-        {loading ? (
-          <div className="text-center py-16">
-            <Loader2 className="w-6 h-6 text-primary animate-spin mx-auto mb-2" />
-            <p className="text-muted-foreground font-display text-sm">Chargement…</p>
-          </div>
-        ) : captures.length === 0 ? (
-          <div className="text-center py-16">
-            <p className="text-4xl mb-3">✅</p>
-            <p className="text-muted-foreground font-display">Aucune capture en attente</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {captures.map(capture => (
-              <div key={capture.id} className="bg-card rounded-2xl border border-border overflow-hidden shadow-card">
-                <div className="relative aspect-video overflow-hidden">
-                  <img src={capture.image_url} alt={capture.animal_name} className="w-full h-full object-cover" />
-                  <div className="absolute top-2 left-2 flex items-center gap-1 bg-amber/90 text-foreground rounded-full px-2.5 py-1">
-                    <AlertTriangle className="w-3 h-3" />
-                    <span className="text-[10px] font-display font-bold uppercase">En attente</span>
-                  </div>
-                </div>
+      <div className="max-w-3xl mx-auto px-4 pt-4">
+        <Tabs defaultValue="moderation" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-4">
+            <TabsTrigger value="moderation">Modération</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          </TabsList>
 
-                <div className="p-4 space-y-2">
-                  <div>
-                    <h3 className="text-base font-display font-bold text-foreground">{capture.animal_name}</h3>
-                    {capture.scientific_name && (
-                      <p className="text-xs text-muted-foreground italic">{capture.scientific_name}</p>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <span>Par {capture.user_display_name}</span>
-                    <span>·</span>
-                    <span>Il y a {timeAgo(capture.created_at)}</span>
-                    {capture.location && (
-                      <>
-                        <span>·</span>
-                        <span>{capture.location}</span>
-                      </>
-                    )}
-                  </div>
-
-                  <div className="flex gap-2 pt-1">
-                    <button
-                      onClick={() => reject(capture)}
-                      disabled={processing === capture.id}
-                      className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-destructive/10 text-destructive text-xs font-display font-semibold disabled:opacity-50 hover:bg-destructive/20 transition-colors"
-                    >
-                      <X className="w-3.5 h-3.5" /> Rejeter
-                    </button>
-                    <button
-                      onClick={() => approve(capture)}
-                      disabled={processing === capture.id}
-                      className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-display font-semibold disabled:opacity-50"
-                    >
-                      {processing === capture.id ? (
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      ) : (
-                        <Check className="w-3.5 h-3.5" />
-                      )}
-                      Approuver
-                    </button>
-                  </div>
-                </div>
+          <TabsContent value="moderation">
+            {loading ? (
+              <div className="text-center py-16">
+                <Loader2 className="w-6 h-6 text-primary animate-spin mx-auto mb-2" />
+                <p className="text-muted-foreground font-display text-sm">Chargement…</p>
               </div>
-            ))}
-          </div>
-        )}
+            ) : captures.length === 0 ? (
+              <div className="text-center py-16">
+                <p className="text-4xl mb-3">✅</p>
+                <p className="text-muted-foreground font-display">Aucune capture en attente</p>
+              </div>
+            ) : (
+              <div className="space-y-4 max-w-lg mx-auto">
+                {captures.map(capture => (
+                  <div key={capture.id} className="bg-card rounded-2xl border border-border overflow-hidden shadow-card">
+                    <div className="relative aspect-video overflow-hidden">
+                      <img src={capture.image_url} alt={capture.animal_name} className="w-full h-full object-cover" />
+                      <div className="absolute top-2 left-2 flex items-center gap-1 bg-amber/90 text-foreground rounded-full px-2.5 py-1">
+                        <AlertTriangle className="w-3 h-3" />
+                        <span className="text-[10px] font-display font-bold uppercase">En attente</span>
+                      </div>
+                    </div>
 
-        {/* Populate bestiary section */}
-        <div className="mt-8 p-4 rounded-xl border border-border bg-card">
-          <h2 className="font-display font-bold text-foreground mb-2">Bestiaire</h2>
-          <p className="text-xs text-muted-foreground mb-3">Peuple le bestiaire avec des milliers d'espèces via l'IA. Chaque clic traite une catégorie.</p>
-          <BestiaryPopulator />
-        </div>
+                    <div className="p-4 space-y-2">
+                      <div>
+                        <h3 className="text-base font-display font-bold text-foreground">{capture.animal_name}</h3>
+                        {capture.scientific_name && (
+                          <p className="text-xs text-muted-foreground italic">{capture.scientific_name}</p>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span>Par {capture.user_display_name}</span>
+                        <span>·</span>
+                        <span>Il y a {timeAgo(capture.created_at)}</span>
+                        {capture.location && (
+                          <>
+                            <span>·</span>
+                            <span>{capture.location}</span>
+                          </>
+                        )}
+                      </div>
+
+                      <div className="flex gap-2 pt-1">
+                        <button
+                          onClick={() => reject(capture)}
+                          disabled={processing === capture.id}
+                          className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-destructive/10 text-destructive text-xs font-display font-semibold disabled:opacity-50 hover:bg-destructive/20 transition-colors"
+                        >
+                          <X className="w-3.5 h-3.5" /> Rejeter
+                        </button>
+                        <button
+                          onClick={() => approve(capture)}
+                          disabled={processing === capture.id}
+                          className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-display font-semibold disabled:opacity-50"
+                        >
+                          {processing === capture.id ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <Check className="w-3.5 h-3.5" />
+                          )}
+                          Approuver
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Populate bestiary section */}
+            <div className="mt-8 p-4 rounded-xl border border-border bg-card max-w-lg mx-auto">
+              <h2 className="font-display font-bold text-foreground mb-2">Bestiaire</h2>
+              <p className="text-xs text-muted-foreground mb-3">Peuple le bestiaire avec des milliers d'espèces via l'IA. Chaque clic traite une catégorie.</p>
+              <BestiaryPopulator />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <AnalyticsDashboard />
+          </TabsContent>
+        </Tabs>
       </div>
     </main>
   );
