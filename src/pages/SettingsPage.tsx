@@ -49,6 +49,24 @@ const SettingsPage = () => {
   const [pushEnabled, setPushEnabled] = useState(false);
   const [pushBusy, setPushBusy] = useState(false);
 
+  // Granular notification preferences
+  type NotifPrefs = {
+    notify_email_likes: boolean;
+    notify_email_comments: boolean;
+    notify_email_follows: boolean;
+    notify_push_likes: boolean;
+    notify_push_comments: boolean;
+    notify_push_follows: boolean;
+  };
+  const [notifPrefs, setNotifPrefs] = useState<NotifPrefs>({
+    notify_email_likes: true,
+    notify_email_comments: true,
+    notify_email_follows: true,
+    notify_push_likes: true,
+    notify_push_comments: true,
+    notify_push_follows: true,
+  });
+
   useEffect(() => {
     hasActivePushSubscription().then(setPushEnabled);
   }, []);
@@ -56,17 +74,35 @@ const SettingsPage = () => {
   // Fetch profile on mount
   useEffect(() => {
     if (!session?.user) return;
-    supabase.from('profiles').select('display_name, username, avatar_url, marketing_emails, is_private').eq('user_id', session.user.id).single().then(({ data }) => {
+    supabase.from('profiles').select('display_name, username, avatar_url, marketing_emails, is_private, notify_email_likes, notify_email_comments, notify_email_follows, notify_push_likes, notify_push_comments, notify_push_follows').eq('user_id', session.user.id).single().then(({ data }) => {
       if (data) {
-        setProfile({ display_name: data.display_name || '', username: data.username || '', avatar_url: data.avatar_url });
-        setEditName(data.display_name || '');
-        setEditUsername(data.username || '');
-        setMarketingEmails(data.marketing_emails ?? true);
-        setIsPrivate((data as any).is_private ?? false);
+        const d: any = data;
+        setProfile({ display_name: d.display_name || '', username: d.username || '', avatar_url: d.avatar_url });
+        setEditName(d.display_name || '');
+        setEditUsername(d.username || '');
+        setMarketingEmails(d.marketing_emails ?? true);
+        setIsPrivate(d.is_private ?? false);
+        setNotifPrefs({
+          notify_email_likes: d.notify_email_likes ?? true,
+          notify_email_comments: d.notify_email_comments ?? true,
+          notify_email_follows: d.notify_email_follows ?? true,
+          notify_push_likes: d.notify_push_likes ?? true,
+          notify_push_comments: d.notify_push_comments ?? true,
+          notify_push_follows: d.notify_push_follows ?? true,
+        });
       }
       setLoading(false);
     });
   }, [session]);
+
+  const toggleNotifPref = async (key: keyof NotifPrefs) => {
+    const newVal = !notifPrefs[key];
+    setNotifPrefs(prev => ({ ...prev, [key]: newVal }));
+    if (session?.user) {
+      await supabase.from('profiles').update({ [key]: newVal } as any).eq('user_id', session.user.id);
+    }
+  };
+
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
