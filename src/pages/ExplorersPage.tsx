@@ -136,68 +136,94 @@ const ExplorersPage = () => {
     return () => { supabase.removeChannel(channel); };
   }, [session]);
 
-  // ── Feed data ──
+  // ── Feed data (paginated, infinite scroll) ──
+  const fetchFeedPage = useCallback(async (followingIds: string[], offset: number, replace: boolean) => {
+    if (!session?.user) return;
+    const uid = session.user.id;
+    if (followingIds.length === 0) {
+      setPosts([]); setLikedPosts(new Set()); setLikeCounts({}); setCommentCounts({});
+      setFeedHasMore(false); setFeedLoading(false); setFeedLoadingMore(false);
+      return;
+    }
+    if (replace) setFeedLoading(true); else setFeedLoadingMore(true);
+
+    const from = offset;
+    const to = offset + FEED_PAGE_SIZE - 1;
+    const { data, error } = await supabase
+      .from('captures')
+      .select('*')
+      .eq('status', 'approved')
+      .eq('shared', true)
+      .in('user_id', followingIds)
+      .order('created_at', { ascending: false })
+      .range(from, to);
+
+    if (!error && data) {
+      const uids = [...new Set(data.map((c: any) => c.user_id))];
+      const captureIds = data.map((c: any) => c.id);
+
+      const [profilesRes, likesRes, likeCountsRes, commentCountsRes] = await Promise.all([
+        uids.length > 0 ? supabase.from('profiles').select('user_id, display_name, username, avatar_url').in('user_id', uids) : { data: [] },
+        captureIds.length > 0 ? supabase.from('feed_likes').select('capture_id').eq('user_id', uid).in('capture_id', captureIds) : { data: [] },
+        captureIds.length > 0 ? supabase.from('feed_likes').select('capture_id').in('capture_id', captureIds) : { data: [] },
+        captureIds.length > 0 ? supabase.from('feed_comments').select('capture_id').in('capture_id', captureIds) : { data: [] },
+      ]);
+
+      const profileMap = new Map(((profilesRes as any).data || []).map((p: any) => [p.user_id, p]));
+      const newLiked = new Set(((likesRes as any).data || []).map((l: any) => l.capture_id as string));
+      setLikedPosts(prev => replace ? newLiked : new Set([...prev, ...newLiked]));
+
+      setLikeCounts(prev => {
+        const next = replace ? {} : { ...prev };
+        ((likeCountsRes as any).data || []).forEach((l: any) => { next[l.capture_id] = (next[l.capture_id] || 0) + 1; });
+        return next;
+      });
+      setCommentCounts(prev => {
+        const next = replace ? {} : { ...prev };
+        ((commentCountsRes as any).data || []).forEach((c: any) => { next[c.capture_id] = (next[c.capture_id] || 0) + 1; });
+        return next;
+      });
+
+      const newPosts = (data.map((c: any) => ({ ...c, profiles: profileMap.get(c.user_id) || null })) as FeedCapture[]);
+      setPosts(prev => replace ? newPosts : [...prev, ...newPosts]);
+      setFeedOffset(offset + data.length);
+      if (data.length < FEED_PAGE_SIZE) setFeedHasMore(false);
+    }
+    setFeedLoading(false);
+    setFeedLoadingMore(false);
+  }, [session]);
+
   useEffect(() => {
     if (!session?.user) return;
-    const fetchFeed = async () => {
-      setFeedLoading(true);
-      const uid = session.user.id;
+    const init = async () => {
       const { data: followsData } = await supabase
         .from('explorer_follows')
         .select('following_id')
-        .eq('follower_id', uid)
+        .eq('follower_id', session.user.id)
         .eq('status', 'accepted');
-      const followingIds = (followsData || []).map(f => f.following_id);
-
-      if (followingIds.length === 0) {
-        setPosts([]);
-        setLikedPosts(new Set());
-        setLikeCounts({});
-        setCommentCounts({});
-        setFeedLoading(false);
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from('captures')
-        .select('*')
-        .eq('status', 'approved')
-        .eq('shared', true)
-        .in('user_id', followingIds)
-        .order('created_at', { ascending: false })
-        .limit(50);
-
-      if (!error && data) {
-        const uids = [...new Set(data.map((c: any) => c.user_id))];
-        const captureIds = data.map((c: any) => c.id);
-
-        const [profilesRes, likesRes, likeCountsRes, commentCountsRes] = await Promise.all([
-          uids.length > 0 ? supabase.from('profiles').select('user_id, display_name, username, avatar_url').in('user_id', uids) : { data: [] },
-          captureIds.length > 0 ? supabase.from('feed_likes').select('capture_id').eq('user_id', uid).in('capture_id', captureIds) : { data: [] },
-          captureIds.length > 0 ? supabase.from('feed_likes').select('capture_id').in('capture_id', captureIds) : { data: [] },
-          captureIds.length > 0 ? supabase.from('feed_comments').select('capture_id').in('capture_id', captureIds) : { data: [] },
-        ]);
-
-        const profileMap = new Map(((profilesRes as any).data || []).map((p: any) => [p.user_id, p]));
-        setLikedPosts(new Set(((likesRes as any).data || []).map((l: any) => l.capture_id)));
-
-        const lC: Record<string, number> = {};
-        ((likeCountsRes as any).data || []).forEach((l: any) => { lC[l.capture_id] = (lC[l.capture_id] || 0) + 1; });
-        setLikeCounts(lC);
-
-        const cC: Record<string, number> = {};
-        ((commentCountsRes as any).data || []).forEach((c: any) => { cC[c.capture_id] = (cC[c.capture_id] || 0) + 1; });
-        setCommentCounts(cC);
-
-        setPosts((data.map((c: any) => ({ ...c, profiles: profileMap.get(c.user_id) || null })) as FeedCapture[]).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()));
-      }
-      setFeedLoading(false);
+      const ids = (followsData || []).map(f => f.following_id);
+      setFeedFollowingIds(ids);
+      setFeedOffset(0);
+      setFeedHasMore(true);
+      fetchFeedPage(ids, 0, true);
     };
-    fetchFeed();
-  }, [session]);
+    init();
+  }, [session, fetchFeedPage]);
 
-  // ── Follows data ──
-  const fetchFollows = useCallback(async () => {
+  // Infinite scroll sentinel for feed
+  useEffect(() => {
+    if (view !== 'feed' || feedLoading || !feedHasMore || feedFollowingIds === null) return;
+    const el = feedSentinelRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && !feedLoadingMore) {
+        fetchFeedPage(feedFollowingIds, feedOffset, false);
+      }
+    }, { rootMargin: '300px' });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [view, feedLoading, feedHasMore, feedFollowingIds, feedOffset, feedLoadingMore, fetchFeedPage]);
+
     if (!userId) return;
     setFollowsLoading(true);
     const [{ data: followingData }, { data: followersData }, { data: pendingData }] = await Promise.all([
