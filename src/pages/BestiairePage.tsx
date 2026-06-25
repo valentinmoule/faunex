@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, ChevronLeft, PawPrint, Bird, Fish, Bug, Turtle, Rabbit, Shell, Waves, MapPin, Plus, Search, Trash2, X, type LucideIcon } from 'lucide-react';
+import { Bell, ChevronLeft, PawPrint, Bird, Fish, Bug, Turtle, Shell, Waves, MapPin, Plus, Search, Trash2, X, type LucideIcon } from 'lucide-react';
+import { FrogIcon } from '@/components/icons/FrogIcon';
 import { type Rarity, type AnimalCard, RARITY_LABELS } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
