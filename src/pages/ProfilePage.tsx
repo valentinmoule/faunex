@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Settings, Award, MapPin, Camera as CameraIcon, BookOpen, Lock, Download, Bell, Gift } from 'lucide-react';
+import { Settings, Award, MapPin, BookOpen, Lock, Download, Bell, Gift } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
@@ -17,7 +17,6 @@ interface Profile {
   xp: number;
   xp_to_next: number;
   species_count: number;
-  total_captures: number;
   regions_explored: number;
 }
 
@@ -105,9 +104,9 @@ const ProfilePage = () => {
       const captures = capturesRes.data || [];
       const totalCaptures = captures.length;
 
-      if (data && data.total_captures !== totalCaptures) {
+      if (data && data.species_count !== totalCaptures) {
         await supabase.from('profiles').update({ total_captures: totalCaptures, species_count: totalCaptures }).eq('user_id', userId);
-        setProfile(prev => prev ? { ...prev, total_captures: totalCaptures, species_count: totalCaptures } : prev);
+        setProfile(prev => prev ? { ...prev, species_count: totalCaptures } : prev);
       }
 
       const claimedSet = new Set((claimedBadgesRes.data || []).map((b: any) => b.badge_id));
@@ -229,9 +228,8 @@ const ProfilePage = () => {
 
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           <StatCard icon={<BookOpen className="w-5 h-5 text-primary" />} value={profile.species_count} label="Espèces" />
-          <StatCard icon={<CameraIcon className="w-5 h-5 text-amber" />} value={profile.total_captures} label="Captures" />
           <StatCard icon={<MapPin className="w-5 h-5 text-sky" />} value={profile.regions_explored} label="Régions" />
         </div>
 
