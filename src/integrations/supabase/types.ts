@@ -679,7 +679,51 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      profiles_public: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          display_name: string | null
+          is_private: boolean | null
+          level: number | null
+          regions_explored: number | null
+          species_count: number | null
+          total_captures: number | null
+          user_id: string | null
+          username: string | null
+          xp: number | null
+          xp_to_next: number | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          is_private?: boolean | null
+          level?: number | null
+          regions_explored?: number | null
+          species_count?: number | null
+          total_captures?: number | null
+          user_id?: string | null
+          username?: string | null
+          xp?: number | null
+          xp_to_next?: number | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          is_private?: boolean | null
+          level?: number | null
+          regions_explored?: number | null
+          species_count?: number | null
+          total_captures?: number | null
+          user_id?: string | null
+          username?: string | null
+          xp?: number | null
+          xp_to_next?: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       claim_quest_reward: { Args: { p_quest_id: string }; Returns: boolean }
