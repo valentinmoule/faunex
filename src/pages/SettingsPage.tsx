@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Pencil, KeyRound, Share2, Scale, LogOut, Trash2, Loader2, Camera, Check, X, ChevronRight, Sun, Moon, Monitor, Mail, Lock, Smartphone } from 'lucide-react';
+import { ArrowLeft, Pencil, KeyRound, Share2, Scale, LogOut, Trash2, Loader2, Camera, Check, X, ChevronRight, Sun, Moon, Monitor, Mail, Lock, Smartphone, Bell } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { useTheme } from 'next-themes';
 import { usePwaInstall } from '@/contexts/PwaInstallContext';
+import { isPushSupported, subscribeToPush, unsubscribeFromPush, hasActivePushSubscription } from '@/lib/pushNotifications';
 
 interface SettingsProps {
   profile: {
@@ -45,6 +46,12 @@ const SettingsPage = () => {
   // Marketing emails
   const [marketingEmails, setMarketingEmails] = useState(true);
   const [isPrivate, setIsPrivate] = useState(false);
+  const [pushEnabled, setPushEnabled] = useState(false);
+  const [pushBusy, setPushBusy] = useState(false);
+
+  useEffect(() => {
+    hasActivePushSubscription().then(setPushEnabled);
+  }, []);
 
   // Fetch profile on mount
   useEffect(() => {
@@ -280,6 +287,37 @@ const SettingsPage = () => {
                 <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card shadow transition-transform ${marketingEmails ? 'translate-x-5' : 'translate-x-0'}`} />
               </button>
             </div>
+
+            {/* Push notifications toggle */}
+            {isPushSupported() && (
+              <div className="flex items-center justify-between px-4 py-3 bg-muted rounded-xl">
+                <div>
+                  <span className="text-sm font-display font-semibold text-foreground flex items-center gap-1.5">
+                    <Bell className="w-3.5 h-3.5" /> Notifications push
+                  </span>
+                  <span className="text-[11px] text-muted-foreground">Rappels si tu n'es pas revenu depuis quelque temps</span>
+                </div>
+                <button
+                  disabled={pushBusy}
+                  onClick={async () => {
+                    setPushBusy(true);
+                    if (pushEnabled) {
+                      await unsubscribeFromPush();
+                      setPushEnabled(false);
+                      toast.success('Notifications désactivées');
+                    } else {
+                      const ok = await subscribeToPush();
+                      setPushEnabled(ok);
+                      toast[ok ? 'success' : 'error'](ok ? 'Notifications activées 🦊' : 'Permission refusée');
+                    }
+                    setPushBusy(false);
+                  }}
+                  className={`relative w-11 h-6 rounded-full transition-colors ${pushEnabled ? 'bg-primary' : 'bg-muted-foreground/30'} disabled:opacity-50`}
+                >
+                  <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card shadow transition-transform ${pushEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
+                </button>
+              </div>
+            )}
 
             {/* Private account toggle */}
             <div className="flex items-center justify-between px-4 py-3 bg-muted rounded-xl">

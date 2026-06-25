@@ -378,6 +378,30 @@ export type Database = {
           },
         ]
       }
+      inactivity_notifications_log: {
+        Row: {
+          failure_count: number
+          id: string
+          sent_at: string
+          success_count: number
+          user_id: string
+        }
+        Insert: {
+          failure_count?: number
+          id?: string
+          sent_at?: string
+          success_count?: number
+          user_id: string
+        }
+        Update: {
+          failure_count?: number
+          id?: string
+          sent_at?: string
+          success_count?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       login_events: {
         Row: {
           created_at: string
@@ -444,6 +468,7 @@ export type Database = {
           display_name: string | null
           id: string
           is_private: boolean
+          last_login_at: string | null
           level: number
           marketing_emails: boolean
           regions_explored: number
@@ -461,6 +486,7 @@ export type Database = {
           display_name?: string | null
           id?: string
           is_private?: boolean
+          last_login_at?: string | null
           level?: number
           marketing_emails?: boolean
           regions_explored?: number
@@ -478,6 +504,7 @@ export type Database = {
           display_name?: string | null
           id?: string
           is_private?: boolean
+          last_login_at?: string | null
           level?: number
           marketing_emails?: boolean
           regions_explored?: number
@@ -488,6 +515,39 @@ export type Database = {
           username?: string | null
           xp?: number
           xp_to_next?: number
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          last_used_at: string
+          p256dh: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          last_used_at?: string
+          p256dh: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          last_used_at?: string
+          p256dh?: string
+          user_agent?: string | null
+          user_id?: string
         }
         Relationships: []
       }
