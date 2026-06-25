@@ -71,9 +71,15 @@ const ExplorersPage = () => {
   const [view, setView] = useState<'feed' | 'search'>('feed');
 
   // ── Feed state ──
+  const FEED_PAGE_SIZE = 25;
   const [posts, setPosts] = useState<FeedCapture[]>([]);
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [feedLoading, setFeedLoading] = useState(true);
+  const [feedLoadingMore, setFeedLoadingMore] = useState(false);
+  const [feedHasMore, setFeedHasMore] = useState(true);
+  const [feedOffset, setFeedOffset] = useState(0);
+  const [feedFollowingIds, setFeedFollowingIds] = useState<string[] | null>(null);
+  const feedSentinelRef = useRef<HTMLDivElement | null>(null);
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [likeCounts, setLikeCounts] = useState<Record<string, number>>({});
   const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
@@ -84,6 +90,7 @@ const ExplorersPage = () => {
   const [submittingComment, setSubmittingComment] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [userProfile, setUserProfile] = useState<{ avatar_url: string | null; display_name: string | null } | null>(null);
+
 
   // ── Search state ──
   const [searchTab, setSearchTab] = useState<'search' | 'following' | 'followers' | 'requests'>('following');
