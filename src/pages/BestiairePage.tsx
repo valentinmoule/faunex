@@ -149,12 +149,23 @@ const BestiairePage = () => {
   const slotRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const shelveAnimationRan = useRef(false);
 
-  // Departments
-  const [subscribedDepts, setSubscribedDepts] = useState<string[]>([]);
+  // Zones (departments + cities)
+  type ZoneSub = {
+    id: string;
+    kind: 'department' | 'city';
+    departmentCode: string;
+    cityName: string | null;
+    cityPostcode: string | null;
+  };
+  const [subscribedZones, setSubscribedZones] = useState<ZoneSub[]>([]);
   const [animalsByDept, setAnimalsByDept] = useState<Record<string, Set<string>>>({});
-  const [selectedDept, setSelectedDept] = useState<string | null>(null);
+  const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
   const [showDeptPicker, setShowDeptPicker] = useState(false);
+  const [pickerTab, setPickerTab] = useState<'department' | 'city'>('department');
   const [deptSearch, setDeptSearch] = useState('');
+  const [citySearch, setCitySearch] = useState('');
+  const [cityResults, setCityResults] = useState<Array<{ nom: string; code: string; codeDepartement: string; codesPostaux: string[] }>>([]);
+  const [cityLoading, setCityLoading] = useState(false);
   const [loadingDept, setLoadingDept] = useState(false);
 
   const loadDeptAnimals = async (code: string, sourceAnimals = animals, useFallback = true) => {
