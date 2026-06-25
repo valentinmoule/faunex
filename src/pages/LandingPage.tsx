@@ -102,12 +102,12 @@ const useCountUp = (target: number, duration = 1500) => {
   return { ref, value };
 };
 
-const Stat = ({ value, label }: { value: number; label: string }) => {
+const Stat = ({ value, label, prefix }: { value: number; label: string; prefix?: string }) => {
   const { ref, value: animated } = useCountUp(value);
   return (
     <div className="text-center">
       <p className="text-2xl sm:text-3xl font-display font-black text-primary tabular-nums">
-        <span ref={ref}>{animated.toLocaleString('fr-FR')}</span>
+        <span ref={ref}>{prefix}{animated.toLocaleString('fr-FR')}</span>
       </p>
       <p className="text-[11px] sm:text-xs text-muted-foreground font-display uppercase tracking-wider mt-0.5">
         {label}
