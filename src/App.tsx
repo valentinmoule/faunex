@@ -31,6 +31,7 @@ import LandingPage from "./pages/LandingPage";
 import CompleteProfilePage from "./pages/CompleteProfilePage";
 import UnsubscribePage from "./pages/UnsubscribePage";
 import BottomNav from "./components/BottomNav";
+import { PushPermissionPrompt } from "./components/PushPermissionPrompt";
 
 const queryClient = new QueryClient();
 
@@ -114,6 +115,7 @@ const AppRoutes = () => {
       </Routes>
       {!isCapturePage && !isLandingPage && !isAuthPage && !isCompleteProfile && !isModerationPage && <BottomNav />}
       <PwaInstallBanner />
+      <PushPermissionPrompt />
       <LevelSplash />
       <LevelUpCelebration />
     </>
