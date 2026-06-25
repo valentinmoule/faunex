@@ -400,22 +400,27 @@ const BestiairePage = () => {
     return animals.filter(a => normalizeCategory(a.category) === selectedCategory);
   }, [animals, selectedCategory]);
 
-  // Animals for selected department
-  const deptAnimals = useMemo(() => {
-    if (!selectedDept) return [];
-    const set = animalsByDept[selectedDept];
+  const selectedZone = useMemo(
+    () => subscribedZones.find((z) => z.id === selectedZoneId) || null,
+    [subscribedZones, selectedZoneId],
+  );
+
+  // Animals for selected zone (department or city — both use parent department fauna)
+  const zoneAnimals = useMemo(() => {
+    if (!selectedZone) return [];
+    const set = animalsByDept[selectedZone.departmentCode];
     if (!set) return [];
     return animals
       .filter((a) => set.has(a.name.toLowerCase()))
       .sort((a, b) => a.name.localeCompare(b.name, 'fr'));
-  }, [animals, animalsByDept, selectedDept]);
+  }, [animals, animalsByDept, selectedZone]);
 
-  // Dept progress map
-  const deptProgress = useMemo(() => {
+  // Progress map keyed by zone id
+  const zoneProgress = useMemo(() => {
     const map: Record<string, { total: number; captured: number }> = {};
-    subscribedDepts.forEach((code) => {
-      const set = animalsByDept[code];
-      if (!set) { map[code] = { total: 0, captured: 0 }; return; }
+    subscribedZones.forEach((z) => {
+      const set = animalsByDept[z.departmentCode];
+      if (!set) { map[z.id] = { total: 0, captured: 0 }; return; }
       let total = 0, captured = 0;
       animals.forEach((a) => {
         if (set.has(a.name.toLowerCase())) {
@@ -423,34 +428,37 @@ const BestiairePage = () => {
           if (a.captured) captured++;
         }
       });
-      map[code] = { total, captured };
+      map[z.id] = { total, captured };
     });
     return map;
-  }, [animals, animalsByDept, subscribedDepts]);
+  }, [animals, animalsByDept, subscribedZones]);
 
   const handleAddDept = async (code: string) => {
     if (!session?.user) return;
-    if (subscribedDepts.includes(code)) {
+    const existing = subscribedZones.find((z) => z.kind === 'department' && z.departmentCode === code);
+    if (existing) {
       setShowDeptPicker(false);
-      setSelectedDept(code);
+      setSelectedZoneId(existing.id);
       return;
     }
     setLoadingDept(true);
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('user_department_subscriptions')
-        .insert({ user_id: session.user.id, department_code: code });
+        .insert({ user_id: session.user.id, department_code: code, kind: 'department' })
+        .select('id')
+        .single();
       if (error) throw error;
-      setSubscribedDepts((prev) => [...prev, code]);
+      const newZone: ZoneSub = { id: data.id, kind: 'department', departmentCode: code, cityName: null, cityPostcode: null };
+      setSubscribedZones((prev) => [...prev, newZone]);
 
-      // Display a local collection immediately, then let the backend persist a refined list.
       await loadDeptAnimals(code, animals);
       void supabase.functions.invoke('populate-department-fauna', {
         body: { department_code: code },
       }).then(() => loadDeptAnimals(code, animals));
       setShowDeptPicker(false);
       setDeptSearch('');
-      setSelectedDept(code);
+      setSelectedZoneId(newZone.id);
     } catch (e: any) {
       toast.error(e.message || 'Erreur lors de l\'ajout');
     } finally {
@@ -458,16 +466,65 @@ const BestiairePage = () => {
     }
   };
 
-  const handleRemoveDept = async (code: string) => {
+  const handleAddCity = async (city: { nom: string; codeDepartement: string; codesPostaux: string[] }) => {
+    if (!session?.user) return;
+    const postcode = city.codesPostaux?.[0] || '';
+    const existing = subscribedZones.find(
+      (z) => z.kind === 'city' && z.cityName === city.nom && z.cityPostcode === postcode,
+    );
+    if (existing) {
+      setShowDeptPicker(false);
+      setSelectedZoneId(existing.id);
+      return;
+    }
+    setLoadingDept(true);
+    try {
+      const { data, error } = await supabase
+        .from('user_department_subscriptions')
+        .insert({
+          user_id: session.user.id,
+          department_code: city.codeDepartement,
+          kind: 'city',
+          city_name: city.nom,
+          city_postcode: postcode,
+        })
+        .select('id')
+        .single();
+      if (error) throw error;
+      const newZone: ZoneSub = {
+        id: data.id,
+        kind: 'city',
+        departmentCode: city.codeDepartement,
+        cityName: city.nom,
+        cityPostcode: postcode,
+      };
+      setSubscribedZones((prev) => [...prev, newZone]);
+
+      await loadDeptAnimals(city.codeDepartement, animals);
+      void supabase.functions.invoke('populate-department-fauna', {
+        body: { department_code: city.codeDepartement },
+      }).then(() => loadDeptAnimals(city.codeDepartement, animals));
+      setShowDeptPicker(false);
+      setCitySearch('');
+      setCityResults([]);
+      setSelectedZoneId(newZone.id);
+    } catch (e: any) {
+      toast.error(e.message || 'Erreur lors de l\'ajout');
+    } finally {
+      setLoadingDept(false);
+    }
+  };
+
+  const handleRemoveZone = async (zoneId: string) => {
     if (!session?.user) return;
     if (!confirm('Supprimer cette rubrique ?')) return;
     await supabase
       .from('user_department_subscriptions')
       .delete()
       .eq('user_id', session.user.id)
-      .eq('department_code', code);
-    setSubscribedDepts((prev) => prev.filter((c) => c !== code));
-    setSelectedDept(null);
+      .eq('id', zoneId);
+    setSubscribedZones((prev) => prev.filter((z) => z.id !== zoneId));
+    setSelectedZoneId(null);
   };
 
   const filteredDeptOptions = useMemo(() => {
@@ -476,6 +533,28 @@ const BestiairePage = () => {
       !q || d.name.toLowerCase().includes(q) || d.code.toLowerCase().includes(q) || d.region.toLowerCase().includes(q)
     );
   }, [deptSearch]);
+
+  // Debounced city search via geo.api.gouv.fr
+  useEffect(() => {
+    if (pickerTab !== 'city') return;
+    const q = citySearch.trim();
+    if (q.length < 2) { setCityResults([]); return; }
+    let cancelled = false;
+    setCityLoading(true);
+    const t = setTimeout(async () => {
+      try {
+        const url = `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(q)}&fields=nom,code,codeDepartement,codesPostaux&boost=population&limit=20`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (!cancelled) setCityResults(Array.isArray(data) ? data : []);
+      } catch {
+        if (!cancelled) setCityResults([]);
+      } finally {
+        if (!cancelled) setCityLoading(false);
+      }
+    }, 250);
+    return () => { cancelled = true; clearTimeout(t); };
+  }, [citySearch, pickerTab]);
 
   const totalCaptured = animals.filter(a => a.captured).length;
 
