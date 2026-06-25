@@ -28,5 +28,10 @@ export async function followUser(followerId: string, targetId: string): Promise<
     return { status: followStatus, error: error.message };
   }
 
+  // Fire-and-forget email notification to target user
+  supabase.functions.invoke('notify-friend-request', {
+    body: { requester_id: followerId, addressee_id: targetId },
+  }).catch((e) => console.warn('notify-friend-request failed', e));
+
   return { status: followStatus };
 }
