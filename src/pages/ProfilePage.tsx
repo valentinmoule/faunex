@@ -88,7 +88,7 @@ const ProfilePage = () => {
       const userId = session.user.id;
 
       const [profileRes, followersRes, followingRes, capturesRes, claimedBadgesRes] = await Promise.all([
-        supabase.from('profiles').select('*').eq('user_id', userId).single(),
+        supabase.from('profiles').select('display_name, username, avatar_url, level, xp, xp_to_next, species_count, regions_explored').eq('user_id', userId).single(),
         supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('following_id', userId),
         supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('follower_id', userId),
         supabase.from('captures').select('category, rarity').eq('user_id', userId),

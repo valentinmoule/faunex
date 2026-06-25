@@ -74,7 +74,7 @@ const SettingsPage = () => {
   // Fetch profile on mount
   useEffect(() => {
     if (!session?.user) return;
-    supabase.from('profiles').select('display_name, username, avatar_url, marketing_emails, is_private, notify_email_likes, notify_email_comments, notify_email_follows, notify_push_likes, notify_push_comments, notify_push_follows').eq('user_id', session.user.id).single().then(({ data }) => {
+    supabase.rpc('get_my_profile').then(({ data }) => {
       if (data) {
         const d: any = data;
         setProfile({ display_name: d.display_name || '', username: d.username || '', avatar_url: d.avatar_url });
