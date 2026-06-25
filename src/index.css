@@ -1654,11 +1654,16 @@
    3D parallax + glossy pointer + rarity foil patterns
    ═══════════════════════════════════════════════════ */
 
+/* ═══════════════════════════════════════════════════
+   HOLOGRAPHIC CARD — Pokémon-TCG inspired, mobile-first
+   Fully autonomous: no parallax, no pointer needed.
+   ═══════════════════════════════════════════════════ */
+
 .holo-wrap {
   position: relative;
   display: block;
-  transform-style: preserve-3d;
   -webkit-tap-highlight-color: transparent;
+  isolation: isolate;
 }
 
 .holo-card {
@@ -1667,9 +1672,17 @@
   height: 100%;
   border-radius: inherit;
   overflow: hidden;
-  transform-style: preserve-3d;
-  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: transform;
+}
+
+/* Subtle "breathing" lift on shiny cards — adds life without parallax */
+.holo-card.holo-rare    { animation: holo-breathe 6s ease-in-out infinite; }
+.holo-card.holo-epic    { animation: holo-breathe 5.2s ease-in-out infinite; }
+.holo-card.holo-mythic  { animation: holo-breathe 4.5s ease-in-out infinite; }
+
+@keyframes holo-breathe {
+  0%, 100% { transform: translateZ(0) scale(1); }
+  50%      { transform: translateZ(0) scale(1.012); }
 }
 
 .holo-content {
@@ -1679,7 +1692,6 @@
   height: 100%;
   border-radius: inherit;
   overflow: hidden;
-  transform: translateZ(0);
 }
 
 .holo-content > * {
@@ -1688,222 +1700,441 @@
   display: block;
 }
 
-/* ── Pattern background (rarity-specific decoration around image) ── */
-.holo-pattern {
+/* ────────────────────────────────────────────────
+   AURA — rarity-tinted glow behind the image
+   ──────────────────────────────────────────────── */
+.holo-aura {
   position: absolute;
   inset: 0;
   z-index: 1;
   border-radius: inherit;
   pointer-events: none;
-  opacity: 0;
-  overflow: hidden;
-  transition: opacity 0.4s ease-out;
-  filter: blur(0.5px);
-}
-
-.holo-wrap:hover .holo-pattern,
-.holo-card[style*="--active: 1"] .holo-pattern {
-  opacity: 1;
-}
-
-/* RARE — blue water ripples */
-.holo-pattern-rare {
-  background:
-    radial-gradient(circle at 20% 30%, hsla(200, 80%, 60%, 0.35) 0%, transparent 25%),
-    radial-gradient(circle at 80% 70%, hsla(220, 75%, 65%, 0.3) 0%, transparent 28%),
-    radial-gradient(circle at 50% 50%, hsla(210, 90%, 70%, 0.2) 0%, transparent 40%),
-    repeating-linear-gradient(
-      45deg,
-      transparent 0px,
-      transparent 10px,
-      hsla(210, 80%, 70%, 0.08) 10px,
-      hsla(210, 80%, 70%, 0.08) 11px
-    );
-  opacity: 0.5;
-  animation: holo-pattern-drift 8s ease-in-out infinite;
-}
-
-/* EPIC — purple prism shards */
-.holo-pattern-epic {
-  background:
-    conic-gradient(from 45deg at 30% 30%, transparent 0deg, hsla(270, 80%, 65%, 0.35) 60deg, transparent 120deg, hsla(300, 75%, 70%, 0.3) 180deg, transparent 240deg, hsla(250, 80%, 65%, 0.35) 300deg, transparent 360deg),
-    radial-gradient(circle at 70% 70%, hsla(280, 85%, 65%, 0.3) 0%, transparent 35%),
-    repeating-linear-gradient(
-      30deg,
-      transparent 0px,
-      transparent 8px,
-      hsla(280, 80%, 75%, 0.1) 8px,
-      hsla(280, 80%, 75%, 0.1) 10px
-    );
+  filter: blur(8px);
   opacity: 0.55;
-  animation: holo-pattern-drift 7s ease-in-out infinite;
 }
 
-/* MYTHIC — golden starburst aura */
-.holo-pattern-mythic {
+.holo-aura-rare {
   background:
-    radial-gradient(circle at 50% 50%, hsla(45, 95%, 65%, 0.45) 0%, hsla(38, 90%, 55%, 0.25) 25%, transparent 55%),
+    radial-gradient(circle at 30% 30%, hsla(200, 95%, 65%, 0.55), transparent 55%),
+    radial-gradient(circle at 75% 75%, hsla(220, 90%, 70%, 0.45), transparent 55%);
+  animation: holo-aura-drift 9s ease-in-out infinite;
+}
+
+.holo-aura-epic {
+  background:
+    radial-gradient(circle at 25% 30%, hsla(280, 95%, 70%, 0.55), transparent 55%),
+    radial-gradient(circle at 75% 70%, hsla(320, 90%, 70%, 0.5), transparent 55%),
+    radial-gradient(circle at 50% 50%, hsla(200, 80%, 75%, 0.3), transparent 60%);
+  animation: holo-aura-drift 7s ease-in-out infinite;
+}
+
+.holo-aura-mythic {
+  background:
     conic-gradient(from 0deg at 50% 50%,
-      hsla(42, 95%, 70%, 0.35) 0deg,
-      transparent 30deg,
-      hsla(48, 90%, 75%, 0.4) 60deg,
-      transparent 90deg,
-      hsla(42, 95%, 70%, 0.35) 120deg,
-      transparent 150deg,
-      hsla(48, 90%, 75%, 0.4) 180deg,
-      transparent 210deg,
-      hsla(42, 95%, 70%, 0.35) 240deg,
-      transparent 270deg,
-      hsla(48, 90%, 75%, 0.4) 300deg,
-      transparent 330deg,
-      hsla(42, 95%, 70%, 0.35) 360deg
+      hsla(45, 100%, 70%, 0.7),
+      hsla(330, 90%, 75%, 0.55),
+      hsla(200, 90%, 75%, 0.5),
+      hsla(48, 100%, 80%, 0.7),
+      hsla(280, 90%, 75%, 0.55),
+      hsla(45, 100%, 70%, 0.7)
     );
-  opacity: 0.6;
-  animation: holo-pattern-spin 12s linear infinite;
+  animation: holo-aura-spin 11s linear infinite;
 }
 
-@keyframes holo-pattern-drift {
+@keyframes holo-aura-drift {
   0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(2%, -1%) scale(1.05); }
+  50%      { transform: translate(3%, -2%) scale(1.06); }
 }
 
-@keyframes holo-pattern-spin {
-  0% { transform: rotate(0deg) scale(1); }
-  50% { transform: rotate(180deg) scale(1.08); }
+@keyframes holo-aura-spin {
+  0%   { transform: rotate(0deg) scale(1); }
+  50%  { transform: rotate(180deg) scale(1.08); }
   100% { transform: rotate(360deg) scale(1); }
 }
 
-/* ── Foil overlay (holographic rainbow that follows pointer) ── */
-.holo-foil {
+/* ────────────────────────────────────────────────
+   GRAIN — oily iridescent foil over the image
+   Slow rainbow drift, mimics holographic plastic
+   ──────────────────────────────────────────────── */
+.holo-grain {
   position: absolute;
   inset: 0;
   z-index: 3;
   border-radius: inherit;
   pointer-events: none;
   mix-blend-mode: color-dodge;
-  opacity: calc(0.35 + var(--active, 0) * 0.45);
-  transition: opacity 0.3s ease;
+  background-size: 200% 200%, 200% 200%, 100% 100%;
+  animation: holo-grain-shift 8s linear infinite;
+  opacity: 0.65;
 }
 
-/* RARE foil — cool blue holo */
-.holo-foil-rare {
-  background:
-    radial-gradient(
-      circle at var(--mx, 50%) var(--my, 50%),
-      hsla(190, 95%, 80%, 0.55) 0%,
-      hsla(220, 90%, 75%, 0.35) 15%,
-      hsla(250, 80%, 70%, 0.2) 30%,
-      transparent 55%
-    ),
+.holo-grain-rare {
+  background-image:
     repeating-linear-gradient(
       115deg,
-      hsla(180, 90%, 75%, 0.15) 0%,
-      hsla(220, 85%, 80%, 0.25) 5%,
-      hsla(250, 80%, 75%, 0.15) 10%,
-      hsla(190, 90%, 75%, 0.05) 15%,
-      hsla(180, 90%, 75%, 0.15) 20%
-    );
-  background-blend-mode: overlay;
+      hsla(190, 95%, 80%, 0.25) 0%,
+      hsla(220, 90%, 80%, 0.18) 3%,
+      hsla(250, 85%, 80%, 0.12) 6%,
+      hsla(190, 95%, 80%, 0.25) 9%
+    ),
+    radial-gradient(circle at 30% 40%, hsla(195, 95%, 75%, 0.35), transparent 45%),
+    radial-gradient(circle at 70% 60%, hsla(230, 90%, 75%, 0.25), transparent 50%);
 }
 
-/* EPIC foil — prismatic violet→pink→cyan */
-.holo-foil-epic {
-  background:
-    radial-gradient(
-      circle at var(--mx, 50%) var(--my, 50%),
-      hsla(280, 95%, 80%, 0.6) 0%,
-      hsla(320, 90%, 75%, 0.4) 12%,
-      hsla(200, 85%, 75%, 0.3) 28%,
-      hsla(260, 80%, 70%, 0.15) 45%,
-      transparent 60%
-    ),
+.holo-grain-epic {
+  background-image:
     repeating-linear-gradient(
       125deg,
-      hsla(280, 90%, 75%, 0.15) 0%,
-      hsla(320, 85%, 80%, 0.25) 4%,
-      hsla(200, 80%, 75%, 0.18) 8%,
-      hsla(260, 90%, 75%, 0.1) 12%,
-      hsla(280, 90%, 75%, 0.15) 16%
-    );
-  background-blend-mode: overlay;
+      hsla(280, 95%, 80%, 0.28) 0%,
+      hsla(320, 90%, 80%, 0.22) 3%,
+      hsla(200, 85%, 80%, 0.18) 6%,
+      hsla(260, 90%, 80%, 0.15) 9%,
+      hsla(280, 95%, 80%, 0.28) 12%
+    ),
+    radial-gradient(circle at 30% 40%, hsla(295, 95%, 78%, 0.4), transparent 45%),
+    radial-gradient(circle at 70% 60%, hsla(330, 90%, 75%, 0.3), transparent 50%);
 }
 
-/* MYTHIC foil — full golden rainbow */
-.holo-foil-mythic {
-  background:
-    radial-gradient(
-      circle at var(--mx, 50%) var(--my, 50%),
-      hsla(45, 100%, 85%, 0.7) 0%,
-      hsla(38, 95%, 75%, 0.5) 10%,
-      hsla(48, 90%, 80%, 0.35) 22%,
-      hsla(30, 85%, 70%, 0.25) 38%,
-      transparent 60%
-    ),
+.holo-grain-mythic {
+  background-image:
     repeating-linear-gradient(
       135deg,
-      hsla(42, 95%, 75%, 0.2) 0%,
-      hsla(48, 90%, 80%, 0.3) 3%,
-      hsla(38, 90%, 70%, 0.25) 6%,
-      hsla(50, 95%, 85%, 0.18) 9%,
-      hsla(42, 95%, 75%, 0.2) 12%
+      hsla(45, 100%, 80%, 0.32) 0%,
+      hsla(320, 85%, 80%, 0.22) 3%,
+      hsla(200, 85%, 80%, 0.22) 6%,
+      hsla(120, 75%, 80%, 0.2) 9%,
+      hsla(45, 100%, 80%, 0.32) 12%
     ),
-    conic-gradient(
-      from calc(var(--mx, 50%) * 3.6deg) at var(--mx, 50%) var(--my, 50%),
-      hsla(42, 95%, 75%, 0.15),
-      hsla(330, 80%, 75%, 0.1),
-      hsla(200, 80%, 75%, 0.12),
-      hsla(48, 95%, 80%, 0.18),
-      hsla(42, 95%, 75%, 0.15)
-    );
-  background-blend-mode: overlay, color-dodge, screen;
+    radial-gradient(circle at 30% 40%, hsla(48, 100%, 78%, 0.5), transparent 45%),
+    radial-gradient(circle at 70% 60%, hsla(38, 95%, 70%, 0.4), transparent 50%);
 }
 
-/* ── Glossy pointer reflection (the wet shine) ── */
-.holo-gloss {
+@keyframes holo-grain-shift {
+  0%   { background-position: 0% 0%, 0% 0%, 0% 0%; }
+  100% { background-position: 200% 100%, -200% -100%, 0% 0%; }
+}
+
+/* ────────────────────────────────────────────────
+   SCAN — Pokémon-style diagonal rainbow sweep
+   The signature shiny effect, traveling across the card
+   ──────────────────────────────────────────────── */
+.holo-scan {
   position: absolute;
-  inset: 0;
+  inset: -20%;
   z-index: 4;
-  border-radius: inherit;
   pointer-events: none;
-  background: radial-gradient(
-    circle at var(--mx, 50%) var(--my, 50%),
-    hsla(0, 0%, 100%, 0.45) 0%,
-    hsla(0, 0%, 100%, 0.15) 8%,
-    transparent 30%
+  mix-blend-mode: color-dodge;
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    transparent 35%,
+    hsla(0, 100%, 75%, 0.45) 42%,
+    hsla(45, 100%, 80%, 0.55) 46%,
+    hsla(120, 90%, 80%, 0.55) 50%,
+    hsla(200, 100%, 80%, 0.55) 54%,
+    hsla(280, 95%, 80%, 0.5) 58%,
+    transparent 65%,
+    transparent 100%
   );
-  opacity: var(--active, 0);
-  transition: opacity 0.25s ease;
-  mix-blend-mode: soft-light;
+  background-size: 250% 250%;
+  animation: holo-scan-sweep 4.5s ease-in-out infinite;
+  filter: blur(2px);
 }
 
-/* ── Rim highlight (thin bright edge that catches the light) ── */
-.holo-rim {
+.holo-scan-rare {
+  background: linear-gradient(
+    115deg,
+    transparent 38%,
+    hsla(190, 100%, 85%, 0.55) 47%,
+    hsla(210, 100%, 85%, 0.6) 50%,
+    hsla(240, 95%, 85%, 0.55) 53%,
+    transparent 62%
+  );
+  background-size: 250% 250%;
+  animation: holo-scan-sweep 5.5s ease-in-out infinite;
+  opacity: 0.7;
+}
+
+.holo-scan-epic {
+  background: linear-gradient(
+    115deg,
+    transparent 36%,
+    hsla(280, 100%, 85%, 0.55) 44%,
+    hsla(320, 100%, 85%, 0.6) 48%,
+    hsla(200, 100%, 85%, 0.55) 52%,
+    hsla(260, 100%, 85%, 0.5) 56%,
+    transparent 64%
+  );
+  background-size: 250% 250%;
+  animation: holo-scan-sweep 4.5s ease-in-out infinite;
+  opacity: 0.8;
+}
+
+.holo-scan-mythic {
+  animation: holo-scan-sweep 3.6s ease-in-out infinite;
+  opacity: 0.95;
+}
+
+@keyframes holo-scan-sweep {
+  0%   { background-position: -120% 50%; }
+  50%  { background-position: 120% 50%; }
+  100% { background-position: -120% 50%; }
+}
+
+/* ────────────────────────────────────────────────
+   SPARKLES — twinkling stars (mythic) / glints (epic, rare)
+   Each spark uses --i for staggered position + delay
+   ──────────────────────────────────────────────── */
+.holo-sparkles {
   position: absolute;
   inset: 0;
   z-index: 5;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.holo-spark {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    hsla(48, 100%, 90%, 1) 0%,
+    hsla(45, 100%, 75%, 0.6) 40%,
+    transparent 70%
+  );
+  box-shadow:
+    0 0 8px hsla(48, 100%, 80%, 0.9),
+    0 0 16px hsla(42, 100%, 70%, 0.6);
+  /* Distribute with prime offsets so sparks scatter unevenly */
+  left:  calc(((var(--i) * 67) % 100) * 1%);
+  top:   calc(((var(--i) * 41) % 100) * 1%);
+  opacity: 0;
+  animation: holo-spark-twinkle 3.2s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -0.27s);
+  transform: scale(0);
+  will-change: transform, opacity;
+}
+
+/* Add a cross "+" glint to mythic sparks for a stronger star shape */
+.holo-spark::before,
+.holo-spark::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  background: linear-gradient(
+    to right,
+    transparent,
+    hsla(48, 100%, 92%, 1),
+    transparent
+  );
+  transform: translate(-50%, -50%);
+  border-radius: 2px;
+}
+
+.holo-spark::before {
+  width: 22px;
+  height: 1.5px;
+}
+
+.holo-spark::after {
+  width: 1.5px;
+  height: 22px;
+}
+
+/* Epic sparks: pink/violet glints, slightly smaller */
+.holo-sparkles-epic .holo-spark {
+  width: 5px;
+  height: 5px;
+  background: radial-gradient(
+    circle,
+    hsla(310, 100%, 90%, 1) 0%,
+    hsla(285, 100%, 75%, 0.6) 40%,
+    transparent 70%
+  );
+  box-shadow:
+    0 0 7px hsla(295, 100%, 80%, 0.9),
+    0 0 14px hsla(270, 100%, 70%, 0.55);
+}
+
+.holo-sparkles-epic .holo-spark::before,
+.holo-sparkles-epic .holo-spark::after {
+  background: linear-gradient(
+    to right,
+    transparent,
+    hsla(300, 100%, 92%, 0.95),
+    transparent
+  );
+}
+
+/* Rare sparks: cool blue, subtle, no cross glint */
+.holo-sparkles-rare .holo-spark {
+  width: 4px;
+  height: 4px;
+  background: radial-gradient(
+    circle,
+    hsla(195, 100%, 92%, 1) 0%,
+    hsla(210, 100%, 78%, 0.55) 45%,
+    transparent 75%
+  );
+  box-shadow:
+    0 0 6px hsla(200, 100%, 80%, 0.85),
+    0 0 12px hsla(220, 100%, 70%, 0.5);
+}
+
+.holo-sparkles-rare .holo-spark::before,
+.holo-sparkles-rare .holo-spark::after {
+  display: none;
+}
+
+@keyframes holo-spark-twinkle {
+  0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
+  40%      { opacity: 1; transform: scale(1) rotate(45deg); }
+  60%      { opacity: 0.9; transform: scale(1.15) rotate(70deg); }
+  80%      { opacity: 0; transform: scale(0.4) rotate(120deg); }
+}
+
+/* ────────────────────────────────────────────────
+   RIM — animated outline that catches light around the card
+   ──────────────────────────────────────────────── */
+.holo-rim {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
   border-radius: inherit;
   pointer-events: none;
+  padding: 1.5px;
   background: linear-gradient(
-    calc(var(--mx, 50) * 1deg + 90deg),
-    hsla(0, 0%, 100%, 0) 0%,
-    hsla(0, 0%, 100%, 0.4) 48%,
-    hsla(0, 0%, 100%, 0.6) 50%,
-    hsla(0, 0%, 100%, 0.4) 52%,
-    hsla(0, 0%, 100%, 0) 100%
+    135deg,
+    hsla(0, 0%, 100%, 0.1),
+    hsla(0, 0%, 100%, 0.7),
+    hsla(0, 0%, 100%, 0.1)
   );
+  background-size: 250% 250%;
   -webkit-mask:
     linear-gradient(#000, #000) content-box,
     linear-gradient(#000, #000);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
-  padding: 2px;
-  opacity: calc(var(--active, 0) * 0.85);
-  transition: opacity 0.3s ease;
+  animation: holo-rim-sweep 4s linear infinite;
 }
 
-/* Reduced motion: kill parallax & rotations for accessibility */
-@media (prefers-reduced-motion: reduce) {
-  .holo-card { transition: none !important; transform: none !important; }
-  .holo-pattern-mythic, .holo-pattern-rare, .holo-pattern-epic { animation: none !important; }
-  .holo-pattern { opacity: 0.4 !important; }
+.holo-rim-rare {
+  background: linear-gradient(
+    135deg,
+    hsla(200, 100%, 75%, 0.2),
+    hsla(210, 100%, 85%, 0.85),
+    hsla(220, 100%, 75%, 0.2)
+  );
+  background-size: 250% 250%;
 }
+
+.holo-rim-epic {
+  background: linear-gradient(
+    135deg,
+    hsla(280, 100%, 80%, 0.25),
+    hsla(310, 100%, 88%, 0.9),
+    hsla(200, 100%, 80%, 0.25)
+  );
+  background-size: 250% 250%;
+}
+
+.holo-rim-mythic {
+  background: linear-gradient(
+    135deg,
+    hsla(45, 100%, 75%, 0.4),
+    hsla(48, 100%, 92%, 1),
+    hsla(30, 100%, 75%, 0.4)
+  );
+  background-size: 250% 250%;
+  animation: holo-rim-sweep 3s linear infinite;
+}
+
+@keyframes holo-rim-sweep {
+  0%   { background-position: 0% 0%; }
+  100% { background-position: 250% 250%; }
+}
+
+/* ────────────────────────────────────────────────
+   HALO — soft outer glow that pulses behind mythic / epic
+   ──────────────────────────────────────────────── */
+.holo-halo {
+  position: absolute;
+  inset: -14px;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  filter: blur(20px);
+  opacity: 0.7;
+}
+
+.holo-halo-epic {
+  background:
+    radial-gradient(circle at 30% 30%, hsla(280, 95%, 65%, 0.55), transparent 60%),
+    radial-gradient(circle at 70% 70%, hsla(310, 90%, 70%, 0.45), transparent 60%);
+  animation: holo-halo-pulse 4.5s ease-in-out infinite;
+}
+
+.holo-halo-mythic {
+  background:
+    conic-gradient(from 0deg at 50% 50%,
+      hsla(45, 100%, 65%, 0.55),
+      hsla(320, 85%, 70%, 0.4),
+      hsla(200, 90%, 70%, 0.4),
+      hsla(48, 100%, 75%, 0.6),
+      hsla(280, 85%, 70%, 0.4),
+      hsla(45, 100%, 65%, 0.55)
+    );
+  animation: holo-halo-spin 9s linear infinite, holo-halo-pulse 3s ease-in-out infinite;
+}
+
+@keyframes holo-halo-pulse {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50%      { opacity: 0.85; transform: scale(1.04); }
+}
+
+@keyframes holo-halo-spin {
+  0%   { rotate: 0deg; }
+  100% { rotate: 360deg; }
+}
+
+/* ────────────────────────────────────────────────
+   COMMON — keep clean & quiet (no holo layers)
+   Just a soft warm card with a tiny corner gleam
+   ──────────────────────────────────────────────── */
+.holo-common .holo-content::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    135deg,
+    hsla(0, 0%, 100%, 0.08) 0%,
+    transparent 35%
+  );
+  border-radius: inherit;
+  z-index: 3;
+}
+
+/* ────────────────────────────────────────────────
+   Reduced motion — calm everything down
+   ──────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .holo-card,
+  .holo-aura,
+  .holo-grain,
+  .holo-scan,
+  .holo-rim,
+  .holo-halo,
+  .holo-spark {
+    animation: none !important;
+  }
+  .holo-aura     { opacity: 0.35 !important; }
+  .holo-grain    { opacity: 0.35 !important; }
+  .holo-scan     { opacity: 0.25 !important; }
+  .holo-sparkles { display: none !important; }
+}
+
