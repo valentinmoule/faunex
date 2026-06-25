@@ -15,6 +15,23 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Enforce auth: caller must be signed in AND must be the requester.
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader?.startsWith('Bearer ')) {
+      return json({ error: 'Unauthorized' }, 401)
+    }
+    const anonClient = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_ANON_KEY')!,
+      { global: { headers: { Authorization: authHeader } } }
+    )
+    const token = authHeader.replace('Bearer ', '')
+    const { data: claimsData, error: claimsError } = await anonClient.auth.getClaims(token)
+    if (claimsError || !claimsData?.claims?.sub) {
+      return json({ error: 'Unauthorized' }, 401)
+    }
+    const callerId = claimsData.claims.sub
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
@@ -24,6 +41,9 @@ Deno.serve(async (req) => {
 
     if (!requester_id || !addressee_id) {
       return json({ error: 'Missing requester_id or addressee_id' }, 400)
+    }
+    if (requester_id !== callerId) {
+      return json({ error: 'Forbidden: requester must be the authenticated caller' }, 403)
     }
 
     const [{ data: requesterProfile }, { data: addresseeProfile }, { data: addresseeAuth }] =
