@@ -119,9 +119,21 @@ const Index = () => {
       if (profileRes.data) setProfile(profileRes.data as Profile);
       
       if (capturesRes.data) {
+        // Get latest rarity from animals table (capture.rarity is a snapshot at capture time)
+        const uniqueNames = Array.from(new Set(capturesRes.data.map((c: any) => c.animal_name).filter(Boolean)));
+        const rarityByName: Record<string, string> = {};
+        if (uniqueNames.length) {
+          const { data: animalsData } = await supabase
+            .from('animals')
+            .select('name, rarity')
+            .in('name', uniqueNames);
+          (animalsData || []).forEach((a: any) => { rarityByName[a.name.toLowerCase()] = a.rarity; });
+        }
+        const resolveRarity = (c: any): Rarity => (rarityByName[(c.animal_name || '').toLowerCase()] || c.rarity) as Rarity;
+
         const cards = capturesRes.data.map((c: any) => ({
           id: c.id, name: c.animal_name, scientificName: c.scientific_name || '',
-          image: c.image_url, cutoutUrl: c.cutout_url, rarity: c.rarity as Rarity, category: c.category || '',
+          image: c.image_url, cutoutUrl: c.cutout_url, rarity: resolveRarity(c), category: c.category || '',
           description: c.description || '', habitat: c.habitat || '', diet: c.diet || '',
           conservation: c.conservation || '', funFact: c.fun_fact || '',
           discoveredAt: c.created_at, location: c.location || '',
@@ -130,7 +142,7 @@ const Index = () => {
         setAllCapturedNames(cards.map(c => c.name));
 
         const counts: Record<string, number> = {};
-        capturesRes.data.forEach((c: any) => { counts[c.rarity] = (counts[c.rarity] || 0) + 1; });
+        cards.forEach((c) => { counts[c.rarity] = (counts[c.rarity] || 0) + 1; });
         setRarityCounts(counts);
       }
 
