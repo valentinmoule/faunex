@@ -20,6 +20,7 @@ const SettingsPage = () => {
   const { session, signOut } = useAuth();
   const navigate = useNavigate();
   const { theme, resolvedTheme, setTheme } = useTheme();
+  const { isInstalled, canInstall, isIos, resetDismiss } = usePwaInstall();
   const [section, setSection] = useState<'menu' | 'edit' | 'password' | 'delete'>('menu');
   const [profile, setProfile] = useState<{ display_name: string; username: string; avatar_url: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
