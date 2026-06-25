@@ -92,7 +92,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "google/gemini-2.5-pro",
         temperature: 0,
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
@@ -101,7 +101,7 @@ serve(async (req) => {
             content: [
               {
                 type: "text",
-                text: "Analyse cette photo en détail et identifie l'animal avec la plus grande précision possible. Examine attentivement la morphologie, le pelage/plumage, les proportions et tout trait distinctif. Si c'est un chat ou un chien, détermine la race exacte."
+                text: "Analyse cette photo en détail et identifie l'animal avec la plus grande précision possible. Examine attentivement la morphologie, le pelage/plumage, les proportions et tout trait distinctif. Si c'est un chat ou un chien, détermine la race exacte. Évalue ta confiance honnêtement et propose des alternatives si tu n'es pas sûr."
               },
               { type: "image_url", image_url: { url: imageUrl } }
             ]
