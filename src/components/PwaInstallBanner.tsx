@@ -1,11 +1,23 @@
 import { usePwaInstall } from '@/contexts/PwaInstallContext';
 import { Button } from '@/components/ui/button';
-import { Download, X, Smartphone } from 'lucide-react';
+import { Download, X, Smartphone, Share, PlusSquare } from 'lucide-react';
+import { toast } from 'sonner';
 
 const PwaInstallBanner = () => {
-  const { shouldShowPrompt, promptInstall, dismissInstall, isInstalled } = usePwaInstall();
+  const { shouldShowPrompt, promptInstall, dismissInstall, isInstalled, isIos, canInstall } = usePwaInstall();
 
   if (!shouldShowPrompt || isInstalled) return null;
+
+  const handleInstall = async () => {
+    if (canInstall) {
+      await promptInstall();
+    } else if (isIos) {
+      toast.info('Sur iPhone / iPad : appuie sur Partager puis "Sur l'écran d'accueil".', {
+        duration: 6000,
+        icon: <Share className="w-4 h-4" />,
+      });
+    }
+  };
 
   return (
     <div className="fixed bottom-20 left-4 right-4 z-50 animate-in slide-in-from-bottom-4 duration-300">
@@ -18,16 +30,18 @@ const PwaInstallBanner = () => {
             Installer Faunex
           </p>
           <p className="text-xs text-muted-foreground font-body mt-0.5">
-            Ajoute l'app sur ton écran d'accueil pour un accès rapide, même hors ligne&nbsp;!
+            {isIos
+              ? "Ajoute l'app sur ton écran d'accueil : appuie sur Partager, puis 'Sur l'écran d'accueil'."
+              : "Ajoute l'app sur ton écran d'accueil pour un accès rapide, même hors ligne !"}
           </p>
           <div className="flex gap-2 mt-3">
             <Button
               size="sm"
               className="font-display font-semibold gap-1.5 text-xs"
-              onClick={promptInstall}
+              onClick={handleInstall}
             >
-              <Download className="w-3.5 h-3.5" />
-              Installer
+              {isIos ? <PlusSquare className="w-3.5 h-3.5" /> : <Download className="w-3.5 h-3.5" />}
+              {isIos ? "Comment installer" : "Installer"}
             </Button>
             <Button
               size="sm"
