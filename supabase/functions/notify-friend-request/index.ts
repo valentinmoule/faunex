@@ -98,6 +98,7 @@ Deno.serve(async (req) => {
         html,
         text,
         purpose: 'transactional',
+        idempotency_key: `friend-request-${requester_id}-${addressee_id}-${messageId}`,
         label: 'friend_request',
         queued_at: new Date().toISOString(),
       },
