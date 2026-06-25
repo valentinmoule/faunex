@@ -594,6 +594,7 @@ const BestiairePage = () => {
         departmentCode: city.codeDepartement,
         cityName: city.nom,
         cityPostcode: postcode,
+        isHome: false,
       };
       setSubscribedZones((prev) => [...prev, newZone]);
 
