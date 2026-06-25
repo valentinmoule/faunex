@@ -33,6 +33,7 @@ import UnsubscribePage from "./pages/UnsubscribePage";
 import ContentIndexPage from "./pages/ContentIndexPage";
 import ArticlePage from "./pages/ArticlePage";
 import BottomNav from "./components/BottomNav";
+import ScrollToTop from "./components/ScrollToTop";
 import { PushPermissionPrompt } from "./components/PushPermissionPrompt";
 
 const queryClient = new QueryClient();
@@ -135,6 +136,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <ScrollToTop />
           <AuthProvider>
             <PwaInstallProvider>
               <AppRoutes />
