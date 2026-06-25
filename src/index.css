@@ -2102,8 +2102,8 @@
 }
 
 /* ────────────────────────────────────────────────
-   COMMON — keep clean & quiet (no holo layers)
-   Just a soft warm card with a tiny corner gleam
+   COMMON — subtle silver Pokémon-style shimmer
+   Even commons get a holo feel (linear silver sweep + tiny diagonal gleam)
    ──────────────────────────────────────────────── */
 .holo-common .holo-content::after {
   content: '';
@@ -2112,11 +2112,70 @@
   pointer-events: none;
   background: linear-gradient(
     135deg,
-    hsla(0, 0%, 100%, 0.08) 0%,
+    hsla(0, 0%, 100%, 0.10) 0%,
     transparent 35%
   );
   border-radius: inherit;
   z-index: 3;
+}
+/* Silver linear shimmer sweeping diagonally on commons (lives on .holo-scan) */
+.holo-scan-common {
+  position: absolute;
+  inset: -20%;
+  z-index: 4;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  background: linear-gradient(
+    115deg,
+    transparent 38%,
+    hsla(0, 0%, 100%, 0.22) 46%,
+    hsla(210, 20%, 92%, 0.42) 50%,
+    hsla(0, 0%, 100%, 0.22) 54%,
+    transparent 62%
+  );
+  background-size: 260% 260%;
+  animation: holo-scan-sweep 6.5s ease-in-out infinite;
+  opacity: 0.85;
+  filter: blur(1px);
+}
+
+/* ────────────────────────────────────────────────
+   CUTOUT — clean AI-segmented animal layered on top
+   Sits ABOVE grain + scan so effects shimmer between bg and animal
+   ──────────────────────────────────────────────── */
+.holo-cutout {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  border-radius: inherit;
+  overflow: hidden;
+  /* Soft glow halo around the animal silhouette */
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35))
+          drop-shadow(0 0 14px hsla(0, 0%, 100%, 0.18));
+  animation: holo-cutout-float 7s ease-in-out infinite;
+}
+.holo-cutout img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+  -webkit-user-drag: none;
+  display: block;
+}
+/* Subtle rarity-tinted glow around the animal */
+.holo-rare    .holo-cutout { filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4)) drop-shadow(0 0 16px hsla(210, 100%, 75%, 0.35)); }
+.holo-epic    .holo-cutout { filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4)) drop-shadow(0 0 18px hsla(285, 100%, 78%, 0.4)); }
+.holo-mythic  .holo-cutout { filter: drop-shadow(0 2px 8px rgba(0,0,0,0.45)) drop-shadow(0 0 22px hsla(45, 100%, 70%, 0.55)); }
+
+/* When a cutout is present, dim the raw bg image slightly so the animal pops */
+.holo-has-cutout .holo-content > * {
+  filter: brightness(0.78) saturate(0.95);
+}
+
+@keyframes holo-cutout-float {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%      { transform: translateY(-1.5px) scale(1.008); }
 }
 
 /* ────────────────────────────────────────────────
