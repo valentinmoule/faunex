@@ -135,6 +135,75 @@ const buildRegionalAnimalSet = (code: string, sourceAnimals: BestiaryAnimal[]) =
   return selected;
 };
 
+// --- City filter: realistic urban/peri-urban subset ---
+// Animals commonly observable in/around a French city (parcs, jardins, rues, toits, points d'eau).
+const CITY_KEYWORDS = [
+  // Oiseaux urbains
+  'moineau', 'pigeon', 'tourterelle', 'merle', 'mésange', 'rougegorge', 'rouge-gorge', 'pinson', 'verdier', 'chardonneret', 'serin',
+  'martinet', 'hirondelle', 'étourneau', 'pie', 'corneille', 'corbeau freux', 'choucas', 'geai', 'fauvette', 'pouillot',
+  'grimpereau', 'sittelle', 'rossignol', 'perruche', 'faucon crécerelle', 'effraie', 'hulotte', 'goéland', 'mouette rieuse',
+  'canard colvert', 'cygne', 'foulque', 'héron cendré', 'aigrette', 'cormoran',
+  // Mammifères périurbains
+  'écureuil', 'hérisson', 'renard', 'fouine', 'chauve-souris', 'pipistrelle', 'mulot', 'campagnol', 'rat', 'souris', 'lapin de garenne', 'belette',
+  // Domestiques
+  'chien', 'chat', 'cheval', 'âne', 'poule', 'canard', 'lapin', 'cobaye', 'hamster',
+  // Insectes & araignées
+  'abeille', 'bourdon', 'fourmi', 'coccinelle', 'papillon', 'paon-du-jour', 'citron', 'piéride', 'vulcain', 'belle-dame', 'machaon',
+  'mouche', 'moustique', 'guêpe', 'frelon', 'syrphe', 'libellule', 'agrion', 'demoiselle', 'cigale', 'sauterelle', 'criquet',
+  'perce-oreille', 'cloporte', 'mille-pattes', 'lépisme', 'punaise', 'gendarme', 'pucerons',
+  'araignée', 'épeire', 'pholque', 'opilion',
+  // Mollusques & autres
+  'escargot', 'limace',
+  // Reptiles/amphibiens urbains
+  'lézard des murailles', 'gecko', 'orvet', 'crapaud commun', 'grenouille verte', 'triton palmé',
+  // Poissons de bassin/parc
+  'carpe', 'poisson rouge', 'gardon',
+];
+
+const CITY_EXCLUDE_KEYWORDS = [
+  'aigle', 'vautour', 'gypaète', 'balbuzard', 'milan', 'circaète',
+  'lynx', 'loup', 'ours', 'chamois', 'bouquetin', 'isard', 'marmotte', 'mouflon', 'cerf', 'élan',
+  'sanglier', 'chevreuil', 'blaireau',
+  'requin', 'baleine', 'dauphin', 'phoque', 'orque', 'cachalot', 'mérou', 'murène', 'raie', 'thon',
+  'crabe', 'homard', 'langouste', 'crevette', 'oursin', 'étoile de mer', 'méduse',
+  'flamant', 'pélican', 'frégate', 'fou de bassan',
+  'tétras', 'lagopède', 'grand-duc', 'gélinotte',
+  'salamandre', 'vipère', 'couleuvre',
+];
+
+const buildCityAnimalSet = (deptSet: Set<string>, sourceAnimals: BestiaryAnimal[]) => {
+  const capturedNames = new Set(
+    sourceAnimals.filter((a) => a.captured).map((a) => a.name.toLowerCase()),
+  );
+  const selected = new Set<string>();
+
+  sourceAnimals.forEach((animal) => {
+    const key = animal.name.toLowerCase();
+    if (!deptSet.has(key)) return;
+    // Always keep what the user has already captured (preserves progression)
+    if (capturedNames.has(key)) { selected.add(key); return; }
+    const normalized = normalizeText(animal.name);
+    if (CITY_EXCLUDE_KEYWORDS.some((kw) => normalized.includes(normalizeText(kw)))) return;
+    if (CITY_KEYWORDS.some((kw) => normalized.includes(normalizeText(kw)))) {
+      selected.add(key);
+    }
+  });
+
+  // Target ~55 animals max for gamification (less = more achievable)
+  const TARGET = 55;
+  if (selected.size > TARGET) {
+    // Prefer commons & rares over epic/mythic when trimming
+    const rank: Record<string, number> = { common: 0, rare: 1, epic: 2, mythic: 3 };
+    const trimmed = sourceAnimals
+      .filter((a) => selected.has(a.name.toLowerCase()))
+      .sort((a, b) => (rank[a.rarity] ?? 4) - (rank[b.rarity] ?? 4) || a.name.localeCompare(b.name, 'fr'))
+      .slice(0, TARGET)
+      .map((a) => a.name.toLowerCase());
+    return new Set(trimmed);
+  }
+  return selected;
+};
+
 const BestiairePage = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
@@ -408,8 +477,9 @@ const BestiairePage = () => {
   // Animals for selected zone (department or city — both use parent department fauna)
   const zoneAnimals = useMemo(() => {
     if (!selectedZone) return [];
-    const set = animalsByDept[selectedZone.departmentCode];
-    if (!set) return [];
+    const deptSet = animalsByDept[selectedZone.departmentCode];
+    if (!deptSet) return [];
+    const set = selectedZone.kind === 'city' ? buildCityAnimalSet(deptSet, animals) : deptSet;
     return animals
       .filter((a) => set.has(a.name.toLowerCase()))
       .sort((a, b) => a.name.localeCompare(b.name, 'fr'));
@@ -419,8 +489,9 @@ const BestiairePage = () => {
   const zoneProgress = useMemo(() => {
     const map: Record<string, { total: number; captured: number }> = {};
     subscribedZones.forEach((z) => {
-      const set = animalsByDept[z.departmentCode];
-      if (!set) { map[z.id] = { total: 0, captured: 0 }; return; }
+      const deptSet = animalsByDept[z.departmentCode];
+      if (!deptSet) { map[z.id] = { total: 0, captured: 0 }; return; }
+      const set = z.kind === 'city' ? buildCityAnimalSet(deptSet, animals) : deptSet;
       let total = 0, captured = 0;
       animals.forEach((a) => {
         if (set.has(a.name.toLowerCase())) {
