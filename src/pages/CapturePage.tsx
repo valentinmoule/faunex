@@ -402,6 +402,16 @@ const CapturePage = () => {
     setFocusPoint(null);
     setFocusMode('auto');
     setRevealPhase('idle');
+
+    // Safety net: ensure the camera stream is still live and the video is playing
+    const stream = streamRef.current;
+    const liveTrack = stream?.getVideoTracks().find((t) => t.readyState === 'live');
+    if (!stream || !liveTrack) {
+      startCamera();
+    } else if (videoRef.current) {
+      if (videoRef.current.srcObject !== stream) videoRef.current.srcObject = stream;
+      videoRef.current.play().catch(() => {});
+    }
   };
 
   const REVEAL_TIMINGS: Record<Rarity, { freeze: number; shake: number; burst: number }> = {
