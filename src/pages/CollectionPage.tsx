@@ -109,10 +109,37 @@ const CollectionPage = () => {
     }
   }, [captures, searchParams]);
 
-  const filtered = captures.filter(c => {
+  const filtered = useMemo(() => captures.filter(c => {
     if (filter !== 'all' && c.rarity !== filter) return false;
     return true;
-  });
+  }), [captures, filter]);
+
+  // Infinite scroll: load 25 at a time
+  const PAGE_SIZE = 25;
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+  // Reset pagination when filter changes or captures reload
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [filter, captures.length]);
+
+  useEffect(() => {
+    if (!sentinelRef.current) return;
+    if (visibleCount >= filtered.length) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setVisibleCount(c => Math.min(c + PAGE_SIZE, filtered.length));
+        }
+      },
+      { rootMargin: '400px 0px' }
+    );
+    observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, [visibleCount, filtered.length]);
+
+  const visible = filtered.slice(0, visibleCount);
 
   return (
     <main className="min-h-screen bg-background pb-24">
