@@ -1,0 +1,28 @@
+# Faunex
+
+> Faunex est une application web (PWA) qui transforme chaque balade en chasse aux trésors naturalistes : photographie un animal sauvage, l'IA l'identifie en 3 secondes, et tu collectionnes sa carte avec rareté, habitat et anecdotes.
+
+Faunex combine une IA naturaliste (reconnaissance d'espèces à partir d'une photo) avec une mécanique de collection inspirée des cartes Pokémon. Les utilisateurs constituent un bestiaire personnel, débloquent des niveaux/quêtes, et suivent les explorateurs autour d'eux. Gratuit, sans publicité, installable depuis n'importe quel navigateur (iOS 16.4+, Android, desktop).
+
+## Concept
+- Identification IA en ~3s à partir d'une simple photo
+- +1000 espèces (oiseaux, mammifères, insectes, reptiles, amphibiens, poissons, mollusques, arachnides…)
+- Rareté basée sur le statut UICN : Commun (gris), Rare (bleu), Épique (violet), Mythique (doré)
+- Collection privée par défaut, partage social opt-in (profils publics/privés, follows avec approbation)
+- Quêtes quotidiennes, XP, niveaux et radar de proximité
+
+## Pages principales
+- [Accueil / Landing](https://faunex.fr/) : présentation, démo, FAQ, inscription
+- [Bestiaire](https://faunex.fr/bestiaire) : catalogue de toutes les espèces référencées
+- [Profil public](https://faunex.fr/u/:username) : profil d'un explorateur (collection, niveau, captures publiques)
+- [Mentions légales & confidentialité](https://faunex.fr/legal)
+
+## Technique
+- PWA installable, pas de publication sur App Store / Play Store
+- Backend Supabase (RLS strict, captures isolées par UID)
+- Authentification Google / Apple SSO
+- Photos compressées à 1024px / 60% JPEG avant envoi à l'IA
+
+## Contact
+- Éditeur : Valentin Moulay
+- Domaine : https://faunex.fr

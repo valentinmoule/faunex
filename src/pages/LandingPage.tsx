@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
 import { Camera, Brain, Trophy, ChevronRight, Check, Sparkles, MapPin, Users } from 'lucide-react';
 import HolographicCard from '@/components/HolographicCard';
@@ -125,57 +126,7 @@ const LandingPage = () => {
   });
   const [showStickyCta, setShowStickyCta] = useState(false);
 
-  useEffect(() => {
-    document.title = 'Faunex — Identifie & collectionne la faune sauvage';
-
-    // Update meta description
-    const setMeta = (name: string, content: string, attr: 'name' | 'property' = 'name') => {
-      let tag = document.querySelector(`meta[${attr}="${name}"]`);
-      if (!tag) {
-        tag = document.createElement('meta');
-        tag.setAttribute(attr, name);
-        document.head.appendChild(tag);
-      }
-      tag.setAttribute('content', content);
-    };
-    setMeta(
-      'description',
-      'Photographie un animal, l\'IA l\'identifie en 3s. Collectionne +1000 espèces autour de toi. Gratuit, sans pub.'
-    );
-    setMeta('og:title', 'Faunex — Transforme tes balades en chasse aux trésors', 'property');
-    setMeta(
-      'og:description',
-      'Photographie un animal, l\'IA l\'identifie en 3s. Collectionne +1000 espèces autour de toi.',
-      'property'
-    );
-
-    // Canonical
-    let canon = document.querySelector('link[rel="canonical"]');
-    if (!canon) {
-      canon = document.createElement('link');
-      canon.setAttribute('rel', 'canonical');
-      document.head.appendChild(canon);
-    }
-    canon.setAttribute('href', 'https://faunex.fr/');
-
-    // JSON-LD
-    const ldId = 'faunex-jsonld';
-    document.getElementById(ldId)?.remove();
-    const ld = document.createElement('script');
-    ld.type = 'application/ld+json';
-    ld.id = ldId;
-    ld.text = JSON.stringify({
-      '@context': 'https://schema.org',
-      '@type': 'MobileApplication',
-      name: 'Faunex',
-      operatingSystem: 'Web, iOS, Android',
-      applicationCategory: 'LifestyleApplication',
-      description:
-        "Identifie et collectionne la faune sauvage autour de toi grâce à l'IA.",
-      offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
-    });
-    document.head.appendChild(ld);
-  }, []);
+  // Per-route head is managed via <Helmet> below.
 
   // Fetch stats
   useEffect(() => {
@@ -209,6 +160,24 @@ const LandingPage = () => {
 
   return (
     <main className="min-h-screen bg-background text-foreground overflow-x-hidden pb-20">
+      <Helmet>
+        <title>Faunex — Identifie & collectionne la faune sauvage</title>
+        <meta name="description" content="Photographie un animal, l'IA l'identifie en 3s. Collectionne +1000 espèces autour de toi. Gratuit, sans pub." />
+        <link rel="canonical" href="https://faunex.fr/" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://faunex.fr/" />
+        <meta property="og:title" content="Faunex — Transforme tes balades en chasse aux trésors" />
+        <meta property="og:description" content="Photographie un animal, l'IA l'identifie en 3s. Collectionne +1000 espèces autour de toi." />
+        <script type="application/ld+json">{JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'MobileApplication',
+          name: 'Faunex',
+          operatingSystem: 'Web, iOS, Android',
+          applicationCategory: 'LifestyleApplication',
+          description: "Identifie et collectionne la faune sauvage autour de toi grâce à l'IA.",
+          offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
+        })}</script>
+      </Helmet>
       {/* HERO */}
       <section className="relative px-5 pt-10 pb-14 sm:pt-14">
         {/* Decorative gradient */}
