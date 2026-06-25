@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { notifyCaptureInteraction } from '@/lib/notifyCaptureInteraction';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Bell, Heart, MessageCircle, Share2, Send, X } from 'lucide-react';
 import CardDetailSheet from '@/components/CardDetailSheet';
