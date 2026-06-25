@@ -1156,7 +1156,7 @@ const BestiairePage = () => {
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-3">
+              <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4 pb-1">
                 {subscribedZones.map((zone) => {
                   const d = getDepartement(zone.departmentCode);
                   const p = zoneProgress[zone.id] || { total: 0, captured: 0 };
@@ -1171,7 +1171,7 @@ const BestiairePage = () => {
                     <button
                       key={zone.id}
                       onClick={() => setSelectedZoneId(zone.id)}
-                      className={`relative overflow-hidden rounded-2xl border p-4 text-left transition-all active:scale-[0.97] hover:shadow-md ${
+                      className={`shrink-0 w-40 relative overflow-hidden rounded-2xl border p-4 text-left transition-all active:scale-[0.97] hover:shadow-md ${
                         zone.isHome
                           ? 'border-primary/40 bg-gradient-to-br from-primary/10 via-primary/5 to-card'
                           : 'border-border bg-card hover:border-primary/30'
@@ -1197,6 +1197,7 @@ const BestiairePage = () => {
                   );
                 })}
               </div>
+
             )}
           </section>
 
