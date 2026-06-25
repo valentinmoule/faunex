@@ -867,11 +867,33 @@ const CapturePage = () => {
             <div className="space-y-3">
               {/* Rarity badge + name */}
               <div>
-                <span className={`inline-block px-2.5 py-1 rounded-full text-[10px] font-display font-bold uppercase tracking-wider border ${rarityColors[animalResult.rarity]}`}>
-                  {RARITY_LABELS[animalResult.rarity as Rarity]}
-                </span>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className={`inline-block px-2.5 py-1 rounded-full text-[10px] font-display font-bold uppercase tracking-wider border ${rarityColors[animalResult.rarity]}`}>
+                    {RARITY_LABELS[animalResult.rarity as Rarity]}
+                  </span>
+                  {typeof animalResult.confidence === 'number' && (
+                    <span
+                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-display font-bold uppercase tracking-wider border ${
+                        animalResult.confidence >= 80
+                          ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/40'
+                          : animalResult.confidence >= 50
+                          ? 'bg-amber-500/15 text-amber-300 border-amber-500/40'
+                          : 'bg-red-500/15 text-red-300 border-red-500/40'
+                      }`}
+                      title="Niveau de confiance de l'IA"
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                      {animalResult.confidence}% sûr
+                    </span>
+                  )}
+                </div>
                 <h2 className="text-2xl font-display font-bold text-primary-foreground mt-2">{animalResult.animal_name}</h2>
                 <p className="text-primary-foreground/60 text-sm italic">{animalResult.scientific_name}</p>
+                {animalResult.alternatives && animalResult.alternatives.length > 0 && typeof animalResult.confidence === 'number' && animalResult.confidence < 80 && (
+                  <p className="text-primary-foreground/60 text-[11px] font-display mt-1.5">
+                    Aussi possible : {animalResult.alternatives.slice(0, 3).join(' · ')}
+                  </p>
+                )}
               </div>
 
               {/* Description */}
