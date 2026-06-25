@@ -1094,12 +1094,11 @@ const BestiairePage = () => {
         </header>
 
         <div className="max-w-lg mx-auto px-4 pt-4 space-y-6">
-          {/* Mes régions */}
           <section>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Mes territoires à explorer</h2>
+              <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Mes territoires</h2>
               <button
-                onClick={() => { setPickerTab('department'); setShowDeptPicker(true); }}
+                onClick={() => { setPickerMode('hub'); setShowDeptPicker(true); }}
                 className="flex items-center gap-1 text-xs font-display font-semibold text-primary px-2 py-1 rounded-lg hover:bg-primary/10 transition"
               >
                 <Plus className="w-3.5 h-3.5" />
@@ -1107,15 +1106,38 @@ const BestiairePage = () => {
               </button>
             </div>
             {subscribedZones.length === 0 ? (
-              <button
-                onClick={() => { setPickerTab('department'); setShowDeptPicker(true); }}
-                className="w-full rounded-2xl border-2 border-dashed border-border p-5 text-center hover:border-primary/50 transition"
-              >
-                <MapPin className="w-6 h-6 text-muted-foreground mx-auto mb-1.5" strokeWidth={1.75} />
-                <p className="text-xs font-display text-muted-foreground">
-                  Ajoute un département ou une ville pour suivre la faune locale (ex. Paris, Marseille, Gironde…)
-                </p>
-              </button>
+              <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/8 via-primary/4 to-transparent p-5 space-y-4">
+                <div className="text-center space-y-1.5">
+                  <div className="inline-flex w-12 h-12 rounded-2xl bg-primary/15 items-center justify-center">
+                    <Home className="w-6 h-6 text-primary" strokeWidth={2} />
+                  </div>
+                  <h3 className="font-display font-bold text-sm text-foreground">Découvre la faune autour de toi</h3>
+                  <p className="text-[11px] text-muted-foreground font-display leading-relaxed px-2">
+                    Définis ton « Chez moi » pour suivre les espèces de ta région, ou ajoute une zone avant un voyage ou une sortie nature.
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={handleDetectHome}
+                    disabled={detectingHome}
+                    className="flex flex-col items-center gap-1 py-3 rounded-xl bg-primary text-primary-foreground font-display font-semibold text-xs transition active:scale-95 disabled:opacity-60"
+                  >
+                    {detectingHome ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Home className="w-4 h-4" strokeWidth={2.25} />
+                    )}
+                    Chez moi
+                  </button>
+                  <button
+                    onClick={() => { setPickerMode('explore'); setPickerTab('city'); setShowDeptPicker(true); }}
+                    className="flex flex-col items-center gap-1 py-3 rounded-xl bg-card border border-border text-foreground font-display font-semibold text-xs transition active:scale-95 hover:border-primary/40"
+                  >
+                    <Compass className="w-4 h-4" strokeWidth={2.25} />
+                    Explorer
+                  </button>
+                </div>
+              </div>
             ) : (
               <div className="grid grid-cols-2 gap-3">
                 {subscribedZones.map((zone) => {
@@ -1123,7 +1145,7 @@ const BestiairePage = () => {
                   const p = zoneProgress[zone.id] || { total: 0, captured: 0 };
                   const pct = p.total > 0 ? Math.round((p.captured / p.total) * 100) : 0;
                   const isCity = zone.kind === 'city';
-                  const ZoneIcon = isCity ? Building2 : MapPin;
+                  const ZoneIcon = zone.isHome ? Home : (isCity ? Building2 : MapPin);
                   const title = isCity ? (zone.cityName || 'Ville') : (d?.name || zone.departmentCode);
                   const sub = isCity
                     ? `${zone.cityPostcode || ''}${d ? ` · ${d.name}` : ''}`
@@ -1132,8 +1154,17 @@ const BestiairePage = () => {
                     <button
                       key={zone.id}
                       onClick={() => setSelectedZoneId(zone.id)}
-                      className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-md"
+                      className={`relative overflow-hidden rounded-2xl border p-4 text-left transition-all active:scale-[0.97] hover:shadow-md ${
+                        zone.isHome
+                          ? 'border-primary/40 bg-gradient-to-br from-primary/10 via-primary/5 to-card'
+                          : 'border-border bg-card hover:border-primary/30'
+                      }`}
                     >
+                      {zone.isHome && (
+                        <span className="absolute top-2 right-2 text-[9px] font-display font-bold uppercase tracking-wide text-primary bg-primary/15 px-1.5 py-0.5 rounded-full">
+                          Chez moi
+                        </span>
+                      )}
                       <div className="flex items-center gap-1.5 mb-2">
                         <ZoneIcon className="w-5 h-5 text-primary" strokeWidth={1.75} />
                         <span className="text-[10px] font-display font-bold text-muted-foreground tabular-nums truncate">{sub}</span>
