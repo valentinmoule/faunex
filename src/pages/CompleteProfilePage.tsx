@@ -70,7 +70,7 @@ const CompleteProfilePage = () => {
     <main className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center space-y-2">
-          <img src="/pwa-icon-512.png" alt="Faunex" className="w-20 h-20 mx-auto" />
+          <img src="/pwa-icon-512.png" alt="Logo Faunex" className="w-20 h-20 mx-auto" />
           <h1 className="text-2xl font-display font-bold text-foreground">Dernière étape !</h1>
           <p className="text-sm text-muted-foreground">
             Choisis ton nom d'explorateur pour que les autres puissent te retrouver.
