@@ -463,7 +463,7 @@ const ExplorersPage = () => {
             followsLoading ? <p className="text-center py-8 text-muted-foreground text-sm font-display">Chargement…</p> :
             following.length === 0 ? (
               <div className="text-center py-16 px-6">
-                <Users className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
+                <Users className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
                 <p className="text-foreground font-display font-semibold text-sm mb-2">Aucun abonnement</p>
                 <p className="text-muted-foreground text-xs leading-relaxed max-w-xs mx-auto">Utilise la barre de recherche pour trouver des explorateurs !</p>
               </div>
@@ -479,7 +479,7 @@ const ExplorersPage = () => {
             followsLoading ? <p className="text-center py-8 text-muted-foreground text-sm font-display">Chargement…</p> :
             followers.length === 0 ? (
               <div className="text-center py-16 px-6">
-                <Users className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
+                <Users className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
                 <p className="text-foreground font-display font-semibold text-sm mb-2">Aucun abonné</p>
                 <p className="text-muted-foreground text-xs leading-relaxed max-w-xs mx-auto">Partage ton pseudo pour te faire connaître !</p>
               </div>
@@ -503,7 +503,7 @@ const ExplorersPage = () => {
             followsLoading ? <p className="text-center py-8 text-muted-foreground text-sm font-display">Chargement…</p> :
             pendingRequests.length === 0 ? (
               <div className="text-center py-16 px-6">
-                <Clock className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
+                <Clock className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
                 <p className="text-foreground font-display font-semibold text-sm mb-2">Aucune demande</p>
               </div>
             ) : (
@@ -558,7 +558,7 @@ const ExplorersPage = () => {
           <div className="text-center py-16">
             <p className="text-4xl mb-3">🌿</p>
             <p className="text-muted-foreground font-display">Aucune capture partagée</p>
-            <p className="text-muted-foreground/60 text-xs mt-1">Ajoute des explorateurs ou partage tes captures !</p>
+            <p className="text-muted-foreground text-xs mt-1">Ajoute des explorateurs ou partage tes captures !</p>
           </div>
         ) : (
           <div className="divide-y divide-border">

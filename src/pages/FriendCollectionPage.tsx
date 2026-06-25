@@ -433,7 +433,7 @@ const FriendCollectionPage = () => {
             </div>
           ) : sheetProfiles.length === 0 ? (
             <div className="text-center py-12 px-6">
-              <Users className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
+              <Users className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
               <p className="text-foreground font-display font-semibold text-sm mb-1">
                 {sheetOpen === 'following' ? 'Aucun abonnement' : 'Aucun abonné'}
               </p>

@@ -134,7 +134,7 @@ const NotificationsPage = () => {
           <div className="text-center py-16">
             <p className="text-4xl mb-3">🔔</p>
             <p className="text-muted-foreground font-display">Aucune notification</p>
-            <p className="text-muted-foreground/60 text-xs mt-1">Tu seras notifié quand quelqu'un interagit avec tes captures</p>
+            <p className="text-muted-foreground text-xs mt-1">Tu seras notifié quand quelqu'un interagit avec tes captures</p>
           </div>
         ) : (
           <div className="space-y-1">
