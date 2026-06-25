@@ -1040,7 +1040,7 @@ const CapturePage = () => {
               </div>
             </button>
             <button onClick={switchCamera} className="w-12 h-12 rounded-xl bg-primary-foreground/10 flex items-center justify-center">
-              <SwitchCamera className="w-5 h-5 text-primary-foreground/60" />
+              <SwitchCamera className="w-5 h-5 text-primary-foreground/70" />
             </button>
           </>
         )}
