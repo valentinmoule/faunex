@@ -249,7 +249,7 @@ const LandingPage = () => {
           De la photo à la carte collectionnée, en moins de 10 secondes.
         </p>
 
-        <div className="space-y-4">
+        <div className="flex sm:flex-col gap-4 overflow-x-auto snap-x snap-mandatory pb-4 sm:pb-0 -mx-5 px-5 sm:mx-0 sm:px-0">
           {[
             { icon: Camera, num: '1', title: 'Photographie', desc: 'Prends en photo un animal que tu croises lors de tes balades.', color: 'primary' },
             { icon: Brain, num: '2', title: "L'IA identifie", desc: "Espèce, habitat, régime, anecdotes : tout en 3 secondes.", color: 'amber' },
@@ -257,7 +257,7 @@ const LandingPage = () => {
           ].map((step, i) => (
             <div
               key={i}
-              className="relative flex items-start gap-4 rounded-2xl bg-card border border-border p-5 shadow-card"
+              className="flex-shrink-0 w-[85%] sm:w-auto snap-start relative flex items-start gap-4 rounded-2xl bg-card border border-border p-5 shadow-card"
             >
               <div className="flex-shrink-0 relative">
                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -286,9 +286,9 @@ const LandingPage = () => {
             4 niveaux de rareté, du commun au mythique.
           </p>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="flex sm:grid sm:grid-cols-2 gap-4 overflow-x-auto snap-x snap-mandatory pb-4 sm:pb-0 -mx-5 px-5 sm:mx-0 sm:px-0">
             {heroCards.map((card) => (
-              <div key={card.name} className="rounded-2xl overflow-hidden">
+              <div key={card.name} className="flex-shrink-0 w-[72%] sm:w-auto snap-start rounded-2xl overflow-hidden">
                 <HolographicCard rarity={card.rarity} disableAutoShimmer>
                   <div className="rounded-2xl overflow-hidden bg-card border border-border">
                     <img
@@ -341,9 +341,9 @@ const LandingPage = () => {
         <h2 className="text-2xl sm:text-3xl font-display font-black text-center mb-8">
           Pourquoi tu vas adorer
         </h2>
-        <div className="space-y-3">
+        <div className="flex sm:flex-col gap-4 overflow-x-auto snap-x snap-mandatory pb-4 sm:pb-0 -mx-5 px-5 sm:mx-0 sm:px-0">
           {benefits.map((b, i) => (
-            <div key={i} className="flex items-start gap-4 p-4 rounded-2xl bg-card border border-border">
+            <div key={i} className="flex-shrink-0 w-[85%] sm:w-auto snap-start flex items-start gap-4 p-4 rounded-2xl bg-card border border-border">
               <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                 <b.icon className="w-5 h-5 text-primary" />
               </div>
