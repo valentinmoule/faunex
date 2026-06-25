@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef, type ComponentType } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Bell, ChevronLeft, PawPrint, Bird, Fish, Bug, Turtle, Shell, Waves, MapPin, Plus, Search, Trash2, X, Building2, Map as MapIcon, Home, Compass, Loader2, Star, type LucideIcon } from 'lucide-react';
+import { Bell, ChevronLeft, PawPrint, Bird, Fish, Bug, Turtle, Shell, Waves, MapPin, Plus, Search, Trash2, X, Building2, Map as MapIcon, Home, Compass, Loader2, type LucideIcon } from 'lucide-react';
 import { FrogIcon } from '@/components/icons/FrogIcon';
 import { type Rarity, type AnimalCard, RARITY_LABELS } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
