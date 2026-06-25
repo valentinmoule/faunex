@@ -968,14 +968,23 @@ const CapturePage = () => {
             Nouvelle capture
           </button>
         ) : duplicateCapture ? null : (animalResult && revealPhase === 'done') ? (
-          <button
-            onClick={saveToCollection}
-            disabled={saving}
-            className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-primary text-primary-foreground font-display text-sm disabled:opacity-50"
-          >
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-            {saving ? 'Sauvegarde…' : 'Ajouter au Faunex'}
-          </button>
+          <div className="flex items-center gap-3 w-full max-w-sm">
+            <button
+              onClick={resetCapture}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl bg-primary-foreground/10 text-primary-foreground/80 font-display text-sm"
+            >
+              <X className="w-4 h-4" />
+              Ne pas ajouter
+            </button>
+            <button
+              onClick={saveToCollection}
+              disabled={saving}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl bg-primary text-primary-foreground font-display text-sm disabled:opacity-50"
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+              {saving ? 'Sauvegarde…' : 'Ajouter'}
+            </button>
+          </div>
         ) : manualMode ? (
           <button
             onClick={saveManualEntry}
