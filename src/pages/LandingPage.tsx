@@ -1,10 +1,11 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
-import { Camera, Brain, Trophy, ChevronRight, Check, Sparkles, MapPin, Users } from 'lucide-react';
+import { Camera, Brain, Trophy, ChevronRight, Check, Sparkles, MapPin, Users, BookOpen } from 'lucide-react';
 import HolographicCard from '@/components/HolographicCard';
 import { supabase } from '@/integrations/supabase/client';
+import { guides, useCases } from '@/content/articles';
 import type { Rarity } from '@/data/mockData';
 
 interface Stats {
