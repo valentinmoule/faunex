@@ -15,10 +15,11 @@ export const markFirstLoginDone = (userId: string) => {
 
 const WelcomeInstallPopup = () => {
   const { session } = useAuth();
-  const { promptInstall, canInstall } = usePwaInstall();
+  const { promptInstall, canInstall, isIos } = usePwaInstall();
   const hasShown = useRef(false);
   const [visible, setVisible] = useState(false);
   const [phase, setPhase] = useState<'hidden' | 'in' | 'visible' | 'out'>('hidden');
+  const [showIosHelp, setShowIosHelp] = useState(false);
 
   useEffect(() => {
     if (!session?.user || hasShown.current) return;
@@ -44,8 +45,12 @@ const WelcomeInstallPopup = () => {
   const handleInstall = async () => {
     if (canInstall) {
       await promptInstall();
+      dismiss();
+    } else if (isIos) {
+      setShowIosHelp(true);
+    } else {
+      dismiss();
     }
-    dismiss();
   };
 
   if (!visible) return null;
