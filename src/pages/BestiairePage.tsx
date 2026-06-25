@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef, type ComponentType } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Bell, ChevronLeft, PawPrint, Bird, Fish, Bug, Turtle, Shell, Waves, MapPin, Plus, Search, Trash2, X, Building2, Map as MapIcon, type LucideIcon } from 'lucide-react';
+import { Bell, ChevronLeft, PawPrint, Bird, Fish, Bug, Turtle, Shell, Waves, MapPin, Plus, Search, Trash2, X, Building2, Map as MapIcon, Home, Compass, Loader2, type LucideIcon } from 'lucide-react';
 import { FrogIcon } from '@/components/icons/FrogIcon';
 import { type Rarity, type AnimalCard, RARITY_LABELS } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
@@ -228,17 +228,20 @@ const BestiairePage = () => {
     departmentCode: string;
     cityName: string | null;
     cityPostcode: string | null;
+    isHome: boolean;
   };
   const [subscribedZones, setSubscribedZones] = useState<ZoneSub[]>([]);
   const [animalsByDept, setAnimalsByDept] = useState<Record<string, Set<string>>>({});
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
   const [showDeptPicker, setShowDeptPicker] = useState(false);
+  const [pickerMode, setPickerMode] = useState<'hub' | 'explore'>('hub');
   const [pickerTab, setPickerTab] = useState<'department' | 'city'>('department');
   const [deptSearch, setDeptSearch] = useState('');
   const [citySearch, setCitySearch] = useState('');
   const [cityResults, setCityResults] = useState<Array<{ nom: string; code: string; codeDepartement: string; codesPostaux: string[] }>>([]);
   const [cityLoading, setCityLoading] = useState(false);
   const [loadingDept, setLoadingDept] = useState(false);
+  const [detectingHome, setDetectingHome] = useState(false);
 
   const loadDeptAnimals = async (code: string, sourceAnimals = animals, useFallback = true) => {
     const { data } = await supabase
@@ -332,8 +335,9 @@ const BestiairePage = () => {
     const fetchSubs = async (sourceAnimals: BestiaryAnimal[]) => {
       const { data } = await supabase
         .from('user_department_subscriptions')
-        .select('id, department_code, kind, city_name, city_postcode')
+        .select('id, department_code, kind, city_name, city_postcode, is_home')
         .eq('user_id', session.user.id)
+        .order('is_home', { ascending: false })
         .order('created_at', { ascending: true });
       const zones: ZoneSub[] = (data || []).map((r: any) => ({
         id: r.id,
@@ -341,6 +345,7 @@ const BestiairePage = () => {
         departmentCode: r.department_code,
         cityName: r.city_name,
         cityPostcode: r.city_postcode,
+        isHome: !!r.is_home,
       }));
       setSubscribedZones(zones);
       const uniqueDepts = Array.from(new Set(zones.map((z) => z.departmentCode)));
@@ -541,7 +546,7 @@ const BestiairePage = () => {
         .select('id')
         .single();
       if (error) throw error;
-      const newZone: ZoneSub = { id: data.id, kind: 'department', departmentCode: code, cityName: null, cityPostcode: null };
+      const newZone: ZoneSub = { id: data.id, kind: 'department', departmentCode: code, cityName: null, cityPostcode: null, isHome: false };
       setSubscribedZones((prev) => [...prev, newZone]);
 
       await loadDeptAnimals(code, animals);
@@ -589,6 +594,7 @@ const BestiairePage = () => {
         departmentCode: city.codeDepartement,
         cityName: city.nom,
         cityPostcode: postcode,
+        isHome: false,
       };
       setSubscribedZones((prev) => [...prev, newZone]);
 
@@ -617,6 +623,111 @@ const BestiairePage = () => {
       .eq('id', zoneId);
     setSubscribedZones((prev) => prev.filter((z) => z.id !== zoneId));
     setSelectedZoneId(null);
+  };
+
+  const handleSetAsHome = async (zoneId: string) => {
+    if (!session?.user) return;
+    try {
+      // Clear previous home, then set new one
+      await supabase
+        .from('user_department_subscriptions')
+        .update({ is_home: false })
+        .eq('user_id', session.user.id)
+        .eq('is_home', true);
+      const { error } = await supabase
+        .from('user_department_subscriptions')
+        .update({ is_home: true })
+        .eq('user_id', session.user.id)
+        .eq('id', zoneId);
+      if (error) throw error;
+      setSubscribedZones((prev) =>
+        prev.map((z) => ({ ...z, isHome: z.id === zoneId }))
+      );
+      toast.success('Territoire défini comme « Chez moi »');
+    } catch (e: any) {
+      toast.error(e.message || 'Erreur');
+    }
+  };
+
+  const handleDetectHome = async () => {
+    if (!session?.user) return;
+    if (!('geolocation' in navigator)) {
+      toast.error('Géolocalisation indisponible');
+      return;
+    }
+    setDetectingHome(true);
+    try {
+      const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: false,
+          timeout: 10000,
+          maximumAge: 60000,
+        });
+      });
+      const { latitude, longitude } = pos.coords;
+      const url = `https://geo.api.gouv.fr/communes?lat=${latitude}&lon=${longitude}&fields=nom,code,codeDepartement,codesPostaux&limit=1`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const commune = Array.isArray(data) && data[0];
+      if (!commune) {
+        toast.error('Impossible de détecter ta commune (hors France ?)');
+        return;
+      }
+      const postcode = commune.codesPostaux?.[0] || '';
+      // Existing zone match?
+      let zone = subscribedZones.find(
+        (z) => z.kind === 'city' && z.cityName === commune.nom && z.cityPostcode === postcode,
+      );
+      if (!zone) {
+        const { data: ins, error } = await supabase
+          .from('user_department_subscriptions')
+          .insert({
+            user_id: session.user.id,
+            department_code: commune.codeDepartement,
+            kind: 'city',
+            city_name: commune.nom,
+            city_postcode: postcode,
+            is_home: true,
+          })
+          .select('id')
+          .single();
+        if (error) throw error;
+        zone = {
+          id: ins.id,
+          kind: 'city',
+          departmentCode: commune.codeDepartement,
+          cityName: commune.nom,
+          cityPostcode: postcode,
+          isHome: true,
+        };
+        // Clear previous home
+        await supabase
+          .from('user_department_subscriptions')
+          .update({ is_home: false })
+          .eq('user_id', session.user.id)
+          .eq('is_home', true)
+          .neq('id', zone.id);
+        setSubscribedZones((prev) => [
+          ...prev.map((z) => ({ ...z, isHome: false })),
+          zone!,
+        ]);
+        await loadDeptAnimals(commune.codeDepartement, animals);
+        void supabase.functions.invoke('populate-department-fauna', {
+          body: { department_code: commune.codeDepartement },
+        }).then(() => loadDeptAnimals(commune.codeDepartement, animals));
+      } else {
+        await handleSetAsHome(zone.id);
+      }
+      toast.success(`Chez toi : ${commune.nom} 🏠`);
+      setShowDeptPicker(false);
+      setPickerMode('hub');
+      setSelectedZoneId(zone.id);
+    } catch (e: any) {
+      const msg = e?.code === 1 ? 'Autorise la géolocalisation pour détecter ta zone' : (e?.message || 'Erreur de géolocalisation');
+      toast.error(msg);
+    } finally {
+      setDetectingHome(false);
+    }
   };
 
   const filteredDeptOptions = useMemo(() => {
@@ -650,101 +761,143 @@ const BestiairePage = () => {
 
   const totalCaptured = animals.filter(a => a.captured).length;
 
-  // Zone picker sheet (shared) — supports department + city tabs
+  const hasHomeZone = subscribedZones.some((z) => z.isHome);
+
+  // Zone picker sheet — hub with presets + explore mode
   const deptPickerSheet = (
-    <Sheet open={showDeptPicker} onOpenChange={setShowDeptPicker}>
+    <Sheet
+      open={showDeptPicker}
+      onOpenChange={(o) => {
+        setShowDeptPicker(o);
+        if (!o) setPickerMode('hub');
+      }}
+    >
       <SheetContent side="bottom" className="h-[85vh] p-0 flex flex-col">
         <SheetHeader className="px-5 py-4 border-b border-border">
-          <SheetTitle className="font-display">Ajouter une zone</SheetTitle>
-        </SheetHeader>
-        <div className="px-5 pt-3 flex gap-2">
-          <button
-            onClick={() => setPickerTab('department')}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-display font-semibold transition ${
-              pickerTab === 'department' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-            }`}
-          >
-            <MapIcon className="w-3.5 h-3.5" strokeWidth={2} />
-            Département
-          </button>
-          <button
-            onClick={() => setPickerTab('city')}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-display font-semibold transition ${
-              pickerTab === 'city' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-            }`}
-          >
-            <Building2 className="w-3.5 h-3.5" strokeWidth={2} />
-            Ville
-          </button>
-        </div>
-        <div className="px-5 py-3 border-b border-border">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input
-              key={pickerTab}
-              autoFocus
-              type="text"
-              value={pickerTab === 'department' ? deptSearch : citySearch}
-              onChange={(e) => pickerTab === 'department' ? setDeptSearch(e.target.value) : setCitySearch(e.target.value)}
-              placeholder={pickerTab === 'department' ? 'Rechercher (nom, n° ou région)' : 'Rechercher une ville…'}
-              className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-muted border-0 text-sm font-display focus:outline-none focus:ring-2 focus:ring-primary/30"
-            />
-          </div>
-        </div>
-        <div className="flex-1 overflow-y-auto px-2 py-2">
-          {pickerTab === 'department' && filteredDeptOptions.map((d) => {
-            const already = subscribedZones.some((z) => z.kind === 'department' && z.departmentCode === d.code);
-            return (
+          <div className="flex items-center gap-2">
+            {pickerMode === 'explore' && (
               <button
-                key={d.code}
-                disabled={loadingDept}
-                onClick={() => handleAddDept(d.code)}
-                className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-muted transition text-left disabled:opacity-50"
+                onClick={() => setPickerMode('hub')}
+                className="p-1 -ml-1 rounded-full hover:bg-muted transition"
+                aria-label="Retour"
               >
-                <span className="w-10 text-xs font-display font-bold text-muted-foreground tabular-nums">{d.code}</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-display font-semibold text-foreground truncate">{d.name}</p>
-                  <p className="text-[11px] text-muted-foreground font-display truncate">{d.region}</p>
-                </div>
-                {already ? (
-                  <span className="text-[10px] font-display text-primary">Déjà ajouté</span>
-                ) : (
-                  <Plus className="w-4 h-4 text-primary" />
-                )}
+                <ChevronLeft className="w-4 h-4" />
               </button>
-            );
-          })}
-          {pickerTab === 'city' && (
-            <>
-              {citySearch.trim().length < 2 && (
-                <p className="text-center text-xs text-muted-foreground font-display py-8 px-4">
-                  Tape au moins 2 lettres pour rechercher une commune française.
-                </p>
-              )}
-              {cityLoading && (
-                <p className="text-center text-xs text-muted-foreground font-display py-4">Recherche…</p>
-              )}
-              {!cityLoading && citySearch.trim().length >= 2 && cityResults.length === 0 && (
-                <p className="text-center text-xs text-muted-foreground font-display py-8">Aucune commune trouvée</p>
-              )}
-              {cityResults.map((c) => {
-                const postcode = c.codesPostaux?.[0] || '';
-                const already = subscribedZones.some(
-                  (z) => z.kind === 'city' && z.cityName === c.nom && z.cityPostcode === postcode,
-                );
+            )}
+            <SheetTitle className="font-display">
+              {pickerMode === 'hub' ? 'Ajouter un territoire' : 'Explorer une zone'}
+            </SheetTitle>
+          </div>
+        </SheetHeader>
+
+        {pickerMode === 'hub' && (
+          <div className="flex-1 overflow-y-auto px-5 py-5 space-y-3">
+            <p className="text-xs text-muted-foreground font-display leading-relaxed">
+              Suis la faune locale là où tu vis, ou prépare ta prochaine sortie nature.
+            </p>
+
+            <button
+              onClick={handleDetectHome}
+              disabled={detectingHome}
+              className="w-full relative overflow-hidden rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-5 text-left transition active:scale-[0.98] disabled:opacity-60"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-primary/15 flex items-center justify-center shrink-0">
+                  {detectingHome ? (
+                    <Loader2 className="w-6 h-6 text-primary animate-spin" />
+                  ) : (
+                    <Home className="w-6 h-6 text-primary" strokeWidth={2} />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-display font-bold text-base text-foreground">Chez moi</h3>
+                    <span className="text-[9px] font-display font-bold uppercase tracking-wide text-primary bg-primary/15 px-1.5 py-0.5 rounded-full">
+                      Auto
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground font-display leading-relaxed mt-0.5">
+                    {hasHomeZone
+                      ? 'Mettre à jour ton territoire principal via ta position.'
+                      : 'Détecte ta commune et suis la faune autour de toi au quotidien.'}
+                  </p>
+                </div>
+              </div>
+            </button>
+
+            <button
+              onClick={() => { setPickerMode('explore'); setPickerTab('city'); }}
+              className="w-full rounded-2xl border border-border bg-card p-5 text-left transition active:scale-[0.98] hover:border-primary/30"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center shrink-0">
+                  <Compass className="w-6 h-6 text-foreground" strokeWidth={2} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-display font-bold text-base text-foreground">Explorer une zone</h3>
+                  <p className="text-[11px] text-muted-foreground font-display leading-relaxed mt-0.5">
+                    Prépare un voyage, une rando ou une visite : ajoute n'importe quelle ville ou département.
+                  </p>
+                </div>
+              </div>
+            </button>
+
+            <p className="text-[10px] text-muted-foreground font-display text-center pt-2">
+              Tu peux ajouter plusieurs territoires et changer ton « Chez moi » à tout moment.
+            </p>
+          </div>
+        )}
+
+        {pickerMode === 'explore' && (
+          <>
+            <div className="px-5 pt-3 flex gap-2">
+              <button
+                onClick={() => setPickerTab('department')}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-display font-semibold transition ${
+                  pickerTab === 'department' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                }`}
+              >
+                <MapIcon className="w-3.5 h-3.5" strokeWidth={2} />
+                Département
+              </button>
+              <button
+                onClick={() => setPickerTab('city')}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-display font-semibold transition ${
+                  pickerTab === 'city' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                }`}
+              >
+                <Building2 className="w-3.5 h-3.5" strokeWidth={2} />
+                Ville
+              </button>
+            </div>
+            <div className="px-5 py-3 border-b border-border">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input
+                  key={pickerTab}
+                  autoFocus
+                  type="text"
+                  value={pickerTab === 'department' ? deptSearch : citySearch}
+                  onChange={(e) => pickerTab === 'department' ? setDeptSearch(e.target.value) : setCitySearch(e.target.value)}
+                  placeholder={pickerTab === 'department' ? 'Rechercher (nom, n° ou région)' : 'Rechercher une ville…'}
+                  className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-muted border-0 text-sm font-display focus:outline-none focus:ring-2 focus:ring-primary/30"
+                />
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto px-2 py-2">
+              {pickerTab === 'department' && filteredDeptOptions.map((d) => {
+                const already = subscribedZones.some((z) => z.kind === 'department' && z.departmentCode === d.code);
                 return (
                   <button
-                    key={c.code}
+                    key={d.code}
                     disabled={loadingDept}
-                    onClick={() => handleAddCity(c)}
+                    onClick={() => handleAddDept(d.code)}
                     className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-muted transition text-left disabled:opacity-50"
                   >
-                    <Building2 className="w-5 h-5 text-primary shrink-0" strokeWidth={1.75} />
+                    <span className="w-10 text-xs font-display font-bold text-muted-foreground tabular-nums">{d.code}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-display font-semibold text-foreground truncate">{c.nom}</p>
-                      <p className="text-[11px] text-muted-foreground font-display truncate">
-                        {postcode} · {c.codeDepartement}
-                      </p>
+                      <p className="text-sm font-display font-semibold text-foreground truncate">{d.name}</p>
+                      <p className="text-[11px] text-muted-foreground font-display truncate">{d.region}</p>
                     </div>
                     {already ? (
                       <span className="text-[10px] font-display text-primary">Déjà ajouté</span>
@@ -754,9 +907,51 @@ const BestiairePage = () => {
                   </button>
                 );
               })}
-            </>
-          )}
-        </div>
+              {pickerTab === 'city' && (
+                <>
+                  {citySearch.trim().length < 2 && (
+                    <p className="text-center text-xs text-muted-foreground font-display py-8 px-4">
+                      Tape au moins 2 lettres pour rechercher une commune française.
+                    </p>
+                  )}
+                  {cityLoading && (
+                    <p className="text-center text-xs text-muted-foreground font-display py-4">Recherche…</p>
+                  )}
+                  {!cityLoading && citySearch.trim().length >= 2 && cityResults.length === 0 && (
+                    <p className="text-center text-xs text-muted-foreground font-display py-8">Aucune commune trouvée</p>
+                  )}
+                  {cityResults.map((c) => {
+                    const postcode = c.codesPostaux?.[0] || '';
+                    const already = subscribedZones.some(
+                      (z) => z.kind === 'city' && z.cityName === c.nom && z.cityPostcode === postcode,
+                    );
+                    return (
+                      <button
+                        key={c.code}
+                        disabled={loadingDept}
+                        onClick={() => handleAddCity(c)}
+                        className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-muted transition text-left disabled:opacity-50"
+                      >
+                        <Building2 className="w-5 h-5 text-primary shrink-0" strokeWidth={1.75} />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-display font-semibold text-foreground truncate">{c.nom}</p>
+                          <p className="text-[11px] text-muted-foreground font-display truncate">
+                            {postcode} · {c.codeDepartement}
+                          </p>
+                        </div>
+                        {already ? (
+                          <span className="text-[10px] font-display text-primary">Déjà ajouté</span>
+                        ) : (
+                          <Plus className="w-4 h-4 text-primary" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </>
+              )}
+            </div>
+          </>
+        )}
       </SheetContent>
     </Sheet>
   );
@@ -770,7 +965,7 @@ const BestiairePage = () => {
     const subtitle = isCity
       ? `${selectedZone.cityPostcode || ''}${dept ? ` · ${dept.name}` : ''} · ${prog.captured}/${prog.total} capturés`
       : `${prog.captured}/${prog.total} capturés`;
-    const HeaderIcon = isCity ? Building2 : MapPin;
+    const HeaderIcon = selectedZone.isHome ? Home : (isCity ? Building2 : MapPin);
     return (
       <main className="min-h-screen bg-background pb-24">
         <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
@@ -785,10 +980,27 @@ const BestiairePage = () => {
               <div className="flex-1 min-w-0 flex items-center gap-2">
                 <HeaderIcon className="w-5 h-5 text-primary shrink-0" strokeWidth={1.75} />
                 <div className="min-w-0">
-                  <h1 className="text-lg font-display font-bold text-foreground truncate">{title}</h1>
+                  <div className="flex items-center gap-1.5">
+                    <h1 className="text-lg font-display font-bold text-foreground truncate">{title}</h1>
+                    {selectedZone.isHome && (
+                      <span className="text-[9px] font-display font-bold uppercase tracking-wide text-primary bg-primary/15 px-1.5 py-0.5 rounded-full shrink-0">
+                        Chez moi
+                      </span>
+                    )}
+                  </div>
                   <p className="text-[11px] text-muted-foreground font-display truncate">{subtitle}</p>
                 </div>
               </div>
+              {!selectedZone.isHome && (
+                <button
+                  onClick={() => handleSetAsHome(selectedZone.id)}
+                  className="p-2 rounded-full hover:bg-primary/10 text-primary transition"
+                  aria-label="Définir comme Chez moi"
+                  title="Définir comme Chez moi"
+                >
+                  <Home className="w-4 h-4" strokeWidth={2} />
+                </button>
+              )}
               <button
                 onClick={() => handleRemoveZone(selectedZone.id)}
                 className="p-2 rounded-full hover:bg-destructive/10 text-destructive transition"
@@ -899,12 +1111,11 @@ const BestiairePage = () => {
         </header>
 
         <div className="max-w-lg mx-auto px-4 pt-4 space-y-6">
-          {/* Mes régions */}
           <section>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Mes territoires à explorer</h2>
+              <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Mes territoires</h2>
               <button
-                onClick={() => { setPickerTab('department'); setShowDeptPicker(true); }}
+                onClick={() => { setPickerMode('hub'); setShowDeptPicker(true); }}
                 className="flex items-center gap-1 text-xs font-display font-semibold text-primary px-2 py-1 rounded-lg hover:bg-primary/10 transition"
               >
                 <Plus className="w-3.5 h-3.5" />
@@ -912,15 +1123,38 @@ const BestiairePage = () => {
               </button>
             </div>
             {subscribedZones.length === 0 ? (
-              <button
-                onClick={() => { setPickerTab('department'); setShowDeptPicker(true); }}
-                className="w-full rounded-2xl border-2 border-dashed border-border p-5 text-center hover:border-primary/50 transition"
-              >
-                <MapPin className="w-6 h-6 text-muted-foreground mx-auto mb-1.5" strokeWidth={1.75} />
-                <p className="text-xs font-display text-muted-foreground">
-                  Ajoute un département ou une ville pour suivre la faune locale (ex. Paris, Marseille, Gironde…)
-                </p>
-              </button>
+              <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/8 via-primary/4 to-transparent p-5 space-y-4">
+                <div className="text-center space-y-1.5">
+                  <div className="inline-flex w-12 h-12 rounded-2xl bg-primary/15 items-center justify-center">
+                    <Home className="w-6 h-6 text-primary" strokeWidth={2} />
+                  </div>
+                  <h3 className="font-display font-bold text-sm text-foreground">Découvre la faune autour de toi</h3>
+                  <p className="text-[11px] text-muted-foreground font-display leading-relaxed px-2">
+                    Définis ton « Chez moi » pour suivre les espèces de ta région, ou ajoute une zone avant un voyage ou une sortie nature.
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={handleDetectHome}
+                    disabled={detectingHome}
+                    className="flex flex-col items-center gap-1 py-3 rounded-xl bg-primary text-primary-foreground font-display font-semibold text-xs transition active:scale-95 disabled:opacity-60"
+                  >
+                    {detectingHome ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Home className="w-4 h-4" strokeWidth={2.25} />
+                    )}
+                    Chez moi
+                  </button>
+                  <button
+                    onClick={() => { setPickerMode('explore'); setPickerTab('city'); setShowDeptPicker(true); }}
+                    className="flex flex-col items-center gap-1 py-3 rounded-xl bg-card border border-border text-foreground font-display font-semibold text-xs transition active:scale-95 hover:border-primary/40"
+                  >
+                    <Compass className="w-4 h-4" strokeWidth={2.25} />
+                    Explorer
+                  </button>
+                </div>
+              </div>
             ) : (
               <div className="grid grid-cols-2 gap-3">
                 {subscribedZones.map((zone) => {
@@ -928,7 +1162,7 @@ const BestiairePage = () => {
                   const p = zoneProgress[zone.id] || { total: 0, captured: 0 };
                   const pct = p.total > 0 ? Math.round((p.captured / p.total) * 100) : 0;
                   const isCity = zone.kind === 'city';
-                  const ZoneIcon = isCity ? Building2 : MapPin;
+                  const ZoneIcon = zone.isHome ? Home : (isCity ? Building2 : MapPin);
                   const title = isCity ? (zone.cityName || 'Ville') : (d?.name || zone.departmentCode);
                   const sub = isCity
                     ? `${zone.cityPostcode || ''}${d ? ` · ${d.name}` : ''}`
@@ -937,8 +1171,17 @@ const BestiairePage = () => {
                     <button
                       key={zone.id}
                       onClick={() => setSelectedZoneId(zone.id)}
-                      className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-md"
+                      className={`relative overflow-hidden rounded-2xl border p-4 text-left transition-all active:scale-[0.97] hover:shadow-md ${
+                        zone.isHome
+                          ? 'border-primary/40 bg-gradient-to-br from-primary/10 via-primary/5 to-card'
+                          : 'border-border bg-card hover:border-primary/30'
+                      }`}
                     >
+                      {zone.isHome && (
+                        <span className="absolute top-2 right-2 text-[9px] font-display font-bold uppercase tracking-wide text-primary bg-primary/15 px-1.5 py-0.5 rounded-full">
+                          Chez moi
+                        </span>
+                      )}
                       <div className="flex items-center gap-1.5 mb-2">
                         <ZoneIcon className="w-5 h-5 text-primary" strokeWidth={1.75} />
                         <span className="text-[10px] font-display font-bold text-muted-foreground tabular-nums truncate">{sub}</span>

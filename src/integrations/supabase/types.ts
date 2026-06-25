@@ -633,6 +633,7 @@ export type Database = {
           created_at: string
           department_code: string
           id: string
+          is_home: boolean
           kind: string
           user_id: string
         }
@@ -642,6 +643,7 @@ export type Database = {
           created_at?: string
           department_code: string
           id?: string
+          is_home?: boolean
           kind?: string
           user_id: string
         }
@@ -651,6 +653,7 @@ export type Database = {
           created_at?: string
           department_code?: string
           id?: string
+          is_home?: boolean
           kind?: string
           user_id?: string
         }
