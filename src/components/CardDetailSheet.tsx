@@ -363,11 +363,11 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
       {/* Fullscreen image - outside Sheet to avoid portal conflicts */}
       {imageFullscreen && card.image && (
         <div
-          className={`fixed inset-0 z-[9999] flex items-center justify-center p-4 overflow-hidden detail-hero-${card.rarity}`}
+          className={`fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden detail-hero-${card.rarity}`}
           onClick={() => setImageFullscreen(false)}
         >
           {/* Animated rarity backdrop */}
-          <div className="absolute inset-0 bg-black/85 pointer-events-none" />
+          <div className="absolute inset-0 bg-black/90 backdrop-blur-sm pointer-events-none" />
           {isMythic && (
             <>
               <div className="detail-mythic-orb-1 pointer-events-none" />
@@ -399,35 +399,31 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
           )}
 
           <div
-            className="relative w-full max-w-[440px] aspect-square z-10"
+            className="relative w-full h-full max-w-[min(100vw,100vh)] max-h-screen z-10 flex items-center justify-center p-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <HolographicCard
-              rarity={card.rarity}
-              className="relative w-full h-full rounded-2xl"
-            >
-              <div
-                className="relative w-full h-full rounded-2xl overflow-hidden"
-                style={{ boxShadow: isMythic ? '0 0 60px 12px hsla(42,100%,65%,0.4), 0 12px 40px rgba(0,0,0,0.6)' : isEpic ? '0 0 50px 10px hsla(270,80%,65%,0.35), 0 12px 40px rgba(0,0,0,0.6)' : isRare ? '0 0 35px 6px hsla(210,70%,60%,0.3), 0 12px 40px rgba(0,0,0,0.6)' : '0 12px 40px rgba(0,0,0,0.6)' }}
-              >
-                <img
-                  src={card.image}
-                  alt={card.name}
-                  className="w-full h-full object-cover pointer-events-none select-none"
-                  draggable={false}
-                />
-                {isMythic && <div className="detail-mythic-glass" />}
-                {isEpic && <div className="detail-epic-glass" />}
-                {isRare && <div className="detail-rare-glass" />}
-              </div>
-            </HolographicCard>
+            <div className="relative w-full h-full max-w-[min(100vw,100vh)] max-h-full rounded-2xl overflow-hidden shadow-2xl">
+              <img
+                src={card.image}
+                alt={card.name}
+                className="w-full h-full object-contain pointer-events-none select-none bg-black/30"
+                draggable={false}
+              />
+              {isMythic && <div className="detail-mythic-glass" />}
+              {isEpic && <div className="detail-epic-glass" />}
+              {isRare && <div className="detail-rare-glass" />}
+            </div>
           </div>
           <button
             onClick={() => setImageFullscreen(false)}
-            className="absolute top-6 right-6 text-white/90 hover:text-white text-3xl font-light z-20"
+            className="absolute top-5 right-5 z-20 w-11 h-11 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white/90 hover:text-white hover:bg-black/60 transition-colors"
+            aria-label="Fermer l'image en plein écran"
           >
-            ✕
+            <span className="text-2xl font-light leading-none">✕</span>
           </button>
+          <p className="absolute bottom-6 left-0 right-0 text-center text-white/60 text-xs font-body pointer-events-none z-20">
+            Tape n'importe où pour fermer
+          </p>
         </div>
       )}
     </>
