@@ -422,9 +422,6 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
           >
             <span className="text-2xl font-light leading-none">✕</span>
           </button>
-          <p className="absolute bottom-6 left-0 right-0 text-center text-white/60 text-xs font-body pointer-events-none z-20">
-            Tape n'importe où pour fermer
-          </p>
         </div>
       )}
     </>

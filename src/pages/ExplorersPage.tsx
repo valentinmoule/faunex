@@ -182,7 +182,7 @@ const ExplorersPage = () => {
         ((commentCountsRes as any).data || []).forEach((c: any) => { cC[c.capture_id] = (cC[c.capture_id] || 0) + 1; });
         setCommentCounts(cC);
 
-        setPosts(data.map((c: any) => ({ ...c, profiles: profileMap.get(c.user_id) || null })) as any);
+        setPosts((data.map((c: any) => ({ ...c, profiles: profileMap.get(c.user_id) || null })) as FeedCapture[]).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()));
       }
       setFeedLoading(false);
     };
