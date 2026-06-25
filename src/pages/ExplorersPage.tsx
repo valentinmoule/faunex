@@ -305,7 +305,10 @@ const ExplorersPage = () => {
     setLikedPosts(prev => { const n = new Set(prev); liked ? n.delete(captureId) : n.add(captureId); return n; });
     setLikeCounts(prev => ({ ...prev, [captureId]: (prev[captureId] || 0) + (liked ? -1 : 1) }));
     if (liked) await supabase.from('feed_likes').delete().eq('user_id', uid).eq('capture_id', captureId);
-    else await supabase.from('feed_likes').insert({ user_id: uid, capture_id: captureId });
+    else {
+      await supabase.from('feed_likes').insert({ user_id: uid, capture_id: captureId });
+      notifyCaptureInteraction(captureId, uid, 'like');
+    }
   }, [session, likedPosts]);
 
   const loadComments = useCallback(async (captureId: string) => {
@@ -329,7 +332,7 @@ const ExplorersPage = () => {
     if (!session?.user || !newComment.trim()) return;
     setSubmittingComment(true);
     const { error } = await supabase.from('feed_comments').insert({ user_id: session.user.id, capture_id: captureId, content: newComment.trim() });
-    if (!error) { setNewComment(''); setCommentCounts(prev => ({ ...prev, [captureId]: (prev[captureId] || 0) + 1 })); await loadComments(captureId); }
+    if (!error) { notifyCaptureInteraction(captureId, session.user.id, 'comment', newComment.trim()); setNewComment(''); setCommentCounts(prev => ({ ...prev, [captureId]: (prev[captureId] || 0) + 1 })); await loadComments(captureId); }
     setSubmittingComment(false);
   }, [session, newComment, loadComments]);
 

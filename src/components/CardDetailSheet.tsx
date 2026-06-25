@@ -109,6 +109,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
       await supabase.from('feed_likes').delete().eq('user_id', session.user.id).eq('capture_id', card.id);
     } else {
       await supabase.from('feed_likes').insert({ user_id: session.user.id, capture_id: card.id });
+      notifyCaptureInteraction(card.id, session.user.id, 'like');
     }
   }, [session, card, liked]);
 
@@ -121,6 +122,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
       content: newComment.trim(),
     });
     if (!error) {
+      notifyCaptureInteraction(card.id, session.user.id, 'comment', newComment.trim());
       setNewComment('');
       // Refetch comments
       const { data } = await supabase.from('feed_comments').select('*').eq('capture_id', card.id).order('created_at', { ascending: true });

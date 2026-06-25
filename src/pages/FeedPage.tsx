@@ -211,6 +211,7 @@ const FeedPage = () => {
       await supabase.from('feed_likes').delete().eq('user_id', userId).eq('capture_id', captureId);
     } else {
       await supabase.from('feed_likes').insert({ user_id: userId, capture_id: captureId });
+      notifyCaptureInteraction(captureId, userId, 'like');
     }
   }, [session, likedPosts]);
 
@@ -264,6 +265,7 @@ const FeedPage = () => {
     });
 
     if (!error) {
+      notifyCaptureInteraction(captureId, session.user.id, 'comment', newComment.trim());
       setNewComment('');
       setCommentCounts(prev => ({
         ...prev,
