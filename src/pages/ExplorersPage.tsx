@@ -224,7 +224,10 @@ const ExplorersPage = () => {
     return () => obs.disconnect();
   }, [view, feedLoading, feedHasMore, feedFollowingIds, feedOffset, feedLoadingMore, fetchFeedPage]);
 
+  // ── Follows data ──
+  const fetchFollows = useCallback(async () => {
     if (!userId) return;
+
     setFollowsLoading(true);
     const [{ data: followingData }, { data: followersData }, { data: pendingData }] = await Promise.all([
       supabase.from('explorer_follows').select('following_id').eq('follower_id', userId).eq('status', 'accepted'),
