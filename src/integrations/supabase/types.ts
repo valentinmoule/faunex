@@ -679,51 +679,7 @@ export type Database = {
       }
     }
     Views: {
-      profiles_public: {
-        Row: {
-          avatar_url: string | null
-          created_at: string | null
-          display_name: string | null
-          is_private: boolean | null
-          level: number | null
-          regions_explored: number | null
-          species_count: number | null
-          total_captures: number | null
-          user_id: string | null
-          username: string | null
-          xp: number | null
-          xp_to_next: number | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          created_at?: string | null
-          display_name?: string | null
-          is_private?: boolean | null
-          level?: number | null
-          regions_explored?: number | null
-          species_count?: number | null
-          total_captures?: number | null
-          user_id?: string | null
-          username?: string | null
-          xp?: number | null
-          xp_to_next?: number | null
-        }
-        Update: {
-          avatar_url?: string | null
-          created_at?: string | null
-          display_name?: string | null
-          is_private?: boolean | null
-          level?: number | null
-          regions_explored?: number | null
-          species_count?: number | null
-          total_captures?: number | null
-          user_id?: string | null
-          username?: string | null
-          xp?: number | null
-          xp_to_next?: number | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       claim_quest_reward: { Args: { p_quest_id: string }; Returns: boolean }
@@ -734,6 +690,39 @@ export type Database = {
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
+      }
+      get_my_profile: {
+        Args: never
+        Returns: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          is_private: boolean
+          last_login_at: string | null
+          level: number
+          marketing_emails: boolean
+          notify_email_comments: boolean
+          notify_email_follows: boolean
+          notify_email_likes: boolean
+          notify_push_comments: boolean
+          notify_push_follows: boolean
+          notify_push_likes: boolean
+          regions_explored: number
+          species_count: number
+          total_captures: number
+          updated_at: string
+          user_id: string
+          username: string | null
+          xp: number
+          xp_to_next: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "profiles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       grant_xp: {
         Args: { p_amount: number; p_user_id: string }
