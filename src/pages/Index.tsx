@@ -318,22 +318,149 @@ const Index = () => {
         {/* Autour de moi */}
         <NearbyAnimalsSection capturedNames={allCapturedNames} />
 
-        {/* Collection */}
-        {allCaptures.length > 0 && (
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <h2 className="text-base font-display font-bold text-foreground">Ma collection</h2>
-              <span className="text-[10px] font-display font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-full">{allCaptures.length}</span>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              {allCaptures.map((card, i) => (
-                <div key={card.id} className="game-card-appear" style={{ animationDelay: `${Math.min(i, 8) * 80}ms` }}>
-                  <AnimalCardComponent card={card} compact onClick={() => setSelectedCard(card)} />
+        {/* Progression personnelle */}
+        {allCaptures.length > 0 && (() => {
+          const rarityTiles: { key: Rarity; label: string; dot: string; ring: string }[] = [
+            { key: 'common', label: 'Commun', dot: 'bg-rarity-common', ring: 'border-rarity-common/30' },
+            { key: 'rare', label: 'Rare', dot: 'bg-rarity-rare', ring: 'border-rarity-rare/30' },
+            { key: 'epic', label: 'Épique', dot: 'bg-rarity-epic', ring: 'border-rarity-epic/30' },
+            { key: 'mythic', label: 'Mythique', dot: 'bg-rarity-mythic', ring: 'border-rarity-mythic/30' },
+          ];
+
+          // Categories breakdown (top 3)
+          const catMap: Record<string, number> = {};
+          allCaptures.forEach(c => { if (c.category) catMap[c.category] = (catMap[c.category] || 0) + 1; });
+          const topCats = Object.entries(catMap).sort((a, b) => b[1] - a[1]).slice(0, 3);
+
+          // Next badges to unlock
+          const total = allCaptures.length;
+          const birds = allCaptures.filter(c => c.category?.toLowerCase().includes('oiseau')).length;
+          const mammals = allCaptures.filter(c => c.category?.toLowerCase().includes('mammif')).length;
+          const progressOf = (b: typeof BADGE_DEFS[number]) => {
+            switch (b.type) {
+              case 'captures': return Math.min(total, b.total);
+              case 'birds': return Math.min(birds, b.total);
+              case 'mammals': return Math.min(mammals, b.total);
+              case 'rare': return rarityCounts.rare || rarityCounts.epic || rarityCounts.mythic ? 1 : 0;
+              case 'epic': return rarityCounts.epic || rarityCounts.mythic ? 1 : 0;
+              case 'mythic': return rarityCounts.mythic ? 1 : 0;
+              case 'level': return Math.min(profile.level, b.total);
+              default: return 0;
+            }
+          };
+          const BADGE_LABELS: Record<string, string> = {
+            first_capture: 'Première capture', explorer_10: 'Explorateur · 10', explorer_25: 'Explorateur · 25',
+            explorer_50: 'Explorateur · 50', birds_5: 'Ornithologue', mammals_5: 'Mammalogiste',
+            rare_1: 'Première rare', legendary_1: 'Première épique', mythic_1: 'Première mythique',
+            social_3: 'Sociable', level_5: 'Niveau 5',
+          };
+          const nextBadges = BADGE_DEFS
+            .map(b => ({ ...b, current: progressOf(b), pct: progressOf(b) / b.total }))
+            .filter(b => b.pct < 1)
+            .sort((a, b) => b.pct - a.pct)
+            .slice(0, 3);
+
+          return (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Trophy className="w-4 h-4 text-amber" />
+                <h2 className="text-base font-display font-bold text-foreground">Ta progression</h2>
+              </div>
+
+              {/* Rarity tiles */}
+              <div className="grid grid-cols-4 gap-2">
+                {rarityTiles.map(t => (
+                  <div key={t.key} className={`relative p-2.5 rounded-xl border ${t.ring} bg-card/60 flex flex-col items-center gap-1`}>
+                    <span className={`w-2 h-2 rounded-full ${t.dot}`} />
+                    <span className="text-lg font-display font-black text-foreground tabular-nums leading-none">{rarityCounts[t.key] || 0}</span>
+                    <span className="text-[9px] font-display text-muted-foreground uppercase tracking-wide">{t.label}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Catégories */}
+              {topCats.length > 0 && (
+                <button
+                  onClick={() => navigate('/bestiaire')}
+                  className="w-full p-3.5 rounded-2xl border border-border bg-card/60 text-left active:scale-[0.98] transition-transform"
+                >
+                  <div className="flex items-center justify-between mb-2.5">
+                    <div className="flex items-center gap-2">
+                      <BookOpen className="w-4 h-4 text-primary" />
+                      <h3 className="text-sm font-display font-bold text-foreground">Catégories explorées</h3>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                  </div>
+                  <div className="space-y-2">
+                    {topCats.map(([cat, count]) => {
+                      const pct = Math.min(100, (count / total) * 100);
+                      return (
+                        <div key={cat}>
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-[11px] font-display text-foreground">{cat}</span>
+                            <span className="text-[10px] font-display text-muted-foreground tabular-nums">{count}</span>
+                          </div>
+                          <div className="h-1.5 rounded-full bg-muted/60 overflow-hidden">
+                            <div className="h-full rounded-full bg-gradient-to-r from-primary to-primary/60" style={{ width: `${pct}%` }} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </button>
+              )}
+
+              {/* Prochains badges */}
+              {nextBadges.length > 0 && (
+                <button
+                  onClick={() => navigate('/profile')}
+                  className="w-full p-3.5 rounded-2xl border border-amber/25 bg-gradient-to-br from-amber/8 to-transparent text-left active:scale-[0.98] transition-transform"
+                >
+                  <div className="flex items-center justify-between mb-2.5">
+                    <div className="flex items-center gap-2">
+                      <Trophy className="w-4 h-4 text-amber" />
+                      <h3 className="text-sm font-display font-bold text-foreground">Prochains badges</h3>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                  </div>
+                  <div className="space-y-2.5">
+                    {nextBadges.map(b => {
+                      const pct = Math.round(b.pct * 100);
+                      return (
+                        <div key={b.id}>
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-[11px] font-display text-foreground">{BADGE_LABELS[b.id] || b.id}</span>
+                            <span className="text-[10px] font-display text-muted-foreground tabular-nums">{b.current}/{b.total}</span>
+                          </div>
+                          <div className="h-1.5 rounded-full bg-muted/60 overflow-hidden">
+                            <div className="h-full rounded-full bg-gradient-to-r from-amber to-amber-light transition-all duration-500" style={{ width: `${pct}%` }} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </button>
+              )}
+
+              {/* Lien vers la collection complète */}
+              <button
+                onClick={() => navigate('/bestiaire')}
+                className="w-full flex items-center justify-between p-3.5 rounded-2xl border border-border bg-card/60 active:scale-[0.98] transition-transform"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <BookOpen className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-sm font-display font-bold text-foreground">Voir ma collection</p>
+                    <p className="text-[10px] font-display text-muted-foreground">{allCaptures.length} capture{allCaptures.length > 1 ? 's' : ''} · {profile.species_count} espèce{profile.species_count > 1 ? 's' : ''}</p>
+                  </div>
                 </div>
-              ))}
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              </button>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Empty state */}
         {allCaptures.length === 0 && !loading && (
