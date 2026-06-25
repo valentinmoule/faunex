@@ -727,32 +727,30 @@ const CapturePage = () => {
 
         {/* Top controls */}
         <div className="relative z-20 flex items-center justify-between px-6 pt-6">
-          {capturedPhoto ? (
-            <button onClick={resetCapture} className="p-3 rounded-full bg-primary-foreground/10 text-primary-foreground/60">
-              <X className="w-5 h-5" />
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate('/')}
+              className="p-3 rounded-full bg-primary-foreground/10 text-primary-foreground/60"
+            >
+              <ArrowLeft className="w-5 h-5" />
             </button>
-          ) : (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => navigate('/')}
-                className="p-3 rounded-full bg-primary-foreground/10 text-primary-foreground/60"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => setFlash(!flash)}
-                className={`p-3 rounded-full transition-colors ${flash ? 'bg-amber text-amber-dark' : 'bg-primary-foreground/10 text-primary-foreground/60'}`}
-              >
-                <Zap className="w-5 h-5" />
-              </button>
-              <button
-                onClick={toggleFocusMode}
-                className={`p-3 rounded-full transition-colors ${focusMode === 'manual' ? 'bg-amber text-amber-dark' : 'bg-primary-foreground/10 text-primary-foreground/60'}`}
-              >
-                <Focus className="w-5 h-5" />
-              </button>
-            </div>
-          )}
+            {!capturedPhoto && (
+              <>
+                <button
+                  onClick={() => setFlash(!flash)}
+                  className={`p-3 rounded-full transition-colors ${flash ? 'bg-amber text-amber-dark' : 'bg-primary-foreground/10 text-primary-foreground/60'}`}
+                >
+                  <Zap className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={toggleFocusMode}
+                  className={`p-3 rounded-full transition-colors ${focusMode === 'manual' ? 'bg-amber text-amber-dark' : 'bg-primary-foreground/10 text-primary-foreground/60'}`}
+                >
+                  <Focus className="w-5 h-5" />
+                </button>
+              </>
+            )}
+          </div>
           <div className="flex items-center gap-1.5 bg-primary-foreground/10 rounded-full px-3 py-1.5">
             <MapPin className="w-3.5 h-3.5 text-primary" />
             <span className="text-primary-foreground/60 text-xs font-display">{geoName || 'Localisation…'}</span>
