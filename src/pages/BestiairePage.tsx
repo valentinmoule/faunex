@@ -957,40 +957,152 @@ const BestiairePage = () => {
             )}
           </section>
 
-          {/* Catégories */}
-          <section>
-            <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide mb-3">Catégories</h2>
-            {loading ? (
-              <div className="text-center py-16">
-                <p className="text-muted-foreground font-display">Chargement…</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-3">
-                {categoryData.map(cat => {
-                  const CatIcon = getCategoryIcon(cat.name);
-                  const progress = cat.total > 0 ? Math.round((cat.captured / cat.total) * 100) : 0;
-                  return (
-                    <button
-                      key={cat.name}
-                      onClick={() => setSelectedCategory(cat.name)}
-                      className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-md"
-                    >
-                      <div className="mb-2">
-                        <CatIcon className="w-7 h-7 text-primary" strokeWidth={1.75} />
-                      </div>
-                      <h3 className="font-display font-bold text-sm text-foreground leading-tight mb-1 truncate">{cat.name}</h3>
-                      <p className="text-[11px] text-muted-foreground font-display mb-3">
-                        {cat.captured}/{cat.total} capturés
-                      </p>
-                      <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
-                        <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${progress}%` }} />
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
+          {/* View toggle + rarity filter */}
+          <section className="space-y-3">
+            <div className="flex items-center gap-1 p-1 rounded-full bg-muted/60 border border-border w-full">
+              <button
+                onClick={() => setViewMode('categories')}
+                className={`flex-1 text-xs font-display font-semibold py-2 rounded-full transition-all ${
+                  viewMode === 'categories'
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground'
+                }`}
+              >
+                Par catégorie
+              </button>
+              <button
+                onClick={() => setViewMode('mine')}
+                className={`flex-1 text-xs font-display font-semibold py-2 rounded-full transition-all ${
+                  viewMode === 'mine'
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground'
+                }`}
+              >
+                Mes captures
+              </button>
+            </div>
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1">
+              {(['all', 'common', 'rare', 'epic', 'mythic'] as const).map((r) => {
+                const active = rarityFilter === r;
+                const label = r === 'all' ? 'Toutes' : RARITY_LABELS[r as Rarity];
+                return (
+                  <button
+                    key={r}
+                    onClick={() => setRarityFilter(r)}
+                    className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-display font-semibold border transition-all ${
+                      active
+                        ? 'bg-primary text-primary-foreground border-primary'
+                        : 'bg-card text-muted-foreground border-border hover:border-primary/40'
+                    }`}
+                  >
+                    {r !== 'all' && (
+                      <span className={`w-1.5 h-1.5 rounded-full ${rarityDot[r] || 'bg-muted-foreground'}`} />
+                    )}
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
           </section>
+
+          {/* Categories OR my captures */}
+          {viewMode === 'categories' ? (
+            <section>
+              <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide mb-3">Catégories</h2>
+              {loading ? (
+                <div className="text-center py-16">
+                  <p className="text-muted-foreground font-display">Chargement…</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-3">
+                  {categoryData
+                    .map(cat => {
+                      // When a rarity filter is active, recompute counts for that rarity
+                      if (rarityFilter === 'all') return cat;
+                      const inCat = animals.filter(
+                        a => normalizeCategory(a.category) === cat.name && a.rarity === rarityFilter
+                      );
+                      return {
+                        name: cat.name,
+                        total: inCat.length,
+                        captured: inCat.filter(a => a.captured).length,
+                      };
+                    })
+                    .filter(cat => cat.total > 0)
+                    .map(cat => {
+                      const CatIcon = getCategoryIcon(cat.name);
+                      const progress = cat.total > 0 ? Math.round((cat.captured / cat.total) * 100) : 0;
+                      return (
+                        <button
+                          key={cat.name}
+                          onClick={() => setSelectedCategory(cat.name)}
+                          className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-md"
+                        >
+                          <div className="mb-2">
+                            <CatIcon className="w-7 h-7 text-primary" strokeWidth={1.75} />
+                          </div>
+                          <h3 className="font-display font-bold text-sm text-foreground leading-tight mb-1 truncate">{cat.name}</h3>
+                          <p className="text-[11px] text-muted-foreground font-display mb-3">
+                            {cat.captured}/{cat.total} capturés
+                          </p>
+                          <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
+                            <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${progress}%` }} />
+                          </div>
+                        </button>
+                      );
+                    })}
+                </div>
+              )}
+            </section>
+          ) : (
+            <section>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Mes captures</h2>
+                <span className="text-[11px] font-display text-muted-foreground tabular-nums">
+                  {myCapturedAnimals.length} {myCapturedAnimals.length > 1 ? 'espèces' : 'espèce'}
+                </span>
+              </div>
+              {loading ? (
+                <div className="text-center py-16">
+                  <p className="text-muted-foreground font-display">Chargement…</p>
+                </div>
+              ) : myCapturedAnimals.length === 0 ? (
+                <div className="text-center py-12 rounded-2xl border border-dashed border-border">
+                  <p className="text-3xl mb-2">🔍</p>
+                  <p className="text-xs font-display text-muted-foreground px-6">
+                    {rarityFilter === 'all'
+                      ? "Tu n'as pas encore de capture. Pars en exploration !"
+                      : `Aucune capture ${RARITY_LABELS[rarityFilter as Rarity].toLowerCase()} pour l'instant.`}
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-4 gap-1.5">
+                  {myCapturedAnimals.map((animal) => (
+                    <div
+                      key={animal.name}
+                      onClick={() => animal.captureData && setSelectedCard(animal.captureData)}
+                      className={`relative aspect-[3/4] rounded-xl border-2 overflow-hidden transition-all cursor-pointer active:scale-[0.96] ${rarityBorderColor[animal.rarity] || 'border-border'} bg-card`}
+                    >
+                      <div className="w-full h-full flex flex-col">
+                        <div className="flex-1 overflow-hidden relative">
+                          <img
+                            src={animal.captureData!.image}
+                            alt={animal.name}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                          <div className={`absolute top-1.5 right-1.5 w-2 h-2 rounded-full ${rarityDot[animal.rarity] || 'bg-muted-foreground'}`} />
+                        </div>
+                        <div className="px-1.5 py-1 bg-card">
+                          <p className="text-[9px] font-display font-bold text-foreground truncate leading-tight">{animal.name}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+          )}
         </div>
         {deptPickerSheet}
       </main>
