@@ -2003,7 +2003,7 @@
 .holo-rim {
   position: absolute;
   inset: 0;
-  z-index: 6;
+  z-index: 7;
   border-radius: inherit;
   pointer-events: none;
   padding: 1.5px;
