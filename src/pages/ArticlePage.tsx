@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { ArrowLeft, Calendar, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import Footer from '@/components/Footer';
 import { getArticle, articles, type ArticleType } from '@/content/articles';
 
 const ArticlePage = ({ type }: { type: ArticleType }) => {
@@ -129,8 +130,9 @@ const ArticlePage = ({ type }: { type: ArticleType }) => {
               </Link>
             ))}
           </div>
-        </section>
+      </section>
       )}
+      <Footer />
     </main>
   );
 };

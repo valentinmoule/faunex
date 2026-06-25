@@ -1,6 +1,7 @@
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import Footer from '@/components/Footer';
 
 const LegalPage = () => {
   const navigate = useNavigate();
@@ -150,6 +151,7 @@ const LegalPage = () => {
           Première publication (V.0.0) : 8 mars 2026 · Dernière mise à jour : 13 mars 2026
         </p>
       </div>
+      <Footer />
     </main>
   );
 };
