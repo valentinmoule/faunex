@@ -13,6 +13,24 @@ const MESSAGES = [
   { title: 'Petit rappel sauvage 🐾', body: 'Une mission quotidienne t\'attend dans Faunex.' },
 ];
 
+async function requireAdmin(req: Request, adminClient: any): Promise<Response | null> {
+  const authHeader = req.headers.get('Authorization');
+  if (!authHeader?.startsWith('Bearer ')) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+  }
+  const anon = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_ANON_KEY')!, { global: { headers: { Authorization: authHeader } } });
+  const { data: claimsData, error } = await anon.auth.getClaims(authHeader.replace('Bearer ', ''));
+  const callerId = claimsData?.claims?.sub;
+  if (error || !callerId) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+  }
+  const { data: roleRow } = await adminClient.from('user_roles').select('role').eq('user_id', callerId).eq('role', 'admin').maybeSingle();
+  if (!roleRow) {
+    return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+  }
+  return null;
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
@@ -27,6 +45,9 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     );
+
+    const forbidden = await requireAdmin(req, supabase);
+    if (forbidden) return forbidden;
 
     const INACTIVE_DAYS = 10;
     const COOLDOWN_DAYS = 30;
