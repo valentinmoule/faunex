@@ -304,7 +304,7 @@ const ProfilePage = () => {
                   {/* Lock icon */}
                   {!earned && (
                     <div className="absolute top-2 right-2">
-                      <Lock className="w-3 h-3 text-muted-foreground/30" />
+                      <Lock className="w-3 h-3 text-muted-foreground" />
                     </div>
                   )}
                   {/* Icon with glow ring */}
@@ -320,7 +320,7 @@ const ProfilePage = () => {
                   <p className={`text-[11px] font-display font-black leading-tight mb-0.5 ${claimed || readyToClaim ? 'text-foreground' : 'text-muted-foreground'}`}>
                     {badge.name}
                   </p>
-                  <p className={`text-[9px] leading-tight mb-2 ${claimed ? 'text-muted-foreground' : readyToClaim ? 'text-muted-foreground' : 'text-muted-foreground/60'}`}>
+                  <p className={`text-[9px] leading-tight mb-2 ${claimed ? 'text-muted-foreground' : readyToClaim ? 'text-muted-foreground' : 'text-muted-foreground'}`}>
                     {badge.description}
                   </p>
                   {/* Progress bar */}
@@ -332,7 +332,7 @@ const ProfilePage = () => {
                           style={{ width: `${pct}%` }}
                         />
                       </div>
-                      <p className="text-[9px] font-display font-bold text-muted-foreground/70">{progress}/{badge.total}</p>
+                      <p className="text-[9px] font-display font-bold text-muted-foreground">{progress}/{badge.total}</p>
                     </div>
                   )}
                   {readyToClaim && (
