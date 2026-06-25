@@ -224,6 +224,47 @@ const ExplorersPage = () => {
     } else { setSearchResults([]); }
   }, [searchQuery]);
 
+  // ── All explorers (paginated 25/scroll) ──
+  const loadMoreExplorers = useCallback(async () => {
+    if (allLoading || !allHasMore || !userId) return;
+    setAllLoading(true);
+    const from = allOffset;
+    const to = from + PAGE_SIZE - 1;
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('user_id, display_name, username, avatar_url, level, species_count')
+      .neq('user_id', userId)
+      .order('level', { ascending: false })
+      .order('species_count', { ascending: false })
+      .order('user_id', { ascending: true })
+      .range(from, to);
+    if (!error && data) {
+      setAllUsers(prev => [...prev, ...(data as SearchUser[])]);
+      setAllOffset(from + data.length);
+      if (data.length < PAGE_SIZE) setAllHasMore(false);
+    }
+    setAllLoading(false);
+  }, [allLoading, allHasMore, allOffset, userId]);
+
+  // Initial load when entering search view
+  useEffect(() => {
+    if (view === 'search' && allUsers.length === 0 && allHasMore && userId) {
+      loadMoreExplorers();
+    }
+  }, [view, userId, allUsers.length, allHasMore, loadMoreExplorers]);
+
+  // IntersectionObserver for infinite scroll
+  useEffect(() => {
+    if (view !== 'search' || searchTab !== 'search' || searchQuery.trim().length >= 2) return;
+    const el = sentinelRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) loadMoreExplorers();
+    }, { rootMargin: '200px' });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [view, searchTab, searchQuery, loadMoreExplorers]);
+
   // ── Follow actions ──
   const handleFollow = async (targetId: string) => {
     if (!userId) return;
