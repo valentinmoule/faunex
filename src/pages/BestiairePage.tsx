@@ -477,8 +477,9 @@ const BestiairePage = () => {
   // Animals for selected zone (department or city — both use parent department fauna)
   const zoneAnimals = useMemo(() => {
     if (!selectedZone) return [];
-    const set = animalsByDept[selectedZone.departmentCode];
-    if (!set) return [];
+    const deptSet = animalsByDept[selectedZone.departmentCode];
+    if (!deptSet) return [];
+    const set = selectedZone.kind === 'city' ? buildCityAnimalSet(deptSet, animals) : deptSet;
     return animals
       .filter((a) => set.has(a.name.toLowerCase()))
       .sort((a, b) => a.name.localeCompare(b.name, 'fr'));
@@ -488,8 +489,9 @@ const BestiairePage = () => {
   const zoneProgress = useMemo(() => {
     const map: Record<string, { total: number; captured: number }> = {};
     subscribedZones.forEach((z) => {
-      const set = animalsByDept[z.departmentCode];
-      if (!set) { map[z.id] = { total: 0, captured: 0 }; return; }
+      const deptSet = animalsByDept[z.departmentCode];
+      if (!deptSet) { map[z.id] = { total: 0, captured: 0 }; return; }
+      const set = z.kind === 'city' ? buildCityAnimalSet(deptSet, animals) : deptSet;
       let total = 0, captured = 0;
       animals.forEach((a) => {
         if (set.has(a.name.toLowerCase())) {
