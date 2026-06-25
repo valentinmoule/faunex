@@ -377,7 +377,41 @@ const SettingsPage = () => {
                 <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card shadow transition-transform ${isPrivate ? 'translate-x-5' : 'translate-x-0'}`} />
               </button>
             </div>
+
+            {/* Granular notification preferences */}
+            <div className="bg-muted rounded-xl p-4 space-y-3">
+              <div className="flex items-center gap-1.5">
+                <Bell className="w-4 h-4 text-foreground" />
+                <span className="text-sm font-display font-semibold text-foreground">Notifications</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground -mt-1">Choisis comment être prévenu pour chaque activité.</p>
+
+              <div className="grid grid-cols-[1fr_auto_auto] gap-x-4 gap-y-3 items-center pt-1">
+                <span></span>
+                <span className="text-[11px] font-display font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1 justify-center"><Mail className="w-3 h-3" /> Email</span>
+                <span className="text-[11px] font-display font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1 justify-center"><Bell className="w-3 h-3" /> Push</span>
+
+                {([
+                  { label: 'Likes', emailKey: 'notify_email_likes', pushKey: 'notify_push_likes' },
+                  { label: 'Commentaires', emailKey: 'notify_email_comments', pushKey: 'notify_push_comments' },
+                  { label: 'Nouveaux abonnés & demandes', emailKey: 'notify_email_follows', pushKey: 'notify_push_follows' },
+                ] as const).map(({ label, emailKey, pushKey }) => (
+                  <Fragment key={label}>
+                    <span className="text-sm text-foreground font-body">{label}</span>
+                    <div className="flex justify-center"><NotifToggle on={notifPrefs[emailKey]} onClick={() => toggleNotifPref(emailKey)} /></div>
+                    <div className="flex justify-center"><NotifToggle on={notifPrefs[pushKey]} onClick={() => toggleNotifPref(pushKey)} /></div>
+                  </Fragment>
+                ))}
+              </div>
+
+              {!pushEnabled && (
+                <p className="text-[11px] text-muted-foreground pt-1">
+                  Active les notifications push plus haut pour recevoir les alertes push en temps réel.
+                </p>
+              )}
             </div>
+            </div>
+
 
             <button
               onClick={handleSaveProfile}
