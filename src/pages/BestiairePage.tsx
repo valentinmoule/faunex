@@ -1348,6 +1348,7 @@ const BestiairePage = () => {
             </section>
           )}
         </div>
+        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} />
         {deptPickerSheet}
       </main>
     );
