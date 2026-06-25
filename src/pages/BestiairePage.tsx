@@ -20,7 +20,7 @@ interface BestiaryAnimal {
   captureData?: AnimalCard;
 }
 
-const getCategoryIcon = (category: string): ComponentType<{ className?: string; strokeWidth?: number }> => {
+const getCategoryIcon = (category: string): ComponentType<{ className?: string; strokeWidth?: string | number }> => {
   const cat = category.toLowerCase();
   if (cat.includes('oiseau')) return Bird;
   if (cat.includes('poisson') || cat.includes('vie marine')) return Fish;
