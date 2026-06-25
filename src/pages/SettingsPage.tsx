@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, Fragment } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Pencil, KeyRound, Share2, Scale, LogOut, Trash2, Loader2, Camera, Check, X, ChevronRight, Sun, Moon, Monitor, Mail, Lock, Smartphone, Bell } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -49,6 +49,24 @@ const SettingsPage = () => {
   const [pushEnabled, setPushEnabled] = useState(false);
   const [pushBusy, setPushBusy] = useState(false);
 
+  // Granular notification preferences
+  type NotifPrefs = {
+    notify_email_likes: boolean;
+    notify_email_comments: boolean;
+    notify_email_follows: boolean;
+    notify_push_likes: boolean;
+    notify_push_comments: boolean;
+    notify_push_follows: boolean;
+  };
+  const [notifPrefs, setNotifPrefs] = useState<NotifPrefs>({
+    notify_email_likes: true,
+    notify_email_comments: true,
+    notify_email_follows: true,
+    notify_push_likes: true,
+    notify_push_comments: true,
+    notify_push_follows: true,
+  });
+
   useEffect(() => {
     hasActivePushSubscription().then(setPushEnabled);
   }, []);
@@ -56,17 +74,35 @@ const SettingsPage = () => {
   // Fetch profile on mount
   useEffect(() => {
     if (!session?.user) return;
-    supabase.from('profiles').select('display_name, username, avatar_url, marketing_emails, is_private').eq('user_id', session.user.id).single().then(({ data }) => {
+    supabase.from('profiles').select('display_name, username, avatar_url, marketing_emails, is_private, notify_email_likes, notify_email_comments, notify_email_follows, notify_push_likes, notify_push_comments, notify_push_follows').eq('user_id', session.user.id).single().then(({ data }) => {
       if (data) {
-        setProfile({ display_name: data.display_name || '', username: data.username || '', avatar_url: data.avatar_url });
-        setEditName(data.display_name || '');
-        setEditUsername(data.username || '');
-        setMarketingEmails(data.marketing_emails ?? true);
-        setIsPrivate((data as any).is_private ?? false);
+        const d: any = data;
+        setProfile({ display_name: d.display_name || '', username: d.username || '', avatar_url: d.avatar_url });
+        setEditName(d.display_name || '');
+        setEditUsername(d.username || '');
+        setMarketingEmails(d.marketing_emails ?? true);
+        setIsPrivate(d.is_private ?? false);
+        setNotifPrefs({
+          notify_email_likes: d.notify_email_likes ?? true,
+          notify_email_comments: d.notify_email_comments ?? true,
+          notify_email_follows: d.notify_email_follows ?? true,
+          notify_push_likes: d.notify_push_likes ?? true,
+          notify_push_comments: d.notify_push_comments ?? true,
+          notify_push_follows: d.notify_push_follows ?? true,
+        });
       }
       setLoading(false);
     });
   }, [session]);
+
+  const toggleNotifPref = async (key: keyof NotifPrefs) => {
+    const newVal = !notifPrefs[key];
+    setNotifPrefs(prev => ({ ...prev, [key]: newVal }));
+    if (session?.user) {
+      await supabase.from('profiles').update({ [key]: newVal } as any).eq('user_id', session.user.id);
+    }
+  };
+
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -341,7 +377,41 @@ const SettingsPage = () => {
                 <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card shadow transition-transform ${isPrivate ? 'translate-x-5' : 'translate-x-0'}`} />
               </button>
             </div>
+
+            {/* Granular notification preferences */}
+            <div className="bg-muted rounded-xl p-4 space-y-3">
+              <div className="flex items-center gap-1.5">
+                <Bell className="w-4 h-4 text-foreground" />
+                <span className="text-sm font-display font-semibold text-foreground">Notifications</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground -mt-1">Choisis comment être prévenu pour chaque activité.</p>
+
+              <div className="grid grid-cols-[1fr_auto_auto] gap-x-4 gap-y-3 items-center pt-1">
+                <span></span>
+                <span className="text-[11px] font-display font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1 justify-center"><Mail className="w-3 h-3" /> Email</span>
+                <span className="text-[11px] font-display font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1 justify-center"><Bell className="w-3 h-3" /> Push</span>
+
+                {([
+                  { label: 'Likes', emailKey: 'notify_email_likes', pushKey: 'notify_push_likes' },
+                  { label: 'Commentaires', emailKey: 'notify_email_comments', pushKey: 'notify_push_comments' },
+                  { label: 'Nouveaux abonnés & demandes', emailKey: 'notify_email_follows', pushKey: 'notify_push_follows' },
+                ] as const).map(({ label, emailKey, pushKey }) => (
+                  <Fragment key={label}>
+                    <span className="text-sm text-foreground font-body">{label}</span>
+                    <div className="flex justify-center"><NotifToggle on={notifPrefs[emailKey]} onClick={() => toggleNotifPref(emailKey)} /></div>
+                    <div className="flex justify-center"><NotifToggle on={notifPrefs[pushKey]} onClick={() => toggleNotifPref(pushKey)} /></div>
+                  </Fragment>
+                ))}
+              </div>
+
+              {!pushEnabled && (
+                <p className="text-[11px] text-muted-foreground pt-1">
+                  Active les notifications push plus haut pour recevoir les alertes push en temps réel.
+                </p>
+              )}
             </div>
+            </div>
+
 
             <button
               onClick={handleSaveProfile}
@@ -429,5 +499,17 @@ const MenuItem = ({ icon, label, onClick, destructive }: { icon: React.ReactNode
     <ChevronRight className={`w-4 h-4 ${destructive ? 'text-destructive/50' : 'text-muted-foreground'}`} />
   </button>
 );
+
+const NotifToggle = ({ on, onClick }: { on: boolean; onClick: () => void }) => (
+  <button
+    onClick={onClick}
+    aria-pressed={on}
+    className={`relative w-10 h-5.5 rounded-full transition-colors ${on ? 'bg-primary' : 'bg-muted-foreground/30'}`}
+    style={{ width: '2.5rem', height: '1.375rem' }}
+  >
+    <span className={`absolute top-0.5 left-0.5 w-[1rem] h-[1rem] rounded-full bg-card shadow transition-transform ${on ? 'translate-x-[1.125rem]' : 'translate-x-0'}`} />
+  </button>
+);
+
 
 export default SettingsPage;

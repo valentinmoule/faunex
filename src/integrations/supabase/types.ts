@@ -471,6 +471,12 @@ export type Database = {
           last_login_at: string | null
           level: number
           marketing_emails: boolean
+          notify_email_comments: boolean
+          notify_email_follows: boolean
+          notify_email_likes: boolean
+          notify_push_comments: boolean
+          notify_push_follows: boolean
+          notify_push_likes: boolean
           regions_explored: number
           species_count: number
           total_captures: number
@@ -489,6 +495,12 @@ export type Database = {
           last_login_at?: string | null
           level?: number
           marketing_emails?: boolean
+          notify_email_comments?: boolean
+          notify_email_follows?: boolean
+          notify_email_likes?: boolean
+          notify_push_comments?: boolean
+          notify_push_follows?: boolean
+          notify_push_likes?: boolean
           regions_explored?: number
           species_count?: number
           total_captures?: number
@@ -507,6 +519,12 @@ export type Database = {
           last_login_at?: string | null
           level?: number
           marketing_emails?: boolean
+          notify_email_comments?: boolean
+          notify_email_follows?: boolean
+          notify_email_likes?: boolean
+          notify_push_comments?: boolean
+          notify_push_follows?: boolean
+          notify_push_likes?: boolean
           regions_explored?: number
           species_count?: number
           total_captures?: number

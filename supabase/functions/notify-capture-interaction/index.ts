@@ -1,4 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
+import webpush from 'npm:web-push@3.6.7'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -23,7 +24,6 @@ Deno.serve(async (req) => {
       return json({ error: 'Missing or invalid params' }, 400)
     }
 
-    // Load capture (owner + animal name)
     const { data: capture } = await supabase
       .from('captures')
       .select('user_id, animal_name')
@@ -31,55 +31,107 @@ Deno.serve(async (req) => {
       .single()
     if (!capture) return json({ error: 'capture_not_found' }, 404)
 
-    // Don't notify if actor is the owner
     if (capture.user_id === actor_id) return json({ skipped: 'self_action' })
 
     const [{ data: actorProfile }, { data: ownerProfile }, { data: ownerAuth }] = await Promise.all([
       supabase.from('profiles').select('display_name, username').eq('user_id', actor_id).single(),
-      supabase.from('profiles').select('display_name, username, marketing_emails').eq('user_id', capture.user_id).single(),
+      supabase
+        .from('profiles')
+        .select('display_name, username, marketing_emails, notify_email_likes, notify_email_comments, notify_push_likes, notify_push_comments')
+        .eq('user_id', capture.user_id)
+        .single(),
       supabase.auth.admin.getUserById(capture.user_id),
     ])
 
     if (!ownerProfile || !ownerAuth?.user?.email) return json({ error: 'owner_not_found' }, 404)
 
-    if (!ownerProfile.marketing_emails) {
-      return json({ skipped: 'opted_out' })
-    }
-
     const actorName = actorProfile?.display_name || actorProfile?.username || 'Un explorateur'
     const recipientName = ownerProfile.display_name || ownerProfile.username || 'Explorateur'
 
-    const templateName = type === 'like' ? 'capture-like' : 'capture-comment'
-    const idempotencyBase = type === 'like'
-      ? `like-${capture_id}-${actor_id}`
-      : `comment-${capture_id}-${actor_id}-${Date.now()}`
+    const emailAllowed = ownerProfile.marketing_emails && (
+      type === 'like' ? ownerProfile.notify_email_likes : ownerProfile.notify_email_comments
+    )
+    const pushAllowed = type === 'like' ? ownerProfile.notify_push_likes : ownerProfile.notify_push_comments
 
-    const { error } = await supabase.functions.invoke('send-transactional-email', {
-      body: {
-        templateName,
-        recipientEmail: ownerAuth.user.email,
-        idempotencyKey: idempotencyBase,
-        templateData: {
-          actorName,
-          recipientName,
-          animalName: capture.animal_name,
-          commentText: type === 'comment' ? (content || '').slice(0, 500) : undefined,
-          captureUrl: `${APP_URL}/explorers`,
+    let emailResult: unknown = 'skipped'
+    if (emailAllowed) {
+      const templateName = type === 'like' ? 'capture-like' : 'capture-comment'
+      const idempotencyBase = type === 'like'
+        ? `like-${capture_id}-${actor_id}`
+        : `comment-${capture_id}-${actor_id}-${Date.now()}`
+
+      const { error } = await supabase.functions.invoke('send-transactional-email', {
+        body: {
+          templateName,
+          recipientEmail: ownerAuth.user.email,
+          idempotencyKey: idempotencyBase,
+          templateData: {
+            actorName,
+            recipientName,
+            animalName: capture.animal_name,
+            commentText: type === 'comment' ? (content || '').slice(0, 500) : undefined,
+            captureUrl: `${APP_URL}/explorers`,
+          },
         },
-      },
-    })
-
-    if (error) {
-      console.error('send-transactional-email failed', error)
-      return json({ error: 'send_failed' }, 500)
+      })
+      if (error) console.error('send-transactional-email failed', error)
+      emailResult = error ? 'failed' : 'sent'
     }
 
-    return json({ success: true })
+    let pushResult: unknown = 'skipped'
+    if (pushAllowed) {
+      pushResult = await sendPushToUser(supabase, capture.user_id, {
+        title: type === 'like' ? `${actorName} a liké ta capture ❤️` : `${actorName} a commenté ta capture 💬`,
+        body: type === 'like'
+          ? `${capture.animal_name || 'Ta capture'} a reçu un nouveau like.`
+          : (content || '').slice(0, 140) || 'Nouveau commentaire sur ta capture.',
+        url: '/explorers',
+        tag: `${type}-${capture_id}`,
+      })
+    }
+
+    return json({ success: true, email: emailResult, push: pushResult })
   } catch (e) {
     console.error('notify-capture-interaction error', e)
     return json({ error: 'internal' }, 500)
   }
 })
+
+async function sendPushToUser(supabase: any, userId: string, payload: { title: string; body: string; url: string; tag: string }) {
+  const VAPID_PUBLIC = Deno.env.get('VAPID_PUBLIC_KEY')
+  const VAPID_PRIVATE = Deno.env.get('VAPID_PRIVATE_KEY')
+  const VAPID_SUBJECT = Deno.env.get('VAPID_SUBJECT') ?? 'mailto:hello@faunex.fr'
+  if (!VAPID_PUBLIC || !VAPID_PRIVATE) return 'no_vapid'
+
+  webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC, VAPID_PRIVATE)
+
+  const { data: subs } = await supabase
+    .from('push_subscriptions')
+    .select('id, endpoint, p256dh, auth')
+    .eq('user_id', userId)
+
+  if (!subs || subs.length === 0) return 'no_subs'
+
+  let success = 0
+  let failure = 0
+  for (const sub of subs) {
+    try {
+      await webpush.sendNotification(
+        { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+        JSON.stringify(payload),
+      )
+      success++
+    } catch (e: any) {
+      failure++
+      if (e?.statusCode === 410 || e?.statusCode === 404) {
+        await supabase.from('push_subscriptions').delete().eq('id', sub.id)
+      } else {
+        console.error('push send error', e?.statusCode, e?.body)
+      }
+    }
+  }
+  return { success, failure }
+}
 
 function json(b: unknown, status = 200) {
   return new Response(JSON.stringify(b), {
