@@ -160,6 +160,24 @@ const LandingPage = () => {
 
   return (
     <main className="min-h-screen bg-background text-foreground overflow-x-hidden pb-20">
+      <Helmet>
+        <title>Faunex — Identifie & collectionne la faune sauvage</title>
+        <meta name="description" content="Photographie un animal, l'IA l'identifie en 3s. Collectionne +1000 espèces autour de toi. Gratuit, sans pub." />
+        <link rel="canonical" href="https://faunex.fr/" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://faunex.fr/" />
+        <meta property="og:title" content="Faunex — Transforme tes balades en chasse aux trésors" />
+        <meta property="og:description" content="Photographie un animal, l'IA l'identifie en 3s. Collectionne +1000 espèces autour de toi." />
+        <script type="application/ld+json">{JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'MobileApplication',
+          name: 'Faunex',
+          operatingSystem: 'Web, iOS, Android',
+          applicationCategory: 'LifestyleApplication',
+          description: "Identifie et collectionne la faune sauvage autour de toi grâce à l'IA.",
+          offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
+        })}</script>
+      </Helmet>
       {/* HERO */}
       <section className="relative px-5 pt-10 pb-14 sm:pt-14">
         {/* Decorative gradient */}
