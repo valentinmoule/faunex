@@ -95,6 +95,14 @@ const ExplorersPage = () => {
   const [pendingRequests, setPendingRequests] = useState<FollowProfile[]>([]);
   const [followsLoading, setFollowsLoading] = useState(true);
 
+  // All explorers (paginated)
+  const PAGE_SIZE = 25;
+  const [allUsers, setAllUsers] = useState<SearchUser[]>([]);
+  const [allLoading, setAllLoading] = useState(false);
+  const [allHasMore, setAllHasMore] = useState(true);
+  const [allOffset, setAllOffset] = useState(0);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+
   const userId = session?.user?.id;
 
   // ── Header data ──
