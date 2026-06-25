@@ -1,11 +1,19 @@
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 
 const LegalPage = () => {
   const navigate = useNavigate();
 
   return (
     <main className="min-h-screen bg-background pb-24">
+      <Helmet>
+        <title>Mentions légales & confidentialité — Faunex</title>
+        <meta name="description" content="Mentions légales, politique de confidentialité et conditions d'utilisation de Faunex, l'application d'identification et de collection de la faune sauvage." />
+        <link rel="canonical" href="https://faunex.fr/legal" />
+        <meta property="og:url" content="https://faunex.fr/legal" />
+        <meta property="og:title" content="Mentions légales & confidentialité — Faunex" />
+      </Helmet>
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="flex items-center gap-3 max-w-2xl mx-auto">
           <button onClick={() => navigate(-1)} className="p-1.5 rounded-full hover:bg-muted transition-colors">
