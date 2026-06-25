@@ -211,6 +211,17 @@ const SettingsPage = () => {
             <MenuItem icon={<KeyRound className="w-5 h-5" />} label="Changer le mot de passe" onClick={() => setSection('password')} />
             <MenuItem icon={<Share2 className="w-5 h-5" />} label="Partager mon profil" onClick={handleShare} />
             <MenuItem icon={<Scale className="w-5 h-5" />} label="Mentions légales" onClick={() => navigate('/legal')} />
+            {!isInstalled && (
+              <MenuItem
+                icon={<Smartphone className="w-5 h-5" />}
+                label={canInstall || isIos ? "Installer sur l'écran d'accueil" : "Installer l'application"}
+                onClick={() => {
+                  resetDismiss();
+                  toast.success("La carte d'installation est réaffichée en bas de l'écran.");
+                  navigate('/home');
+                }}
+              />
+            )}
             <div className="pt-4 space-y-1">
               <MenuItem icon={<LogOut className="w-5 h-5 text-destructive" />} label="Se déconnecter" onClick={async () => { await signOut(); toast.success('Déconnecté'); }} destructive />
               <MenuItem icon={<Trash2 className="w-5 h-5 text-destructive" />} label="Supprimer mon compte" onClick={() => setSection('delete')} destructive />
