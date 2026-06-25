@@ -43,7 +43,7 @@ animal_name = la race. scientific_name = "Felis catus".
 ### FAUNE SAUVAGE
 - Sois le plus précis possible sur l'espèce et la sous-espèce.
 
-Si l'image ne contient pas d'animal → animal_name "Inconnu".
+Si l'image ne contient pas d'animal → animal_name "Inconnu" et confidence 0.
 
 ## Évaluation de la rareté
 Évalue selon la probabilité d'observation en Europe/France :
@@ -51,6 +51,15 @@ Si l'image ne contient pas d'animal → animal_name "Inconnu".
 - **rare** : observation nécessitant patience ou chance (martin-pêcheur, hermine, Bengal, Savannah, héron)
 - **epic** : très rare, espèce vulnérable ou en danger (lynx, gypaète, loutre, ours brun, aigle royal)
 - **mythic** : quasi-impossible, espèce en danger critique (loup gris en France, panthère des neiges, phoque moine)
+
+## Évaluation de la confiance (TRÈS IMPORTANT)
+Calibre confidence (0-100) honnêtement :
+- 90-100 : identification certaine, traits diagnostiques nets et sans ambiguïté
+- 70-89 : très probable, quelques détails masqués mais cohérent
+- 50-69 : probable mais plusieurs espèces possibles (image floue, partielle, angle défavorable)
+- 30-49 : incertain, hypothèse la plus probable parmi plusieurs
+- 0-29 : très incertain, devine sans preuve solide
+Quand confidence < 80, fournis 1 à 3 alternatives plausibles dans "alternatives".
 
 Réponds UNIQUEMENT via l'appel de fonction identify_animal.`;
 
@@ -83,7 +92,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "google/gemini-2.5-pro",
         temperature: 0,
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
@@ -92,7 +101,7 @@ serve(async (req) => {
             content: [
               {
                 type: "text",
-                text: "Analyse cette photo en détail et identifie l'animal avec la plus grande précision possible. Examine attentivement la morphologie, le pelage/plumage, les proportions et tout trait distinctif. Si c'est un chat ou un chien, détermine la race exacte."
+                text: "Analyse cette photo en détail et identifie l'animal avec la plus grande précision possible. Examine attentivement la morphologie, le pelage/plumage, les proportions et tout trait distinctif. Si c'est un chat ou un chien, détermine la race exacte. Évalue ta confiance honnêtement et propose des alternatives si tu n'es pas sûr."
               },
               { type: "image_url", image_url: { url: imageUrl } }
             ]
@@ -143,9 +152,20 @@ serve(async (req) => {
                   rarity: {
                     type: "string",
                     enum: ["common", "rare", "epic", "mythic"]
+                  },
+                  confidence: {
+                    type: "integer",
+                    minimum: 0,
+                    maximum: 100,
+                    description: "Niveau de confiance calibré (0-100) sur l'identification."
+                  },
+                  alternatives: {
+                    type: "array",
+                    items: { type: "string" },
+                    description: "1 à 3 noms d'espèces/races alternatives plausibles si la confiance est < 80."
                   }
                 },
-                required: ["animal_name", "scientific_name", "category", "description", "habitat", "diet", "conservation", "fun_fact", "rarity"],
+                required: ["animal_name", "scientific_name", "category", "description", "habitat", "diet", "conservation", "fun_fact", "rarity", "confidence"],
                 additionalProperties: false
               }
             }
