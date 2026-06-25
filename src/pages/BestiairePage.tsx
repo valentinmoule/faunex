@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useRef, type ComponentType } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { Bell, ChevronLeft, PawPrint, Bird, Fish, Bug, Turtle, Shell, Waves, MapPin, Plus, Search, Trash2, X, Building2, Map as MapIcon, type LucideIcon } from 'lucide-react';
 import { FrogIcon } from '@/components/icons/FrogIcon';
 import { type Rarity, type AnimalCard, RARITY_LABELS } from '@/data/mockData';
@@ -981,6 +982,14 @@ const BestiairePage = () => {
 
   return (
     <main className="min-h-screen bg-background pb-24">
+      <Helmet>
+        <title>Bestiaire — Toutes les espèces à découvrir · Faunex</title>
+        <meta name="description" content="Explore le bestiaire Faunex : +1000 espèces sauvages françaises classées par catégorie et rareté. Découvre la faune autour de toi." />
+        <link rel="canonical" href="https://faunex.fr/bestiaire" />
+        <meta property="og:title" content="Bestiaire Faunex — +1000 espèces à découvrir" />
+        <meta property="og:url" content="https://faunex.fr/bestiaire" />
+        <meta property="og:description" content="Catalogue complet de la faune sauvage : oiseaux, mammifères, insectes, reptiles, amphibiens…" />
+      </Helmet>
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center gap-3">
