@@ -965,7 +965,7 @@ const BestiairePage = () => {
     const subtitle = isCity
       ? `${selectedZone.cityPostcode || ''}${dept ? ` · ${dept.name}` : ''} · ${prog.captured}/${prog.total} capturés`
       : `${prog.captured}/${prog.total} capturés`;
-    const HeaderIcon = isCity ? Building2 : MapPin;
+    const HeaderIcon = selectedZone.isHome ? Home : (isCity ? Building2 : MapPin);
     return (
       <main className="min-h-screen bg-background pb-24">
         <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
