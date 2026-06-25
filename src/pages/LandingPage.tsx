@@ -286,9 +286,9 @@ const LandingPage = () => {
             4 niveaux de rareté, du commun au mythique.
           </p>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="flex sm:grid sm:grid-cols-2 gap-4 overflow-x-auto snap-x snap-mandatory pb-4 sm:pb-0 -mx-5 px-5 sm:mx-0 sm:px-0">
             {heroCards.map((card) => (
-              <div key={card.name} className="rounded-2xl overflow-hidden">
+              <div key={card.name} className="flex-shrink-0 w-[72%] sm:w-auto snap-start rounded-2xl overflow-hidden">
                 <HolographicCard rarity={card.rarity} disableAutoShimmer>
                   <div className="rounded-2xl overflow-hidden bg-card border border-border">
                     <img
