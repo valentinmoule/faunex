@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { ArrowLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import Footer from '@/components/Footer';
 import { guides, useCases, type Article } from '@/content/articles';
 
 const ArticleCard = ({ article }: { article: Article }) => (

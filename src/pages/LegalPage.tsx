@@ -1,6 +1,7 @@
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import Footer from '@/components/Footer';
 
 const LegalPage = () => {
   const navigate = useNavigate();
