@@ -12,7 +12,7 @@ const PwaInstallBanner = () => {
     if (canInstall) {
       await promptInstall();
     } else if (isIos) {
-      toast.info('Sur iPhone / iPad : appuie sur Partager puis "Sur l'écran d'accueil".', {
+      toast.info("Sur iPhone / iPad : appuie sur Partager puis 'Sur l'écran d'accueil'.", {
         duration: 6000,
         icon: <Share className="w-4 h-4" />,
       });
