@@ -727,32 +727,30 @@ const CapturePage = () => {
 
         {/* Top controls */}
         <div className="relative z-20 flex items-center justify-between px-6 pt-6">
-          {capturedPhoto ? (
-            <button onClick={resetCapture} className="p-3 rounded-full bg-primary-foreground/10 text-primary-foreground/60">
-              <X className="w-5 h-5" />
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate('/')}
+              className="p-3 rounded-full bg-primary-foreground/10 text-primary-foreground/60"
+            >
+              <ArrowLeft className="w-5 h-5" />
             </button>
-          ) : (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => navigate('/')}
-                className="p-3 rounded-full bg-primary-foreground/10 text-primary-foreground/60"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => setFlash(!flash)}
-                className={`p-3 rounded-full transition-colors ${flash ? 'bg-amber text-amber-dark' : 'bg-primary-foreground/10 text-primary-foreground/60'}`}
-              >
-                <Zap className="w-5 h-5" />
-              </button>
-              <button
-                onClick={toggleFocusMode}
-                className={`p-3 rounded-full transition-colors ${focusMode === 'manual' ? 'bg-amber text-amber-dark' : 'bg-primary-foreground/10 text-primary-foreground/60'}`}
-              >
-                <Focus className="w-5 h-5" />
-              </button>
-            </div>
-          )}
+            {!capturedPhoto && (
+              <>
+                <button
+                  onClick={() => setFlash(!flash)}
+                  className={`p-3 rounded-full transition-colors ${flash ? 'bg-amber text-amber-dark' : 'bg-primary-foreground/10 text-primary-foreground/60'}`}
+                >
+                  <Zap className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={toggleFocusMode}
+                  className={`p-3 rounded-full transition-colors ${focusMode === 'manual' ? 'bg-amber text-amber-dark' : 'bg-primary-foreground/10 text-primary-foreground/60'}`}
+                >
+                  <Focus className="w-5 h-5" />
+                </button>
+              </>
+            )}
+          </div>
           <div className="flex items-center gap-1.5 bg-primary-foreground/10 rounded-full px-3 py-1.5">
             <MapPin className="w-3.5 h-3.5 text-primary" />
             <span className="text-primary-foreground/60 text-xs font-display">{geoName || 'Localisation…'}</span>
@@ -970,14 +968,22 @@ const CapturePage = () => {
             Nouvelle capture
           </button>
         ) : duplicateCapture ? null : (animalResult && revealPhase === 'done') ? (
-          <button
-            onClick={saveToCollection}
-            disabled={saving}
-            className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-primary text-primary-foreground font-display text-sm disabled:opacity-50"
-          >
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-            {saving ? 'Sauvegarde…' : 'Ajouter au Faunex'}
-          </button>
+          <div className="flex items-center gap-3 w-full max-w-sm">
+            <button
+              onClick={resetCapture}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl bg-primary-foreground/10 text-primary-foreground/80 font-display text-sm"
+            >
+              Ne pas ajouter
+            </button>
+            <button
+              onClick={saveToCollection}
+              disabled={saving}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl bg-primary text-primary-foreground font-display text-sm disabled:opacity-50"
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+              {saving ? 'Sauvegarde…' : 'Ajouter'}
+            </button>
+          </div>
         ) : manualMode ? (
           <button
             onClick={saveManualEntry}
