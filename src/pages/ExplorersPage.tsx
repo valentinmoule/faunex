@@ -13,6 +13,7 @@ import { followUser as followUserUtil } from '@/lib/followUtils';
 interface FeedCapture {
   id: string;
   image_url: string;
+  cutout_url?: string | null;
   animal_name: string;
   scientific_name: string;
   category: string;
