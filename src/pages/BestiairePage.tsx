@@ -259,13 +259,19 @@ const BestiairePage = () => {
     const fetchSubs = async (sourceAnimals: BestiaryAnimal[]) => {
       const { data } = await supabase
         .from('user_department_subscriptions')
-        .select('department_code')
+        .select('id, department_code, kind, city_name, city_postcode')
         .eq('user_id', session.user.id)
         .order('created_at', { ascending: true });
-      const codes = (data || []).map((r: any) => r.department_code);
-      setSubscribedDepts(codes);
-      // Preload animals for each
-      for (const c of codes) loadDeptAnimals(c, sourceAnimals);
+      const zones: ZoneSub[] = (data || []).map((r: any) => ({
+        id: r.id,
+        kind: (r.kind || 'department') as 'department' | 'city',
+        departmentCode: r.department_code,
+        cityName: r.city_name,
+        cityPostcode: r.city_postcode,
+      }));
+      setSubscribedZones(zones);
+      const uniqueDepts = Array.from(new Set(zones.map((z) => z.departmentCode)));
+      for (const c of uniqueDepts) loadDeptAnimals(c, sourceAnimals);
     };
 
     fetchData().then((list) => fetchSubs(list || []));
@@ -273,14 +279,15 @@ const BestiairePage = () => {
   }, [session]);
 
   useEffect(() => {
-    if (animals.length === 0 || subscribedDepts.length === 0) return;
-    subscribedDepts.forEach((code) => {
+    if (animals.length === 0 || subscribedZones.length === 0) return;
+    const uniqueDepts = Array.from(new Set(subscribedZones.map((z) => z.departmentCode)));
+    uniqueDepts.forEach((code) => {
       const existing = animalsByDept[code];
       if (!existing || existing.size === 0) {
         loadDeptAnimals(code, animals);
       }
     });
-  }, [animals, subscribedDepts, animalsByDept]);
+  }, [animals, subscribedZones, animalsByDept]);
 
   // Detect pending shelve animation request on mount
   useEffect(() => {
