@@ -558,29 +558,50 @@ const BestiairePage = () => {
 
   const totalCaptured = animals.filter(a => a.captured).length;
 
-  // Department picker sheet (shared)
+  // Zone picker sheet (shared) — supports department + city tabs
   const deptPickerSheet = (
     <Sheet open={showDeptPicker} onOpenChange={setShowDeptPicker}>
       <SheetContent side="bottom" className="h-[85vh] p-0 flex flex-col">
         <SheetHeader className="px-5 py-4 border-b border-border">
-          <SheetTitle className="font-display">Ajouter un département</SheetTitle>
+          <SheetTitle className="font-display">Ajouter une zone</SheetTitle>
         </SheetHeader>
+        <div className="px-5 pt-3 flex gap-2">
+          <button
+            onClick={() => setPickerTab('department')}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-display font-semibold transition ${
+              pickerTab === 'department' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+            }`}
+          >
+            <MapIcon className="w-3.5 h-3.5" strokeWidth={2} />
+            Département
+          </button>
+          <button
+            onClick={() => setPickerTab('city')}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-display font-semibold transition ${
+              pickerTab === 'city' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+            }`}
+          >
+            <Building2 className="w-3.5 h-3.5" strokeWidth={2} />
+            Ville
+          </button>
+        </div>
         <div className="px-5 py-3 border-b border-border">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
+              key={pickerTab}
               autoFocus
               type="text"
-              value={deptSearch}
-              onChange={(e) => setDeptSearch(e.target.value)}
-              placeholder="Rechercher (nom, n° ou région)"
+              value={pickerTab === 'department' ? deptSearch : citySearch}
+              onChange={(e) => pickerTab === 'department' ? setDeptSearch(e.target.value) : setCitySearch(e.target.value)}
+              placeholder={pickerTab === 'department' ? 'Rechercher (nom, n° ou région)' : 'Rechercher une ville…'}
               className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-muted border-0 text-sm font-display focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
           </div>
         </div>
         <div className="flex-1 overflow-y-auto px-2 py-2">
-          {filteredDeptOptions.map((d) => {
-            const already = subscribedDepts.includes(d.code);
+          {pickerTab === 'department' && filteredDeptOptions.map((d) => {
+            const already = subscribedZones.some((z) => z.kind === 'department' && z.departmentCode === d.code);
             return (
               <button
                 key={d.code}
@@ -601,39 +622,83 @@ const BestiairePage = () => {
               </button>
             );
           })}
+          {pickerTab === 'city' && (
+            <>
+              {citySearch.trim().length < 2 && (
+                <p className="text-center text-xs text-muted-foreground font-display py-8 px-4">
+                  Tape au moins 2 lettres pour rechercher une commune française.
+                </p>
+              )}
+              {cityLoading && (
+                <p className="text-center text-xs text-muted-foreground font-display py-4">Recherche…</p>
+              )}
+              {!cityLoading && citySearch.trim().length >= 2 && cityResults.length === 0 && (
+                <p className="text-center text-xs text-muted-foreground font-display py-8">Aucune commune trouvée</p>
+              )}
+              {cityResults.map((c) => {
+                const postcode = c.codesPostaux?.[0] || '';
+                const already = subscribedZones.some(
+                  (z) => z.kind === 'city' && z.cityName === c.nom && z.cityPostcode === postcode,
+                );
+                return (
+                  <button
+                    key={c.code}
+                    disabled={loadingDept}
+                    onClick={() => handleAddCity(c)}
+                    className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-muted transition text-left disabled:opacity-50"
+                  >
+                    <Building2 className="w-5 h-5 text-primary shrink-0" strokeWidth={1.75} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-display font-semibold text-foreground truncate">{c.nom}</p>
+                      <p className="text-[11px] text-muted-foreground font-display truncate">
+                        {postcode} · {c.codeDepartement}
+                      </p>
+                    </div>
+                    {already ? (
+                      <span className="text-[10px] font-display text-primary">Déjà ajouté</span>
+                    ) : (
+                      <Plus className="w-4 h-4 text-primary" />
+                    )}
+                  </button>
+                );
+              })}
+            </>
+          )}
         </div>
       </SheetContent>
     </Sheet>
   );
 
-  // Department detail view
-  if (selectedDept) {
-    const dept = getDepartement(selectedDept);
-    const prog = deptProgress[selectedDept] || { total: 0, captured: 0 };
+  // Zone detail view
+  if (selectedZone) {
+    const dept = getDepartement(selectedZone.departmentCode);
+    const prog = zoneProgress[selectedZone.id] || { total: 0, captured: 0 };
+    const isCity = selectedZone.kind === 'city';
+    const title = isCity ? (selectedZone.cityName || 'Ville') : (dept ? `${dept.name} (${dept.code})` : selectedZone.departmentCode);
+    const subtitle = isCity
+      ? `${selectedZone.cityPostcode || ''}${dept ? ` · ${dept.name}` : ''} · ${prog.captured}/${prog.total} capturés`
+      : `${prog.captured}/${prog.total} capturés`;
+    const HeaderIcon = isCity ? Building2 : MapPin;
     return (
       <main className="min-h-screen bg-background pb-24">
         <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
           <div className="max-w-lg mx-auto">
             <div className="flex items-center gap-3">
               <button
-                onClick={() => setSelectedDept(null)}
+                onClick={() => setSelectedZoneId(null)}
                 className="p-1.5 rounded-full hover:bg-muted transition-colors"
               >
                 <ChevronLeft className="w-5 h-5 text-foreground" />
               </button>
               <div className="flex-1 min-w-0 flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-primary shrink-0" strokeWidth={1.75} />
+                <HeaderIcon className="w-5 h-5 text-primary shrink-0" strokeWidth={1.75} />
                 <div className="min-w-0">
-                  <h1 className="text-lg font-display font-bold text-foreground truncate">
-                    {dept ? `${dept.name} (${dept.code})` : selectedDept}
-                  </h1>
-                  <p className="text-[11px] text-muted-foreground font-display">
-                    {prog.captured}/{prog.total} capturés
-                  </p>
+                  <h1 className="text-lg font-display font-bold text-foreground truncate">{title}</h1>
+                  <p className="text-[11px] text-muted-foreground font-display truncate">{subtitle}</p>
                 </div>
               </div>
               <button
-                onClick={() => handleRemoveDept(selectedDept)}
+                onClick={() => handleRemoveZone(selectedZone.id)}
                 className="p-2 rounded-full hover:bg-destructive/10 text-destructive transition"
                 aria-label="Supprimer la rubrique"
               >
@@ -644,16 +709,21 @@ const BestiairePage = () => {
         </header>
 
         <div className="max-w-lg mx-auto px-3 pt-3">
-          {deptAnimals.length === 0 ? (
+          {isCity && (
+            <p className="text-[11px] text-muted-foreground font-display text-center mb-3 px-3">
+              Espèces présentes dans le territoire de {dept?.name || selectedZone.departmentCode}.
+            </p>
+          )}
+          {zoneAnimals.length === 0 ? (
             <div className="text-center py-16">
               <p className="text-4xl mb-3">📭</p>
               <p className="text-muted-foreground font-display text-sm">
-                Aucune espèce répertoriée pour ce département pour le moment.
+                Aucune espèce répertoriée pour cette zone pour le moment.
               </p>
             </div>
           ) : (
             <div className="grid grid-cols-4 gap-1.5">
-              {deptAnimals.map((animal, index) => (
+              {zoneAnimals.map((animal, index) => (
                 <div
                   key={animal.name}
                   onClick={() => {
