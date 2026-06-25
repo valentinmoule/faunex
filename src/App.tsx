@@ -87,10 +87,17 @@ const LandingRoute = ({ children }: { children: React.ReactNode }) => {
 const AppRoutes = () => {
   const location = useLocation();
   const isCapturePage = location.pathname === '/capture';
-  const isLandingPage = location.pathname === '/';
-  const isAuthPage = location.pathname === '/auth';
-  const isCompleteProfile = location.pathname === '/complete-profile';
   const isModerationPage = location.pathname === '/moderation';
+  const isPublicPage =
+    location.pathname === '/' ||
+    location.pathname === '/auth' ||
+    location.pathname === '/reset-password' ||
+    location.pathname === '/complete-profile' ||
+    location.pathname === '/legal' ||
+    location.pathname === '/unsubscribe' ||
+    location.pathname.startsWith('/guides') ||
+    location.pathname.startsWith('/fonctionnalites') ||
+    location.pathname.startsWith('/u/');
 
   return (
     <>
