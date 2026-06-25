@@ -189,20 +189,21 @@ const LandingPage = () => {
         <div className="relative z-10 max-w-lg mx-auto text-center">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[11px] font-display font-semibold mb-5">
             <Sparkles className="w-3 h-3" />
-            <span>Nouveau · Identification IA en 3 secondes</span>
+            <span>Le jeu de cartes grandeur nature</span>
           </div>
 
           <img src="/pwa-icon-512.png" alt="Logo Faunex" className="w-14 h-14 mx-auto mb-3" />
 
           <h1 className="text-3xl sm:text-5xl font-display font-black tracking-tight leading-[1.05]">
-            Transforme chaque balade en{' '}
-            <span className="text-primary">chasse aux trésors</span>
+            Attrape-les{' '}
+            <span className="text-primary">vraiment tous.</span>
           </h1>
 
           <p className="mt-4 text-base sm:text-lg text-muted-foreground font-body max-w-md mx-auto">
-            Photographie un animal, l'IA l'identifie, tu collectionnes sa carte.
-            <strong className="text-foreground font-semibold"> +1000 espèces</strong> à découvrir près de chez toi.
+            Une coccinelle sur ton balcon, un cerf en forêt, un faucon en ville — chaque rencontre devient une carte dans ton bestiaire.
+            Du commun au mythique.
           </p>
+
 
           <div className="mt-7 flex flex-col items-center gap-2">
             <Button
