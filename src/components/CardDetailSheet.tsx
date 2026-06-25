@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, type ComponentType } from 'react';
 import { Drawer } from 'vaul';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
@@ -46,7 +46,7 @@ const rarityText: Record<Rarity, string> = {
   epic: 'text-rarity-epic',
   mythic: 'text-rarity-mythic',
 };
-const getCategoryIcon = (category: string): LucideIcon => {
+const getCategoryIcon = (category: string): ComponentType<{ className?: string; strokeWidth?: number }> => {
   const cat = category.toLowerCase();
   if (cat.includes('oiseau')) return Bird;
   if (cat.includes('poisson') || cat.includes('vie marine')) return Fish;

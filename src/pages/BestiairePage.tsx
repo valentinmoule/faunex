@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, type ComponentType } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, ChevronLeft, PawPrint, Bird, Fish, Bug, Turtle, Shell, Waves, MapPin, Plus, Search, Trash2, X, type LucideIcon } from 'lucide-react';
 import { FrogIcon } from '@/components/icons/FrogIcon';
@@ -20,7 +20,7 @@ interface BestiaryAnimal {
   captureData?: AnimalCard;
 }
 
-const getCategoryIcon = (category: string): LucideIcon => {
+const getCategoryIcon = (category: string): ComponentType<{ className?: string; strokeWidth?: number }> => {
   const cat = category.toLowerCase();
   if (cat.includes('oiseau')) return Bird;
   if (cat.includes('poisson') || cat.includes('vie marine')) return Fish;
