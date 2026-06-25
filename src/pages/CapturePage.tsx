@@ -17,6 +17,8 @@ interface AnimalResult {
   conservation: string;
   fun_fact: string;
   rarity: Rarity;
+  confidence?: number;
+  alternatives?: string[];
 }
 
 const rarityColors: Record<string, string> = {
@@ -26,8 +28,9 @@ const rarityColors: Record<string, string> = {
   mythic: 'bg-rarity-mythic/20 text-rarity-mythic border-rarity-mythic/40',
 };
 
-/** Compress an image dataURL to a max dimension and lower JPEG quality for AI */
-const compressForAI = (dataUrl: string, maxSize = 1024, quality = 0.6): Promise<string> => {
+/** Compress an image dataURL to a max dimension and JPEG quality for AI.
+ *  Higher resolution + quality => better recognition accuracy. */
+const compressForAI = (dataUrl: string, maxSize = 1600, quality = 0.85): Promise<string> => {
   return new Promise((resolve) => {
     const img = new window.Image();
     img.onload = () => {
