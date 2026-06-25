@@ -427,25 +427,32 @@ const ExplorersPage = () => {
         )}
 
         <div className="max-w-lg mx-auto px-4 pt-2">
-          {/* Search results */}
-          {searchTab === 'search' && (
-            <div className="divide-y divide-border">
-              {searching && <p className="text-center py-8 text-muted-foreground text-sm font-display">Recherche…</p>}
-              {!searching && searchQuery.length >= 2 && searchResults.length === 0 && <p className="text-center py-8 text-muted-foreground text-sm font-display">Aucun explorateur trouvé</p>}
-              {!searching && searchQuery.length < 2 && <p className="text-center py-8 text-muted-foreground text-sm font-display">Tape au moins 2 caractères</p>}
-              {searchResults.filter(u => u.user_id !== userId).map(user => (
-                <UserRow key={user.user_id} user={user} onClick={() => navigate(`/explorer/${user.user_id}/collection`)} action={
-                  isFollowing(user.user_id) ? (
-                    <button onClick={() => unfollowUser(user.user_id)} className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-muted text-foreground text-xs font-display font-semibold"><UserCheck className="w-3.5 h-3.5" /> Abonné</button>
-                  ) : isPending(user.user_id) ? (
-                    <button disabled className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-muted text-muted-foreground text-xs font-display font-semibold"><Clock className="w-3.5 h-3.5" /> En attente</button>
-                  ) : (
-                    <button onClick={() => handleFollow(user.user_id)} className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-display font-semibold"><UserPlus className="w-3.5 h-3.5" /> S'abonner</button>
-                  )
-                } />
-              ))}
-            </div>
-          )}
+          {/* Search results OR full explorer list */}
+          {searchTab === 'search' && (() => {
+            const isSearching = searchQuery.trim().length >= 2;
+            const list = isSearching ? searchResults.filter(u => u.user_id !== userId) : allUsers;
+            const renderAction = (user: SearchUser) =>
+              isFollowing(user.user_id) ? (
+                <button onClick={() => unfollowUser(user.user_id)} className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-muted text-foreground text-xs font-display font-semibold"><UserCheck className="w-3.5 h-3.5" /> Abonné</button>
+              ) : isPending(user.user_id) ? (
+                <button disabled className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-muted text-muted-foreground text-xs font-display font-semibold"><Clock className="w-3.5 h-3.5" /> En attente</button>
+              ) : (
+                <button onClick={() => handleFollow(user.user_id)} className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-display font-semibold"><UserPlus className="w-3.5 h-3.5" /> S'abonner</button>
+              );
+            return (
+              <div className="divide-y divide-border">
+                {isSearching && searching && <p className="text-center py-8 text-muted-foreground text-sm font-display">Recherche…</p>}
+                {isSearching && !searching && list.length === 0 && <p className="text-center py-8 text-muted-foreground text-sm font-display">Aucun explorateur trouvé</p>}
+                {list.map(user => (
+                  <UserRow key={user.user_id} user={user} onClick={() => navigate(`/explorer/${user.user_id}/collection`)} action={renderAction(user)} />
+                ))}
+                {!isSearching && allLoading && <p className="text-center py-6 text-muted-foreground text-sm font-display">Chargement…</p>}
+                {!isSearching && !allLoading && allUsers.length === 0 && <p className="text-center py-8 text-muted-foreground text-sm font-display">Aucun explorateur pour le moment</p>}
+                {!isSearching && !allHasMore && allUsers.length > 0 && <p className="text-center py-6 text-muted-foreground text-xs font-display">Tu as vu tous les explorateurs</p>}
+                {!isSearching && allHasMore && <div ref={sentinelRef} className="h-8" />}
+              </div>
+            );
+          })()}
 
           {/* Following */}
           {searchTab === 'following' && (
