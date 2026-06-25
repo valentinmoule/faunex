@@ -74,6 +74,9 @@ serve(async (req) => {
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, serviceKey);
 
+    const forbidden = await requireAdmin(req, supabase);
+    if (forbidden) return forbidden;
+
     const now = new Date();
     const thisWeek = startOfWeek(now);
     const lastWeekDate = new Date(now);
