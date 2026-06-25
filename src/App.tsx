@@ -86,6 +86,7 @@ const AppRoutes = () => {
   const isLandingPage = location.pathname === '/';
   const isAuthPage = location.pathname === '/auth';
   const isCompleteProfile = location.pathname === '/complete-profile';
+  const isModerationPage = location.pathname === '/moderation';
 
   return (
     <>
