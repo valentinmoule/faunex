@@ -68,7 +68,7 @@ const LevelSplash = () => {
         </div>
 
         {/* Name */}
-        <p className="text-primary-foreground/60 text-sm font-display">
+        <p className="text-primary-foreground/90 text-sm font-display">
           {displayName ? `Bienvenue, ${displayName}` : 'Bienvenue, explorateur'}
         </p>
 
@@ -85,7 +85,7 @@ const LevelSplash = () => {
               style={{ width: phase !== 'in' ? `${progress}%` : '0%' }}
             />
           </div>
-          <div className="flex justify-between text-[10px] font-display text-primary-foreground/50">
+          <div className="flex justify-between text-[10px] font-display text-primary-foreground/70">
             <span>{xp} XP</span>
             <span>{xpToNext} XP</span>
           </div>
