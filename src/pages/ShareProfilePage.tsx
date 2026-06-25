@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { UserPlus, UserCheck, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -118,6 +119,16 @@ const ShareProfilePage = () => {
 
   return (
     <main className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
+      <Helmet>
+        <title>{`${profile.display_name || 'Explorateur'} (${profile.username || '@inconnu'}) — Faunex`}</title>
+        <meta name="description" content={`Découvre le profil Faunex de ${profile.display_name || 'cet explorateur'} : niveau ${profile.level}, ${profile.species_count} espèces collectionnées.`} />
+        <link rel="canonical" href={`https://faunex.fr/u/${(profile.username || '').replace(/^@/, '')}`} />
+        <meta property="og:type" content="profile" />
+        <meta property="og:url" content={`https://faunex.fr/u/${(profile.username || '').replace(/^@/, '')}`} />
+        <meta property="og:title" content={`${profile.display_name || 'Explorateur'} sur Faunex`} />
+        <meta property="og:description" content={`Niveau ${profile.level} · ${profile.species_count} espèces collectionnées.`} />
+        {profile.avatar_url && <meta property="og:image" content={profile.avatar_url} />}
+      </Helmet>
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
           <h1 className="text-2xl font-display font-bold text-primary">Faunex</h1>
