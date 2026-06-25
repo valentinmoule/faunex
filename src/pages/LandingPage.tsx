@@ -341,9 +341,9 @@ const LandingPage = () => {
         <h2 className="text-2xl sm:text-3xl font-display font-black text-center mb-8">
           Pourquoi tu vas adorer
         </h2>
-        <div className="space-y-3">
+        <div className="flex sm:flex-col gap-4 overflow-x-auto snap-x snap-mandatory pb-4 sm:pb-0 -mx-5 px-5 sm:mx-0 sm:px-0">
           {benefits.map((b, i) => (
-            <div key={i} className="flex items-start gap-4 p-4 rounded-2xl bg-card border border-border">
+            <div key={i} className="flex-shrink-0 w-[85%] sm:w-auto snap-start flex items-start gap-4 p-4 rounded-2xl bg-card border border-border">
               <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                 <b.icon className="w-5 h-5 text-primary" />
               </div>
