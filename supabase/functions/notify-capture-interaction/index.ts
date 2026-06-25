@@ -13,6 +13,23 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
 
   try {
+    // Enforce auth: caller must be signed in AND must be the actor.
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader?.startsWith('Bearer ')) {
+      return json({ error: 'Unauthorized' }, 401)
+    }
+    const anonClient = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_ANON_KEY')!,
+      { global: { headers: { Authorization: authHeader } } }
+    )
+    const token = authHeader.replace('Bearer ', '')
+    const { data: claimsData, error: claimsError } = await anonClient.auth.getClaims(token)
+    if (claimsError || !claimsData?.claims?.sub) {
+      return json({ error: 'Unauthorized' }, 401)
+    }
+    const callerId = claimsData.claims.sub
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -22,6 +39,9 @@ Deno.serve(async (req) => {
 
     if (!capture_id || !actor_id || !type || !['like', 'comment'].includes(type)) {
       return json({ error: 'Missing or invalid params' }, 400)
+    }
+    if (actor_id !== callerId) {
+      return json({ error: 'Forbidden: actor must be the authenticated caller' }, 403)
     }
 
     const { data: capture } = await supabase

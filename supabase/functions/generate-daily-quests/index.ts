@@ -6,6 +6,26 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// Enforce that only an admin user (user_roles.role = 'admin') can invoke this function.
+async function requireAdmin(req: Request, adminClient: any): Promise<Response | null> {
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  }
+  const anon = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, { global: { headers: { Authorization: authHeader } } });
+  const { data: claimsData, error } = await anon.auth.getClaims(authHeader.replace("Bearer ", ""));
+  const callerId = claimsData?.claims?.sub;
+  if (error || !callerId) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  }
+  const { data: roleRow } = await adminClient.from("user_roles").select("role").eq("user_id", callerId).eq("role", "admin").maybeSingle();
+  if (!roleRow) {
+    return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  }
+  return null;
+}
+
+
 // Weekly quest templates pool — targets adapted to a 7-day cycle.
 const QUEST_POOL = [
   // capture_count variants (over the week)
@@ -73,6 +93,9 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, serviceKey);
+
+    const forbidden = await requireAdmin(req, supabase);
+    if (forbidden) return forbidden;
 
     const now = new Date();
     const thisWeek = startOfWeek(now);

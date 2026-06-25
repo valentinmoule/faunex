@@ -88,7 +88,7 @@ const ProfilePage = () => {
       const userId = session.user.id;
 
       const [profileRes, followersRes, followingRes, capturesRes, claimedBadgesRes] = await Promise.all([
-        supabase.from('profiles').select('*').eq('user_id', userId).single(),
+        supabase.from('profiles').select('display_name, username, avatar_url, level, xp, xp_to_next, species_count, regions_explored').eq('user_id', userId).single(),
         supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('following_id', userId),
         supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('follower_id', userId),
         supabase.from('captures').select('category, rarity').eq('user_id', userId),
@@ -155,23 +155,25 @@ const ProfilePage = () => {
     if (!session?.user || claiming) return;
     setClaiming(badgeId);
     const xpReward = BADGE_XP_REWARDS[badgeId] || 50;
-    
-    const { error } = await supabase.from('user_badges').insert({
-      user_id: session.user.id,
-      badge_id: badgeId,
-      xp_reward: xpReward,
+
+    const { data: claimed, error } = await supabase.rpc('claim_badge', {
+      p_badge_id: badgeId,
+      p_xp_reward: xpReward,
     });
 
-    if (!error) {
-      await supabase.rpc('grant_xp', { p_user_id: session.user.id, p_amount: xpReward });
+    if (!error && claimed) {
       setBadges(prev => prev.map(b => b.badge.id === badgeId ? { ...b, claimed: true } : b));
-      
+
       // Show XP particles
       setShowXpParticles(true);
-      
-      const { data: refreshed } = await supabase.from('profiles').select('*').eq('user_id', session.user.id).single();
+
+      const { data: refreshed } = await supabase
+        .from('profiles')
+        .select('display_name, username, avatar_url, level, xp, xp_to_next, species_count, regions_explored')
+        .eq('user_id', session.user.id)
+        .single();
       if (refreshed) setProfile(refreshed as Profile);
-      
+
       toast.success(`Badge débloqué ! +${xpReward} XP 🎉`);
     }
     setClaiming(null);
