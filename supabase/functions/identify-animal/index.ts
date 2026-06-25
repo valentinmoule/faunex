@@ -126,8 +126,8 @@ serve(async (req) => {
                   },
                   category: {
                     type: "string",
-                    enum: ["Mammifères", "Oiseaux", "Reptiles", "Amphibiens", "Poissons", "Insectes", "Arachnides", "Crustacés", "Mollusques", "Autres"],
-                    description: "Classe zoologique de l'animal"
+                    enum: ["Mammifères", "Oiseaux", "Reptiles", "Amphibiens", "Poissons", "Insectes", "Arachnides", "Crustacés", "Mollusques"],
+                    description: "Classe zoologique de l'animal. OBLIGATOIRE : choisis exactement UNE de ces 9 catégories, jamais 'Autres'. Pour les annélides/vers utilise 'Mollusques', pour les myriapodes utilise 'Insectes', pour les échinodermes utilise 'Mollusques'. Rattache toujours l'animal à la catégorie zoologique la plus proche."
                   },
                   description: {
                     type: "string",
