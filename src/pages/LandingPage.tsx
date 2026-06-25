@@ -217,7 +217,7 @@ const LandingPage = () => {
             <div className="flex items-center gap-3 text-[11px] text-muted-foreground font-display mt-1">
               <span className="flex items-center gap-1"><Check className="w-3 h-3 text-primary" /> Gratuit</span>
               <span className="flex items-center gap-1"><Check className="w-3 h-3 text-primary" /> Sans pub</span>
-              <span className="flex items-center gap-1"><Check className="w-3 h-3 text-primary" /> 30 secondes</span>
+              <span className="flex items-center gap-1"><Check className="w-3 h-3 text-primary" /> En français</span>
             </div>
             <button
               type="button"
@@ -391,7 +391,7 @@ const LandingPage = () => {
               Rejoins l'aventure
             </h2>
             <p className="text-sm text-primary-foreground/90 font-body mb-6">
-              Crée ton compte en 30 secondes et commence à collectionner.
+              Crée ton compte et commence à collectionner la faune près de chez toi.
             </p>
             <Button
               size="lg"
