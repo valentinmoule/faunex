@@ -406,6 +406,44 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* CONTENT HUB — internal links for SEO */}
+      <section className="px-5 py-12 border-t border-border/50 bg-muted/20">
+        <div className="max-w-2xl mx-auto">
+          <div className="flex items-center gap-2 mb-1">
+            <BookOpen className="w-4 h-4 text-primary" />
+            <h2 className="text-xl font-display font-black">Apprends, explore</h2>
+          </div>
+          <p className="text-sm text-muted-foreground font-body mb-6">
+            Nos guides nature et cas d'usage pour bien démarrer.
+          </p>
+
+          <div className="grid sm:grid-cols-2 gap-3">
+            {[...guides.slice(0, 2), ...useCases.slice(0, 2)].map((a) => (
+              <Link
+                key={a.slug}
+                to={`/${a.type === 'guide' ? 'guides' : 'fonctionnalites'}/${a.slug}`}
+                className="block rounded-2xl bg-card border border-border p-4 hover:border-primary/50 transition-colors"
+              >
+                <span className="text-[10px] font-display font-semibold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                  {a.category}
+                </span>
+                <p className="mt-2 text-sm font-display font-bold leading-snug">{a.title}</p>
+                <p className="text-xs text-muted-foreground font-body mt-1 line-clamp-2">{a.description}</p>
+              </Link>
+            ))}
+          </div>
+
+          <div className="mt-5 flex flex-wrap gap-3 text-sm font-display font-semibold">
+            <Link to="/guides" className="text-primary hover:underline inline-flex items-center gap-1">
+              Tous les guides <ChevronRight className="w-3 h-3" />
+            </Link>
+            <Link to="/fonctionnalites" className="text-primary hover:underline inline-flex items-center gap-1">
+              Tous les cas d'usage <ChevronRight className="w-3 h-3" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* STICKY MOBILE CTA */}
       <div
         className={`fixed bottom-0 left-0 right-0 z-50 px-4 pb-4 pt-3 bg-background/95 backdrop-blur-lg border-t border-border transition-all duration-300 sm:hidden ${
