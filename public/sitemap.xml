@@ -44,6 +44,31 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://faunex.fr/reset-password</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://faunex.fr/complete-profile</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://faunex.fr/home</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://faunex.fr/collection</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://faunex.fr/capture</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://faunex.fr/fonctionnalites/app-collection-animaux-balade</loc>
     <lastmod>2026-06-23</lastmod>
     <changefreq>monthly</changefreq>
