@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Bell, Target, ChevronRight } from 'lucide-react';
 import NearbyAnimalsSection from '@/components/NearbyAnimalsSection';
@@ -109,10 +109,37 @@ const CollectionPage = () => {
     }
   }, [captures, searchParams]);
 
-  const filtered = captures.filter(c => {
+  const filtered = useMemo(() => captures.filter(c => {
     if (filter !== 'all' && c.rarity !== filter) return false;
     return true;
-  });
+  }), [captures, filter]);
+
+  // Infinite scroll: load 25 at a time
+  const PAGE_SIZE = 25;
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+  // Reset pagination when filter changes or captures reload
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [filter, captures.length]);
+
+  useEffect(() => {
+    if (!sentinelRef.current) return;
+    if (visibleCount >= filtered.length) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setVisibleCount(c => Math.min(c + PAGE_SIZE, filtered.length));
+        }
+      },
+      { rootMargin: '400px 0px' }
+    );
+    observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, [visibleCount, filtered.length]);
+
+  const visible = filtered.slice(0, visibleCount);
 
   return (
     <main className="min-h-screen bg-background pb-24">
@@ -178,8 +205,8 @@ const CollectionPage = () => {
         ) : (
           <>
             <div className="grid grid-cols-2 gap-3">
-              {filtered.map((card, i) => (
-                <div key={card.id} style={{ animationDelay: `${i * 80}ms` }}>
+              {visible.map((card, i) => (
+                <div key={card.id} style={{ animationDelay: `${Math.min(i, 10) * 80}ms` }}>
                   <AnimalCardComponent
                     card={card}
                     compact
@@ -188,6 +215,11 @@ const CollectionPage = () => {
                 </div>
               ))}
             </div>
+            {visibleCount < filtered.length && (
+              <div ref={sentinelRef} className="py-6 text-center">
+                <p className="text-muted-foreground font-display text-xs">Chargement…</p>
+              </div>
+            )}
             {filtered.length === 0 && (
               <div className="text-center py-16 px-6">
                 {captures.length === 0 ? (
