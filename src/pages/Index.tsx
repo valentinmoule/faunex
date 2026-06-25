@@ -229,20 +229,14 @@ const Index = () => {
   const firstName = (profile.display_name || profile.username || 'Explorateur').split(' ')[0];
 
   return (
-    <main className="relative min-h-screen bg-background pb-24 overflow-hidden">
-      {/* Immersive backdrop — nocturnal forest glow */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[520px] overflow-hidden">
-        <div className="absolute -top-32 -left-20 w-[420px] h-[420px] rounded-full bg-primary/20 blur-3xl" />
-        <div className="absolute -top-24 -right-24 w-[360px] h-[360px] rounded-full bg-rarity-epic/15 blur-3xl" />
-        <div className="absolute top-40 left-1/3 w-[280px] h-[280px] rounded-full bg-amber/10 blur-3xl" />
-      </div>
-
-      {/* Hero */}
-      <header className="relative z-10 px-5 pt-5 pb-4">
+    <main className="min-h-screen bg-background pb-24">
+      {/* Header */}
+      {/* Immersive Header */}
+      <header className="relative z-40 bg-gradient-to-b from-primary/15 via-primary/5 to-background px-5 pt-4 pb-6">
         <div className="max-w-lg mx-auto">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
-              <button onClick={() => navigate('/profile')} className="relative w-12 h-12 rounded-full border-2 border-primary/50 overflow-hidden shrink-0 game-avatar-ring cursor-pointer shadow-[0_0_24px_hsla(var(--primary),0.35)]">
+              <button onClick={() => navigate('/profile')} className="relative w-12 h-12 rounded-full border-2 border-primary/40 overflow-hidden shrink-0 game-avatar-ring cursor-pointer">
                 {profile.avatar_url ? (
                   <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
                 ) : (
@@ -252,175 +246,105 @@ const Index = () => {
                 )}
               </button>
               <div>
-                <p className="text-[10px] uppercase tracking-[0.18em] font-display text-muted-foreground">Explorateur</p>
-                <h1 className="text-xl font-display font-black text-foreground leading-tight">{firstName}</h1>
+                <h1 className="text-lg font-display font-black text-foreground leading-tight">{firstName}</h1>
+                <p className="text-[10px] text-muted-foreground font-display flex items-center gap-1">
+                  Explorateur
+                  {streak > 0 && (
+                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber/15 border border-amber/20 text-amber">
+                      <Flame className="w-2.5 h-2.5" />
+                      <span className="font-bold">{streak}j</span>
+                    </span>
+                  )}
+                </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              {streak > 0 && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-amber/15 border border-amber/30 text-amber shadow-[0_0_16px_hsla(42,85%,55%,0.25)]">
-                  <Flame className="w-3.5 h-3.5" />
-                  <span className="text-[11px] font-display font-bold tabular-nums">{streak}j</span>
+            <button onClick={() => navigate('/notifications')} className="relative p-2 rounded-full hover:bg-muted transition-colors">
+              <Bell className="w-5 h-5 text-foreground" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center game-notif-bounce">
+                  {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
-              <button onClick={() => navigate('/notifications')} className="relative p-2 rounded-full border border-border bg-card/60 backdrop-blur hover:bg-card transition-colors">
-                <Bell className="w-4 h-4 text-foreground" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center game-notif-bounce">
-                    {unreadCount > 9 ? '9+' : unreadCount}
-                  </span>
-                )}
-              </button>
-            </div>
+            </button>
           </div>
 
-          {/* Level hero card */}
+          {/* XP Bar — light */}
           {!isFirstTime && (
-            <div className="relative rounded-3xl border border-primary/25 bg-gradient-to-br from-card/90 via-card/70 to-card/40 backdrop-blur-xl p-5 overflow-hidden shadow-[0_8px_40px_hsla(var(--primary),0.18)]">
-              <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-primary/25 blur-3xl pointer-events-none" />
-              <div className="absolute -bottom-16 -left-10 w-40 h-40 rounded-full bg-amber/15 blur-3xl pointer-events-none" />
-
-              <div className="relative flex items-end justify-between mb-3">
-                <div>
-                  <p className="text-[10px] uppercase tracking-[0.2em] font-display text-primary/80 mb-1">Niveau actuel</p>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-5xl font-display font-black text-foreground leading-none tabular-nums drop-shadow-[0_0_18px_hsla(var(--primary),0.5)]">
-                      {profile.level}
-                    </span>
-                    <span className="text-xs font-display text-muted-foreground">/ Niv. {profile.level + 1}</span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-[10px] uppercase tracking-[0.18em] font-display text-muted-foreground">XP</p>
-                  <p className="text-sm font-display font-bold text-foreground tabular-nums">
-                    {profile.xp}<span className="text-muted-foreground">/{profile.xp_to_next}</span>
-                  </p>
-                </div>
-              </div>
-
-              <div className="relative h-2.5 rounded-full bg-muted/40 overflow-hidden">
+            <div className="flex items-center gap-2.5">
+              <span className="text-[11px] font-display font-bold text-primary shrink-0">Niv. {profile.level}</span>
+              <div className="relative flex-1 h-2 rounded-full bg-muted/50 overflow-hidden">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-primary via-primary to-amber transition-all duration-1000 ease-out game-xp-glow shadow-[0_0_18px_hsla(var(--primary),0.7)]"
+                  className="h-full rounded-full bg-gradient-to-r from-primary to-amber transition-all duration-1000 ease-out game-xp-glow"
                   style={{ width: `${xpPercent}%` }}
                 />
                 <div className="absolute inset-0 game-xp-shimmer pointer-events-none" />
               </div>
-
-              <div className="relative mt-4 grid grid-cols-3 gap-2 text-center">
-                <div>
-                  <p className="text-base font-display font-black text-foreground tabular-nums leading-none">{profile.total_captures}</p>
-                  <p className="text-[9px] uppercase tracking-wide font-display text-muted-foreground mt-1">Captures</p>
-                </div>
-                <div className="border-x border-border/40">
-                  <p className="text-base font-display font-black text-foreground tabular-nums leading-none">{profile.species_count}</p>
-                  <p className="text-[9px] uppercase tracking-wide font-display text-muted-foreground mt-1">Espèces</p>
-                </div>
-                <div>
-                  <p className="text-base font-display font-black text-amber tabular-nums leading-none">{questSummary.claimable}</p>
-                  <p className="text-[9px] uppercase tracking-wide font-display text-muted-foreground mt-1">À récolter</p>
-                </div>
-              </div>
+              <span className="text-[10px] font-display text-muted-foreground shrink-0">{profile.xp}/{profile.xp_to_next}</span>
             </div>
           )}
         </div>
       </header>
 
-      <div className="relative z-10 max-w-lg mx-auto px-4 pt-4 space-y-4 pb-24">
+      <div className="max-w-lg mx-auto px-4 pt-3 space-y-4 pb-24">
 
-        {/* Rarity gems — bento row */}
-        {allCaptures.length > 0 && (
-          <section>
-            <div className="flex items-center justify-between mb-2.5 px-1">
-              <div className="flex items-center gap-1.5">
-                <Trophy className="w-3.5 h-3.5 text-amber" />
-                <h2 className="text-[11px] uppercase tracking-[0.18em] font-display font-bold text-foreground">Collection</h2>
-              </div>
-              <button onClick={() => navigate('/bestiaire')} className="text-[11px] font-display text-muted-foreground hover:text-foreground transition-colors flex items-center gap-0.5">
-                Tout voir <ChevronRight className="w-3 h-3" />
-              </button>
-            </div>
-            <div className="grid grid-cols-4 gap-2">
-              {([
-                { key: 'common' as Rarity, label: 'Commun', dotClass: 'bg-rarity-common', glow: 'shadow-[0_0_18px_hsla(0,0%,60%,0.25)]', ring: 'border-rarity-common/35' },
-                { key: 'rare' as Rarity, label: 'Rare', dotClass: 'bg-rarity-rare', glow: 'shadow-[0_0_22px_hsla(210,90%,60%,0.35)]', ring: 'border-rarity-rare/40' },
-                { key: 'epic' as Rarity, label: 'Épique', dotClass: 'bg-rarity-epic', glow: 'shadow-[0_0_24px_hsla(270,75%,65%,0.4)]', ring: 'border-rarity-epic/45' },
-                { key: 'mythic' as Rarity, label: 'Mythique', dotClass: 'bg-rarity-mythic', glow: 'shadow-[0_0_28px_hsla(42,85%,60%,0.45)]', ring: 'border-rarity-mythic/50' },
-              ]).map(t => {
-                const count = rarityCounts[t.key] || 0;
-                return (
-                  <div key={t.key} className={`relative rounded-2xl border ${t.ring} bg-card/70 backdrop-blur p-2.5 flex flex-col items-center justify-center gap-1 aspect-square ${count > 0 ? t.glow : 'opacity-60'}`}>
-                    <span className={`w-2.5 h-2.5 rounded-full ${t.dotClass} ${count > 0 ? 'animate-pulse' : ''}`} />
-                    <span className="text-xl font-display font-black text-foreground tabular-nums leading-none">{count}</span>
-                    <span className="text-[8.5px] font-display text-muted-foreground uppercase tracking-wider">{t.label}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-        )}
-
-        {/* Quêtes — explosive gaming card */}
+        {/* Quêtes de la semaine — explosive gaming card */}
         {!isFirstTime && (
-          <button
-            onClick={() => navigate('/quests')}
-            className="w-full relative overflow-hidden flex items-center gap-3 p-4 rounded-2xl border border-amber/35 bg-gradient-to-br from-amber/15 via-amber/10 to-amber-dark/15 hover:from-amber/20 transition-all text-left group active:scale-[0.97] transform shadow-[0_0_24px_hsla(42,80%,55%,0.18)]"
-          >
-            <div className="absolute inset-0 overflow-hidden rounded-2xl pointer-events-none">
-              <div className="quest-sunburst" />
+        <button
+          onClick={() => navigate('/quests')}
+          className="w-full relative overflow-hidden flex items-center gap-3 p-4 rounded-2xl border border-amber/30 bg-gradient-to-br from-amber/10 via-amber/15 to-amber-dark/10 hover:from-amber/15 hover:to-amber-dark/15 transition-all text-left group active:scale-[0.97] transform shadow-[0_0_20px_hsla(42,80%,55%,0.15)] hover:shadow-[0_0_30px_hsla(42,80%,55%,0.25)]"
+        >
+          {/* Sunburst rays background */}
+          <div className="absolute inset-0 overflow-hidden rounded-2xl pointer-events-none">
+            <div className="quest-sunburst" />
+          </div>
+          
+          {/* Icon container */}
+          <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-amber/25 to-amber-dark/20 border border-amber/30 flex items-center justify-center shrink-0">
+            <Target className="w-6 h-6 text-amber relative z-10" />
+          </div>
+          
+          <div className="relative flex-1 min-w-0">
+            <div className="flex items-center justify-between mb-0.5">
+              <h3 className="text-sm font-display font-bold text-foreground">Quêtes de la semaine</h3>
+              {questSummary.claimable > 0 && (
+                <span className="px-2.5 py-1 rounded-full bg-gradient-to-r from-amber to-amber-light text-white text-[10px] font-display font-bold quest-claim-pulse flex items-center gap-1 shadow-[0_0_12px_hsla(42,80%,55%,0.5)]">
+                  🎁 {questSummary.claimable} récompense{questSummary.claimable > 1 ? 's' : ''}
+                </span>
+              )}
             </div>
-            <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-amber/30 to-amber-dark/25 border border-amber/40 flex items-center justify-center shrink-0 shadow-[inset_0_0_12px_hsla(42,90%,60%,0.3)]">
-              <Target className="w-6 h-6 text-amber relative z-10" />
+            <p className="text-[10px] text-muted-foreground mb-1.5">{questSummary.completed}/{questSummary.total} terminées</p>
+            <div className="flex gap-1">
+              {Array.from({ length: questSummary.total }).map((_, i) => (
+                <div key={i} className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${
+                  i < questSummary.completed 
+                    ? 'bg-gradient-to-r from-amber to-amber-light shadow-[0_0_8px_hsla(42,85%,55%,0.5)]' 
+                    : 'bg-muted/60'
+                }`} style={{ transitionDelay: `${i * 100}ms` }} />
+              ))}
             </div>
-            <div className="relative flex-1 min-w-0">
-              <div className="flex items-center justify-between mb-0.5">
-                <h3 className="text-sm font-display font-bold text-foreground">Quêtes de la semaine</h3>
-                {questSummary.claimable > 0 && (
-                  <span className="px-2.5 py-1 rounded-full bg-gradient-to-r from-amber to-amber-light text-white text-[10px] font-display font-bold quest-claim-pulse flex items-center gap-1 shadow-[0_0_12px_hsla(42,80%,55%,0.5)]">
-                    🎁 {questSummary.claimable}
-                  </span>
-                )}
-              </div>
-              <p className="text-[10px] text-muted-foreground mb-1.5 font-display">{questSummary.completed}/{questSummary.total} terminées</p>
-              <div className="flex gap-1">
-                {Array.from({ length: questSummary.total }).map((_, i) => (
-                  <div key={i} className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${
-                    i < questSummary.completed 
-                      ? 'bg-gradient-to-r from-amber to-amber-light shadow-[0_0_8px_hsla(42,85%,55%,0.5)]' 
-                      : 'bg-muted/60'
-                  }`} style={{ transitionDelay: `${i * 100}ms` }} />
-                ))}
-              </div>
-            </div>
-            <ChevronRight className="w-4 h-4 text-amber/70 shrink-0 group-hover:translate-x-1 transition-all" />
-          </button>
+          </div>
+          <ChevronRight className="w-4 h-4 text-amber/60 shrink-0 group-hover:translate-x-1 group-hover:text-amber transition-all" />
+        </button>
         )}
 
-        {/* Capture CTA + Radar bento */}
-        <div className="grid grid-cols-5 gap-3">
-          <button
-            onClick={() => navigate('/capture')}
-            className="col-span-2 relative overflow-hidden rounded-2xl border border-primary/40 bg-gradient-to-br from-primary/25 via-primary/15 to-transparent p-4 flex flex-col items-start justify-between aspect-square active:scale-[0.97] transition-transform shadow-[0_0_28px_hsla(var(--primary),0.25)]"
-          >
-            <div className="absolute -bottom-10 -right-10 w-32 h-32 rounded-full bg-primary/30 blur-2xl pointer-events-none" />
-            <div className="relative w-11 h-11 rounded-xl bg-primary/25 border border-primary/40 flex items-center justify-center shadow-[inset_0_0_14px_hsla(var(--primary),0.35)]">
-              <Camera className="w-5 h-5 text-primary" />
-            </div>
-            <div className="relative text-left">
-              <p className="text-[10px] uppercase tracking-[0.16em] font-display text-primary/90 mb-0.5">Capture</p>
-              <p className="text-sm font-display font-black text-foreground leading-tight">Pars en<br/>chasse</p>
-            </div>
-          </button>
-          <div className="col-span-3 rounded-2xl border border-border bg-card/60 backdrop-blur overflow-hidden">
-            <NearbyAnimalsSection capturedNames={allCapturedNames} />
-          </div>
-        </div>
+        {/* Autour de moi */}
+        <NearbyAnimalsSection capturedNames={allCapturedNames} />
 
         {/* Progression personnelle */}
         {allCaptures.length > 0 && (() => {
+          const rarityTiles: { key: Rarity; label: string; dot: string; ring: string }[] = [
+            { key: 'common', label: 'Commun', dot: 'bg-rarity-common', ring: 'border-rarity-common/30' },
+            { key: 'rare', label: 'Rare', dot: 'bg-rarity-rare', ring: 'border-rarity-rare/30' },
+            { key: 'epic', label: 'Épique', dot: 'bg-rarity-epic', ring: 'border-rarity-epic/30' },
+            { key: 'mythic', label: 'Mythique', dot: 'bg-rarity-mythic', ring: 'border-rarity-mythic/30' },
+          ];
+
+          // Categories breakdown (top 3)
           const catMap: Record<string, number> = {};
           allCaptures.forEach(c => { if (c.category) catMap[c.category] = (catMap[c.category] || 0) + 1; });
           const topCats = Object.entries(catMap).sort((a, b) => b[1] - a[1]).slice(0, 3);
 
+          // Next badges to unlock
           const total = allCaptures.length;
           const birds = allCaptures.filter(c => c.category?.toLowerCase().includes('oiseau')).length;
           const mammals = allCaptures.filter(c => c.category?.toLowerCase().includes('mammif')).length;
@@ -449,16 +373,33 @@ const Index = () => {
             .slice(0, 3);
 
           return (
-            <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Trophy className="w-4 h-4 text-amber" />
+                <h2 className="text-base font-display font-bold text-foreground">Ta progression</h2>
+              </div>
+
+              {/* Rarity tiles */}
+              <div className="grid grid-cols-4 gap-2">
+                {rarityTiles.map(t => (
+                  <div key={t.key} className={`relative p-2.5 rounded-xl border ${t.ring} bg-card/60 flex flex-col items-center gap-1`}>
+                    <span className={`w-2 h-2 rounded-full ${t.dot}`} />
+                    <span className="text-lg font-display font-black text-foreground tabular-nums leading-none">{rarityCounts[t.key] || 0}</span>
+                    <span className="text-[9px] font-display text-muted-foreground uppercase tracking-wide">{t.label}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Catégories */}
               {topCats.length > 0 && (
                 <button
                   onClick={() => navigate('/bestiaire')}
-                  className="col-span-2 relative overflow-hidden p-4 rounded-2xl border border-border bg-card/60 backdrop-blur text-left active:scale-[0.98] transition-transform"
+                  className="w-full p-3.5 rounded-2xl border border-border bg-card/60 text-left active:scale-[0.98] transition-transform"
                 >
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center justify-between mb-2.5">
                     <div className="flex items-center gap-2">
                       <BookOpen className="w-4 h-4 text-primary" />
-                      <h3 className="text-[11px] uppercase tracking-[0.16em] font-display font-bold text-foreground">Catégories explorées</h3>
+                      <h3 className="text-sm font-display font-bold text-foreground">Catégories explorées</h3>
                     </div>
                     <ChevronRight className="w-4 h-4 text-muted-foreground" />
                   </div>
@@ -471,8 +412,8 @@ const Index = () => {
                             <span className="text-[11px] font-display text-foreground">{cat}</span>
                             <span className="text-[10px] font-display text-muted-foreground tabular-nums">{count}</span>
                           </div>
-                          <div className="h-1.5 rounded-full bg-muted/50 overflow-hidden">
-                            <div className="h-full rounded-full bg-gradient-to-r from-primary to-primary/50 shadow-[0_0_8px_hsla(var(--primary),0.4)]" style={{ width: `${pct}%` }} />
+                          <div className="h-1.5 rounded-full bg-muted/60 overflow-hidden">
+                            <div className="h-full rounded-full bg-gradient-to-r from-primary to-primary/60" style={{ width: `${pct}%` }} />
                           </div>
                         </div>
                       );
@@ -481,20 +422,20 @@ const Index = () => {
                 </button>
               )}
 
+              {/* Prochains badges */}
               {nextBadges.length > 0 && (
                 <button
                   onClick={() => navigate('/profile')}
-                  className="col-span-2 relative overflow-hidden p-4 rounded-2xl border border-amber/30 bg-gradient-to-br from-amber/12 via-card/60 to-transparent backdrop-blur text-left active:scale-[0.98] transition-transform"
+                  className="w-full p-3.5 rounded-2xl border border-amber/25 bg-gradient-to-br from-amber/8 to-transparent text-left active:scale-[0.98] transition-transform"
                 >
-                  <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-amber/15 blur-2xl pointer-events-none" />
-                  <div className="relative flex items-center justify-between mb-3">
+                  <div className="flex items-center justify-between mb-2.5">
                     <div className="flex items-center gap-2">
                       <Trophy className="w-4 h-4 text-amber" />
-                      <h3 className="text-[11px] uppercase tracking-[0.16em] font-display font-bold text-foreground">Prochains trophées</h3>
+                      <h3 className="text-sm font-display font-bold text-foreground">Prochains badges</h3>
                     </div>
                     <ChevronRight className="w-4 h-4 text-muted-foreground" />
                   </div>
-                  <div className="relative space-y-2.5">
+                  <div className="space-y-2.5">
                     {nextBadges.map(b => {
                       const pct = Math.round(b.pct * 100);
                       return (
@@ -503,8 +444,8 @@ const Index = () => {
                             <span className="text-[11px] font-display text-foreground">{BADGE_LABELS[b.id] || b.id}</span>
                             <span className="text-[10px] font-display text-muted-foreground tabular-nums">{b.current}/{b.total}</span>
                           </div>
-                          <div className="h-1.5 rounded-full bg-muted/50 overflow-hidden">
-                            <div className="h-full rounded-full bg-gradient-to-r from-amber to-amber-light shadow-[0_0_10px_hsla(42,85%,55%,0.55)] transition-all duration-500" style={{ width: `${pct}%` }} />
+                          <div className="h-1.5 rounded-full bg-muted/60 overflow-hidden">
+                            <div className="h-full rounded-full bg-gradient-to-r from-amber to-amber-light transition-all duration-500" style={{ width: `${pct}%` }} />
                           </div>
                         </div>
                       );
@@ -512,6 +453,23 @@ const Index = () => {
                   </div>
                 </button>
               )}
+
+              {/* Lien vers la collection complète */}
+              <button
+                onClick={() => navigate('/bestiaire')}
+                className="w-full flex items-center justify-between p-3.5 rounded-2xl border border-border bg-card/60 active:scale-[0.98] transition-transform"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <BookOpen className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-sm font-display font-bold text-foreground">Voir ma collection</p>
+                    <p className="text-[10px] font-display text-muted-foreground">{allCaptures.length} capture{allCaptures.length > 1 ? 's' : ''} · {profile.species_count} espèce{profile.species_count > 1 ? 's' : ''}</p>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              </button>
             </div>
           );
         })()}
@@ -540,6 +498,5 @@ const Index = () => {
     </main>
   );
 };
-
 
 export default Index;

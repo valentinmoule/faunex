@@ -1348,12 +1348,10 @@ const BestiairePage = () => {
             </section>
           )}
         </div>
-        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} />
         {deptPickerSheet}
       </main>
     );
   }
-
 
   // Category detail: 3x3 binder grid
   const catInfo = categoryData.find(c => c.name === selectedCategory);
