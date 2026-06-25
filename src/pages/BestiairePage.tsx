@@ -335,8 +335,9 @@ const BestiairePage = () => {
     const fetchSubs = async (sourceAnimals: BestiaryAnimal[]) => {
       const { data } = await supabase
         .from('user_department_subscriptions')
-        .select('id, department_code, kind, city_name, city_postcode')
+        .select('id, department_code, kind, city_name, city_postcode, is_home')
         .eq('user_id', session.user.id)
+        .order('is_home', { ascending: false })
         .order('created_at', { ascending: true });
       const zones: ZoneSub[] = (data || []).map((r: any) => ({
         id: r.id,
@@ -344,6 +345,7 @@ const BestiairePage = () => {
         departmentCode: r.department_code,
         cityName: r.city_name,
         cityPostcode: r.city_postcode,
+        isHome: !!r.is_home,
       }));
       setSubscribedZones(zones);
       const uniqueDepts = Array.from(new Set(zones.map((z) => z.departmentCode)));
