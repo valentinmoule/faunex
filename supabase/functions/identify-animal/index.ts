@@ -152,9 +152,20 @@ serve(async (req) => {
                   rarity: {
                     type: "string",
                     enum: ["common", "rare", "epic", "mythic"]
+                  },
+                  confidence: {
+                    type: "integer",
+                    minimum: 0,
+                    maximum: 100,
+                    description: "Niveau de confiance calibré (0-100) sur l'identification."
+                  },
+                  alternatives: {
+                    type: "array",
+                    items: { type: "string" },
+                    description: "1 à 3 noms d'espèces/races alternatives plausibles si la confiance est < 80."
                   }
                 },
-                required: ["animal_name", "scientific_name", "category", "description", "habitat", "diet", "conservation", "fun_fact", "rarity"],
+                required: ["animal_name", "scientific_name", "category", "description", "habitat", "diet", "conservation", "fun_fact", "rarity", "confidence"],
                 additionalProperties: false
               }
             }
