@@ -26,7 +26,7 @@ const getCategoryIcon = (category: string): LucideIcon => {
   if (cat.includes('poisson') || cat.includes('vie marine')) return Fish;
   if (cat.includes('insecte')) return Bug;
   if (cat.includes('reptile')) return Turtle;
-  if (cat.includes('amphibien')) return Rabbit;
+  if (cat.includes('amphibien')) return FrogIcon;
   if (cat.includes('arachnide')) return Bug;
   if (cat.includes('crustacé')) return Shell;
   if (cat.includes('mollusque')) return Shell;

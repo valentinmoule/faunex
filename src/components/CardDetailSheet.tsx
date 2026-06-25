@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { Drawer } from 'vaul';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
-import { MapPin, Leaf, UtensilsCrossed, Shield, Sparkles, Heart, MessageCircle, Send, PawPrint, Bird, Fish, Bug, Turtle, Rabbit, Shell, Waves, type LucideIcon } from 'lucide-react';
+import { MapPin, Leaf, UtensilsCrossed, Shield, Sparkles, Heart, MessageCircle, Send, PawPrint, Bird, Fish, Bug, Turtle, Shell, Waves, type LucideIcon } from 'lucide-react';
+import { FrogIcon } from '@/components/icons/FrogIcon';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import HolographicCard from '@/components/HolographicCard';
@@ -51,7 +52,7 @@ const getCategoryIcon = (category: string): LucideIcon => {
   if (cat.includes('poisson') || cat.includes('vie marine')) return Fish;
   if (cat.includes('insecte') || cat.includes('arachnide')) return Bug;
   if (cat.includes('reptile')) return Turtle;
-  if (cat.includes('amphibien')) return Rabbit;
+  if (cat.includes('amphibien')) return FrogIcon;
   if (cat.includes('crustacé') || cat.includes('mollusque')) return Shell;
   if (cat.includes('mammifère') && cat.includes('marin')) return Waves;
   if (cat.includes('mammifère')) return PawPrint;
