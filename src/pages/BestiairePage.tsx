@@ -546,7 +546,7 @@ const BestiairePage = () => {
         .select('id')
         .single();
       if (error) throw error;
-      const newZone: ZoneSub = { id: data.id, kind: 'department', departmentCode: code, cityName: null, cityPostcode: null };
+      const newZone: ZoneSub = { id: data.id, kind: 'department', departmentCode: code, cityName: null, cityPostcode: null, isHome: false };
       setSubscribedZones((prev) => [...prev, newZone]);
 
       await loadDeptAnimals(code, animals);
