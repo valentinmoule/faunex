@@ -4,7 +4,7 @@ project_id = "pakwuooxumrghsbwczwx"
   [functions.auth-email-hook]
     verify_jwt = false
   [functions.identify-animal]
-    verify_jwt = false
+    verify_jwt = true
   [functions.search-users]
     verify_jwt = false
   [functions.process-email-queue]
@@ -12,7 +12,7 @@ project_id = "pakwuooxumrghsbwczwx"
   [functions.send-reengagement]
     verify_jwt = true
   [functions.notify-friend-request]
-    verify_jwt = false
+    verify_jwt = true
   [functions.public-stats]
     verify_jwt = false
   [functions.send-transactional-email]
@@ -24,4 +24,14 @@ project_id = "pakwuooxumrghsbwczwx"
   [functions.handle-email-suppression]
     verify_jwt = false
   [functions.notify-capture-interaction]
-    verify_jwt = false
+    verify_jwt = true
+  [functions.generate-daily-quests]
+    verify_jwt = true
+  [functions.send-inactivity-push]
+    verify_jwt = true
+  [functions.send-no-capture-nudge]
+    verify_jwt = true
+  [functions.populate-bestiary]
+    verify_jwt = true
+  [functions.populate-department-fauna]
+    verify_jwt = true
