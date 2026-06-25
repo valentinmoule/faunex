@@ -682,6 +682,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      claim_badge: {
+        Args: { p_badge_id: string; p_xp_reward: number }
+        Returns: boolean
+      }
       claim_quest_reward: { Args: { p_quest_id: string }; Returns: boolean }
       delete_email: {
         Args: { message_id: number; queue_name: string }
