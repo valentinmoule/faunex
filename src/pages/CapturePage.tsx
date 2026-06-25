@@ -622,9 +622,16 @@ const CapturePage = () => {
           location: geoName || null,
           latitude: geoCoords?.lat || null,
           longitude: geoCoords?.lng || null,
+          cutout_url: null,
+          cutout_status: 'pending',
+          cutout_attempts: 0,
         })
         .eq('id', duplicateCapture.id);
       if (updateError) throw updateError;
+
+      // Regenerate cutout for the new photo
+      supabase.functions.invoke('generate-cutout', { body: { capture_id: duplicateCapture.id } })
+        .catch((err) => console.warn('cutout trigger failed:', err));
 
       setSaved(true);
       setDuplicateCapture(null);
