@@ -228,7 +228,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
                       const CatIcon = getCategoryIcon(card.category);
                       return (
                         <div className="w-full h-full flex items-center justify-center bg-muted/40">
-                          <CatIcon className="w-24 h-24 text-muted-foreground/50" strokeWidth={1.5} />
+                          <CatIcon className="w-24 h-24 text-muted-foreground" strokeWidth={1.5} />
                         </div>
                       );
                     })()
@@ -243,7 +243,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
 
             <div className="relative z-10 text-center px-6 pt-4 pb-14">
               <h2 className="text-2xl font-display font-bold text-white drop-shadow-lg">{card.name}</h2>
-              <p className="text-white/60 text-sm italic font-body mt-0.5">{card.scientificName}</p>
+              <p className="text-white/90 text-sm italic font-body mt-0.5">{card.scientificName}</p>
             </div>
           </div>
 
@@ -424,7 +424,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
           </div>
           <button
             onClick={() => setImageFullscreen(false)}
-            className="absolute top-6 right-6 text-white/70 hover:text-white text-3xl font-light z-20"
+            className="absolute top-6 right-6 text-white/90 hover:text-white text-3xl font-light z-20"
           >
             ✕
           </button>

@@ -115,10 +115,10 @@ const NearbyRadar = ({ animals }: Props) => {
         <div className="absolute left-1/2 top-1/2 w-2.5 h-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary shadow-[0_0_8px_hsl(var(--primary)/0.5)]" />
 
         {/* Cardinal labels */}
-        <span className="absolute top-0 left-1/2 -translate-x-1/2 text-[8px] font-display font-bold text-muted-foreground/50">N</span>
-        <span className="absolute bottom-0 left-1/2 -translate-x-1/2 text-[8px] font-display font-bold text-muted-foreground/50">S</span>
-        <span className="absolute left-1 top-1/2 -translate-y-1/2 text-[8px] font-display font-bold text-muted-foreground/50">O</span>
-        <span className="absolute right-1 top-1/2 -translate-y-1/2 text-[8px] font-display font-bold text-muted-foreground/50">E</span>
+        <span className="absolute top-0 left-1/2 -translate-x-1/2 text-[8px] font-display font-bold text-muted-foreground">N</span>
+        <span className="absolute bottom-0 left-1/2 -translate-x-1/2 text-[8px] font-display font-bold text-muted-foreground">S</span>
+        <span className="absolute left-1 top-1/2 -translate-y-1/2 text-[8px] font-display font-bold text-muted-foreground">O</span>
+        <span className="absolute right-1 top-1/2 -translate-y-1/2 text-[8px] font-display font-bold text-muted-foreground">E</span>
 
         {/* Animal dots */}
         {animals.map((animal, i) => {

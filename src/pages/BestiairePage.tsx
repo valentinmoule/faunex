@@ -832,7 +832,7 @@ const BestiairePage = () => {
                     </div>
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center gap-1">
-                      <span className="text-lg font-display font-bold text-muted-foreground/30">
+                      <span className="text-lg font-display font-bold text-muted-foreground">
                         {String(index + 1).padStart(3, '0')}
                       </span>
                       <div className={`w-1.5 h-1.5 rounded-full ${rarityDot[animal.rarity] || 'bg-muted-foreground'} opacity-30`} />
@@ -1071,7 +1071,7 @@ const BestiairePage = () => {
                   </div>
                 ) : (
                   <div className="w-full h-full flex flex-col items-center justify-center gap-1">
-                    <span className="text-lg font-display font-bold text-muted-foreground/30">
+                    <span className="text-lg font-display font-bold text-muted-foreground">
                       {String(index + 1).padStart(3, '0')}
                     </span>
                     <div className={`w-1.5 h-1.5 rounded-full ${rarityDot[animal.rarity] || 'bg-muted-foreground'} opacity-30`} />

@@ -83,7 +83,7 @@ const AuthPage = () => {
             {isForgot ? 'Mot de passe oublié' : isLogin ? 'Se connecter' : 'Créer un compte'}
           </h1>
           {!isLogin && !isForgot && (
-            <p className="text-xs text-muted-foreground/70 max-w-[280px] mx-auto leading-relaxed mt-1">
+            <p className="text-xs text-muted-foreground max-w-[280px] mx-auto leading-relaxed mt-1">
               Photographie, identifie et collectionne les animaux que tu croises au quotidien. Chaque sortie devient une aventure 🌿
             </p>
           )}
