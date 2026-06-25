@@ -105,7 +105,7 @@ const ArticlePage = ({ type }: { type: ArticleType }) => {
             Essaie Faunex gratuitement
           </h2>
           <p className="text-sm text-primary-foreground/90 font-body mb-4">
-            Photographie un animal, l'IA l'identifie, tu collectionnes la carte.
+            Photographie un animal, l'IA l'identifie, tu collectionnes sa carte comme un vrai bestiaire.
           </p>
           <Button asChild size="lg" variant="secondary" className="font-display font-bold rounded-2xl bg-background text-primary hover:bg-background/90">
             <Link to="/auth?mode=signup">Créer mon compte gratuit</Link>
