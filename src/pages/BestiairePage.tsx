@@ -228,17 +228,20 @@ const BestiairePage = () => {
     departmentCode: string;
     cityName: string | null;
     cityPostcode: string | null;
+    isHome: boolean;
   };
   const [subscribedZones, setSubscribedZones] = useState<ZoneSub[]>([]);
   const [animalsByDept, setAnimalsByDept] = useState<Record<string, Set<string>>>({});
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
   const [showDeptPicker, setShowDeptPicker] = useState(false);
+  const [pickerMode, setPickerMode] = useState<'hub' | 'explore'>('hub');
   const [pickerTab, setPickerTab] = useState<'department' | 'city'>('department');
   const [deptSearch, setDeptSearch] = useState('');
   const [citySearch, setCitySearch] = useState('');
   const [cityResults, setCityResults] = useState<Array<{ nom: string; code: string; codeDepartement: string; codesPostaux: string[] }>>([]);
   const [cityLoading, setCityLoading] = useState(false);
   const [loadingDept, setLoadingDept] = useState(false);
+  const [detectingHome, setDetectingHome] = useState(false);
 
   const loadDeptAnimals = async (code: string, sourceAnimals = animals, useFallback = true) => {
     const { data } = await supabase
