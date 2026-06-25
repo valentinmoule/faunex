@@ -649,25 +649,23 @@ const CapturePage = () => {
           onTouchEnd={!capturedPhoto ? handleTouchEnd : undefined}
           onClick={!capturedPhoto ? handleTapToFocus : undefined}
         >
-          {capturedPhoto ? (
-            <img src={capturedPhoto} alt="Captured" className="w-full h-full object-cover" />
-          ) : (
-            <>
-              <video
-                ref={videoRef}
-                autoPlay playsInline muted
-                className={`w-full h-full object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
-                style={!supportsNativeZoom && zoomLevel > 1 ? { transform: `${facingMode === 'user' ? 'scaleX(-1) ' : ''}scale(${zoomLevel})`, transformOrigin: 'center center' } : undefined}
-              />
-              {!cameraActive && (
-                <div className="absolute inset-0 bg-foreground flex items-center justify-center">
-                  <div className="text-center">
-                    <Camera className="w-12 h-12 text-primary-foreground/40 mx-auto mb-3" />
-                    <p className="text-primary-foreground/50 text-sm font-display">Activation de la caméra…</p>
-                  </div>
-                </div>
-              )}
-            </>
+          {/* Video is always mounted so the stream stays attached when retaking a photo */}
+          <video
+            ref={videoRef}
+            autoPlay playsInline muted
+            className={`w-full h-full object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''} ${capturedPhoto ? 'invisible' : ''}`}
+            style={!supportsNativeZoom && zoomLevel > 1 && !capturedPhoto ? { transform: `${facingMode === 'user' ? 'scaleX(-1) ' : ''}scale(${zoomLevel})`, transformOrigin: 'center center' } : undefined}
+          />
+          {capturedPhoto && (
+            <img src={capturedPhoto} alt="Captured" className="absolute inset-0 w-full h-full object-cover" />
+          )}
+          {!capturedPhoto && !cameraActive && (
+            <div className="absolute inset-0 bg-foreground flex items-center justify-center">
+              <div className="text-center">
+                <Camera className="w-12 h-12 text-primary-foreground/40 mx-auto mb-3" />
+                <p className="text-primary-foreground/50 text-sm font-display">Activation de la caméra…</p>
+              </div>
+            </div>
           )}
 
           {/* Focus point indicator */}
