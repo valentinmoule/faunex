@@ -68,6 +68,13 @@ const AuthPage = () => {
 
   return (
     <main className="min-h-screen bg-background flex items-center justify-center px-4">
+      <Helmet>
+        <title>Connexion & inscription — Faunex</title>
+        <meta name="description" content="Connecte-toi ou crée ton compte Faunex pour identifier les animaux sauvages avec l'IA et bâtir ta collection naturaliste." />
+        <link rel="canonical" href="https://faunex.fr/auth" />
+        <meta property="og:url" content="https://faunex.fr/auth" />
+        <meta property="og:title" content="Connexion & inscription — Faunex" />
+      </Helmet>
       <div className="w-full max-w-sm space-y-8">
         {/* Logo */}
         <div className="text-center space-y-2">
