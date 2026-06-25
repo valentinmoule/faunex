@@ -193,7 +193,7 @@ const LandingPage = () => {
             <span>Le jeu de cartes grandeur nature</span>
           </div>
 
-          <img src="/pwa-icon-512.png" alt="Logo Faunex" width="56" height="56" fetchpriority="high" className="w-14 h-14 mx-auto mb-3" />
+          <img src="/pwa-icon-512.png" alt="Logo Faunex" width="56" height="56" fetchPriority="high" className="w-14 h-14 mx-auto mb-3" />
 
           <h1 className="text-3xl sm:text-5xl font-display font-black tracking-tight leading-[1.05]">
             Attrape-les{' '}
