@@ -553,7 +553,7 @@ const CapturePage = () => {
       const imageUrl = await uploadImage();
       if (!imageUrl) return;
 
-      const { error: insertError } = await supabase.from('captures').insert({
+      const { data: inserted, error: insertError } = await supabase.from('captures').insert({
         user_id: session.user.id,
         image_url: imageUrl,
         animal_name: animalResult.animal_name,
@@ -570,8 +570,15 @@ const CapturePage = () => {
         location: geoName || null,
         latitude: geoCoords?.lat || null,
         longitude: geoCoords?.lng || null,
-      });
+      }).select('id').single();
       if (insertError) throw insertError;
+
+      // Fire-and-forget: ask the backend to generate a transparent cutout of the animal
+      // so the holographic shimmer can play between the background and the animal.
+      if (inserted?.id) {
+        supabase.functions.invoke('generate-cutout', { body: { capture_id: inserted.id } })
+          .catch((err) => console.warn('cutout trigger failed:', err));
+      }
 
       setSaved(true);
       setDuplicateCapture(null);
