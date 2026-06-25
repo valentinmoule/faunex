@@ -625,6 +625,111 @@ const BestiairePage = () => {
     setSelectedZoneId(null);
   };
 
+  const handleSetAsHome = async (zoneId: string) => {
+    if (!session?.user) return;
+    try {
+      // Clear previous home, then set new one
+      await supabase
+        .from('user_department_subscriptions')
+        .update({ is_home: false })
+        .eq('user_id', session.user.id)
+        .eq('is_home', true);
+      const { error } = await supabase
+        .from('user_department_subscriptions')
+        .update({ is_home: true })
+        .eq('user_id', session.user.id)
+        .eq('id', zoneId);
+      if (error) throw error;
+      setSubscribedZones((prev) =>
+        prev.map((z) => ({ ...z, isHome: z.id === zoneId }))
+      );
+      toast.success('Territoire défini comme « Chez moi »');
+    } catch (e: any) {
+      toast.error(e.message || 'Erreur');
+    }
+  };
+
+  const handleDetectHome = async () => {
+    if (!session?.user) return;
+    if (!('geolocation' in navigator)) {
+      toast.error('Géolocalisation indisponible');
+      return;
+    }
+    setDetectingHome(true);
+    try {
+      const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: false,
+          timeout: 10000,
+          maximumAge: 60000,
+        });
+      });
+      const { latitude, longitude } = pos.coords;
+      const url = `https://geo.api.gouv.fr/communes?lat=${latitude}&lon=${longitude}&fields=nom,code,codeDepartement,codesPostaux&limit=1`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const commune = Array.isArray(data) && data[0];
+      if (!commune) {
+        toast.error('Impossible de détecter ta commune (hors France ?)');
+        return;
+      }
+      const postcode = commune.codesPostaux?.[0] || '';
+      // Existing zone match?
+      let zone = subscribedZones.find(
+        (z) => z.kind === 'city' && z.cityName === commune.nom && z.cityPostcode === postcode,
+      );
+      if (!zone) {
+        const { data: ins, error } = await supabase
+          .from('user_department_subscriptions')
+          .insert({
+            user_id: session.user.id,
+            department_code: commune.codeDepartement,
+            kind: 'city',
+            city_name: commune.nom,
+            city_postcode: postcode,
+            is_home: true,
+          })
+          .select('id')
+          .single();
+        if (error) throw error;
+        zone = {
+          id: ins.id,
+          kind: 'city',
+          departmentCode: commune.codeDepartement,
+          cityName: commune.nom,
+          cityPostcode: postcode,
+          isHome: true,
+        };
+        // Clear previous home
+        await supabase
+          .from('user_department_subscriptions')
+          .update({ is_home: false })
+          .eq('user_id', session.user.id)
+          .eq('is_home', true)
+          .neq('id', zone.id);
+        setSubscribedZones((prev) => [
+          ...prev.map((z) => ({ ...z, isHome: false })),
+          zone!,
+        ]);
+        await loadDeptAnimals(commune.codeDepartement, animals);
+        void supabase.functions.invoke('populate-department-fauna', {
+          body: { department_code: commune.codeDepartement },
+        }).then(() => loadDeptAnimals(commune.codeDepartement, animals));
+      } else {
+        await handleSetAsHome(zone.id);
+      }
+      toast.success(`Chez toi : ${commune.nom} 🏠`);
+      setShowDeptPicker(false);
+      setPickerMode('hub');
+      setSelectedZoneId(zone.id);
+    } catch (e: any) {
+      const msg = e?.code === 1 ? 'Autorise la géolocalisation pour détecter ta zone' : (e?.message || 'Erreur de géolocalisation');
+      toast.error(msg);
+    } finally {
+      setDetectingHome(false);
+    }
+  };
+
   const filteredDeptOptions = useMemo(() => {
     const q = deptSearch.trim().toLowerCase();
     return DEPARTEMENTS.filter((d) =>
