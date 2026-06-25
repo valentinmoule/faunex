@@ -672,8 +672,8 @@ const CapturePage = () => {
           {!capturedPhoto && !cameraActive && (
             <div className="absolute inset-0 bg-foreground flex items-center justify-center">
               <div className="text-center">
-                <Camera className="w-12 h-12 text-primary-foreground/40 mx-auto mb-3" />
-                <p className="text-primary-foreground/50 text-sm font-display">Activation de la caméra…</p>
+                <Camera className="w-12 h-12 text-primary-foreground/70 mx-auto mb-3" />
+                <p className="text-primary-foreground/70 text-sm font-display">Activation de la caméra…</p>
               </div>
             </div>
           )}
@@ -741,7 +741,7 @@ const CapturePage = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={() => navigate('/')}
-              className="p-3 rounded-full bg-primary-foreground/10 text-primary-foreground/60"
+              className="p-3 rounded-full bg-primary-foreground/10 text-primary-foreground/70"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
@@ -749,13 +749,13 @@ const CapturePage = () => {
               <>
                 <button
                   onClick={() => setFlash(!flash)}
-                  className={`p-3 rounded-full transition-colors ${flash ? 'bg-amber text-amber-dark' : 'bg-primary-foreground/10 text-primary-foreground/60'}`}
+                  className={`p-3 rounded-full transition-colors ${flash ? 'bg-amber text-amber-dark' : 'bg-primary-foreground/10 text-primary-foreground/70'}`}
                 >
                   <Zap className="w-5 h-5" />
                 </button>
                 <button
                   onClick={toggleFocusMode}
-                  className={`p-3 rounded-full transition-colors ${focusMode === 'manual' ? 'bg-amber text-amber-dark' : 'bg-primary-foreground/10 text-primary-foreground/60'}`}
+                  className={`p-3 rounded-full transition-colors ${focusMode === 'manual' ? 'bg-amber text-amber-dark' : 'bg-primary-foreground/10 text-primary-foreground/70'}`}
                 >
                   <Focus className="w-5 h-5" />
                 </button>
@@ -764,7 +764,7 @@ const CapturePage = () => {
           </div>
           <div className="flex items-center gap-1.5 bg-primary-foreground/10 rounded-full px-3 py-1.5">
             <MapPin className="w-3.5 h-3.5 text-primary" />
-            <span className="text-primary-foreground/60 text-xs font-display">{geoName || 'Localisation…'}</span>
+            <span className="text-primary-foreground/70 text-xs font-display">{geoName || 'Localisation…'}</span>
           </div>
         </div>
 
@@ -790,7 +790,7 @@ const CapturePage = () => {
               }`}>
                 <div className="w-3 h-3 rounded-full bg-primary-foreground/80 animate-pulse" />
               </div>
-              <p className="text-primary-foreground/50 font-display text-xs tracking-widest uppercase">Analyse en cours</p>
+              <p className="text-primary-foreground/70 font-display text-xs tracking-widest uppercase">Analyse en cours</p>
             </div>
           </div>
         )}
@@ -865,7 +865,7 @@ const CapturePage = () => {
                 {RARITY_LABELS[revealRarity]}
               </span>
               <h2 className="text-2xl font-display font-bold text-primary-foreground mt-2">{animalResult.animal_name}</h2>
-              <p className="text-primary-foreground/60 text-sm italic">{animalResult.scientific_name}</p>
+              <p className="text-primary-foreground/70 text-sm italic">{animalResult.scientific_name}</p>
             </div>
           </div>
         )}
@@ -896,9 +896,9 @@ const CapturePage = () => {
                   )}
                 </div>
                 <h2 className="text-2xl font-display font-bold text-primary-foreground mt-2">{animalResult.animal_name}</h2>
-                <p className="text-primary-foreground/60 text-sm italic">{animalResult.scientific_name}</p>
+                <p className="text-primary-foreground/70 text-sm italic">{animalResult.scientific_name}</p>
                 {animalResult.alternatives && animalResult.alternatives.length > 0 && typeof animalResult.confidence === 'number' && animalResult.confidence < 80 && (
-                  <p className="text-primary-foreground/60 text-[11px] font-display mt-1.5">
+                  <p className="text-primary-foreground/70 text-[11px] font-display mt-1.5">
                     Aussi possible : {animalResult.alternatives.slice(0, 3).join(' · ')}
                   </p>
                 )}
@@ -924,7 +924,7 @@ const CapturePage = () => {
                 <PenLine className="w-5 h-5 text-amber" />
                 <h2 className="text-lg font-display font-bold text-primary-foreground">Animal non reconnu</h2>
               </div>
-              <p className="text-primary-foreground/70 text-sm">
+              <p className="text-primary-foreground/90 text-sm">
                 Décris l'animal que tu as observé. Ta capture sera vérifiée par un modérateur avant d'être ajoutée à ton Faunex.
               </p>
               <input
@@ -933,7 +933,7 @@ const CapturePage = () => {
                 value={manualName}
                 onChange={e => setManualName(e.target.value)}
                 maxLength={100}
-                className="w-full px-4 py-2.5 bg-primary-foreground/10 rounded-xl text-sm text-primary-foreground placeholder:text-primary-foreground/30 focus:outline-none focus:ring-2 focus:ring-primary/30 font-body"
+                className="w-full px-4 py-2.5 bg-primary-foreground/10 rounded-xl text-sm text-primary-foreground placeholder:text-primary-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/30 font-body"
               />
               <input
                 type="text"
@@ -941,7 +941,7 @@ const CapturePage = () => {
                 value={manualSpecies}
                 onChange={e => setManualSpecies(e.target.value)}
                 maxLength={100}
-                className="w-full px-4 py-2.5 bg-primary-foreground/10 rounded-xl text-sm text-primary-foreground placeholder:text-primary-foreground/30 focus:outline-none focus:ring-2 focus:ring-primary/30 font-body italic"
+                className="w-full px-4 py-2.5 bg-primary-foreground/10 rounded-xl text-sm text-primary-foreground placeholder:text-primary-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/30 font-body italic"
               />
               <textarea
                 placeholder="Décris l'animal : couleur, taille, comportement, lieu d'observation…"
@@ -949,9 +949,9 @@ const CapturePage = () => {
                 onChange={e => setManualDescription(e.target.value)}
                 maxLength={500}
                 rows={3}
-                className="w-full px-4 py-2.5 bg-primary-foreground/10 rounded-xl text-sm text-primary-foreground placeholder:text-primary-foreground/30 focus:outline-none focus:ring-2 focus:ring-primary/30 font-body resize-none"
+                className="w-full px-4 py-2.5 bg-primary-foreground/10 rounded-xl text-sm text-primary-foreground placeholder:text-primary-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/30 font-body resize-none"
               />
-              <p className="text-primary-foreground/40 text-[10px] text-right">{manualDescription.length}/500</p>
+              <p className="text-primary-foreground/70 text-[10px] text-right">{manualDescription.length}/500</p>
             </div>
           </div>
         )}
@@ -965,19 +965,19 @@ const CapturePage = () => {
           </p>
           <div className="flex gap-3 items-center justify-center">
             <div className="text-center">
-              <p className="text-[10px] text-primary-foreground/50 font-display mb-1">Actuelle</p>
+              <p className="text-[10px] text-primary-foreground/70 font-display mb-1">Actuelle</p>
               <img src={duplicateCapture.image_url} alt="" className="w-20 h-20 rounded-xl object-cover border border-primary-foreground/20" />
             </div>
-            <div className="text-primary-foreground/40 text-lg">→</div>
+            <div className="text-primary-foreground/70 text-lg">→</div>
             <div className="text-center">
-              <p className="text-[10px] text-primary-foreground/50 font-display mb-1">Nouvelle</p>
+              <p className="text-[10px] text-primary-foreground/70 font-display mb-1">Nouvelle</p>
               {capturedPhoto && <img src={capturedPhoto} alt="" className="w-20 h-20 rounded-xl object-cover border-2 border-primary" />}
             </div>
           </div>
           <div className="flex gap-2">
             <button
               onClick={keepExisting}
-              className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary-foreground/10 text-primary-foreground/70 text-xs font-display font-semibold"
+              className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary-foreground/10 text-primary-foreground/90 text-xs font-display font-semibold"
             >
               <X className="w-3.5 h-3.5" /> Garder l'actuelle
             </button>
@@ -1029,7 +1029,7 @@ const CapturePage = () => {
         ) : identifying ? null : capturedPhoto ? null : (
           <>
             <button onClick={() => fileInputRef.current?.click()} className="w-12 h-12 rounded-xl bg-primary-foreground/10 flex items-center justify-center">
-              <Image className="w-5 h-5 text-primary-foreground/60" />
+              <Image className="w-5 h-5 text-primary-foreground/70" />
             </button>
             <button
               onClick={takePhoto}
