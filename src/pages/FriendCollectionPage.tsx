@@ -115,6 +115,7 @@ const FriendCollectionPage = () => {
           name: c.animal_name,
           scientificName: c.scientific_name || '',
           image: c.image_url,
+          cutoutUrl: c.cutout_url,
           rarity: c.rarity as Rarity,
           category: c.category || '',
           description: c.description || '',
