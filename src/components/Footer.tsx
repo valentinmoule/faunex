@@ -10,7 +10,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
           <div className="sm:col-span-1">
             <div className="flex items-center gap-2 mb-3">
-              <img src="/pwa-icon-192.png" alt="Faunex" className="w-8 h-8 rounded-xl" />
+              <img src="/pwa-icon-192.png" alt="Logo Faunex" className="w-8 h-8 rounded-xl" />
               <span className="font-display font-black text-lg text-foreground">Faunex</span>
             </div>
             <p className="text-sm text-muted-foreground font-body leading-relaxed">

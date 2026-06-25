@@ -131,7 +131,7 @@ const ShareProfilePage = () => {
       </Helmet>
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
-          <h1 className="text-2xl font-display font-bold text-primary">Faunex</h1>
+          <h1 className="text-2xl font-display font-bold text-primary">Profil de {profile.display_name || 'Explorateur'}</h1>
         </div>
 
         <div className="bg-card rounded-2xl border border-border p-6 text-center shadow-card space-y-4">
