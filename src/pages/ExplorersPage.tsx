@@ -171,7 +171,7 @@ const ExplorersPage = () => {
 
       const profileMap = new Map(((profilesRes as any).data || []).map((p: any) => [p.user_id, p]));
       const newLiked = new Set(((likesRes as any).data || []).map((l: any) => l.capture_id as string));
-      setLikedPosts(prev => replace ? newLiked : new Set([...prev, ...newLiked]));
+      setLikedPosts(prev => replace ? newLiked : new Set<string>([...prev, ...newLiked]));
 
       setLikeCounts(prev => {
         const next = replace ? {} : { ...prev };
