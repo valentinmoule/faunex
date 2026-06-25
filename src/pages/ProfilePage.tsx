@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Settings, Award, MapPin, BookOpen, Lock, Download, Bell, Gift } from 'lucide-react';
+import { Settings, Award, MapPin, BookOpen, Lock, Download, Bell, Gift, Users, UserPlus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
@@ -69,7 +69,8 @@ const ProfilePage = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [friendsCount, setFriendsCount] = useState(0);
+  const [followersCount, setFollowersCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
   const [badges, setBadges] = useState<BadgeProgress[]>([]);
 
   useEffect(() => {
@@ -86,8 +87,9 @@ const ProfilePage = () => {
       setLoading(true);
       const userId = session.user.id;
 
-      const [profileRes, friendsRes, capturesRes, claimedBadgesRes] = await Promise.all([
+      const [profileRes, followersRes, followingRes, capturesRes, claimedBadgesRes] = await Promise.all([
         supabase.from('profiles').select('*').eq('user_id', userId).single(),
+        supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('following_id', userId),
         supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('follower_id', userId),
         supabase.from('captures').select('category, rarity').eq('user_id', userId),
         supabase.from('user_badges').select('badge_id').eq('user_id', userId),
@@ -98,8 +100,9 @@ const ProfilePage = () => {
         setProfile(data as Profile);
       }
 
-      const fCount = friendsRes.count || 0;
-      setFriendsCount(fCount);
+      setFollowersCount(followersRes.count || 0);
+      setFollowingCount(followingRes.count || 0);
+      const fCount = followingRes.count || 0;
 
       const captures = capturesRes.data || [];
       const totalCaptures = captures.length;
@@ -231,6 +234,8 @@ const ProfilePage = () => {
         <div className="grid grid-cols-2 gap-3">
           <StatCard icon={<BookOpen className="w-5 h-5 text-primary" />} value={profile.species_count} label="Espèces" />
           <StatCard icon={<MapPin className="w-5 h-5 text-sky" />} value={profile.regions_explored} label="Régions" />
+          <StatCard icon={<Users className="w-5 h-5 text-amber" />} value={followersCount} label="Abonnés" />
+          <StatCard icon={<UserPlus className="w-5 h-5 text-emerald" />} value={followingCount} label="Abonnements" />
         </div>
 
         {/* PWA Install Card */}
