@@ -700,9 +700,13 @@ const ExplorersPage = () => {
                 </article>
               );
             })}
+            {feedLoadingMore && <p className="text-center py-6 text-muted-foreground text-sm font-display">Chargement…</p>}
+            {!feedHasMore && posts.length > 0 && <p className="text-center py-6 text-muted-foreground text-xs font-display">Tu es à jour ✨</p>}
+            {feedHasMore && !feedLoadingMore && <div ref={feedSentinelRef} className="h-8" />}
           </div>
         )}
       </div>
+
 
       <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} />
     </main>
