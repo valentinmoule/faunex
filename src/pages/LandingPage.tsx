@@ -102,12 +102,12 @@ const useCountUp = (target: number, duration = 1500) => {
   return { ref, value };
 };
 
-const Stat = ({ value, label }: { value: number; label: string }) => {
+const Stat = ({ value, label, prefix }: { value: number; label: string; prefix?: string }) => {
   const { ref, value: animated } = useCountUp(value);
   return (
     <div className="text-center">
       <p className="text-2xl sm:text-3xl font-display font-black text-primary tabular-nums">
-        <span ref={ref}>{animated.toLocaleString('fr-FR')}</span>
+        <span ref={ref}>{prefix}{animated.toLocaleString('fr-FR')}</span>
       </p>
       <p className="text-[11px] sm:text-xs text-muted-foreground font-display uppercase tracking-wider mt-0.5">
         {label}
@@ -230,11 +230,10 @@ const LandingPage = () => {
 
       {/* SOCIAL PROOF */}
       <section className="px-5 py-8 border-y border-border/50 bg-muted/30">
-        <div className="max-w-lg mx-auto grid grid-cols-4 gap-3">
-          <Stat value={stats.totalUsers} label="Explorateurs" />
-          <Stat value={stats.totalCaptures} label="Captures" />
-          <Stat value={stats.totalSpecies} label="Espèces" />
-          <Stat value={stats.totalRegions} label="Régions" />
+        <div className="max-w-lg mx-auto grid grid-cols-3 gap-3">
+          <Stat value={stats.totalUsers} label="Explorateurs" prefix="+" />
+          <Stat value={stats.totalCaptures} label="Captures" prefix="+" />
+          <Stat value={stats.totalRegions} label="Régions" prefix="+" />
         </div>
       </section>
 
