@@ -14,19 +14,19 @@ import {
 import type { TemplateEntry } from './registry.ts'
 
 interface Props {
-  requesterName?: string
+  followerName?: string
   recipientName?: string
   profileUrl?: string
 }
 
-const FriendRequestEmail = ({
-  requesterName = 'Un explorateur',
+const NewFollowerEmail = ({
+  followerName = 'Un explorateur',
   recipientName = 'Explorateur',
   profileUrl = 'https://faunex.lovable.app/explorers',
 }: Props) => (
   <Html lang="fr" dir="ltr">
     <Head />
-    <Preview>{requesterName} veut devenir ton ami sur Faunex 🦊</Preview>
+    <Preview>{followerName} te suit désormais sur Faunex 🦊</Preview>
     <Body style={main}>
       <Container style={container}>
         <Img
@@ -36,18 +36,19 @@ const FriendRequestEmail = ({
           alt="Faunex"
           style={logo}
         />
-        <Heading style={h1}>Nouvelle demande d'ami ! 🤝</Heading>
+        <Heading style={h1}>Nouveau follower ! 🎉</Heading>
         <Text style={text}>
           Salut <strong>{recipientName}</strong>,
         </Text>
         <Text style={text}>
-          <strong>{requesterName}</strong> souhaite t'ajouter comme ami explorateur sur Faunex.
+          <strong>{followerName}</strong> s'est abonné à ton profil sur Faunex et suivra
+          tes prochaines captures.
         </Text>
         <Button style={button} href={profileUrl}>
-          Voir la demande
+          Voir son profil
         </Button>
         <Text style={footer}>
-          Tu peux accepter ou refuser cette demande depuis l'application.
+          Continue d'explorer la faune et de partager tes découvertes !
         </Text>
       </Container>
     </Body>
@@ -55,12 +56,12 @@ const FriendRequestEmail = ({
 )
 
 export const template = {
-  component: FriendRequestEmail,
+  component: NewFollowerEmail,
   subject: (data: Props) =>
-    `${data?.requesterName || 'Un explorateur'} veut être ton ami sur Faunex 🦊`,
-  displayName: 'Friend Request',
+    `${data?.followerName || 'Un explorateur'} te suit désormais sur Faunex 🦊`,
+  displayName: 'New Follower',
   previewData: {
-    requesterName: 'Alex',
+    followerName: 'Alex',
     recipientName: 'Sam',
     profileUrl: 'https://faunex.lovable.app/explorers',
   },

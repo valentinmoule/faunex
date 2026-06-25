@@ -63,11 +63,11 @@ Deno.serve(async (req) => {
     // Send via the app emails (transactional) pipeline so it appears in App emails dashboard
     const { data, error } = await supabase.functions.invoke('send-transactional-email', {
       body: {
-        templateName: 'friend-request',
+        templateName: 'new-follower',
         recipientEmail,
-        idempotencyKey: `friend-request-${requester_id}-${addressee_id}-${Date.now()}`,
+        idempotencyKey: `new-follower-${requester_id}-${addressee_id}-${Date.now()}`,
         templateData: {
-          requesterName,
+          followerName: requesterName,
           recipientName,
           profileUrl: `${APP_URL}/explorers`,
         },

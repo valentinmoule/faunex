@@ -1,4 +1,4 @@
-import { template as friendRequest } from './friend-request.tsx'
+import { template as newFollower } from './new-follower.tsx'
 
 export interface TemplateEntry {
   component: any
@@ -9,5 +9,5 @@ export interface TemplateEntry {
 }
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
-  'friend-request': friendRequest,
+  'new-follower': newFollower,
 }
