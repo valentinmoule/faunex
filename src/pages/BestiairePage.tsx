@@ -980,10 +980,27 @@ const BestiairePage = () => {
               <div className="flex-1 min-w-0 flex items-center gap-2">
                 <HeaderIcon className="w-5 h-5 text-primary shrink-0" strokeWidth={1.75} />
                 <div className="min-w-0">
-                  <h1 className="text-lg font-display font-bold text-foreground truncate">{title}</h1>
+                  <div className="flex items-center gap-1.5">
+                    <h1 className="text-lg font-display font-bold text-foreground truncate">{title}</h1>
+                    {selectedZone.isHome && (
+                      <span className="text-[9px] font-display font-bold uppercase tracking-wide text-primary bg-primary/15 px-1.5 py-0.5 rounded-full shrink-0">
+                        Chez moi
+                      </span>
+                    )}
+                  </div>
                   <p className="text-[11px] text-muted-foreground font-display truncate">{subtitle}</p>
                 </div>
               </div>
+              {!selectedZone.isHome && (
+                <button
+                  onClick={() => handleSetAsHome(selectedZone.id)}
+                  className="p-2 rounded-full hover:bg-primary/10 text-primary transition"
+                  aria-label="Définir comme Chez moi"
+                  title="Définir comme Chez moi"
+                >
+                  <Home className="w-4 h-4" strokeWidth={2} />
+                </button>
+              )}
               <button
                 onClick={() => handleRemoveZone(selectedZone.id)}
                 className="p-2 rounded-full hover:bg-destructive/10 text-destructive transition"
