@@ -35,3 +35,5 @@ project_id = "pakwuooxumrghsbwczwx"
     verify_jwt = true
   [functions.populate-department-fauna]
     verify_jwt = true
+  [functions.backfill-cutouts]
+    verify_jwt = false
