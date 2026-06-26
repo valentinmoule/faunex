@@ -1303,11 +1303,7 @@ const BestiairePage = () => {
                   {myCapturedAnimals.length} {myCapturedAnimals.length > 1 ? 'espèces' : 'espèce'}
                 </span>
               </div>
-              {loading ? (
-                <div className="text-center py-16">
-                  <p className="text-muted-foreground font-display">Chargement…</p>
-                </div>
-              ) : myCapturedAnimals.length === 0 ? (
+              {myCapturedAnimals.length === 0 ? (
                 <div className="text-center py-12 rounded-2xl border border-dashed border-border">
                   <p className="text-3xl mb-2">🔍</p>
                   <p className="text-xs font-display text-muted-foreground px-6">
