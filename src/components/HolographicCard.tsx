@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react';
+import { useCallback, useMemo, useRef, type ReactNode } from 'react';
 import { type Rarity } from '@/data/mockData';
 
 interface Props {
@@ -7,25 +7,22 @@ interface Props {
   className?: string;
   onTap?: () => void;
   appearAnimation?: string;
-  /** AI-generated transparent PNG of the animal — rendered ON TOP of the holo effects
-   *  so the shimmer plays between the background photo and the animal itself. */
+  /** AI-generated transparent PNG of the animal — rendered ON TOP of the holo effects. */
   cutoutUrl?: string | null;
-  /** Kept for backwards compatibility — animations are now always autonomous. */
+  /** Kept for API compatibility (unused). */
   disableAutoShimmer?: boolean;
 }
 
 /**
- * Faunex collectible card — Pokémon-TCG-inspired holographic surface.
+ * Faunex collectible card — inspired by simeydotme/pokemon-cards-css.
  *
- * Layer stack (z-index):
- *   0: card background
- *   1: rarity aura behind image
- *   2: image / content (background photo)
- *   3: foil grain (oily iridescence on bg)
- *   4: scan bar (sweeping rainbow on bg)
- *   5: cutout (clean animal layer — effects play BEHIND it)
- *   6: sparkle stars (in front of animal, magical)
- *   7: rim shimmer (pulses on the border)
+ * Rarity → effect mapping:
+ *   common → Holofoil Rare (scanlines + chromatic bars)
+ *   rare   → Reverse Holo (radial foil tracking the pointer)
+ *   epic   → Cosmos / Galaxy Holo (multi-layer galaxy texture)
+ *   mythic → Secret Rare (gold conic + glitter)
+ *
+ * Pointer drives 3D tilt + reflet (mouse + touch). On leave, everything snaps back.
  */
 const HolographicCard = ({
   rarity,
@@ -35,49 +32,96 @@ const HolographicCard = ({
   appearAnimation = '',
   cutoutUrl,
 }: Props) => {
-  const isMythic = rarity === 'mythic';
-  const isEpic = rarity === 'epic';
-  const isRare = rarity === 'rare';
-  const isCommon = rarity === 'common';
-  // Every rarity now gets some holo treatment (commons get a subtle silver shimmer).
-  const hasHolo = true;
-  const hasCutout = !!cutoutUrl;
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const rafRef = useRef<number | null>(null);
+
+  const updateFromPointer = useCallback((clientX: number, clientY: number) => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const apply = () => {
+      rafRef.current = null;
+      const node = wrapRef.current;
+      if (!node) return;
+      const rect = node.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      const px = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
+      const py = Math.max(0, Math.min(100, ((clientY - rect.top) / rect.height) * 100));
+      const cx = px - 50;
+      const cy = py - 50;
+      const fromCenter = Math.min(1, Math.hypot(cx, cy) / 50);
+      const s = node.style;
+      s.setProperty('--pointer-x', `${px}%`);
+      s.setProperty('--pointer-y', `${py}%`);
+      s.setProperty('--pointer-from-center', `${fromCenter.toFixed(3)}`);
+      s.setProperty('--pointer-from-top', `${(py / 100).toFixed(3)}`);
+      s.setProperty('--pointer-from-left', `${(px / 100).toFixed(3)}`);
+      s.setProperty('--background-x', `${(37 + (px / 100) * 26).toFixed(2)}%`);
+      s.setProperty('--background-y', `${(33 + (py / 100) * 34).toFixed(2)}%`);
+      s.setProperty('--rotate-x', `${(-(cx / 3.5)).toFixed(2)}deg`);
+      s.setProperty('--rotate-y', `${(cy / 3.5).toFixed(2)}deg`);
+      s.setProperty('--card-opacity', '1');
+    };
+    if (rafRef.current == null) rafRef.current = requestAnimationFrame(apply);
+  }, []);
+
+  const reset = useCallback(() => {
+    if (rafRef.current != null) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+    const el = wrapRef.current;
+    if (!el) return;
+    const s = el.style;
+    s.setProperty('--pointer-x', '50%');
+    s.setProperty('--pointer-y', '50%');
+    s.setProperty('--pointer-from-center', '0');
+    s.setProperty('--pointer-from-top', '0.5');
+    s.setProperty('--pointer-from-left', '0.5');
+    s.setProperty('--background-x', '50%');
+    s.setProperty('--background-y', '50%');
+    s.setProperty('--rotate-x', '0deg');
+    s.setProperty('--rotate-y', '0deg');
+    s.setProperty('--card-opacity', '0');
+  }, []);
+
+  // Random cosmos position per card so two epics never look identical
+  const cosmosStyle = useMemo(
+    () =>
+      ({
+        '--cosmos-x': `${Math.floor(Math.random() * 734)}px`,
+        '--cosmos-y': `${Math.floor(Math.random() * 1280)}px`,
+      }) as React.CSSProperties,
+    [],
+  );
 
   return (
     <div
-      className={`holo-wrap holo-wrap-${rarity} ${className} ${appearAnimation}`}
+      ref={wrapRef}
+      className={`holo-wrap holo-${rarity} ${className} ${appearAnimation}`}
+      style={cosmosStyle}
+      onMouseMove={(e) => updateFromPointer(e.clientX, e.clientY)}
+      onMouseLeave={reset}
+      onTouchMove={(e) => {
+        const t = e.touches[0];
+        if (t) updateFromPointer(t.clientX, t.clientY);
+      }}
+      onTouchEnd={reset}
+      onTouchCancel={reset}
       onClick={onTap}
       role={onTap ? 'button' : undefined}
       tabIndex={onTap ? 0 : undefined}
     >
-      {/* Outer aura halo (mythic + epic) — sits BEHIND the card */}
-      {(isMythic || isEpic) && <div className={`holo-halo holo-halo-${rarity}`} aria-hidden />}
-
-      <div className={`holo-card holo-${rarity} ${hasCutout ? 'holo-has-cutout' : ''}`}>
-        {/* Rarity aura behind image */}
-        {!isCommon && <div className={`holo-aura holo-aura-${rarity}`} aria-hidden />}
-
-        {/* Image / content (background photo) */}
-        <div className="holo-content">{children}</div>
-
-        {/* AI cutout of the animal — sits IN FRONT of background */}
-        {hasCutout && (
-          <div className="holo-cutout" aria-hidden>
-            <img src={cutoutUrl!} alt="" draggable={false} />
-          </div>
-        )}
-
-        {/* Sparkles / stars — only on mythic, in front of the animal */}
-        {isMythic && (
-          <div className="holo-sparkles" aria-hidden>
-            {Array.from({ length: 10 }).map((_, i) => (
-              <span key={i} className="holo-spark" style={{ ['--i' as never]: i } as React.CSSProperties} />
-            ))}
-          </div>
-        )}
-
-        {/* Pulsing rim glow */}
-        <div className={`holo-rim holo-rim-${rarity}`} aria-hidden />
+      <div className="holo-rotator">
+        <div className="holo-card">
+          <div className="holo-content">{children}</div>
+          {cutoutUrl && (
+            <div className="holo-cutout" aria-hidden>
+              <img src={cutoutUrl} alt="" draggable={false} />
+            </div>
+          )}
+          <div className="holo-shine" aria-hidden />
+          <div className="holo-glare" aria-hidden />
+        </div>
       </div>
     </div>
   );
