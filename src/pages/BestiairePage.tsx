@@ -957,6 +957,8 @@ const BestiairePage = () => {
     </Sheet>
   );
 
+  if (loading) return <LoadingScreen />;
+
   // Zone detail view
   if (selectedZone) {
     const dept = getDepartement(selectedZone.departmentCode);
