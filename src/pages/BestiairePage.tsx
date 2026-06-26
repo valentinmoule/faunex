@@ -1256,50 +1256,44 @@ const BestiairePage = () => {
           {viewMode === 'categories' ? (
             <section>
               <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide mb-3">Catégories</h2>
-              {loading ? (
-                <div className="text-center py-16">
-                  <p className="text-muted-foreground font-display">Chargement…</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-3">
-                  {categoryData
-                    .map(cat => {
-                      // When a rarity filter is active, recompute counts for that rarity
-                      if (rarityFilter === 'all') return cat;
-                      const inCat = animals.filter(
-                        a => normalizeCategory(a.category) === cat.name && a.rarity === rarityFilter
-                      );
-                      return {
-                        name: cat.name,
-                        total: inCat.length,
-                        captured: inCat.filter(a => a.captured).length,
-                      };
-                    })
-                    .filter(cat => cat.total > 0)
-                    .map(cat => {
-                      const CatIcon = getCategoryIcon(cat.name);
-                      const progress = cat.total > 0 ? Math.round((cat.captured / cat.total) * 100) : 0;
-                      return (
-                        <button
-                          key={cat.name}
-                          onClick={() => setSelectedCategory(cat.name)}
-                          className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-md"
-                        >
-                          <div className="mb-2">
-                            <CatIcon className="w-7 h-7 text-primary" strokeWidth={1.75} />
-                          </div>
-                          <h3 className="font-display font-bold text-sm text-foreground leading-tight mb-1 truncate">{cat.name}</h3>
-                          <p className="text-[11px] text-muted-foreground font-display mb-3">
-                            {cat.captured}/{cat.total} capturés
-                          </p>
-                          <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
-                            <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${progress}%` }} />
-                          </div>
-                        </button>
-                      );
-                    })}
-                </div>
-              )}
+              <div className="grid grid-cols-2 gap-3">
+                {categoryData
+                  .map(cat => {
+                    // When a rarity filter is active, recompute counts for that rarity
+                    if (rarityFilter === 'all') return cat;
+                    const inCat = animals.filter(
+                      a => normalizeCategory(a.category) === cat.name && a.rarity === rarityFilter
+                    );
+                    return {
+                      name: cat.name,
+                      total: inCat.length,
+                      captured: inCat.filter(a => a.captured).length,
+                    };
+                  })
+                  .filter(cat => cat.total > 0)
+                  .map(cat => {
+                    const CatIcon = getCategoryIcon(cat.name);
+                    const progress = cat.total > 0 ? Math.round((cat.captured / cat.total) * 100) : 0;
+                    return (
+                      <button
+                        key={cat.name}
+                        onClick={() => setSelectedCategory(cat.name)}
+                        className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-md"
+                      >
+                        <div className="mb-2">
+                          <CatIcon className="w-7 h-7 text-primary" strokeWidth={1.75} />
+                        </div>
+                        <h3 className="font-display font-bold text-sm text-foreground leading-tight mb-1 truncate">{cat.name}</h3>
+                        <p className="text-[11px] text-muted-foreground font-display mb-3">
+                          {cat.captured}/{cat.total} capturés
+                        </p>
+                        <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
+                          <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${progress}%` }} />
+                        </div>
+                      </button>
+                    );
+                  })}
+              </div>
             </section>
           ) : (
             <section>
