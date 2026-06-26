@@ -40,7 +40,7 @@ export const SignupEmail = ({
           <Link href={siteUrl} style={link}>
             <strong>Faunex</strong>
           </Link>
-          , la communauté des naturalistes.
+          , là où chaque sortie devient une aventure.
         </Text>
         <Text style={text}>
           Confirme ton adresse email (
