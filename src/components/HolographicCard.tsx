@@ -60,37 +60,17 @@ const HolographicCard = ({
         {/* Image / content (background photo) */}
         <div className="holo-content">{children}</div>
 
-        {/* Oily iridescent grain — only between bg and cutout */}
-        {!isCommon && <div className={`holo-grain holo-grain-${rarity}`} aria-hidden />}
-
-        {/* Pokémon-style diagonal rainbow scan — plays BEHIND the animal when cutout present */}
-        <div className={`holo-scan holo-scan-${rarity}`} aria-hidden />
-
-        {/* AI cutout of the animal — sits IN FRONT of background+effects */}
+        {/* AI cutout of the animal — sits IN FRONT of background */}
         {hasCutout && (
           <div className="holo-cutout" aria-hidden>
             <img src={cutoutUrl!} alt="" draggable={false} />
           </div>
         )}
 
-        {/* Sparkles / stars — in front of the animal */}
+        {/* Sparkles / stars — only on mythic, in front of the animal */}
         {isMythic && (
           <div className="holo-sparkles" aria-hidden>
-            {Array.from({ length: 14 }).map((_, i) => (
-              <span key={i} className="holo-spark" style={{ ['--i' as never]: i } as React.CSSProperties} />
-            ))}
-          </div>
-        )}
-        {isEpic && (
-          <div className="holo-sparkles holo-sparkles-epic" aria-hidden>
             {Array.from({ length: 10 }).map((_, i) => (
-              <span key={i} className="holo-spark" style={{ ['--i' as never]: i } as React.CSSProperties} />
-            ))}
-          </div>
-        )}
-        {isRare && (
-          <div className="holo-sparkles holo-sparkles-rare" aria-hidden>
-            {Array.from({ length: 6 }).map((_, i) => (
               <span key={i} className="holo-spark" style={{ ['--i' as never]: i } as React.CSSProperties} />
             ))}
           </div>
