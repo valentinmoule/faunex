@@ -7,6 +7,7 @@ import { type Rarity, type AnimalCard, RARITY_LABELS } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import CardDetailSheet from '@/components/CardDetailSheet';
+import LoadingScreen from '@/components/LoadingScreen';
 import { consumePendingShelve, peekPendingShelve, type PendingShelve } from '@/lib/shelveAnimation';
 import { DEPARTEMENTS, getDepartement } from '@/data/departements';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
