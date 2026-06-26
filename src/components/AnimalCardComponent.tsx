@@ -1,4 +1,5 @@
 import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
+import HolographicCard from './HolographicCard';
 
 const rarityStyles: Record<Rarity, string> = {
   common: 'border-rarity-common/30 bg-card card-hover-effect shadow-[0_0_0_1px_hsl(var(--rarity-common)/0.12)]',
@@ -21,6 +22,25 @@ interface Props {
 }
 
 const AnimalCardComponent = ({ card, onClick, compact }: Props) => {
+  const hasCutout = !!card.cutoutUrl;
+
+  const imageArea = (
+    <div className="relative w-full h-full">
+      <img
+        src={card.image}
+        alt={card.name}
+        className="absolute inset-0 w-full h-full object-cover"
+        loading="lazy"
+      />
+      <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none" />
+      <div
+        className={`absolute top-2 right-2 z-[5] px-2 py-0.5 rounded-full text-[9px] font-display font-bold uppercase tracking-wider backdrop-blur-md ${rarityBadgeStyles[card.rarity]}`}
+      >
+        {RARITY_LABELS[card.rarity]}
+      </div>
+    </div>
+  );
+
   return (
     <button
       onClick={onClick}
@@ -28,16 +48,17 @@ const AnimalCardComponent = ({ card, onClick, compact }: Props) => {
     >
       <div className="relative flex h-full flex-col bg-card">
         <div className="relative aspect-[4/5] overflow-hidden">
-          <img
-            src={card.image}
-            alt={card.name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-            loading="lazy"
-          />
-          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none" />
-          <div className={`absolute top-2 right-2 px-2 py-0.5 rounded-full text-[9px] font-display font-bold uppercase tracking-wider backdrop-blur-md ${rarityBadgeStyles[card.rarity]}`}>
-            {RARITY_LABELS[card.rarity]}
-          </div>
+          {hasCutout ? (
+            <HolographicCard
+              rarity={card.rarity}
+              cutoutUrl={card.cutoutUrl}
+              className="absolute inset-0 [&_.holo-card]:rounded-none [&_.holo-card]:h-full"
+            >
+              {imageArea}
+            </HolographicCard>
+          ) : (
+            imageArea
+          )}
         </div>
         <div className={`px-3 py-2.5 bg-card ${compact ? '' : 'space-y-0.5'}`}>
           <h3 className="font-display font-bold text-[13px] text-foreground leading-tight truncate">{card.name}</h3>
