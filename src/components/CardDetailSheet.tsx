@@ -403,17 +403,23 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
             className="relative w-full h-full max-w-[min(100vw,100vh)] max-h-screen z-10 flex items-center justify-center p-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="relative w-full h-full max-w-[min(100vw,100vh)] max-h-full rounded-2xl overflow-hidden shadow-2xl">
-              <img
-                src={card.image}
-                alt={card.name}
-                className="w-full h-full object-contain pointer-events-none select-none bg-black/30"
-                draggable={false}
-              />
-              {isMythic && <div className="detail-mythic-glass" />}
-              {isEpic && <div className="detail-epic-glass" />}
-              {isRare && <div className="detail-rare-glass" />}
-            </div>
+            <HolographicCard
+              rarity={card.rarity}
+              cutoutUrl={card.cutoutUrl}
+              className="relative w-full max-w-[min(92vw,92vh)] aspect-square rounded-2xl"
+            >
+              <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl">
+                <img
+                  src={card.image}
+                  alt={card.name}
+                  className="w-full h-full object-cover pointer-events-none select-none bg-black/30"
+                  draggable={false}
+                />
+                {isMythic && <div className="detail-mythic-glass" />}
+                {isEpic && <div className="detail-epic-glass" />}
+                {isRare && <div className="detail-rare-glass" />}
+              </div>
+            </HolographicCard>
           </div>
           <button
             onClick={() => setImageFullscreen(false)}
