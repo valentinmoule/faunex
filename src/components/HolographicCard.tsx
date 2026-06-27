@@ -9,6 +9,8 @@ interface Props {
   appearAnimation?: string;
   /** AI-generated transparent PNG of the animal — rendered ON TOP of the holo effects. */
   cutoutUrl?: string | null;
+  /** Keep pointer/touch gestures inside the card (used by fullscreen overlays). */
+  containInteraction?: boolean;
   /** Kept for API compatibility (unused). */
   disableAutoShimmer?: boolean;
 }
@@ -31,6 +33,7 @@ const HolographicCard = ({
   onTap,
   appearAnimation = '',
   cutoutUrl,
+  containInteraction = false,
 }: Props) => {
   const wrapRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
@@ -84,6 +87,12 @@ const HolographicCard = ({
     s.setProperty('--card-opacity', '0');
   }, []);
 
+  const containEvent = useCallback((event: { stopPropagation: () => void; preventDefault?: () => void; cancelable?: boolean }) => {
+    if (!containInteraction) return;
+    event.stopPropagation();
+    if (event.cancelable) event.preventDefault?.();
+  }, [containInteraction]);
+
   // Random cosmos position per card so two epics never look identical
   const cosmosStyle = useMemo(
     () =>
@@ -99,18 +108,44 @@ const HolographicCard = ({
       ref={wrapRef}
       className={`holo-wrap holo-${rarity} ${className} ${appearAnimation}`}
       style={cosmosStyle}
+      onPointerDown={(e) => {
+        containEvent(e);
+        e.currentTarget.setPointerCapture?.(e.pointerId);
+        updateFromPointer(e.clientX, e.clientY);
+      }}
+      onPointerMove={(e) => {
+        containEvent(e);
+        updateFromPointer(e.clientX, e.clientY);
+      }}
+      onPointerUp={(e) => {
+        containEvent(e);
+        e.currentTarget.releasePointerCapture?.(e.pointerId);
+        reset();
+      }}
+      onPointerCancel={(e) => {
+        containEvent(e);
+        reset();
+      }}
       onMouseMove={(e) => updateFromPointer(e.clientX, e.clientY)}
       onMouseLeave={reset}
       onTouchStart={(e) => {
+        containEvent(e);
         const t = e.touches[0];
         if (t) updateFromPointer(t.clientX, t.clientY);
       }}
       onTouchMove={(e) => {
+        containEvent(e);
         const t = e.touches[0];
         if (t) updateFromPointer(t.clientX, t.clientY);
       }}
-      onTouchEnd={reset}
-      onTouchCancel={reset}
+      onTouchEnd={(e) => {
+        containEvent(e);
+        reset();
+      }}
+      onTouchCancel={(e) => {
+        containEvent(e);
+        reset();
+      }}
       onClick={onTap}
       role={onTap ? 'button' : undefined}
       tabIndex={onTap ? 0 : undefined}
