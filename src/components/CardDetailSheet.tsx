@@ -402,6 +402,9 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
           <div
             className="relative w-full h-full max-w-[min(100vw,100vh)] max-h-screen z-10 flex items-center justify-center p-4"
             onClick={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
+            onTouchEnd={(e) => e.stopPropagation()}
           >
             <HolographicCard
               rarity={card.rarity}
