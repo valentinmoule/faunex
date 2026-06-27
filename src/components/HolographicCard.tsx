@@ -101,6 +101,10 @@ const HolographicCard = ({
       style={cosmosStyle}
       onMouseMove={(e) => updateFromPointer(e.clientX, e.clientY)}
       onMouseLeave={reset}
+      onTouchStart={(e) => {
+        const t = e.touches[0];
+        if (t) updateFromPointer(t.clientX, t.clientY);
+      }}
       onTouchMove={(e) => {
         const t = e.touches[0];
         if (t) updateFromPointer(t.clientX, t.clientY);
