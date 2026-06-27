@@ -400,16 +400,13 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
           )}
 
           <div
-            className="relative w-full h-full max-w-[min(100vw,100vh)] max-h-screen z-10 flex items-center justify-center p-4"
-            onClick={(e) => e.stopPropagation()}
-            onTouchStart={(e) => e.stopPropagation()}
-            onTouchMove={(e) => e.stopPropagation()}
-            onTouchEnd={(e) => e.stopPropagation()}
+            className="relative w-full h-full max-w-[min(100vw,100vh)] max-h-screen z-10 flex items-center justify-center p-4 pointer-events-none"
           >
             <HolographicCard
               rarity={card.rarity}
               cutoutUrl={card.cutoutUrl}
-              className="relative w-full max-w-[min(92vw,92vh)] aspect-square rounded-2xl"
+              containInteraction
+              className="holo-fullscreen-photo relative w-full max-w-[min(92vw,92vh)] aspect-square rounded-2xl pointer-events-auto touch-none"
             >
               <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl">
                 <img
