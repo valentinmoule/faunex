@@ -146,7 +146,10 @@ const HolographicCard = ({
         containEvent(e);
         reset();
       }}
-      onClick={onTap}
+      onClick={(e) => {
+        if (containInteraction) e.stopPropagation();
+        onTap?.();
+      }}
       role={onTap ? 'button' : undefined}
       tabIndex={onTap ? 0 : undefined}
     >
