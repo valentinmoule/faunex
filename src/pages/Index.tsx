@@ -124,7 +124,7 @@ const Index = () => {
       if (capturesRes.data) {
         const cards = capturesRes.data.map((c: any) => ({
           id: c.id, name: c.animal_name, scientificName: c.scientific_name || '',
-          image: c.image_url, cutoutUrl: c.cutout_url, rarity: c.rarity as Rarity, category: c.category || '',
+          image: c.image_url, cutoutUrl: c.cutout_url, subjectBox: c.subject_bbox, rarity: c.rarity as Rarity, category: c.category || '',
           description: c.description || '', habitat: c.habitat || '', diet: c.diet || '',
           conservation: c.conservation || '', funFact: c.fun_fact || '',
           discoveredAt: c.created_at, location: c.location || '',

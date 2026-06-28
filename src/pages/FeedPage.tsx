@@ -11,6 +11,7 @@ interface FeedCapture {
   id: string;
   image_url: string;
   cutout_url?: string | null;
+  subject_bbox?: { x: number; y: number; w: number; h: number } | null;
   animal_name: string;
   scientific_name: string;
   category: string;
@@ -297,6 +298,7 @@ const FeedPage = () => {
     scientificName: post.scientific_name || '',
     image: post.image_url,
     cutoutUrl: post.cutout_url,
+    subjectBox: post.subject_bbox,
     rarity: post.rarity as Rarity,
     category: post.category || '',
     description: post.description || '',

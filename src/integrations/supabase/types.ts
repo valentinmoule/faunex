@@ -84,6 +84,7 @@ export type Database = {
           scientific_name: string | null
           shared: boolean
           status: string
+          subject_bbox: Json | null
           user_id: string
         }
         Insert: {
@@ -110,6 +111,7 @@ export type Database = {
           scientific_name?: string | null
           shared?: boolean
           status?: string
+          subject_bbox?: Json | null
           user_id: string
         }
         Update: {
@@ -136,6 +138,7 @@ export type Database = {
           scientific_name?: string | null
           shared?: boolean
           status?: string
+          subject_bbox?: Json | null
           user_id?: string
         }
         Relationships: []

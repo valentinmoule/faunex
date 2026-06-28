@@ -1732,6 +1732,28 @@
   will-change: background, background-position, opacity, filter;
 }
 
+/* When a subject bounding box is provided, fade the holo away around the animal
+   so the effect plays everywhere on the card EXCEPT on the subject. */
+.holo-wrap[data-subject="on"] .holo-shine,
+.holo-wrap[data-subject="on"] .holo-glare {
+  -webkit-mask-image: radial-gradient(
+    ellipse var(--subj-rx, 30%) var(--subj-ry, 30%)
+      at var(--subj-cx, 50%) var(--subj-cy, 50%),
+    transparent 45%,
+    rgba(0, 0, 0, 0.55) 72%,
+    #000 100%
+  );
+          mask-image: radial-gradient(
+    ellipse var(--subj-rx, 30%) var(--subj-ry, 30%)
+      at var(--subj-cx, 50%) var(--subj-cy, 50%),
+    transparent 45%,
+    rgba(0, 0, 0, 0.55) 72%,
+    #000 100%
+  );
+  -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+}
+
 .holo-fullscreen-photo {
   perspective: 900px;
   width: min(92vw, calc(100vh - 2rem));

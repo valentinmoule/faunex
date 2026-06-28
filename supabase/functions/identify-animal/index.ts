@@ -163,6 +163,18 @@ serve(async (req) => {
                     type: "array",
                     items: { type: "string" },
                     description: "1 à 3 noms d'espèces/races alternatives plausibles si la confiance est < 80."
+                  },
+                  subject_bbox: {
+                    type: "object",
+                    description: "Boîte englobante APPROXIMATIVE de l'animal sur l'image, normalisée 0..1 où (0,0) = coin haut-gauche et (1,1) = coin bas-droit. x,y = coin haut-gauche de la boîte ; w,h = largeur/hauteur. Couvre tout le corps visible de l'animal (poils/plumes/queue inclus). Soit généreux : si plusieurs animaux, englobe le sujet principal seulement. Si aucun animal ou cadrage incertain, omets ce champ.",
+                    properties: {
+                      x: { type: "number", minimum: 0, maximum: 1 },
+                      y: { type: "number", minimum: 0, maximum: 1 },
+                      w: { type: "number", minimum: 0, maximum: 1 },
+                      h: { type: "number", minimum: 0, maximum: 1 }
+                    },
+                    required: ["x", "y", "w", "h"],
+                    additionalProperties: false
                   }
                 },
                 required: ["animal_name", "scientific_name", "category", "description", "habitat", "diet", "conservation", "fun_fact", "rarity", "confidence"],

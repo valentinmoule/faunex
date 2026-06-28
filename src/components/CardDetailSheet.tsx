@@ -216,6 +216,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
                 appearAnimation={detailAppearClass}
                 onTap={card.image ? () => setImageFullscreen(true) : undefined}
                 cutoutUrl={card.cutoutUrl}
+                subjectBox={card.subjectBox}
                 className={`relative mx-auto max-w-[280px] aspect-square rounded-2xl ${card.image ? 'cursor-pointer' : ''}`}
               >
                 <div
@@ -405,6 +406,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
             <HolographicCard
               rarity={card.rarity}
               cutoutUrl={card.cutoutUrl}
+              subjectBox={card.subjectBox}
               containInteraction
               className="holo-fullscreen-photo relative rounded-2xl pointer-events-auto touch-none"
             >

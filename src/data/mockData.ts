@@ -7,6 +7,8 @@ export interface AnimalCard {
   image: string;
   /** Optional AI-generated transparent PNG of just the animal subject. */
   cutoutUrl?: string | null;
+  /** Approximate normalized (0..1) bounding box of the animal — used to mask the holo around the subject. */
+  subjectBox?: { x: number; y: number; w: number; h: number } | null;
   rarity: Rarity;
   category: string;
   description: string;

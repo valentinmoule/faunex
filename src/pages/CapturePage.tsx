@@ -19,6 +19,7 @@ interface AnimalResult {
   rarity: Rarity;
   confidence?: number;
   alternatives?: string[];
+  subject_bbox?: { x: number; y: number; w: number; h: number } | null;
 }
 
 const rarityColors: Record<string, string> = {
@@ -570,15 +571,11 @@ const CapturePage = () => {
         location: geoName || null,
         latitude: geoCoords?.lat || null,
         longitude: geoCoords?.lng || null,
+        subject_bbox: animalResult.subject_bbox ?? null,
       }).select('id').single();
       if (insertError) throw insertError;
 
-      // Fire-and-forget: ask the backend to generate a transparent cutout of the animal
-      // so the holographic shimmer can play between the background and the animal.
-      if (inserted?.id) {
-        supabase.functions.invoke('generate-cutout', { body: { capture_id: inserted.id } })
-          .catch((err) => console.warn('cutout trigger failed:', err));
-      }
+      // Holo effect masks itself around the AI-detected subject_bbox — no cutout needed.
 
       setSaved(true);
       setDuplicateCapture(null);
@@ -625,13 +622,12 @@ const CapturePage = () => {
           cutout_url: null,
           cutout_status: 'pending',
           cutout_attempts: 0,
+          subject_bbox: animalResult.subject_bbox ?? null,
         })
         .eq('id', duplicateCapture.id);
       if (updateError) throw updateError;
 
-      // Regenerate cutout for the new photo
-      supabase.functions.invoke('generate-cutout', { body: { capture_id: duplicateCapture.id } })
-        .catch((err) => console.warn('cutout trigger failed:', err));
+      // Holo effect uses the new subject_bbox — no cutout regeneration needed.
 
       setSaved(true);
       setDuplicateCapture(null);
