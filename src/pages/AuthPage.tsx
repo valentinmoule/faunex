@@ -74,6 +74,22 @@ const AuthPage = () => {
         <link rel="canonical" href="https://faunex.fr/auth" />
         <meta property="og:url" content="https://faunex.fr/auth" />
         <meta property="og:title" content="Connexion & inscription — Faunex" />
+        <script>
+          {`function gtag_report_conversion(url) {
+            var callback = function () {
+              if (typeof(url) != 'undefined') {
+                window.location = url;
+              }
+            };
+            gtag('event', 'conversion', {
+              'send_to': 'AW-18134836928/C0J1CKOh-8YcEMDNrsdD',
+              'value': 1.0,
+              'currency': 'EUR',
+              'event_callback': callback
+            });
+            return false;
+          }`}
+        </script>
       </Helmet>
       <div className="w-full max-w-sm space-y-8">
         {/* Logo */}
