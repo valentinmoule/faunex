@@ -19,6 +19,7 @@ interface AnimalResult {
   rarity: Rarity;
   confidence?: number;
   alternatives?: string[];
+  subject_bbox?: { x: number; y: number; w: number; h: number } | null;
 }
 
 const rarityColors: Record<string, string> = {
