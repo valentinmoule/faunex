@@ -298,6 +298,7 @@ const FeedPage = () => {
     scientificName: post.scientific_name || '',
     image: post.image_url,
     cutoutUrl: post.cutout_url,
+    subjectBox: post.subject_bbox,
     rarity: post.rarity as Rarity,
     category: post.category || '',
     description: post.description || '',
