@@ -58,6 +58,13 @@ const CapturePage = () => {
   const [identifying, setIdentifying] = useState(false);
   const [animalResult, setAnimalResult] = useState<AnimalResult | null>(null);
   const [saving, setSaving] = useState(false);
+  const [defaultShare, setDefaultShare] = useState(true);
+
+  useEffect(() => {
+    if (!session?.user) return;
+    supabase.from('profiles').select('default_share_captures').eq('user_id', session.user.id).maybeSingle()
+      .then(({ data }) => { if (data && (data as any).default_share_captures === false) setDefaultShare(false); });
+  }, [session]);
   const [saved, setSaved] = useState(false);
   const [revealPhase, setRevealPhase] = useState<'idle' | 'freeze' | 'shaking' | 'burst' | 'done'>('idle');
   const [revealRarity, setRevealRarity] = useState<Rarity>('common');
@@ -482,7 +489,7 @@ const CapturePage = () => {
         conservation: null,
         fun_fact: null,
         rarity: 'common',
-        shared: false,
+        shared: defaultShare,
         caption: null,
         location: geoName || null,
         latitude: geoCoords?.lat || null,
@@ -566,7 +573,7 @@ const CapturePage = () => {
         conservation: animalResult.conservation,
         fun_fact: animalResult.fun_fact,
         rarity: animalResult.rarity,
-        shared: false,
+        shared: defaultShare,
         caption: null,
         location: geoName || null,
         latitude: geoCoords?.lat || null,
@@ -614,7 +621,7 @@ const CapturePage = () => {
           conservation: animalResult.conservation,
           fun_fact: animalResult.fun_fact,
           rarity: animalResult.rarity,
-          shared: false,
+          shared: defaultShare,
           caption: null,
           location: geoName || null,
           latitude: geoCoords?.lat || null,

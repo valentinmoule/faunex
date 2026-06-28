@@ -46,6 +46,7 @@ const SettingsPage = () => {
   // Marketing emails
   const [marketingEmails, setMarketingEmails] = useState(true);
   const [isPrivate, setIsPrivate] = useState(false);
+  const [defaultShare, setDefaultShare] = useState(true);
   const [pushEnabled, setPushEnabled] = useState(false);
   const [pushBusy, setPushBusy] = useState(false);
 
@@ -82,6 +83,7 @@ const SettingsPage = () => {
         setEditUsername(d.username || '');
         setMarketingEmails(d.marketing_emails ?? true);
         setIsPrivate(d.is_private ?? false);
+        setDefaultShare(d.default_share_captures ?? true);
         setNotifPrefs({
           notify_email_likes: d.notify_email_likes ?? true,
           notify_email_comments: d.notify_email_comments ?? true,
@@ -377,6 +379,30 @@ const SettingsPage = () => {
                 <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card shadow transition-transform ${isPrivate ? 'translate-x-5' : 'translate-x-0'}`} />
               </button>
             </div>
+
+            {/* Default share captures toggle */}
+            <div className="flex items-center justify-between px-4 py-3 bg-muted rounded-xl">
+              <div className="pr-3">
+                <span className="text-sm font-display font-semibold text-foreground flex items-center gap-1.5">
+                  <Share2 className="w-3.5 h-3.5" /> Partager mes captures par défaut
+                </span>
+                <span className="text-[11px] text-muted-foreground">Tes nouvelles captures apparaissent dans le feed de tes abonnés</span>
+              </div>
+              <button
+                onClick={async () => {
+                  const newVal = !defaultShare;
+                  setDefaultShare(newVal);
+                  if (session?.user) {
+                    await supabase.from('profiles').update({ default_share_captures: newVal } as any).eq('user_id', session.user.id);
+                    toast.success(newVal ? 'Captures publiques par défaut' : 'Captures privées par défaut');
+                  }
+                }}
+                className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${defaultShare ? 'bg-primary' : 'bg-muted-foreground/30'}`}
+              >
+                <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card shadow transition-transform ${defaultShare ? 'translate-x-5' : 'translate-x-0'}`} />
+              </button>
+            </div>
+
 
             {/* Granular notification preferences */}
             <div className="bg-muted rounded-xl p-4 space-y-3">
