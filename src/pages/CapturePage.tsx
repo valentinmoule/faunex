@@ -627,6 +627,7 @@ const CapturePage = () => {
           cutout_url: null,
           cutout_status: 'pending',
           cutout_attempts: 0,
+          subject_bbox: animalResult.subject_bbox ?? null,
         })
         .eq('id', duplicateCapture.id);
       if (updateError) throw updateError;
