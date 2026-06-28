@@ -1797,47 +1797,84 @@
   border-radius: inherit;
 }
 
-/* ───────────── COMMON → Holofoil (subtle, simey-style basic holo) ───────────── */
+/* ───────────── COMMON → Holofoil (simey "regular-holo" port) ───────────── */
+.holo-common {
+  --holo-red: #f80e35;
+  --holo-yellow: #eedf10;
+  --holo-green: #21e985;
+  --holo-blue: #0dbde9;
+  --holo-violet: #c929f1;
+}
 .holo-common .holo-shine {
+  --scanlines-space: 1px;
+  --scanlines-light: #666;
+  --scanlines-dark: black;
+
   background-image:
-    repeating-linear-gradient(0deg,
-      hsl(2, 100%, 73%) calc(5% * 1),
-      hsl(53, 100%, 69%) calc(5% * 2),
-      hsl(93, 100%, 69%) calc(5% * 3),
-      hsl(176, 100%, 76%) calc(5% * 4),
-      hsl(228, 100%, 74%) calc(5% * 5),
-      hsl(283, 100%, 73%) calc(5% * 6),
-      hsl(2, 100%, 73%) calc(5% * 7)),
-    repeating-linear-gradient(133deg,
-      hsl(2, 100%, 73%) 0%,
-      hsl(53, 100%, 69%) 5%,
-      hsl(93, 100%, 69%) 10%,
-      hsl(176, 100%, 76%) 15%,
-      hsl(228, 100%, 74%) 20%,
-      hsl(283, 100%, 73%) 25%,
-      hsl(2, 100%, 73%) 30%),
-    radial-gradient(farthest-corner circle at var(--pointer-x) var(--pointer-y),
-      hsla(0, 0%, 100%, 0.55) 10%,
-      hsla(0, 0%, 100%, 0.12) 35%,
-      hsla(0, 0%, 0%, 0.45) 90%);
-  background-blend-mode: screen, hue, hard-light;
-  background-size: 100% 400%, 200% 400%, 100% 100%;
+    repeating-linear-gradient(110deg,
+      var(--holo-violet), var(--holo-blue), var(--holo-green), var(--holo-yellow), var(--holo-red),
+      var(--holo-violet), var(--holo-blue), var(--holo-green), var(--holo-yellow), var(--holo-red),
+      var(--holo-violet), var(--holo-blue), var(--holo-green), var(--holo-yellow), var(--holo-red)),
+    repeating-linear-gradient(90deg,
+      var(--scanlines-dark) calc(var(--scanlines-space) * 0), var(--scanlines-dark) calc(var(--scanlines-space) * 2),
+      var(--scanlines-light) calc(var(--scanlines-space) * 2), var(--scanlines-light) calc(var(--scanlines-space) * 4));
   background-position:
-    50% calc(((50% - var(--background-y)) * 1) + 50%),
-    calc(((50% - var(--background-x)) * 1.8) + 50%) calc(((50% - var(--background-y)) * 1.8) + 50%),
+    calc(((50% - var(--background-x)) * 2.6) + 50%) calc(((50% - var(--background-y)) * 3.5) + 50%),
     center center;
-  filter: brightness(0.95) contrast(1.05) saturate(0.85);
-  opacity: calc(var(--card-opacity) * 0.5);
+  background-size: 400% 400%, cover;
+  background-blend-mode: overlay;
+  filter: brightness(1.1) contrast(1.1) saturate(1.2);
   mix-blend-mode: color-dodge;
+  opacity: calc(var(--card-opacity) * 0.55);
+}
+.holo-common .holo-shine::before {
+  --bars: 3%;
+  --bar-color: hsla(0, 0%, 70%, 1);
+  --bar-bg: hsla(0, 0%, 0%, 1);
+  background-image:
+    repeating-linear-gradient(90deg,
+      var(--bar-bg) calc(var(--bars)*2),
+      var(--bar-color) calc(var(--bars)*3),
+      var(--bar-bg) calc(var(--bars)*3.5),
+      var(--bar-color) calc(var(--bars)*4),
+      var(--bar-bg) calc(var(--bars)*5),
+      var(--bar-bg) calc(var(--bars)*14)),
+    repeating-linear-gradient(90deg,
+      var(--bar-bg) calc(var(--bars)*2),
+      var(--bar-color) calc(var(--bars)*3),
+      var(--bar-bg) calc(var(--bars)*3.5),
+      var(--bar-color) calc(var(--bars)*4),
+      var(--bar-bg) calc(var(--bars)*5),
+      var(--bar-bg) calc(var(--bars)*10));
+  background-position:
+    calc((((50% - var(--background-x)) * 1.65) + 50%) + (var(--background-y) * 0.5)) var(--background-x),
+    calc((((50% - var(--background-x)) * -0.9) + 50%) - (var(--background-y) * 0.75)) var(--background-y);
+  background-size: 200% 200%, 200% 200%;
+  background-blend-mode: screen;
+  filter: brightness(1.15) contrast(1.1);
+  mix-blend-mode: hard-light;
+  opacity: 0.7;
+}
+.holo-common .holo-shine::after {
+  background-image: radial-gradient(
+    farthest-corner circle at var(--pointer-x) var(--pointer-y),
+    hsla(0, 0%, 90%, 0.8) 0%,
+    hsla(0, 0%, 78%, 0.1) 25%,
+    hsl(0, 0%, 0%) 90%);
+  background-position: center center;
+  background-size: cover;
+  mix-blend-mode: luminosity;
+  filter: brightness(0.6) contrast(4);
 }
 .holo-common .holo-glare {
   background-image: radial-gradient(
     farthest-corner circle at var(--pointer-x) var(--pointer-y),
-    hsla(0, 0%, 100%, 0.55) 10%,
-    hsla(0, 0%, 100%, 0.18) 30%,
-    hsla(0, 0%, 0%, 0.35) 100%);
-  opacity: calc(var(--card-opacity) * 0.7);
+    hsl(180, 100%, 95%) 5%,
+    hsla(0, 0%, 39%, 0.25) 55%,
+    hsla(0, 0%, 0%, 0.36) 110%);
   mix-blend-mode: overlay;
+  filter: brightness(0.8) contrast(1.5);
+  opacity: calc(var(--card-opacity) * 0.8);
 }
 
 /* ───────────── RARE → Reverse Holo ───────────── */
