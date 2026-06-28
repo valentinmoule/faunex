@@ -121,11 +121,11 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
     (async () => {
       const { data } = await supabase.from('feed_comments').select('*').eq('capture_id', card.id).order('created_at', { ascending: true });
       if (cancelled || !data) return;
-      if (data.length === 0) { setComments([]); return; }
+      if (data.length === 0) { setComments([]); setCommentCount(0); return; }
       const userIds = Array.from(new Set(data.map((c: any) => c.user_id))) as string[];
       const { data: profiles } = await supabase.from('profiles').select('user_id, display_name, username, avatar_url').in('user_id', userIds);
       const profileMap = new Map((profiles || []).map((p: any) => [p.user_id, p]));
-      if (!cancelled) setComments(data.map((c: any) => ({ ...c, profile: profileMap.get(c.user_id) })));
+      if (!cancelled) { setComments(data.map((c: any) => ({ ...c, profile: profileMap.get(c.user_id) }))); setCommentCount(data.length); }
     })();
     return () => { cancelled = true; };
   }, [card, open, showComments]);
