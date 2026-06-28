@@ -217,7 +217,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
                 onTap={card.image ? () => setImageFullscreen(true) : undefined}
                 cutoutUrl={card.cutoutUrl}
                 subjectBox={card.subjectBox}
-                className={`relative mx-auto max-w-[280px] aspect-square rounded-2xl ${card.image ? 'cursor-pointer' : ''}`}
+                className={`relative mx-auto max-w-[280px] aspect-[4/5] rounded-2xl ${card.image ? 'cursor-pointer' : ''}`}
               >
                 <div
                   className="relative w-full h-full rounded-[1.75rem] overflow-hidden border-[6px] border-white/95 bg-white/95"
