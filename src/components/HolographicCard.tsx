@@ -13,6 +13,8 @@ interface Props {
   subjectBox?: { x: number; y: number; w: number; h: number } | null;
   /** Keep pointer/touch gestures inside the card (used by fullscreen overlays). */
   containInteraction?: boolean;
+  /** Disable holo shine/glare/cutout/tilt entirely (e.g. uncaptured silhouettes). */
+  noHolo?: boolean;
   /** Kept for API compatibility (unused). */
   disableAutoShimmer?: boolean;
 }
