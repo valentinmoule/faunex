@@ -254,6 +254,9 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
 
             <div className="relative z-10 text-center px-6 pt-2 pb-14" />
 
+          </div>
+
+
           {/* Card Body */}
           <div className="relative -mt-8 bg-background rounded-t-3xl px-5 pb-10 pt-5 space-y-5">
 
