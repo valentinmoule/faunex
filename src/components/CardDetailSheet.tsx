@@ -256,7 +256,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
                 >
                   <div className="relative w-full h-full rounded-[1.4rem] overflow-hidden">
                     {card.image ? (
-                      <img src={card.image} alt={card.name} className="w-full h-full object-cover pointer-events-none select-none" draggable={false} />
+                      <img src={card.image} alt={card.name} loading="eager" decoding="async" fetchPriority="high" className="w-full h-full object-cover pointer-events-none select-none" draggable={false} />
                     ) : (
                       (() => {
                         const CatIcon = getCategoryIcon(card.category);
