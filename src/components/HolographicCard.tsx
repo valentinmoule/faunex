@@ -9,6 +9,8 @@ interface Props {
   appearAnimation?: string;
   /** AI-generated transparent PNG of the animal — rendered ON TOP of the holo effects. */
   cutoutUrl?: string | null;
+  /** Approximate normalized (0..1) bounding box of the animal — holo effects are masked around it. */
+  subjectBox?: { x: number; y: number; w: number; h: number } | null;
   /** Keep pointer/touch gestures inside the card (used by fullscreen overlays). */
   containInteraction?: boolean;
   /** Kept for API compatibility (unused). */
