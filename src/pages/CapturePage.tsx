@@ -571,6 +571,7 @@ const CapturePage = () => {
         location: geoName || null,
         latitude: geoCoords?.lat || null,
         longitude: geoCoords?.lng || null,
+        subject_bbox: animalResult.subject_bbox ?? null,
       }).select('id').single();
       if (insertError) throw insertError;
 
