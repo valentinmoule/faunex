@@ -111,7 +111,7 @@ const QuestsPage = () => {
 
   const handleShareApp = async (questId: string) => {
     const shareData = {
-      title: 'Faunex — Découvre la faune autour de toi !',
+      title: 'Faunex — Attrape-les vraiment tous.',
       text: 'Rejoins-moi sur Faunex 🌿 Capture et collectionne les animaux autour de toi !',
       url: window.location.origin,
     };
