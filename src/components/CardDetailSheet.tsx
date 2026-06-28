@@ -454,6 +454,9 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
                   <img
                     src={card.image}
                     alt={card.name}
+                    loading="eager"
+                    decoding="async"
+                    fetchPriority="high"
                     className="w-full h-full object-cover pointer-events-none select-none bg-black/30"
                     draggable={false}
                   />
