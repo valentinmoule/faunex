@@ -220,25 +220,34 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
                 className={`relative mx-auto max-w-[280px] aspect-square rounded-2xl ${card.image ? 'cursor-pointer' : ''}`}
               >
                 <div
-                  className="relative w-full h-full rounded-2xl overflow-hidden"
+                  className="relative w-full h-full rounded-[1.75rem] overflow-hidden border-[6px] border-white/95 bg-white/95"
                   style={{ boxShadow: isMythic ? '0 0 40px 8px hsla(42,100%,65%,0.3), 0 8px 32px rgba(0,0,0,0.4)' : isEpic ? '0 0 35px 6px hsla(270,80%,65%,0.25), 0 8px 32px rgba(0,0,0,0.4)' : isRare ? '0 0 25px 4px hsla(210,70%,60%,0.2), 0 8px 32px rgba(0,0,0,0.4)' : '0 8px 32px rgba(0,0,0,0.4)' }}
                 >
-                  {card.image ? (
-                    <img src={card.image} alt={card.name} className="w-full h-full object-cover pointer-events-none select-none" draggable={false} />
-                  ) : (
-                    (() => {
-                      const CatIcon = getCategoryIcon(card.category);
-                      return (
-                        <div className="w-full h-full flex items-center justify-center bg-muted/40">
-                          <CatIcon className="w-24 h-24 text-muted-foreground" strokeWidth={1.5} />
-                        </div>
-                      );
-                    })()
-                  )}
-                  {/* Glass shimmer overlay on image */}
-                  {card.image && isMythic && <div className="detail-mythic-glass" />}
-                  {card.image && isEpic && <div className="detail-epic-glass" />}
-                  {card.image && isRare && <div className="detail-rare-glass" />}
+                  <div className="relative w-full h-full rounded-[1.4rem] overflow-hidden">
+                    {card.image ? (
+                      <img src={card.image} alt={card.name} className="w-full h-full object-cover pointer-events-none select-none" draggable={false} />
+                    ) : (
+                      (() => {
+                        const CatIcon = getCategoryIcon(card.category);
+                        return (
+                          <div className="w-full h-full flex items-center justify-center bg-muted/40">
+                            <CatIcon className="w-24 h-24 text-muted-foreground" strokeWidth={1.5} />
+                          </div>
+                        );
+                      })()
+                    )}
+                    {/* Glass shimmer overlay on image */}
+                    {card.image && isMythic && <div className="detail-mythic-glass" />}
+                    {card.image && isEpic && <div className="detail-epic-glass" />}
+                    {card.image && isRare && <div className="detail-rare-glass" />}
+                    {/* Name overlay bottom-left */}
+                    <div className="absolute bottom-0 left-0 right-0 pointer-events-none p-3 pr-4 pt-10 bg-gradient-to-t from-black/75 via-black/35 to-transparent">
+                      <h3 className="text-white font-display font-bold text-base leading-tight drop-shadow-md">{card.name}</h3>
+                      {card.scientificName && (
+                        <p className="text-white/85 text-[11px] italic font-body leading-tight mt-0.5 drop-shadow">{card.scientificName}</p>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </HolographicCard>
             </div>
