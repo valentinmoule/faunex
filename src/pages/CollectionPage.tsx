@@ -115,7 +115,7 @@ const CollectionPage = () => {
   }), [captures, filter]);
 
   // Infinite scroll: load 25 at a time
-  const PAGE_SIZE = 25;
+  const PAGE_SIZE = 20;
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 

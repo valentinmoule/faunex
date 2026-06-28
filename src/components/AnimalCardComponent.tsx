@@ -33,6 +33,8 @@ const AnimalCardComponent = ({ card, onClick, compact }: Props) => {
             alt={card.name}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
             loading="lazy"
+            decoding="async"
+            fetchPriority="low"
           />
           <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none" />
           <div className={`absolute top-2 right-2 px-2 py-0.5 rounded-full text-[9px] font-display font-bold uppercase tracking-wider backdrop-blur-md ${rarityBadgeStyles[card.rarity]}`}>
