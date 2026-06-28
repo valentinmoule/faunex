@@ -122,6 +122,23 @@ const HolographicCard = ({
     [subjectBox],
   );
 
+  if (noHolo) {
+    return (
+      <div
+        className={`holo-wrap holo-no-fx ${className} ${appearAnimation}`}
+        onClick={(e) => { if (containInteraction) e.stopPropagation(); onTap?.(); }}
+        role={onTap ? 'button' : undefined}
+        tabIndex={onTap ? 0 : undefined}
+      >
+        <div className="holo-rotator">
+          <div className="holo-card">
+            <div className="holo-content">{children}</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       ref={wrapRef}
