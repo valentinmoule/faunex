@@ -1756,8 +1756,9 @@
 
 .holo-fullscreen-photo {
   perspective: 900px;
-  width: min(92vw, calc(100vh - 2rem));
-  height: min(92vw, calc(100vh - 2rem));
+  aspect-ratio: 4 / 5;
+  width: min(92vw, calc((100vh - 2rem) * 4 / 5));
+  height: auto;
   max-width: calc(100vw - 2rem);
   max-height: calc(100vh - 2rem);
   flex: 0 0 auto;
