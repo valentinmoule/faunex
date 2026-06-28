@@ -299,7 +299,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
               </button>
               <button onClick={() => setShowComments(!showComments)} className="flex items-center gap-2 group">
                 <MessageCircle className={`w-6 h-6 transition-colors ${showComments ? 'text-primary fill-primary/20' : 'text-muted-foreground group-hover:text-primary'}`} />
-                <span className={`text-sm font-display font-semibold ${showComments ? 'text-primary' : 'text-muted-foreground'}`}>{comments.length}</span>
+                <span className={`text-sm font-display font-semibold ${showComments ? 'text-primary' : 'text-muted-foreground'}`}>{commentCount}</span>
               </button>
             </div>
 
