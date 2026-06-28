@@ -175,7 +175,7 @@ const HolographicCard = ({
           <div className="holo-content">{children}</div>
           {cutoutUrl && (
             <div className="holo-cutout" aria-hidden>
-              <img src={cutoutUrl} alt="" draggable={false} />
+              <img src={cutoutUrl} alt="" loading="eager" decoding="async" draggable={false} />
             </div>
           )}
           <div className="holo-shine" aria-hidden />
