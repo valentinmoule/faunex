@@ -895,12 +895,12 @@ const CapturePage = () => {
                   </span>
                   {typeof animalResult.confidence === 'number' && (
                     <span
-                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-display font-bold uppercase tracking-wider border ${
+                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-display font-bold uppercase tracking-wider border shadow-[0_2px_8px_rgba(0,0,0,0.5)] ring-1 ring-black/40 ${
                         animalResult.confidence >= 80
-                          ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/40'
+                          ? 'bg-emerald-500 text-white border-emerald-200'
                           : animalResult.confidence >= 50
-                          ? 'bg-amber-500/15 text-amber-300 border-amber-500/40'
-                          : 'bg-red-500/15 text-red-300 border-red-500/40'
+                          ? 'bg-amber-400 text-black border-amber-100'
+                          : 'bg-red-500 text-white border-red-200'
                       }`}
                       title="Niveau de confiance de l'IA"
                     >
