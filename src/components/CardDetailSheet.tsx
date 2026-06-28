@@ -79,6 +79,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
     setNewComment('');
     setImageFullscreen(false);
     setComments([]);
+    setCommentCount(0);
     setLiked(false);
     setLikeCount(0);
 
