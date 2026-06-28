@@ -575,12 +575,7 @@ const CapturePage = () => {
       }).select('id').single();
       if (insertError) throw insertError;
 
-      // Fire-and-forget: ask the backend to generate a transparent cutout of the animal
-      // so the holographic shimmer can play between the background and the animal.
-      if (inserted?.id) {
-        supabase.functions.invoke('generate-cutout', { body: { capture_id: inserted.id } })
-          .catch((err) => console.warn('cutout trigger failed:', err));
-      }
+      // Holo effect masks itself around the AI-detected subject_bbox — no cutout needed.
 
       setSaved(true);
       setDuplicateCapture(null);
