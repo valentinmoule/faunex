@@ -71,34 +71,62 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
   const [showComments, setShowComments] = useState(false);
   const [imageFullscreen, setImageFullscreen] = useState(false);
 
-  // Fetch likes & comments when card opens
+  // Reset transient UI state when a new card opens
   useEffect(() => {
-    if (!card || !open || !session?.user) return;
+    if (!card || !open) return;
     setShowComments(false);
     setNewComment('');
     setImageFullscreen(false);
+    setComments([]);
+    setLiked(false);
+    setLikeCount(0);
 
-    const fetchSocial = async () => {
-      const [myLike, allLikes, commentsRes] = await Promise.all([
+    // Preload fullscreen image (usually already in browser cache from grid)
+    if (card.image) {
+      const img = new Image();
+      img.decoding = 'async';
+      img.src = card.image;
+    }
+  }, [card, open]);
+
+  // Lightweight likes fetch — runs in idle time, doesn't block paint
+  useEffect(() => {
+    if (!card || !open || !session?.user) return;
+    let cancelled = false;
+    const run = async () => {
+      const [myLike, allLikes, commentsCount] = await Promise.all([
         supabase.from('feed_likes').select('id').eq('user_id', session.user.id).eq('capture_id', card.id).limit(1),
         supabase.from('feed_likes').select('id', { count: 'exact', head: true }).eq('capture_id', card.id),
-        supabase.from('feed_comments').select('*').eq('capture_id', card.id).order('created_at', { ascending: true }),
+        supabase.from('feed_comments').select('id', { count: 'exact', head: true }).eq('capture_id', card.id),
       ]);
-
+      if (cancelled) return;
       setLiked(((myLike as any).data || []).length > 0);
       setLikeCount((allLikes as any).count || 0);
-
-      if ((commentsRes as any).data && (commentsRes as any).data.length > 0) {
-        const userIds = Array.from(new Set((commentsRes as any).data.map((c: any) => c.user_id))) as string[];
-        const { data: profiles } = await supabase.from('profiles').select('user_id, display_name, username, avatar_url').in('user_id', userIds);
-        const profileMap = new Map((profiles || []).map((p: any) => [p.user_id, p]));
-        setComments((commentsRes as any).data.map((c: any) => ({ ...c, profile: profileMap.get(c.user_id) })));
-      } else {
-        setComments([]);
-      }
+      setComments(new Array((commentsCount as any).count || 0).fill(null).map((_, i) => ({ id: `placeholder-${i}`, user_id: '', content: '', created_at: '' })));
     };
-    fetchSocial();
+    const idle = (window as any).requestIdleCallback?.(run) ?? setTimeout(run, 0);
+    return () => {
+      cancelled = true;
+      (window as any).cancelIdleCallback?.(idle);
+      clearTimeout(idle);
+    };
   }, [card, open, session]);
+
+  // Fetch full comments only when the comments panel is opened
+  useEffect(() => {
+    if (!card || !open || !showComments) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase.from('feed_comments').select('*').eq('capture_id', card.id).order('created_at', { ascending: true });
+      if (cancelled || !data) return;
+      if (data.length === 0) { setComments([]); return; }
+      const userIds = Array.from(new Set(data.map((c: any) => c.user_id))) as string[];
+      const { data: profiles } = await supabase.from('profiles').select('user_id, display_name, username, avatar_url').in('user_id', userIds);
+      const profileMap = new Map((profiles || []).map((p: any) => [p.user_id, p]));
+      if (!cancelled) setComments(data.map((c: any) => ({ ...c, profile: profileMap.get(c.user_id) })));
+    })();
+    return () => { cancelled = true; };
+  }, [card, open, showComments]);
 
   const handleLike = useCallback(async () => {
     if (!session?.user || !card) return;
