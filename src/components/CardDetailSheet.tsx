@@ -406,7 +406,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
               rarity={card.rarity}
               cutoutUrl={card.cutoutUrl}
               containInteraction
-              className="holo-fullscreen-photo relative w-full max-w-[min(92vw,92vh)] aspect-square rounded-2xl pointer-events-auto touch-none"
+              className="holo-fullscreen-photo relative rounded-2xl pointer-events-auto touch-none"
             >
               <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl">
                 <img
