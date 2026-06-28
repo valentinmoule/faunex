@@ -11,6 +11,7 @@ interface FeedCapture {
   id: string;
   image_url: string;
   cutout_url?: string | null;
+  subject_bbox?: { x: number; y: number; w: number; h: number } | null;
   animal_name: string;
   scientific_name: string;
   category: string;
