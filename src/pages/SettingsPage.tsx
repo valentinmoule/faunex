@@ -83,6 +83,7 @@ const SettingsPage = () => {
         setEditUsername(d.username || '');
         setMarketingEmails(d.marketing_emails ?? true);
         setIsPrivate(d.is_private ?? false);
+        setDefaultShare(d.default_share_captures ?? true);
         setNotifPrefs({
           notify_email_likes: d.notify_email_likes ?? true,
           notify_email_comments: d.notify_email_comments ?? true,
