@@ -238,6 +238,9 @@ const AuthPage = () => {
                 className="flex-1 font-display font-semibold gap-2"
                 disabled={loading}
                 onClick={async () => {
+                  if (typeof window !== 'undefined' && (window as any).gtag_report_conversion) {
+                    (window as any).gtag_report_conversion();
+                  }
                   const { error } = await lovable.auth.signInWithOAuth('apple', {
                     redirect_uri: window.location.origin,
                   });
