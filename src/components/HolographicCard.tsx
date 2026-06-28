@@ -13,6 +13,8 @@ interface Props {
   subjectBox?: { x: number; y: number; w: number; h: number } | null;
   /** Keep pointer/touch gestures inside the card (used by fullscreen overlays). */
   containInteraction?: boolean;
+  /** Disable holo shine/glare/cutout/tilt entirely (e.g. uncaptured silhouettes). */
+  noHolo?: boolean;
   /** Kept for API compatibility (unused). */
   disableAutoShimmer?: boolean;
 }
@@ -37,6 +39,7 @@ const HolographicCard = ({
   cutoutUrl,
   subjectBox,
   containInteraction = false,
+  noHolo = false,
 }: Props) => {
   const wrapRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
@@ -118,6 +121,23 @@ const HolographicCard = ({
     },
     [subjectBox],
   );
+
+  if (noHolo) {
+    return (
+      <div
+        className={`holo-wrap holo-no-fx ${className} ${appearAnimation}`}
+        onClick={(e) => { if (containInteraction) e.stopPropagation(); onTap?.(); }}
+        role={onTap ? 'button' : undefined}
+        tabIndex={onTap ? 0 : undefined}
+      >
+        <div className="holo-rotator">
+          <div className="holo-card">
+            <div className="holo-content">{children}</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
