@@ -246,7 +246,6 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
                 rarity={card.rarity}
                 appearAnimation={detailAppearClass}
                 onTap={card.image ? () => setImageFullscreen(true) : undefined}
-                cutoutUrl={card.cutoutUrl}
                 subjectBox={card.subjectBox}
                 className={`relative mx-auto max-w-[280px] aspect-[4/5] rounded-2xl ${card.image ? 'cursor-pointer' : ''}`}
               >
