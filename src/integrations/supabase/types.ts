@@ -477,6 +477,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          default_share_captures: boolean
           display_name: string | null
           id: string
           is_private: boolean
@@ -501,6 +502,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          default_share_captures?: boolean
           display_name?: string | null
           id?: string
           is_private?: boolean
@@ -525,6 +527,7 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string
+          default_share_captures?: boolean
           display_name?: string | null
           id?: string
           is_private?: boolean
@@ -703,6 +706,7 @@ export type Database = {
         Returns: {
           avatar_url: string | null
           created_at: string
+          default_share_captures: boolean
           display_name: string | null
           id: string
           is_private: boolean
