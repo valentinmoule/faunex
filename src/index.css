@@ -1796,29 +1796,47 @@
   border-radius: inherit;
 }
 
-/* ───────────── COMMON → Holofoil Rare ───────────── */
+/* ───────────── COMMON → Holofoil (subtle, simey-style basic holo) ───────────── */
 .holo-common .holo-shine {
   background-image:
-    repeating-linear-gradient(110deg,
-      #c929f1, #0dbde9, #21e985, #eedf10, #f80e35,
-      #c929f1, #0dbde9, #21e985, #eedf10, #f80e35,
-      #c929f1, #0dbde9, #21e985, #eedf10, #f80e35),
-    repeating-linear-gradient(90deg,
-      #000 0, #000 2px, #666 2px, #666 4px);
+    repeating-linear-gradient(0deg,
+      hsl(2, 100%, 73%) calc(5% * 1),
+      hsl(53, 100%, 69%) calc(5% * 2),
+      hsl(93, 100%, 69%) calc(5% * 3),
+      hsl(176, 100%, 76%) calc(5% * 4),
+      hsl(228, 100%, 74%) calc(5% * 5),
+      hsl(283, 100%, 73%) calc(5% * 6),
+      hsl(2, 100%, 73%) calc(5% * 7)),
+    repeating-linear-gradient(133deg,
+      hsl(2, 100%, 73%) 0%,
+      hsl(53, 100%, 69%) 5%,
+      hsl(93, 100%, 69%) 10%,
+      hsl(176, 100%, 76%) 15%,
+      hsl(228, 100%, 74%) 20%,
+      hsl(283, 100%, 73%) 25%,
+      hsl(2, 100%, 73%) 30%),
+    radial-gradient(farthest-corner circle at var(--pointer-x) var(--pointer-y),
+      hsla(0, 0%, 100%, 0.55) 10%,
+      hsla(0, 0%, 100%, 0.12) 35%,
+      hsla(0, 0%, 0%, 0.45) 90%);
+  background-blend-mode: screen, hue, hard-light;
+  background-size: 100% 400%, 200% 400%, 100% 100%;
   background-position:
-    calc(((50% - var(--background-x)) * 2.6) + 50%) calc(((50% - var(--background-y)) * 3.5) + 50%),
+    50% calc(((50% - var(--background-y)) * 1) + 50%),
+    calc(((50% - var(--background-x)) * 1.8) + 50%) calc(((50% - var(--background-y)) * 1.8) + 50%),
     center center;
-  background-size: 400% 400%, cover;
-  background-blend-mode: overlay;
-  filter: brightness(1.1) contrast(1.1) saturate(1.2);
+  filter: brightness(0.95) contrast(1.05) saturate(0.85);
+  opacity: calc(var(--card-opacity) * 0.5);
+  mix-blend-mode: color-dodge;
 }
 .holo-common .holo-glare {
   background-image: radial-gradient(
     farthest-corner circle at var(--pointer-x) var(--pointer-y),
-    hsl(180, 100%, 95%) 5%,
-    hsla(0, 0%, 39%, 0.25) 55%,
-    hsla(0, 0%, 0%, 0.36) 110%);
-  filter: brightness(0.7) contrast(2.4);
+    hsla(0, 0%, 100%, 0.55) 10%,
+    hsla(0, 0%, 100%, 0.18) 30%,
+    hsla(0, 0%, 0%, 0.35) 100%);
+  opacity: calc(var(--card-opacity) * 0.7);
+  mix-blend-mode: overlay;
 }
 
 /* ───────────── RARE → Reverse Holo ───────────── */
