@@ -406,6 +406,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
             <HolographicCard
               rarity={card.rarity}
               cutoutUrl={card.cutoutUrl}
+              subjectBox={card.subjectBox}
               containInteraction
               className="holo-fullscreen-photo relative rounded-2xl pointer-events-auto touch-none"
             >
