@@ -1734,8 +1734,15 @@
 
 .holo-fullscreen-photo {
   perspective: 900px;
+  width: min(92vw, calc(100vh - 2rem));
+  height: min(92vw, calc(100vh - 2rem));
+  max-width: calc(100vw - 2rem);
+  max-height: calc(100vh - 2rem);
+  flex: 0 0 auto;
+  overflow: visible;
 }
 
+.holo-fullscreen-photo .holo-rotator,
 .holo-fullscreen-photo .holo-card,
 .holo-fullscreen-photo .holo-content,
 .holo-fullscreen-photo .holo-content > div {
@@ -1745,7 +1752,7 @@
 
 .holo-fullscreen-photo .holo-shine,
 .holo-fullscreen-photo .holo-glare {
-  opacity: max(var(--card-opacity), 0.28);
+  opacity: var(--card-opacity);
 }
 
 .holo-fullscreen-photo .holo-cutout {
