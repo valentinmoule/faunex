@@ -104,7 +104,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
       if (cancelled) return;
       setLiked(((myLike as any).data || []).length > 0);
       setLikeCount((allLikes as any).count || 0);
-      setComments(new Array((commentsCount as any).count || 0).fill(null).map((_, i) => ({ id: `placeholder-${i}`, user_id: '', content: '', created_at: '' })));
+      setCommentCount((commentsCount as any).count || 0);
     };
     const idle = (window as any).requestIdleCallback?.(run) ?? setTimeout(run, 0);
     return () => {
