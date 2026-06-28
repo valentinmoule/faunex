@@ -162,6 +162,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
         const { data: profiles } = await supabase.from('profiles').select('user_id, display_name, username, avatar_url').in('user_id', userIds);
         const profileMap = new Map((profiles || []).map((p: any) => [p.user_id, p]));
         setComments(data.map((c: any) => ({ ...c, profile: profileMap.get(c.user_id) })));
+        setCommentCount(data.length);
       }
     }
     setSubmitting(false);
