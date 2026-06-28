@@ -248,6 +248,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
                 appearAnimation={detailAppearClass}
                 onTap={card.image ? () => setImageFullscreen(true) : undefined}
                 subjectBox={card.subjectBox}
+                noHolo={isUncaptured}
                 className={`relative mx-auto max-w-[280px] aspect-[4/5] rounded-2xl ${card.image ? 'cursor-pointer' : ''}`}
               >
                 <div
