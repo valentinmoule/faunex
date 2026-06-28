@@ -419,16 +419,25 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
               containInteraction
               className="holo-fullscreen-photo relative rounded-2xl pointer-events-auto touch-none"
             >
-              <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl">
-                <img
-                  src={card.image}
-                  alt={card.name}
-                  className="w-full h-full object-cover pointer-events-none select-none bg-black/30"
-                  draggable={false}
-                />
-                {isMythic && <div className="detail-mythic-glass" />}
-                {isEpic && <div className="detail-epic-glass" />}
-                {isRare && <div className="detail-rare-glass" />}
+              <div className="relative w-full h-full rounded-[2rem] overflow-hidden shadow-2xl border-[8px] border-white/95 bg-white/95">
+                <div className="relative w-full h-full rounded-[1.55rem] overflow-hidden">
+                  <img
+                    src={card.image}
+                    alt={card.name}
+                    className="w-full h-full object-cover pointer-events-none select-none bg-black/30"
+                    draggable={false}
+                  />
+                  {isMythic && <div className="detail-mythic-glass" />}
+                  {isEpic && <div className="detail-epic-glass" />}
+                  {isRare && <div className="detail-rare-glass" />}
+                  {/* Name overlay bottom-left */}
+                  <div className="absolute bottom-0 left-0 right-0 pointer-events-none p-5 pr-6 pt-16 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+                    <h3 className="text-white font-display font-bold text-2xl leading-tight drop-shadow-lg">{card.name}</h3>
+                    {card.scientificName && (
+                      <p className="text-white/90 text-sm italic font-body leading-tight mt-1 drop-shadow">{card.scientificName}</p>
+                    )}
+                  </div>
+                </div>
               </div>
             </HolographicCard>
           </div>
