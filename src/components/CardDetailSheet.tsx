@@ -180,9 +180,10 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
 
   if (!card) return null;
 
-  const isMythic = card.rarity === 'mythic';
-  const isEpic = card.rarity === 'epic';
-  const isRare = card.rarity === 'rare';
+  const isUncaptured = !card.image || card.id.startsWith('uncaptured-');
+  const isMythic = !isUncaptured && card.rarity === 'mythic';
+  const isEpic = !isUncaptured && card.rarity === 'epic';
+  const isRare = !isUncaptured && card.rarity === 'rare';
   const isShiny = isEpic || isMythic;
 
   const detailAppearClass = isMythic
