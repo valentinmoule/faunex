@@ -35,6 +35,7 @@ const HolographicCard = ({
   onTap,
   appearAnimation = '',
   cutoutUrl,
+  subjectBox,
   containInteraction = false,
 }: Props) => {
   const wrapRef = useRef<HTMLDivElement>(null);
