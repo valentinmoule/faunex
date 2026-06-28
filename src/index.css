@@ -1705,6 +1705,15 @@
   z-index: 1;
 }
 
+.holo-no-fx .holo-rotator,
+.holo-no-fx .holo-card,
+.holo-no-fx .holo-content,
+.holo-no-fx .holo-content > div {
+  width: 100%;
+  height: 100%;
+}
+.holo-no-fx .holo-rotator { transform: none; }
+
 .holo-cutout {
   position: absolute;
   inset: 0;
