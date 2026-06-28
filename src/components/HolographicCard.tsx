@@ -123,6 +123,7 @@ const HolographicCard = ({
     <div
       ref={wrapRef}
       className={`holo-wrap holo-${rarity} ${className} ${appearAnimation}`}
+      data-subject={subjectBox ? 'on' : undefined}
       style={cosmosStyle}
       onPointerDown={(e) => {
         containEvent(e);
