@@ -46,6 +46,7 @@ const SettingsPage = () => {
   // Marketing emails
   const [marketingEmails, setMarketingEmails] = useState(true);
   const [isPrivate, setIsPrivate] = useState(false);
+  const [defaultShare, setDefaultShare] = useState(true);
   const [pushEnabled, setPushEnabled] = useState(false);
   const [pushBusy, setPushBusy] = useState(false);
 
