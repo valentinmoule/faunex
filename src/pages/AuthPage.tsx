@@ -58,6 +58,9 @@ const AuthPage = () => {
         });
         if (error) throw error;
         toast.success('Compte créé ! Vérifie ton email pour confirmer.');
+        if (typeof window !== 'undefined' && (window as any).gtag_report_conversion) {
+          (window as any).gtag_report_conversion();
+        }
       }
     } catch (error: any) {
       toast.error(error.message || 'Une erreur est survenue');
@@ -74,6 +77,22 @@ const AuthPage = () => {
         <link rel="canonical" href="https://faunex.fr/auth" />
         <meta property="og:url" content="https://faunex.fr/auth" />
         <meta property="og:title" content="Connexion & inscription — Faunex" />
+        <script>
+          {`function gtag_report_conversion(url) {
+            var callback = function () {
+              if (typeof(url) != 'undefined') {
+                window.location = url;
+              }
+            };
+            gtag('event', 'conversion', {
+              'send_to': 'AW-18134836928/C0J1CKOh-8YcEMDNrsdD',
+              'value': 1.0,
+              'currency': 'EUR',
+              'event_callback': callback
+            });
+            return false;
+          }`}
+        </script>
       </Helmet>
       <div className="w-full max-w-sm space-y-8">
         {/* Logo */}
@@ -196,6 +215,9 @@ const AuthPage = () => {
                 className="flex-1 font-display font-semibold gap-2"
                 disabled={loading}
                 onClick={async () => {
+                  if (typeof window !== 'undefined' && (window as any).gtag_report_conversion) {
+                    (window as any).gtag_report_conversion();
+                  }
                   const { error } = await lovable.auth.signInWithOAuth('google', {
                     redirect_uri: window.location.origin,
                   });
@@ -216,6 +238,9 @@ const AuthPage = () => {
                 className="flex-1 font-display font-semibold gap-2"
                 disabled={loading}
                 onClick={async () => {
+                  if (typeof window !== 'undefined' && (window as any).gtag_report_conversion) {
+                    (window as any).gtag_report_conversion();
+                  }
                   const { error } = await lovable.auth.signInWithOAuth('apple', {
                     redirect_uri: window.location.origin,
                   });
