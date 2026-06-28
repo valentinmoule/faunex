@@ -98,12 +98,25 @@ const HolographicCard = ({
 
   // Random cosmos position per card so two epics never look identical
   const cosmosStyle = useMemo(
-    () =>
-      ({
-        '--cosmos-x': `${Math.floor(Math.random() * 734)}px`,
-        '--cosmos-y': `${Math.floor(Math.random() * 1280)}px`,
-      }) as React.CSSProperties,
-    [],
+    () => {
+      const base: React.CSSProperties = {
+        ['--cosmos-x' as any]: `${Math.floor(Math.random() * 734)}px`,
+        ['--cosmos-y' as any]: `${Math.floor(Math.random() * 1280)}px`,
+      };
+      if (subjectBox) {
+        const cx = (subjectBox.x + subjectBox.w / 2) * 100;
+        const cy = (subjectBox.y + subjectBox.h / 2) * 100;
+        // Inflate radii slightly so the holo fades softly around the subject.
+        const rx = Math.min(95, (subjectBox.w / 2) * 100 * 1.15);
+        const ry = Math.min(95, (subjectBox.h / 2) * 100 * 1.15);
+        (base as any)['--subj-cx'] = `${cx.toFixed(2)}%`;
+        (base as any)['--subj-cy'] = `${cy.toFixed(2)}%`;
+        (base as any)['--subj-rx'] = `${rx.toFixed(2)}%`;
+        (base as any)['--subj-ry'] = `${ry.toFixed(2)}%`;
+      }
+      return base;
+    },
+    [subjectBox],
   );
 
   return (
