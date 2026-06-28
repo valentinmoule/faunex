@@ -58,6 +58,9 @@ const AuthPage = () => {
         });
         if (error) throw error;
         toast.success('Compte créé ! Vérifie ton email pour confirmer.');
+        if (typeof window !== 'undefined' && (window as any).gtag_report_conversion) {
+          (window as any).gtag_report_conversion();
+        }
       }
     } catch (error: any) {
       toast.error(error.message || 'Une erreur est survenue');
