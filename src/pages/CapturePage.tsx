@@ -627,9 +627,7 @@ const CapturePage = () => {
         .eq('id', duplicateCapture.id);
       if (updateError) throw updateError;
 
-      // Regenerate cutout for the new photo
-      supabase.functions.invoke('generate-cutout', { body: { capture_id: duplicateCapture.id } })
-        .catch((err) => console.warn('cutout trigger failed:', err));
+      // Holo effect uses the new subject_bbox — no cutout regeneration needed.
 
       setSaved(true);
       setDuplicateCapture(null);
