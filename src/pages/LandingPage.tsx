@@ -477,8 +477,8 @@ const LandingPage = () => {
 
           <div className="relative z-10">
             <Sparkles className="w-8 h-8 text-primary-foreground mx-auto mb-3" />
-            <h2 className="text-2xl sm:text-3xl font-display font-black text-primary-foreground mb-2">
-              Rejoins l'aventure
+            <h2 className="text-3xl sm:text-4xl font-display font-black text-primary-foreground mb-2 leading-tight">
+              Rejoins <span className="font-editorial italic">l'aventure</span>.
             </h2>
             <p className="text-sm text-primary-foreground/90 font-body mb-6">
               Crée ton compte et commence à collectionner la faune près de chez toi.
