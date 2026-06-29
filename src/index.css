@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Fraunces:ital,opsz,wght@0,9..144,700;0,9..144,900;1,9..144,700;1,9..144,900&family=Caveat:wght@500;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -140,6 +140,98 @@
     @apply font-display font-bold tracking-tight;
   }
 }
+
+/* ═══════════════════════════════════════════════════
+   LANDING — Naturalist field-notebook utilities
+   ═══════════════════════════════════════════════════ */
+@layer utilities {
+  .font-editorial {
+    font-family: 'Fraunces', 'Times New Roman', serif;
+    font-optical-sizing: auto;
+    font-variation-settings: "opsz" 120, "SOFT" 100;
+  }
+  .font-handwritten {
+    font-family: 'Caveat', 'Comic Sans MS', cursive;
+  }
+
+  /* Topographic dotted background */
+  .bg-topo {
+    background-image:
+      radial-gradient(circle at 1px 1px, hsla(152, 55%, 28%, 0.18) 1px, transparent 0),
+      radial-gradient(circle at 1px 1px, hsla(152, 55%, 28%, 0.08) 1px, transparent 0);
+    background-size: 22px 22px, 11px 11px;
+    background-position: 0 0, 11px 11px;
+  }
+  .dark .bg-topo {
+    background-image:
+      radial-gradient(circle at 1px 1px, hsla(152, 40%, 60%, 0.16) 1px, transparent 0),
+      radial-gradient(circle at 1px 1px, hsla(152, 40%, 60%, 0.07) 1px, transparent 0);
+  }
+
+  /* Subtle paper grain */
+  .bg-paper {
+    background-color: hsl(var(--background));
+    background-image:
+      radial-gradient(hsla(25, 30%, 35%, 0.04) 1px, transparent 1px),
+      radial-gradient(hsla(25, 30%, 35%, 0.03) 1px, transparent 1px);
+    background-size: 3px 3px, 7px 7px;
+    background-position: 0 0, 2px 2px;
+  }
+
+  /* Ticket / stamp dashed border */
+  .border-stamp {
+    border: 2px dashed hsl(var(--foreground) / 0.25);
+    border-radius: 0.75rem;
+  }
+
+  /* Adhesive tape strip */
+  .tape-strip {
+    position: relative;
+  }
+  .tape-strip::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-2deg);
+    width: 64px;
+    height: 18px;
+    background: hsla(42, 80%, 70%, 0.6);
+    border-left: 1px dashed hsla(42, 80%, 30%, 0.3);
+    border-right: 1px dashed hsla(42, 80%, 30%, 0.3);
+    box-shadow: 0 1px 2px hsla(0, 0%, 0%, 0.06);
+    pointer-events: none;
+  }
+
+  /* Postage stamp perforated edge */
+  .perforated {
+    --c: hsl(var(--background));
+    -webkit-mask:
+      radial-gradient(5px at 5px 50%, #0000 98%, #000) repeat-y left / 6px 14px,
+      radial-gradient(5px at calc(100% - 5px) 50%, #0000 98%, #000) repeat-y right / 6px 14px,
+      radial-gradient(5px at 50% 5px, #0000 98%, #000) repeat-x top / 14px 6px,
+      radial-gradient(5px at 50% calc(100% - 5px), #0000 98%, #000) repeat-x bottom / 14px 6px,
+      linear-gradient(#000 0 0) center / calc(100% - 12px) calc(100% - 12px) no-repeat;
+    -webkit-mask-composite: source-over;
+            mask-composite: add;
+  }
+
+  /* Wiggle on hover for stickers */
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(var(--rot, 0deg)); }
+    25% { transform: rotate(calc(var(--rot, 0deg) + 1.5deg)); }
+    75% { transform: rotate(calc(var(--rot, 0deg) - 1.5deg)); }
+  }
+  .hover-wiggle:hover { animation: wiggle 0.4s ease-in-out; }
+
+  /* Marquee */
+  @keyframes marquee-x {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  .animate-marquee { animation: marquee-x 40s linear infinite; }
+}
+
 
 /* ═══════════════════════════════════════════════════
    RARITY CARD EFFECTS — Pokémon-style holographic

@@ -182,11 +182,19 @@ const LandingPage = () => {
         })}</script>
       </Helmet>
       {/* HERO */}
-      <section className="relative px-5 pt-10 pb-14 sm:pt-14">
-        {/* Decorative gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/8 via-background to-background pointer-events-none" />
-        <div className="absolute top-20 -right-20 w-72 h-72 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-40 -left-20 w-72 h-72 bg-amber/8 rounded-full blur-3xl pointer-events-none" />
+      <section className="relative px-5 pt-10 pb-14 sm:pt-14 overflow-hidden">
+        {/* Topographic dotted layer */}
+        <div className="absolute inset-0 bg-topo opacity-60 pointer-events-none [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]" />
+        <div className="absolute top-20 -right-24 w-72 h-72 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-44 -left-24 w-72 h-72 bg-amber/15 rounded-full blur-3xl pointer-events-none" />
+
+        {/* Field-notebook coordinates corner mark */}
+        <div className="hidden sm:block absolute top-6 left-6 font-handwritten text-sm text-muted-foreground/70 -rotate-3 pointer-events-none select-none">
+          N&nbsp;48°51' · E&nbsp;2°21'
+        </div>
+        <div className="hidden sm:block absolute top-6 right-6 font-handwritten text-sm text-muted-foreground/70 rotate-2 pointer-events-none select-none">
+          Carnet&nbsp;n°&nbsp;01
+        </div>
 
         <div className="relative z-10 max-w-lg mx-auto text-center">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[11px] font-display font-semibold mb-5">
@@ -196,21 +204,38 @@ const LandingPage = () => {
 
           <img src="/pwa-icon-512.png" alt="Logo Faunex" width="56" height="56" fetchPriority="high" className="w-14 h-14 mx-auto mb-3" />
 
-          <h1 className="text-3xl sm:text-5xl font-display font-black tracking-tight leading-[1.05]">
-            Attrape-les{' '}
-            <span className="text-primary">vraiment tous.</span>
+          <h1 className="font-display font-black tracking-tight leading-[1.02] text-4xl sm:text-6xl">
+            <span className="block">Attrape-les</span>
+            <span className="relative inline-block">
+              <span className="font-editorial italic font-black text-primary">vraiment tous</span>
+              {/* Hand-drawn underline */}
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 220 14"
+                className="absolute -bottom-2 left-0 w-full h-3 text-amber"
+                fill="none"
+              >
+                <path
+                  d="M2 9 C 40 2, 90 14, 130 6 S 200 4, 218 8"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </span>
+            <span className="text-foreground">.</span>
           </h1>
 
-          <p className="mt-4 text-base sm:text-lg text-muted-foreground font-body max-w-md mx-auto">
+          <p className="mt-6 text-base sm:text-lg text-muted-foreground font-body max-w-md mx-auto">
             Une coccinelle sur ton balcon, un cerf en forêt, un faucon en ville — chaque rencontre devient une carte dans ton bestiaire.
-            Du commun au mythique.
+            <span className="font-handwritten text-foreground/80 text-xl ml-1">Du commun au mythique.</span>
           </p>
 
 
-          <div className="mt-7 flex flex-col items-center gap-2">
+          <div className="mt-8 flex flex-col items-center gap-2">
             <Button
               size="lg"
-              className="font-display font-bold gap-2 text-base px-7 py-6 rounded-2xl shadow-[0_8px_24px_-8px_hsla(150,55%,30%,0.5)] hover:scale-[1.02] transition-transform w-full sm:w-auto"
+              className="font-display font-bold gap-2 text-base px-8 py-6 rounded-2xl shadow-[0_10px_28px_-8px_hsla(150,55%,30%,0.55)] hover:scale-[1.02] hover:rotate-[-0.5deg] transition-all w-full sm:w-auto"
               onClick={() => handleCta('hero')}
             >
               Créer mon compte gratuit <ChevronRight className="w-5 h-5" />
@@ -232,8 +257,33 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* SPECIES MARQUEE — naturalist ticker */}
+      <section className="relative border-y-2 border-dashed border-border/70 bg-card overflow-hidden py-3">
+        <div className="flex gap-8 whitespace-nowrap animate-marquee font-editorial italic text-lg sm:text-xl">
+          {Array.from({ length: 2 }).flatMap((_, dup) =>
+            [
+              { n: 'Vulpes vulpes', fr: 'Renard roux', r: 'rare' },
+              { n: 'Cervus elaphus', fr: 'Cerf élaphe', r: 'mythic' },
+              { n: 'Cyanistes caeruleus', fr: 'Mésange bleue', r: 'rare' },
+              { n: 'Sciurus vulgaris', fr: 'Écureuil roux', r: 'epic' },
+              { n: 'Coccinella septempunctata', fr: 'Coccinelle', r: 'common' },
+              { n: 'Falco peregrinus', fr: 'Faucon pèlerin', r: 'epic' },
+              { n: 'Capra ibex', fr: 'Bouquetin', r: 'mythic' },
+              { n: 'Erinaceus europaeus', fr: 'Hérisson', r: 'rare' },
+            ].map((s, i) => (
+              <span key={`${dup}-${i}`} className="inline-flex items-center gap-2 text-foreground/80">
+                <span className={`w-2 h-2 rounded-full bg-rarity-${s.r}`} />
+                <span>{s.n}</span>
+                <span className="font-body not-italic text-xs uppercase tracking-widest text-muted-foreground">— {s.fr}</span>
+                <span className="text-muted-foreground/40 ml-2">·</span>
+              </span>
+            ))
+          )}
+        </div>
+      </section>
+
       {/* SOCIAL PROOF */}
-      <section className="px-5 py-8 border-y border-border/50 bg-muted/30">
+      <section className="px-5 py-8 border-b border-border/50 bg-muted/30">
         <div className="max-w-lg mx-auto grid grid-cols-3 gap-3">
           <Stat value={stats.totalUsers} label="Explorateurs" prefix="+" />
           <Stat value={stats.totalCaptures} label="Captures" prefix="+" />
@@ -241,54 +291,74 @@ const LandingPage = () => {
         </div>
       </section>
 
+
       {/* PHONE MOCKUPS SHOWCASE */}
       <LandingPhoneShowcase />
 
-      {/* HOW IT WORKS — 3 steps */}
-      <section className="px-5 py-14 max-w-lg mx-auto">
-        <h2 className="text-2xl sm:text-3xl font-display font-black text-center mb-2">
-          3 étapes, c'est tout
-        </h2>
-        <p className="text-center text-muted-foreground text-sm mb-8 font-body">
-          De la photo à la carte collectionnée, en moins de 10 secondes.
-        </p>
+      {/* HOW IT WORKS — naturalist stamps */}
+      <section className="relative px-5 py-16 overflow-hidden">
+        <div className="absolute inset-0 bg-topo opacity-40 pointer-events-none [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_80%)]" />
+        <div className="relative max-w-lg sm:max-w-3xl mx-auto">
+          <div className="text-center mb-10">
+            <p className="font-handwritten text-amber-dark text-lg -rotate-2 inline-block">— Le protocole —</p>
+            <h2 className="mt-1 font-display font-black text-3xl sm:text-4xl">
+              3 gestes, <span className="font-editorial italic text-primary">c'est tout.</span>
+            </h2>
+            <p className="mt-2 text-muted-foreground text-sm font-body max-w-md mx-auto">
+              De la photo à la carte collectionnée, en moins de 10 secondes.
+            </p>
+          </div>
 
-        <div className="flex sm:flex-col gap-4 overflow-x-auto snap-x snap-mandatory pb-4 sm:pb-0">
-          {[
-            { icon: Camera, num: '1', title: 'Photographie', desc: 'Prends en photo un animal que tu croises lors de tes balades.', color: 'primary' },
-            { icon: Brain, num: '2', title: "L'IA identifie", desc: "Espèce, habitat, régime, anecdotes : tout en 3 secondes.", color: 'amber' },
-            { icon: Trophy, num: '3', title: 'Collectionne', desc: "L'animal devient une carte unique avec sa rareté.", color: 'rarity-epic' },
-          ].map((step, i) => (
-            <div
-              key={i}
-              className="flex-shrink-0 w-[85%] sm:w-auto snap-start relative flex items-start gap-4 rounded-2xl bg-card border border-border p-5 shadow-card"
-            >
-              <div className="flex-shrink-0 relative">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <step.icon className="w-5 h-5 text-primary" />
+          <div className="flex sm:grid sm:grid-cols-3 gap-5 overflow-x-auto snap-x snap-mandatory pb-4 sm:pb-0">
+            {[
+              { icon: Camera, num: '01', title: 'Photographie', desc: 'Prends en photo un animal que tu croises lors de tes balades.', rot: '-rotate-2', tint: 'from-primary/15 to-primary/5' },
+              { icon: Brain, num: '02', title: "L'IA identifie", desc: "Espèce, habitat, régime, anecdotes : tout en 3 secondes.", rot: 'rotate-1', tint: 'from-amber/20 to-amber/5' },
+              { icon: Trophy, num: '03', title: 'Collectionne', desc: "L'animal devient une carte unique avec sa rareté.", rot: '-rotate-1', tint: 'from-rarity-epic/15 to-rarity-epic/5' },
+            ].map((step, i) => (
+              <div
+                key={i}
+                className={`group flex-shrink-0 w-[80%] sm:w-auto snap-start relative ${step.rot} hover:rotate-0 transition-transform duration-300`}
+              >
+                {/* Tape strip */}
+                <span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-16 h-5 bg-amber/40 border-x border-dashed border-amber-dark/30 rotate-[-3deg] shadow-sm" />
+
+                {/* Stamp card */}
+                <div className={`relative rounded-xl bg-card border-2 border-dashed border-foreground/15 p-6 shadow-card`}>
+                  <div className={`absolute inset-2 rounded-lg bg-gradient-to-br ${step.tint} pointer-events-none opacity-60`} />
+                  <div className="relative">
+                    <div className="flex items-baseline justify-between mb-4">
+                      <span className="font-editorial italic font-black text-5xl text-foreground/15 leading-none">{step.num}</span>
+                      <div className="w-11 h-11 rounded-full bg-background border-2 border-foreground/20 flex items-center justify-center shadow-sm">
+                        <step.icon className="w-5 h-5 text-primary" />
+                      </div>
+                    </div>
+                    <h3 className="font-display font-black text-lg">{step.title}</h3>
+                    <p className="text-sm text-muted-foreground mt-1.5 font-body leading-relaxed">{step.desc}</p>
+                    <div className="mt-4 pt-3 border-t border-dashed border-foreground/15 flex items-center justify-between">
+                      <span className="font-handwritten text-xs text-muted-foreground">Étape {step.num.replace('0', '')}/3</span>
+                      <span className="text-[10px] font-display uppercase tracking-widest text-primary">Faunex · Terrain</span>
+                    </div>
+                  </div>
                 </div>
-                <span className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-display font-black flex items-center justify-center">
-                  {step.num}
-                </span>
               </div>
-              <div className="flex-1 pt-1">
-                <h3 className="font-display font-bold text-base">{step.title}</h3>
-                <p className="text-sm text-muted-foreground mt-1 font-body leading-relaxed">{step.desc}</p>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
+
 
       {/* HOLO CARDS SHOWCASE */}
       <section className="px-5 py-14 bg-gradient-to-b from-background via-muted/20 to-background">
         <div className="max-w-lg mx-auto">
-          <h2 className="text-2xl sm:text-3xl font-display font-black text-center mb-2">
-            Collectionne tes rencontres
-          </h2>
-          <p className="text-center text-muted-foreground text-sm mb-8 font-body">
-            4 niveaux de rareté, du commun au mythique.
-          </p>
+          <div className="text-center mb-8">
+            <p className="font-handwritten text-amber-dark text-lg rotate-1 inline-block">— Ton bestiaire —</p>
+            <h2 className="mt-1 text-3xl sm:text-4xl font-display font-black">
+              Collectionne tes <span className="font-editorial italic text-primary">rencontres.</span>
+            </h2>
+            <p className="text-center text-muted-foreground text-sm mt-2 font-body">
+              4 niveaux de rareté, du commun au mythique.
+            </p>
+          </div>
 
           <div className="flex sm:grid sm:grid-cols-2 gap-4 overflow-x-auto snap-x snap-mandatory pb-4 sm:pb-0">
             {heroCards.map((card) => (
@@ -340,31 +410,47 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* BENEFITS */}
-      <section className="px-5 py-14 max-w-lg mx-auto">
-        <h2 className="text-2xl sm:text-3xl font-display font-black text-center mb-8">
-          Pourquoi tu vas adorer
-        </h2>
-        <div className="flex sm:flex-col gap-4 overflow-x-auto snap-x snap-mandatory pb-4 sm:pb-0">
-          {benefits.map((b, i) => (
-            <div key={i} className="flex-shrink-0 w-[85%] sm:w-auto snap-start flex items-start gap-4 p-4 rounded-2xl bg-card border border-border">
-              <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <b.icon className="w-5 h-5 text-primary" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-display font-bold text-sm">{b.title}</h3>
-                <p className="text-sm text-muted-foreground mt-0.5 font-body leading-relaxed">{b.desc}</p>
-              </div>
-            </div>
-          ))}
+      {/* BENEFITS — sticker cards */}
+      <section className="relative px-5 py-16 overflow-hidden">
+        <div className="absolute inset-0 bg-topo opacity-30 pointer-events-none" />
+        <div className="relative max-w-lg sm:max-w-3xl mx-auto">
+          <div className="text-center mb-10">
+            <p className="font-handwritten text-amber-dark text-lg -rotate-1 inline-block">— Pourquoi Faunex —</p>
+            <h2 className="mt-1 text-3xl sm:text-4xl font-display font-black">
+              Tu vas <span className="font-editorial italic text-primary">adorer</span>.
+            </h2>
+          </div>
+
+          <div className="flex sm:grid sm:grid-cols-2 gap-4 overflow-x-auto snap-x snap-mandatory pb-4 sm:pb-0">
+            {benefits.map((b, i) => {
+              const rot = ['-rotate-1', 'rotate-1', '-rotate-1', 'rotate-1'][i % 4];
+              return (
+                <div
+                  key={i}
+                  className={`flex-shrink-0 w-[85%] sm:w-auto snap-start flex items-start gap-4 p-5 rounded-2xl bg-card border-2 border-dashed border-foreground/15 shadow-card ${rot} hover:rotate-0 transition-transform`}
+                >
+                  <div className="flex-shrink-0 w-11 h-11 rounded-full bg-primary/10 ring-2 ring-primary/20 flex items-center justify-center">
+                    <b.icon className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-display font-bold text-base leading-snug">{b.title}</h3>
+                    <p className="text-sm text-muted-foreground mt-1 font-body leading-relaxed">{b.desc}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </section>
 
       {/* FAQ */}
       <section className="px-5 py-14 max-w-lg mx-auto">
-        <h2 className="text-2xl sm:text-3xl font-display font-black text-center mb-8">
-          Questions fréquentes
-        </h2>
+        <div className="text-center mb-8">
+          <p className="font-handwritten text-amber-dark text-lg rotate-1 inline-block">— Au cas où —</p>
+          <h2 className="mt-1 text-3xl sm:text-4xl font-display font-black">
+            Questions <span className="font-editorial italic text-primary">fréquentes</span>.
+          </h2>
+        </div>
         <div className="space-y-3">
           {faq.map((f, i) => (
             <details
@@ -391,8 +477,8 @@ const LandingPage = () => {
 
           <div className="relative z-10">
             <Sparkles className="w-8 h-8 text-primary-foreground mx-auto mb-3" />
-            <h2 className="text-2xl sm:text-3xl font-display font-black text-primary-foreground mb-2">
-              Rejoins l'aventure
+            <h2 className="text-3xl sm:text-4xl font-display font-black text-primary-foreground mb-2 leading-tight">
+              Rejoins <span className="font-editorial italic">l'aventure</span>.
             </h2>
             <p className="text-sm text-primary-foreground/90 font-body mb-6">
               Crée ton compte et commence à collectionner la faune près de chez toi.

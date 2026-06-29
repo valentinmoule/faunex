@@ -9,12 +9,15 @@ const LandingPhoneShowcase = () => {
   return (
     <section className="px-5 py-16 bg-gradient-to-b from-background via-muted/30 to-background overflow-hidden">
       <div className="max-w-5xl mx-auto">
-        <h2 className="text-2xl sm:text-3xl font-display font-black text-center mb-2">
-          L'app dans ta poche
-        </h2>
-        <p className="text-center text-muted-foreground text-sm mb-10 font-body max-w-md mx-auto">
-          De la photo à la carte holographique, en quelques secondes.
-        </p>
+        <div className="text-center mb-10">
+          <p className="font-handwritten text-amber-dark text-lg -rotate-2 inline-block">— Aperçu terrain —</p>
+          <h2 className="mt-1 text-3xl sm:text-4xl font-display font-black">
+            L'app dans ta <span className="font-editorial italic text-primary">poche</span>.
+          </h2>
+          <p className="mt-2 text-muted-foreground text-sm font-body max-w-md mx-auto">
+            De la photo à la carte holographique, en quelques secondes.
+          </p>
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-6 items-start">
           {/* PHONE 1 — Capture */}
