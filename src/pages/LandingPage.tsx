@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Camera, Brain, Trophy, ChevronRight, Check, Sparkles, MapPin, Users, BookOpen } from 'lucide-react';
 import Footer from '@/components/Footer';
 import HolographicCard from '@/components/HolographicCard';
+import LandingPhoneShowcase from '@/components/LandingPhoneShowcase';
 import { supabase } from '@/integrations/supabase/client';
 import { guides, useCases } from '@/content/articles';
 import type { Rarity } from '@/data/mockData';
