@@ -182,11 +182,19 @@ const LandingPage = () => {
         })}</script>
       </Helmet>
       {/* HERO */}
-      <section className="relative px-5 pt-10 pb-14 sm:pt-14">
-        {/* Decorative gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/8 via-background to-background pointer-events-none" />
-        <div className="absolute top-20 -right-20 w-72 h-72 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-40 -left-20 w-72 h-72 bg-amber/8 rounded-full blur-3xl pointer-events-none" />
+      <section className="relative px-5 pt-10 pb-14 sm:pt-14 overflow-hidden">
+        {/* Topographic dotted layer */}
+        <div className="absolute inset-0 bg-topo opacity-60 pointer-events-none [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]" />
+        <div className="absolute top-20 -right-24 w-72 h-72 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-44 -left-24 w-72 h-72 bg-amber/15 rounded-full blur-3xl pointer-events-none" />
+
+        {/* Field-notebook coordinates corner mark */}
+        <div className="hidden sm:block absolute top-6 left-6 font-handwritten text-sm text-muted-foreground/70 -rotate-3 pointer-events-none select-none">
+          N&nbsp;48°51' · E&nbsp;2°21'
+        </div>
+        <div className="hidden sm:block absolute top-6 right-6 font-handwritten text-sm text-muted-foreground/70 rotate-2 pointer-events-none select-none">
+          Carnet&nbsp;n°&nbsp;01
+        </div>
 
         <div className="relative z-10 max-w-lg mx-auto text-center">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[11px] font-display font-semibold mb-5">
@@ -196,21 +204,38 @@ const LandingPage = () => {
 
           <img src="/pwa-icon-512.png" alt="Logo Faunex" width="56" height="56" fetchPriority="high" className="w-14 h-14 mx-auto mb-3" />
 
-          <h1 className="text-3xl sm:text-5xl font-display font-black tracking-tight leading-[1.05]">
-            Attrape-les{' '}
-            <span className="text-primary">vraiment tous.</span>
+          <h1 className="font-display font-black tracking-tight leading-[1.02] text-4xl sm:text-6xl">
+            <span className="block">Attrape-les</span>
+            <span className="relative inline-block">
+              <span className="font-editorial italic font-black text-primary">vraiment tous</span>
+              {/* Hand-drawn underline */}
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 220 14"
+                className="absolute -bottom-2 left-0 w-full h-3 text-amber"
+                fill="none"
+              >
+                <path
+                  d="M2 9 C 40 2, 90 14, 130 6 S 200 4, 218 8"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </span>
+            <span className="text-foreground">.</span>
           </h1>
 
-          <p className="mt-4 text-base sm:text-lg text-muted-foreground font-body max-w-md mx-auto">
+          <p className="mt-6 text-base sm:text-lg text-muted-foreground font-body max-w-md mx-auto">
             Une coccinelle sur ton balcon, un cerf en forêt, un faucon en ville — chaque rencontre devient une carte dans ton bestiaire.
-            Du commun au mythique.
+            <span className="font-handwritten text-foreground/80 text-xl ml-1">Du commun au mythique.</span>
           </p>
 
 
-          <div className="mt-7 flex flex-col items-center gap-2">
+          <div className="mt-8 flex flex-col items-center gap-2">
             <Button
               size="lg"
-              className="font-display font-bold gap-2 text-base px-7 py-6 rounded-2xl shadow-[0_8px_24px_-8px_hsla(150,55%,30%,0.5)] hover:scale-[1.02] transition-transform w-full sm:w-auto"
+              className="font-display font-bold gap-2 text-base px-8 py-6 rounded-2xl shadow-[0_10px_28px_-8px_hsla(150,55%,30%,0.55)] hover:scale-[1.02] hover:rotate-[-0.5deg] transition-all w-full sm:w-auto"
               onClick={() => handleCta('hero')}
             >
               Créer mon compte gratuit <ChevronRight className="w-5 h-5" />
@@ -232,14 +257,40 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* SPECIES MARQUEE — naturalist ticker */}
+      <section className="relative border-y-2 border-dashed border-border/70 bg-card overflow-hidden py-3">
+        <div className="flex gap-8 whitespace-nowrap animate-marquee font-editorial italic text-lg sm:text-xl">
+          {Array.from({ length: 2 }).flatMap((_, dup) =>
+            [
+              { n: 'Vulpes vulpes', fr: 'Renard roux', r: 'rare' },
+              { n: 'Cervus elaphus', fr: 'Cerf élaphe', r: 'mythic' },
+              { n: 'Cyanistes caeruleus', fr: 'Mésange bleue', r: 'rare' },
+              { n: 'Sciurus vulgaris', fr: 'Écureuil roux', r: 'epic' },
+              { n: 'Coccinella septempunctata', fr: 'Coccinelle', r: 'common' },
+              { n: 'Falco peregrinus', fr: 'Faucon pèlerin', r: 'epic' },
+              { n: 'Capra ibex', fr: 'Bouquetin', r: 'mythic' },
+              { n: 'Erinaceus europaeus', fr: 'Hérisson', r: 'rare' },
+            ].map((s, i) => (
+              <span key={`${dup}-${i}`} className="inline-flex items-center gap-2 text-foreground/80">
+                <span className={`w-2 h-2 rounded-full bg-rarity-${s.r}`} />
+                <span>{s.n}</span>
+                <span className="font-body not-italic text-xs uppercase tracking-widest text-muted-foreground">— {s.fr}</span>
+                <span className="text-muted-foreground/40 ml-2">·</span>
+              </span>
+            ))
+          )}
+        </div>
+      </section>
+
       {/* SOCIAL PROOF */}
-      <section className="px-5 py-8 border-y border-border/50 bg-muted/30">
+      <section className="px-5 py-8 border-b border-border/50 bg-muted/30">
         <div className="max-w-lg mx-auto grid grid-cols-3 gap-3">
           <Stat value={stats.totalUsers} label="Explorateurs" prefix="+" />
           <Stat value={stats.totalCaptures} label="Captures" prefix="+" />
           <Stat value={stats.totalRegions} label="Régions" prefix="+" />
         </div>
       </section>
+
 
       {/* PHONE MOCKUPS SHOWCASE */}
       <LandingPhoneShowcase />
