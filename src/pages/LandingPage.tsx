@@ -445,9 +445,12 @@ const LandingPage = () => {
 
       {/* FAQ */}
       <section className="px-5 py-14 max-w-lg mx-auto">
-        <h2 className="text-2xl sm:text-3xl font-display font-black text-center mb-8">
-          Questions fréquentes
-        </h2>
+        <div className="text-center mb-8">
+          <p className="font-handwritten text-amber-dark text-lg rotate-1 inline-block">— Au cas où —</p>
+          <h2 className="mt-1 text-3xl sm:text-4xl font-display font-black">
+            Questions <span className="font-editorial italic text-primary">fréquentes</span>.
+          </h2>
+        </div>
         <div className="space-y-3">
           {faq.map((f, i) => (
             <details
