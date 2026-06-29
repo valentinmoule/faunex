@@ -241,6 +241,9 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* PHONE MOCKUPS SHOWCASE */}
+      <LandingPhoneShowcase />
+
       {/* HOW IT WORKS — 3 steps */}
       <section className="px-5 py-14 max-w-lg mx-auto">
         <h2 className="text-2xl sm:text-3xl font-display font-black text-center mb-2">
