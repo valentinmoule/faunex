@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Camera, Brain, Trophy, ChevronRight, Check, Sparkles, MapPin, Users, BookOpen } from 'lucide-react';
 import Footer from '@/components/Footer';
 import HolographicCard from '@/components/HolographicCard';
+import LandingPhoneShowcase from '@/components/LandingPhoneShowcase';
 import { supabase } from '@/integrations/supabase/client';
 import { guides, useCases } from '@/content/articles';
 import type { Rarity } from '@/data/mockData';
@@ -239,6 +240,9 @@ const LandingPage = () => {
           <Stat value={stats.totalRegions} label="Régions" prefix="+" />
         </div>
       </section>
+
+      {/* PHONE MOCKUPS SHOWCASE */}
+      <LandingPhoneShowcase />
 
       {/* HOW IT WORKS — 3 steps */}
       <section className="px-5 py-14 max-w-lg mx-auto">
