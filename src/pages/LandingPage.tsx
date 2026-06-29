@@ -350,12 +350,15 @@ const LandingPage = () => {
       {/* HOLO CARDS SHOWCASE */}
       <section className="px-5 py-14 bg-gradient-to-b from-background via-muted/20 to-background">
         <div className="max-w-lg mx-auto">
-          <h2 className="text-2xl sm:text-3xl font-display font-black text-center mb-2">
-            Collectionne tes rencontres
-          </h2>
-          <p className="text-center text-muted-foreground text-sm mb-8 font-body">
-            4 niveaux de rareté, du commun au mythique.
-          </p>
+          <div className="text-center mb-8">
+            <p className="font-handwritten text-amber-dark text-lg rotate-1 inline-block">— Ton bestiaire —</p>
+            <h2 className="mt-1 text-3xl sm:text-4xl font-display font-black">
+              Collectionne tes <span className="font-editorial italic text-primary">rencontres.</span>
+            </h2>
+            <p className="text-center text-muted-foreground text-sm mt-2 font-body">
+              4 niveaux de rareté, du commun au mythique.
+            </p>
+          </div>
 
           <div className="flex sm:grid sm:grid-cols-2 gap-4 overflow-x-auto snap-x snap-mandatory pb-4 sm:pb-0">
             {heroCards.map((card) => (
