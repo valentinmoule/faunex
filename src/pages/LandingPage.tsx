@@ -295,41 +295,57 @@ const LandingPage = () => {
       {/* PHONE MOCKUPS SHOWCASE */}
       <LandingPhoneShowcase />
 
-      {/* HOW IT WORKS — 3 steps */}
-      <section className="px-5 py-14 max-w-lg mx-auto">
-        <h2 className="text-2xl sm:text-3xl font-display font-black text-center mb-2">
-          3 étapes, c'est tout
-        </h2>
-        <p className="text-center text-muted-foreground text-sm mb-8 font-body">
-          De la photo à la carte collectionnée, en moins de 10 secondes.
-        </p>
+      {/* HOW IT WORKS — naturalist stamps */}
+      <section className="relative px-5 py-16 overflow-hidden">
+        <div className="absolute inset-0 bg-topo opacity-40 pointer-events-none [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_80%)]" />
+        <div className="relative max-w-lg sm:max-w-3xl mx-auto">
+          <div className="text-center mb-10">
+            <p className="font-handwritten text-amber-dark text-lg -rotate-2 inline-block">— Le protocole —</p>
+            <h2 className="mt-1 font-display font-black text-3xl sm:text-4xl">
+              3 gestes, <span className="font-editorial italic text-primary">c'est tout.</span>
+            </h2>
+            <p className="mt-2 text-muted-foreground text-sm font-body max-w-md mx-auto">
+              De la photo à la carte collectionnée, en moins de 10 secondes.
+            </p>
+          </div>
 
-        <div className="flex sm:flex-col gap-4 overflow-x-auto snap-x snap-mandatory pb-4 sm:pb-0">
-          {[
-            { icon: Camera, num: '1', title: 'Photographie', desc: 'Prends en photo un animal que tu croises lors de tes balades.', color: 'primary' },
-            { icon: Brain, num: '2', title: "L'IA identifie", desc: "Espèce, habitat, régime, anecdotes : tout en 3 secondes.", color: 'amber' },
-            { icon: Trophy, num: '3', title: 'Collectionne', desc: "L'animal devient une carte unique avec sa rareté.", color: 'rarity-epic' },
-          ].map((step, i) => (
-            <div
-              key={i}
-              className="flex-shrink-0 w-[85%] sm:w-auto snap-start relative flex items-start gap-4 rounded-2xl bg-card border border-border p-5 shadow-card"
-            >
-              <div className="flex-shrink-0 relative">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <step.icon className="w-5 h-5 text-primary" />
+          <div className="flex sm:grid sm:grid-cols-3 gap-5 overflow-x-auto snap-x snap-mandatory pb-4 sm:pb-0">
+            {[
+              { icon: Camera, num: '01', title: 'Photographie', desc: 'Prends en photo un animal que tu croises lors de tes balades.', rot: '-rotate-2', tint: 'from-primary/15 to-primary/5' },
+              { icon: Brain, num: '02', title: "L'IA identifie", desc: "Espèce, habitat, régime, anecdotes : tout en 3 secondes.", rot: 'rotate-1', tint: 'from-amber/20 to-amber/5' },
+              { icon: Trophy, num: '03', title: 'Collectionne', desc: "L'animal devient une carte unique avec sa rareté.", rot: '-rotate-1', tint: 'from-rarity-epic/15 to-rarity-epic/5' },
+            ].map((step, i) => (
+              <div
+                key={i}
+                className={`group flex-shrink-0 w-[80%] sm:w-auto snap-start relative ${step.rot} hover:rotate-0 transition-transform duration-300`}
+              >
+                {/* Tape strip */}
+                <span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-16 h-5 bg-amber/40 border-x border-dashed border-amber-dark/30 rotate-[-3deg] shadow-sm" />
+
+                {/* Stamp card */}
+                <div className={`relative rounded-xl bg-card border-2 border-dashed border-foreground/15 p-6 shadow-card`}>
+                  <div className={`absolute inset-2 rounded-lg bg-gradient-to-br ${step.tint} pointer-events-none opacity-60`} />
+                  <div className="relative">
+                    <div className="flex items-baseline justify-between mb-4">
+                      <span className="font-editorial italic font-black text-5xl text-foreground/15 leading-none">{step.num}</span>
+                      <div className="w-11 h-11 rounded-full bg-background border-2 border-foreground/20 flex items-center justify-center shadow-sm">
+                        <step.icon className="w-5 h-5 text-primary" />
+                      </div>
+                    </div>
+                    <h3 className="font-display font-black text-lg">{step.title}</h3>
+                    <p className="text-sm text-muted-foreground mt-1.5 font-body leading-relaxed">{step.desc}</p>
+                    <div className="mt-4 pt-3 border-t border-dashed border-foreground/15 flex items-center justify-between">
+                      <span className="font-handwritten text-xs text-muted-foreground">Étape {step.num.replace('0', '')}/3</span>
+                      <span className="text-[10px] font-display uppercase tracking-widest text-primary">Faunex · Terrain</span>
+                    </div>
+                  </div>
                 </div>
-                <span className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-display font-black flex items-center justify-center">
-                  {step.num}
-                </span>
               </div>
-              <div className="flex-1 pt-1">
-                <h3 className="font-display font-bold text-base">{step.title}</h3>
-                <p className="text-sm text-muted-foreground mt-1 font-body leading-relaxed">{step.desc}</p>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
+
 
       {/* HOLO CARDS SHOWCASE */}
       <section className="px-5 py-14 bg-gradient-to-b from-background via-muted/20 to-background">
