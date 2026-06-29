@@ -410,23 +410,36 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* BENEFITS */}
-      <section className="px-5 py-14 max-w-lg mx-auto">
-        <h2 className="text-2xl sm:text-3xl font-display font-black text-center mb-8">
-          Pourquoi tu vas adorer
-        </h2>
-        <div className="flex sm:flex-col gap-4 overflow-x-auto snap-x snap-mandatory pb-4 sm:pb-0">
-          {benefits.map((b, i) => (
-            <div key={i} className="flex-shrink-0 w-[85%] sm:w-auto snap-start flex items-start gap-4 p-4 rounded-2xl bg-card border border-border">
-              <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <b.icon className="w-5 h-5 text-primary" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-display font-bold text-sm">{b.title}</h3>
-                <p className="text-sm text-muted-foreground mt-0.5 font-body leading-relaxed">{b.desc}</p>
-              </div>
-            </div>
-          ))}
+      {/* BENEFITS — sticker cards */}
+      <section className="relative px-5 py-16 overflow-hidden">
+        <div className="absolute inset-0 bg-topo opacity-30 pointer-events-none" />
+        <div className="relative max-w-lg sm:max-w-3xl mx-auto">
+          <div className="text-center mb-10">
+            <p className="font-handwritten text-amber-dark text-lg -rotate-1 inline-block">— Pourquoi Faunex —</p>
+            <h2 className="mt-1 text-3xl sm:text-4xl font-display font-black">
+              Tu vas <span className="font-editorial italic text-primary">adorer</span>.
+            </h2>
+          </div>
+
+          <div className="flex sm:grid sm:grid-cols-2 gap-4 overflow-x-auto snap-x snap-mandatory pb-4 sm:pb-0">
+            {benefits.map((b, i) => {
+              const rot = ['-rotate-1', 'rotate-1', '-rotate-1', 'rotate-1'][i % 4];
+              return (
+                <div
+                  key={i}
+                  className={`flex-shrink-0 w-[85%] sm:w-auto snap-start flex items-start gap-4 p-5 rounded-2xl bg-card border-2 border-dashed border-foreground/15 shadow-card ${rot} hover:rotate-0 transition-transform`}
+                >
+                  <div className="flex-shrink-0 w-11 h-11 rounded-full bg-primary/10 ring-2 ring-primary/20 flex items-center justify-center">
+                    <b.icon className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-display font-bold text-base leading-snug">{b.title}</h3>
+                    <p className="text-sm text-muted-foreground mt-1 font-body leading-relaxed">{b.desc}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </section>
 
