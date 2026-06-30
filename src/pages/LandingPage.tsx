@@ -300,39 +300,73 @@ const LandingPage = () => {
       </section>
 
       {/* LIVE CAPTURES MARQUEE */}
-      <section className="relative border-y-2 border-dashed border-border/70 bg-card overflow-hidden py-3">
-        <div className="flex gap-8 whitespace-nowrap animate-marquee font-editorial italic text-lg sm:text-xl">
-          {(() => {
-            const items: { name: string; label: string; r: string }[] =
-              recentCaptures.length > 0
-                ? recentCaptures.map((c) => ({
-                    name: c.animal_name,
-                    label: formatRelativeTime(c.created_at),
-                    r: c.rarity || 'common',
-                  }))
-                : [
-                    { name: 'Renard roux', label: 'capturé il y a 10min', r: 'rare' },
-                    { name: 'Cerf élaphe', label: 'capturé il y a 25min', r: 'mythic' },
-                    { name: 'Mésange bleue', label: 'capturé il y a 1h', r: 'rare' },
-                    { name: 'Écureuil roux', label: 'capturé il y a 2h', r: 'epic' },
-                    { name: 'Coccinelle', label: 'capturé il y a 3h', r: 'common' },
-                    { name: 'Faucon pèlerin', label: 'capturé il y a 5h', r: 'epic' },
-                    { name: 'Bouquetin', label: 'capturé il y a 1j', r: 'mythic' },
-                    { name: 'Hérisson', label: 'capturé il y a 2j', r: 'rare' },
-                  ];
-            return Array.from({ length: 2 }).flatMap((_, dup) =>
-              items.map((s, i) => (
-                <span key={`${dup}-${i}`} className="inline-flex items-center gap-2 text-foreground/80">
-                  <span className={`w-2 h-2 rounded-full ${rarityToDot[s.r] || 'bg-muted-foreground'}`} />
-                  <span>{s.name}</span>
-                  <span className="font-body not-italic text-xs uppercase tracking-widest text-muted-foreground">— {s.label}</span>
-                  <span className="text-muted-foreground/40 ml-2">·</span>
-                </span>
-              ))
-            );
-          })()}
+      <section className="relative border-y border-border/60 bg-gradient-to-b from-card to-background overflow-hidden">
+        <div className="max-w-5xl mx-auto px-5 pt-4 pb-1 flex items-center justify-between">
+          <div className="inline-flex items-center gap-2">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rarity-rare opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-rarity-rare" />
+            </span>
+            <span className="text-[10px] font-display font-bold tracking-[0.2em] uppercase text-foreground/80">
+              En direct
+            </span>
+            <span className="text-[11px] font-body text-muted-foreground hidden sm:inline">
+              · dernières captures de la communauté
+            </span>
+          </div>
+          <span className="text-[10px] font-body text-muted-foreground/70 hidden sm:inline">
+            mis à jour chaque minute
+          </span>
+        </div>
+        <div
+          className="relative py-3"
+          style={{
+            maskImage:
+              'linear-gradient(to right, transparent, black 6%, black 94%, transparent)',
+            WebkitMaskImage:
+              'linear-gradient(to right, transparent, black 6%, black 94%, transparent)',
+          }}
+        >
+          <div className="flex gap-3 whitespace-nowrap animate-marquee">
+            {(() => {
+              const items: { name: string; label: string; r: string }[] =
+                recentCaptures.length > 0
+                  ? recentCaptures.map((c) => ({
+                      name: c.animal_name,
+                      label: formatRelativeTime(c.created_at),
+                      r: c.rarity || 'common',
+                    }))
+                  : [
+                      { name: 'Renard roux', label: 'il y a 10min', r: 'rare' },
+                      { name: 'Cerf élaphe', label: 'il y a 25min', r: 'mythic' },
+                      { name: 'Mésange bleue', label: 'il y a 1h', r: 'rare' },
+                      { name: 'Écureuil roux', label: 'il y a 2h', r: 'epic' },
+                      { name: 'Coccinelle', label: 'il y a 3h', r: 'common' },
+                      { name: 'Faucon pèlerin', label: 'il y a 5h', r: 'epic' },
+                      { name: 'Bouquetin', label: 'il y a 1j', r: 'mythic' },
+                      { name: 'Hérisson', label: 'il y a 2j', r: 'rare' },
+                    ];
+              return Array.from({ length: 2 }).flatMap((_, dup) =>
+                items.map((s, i) => (
+                  <span
+                    key={`${dup}-${i}`}
+                    className="inline-flex items-center gap-2 pl-3 pr-4 py-1.5 rounded-full border border-border/60 bg-background/80 backdrop-blur-sm shadow-sm"
+                  >
+                    <span className={`w-2 h-2 rounded-full ${rarityToDot[s.r] || 'bg-muted-foreground'} shadow-[0_0_8px_currentColor]`} />
+                    <span className="font-display font-semibold text-sm text-foreground">
+                      {s.name}
+                    </span>
+                    <span className="font-body text-[11px] text-muted-foreground">
+                      · {s.label}
+                    </span>
+                  </span>
+                ))
+              );
+            })()}
+          </div>
         </div>
       </section>
+
 
       {/* SOCIAL PROOF */}
       <section className="px-5 py-8 border-b border-border/50 bg-muted/30">
