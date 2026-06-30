@@ -309,7 +309,7 @@ const LandingPage = () => {
             </p>
           </div>
 
-          <div className="flex sm:grid sm:grid-cols-3 gap-5 overflow-x-auto snap-x snap-mandatory pb-4 sm:pb-0">
+          <div className="flex sm:grid sm:grid-cols-3 gap-5 overflow-x-auto sm:overflow-visible snap-x snap-mandatory sm:snap-none pb-4 sm:pb-0">
             {[
               { icon: Camera, num: '01', title: 'Photographie', desc: 'Prends en photo un animal que tu croises lors de tes balades.', rot: '-rotate-2', tint: 'from-primary/15 to-primary/5' },
               { icon: Brain, num: '02', title: "L'IA identifie", desc: "Espèce, habitat, régime, anecdotes : tout en 3 secondes.", rot: 'rotate-1', tint: 'from-amber/20 to-amber/5' },
