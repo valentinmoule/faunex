@@ -421,7 +421,7 @@ const LandingPage = () => {
             </h2>
           </div>
 
-          <div className="flex sm:grid sm:grid-cols-2 gap-4 overflow-x-auto snap-x snap-mandatory pb-4 sm:pb-0">
+          <div className="flex sm:grid sm:grid-cols-2 gap-4 overflow-x-auto sm:overflow-visible snap-x snap-mandatory sm:snap-none pb-4 sm:pb-0">
             {benefits.map((b, i) => {
               const rot = ['-rotate-1', 'rotate-1', '-rotate-1', 'rotate-1'][i % 4];
               return (
