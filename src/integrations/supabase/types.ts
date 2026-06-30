@@ -735,6 +735,14 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      get_public_recent_captures: {
+        Args: { p_limit?: number }
+        Returns: {
+          animal_name: string
+          created_at: string
+          rarity: string
+        }[]
+      }
       grant_xp: {
         Args: { p_amount: number; p_user_id: string }
         Returns: undefined
