@@ -10,7 +10,6 @@ const LandingPhoneShowcase = () => {
     <section className="px-5 py-16 bg-gradient-to-b from-background via-muted/30 to-background overflow-hidden">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-10">
-          <p className="font-handwritten text-amber-dark text-lg -rotate-2 inline-block">— Aperçu terrain —</p>
           <h2 className="mt-1 text-3xl sm:text-4xl font-display font-black">
             L'app dans ta <span className="font-editorial italic text-primary">poche</span>.
           </h2>
