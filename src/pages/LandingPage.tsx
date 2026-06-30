@@ -141,6 +141,7 @@ const LandingPage = () => {
     totalRegions: 24,
   });
   const [showStickyCta, setShowStickyCta] = useState(false);
+  const [recentCaptures, setRecentCaptures] = useState<RecentCapture[]>([]);
 
   // Per-route head is managed via <Helmet> below.
 
@@ -151,6 +152,24 @@ const LandingPage = () => {
         setStats((prev) => ({ ...prev, ...(data as Stats) }));
       }
     });
+  }, []);
+
+  // Fetch recent approved captures for the live ticker
+  useEffect(() => {
+    supabase
+      .from('captures')
+      .select('animal_name, created_at, rarity')
+      .eq('status', 'approved')
+      .not('animal_name', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(12)
+      .then(({ data, error }) => {
+        if (error) {
+          console.error('[recent-captures]', error);
+          return;
+        }
+        setRecentCaptures((data as RecentCapture[]) || []);
+      });
   }, []);
 
   // Sticky CTA after 30% scroll
