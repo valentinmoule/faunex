@@ -17,6 +17,19 @@ interface Stats {
   totalRegions: number;
 }
 
+interface RecentCapture {
+  animal_name: string;
+  created_at: string;
+  rarity: string;
+}
+
+const rarityToDot: Record<string, string> = {
+  common: 'bg-rarity-common',
+  rare: 'bg-rarity-rare',
+  epic: 'bg-rarity-epic',
+  mythic: 'bg-rarity-mythic',
+};
+
 // Real wildlife photos hosted locally (Wikimedia Commons originals)
 const heroCards: { img: string; name: string; rarity: Rarity; label: string }[] = [
   { img: '/landing/ladybug.jpg', name: 'Coccinelle', rarity: 'common', label: 'Commun' },
