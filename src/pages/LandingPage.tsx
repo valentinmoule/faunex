@@ -360,7 +360,7 @@ const LandingPage = () => {
             </p>
           </div>
 
-          <div className="flex sm:grid sm:grid-cols-2 gap-4 overflow-x-auto snap-x snap-mandatory pb-4 sm:pb-0">
+          <div className="flex sm:grid sm:grid-cols-2 gap-4 overflow-x-auto sm:overflow-visible snap-x snap-mandatory sm:snap-none pb-4 sm:pb-0">
             {heroCards.map((card) => (
               <div key={card.name} className="flex-shrink-0 w-[72%] sm:w-auto snap-start rounded-2xl overflow-hidden">
                 <HolographicCard rarity={card.rarity} disableAutoShimmer>
