@@ -193,6 +193,20 @@ const LandingPage = () => {
     navigate('/auth?mode=login');
   };
 
+  const formatRelativeTime = (iso: string) => {
+    const then = new Date(iso).getTime();
+    const now = Date.now();
+    const diffSec = Math.max(0, Math.floor((now - then) / 1000));
+    if (diffSec < 60) return 'capturé à l\'instant';
+    const diffMin = Math.floor(diffSec / 60);
+    if (diffMin < 60) return `capturé il y a ${diffMin}min`;
+    const diffH = Math.floor(diffMin / 60);
+    if (diffH < 24) return `capturé il y a ${diffH}h`;
+    const diffD = Math.floor(diffH / 24);
+    if (diffD < 7) return `capturé il y a ${diffD}j`;
+    return 'capturé récemment';
+  };
+
   return (
     <main className="min-h-screen bg-background text-foreground overflow-x-hidden pb-20">
       <Helmet>
