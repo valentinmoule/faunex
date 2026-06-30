@@ -154,22 +154,19 @@ const LandingPage = () => {
     });
   }, []);
 
-  // Fetch recent approved captures for the live ticker
+  // Fetch recent approved captures for the live ticker (public RPC, bypasses RLS safely)
   useEffect(() => {
-    supabase
-      .from('captures')
-      .select('animal_name, created_at, rarity')
-      .eq('status', 'approved')
-      .not('animal_name', 'is', null)
-      .order('created_at', { ascending: false })
-      .limit(12)
-      .then(({ data, error }) => {
+    const load = () =>
+      supabase.rpc('get_public_recent_captures', { p_limit: 14 }).then(({ data, error }) => {
         if (error) {
           console.error('[recent-captures]', error);
           return;
         }
         setRecentCaptures((data as RecentCapture[]) || []);
       });
+    load();
+    const id = setInterval(load, 60_000);
+    return () => clearInterval(id);
   }, []);
 
   // Sticky CTA after 30% scroll
