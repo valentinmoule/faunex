@@ -309,7 +309,7 @@ const LandingPage = () => {
             </p>
           </div>
 
-          <div className="flex sm:grid sm:grid-cols-3 gap-5 overflow-x-auto snap-x snap-mandatory pb-4 sm:pb-0">
+          <div className="flex sm:grid sm:grid-cols-3 gap-5 overflow-x-auto sm:overflow-visible snap-x snap-mandatory sm:snap-none pb-4 sm:pb-0">
             {[
               { icon: Camera, num: '01', title: 'Photographie', desc: 'Prends en photo un animal que tu croises lors de tes balades.', rot: '-rotate-2', tint: 'from-primary/15 to-primary/5' },
               { icon: Brain, num: '02', title: "L'IA identifie", desc: "Espèce, habitat, régime, anecdotes : tout en 3 secondes.", rot: 'rotate-1', tint: 'from-amber/20 to-amber/5' },
@@ -360,7 +360,7 @@ const LandingPage = () => {
             </p>
           </div>
 
-          <div className="flex sm:grid sm:grid-cols-2 gap-4 overflow-x-auto snap-x snap-mandatory pb-4 sm:pb-0">
+          <div className="flex sm:grid sm:grid-cols-2 gap-4 overflow-x-auto sm:overflow-visible snap-x snap-mandatory sm:snap-none pb-4 sm:pb-0">
             {heroCards.map((card) => (
               <div key={card.name} className="flex-shrink-0 w-[72%] sm:w-auto snap-start rounded-2xl overflow-hidden">
                 <HolographicCard rarity={card.rarity} disableAutoShimmer>
@@ -421,7 +421,7 @@ const LandingPage = () => {
             </h2>
           </div>
 
-          <div className="flex sm:grid sm:grid-cols-2 gap-4 overflow-x-auto snap-x snap-mandatory pb-4 sm:pb-0">
+          <div className="flex sm:grid sm:grid-cols-2 gap-4 overflow-x-auto sm:overflow-visible snap-x snap-mandatory sm:snap-none pb-4 sm:pb-0">
             {benefits.map((b, i) => {
               const rot = ['-rotate-1', 'rotate-1', '-rotate-1', 'rotate-1'][i % 4];
               return (
