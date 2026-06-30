@@ -228,7 +228,6 @@ const LandingPage = () => {
 
           <p className="mt-6 text-base sm:text-lg text-muted-foreground font-body max-w-md mx-auto">
             Une coccinelle sur ton balcon, un cerf en forêt, un faucon en ville — chaque rencontre devient une carte dans ton bestiaire.
-            <span className="font-handwritten text-foreground/80 text-xl ml-1">Du commun au mythique.</span>
           </p>
 
 
