@@ -300,7 +300,6 @@ const LandingPage = () => {
         <div className="absolute inset-0 bg-topo opacity-40 pointer-events-none [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_80%)]" />
         <div className="relative max-w-lg sm:max-w-3xl mx-auto">
           <div className="text-center mb-10">
-            <p className="font-handwritten text-amber-dark text-lg -rotate-2 inline-block">— Le protocole —</p>
             <h2 className="mt-1 font-display font-black text-3xl sm:text-4xl">
               3 gestes, <span className="font-editorial italic text-primary">c'est tout.</span>
             </h2>
@@ -351,7 +350,6 @@ const LandingPage = () => {
       <section className="px-5 py-14 bg-gradient-to-b from-background via-muted/20 to-background">
         <div className="max-w-lg mx-auto">
           <div className="text-center mb-8">
-            <p className="font-handwritten text-amber-dark text-lg rotate-1 inline-block">— Ton bestiaire —</p>
             <h2 className="mt-1 text-3xl sm:text-4xl font-display font-black">
               Collectionne tes <span className="font-editorial italic text-primary">rencontres.</span>
             </h2>
@@ -415,7 +413,6 @@ const LandingPage = () => {
         <div className="absolute inset-0 bg-topo opacity-30 pointer-events-none" />
         <div className="relative max-w-lg sm:max-w-3xl mx-auto">
           <div className="text-center mb-10">
-            <p className="font-handwritten text-amber-dark text-lg -rotate-1 inline-block">— Pourquoi Faunex —</p>
             <h2 className="mt-1 text-3xl sm:text-4xl font-display font-black">
               Tu vas <span className="font-editorial italic text-primary">adorer</span>.
             </h2>
@@ -446,7 +443,6 @@ const LandingPage = () => {
       {/* FAQ */}
       <section className="px-5 py-14 max-w-lg mx-auto">
         <div className="text-center mb-8">
-          <p className="font-handwritten text-amber-dark text-lg rotate-1 inline-block">— Au cas où —</p>
           <h2 className="mt-1 text-3xl sm:text-4xl font-display font-black">
             Questions <span className="font-editorial italic text-primary">fréquentes</span>.
           </h2>
