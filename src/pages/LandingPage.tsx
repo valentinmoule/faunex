@@ -359,26 +359,39 @@ const LandingPage = () => {
           </div>
 
           <div className="flex sm:grid sm:grid-cols-2 gap-4 overflow-x-auto sm:overflow-visible snap-x snap-mandatory sm:snap-none pb-4 sm:pb-0">
-            {heroCards.map((card) => (
-              <div key={card.name} className="flex-shrink-0 w-[72%] sm:w-auto snap-start rounded-2xl overflow-hidden">
-                <HolographicCard rarity={card.rarity} disableAutoShimmer>
-                  <div className="rounded-2xl overflow-hidden bg-card border border-border">
-                    <img
-                      src={card.img}
-                      alt={`${card.name} — rareté ${card.label}`}
-                      className="w-full aspect-square object-cover"
-                      loading="lazy"
-                    />
-                    <div className="p-2.5 bg-card">
-                      <p className="font-display font-bold text-xs text-foreground truncate">{card.name}</p>
-                      <span className={`inline-block mt-1 px-1.5 py-0.5 rounded text-[9px] font-display font-bold uppercase tracking-wider ${rarityChip[card.rarity]}`}>
-                        {card.label}
-                      </span>
+            {heroCards.map((card) => {
+              const badge = {
+                common: 'bg-rarity-common/20 text-rarity-common border border-rarity-common/30',
+                rare: 'bg-rarity-rare/15 text-rarity-rare border border-rarity-rare/30 shadow-[0_0_8px_hsla(210,70%,55%,0.3)]',
+                epic: 'bg-rarity-epic/15 text-rarity-epic border border-rarity-epic/30 shadow-[0_0_8px_hsla(270,70%,60%,0.3)]',
+                mythic: 'bg-rarity-mythic/15 text-rarity-mythic border border-rarity-mythic/30 shadow-[0_0_10px_hsla(42,85%,55%,0.4)]',
+              }[card.rarity];
+              return (
+                <div key={card.name} className="flex-shrink-0 w-[72%] sm:w-auto snap-start rounded-2xl overflow-hidden">
+                  <HolographicCard rarity={card.rarity} disableAutoShimmer>
+                    <div className="relative rounded-2xl overflow-hidden bg-card border border-border">
+                      <div className="relative aspect-[4/5] overflow-hidden">
+                        <img
+                          src={card.img}
+                          alt={`${card.name} — rareté ${card.label}`}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/70 via-black/25 to-transparent pointer-events-none" />
+                        <div className={`absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full text-[9px] font-display font-bold uppercase tracking-wider backdrop-blur-md ${badge}`}>
+                          {card.label}
+                        </div>
+                        <div className="absolute inset-x-0 bottom-0 p-3">
+                          <p className="font-display font-bold text-sm text-white leading-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]">
+                            {card.name}
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </HolographicCard>
-              </div>
-            ))}
+                  </HolographicCard>
+                </div>
+              );
+            })}
           </div>
 
           {/* Rarity explanation */}
