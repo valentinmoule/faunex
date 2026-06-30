@@ -17,6 +17,19 @@ interface Stats {
   totalRegions: number;
 }
 
+interface RecentCapture {
+  animal_name: string;
+  created_at: string;
+  rarity: string;
+}
+
+const rarityToDot: Record<string, string> = {
+  common: 'bg-rarity-common',
+  rare: 'bg-rarity-rare',
+  epic: 'bg-rarity-epic',
+  mythic: 'bg-rarity-mythic',
+};
+
 // Real wildlife photos hosted locally (Wikimedia Commons originals)
 const heroCards: { img: string; name: string; rarity: Rarity; label: string }[] = [
   { img: '/landing/ladybug.jpg', name: 'Coccinelle', rarity: 'common', label: 'Commun' },
@@ -128,6 +141,7 @@ const LandingPage = () => {
     totalRegions: 24,
   });
   const [showStickyCta, setShowStickyCta] = useState(false);
+  const [recentCaptures, setRecentCaptures] = useState<RecentCapture[]>([]);
 
   // Per-route head is managed via <Helmet> below.
 
@@ -138,6 +152,24 @@ const LandingPage = () => {
         setStats((prev) => ({ ...prev, ...(data as Stats) }));
       }
     });
+  }, []);
+
+  // Fetch recent approved captures for the live ticker
+  useEffect(() => {
+    supabase
+      .from('captures')
+      .select('animal_name, created_at, rarity')
+      .eq('status', 'approved')
+      .not('animal_name', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(12)
+      .then(({ data, error }) => {
+        if (error) {
+          console.error('[recent-captures]', error);
+          return;
+        }
+        setRecentCaptures((data as RecentCapture[]) || []);
+      });
   }, []);
 
   // Sticky CTA after 30% scroll
@@ -159,6 +191,20 @@ const LandingPage = () => {
   const handleLogin = () => {
     console.log('[landing-cta]', 'login');
     navigate('/auth?mode=login');
+  };
+
+  const formatRelativeTime = (iso: string) => {
+    const then = new Date(iso).getTime();
+    const now = Date.now();
+    const diffSec = Math.max(0, Math.floor((now - then) / 1000));
+    if (diffSec < 60) return 'capturé à l\'instant';
+    const diffMin = Math.floor(diffSec / 60);
+    if (diffMin < 60) return `capturé il y a ${diffMin}min`;
+    const diffH = Math.floor(diffMin / 60);
+    if (diffH < 24) return `capturé il y a ${diffH}h`;
+    const diffD = Math.floor(diffH / 24);
+    if (diffD < 7) return `capturé il y a ${diffD}j`;
+    return 'capturé récemment';
   };
 
   return (
@@ -256,28 +302,38 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* SPECIES MARQUEE — naturalist ticker */}
+      {/* LIVE CAPTURES MARQUEE */}
       <section className="relative border-y-2 border-dashed border-border/70 bg-card overflow-hidden py-3">
         <div className="flex gap-8 whitespace-nowrap animate-marquee font-editorial italic text-lg sm:text-xl">
-          {Array.from({ length: 2 }).flatMap((_, dup) =>
-            [
-              { n: 'Vulpes vulpes', fr: 'Renard roux', r: 'rare' },
-              { n: 'Cervus elaphus', fr: 'Cerf élaphe', r: 'mythic' },
-              { n: 'Cyanistes caeruleus', fr: 'Mésange bleue', r: 'rare' },
-              { n: 'Sciurus vulgaris', fr: 'Écureuil roux', r: 'epic' },
-              { n: 'Coccinella septempunctata', fr: 'Coccinelle', r: 'common' },
-              { n: 'Falco peregrinus', fr: 'Faucon pèlerin', r: 'epic' },
-              { n: 'Capra ibex', fr: 'Bouquetin', r: 'mythic' },
-              { n: 'Erinaceus europaeus', fr: 'Hérisson', r: 'rare' },
-            ].map((s, i) => (
-              <span key={`${dup}-${i}`} className="inline-flex items-center gap-2 text-foreground/80">
-                <span className={`w-2 h-2 rounded-full bg-rarity-${s.r}`} />
-                <span>{s.n}</span>
-                <span className="font-body not-italic text-xs uppercase tracking-widest text-muted-foreground">— {s.fr}</span>
-                <span className="text-muted-foreground/40 ml-2">·</span>
-              </span>
-            ))
-          )}
+          {(() => {
+            const items: { name: string; label: string; r: string }[] =
+              recentCaptures.length > 0
+                ? recentCaptures.map((c) => ({
+                    name: c.animal_name,
+                    label: formatRelativeTime(c.created_at),
+                    r: c.rarity || 'common',
+                  }))
+                : [
+                    { name: 'Renard roux', label: 'capturé il y a 10min', r: 'rare' },
+                    { name: 'Cerf élaphe', label: 'capturé il y a 25min', r: 'mythic' },
+                    { name: 'Mésange bleue', label: 'capturé il y a 1h', r: 'rare' },
+                    { name: 'Écureuil roux', label: 'capturé il y a 2h', r: 'epic' },
+                    { name: 'Coccinelle', label: 'capturé il y a 3h', r: 'common' },
+                    { name: 'Faucon pèlerin', label: 'capturé il y a 5h', r: 'epic' },
+                    { name: 'Bouquetin', label: 'capturé il y a 1j', r: 'mythic' },
+                    { name: 'Hérisson', label: 'capturé il y a 2j', r: 'rare' },
+                  ];
+            return Array.from({ length: 2 }).flatMap((_, dup) =>
+              items.map((s, i) => (
+                <span key={`${dup}-${i}`} className="inline-flex items-center gap-2 text-foreground/80">
+                  <span className={`w-2 h-2 rounded-full ${rarityToDot[s.r] || 'bg-muted-foreground'}`} />
+                  <span>{s.name}</span>
+                  <span className="font-body not-italic text-xs uppercase tracking-widest text-muted-foreground">— {s.label}</span>
+                  <span className="text-muted-foreground/40 ml-2">·</span>
+                </span>
+              ))
+            );
+          })()}
         </div>
       </section>
 
