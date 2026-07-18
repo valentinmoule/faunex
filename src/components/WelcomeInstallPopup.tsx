@@ -108,9 +108,21 @@ const WelcomeInstallPopup = () => {
             <div className="mt-3 p-3 rounded-xl bg-primary-foreground/5 border border-primary/20 text-xs text-muted-foreground text-left">
               <p className="font-semibold text-foreground mb-1">Sur iPhone / iPad :</p>
               <ol className="list-decimal list-inside space-y-1">
-                <li>Appuie sur le bouton <strong>Partager</strong> en bas de Safari.</li>
+                <li>Ouvre Faunex dans <strong>Safari</strong> (pas Chrome).</li>
+                <li>Appuie sur le bouton <strong>Partager</strong> en bas de l'écran.</li>
                 <li>Fais défiler et sélectionne <strong>Sur l'écran d'accueil</strong>.</li>
                 <li>Appuie sur <strong>Ajouter</strong>.</li>
+              </ol>
+            </div>
+          )}
+
+          {showAndroidHelp && (
+            <div className="mt-3 p-3 rounded-xl bg-primary-foreground/5 border border-primary/20 text-xs text-muted-foreground text-left">
+              <p className="font-semibold text-foreground mb-1">Sur Android :</p>
+              <ol className="list-decimal list-inside space-y-1">
+                <li>Ouvre le menu <strong>⋮</strong> en haut à droite de Chrome.</li>
+                <li>Choisis <strong>Installer l'application</strong> ou <strong>Ajouter à l'écran d'accueil</strong>.</li>
+                <li>Confirme avec <strong>Installer</strong>.</li>
               </ol>
             </div>
           )}
