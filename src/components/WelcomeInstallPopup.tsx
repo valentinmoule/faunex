@@ -25,6 +25,11 @@ const WelcomeInstallPopup = () => {
   useEffect(() => {
     if (!session?.user || hasShown.current) return;
     if (!isFirstLogin(session.user.id)) return;
+    // Déjà installée en standalone → inutile de proposer
+    if (isInstalled) {
+      markFirstLoginDone(session.user.id);
+      return;
+    }
 
     hasShown.current = true;
 
