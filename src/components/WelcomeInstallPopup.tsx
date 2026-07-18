@@ -54,8 +54,11 @@ const WelcomeInstallPopup = () => {
       dismiss();
     } else if (isIos) {
       setShowIosHelp(true);
+      setShowAndroidHelp(false);
     } else {
-      dismiss();
+      // Android sans prompt natif (déjà refusé, Firefox, etc.) → guide manuel
+      setShowAndroidHelp(true);
+      setShowIosHelp(false);
     }
   };
 
