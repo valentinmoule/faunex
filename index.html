@@ -27,8 +27,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="apple-touch-icon" href="/pwa-icon-192.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="/pwa-icon-192.png" />
+    <link rel="apple-touch-icon" sizes="512x512" href="/pwa-icon-512.png" />
     <link rel="icon" href="/favicon.png" type="image/png" />
     <link rel="preload" as="image" href="/pwa-icon-512.png" fetchpriority="high" />
+    <!-- iOS PWA: enables standalone launch from Home Screen -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Faunex" />
+    <meta name="application-name" content="Faunex" />
 
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://faunex.fr/" />
