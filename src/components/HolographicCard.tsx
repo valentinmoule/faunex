@@ -102,23 +102,30 @@ const HolographicCard = ({
     }
     lastRawRef.current = { beta, gamma };
 
-    // Warm-up: average the first few frames so the baseline reflects the resting pose,
-    // not whatever motion was happening at mount time.
+    // Warm-up: average the first ~10 frames so the baseline reflects the actual
+    // resting pose (angle at which the user is holding the phone), not motion.
     if (!baselineRef.current) {
       const w = warmupRef.current;
       w.count += 1;
       w.sumBeta += beta;
       w.sumGamma += gamma;
-      if (w.count < 4) return;
+      if (w.count < 10) return;
       baselineRef.current = { beta: w.sumBeta / w.count, gamma: w.sumGamma / w.count };
     }
     const base = baselineRef.current;
-    const RANGE = 45;
-    const dGamma = Math.max(-RANGE, Math.min(RANGE, gamma - base.gamma));
-    const dBeta = Math.max(-RANGE, Math.min(RANGE, beta - base.beta));
+    // Wider range = less sensitive. 60° full-scale feels natural for handheld tilt.
+    const RANGE = 60;
+    // Small dead-zone near baseline to filter out micro-shakes.
+    const DEAD = 1.5;
+    const rawDGamma = gamma - base.gamma;
+    const rawDBeta = beta - base.beta;
+    const dGamma = Math.max(-RANGE, Math.min(RANGE, Math.abs(rawDGamma) < DEAD ? 0 : rawDGamma));
+    const dBeta = Math.max(-RANGE, Math.min(RANGE, Math.abs(rawDBeta) < DEAD ? 0 : rawDBeta));
+    // Slow baseline drift so a slowly-changing grip re-centers over time.
+    base.gamma += rawDGamma * 0.0015;
+    base.beta += rawDBeta * 0.0015;
     const targetPx = 50 + (dGamma / RANGE) * 50;
     const targetPy = 50 + (dBeta / RANGE) * 50;
-    // Prime immediately on first valid frame.
     if (!smoothRef.current.primed) {
       smoothRef.current.px = targetPx;
       smoothRef.current.py = targetPy;
