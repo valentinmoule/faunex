@@ -107,7 +107,7 @@ const MapPage = () => {
     (async () => {
       const { data, error } = await supabase
         .from('captures')
-        .select('id, animal_name, scientific_name, rarity, image_url, latitude, longitude, created_at')
+        .select('id, animal_name, scientific_name, category, rarity, image_url, latitude, longitude, created_at')
         .eq('user_id', session.user.id)
         .eq('status', 'approved')
         .not('latitude', 'is', null)
