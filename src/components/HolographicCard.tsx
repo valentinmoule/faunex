@@ -126,6 +126,7 @@ const HolographicCard = ({
       filteredRef.current.gamma += (gamma - filteredRef.current.gamma) * filterK;
     }
     const filtered = filteredRef.current;
+    if (!filtered) return;
 
     // Warm-up: average the first ~16 filtered frames so the baseline reflects the actual
     // resting pose (angle at which the user is holding the phone), not motion.
