@@ -211,33 +211,19 @@ const MapPage = () => {
     <main className="relative h-[100dvh] w-full overflow-hidden bg-background">
       {/* Floating glass header */}
       <div className="absolute top-0 left-0 right-0 z-[1000] pt-[max(1rem,env(safe-area-inset-top))] px-4 pointer-events-none">
-        <div className="max-w-lg mx-auto flex items-center justify-between pointer-events-auto">
-          <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-card/85 backdrop-blur-xl border border-border/60 shadow-card">
-            <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-              <MapPin className="w-4.5 h-4.5 text-primary" />
+        <div className="max-w-lg mx-auto pointer-events-auto flex flex-col items-center gap-3">
+          <div className="w-full flex items-center justify-between">
+            <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-card/85 backdrop-blur-xl border border-border/60 shadow-card">
+              <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <MapPin className="w-4.5 h-4.5 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-base font-display font-bold text-foreground leading-none">Cartes</h1>
+                <p className="text-[11px] text-muted-foreground mt-0.5">
+                  {captures.length} capture{captures.length > 1 ? 's' : ''} géolocalisée{captures.length > 1 ? 's' : ''}
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-base font-display font-bold text-foreground leading-none">Cartes</h1>
-              <p className="text-[11px] text-muted-foreground mt-0.5">
-                {captures.length} capture{captures.length > 1 ? 's' : ''} géolocalisée{captures.length > 1 ? 's' : ''}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={discoverInZone}
-              disabled={discovering}
-              className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-primary text-primary-foreground font-display font-bold text-sm shadow-lg shadow-primary/25 hover:scale-105 active:scale-95 transition-transform disabled:opacity-70 disabled:scale-100"
-              aria-label="Chercher dans cette zone"
-            >
-              {discovering ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Search className="w-4 h-4" />
-              )}
-              Chercher
-            </button>
 
             <button
               onClick={locateMe}
@@ -247,6 +233,20 @@ const MapPage = () => {
               <Compass className="w-5 h-5 text-foreground" />
             </button>
           </div>
+
+          <button
+            onClick={discoverInZone}
+            disabled={discovering}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground font-display font-bold text-sm shadow-lg shadow-primary/25 hover:scale-105 active:scale-95 transition-transform disabled:opacity-70 disabled:scale-100"
+            aria-label="Chercher dans cette zone"
+          >
+            {discovering ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Search className="w-4 h-4" />
+            )}
+            Chercher dans cette zone
+          </button>
         </div>
       </div>
 
