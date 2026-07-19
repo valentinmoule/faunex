@@ -39,7 +39,7 @@ const FeedPostCard = ({ post, onCardClick }: Props) => {
         onClick={() => onCardClick(post.animal.id)}
         className={`relative w-full aspect-square overflow-hidden ${isMythic ? 'mythic-shiny' : ''}`}
       >
-        <img src={post.animal.image} alt={post.animal.name} className="w-full h-full object-cover" />
+        <img src={post.animal.image} alt={post.animal.name} className="w-full h-full object-cover" loading="lazy" decoding="async" />
         {isMythic && <div className="mythic-image-overlay" />}
         {isMythic && (
           <div className="mythic-sparkles">
