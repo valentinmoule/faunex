@@ -52,6 +52,8 @@ const HolographicCard = ({
   const smoothRef = useRef<{ px: number; py: number; primed: boolean }>({ px: 50, py: 50, primed: false });
   const targetRef = useRef<{ px: number; py: number } | null>(null);
   const lastRawRef = useRef<{ beta: number; gamma: number } | null>(null);
+  // Adaptive tuning: rolling estimate of sensor dt (ms) and angular velocity (°/s).
+  const adaptRef = useRef<{ lastT: number; dt: number; velocity: number; smooth: number }>({ lastT: 0, dt: 16, velocity: 0, smooth: 0.22 });
   const pausedRef = useRef(paused);
 
   const applyVars = useCallback((px: number, py: number, cx: number, cy: number) => {
