@@ -450,8 +450,8 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
               containInteraction
               className="holo-fullscreen-photo relative rounded-2xl pointer-events-auto touch-none"
             >
-              <div className="relative w-full h-full rounded-[2rem] overflow-hidden shadow-2xl border-[8px] border-white/95 bg-white/95">
-                <div className="relative w-full h-full rounded-[1.55rem] overflow-hidden">
+              <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl border-[6px] border-white/95 bg-white/95">
+                <div className="relative w-full h-full rounded-[1.4rem] overflow-hidden">
                   <img
                     src={card.image}
                     alt={card.name}
