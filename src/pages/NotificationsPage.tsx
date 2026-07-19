@@ -195,9 +195,9 @@ const NotificationsPage = () => {
                     if (isBadgeEarned) {
                       navigate('/profile#badges');
                     } else if ((isLike || isComment) && notif.capture_id) {
-                      navigate(`/?capture=${notif.capture_id}`);
+                      navigate(`/collection?capture=${notif.capture_id}`);
                     } else if (isModerationNotif && notif.capture_id) {
-                      navigate(`/?capture=${notif.capture_id}`);
+                      navigate(`/collection?capture=${notif.capture_id}`);
                     } else {
                       navigate(`/explorer/${notif.actor_id}/collection`);
                     }
