@@ -193,7 +193,9 @@ const HolographicCard = ({
     return () => {
       window.removeEventListener('deviceorientation', handler);
       baselineRef.current = null;
-      smoothRef.current = { px: 50, py: 50 };
+      warmupRef.current = { count: 0, sumBeta: 0, sumGamma: 0 };
+      lastRawRef.current = null;
+      smoothRef.current = { px: 50, py: 50, primed: false };
       reset();
     };
   }, [noHolo, updateFromOrientation, reset]);
