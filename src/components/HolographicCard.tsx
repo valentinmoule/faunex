@@ -122,6 +122,46 @@ const HolographicCard = ({
     if (event.cancelable) event.preventDefault?.();
   }, [containInteraction]);
 
+  // Attach gyroscope listener while the card is mounted.
+  useEffect(() => {
+    if (noHolo) return;
+    if (typeof window === 'undefined') return;
+
+    const handler = (e: DeviceOrientationEvent) => {
+      updateFromOrientation(e.beta, e.gamma);
+    };
+
+    let attached = false;
+    const attach = () => {
+      if (attached) return;
+      window.addEventListener('deviceorientation', handler, { passive: true });
+      attached = true;
+    };
+
+    const RequestPerm = (window as any).DeviceOrientationEvent?.requestPermission;
+    if (typeof RequestPerm === 'function') {
+      // iOS 13+: needs a user gesture to request permission.
+      const askOnce = () => {
+        RequestPerm().then((state: string) => {
+          if (state === 'granted') attach();
+        }).catch(() => {});
+        window.removeEventListener('touchend', askOnce);
+        window.removeEventListener('click', askOnce);
+      };
+      window.addEventListener('touchend', askOnce, { once: true, passive: true });
+      window.addEventListener('click', askOnce, { once: true });
+    } else {
+      attach();
+    }
+
+    return () => {
+      window.removeEventListener('deviceorientation', handler);
+      baselineRef.current = null;
+      reset();
+    };
+  }, [noHolo, updateFromOrientation, reset]);
+
+
   // Random cosmos position per card so two epics never look identical
   const cosmosStyle = useMemo(
     () => {
