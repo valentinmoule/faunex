@@ -225,6 +225,7 @@ const HolographicCard = ({
       warmupRef.current = { count: 0, sumBeta: 0, sumGamma: 0 };
       lastRawRef.current = null;
       smoothRef.current = { px: 50, py: 50, primed: false };
+      targetRef.current = null;
     }
   }, [paused, reset]);
 
