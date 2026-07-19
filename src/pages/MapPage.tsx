@@ -335,7 +335,14 @@ const MapPage = () => {
           </div>
         </SheetContent>
       </Sheet>
+
+      <CardDetailSheet
+        card={selectedCard}
+        open={!!selectedCard}
+        onClose={() => setSelectedCard(null)}
+      />
     </main>
+
   );
 };
 
