@@ -164,6 +164,7 @@ const HolographicCard = ({
     return () => {
       window.removeEventListener('deviceorientation', handler);
       baselineRef.current = null;
+      smoothRef.current = { px: 50, py: 50 };
       reset();
     };
   }, [noHolo, updateFromOrientation, reset]);
