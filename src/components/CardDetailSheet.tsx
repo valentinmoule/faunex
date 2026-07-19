@@ -265,6 +265,12 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
     setZoom({ scale: 1, x: 0, y: 0 });
   }, [pauseFullscreenHolo]);
 
+  const openFullscreenImage = useCallback(() => {
+    pauseFullscreenHolo();
+    setFullscreenHoloKey((key) => key + 1);
+    setImageFullscreen(true);
+  }, [pauseFullscreenHolo]);
+
   const handleFullscreenTouchStart = useCallback((e: React.TouchEvent) => {
     if (!card?.image) return;
     setZoomInteracting(true);
@@ -401,7 +407,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
               <HolographicCard
                 rarity={card.rarity}
                 appearAnimation={detailAppearClass}
-                onTap={card.image ? () => setImageFullscreen(true) : undefined}
+                onTap={card.image ? openFullscreenImage : undefined}
                 subjectBox={card.subjectBox}
                 noHolo={isUncaptured}
                 className={`relative mx-auto max-w-[280px] aspect-[4/5] rounded-2xl ${card.image ? 'cursor-pointer' : ''}`}
