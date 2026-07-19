@@ -167,6 +167,7 @@ const HolographicCard = ({
     if (typeof window === 'undefined') return;
 
     const handler = (e: DeviceOrientationEvent) => {
+      if (pausedRef.current) return;
       updateFromOrientation(e.beta, e.gamma);
     };
 
