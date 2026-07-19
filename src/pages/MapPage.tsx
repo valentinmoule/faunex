@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ComponentType } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents } from 'react-leaflet';
+import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Loader2, Compass, Search, MapPin, Sparkles, Bird, Fish, Bug, Turtle, Shell, Waves, PawPrint } from 'lucide-react';
