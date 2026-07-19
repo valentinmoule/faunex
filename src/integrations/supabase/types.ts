@@ -773,6 +773,10 @@ export type Database = {
           read_ct: number
         }[]
       }
+      recompute_profile_counters: {
+        Args: { p_user_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
