@@ -39,7 +39,16 @@ const ContentIndexPage = lazy(() => import("./pages/ContentIndexPage"));
 const ArticlePage = lazy(() => import("./pages/ArticlePage"));
 
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60_000,
+      gcTime: 5 * 60_000,
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, loading, needsUsername } = useAuth();
