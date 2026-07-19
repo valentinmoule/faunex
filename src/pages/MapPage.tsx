@@ -238,7 +238,7 @@ const MapPage = () => {
       </div>
 
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-        <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto">
+        <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto z-[1200]">
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2 font-display">
               <Sparkles className="w-5 h-5 text-primary" />
