@@ -50,12 +50,6 @@ const RARITY_COLORS: Record<string, string> = {
   mythic: '#f59e0b',
 };
 
-const RARITY_LABELS: Record<string, string> = {
-  common: 'Commun',
-  rare: 'Rare',
-  epic: 'Épique',
-  mythic: 'Mythique',
-};
 
 const getCategoryIcon = (category: string): ComponentType<{ className?: string; strokeWidth?: string | number; color?: string }> => {
   const cat = category.toLowerCase();
