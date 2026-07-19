@@ -1779,8 +1779,10 @@
   display: block;
   transform-style: preserve-3d;
   transform: rotateY(var(--rotate-x)) rotateX(var(--rotate-y));
-  transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: none;
   will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .holo-card {
@@ -1789,6 +1791,9 @@
   overflow: hidden;
   isolation: isolate;
   transform-style: preserve-3d;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   box-shadow: 0 10px 24px -12px hsl(0 0% 0% / 0.5);
 }
 
@@ -1839,8 +1844,20 @@
   pointer-events: none;
   border-radius: inherit;
   opacity: var(--card-opacity);
-  transition: opacity 0.3s ease-out;
-  will-change: background, background-position, opacity, filter;
+  transition: opacity 0.18s ease-out;
+  will-change: background-position, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.holo-wrap[data-paused="true"] .holo-rotator {
+  transform: rotateY(0deg) rotateX(0deg) !important;
+}
+
+.holo-wrap[data-paused="true"] .holo-shine,
+.holo-wrap[data-paused="true"] .holo-glare {
+  opacity: 0 !important;
 }
 
 /* When a subject bounding box is provided, fade the holo away around the animal

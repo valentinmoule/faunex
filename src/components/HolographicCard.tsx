@@ -21,6 +21,15 @@ interface Props {
   disableAutoShimmer?: boolean;
 }
 
+const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
+
+const angleDelta = (value: number, origin: number) => {
+  let diff = value - origin;
+  if (diff > 180) diff -= 360;
+  if (diff < -180) diff += 360;
+  return diff;
+};
+
 /**
  * Faunex collectible card — inspired by simeydotme/pokemon-cards-css.
  *
@@ -54,12 +63,21 @@ const HolographicCard = ({
   const filteredRef = useRef<{ beta: number; gamma: number } | null>(null);
   const lastRawRef = useRef<{ beta: number; gamma: number } | null>(null);
   // Adaptive tuning: rolling estimate of sensor dt (ms) and angular velocity (°/s).
-  const adaptRef = useRef<{ lastT: number; dt: number; velocity: number; smooth: number }>({ lastT: 0, dt: 16, velocity: 0, smooth: 0.22 });
+  const adaptRef = useRef<{ lastT: number; dt: number; velocity: number; responseMs: number }>({ lastT: 0, dt: 16, velocity: 0, responseMs: 150 });
+  const lastAppliedRef = useRef<{ px: number; py: number; opacity: number }>({ px: 50, py: 50, opacity: 0 });
   const pausedRef = useRef(paused);
 
   const applyVars = useCallback((px: number, py: number, cx: number, cy: number) => {
     const node = wrapRef.current;
     if (!node) return;
+    const last = lastAppliedRef.current;
+    const opacity = 1;
+    if (
+      Math.abs(px - last.px) < 0.015 &&
+      Math.abs(py - last.py) < 0.015 &&
+      last.opacity === opacity
+    ) return;
+    lastAppliedRef.current = { px, py, opacity };
     const fromCenter = Math.min(1, Math.hypot(cx, cy) / 50);
     const s = node.style;
     s.setProperty('--pointer-x', `${px}%`);
@@ -71,7 +89,7 @@ const HolographicCard = ({
     s.setProperty('--background-y', `${(36 + (py / 100) * 28).toFixed(2)}%`);
     s.setProperty('--rotate-x', `${(-(cx / 6)).toFixed(2)}deg`);
     s.setProperty('--rotate-y', `${(cy / 6).toFixed(2)}deg`);
-    s.setProperty('--card-opacity', '1');
+    s.setProperty('--card-opacity', String(opacity));
   }, []);
 
   const updateFromPointer = useCallback((clientX: number, clientY: number) => {
@@ -95,35 +113,38 @@ const HolographicCard = ({
     if (beta == null || gamma == null) return;
     if (!Number.isFinite(beta) || !Number.isFinite(gamma)) return;
 
-    // Reject wild jumps (device flipping, angle wrap at ±180) — likely garbage frames.
-    const last = lastRawRef.current;
-    if (last) {
-      if (Math.abs(beta - last.beta) > 45 || Math.abs(gamma - last.gamma) > 45) {
-        lastRawRef.current = { beta, gamma };
-        return;
-      }
-    }
     // --- Adaptive tuning: measure sensor cadence & angular velocity ---
     const now = performance.now();
     const a = adaptRef.current;
+    const last = lastRawRef.current;
+    let safeBeta = beta;
+    let safeGamma = gamma;
+    let dt = a.dt || 16.67;
     if (last && a.lastT) {
-      const dt = Math.max(1, now - a.lastT);
-      // EMA of dt (ms between events) and velocity (°/s combined axes).
-      a.dt += (dt - a.dt) * 0.2;
-      const dAngle = Math.hypot(beta - last.beta, gamma - last.gamma);
-      const v = (dAngle / dt) * 1000;
-      a.velocity += (v - a.velocity) * 0.25;
+      dt = clamp(now - a.lastT, 8, 80);
+      // Clamp impossible sensor spikes instead of dropping a frame entirely: dropping
+      // keeps a stale target, then the next valid frame visibly snaps the effect.
+      const maxDelta = clamp(dt * 0.42, 4.5, 18);
+      const dBeta = clamp(angleDelta(beta, last.beta), -maxDelta, maxDelta);
+      const dGamma = clamp(gamma - last.gamma, -maxDelta, maxDelta);
+      safeBeta = last.beta + dBeta;
+      safeGamma = last.gamma + dGamma;
+
+      // EMA of dt (ms between events) and angular velocity (°/s combined axes).
+      a.dt += (dt - a.dt) * 0.18;
+      const v = (Math.hypot(dBeta, dGamma) / dt) * 1000;
+      a.velocity += (v - a.velocity) * 0.18;
     }
     a.lastT = now;
-    lastRawRef.current = { beta, gamma };
+    lastRawRef.current = { beta: safeBeta, gamma: safeGamma };
 
-    const dtRatio = Math.max(0.6, Math.min(2.2, a.dt / 16.67));
-    const filterK = Math.max(0.08, Math.min(0.32, (a.velocity > 80 ? 0.24 : 0.14) * dtRatio));
+    const filterMs = a.velocity < 8 ? 150 : a.velocity > 120 ? 72 : 105;
+    const filterK = clamp(1 - Math.exp(-dt / filterMs), 0.045, 0.38);
     if (!filteredRef.current) {
-      filteredRef.current = { beta, gamma };
+      filteredRef.current = { beta: safeBeta, gamma: safeGamma };
     } else {
-      filteredRef.current.beta += (beta - filteredRef.current.beta) * filterK;
-      filteredRef.current.gamma += (gamma - filteredRef.current.gamma) * filterK;
+      filteredRef.current.beta += angleDelta(safeBeta, filteredRef.current.beta) * filterK;
+      filteredRef.current.gamma += (safeGamma - filteredRef.current.gamma) * filterK;
     }
     const filtered = filteredRef.current;
     if (!filtered) return;
@@ -135,36 +156,37 @@ const HolographicCard = ({
       w.count += 1;
       w.sumBeta += filtered.beta;
       w.sumGamma += filtered.gamma;
-      if (w.count < 16) return;
+      if (w.count < 12) return;
       baselineRef.current = { beta: w.sumBeta / w.count, gamma: w.sumGamma / w.count };
     }
     const base = baselineRef.current;
     // The holo reflection is a subtle card parallax, not a full-screen pan.
     // Keep movement bounded and soft so normal phone motion cannot create large jumps.
-    const RANGE = 22;
-
-    const TRAVEL = 34;
+    const RANGE_X = 23;
+    const RANGE_Y = 25;
+    const TRAVEL_X = 34;
+    const TRAVEL_Y = 31;
     // Small dead-zone near baseline to filter out micro-shakes.
-    const DEAD = 1.8;
+    const DEAD = 1.15;
     const rawDGamma = filtered.gamma - base.gamma;
-    const rawDBeta = filtered.beta - base.beta;
+    const rawDBeta = angleDelta(filtered.beta, base.beta);
     const applyDeadZone = (value: number) => {
       const abs = Math.abs(value);
       if (abs <= DEAD) return 0;
       return Math.sign(value) * (abs - DEAD);
     };
-    const shapeParallax = (value: number) => {
-      const normalized = Math.max(-1, Math.min(1, applyDeadZone(value) / RANGE));
+    const shapeParallax = (value: number, range: number) => {
+      const normalized = clamp(applyDeadZone(value) / range, -1, 1);
       return Math.tanh(normalized * 1.45) / Math.tanh(1.45);
     };
-    const dGamma = shapeParallax(rawDGamma);
-    const dBeta = shapeParallax(rawDBeta);
+    const dGamma = shapeParallax(rawDGamma, RANGE_X);
+    const dBeta = shapeParallax(rawDBeta, RANGE_Y);
     // Recenter only when the phone is almost still; never chase real movement.
-    const drift = a.velocity < 7 && Math.hypot(rawDBeta, rawDGamma) < 6 ? 0.002 : 0.00025;
+    const drift = a.velocity < 5 && Math.hypot(rawDBeta, rawDGamma) < 5 ? 0.0012 : 0;
     base.gamma += rawDGamma * drift;
     base.beta += rawDBeta * drift;
-    const targetPx = 50 + dGamma * TRAVEL;
-    const targetPy = 50 + dBeta * TRAVEL;
+    const targetPx = 50 + dGamma * TRAVEL_X;
+    const targetPy = 50 + dBeta * TRAVEL_Y;
     if (!smoothRef.current.primed) {
       smoothRef.current.px = targetPx;
       smoothRef.current.py = targetPy;
@@ -175,6 +197,16 @@ const HolographicCard = ({
     targetRef.current = { px: targetPx, py: targetPy };
   }, [applyVars]);
 
+  const resetTracking = useCallback(() => {
+    baselineRef.current = null;
+    warmupRef.current = { count: 0, sumBeta: 0, sumGamma: 0 };
+    lastRawRef.current = null;
+    filteredRef.current = null;
+    adaptRef.current = { lastT: 0, dt: 16, velocity: 0, responseMs: 150 };
+    smoothRef.current = { px: 50, py: 50, primed: false, lastFrame: 0 };
+    targetRef.current = null;
+  }, []);
+
   const reset = useCallback(() => {
     if (rafRef.current != null) {
       cancelAnimationFrame(rafRef.current);
@@ -183,6 +215,7 @@ const HolographicCard = ({
     const el = wrapRef.current;
     if (!el) return;
     const s = el.style;
+    lastAppliedRef.current = { px: 50, py: 50, opacity: 0 };
     s.setProperty('--pointer-x', '50%');
     s.setProperty('--pointer-y', '50%');
     s.setProperty('--pointer-from-center', '0');
@@ -234,29 +267,25 @@ const HolographicCard = ({
       attach();
     }
 
-    // Continuous rAF loop with adaptive smoothing:
-    //  - Slow sensor cadence (dt ↑) → interpolate more per frame so we don't lag.
-    //  - Low angular velocity → strong low-pass to kill jitter at rest.
-    //  - High velocity → lighter filter for a snappy response.
+    // Continuous rAF loop with time-based damping. Sensor events can arrive at
+    // irregular frequencies, so CSS vars are updated from this stable render loop.
     const tick = () => {
       const t = targetRef.current;
       if (t && !pausedRef.current) {
         const s = smoothRef.current;
         const a = adaptRef.current;
         const now = performance.now();
-        const frameDt = s.lastFrame ? Math.min(48, now - s.lastFrame) : 16.67;
+        const frameDt = s.lastFrame ? clamp(now - s.lastFrame, 8, 34) : 16.67;
         s.lastFrame = now;
-        // Time-based damping keeps the same feel on 60/90/120Hz screens.
-        const still = a.velocity < 7;
-        const responseMs = still ? 220 : a.velocity > 120 ? 105 : 155;
-        const target = 1 - Math.exp(-frameDt / responseMs);
-        a.smooth += (target - a.smooth) * 0.08;
-        const k = Math.max(0.045, Math.min(0.22, a.smooth));
+        const desiredResponse = a.velocity < 8 ? 185 : a.velocity > 120 ? 82 : 120;
+        a.responseMs += (desiredResponse - a.responseMs) * 0.08;
+        const k = clamp(1 - Math.exp(-frameDt / a.responseMs), 0.035, 0.32);
         const dx = t.px - s.px;
         const dy = t.py - s.py;
-        const maxStep = Math.max(0.28, Math.min(1.8, (still ? 0.55 : 0.95 + a.velocity / 260) * (frameDt / 16.67)));
-        s.px += Math.max(-maxStep, Math.min(maxStep, dx * k));
-        s.py += Math.max(-maxStep, Math.min(maxStep, dy * k));
+        s.px += dx * k;
+        s.py += dy * k;
+        if (Math.abs(dx) < 0.018) s.px = t.px;
+        if (Math.abs(dy) < 0.018) s.py = t.py;
         applyVars(s.px, s.py, s.px - 50, s.py - 50);
       }
       loopRef.current = requestAnimationFrame(tick);
@@ -267,15 +296,10 @@ const HolographicCard = ({
       window.removeEventListener('deviceorientation', handler);
       if (loopRef.current != null) cancelAnimationFrame(loopRef.current);
       loopRef.current = null;
-      baselineRef.current = null;
-      warmupRef.current = { count: 0, sumBeta: 0, sumGamma: 0 };
-      lastRawRef.current = null;
-      filteredRef.current = null;
-      smoothRef.current = { px: 50, py: 50, primed: false, lastFrame: 0 };
-      targetRef.current = null;
+      resetTracking();
       reset();
     };
-  }, [noHolo, updateFromOrientation, reset, applyVars]);
+  }, [noHolo, updateFromOrientation, reset, applyVars, resetTracking]);
 
   // Sync paused state and rebaseline whenever we resume so the resting pose recalibrates.
   useEffect(() => {
@@ -283,14 +307,9 @@ const HolographicCard = ({
     if (paused) {
       reset();
     } else {
-      baselineRef.current = null;
-      warmupRef.current = { count: 0, sumBeta: 0, sumGamma: 0 };
-      lastRawRef.current = null;
-      filteredRef.current = null;
-      smoothRef.current = { px: 50, py: 50, primed: false, lastFrame: 0 };
-      targetRef.current = null;
+      resetTracking();
     }
-  }, [paused, reset]);
+  }, [paused, reset, resetTracking]);
 
 
 
@@ -340,6 +359,7 @@ const HolographicCard = ({
       ref={wrapRef}
       className={`holo-wrap holo-${rarity} ${className} ${appearAnimation}`}
       data-subject={subjectBox ? 'on' : undefined}
+      data-paused={paused ? 'true' : undefined}
       style={cosmosStyle}
       onMouseMove={(e) => updateFromPointer(e.clientX, e.clientY)}
       onMouseLeave={reset}
