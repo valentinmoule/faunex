@@ -15,6 +15,8 @@ interface Props {
   containInteraction?: boolean;
   /** Disable holo shine/glare/cutout/tilt entirely (e.g. uncaptured silhouettes). */
   noHolo?: boolean;
+  /** Temporarily freeze holo tilt updates (e.g. during pinch-zoom). Rebaselines on resume. */
+  paused?: boolean;
   /** Kept for API compatibility (unused). */
   disableAutoShimmer?: boolean;
 }
@@ -40,6 +42,7 @@ const HolographicCard = ({
   subjectBox,
   containInteraction = false,
   noHolo = false,
+  paused = false,
 }: Props) => {
   const wrapRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
@@ -47,6 +50,7 @@ const HolographicCard = ({
   const warmupRef = useRef<{ count: number; sumBeta: number; sumGamma: number }>({ count: 0, sumBeta: 0, sumGamma: 0 });
   const smoothRef = useRef<{ px: number; py: number; primed: boolean }>({ px: 50, py: 50, primed: false });
   const lastRawRef = useRef<{ beta: number; gamma: number } | null>(null);
+  const pausedRef = useRef(paused);
 
   const applyVars = useCallback((px: number, py: number, cx: number, cy: number) => {
     const node = wrapRef.current;
@@ -164,6 +168,7 @@ const HolographicCard = ({
     if (typeof window === 'undefined') return;
 
     const handler = (e: DeviceOrientationEvent) => {
+      if (pausedRef.current) return;
       updateFromOrientation(e.beta, e.gamma);
     };
 
@@ -199,6 +204,21 @@ const HolographicCard = ({
       reset();
     };
   }, [noHolo, updateFromOrientation, reset]);
+
+  // Sync paused state and rebaseline whenever we resume so the resting pose recalibrates.
+  useEffect(() => {
+    pausedRef.current = paused;
+    if (paused) {
+      reset();
+    } else {
+      baselineRef.current = null;
+      warmupRef.current = { count: 0, sumBeta: 0, sumGamma: 0 };
+      lastRawRef.current = null;
+      smoothRef.current = { px: 50, py: 50, primed: false };
+    }
+  }, [paused, reset]);
+
+
 
 
   // Random cosmos position per card so two epics never look identical
