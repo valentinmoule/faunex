@@ -102,6 +102,18 @@ const HolographicCard = ({
         return;
       }
     }
+    // --- Adaptive tuning: measure sensor cadence & angular velocity ---
+    const now = performance.now();
+    const a = adaptRef.current;
+    if (last && a.lastT) {
+      const dt = Math.max(1, now - a.lastT);
+      // EMA of dt (ms between events) and velocity (°/s combined axes).
+      a.dt += (dt - a.dt) * 0.2;
+      const dAngle = Math.hypot(beta - last.beta, gamma - last.gamma);
+      const v = (dAngle / dt) * 1000;
+      a.velocity += (v - a.velocity) * 0.25;
+    }
+    a.lastT = now;
     lastRawRef.current = { beta, gamma };
 
     // Warm-up: average the first ~10 frames so the baseline reflects the actual
