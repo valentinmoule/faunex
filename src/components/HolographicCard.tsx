@@ -15,6 +15,8 @@ interface Props {
   containInteraction?: boolean;
   /** Disable holo shine/glare/cutout/tilt entirely (e.g. uncaptured silhouettes). */
   noHolo?: boolean;
+  /** Temporarily freeze holo tilt updates (e.g. during pinch-zoom). Rebaselines on resume. */
+  paused?: boolean;
   /** Kept for API compatibility (unused). */
   disableAutoShimmer?: boolean;
 }
