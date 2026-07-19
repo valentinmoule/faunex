@@ -3,13 +3,16 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Loader2, Compass, Search, MapPin, Sparkles, Footprints, Bird, Fish, Bug, Turtle, Shell, Waves, PawPrint } from 'lucide-react';
+import { Loader2, Compass, Search, MapPin, Sparkles, Bird, Fish, Bug, Turtle, Shell, Waves, PawPrint } from 'lucide-react';
 import { FrogIcon } from '@/components/icons/FrogIcon';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import LoadingScreen from '@/components/LoadingScreen';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import CardDetailSheet from '@/components/CardDetailSheet';
+import { type AnimalCard, type Rarity } from '@/data/mockData';
 import { toast } from 'sonner';
+
 
 interface CaptureMarker {
   id: string;
