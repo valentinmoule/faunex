@@ -21,10 +21,18 @@ interface CaptureMarker {
   category: string;
   rarity: string;
   image_url: string | null;
+  cutout_url: string | null;
+  description: string | null;
+  habitat: string | null;
+  diet: string | null;
+  conservation: string | null;
+  fun_fact: string | null;
+  location: string | null;
   latitude: number;
   longitude: number;
   created_at: string;
 }
+
 
 interface DiscoveredAnimal {
   name: string;
