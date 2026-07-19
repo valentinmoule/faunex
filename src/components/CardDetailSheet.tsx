@@ -190,6 +190,83 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
     return `${Math.floor(hours / 24)}j`;
   };
 
+  // Pinch-to-zoom helpers for the fullscreen photo
+  const getTouchDistance = (touches: React.TouchList) => {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.hypot(dx, dy);
+  };
+  const getTouchCenter = (touches: React.TouchList) => ({
+    x: (touches[0].clientX + touches[1].clientX) / 2,
+    y: (touches[0].clientY + touches[1].clientY) / 2,
+  });
+  const clampScale = (s: number) => Math.min(4, Math.max(1, s));
+  const resetZoom = () => setZoom({ scale: 1, x: 0, y: 0 });
+
+  const handleFullscreenTouchStart = useCallback((e: React.TouchEvent) => {
+    if (!card?.image) return;
+    const now = Date.now();
+    const z = zoomRef.current;
+
+    // Double-tap detection (single quick tap)
+    if (e.touches.length === 1) {
+      if (now - z.lastTapTime < 300) {
+        e.preventDefault();
+        if (zoom.scale > 1.05) {
+          resetZoom();
+        } else {
+          // Zoom to 2.5x centered on tap point
+          const rect = e.currentTarget.getBoundingClientRect();
+          const tapX = e.touches[0].clientX - rect.left - rect.width / 2;
+          const tapY = e.touches[0].clientY - rect.top - rect.height / 2;
+          setZoom({ scale: 2.5, x: -tapX * 0.6, y: -tapY * 0.6 });
+        }
+        z.lastTapTime = 0;
+        return;
+      }
+      z.lastTapTime = now;
+    }
+
+    if (e.touches.length === 2) {
+      z.isPinching = true;
+      z.initialDistance = getTouchDistance(e.touches);
+      z.initialScale = zoom.scale;
+      z.initialCenter = getTouchCenter(e.touches);
+    } else if (e.touches.length === 1 && zoom.scale > 1.05) {
+      z.isPanning = true;
+      z.initialPan = { x: zoom.x, y: zoom.y };
+      z.lastTouch = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }
+  }, [card?.image, zoom.scale, zoom.x, zoom.y]);
+
+  const handleFullscreenTouchMove = useCallback((e: React.TouchEvent) => {
+    const z = zoomRef.current;
+    if (e.touches.length === 2 && z.isPinching) {
+      e.preventDefault();
+      const newDistance = getTouchDistance(e.touches);
+      const ratio = newDistance / z.initialDistance;
+      const newScale = clampScale(z.initialScale * ratio);
+      setZoom(prev => ({ ...prev, scale: newScale }));
+    } else if (e.touches.length === 1 && z.isPanning && zoom.scale > 1.05) {
+      e.preventDefault();
+      const touch = e.touches[0];
+      const dx = touch.clientX - z.lastTouch.x;
+      const dy = touch.clientY - z.lastTouch.y;
+      z.lastTouch = { x: touch.clientX, y: touch.clientY };
+      setZoom(prev => ({ ...prev, x: prev.x + dx, y: prev.y + dy }));
+    }
+  }, [zoom.scale]);
+
+  const handleFullscreenTouchEnd = useCallback(() => {
+    const z = zoomRef.current;
+    z.isPinching = false;
+    z.isPanning = false;
+    setZoom(prev => {
+      if (prev.scale < 1.05) return { scale: 1, x: 0, y: 0 };
+      return { ...prev, scale: clampScale(prev.scale) };
+    });
+  }, []);
+
   if (!card) return null;
 
   const isUncaptured = !card.image || card.id.startsWith('uncaptured-');
