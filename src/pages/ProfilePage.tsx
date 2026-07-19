@@ -259,6 +259,9 @@ const ProfilePage = () => {
           </div>
         )}
 
+        {/* Quests Section */}
+        <QuestsInline />
+
         {/* Badges Section — Gaming Style */}
         <div id="badges" className="scroll-mt-20">
           <div className="flex items-center justify-between mb-4">
