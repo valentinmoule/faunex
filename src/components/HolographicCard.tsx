@@ -187,15 +187,33 @@ const HolographicCard = ({
       attach();
     }
 
+    // Continuous rAF loop — interpolates toward the latest target every frame
+    // so the visual smoothly catches up regardless of the sensor's update rate.
+    const SMOOTH = 0.22;
+    const tick = () => {
+      const t = targetRef.current;
+      if (t && !pausedRef.current) {
+        const s = smoothRef.current;
+        s.px += (t.px - s.px) * SMOOTH;
+        s.py += (t.py - s.py) * SMOOTH;
+        applyVars(s.px, s.py, s.px - 50, s.py - 50);
+      }
+      loopRef.current = requestAnimationFrame(tick);
+    };
+    loopRef.current = requestAnimationFrame(tick);
+
     return () => {
       window.removeEventListener('deviceorientation', handler);
+      if (loopRef.current != null) cancelAnimationFrame(loopRef.current);
+      loopRef.current = null;
       baselineRef.current = null;
       warmupRef.current = { count: 0, sumBeta: 0, sumGamma: 0 };
       lastRawRef.current = null;
       smoothRef.current = { px: 50, py: 50, primed: false };
+      targetRef.current = null;
       reset();
     };
-  }, [noHolo, updateFromOrientation, reset]);
+  }, [noHolo, updateFromOrientation, reset, applyVars]);
 
   // Sync paused state and rebaseline whenever we resume so the resting pose recalibrates.
   useEffect(() => {
