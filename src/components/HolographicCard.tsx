@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, type ReactNode } from 'react';
 import { type Rarity } from '@/data/mockData';
 
 interface Props {
@@ -43,6 +43,24 @@ const HolographicCard = ({
 }: Props) => {
   const wrapRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
+  const baselineRef = useRef<{ beta: number; gamma: number } | null>(null);
+
+  const applyVars = useCallback((px: number, py: number, cx: number, cy: number) => {
+    const node = wrapRef.current;
+    if (!node) return;
+    const fromCenter = Math.min(1, Math.hypot(cx, cy) / 50);
+    const s = node.style;
+    s.setProperty('--pointer-x', `${px}%`);
+    s.setProperty('--pointer-y', `${py}%`);
+    s.setProperty('--pointer-from-center', `${fromCenter.toFixed(3)}`);
+    s.setProperty('--pointer-from-top', `${(py / 100).toFixed(3)}`);
+    s.setProperty('--pointer-from-left', `${(px / 100).toFixed(3)}`);
+    s.setProperty('--background-x', `${(37 + (px / 100) * 26).toFixed(2)}%`);
+    s.setProperty('--background-y', `${(33 + (py / 100) * 34).toFixed(2)}%`);
+    s.setProperty('--rotate-x', `${(-(cx / 3.5)).toFixed(2)}deg`);
+    s.setProperty('--rotate-y', `${(cy / 3.5).toFixed(2)}deg`);
+    s.setProperty('--card-opacity', '1');
+  }, []);
 
   const updateFromPointer = useCallback((clientX: number, clientY: number) => {
     const el = wrapRef.current;
@@ -55,23 +73,28 @@ const HolographicCard = ({
       if (!rect.width || !rect.height) return;
       const px = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
       const py = Math.max(0, Math.min(100, ((clientY - rect.top) / rect.height) * 100));
-      const cx = px - 50;
-      const cy = py - 50;
-      const fromCenter = Math.min(1, Math.hypot(cx, cy) / 50);
-      const s = node.style;
-      s.setProperty('--pointer-x', `${px}%`);
-      s.setProperty('--pointer-y', `${py}%`);
-      s.setProperty('--pointer-from-center', `${fromCenter.toFixed(3)}`);
-      s.setProperty('--pointer-from-top', `${(py / 100).toFixed(3)}`);
-      s.setProperty('--pointer-from-left', `${(px / 100).toFixed(3)}`);
-      s.setProperty('--background-x', `${(37 + (px / 100) * 26).toFixed(2)}%`);
-      s.setProperty('--background-y', `${(33 + (py / 100) * 34).toFixed(2)}%`);
-      s.setProperty('--rotate-x', `${(-(cx / 3.5)).toFixed(2)}deg`);
-      s.setProperty('--rotate-y', `${(cy / 3.5).toFixed(2)}deg`);
-      s.setProperty('--card-opacity', '1');
+      applyVars(px, py, px - 50, py - 50);
     };
     if (rafRef.current == null) rafRef.current = requestAnimationFrame(apply);
-  }, []);
+  }, [applyVars]);
+
+  // Gyroscope-driven update. beta = front/back tilt (-180..180), gamma = left/right (-90..90).
+  const updateFromOrientation = useCallback((beta: number | null, gamma: number | null) => {
+    if (beta == null || gamma == null) return;
+    if (!baselineRef.current) baselineRef.current = { beta, gamma };
+    const base = baselineRef.current;
+    const RANGE = 25; // degrees of tilt mapped to full holo travel
+    const dGamma = Math.max(-RANGE, Math.min(RANGE, gamma - base.gamma));
+    const dBeta = Math.max(-RANGE, Math.min(RANGE, beta - base.beta));
+    const px = 50 + (dGamma / RANGE) * 50;
+    const py = 50 + (dBeta / RANGE) * 50;
+    if (rafRef.current == null) {
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = null;
+        applyVars(px, py, px - 50, py - 50);
+      });
+    }
+  }, [applyVars]);
 
   const reset = useCallback(() => {
     if (rafRef.current != null) {
@@ -98,6 +121,46 @@ const HolographicCard = ({
     event.stopPropagation();
     if (event.cancelable) event.preventDefault?.();
   }, [containInteraction]);
+
+  // Attach gyroscope listener while the card is mounted.
+  useEffect(() => {
+    if (noHolo) return;
+    if (typeof window === 'undefined') return;
+
+    const handler = (e: DeviceOrientationEvent) => {
+      updateFromOrientation(e.beta, e.gamma);
+    };
+
+    let attached = false;
+    const attach = () => {
+      if (attached) return;
+      window.addEventListener('deviceorientation', handler, { passive: true });
+      attached = true;
+    };
+
+    const RequestPerm = (window as any).DeviceOrientationEvent?.requestPermission;
+    if (typeof RequestPerm === 'function') {
+      // iOS 13+: needs a user gesture to request permission.
+      const askOnce = () => {
+        RequestPerm().then((state: string) => {
+          if (state === 'granted') attach();
+        }).catch(() => {});
+        window.removeEventListener('touchend', askOnce);
+        window.removeEventListener('click', askOnce);
+      };
+      window.addEventListener('touchend', askOnce, { once: true, passive: true });
+      window.addEventListener('click', askOnce, { once: true });
+    } else {
+      attach();
+    }
+
+    return () => {
+      window.removeEventListener('deviceorientation', handler);
+      baselineRef.current = null;
+      reset();
+    };
+  }, [noHolo, updateFromOrientation, reset]);
+
 
   // Random cosmos position per card so two epics never look identical
   const cosmosStyle = useMemo(
@@ -145,44 +208,8 @@ const HolographicCard = ({
       className={`holo-wrap holo-${rarity} ${className} ${appearAnimation}`}
       data-subject={subjectBox ? 'on' : undefined}
       style={cosmosStyle}
-      onPointerDown={(e) => {
-        containEvent(e);
-        e.currentTarget.setPointerCapture?.(e.pointerId);
-        updateFromPointer(e.clientX, e.clientY);
-      }}
-      onPointerMove={(e) => {
-        containEvent(e);
-        updateFromPointer(e.clientX, e.clientY);
-      }}
-      onPointerUp={(e) => {
-        containEvent(e);
-        e.currentTarget.releasePointerCapture?.(e.pointerId);
-        reset();
-      }}
-      onPointerCancel={(e) => {
-        containEvent(e);
-        reset();
-      }}
       onMouseMove={(e) => updateFromPointer(e.clientX, e.clientY)}
       onMouseLeave={reset}
-      onTouchStart={(e) => {
-        containEvent(e);
-        const t = e.touches[0];
-        if (t) updateFromPointer(t.clientX, t.clientY);
-      }}
-      onTouchMove={(e) => {
-        containEvent(e);
-        const t = e.touches[0];
-        if (t) updateFromPointer(t.clientX, t.clientY);
-      }}
-      onTouchEnd={(e) => {
-        containEvent(e);
-        reset();
-      }}
-      onTouchCancel={(e) => {
-        containEvent(e);
-        reset();
-      }}
       onClick={(e) => {
         if (containInteraction) e.stopPropagation();
         onTap?.();
