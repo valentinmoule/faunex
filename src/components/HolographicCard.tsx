@@ -205,6 +205,21 @@ const HolographicCard = ({
     };
   }, [noHolo, updateFromOrientation, reset]);
 
+  // Sync paused state and rebaseline whenever we resume so the resting pose recalibrates.
+  useEffect(() => {
+    pausedRef.current = paused;
+    if (paused) {
+      reset();
+    } else {
+      baselineRef.current = null;
+      warmupRef.current = { count: 0, sumBeta: 0, sumGamma: 0 };
+      lastRawRef.current = null;
+      smoothRef.current = { px: 50, py: 50, primed: false };
+    }
+  }, [paused, reset]);
+
+
+
 
   // Random cosmos position per card so two epics never look identical
   const cosmosStyle = useMemo(
