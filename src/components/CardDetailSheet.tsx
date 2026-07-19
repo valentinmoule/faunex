@@ -83,6 +83,20 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
     isPinching: false,
     isPanning: false,
   });
+  // Holo tilt stays paused a hair longer than the zoom transition so the
+  // shrink-back animation (transform: scale) finishes before the tilt vars
+  // start writing again — otherwise the two transforms fight and glitch.
+  const [holoPaused, setHoloPaused] = useState(false);
+  useEffect(() => {
+    if (zoom.scale > 1.02) {
+      setHoloPaused(true);
+      return;
+    }
+    // Wait a bit longer than the 75ms scale transition + a safety margin
+    // before resuming so recalibration happens on a stable frame.
+    const t = window.setTimeout(() => setHoloPaused(false), 260);
+    return () => window.clearTimeout(t);
+  }, [zoom.scale]);
 
   // Reset transient UI state when a new card opens
   useEffect(() => {
