@@ -49,8 +49,9 @@ const HolographicCard = ({
   const loopRef = useRef<number | null>(null);
   const baselineRef = useRef<{ beta: number; gamma: number } | null>(null);
   const warmupRef = useRef<{ count: number; sumBeta: number; sumGamma: number }>({ count: 0, sumBeta: 0, sumGamma: 0 });
-  const smoothRef = useRef<{ px: number; py: number; primed: boolean }>({ px: 50, py: 50, primed: false });
+  const smoothRef = useRef<{ px: number; py: number; primed: boolean; lastFrame: number }>({ px: 50, py: 50, primed: false, lastFrame: 0 });
   const targetRef = useRef<{ px: number; py: number } | null>(null);
+  const filteredRef = useRef<{ beta: number; gamma: number } | null>(null);
   const lastRawRef = useRef<{ beta: number; gamma: number } | null>(null);
   // Adaptive tuning: rolling estimate of sensor dt (ms) and angular velocity (°/s).
   const adaptRef = useRef<{ lastT: number; dt: number; velocity: number; smooth: number }>({ lastT: 0, dt: 16, velocity: 0, smooth: 0.22 });
@@ -66,10 +67,10 @@ const HolographicCard = ({
     s.setProperty('--pointer-from-center', `${fromCenter.toFixed(3)}`);
     s.setProperty('--pointer-from-top', `${(py / 100).toFixed(3)}`);
     s.setProperty('--pointer-from-left', `${(px / 100).toFixed(3)}`);
-    s.setProperty('--background-x', `${(37 + (px / 100) * 26).toFixed(2)}%`);
-    s.setProperty('--background-y', `${(33 + (py / 100) * 34).toFixed(2)}%`);
-    s.setProperty('--rotate-x', `${(-(cx / 3.5)).toFixed(2)}deg`);
-    s.setProperty('--rotate-y', `${(cy / 3.5).toFixed(2)}deg`);
+    s.setProperty('--background-x', `${(43 + (px / 100) * 14).toFixed(2)}%`);
+    s.setProperty('--background-y', `${(42 + (py / 100) * 16).toFixed(2)}%`);
+    s.setProperty('--rotate-x', `${(-(cx / 12)).toFixed(2)}deg`);
+    s.setProperty('--rotate-y', `${(cy / 12).toFixed(2)}deg`);
     s.setProperty('--card-opacity', '1');
   }, []);
 
@@ -97,7 +98,7 @@ const HolographicCard = ({
     // Reject wild jumps (device flipping, angle wrap at ±180) — likely garbage frames.
     const last = lastRawRef.current;
     if (last) {
-      if (Math.abs(beta - last.beta) > 60 || Math.abs(gamma - last.gamma) > 60) {
+      if (Math.abs(beta - last.beta) > 45 || Math.abs(gamma - last.gamma) > 45) {
         lastRawRef.current = { beta, gamma };
         return;
       }
@@ -116,34 +117,57 @@ const HolographicCard = ({
     a.lastT = now;
     lastRawRef.current = { beta, gamma };
 
-    // Warm-up: average the first ~10 frames so the baseline reflects the actual
+    const dtRatio = Math.max(0.6, Math.min(2.2, a.dt / 16.67));
+    const filterK = Math.max(0.08, Math.min(0.32, (a.velocity > 80 ? 0.24 : 0.14) * dtRatio));
+    if (!filteredRef.current) {
+      filteredRef.current = { beta, gamma };
+    } else {
+      filteredRef.current.beta += (beta - filteredRef.current.beta) * filterK;
+      filteredRef.current.gamma += (gamma - filteredRef.current.gamma) * filterK;
+    }
+    const filtered = filteredRef.current;
+
+    // Warm-up: average the first ~16 filtered frames so the baseline reflects the actual
     // resting pose (angle at which the user is holding the phone), not motion.
     if (!baselineRef.current) {
       const w = warmupRef.current;
       w.count += 1;
-      w.sumBeta += beta;
-      w.sumGamma += gamma;
-      if (w.count < 10) return;
+      w.sumBeta += filtered.beta;
+      w.sumGamma += filtered.gamma;
+      if (w.count < 16) return;
       baselineRef.current = { beta: w.sumBeta / w.count, gamma: w.sumGamma / w.count };
     }
     const base = baselineRef.current;
-    // Wider range = less sensitive. 60° full-scale feels natural for handheld tilt.
-    const RANGE = 60;
+    // The holo reflection is a subtle card parallax, not a full-screen pan.
+    // Keep movement bounded and soft so normal phone motion cannot create large jumps.
+    const RANGE = 34;
+    const TRAVEL = 19;
     // Small dead-zone near baseline to filter out micro-shakes.
-    const DEAD = 1.5;
-    const rawDGamma = gamma - base.gamma;
-    const rawDBeta = beta - base.beta;
-    const dGamma = Math.max(-RANGE, Math.min(RANGE, Math.abs(rawDGamma) < DEAD ? 0 : rawDGamma));
-    const dBeta = Math.max(-RANGE, Math.min(RANGE, Math.abs(rawDBeta) < DEAD ? 0 : rawDBeta));
-    // Slow baseline drift so a slowly-changing grip re-centers over time.
-    base.gamma += rawDGamma * 0.0015;
-    base.beta += rawDBeta * 0.0015;
-    const targetPx = 50 + (dGamma / RANGE) * 50;
-    const targetPy = 50 + (dBeta / RANGE) * 50;
+    const DEAD = 1.8;
+    const rawDGamma = filtered.gamma - base.gamma;
+    const rawDBeta = filtered.beta - base.beta;
+    const applyDeadZone = (value: number) => {
+      const abs = Math.abs(value);
+      if (abs <= DEAD) return 0;
+      return Math.sign(value) * (abs - DEAD);
+    };
+    const shapeParallax = (value: number) => {
+      const normalized = Math.max(-1, Math.min(1, applyDeadZone(value) / RANGE));
+      return Math.tanh(normalized * 1.45) / Math.tanh(1.45);
+    };
+    const dGamma = shapeParallax(rawDGamma);
+    const dBeta = shapeParallax(rawDBeta);
+    // Recenter only when the phone is almost still; never chase real movement.
+    const drift = a.velocity < 7 && Math.hypot(rawDBeta, rawDGamma) < 6 ? 0.002 : 0.00025;
+    base.gamma += rawDGamma * drift;
+    base.beta += rawDBeta * drift;
+    const targetPx = 50 + dGamma * TRAVEL;
+    const targetPy = 50 + dBeta * TRAVEL;
     if (!smoothRef.current.primed) {
       smoothRef.current.px = targetPx;
       smoothRef.current.py = targetPy;
       smoothRef.current.primed = true;
+      smoothRef.current.lastFrame = performance.now();
       applyVars(targetPx, targetPy, targetPx - 50, targetPy - 50);
     }
     targetRef.current = { px: targetPx, py: targetPy };
@@ -217,18 +241,20 @@ const HolographicCard = ({
       if (t && !pausedRef.current) {
         const s = smoothRef.current;
         const a = adaptRef.current;
-        // Base factor from event cadence: 60Hz→0.22, 30Hz→0.35, 15Hz→0.55.
-        const cadence = Math.max(0.15, Math.min(0.6, a.dt / 75));
-        // Velocity bonus: 0 at rest → +0 ; 200°/s → +0.25.
-        const velocityBoost = Math.min(0.25, a.velocity / 800);
-        // Attenuate at rest to remove residual shimmer.
-        const restDampen = a.velocity < 5 ? 0.55 : 1;
-        const target = (cadence + velocityBoost) * restDampen;
-        // Slew the smoothing factor itself to avoid step changes.
-        a.smooth += (target - a.smooth) * 0.15;
-        const k = Math.max(0.08, Math.min(0.65, a.smooth));
-        s.px += (t.px - s.px) * k;
-        s.py += (t.py - s.py) * k;
+        const now = performance.now();
+        const frameDt = s.lastFrame ? Math.min(48, now - s.lastFrame) : 16.67;
+        s.lastFrame = now;
+        // Time-based damping keeps the same feel on 60/90/120Hz screens.
+        const still = a.velocity < 7;
+        const responseMs = still ? 220 : a.velocity > 120 ? 105 : 155;
+        const target = 1 - Math.exp(-frameDt / responseMs);
+        a.smooth += (target - a.smooth) * 0.08;
+        const k = Math.max(0.045, Math.min(0.22, a.smooth));
+        const dx = t.px - s.px;
+        const dy = t.py - s.py;
+        const maxStep = Math.max(0.28, Math.min(1.8, (still ? 0.55 : 0.95 + a.velocity / 260) * (frameDt / 16.67)));
+        s.px += Math.max(-maxStep, Math.min(maxStep, dx * k));
+        s.py += Math.max(-maxStep, Math.min(maxStep, dy * k));
         applyVars(s.px, s.py, s.px - 50, s.py - 50);
       }
       loopRef.current = requestAnimationFrame(tick);
@@ -242,7 +268,8 @@ const HolographicCard = ({
       baselineRef.current = null;
       warmupRef.current = { count: 0, sumBeta: 0, sumGamma: 0 };
       lastRawRef.current = null;
-      smoothRef.current = { px: 50, py: 50, primed: false };
+      filteredRef.current = null;
+      smoothRef.current = { px: 50, py: 50, primed: false, lastFrame: 0 };
       targetRef.current = null;
       reset();
     };
@@ -257,7 +284,8 @@ const HolographicCard = ({
       baselineRef.current = null;
       warmupRef.current = { count: 0, sumBeta: 0, sumGamma: 0 };
       lastRawRef.current = null;
-      smoothRef.current = { px: 50, py: 50, primed: false };
+      filteredRef.current = null;
+      smoothRef.current = { px: 50, py: 50, primed: false, lastFrame: 0 };
       targetRef.current = null;
     }
   }, [paused, reset]);
