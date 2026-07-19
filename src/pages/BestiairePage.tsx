@@ -213,7 +213,7 @@ const BestiairePage = () => {
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'categories' | 'mine'>('categories');
+  const [viewMode, setViewMode] = useState<'mine' | 'categories' | 'territory'>('mine');
   const [rarityFilter, setRarityFilter] = useState<Rarity | 'all'>('all');
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [pendingShelve, setPendingShelveState] = useState<PendingShelve | null>(null);
@@ -483,18 +483,16 @@ const BestiairePage = () => {
 
   // Flat list of my own captured animals (with rarity filter), most recent first
   const myCapturedAnimals = useMemo(() => {
-    const rank: Record<string, number> = { mythic: 0, epic: 1, rare: 2, common: 3 };
     return animals
       .filter(a => a.captured && a.captureData)
       .filter(a => rarityFilter === 'all' || a.rarity === rarityFilter)
       .sort((a, b) => {
-        const r = (rank[a.rarity] ?? 4) - (rank[b.rarity] ?? 4);
-        if (r !== 0) return r;
         const da = a.captureData?.discoveredAt || '';
         const db = b.captureData?.discoveredAt || '';
         return db.localeCompare(da);
       });
   }, [animals, rarityFilter]);
+
 
   const selectedZone = useMemo(
     () => subscribedZones.find((z) => z.id === selectedZoneId) || null,
@@ -1114,109 +1112,9 @@ const BestiairePage = () => {
         </header>
 
         <div className="max-w-lg mx-auto px-4 pt-4 space-y-6">
-          <section>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Mes territoires</h2>
-              <button
-                onClick={() => { setPickerMode('hub'); setShowDeptPicker(true); }}
-                className="flex items-center gap-1 text-xs font-display font-semibold text-primary px-2 py-1 rounded-lg hover:bg-primary/10 transition"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                Ajouter
-              </button>
-            </div>
-            {subscribedZones.length === 0 ? (
-              <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/8 via-primary/4 to-transparent p-5 space-y-4">
-                <div className="text-center space-y-1.5">
-                  <div className="inline-flex w-12 h-12 rounded-2xl bg-primary/15 items-center justify-center">
-                    <Home className="w-6 h-6 text-primary" strokeWidth={2} />
-                  </div>
-                  <h3 className="font-display font-bold text-sm text-foreground">Découvre la faune autour de toi</h3>
-                  <p className="text-[11px] text-muted-foreground font-display leading-relaxed px-2">
-                    Définis ton « Chez moi » pour suivre les espèces de ta région, ou ajoute une zone avant un voyage ou une sortie nature.
-                  </p>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={handleDetectHome}
-                    disabled={detectingHome}
-                    className="flex flex-col items-center gap-1 py-3 rounded-xl bg-primary text-primary-foreground font-display font-semibold text-xs transition active:scale-95 disabled:opacity-60"
-                  >
-                    {detectingHome ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Home className="w-4 h-4" strokeWidth={2.25} />
-                    )}
-                    Chez moi
-                  </button>
-                  <button
-                    onClick={() => { setPickerMode('explore'); setPickerTab('city'); setShowDeptPicker(true); }}
-                    className="flex flex-col items-center gap-1 py-3 rounded-xl bg-card border border-border text-foreground font-display font-semibold text-xs transition active:scale-95 hover:border-primary/40"
-                  >
-                    <Compass className="w-4 h-4" strokeWidth={2.25} />
-                    Explorer
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4 pb-1">
-                {subscribedZones.map((zone) => {
-                  const d = getDepartement(zone.departmentCode);
-                  const p = zoneProgress[zone.id] || { total: 0, captured: 0 };
-                  const pct = p.total > 0 ? Math.round((p.captured / p.total) * 100) : 0;
-                  const isCity = zone.kind === 'city';
-                  const ZoneIcon = zone.isHome ? Home : (isCity ? Building2 : MapPin);
-                  const title = isCity ? (zone.cityName || 'Ville') : (d?.name || zone.departmentCode);
-                  const sub = isCity
-                    ? `${zone.cityPostcode || ''}${d ? ` · ${d.name}` : ''}`
-                    : zone.departmentCode;
-                  return (
-                    <button
-                      key={zone.id}
-                      onClick={() => setSelectedZoneId(zone.id)}
-                      className={`shrink-0 w-40 relative overflow-hidden rounded-2xl border p-4 text-left transition-all active:scale-[0.97] hover:shadow-md ${
-                        zone.isHome
-                          ? 'border-primary/40 bg-gradient-to-br from-primary/10 via-primary/5 to-card'
-                          : 'border-border bg-card hover:border-primary/30'
-                      }`}
-                    >
-                      {zone.isHome && (
-                        <span className="absolute top-2 right-2 text-[9px] font-display font-bold uppercase tracking-wide text-primary bg-primary/15 px-1.5 py-0.5 rounded-full">
-                          Chez moi
-                        </span>
-                      )}
-                      <div className="flex items-center gap-1.5 mb-2">
-                        <ZoneIcon className="w-5 h-5 text-primary" strokeWidth={1.75} />
-                        <span className="text-[10px] font-display font-bold text-muted-foreground tabular-nums truncate">{sub}</span>
-                      </div>
-                      <h3 className="font-display font-bold text-sm text-foreground leading-tight mb-1 truncate">{title}</h3>
-                      <p className="text-[11px] text-muted-foreground font-display mb-3">
-                        {p.captured}/{p.total} capturés
-                      </p>
-                      <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
-                        <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${pct}%` }} />
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-
-            )}
-          </section>
-
           {/* View toggle + rarity filter */}
           <section className="space-y-3">
             <div className="flex items-center gap-1 p-1 rounded-full bg-muted/60 border border-border w-full">
-              <button
-                onClick={() => setViewMode('categories')}
-                className={`flex-1 text-xs font-display font-semibold py-2 rounded-full transition-all ${
-                  viewMode === 'categories'
-                    ? 'bg-background text-foreground shadow-sm'
-                    : 'text-muted-foreground'
-                }`}
-              >
-                Par catégorie
-              </button>
               <button
                 onClick={() => setViewMode('mine')}
                 className={`flex-1 text-xs font-display font-semibold py-2 rounded-full transition-all ${
@@ -1227,75 +1125,54 @@ const BestiairePage = () => {
               >
                 Mes captures
               </button>
+              <button
+                onClick={() => setViewMode('categories')}
+                className={`flex-1 text-xs font-display font-semibold py-2 rounded-full transition-all ${
+                  viewMode === 'categories'
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground'
+                }`}
+              >
+                Catégories
+              </button>
+              <button
+                onClick={() => setViewMode('territory')}
+                className={`flex-1 text-xs font-display font-semibold py-2 rounded-full transition-all ${
+                  viewMode === 'territory'
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground'
+                }`}
+              >
+                Territoire
+              </button>
             </div>
-            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1">
-              {(['all', 'common', 'rare', 'epic', 'mythic'] as const).map((r) => {
-                const active = rarityFilter === r;
-                const label = r === 'all' ? 'Toutes' : RARITY_LABELS[r as Rarity];
-                return (
-                  <button
-                    key={r}
-                    onClick={() => setRarityFilter(r)}
-                    className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-display font-semibold border transition-all ${
-                      active
-                        ? 'bg-primary text-primary-foreground border-primary'
-                        : 'bg-card text-muted-foreground border-border hover:border-primary/40'
-                    }`}
-                  >
-                    {r !== 'all' && (
-                      <span className={`w-1.5 h-1.5 rounded-full ${rarityDot[r] || 'bg-muted-foreground'}`} />
-                    )}
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
+            {viewMode !== 'territory' && (
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1">
+                {(['all', 'common', 'rare', 'epic', 'mythic'] as const).map((r) => {
+                  const active = rarityFilter === r;
+                  const label = r === 'all' ? 'Toutes' : RARITY_LABELS[r as Rarity];
+                  return (
+                    <button
+                      key={r}
+                      onClick={() => setRarityFilter(r)}
+                      className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-display font-semibold border transition-all ${
+                        active
+                          ? 'bg-primary text-primary-foreground border-primary'
+                          : 'bg-card text-muted-foreground border-border hover:border-primary/40'
+                      }`}
+                    >
+                      {r !== 'all' && (
+                        <span className={`w-1.5 h-1.5 rounded-full ${rarityDot[r] || 'bg-muted-foreground'}`} />
+                      )}
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </section>
 
-          {/* Categories OR my captures */}
-          {viewMode === 'categories' ? (
-            <section>
-              <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide mb-3">Catégories</h2>
-              <div className="grid grid-cols-2 gap-3">
-                {categoryData
-                  .map(cat => {
-                    // When a rarity filter is active, recompute counts for that rarity
-                    if (rarityFilter === 'all') return cat;
-                    const inCat = animals.filter(
-                      a => normalizeCategory(a.category) === cat.name && a.rarity === rarityFilter
-                    );
-                    return {
-                      name: cat.name,
-                      total: inCat.length,
-                      captured: inCat.filter(a => a.captured).length,
-                    };
-                  })
-                  .filter(cat => cat.total > 0)
-                  .map(cat => {
-                    const CatIcon = getCategoryIcon(cat.name);
-                    const progress = cat.total > 0 ? Math.round((cat.captured / cat.total) * 100) : 0;
-                    return (
-                      <button
-                        key={cat.name}
-                        onClick={() => setSelectedCategory(cat.name)}
-                        className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-md"
-                      >
-                        <div className="mb-2">
-                          <CatIcon className="w-7 h-7 text-primary" strokeWidth={1.75} />
-                        </div>
-                        <h3 className="font-display font-bold text-sm text-foreground leading-tight mb-1 truncate">{cat.name}</h3>
-                        <p className="text-[11px] text-muted-foreground font-display mb-3">
-                          {cat.captured}/{cat.total} capturés
-                        </p>
-                        <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
-                          <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${progress}%` }} />
-                        </div>
-                      </button>
-                    );
-                  })}
-              </div>
-            </section>
-          ) : (
+          {viewMode === 'mine' && (
             <section>
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Mes captures</h2>
@@ -1340,6 +1217,141 @@ const BestiairePage = () => {
               )}
             </section>
           )}
+
+          {viewMode === 'categories' && (
+            <section>
+              <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide mb-3">Catégories</h2>
+              <div className="grid grid-cols-2 gap-3">
+                {categoryData
+                  .map(cat => {
+                    if (rarityFilter === 'all') return cat;
+                    const inCat = animals.filter(
+                      a => normalizeCategory(a.category) === cat.name && a.rarity === rarityFilter
+                    );
+                    return {
+                      name: cat.name,
+                      total: inCat.length,
+                      captured: inCat.filter(a => a.captured).length,
+                    };
+                  })
+                  .filter(cat => cat.total > 0)
+                  .map(cat => {
+                    const CatIcon = getCategoryIcon(cat.name);
+                    const progress = cat.total > 0 ? Math.round((cat.captured / cat.total) * 100) : 0;
+                    return (
+                      <button
+                        key={cat.name}
+                        onClick={() => setSelectedCategory(cat.name)}
+                        className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-md"
+                      >
+                        <div className="mb-2">
+                          <CatIcon className="w-7 h-7 text-primary" strokeWidth={1.75} />
+                        </div>
+                        <h3 className="font-display font-bold text-sm text-foreground leading-tight mb-1 truncate">{cat.name}</h3>
+                        <p className="text-[11px] text-muted-foreground font-display mb-3">
+                          {cat.captured}/{cat.total} capturés
+                        </p>
+                        <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
+                          <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${progress}%` }} />
+                        </div>
+                      </button>
+                    );
+                  })}
+              </div>
+            </section>
+          )}
+
+          {viewMode === 'territory' && (
+            <section>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Mes territoires</h2>
+                <button
+                  onClick={() => { setPickerMode('hub'); setShowDeptPicker(true); }}
+                  className="flex items-center gap-1 text-xs font-display font-semibold text-primary px-2 py-1 rounded-lg hover:bg-primary/10 transition"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  Ajouter
+                </button>
+              </div>
+              {subscribedZones.length === 0 ? (
+                <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/8 via-primary/4 to-transparent p-5 space-y-4">
+                  <div className="text-center space-y-1.5">
+                    <div className="inline-flex w-12 h-12 rounded-2xl bg-primary/15 items-center justify-center">
+                      <Home className="w-6 h-6 text-primary" strokeWidth={2} />
+                    </div>
+                    <h3 className="font-display font-bold text-sm text-foreground">Découvre la faune autour de toi</h3>
+                    <p className="text-[11px] text-muted-foreground font-display leading-relaxed px-2">
+                      Définis ton « Chez moi » pour suivre les espèces de ta région, ou ajoute une zone avant un voyage ou une sortie nature.
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={handleDetectHome}
+                      disabled={detectingHome}
+                      className="flex flex-col items-center gap-1 py-3 rounded-xl bg-primary text-primary-foreground font-display font-semibold text-xs transition active:scale-95 disabled:opacity-60"
+                    >
+                      {detectingHome ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Home className="w-4 h-4" strokeWidth={2.25} />
+                      )}
+                      Chez moi
+                    </button>
+                    <button
+                      onClick={() => { setPickerMode('explore'); setPickerTab('city'); setShowDeptPicker(true); }}
+                      className="flex flex-col items-center gap-1 py-3 rounded-xl bg-card border border-border text-foreground font-display font-semibold text-xs transition active:scale-95 hover:border-primary/40"
+                    >
+                      <Compass className="w-4 h-4" strokeWidth={2.25} />
+                      Explorer
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-3">
+                  {subscribedZones.map((zone) => {
+                    const d = getDepartement(zone.departmentCode);
+                    const p = zoneProgress[zone.id] || { total: 0, captured: 0 };
+                    const pct = p.total > 0 ? Math.round((p.captured / p.total) * 100) : 0;
+                    const isCity = zone.kind === 'city';
+                    const ZoneIcon = zone.isHome ? Home : (isCity ? Building2 : MapPin);
+                    const title = isCity ? (zone.cityName || 'Ville') : (d?.name || zone.departmentCode);
+                    const sub = isCity
+                      ? `${zone.cityPostcode || ''}${d ? ` · ${d.name}` : ''}`
+                      : zone.departmentCode;
+                    return (
+                      <button
+                        key={zone.id}
+                        onClick={() => setSelectedZoneId(zone.id)}
+                        className={`relative overflow-hidden rounded-2xl border p-4 text-left transition-all active:scale-[0.97] hover:shadow-md ${
+                          zone.isHome
+                            ? 'border-primary/40 bg-gradient-to-br from-primary/10 via-primary/5 to-card'
+                            : 'border-border bg-card hover:border-primary/30'
+                        }`}
+                      >
+                        {zone.isHome && (
+                          <span className="absolute top-2 right-2 text-[9px] font-display font-bold uppercase tracking-wide text-primary bg-primary/15 px-1.5 py-0.5 rounded-full">
+                            Chez moi
+                          </span>
+                        )}
+                        <div className="flex items-center gap-1.5 mb-2">
+                          <ZoneIcon className="w-5 h-5 text-primary" strokeWidth={1.75} />
+                          <span className="text-[10px] font-display font-bold text-muted-foreground tabular-nums truncate">{sub}</span>
+                        </div>
+                        <h3 className="font-display font-bold text-sm text-foreground leading-tight mb-1 truncate">{title}</h3>
+                        <p className="text-[11px] text-muted-foreground font-display mb-3">
+                          {p.captured}/{p.total} capturés
+                        </p>
+                        <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
+                          <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${pct}%` }} />
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
+          )}
+
         </div>
         <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} />
         {deptPickerSheet}
