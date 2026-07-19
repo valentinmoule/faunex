@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, type ComponentType } from 'react';
+import { useState, useEffect, useCallback, useRef, type ComponentType } from 'react';
 import { notifyCaptureInteraction } from '@/lib/notifyCaptureInteraction';
 import { Drawer } from 'vaul';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
