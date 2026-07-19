@@ -1143,7 +1143,7 @@ const BestiairePage = () => {
                     : 'text-muted-foreground'
                 }`}
               >
-                Territoire
+                Territoires
               </button>
             </div>
             {viewMode !== 'territory' && (
