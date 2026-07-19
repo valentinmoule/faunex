@@ -208,44 +208,8 @@ const HolographicCard = ({
       className={`holo-wrap holo-${rarity} ${className} ${appearAnimation}`}
       data-subject={subjectBox ? 'on' : undefined}
       style={cosmosStyle}
-      onPointerDown={(e) => {
-        containEvent(e);
-        e.currentTarget.setPointerCapture?.(e.pointerId);
-        updateFromPointer(e.clientX, e.clientY);
-      }}
-      onPointerMove={(e) => {
-        containEvent(e);
-        updateFromPointer(e.clientX, e.clientY);
-      }}
-      onPointerUp={(e) => {
-        containEvent(e);
-        e.currentTarget.releasePointerCapture?.(e.pointerId);
-        reset();
-      }}
-      onPointerCancel={(e) => {
-        containEvent(e);
-        reset();
-      }}
       onMouseMove={(e) => updateFromPointer(e.clientX, e.clientY)}
       onMouseLeave={reset}
-      onTouchStart={(e) => {
-        containEvent(e);
-        const t = e.touches[0];
-        if (t) updateFromPointer(t.clientX, t.clientY);
-      }}
-      onTouchMove={(e) => {
-        containEvent(e);
-        const t = e.touches[0];
-        if (t) updateFromPointer(t.clientX, t.clientY);
-      }}
-      onTouchEnd={(e) => {
-        containEvent(e);
-        reset();
-      }}
-      onTouchCancel={(e) => {
-        containEvent(e);
-        reset();
-      }}
       onClick={(e) => {
         if (containInteraction) e.stopPropagation();
         onTap?.();
