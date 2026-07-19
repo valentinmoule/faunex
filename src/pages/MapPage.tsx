@@ -115,13 +115,15 @@ const MapPage = () => {
   const [discovering, setDiscovering] = useState(false);
   const [discovered, setDiscovered] = useState<{ location: string; animals: DiscoveredAnimal[] } | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
 
   useEffect(() => {
     if (!session?.user) return;
     (async () => {
       const { data, error } = await supabase
         .from('captures')
-        .select('id, animal_name, scientific_name, category, rarity, image_url, latitude, longitude, created_at')
+        .select('id, animal_name, scientific_name, category, rarity, image_url, cutout_url, description, habitat, diet, conservation, fun_fact, location, latitude, longitude, created_at')
+
         .eq('user_id', session.user.id)
         .eq('status', 'approved')
         .not('latitude', 'is', null)
