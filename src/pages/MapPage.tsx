@@ -179,7 +179,7 @@ const MapPage = () => {
   const markers = useMemo(
     () =>
       captures.map((c) => (
-        <Marker key={c.id} position={[c.latitude, c.longitude]} icon={buildIcon(c.rarity)}>
+        <Marker key={c.id} position={[c.latitude, c.longitude]} icon={buildIcon(c.rarity, c.category)}>
           <Popup className="faunex-popup" closeButton={false}>
             <div className="faunex-popup-card">
               {c.image_url && (
