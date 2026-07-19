@@ -422,7 +422,7 @@ const ExplorersPage = () => {
   const UserRow = ({ user, action, onClick }: { user: SearchUser; action: React.ReactNode; onClick?: () => void }) => (
     <div className={`flex items-center gap-3 py-3 ${onClick ? 'cursor-pointer active:bg-muted/50 transition-colors rounded-lg -mx-2 px-2' : ''}`} onClick={onClick}>
       <div className="w-11 h-11 rounded-full bg-primary/20 flex items-center justify-center text-sm font-display font-bold text-primary shrink-0 overflow-hidden">
-        {user.avatar_url ? <img src={user.avatar_url} alt="" className="w-full h-full object-cover" /> : (user.display_name || user.username || '?').charAt(0).toUpperCase()}
+        {user.avatar_url ? <img src={user.avatar_url} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" /> : (user.display_name || user.username || '?').charAt(0).toUpperCase()}
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-display font-semibold text-foreground truncate">{user.display_name || 'Sans nom'}</p>
@@ -630,7 +630,7 @@ const ExplorersPage = () => {
                 <article key={post.id} className="py-3">
                   <div className="flex items-center gap-3 px-4">
                     <button onClick={() => navigate(`/explorer/${post.user_id}/collection`)} className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-xs font-display font-bold text-primary overflow-hidden shrink-0">
-                      {avatarUrl ? <img src={avatarUrl} alt="" className="w-full h-full object-cover" /> : userName.charAt(0).toUpperCase()}
+                      {avatarUrl ? <img src={avatarUrl} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" /> : userName.charAt(0).toUpperCase()}
                     </button>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-baseline gap-1.5">
@@ -645,7 +645,7 @@ const ExplorersPage = () => {
 
                   <button onClick={() => setSelectedCard(toAnimalCard(post))} className="block w-full mt-2">
                     <div className="w-full aspect-[4/5] overflow-hidden">
-                      <img src={post.image_url} alt={post.animal_name} className="w-full h-full object-cover" />
+                      <img src={post.image_url} alt={post.animal_name} className="w-full h-full object-cover" loading="lazy" decoding="async" />
                     </div>
                   </button>
 
@@ -680,7 +680,7 @@ const ExplorersPage = () => {
                           {comments.map(comment => (
                             <div key={comment.id} className="flex gap-2">
                               <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[9px] font-display font-bold text-primary shrink-0 overflow-hidden">
-                                {comment.profile?.avatar_url ? <img src={comment.profile.avatar_url} alt="" className="w-full h-full object-cover" /> : (comment.profile?.display_name || comment.profile?.username || '?').charAt(0).toUpperCase()}
+                                {comment.profile?.avatar_url ? <img src={comment.profile.avatar_url} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" /> : (comment.profile?.display_name || comment.profile?.username || '?').charAt(0).toUpperCase()}
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-baseline gap-1.5">
