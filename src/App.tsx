@@ -25,6 +25,7 @@ const AuthPage = lazy(() => import("./pages/AuthPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const FriendCollectionPage = lazy(() => import("./pages/FriendCollectionPage"));
 const BestiairePage = lazy(() => import("./pages/BestiairePage"));
+const MapPage = lazy(() => import("./pages/MapPage"));
 const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
 const ModerationPage = lazy(() => import("./pages/ModerationPage"));
 const LegalPage = lazy(() => import("./pages/LegalPage"));
