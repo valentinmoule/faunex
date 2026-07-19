@@ -2241,5 +2241,97 @@
   }
 }
 
+/* ─────────────────────────────────────
+   Holo frame — rarity-tinted borders
+   ───────────────────────────────────── */
+.holo-frame {
+  border-width: 9px;
+  border-style: solid;
+  border-color: transparent;
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+  position: relative;
+}
 
+.holo-frame--common {
+  background-image:
+    linear-gradient(hsl(0 0% 100% / 0.96), hsl(0 0% 100% / 0.96)),
+    linear-gradient(140deg,
+      hsl(var(--rarity-common) / 0.55),
+      hsl(var(--rarity-common) / 0.9),
+      hsl(var(--rarity-common) / 0.55));
+  box-shadow:
+    inset 0 0 0 1px hsl(var(--rarity-common) / 0.35),
+    0 8px 32px rgba(0,0,0,0.35);
+}
+
+.holo-frame--rare {
+  background-image:
+    linear-gradient(hsl(0 0% 100% / 0.96), hsl(0 0% 100% / 0.96)),
+    linear-gradient(120deg,
+      hsl(210 80% 45%),
+      hsl(200 95% 70%),
+      hsl(210 80% 45%),
+      hsl(220 85% 60%),
+      hsl(210 80% 45%));
+  background-size: 100% 100%, 300% 300%;
+  box-shadow:
+    inset 0 0 0 1px hsl(var(--rarity-rare) / 0.5),
+    0 0 22px hsl(var(--rarity-rare) / 0.35),
+    0 8px 32px rgba(0,0,0,0.4);
+  animation: holo-frame-shift 6s linear infinite;
+}
+
+.holo-frame--epic {
+  background-image:
+    linear-gradient(hsl(0 0% 100% / 0.96), hsl(0 0% 100% / 0.96)),
+    linear-gradient(120deg,
+      hsl(270 80% 45%),
+      hsl(290 90% 70%),
+      hsl(255 85% 55%),
+      hsl(300 85% 65%),
+      hsl(270 80% 45%));
+  background-size: 100% 100%, 320% 320%;
+  box-shadow:
+    inset 0 0 0 1px hsl(var(--rarity-epic) / 0.6),
+    0 0 28px hsl(var(--rarity-epic) / 0.45),
+    0 8px 32px rgba(0,0,0,0.4);
+  animation: holo-frame-shift 5s linear infinite, holo-frame-pulse 3.5s ease-in-out infinite;
+}
+
+.holo-frame--mythic {
+  background-image:
+    linear-gradient(hsl(0 0% 100% / 0.96), hsl(0 0% 100% / 0.96)),
+    linear-gradient(120deg,
+      hsl(38 85% 45%),
+      hsl(48 100% 78%),
+      hsl(42 95% 55%),
+      hsl(50 100% 85%),
+      hsl(38 90% 50%),
+      hsl(45 100% 72%),
+      hsl(38 85% 45%));
+  background-size: 100% 100%, 350% 350%;
+  box-shadow:
+    inset 0 0 0 1px hsl(42 100% 75% / 0.85),
+    0 0 34px hsl(var(--rarity-mythic) / 0.55),
+    0 0 60px hsl(42 100% 60% / 0.35),
+    0 8px 32px rgba(0,0,0,0.45);
+  animation: holo-frame-shift 4s linear infinite, holo-frame-pulse 2.8s ease-in-out infinite;
+}
+
+@keyframes holo-frame-shift {
+  0%   { background-position: 0 0, 0% 50%; }
+  100% { background-position: 0 0, 300% 50%; }
+}
+
+@keyframes holo-frame-pulse {
+  0%, 100% { filter: brightness(1); }
+  50%      { filter: brightness(1.18); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .holo-frame--rare,
+  .holo-frame--epic,
+  .holo-frame--mythic { animation: none; }
+}
 
