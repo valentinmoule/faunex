@@ -615,7 +615,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
             className="relative w-full h-full max-w-[min(100vw,100vh)] max-h-screen z-10 flex items-center justify-center p-4 pointer-events-none"
           >
             <div
-              className="pointer-events-auto transition-transform duration-75 ease-out will-change-transform"
+              className={`pointer-events-auto will-change-transform ${zoomInteracting ? 'transition-none' : 'transition-transform duration-150 ease-out'}`}
               style={{
                 transform: `scale(${zoom.scale}) translate(${zoom.x}px, ${zoom.y}px)`,
                 touchAction: 'none',
@@ -627,7 +627,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
                 cutoutUrl={card.cutoutUrl}
                 subjectBox={card.subjectBox}
                 containInteraction
-                paused={holoPaused}
+                paused={holoPaused || zoomInteracting || zoom.scale > 1.01}
                 className="holo-fullscreen-photo relative rounded-2xl pointer-events-auto touch-none"
               >
                 <div className={`relative w-full h-full rounded-[1.5rem] overflow-hidden shadow-2xl holo-frame holo-frame--${card.rarity}`}>
