@@ -21,6 +21,15 @@ interface Props {
   disableAutoShimmer?: boolean;
 }
 
+const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
+
+const angleDelta = (value: number, origin: number) => {
+  let diff = value - origin;
+  if (diff > 180) diff -= 360;
+  if (diff < -180) diff += 360;
+  return diff;
+};
+
 /**
  * Faunex collectible card — inspired by simeydotme/pokemon-cards-css.
  *
@@ -57,14 +66,6 @@ const HolographicCard = ({
   const adaptRef = useRef<{ lastT: number; dt: number; velocity: number; responseMs: number }>({ lastT: 0, dt: 16, velocity: 0, responseMs: 150 });
   const lastAppliedRef = useRef<{ px: number; py: number; opacity: number }>({ px: 50, py: 50, opacity: 0 });
   const pausedRef = useRef(paused);
-
-  const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
-  const angleDelta = (value: number, origin: number) => {
-    let diff = value - origin;
-    if (diff > 180) diff -= 360;
-    if (diff < -180) diff += 360;
-    return diff;
-  };
 
   const applyVars = useCallback((px: number, py: number, cx: number, cy: number) => {
     const node = wrapRef.current;
