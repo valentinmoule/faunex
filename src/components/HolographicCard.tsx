@@ -208,15 +208,27 @@ const HolographicCard = ({
       attach();
     }
 
-    // Continuous rAF loop — interpolates toward the latest target every frame
-    // so the visual smoothly catches up regardless of the sensor's update rate.
-    const SMOOTH = 0.22;
+    // Continuous rAF loop with adaptive smoothing:
+    //  - Slow sensor cadence (dt ↑) → interpolate more per frame so we don't lag.
+    //  - Low angular velocity → strong low-pass to kill jitter at rest.
+    //  - High velocity → lighter filter for a snappy response.
     const tick = () => {
       const t = targetRef.current;
       if (t && !pausedRef.current) {
         const s = smoothRef.current;
-        s.px += (t.px - s.px) * SMOOTH;
-        s.py += (t.py - s.py) * SMOOTH;
+        const a = adaptRef.current;
+        // Base factor from event cadence: 60Hz→0.22, 30Hz→0.35, 15Hz→0.55.
+        const cadence = Math.max(0.15, Math.min(0.6, a.dt / 75));
+        // Velocity bonus: 0 at rest → +0 ; 200°/s → +0.25.
+        const velocityBoost = Math.min(0.25, a.velocity / 800);
+        // Attenuate at rest to remove residual shimmer.
+        const restDampen = a.velocity < 5 ? 0.55 : 1;
+        const target = (cadence + velocityBoost) * restDampen;
+        // Slew the smoothing factor itself to avoid step changes.
+        a.smooth += (target - a.smooth) * 0.15;
+        const k = Math.max(0.08, Math.min(0.65, a.smooth));
+        s.px += (t.px - s.px) * k;
+        s.py += (t.py - s.py) * k;
         applyVars(s.px, s.py, s.px - 50, s.py - 50);
       }
       loopRef.current = requestAnimationFrame(tick);
