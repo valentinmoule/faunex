@@ -1,8 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ComponentType } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Loader2, Compass, Search, MapPin, Sparkles, Footprints } from 'lucide-react';
+import { Loader2, Compass, Search, MapPin, Sparkles, Footprints, Bird, Fish, Bug, Turtle, Shell, Waves, PawPrint } from 'lucide-react';
+import { FrogIcon } from '@/components/icons/FrogIcon';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import LoadingScreen from '@/components/LoadingScreen';
@@ -44,30 +46,31 @@ const RARITY_LABELS: Record<string, string> = {
   mythic: 'Mythique',
 };
 
-const getCategoryEmoji = (category: string): string => {
+const getCategoryIcon = (category: string): ComponentType<{ className?: string; strokeWidth?: string | number; color?: string }> => {
   const cat = category.toLowerCase();
-  if (cat.includes('oiseau')) return '🐦';
-  if (cat.includes('poisson') || cat.includes('vie marine')) return '🐟';
-  if (cat.includes('insecte')) return '🦋';
-  if (cat.includes('reptile')) return '🦎';
-  if (cat.includes('amphibien')) return '🐸';
-  if (cat.includes('arachnide')) return '🕷️';
-  if (cat.includes('crustacé')) return '🦀';
-  if (cat.includes('mollusque')) return '🐌';
-  if (cat.includes('mammifère') && cat.includes('marin')) return '🐋';
-  if (cat.includes('mammifère')) return '🦊';
-  return '🐾';
+  if (cat.includes('oiseau')) return Bird;
+  if (cat.includes('poisson') || cat.includes('vie marine')) return Fish;
+  if (cat.includes('insecte') || cat.includes('arachnide')) return Bug;
+  if (cat.includes('reptile')) return Turtle;
+  if (cat.includes('amphibien')) return FrogIcon;
+  if (cat.includes('crustacé') || cat.includes('mollusque')) return Shell;
+  if (cat.includes('mammifère') && cat.includes('marin')) return Waves;
+  if (cat.includes('mammifère')) return PawPrint;
+  return PawPrint;
 };
 
 const buildIcon = (rarity: string, category: string) => {
   const color = RARITY_COLORS[rarity] || RARITY_COLORS.common;
-  const emoji = getCategoryEmoji(category);
+  const CatIcon = getCategoryIcon(category);
+  const iconSvg = renderToStaticMarkup(
+    <CatIcon color={color} strokeWidth={2.2} />
+  );
   return L.divIcon({
     className: 'faunex-pin',
     html: `
       <div class="faunex-pin-outer" style="--pin-color:${color}">
         <div class="faunex-pin-inner">
-          <span class="faunex-pin-emoji">${emoji}</span>
+          <span class="faunex-pin-icon">${iconSvg}</span>
         </div>
       </div>
     `,
