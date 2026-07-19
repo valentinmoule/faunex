@@ -104,33 +104,36 @@ const AppRoutes = () => {
 
   return (
     <>
-      <Routes>
-        <Route path="/" element={<LandingRoute><LandingPage /></LandingRoute>} />
-        <Route path="/auth" element={<AuthRoute><AuthPage /></AuthRoute>} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/complete-profile" element={<ProtectedRoute><CompleteProfilePage /></ProtectedRoute>} />
-        <Route path="/home" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-        <Route path="/collection" element={<ProtectedRoute><CollectionPage /></ProtectedRoute>} />
-        <Route path="/capture" element={<ProtectedRoute><CapturePage /></ProtectedRoute>} />
-        <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-        <Route path="/feed" element={<Navigate to="/explorers" replace />} />
-        <Route path="/explorers" element={<ProtectedRoute><ExplorersPage /></ProtectedRoute>} />
-        <Route path="/explorer/:userId/collection" element={<ProtectedRoute><FriendCollectionPage /></ProtectedRoute>} />
-        <Route path="/bestiaire" element={<ProtectedRoute><BestiairePage /></ProtectedRoute>} />
-        <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
-        <Route path="/moderation" element={<AdminRoute><ModerationPage /></AdminRoute>} />
-        <Route path="/quests" element={<ProtectedRoute><QuestsPage /></ProtectedRoute>} />
-        <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
-        <Route path="/legal" element={<LegalPage />} />
-        <Route path="/u/:username" element={<ShareProfilePage />} />
-        <Route path="/unsubscribe" element={<UnsubscribePage />} />
-        <Route path="/guides" element={<ContentIndexPage type="guide" />} />
-        <Route path="/guides/:slug" element={<ArticlePage type="guide" />} />
-        <Route path="/fonctionnalites" element={<ContentIndexPage type="usecase" />} />
-        <Route path="/fonctionnalites/:slug" element={<ArticlePage type="usecase" />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <Suspense fallback={<LoadingScreen />}>
+        <Routes>
+          <Route path="/" element={<LandingRoute><LandingPage /></LandingRoute>} />
+          <Route path="/auth" element={<AuthRoute><AuthPage /></AuthRoute>} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/complete-profile" element={<ProtectedRoute><CompleteProfilePage /></ProtectedRoute>} />
+          <Route path="/home" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+          <Route path="/collection" element={<ProtectedRoute><CollectionPage /></ProtectedRoute>} />
+          <Route path="/capture" element={<ProtectedRoute><CapturePage /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+          <Route path="/feed" element={<Navigate to="/explorers" replace />} />
+          <Route path="/explorers" element={<ProtectedRoute><ExplorersPage /></ProtectedRoute>} />
+          <Route path="/explorer/:userId/collection" element={<ProtectedRoute><FriendCollectionPage /></ProtectedRoute>} />
+          <Route path="/bestiaire" element={<ProtectedRoute><BestiairePage /></ProtectedRoute>} />
+          <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
+          <Route path="/moderation" element={<AdminRoute><ModerationPage /></AdminRoute>} />
+          <Route path="/quests" element={<ProtectedRoute><QuestsPage /></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+          <Route path="/legal" element={<LegalPage />} />
+          <Route path="/u/:username" element={<ShareProfilePage />} />
+          <Route path="/unsubscribe" element={<UnsubscribePage />} />
+          <Route path="/guides" element={<ContentIndexPage type="guide" />} />
+          <Route path="/guides/:slug" element={<ArticlePage type="guide" />} />
+          <Route path="/fonctionnalites" element={<ContentIndexPage type="usecase" />} />
+          <Route path="/fonctionnalites/:slug" element={<ArticlePage type="usecase" />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
       {!isCapturePage && !isModerationPage && !isPublicPage && <BottomNav />}
+
       <PwaInstallBanner />
       <PushPermissionPrompt />
       <LevelSplash />
