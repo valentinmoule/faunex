@@ -44,6 +44,7 @@ const HolographicCard = ({
   const wrapRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
   const baselineRef = useRef<{ beta: number; gamma: number } | null>(null);
+  const smoothRef = useRef<{ px: number; py: number }>({ px: 50, py: 50 });
 
   const applyVars = useCallback((px: number, py: number, cx: number, cy: number) => {
     const node = wrapRef.current;
@@ -83,11 +84,17 @@ const HolographicCard = ({
     if (beta == null || gamma == null) return;
     if (!baselineRef.current) baselineRef.current = { beta, gamma };
     const base = baselineRef.current;
-    const RANGE = 25; // degrees of tilt mapped to full holo travel
+    const RANGE = 45; // degrees of tilt mapped to full holo travel (higher = less sensitive)
     const dGamma = Math.max(-RANGE, Math.min(RANGE, gamma - base.gamma));
     const dBeta = Math.max(-RANGE, Math.min(RANGE, beta - base.beta));
-    const px = 50 + (dGamma / RANGE) * 50;
-    const py = 50 + (dBeta / RANGE) * 50;
+    const targetPx = 50 + (dGamma / RANGE) * 50;
+    const targetPy = 50 + (dBeta / RANGE) * 50;
+    // Low-pass smoothing to reduce jittery micro-movements.
+    const SMOOTH = 0.12;
+    smoothRef.current.px += (targetPx - smoothRef.current.px) * SMOOTH;
+    smoothRef.current.py += (targetPy - smoothRef.current.py) * SMOOTH;
+    const px = smoothRef.current.px;
+    const py = smoothRef.current.py;
     if (rafRef.current == null) {
       rafRef.current = requestAnimationFrame(() => {
         rafRef.current = null;
@@ -157,6 +164,7 @@ const HolographicCard = ({
     return () => {
       window.removeEventListener('deviceorientation', handler);
       baselineRef.current = null;
+      smoothRef.current = { px: 50, py: 50 };
       reset();
     };
   }, [noHolo, updateFromOrientation, reset]);
