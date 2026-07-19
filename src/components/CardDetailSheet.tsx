@@ -297,13 +297,13 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
     <>
       <Drawer.Root open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
         <Drawer.Portal>
-          <Drawer.Overlay className="fixed inset-0 z-50 bg-black/80" />
-          <Drawer.Content className="fixed inset-x-0 bottom-0 z-50 h-[92vh] rounded-t-3xl border-0 outline-none overflow-hidden">
+          <Drawer.Overlay className="fixed inset-0 z-[1300] bg-black/80" />
+          <Drawer.Content className="fixed inset-x-0 bottom-0 z-[1300] h-[92vh] rounded-t-3xl border-0 outline-none overflow-hidden">
             {/* Handle + close: absolute over content */}
-            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 w-12 h-1.5 rounded-full bg-white/40" />
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[1301] w-12 h-1.5 rounded-full bg-white/40" />
             <button
               onClick={onClose}
-              className="absolute top-3 right-3 z-20 w-9 h-9 rounded-full bg-foreground/20 backdrop-blur-md flex items-center justify-center hover:bg-foreground/30 transition-colors"
+              className="absolute top-3 right-3 z-[1301] w-9 h-9 rounded-full bg-foreground/20 backdrop-blur-md flex items-center justify-center hover:bg-foreground/30 transition-colors"
             >
               <span className="text-white text-lg font-light leading-none">✕</span>
             </button>
