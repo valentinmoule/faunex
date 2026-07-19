@@ -46,9 +46,11 @@ const HolographicCard = ({
 }: Props) => {
   const wrapRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
+  const loopRef = useRef<number | null>(null);
   const baselineRef = useRef<{ beta: number; gamma: number } | null>(null);
   const warmupRef = useRef<{ count: number; sumBeta: number; sumGamma: number }>({ count: 0, sumBeta: 0, sumGamma: 0 });
   const smoothRef = useRef<{ px: number; py: number; primed: boolean }>({ px: 50, py: 50, primed: false });
+  const targetRef = useRef<{ px: number; py: number } | null>(null);
   const lastRawRef = useRef<{ beta: number; gamma: number } | null>(null);
   const pausedRef = useRef(paused);
 
