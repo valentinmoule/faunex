@@ -67,10 +67,10 @@ const HolographicCard = ({
     s.setProperty('--pointer-from-center', `${fromCenter.toFixed(3)}`);
     s.setProperty('--pointer-from-top', `${(py / 100).toFixed(3)}`);
     s.setProperty('--pointer-from-left', `${(px / 100).toFixed(3)}`);
-    s.setProperty('--background-x', `${(43 + (px / 100) * 14).toFixed(2)}%`);
-    s.setProperty('--background-y', `${(42 + (py / 100) * 16).toFixed(2)}%`);
-    s.setProperty('--rotate-x', `${(-(cx / 12)).toFixed(2)}deg`);
-    s.setProperty('--rotate-y', `${(cy / 12).toFixed(2)}deg`);
+    s.setProperty('--background-x', `${(37 + (px / 100) * 26).toFixed(2)}%`);
+    s.setProperty('--background-y', `${(36 + (py / 100) * 28).toFixed(2)}%`);
+    s.setProperty('--rotate-x', `${(-(cx / 6)).toFixed(2)}deg`);
+    s.setProperty('--rotate-y', `${(cy / 6).toFixed(2)}deg`);
     s.setProperty('--card-opacity', '1');
   }, []);
 
@@ -141,8 +141,9 @@ const HolographicCard = ({
     const base = baselineRef.current;
     // The holo reflection is a subtle card parallax, not a full-screen pan.
     // Keep movement bounded and soft so normal phone motion cannot create large jumps.
-    const RANGE = 34;
-    const TRAVEL = 19;
+    const RANGE = 22;
+
+    const TRAVEL = 34;
     // Small dead-zone near baseline to filter out micro-shakes.
     const DEAD = 1.8;
     const rawDGamma = filtered.gamma - base.gamma;
