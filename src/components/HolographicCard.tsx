@@ -118,24 +118,14 @@ const HolographicCard = ({
     const dBeta = Math.max(-RANGE, Math.min(RANGE, beta - base.beta));
     const targetPx = 50 + (dGamma / RANGE) * 50;
     const targetPy = 50 + (dBeta / RANGE) * 50;
-    // Prime on first valid frame to avoid a slow drift-in from (50,50).
+    // Prime immediately on first valid frame.
     if (!smoothRef.current.primed) {
       smoothRef.current.px = targetPx;
       smoothRef.current.py = targetPy;
       smoothRef.current.primed = true;
-    } else {
-      const SMOOTH = 0.12;
-      smoothRef.current.px += (targetPx - smoothRef.current.px) * SMOOTH;
-      smoothRef.current.py += (targetPy - smoothRef.current.py) * SMOOTH;
+      applyVars(targetPx, targetPy, targetPx - 50, targetPy - 50);
     }
-    const px = smoothRef.current.px;
-    const py = smoothRef.current.py;
-    if (rafRef.current == null) {
-      rafRef.current = requestAnimationFrame(() => {
-        rafRef.current = null;
-        applyVars(px, py, px - 50, py - 50);
-      });
-    }
+    targetRef.current = { px: targetPx, py: targetPy };
   }, [applyVars]);
 
   const reset = useCallback(() => {
