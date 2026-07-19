@@ -192,51 +192,39 @@ const MapPage = () => {
     }
   };
 
+  const openCapture = (c: CaptureMarker) => {
+    setSelectedCard({
+      id: c.id,
+      name: c.animal_name,
+      scientificName: c.scientific_name || '',
+      image: c.image_url || '',
+      cutoutUrl: c.cutout_url || undefined,
+      rarity: c.rarity as Rarity,
+      category: c.category || '',
+      description: c.description || '',
+      habitat: c.habitat || '',
+      diet: c.diet || '',
+      conservation: c.conservation || '',
+      funFact: c.fun_fact || '',
+      discoveredAt: c.created_at,
+      location: c.location || '',
+    });
+  };
+
   const markers = useMemo(
     () =>
       captures.map((c) => (
-        <Marker key={c.id} position={[c.latitude, c.longitude]} icon={buildIcon(c.rarity, c.category)}>
-          <Popup className="faunex-popup" closeButton={false}>
-            <div className="faunex-popup-card">
-              {c.image_url && (
-                <div className="relative overflow-hidden rounded-t-xl">
-                  <img
-                    src={c.image_url}
-                    alt={c.animal_name}
-                    className="w-full h-28 object-cover"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                  <div
-                    className="absolute inset-0 pointer-events-none mix-blend-overlay"
-                    style={{
-                      background: `linear-gradient(135deg, ${RARITY_COLORS[c.rarity]}22 0%, transparent 60%)`,
-                    }}
-                  />
-                </div>
-              )}
-              <div className="p-3 text-center">
-                <p className="font-display font-bold text-sm text-foreground leading-tight">{c.animal_name}</p>
-                {c.scientific_name && (
-                  <p className="text-[11px] italic text-muted-foreground mt-0.5">{c.scientific_name}</p>
-                )}
-                <span
-                  className="inline-flex items-center gap-1 mt-2 text-[10px] font-display font-bold uppercase px-2.5 py-1 rounded-full"
-                  style={{
-                    background: `${RARITY_COLORS[c.rarity]}22`,
-                    color: RARITY_COLORS[c.rarity],
-                  }}
-                >
-                  <Footprints className="w-3 h-3" />
-                  {RARITY_LABELS[c.rarity] || c.rarity}
-                </span>
-              </div>
-            </div>
-          </Popup>
-        </Marker>
+        <Marker
+          key={c.id}
+          position={[c.latitude, c.longitude]}
+          icon={buildIcon(c.rarity, c.category)}
+          eventHandlers={{ click: () => openCapture(c) }}
+        />
       )),
     [captures],
   );
+
+
 
   if (loading) return <LoadingScreen />;
 
