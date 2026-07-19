@@ -213,7 +213,7 @@ const BestiairePage = () => {
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'categories' | 'mine'>('categories');
+  const [viewMode, setViewMode] = useState<'mine' | 'categories' | 'territory'>('mine');
   const [rarityFilter, setRarityFilter] = useState<Rarity | 'all'>('all');
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [pendingShelve, setPendingShelveState] = useState<PendingShelve | null>(null);
