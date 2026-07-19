@@ -46,9 +46,11 @@ const HolographicCard = ({
 }: Props) => {
   const wrapRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
+  const loopRef = useRef<number | null>(null);
   const baselineRef = useRef<{ beta: number; gamma: number } | null>(null);
   const warmupRef = useRef<{ count: number; sumBeta: number; sumGamma: number }>({ count: 0, sumBeta: 0, sumGamma: 0 });
   const smoothRef = useRef<{ px: number; py: number; primed: boolean }>({ px: 50, py: 50, primed: false });
+  const targetRef = useRef<{ px: number; py: number } | null>(null);
   const lastRawRef = useRef<{ beta: number; gamma: number } | null>(null);
   const pausedRef = useRef(paused);
 
@@ -116,24 +118,14 @@ const HolographicCard = ({
     const dBeta = Math.max(-RANGE, Math.min(RANGE, beta - base.beta));
     const targetPx = 50 + (dGamma / RANGE) * 50;
     const targetPy = 50 + (dBeta / RANGE) * 50;
-    // Prime on first valid frame to avoid a slow drift-in from (50,50).
+    // Prime immediately on first valid frame.
     if (!smoothRef.current.primed) {
       smoothRef.current.px = targetPx;
       smoothRef.current.py = targetPy;
       smoothRef.current.primed = true;
-    } else {
-      const SMOOTH = 0.12;
-      smoothRef.current.px += (targetPx - smoothRef.current.px) * SMOOTH;
-      smoothRef.current.py += (targetPy - smoothRef.current.py) * SMOOTH;
+      applyVars(targetPx, targetPy, targetPx - 50, targetPy - 50);
     }
-    const px = smoothRef.current.px;
-    const py = smoothRef.current.py;
-    if (rafRef.current == null) {
-      rafRef.current = requestAnimationFrame(() => {
-        rafRef.current = null;
-        applyVars(px, py, px - 50, py - 50);
-      });
-    }
+    targetRef.current = { px: targetPx, py: targetPy };
   }, [applyVars]);
 
   const reset = useCallback(() => {
@@ -195,15 +187,33 @@ const HolographicCard = ({
       attach();
     }
 
+    // Continuous rAF loop — interpolates toward the latest target every frame
+    // so the visual smoothly catches up regardless of the sensor's update rate.
+    const SMOOTH = 0.22;
+    const tick = () => {
+      const t = targetRef.current;
+      if (t && !pausedRef.current) {
+        const s = smoothRef.current;
+        s.px += (t.px - s.px) * SMOOTH;
+        s.py += (t.py - s.py) * SMOOTH;
+        applyVars(s.px, s.py, s.px - 50, s.py - 50);
+      }
+      loopRef.current = requestAnimationFrame(tick);
+    };
+    loopRef.current = requestAnimationFrame(tick);
+
     return () => {
       window.removeEventListener('deviceorientation', handler);
+      if (loopRef.current != null) cancelAnimationFrame(loopRef.current);
+      loopRef.current = null;
       baselineRef.current = null;
       warmupRef.current = { count: 0, sumBeta: 0, sumGamma: 0 };
       lastRawRef.current = null;
       smoothRef.current = { px: 50, py: 50, primed: false };
+      targetRef.current = null;
       reset();
     };
-  }, [noHolo, updateFromOrientation, reset]);
+  }, [noHolo, updateFromOrientation, reset, applyVars]);
 
   // Sync paused state and rebaseline whenever we resume so the resting pose recalibrates.
   useEffect(() => {
@@ -215,6 +225,7 @@ const HolographicCard = ({
       warmupRef.current = { count: 0, sumBeta: 0, sumGamma: 0 };
       lastRawRef.current = null;
       smoothRef.current = { px: 50, py: 50, primed: false };
+      targetRef.current = null;
     }
   }, [paused, reset]);
 
