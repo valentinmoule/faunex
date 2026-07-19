@@ -224,13 +224,29 @@ const MapPage = () => {
             </div>
           </div>
 
-          <button
-            onClick={locateMe}
-            className="p-3 rounded-2xl bg-card/85 backdrop-blur-xl border border-border/60 shadow-card hover:bg-card transition-colors"
-            aria-label="Me localiser"
-          >
-            <Compass className="w-5 h-5 text-foreground" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={discoverInZone}
+              disabled={discovering}
+              className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-primary text-primary-foreground font-display font-bold text-sm shadow-lg shadow-primary/25 hover:scale-105 active:scale-95 transition-transform disabled:opacity-70 disabled:scale-100"
+              aria-label="Chercher dans cette zone"
+            >
+              {discovering ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Search className="w-4 h-4" />
+              )}
+              Chercher
+            </button>
+
+            <button
+              onClick={locateMe}
+              className="p-3 rounded-2xl bg-card/85 backdrop-blur-xl border border-border/60 shadow-card hover:bg-card transition-colors"
+              aria-label="Me localiser"
+            >
+              <Compass className="w-5 h-5 text-foreground" />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -260,25 +276,6 @@ const MapPage = () => {
         )}
         {markers}
       </MapContainer>
-
-      {/* Bottom gradient for button readability */}
-      <div className="absolute bottom-0 left-0 right-0 h-40 z-[500] pointer-events-none bg-gradient-to-t from-background/80 via-background/20 to-transparent" />
-
-      {/* Floating search action */}
-      <div className="absolute bottom-[calc(4rem+max(0.5rem,env(safe-area-inset-bottom)))] left-0 right-0 z-[1000] px-4 flex justify-center pointer-events-none">
-        <button
-          onClick={discoverInZone}
-          disabled={discovering}
-          className="pointer-events-auto flex items-center gap-2 px-5 py-3.5 rounded-full bg-primary text-primary-foreground font-display font-bold text-sm shadow-lg shadow-primary/25 hover:scale-105 active:scale-95 transition-transform disabled:opacity-70 disabled:scale-100"
-        >
-          {discovering ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : (
-            <Search className="w-4 h-4" />
-          )}
-          Chercher dans cette zone
-        </button>
-      </div>
 
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto z-[1200]">
