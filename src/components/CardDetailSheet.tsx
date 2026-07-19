@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, type ComponentType } from 'react';
+import { useState, useEffect, useCallback, useRef, type ComponentType } from 'react';
 import { notifyCaptureInteraction } from '@/lib/notifyCaptureInteraction';
 import { Drawer } from 'vaul';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -71,6 +71,18 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
   const [submitting, setSubmitting] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [imageFullscreen, setImageFullscreen] = useState(false);
+  // Pinch-to-zoom state for the fullscreen photo
+  const [zoom, setZoom] = useState({ scale: 1, x: 0, y: 0 });
+  const zoomRef = useRef({
+    initialDistance: 0,
+    initialScale: 1,
+    initialPan: { x: 0, y: 0 },
+    initialCenter: { x: 0, y: 0 },
+    lastTouch: { x: 0, y: 0 },
+    lastTapTime: 0,
+    isPinching: false,
+    isPanning: false,
+  });
 
   // Reset transient UI state when a new card opens
   useEffect(() => {
@@ -90,6 +102,16 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
       img.src = card.image;
     }
   }, [card, open]);
+
+  // Reset pinch-zoom when entering/leaving fullscreen so the photo always starts at 1x.
+  useEffect(() => {
+    if (imageFullscreen) {
+      setZoom({ scale: 1, x: 0, y: 0 });
+      zoomRef.current.isPinching = false;
+      zoomRef.current.isPanning = false;
+      zoomRef.current.lastTapTime = 0;
+    }
+  }, [imageFullscreen]);
 
   // Lightweight likes fetch — runs in idle time, doesn't block paint
   useEffect(() => {
@@ -177,6 +199,83 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
     if (hours < 24) return `${hours}h`;
     return `${Math.floor(hours / 24)}j`;
   };
+
+  // Pinch-to-zoom helpers for the fullscreen photo
+  const getTouchDistance = (touches: React.TouchList) => {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.hypot(dx, dy);
+  };
+  const getTouchCenter = (touches: React.TouchList) => ({
+    x: (touches[0].clientX + touches[1].clientX) / 2,
+    y: (touches[0].clientY + touches[1].clientY) / 2,
+  });
+  const clampScale = (s: number) => Math.min(4, Math.max(1, s));
+  const resetZoom = () => setZoom({ scale: 1, x: 0, y: 0 });
+
+  const handleFullscreenTouchStart = useCallback((e: React.TouchEvent) => {
+    if (!card?.image) return;
+    const now = Date.now();
+    const z = zoomRef.current;
+
+    // Double-tap detection (single quick tap)
+    if (e.touches.length === 1) {
+      if (now - z.lastTapTime < 300) {
+        e.preventDefault();
+        if (zoom.scale > 1.05) {
+          resetZoom();
+        } else {
+          // Zoom to 2.5x centered on tap point
+          const rect = e.currentTarget.getBoundingClientRect();
+          const tapX = e.touches[0].clientX - rect.left - rect.width / 2;
+          const tapY = e.touches[0].clientY - rect.top - rect.height / 2;
+          setZoom({ scale: 2.5, x: -tapX * 0.6, y: -tapY * 0.6 });
+        }
+        z.lastTapTime = 0;
+        return;
+      }
+      z.lastTapTime = now;
+    }
+
+    if (e.touches.length === 2) {
+      z.isPinching = true;
+      z.initialDistance = getTouchDistance(e.touches);
+      z.initialScale = zoom.scale;
+      z.initialCenter = getTouchCenter(e.touches);
+    } else if (e.touches.length === 1 && zoom.scale > 1.05) {
+      z.isPanning = true;
+      z.initialPan = { x: zoom.x, y: zoom.y };
+      z.lastTouch = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }
+  }, [card?.image, zoom.scale, zoom.x, zoom.y]);
+
+  const handleFullscreenTouchMove = useCallback((e: React.TouchEvent) => {
+    const z = zoomRef.current;
+    if (e.touches.length === 2 && z.isPinching) {
+      e.preventDefault();
+      const newDistance = getTouchDistance(e.touches);
+      const ratio = newDistance / z.initialDistance;
+      const newScale = clampScale(z.initialScale * ratio);
+      setZoom(prev => ({ ...prev, scale: newScale }));
+    } else if (e.touches.length === 1 && z.isPanning && zoom.scale > 1.05) {
+      e.preventDefault();
+      const touch = e.touches[0];
+      const dx = touch.clientX - z.lastTouch.x;
+      const dy = touch.clientY - z.lastTouch.y;
+      z.lastTouch = { x: touch.clientX, y: touch.clientY };
+      setZoom(prev => ({ ...prev, x: prev.x + dx, y: prev.y + dy }));
+    }
+  }, [zoom.scale]);
+
+  const handleFullscreenTouchEnd = useCallback(() => {
+    const z = zoomRef.current;
+    z.isPinching = false;
+    z.isPanning = false;
+    setZoom(prev => {
+      if (prev.scale < 1.05) return { scale: 1, x: 0, y: 0 };
+      return { ...prev, scale: clampScale(prev.scale) };
+    });
+  }, []);
 
   if (!card) return null;
 
@@ -406,7 +505,16 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
       {imageFullscreen && card.image && (
         <div
           className={`fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden detail-hero-${card.rarity}`}
-          onClick={() => setImageFullscreen(false)}
+          onClick={() => {
+            if (zoom.scale > 1.05) {
+              resetZoom();
+            } else {
+              setImageFullscreen(false);
+            }
+          }}
+          onTouchStart={handleFullscreenTouchStart}
+          onTouchMove={handleFullscreenTouchMove}
+          onTouchEnd={handleFullscreenTouchEnd}
         >
           {/* Animated rarity backdrop */}
           <div className="absolute inset-0 bg-black/90 backdrop-blur-sm pointer-events-none" />
@@ -443,40 +551,55 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
           <div
             className="relative w-full h-full max-w-[min(100vw,100vh)] max-h-screen z-10 flex items-center justify-center p-4 pointer-events-none"
           >
-            <HolographicCard
-              rarity={card.rarity}
-              cutoutUrl={card.cutoutUrl}
-              subjectBox={card.subjectBox}
-              containInteraction
-              className="holo-fullscreen-photo relative rounded-2xl pointer-events-auto touch-none"
+            <div
+              className="pointer-events-auto transition-transform duration-75 ease-out will-change-transform"
+              style={{
+                transform: `scale(${zoom.scale}) translate(${zoom.x}px, ${zoom.y}px)`,
+                touchAction: 'none',
+              }}
             >
-              <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl border-[6px] border-white/95 bg-white/95">
-                <div className="relative w-full h-full rounded-[1.4rem] overflow-hidden">
-                  <img
-                    src={card.image}
-                    alt={card.name}
-                    loading="eager"
-                    decoding="async"
-                    fetchPriority="high"
-                    className="w-full h-full object-cover pointer-events-none select-none bg-black/30"
-                    draggable={false}
-                  />
-                  {isMythic && <div className="detail-mythic-glass" />}
-                  {isEpic && <div className="detail-epic-glass" />}
-                  {isRare && <div className="detail-rare-glass" />}
-                  {/* Name overlay bottom-left */}
-                  <div className="absolute bottom-0 left-0 right-0 pointer-events-none p-5 pr-6 pt-16 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
-                    <h3 className="text-white font-display font-bold text-2xl leading-tight drop-shadow-lg">{card.name}</h3>
-                    {card.scientificName && (
-                      <p className="text-white/90 text-sm italic font-body leading-tight mt-1 drop-shadow">{card.scientificName}</p>
-                    )}
+              <HolographicCard
+                rarity={card.rarity}
+                cutoutUrl={card.cutoutUrl}
+                subjectBox={card.subjectBox}
+                containInteraction
+                className="holo-fullscreen-photo relative rounded-2xl pointer-events-auto touch-none"
+              >
+                <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl border-[6px] border-white/95 bg-white/95">
+                  <div className="relative w-full h-full rounded-[1.4rem] overflow-hidden">
+                    <img
+                      src={card.image}
+                      alt={card.name}
+                      loading="eager"
+                      decoding="async"
+                      fetchPriority="high"
+                      className="w-full h-full object-cover pointer-events-none select-none bg-black/30"
+                      draggable={false}
+                    />
+                    {isMythic && <div className="detail-mythic-glass" />}
+                    {isEpic && <div className="detail-epic-glass" />}
+                    {isRare && <div className="detail-rare-glass" />}
+                    {/* Name overlay bottom-left */}
+                    <div className="absolute bottom-0 left-0 right-0 pointer-events-none p-5 pr-6 pt-16 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+                      <h3 className="text-white font-display font-bold text-2xl leading-tight drop-shadow-lg">{card.name}</h3>
+                      {card.scientificName && (
+                        <p className="text-white/90 text-sm italic font-body leading-tight mt-1 drop-shadow">{card.scientificName}</p>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </HolographicCard>
+              </HolographicCard>
+            </div>
           </div>
           <button
-            onClick={() => setImageFullscreen(false)}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (zoom.scale > 1.05) {
+                resetZoom();
+              } else {
+                setImageFullscreen(false);
+              }
+            }}
             className="absolute top-5 right-5 z-20 w-11 h-11 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white/90 hover:text-white hover:bg-black/60 transition-colors"
             aria-label="Fermer l'image en plein écran"
           >
