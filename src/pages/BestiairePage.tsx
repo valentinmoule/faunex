@@ -1090,7 +1090,7 @@ const BestiairePage = () => {
         <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
           <div className="max-w-lg mx-auto">
             <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-display font-bold text-primary">Bestiaire</h1>
+              <h1 className="text-2xl font-display font-bold text-primary">mon faunex</h1>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground font-display">
                   {totalCaptured}/{animals.length}
@@ -1365,7 +1365,7 @@ const BestiairePage = () => {
   return (
     <main className="min-h-screen bg-background pb-24">
       <Helmet>
-        <title>Bestiaire — Toutes les espèces à découvrir · Faunex</title>
+        <title>mon faunex — Toutes les espèces à découvrir · Faunex</title>
         <meta name="description" content="Explore le bestiaire Faunex : +1000 espèces sauvages françaises classées par catégorie et rareté. Découvre la faune autour de toi." />
         <link rel="canonical" href="https://faunex.fr/bestiaire" />
         <meta property="og:title" content="Bestiaire Faunex — +1000 espèces à découvrir" />
