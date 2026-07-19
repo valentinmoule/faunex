@@ -16,7 +16,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import { PushPermissionPrompt } from "./components/PushPermissionPrompt";
 
 // Lazy-loaded routes for smaller initial bundle
-const Index = lazy(() => import("./pages/Index"));
+
 const CapturePage = lazy(() => import("./pages/CapturePage"));
 const CollectionPage = lazy(() => import("./pages/CollectionPage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
