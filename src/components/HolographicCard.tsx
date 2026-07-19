@@ -42,6 +42,7 @@ const HolographicCard = ({
   subjectBox,
   containInteraction = false,
   noHolo = false,
+  paused = false,
 }: Props) => {
   const wrapRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
