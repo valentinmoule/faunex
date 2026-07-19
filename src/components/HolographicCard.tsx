@@ -141,7 +141,8 @@ const HolographicCard = ({
     const base = baselineRef.current;
     // The holo reflection is a subtle card parallax, not a full-screen pan.
     // Keep movement bounded and soft so normal phone motion cannot create large jumps.
-    const RANGE = 34;
+    const RANGE = 22;
+
     const TRAVEL = 19;
     // Small dead-zone near baseline to filter out micro-shakes.
     const DEAD = 1.8;
