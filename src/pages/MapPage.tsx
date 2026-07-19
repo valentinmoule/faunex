@@ -13,6 +13,7 @@ interface CaptureMarker {
   id: string;
   animal_name: string;
   scientific_name: string | null;
+  category: string;
   rarity: string;
   image_url: string | null;
   latitude: number;
