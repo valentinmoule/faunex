@@ -1,9 +1,9 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Camera, Users, PawPrint, Globe, User } from 'lucide-react';
+import { Camera, Users, PawPrint, Map, User } from 'lucide-react';
 
 const tabs = [
   { path: '/home', label: 'Mon Faunex', icon: PawPrint },
-  { path: '/bestiaire', label: 'Bestiaire', icon: Globe },
+  { path: '/bestiaire', label: 'Cartes', icon: Map },
   { path: '/capture', label: 'Capture', icon: Camera },
   { path: '/explorers', label: 'Explorateurs', icon: Users },
   { path: '/profile', label: 'Profil', icon: User },
