@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePwaInstall } from '@/contexts/PwaInstallContext';
 import XpParticles from '@/components/XpParticles';
+import QuestsInline from '@/components/QuestsInline';
 
 
 interface Profile {
@@ -258,6 +259,9 @@ const ProfilePage = () => {
             </button>
           </div>
         )}
+
+        {/* Quests Section */}
+        <QuestsInline />
 
         {/* Badges Section — Gaming Style */}
         <div id="badges" className="scroll-mt-20">

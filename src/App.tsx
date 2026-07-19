@@ -16,7 +16,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import { PushPermissionPrompt } from "./components/PushPermissionPrompt";
 
 // Lazy-loaded routes for smaller initial bundle
-const Index = lazy(() => import("./pages/Index"));
+
 const CapturePage = lazy(() => import("./pages/CapturePage"));
 const CollectionPage = lazy(() => import("./pages/CollectionPage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
@@ -25,6 +25,7 @@ const AuthPage = lazy(() => import("./pages/AuthPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const FriendCollectionPage = lazy(() => import("./pages/FriendCollectionPage"));
 const BestiairePage = lazy(() => import("./pages/BestiairePage"));
+const MapPage = lazy(() => import("./pages/MapPage"));
 const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
 const ModerationPage = lazy(() => import("./pages/ModerationPage"));
 const LegalPage = lazy(() => import("./pages/LegalPage"));
@@ -119,14 +120,14 @@ const AppRoutes = () => {
           <Route path="/auth" element={<AuthRoute><AuthPage /></AuthRoute>} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/complete-profile" element={<ProtectedRoute><CompleteProfilePage /></ProtectedRoute>} />
-          <Route path="/home" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+          <Route path="/home" element={<ProtectedRoute><BestiairePage /></ProtectedRoute>} />
           <Route path="/collection" element={<ProtectedRoute><CollectionPage /></ProtectedRoute>} />
           <Route path="/capture" element={<ProtectedRoute><CapturePage /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
           <Route path="/feed" element={<Navigate to="/explorers" replace />} />
           <Route path="/explorers" element={<ProtectedRoute><ExplorersPage /></ProtectedRoute>} />
           <Route path="/explorer/:userId/collection" element={<ProtectedRoute><FriendCollectionPage /></ProtectedRoute>} />
-          <Route path="/bestiaire" element={<ProtectedRoute><BestiairePage /></ProtectedRoute>} />
+          <Route path="/bestiaire" element={<ProtectedRoute><MapPage /></ProtectedRoute>} />
           <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
           <Route path="/moderation" element={<AdminRoute><ModerationPage /></AdminRoute>} />
           <Route path="/quests" element={<ProtectedRoute><QuestsPage /></ProtectedRoute>} />
