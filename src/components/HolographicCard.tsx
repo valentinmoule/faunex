@@ -143,7 +143,7 @@ const HolographicCard = ({
     // Keep movement bounded and soft so normal phone motion cannot create large jumps.
     const RANGE = 22;
 
-    const TRAVEL = 19;
+    const TRAVEL = 34;
     // Small dead-zone near baseline to filter out micro-shakes.
     const DEAD = 1.8;
     const rawDGamma = filtered.gamma - base.gamma;
