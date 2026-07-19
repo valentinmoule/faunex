@@ -74,6 +74,10 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+    dedupe: ["react", "react-dom", "react-leaflet", "@react-leaflet/core", "leaflet"],
+  },
+  optimizeDeps: {
+    include: ["react-leaflet", "@react-leaflet/core", "leaflet"],
   },
   build: {
     target: "es2020",
