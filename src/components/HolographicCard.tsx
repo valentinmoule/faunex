@@ -44,7 +44,9 @@ const HolographicCard = ({
   const wrapRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
   const baselineRef = useRef<{ beta: number; gamma: number } | null>(null);
-  const smoothRef = useRef<{ px: number; py: number }>({ px: 50, py: 50 });
+  const warmupRef = useRef<{ count: number; sumBeta: number; sumGamma: number }>({ count: 0, sumBeta: 0, sumGamma: 0 });
+  const smoothRef = useRef<{ px: number; py: number; primed: boolean }>({ px: 50, py: 50, primed: false });
+  const lastRawRef = useRef<{ beta: number; gamma: number } | null>(null);
 
   const applyVars = useCallback((px: number, py: number, cx: number, cy: number) => {
     const node = wrapRef.current;
@@ -82,17 +84,44 @@ const HolographicCard = ({
   // Gyroscope-driven update. beta = front/back tilt (-180..180), gamma = left/right (-90..90).
   const updateFromOrientation = useCallback((beta: number | null, gamma: number | null) => {
     if (beta == null || gamma == null) return;
-    if (!baselineRef.current) baselineRef.current = { beta, gamma };
+    if (!Number.isFinite(beta) || !Number.isFinite(gamma)) return;
+
+    // Reject wild jumps (device flipping, angle wrap at ±180) — likely garbage frames.
+    const last = lastRawRef.current;
+    if (last) {
+      if (Math.abs(beta - last.beta) > 60 || Math.abs(gamma - last.gamma) > 60) {
+        lastRawRef.current = { beta, gamma };
+        return;
+      }
+    }
+    lastRawRef.current = { beta, gamma };
+
+    // Warm-up: average the first few frames so the baseline reflects the resting pose,
+    // not whatever motion was happening at mount time.
+    if (!baselineRef.current) {
+      const w = warmupRef.current;
+      w.count += 1;
+      w.sumBeta += beta;
+      w.sumGamma += gamma;
+      if (w.count < 4) return;
+      baselineRef.current = { beta: w.sumBeta / w.count, gamma: w.sumGamma / w.count };
+    }
     const base = baselineRef.current;
-    const RANGE = 45; // degrees of tilt mapped to full holo travel (higher = less sensitive)
+    const RANGE = 45;
     const dGamma = Math.max(-RANGE, Math.min(RANGE, gamma - base.gamma));
     const dBeta = Math.max(-RANGE, Math.min(RANGE, beta - base.beta));
     const targetPx = 50 + (dGamma / RANGE) * 50;
     const targetPy = 50 + (dBeta / RANGE) * 50;
-    // Low-pass smoothing to reduce jittery micro-movements.
-    const SMOOTH = 0.12;
-    smoothRef.current.px += (targetPx - smoothRef.current.px) * SMOOTH;
-    smoothRef.current.py += (targetPy - smoothRef.current.py) * SMOOTH;
+    // Prime on first valid frame to avoid a slow drift-in from (50,50).
+    if (!smoothRef.current.primed) {
+      smoothRef.current.px = targetPx;
+      smoothRef.current.py = targetPy;
+      smoothRef.current.primed = true;
+    } else {
+      const SMOOTH = 0.12;
+      smoothRef.current.px += (targetPx - smoothRef.current.px) * SMOOTH;
+      smoothRef.current.py += (targetPy - smoothRef.current.py) * SMOOTH;
+    }
     const px = smoothRef.current.px;
     const py = smoothRef.current.py;
     if (rafRef.current == null) {
@@ -164,7 +193,9 @@ const HolographicCard = ({
     return () => {
       window.removeEventListener('deviceorientation', handler);
       baselineRef.current = null;
-      smoothRef.current = { px: 50, py: 50 };
+      warmupRef.current = { count: 0, sumBeta: 0, sumGamma: 0 };
+      lastRawRef.current = null;
+      smoothRef.current = { px: 50, py: 50, primed: false };
       reset();
     };
   }, [noHolo, updateFromOrientation, reset]);
