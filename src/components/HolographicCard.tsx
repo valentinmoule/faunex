@@ -44,6 +44,7 @@ const HolographicCard = ({
   const wrapRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
   const baselineRef = useRef<{ beta: number; gamma: number } | null>(null);
+  const smoothRef = useRef<{ px: number; py: number }>({ px: 50, py: 50 });
 
   const applyVars = useCallback((px: number, py: number, cx: number, cy: number) => {
     const node = wrapRef.current;
