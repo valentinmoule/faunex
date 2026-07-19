@@ -13,6 +13,7 @@ interface CaptureMarker {
   id: string;
   animal_name: string;
   scientific_name: string | null;
+  category: string;
   rarity: string;
   image_url: string | null;
   latitude: number;
@@ -43,19 +44,35 @@ const RARITY_LABELS: Record<string, string> = {
   mythic: 'Mythique',
 };
 
-const buildIcon = (rarity: string) => {
+const getCategoryEmoji = (category: string): string => {
+  const cat = category.toLowerCase();
+  if (cat.includes('oiseau')) return '🐦';
+  if (cat.includes('poisson') || cat.includes('vie marine')) return '🐟';
+  if (cat.includes('insecte')) return '🦋';
+  if (cat.includes('reptile')) return '🦎';
+  if (cat.includes('amphibien')) return '🐸';
+  if (cat.includes('arachnide')) return '🕷️';
+  if (cat.includes('crustacé')) return '🦀';
+  if (cat.includes('mollusque')) return '🐌';
+  if (cat.includes('mammifère') && cat.includes('marin')) return '🐋';
+  if (cat.includes('mammifère')) return '🦊';
+  return '🐾';
+};
+
+const buildIcon = (rarity: string, category: string) => {
   const color = RARITY_COLORS[rarity] || RARITY_COLORS.common;
+  const emoji = getCategoryEmoji(category);
   return L.divIcon({
     className: 'faunex-pin',
     html: `
       <div class="faunex-pin-outer" style="--pin-color:${color}">
         <div class="faunex-pin-inner">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 11 3.8 11 6.3c0 1.68-.42 3.03-1 4.3L8 14.5V20h8v-5.5l-2-3.9c-.58-1.27-1-2.62-1-4.3 0-2.5 1.63-4.3 3.5-4.3 3.01 0 4.47 3.28 4.5 6 .03 2.5-.97 3.5-1 5.62V16"/><path d="M8 20v2"/><path d="M16 20v2"/></svg>
+          <span class="faunex-pin-emoji">${emoji}</span>
         </div>
       </div>
     `,
-    iconSize: [36, 36],
-    iconAnchor: [18, 18],
+    iconSize: [40, 40],
+    iconAnchor: [20, 20],
   });
 };
 
@@ -90,7 +107,7 @@ const MapPage = () => {
     (async () => {
       const { data, error } = await supabase
         .from('captures')
-        .select('id, animal_name, scientific_name, rarity, image_url, latitude, longitude, created_at')
+        .select('id, animal_name, scientific_name, category, rarity, image_url, latitude, longitude, created_at')
         .eq('user_id', session.user.id)
         .eq('status', 'approved')
         .not('latitude', 'is', null)
@@ -162,7 +179,7 @@ const MapPage = () => {
   const markers = useMemo(
     () =>
       captures.map((c) => (
-        <Marker key={c.id} position={[c.latitude, c.longitude]} icon={buildIcon(c.rarity)}>
+        <Marker key={c.id} position={[c.latitude, c.longitude]} icon={buildIcon(c.rarity, c.category)}>
           <Popup className="faunex-popup" closeButton={false}>
             <div className="faunex-popup-card">
               {c.image_url && (

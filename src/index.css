@@ -2146,8 +2146,8 @@
 
 /* Marker pulse rings */
 .faunex-pin-outer {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: var(--pin-color);
   display: flex;
@@ -2161,14 +2161,19 @@
 }
 
 .faunex-pin-inner {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: #fff;
   color: var(--pin-color);
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.faunex-pin-emoji {
+  font-size: 16px;
+  line-height: 1;
 }
 
 @keyframes pin-pulse {
