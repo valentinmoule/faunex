@@ -1,15 +1,18 @@
 import { useEffect, useMemo, useRef, useState, type ComponentType } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents } from 'react-leaflet';
+import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Loader2, Compass, Search, MapPin, Sparkles, Footprints, Bird, Fish, Bug, Turtle, Shell, Waves, PawPrint } from 'lucide-react';
+import { Loader2, Compass, Search, MapPin, Sparkles, Bird, Fish, Bug, Turtle, Shell, Waves, PawPrint } from 'lucide-react';
 import { FrogIcon } from '@/components/icons/FrogIcon';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import LoadingScreen from '@/components/LoadingScreen';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import CardDetailSheet from '@/components/CardDetailSheet';
+import { type AnimalCard, type Rarity } from '@/data/mockData';
 import { toast } from 'sonner';
+
 
 interface CaptureMarker {
   id: string;
@@ -18,10 +21,18 @@ interface CaptureMarker {
   category: string;
   rarity: string;
   image_url: string | null;
+  cutout_url: string | null;
+  description: string | null;
+  habitat: string | null;
+  diet: string | null;
+  conservation: string | null;
+  fun_fact: string | null;
+  location: string | null;
   latitude: number;
   longitude: number;
   created_at: string;
 }
+
 
 interface DiscoveredAnimal {
   name: string;
@@ -39,12 +50,6 @@ const RARITY_COLORS: Record<string, string> = {
   mythic: '#f59e0b',
 };
 
-const RARITY_LABELS: Record<string, string> = {
-  common: 'Commun',
-  rare: 'Rare',
-  epic: 'Épique',
-  mythic: 'Mythique',
-};
 
 const getCategoryIcon = (category: string): ComponentType<{ className?: string; strokeWidth?: string | number; color?: string }> => {
   const cat = category.toLowerCase();
@@ -104,13 +109,15 @@ const MapPage = () => {
   const [discovering, setDiscovering] = useState(false);
   const [discovered, setDiscovered] = useState<{ location: string; animals: DiscoveredAnimal[] } | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
 
   useEffect(() => {
     if (!session?.user) return;
     (async () => {
       const { data, error } = await supabase
         .from('captures')
-        .select('id, animal_name, scientific_name, category, rarity, image_url, latitude, longitude, created_at')
+        .select('id, animal_name, scientific_name, category, rarity, image_url, cutout_url, description, habitat, diet, conservation, fun_fact, location, latitude, longitude, created_at')
+
         .eq('user_id', session.user.id)
         .eq('status', 'approved')
         .not('latitude', 'is', null)
@@ -179,51 +186,39 @@ const MapPage = () => {
     }
   };
 
+  const openCapture = (c: CaptureMarker) => {
+    setSelectedCard({
+      id: c.id,
+      name: c.animal_name,
+      scientificName: c.scientific_name || '',
+      image: c.image_url || '',
+      cutoutUrl: c.cutout_url || undefined,
+      rarity: c.rarity as Rarity,
+      category: c.category || '',
+      description: c.description || '',
+      habitat: c.habitat || '',
+      diet: c.diet || '',
+      conservation: c.conservation || '',
+      funFact: c.fun_fact || '',
+      discoveredAt: c.created_at,
+      location: c.location || '',
+    });
+  };
+
   const markers = useMemo(
     () =>
       captures.map((c) => (
-        <Marker key={c.id} position={[c.latitude, c.longitude]} icon={buildIcon(c.rarity, c.category)}>
-          <Popup className="faunex-popup" closeButton={false}>
-            <div className="faunex-popup-card">
-              {c.image_url && (
-                <div className="relative overflow-hidden rounded-t-xl">
-                  <img
-                    src={c.image_url}
-                    alt={c.animal_name}
-                    className="w-full h-28 object-cover"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                  <div
-                    className="absolute inset-0 pointer-events-none mix-blend-overlay"
-                    style={{
-                      background: `linear-gradient(135deg, ${RARITY_COLORS[c.rarity]}22 0%, transparent 60%)`,
-                    }}
-                  />
-                </div>
-              )}
-              <div className="p-3 text-center">
-                <p className="font-display font-bold text-sm text-foreground leading-tight">{c.animal_name}</p>
-                {c.scientific_name && (
-                  <p className="text-[11px] italic text-muted-foreground mt-0.5">{c.scientific_name}</p>
-                )}
-                <span
-                  className="inline-flex items-center gap-1 mt-2 text-[10px] font-display font-bold uppercase px-2.5 py-1 rounded-full"
-                  style={{
-                    background: `${RARITY_COLORS[c.rarity]}22`,
-                    color: RARITY_COLORS[c.rarity],
-                  }}
-                >
-                  <Footprints className="w-3 h-3" />
-                  {RARITY_LABELS[c.rarity] || c.rarity}
-                </span>
-              </div>
-            </div>
-          </Popup>
-        </Marker>
+        <Marker
+          key={c.id}
+          position={[c.latitude, c.longitude]}
+          icon={buildIcon(c.rarity, c.category)}
+          eventHandlers={{ click: () => openCapture(c) }}
+        />
       )),
     [captures],
   );
+
+
 
   if (loading) return <LoadingScreen />;
 
@@ -334,7 +329,14 @@ const MapPage = () => {
           </div>
         </SheetContent>
       </Sheet>
+
+      <CardDetailSheet
+        card={selectedCard}
+        open={!!selectedCard}
+        onClose={() => setSelectedCard(null)}
+      />
     </main>
+
   );
 };
 
