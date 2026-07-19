@@ -71,6 +71,18 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
   const [submitting, setSubmitting] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [imageFullscreen, setImageFullscreen] = useState(false);
+  // Pinch-to-zoom state for the fullscreen photo
+  const [zoom, setZoom] = useState({ scale: 1, x: 0, y: 0 });
+  const zoomRef = useRef({
+    initialDistance: 0,
+    initialScale: 1,
+    initialPan: { x: 0, y: 0 },
+    initialCenter: { x: 0, y: 0 },
+    lastTouch: { x: 0, y: 0 },
+    lastTapTime: 0,
+    isPinching: false,
+    isPanning: false,
+  });
 
   // Reset transient UI state when a new card opens
   useEffect(() => {
