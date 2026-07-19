@@ -413,9 +413,9 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
                 className={`relative mx-auto max-w-[280px] aspect-[4/5] rounded-2xl ${card.image ? 'cursor-pointer' : ''}`}
               >
                 <div
-                  className="relative w-full h-full rounded-[1.75rem] overflow-hidden border-[6px] border-white/95 bg-white/95"
-                  style={{ boxShadow: isMythic ? '0 0 40px 8px hsla(42,100%,65%,0.3), 0 8px 32px rgba(0,0,0,0.4)' : isEpic ? '0 0 35px 6px hsla(270,80%,65%,0.25), 0 8px 32px rgba(0,0,0,0.4)' : isRare ? '0 0 25px 4px hsla(210,70%,60%,0.2), 0 8px 32px rgba(0,0,0,0.4)' : '0 8px 32px rgba(0,0,0,0.4)' }}
+                  className={`relative w-full h-full rounded-[1.75rem] overflow-hidden holo-frame holo-frame--${card.rarity}`}
                 >
+
                   <div className="relative w-full h-full rounded-[1.4rem] overflow-hidden">
                     {card.image ? (
                       <img src={card.image} alt={card.name} loading="eager" decoding="async" fetchPriority="high" className="w-full h-full object-cover pointer-events-none select-none" draggable={false} />
@@ -629,7 +629,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
                 paused={holoPaused}
                 className="holo-fullscreen-photo relative rounded-2xl pointer-events-auto touch-none"
               >
-                <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl border-[6px] border-white/95 bg-white/95">
+                <div className={`relative w-full h-full rounded-2xl overflow-hidden shadow-2xl holo-frame holo-frame--${card.rarity}`}>
                   <div className="relative w-full h-full rounded-[1.4rem] overflow-hidden">
                     <img
                       src={card.image}
