@@ -495,7 +495,16 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
       {imageFullscreen && card.image && (
         <div
           className={`fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden detail-hero-${card.rarity}`}
-          onClick={() => setImageFullscreen(false)}
+          onClick={() => {
+            if (zoom.scale > 1.05) {
+              resetZoom();
+            } else {
+              setImageFullscreen(false);
+            }
+          }}
+          onTouchStart={handleFullscreenTouchStart}
+          onTouchMove={handleFullscreenTouchMove}
+          onTouchEnd={handleFullscreenTouchEnd}
         >
           {/* Animated rarity backdrop */}
           <div className="absolute inset-0 bg-black/90 backdrop-blur-sm pointer-events-none" />
@@ -532,40 +541,55 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
           <div
             className="relative w-full h-full max-w-[min(100vw,100vh)] max-h-screen z-10 flex items-center justify-center p-4 pointer-events-none"
           >
-            <HolographicCard
-              rarity={card.rarity}
-              cutoutUrl={card.cutoutUrl}
-              subjectBox={card.subjectBox}
-              containInteraction
-              className="holo-fullscreen-photo relative rounded-2xl pointer-events-auto touch-none"
+            <div
+              className="pointer-events-auto transition-transform duration-75 ease-out will-change-transform"
+              style={{
+                transform: `scale(${zoom.scale}) translate(${zoom.x}px, ${zoom.y}px)`,
+                touchAction: 'none',
+              }}
             >
-              <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl border-[6px] border-white/95 bg-white/95">
-                <div className="relative w-full h-full rounded-[1.4rem] overflow-hidden">
-                  <img
-                    src={card.image}
-                    alt={card.name}
-                    loading="eager"
-                    decoding="async"
-                    fetchPriority="high"
-                    className="w-full h-full object-cover pointer-events-none select-none bg-black/30"
-                    draggable={false}
-                  />
-                  {isMythic && <div className="detail-mythic-glass" />}
-                  {isEpic && <div className="detail-epic-glass" />}
-                  {isRare && <div className="detail-rare-glass" />}
-                  {/* Name overlay bottom-left */}
-                  <div className="absolute bottom-0 left-0 right-0 pointer-events-none p-5 pr-6 pt-16 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
-                    <h3 className="text-white font-display font-bold text-2xl leading-tight drop-shadow-lg">{card.name}</h3>
-                    {card.scientificName && (
-                      <p className="text-white/90 text-sm italic font-body leading-tight mt-1 drop-shadow">{card.scientificName}</p>
-                    )}
+              <HolographicCard
+                rarity={card.rarity}
+                cutoutUrl={card.cutoutUrl}
+                subjectBox={card.subjectBox}
+                containInteraction
+                className="holo-fullscreen-photo relative rounded-2xl pointer-events-auto touch-none"
+              >
+                <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl border-[6px] border-white/95 bg-white/95">
+                  <div className="relative w-full h-full rounded-[1.4rem] overflow-hidden">
+                    <img
+                      src={card.image}
+                      alt={card.name}
+                      loading="eager"
+                      decoding="async"
+                      fetchPriority="high"
+                      className="w-full h-full object-cover pointer-events-none select-none bg-black/30"
+                      draggable={false}
+                    />
+                    {isMythic && <div className="detail-mythic-glass" />}
+                    {isEpic && <div className="detail-epic-glass" />}
+                    {isRare && <div className="detail-rare-glass" />}
+                    {/* Name overlay bottom-left */}
+                    <div className="absolute bottom-0 left-0 right-0 pointer-events-none p-5 pr-6 pt-16 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+                      <h3 className="text-white font-display font-bold text-2xl leading-tight drop-shadow-lg">{card.name}</h3>
+                      {card.scientificName && (
+                        <p className="text-white/90 text-sm italic font-body leading-tight mt-1 drop-shadow">{card.scientificName}</p>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </HolographicCard>
+              </HolographicCard>
+            </div>
           </div>
           <button
-            onClick={() => setImageFullscreen(false)}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (zoom.scale > 1.05) {
+                resetZoom();
+              } else {
+                setImageFullscreen(false);
+              }
+            }}
             className="absolute top-5 right-5 z-20 w-11 h-11 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white/90 hover:text-white hover:bg-black/60 transition-colors"
             aria-label="Fermer l'image en plein écran"
           >
