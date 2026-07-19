@@ -103,6 +103,16 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
     }
   }, [card, open]);
 
+  // Reset pinch-zoom when entering/leaving fullscreen so the photo always starts at 1x.
+  useEffect(() => {
+    if (imageFullscreen) {
+      setZoom({ scale: 1, x: 0, y: 0 });
+      zoomRef.current.isPinching = false;
+      zoomRef.current.isPanning = false;
+      zoomRef.current.lastTapTime = 0;
+    }
+  }, [imageFullscreen]);
+
   // Lightweight likes fetch — runs in idle time, doesn't block paint
   useEffect(() => {
     if (!card || !open || !session?.user) return;
