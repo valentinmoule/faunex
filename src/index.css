@@ -1909,6 +1909,64 @@
 .holo-fullscreen-photo .holo-cutout {
   display: none;
 }
+
+.holo-fullscreen-photo .holo-card {
+  contain: paint;
+}
+
+.holo-performance .holo-rotator {
+  transform: translate3d(0, 0, 0) rotateY(var(--rotate-x)) rotateX(var(--rotate-y));
+}
+
+.holo-performance .holo-shine,
+.holo-performance .holo-glare {
+  transition: none;
+  filter: none !important;
+  -webkit-mask-image: none !important;
+          mask-image: none !important;
+  will-change: opacity, background-position;
+}
+
+.holo-performance .holo-shine::before,
+.holo-performance .holo-shine::after {
+  display: none;
+}
+
+.detail-fullscreen .detail-mythic-orb-1,
+.detail-fullscreen .detail-mythic-orb-2,
+.detail-fullscreen .detail-mythic-orb-3,
+.detail-fullscreen .detail-epic-orb-1,
+.detail-fullscreen .detail-epic-orb-2,
+.detail-fullscreen .detail-epic-orb-3,
+.detail-fullscreen .detail-rare-orb-1,
+.detail-fullscreen .detail-rare-orb-2,
+.detail-fullscreen .detail-mythic-leak,
+.detail-fullscreen .detail-epic-leak,
+.detail-fullscreen .detail-rare-leak,
+.detail-fullscreen .detail-mythic-geo,
+.detail-fullscreen .detail-epic-geo,
+.detail-fullscreen .detail-rare-geo,
+.detail-glass--fullscreen {
+  animation: none !important;
+}
+
+.detail-fullscreen .detail-mythic-orb-1,
+.detail-fullscreen .detail-mythic-orb-2,
+.detail-fullscreen .detail-mythic-orb-3,
+.detail-fullscreen .detail-epic-orb-1,
+.detail-fullscreen .detail-epic-orb-2,
+.detail-fullscreen .detail-epic-orb-3,
+.detail-fullscreen .detail-rare-orb-1,
+.detail-fullscreen .detail-rare-orb-2 {
+  filter: none;
+  opacity: 0.22;
+}
+
+.holo-frame--fullscreen.holo-frame--rare,
+.holo-frame--fullscreen.holo-frame--epic,
+.holo-frame--fullscreen.holo-frame--mythic {
+  animation: none;
+}
 .holo-shine {
   z-index: 2;
   mix-blend-mode: color-dodge;
