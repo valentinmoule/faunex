@@ -567,7 +567,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
       {/* Fullscreen image - outside Sheet to avoid portal conflicts */}
       {imageFullscreen && card.image && (
         <div
-          className={`fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden detail-hero-${card.rarity}`}
+          className={`detail-fullscreen fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden detail-hero-${card.rarity}`}
           onClick={() => {
             if (zoom.scale > 1.05) {
               resetZoom();
@@ -628,9 +628,10 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
                 subjectBox={card.subjectBox}
                 containInteraction
                 paused={holoPaused || zoomInteracting || zoom.scale > 1.01}
+                performanceMode
                 className="holo-fullscreen-photo relative rounded-2xl pointer-events-auto touch-none"
               >
-                <div className={`relative w-full h-full rounded-[1.5rem] overflow-hidden shadow-2xl holo-frame holo-frame--${card.rarity}`}>
+                <div className={`relative w-full h-full rounded-[1.5rem] overflow-hidden shadow-2xl holo-frame holo-frame--fullscreen holo-frame--${card.rarity}`}>
                   <div className="relative w-full h-full rounded-[0.95rem] overflow-hidden">
 
                     <img
@@ -642,9 +643,9 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
                       className="w-full h-full object-cover pointer-events-none select-none bg-black/30"
                       draggable={false}
                     />
-                    {isMythic && <div className="detail-mythic-glass" />}
-                    {isEpic && <div className="detail-epic-glass" />}
-                    {isRare && <div className="detail-rare-glass" />}
+                    {isMythic && <div className="detail-mythic-glass detail-glass--fullscreen" />}
+                    {isEpic && <div className="detail-epic-glass detail-glass--fullscreen" />}
+                    {isRare && <div className="detail-rare-glass detail-glass--fullscreen" />}
                     {/* Name overlay bottom-left */}
                     <div className="absolute bottom-0 left-0 right-0 pointer-events-none p-5 pr-6 pt-16 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
                       <h3 className="text-white font-display font-bold text-2xl leading-tight drop-shadow-lg">{card.name}</h3>

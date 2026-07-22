@@ -17,6 +17,8 @@ interface Props {
   noHolo?: boolean;
   /** Temporarily freeze holo tilt updates (e.g. during pinch-zoom). Rebaselines on resume. */
   paused?: boolean;
+  /** Use a lighter GPU-friendly holo layer for large/fullscreen renders. */
+  performanceMode?: boolean;
   /** Kept for API compatibility (unused). */
   disableAutoShimmer?: boolean;
 }
@@ -52,6 +54,7 @@ const HolographicCard = ({
   containInteraction = false,
   noHolo = false,
   paused = false,
+  performanceMode = false,
 }: Props) => {
   const wrapRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
@@ -357,7 +360,7 @@ const HolographicCard = ({
   return (
     <div
       ref={wrapRef}
-      className={`holo-wrap holo-${rarity} ${className} ${appearAnimation}`}
+      className={`holo-wrap holo-${rarity} ${performanceMode ? 'holo-performance' : ''} ${className} ${appearAnimation}`}
       data-subject={subjectBox ? 'on' : undefined}
       data-paused={paused ? 'true' : undefined}
       style={cosmosStyle}
