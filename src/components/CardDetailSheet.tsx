@@ -567,7 +567,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
       {/* Fullscreen image - outside Sheet to avoid portal conflicts */}
       {imageFullscreen && card.image && (
         <div
-          className={`fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden detail-hero-${card.rarity}`}
+          className={`detail-fullscreen fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden detail-hero-${card.rarity}`}
           onClick={() => {
             if (zoom.scale > 1.05) {
               resetZoom();
