@@ -579,37 +579,8 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
           onTouchMove={handleFullscreenTouchMove}
           onTouchEnd={handleFullscreenTouchEnd}
         >
-          {/* Animated rarity backdrop */}
+          {/* Stable fullscreen backdrop: the holo effect itself stays on the card only. */}
           <div className="absolute inset-0 bg-black/90 backdrop-blur-sm pointer-events-none" />
-          {isMythic && (
-            <>
-              <div className="detail-mythic-orb-1 pointer-events-none" />
-              <div className="detail-mythic-orb-2 pointer-events-none" />
-              <div className="detail-mythic-orb-3 pointer-events-none" />
-              <div className="detail-mythic-vignette pointer-events-none" />
-              <div className="detail-mythic-leak pointer-events-none" />
-              <div className="detail-mythic-geo pointer-events-none" />
-            </>
-          )}
-          {isEpic && (
-            <>
-              <div className="detail-epic-orb-1 pointer-events-none" />
-              <div className="detail-epic-orb-2 pointer-events-none" />
-              <div className="detail-epic-orb-3 pointer-events-none" />
-              <div className="detail-epic-vignette pointer-events-none" />
-              <div className="detail-epic-leak pointer-events-none" />
-              <div className="detail-epic-geo pointer-events-none" />
-            </>
-          )}
-          {isRare && (
-            <>
-              <div className="detail-rare-orb-1 pointer-events-none" />
-              <div className="detail-rare-orb-2 pointer-events-none" />
-              <div className="detail-rare-vignette pointer-events-none" />
-              <div className="detail-rare-leak pointer-events-none" />
-              <div className="detail-rare-geo pointer-events-none" />
-            </>
-          )}
 
           <div
             className="relative w-full h-full max-w-[min(100vw,100vh)] max-h-screen z-10 flex items-center justify-center p-4 pointer-events-none"
