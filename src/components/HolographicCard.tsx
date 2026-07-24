@@ -76,8 +76,8 @@ const HolographicCard = ({
     const last = lastAppliedRef.current;
     const opacity = 1;
     if (
-      Math.abs(px - last.px) < 0.015 &&
-      Math.abs(py - last.py) < 0.015 &&
+      Math.abs(px - last.px) < 0.05 &&
+      Math.abs(py - last.py) < 0.05 &&
       last.opacity === opacity
     ) return;
     lastAppliedRef.current = { px, py, opacity };
@@ -92,6 +92,13 @@ const HolographicCard = ({
     s.setProperty('--background-y', `${(36 + (py / 100) * 28).toFixed(2)}%`);
     s.setProperty('--rotate-x', `${(-(cx / 6)).toFixed(2)}deg`);
     s.setProperty('--rotate-y', `${(cy / 6).toFixed(2)}deg`);
+    // Performance mode uses transform-only movement for the shine/glare layers.
+    // Updating background-position on large fullscreen gradients forces repaints;
+    // translating already-composited layers stays much closer to Pokémon GO-style fluidity.
+    s.setProperty('--holo-shine-x', `${clamp((50 - px) * 0.42, -22, 22).toFixed(2)}%`);
+    s.setProperty('--holo-shine-y', `${clamp((50 - py) * 0.42, -22, 22).toFixed(2)}%`);
+    s.setProperty('--holo-glare-x', `${clamp((px - 50) * 0.34, -18, 18).toFixed(2)}%`);
+    s.setProperty('--holo-glare-y', `${clamp((py - 50) * 0.34, -18, 18).toFixed(2)}%`);
     s.setProperty('--card-opacity', String(opacity));
   }, []);
 
@@ -228,6 +235,10 @@ const HolographicCard = ({
     s.setProperty('--background-y', '50%');
     s.setProperty('--rotate-x', '0deg');
     s.setProperty('--rotate-y', '0deg');
+    s.setProperty('--holo-shine-x', '0%');
+    s.setProperty('--holo-shine-y', '0%');
+    s.setProperty('--holo-glare-x', '0%');
+    s.setProperty('--holo-glare-y', '0%');
     s.setProperty('--card-opacity', '0');
   }, []);
 
