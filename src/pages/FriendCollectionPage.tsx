@@ -64,6 +64,7 @@ const FriendCollectionPage = () => {
   const [profileXp, setProfileXp] = useState(0);
   const [profileXpToNext, setProfileXpToNext] = useState(1000);
   const [profileAvatar, setProfileAvatar] = useState<string | null>(null);
+  const [profileTotalCaptures, setProfileTotalCaptures] = useState(0);
   const [amIFollowing, setAmIFollowing] = useState(false);
   const [badges, setBadges] = useState<BadgeProgress[]>([]);
 
@@ -86,7 +87,7 @@ const FriendCollectionPage = () => {
       setLoading(true);
 
       const [profileRes, capturesRes, followingCountRes, followersCountRes] = await Promise.all([
-        supabase.from('profiles').select('display_name, username, level, xp, xp_to_next, avatar_url').eq('user_id', userId).maybeSingle(),
+        supabase.from('profiles').select('display_name, username, level, xp, xp_to_next, avatar_url, total_captures').eq('user_id', userId).maybeSingle(),
         supabase.from('captures').select('*').eq('user_id', userId).eq('status', 'approved').order('created_at', { ascending: false }),
         supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('follower_id', userId),
         supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('following_id', userId),
@@ -97,6 +98,7 @@ const FriendCollectionPage = () => {
       setProfileXp(profileRes.data?.xp || 0);
       setProfileXpToNext(profileRes.data?.xp_to_next || 1000);
       setProfileAvatar(profileRes.data?.avatar_url || null);
+      setProfileTotalCaptures(profileRes.data?.total_captures || 0);
       setFollowingCount(followingCountRes.count || 0);
       setFollowersCount(followersCountRes.count || 0);
 
@@ -291,7 +293,7 @@ const FriendCollectionPage = () => {
           {/* Stats row: captures, following, followers */}
           <div className="flex items-center gap-5 pl-1">
             <div>
-              <p className="text-sm font-display font-bold text-foreground">{captures.length}</p>
+              <p className="text-sm font-display font-bold text-foreground">{profileTotalCaptures}</p>
               <p className="text-[9px] text-muted-foreground font-display">Captures</p>
             </div>
             <div className="w-px h-6 bg-border" />
