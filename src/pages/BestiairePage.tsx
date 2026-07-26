@@ -171,27 +171,6 @@ const BestiairePage = () => {
   }, [deptSearch]);
 
 
-  // Debounced city search via geo.api.gouv.fr
-  useEffect(() => {
-    if (pickerTab !== 'city') return;
-    const q = citySearch.trim();
-    if (q.length < 2) { setCityResults([]); return; }
-    let cancelled = false;
-    setCityLoading(true);
-    const t = setTimeout(async () => {
-      try {
-        const url = `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(q)}&fields=nom,code,codeDepartement,codesPostaux&boost=population&limit=20`;
-        const res = await fetch(url);
-        const data = await res.json();
-        if (!cancelled) setCityResults(Array.isArray(data) ? data : []);
-      } catch {
-        if (!cancelled) setCityResults([]);
-      } finally {
-        if (!cancelled) setCityLoading(false);
-      }
-    }, 250);
-    return () => { cancelled = true; clearTimeout(t); };
-  }, [citySearch, pickerTab]);
 
   const totalCaptured = animals.filter(a => a.captured).length;
 
