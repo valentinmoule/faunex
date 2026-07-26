@@ -259,11 +259,10 @@ const SettingsPage = () => {
             {!isInstalled && (
               <MenuItem
                 icon={<Smartphone className="w-5 h-5" />}
-                label={canInstall || isIos ? "Installer sur l'écran d'accueil" : "Installer l'application"}
+                label="Installer sur l'écran d'accueil"
                 onClick={() => {
                   resetDismiss();
-                  toast.success("La carte d'installation est réaffichée en bas de l'écran.");
-                  navigate('/home');
+                  openInstallGuide();
                 }}
               />
             )}
