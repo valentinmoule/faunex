@@ -1760,7 +1760,7 @@
   touch-action: none;
   -webkit-tap-highlight-color: transparent;
   cursor: pointer;
-  /* CSS variables driven by JS pointer tracker */
+  /* CSS variables driven by the spring loop in HolographicCard.tsx */
   --pointer-x: 50%;
   --pointer-y: 50%;
   --pointer-from-center: 0;
@@ -1771,14 +1771,6 @@
   --rotate-y: 0deg;
   --background-x: 50%;
   --background-y: 50%;
-  --holo-motion-x: 0px;
-  --holo-motion-y: 0px;
-  --holo-image-x: 0px;
-  --holo-image-y: 0px;
-  --holo-shine-x: 0px;
-  --holo-shine-y: 0px;
-  --holo-glare-x: 0px;
-  --holo-glare-y: 0px;
   --cosmos-x: 0px;
   --cosmos-y: 0px;
 }
@@ -1789,8 +1781,6 @@
   transform: rotateY(var(--rotate-x)) rotateX(var(--rotate-y));
   transition: none;
   will-change: transform;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
 }
 
 .holo-card {
@@ -1798,10 +1788,6 @@
   border-radius: 1rem;
   overflow: hidden;
   isolation: isolate;
-  transform-style: preserve-3d;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
   box-shadow: 0 10px 24px -12px hsl(0 0% 0% / 0.5);
 }
 
@@ -1852,11 +1838,7 @@
   pointer-events: none;
   border-radius: inherit;
   opacity: var(--card-opacity);
-  transition: opacity 0.18s ease-out;
-  will-change: background-position, transform, opacity;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+  will-change: opacity, background-position, filter;
 }
 
 .holo-wrap[data-paused="true"] .holo-rotator {
@@ -1867,6 +1849,8 @@
 .holo-wrap[data-paused="true"] .holo-glare {
   opacity: 0 !important;
 }
+
+
 
 /* When a subject bounding box is provided, fade the holo away around the animal
    so the effect plays everywhere on the card EXCEPT on the subject. */
