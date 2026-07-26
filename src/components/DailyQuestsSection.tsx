@@ -50,7 +50,7 @@ const DailyQuestsSection = () => {
 
     // If no quests for this week, trigger generation
     if (!error && (!data || data.length === 0)) {
-      await supabase.functions.invoke('generate-daily-quests');
+      await supabase.rpc('ensure_weekly_quests');
       const { data: retryData } = await supabase
         .from('daily_quests')
         .select('*')
