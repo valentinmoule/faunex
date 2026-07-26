@@ -110,9 +110,6 @@ export const useCaptureSave = ({ userId, photo, geo }: SaveContext) => {
             location: geo.name || null,
             latitude: geo.coords?.lat || null,
             longitude: geo.coords?.lng || null,
-            cutout_url: null,
-            cutout_status: 'pending',
-            cutout_attempts: 0,
             subject_bbox: animal.subject_bbox ?? null,
           })
           .eq('id', captureId);
