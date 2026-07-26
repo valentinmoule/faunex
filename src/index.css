@@ -1771,6 +1771,8 @@
   --rotate-y: 0deg;
   --background-x: 50%;
   --background-y: 50%;
+  --holo-motion-x: 0px;
+  --holo-motion-y: 0px;
   --holo-shine-x: 0px;
   --holo-shine-y: 0px;
   --holo-glare-x: 0px;
@@ -2280,31 +2282,42 @@
    precomposited layers for a cleaner Pokémon GO-like motion. */
 .holo-stable-fullscreen .holo-rotator {
   transform: translate3d(0, 0, 0) rotateY(var(--rotate-x)) rotateX(var(--rotate-y));
+  transform-origin: center center;
+  will-change: transform;
 }
 
 .holo-stable-fullscreen .holo-card {
-  contain: paint;
+  contain: layout paint style;
   transform: translate3d(0, 0, 0);
+  transform-style: preserve-3d;
   box-shadow: 0 14px 34px -16px hsl(0 0% 0% / 0.7);
+}
+
+.holo-stable-fullscreen .holo-content {
+  transform: translate3d(0, 0, 1px);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .holo-stable-fullscreen .holo-shine,
 .holo-stable-fullscreen .holo-glare {
-  inset: -8%;
+  inset: -10%;
   transition: none;
   will-change: transform, opacity;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   background-attachment: scroll;
   transform-origin: center;
+  background-repeat: repeat;
+  pointer-events: none;
 }
 
 .holo-stable-fullscreen .holo-shine {
-  transform: translate3d(var(--holo-shine-x), var(--holo-shine-y), 0) scale(1.08);
+  transform: translate3d(var(--holo-motion-x), var(--holo-motion-y), 2px) scale(1.1);
 }
 
 .holo-stable-fullscreen .holo-glare {
-  transform: translate3d(var(--holo-glare-x), var(--holo-glare-y), 0) scale(1.06);
+  transform: translate3d(var(--holo-motion-x), var(--holo-motion-y), 3px) scale(1.1);
 }
 
 .holo-stable-fullscreen[data-cutout="on"][data-subject="on"] .holo-shine,
