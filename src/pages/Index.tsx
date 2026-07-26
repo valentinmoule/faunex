@@ -452,7 +452,7 @@ const Index = () => {
                   </div>
                   <div className="text-left">
                     <p className="text-sm font-display font-bold text-foreground">Voir ma collection</p>
-                    <p className="text-[10px] font-display text-muted-foreground">{allCaptures.length} capture{allCaptures.length > 1 ? 's' : ''} · {profile.species_count} espèce{profile.species_count > 1 ? 's' : ''}</p>
+                    <p className="text-[10px] font-display text-muted-foreground">{allCaptures.length} capture{allCaptures.length > 1 ? 's' : ''} dans ton Faunex</p>
                   </div>
                 </div>
                 <ChevronRight className="w-4 h-4 text-muted-foreground" />
