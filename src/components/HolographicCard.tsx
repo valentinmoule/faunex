@@ -92,6 +92,8 @@ const HolographicCard = ({
     const glareTravel = stableMotion ? 0.4 : 0.34;
     const syncedX = clamp(cx / 50, -1, 1);
     const syncedY = clamp(cy / 50, -1, 1);
+    const fullscreenMotionX = syncedX * 18;
+    const fullscreenMotionY = syncedY * 16;
     const s = node.style;
     s.setProperty('--pointer-x', `${px}%`);
     s.setProperty('--pointer-y', `${py}%`);
@@ -102,14 +104,19 @@ const HolographicCard = ({
     s.setProperty('--background-y', `${(36 + (py / 100) * 28).toFixed(2)}%`);
     s.setProperty('--rotate-x', `${(-(cx / rotationSoftener)).toFixed(2)}deg`);
     s.setProperty('--rotate-y', `${(cy / rotationSoftener).toFixed(2)}deg`);
-    // Fullscreen uses one synchronized gyro vector for both image tilt and holo layer movement.
-    // Pixel offsets avoid percent-based drift from oversized overlay layers, which looked delayed
-    // compared with the rotated photo on mobile GPUs.
+    // Fullscreen uses one synchronized gyro vector for image parallax, shine and glare.
+    // Keeping every moving layer on the same pixel offsets avoids compositor drift on mobile GPUs.
     if (stableFullscreen) {
-      s.setProperty('--holo-shine-x', `${(syncedX * 18).toFixed(2)}px`);
-      s.setProperty('--holo-shine-y', `${(syncedY * 16).toFixed(2)}px`);
-      s.setProperty('--holo-glare-x', `${(syncedX * 12).toFixed(2)}px`);
-      s.setProperty('--holo-glare-y', `${(syncedY * 10).toFixed(2)}px`);
+      const motionX = `${fullscreenMotionX.toFixed(2)}px`;
+      const motionY = `${fullscreenMotionY.toFixed(2)}px`;
+      s.setProperty('--holo-motion-x', motionX);
+      s.setProperty('--holo-motion-y', motionY);
+      s.setProperty('--holo-image-x', motionX);
+      s.setProperty('--holo-image-y', motionY);
+      s.setProperty('--holo-shine-x', motionX);
+      s.setProperty('--holo-shine-y', motionY);
+      s.setProperty('--holo-glare-x', motionX);
+      s.setProperty('--holo-glare-y', motionY);
     } else {
       s.setProperty('--holo-shine-x', `${clamp((50 - px) * shineTravel, -30, 30).toFixed(2)}%`);
       s.setProperty('--holo-shine-y', `${clamp((50 - py) * shineTravel, -30, 30).toFixed(2)}%`);
@@ -256,10 +263,14 @@ const HolographicCard = ({
     s.setProperty('--background-y', '50%');
     s.setProperty('--rotate-x', '0deg');
     s.setProperty('--rotate-y', '0deg');
-    s.setProperty('--holo-shine-x', '0%');
-    s.setProperty('--holo-shine-y', '0%');
-    s.setProperty('--holo-glare-x', '0%');
-    s.setProperty('--holo-glare-y', '0%');
+    s.setProperty('--holo-motion-x', '0px');
+    s.setProperty('--holo-motion-y', '0px');
+    s.setProperty('--holo-image-x', '0px');
+    s.setProperty('--holo-image-y', '0px');
+    s.setProperty('--holo-shine-x', '0px');
+    s.setProperty('--holo-shine-y', '0px');
+    s.setProperty('--holo-glare-x', '0px');
+    s.setProperty('--holo-glare-y', '0px');
     s.setProperty('--card-opacity', '0');
   }, []);
 

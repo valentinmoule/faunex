@@ -603,21 +603,21 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
                 className="holo-fullscreen-photo relative rounded-2xl pointer-events-auto touch-none"
               >
                 <div className={`relative w-full h-full rounded-[1.5rem] overflow-hidden shadow-2xl holo-frame holo-frame--fullscreen holo-frame--${card.rarity}`}>
-                  <div className="relative w-full h-full rounded-[0.875rem] overflow-hidden">
-
-
-                    <img
-                      src={card.image}
-                      alt={card.name}
-                      loading="eager"
-                      decoding="async"
-                      fetchPriority="high"
-                      className="w-full h-full object-cover pointer-events-none select-none bg-black/30"
-                      draggable={false}
-                    />
-                    {isMythic && <div className="detail-mythic-glass detail-glass--fullscreen" />}
-                    {isEpic && <div className="detail-epic-glass detail-glass--fullscreen" />}
-                    {isRare && <div className="detail-rare-glass detail-glass--fullscreen" />}
+                  <div className="relative w-full h-full rounded-[0.875rem] overflow-hidden bg-black/30">
+                    <div className="fullscreen-photo-parallax absolute inset-0">
+                      <img
+                        src={card.image}
+                        alt={card.name}
+                        loading="eager"
+                        decoding="async"
+                        fetchPriority="high"
+                        className="w-full h-full object-cover pointer-events-none select-none"
+                        draggable={false}
+                      />
+                      {isMythic && <div className="detail-mythic-glass detail-glass--fullscreen" />}
+                      {isEpic && <div className="detail-epic-glass detail-glass--fullscreen" />}
+                      {isRare && <div className="detail-rare-glass detail-glass--fullscreen" />}
+                    </div>
                     {/* Name overlay bottom-left */}
                     <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none p-5 pr-6 pt-16 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
                       <h3 className="text-white font-display font-bold text-2xl leading-tight drop-shadow-lg">{card.name}</h3>
