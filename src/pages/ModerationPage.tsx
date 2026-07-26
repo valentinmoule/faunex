@@ -189,8 +189,9 @@ const ModerationPage = () => {
               <div className="space-y-4 max-w-lg mx-auto">
                 {captures.map(capture => (
                   <div key={capture.id} className="bg-card rounded-2xl border border-border overflow-hidden shadow-card">
-                    <div className="relative aspect-video overflow-hidden">
-                      <img src={capture.image_url} alt={capture.animal_name} className="w-full h-full object-cover" />
+                    <div className="relative w-full overflow-hidden bg-muted flex items-center justify-center">
+                      <img src={capture.image_url} alt={capture.animal_name} className="w-full h-auto max-h-[70vh] object-contain" />
+
                       <div className="absolute top-2 left-2 flex items-center gap-1 bg-amber/90 text-foreground rounded-full px-2.5 py-1">
                         <AlertTriangle className="w-3 h-3" />
                         <span className="text-[10px] font-display font-bold uppercase">En attente</span>
