@@ -80,7 +80,20 @@ const ModerationPage = () => {
           console.error('notification approve failed', notifError);
           toast.warning('Capture approuvée, mais la notification n\'a pas pu être envoyée');
         }
+        supabase.functions
+          .invoke('notify-moderation-decision', {
+            body: {
+              user_id: capture.user_id,
+              decision: 'approved',
+              animal_name: capture.animal_name,
+              capture_id: capture.id,
+            },
+          })
+          .then(({ error: fnError }) => {
+            if (fnError) console.error('notify-moderation-decision failed', fnError);
+          });
       }
+
       toast.success(`${capture.animal_name} approuvé !`);
       setCaptures(prev => prev.filter(c => c.id !== capture.id));
     }
