@@ -593,18 +593,16 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
               }}
             >
               <HolographicCard
-                key={fullscreenHoloKey}
                 rarity={card.rarity}
-                cutoutUrl={card.cutoutUrl}
                 subjectBox={card.subjectBox}
                 containInteraction
-                stableFullscreen
-                paused={holoPaused || zoomInteracting || zoom.scale > 1.01}
+                paused={zoomInteracting || zoom.scale > 1.01}
                 className="holo-fullscreen-photo relative rounded-2xl pointer-events-auto touch-none"
               >
                 <div className={`relative w-full h-full rounded-[1.5rem] overflow-hidden shadow-2xl holo-frame holo-frame--fullscreen holo-frame--${card.rarity}`}>
                   <div className="relative w-full h-full rounded-[0.875rem] overflow-hidden bg-black/30">
-                    <div className="fullscreen-photo-parallax absolute inset-0">
+                    <div className="absolute inset-0">
+
                       <img
                         src={card.image}
                         alt={card.name}
