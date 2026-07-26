@@ -13,6 +13,9 @@ interface PwaInstallContextType {
   dismissInstall: () => void;
   resetDismiss: () => void;
   shouldShowPrompt: boolean;
+  guideOpen: boolean;
+  openInstallGuide: () => void;
+  closeInstallGuide: () => void;
 }
 
 const PwaInstallContext = createContext<PwaInstallContextType>({
@@ -23,6 +26,9 @@ const PwaInstallContext = createContext<PwaInstallContextType>({
   dismissInstall: () => {},
   resetDismiss: () => {},
   shouldShowPrompt: false,
+  guideOpen: false,
+  openInstallGuide: () => {},
+  closeInstallGuide: () => {},
 });
 
 export const usePwaInstall = () => useContext(PwaInstallContext);
