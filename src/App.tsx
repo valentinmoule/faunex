@@ -144,7 +144,7 @@ const AppRoutes = () => {
       </Suspense>
       {!isCapturePage && !isModerationPage && !isPublicPage && <BottomNav />}
 
-      <PwaInstallBanner />
+      <WelcomeInstallPopup />
       <PushPermissionPrompt />
       <LevelSplash />
       <LevelUpCelebration />
