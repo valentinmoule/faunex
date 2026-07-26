@@ -216,9 +216,36 @@ serve(async (req) => {
 
     const animalData = JSON.parse(toolCall.function.arguments);
 
+    // Déduplication : si l'espèce existe déjà dans le bestiaire (nom commun OU nom
+    // scientifique, insensible casse/accents/tirets), on réutilise la fiche canonique
+    // pour éviter les doublons type "Graphosome rayé" / "Graphosome d'Italie".
+    if (animalData?.animal_name && animalData.animal_name.toLowerCase() !== "inconnu") {
+      try {
+        const supabase = createClient(
+          Deno.env.get("SUPABASE_URL")!,
+          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+        );
+        const { data: matches, error: matchErr } = await supabase.rpc("match_animal", {
+          p_name: animalData.animal_name,
+          p_scientific: animalData.scientific_name || null,
+        });
+        if (matchErr) console.error("match_animal failed", matchErr);
+        const existing = Array.isArray(matches) ? matches[0] : matches;
+        if (existing) {
+          animalData.animal_name = existing.name || animalData.animal_name;
+          animalData.scientific_name = existing.scientific_name || animalData.scientific_name;
+          animalData.category = existing.category || animalData.category;
+          animalData.rarity = existing.rarity || animalData.rarity;
+        }
+      } catch (e) {
+        console.error("dedup lookup failed", e);
+      }
+    }
+
     return new Response(JSON.stringify({ success: true, animal: animalData }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
+
   } catch (e) {
     console.error("identify-animal error:", e);
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Erreur inconnue" }), {
