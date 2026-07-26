@@ -26,6 +26,9 @@ export const useAnimalIdentification = () => {
       if (!animal || !animal.animal_name || animal.animal_name.toLowerCase() === 'inconnu') {
         return { status: 'unknown' };
       }
+      if (isHuman(animal)) {
+        return { status: 'unknown' };
+      }
       return { status: 'identified', animal };
     } catch (err) {
       console.error(err);

@@ -47,6 +47,10 @@ animal_name = la race. scientific_name = "Felis catus".
 
 Si l'image ne contient pas d'animal → animal_name "Inconnu" et confidence 0.
 
+### INTERDICTION ABSOLUE : ÊTRES HUMAINS
+L'être humain (Homo sapiens) n'est JAMAIS un résultat valide. Si le sujet principal de la photo est une personne (visage, selfie, portrait, corps humain, partie du corps comme main/pied/œil) → réponds OBLIGATOIREMENT animal_name "Inconnu", confidence 0, et ne propose aucune alternative humaine.
+Si un humain est présent MAIS qu'un animal est aussi visible (ex: personne tenant un chien), identifie l'animal et ignore l'humain.
+
 ## Évaluation de la rareté
 Évalue selon la probabilité d'observation en Europe/France :
 - **common** : observation quotidienne ou fréquente (pigeon, moineau, merle, chat européen, Labrador, hérisson, écureuil)
