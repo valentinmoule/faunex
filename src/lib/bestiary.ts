@@ -174,6 +174,20 @@ const CITY_EXCLUDE_KEYWORDS = [
   'salamandre', 'vipère', 'couleuvre',
 ];
 
+/** Espèces emblématiques de ville : toujours conservées dans un territoire urbain. */
+const CITY_ICONIC_KEYWORDS = [
+  'pigeon', 'moineau domestique', 'merle noir', 'mésange charbonnière', 'mésange bleue',
+  'pie bavarde', 'corneille noire', 'étourneau sansonnet', 'rougegorge familier',
+  'perruche à collier', 'martinet noir', 'hirondelle de fenêtre', 'canard colvert',
+  'mouette rieuse', 'goéland leucophée', 'foulque macroule', 'cygne tuberculé', 'héron cendré',
+  'écureuil roux', 'renard roux', 'hérisson', 'rat surmulot', 'souris domestique',
+  'pipistrelle commune', 'faucon crécerelle', 'chouette hulotte',
+  'coccinelle à 7 points', 'abeille domestique', 'bourdon terrestre', 'gendarme',
+  'papillon citron', 'vulcain', 'paon du jour', 'machaon',
+  'escargot des jardins', 'cloporte commun', 'lézard des murailles',
+];
+
+
 export const buildCityAnimalSet = (deptSet: Set<string>, sourceAnimals: BestiaryAnimal[]) => {
   const capturedNames = new Set(
     sourceAnimals.filter((a) => a.captured).map((a) => a.name.toLowerCase()),
