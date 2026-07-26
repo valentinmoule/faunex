@@ -130,7 +130,7 @@ const CapturePage = () => {
       rarity: animal.rarity,
       imageUrl,
     });
-    setTimeout(() => navigate('/bestiaire'), 900);
+    setTimeout(() => navigate('/home'), 900);
   };
 
   const saveToCollection = async () => {
