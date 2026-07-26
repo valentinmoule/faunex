@@ -1,6 +1,8 @@
 import { template as newFollower } from './new-follower.tsx'
 import { template as captureLike } from './capture-like.tsx'
 import { template as captureComment } from './capture-comment.tsx'
+import { template as captureApproved } from './capture-approved.tsx'
+import { template as captureRejected } from './capture-rejected.tsx'
 
 export interface TemplateEntry {
   component: any
@@ -14,4 +16,6 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'new-follower': newFollower,
   'capture-like': captureLike,
   'capture-comment': captureComment,
+  'capture-approved': captureApproved,
+  'capture-rejected': captureRejected,
 }
