@@ -2337,7 +2337,7 @@
   background-size: 150% 150%, 240% 240%, 180% 180%;
   background-position: center center, center center, center center;
   filter: brightness(0.68) contrast(1.28) saturate(1.12);
-  opacity: calc((1.32 * var(--card-opacity)) - (var(--pointer-from-center) * 0.42));
+  opacity: calc(var(--card-opacity) * 1.06);
 }
 
 .holo-stable-fullscreen.holo-rare .holo-glare {
@@ -2350,26 +2350,21 @@
 }
 
 .holo-stable-fullscreen.holo-epic .holo-shine {
-  background-position:
-    var(--cosmos-x) var(--cosmos-y),
-    center center,
-    center center;
+  background-position: center center, center center, center center;
   background-size: cover, 430% 930%, cover;
   filter: brightness(1.05) contrast(1.03) saturate(0.95);
   opacity: calc(var(--card-opacity) * 0.82);
 }
 
 .holo-stable-fullscreen.holo-epic .holo-shine::before {
-  background-position:
-    var(--cosmos-x) var(--cosmos-y),
-    center center;
+  background-position: center center, center center;
   background-size: cover, 430% 930%;
   filter: brightness(1.14) contrast(1.22) saturate(0.95);
   opacity: 0.82;
 }
 
 .holo-stable-fullscreen.holo-epic .holo-shine::after {
-  background-position: var(--cosmos-x) var(--cosmos-y);
+  background-position: center center;
   filter: brightness(1.12) contrast(1.18) saturate(0.95);
   opacity: 0.78;
 }
@@ -2379,12 +2374,12 @@
     hsl(204 100% 95% / 0.62) 4%,
     hsl(250 15% 20% / 0.92) 150%);
   filter: brightness(0.82) contrast(1.28) saturate(1.35);
-  opacity: calc(var(--card-opacity) * (0.32 + (var(--pointer-from-center) * 0.5)));
+  opacity: calc(var(--card-opacity) * 0.56);
 }
 
 .holo-stable-fullscreen.holo-mythic .holo-shine {
   background-position: 45% 45%, 55% 55%, center center, center center;
-  filter: brightness(calc(0.55 + (var(--pointer-from-center) * 0.18))) contrast(1.02) saturate(2.15);
+  filter: brightness(0.64) contrast(1.02) saturate(2.15);
   opacity: calc(var(--card-opacity) * 0.9);
 }
 
@@ -2396,7 +2391,7 @@
 
 .holo-stable-fullscreen.holo-mythic .holo-shine::after {
   background-position: center center;
-  filter: brightness(calc((var(--pointer-from-center) * 0.36) + 0.76)) contrast(1.18);
+  filter: brightness(0.94) contrast(1.18);
   opacity: 0.78;
 }
 
