@@ -218,20 +218,17 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
   });
   const clampScale = (s: number) => Math.min(4, Math.max(1, s));
   const resetZoom = useCallback(() => {
-    pauseFullscreenHolo();
     setZoom({ scale: 1, x: 0, y: 0 });
-  }, [pauseFullscreenHolo]);
+  }, []);
 
   const openFullscreenImage = useCallback(() => {
-    pauseFullscreenHolo();
-    setFullscreenHoloKey((key) => key + 1);
     setImageFullscreen(true);
-  }, [pauseFullscreenHolo]);
+  }, []);
 
   const handleFullscreenTouchStart = useCallback((e: React.TouchEvent) => {
     if (!card?.image) return;
     setZoomInteracting(true);
-    pauseFullscreenHolo();
+
     const now = Date.now();
     const z = zoomRef.current;
 
