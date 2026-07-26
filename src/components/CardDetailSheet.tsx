@@ -598,6 +598,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
                 cutoutUrl={card.cutoutUrl}
                 subjectBox={card.subjectBox}
                 containInteraction
+                stableFullscreen
                 paused={holoPaused || zoomInteracting || zoom.scale > 1.01}
                 className="holo-fullscreen-photo relative rounded-2xl pointer-events-auto touch-none"
               >
@@ -618,7 +619,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
                     {isEpic && <div className="detail-epic-glass detail-glass--fullscreen" />}
                     {isRare && <div className="detail-rare-glass detail-glass--fullscreen" />}
                     {/* Name overlay bottom-left */}
-                    <div className="absolute bottom-0 left-0 right-0 pointer-events-none p-5 pr-6 pt-16 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+                    <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none p-5 pr-6 pt-16 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
                       <h3 className="text-white font-display font-bold text-2xl leading-tight drop-shadow-lg">{card.name}</h3>
                       {card.scientificName && (
                         <p className="text-white/90 text-sm italic font-body leading-tight mt-1 drop-shadow">{card.scientificName}</p>

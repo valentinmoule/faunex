@@ -19,6 +19,8 @@ interface Props {
   paused?: boolean;
   /** Use a lighter GPU-friendly holo layer for large/fullscreen renders. */
   performanceMode?: boolean;
+  /** Fullscreen quality mode: keeps the rich holo art, but smooths gyro updates and compositing. */
+  stableFullscreen?: boolean;
   /** Kept for API compatibility (unused). */
   disableAutoShimmer?: boolean;
 }
@@ -55,6 +57,7 @@ const HolographicCard = ({
   noHolo = false,
   paused = false,
   performanceMode = false,
+  stableFullscreen = false,
 }: Props) => {
   const wrapRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
@@ -75,7 +78,8 @@ const HolographicCard = ({
     if (!node) return;
     const last = lastAppliedRef.current;
     const opacity = 1;
-    const updateThreshold = performanceMode ? 0.16 : 0.05;
+    const stableMotion = performanceMode || stableFullscreen;
+    const updateThreshold = stableMotion ? 0.12 : 0.05;
     if (
       Math.abs(px - last.px) < updateThreshold &&
       Math.abs(py - last.py) < updateThreshold &&
@@ -83,9 +87,9 @@ const HolographicCard = ({
     ) return;
     lastAppliedRef.current = { px, py, opacity };
     const fromCenter = Math.min(1, Math.hypot(cx, cy) / 50);
-    const rotationSoftener = performanceMode ? 9.5 : 6;
-    const shineTravel = performanceMode ? 0.32 : 0.42;
-    const glareTravel = performanceMode ? 0.26 : 0.34;
+    const rotationSoftener = stableMotion ? 8.5 : 6;
+    const shineTravel = stableMotion ? 0.34 : 0.42;
+    const glareTravel = stableMotion ? 0.28 : 0.34;
     const s = node.style;
     s.setProperty('--pointer-x', `${px}%`);
     s.setProperty('--pointer-y', `${py}%`);
@@ -104,7 +108,7 @@ const HolographicCard = ({
     s.setProperty('--holo-glare-x', `${clamp((px - 50) * glareTravel, -14, 14).toFixed(2)}%`);
     s.setProperty('--holo-glare-y', `${clamp((py - 50) * glareTravel, -14, 14).toFixed(2)}%`);
     s.setProperty('--card-opacity', String(opacity));
-  }, [performanceMode]);
+  }, [performanceMode, stableFullscreen]);
 
   const updateFromPointer = useCallback((clientX: number, clientY: number) => {
     const el = wrapRef.current;
@@ -176,10 +180,10 @@ const HolographicCard = ({
     const base = baselineRef.current;
     // The holo reflection is a subtle card parallax, not a full-screen pan.
     // Keep movement bounded and soft so normal phone motion cannot create large jumps.
-    const RANGE_X = 23;
-    const RANGE_Y = 25;
-    const TRAVEL_X = 34;
-    const TRAVEL_Y = 31;
+    const RANGE_X = stableFullscreen ? 28 : 23;
+    const RANGE_Y = stableFullscreen ? 30 : 25;
+    const TRAVEL_X = stableFullscreen ? 30 : 34;
+    const TRAVEL_Y = stableFullscreen ? 28 : 31;
     // Small dead-zone near baseline to filter out micro-shakes.
     const DEAD = 1.15;
     const rawDGamma = filtered.gamma - base.gamma;
@@ -209,7 +213,7 @@ const HolographicCard = ({
       applyVars(targetPx, targetPy, targetPx - 50, targetPy - 50);
     }
     targetRef.current = { px: targetPx, py: targetPy };
-  }, [applyVars]);
+  }, [applyVars, stableFullscreen]);
 
   const resetTracking = useCallback(() => {
     baselineRef.current = null;
@@ -295,7 +299,9 @@ const HolographicCard = ({
         const now = performance.now();
         const frameDt = s.lastFrame ? clamp(now - s.lastFrame, 8, 34) : 16.67;
         s.lastFrame = now;
-        const desiredResponse = a.velocity < 8 ? 185 : a.velocity > 120 ? 82 : 120;
+        const desiredResponse = stableFullscreen
+          ? (a.velocity < 8 ? 240 : a.velocity > 120 ? 128 : 170)
+          : (a.velocity < 8 ? 185 : a.velocity > 120 ? 82 : 120);
         a.responseMs += (desiredResponse - a.responseMs) * 0.08;
         const k = clamp(1 - Math.exp(-frameDt / a.responseMs), 0.035, 0.32);
         const dx = t.px - s.px;
@@ -317,7 +323,7 @@ const HolographicCard = ({
       resetTracking();
       reset();
     };
-  }, [noHolo, updateFromOrientation, reset, applyVars, resetTracking]);
+  }, [noHolo, updateFromOrientation, reset, applyVars, resetTracking, stableFullscreen]);
 
   // Sync paused state and rebaseline whenever we resume so the resting pose recalibrates.
   useEffect(() => {
@@ -375,8 +381,9 @@ const HolographicCard = ({
   return (
     <div
       ref={wrapRef}
-      className={`holo-wrap holo-${rarity} ${performanceMode ? 'holo-performance' : ''} ${className} ${appearAnimation}`}
+      className={`holo-wrap holo-${rarity} ${performanceMode ? 'holo-performance' : ''} ${stableFullscreen ? 'holo-stable-fullscreen' : ''} ${className} ${appearAnimation}`}
       data-subject={subjectBox ? 'on' : undefined}
+      data-cutout={cutoutUrl ? 'on' : undefined}
       data-paused={paused ? 'true' : undefined}
       style={cosmosStyle}
       onMouseMove={(e) => updateFromPointer(e.clientX, e.clientY)}

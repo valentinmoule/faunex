@@ -2275,6 +2275,122 @@
   mix-blend-mode: hard-light;
 }
 
+/* Fullscreen quality mode: keep the original holo art, but move precomposited
+   oversized layers with transform instead of repainting heavy backgrounds every
+   gyroscope frame. */
+.holo-stable-fullscreen .holo-rotator {
+  transform: translate3d(0, 0, 0) rotateY(var(--rotate-x)) rotateX(var(--rotate-y));
+}
+
+.holo-stable-fullscreen .holo-card {
+  contain: paint;
+  transform: translate3d(0, 0, 0);
+}
+
+.holo-stable-fullscreen .holo-shine,
+.holo-stable-fullscreen .holo-glare {
+  inset: -16%;
+  transition: none;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.holo-stable-fullscreen .holo-shine {
+  transform: translate3d(var(--holo-shine-x), var(--holo-shine-y), 0) scale(1.1);
+}
+
+.holo-stable-fullscreen .holo-glare {
+  transform: translate3d(var(--holo-glare-x), var(--holo-glare-y), 0) scale(1.08);
+}
+
+.holo-stable-fullscreen[data-cutout="on"][data-subject="on"] .holo-shine,
+.holo-stable-fullscreen[data-cutout="on"][data-subject="on"] .holo-glare {
+  -webkit-mask-image: none !important;
+          mask-image: none !important;
+}
+
+.holo-stable-fullscreen.holo-fullscreen-photo .holo-cutout {
+  display: flex;
+}
+
+.holo-stable-fullscreen.holo-fullscreen-photo .holo-cutout img {
+  object-fit: cover;
+  object-position: center;
+}
+
+.holo-stable-fullscreen.holo-rare .holo-shine {
+  background-image:
+    radial-gradient(circle at center,
+      #fff 5%, #000 50%, #fff 80%),
+    linear-gradient(-45deg, #000 15%, #fff, #000 85%);
+  background-blend-mode: soft-light, difference;
+  background-size: 135% 135%, 220% 220%;
+  background-position: center center, center center;
+  filter: brightness(0.62) contrast(1.42) saturate(1.08);
+  opacity: calc((1.38 * var(--card-opacity)) - (var(--pointer-from-center) * 0.55));
+}
+
+.holo-stable-fullscreen.holo-rare .holo-glare {
+  background-image: radial-gradient(
+    farthest-corner circle at center,
+    hsla(0, 0%, 100%, 0.82) 8%,
+    hsla(0, 0%, 100%, 0.44) 22%,
+    hsla(0, 0%, 0%, 0.72) 90%);
+  filter: brightness(0.78) contrast(1.35);
+}
+
+.holo-stable-fullscreen.holo-epic .holo-shine {
+  background-position:
+    var(--cosmos-x) var(--cosmos-y),
+    center center,
+    center center;
+  background-size: cover, 420% 920%, cover;
+  filter: brightness(1.06) contrast(1.08) saturate(0.9);
+}
+
+.holo-stable-fullscreen.holo-epic .holo-shine::before {
+  background-position:
+    var(--cosmos-x) var(--cosmos-y),
+    center center;
+  background-size: cover, 420% 920%;
+  filter: brightness(1.22) contrast(1.45) saturate(0.9);
+}
+
+.holo-stable-fullscreen.holo-epic .holo-shine::after {
+  background-position: var(--cosmos-x) var(--cosmos-y);
+}
+
+.holo-stable-fullscreen.holo-epic .holo-glare {
+  background-image: radial-gradient(farthest-corner circle at center,
+    hsla(204, 100%, 95%, 0.78) 5%,
+    hsla(250, 15%, 20%, 1) 150%);
+  filter: brightness(0.78) contrast(1.75) saturate(1.6);
+  opacity: calc(var(--card-opacity) * (0.34 + (var(--pointer-from-center) * 0.55)));
+}
+
+.holo-stable-fullscreen.holo-mythic .holo-shine {
+  background-position: 45% 45%, 55% 55%, center center, center center;
+  filter: brightness(calc(0.48 + (var(--pointer-from-center) * 0.16))) contrast(1.05) saturate(2.35);
+}
+
+.holo-stable-fullscreen.holo-mythic .holo-shine::before {
+  background-position: center center, center center, center center;
+  filter: brightness(1.18) contrast(1.18) saturate(0.42);
+}
+
+.holo-stable-fullscreen.holo-mythic .holo-shine::after {
+  background-position: center center;
+  filter: brightness(calc((var(--pointer-from-center) * 0.42) + 0.72)) contrast(1.35);
+}
+
+.holo-stable-fullscreen.holo-mythic .holo-glare {
+  background-image: radial-gradient(farthest-corner circle at center,
+    hsla(45, 8%, 82%, 0.32) 0%,
+    hsl(22, 15%, 12%) 180%);
+  filter: brightness(1.2) contrast(1.35);
+}
+
 /* Cutout drop-shadows per rarity */
 .holo-rare    .holo-cutout img { filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4)) drop-shadow(0 0 16px hsla(210,100%,75%,0.35)); }
 .holo-epic    .holo-cutout img { filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4)) drop-shadow(0 0 18px hsla(285,100%,78%,0.4)); }
