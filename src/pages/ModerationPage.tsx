@@ -15,6 +15,9 @@ interface PendingCapture {
   location: string | null;
   created_at: string;
   user_id: string;
+  description: string | null;
+  caption: string | null;
+
   user_display_name?: string;
 }
 
@@ -34,7 +37,7 @@ const ModerationPage = () => {
     setLoading(true);
     const { data, error } = await supabase
       .from('captures')
-      .select('id, animal_name, scientific_name, image_url, location, created_at, user_id')
+      .select('id, animal_name, scientific_name, image_url, location, created_at, user_id, description, caption')
       .eq('status', 'pending_review')
       .order('created_at', { ascending: true });
 
@@ -232,6 +235,18 @@ const ModerationPage = () => {
                           </>
                         )}
                       </div>
+
+                      {(capture.description || capture.caption) && (
+                        <div className="rounded-xl bg-muted/60 border border-border/60 p-3">
+                          <p className="text-[10px] font-display font-bold uppercase tracking-wide text-muted-foreground mb-1">
+                            Description de l'explorateur
+                          </p>
+                          <p className="text-sm text-foreground whitespace-pre-wrap break-words">
+                            {capture.description || capture.caption}
+                          </p>
+                        </div>
+                      )}
+
 
                       <div className="flex gap-2 pt-1">
                         <button
