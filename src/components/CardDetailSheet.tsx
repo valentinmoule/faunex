@@ -580,7 +580,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
           onTouchEnd={handleFullscreenTouchEnd}
         >
           {/* Stable fullscreen backdrop: the holo effect itself stays on the card only. */}
-          <div className="absolute inset-0 bg-black/90 backdrop-blur-sm pointer-events-none" />
+          <div className="absolute inset-0 bg-black/90 pointer-events-none" />
 
           <div
             className="relative w-full h-full max-w-[min(100vw,100vh)] max-h-screen z-10 flex items-center justify-center p-4 pointer-events-none"

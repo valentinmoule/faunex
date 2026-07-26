@@ -94,14 +94,20 @@ const HolographicCard = ({
     const syncedY = clamp(cy / 50, -1, 1);
     const fullscreenMotionX = syncedX * 18;
     const fullscreenMotionY = syncedY * 16;
+    // In fullscreen, keep expensive gradient inputs frozen and move the whole
+    // precomposited artwork via transform only. This avoids mobile GPU repaint
+    // glitches while preserving the same synchronized gyroscope vector.
+    const visualPx = stableFullscreen ? 50 : px;
+    const visualPy = stableFullscreen ? 50 : py;
+    const visualFromCenter = stableFullscreen ? 0 : fromCenter;
     const s = node.style;
-    s.setProperty('--pointer-x', `${px}%`);
-    s.setProperty('--pointer-y', `${py}%`);
-    s.setProperty('--pointer-from-center', `${fromCenter.toFixed(3)}`);
-    s.setProperty('--pointer-from-top', `${(py / 100).toFixed(3)}`);
-    s.setProperty('--pointer-from-left', `${(px / 100).toFixed(3)}`);
-    s.setProperty('--background-x', `${(37 + (px / 100) * 26).toFixed(2)}%`);
-    s.setProperty('--background-y', `${(36 + (py / 100) * 28).toFixed(2)}%`);
+    s.setProperty('--pointer-x', `${visualPx}%`);
+    s.setProperty('--pointer-y', `${visualPy}%`);
+    s.setProperty('--pointer-from-center', `${visualFromCenter.toFixed(3)}`);
+    s.setProperty('--pointer-from-top', `${(visualPy / 100).toFixed(3)}`);
+    s.setProperty('--pointer-from-left', `${(visualPx / 100).toFixed(3)}`);
+    s.setProperty('--background-x', stableFullscreen ? '50%' : `${(37 + (px / 100) * 26).toFixed(2)}%`);
+    s.setProperty('--background-y', stableFullscreen ? '50%' : `${(36 + (py / 100) * 28).toFixed(2)}%`);
     s.setProperty('--rotate-x', `${(-(cx / rotationSoftener)).toFixed(2)}deg`);
     s.setProperty('--rotate-y', `${(cy / rotationSoftener).toFixed(2)}deg`);
     // Fullscreen uses one synchronized gyro vector for image parallax, shine and glare.
