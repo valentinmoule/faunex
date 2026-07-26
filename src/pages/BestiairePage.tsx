@@ -39,6 +39,7 @@ const BestiairePage = () => {
 
   const {
     animals,
+    myCaptures,
     loading,
     unreadCount,
     subscribedZones,
@@ -116,17 +117,10 @@ const BestiairePage = () => {
       .filter(a => rarityFilter === 'all' || a.rarity === rarityFilter);
   }, [animals, selectedCategory, rarityFilter]);
 
-  // Flat list of my own captured animals (with rarity filter), most recent first
+  // Flat list of my own captures (one entry per capture), most recent first
   const myCapturedAnimals = useMemo(() => {
-    return animals
-      .filter(a => a.captured && a.captureData)
-      .filter(a => rarityFilter === 'all' || a.rarity === rarityFilter)
-      .sort((a, b) => {
-        const da = a.captureData?.discoveredAt || '';
-        const db = b.captureData?.discoveredAt || '';
-        return db.localeCompare(da);
-      });
-  }, [animals, rarityFilter]);
+    return myCaptures.filter(c => rarityFilter === 'all' || c.rarity === rarityFilter);
+  }, [myCaptures, rarityFilter]);
 
   const selectedZone: ZoneSub | null = useMemo(
     () => subscribedZones.find((z) => z.id === selectedZoneId) || null,
@@ -591,7 +585,7 @@ const BestiairePage = () => {
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Mes captures</h2>
                 <span className="text-[11px] font-display text-muted-foreground tabular-nums">
-                  {myCapturedAnimals.length} {myCapturedAnimals.length > 1 ? 'espèces' : 'espèce'}
+                  {myCapturedAnimals.length} capture{myCapturedAnimals.length > 1 ? 's' : ''}
                 </span>
               </div>
               {myCapturedAnimals.length === 0 ? (
@@ -607,14 +601,14 @@ const BestiairePage = () => {
                 <div className="grid grid-cols-2 gap-2">
                   {myCapturedAnimals.map((animal) => (
                     <div
-                      key={animal.name}
-                      onClick={() => animal.captureData && setSelectedCard(animal.captureData)}
+                      key={animal.id}
+                      onClick={() => setSelectedCard(animal)}
                       className={`relative aspect-[3/4] rounded-xl border-2 overflow-hidden transition-all cursor-pointer active:scale-[0.96] ${rarityBorderColor[animal.rarity] || 'border-border'} bg-card`}
                     >
                       <div className="w-full h-full flex flex-col">
                         <div className="flex-1 overflow-hidden relative">
                           <img
-                            src={animal.captureData!.image}
+                            src={animal.image}
                             alt={animal.name}
                             className="w-full h-full object-cover"
                             loading="lazy"
