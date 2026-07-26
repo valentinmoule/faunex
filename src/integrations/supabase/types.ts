@@ -67,9 +67,6 @@ export type Database = {
           comments_count: number
           conservation: string | null
           created_at: string
-          cutout_attempts: number
-          cutout_status: string
-          cutout_url: string | null
           description: string | null
           diet: string | null
           fun_fact: string | null
@@ -94,9 +91,6 @@ export type Database = {
           comments_count?: number
           conservation?: string | null
           created_at?: string
-          cutout_attempts?: number
-          cutout_status?: string
-          cutout_url?: string | null
           description?: string | null
           diet?: string | null
           fun_fact?: string | null
@@ -121,9 +115,6 @@ export type Database = {
           comments_count?: number
           conservation?: string | null
           created_at?: string
-          cutout_attempts?: number
-          cutout_status?: string
-          cutout_url?: string | null
           description?: string | null
           diet?: string | null
           fun_fact?: string | null
