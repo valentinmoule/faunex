@@ -116,7 +116,6 @@ const MapPage = () => {
       const { data, error } = await supabase
         .from('captures')
         .select('id, animal_name, scientific_name, category, rarity, image_url, description, habitat, diet, conservation, fun_fact, location, latitude, longitude, created_at')
-
         .eq('user_id', session.user.id)
         .eq('status', 'approved')
         .not('latitude', 'is', null)

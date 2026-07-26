@@ -7,13 +7,11 @@ interface Props {
   className?: string;
   onTap?: () => void;
   appearAnimation?: string;
-  /** AI-generated transparent PNG of the animal — rendered ON TOP of the holo effects. */
-  cutoutUrl?: string | null;
   /** Approximate normalized (0..1) bounding box of the animal — holo effects are masked around it. */
   subjectBox?: { x: number; y: number; w: number; h: number } | null;
   /** Keep pointer/touch gestures inside the card (used by fullscreen overlays). */
   containInteraction?: boolean;
-  /** Disable holo shine/glare/cutout/tilt entirely (e.g. uncaptured silhouettes). */
+  /** Disable holo shine/glare/tilt entirely (e.g. uncaptured silhouettes). */
   noHolo?: boolean;
   /** Freeze the effect (e.g. while pinch-zooming). Recalibrates the gyro on resume. */
   paused?: boolean;
@@ -81,7 +79,6 @@ const HolographicCard = ({
   className = '',
   onTap,
   appearAnimation = '',
-  cutoutUrl,
   subjectBox,
   containInteraction = false,
   noHolo = false,
@@ -315,7 +312,6 @@ const HolographicCard = ({
       ref={wrapRef}
       className={`holo-wrap holo-${rarity} ${className} ${appearAnimation}`}
       data-subject={subjectBox ? 'on' : undefined}
-      data-cutout={cutoutUrl ? 'on' : undefined}
       data-paused={paused ? 'true' : undefined}
       style={cosmosStyle}
       onMouseMove={(e) => handlePointer(e.clientX, e.clientY)}
@@ -330,11 +326,6 @@ const HolographicCard = ({
       <div className="holo-rotator">
         <div className="holo-card">
           <div className="holo-content">{children}</div>
-          {cutoutUrl && (
-            <div className="holo-cutout" aria-hidden>
-              <img src={cutoutUrl} alt="" loading="eager" decoding="async" draggable={false} />
-            </div>
-          )}
           <div className="holo-shine" aria-hidden />
           <div className="holo-glare" aria-hidden />
         </div>
