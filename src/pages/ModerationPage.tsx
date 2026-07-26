@@ -70,12 +70,16 @@ const ModerationPage = () => {
     } else {
       // Notify the user that their capture was approved
       if (session?.user) {
-        await supabase.from('notifications').insert({
+        const { error: notifError } = await supabase.from('notifications').insert({
           user_id: capture.user_id,
           type: 'capture_approved',
           actor_id: session.user.id,
           capture_id: capture.id,
         });
+        if (notifError) {
+          console.error('notification approve failed', notifError);
+          toast.warning('Capture approuvée, mais la notification n\'a pas pu être envoyée');
+        }
       }
       toast.success(`${capture.animal_name} approuvé !`);
       setCaptures(prev => prev.filter(c => c.id !== capture.id));
@@ -85,14 +89,18 @@ const ModerationPage = () => {
 
   const reject = async (capture: PendingCapture) => {
     setProcessing(capture.id);
-    // Notify the user BEFORE deleting (we need capture_id)
+    // Notify the user BEFORE deleting (the capture row disappears afterwards)
     if (session?.user) {
-      await supabase.from('notifications').insert({
+      const { error: notifError } = await supabase.from('notifications').insert({
         user_id: capture.user_id,
         type: 'capture_rejected',
         actor_id: session.user.id,
         comment_text: capture.animal_name,
       });
+      if (notifError) {
+        console.error('notification reject failed', notifError);
+        toast.warning('La notification de rejet n\'a pas pu être envoyée');
+      }
     }
 
     const { error } = await supabase
@@ -108,6 +116,7 @@ const ModerationPage = () => {
     }
     setProcessing(null);
   };
+
 
   const timeAgo = (date: string) => {
     const diff = Date.now() - new Date(date).getTime();
