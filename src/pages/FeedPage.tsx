@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { signCaptureRows } from '@/lib/captureImages';
 import { notifyCaptureInteraction } from '@/lib/notifyCaptureInteraction';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Bell, Heart, MessageCircle, Share2, Send, X } from 'lucide-react';
@@ -182,8 +181,7 @@ const FeedPage = () => {
         });
         setCommentCounts(cCounts);
 
-        const signedRows = await signCaptureRows(data as any[]);
-        const postsWithProfiles = signedRows.map((c: any) => ({
+        const postsWithProfiles = data.map((c: any) => ({
           ...c,
           profiles: profileMap.get(c.user_id) || null,
         }));

@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { signCaptureRows } from '@/lib/captureImages';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Bell, Target, ChevronRight } from 'lucide-react';
 import NearbyAnimalsSection from '@/components/NearbyAnimalsSection';
@@ -59,8 +58,7 @@ const CollectionPage = () => {
         .order('created_at', { ascending: false });
 
       if (!error && data) {
-        const signed = await signCaptureRows(data as any[]);
-        setCaptures(signed.map((c: any) => ({
+        setCaptures(data.map((c: any) => ({
           id: c.id,
           name: c.animal_name,
           scientificName: c.scientific_name || '',
@@ -94,8 +92,7 @@ const CollectionPage = () => {
     } else {
       // Capture might not be in our own collection — fetch it directly
       const fetchCapture = async () => {
-        const { data: raw } = await supabase.from('captures').select('*').eq('id', captureId).single();
-        const data = raw ? (await signCaptureRows([raw as any]))[0] : null;
+        const { data } = await supabase.from('captures').select('*').eq('id', captureId).single();
         if (data) {
           setSelectedCard({
             id: data.id, name: data.animal_name, scientificName: data.scientific_name || '',

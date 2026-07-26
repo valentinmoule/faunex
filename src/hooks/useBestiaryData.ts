@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { signCaptureRows } from '@/lib/captureImages';
 import { supabase } from '@/integrations/supabase/client';
 import type { Rarity } from '@/data/mockData';
 import { buildRegionalAnimalSet, type BestiaryAnimal, type ZoneSub } from '@/lib/bestiary';
@@ -56,13 +55,11 @@ export const useBestiaryData = (userId: string | undefined) => {
         page++;
       }
 
-      const { data: rawUserCaptures } = await supabase
+      const { data: userCaptures } = await supabase
         .from('captures')
         .select('*')
         .eq('user_id', userId)
         .eq('status', 'approved');
-
-      const userCaptures = await signCaptureRows(rawUserCaptures as any[]);
 
       const toCard = (capture: any): AnimalCard => ({
         id: capture.id,

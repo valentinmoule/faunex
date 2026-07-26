@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { signCaptureRows } from '@/lib/captureImages';
 import { ArrowLeft, Heart, MessageCircle, UserPlus, UserCheck, CheckCircle, XCircle, Award } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -56,9 +55,8 @@ const NotificationsPage = () => {
         const actorMap = new Map(
           ((actorsRes as any).data || []).map((p: any) => [p.user_id, p])
         );
-        const signedCaptures = await signCaptureRows(((capturesRes as any).data || []) as any[]);
         const captureMap = new Map(
-          signedCaptures.map((c: any) => [c.id, c])
+          ((capturesRes as any).data || []).map((c: any) => [c.id, c])
         );
 
         setNotifications(data.map((n: any) => ({
