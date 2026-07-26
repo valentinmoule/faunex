@@ -181,7 +181,7 @@ const CapturePage = () => {
         {/* Camera or captured photo background */}
         <div
           className="absolute inset-0 touch-none"
-          className="absolute inset-0 touch-none"
+
           onTouchStart={!capturedPhoto ? handleTouchStart : undefined}
           onTouchMove={!capturedPhoto ? handleTouchMove : undefined}
           onTouchEnd={!capturedPhoto ? handleTouchEnd : undefined}
