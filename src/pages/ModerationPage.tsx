@@ -318,6 +318,85 @@ const ModerationPage = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      <Dialog open={!!preview} onOpenChange={(open) => { if (!open && !confirming) setPreview(null); }}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="font-display">Aperçu de la carte enrichie</DialogTitle>
+          </DialogHeader>
+
+          {preview && (
+            <div className="space-y-4">
+              <HolographicCard
+                rarity={preview.animal.rarity}
+                subjectBox={preview.animal.subject_bbox ?? null}
+                className="w-full aspect-[4/5] rounded-2xl overflow-hidden"
+              >
+                <img
+                  src={preview.capture.image_url}
+                  alt={preview.animal.animal_name}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
+                  <p className="text-sm font-display font-bold text-white">{preview.animal.animal_name}</p>
+                  {preview.animal.scientific_name && (
+                    <p className="text-[11px] italic text-white/80">{preview.animal.scientific_name}</p>
+                  )}
+                </div>
+              </HolographicCard>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={`text-[10px] font-display font-bold uppercase tracking-wide px-2.5 py-1 rounded-full rarity-${preview.animal.rarity} bg-muted text-foreground`}>
+                  {RARITY_LABELS[preview.animal.rarity] || preview.animal.rarity}
+                </span>
+                {preview.animal.category && (
+                  <span className="text-[10px] font-display uppercase tracking-wide px-2.5 py-1 rounded-full bg-muted text-muted-foreground">
+                    {preview.animal.category}
+                  </span>
+                )}
+                {preview.animal.conservation && (
+                  <span className="text-[10px] font-display uppercase tracking-wide px-2.5 py-1 rounded-full bg-muted text-muted-foreground">
+                    UICN {preview.animal.conservation}
+                  </span>
+                )}
+              </div>
+
+              <div className="space-y-3 text-sm">
+                {preview.animal.description && (
+                  <p className="text-foreground">{preview.animal.description}</p>
+                )}
+                {preview.animal.habitat && (
+                  <p className="text-muted-foreground"><span className="font-display font-semibold text-foreground">Habitat · </span>{preview.animal.habitat}</p>
+                )}
+                {preview.animal.diet && (
+                  <p className="text-muted-foreground"><span className="font-display font-semibold text-foreground">Régime · </span>{preview.animal.diet}</p>
+                )}
+                {preview.animal.fun_fact && (
+                  <p className="text-muted-foreground"><span className="font-display font-semibold text-foreground">Le saviez-vous · </span>{preview.animal.fun_fact}</p>
+                )}
+              </div>
+
+              <div className="flex gap-2 pt-1">
+                <button
+                  onClick={() => setPreview(null)}
+                  disabled={confirming}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-muted text-foreground text-xs font-display font-semibold disabled:opacity-50"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={confirmApprove}
+                  disabled={confirming}
+                  className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-display font-semibold disabled:opacity-50"
+                >
+                  {confirming ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                  Approuver
+                </button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </main>
   );
 };
