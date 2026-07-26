@@ -6,8 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Leaf, Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, MailCheck, ArrowLeft } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
+import { translateAuthError, authRedirectUrl } from '@/lib/authErrors';
 
 const AuthPage = () => {
   const [searchParams] = useSearchParams();
@@ -18,6 +19,9 @@ const AuthPage = () => {
   const [displayName, setDisplayName] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [sentTo, setSentTo] = useState<string | null>(null);
+  const [resetSentTo, setResetSentTo] = useState<string | null>(null);
+  const [resending, setResending] = useState(false);
   const navigate = useNavigate();
 
   const handleForgotPassword = async (e: React.FormEvent) => {
@@ -25,15 +29,32 @@ const AuthPage = () => {
     setLoading(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: 'https://faunex.lovable.app/reset-password',
+        redirectTo: authRedirectUrl('/reset-password'),
       });
       if (error) throw error;
-      toast.success('Email de réinitialisation envoyé ! Vérifie ta boîte mail.');
-      setIsForgot(false);
+      setResetSentTo(email);
     } catch (error: any) {
-      toast.error(error.message || 'Une erreur est survenue');
+      toast.error(translateAuthError(error.message));
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    if (!sentTo) return;
+    setResending(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: sentTo,
+        options: { emailRedirectTo: authRedirectUrl() },
+      });
+      if (error) throw error;
+      toast.success('Email renvoyé ! Pense à vérifier tes spams.');
+    } catch (error: any) {
+      toast.error(translateAuthError(error.message));
+    } finally {
+      setResending(false);
     }
   };
 
@@ -48,26 +69,100 @@ const AuthPage = () => {
         toast.success('Connexion réussie !');
         navigate('/home');
       } else {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
             data: { display_name: displayName },
-            emailRedirectTo: 'https://faunex.lovable.app',
+            emailRedirectTo: authRedirectUrl(),
           },
         });
         if (error) throw error;
-        toast.success('Compte créé ! Vérifie ton email pour confirmer.');
         if (typeof window !== 'undefined' && (window as any).gtag_report_conversion) {
           (window as any).gtag_report_conversion();
         }
+        // Session immédiate (confirmation désactivée) → on entre directement dans l'app
+        if (data.session) {
+          navigate('/home');
+        } else {
+          setSentTo(email);
+        }
       }
     } catch (error: any) {
-      toast.error(error.message || 'Une erreur est survenue');
+      toast.error(translateAuthError(error.message));
     } finally {
       setLoading(false);
     }
   };
+
+  // Écran de confirmation d'email : évite le décrochage après inscription
+  if (sentTo || resetSentTo) {
+    const target = sentTo || resetSentTo!;
+    const mailHost = target.split('@')[1] || '';
+    const webmail = mailHost.includes('gmail')
+      ? 'https://mail.google.com'
+      : mailHost.includes('outlook') || mailHost.includes('hotmail') || mailHost.includes('live')
+      ? 'https://outlook.live.com/mail'
+      : mailHost.includes('yahoo')
+      ? 'https://mail.yahoo.com'
+      : null;
+
+    return (
+      <main className="min-h-screen bg-background flex items-center justify-center px-4">
+        <div className="w-full max-w-sm space-y-6 text-center">
+          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+            <MailCheck className="w-8 h-8 text-primary" />
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-2xl font-display font-bold text-foreground">
+              {sentTo ? 'Vérifie ta boîte mail' : 'Lien envoyé'}
+            </h1>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {sentTo
+                ? 'On vient de t’envoyer un lien de confirmation à'
+                : 'On vient de t’envoyer un lien de réinitialisation à'}{' '}
+              <span className="font-semibold text-foreground">{target}</span>.
+              <br />
+              Pense à regarder dans tes spams si tu ne le vois pas.
+            </p>
+          </div>
+
+          {webmail && (
+            <Button asChild className="w-full font-display font-semibold">
+              <a href={webmail} target="_blank" rel="noopener noreferrer">
+                Ouvrir ma boîte mail
+              </a>
+            </Button>
+          )}
+
+          {sentTo && (
+            <Button
+              variant="outline"
+              className="w-full font-display font-semibold"
+              onClick={handleResend}
+              disabled={resending}
+            >
+              {resending ? 'Envoi...' : "Renvoyer l'email"}
+            </Button>
+          )}
+
+          <button
+            onClick={() => {
+              setSentTo(null);
+              setResetSentTo(null);
+              setIsForgot(false);
+              setIsLogin(true);
+            }}
+            className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Retour à la connexion
+          </button>
+        </div>
+      </main>
+    );
+  }
+
 
   return (
     <main className="min-h-screen bg-background flex items-center justify-center px-4">
