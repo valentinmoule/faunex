@@ -195,14 +195,26 @@ export const buildCityAnimalSet = (deptSet: Set<string>, sourceAnimals: Bestiary
   // Target ~55 animals max for gamification (less = more achievable)
   const TARGET = 55;
   if (selected.size > TARGET) {
+    // Iconic city species must never be trimmed away (alphabetical cuts used to drop them)
+    const isIconic = (name: string) => {
+      const n = normalizeText(name);
+      return CITY_ICONIC_KEYWORDS.some((kw) => n.includes(normalizeText(kw)));
+    };
     // Prefer commons & rares over epic/mythic when trimming
     const rank: Record<string, number> = { common: 0, rare: 1, epic: 2, mythic: 3 };
     const trimmed = sourceAnimals
       .filter((a) => selected.has(a.name.toLowerCase()))
-      .sort((a, b) => (rank[a.rarity] ?? 4) - (rank[b.rarity] ?? 4) || a.name.localeCompare(b.name, 'fr'))
+      .sort((a, b) => {
+        const ia = isIconic(a.name) ? 0 : 1;
+        const ib = isIconic(b.name) ? 0 : 1;
+        return ia - ib
+          || (rank[a.rarity] ?? 4) - (rank[b.rarity] ?? 4)
+          || a.name.localeCompare(b.name, 'fr');
+      })
       .slice(0, TARGET)
       .map((a) => a.name.toLowerCase());
     return new Set(trimmed);
   }
   return selected;
 };
+
