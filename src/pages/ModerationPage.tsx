@@ -78,20 +78,29 @@ const ModerationPage = () => {
     setLoading(false);
   };
 
-  const approve = async (capture: PendingCapture) => {
+  /** Step 1 — generate the enriched sheet and open the preview (no approval yet). */
+  const prepareApprove = async (capture: PendingCapture) => {
     setProcessing(capture.id);
-
-    // Enrich the capture with a full species sheet (rarity, description, habitat...)
-    let finalName = capture.animal_name;
     const { data: enriched, error: enrichError } = await supabase.functions.invoke('enrich-capture', {
       body: { capture_id: capture.id, animal_name: capture.animal_name },
     });
-    if (enrichError) {
+    setProcessing(null);
+
+    if (enrichError || !enriched?.animal) {
       console.error('enrich-capture failed', enrichError);
-      toast.warning('Fiche IA non générée, la capture sera approuvée telle quelle');
-    } else if (enriched?.animal?.animal_name) {
-      finalName = enriched.animal.animal_name;
+      toast.error('Fiche IA non générée, réessaye');
+      return;
     }
+
+    setPreview({ capture, animal: enriched.animal as EnrichedAnimal });
+  };
+
+  /** Step 2 — the moderator validated the preview: publish the capture. */
+  const confirmApprove = async () => {
+    if (!preview) return;
+    const { capture, animal } = preview;
+    const finalName = animal.animal_name || capture.animal_name;
+    setConfirming(true);
 
     const { error } = await supabase
       .from('captures')
@@ -131,9 +140,11 @@ const ModerationPage = () => {
       toast.success(`${finalName} approuvé !`);
 
       setCaptures(prev => prev.filter(c => c.id !== capture.id));
+      setPreview(null);
     }
-    setProcessing(null);
+    setConfirming(false);
   };
+
 
   const reject = async (capture: PendingCapture) => {
     setProcessing(capture.id);
