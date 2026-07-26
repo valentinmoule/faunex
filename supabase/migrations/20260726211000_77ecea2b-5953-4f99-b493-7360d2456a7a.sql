@@ -1,0 +1,1 @@
+DELETE FROM public.captures WHERE id = '65be9a13-22c8-4972-9279-5408016e48d6';
