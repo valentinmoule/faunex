@@ -1773,6 +1773,8 @@
   --background-y: 50%;
   --holo-motion-x: 0px;
   --holo-motion-y: 0px;
+  --holo-image-x: 0px;
+  --holo-image-y: 0px;
   --holo-shine-x: 0px;
   --holo-shine-y: 0px;
   --holo-glare-x: 0px;
@@ -2297,6 +2299,15 @@
   transform: translate3d(0, 0, 1px);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+}
+
+.holo-stable-fullscreen .fullscreen-photo-parallax {
+  transform: translate3d(var(--holo-image-x), var(--holo-image-y), 1px) scale(1.035);
+  transform-origin: center center;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  pointer-events: none;
 }
 
 .holo-stable-fullscreen .holo-shine,
