@@ -289,6 +289,18 @@ const MapPage = () => {
         {markers}
       </MapContainer>
 
+      {captures.length === 0 && (
+        <div className="absolute inset-x-0 bottom-28 z-[1000] px-6 pointer-events-none">
+          <div className="max-w-sm mx-auto rounded-2xl bg-card/90 backdrop-blur-xl border border-border/60 shadow-card p-4 text-center">
+            <MapPin className="w-6 h-6 text-primary mx-auto mb-2" />
+            <p className="font-display font-bold text-sm text-foreground">Aucune capture géolocalisée</p>
+            <p className="text-[12px] text-muted-foreground mt-1">
+              Tes captures apparaîtront ici si tu autorises la localisation au moment de la photo. Les photos importées sans données GPS ne peuvent pas être placées sur la carte.
+            </p>
+          </div>
+        </div>
+      )}
+
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto z-[1200]">
           <SheetHeader>
