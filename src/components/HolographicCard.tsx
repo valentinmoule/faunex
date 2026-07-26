@@ -88,8 +88,10 @@ const HolographicCard = ({
     lastAppliedRef.current = { px, py, opacity };
     const fromCenter = Math.min(1, Math.hypot(cx, cy) / 50);
     const rotationSoftener = stableFullscreen ? 5.1 : performanceMode ? 7.2 : 6;
-    const shineTravel = stableFullscreen ? 0.72 : stableMotion ? 0.46 : 0.42;
-    const glareTravel = stableFullscreen ? 0.58 : stableMotion ? 0.4 : 0.34;
+    const shineTravel = stableMotion ? 0.46 : 0.42;
+    const glareTravel = stableMotion ? 0.4 : 0.34;
+    const syncedX = clamp(cx / 50, -1, 1);
+    const syncedY = clamp(cy / 50, -1, 1);
     const s = node.style;
     s.setProperty('--pointer-x', `${px}%`);
     s.setProperty('--pointer-y', `${py}%`);
@@ -100,13 +102,20 @@ const HolographicCard = ({
     s.setProperty('--background-y', `${(36 + (py / 100) * 28).toFixed(2)}%`);
     s.setProperty('--rotate-x', `${(-(cx / rotationSoftener)).toFixed(2)}deg`);
     s.setProperty('--rotate-y', `${(cy / rotationSoftener).toFixed(2)}deg`);
-    // Performance mode uses transform-only movement for the shine/glare layers.
-    // Updating background-position on large fullscreen gradients forces repaints;
-    // translating already-composited layers stays much closer to Pokémon GO-style fluidity.
-    s.setProperty('--holo-shine-x', `${clamp((50 - px) * shineTravel, -30, 30).toFixed(2)}%`);
-    s.setProperty('--holo-shine-y', `${clamp((50 - py) * shineTravel, -30, 30).toFixed(2)}%`);
-    s.setProperty('--holo-glare-x', `${clamp((px - 50) * glareTravel, -24, 24).toFixed(2)}%`);
-    s.setProperty('--holo-glare-y', `${clamp((py - 50) * glareTravel, -24, 24).toFixed(2)}%`);
+    // Fullscreen uses one synchronized gyro vector for both image tilt and holo layer movement.
+    // Pixel offsets avoid percent-based drift from oversized overlay layers, which looked delayed
+    // compared with the rotated photo on mobile GPUs.
+    if (stableFullscreen) {
+      s.setProperty('--holo-shine-x', `${(syncedX * 18).toFixed(2)}px`);
+      s.setProperty('--holo-shine-y', `${(syncedY * 16).toFixed(2)}px`);
+      s.setProperty('--holo-glare-x', `${(syncedX * 12).toFixed(2)}px`);
+      s.setProperty('--holo-glare-y', `${(syncedY * 10).toFixed(2)}px`);
+    } else {
+      s.setProperty('--holo-shine-x', `${clamp((50 - px) * shineTravel, -30, 30).toFixed(2)}%`);
+      s.setProperty('--holo-shine-y', `${clamp((50 - py) * shineTravel, -30, 30).toFixed(2)}%`);
+      s.setProperty('--holo-glare-x', `${clamp((px - 50) * glareTravel, -24, 24).toFixed(2)}%`);
+      s.setProperty('--holo-glare-y', `${clamp((py - 50) * glareTravel, -24, 24).toFixed(2)}%`);
+    }
     s.setProperty('--card-opacity', String(opacity));
   }, [performanceMode, stableFullscreen]);
 

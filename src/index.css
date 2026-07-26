@@ -1771,10 +1771,10 @@
   --rotate-y: 0deg;
   --background-x: 50%;
   --background-y: 50%;
-  --holo-shine-x: 0%;
-  --holo-shine-y: 0%;
-  --holo-glare-x: 0%;
-  --holo-glare-y: 0%;
+  --holo-shine-x: 0px;
+  --holo-shine-y: 0px;
+  --holo-glare-x: 0px;
+  --holo-glare-y: 0px;
   --cosmos-x: 0px;
   --cosmos-y: 0px;
 }
@@ -2290,7 +2290,7 @@
 
 .holo-stable-fullscreen .holo-shine,
 .holo-stable-fullscreen .holo-glare {
-  inset: -22%;
+  inset: -8%;
   transition: none;
   will-change: transform, opacity;
   backface-visibility: hidden;
@@ -2300,11 +2300,11 @@
 }
 
 .holo-stable-fullscreen .holo-shine {
-  transform: translate3d(var(--holo-shine-x), var(--holo-shine-y), 0) scale(1.14);
+  transform: translate3d(var(--holo-shine-x), var(--holo-shine-y), 0) scale(1.08);
 }
 
 .holo-stable-fullscreen .holo-glare {
-  transform: translate3d(var(--holo-glare-x), var(--holo-glare-y), 0) scale(1.12);
+  transform: translate3d(var(--holo-glare-x), var(--holo-glare-y), 0) scale(1.06);
 }
 
 .holo-stable-fullscreen[data-cutout="on"][data-subject="on"] .holo-shine,
