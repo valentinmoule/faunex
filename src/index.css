@@ -2038,11 +2038,6 @@
   display: none;
 }
 
-.holo-frame--fullscreen.holo-frame--rare,
-.holo-frame--fullscreen.holo-frame--epic,
-.holo-frame--fullscreen.holo-frame--mythic {
-  animation: none;
-}
 .holo-shine {
   z-index: 2;
   mix-blend-mode: color-dodge;
