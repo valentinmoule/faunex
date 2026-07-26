@@ -31,9 +31,9 @@ interface BadgeDef {
 
 const BADGE_DEFS: BadgeDef[] = [
   { id: 'first_capture', name: 'Première capture', icon: '📸', description: 'Capturer ton premier animal', total: 1 },
-  { id: 'explorer_10', name: 'Explorateur', icon: '🧭', description: 'Découvrir 10 espèces', total: 10 },
-  { id: 'explorer_25', name: 'Naturaliste', icon: '🌿', description: 'Découvrir 25 espèces', total: 25 },
-  { id: 'explorer_50', name: 'Expert faune', icon: '🔬', description: 'Découvrir 50 espèces', total: 50 },
+  { id: 'explorer_10', name: 'Explorateur', icon: '🧭', description: 'Réaliser 10 captures', total: 10 },
+  { id: 'explorer_25', name: 'Naturaliste', icon: '🌿', description: 'Réaliser 25 captures', total: 25 },
+  { id: 'explorer_50', name: 'Expert faune', icon: '🔬', description: 'Réaliser 50 captures', total: 50 },
   { id: 'birds_5', name: 'Ornithologue', icon: '🐦', description: 'Capturer 5 oiseaux', total: 5 },
   { id: 'mammals_5', name: 'Mammalogiste', icon: '🦊', description: 'Capturer 5 mammifères', total: 5 },
   { id: 'rare_1', name: 'Chasseur rare', icon: '💎', description: 'Trouver un animal rare ou mieux', total: 1 },
@@ -259,7 +259,7 @@ const ProfilePage = () => {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 gap-3">
-          <StatCard icon={<BookOpen className="w-5 h-5 text-primary" />} value={profile.species_count} label="Espèces" />
+          <StatCard icon={<BookOpen className="w-5 h-5 text-primary" />} value={profile.species_count} label="Captures" />
           <StatCard icon={<MapPin className="w-5 h-5 text-sky" />} value={profile.regions_explored} label="Régions" />
           <StatCard icon={<Users className="w-5 h-5 text-amber" />} value={followersCount} label="Abonnés" />
           <StatCard icon={<UserPlus className="w-5 h-5 text-emerald" />} value={followingCount} label="Abonnements" />

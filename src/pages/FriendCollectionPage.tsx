@@ -21,9 +21,9 @@ interface BadgeDef {
 
 const BADGE_DEFS: BadgeDef[] = [
   { id: 'first_capture', name: 'Première capture', icon: '📸', description: 'Capturer ton premier animal', total: 1 },
-  { id: 'explorer_10', name: 'Explorateur', icon: '🧭', description: 'Découvrir 10 espèces', total: 10 },
-  { id: 'explorer_25', name: 'Naturaliste', icon: '🌿', description: 'Découvrir 25 espèces', total: 25 },
-  { id: 'explorer_50', name: 'Expert faune', icon: '🔬', description: 'Découvrir 50 espèces', total: 50 },
+  { id: 'explorer_10', name: 'Explorateur', icon: '🧭', description: 'Réaliser 10 captures', total: 10 },
+  { id: 'explorer_25', name: 'Naturaliste', icon: '🌿', description: 'Réaliser 25 captures', total: 25 },
+  { id: 'explorer_50', name: 'Expert faune', icon: '🔬', description: 'Réaliser 50 captures', total: 50 },
   { id: 'birds_5', name: 'Ornithologue', icon: '🐦', description: 'Capturer 5 oiseaux', total: 5 },
   { id: 'mammals_5', name: 'Mammalogiste', icon: '🦊', description: 'Capturer 5 mammifères', total: 5 },
   { id: 'rare_1', name: 'Chasseur rare', icon: '💎', description: 'Trouver un animal rare ou mieux', total: 1 },
@@ -467,7 +467,7 @@ const FriendCollectionPage = () => {
                       </div>
                       <div className="flex-1 min-w-0 text-left">
                         <p className="text-sm font-display font-semibold text-foreground truncate">{friend.display_name || 'Sans nom'}</p>
-                        <p className="text-[11px] text-muted-foreground truncate">{friend.username} · Niv. {friend.level} · {friend.species_count} espèces</p>
+                        <p className="text-[11px] text-muted-foreground truncate">{friend.username} · Niv. {friend.level} · {friend.species_count} captures</p>
                       </div>
                     </button>
                     <div className="shrink-0">

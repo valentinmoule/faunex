@@ -147,7 +147,7 @@ const CollectionPage = () => {
           <div className="flex items-center justify-between mb-3">
             <h1 className="text-2xl font-display font-bold text-primary">mon faunex</h1>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground font-display">{captures.length} espèces</span>
+              <span className="text-sm text-muted-foreground font-display">{captures.length} capture{captures.length > 1 ? 's' : ''}</span>
               <button onClick={() => navigate('/notifications')} className="relative p-2 rounded-full hover:bg-muted transition-colors">
                 <Bell className="w-5 h-5 text-foreground" />
                 {unreadCount > 0 && (
