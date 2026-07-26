@@ -98,7 +98,7 @@ const LandingPhoneShowcase = () => {
                 <div className="px-3 pb-3">
                   <div className="rounded-lg bg-primary/10 border border-primary/20 px-2.5 py-1.5 flex items-center justify-between">
                     <span className="text-[10px] font-display font-bold text-primary">Niveau 7</span>
-                    <span className="text-[10px] font-display text-primary/80">42 espèces</span>
+                    <span className="text-[10px] font-display text-primary/80">42 captures</span>
                   </div>
                 </div>
               </div>
