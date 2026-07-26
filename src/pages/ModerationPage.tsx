@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Check, X, Loader2, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Check, X, Loader2, AlertTriangle, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import HolographicCard from '@/components/HolographicCard';
+import { RARITY_LABELS, type Rarity } from '@/data/mockData';
 import AnalyticsDashboard from '@/components/AnalyticsDashboard';
 
 interface PendingCapture {
@@ -21,12 +24,28 @@ interface PendingCapture {
   user_display_name?: string;
 }
 
+interface EnrichedAnimal {
+  animal_name: string;
+  scientific_name: string | null;
+  category: string | null;
+  description: string | null;
+  habitat: string | null;
+  diet: string | null;
+  conservation: string | null;
+  fun_fact: string | null;
+  rarity: Rarity;
+  subject_bbox?: { x: number; y: number; w: number; h: number } | null;
+}
+
+
 const ModerationPage = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
   const [captures, setCaptures] = useState<PendingCapture[]>([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState<string | null>(null);
+  const [preview, setPreview] = useState<{ capture: PendingCapture; animal: EnrichedAnimal } | null>(null);
+  const [confirming, setConfirming] = useState(false);
 
   useEffect(() => {
     if (!session?.user) return;
@@ -61,20 +80,29 @@ const ModerationPage = () => {
     setLoading(false);
   };
 
-  const approve = async (capture: PendingCapture) => {
+  /** Step 1 — generate the enriched sheet and open the preview (no approval yet). */
+  const prepareApprove = async (capture: PendingCapture) => {
     setProcessing(capture.id);
-
-    // Enrich the capture with a full species sheet (rarity, description, habitat...)
-    let finalName = capture.animal_name;
     const { data: enriched, error: enrichError } = await supabase.functions.invoke('enrich-capture', {
       body: { capture_id: capture.id, animal_name: capture.animal_name },
     });
-    if (enrichError) {
+    setProcessing(null);
+
+    if (enrichError || !enriched?.animal) {
       console.error('enrich-capture failed', enrichError);
-      toast.warning('Fiche IA non générée, la capture sera approuvée telle quelle');
-    } else if (enriched?.animal?.animal_name) {
-      finalName = enriched.animal.animal_name;
+      toast.error('Fiche IA non générée, réessaye');
+      return;
     }
+
+    setPreview({ capture, animal: enriched.animal as EnrichedAnimal });
+  };
+
+  /** Step 2 — the moderator validated the preview: publish the capture. */
+  const confirmApprove = async () => {
+    if (!preview) return;
+    const { capture, animal } = preview;
+    const finalName = animal.animal_name || capture.animal_name;
+    setConfirming(true);
 
     const { error } = await supabase
       .from('captures')
@@ -114,9 +142,11 @@ const ModerationPage = () => {
       toast.success(`${finalName} approuvé !`);
 
       setCaptures(prev => prev.filter(c => c.id !== capture.id));
+      setPreview(null);
     }
-    setProcessing(null);
+    setConfirming(false);
   };
+
 
   const reject = async (capture: PendingCapture) => {
     setProcessing(capture.id);
@@ -257,16 +287,16 @@ const ModerationPage = () => {
                           <X className="w-3.5 h-3.5" /> Rejeter
                         </button>
                         <button
-                          onClick={() => approve(capture)}
+                          onClick={() => prepareApprove(capture)}
                           disabled={processing === capture.id}
                           className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-display font-semibold disabled:opacity-50"
                         >
                           {processing === capture.id ? (
                             <Loader2 className="w-3.5 h-3.5 animate-spin" />
                           ) : (
-                            <Check className="w-3.5 h-3.5" />
+                            <Sparkles className="w-3.5 h-3.5" />
                           )}
-                          Approuver
+                          {processing === capture.id ? 'Génération…' : 'Prévisualiser'}
                         </button>
                       </div>
                     </div>
@@ -288,6 +318,85 @@ const ModerationPage = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      <Dialog open={!!preview} onOpenChange={(open) => { if (!open && !confirming) setPreview(null); }}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="font-display">Aperçu de la carte enrichie</DialogTitle>
+          </DialogHeader>
+
+          {preview && (
+            <div className="space-y-4">
+              <HolographicCard
+                rarity={preview.animal.rarity}
+                subjectBox={preview.animal.subject_bbox ?? null}
+                className="w-full aspect-[4/5] rounded-2xl overflow-hidden"
+              >
+                <img
+                  src={preview.capture.image_url}
+                  alt={preview.animal.animal_name}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
+                  <p className="text-sm font-display font-bold text-white">{preview.animal.animal_name}</p>
+                  {preview.animal.scientific_name && (
+                    <p className="text-[11px] italic text-white/80">{preview.animal.scientific_name}</p>
+                  )}
+                </div>
+              </HolographicCard>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={`text-[10px] font-display font-bold uppercase tracking-wide px-2.5 py-1 rounded-full rarity-${preview.animal.rarity} bg-muted text-foreground`}>
+                  {RARITY_LABELS[preview.animal.rarity] || preview.animal.rarity}
+                </span>
+                {preview.animal.category && (
+                  <span className="text-[10px] font-display uppercase tracking-wide px-2.5 py-1 rounded-full bg-muted text-muted-foreground">
+                    {preview.animal.category}
+                  </span>
+                )}
+                {preview.animal.conservation && (
+                  <span className="text-[10px] font-display uppercase tracking-wide px-2.5 py-1 rounded-full bg-muted text-muted-foreground">
+                    UICN {preview.animal.conservation}
+                  </span>
+                )}
+              </div>
+
+              <div className="space-y-3 text-sm">
+                {preview.animal.description && (
+                  <p className="text-foreground">{preview.animal.description}</p>
+                )}
+                {preview.animal.habitat && (
+                  <p className="text-muted-foreground"><span className="font-display font-semibold text-foreground">Habitat · </span>{preview.animal.habitat}</p>
+                )}
+                {preview.animal.diet && (
+                  <p className="text-muted-foreground"><span className="font-display font-semibold text-foreground">Régime · </span>{preview.animal.diet}</p>
+                )}
+                {preview.animal.fun_fact && (
+                  <p className="text-muted-foreground"><span className="font-display font-semibold text-foreground">Le saviez-vous · </span>{preview.animal.fun_fact}</p>
+                )}
+              </div>
+
+              <div className="flex gap-2 pt-1">
+                <button
+                  onClick={() => setPreview(null)}
+                  disabled={confirming}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-muted text-foreground text-xs font-display font-semibold disabled:opacity-50"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={confirmApprove}
+                  disabled={confirming}
+                  className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-display font-semibold disabled:opacity-50"
+                >
+                  {confirming ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                  Approuver
+                </button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </main>
   );
 };
