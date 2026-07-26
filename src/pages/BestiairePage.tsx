@@ -23,450 +23,75 @@ import { useShelveAnimation } from '@/hooks/useShelveAnimation';
 import { useZoneSubscriptions } from '@/hooks/useZoneSubscriptions';
 
 
-interface BestiaryAnimal {
-  name: string;
-  scientific_name: string | null;
-  rarity: string;
-  category: string;
-  captured: boolean;
-  captureData?: AnimalCard;
-}
-
-const getCategoryIcon = (category: string): ComponentType<{ className?: string; strokeWidth?: string | number }> => {
-  const cat = category.toLowerCase();
-  if (cat.includes('oiseau')) return Bird;
-  if (cat.includes('poisson') || cat.includes('vie marine')) return Fish;
-  if (cat.includes('insecte')) return Bug;
-  if (cat.includes('reptile')) return Turtle;
-  if (cat.includes('amphibien')) return FrogIcon;
-  if (cat.includes('arachnide')) return Bug;
-  if (cat.includes('crustacé')) return Shell;
-  if (cat.includes('mollusque')) return Shell;
-  if (cat.includes('mammifère') && cat.includes('marin')) return Waves;
-  if (cat.includes('mammifère')) return PawPrint;
-  return PawPrint;
-};
-
-const getCategoryEmoji = (category: string): string => {
-  const cat = category.toLowerCase();
-  if (cat.includes('oiseau')) return '🐦';
-  if (cat.includes('poisson') || cat.includes('vie marine')) return '🐟';
-  if (cat.includes('insecte')) return '🦋';
-  if (cat.includes('reptile')) return '🦎';
-  if (cat.includes('amphibien')) return '🐸';
-  if (cat.includes('arachnide')) return '🕷️';
-  if (cat.includes('crustacé')) return '🦀';
-  if (cat.includes('mollusque')) return '🐌';
-  if (cat.includes('mammifère') && cat.includes('marin')) return '🐋';
-  if (cat.includes('mammifère')) return '🦊';
-  return '🐾';
-};
-
-const rarityBorderColor: Record<string, string> = {
-  common: 'border-rarity-common/40',
-  rare: 'border-rarity-rare/50',
-  epic: 'border-rarity-epic/50',
-  mythic: 'border-rarity-mythic/50',
-};
-
-const rarityDot: Record<string, string> = {
-  common: 'bg-rarity-common',
-  rare: 'bg-rarity-rare',
-  epic: 'bg-rarity-epic',
-  mythic: 'bg-rarity-mythic',
-};
-
-const normalizeCategory = (cat: string) => cat.replace(/\s*\(monde\)$/i, '');
-
-const normalizeText = (value: string) =>
-  value
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[’']/g, ' ');
-
-const COASTAL_DEPTS = new Set([
-  '06', '11', '13', '14', '17', '22', '29', '30', '33', '34', '35', '40', '44', '50', '56', '59', '62', '64', '66', '76', '80', '83', '85', '2A', '2B', '971', '972', '973', '974', '976',
-]);
-const MOUNTAIN_DEPTS = new Set(['04', '05', '06', '09', '15', '25', '26', '31', '38', '39', '42', '43', '48', '63', '64', '65', '66', '67', '68', '73', '74', '88', '2A', '2B']);
-const MEDITERRANEAN_DEPTS = new Set(['04', '05', '06', '11', '13', '30', '34', '66', '83', '84', '2A', '2B']);
-const URBAN_DEPTS = new Set(['59', '69', '75', '92', '93', '94']);
-const WETLAND_DEPTS = new Set(['01', '13', '17', '30', '33', '34', '35', '37', '41', '44', '45', '49', '51', '56', '67', '68', '80', '85']);
-const OVERSEAS_DEPTS = new Set(['971', '972', '973', '974', '976']);
-
-const BASE_DEPT_KEYWORDS = [
-  'abeille', 'bourdon', 'fourmi', 'coccinelle', 'papillon', 'mouche', 'moustique', 'libellule', 'araignée', 'escargot', 'limace',
-  'moineau', 'mésange', 'merle', 'rougegorge', 'pigeon', 'pie', 'corneille', 'étourneau', 'hirondelle', 'martinet', 'pinson', 'verdier', 'chardonneret',
-  'hérisson', 'écureuil', 'renard', 'chevreuil', 'sanglier', 'lièvre', 'lapin', 'chauve-souris', 'fouine', 'belette', 'mulot', 'campagnol', 'rat', 'souris',
-  'grenouille', 'crapaud', 'triton', 'salamandre', 'lézard', 'couleuvre', 'chien', 'chat', 'cheval', 'âne', 'vache', 'mouton', 'chèvre', 'poule', 'canard',
-];
-
-const getDeptKeywords = (code: string) => {
-  const keywords = [...BASE_DEPT_KEYWORDS];
-  if (COASTAL_DEPTS.has(code)) {
-    keywords.push('goéland', 'mouette', 'cormoran', 'aigrette', 'héron', 'avocette', 'huîtrier', 'phoque', 'crabe', 'crevette', 'homard', 'moule', 'huître', 'bar', 'dorade', 'sardine', 'anchois', 'méduse', 'oursin', 'balane');
-  }
-  if (MOUNTAIN_DEPTS.has(code)) {
-    keywords.push('aigle', 'vautour', 'marmotte', 'chamois', 'bouquetin', 'isard', 'mouflon', 'lynx', 'loup', 'tétras', 'lagopède', 'truite', 'apollon', 'accenteur alpin');
-  }
-  if (MEDITERRANEAN_DEPTS.has(code)) {
-    keywords.push('flamant', 'cigale', 'gecko', 'tortue', 'lézard ocellé', 'couleuvre', 'rollier', 'guêpier', 'mérou', 'murène', 'dorade', 'sardine', 'anchois', 'scorpion');
-  }
-  if (URBAN_DEPTS.has(code)) {
-    keywords.push('perruche', 'rat', 'souris', 'pigeon', 'moineau', 'martinet', 'corneille', 'pie', 'renard', 'hérisson', 'fouine', 'étourneau');
-  }
-  if (WETLAND_DEPTS.has(code)) {
-    keywords.push('canard', 'cygne', 'foulque', 'grèbe', 'héron', 'aigrette', 'grenouille', 'triton', 'libellule', 'agrion', 'brochet', 'carpe', 'ablette');
-  }
-  if (OVERSEAS_DEPTS.has(code)) {
-    keywords.push('iguane', 'gecko', 'tortue', 'colibri', 'pélican', 'frégate', 'crabe', 'crevette', 'dauphin', 'baleine', 'requin', 'raie', 'mérou', 'perroquet', 'caméléon');
-  }
-  return keywords.map(normalizeText);
-};
-
-const buildRegionalAnimalSet = (code: string, sourceAnimals: BestiaryAnimal[]) => {
-  const keywords = getDeptKeywords(code);
-  const selected = new Set<string>();
-  const localAnimals = sourceAnimals.filter((animal) => !animal.category.toLowerCase().includes('(monde)'));
-
-  localAnimals.forEach((animal) => {
-    const normalizedName = normalizeText(animal.name);
-    if (keywords.some((keyword) => normalizedName.includes(keyword))) {
-      selected.add(animal.name.toLowerCase());
-    }
-  });
-
-  const targetSize = OVERSEAS_DEPTS.has(code) ? 90 : 140;
-  if (selected.size < targetSize) {
-    localAnimals
-      .filter((animal) => animal.rarity === 'common')
-      .slice(0, targetSize - selected.size)
-      .forEach((animal) => selected.add(animal.name.toLowerCase()));
-  }
-
-  return selected;
-};
-
-// --- City filter: realistic urban/peri-urban subset ---
-// Animals commonly observable in/around a French city (parcs, jardins, rues, toits, points d'eau).
-const CITY_KEYWORDS = [
-  // Oiseaux urbains
-  'moineau', 'pigeon', 'tourterelle', 'merle', 'mésange', 'rougegorge', 'rouge-gorge', 'pinson', 'verdier', 'chardonneret', 'serin',
-  'martinet', 'hirondelle', 'étourneau', 'pie', 'corneille', 'corbeau freux', 'choucas', 'geai', 'fauvette', 'pouillot',
-  'grimpereau', 'sittelle', 'rossignol', 'perruche', 'faucon crécerelle', 'effraie', 'hulotte', 'goéland', 'mouette rieuse',
-  'canard colvert', 'cygne', 'foulque', 'héron cendré', 'aigrette', 'cormoran',
-  // Mammifères périurbains
-  'écureuil', 'hérisson', 'renard', 'fouine', 'chauve-souris', 'pipistrelle', 'mulot', 'campagnol', 'rat', 'souris', 'lapin de garenne', 'belette',
-  // Domestiques
-  'chien', 'chat', 'cheval', 'âne', 'poule', 'canard', 'lapin', 'cobaye', 'hamster',
-  // Insectes & araignées
-  'abeille', 'bourdon', 'fourmi', 'coccinelle', 'papillon', 'paon-du-jour', 'citron', 'piéride', 'vulcain', 'belle-dame', 'machaon',
-  'mouche', 'moustique', 'guêpe', 'frelon', 'syrphe', 'libellule', 'agrion', 'demoiselle', 'cigale', 'sauterelle', 'criquet',
-  'perce-oreille', 'cloporte', 'mille-pattes', 'lépisme', 'punaise', 'gendarme', 'pucerons',
-  'araignée', 'épeire', 'pholque', 'opilion',
-  // Mollusques & autres
-  'escargot', 'limace',
-  // Reptiles/amphibiens urbains
-  'lézard des murailles', 'gecko', 'orvet', 'crapaud commun', 'grenouille verte', 'triton palmé',
-  // Poissons de bassin/parc
-  'carpe', 'poisson rouge', 'gardon',
-];
-
-const CITY_EXCLUDE_KEYWORDS = [
-  'aigle', 'vautour', 'gypaète', 'balbuzard', 'milan', 'circaète',
-  'lynx', 'loup', 'ours', 'chamois', 'bouquetin', 'isard', 'marmotte', 'mouflon', 'cerf', 'élan',
-  'sanglier', 'chevreuil', 'blaireau',
-  'requin', 'baleine', 'dauphin', 'phoque', 'orque', 'cachalot', 'mérou', 'murène', 'raie', 'thon',
-  'crabe', 'homard', 'langouste', 'crevette', 'oursin', 'étoile de mer', 'méduse',
-  'flamant', 'pélican', 'frégate', 'fou de bassan',
-  'tétras', 'lagopède', 'grand-duc', 'gélinotte',
-  'salamandre', 'vipère', 'couleuvre',
-];
-
-const buildCityAnimalSet = (deptSet: Set<string>, sourceAnimals: BestiaryAnimal[]) => {
-  const capturedNames = new Set(
-    sourceAnimals.filter((a) => a.captured).map((a) => a.name.toLowerCase()),
-  );
-  const selected = new Set<string>();
-
-  sourceAnimals.forEach((animal) => {
-    const key = animal.name.toLowerCase();
-    if (!deptSet.has(key)) return;
-    // Always keep what the user has already captured (preserves progression)
-    if (capturedNames.has(key)) { selected.add(key); return; }
-    const normalized = normalizeText(animal.name);
-    if (CITY_EXCLUDE_KEYWORDS.some((kw) => normalized.includes(normalizeText(kw)))) return;
-    if (CITY_KEYWORDS.some((kw) => normalized.includes(normalizeText(kw)))) {
-      selected.add(key);
-    }
-  });
-
-  // Target ~55 animals max for gamification (less = more achievable)
-  const TARGET = 55;
-  if (selected.size > TARGET) {
-    // Prefer commons & rares over epic/mythic when trimming
-    const rank: Record<string, number> = { common: 0, rare: 1, epic: 2, mythic: 3 };
-    const trimmed = sourceAnimals
-      .filter((a) => selected.has(a.name.toLowerCase()))
-      .sort((a, b) => (rank[a.rarity] ?? 4) - (rank[b.rarity] ?? 4) || a.name.localeCompare(b.name, 'fr'))
-      .slice(0, TARGET)
-      .map((a) => a.name.toLowerCase());
-    return new Set(trimmed);
-  }
-  return selected;
-};
-
 const BestiairePage = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
-  const [animals, setAnimals] = useState<BestiaryAnimal[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [unreadCount, setUnreadCount] = useState(0);
+
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'mine' | 'categories' | 'territory'>('mine');
   const [rarityFilter, setRarityFilter] = useState<Rarity | 'all'>('all');
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
-  const [pendingShelve, setPendingShelveState] = useState<PendingShelve | null>(null);
-  const [flyingCardStyle, setFlyingCardStyle] = useState<React.CSSProperties | null>(null);
-  const [flashSlotName, setFlashSlotName] = useState<string | null>(null);
-  const slotRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  const shelveAnimationRan = useRef(false);
-
-  // Zones (departments + cities)
-  type ZoneSub = {
-    id: string;
-    kind: 'department' | 'city';
-    departmentCode: string;
-    cityName: string | null;
-    cityPostcode: string | null;
-    isHome: boolean;
-  };
-  const [subscribedZones, setSubscribedZones] = useState<ZoneSub[]>([]);
-  const [animalsByDept, setAnimalsByDept] = useState<Record<string, Set<string>>>({});
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
   const [showDeptPicker, setShowDeptPicker] = useState(false);
   const [pickerMode, setPickerMode] = useState<'hub' | 'explore'>('hub');
   const [pickerTab, setPickerTab] = useState<'department' | 'city'>('department');
   const [deptSearch, setDeptSearch] = useState('');
-  const [citySearch, setCitySearch] = useState('');
-  const [cityResults, setCityResults] = useState<Array<{ nom: string; code: string; codeDepartement: string; codesPostaux: string[] }>>([]);
-  const [cityLoading, setCityLoading] = useState(false);
-  const [loadingDept, setLoadingDept] = useState(false);
-  const [detectingHome, setDetectingHome] = useState(false);
 
-  const loadDeptAnimals = async (code: string, sourceAnimals = animals, useFallback = true) => {
-    const { data } = await supabase
-      .from('animal_departments')
-      .select('animal_name')
-      .eq('department_code', code);
-    let set = new Set<string>((data || []).map((r: any) => r.animal_name.toLowerCase()));
-    if (set.size === 0 && useFallback && sourceAnimals.length > 0) {
-      set = buildRegionalAnimalSet(code, sourceAnimals);
-    }
-    setAnimalsByDept((prev) => ({ ...prev, [code]: set }));
-    return set;
+  const {
+    animals,
+    loading,
+    unreadCount,
+    subscribedZones,
+    setSubscribedZones,
+    animalsByDept,
+    loadDeptAnimals,
+  } = useBestiaryData(session?.user?.id);
+
+  const { citySearch, setCitySearch, cityResults, setCityResults, cityLoading } =
+    useCitySearch(pickerTab === 'city');
+
+  const { pendingShelve, flyingCardStyle, flashSlotName, slotRefs } = useShelveAnimation({
+    animals,
+    loading,
+    selectedCategory,
+    setSelectedCategory,
+  });
+
+  const handleZoneReady = useCallback(
+    (zoneId: string, source: 'department' | 'city' | 'detect') => {
+      setShowDeptPicker(false);
+      if (source === 'department') setDeptSearch('');
+      if (source === 'city') {
+        setCitySearch('');
+        setCityResults([]);
+      }
+      if (source === 'detect') setPickerMode('hub');
+      setSelectedZoneId(zoneId);
+    },
+    [setCitySearch, setCityResults]
+  );
+
+  const {
+    loadingDept,
+    detectingHome,
+    addDepartment: handleAddDept,
+    addCity: handleAddCity,
+    removeZone,
+    setAsHome: handleSetAsHome,
+    detectHome: handleDetectHome,
+  } = useZoneSubscriptions({
+    userId: session?.user?.id,
+    animals,
+    subscribedZones,
+    setSubscribedZones,
+    loadDeptAnimals,
+    onZoneReady: handleZoneReady,
+  });
+
+  const handleRemoveZone = async (zoneId: string) => {
+    await removeZone(zoneId);
+    setSelectedZoneId(null);
   };
-
-  useEffect(() => {
-    if (!session?.user) return;
-
-    const fetchData = async () => {
-      setLoading(true);
-
-      let allAnimals: any[] = [];
-      let page = 0;
-      const pageSize = 1000;
-      while (true) {
-        const { data } = await supabase
-          .from('animals')
-          .select('name, scientific_name, rarity, category')
-          .order('name')
-          .range(page * pageSize, (page + 1) * pageSize - 1);
-        if (!data || data.length === 0) break;
-        allAnimals = allAnimals.concat(data);
-        if (data.length < pageSize) break;
-        page++;
-      }
-
-      const { data: userCaptures } = await supabase
-        .from('captures')
-        .select('*')
-        .eq('user_id', session.user.id)
-        .eq('status', 'approved');
-
-      const capturesByName = new Map<string, any>();
-      (userCaptures || []).forEach((c) => {
-        capturesByName.set(c.animal_name.toLowerCase(), c);
-      });
-
-      const list: BestiaryAnimal[] = allAnimals.map((a: any) => {
-        const capture = capturesByName.get(a.name.toLowerCase());
-        return {
-          name: a.name,
-          scientific_name: a.scientific_name,
-          rarity: a.rarity,
-          category: a.category,
-          captured: !!capture,
-          captureData: capture ? {
-            id: capture.id,
-            name: capture.animal_name,
-            scientificName: capture.scientific_name || '',
-            image: capture.image_url,
-            cutoutUrl: (capture as any).cutout_url,
-            rarity: capture.rarity as Rarity,
-            category: capture.category || '',
-            description: capture.description || '',
-            habitat: capture.habitat || '',
-            diet: capture.diet || '',
-            conservation: capture.conservation || '',
-            funFact: capture.fun_fact || '',
-            discoveredAt: capture.created_at,
-            location: capture.location || '',
-          } : undefined,
-        };
-      });
-
-      // Sort alphabetically
-      list.sort((a, b) => a.name.localeCompare(b.name, 'fr'));
-
-      setAnimals(list);
-      setLoading(false);
-      return list;
-    };
-
-    const fetchUnread = async () => {
-      const { count } = await supabase
-        .from('notifications')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', session.user.id)
-        .eq('read', false);
-      setUnreadCount(count || 0);
-    };
-
-    const fetchSubs = async (sourceAnimals: BestiaryAnimal[]) => {
-      const { data } = await supabase
-        .from('user_department_subscriptions')
-        .select('id, department_code, kind, city_name, city_postcode, is_home')
-        .eq('user_id', session.user.id)
-        .order('is_home', { ascending: false })
-        .order('created_at', { ascending: true });
-      const zones: ZoneSub[] = (data || []).map((r: any) => ({
-        id: r.id,
-        kind: (r.kind || 'department') as 'department' | 'city',
-        departmentCode: r.department_code,
-        cityName: r.city_name,
-        cityPostcode: r.city_postcode,
-        isHome: !!r.is_home,
-      }));
-      setSubscribedZones(zones);
-      const uniqueDepts = Array.from(new Set(zones.map((z) => z.departmentCode)));
-      for (const c of uniqueDepts) loadDeptAnimals(c, sourceAnimals);
-    };
-
-    fetchData().then((list) => fetchSubs(list || []));
-    fetchUnread();
-  }, [session]);
-
-  useEffect(() => {
-    if (animals.length === 0 || subscribedZones.length === 0) return;
-    const uniqueDepts = Array.from(new Set(subscribedZones.map((z) => z.departmentCode)));
-    uniqueDepts.forEach((code) => {
-      const existing = animalsByDept[code];
-      if (!existing || existing.size === 0) {
-        loadDeptAnimals(code, animals);
-      }
-    });
-  }, [animals, subscribedZones, animalsByDept]);
-
-  // Detect pending shelve animation request on mount
-  useEffect(() => {
-    const peeked = peekPendingShelve();
-    if (peeked && !shelveAnimationRan.current) {
-      setPendingShelveState(peeked);
-    }
-  }, []);
-
-  // Auto-open the target category as soon as data is ready
-  useEffect(() => {
-    if (!pendingShelve || loading || shelveAnimationRan.current) return;
-    const targetCat = normalizeCategory(pendingShelve.category);
-    // Find the animal entry to confirm category exists
-    const match = animals.find(
-      a => a.name.toLowerCase() === pendingShelve.animalName.toLowerCase(),
-    );
-    const catName = match ? normalizeCategory(match.category) : targetCat;
-    if (selectedCategory !== catName) {
-      setSelectedCategory(catName);
-    }
-  }, [pendingShelve, loading, animals, selectedCategory]);
-
-  // Play the glide-into-slot animation once the slot is mounted
-  useEffect(() => {
-    if (!pendingShelve || shelveAnimationRan.current) return;
-    if (!selectedCategory) return;
-
-    const slotKey = pendingShelve.animalName.toLowerCase();
-    // Wait next frame to ensure slot is rendered
-    const raf = requestAnimationFrame(() => {
-      const slotEl = slotRefs.current[slotKey];
-      if (!slotEl) return;
-      shelveAnimationRan.current = true;
-      consumePendingShelve(); // clear storage so it doesn't replay
-
-      // Scroll the slot into view (centered)
-      slotEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-      // After scroll settles, measure & launch flying card
-      setTimeout(() => {
-        const rect = slotEl.getBoundingClientRect();
-        const vw = window.innerWidth;
-        const vh = window.innerHeight;
-        // Start: large card at center of viewport
-        const startSize = Math.min(280, vw * 0.7);
-        const startLeft = (vw - startSize) / 2;
-        const startTop = (vh - startSize) / 2;
-
-        // Mount flying card at start position
-        setFlyingCardStyle({
-          left: `${startLeft}px`,
-          top: `${startTop}px`,
-          width: `${startSize}px`,
-          height: `${startSize}px`,
-          transform: 'rotate(-4deg) scale(1)',
-          opacity: 1,
-        });
-
-        // Next frame: animate to slot position
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            setFlyingCardStyle({
-              left: `${rect.left}px`,
-              top: `${rect.top}px`,
-              width: `${rect.width}px`,
-              height: `${rect.height}px`,
-              transform: 'rotate(0deg) scale(1)',
-              opacity: 1,
-            });
-          });
-        });
-
-        // When animation completes: trigger flash + remove flying card
-        setTimeout(() => {
-          setFlashSlotName(slotKey);
-          setFlyingCardStyle(prev => prev ? { ...prev, opacity: 0 } : null);
-          if (navigator.vibrate) navigator.vibrate([30, 20, 60]);
-          setTimeout(() => {
-            setFlyingCardStyle(null);
-            setPendingShelveState(null);
-          }, 250);
-          // Clear flash after animation
-          setTimeout(() => setFlashSlotName(null), 1200);
-        }, 900);
-      }, 450);
-    });
-
-    return () => cancelAnimationFrame(raf);
-  }, [pendingShelve, selectedCategory, animals, loading]);
 
   // Categories with counts
   const categoryData = useMemo(() => {
@@ -503,8 +128,7 @@ const BestiairePage = () => {
       });
   }, [animals, rarityFilter]);
 
-
-  const selectedZone = useMemo(
+  const selectedZone: ZoneSub | null = useMemo(
     () => subscribedZones.find((z) => z.id === selectedZoneId) || null,
     [subscribedZones, selectedZoneId],
   );
@@ -539,212 +163,13 @@ const BestiairePage = () => {
     return map;
   }, [animals, animalsByDept, subscribedZones]);
 
-  const handleAddDept = async (code: string) => {
-    if (!session?.user) return;
-    const existing = subscribedZones.find((z) => z.kind === 'department' && z.departmentCode === code);
-    if (existing) {
-      setShowDeptPicker(false);
-      setSelectedZoneId(existing.id);
-      return;
-    }
-    setLoadingDept(true);
-    try {
-      const { data, error } = await supabase
-        .from('user_department_subscriptions')
-        .insert({ user_id: session.user.id, department_code: code, kind: 'department' })
-        .select('id')
-        .single();
-      if (error) throw error;
-      const newZone: ZoneSub = { id: data.id, kind: 'department', departmentCode: code, cityName: null, cityPostcode: null, isHome: false };
-      setSubscribedZones((prev) => [...prev, newZone]);
-
-      await loadDeptAnimals(code, animals);
-      void supabase.functions.invoke('populate-department-fauna', {
-        body: { department_code: code },
-      }).then(() => loadDeptAnimals(code, animals));
-      setShowDeptPicker(false);
-      setDeptSearch('');
-      setSelectedZoneId(newZone.id);
-    } catch (e: any) {
-      toast.error(e.message || 'Erreur lors de l\'ajout');
-    } finally {
-      setLoadingDept(false);
-    }
-  };
-
-  const handleAddCity = async (city: { nom: string; codeDepartement: string; codesPostaux: string[] }) => {
-    if (!session?.user) return;
-    const postcode = city.codesPostaux?.[0] || '';
-    const existing = subscribedZones.find(
-      (z) => z.kind === 'city' && z.cityName === city.nom && z.cityPostcode === postcode,
-    );
-    if (existing) {
-      setShowDeptPicker(false);
-      setSelectedZoneId(existing.id);
-      return;
-    }
-    setLoadingDept(true);
-    try {
-      const { data, error } = await supabase
-        .from('user_department_subscriptions')
-        .insert({
-          user_id: session.user.id,
-          department_code: city.codeDepartement,
-          kind: 'city',
-          city_name: city.nom,
-          city_postcode: postcode,
-        })
-        .select('id')
-        .single();
-      if (error) throw error;
-      const newZone: ZoneSub = {
-        id: data.id,
-        kind: 'city',
-        departmentCode: city.codeDepartement,
-        cityName: city.nom,
-        cityPostcode: postcode,
-        isHome: false,
-      };
-      setSubscribedZones((prev) => [...prev, newZone]);
-
-      await loadDeptAnimals(city.codeDepartement, animals);
-      void supabase.functions.invoke('populate-department-fauna', {
-        body: { department_code: city.codeDepartement },
-      }).then(() => loadDeptAnimals(city.codeDepartement, animals));
-      setShowDeptPicker(false);
-      setCitySearch('');
-      setCityResults([]);
-      setSelectedZoneId(newZone.id);
-    } catch (e: any) {
-      toast.error(e.message || 'Erreur lors de l\'ajout');
-    } finally {
-      setLoadingDept(false);
-    }
-  };
-
-  const handleRemoveZone = async (zoneId: string) => {
-    if (!session?.user) return;
-    if (!confirm('Supprimer cette rubrique ?')) return;
-    await supabase
-      .from('user_department_subscriptions')
-      .delete()
-      .eq('user_id', session.user.id)
-      .eq('id', zoneId);
-    setSubscribedZones((prev) => prev.filter((z) => z.id !== zoneId));
-    setSelectedZoneId(null);
-  };
-
-  const handleSetAsHome = async (zoneId: string) => {
-    if (!session?.user) return;
-    try {
-      // Clear previous home, then set new one
-      await supabase
-        .from('user_department_subscriptions')
-        .update({ is_home: false })
-        .eq('user_id', session.user.id)
-        .eq('is_home', true);
-      const { error } = await supabase
-        .from('user_department_subscriptions')
-        .update({ is_home: true })
-        .eq('user_id', session.user.id)
-        .eq('id', zoneId);
-      if (error) throw error;
-      setSubscribedZones((prev) =>
-        prev.map((z) => ({ ...z, isHome: z.id === zoneId }))
-      );
-      toast.success('Territoire défini comme « Chez moi »');
-    } catch (e: any) {
-      toast.error(e.message || 'Erreur');
-    }
-  };
-
-  const handleDetectHome = async () => {
-    if (!session?.user) return;
-    if (!('geolocation' in navigator)) {
-      toast.error('Géolocalisation indisponible');
-      return;
-    }
-    setDetectingHome(true);
-    try {
-      const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: false,
-          timeout: 10000,
-          maximumAge: 60000,
-        });
-      });
-      const { latitude, longitude } = pos.coords;
-      const url = `https://geo.api.gouv.fr/communes?lat=${latitude}&lon=${longitude}&fields=nom,code,codeDepartement,codesPostaux&limit=1`;
-      const res = await fetch(url);
-      const data = await res.json();
-      const commune = Array.isArray(data) && data[0];
-      if (!commune) {
-        toast.error('Impossible de détecter ta commune (hors France ?)');
-        return;
-      }
-      const postcode = commune.codesPostaux?.[0] || '';
-      // Existing zone match?
-      let zone = subscribedZones.find(
-        (z) => z.kind === 'city' && z.cityName === commune.nom && z.cityPostcode === postcode,
-      );
-      if (!zone) {
-        const { data: ins, error } = await supabase
-          .from('user_department_subscriptions')
-          .insert({
-            user_id: session.user.id,
-            department_code: commune.codeDepartement,
-            kind: 'city',
-            city_name: commune.nom,
-            city_postcode: postcode,
-            is_home: true,
-          })
-          .select('id')
-          .single();
-        if (error) throw error;
-        zone = {
-          id: ins.id,
-          kind: 'city',
-          departmentCode: commune.codeDepartement,
-          cityName: commune.nom,
-          cityPostcode: postcode,
-          isHome: true,
-        };
-        // Clear previous home
-        await supabase
-          .from('user_department_subscriptions')
-          .update({ is_home: false })
-          .eq('user_id', session.user.id)
-          .eq('is_home', true)
-          .neq('id', zone.id);
-        setSubscribedZones((prev) => [
-          ...prev.map((z) => ({ ...z, isHome: false })),
-          zone!,
-        ]);
-        await loadDeptAnimals(commune.codeDepartement, animals);
-        void supabase.functions.invoke('populate-department-fauna', {
-          body: { department_code: commune.codeDepartement },
-        }).then(() => loadDeptAnimals(commune.codeDepartement, animals));
-      } else {
-        await handleSetAsHome(zone.id);
-      }
-      toast.success(`Chez toi : ${commune.nom} 🏠`);
-      setShowDeptPicker(false);
-      setPickerMode('hub');
-      setSelectedZoneId(zone.id);
-    } catch (e: any) {
-      const msg = e?.code === 1 ? 'Autorise la géolocalisation pour détecter ta zone' : (e?.message || 'Erreur de géolocalisation');
-      toast.error(msg);
-    } finally {
-      setDetectingHome(false);
-    }
-  };
-
   const filteredDeptOptions = useMemo(() => {
     const q = deptSearch.trim().toLowerCase();
     return DEPARTEMENTS.filter((d) =>
       !q || d.name.toLowerCase().includes(q) || d.code.toLowerCase().includes(q) || d.region.toLowerCase().includes(q)
     );
   }, [deptSearch]);
+
 
   // Debounced city search via geo.api.gouv.fr
   useEffect(() => {
