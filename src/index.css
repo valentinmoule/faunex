@@ -2295,6 +2295,17 @@
   box-shadow: 0 14px 34px -16px hsl(0 0% 0% / 0.7);
 }
 
+.holo-stable-fullscreen .detail-glass--fullscreen,
+.holo-stable-fullscreen .holo-frame,
+.holo-stable-fullscreen .holo-frame::after {
+  animation: none !important;
+}
+
+.holo-stable-fullscreen .holo-frame::after {
+  background-position: 55% 50%;
+  will-change: auto;
+}
+
 .holo-stable-fullscreen .holo-content {
   transform: translate3d(0, 0, 1px);
   backface-visibility: hidden;
@@ -2349,6 +2360,7 @@
 .holo-stable-fullscreen.holo-fullscreen-photo .holo-cutout img {
   object-fit: cover;
   object-position: center;
+  filter: none !important;
 }
 
 .holo-stable-fullscreen.holo-rare .holo-shine {
