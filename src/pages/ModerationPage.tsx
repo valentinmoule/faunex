@@ -37,7 +37,7 @@ const ModerationPage = () => {
     setLoading(true);
     const { data, error } = await supabase
       .from('captures')
-      .select('id, animal_name, scientific_name, image_url, location, created_at, user_id')
+      .select('id, animal_name, scientific_name, image_url, location, created_at, user_id, description, caption')
       .eq('status', 'pending_review')
       .order('created_at', { ascending: true });
 
