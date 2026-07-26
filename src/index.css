@@ -1877,6 +1877,34 @@
   height: 100%;
 }
 
+/* Fullscreen keeps the exact same effect (same layers, same maths), but the
+   holo layers are rasterised at half resolution and GPU-scaled back up.
+   Gradients/textures are soft by nature so the render is visually identical,
+   while the per-frame repaint area drops 4x — that's what removes the jank on
+   large screens without touching the effect itself. */
+.holo-fullscreen-photo .holo-shine,
+.holo-fullscreen-photo .holo-glare {
+  inset: auto;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 50%;
+  transform: scale(2);
+  transform-origin: top left;
+  will-change: opacity;
+  backface-visibility: hidden;
+}
+
+/* The frame ring must not repaint with the holo layers underneath. */
+.holo-frame--fullscreen {
+  animation: none !important;
+}
+
+.holo-frame--fullscreen::after {
+  will-change: auto;
+}
+
+
 
 .detail-fullscreen .detail-mythic-orb-1,
 .detail-fullscreen .detail-mythic-orb-2,

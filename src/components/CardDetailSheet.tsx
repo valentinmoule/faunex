@@ -540,12 +540,18 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
             className="relative w-full h-full max-w-[min(100vw,100vh)] max-h-screen z-10 flex items-center justify-center p-4 pointer-events-none"
           >
             <div
-              className={`pointer-events-auto will-change-transform ${zoomInteracting ? 'transition-none' : 'transition-transform duration-150 ease-out'}`}
+              className={`pointer-events-auto ${zoomInteracting ? 'transition-none' : 'transition-transform duration-150 ease-out'}`}
               style={{
-                transform: `scale(${zoom.scale}) translate(${zoom.x}px, ${zoom.y}px)`,
+                // No transform at all while idle: an ancestor transform forces the
+                // blended holo layers into a separate backdrop and makes them flicker.
+                transform: zoom.scale > 1.001 || zoom.x || zoom.y
+                  ? `scale(${zoom.scale}) translate(${zoom.x}px, ${zoom.y}px)`
+                  : undefined,
+                willChange: zoomInteracting ? 'transform' : undefined,
                 touchAction: 'none',
               }}
             >
+
               <HolographicCard
                 rarity={card.rarity}
                 subjectBox={card.subjectBox}
