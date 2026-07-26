@@ -79,7 +79,7 @@ const HolographicCard = ({
     const last = lastAppliedRef.current;
     const opacity = 1;
     const stableMotion = performanceMode || stableFullscreen;
-    const updateThreshold = stableMotion ? 0.12 : 0.05;
+    const updateThreshold = stableFullscreen ? 0.035 : performanceMode ? 0.1 : 0.05;
     if (
       Math.abs(px - last.px) < updateThreshold &&
       Math.abs(py - last.py) < updateThreshold &&
@@ -87,9 +87,9 @@ const HolographicCard = ({
     ) return;
     lastAppliedRef.current = { px, py, opacity };
     const fromCenter = Math.min(1, Math.hypot(cx, cy) / 50);
-    const rotationSoftener = stableMotion ? 8.5 : 6;
-    const shineTravel = stableMotion ? 0.34 : 0.42;
-    const glareTravel = stableMotion ? 0.28 : 0.34;
+    const rotationSoftener = stableFullscreen ? 5.1 : performanceMode ? 7.2 : 6;
+    const shineTravel = stableFullscreen ? 0.72 : stableMotion ? 0.46 : 0.42;
+    const glareTravel = stableFullscreen ? 0.58 : stableMotion ? 0.4 : 0.34;
     const s = node.style;
     s.setProperty('--pointer-x', `${px}%`);
     s.setProperty('--pointer-y', `${py}%`);
@@ -103,10 +103,10 @@ const HolographicCard = ({
     // Performance mode uses transform-only movement for the shine/glare layers.
     // Updating background-position on large fullscreen gradients forces repaints;
     // translating already-composited layers stays much closer to Pokémon GO-style fluidity.
-    s.setProperty('--holo-shine-x', `${clamp((50 - px) * shineTravel, -18, 18).toFixed(2)}%`);
-    s.setProperty('--holo-shine-y', `${clamp((50 - py) * shineTravel, -18, 18).toFixed(2)}%`);
-    s.setProperty('--holo-glare-x', `${clamp((px - 50) * glareTravel, -14, 14).toFixed(2)}%`);
-    s.setProperty('--holo-glare-y', `${clamp((py - 50) * glareTravel, -14, 14).toFixed(2)}%`);
+    s.setProperty('--holo-shine-x', `${clamp((50 - px) * shineTravel, -30, 30).toFixed(2)}%`);
+    s.setProperty('--holo-shine-y', `${clamp((50 - py) * shineTravel, -30, 30).toFixed(2)}%`);
+    s.setProperty('--holo-glare-x', `${clamp((px - 50) * glareTravel, -24, 24).toFixed(2)}%`);
+    s.setProperty('--holo-glare-y', `${clamp((py - 50) * glareTravel, -24, 24).toFixed(2)}%`);
     s.setProperty('--card-opacity', String(opacity));
   }, [performanceMode, stableFullscreen]);
 
@@ -156,8 +156,12 @@ const HolographicCard = ({
     a.lastT = now;
     lastRawRef.current = { beta: safeBeta, gamma: safeGamma };
 
-    const filterMs = a.velocity < 8 ? 150 : a.velocity > 120 ? 72 : 105;
-    const filterK = clamp(1 - Math.exp(-dt / filterMs), 0.045, 0.38);
+    const filterMs = stableFullscreen
+      ? (a.velocity < 8 ? 96 : a.velocity > 120 ? 48 : 68)
+      : (a.velocity < 8 ? 150 : a.velocity > 120 ? 72 : 105);
+    const filterK = stableFullscreen
+      ? clamp(1 - Math.exp(-dt / filterMs), 0.075, 0.5)
+      : clamp(1 - Math.exp(-dt / filterMs), 0.045, 0.38);
     if (!filteredRef.current) {
       filteredRef.current = { beta: safeBeta, gamma: safeGamma };
     } else {
@@ -180,12 +184,12 @@ const HolographicCard = ({
     const base = baselineRef.current;
     // The holo reflection is a subtle card parallax, not a full-screen pan.
     // Keep movement bounded and soft so normal phone motion cannot create large jumps.
-    const RANGE_X = stableFullscreen ? 28 : 23;
-    const RANGE_Y = stableFullscreen ? 30 : 25;
-    const TRAVEL_X = stableFullscreen ? 30 : 34;
-    const TRAVEL_Y = stableFullscreen ? 28 : 31;
+    const RANGE_X = stableFullscreen ? 18 : 23;
+    const RANGE_Y = stableFullscreen ? 20 : 25;
+    const TRAVEL_X = stableFullscreen ? 43 : 34;
+    const TRAVEL_Y = stableFullscreen ? 39 : 31;
     // Small dead-zone near baseline to filter out micro-shakes.
-    const DEAD = 1.15;
+    const DEAD = stableFullscreen ? 0.45 : 1.15;
     const rawDGamma = filtered.gamma - base.gamma;
     const rawDBeta = angleDelta(filtered.beta, base.beta);
     const applyDeadZone = (value: number) => {
@@ -300,10 +304,12 @@ const HolographicCard = ({
         const frameDt = s.lastFrame ? clamp(now - s.lastFrame, 8, 34) : 16.67;
         s.lastFrame = now;
         const desiredResponse = stableFullscreen
-          ? (a.velocity < 8 ? 240 : a.velocity > 120 ? 128 : 170)
+          ? (a.velocity < 8 ? 112 : a.velocity > 120 ? 58 : 82)
           : (a.velocity < 8 ? 185 : a.velocity > 120 ? 82 : 120);
         a.responseMs += (desiredResponse - a.responseMs) * 0.08;
-        const k = clamp(1 - Math.exp(-frameDt / a.responseMs), 0.035, 0.32);
+        const k = stableFullscreen
+          ? clamp(1 - Math.exp(-frameDt / a.responseMs), 0.08, 0.48)
+          : clamp(1 - Math.exp(-frameDt / a.responseMs), 0.035, 0.32);
         const dx = t.px - s.px;
         const dy = t.py - s.py;
         s.px += dx * k;
