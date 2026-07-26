@@ -111,6 +111,8 @@ const HolographicCard = ({
       const motionY = `${fullscreenMotionY.toFixed(2)}px`;
       s.setProperty('--holo-motion-x', motionX);
       s.setProperty('--holo-motion-y', motionY);
+      s.setProperty('--holo-image-x', motionX);
+      s.setProperty('--holo-image-y', motionY);
       s.setProperty('--holo-shine-x', motionX);
       s.setProperty('--holo-shine-y', motionY);
       s.setProperty('--holo-glare-x', motionX);
@@ -263,6 +265,8 @@ const HolographicCard = ({
     s.setProperty('--rotate-y', '0deg');
     s.setProperty('--holo-motion-x', '0px');
     s.setProperty('--holo-motion-y', '0px');
+    s.setProperty('--holo-image-x', '0px');
+    s.setProperty('--holo-image-y', '0px');
     s.setProperty('--holo-shine-x', '0px');
     s.setProperty('--holo-shine-y', '0px');
     s.setProperty('--holo-glare-x', '0px');
