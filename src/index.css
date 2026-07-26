@@ -2038,11 +2038,6 @@
   display: none;
 }
 
-.holo-frame--fullscreen.holo-frame--rare,
-.holo-frame--fullscreen.holo-frame--epic,
-.holo-frame--fullscreen.holo-frame--mythic {
-  animation: none;
-}
 .holo-shine {
   z-index: 2;
   mix-blend-mode: color-dodge;
@@ -2393,86 +2388,100 @@
 }
 
 /* ─────────────────────────────────────
-   Holo frame — rarity-tinted borders
+   Holo frame — rarity-tinted shiny borders
+   The animated ring lives in an isolated ::after overlay so it never
+   forces a repaint/recomposite of the holographic layers underneath.
    ───────────────────────────────────── */
 .holo-frame {
-  border-width: 9px;
-  border-style: solid;
-  border-color: transparent;
-  background-clip: padding-box, border-box;
-  background-origin: padding-box, border-box;
+  --frame-w: 10px;
+  --frame-grad: linear-gradient(120deg,
+    hsl(var(--rarity-common) / 0.6),
+    hsl(0 0% 100% / 0.55),
+    hsl(var(--rarity-common) / 0.6));
+  border: var(--frame-w) solid transparent;
+  background-clip: padding-box;
   position: relative;
+  isolation: isolate;
+}
+
+.holo-frame::after {
+  content: "";
+  position: absolute;
+  inset: calc(var(--frame-w) * -1);
+  border-radius: inherit;
+  border: var(--frame-w) solid transparent;
+  background: var(--frame-grad) border-box;
+  background-size: 300% 300%;
+  -webkit-mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0);
+          mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+  z-index: 6;
+  will-change: background-position;
 }
 
 .holo-frame--common {
-  background-image:
-    linear-gradient(hsl(0 0% 100% / 0.96), hsl(0 0% 100% / 0.96)),
-    linear-gradient(140deg,
-      hsl(var(--rarity-common) / 0.55),
-      hsl(var(--rarity-common) / 0.9),
-      hsl(var(--rarity-common) / 0.55));
+  --frame-grad: linear-gradient(140deg,
+    hsl(var(--rarity-common) / 0.75),
+    hsl(0 0% 100% / 0.7),
+    hsl(var(--rarity-common) / 0.75));
   box-shadow:
     inset 0 0 0 1px hsl(var(--rarity-common) / 0.35),
     0 8px 32px rgba(0,0,0,0.35);
 }
 
 .holo-frame--rare {
-  background-image:
-    linear-gradient(hsl(0 0% 100% / 0.96), hsl(0 0% 100% / 0.96)),
-    linear-gradient(120deg,
-      hsl(210 80% 45%),
-      hsl(200 95% 70%),
-      hsl(210 80% 45%),
-      hsl(220 85% 60%),
-      hsl(210 80% 45%));
-  background-size: 100% 100%, 300% 300%;
+  --frame-grad: linear-gradient(120deg,
+    hsl(210 80% 45%),
+    hsl(195 100% 88%),
+    hsl(210 80% 45%),
+    hsl(220 85% 62%),
+    hsl(210 80% 45%));
   box-shadow:
     inset 0 0 0 1px hsl(var(--rarity-rare) / 0.5),
     0 0 22px hsl(var(--rarity-rare) / 0.35),
     0 8px 32px rgba(0,0,0,0.4);
-  animation: holo-frame-shift 6s linear infinite;
 }
 
 .holo-frame--epic {
-  background-image:
-    linear-gradient(hsl(0 0% 100% / 0.96), hsl(0 0% 100% / 0.96)),
-    linear-gradient(120deg,
-      hsl(270 80% 45%),
-      hsl(290 90% 70%),
-      hsl(255 85% 55%),
-      hsl(300 85% 65%),
-      hsl(270 80% 45%));
-  background-size: 100% 100%, 320% 320%;
+  --frame-grad: linear-gradient(120deg,
+    hsl(270 80% 45%),
+    hsl(292 100% 88%),
+    hsl(255 85% 55%),
+    hsl(305 90% 70%),
+    hsl(270 80% 45%));
   box-shadow:
     inset 0 0 0 1px hsl(var(--rarity-epic) / 0.6),
     0 0 28px hsl(var(--rarity-epic) / 0.45),
     0 8px 32px rgba(0,0,0,0.4);
-  animation: holo-frame-shift 5s linear infinite, holo-frame-glow-epic 3.5s ease-in-out infinite;
+  animation: holo-frame-glow-epic 3.5s ease-in-out infinite;
 }
 
 .holo-frame--mythic {
-  background-image:
-    linear-gradient(hsl(0 0% 100% / 0.96), hsl(0 0% 100% / 0.96)),
-    linear-gradient(120deg,
-      hsl(38 85% 45%),
-      hsl(48 100% 78%),
-      hsl(42 95% 55%),
-      hsl(50 100% 85%),
-      hsl(38 90% 50%),
-      hsl(45 100% 72%),
-      hsl(38 85% 45%));
-  background-size: 100% 100%, 350% 350%;
+  --frame-grad: linear-gradient(120deg,
+    hsl(38 85% 45%),
+    hsl(50 100% 92%),
+    hsl(42 95% 55%),
+    hsl(52 100% 88%),
+    hsl(38 90% 50%),
+    hsl(45 100% 78%),
+    hsl(38 85% 45%));
   box-shadow:
     inset 0 0 0 1px hsl(42 100% 75% / 0.85),
     0 0 34px hsl(var(--rarity-mythic) / 0.55),
     0 0 60px hsl(42 100% 60% / 0.35),
     0 8px 32px rgba(0,0,0,0.45);
-  animation: holo-frame-shift 4s linear infinite, holo-frame-glow-mythic 2.8s ease-in-out infinite;
+  animation: holo-frame-glow-mythic 2.8s ease-in-out infinite;
 }
 
+.holo-frame--rare::after   { animation: holo-frame-shift 6s linear infinite; }
+.holo-frame--epic::after   { animation: holo-frame-shift 5s linear infinite; }
+.holo-frame--mythic::after { animation: holo-frame-shift 4s linear infinite; }
+
 @keyframes holo-frame-shift {
-  0%   { background-position: 0 0, 0% 50%; }
-  100% { background-position: 0 0, 300% 50%; }
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
 }
 
 @keyframes holo-frame-glow-epic {
@@ -2507,10 +2516,10 @@
   }
 }
 
-
 @media (prefers-reduced-motion: reduce) {
-  .holo-frame--rare,
   .holo-frame--epic,
-  .holo-frame--mythic { animation: none; }
+  .holo-frame--mythic,
+  .holo-frame::after { animation: none; }
 }
+
 

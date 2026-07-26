@@ -416,7 +416,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
                   className={`relative w-full h-full rounded-[1.75rem] overflow-hidden holo-frame holo-frame--${card.rarity}`}
                 >
 
-                  <div className="relative w-full h-full rounded-[1.2rem] overflow-hidden">
+                  <div className="relative w-full h-full rounded-[1.125rem] overflow-hidden">
 
                     {card.image ? (
                       <img src={card.image} alt={card.name} loading="eager" decoding="async" fetchPriority="high" className="w-full h-full object-cover pointer-events-none select-none" draggable={false} />
@@ -599,11 +599,11 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
                 subjectBox={card.subjectBox}
                 containInteraction
                 paused={holoPaused || zoomInteracting || zoom.scale > 1.01}
-                performanceMode
                 className="holo-fullscreen-photo relative rounded-2xl pointer-events-auto touch-none"
               >
                 <div className={`relative w-full h-full rounded-[1.5rem] overflow-hidden shadow-2xl holo-frame holo-frame--fullscreen holo-frame--${card.rarity}`}>
-                  <div className="relative w-full h-full rounded-[0.95rem] overflow-hidden">
+                  <div className="relative w-full h-full rounded-[0.875rem] overflow-hidden">
+
 
                     <img
                       src={card.image}
