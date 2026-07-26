@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Check, X, Loader2, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Check, X, Loader2, AlertTriangle, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import HolographicCard from '@/components/HolographicCard';
+import { RARITY_LABELS, type Rarity } from '@/data/mockData';
 import AnalyticsDashboard from '@/components/AnalyticsDashboard';
 
 interface PendingCapture {
@@ -20,6 +23,20 @@ interface PendingCapture {
 
   user_display_name?: string;
 }
+
+interface EnrichedAnimal {
+  animal_name: string;
+  scientific_name: string | null;
+  category: string | null;
+  description: string | null;
+  habitat: string | null;
+  diet: string | null;
+  conservation: string | null;
+  fun_fact: string | null;
+  rarity: Rarity;
+  subject_bbox?: { x: number; y: number; w: number; h: number } | null;
+}
+
 
 const ModerationPage = () => {
   const { session } = useAuth();
