@@ -77,12 +77,22 @@ export const useBestiaryData = (userId: string | undefined) => {
         location: capture.location || '',
       });
 
+      // One card per distinct species (most recent capture wins)
+      const sortedCaptures = (userCaptures || [])
+        .slice()
+        .sort((a: any, b: any) => (b.created_at || '').localeCompare(a.created_at || ''));
+      const seenSpecies = new Set<string>();
       setMyCaptures(
-        (userCaptures || [])
-          .slice()
-          .sort((a: any, b: any) => (b.created_at || '').localeCompare(a.created_at || ''))
+        sortedCaptures
+          .filter((c: any) => {
+            const key = (c.animal_name || '').toLowerCase();
+            if (seenSpecies.has(key)) return false;
+            seenSpecies.add(key);
+            return true;
+          })
           .map(toCard),
       );
+
 
       const capturesByName = new Map<string, any>();
       (userCaptures || []).forEach((c) => {

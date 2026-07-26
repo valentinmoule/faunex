@@ -425,7 +425,7 @@ const ExplorersPage = () => {
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-display font-semibold text-foreground truncate">{user.display_name || 'Sans nom'}</p>
-        <p className="text-[11px] text-muted-foreground truncate">{user.username} · Niv. {user.level} · {user.total_captures} captures</p>
+        <p className="text-[11px] text-muted-foreground truncate">{user.username} · Niv. {user.level} · {user.total_captures} espèces</p>
       </div>
       <div onClick={e => e.stopPropagation()}>{action}</div>
     </div>

@@ -255,7 +255,7 @@ const ProfilePage = () => {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 gap-3">
-          <StatCard icon={<BookOpen className="w-5 h-5 text-primary" />} value={profile.total_captures} label="Captures" />
+          <StatCard icon={<BookOpen className="w-5 h-5 text-primary" />} value={profile.total_captures} label="Espèces" />
           <StatCard icon={<MapPin className="w-5 h-5 text-sky" />} value={profile.regions_explored} label="Régions" />
           <StatCard icon={<Users className="w-5 h-5 text-amber" />} value={followersCount} label="Abonnés" />
           <StatCard icon={<UserPlus className="w-5 h-5 text-emerald" />} value={followingCount} label="Abonnements" />

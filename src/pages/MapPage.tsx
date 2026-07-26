@@ -215,6 +215,13 @@ const MapPage = () => {
     [captures],
   );
 
+  const localizedSpeciesCount = useMemo(
+    () => new Set(captures.map((c) => (c.animal_name || '').toLowerCase())).size,
+    [captures],
+  );
+
+
+
 
 
   if (loading) return <LoadingScreen />;
@@ -232,8 +239,9 @@ const MapPage = () => {
               <div>
                 <h1 className="text-base font-display font-bold text-foreground leading-none">Cartes</h1>
                 <p className="text-[11px] text-muted-foreground mt-0.5">
-                  {captures.length} capture{captures.length > 1 ? 's' : ''} localisée{captures.length > 1 ? 's' : ''}
+                  {localizedSpeciesCount} espèce{localizedSpeciesCount > 1 ? 's' : ''} localisée{localizedSpeciesCount > 1 ? 's' : ''}
                 </p>
+
               </div>
             </div>
 

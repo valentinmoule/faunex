@@ -501,7 +501,7 @@ const BestiairePage = () => {
               <h1 className="text-2xl font-display font-bold text-primary">mon faunex</h1>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground font-display">
-                  {myCaptures.length} capture{myCaptures.length > 1 ? 's' : ''}
+                  {myCaptures.length} espèce{myCaptures.length > 1 ? 's' : ''}
                 </span>
 
                 <button
