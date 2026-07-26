@@ -284,8 +284,34 @@ const ProfilePage = () => {
           </div>
         )}
 
+        {/* Admin moderation access */}
+        {isAdmin && (
+          <button
+            onClick={() => navigate('/moderation')}
+            className="w-full bg-amber/10 border border-amber/30 rounded-xl p-4 flex items-center gap-3 text-left"
+          >
+            <div className="w-10 h-10 rounded-full bg-amber/20 flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-5 h-5 text-amber" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-display font-semibold text-foreground">Modération</p>
+              <p className="text-xs text-muted-foreground">
+                {pendingCount > 0
+                  ? `${pendingCount} capture${pendingCount > 1 ? 's' : ''} en attente de validation`
+                  : 'Aucune capture en attente'}
+              </p>
+            </div>
+            {pendingCount > 0 && (
+              <span className="px-2 py-1 rounded-full bg-amber text-amber-dark text-xs font-display font-bold shrink-0">
+                {pendingCount}
+              </span>
+            )}
+          </button>
+        )}
+
         {/* Quests Section */}
         <QuestsInline />
+
 
         {/* Badges Section — Gaming Style */}
         <div id="badges" className="scroll-mt-20">
