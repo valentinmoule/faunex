@@ -1960,26 +1960,6 @@
   display: none;
 }
 
-.detail-fullscreen .holo-performance .holo-rotator,
-.detail-fullscreen .holo-performance .holo-card,
-.detail-fullscreen .holo-performance .holo-shine,
-.detail-fullscreen .holo-performance .holo-glare {
-  transform-style: flat;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-
-.detail-fullscreen .holo-performance .holo-card {
-  contain: layout paint style;
-}
-
-.detail-fullscreen .holo-performance .holo-shine,
-.detail-fullscreen .holo-performance .holo-glare {
-  mix-blend-mode: screen;
-  -webkit-mask-image: none !important;
-          mask-image: none !important;
-}
-
 .holo-performance.holo-common .holo-shine {
   background-image:
     linear-gradient(115deg,
@@ -2056,12 +2036,6 @@
 
 .detail-fullscreen .detail-glass--fullscreen {
   display: none;
-}
-
-.detail-fullscreen .holo-frame--epic,
-.detail-fullscreen .holo-frame--mythic,
-.detail-fullscreen .holo-frame::after {
-  animation: none !important;
 }
 
 .holo-shine {

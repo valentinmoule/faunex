@@ -598,7 +598,6 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
                 cutoutUrl={card.cutoutUrl}
                 subjectBox={card.subjectBox}
                 containInteraction
-                performanceMode
                 paused={holoPaused || zoomInteracting || zoom.scale > 1.01}
                 className="holo-fullscreen-photo relative rounded-2xl pointer-events-auto touch-none"
               >
