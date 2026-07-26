@@ -73,6 +73,30 @@ const ProfilePage = () => {
   const [followersCount, setFollowersCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
   const [badges, setBadges] = useState<BadgeProgress[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
+
+  useEffect(() => {
+    if (!session?.user) return;
+    let cancelled = false;
+    (async () => {
+      const { data: role } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', session.user.id)
+        .eq('role', 'admin')
+        .maybeSingle();
+      if (cancelled || !role) return;
+      setIsAdmin(true);
+      const { count } = await supabase
+        .from('captures')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending_review');
+      if (!cancelled) setPendingCount(count || 0);
+    })();
+    return () => { cancelled = true; };
+  }, [session]);
+
 
   useEffect(() => {
     if (window.location.hash === '#badges') {
