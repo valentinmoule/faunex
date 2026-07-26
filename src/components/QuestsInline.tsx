@@ -44,7 +44,7 @@ const QuestsInline = () => {
       .order('created_at');
     if (!error && data) setQuests(data as Quest[]);
     if (!error && (!data || data.length === 0)) {
-      await supabase.functions.invoke('generate-daily-quests');
+      await supabase.rpc('ensure_weekly_quests');
       const { data: retry } = await supabase
         .from('daily_quests').select('*')
         .eq('user_id', session.user.id)

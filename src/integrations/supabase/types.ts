@@ -690,6 +690,8 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      ensure_weekly_quests: { Args: never; Returns: number }
+      ensure_weekly_quests_for: { Args: { p_user_id: string }; Returns: number }
       get_my_profile: {
         Args: never
         Returns: {
