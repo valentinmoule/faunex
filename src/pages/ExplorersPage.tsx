@@ -13,7 +13,6 @@ import { followUser as followUserUtil } from '@/lib/followUtils';
 interface FeedCapture {
   id: string;
   image_url: string;
-  cutout_url?: string | null;
   subject_bbox?: { x: number; y: number; w: number; h: number } | null;
   animal_name: string;
   scientific_name: string;
@@ -401,7 +400,7 @@ const ExplorersPage = () => {
   }, [posts, searchParams]);
 
   const toAnimalCard = (post: FeedCapture): AnimalCard => ({
-    id: post.id, name: post.animal_name, scientificName: post.scientific_name || '', image: post.image_url, cutoutUrl: post.cutout_url,
+    id: post.id, name: post.animal_name, scientificName: post.scientific_name || '', image: post.image_url,
     subjectBox: post.subject_bbox,
     rarity: post.rarity as Rarity, category: post.category || '', description: post.description || '',
     habitat: post.habitat || '', diet: post.diet || '', conservation: post.conservation || '',

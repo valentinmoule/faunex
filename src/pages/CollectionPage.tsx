@@ -63,7 +63,6 @@ const CollectionPage = () => {
           name: c.animal_name,
           scientificName: c.scientific_name || '',
           image: c.image_url,
-          cutoutUrl: c.cutout_url,
           rarity: c.rarity as Rarity,
           category: c.category || '',
           description: c.description || '',
@@ -97,7 +96,7 @@ const CollectionPage = () => {
         if (data) {
           setSelectedCard({
             id: data.id, name: data.animal_name, scientificName: data.scientific_name || '',
-            image: data.image_url, cutoutUrl: (data as any).cutout_url, rarity: data.rarity as Rarity, category: data.category || '',
+            image: data.image_url, rarity: data.rarity as Rarity, category: data.category || '',
             description: data.description || '', habitat: data.habitat || '', diet: data.diet || '',
             conservation: data.conservation || '', funFact: data.fun_fact || '',
             discoveredAt: data.created_at, location: data.location || '',

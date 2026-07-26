@@ -10,7 +10,6 @@ import { useAuth } from '@/contexts/AuthContext';
 interface FeedCapture {
   id: string;
   image_url: string;
-  cutout_url?: string | null;
   subject_bbox?: { x: number; y: number; w: number; h: number } | null;
   animal_name: string;
   scientific_name: string;
@@ -297,7 +296,6 @@ const FeedPage = () => {
     name: post.animal_name,
     scientificName: post.scientific_name || '',
     image: post.image_url,
-    cutoutUrl: post.cutout_url,
     subjectBox: post.subject_bbox,
     rarity: post.rarity as Rarity,
     category: post.category || '',

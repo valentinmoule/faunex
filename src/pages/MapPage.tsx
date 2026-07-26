@@ -21,7 +21,6 @@ interface CaptureMarker {
   category: string;
   rarity: string;
   image_url: string | null;
-  cutout_url: string | null;
   description: string | null;
   habitat: string | null;
   diet: string | null;
@@ -116,8 +115,7 @@ const MapPage = () => {
     (async () => {
       const { data, error } = await supabase
         .from('captures')
-        .select('id, animal_name, scientific_name, category, rarity, image_url, cutout_url, description, habitat, diet, conservation, fun_fact, location, latitude, longitude, created_at')
-
+        .select('id, animal_name, scientific_name, category, rarity, image_url, description, habitat, diet, conservation, fun_fact, location, latitude, longitude, created_at')
         .eq('user_id', session.user.id)
         .eq('status', 'approved')
         .not('latitude', 'is', null)
@@ -192,7 +190,6 @@ const MapPage = () => {
       name: c.animal_name,
       scientificName: c.scientific_name || '',
       image: c.image_url || '',
-      cutoutUrl: c.cutout_url || undefined,
       rarity: c.rarity as Rarity,
       category: c.category || '',
       description: c.description || '',
