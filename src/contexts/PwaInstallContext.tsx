@@ -94,11 +94,15 @@ export const PwaInstallProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem(DISMISSED_KEY);
   }, []);
 
+  const [guideOpen, setGuideOpen] = useState(false);
+  const openInstallGuide = useCallback(() => setGuideOpen(true), []);
+  const closeInstallGuide = useCallback(() => setGuideOpen(false), []);
+
   const canInstall = !!deferredPrompt && !isInstalled;
   const shouldShowPrompt = (canInstall || (isIos && !isInstalled)) && !dismissed;
 
   return (
-    <PwaInstallContext.Provider value={{ canInstall, isInstalled, isIos, promptInstall, dismissInstall, resetDismiss, shouldShowPrompt }}>
+    <PwaInstallContext.Provider value={{ canInstall, isInstalled, isIos, promptInstall, dismissInstall, resetDismiss, shouldShowPrompt, guideOpen, openInstallGuide, closeInstallGuide }}>
       {children}
     </PwaInstallContext.Provider>
   );
