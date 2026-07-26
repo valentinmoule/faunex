@@ -166,7 +166,7 @@ const BestiairePage = () => {
 
 
 
-  const totalCaptured = animals.filter(a => a.captured).length;
+  // Single source of truth for "how many captures": the raw approved captures list.
 
   const hasHomeZone = subscribedZones.some((z) => z.isHome);
 
@@ -501,8 +501,9 @@ const BestiairePage = () => {
               <h1 className="text-2xl font-display font-bold text-primary">mon faunex</h1>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground font-display">
-                  {totalCaptured}/{animals.length}
+                  {myCaptures.length} capture{myCaptures.length > 1 ? 's' : ''}
                 </span>
+
                 <button
                   onClick={() => navigate('/notifications')}
                   className="relative p-2 rounded-full hover:bg-muted transition-colors"
