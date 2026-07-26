@@ -215,6 +215,13 @@ const MapPage = () => {
     [captures],
   );
 
+  const localizedSpeciesCount = useMemo(
+    () => new Set(captures.map((c) => (c.animal_name || '').toLowerCase())).size,
+    [captures],
+  );
+
+  );
+
 
 
   if (loading) return <LoadingScreen />;
