@@ -7,7 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 import { ThemeProvider } from "next-themes";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { PwaInstallProvider } from "./contexts/PwaInstallContext";
-import PwaInstallBanner from "./components/PwaInstallBanner";
+import WelcomeInstallPopup from "./components/WelcomeInstallPopup";
 import LevelSplash from "./components/LevelSplash";
 import LevelUpCelebration from "./components/LevelUpCelebration";
 import LoadingScreen from "./components/LoadingScreen";
@@ -144,7 +144,7 @@ const AppRoutes = () => {
       </Suspense>
       {!isCapturePage && !isModerationPage && !isPublicPage && <BottomNav />}
 
-      <PwaInstallBanner />
+      <WelcomeInstallPopup />
       <PushPermissionPrompt />
       <LevelSplash />
       <LevelUpCelebration />
