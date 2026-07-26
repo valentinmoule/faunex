@@ -7,6 +7,30 @@ type IdentifyOutcome =
   | { status: 'identified'; animal: AnimalResult }
   | { status: 'unknown' };
 
+const normalize = (v?: string | null) =>
+  (v || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+const HUMAN_NAMES = [
+  'humain',
+  'etre humain',
+  'homme',
+  'femme',
+  'enfant',
+  'personne',
+  'human',
+  'homo sapiens',
+  'selfie',
+  'visage',
+];
+
+/** L'être humain n'est jamais une capture valide. */
+const isHuman = (animal: { animal_name?: string; scientific_name?: string; category?: string }) => {
+  const name = normalize(animal.animal_name);
+  const sci = normalize(animal.scientific_name);
+  if (sci.includes('homo sapiens') || sci === 'homo') return true;
+  return HUMAN_NAMES.some((h) => name === h || name.includes(h));
+};
+
 /**
  * Single source of truth for the AI identification flow.
  * Used identically by the camera shot and the gallery import.
