@@ -22,7 +22,6 @@ interface Profile {
   xp: number;
   xp_to_next: number;
   total_captures: number;
-  total_captures: number;
 }
 
 interface QuestSummary {

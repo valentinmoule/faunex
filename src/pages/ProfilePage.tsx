@@ -132,10 +132,6 @@ const ProfilePage = () => {
       const captures = capturesRes.data || [];
       const totalCaptures = captures.length;
 
-      if (data && data.total_captures !== totalCaptures) {
-        await supabase.from('profiles').update({ total_captures: totalCaptures, total_captures: totalCaptures }).eq('user_id', userId);
-        setProfile(prev => prev ? { ...prev, total_captures: totalCaptures } : prev);
-      }
 
       const claimedSet = new Set((claimedBadgesRes.data || []).map((b: any) => b.badge_id));
 
