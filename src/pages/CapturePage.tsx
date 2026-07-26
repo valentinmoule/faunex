@@ -1,26 +1,17 @@
-import { useState, useRef, useEffect, useCallback, TouchEvent as ReactTouchEvent } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Camera, Zap, MapPin, Image, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine, ZoomIn, Focus, Crosshair, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { type Rarity, RARITY_LABELS } from '@/data/mockData';
 import { setPendingShelve } from '@/lib/shelveAnimation';
-
-interface AnimalResult {
-  animal_name: string;
-  scientific_name: string;
-  category: string;
-  description: string;
-  habitat: string;
-  diet: string;
-  conservation: string;
-  fun_fact: string;
-  rarity: Rarity;
-  confidence?: number;
-  alternatives?: string[];
-  subject_bbox?: { x: number; y: number; w: number; h: number } | null;
-}
+import { readFileAsDataUrl } from '@/lib/imageProcessing';
+import { useCamera } from '@/hooks/useCamera';
+import { useGeoTag } from '@/hooks/useGeoTag';
+import { useAnimalIdentification } from '@/hooks/useAnimalIdentification';
+import { useCaptureSave } from '@/hooks/useCaptureSave';
+import { useCaptureReveal, REVEAL_TIMINGS } from '@/hooks/useCaptureReveal';
+import type { AnimalResult } from '@/types/capture';
 
 const rarityColors: Record<string, string> = {
   common: 'bg-rarity-common/20 text-rarity-common border-rarity-common/40',
@@ -29,370 +20,70 @@ const rarityColors: Record<string, string> = {
   mythic: 'bg-rarity-mythic/20 text-rarity-mythic border-rarity-mythic/40',
 };
 
-/** Compress an image dataURL to a max dimension and JPEG quality for AI.
- *  Higher resolution + quality => better recognition accuracy. */
-const compressForAI = (dataUrl: string, maxSize = 1600, quality = 0.85): Promise<string> => {
-  return new Promise((resolve) => {
-    const img = new window.Image();
-    img.onload = () => {
-      const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
-      const w = Math.round(img.width * scale);
-      const h = Math.round(img.height * scale);
-      const c = document.createElement('canvas');
-      c.width = w;
-      c.height = h;
-      c.getContext('2d')!.drawImage(img, 0, 0, w, h);
-      resolve(c.toDataURL('image/jpeg', quality));
-    };
-    img.src = dataUrl;
-  });
-};
-
 const CapturePage = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
-  const [flash, setFlash] = useState(false);
-  const [cameraActive, setCameraActive] = useState(false);
-  const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
-  const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
-  const [identifying, setIdentifying] = useState(false);
-  const [animalResult, setAnimalResult] = useState<AnimalResult | null>(null);
-  const [saving, setSaving] = useState(false);
-  const [defaultShare, setDefaultShare] = useState(true);
 
-  useEffect(() => {
-    if (!session?.user) return;
-    supabase.from('profiles').select('default_share_captures').eq('user_id', session.user.id).maybeSingle()
-      .then(({ data }) => { if (data && (data as any).default_share_captures === false) setDefaultShare(false); });
-  }, [session]);
+  const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
+  const [animalResult, setAnimalResult] = useState<AnimalResult | null>(null);
   const [saved, setSaved] = useState(false);
-  const [revealPhase, setRevealPhase] = useState<'idle' | 'freeze' | 'shaking' | 'burst' | 'done'>('idle');
-  const [revealRarity, setRevealRarity] = useState<Rarity>('common');
-  const [freezeFlash, setFreezeFlash] = useState(false);
   const [duplicateCapture, setDuplicateCapture] = useState<{ id: string; image_url: string; animal_name: string } | null>(null);
-  const [geoCoords, setGeoCoords] = useState<{ lat: number; lng: number } | null>(null);
-  const [geoName, setGeoName] = useState<string | null>(null);
   const [manualMode, setManualMode] = useState(false);
   const [manualName, setManualName] = useState('');
   const [manualSpecies, setManualSpecies] = useState('');
   const [manualDescription, setManualDescription] = useState('');
-  const [zoomLevel, setZoomLevel] = useState(1);
-  const [maxZoom, setMaxZoom] = useState(5);
-  const [supportsNativeZoom, setSupportsNativeZoom] = useState(false);
-  const [focusMode, setFocusMode] = useState<'auto' | 'manual'>('auto');
-  const [focusPoint, setFocusPoint] = useState<{ x: number; y: number } | null>(null);
-  const [focusAnimating, setFocusAnimating] = useState(false);
-  const [supportsFocus, setSupportsFocus] = useState(false);
-  const pinchStartDistance = useRef<number | null>(null);
-  const pinchStartZoom = useRef<number>(1);
-  const focusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const videoContainerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const stopCamera = useCallback(() => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-      streamRef.current = null;
-    }
-    setCameraActive(false);
-  }, []);
+  const camera = useCamera({ paused: !!capturedPhoto });
+  const geo = useGeoTag();
+  const { identifying, identify } = useAnimalIdentification();
+  const { revealPhase, revealRarity, freezeFlash, triggerReveal, reset: resetReveal } =
+    useCaptureReveal(setAnimalResult);
+  const { saving, findDuplicate, insertCapture, replaceCapture, submitManualEntry } = useCaptureSave({
+    userId: session?.user?.id,
+    photo: capturedPhoto,
+    geo: { coords: geo.coords, name: geo.name },
+  });
 
-  const startCamera = useCallback(async () => {
-    try {
-      stopCamera();
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode, width: { ideal: 1920 }, height: { ideal: 1080 } },
-        audio: false,
-      });
-      streamRef.current = stream;
+  const {
+    videoRef, canvasRef, cameraActive, facingMode, switchCamera,
+    flash, setFlash, zoomLevel, maxZoom, supportsNativeZoom, applyZoom,
+    focusMode, focusPoint, focusAnimating, toggleFocusMode,
+    handleTouchStart, handleTouchMove, handleTouchEnd, handleTapToFocus,
+    grabFrame, resumePreview,
+  } = camera;
 
-      // Check native zoom support
-      const track = stream.getVideoTracks()[0];
-      const capabilities = track.getCapabilities?.() as any;
-      if (capabilities?.zoom) {
-        setSupportsNativeZoom(true);
-        setMaxZoom(Math.min(capabilities.zoom.max, 10));
-      } else {
-        setSupportsNativeZoom(false);
-        setMaxZoom(5);
-      }
-      setZoomLevel(1);
-
-      // Check focus support
-      const hasFocusMode = !!(capabilities?.focusMode);
-      setSupportsFocus(hasFocusMode);
-      if (hasFocusMode && capabilities.focusMode.includes('continuous')) {
-        try {
-          await (track as any).applyConstraints({ advanced: [{ focusMode: 'continuous' } as any] });
-        } catch {}
-      }
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-      }
-      setCameraActive(true);
-    } catch {
-      toast.error("Impossible d'accéder à la caméra. Vérifiez les permissions.");
-    }
-  }, [facingMode, stopCamera]);
-
-  // Toggle torch (flash) on the active camera track
-  useEffect(() => {
-    if (!streamRef.current) return;
-    const track = streamRef.current.getVideoTracks()[0];
-    if (!track) return;
-    const capabilities = track.getCapabilities?.() as any;
-    if (capabilities?.torch) {
-      try {
-        (track as any).applyConstraints({ advanced: [{ torch: flash } as any] });
-      } catch (e) {
-        console.warn('Torch not supported', e);
-      }
-    }
-  }, [flash, cameraActive]);
-
-
-  const applyZoom = useCallback((newZoom: number) => {
-    const clamped = Math.max(1, Math.min(newZoom, maxZoom));
-    setZoomLevel(clamped);
-
-    if (supportsNativeZoom && streamRef.current) {
-      const track = streamRef.current.getVideoTracks()[0];
-      try {
-        (track as any).applyConstraints({ advanced: [{ zoom: clamped } as any] });
-      } catch {}
-    }
-  }, [maxZoom, supportsNativeZoom]);
-
-  // Pinch-to-zoom handlers
-  const getDistance = (touches: globalThis.TouchList) => {
-    const dx = touches[0].clientX - touches[1].clientX;
-    const dy = touches[0].clientY - touches[1].clientY;
-    return Math.sqrt(dx * dx + dy * dy);
-  };
-
-  const handleTouchStart = useCallback((e: ReactTouchEvent) => {
-    if (e.touches.length === 2) {
-      pinchStartDistance.current = getDistance(e.nativeEvent.touches);
-      pinchStartZoom.current = zoomLevel;
-    }
-  }, [zoomLevel]);
-
-  const handleTouchMove = useCallback((e: ReactTouchEvent) => {
-    if (e.touches.length === 2 && pinchStartDistance.current !== null) {
-      e.preventDefault();
-      const currentDistance = getDistance(e.nativeEvent.touches);
-      const scale = currentDistance / pinchStartDistance.current;
-      applyZoom(pinchStartZoom.current * scale);
-    }
-  }, [applyZoom]);
-
-  const handleTouchEnd = useCallback(() => {
-    pinchStartDistance.current = null;
-  }, []);
-
-  // Tap-to-focus handler
-  const handleTapToFocus = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (capturedPhoto || !cameraActive || !streamRef.current) return;
-
-    const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width;
-    const y = (e.clientY - rect.top) / rect.height;
-
-    // Show focus indicator
-    setFocusPoint({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-    setFocusAnimating(true);
-    if (focusTimeoutRef.current) clearTimeout(focusTimeoutRef.current);
-    focusTimeoutRef.current = setTimeout(() => {
-      setFocusAnimating(false);
-      setTimeout(() => setFocusPoint(null), 300);
-    }, 1000);
-
-    // Apply focus point if supported
-    if (supportsFocus) {
-      const track = streamRef.current.getVideoTracks()[0];
-      try {
-        const constraints: any = {
-          advanced: [{
-            focusMode: 'manual',
-            pointsOfInterest: [{ x, y }],
-          }],
-        };
-        (track as any).applyConstraints(constraints);
-        setFocusMode('manual');
-      } catch {}
-    }
-  }, [capturedPhoto, cameraActive, supportsFocus]);
-
-  // Toggle between auto and manual focus
-  const toggleFocusMode = useCallback(() => {
-    if (!streamRef.current) return;
-    const track = streamRef.current.getVideoTracks()[0];
-    const newMode = focusMode === 'auto' ? 'manual' : 'auto';
-
-    if (supportsFocus) {
-      try {
-        const mode = newMode === 'auto' ? 'continuous' : 'manual';
-        (track as any).applyConstraints({ advanced: [{ focusMode: mode } as any] });
-      } catch {}
-    }
-
-    setFocusMode(newMode);
-    setFocusPoint(null);
-    toast.info(newMode === 'auto' ? 'Mise au point automatique' : 'Mise au point manuelle — touchez pour faire le point');
-  }, [focusMode, supportsFocus]);
-
-  useEffect(() => {
-    startCamera();
-    return () => stopCamera();
-  }, [startCamera, stopCamera]);
-
-  const switchCamera = () => setFacingMode(prev => prev === 'environment' ? 'user' : 'environment');
-
-  const takePhoto = async () => {
-    if (!videoRef.current || !canvasRef.current) return;
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    
-    // If using digital zoom (no native zoom), crop the center of the frame
-    const useDigitalCrop = !supportsNativeZoom && zoomLevel > 1;
-    const srcW = useDigitalCrop ? video.videoWidth / zoomLevel : video.videoWidth;
-    const srcH = useDigitalCrop ? video.videoHeight / zoomLevel : video.videoHeight;
-    const srcX = useDigitalCrop ? (video.videoWidth - srcW) / 2 : 0;
-    const srcY = useDigitalCrop ? (video.videoHeight - srcH) / 2 : 0;
-
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    if (facingMode === 'user') {
-      ctx.translate(canvas.width, 0);
-      ctx.scale(-1, 1);
-    }
-    ctx.drawImage(video, srcX, srcY, srcW, srcH, 0, 0, canvas.width, canvas.height);
-
-    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+  /** Shared pipeline for both the camera shot and the gallery import. */
+  const processPhoto = useCallback(async (dataUrl: string) => {
     setCapturedPhoto(dataUrl);
     setAnimalResult(null);
     setSaved(false);
+    geo.capture();
 
-    // Grab GPS location
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (pos) => {
-          const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-          setGeoCoords(coords);
-          // Reverse geocode
-          try {
-            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${coords.lat}&lon=${coords.lng}&format=json&zoom=10&accept-language=fr`);
-            const data = await res.json();
-            const city = data.address?.city || data.address?.town || data.address?.village || '';
-            const country = data.address?.country || '';
-            setGeoName([city, country].filter(Boolean).join(', ') || `${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`);
-          } catch {
-            setGeoName(`${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`);
-          }
-        },
-        () => {
-          setGeoCoords(null);
-          setGeoName(null);
-        },
-        { enableHighAccuracy: true, timeout: 10000 }
-      );
-    }
-
-    // Identify — compress image before sending to AI
-    setIdentifying(true);
-    try {
-      const compressedUrl = await compressForAI(dataUrl, 1024, 0.6);
-      const { data, error } = await supabase.functions.invoke('identify-animal', {
-        body: { imageBase64: compressedUrl },
-      });
-      if (error) throw error;
-      if (data?.success && data.animal) {
-        if (data.animal.animal_name === 'Inconnu' || data.animal.animal_name.toLowerCase() === 'inconnu') {
-            setManualMode(true);
-          } else {
-            triggerReveal(data.animal);
-          }
-      } else {
-        setManualMode(true);
-      }
-    } catch (err: any) {
-      console.error(err);
+    const outcome = await identify(dataUrl);
+    if (outcome.status === 'identified') {
+      triggerReveal(outcome.animal);
+    } else {
       setManualMode(true);
-    } finally {
-      setIdentifying(false);
     }
+  }, [geo, identify, triggerReveal]);
+
+  const takePhoto = async () => {
+    const dataUrl = grabFrame();
+    if (!dataUrl) return;
+    await processPhoto(dataUrl);
   };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    e.target.value = ''; // allow re-selecting the same file
     if (!file) return;
     if (!file.type.startsWith('image/')) {
       toast.error('Sélectionne une image');
       return;
     }
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const dataUrl = reader.result as string;
-      setCapturedPhoto(dataUrl);
-      setAnimalResult(null);
-      setSaved(false);
-
-      // Grab GPS location
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          async (pos) => {
-            const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-            setGeoCoords(coords);
-            try {
-              const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${coords.lat}&lon=${coords.lng}&format=json&zoom=10&accept-language=fr`);
-              const data = await res.json();
-              const city = data.address?.city || data.address?.town || data.address?.village || '';
-              const country = data.address?.country || '';
-              setGeoName([city, country].filter(Boolean).join(', ') || `${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`);
-            } catch {
-              setGeoName(`${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`);
-            }
-          },
-          () => { setGeoCoords(null); setGeoName(null); },
-          { enableHighAccuracy: true, timeout: 10000 }
-        );
-      }
-
-      // Identify
-      setIdentifying(true);
-      try {
-        const compressedUrl = await compressForAI(dataUrl, 1024, 0.6);
-        const { data, error } = await supabase.functions.invoke('identify-animal', {
-          body: { imageBase64: compressedUrl },
-        });
-        if (error) throw error;
-        if (data?.success && data.animal) {
-          if (data.animal.animal_name === 'Inconnu' || data.animal.animal_name.toLowerCase() === 'inconnu') {
-            setManualMode(true);
-          } else {
-            triggerReveal(data.animal);
-          }
-        } else {
-          setManualMode(true);
-        }
-      } catch (err: any) {
-        console.error(err);
-        setManualMode(true);
-      } finally {
-        setIdentifying(false);
-      }
-    };
-    reader.readAsDataURL(file);
-    // Reset input so same file can be re-selected
-    e.target.value = '';
+    const dataUrl = await readFileAsDataUrl(file);
+    await processPhoto(dataUrl);
   };
 
   const resetCapture = () => {
@@ -400,71 +91,16 @@ const CapturePage = () => {
     setAnimalResult(null);
     setSaved(false);
     setDuplicateCapture(null);
-    setGeoCoords(null);
-    setGeoName(null);
     setManualMode(false);
     setManualName('');
     setManualSpecies('');
     setManualDescription('');
-    setZoomLevel(1);
-    setFocusPoint(null);
-    setFocusMode('auto');
-    setRevealPhase('idle');
-
-    // Safety net: ensure the camera stream is still live and the video is playing
-    const stream = streamRef.current;
-    const liveTrack = stream?.getVideoTracks().find((t) => t.readyState === 'live');
-    if (!stream || !liveTrack) {
-      startCamera();
-    } else if (videoRef.current) {
-      if (videoRef.current.srcObject !== stream) videoRef.current.srcObject = stream;
-      videoRef.current.play().catch(() => {});
-    }
-  };
-
-  const REVEAL_TIMINGS: Record<Rarity, { freeze: number; shake: number; burst: number }> = {
-    common: { freeze: 500, shake: 400, burst: 500 },
-    rare: { freeze: 700, shake: 600, burst: 700 },
-    epic: { freeze: 900, shake: 900, burst: 900 },
-    mythic: { freeze: 1200, shake: 1200, burst: 1100 },
-  };
-
-  const triggerReveal = (animal: AnimalResult) => {
-    const rarity = animal.rarity as Rarity;
-    setRevealRarity(rarity);
-    const t = REVEAL_TIMINGS[rarity];
-
-    // Phase 0: freeze — white flash + frozen image
-    setFreezeFlash(true);
-    setRevealPhase('freeze');
-    // Haptic feedback
-    if (navigator.vibrate) {
-      navigator.vibrate(rarity === 'mythic' ? [50, 30, 50, 30, 80] : rarity === 'epic' ? [40, 20, 60] : [30]);
-    }
-    setTimeout(() => setFreezeFlash(false), 150);
-
-    setTimeout(() => {
-      // Phase 1: shaking with suspense
-      setRevealPhase('shaking');
-
-      setTimeout(() => {
-        // Phase 2: burst reveal
-        setRevealPhase('burst');
-        setAnimalResult(animal);
-        // Haptic on reveal
-        if (navigator.vibrate) {
-          navigator.vibrate(rarity === 'mythic' ? [100, 50, 100, 50, 200] : rarity === 'epic' ? [80, 40, 120] : rarity === 'rare' ? [60, 30, 80] : [40]);
-        }
-
-        setTimeout(() => {
-          setRevealPhase('done');
-        }, t.burst);
-      }, t.shake);
-    }, t.freeze);
+    geo.reset();
+    resetReveal();
+    resumePreview();
   };
 
   const saveManualEntry = async () => {
-    if (!capturedPhoto || !session?.user) return;
     const trimmedName = manualName.trim();
     const trimmedSpecies = manualSpecies.trim();
     const trimmedDesc = manualDescription.trim();
@@ -472,185 +108,57 @@ const CapturePage = () => {
       toast.error('Remplis au moins le nom et la description');
       return;
     }
-    setSaving(true);
     try {
-      const imageUrl = await uploadImage();
-      if (!imageUrl) return;
-
-      const { error: insertError } = await supabase.from('captures').insert({
-        user_id: session.user.id,
-        image_url: imageUrl,
-        animal_name: trimmedName,
-        scientific_name: trimmedSpecies || null,
-        category: null,
-        description: trimmedDesc,
-        habitat: null,
-        diet: null,
-        conservation: null,
-        fun_fact: null,
-        rarity: 'common',
-        shared: defaultShare,
-        caption: null,
-        location: geoName || null,
-        latitude: geoCoords?.lat || null,
-        longitude: geoCoords?.lng || null,
-        status: 'pending_review',
-      });
-      if (insertError) throw insertError;
-
+      const ok = await submitManualEntry({ name: trimmedName, species: trimmedSpecies, description: trimmedDesc });
+      if (!ok) return;
       setSaved(true);
       toast.success('Soumis pour validation ! Tu seras notifié une fois approuvé.');
       setTimeout(() => navigate('/home'), 1500);
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
       toast.error("Erreur lors de la soumission");
-    } finally {
-      setSaving(false);
     }
   };
 
-  const uploadImage = async () => {
-    if (!capturedPhoto || !session?.user) return null;
-    const fileName = `${session.user.id}/${Date.now()}.jpg`;
-    const base64Data = capturedPhoto.split(',')[1];
-    const byteArray = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
-    const { error: uploadError } = await supabase.storage
-      .from('captures')
-      .upload(fileName, byteArray, { contentType: 'image/jpeg' });
-    if (uploadError) throw uploadError;
-    const { data: urlData } = supabase.storage.from('captures').getPublicUrl(fileName);
-    return urlData.publicUrl;
+  const finishSave = (animal: AnimalResult, imageUrl: string, message: string) => {
+    setSaved(true);
+    setDuplicateCapture(null);
+    toast.success(message);
+    setPendingShelve({
+      animalName: animal.animal_name,
+      category: animal.category,
+      rarity: animal.rarity,
+      imageUrl,
+    });
+    setTimeout(() => navigate('/bestiaire'), 900);
   };
 
   const saveToCollection = async () => {
-    if (!capturedPhoto || !animalResult || !session?.user) return;
-    setSaving(true);
+    if (!animalResult) return;
     try {
-      // Check for duplicate animal (case-insensitive match on animal_name)
-      const { data: existing } = await supabase
-        .from('captures')
-        .select('id, image_url, animal_name')
-        .eq('user_id', session.user.id)
-        .ilike('animal_name', animalResult.animal_name)
-        .limit(1);
-
-      if (existing && existing.length > 0) {
-        // Duplicate found — ask user
-        setDuplicateCapture(existing[0]);
-        setSaving(false);
+      const existing = await findDuplicate(animalResult.animal_name);
+      if (existing) {
+        setDuplicateCapture(existing);
         return;
       }
-
-      // No duplicate — save normally
-      await doSaveNew();
-    } catch (err: any) {
-      console.error(err);
-      toast.error("Erreur lors de la sauvegarde");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  // Level-up is now handled by the LevelUpCelebration overlay via realtime
-  // No need for manual checkLevelUp anymore
-
-  const doSaveNew = async () => {
-    if (!capturedPhoto || !animalResult || !session?.user) return;
-    setSaving(true);
-    try {
-      const imageUrl = await uploadImage();
+      const imageUrl = await insertCapture(animalResult);
       if (!imageUrl) return;
-
-      const { data: inserted, error: insertError } = await supabase.from('captures').insert({
-        user_id: session.user.id,
-        image_url: imageUrl,
-        animal_name: animalResult.animal_name,
-        scientific_name: animalResult.scientific_name,
-        category: animalResult.category,
-        description: animalResult.description,
-        habitat: animalResult.habitat,
-        diet: animalResult.diet,
-        conservation: animalResult.conservation,
-        fun_fact: animalResult.fun_fact,
-        rarity: animalResult.rarity,
-        shared: defaultShare,
-        caption: null,
-        location: geoName || null,
-        latitude: geoCoords?.lat || null,
-        longitude: geoCoords?.lng || null,
-        subject_bbox: animalResult.subject_bbox ?? null,
-      }).select('id').single();
-      if (insertError) throw insertError;
-
-      // Holo effect masks itself around the AI-detected subject_bbox — no cutout needed.
-
-      setSaved(true);
-      setDuplicateCapture(null);
-      toast.success(`${animalResult.animal_name} ajouté à ton Faunex !`);
-      setPendingShelve({
-        animalName: animalResult.animal_name,
-        category: animalResult.category,
-        rarity: animalResult.rarity,
-        imageUrl,
-      });
-      setTimeout(() => navigate('/bestiaire'), 900);
-    } catch (err: any) {
+      finishSave(animalResult, imageUrl, `${animalResult.animal_name} ajouté à ton Faunex !`);
+    } catch (err) {
       console.error(err);
       toast.error("Erreur lors de la sauvegarde");
-    } finally {
-      setSaving(false);
     }
   };
 
   const doReplaceExisting = async () => {
-    if (!capturedPhoto || !animalResult || !session?.user || !duplicateCapture) return;
-    setSaving(true);
+    if (!animalResult || !duplicateCapture) return;
     try {
-      const imageUrl = await uploadImage();
+      const imageUrl = await replaceCapture(animalResult, duplicateCapture.id);
       if (!imageUrl) return;
-
-      const { error: updateError } = await supabase
-        .from('captures')
-        .update({
-          image_url: imageUrl,
-          scientific_name: animalResult.scientific_name,
-          category: animalResult.category,
-          description: animalResult.description,
-          habitat: animalResult.habitat,
-          diet: animalResult.diet,
-          conservation: animalResult.conservation,
-          fun_fact: animalResult.fun_fact,
-          rarity: animalResult.rarity,
-          shared: defaultShare,
-          caption: null,
-          location: geoName || null,
-          latitude: geoCoords?.lat || null,
-          longitude: geoCoords?.lng || null,
-          cutout_url: null,
-          cutout_status: 'pending',
-          cutout_attempts: 0,
-          subject_bbox: animalResult.subject_bbox ?? null,
-        })
-        .eq('id', duplicateCapture.id);
-      if (updateError) throw updateError;
-
-      // Holo effect uses the new subject_bbox — no cutout regeneration needed.
-
-      setSaved(true);
-      setDuplicateCapture(null);
-      toast.success(`${animalResult.animal_name} mis à jour dans ton Faunex !`);
-      setPendingShelve({
-        animalName: animalResult.animal_name,
-        category: animalResult.category,
-        rarity: animalResult.rarity,
-        imageUrl,
-      });
-      setTimeout(() => navigate('/bestiaire'), 900);
-    } catch (err: any) {
+      finishSave(animalResult, imageUrl, `${animalResult.animal_name} mis à jour dans ton Faunex !`);
+    } catch (err) {
       console.error(err);
       toast.error("Erreur lors de la mise à jour");
-    } finally {
-      setSaving(false);
     }
   };
 
@@ -659,6 +167,9 @@ const CapturePage = () => {
     toast.info("Photo existante conservée");
     resetCapture();
   };
+
+  const geoName = geo.name;
+
 
   return (
     <main className="min-h-screen bg-foreground flex flex-col pb-24">
@@ -669,8 +180,8 @@ const CapturePage = () => {
       <div className="flex-1 relative flex flex-col overflow-hidden">
         {/* Camera or captured photo background */}
         <div
-          ref={videoContainerRef}
           className="absolute inset-0 touch-none"
+
           onTouchStart={!capturedPhoto ? handleTouchStart : undefined}
           onTouchMove={!capturedPhoto ? handleTouchMove : undefined}
           onTouchEnd={!capturedPhoto ? handleTouchEnd : undefined}
