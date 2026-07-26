@@ -2339,6 +2339,11 @@
 
 .holo-stable-fullscreen.holo-fullscreen-photo .holo-cutout {
   display: flex;
+  transform: translate3d(var(--holo-image-x), var(--holo-image-y), 4px) scale(1.035);
+  transform-origin: center center;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .holo-stable-fullscreen.holo-fullscreen-photo .holo-cutout img {
