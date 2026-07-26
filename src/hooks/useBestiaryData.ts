@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Rarity } from '@/data/mockData';
 import { buildRegionalAnimalSet, type BestiaryAnimal, type ZoneSub } from '@/lib/bestiary';
+import type { AnimalCard } from '@/data/mockData';
 
 /** Loads the bestiary catalogue, the user's captures, notifications count and zone subscriptions. */
 export const useBestiaryData = (userId: string | undefined) => {
@@ -10,6 +11,8 @@ export const useBestiaryData = (userId: string | undefined) => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [subscribedZones, setSubscribedZones] = useState<ZoneSub[]>([]);
   const [animalsByDept, setAnimalsByDept] = useState<Record<string, Set<string>>>({});
+  /** Raw approved captures of the user — the single source of truth for "how many captures". */
+  const [myCaptures, setMyCaptures] = useState<AnimalCard[]>([]);
 
   const animalsRef = useRef<BestiaryAnimal[]>([]);
   animalsRef.current = animals;
@@ -58,6 +61,29 @@ export const useBestiaryData = (userId: string | undefined) => {
         .eq('user_id', userId)
         .eq('status', 'approved');
 
+      const toCard = (capture: any): AnimalCard => ({
+        id: capture.id,
+        name: capture.animal_name,
+        scientificName: capture.scientific_name || '',
+        image: capture.image_url,
+        rarity: capture.rarity as Rarity,
+        category: capture.category || '',
+        description: capture.description || '',
+        habitat: capture.habitat || '',
+        diet: capture.diet || '',
+        conservation: capture.conservation || '',
+        funFact: capture.fun_fact || '',
+        discoveredAt: capture.created_at,
+        location: capture.location || '',
+      });
+
+      setMyCaptures(
+        (userCaptures || [])
+          .slice()
+          .sort((a: any, b: any) => (b.created_at || '').localeCompare(a.created_at || ''))
+          .map(toCard),
+      );
+
       const capturesByName = new Map<string, any>();
       (userCaptures || []).forEach((c) => {
         capturesByName.set(c.animal_name.toLowerCase(), c);
@@ -71,23 +97,7 @@ export const useBestiaryData = (userId: string | undefined) => {
           rarity: a.rarity,
           category: a.category,
           captured: !!capture,
-          captureData: capture
-            ? {
-                id: capture.id,
-                name: capture.animal_name,
-                scientificName: capture.scientific_name || '',
-                image: capture.image_url,
-                rarity: capture.rarity as Rarity,
-                category: capture.category || '',
-                description: capture.description || '',
-                habitat: capture.habitat || '',
-                diet: capture.diet || '',
-                conservation: capture.conservation || '',
-                funFact: capture.fun_fact || '',
-                discoveredAt: capture.created_at,
-                location: capture.location || '',
-              }
-            : undefined,
+          captureData: capture ? toCard(capture) : undefined,
         };
       });
 
@@ -145,6 +155,7 @@ export const useBestiaryData = (userId: string | undefined) => {
 
   return {
     animals,
+    myCaptures,
     loading,
     unreadCount,
     subscribedZones,
