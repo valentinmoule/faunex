@@ -83,55 +83,12 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
     isPinching: false,
     isPanning: false,
   });
-  const [holoPaused, setHoloPaused] = useState(false);
   const [zoomInteracting, setZoomInteracting] = useState(false);
-  const [fullscreenHoloKey, setFullscreenHoloKey] = useState(0);
-  const holoResumeTimerRef = useRef<number | null>(null);
-
-  const clearHoloResumeTimer = useCallback(() => {
-    if (holoResumeTimerRef.current != null) {
-      window.clearTimeout(holoResumeTimerRef.current);
-      holoResumeTimerRef.current = null;
-    }
-  }, []);
-
-  const pauseFullscreenHolo = useCallback(() => {
-    clearHoloResumeTimer();
-    setHoloPaused(true);
-  }, [clearHoloResumeTimer]);
-
-  const resumeFullscreenHoloAfterSettle = useCallback((delay = 420) => {
-    clearHoloResumeTimer();
-    setHoloPaused(true);
-    holoResumeTimerRef.current = window.setTimeout(() => {
-      holoResumeTimerRef.current = null;
-      setFullscreenHoloKey((key) => key + 1);
-      window.requestAnimationFrame(() => {
-        window.requestAnimationFrame(() => setHoloPaused(false));
-      });
-    }, delay);
-  }, [clearHoloResumeTimer]);
 
   useEffect(() => {
-    if (!imageFullscreen) {
-      clearHoloResumeTimer();
-      setZoomInteracting(false);
-      setHoloPaused(false);
-      return;
-    }
+    if (!imageFullscreen) setZoomInteracting(false);
+  }, [imageFullscreen]);
 
-    const zoomIsStable = zoom.scale <= 1.01 && Math.abs(zoom.x) < 0.5 && Math.abs(zoom.y) < 0.5;
-    if (zoomInteracting || !zoomIsStable) {
-      pauseFullscreenHolo();
-      return;
-    }
-
-    // Wait until pinch/pan + the CSS shrink-back have fully settled, then remount
-    // the holo tracker so its calibration starts from a clean, stable frame.
-    resumeFullscreenHoloAfterSettle();
-  }, [imageFullscreen, zoom.scale, zoom.x, zoom.y, zoomInteracting, pauseFullscreenHolo, resumeFullscreenHoloAfterSettle, clearHoloResumeTimer]);
-
-  useEffect(() => () => clearHoloResumeTimer(), [clearHoloResumeTimer]);
 
   // Reset transient UI state when a new card opens
   useEffect(() => {
@@ -261,20 +218,17 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
   });
   const clampScale = (s: number) => Math.min(4, Math.max(1, s));
   const resetZoom = useCallback(() => {
-    pauseFullscreenHolo();
     setZoom({ scale: 1, x: 0, y: 0 });
-  }, [pauseFullscreenHolo]);
+  }, []);
 
   const openFullscreenImage = useCallback(() => {
-    pauseFullscreenHolo();
-    setFullscreenHoloKey((key) => key + 1);
     setImageFullscreen(true);
-  }, [pauseFullscreenHolo]);
+  }, []);
 
   const handleFullscreenTouchStart = useCallback((e: React.TouchEvent) => {
     if (!card?.image) return;
     setZoomInteracting(true);
-    pauseFullscreenHolo();
+
     const now = Date.now();
     const z = zoomRef.current;
 
@@ -307,10 +261,10 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
       z.initialPan = { x: zoom.x, y: zoom.y };
       z.lastTouch = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     }
-  }, [card?.image, zoom.scale, zoom.x, zoom.y, resetZoom, pauseFullscreenHolo]);
+  }, [card?.image, zoom.scale, zoom.x, zoom.y, resetZoom]);
 
   const handleFullscreenTouchMove = useCallback((e: React.TouchEvent) => {
-    pauseFullscreenHolo();
+
     const z = zoomRef.current;
     if (e.touches.length === 2 && z.isPinching) {
       e.preventDefault();
@@ -326,7 +280,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
       z.lastTouch = { x: touch.clientX, y: touch.clientY };
       setZoom(prev => ({ ...prev, x: prev.x + dx, y: prev.y + dy }));
     }
-  }, [zoom.scale, pauseFullscreenHolo]);
+  }, [zoom.scale]);
 
   const handleFullscreenTouchEnd = useCallback(() => {
     const z = zoomRef.current;
@@ -593,18 +547,16 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
               }}
             >
               <HolographicCard
-                key={fullscreenHoloKey}
                 rarity={card.rarity}
-                cutoutUrl={card.cutoutUrl}
                 subjectBox={card.subjectBox}
                 containInteraction
-                stableFullscreen
-                paused={holoPaused || zoomInteracting || zoom.scale > 1.01}
+                paused={zoomInteracting || zoom.scale > 1.01}
                 className="holo-fullscreen-photo relative rounded-2xl pointer-events-auto touch-none"
               >
                 <div className={`relative w-full h-full rounded-[1.5rem] overflow-hidden shadow-2xl holo-frame holo-frame--fullscreen holo-frame--${card.rarity}`}>
                   <div className="relative w-full h-full rounded-[0.875rem] overflow-hidden bg-black/30">
-                    <div className="fullscreen-photo-parallax absolute inset-0">
+                    <div className="absolute inset-0">
+
                       <img
                         src={card.image}
                         alt={card.name}

@@ -1760,7 +1760,7 @@
   touch-action: none;
   -webkit-tap-highlight-color: transparent;
   cursor: pointer;
-  /* CSS variables driven by JS pointer tracker */
+  /* CSS variables driven by the spring loop in HolographicCard.tsx */
   --pointer-x: 50%;
   --pointer-y: 50%;
   --pointer-from-center: 0;
@@ -1771,14 +1771,6 @@
   --rotate-y: 0deg;
   --background-x: 50%;
   --background-y: 50%;
-  --holo-motion-x: 0px;
-  --holo-motion-y: 0px;
-  --holo-image-x: 0px;
-  --holo-image-y: 0px;
-  --holo-shine-x: 0px;
-  --holo-shine-y: 0px;
-  --holo-glare-x: 0px;
-  --holo-glare-y: 0px;
   --cosmos-x: 0px;
   --cosmos-y: 0px;
 }
@@ -1789,8 +1781,6 @@
   transform: rotateY(var(--rotate-x)) rotateX(var(--rotate-y));
   transition: none;
   will-change: transform;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
 }
 
 .holo-card {
@@ -1798,10 +1788,6 @@
   border-radius: 1rem;
   overflow: hidden;
   isolation: isolate;
-  transform-style: preserve-3d;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
   box-shadow: 0 10px 24px -12px hsl(0 0% 0% / 0.5);
 }
 
@@ -1852,11 +1838,7 @@
   pointer-events: none;
   border-radius: inherit;
   opacity: var(--card-opacity);
-  transition: opacity 0.18s ease-out;
-  will-change: background-position, transform, opacity;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+  will-change: opacity, background-position, filter;
 }
 
 .holo-wrap[data-paused="true"] .holo-rotator {
@@ -1867,6 +1849,8 @@
 .holo-wrap[data-paused="true"] .holo-glare {
   opacity: 0 !important;
 }
+
+
 
 /* When a subject bounding box is provided, fade the holo away around the animal
    so the effect plays everywhere on the card EXCEPT on the subject. */
@@ -1891,7 +1875,7 @@
 }
 
 .holo-fullscreen-photo {
-  perspective: 900px;
+  perspective: 1400px;
   aspect-ratio: 4 / 5;
   width: min(92vw, calc((100vh - 2rem) * 4 / 5));
   height: auto;
@@ -1909,104 +1893,10 @@
   height: 100%;
 }
 
-.holo-fullscreen-photo .holo-shine,
-.holo-fullscreen-photo .holo-glare {
-  opacity: var(--card-opacity);
-}
-
 .holo-fullscreen-photo .holo-cutout {
   display: none;
 }
 
-.holo-fullscreen-photo .holo-card {
-  contain: paint;
-}
-
-.holo-performance .holo-rotator {
-  transform: translate3d(0, 0, 0) rotateY(var(--rotate-x)) rotateX(var(--rotate-y));
-}
-
-.holo-performance .holo-card {
-  contain: layout paint style;
-}
-
-.holo-performance .holo-shine,
-.holo-performance .holo-glare {
-  inset: -12%;
-  transition: none;
-  filter: none !important;
-  -webkit-mask-image: none !important;
-          mask-image: none !important;
-  background-position: center center !important;
-  background-size: 180% 180% !important;
-  will-change: transform, opacity;
-}
-
-.holo-performance .holo-shine {
-  transform: translate3d(var(--holo-shine-x), var(--holo-shine-y), 0) scale(1.08);
-  mix-blend-mode: screen;
-  opacity: calc(var(--card-opacity) * 0.42);
-}
-
-.holo-performance .holo-glare {
-  transform: translate3d(var(--holo-glare-x), var(--holo-glare-y), 0) scale(1.08);
-  mix-blend-mode: soft-light;
-  opacity: calc(var(--card-opacity) * 0.34);
-  background-image: radial-gradient(circle at center,
-    hsl(0 0% 100% / 0.72) 0%,
-    hsl(0 0% 100% / 0.22) 18%,
-    hsl(0 0% 0% / 0.18) 58%,
-    transparent 76%) !important;
-}
-
-.holo-performance .holo-shine::before,
-.holo-performance .holo-shine::after {
-  display: none;
-}
-
-.holo-performance.holo-common .holo-shine {
-  background-image:
-    linear-gradient(115deg,
-      transparent 12%,
-      hsl(var(--rarity-common) / 0.2) 30%,
-      hsl(0 0% 100% / 0.48) 48%,
-      hsl(var(--rarity-common) / 0.18) 66%,
-      transparent 86%) !important;
-}
-
-.holo-performance.holo-rare .holo-shine {
-  background-image:
-    radial-gradient(circle at center, hsl(0 0% 100% / 0.46), transparent 42%),
-    linear-gradient(115deg,
-      transparent 10%,
-      hsl(var(--rarity-rare) / 0.25) 28%,
-      hsl(190 95% 82% / 0.5) 48%,
-      hsl(var(--rarity-rare) / 0.28) 68%,
-      transparent 88%) !important;
-}
-
-.holo-performance.holo-epic .holo-shine {
-  background-image:
-    radial-gradient(circle at 35% 38%, hsl(295 95% 82% / 0.34), transparent 28%),
-    radial-gradient(circle at 64% 58%, hsl(205 95% 82% / 0.22), transparent 30%),
-    linear-gradient(115deg,
-      transparent 10%,
-      hsl(var(--rarity-epic) / 0.28) 30%,
-      hsl(285 96% 86% / 0.5) 50%,
-      hsl(230 96% 76% / 0.22) 68%,
-      transparent 88%) !important;
-}
-
-.holo-performance.holo-mythic .holo-shine {
-  background-image:
-    radial-gradient(circle at 38% 36%, hsl(50 100% 84% / 0.42), transparent 30%),
-    linear-gradient(115deg,
-      transparent 8%,
-      hsl(var(--rarity-mythic) / 0.28) 28%,
-      hsl(50 100% 88% / 0.58) 49%,
-      hsl(38 95% 58% / 0.3) 67%,
-      transparent 90%) !important;
-}
 
 .detail-fullscreen .detail-mythic-orb-1,
 .detail-fullscreen .detail-mythic-orb-2,
@@ -2279,178 +2169,8 @@
   mix-blend-mode: hard-light;
 }
 
-/* Fullscreen quality mode: keep the complete holo artwork, but avoid noisy
-   per-frame filter/background recalculation. The gyroscope moves oversized,
-   precomposited layers for a cleaner Pokémon GO-like motion. */
-.holo-stable-fullscreen .holo-rotator {
-  transform: translate3d(0, 0, 0) rotateY(var(--rotate-x)) rotateX(var(--rotate-y));
-  transform-origin: center center;
-  will-change: transform;
-  transform-style: flat;
-  isolation: isolate;
-}
 
-.holo-stable-fullscreen .holo-card {
-  contain: layout paint style;
-  transform: translate3d(0, 0, 0);
-  transform-style: flat;
-  box-shadow: 0 14px 34px -16px hsl(0 0% 0% / 0.7);
-}
 
-.holo-stable-fullscreen .detail-glass--fullscreen,
-.holo-stable-fullscreen .holo-frame,
-.holo-stable-fullscreen .holo-frame::after {
-  animation: none !important;
-}
-
-.holo-stable-fullscreen .holo-frame::after {
-  background-position: 55% 50%;
-  will-change: auto;
-}
-
-.holo-stable-fullscreen .holo-content {
-  z-index: 1;
-  transform: translate3d(0, 0, 0);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-
-.holo-stable-fullscreen .fullscreen-photo-parallax {
-  transform: translate3d(var(--holo-image-x), var(--holo-image-y), 0) scale(1.035);
-  transform-origin: center center;
-  will-change: transform;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.holo-stable-fullscreen .holo-shine,
-.holo-stable-fullscreen .holo-glare {
-  inset: -10%;
-  transition: none;
-  will-change: transform, opacity;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  background-attachment: scroll;
-  transform-origin: center;
-  background-repeat: repeat;
-  pointer-events: none;
-  transform-style: flat;
-  isolation: isolate;
-}
-
-.holo-stable-fullscreen .holo-shine {
-  z-index: 2;
-  transform: translate3d(var(--holo-motion-x), var(--holo-motion-y), 0) scale(1.1);
-}
-
-.holo-stable-fullscreen .holo-glare {
-  z-index: 3;
-  transform: translate3d(var(--holo-motion-x), var(--holo-motion-y), 0) scale(1.1);
-}
-
-.holo-stable-fullscreen[data-cutout="on"][data-subject="on"] .holo-shine,
-.holo-stable-fullscreen[data-cutout="on"][data-subject="on"] .holo-glare {
-  -webkit-mask-image: none !important;
-          mask-image: none !important;
-}
-
-.holo-stable-fullscreen.holo-fullscreen-photo .holo-cutout {
-  display: flex;
-  z-index: 4;
-  transform: translate3d(var(--holo-image-x), var(--holo-image-y), 0) scale(1.035);
-  transform-origin: center center;
-  will-change: transform;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-
-.holo-stable-fullscreen.holo-fullscreen-photo .holo-cutout img {
-  object-fit: cover;
-  object-position: center;
-  filter: none !important;
-}
-
-.holo-stable-fullscreen.holo-rare .holo-shine {
-  background-image:
-    radial-gradient(circle at center,
-      hsl(0 0% 100%) 4%, hsl(0 0% 0%) 48%, hsl(0 0% 100%) 82%),
-    linear-gradient(-45deg, hsl(0 0% 0%) 12%, hsl(0 0% 100%), hsl(0 0% 0%) 88%),
-    linear-gradient(115deg,
-      transparent 18%,
-      hsl(198 100% 84% / 0.42) 36%,
-      hsl(0 0% 100% / 0.58) 49%,
-      hsl(var(--rarity-rare) / 0.34) 62%,
-      transparent 82%);
-  background-blend-mode: soft-light, difference, screen;
-  background-size: 150% 150%, 240% 240%, 180% 180%;
-  background-position: center center, center center, center center;
-  filter: brightness(0.68) contrast(1.28) saturate(1.12);
-  opacity: calc(var(--card-opacity) * 1.06);
-}
-
-.holo-stable-fullscreen.holo-rare .holo-glare {
-  background-image: radial-gradient(
-    farthest-corner circle at center,
-    hsl(0 0% 100% / 0.72) 5%,
-    hsl(0 0% 100% / 0.34) 24%,
-    hsl(0 0% 0% / 0.64) 92%);
-  filter: brightness(0.82) contrast(1.18);
-}
-
-.holo-stable-fullscreen.holo-epic .holo-shine {
-  background-position: center center, center center, center center;
-  background-size: cover, 430% 930%, cover;
-  filter: brightness(1.05) contrast(1.03) saturate(0.95);
-  opacity: calc(var(--card-opacity) * 0.82);
-}
-
-.holo-stable-fullscreen.holo-epic .holo-shine::before {
-  background-position: center center, center center;
-  background-size: cover, 430% 930%;
-  filter: brightness(1.14) contrast(1.22) saturate(0.95);
-  opacity: 0.82;
-}
-
-.holo-stable-fullscreen.holo-epic .holo-shine::after {
-  background-position: center center;
-  filter: brightness(1.12) contrast(1.18) saturate(0.95);
-  opacity: 0.78;
-}
-
-.holo-stable-fullscreen.holo-epic .holo-glare {
-  background-image: radial-gradient(farthest-corner circle at center,
-    hsl(204 100% 95% / 0.62) 4%,
-    hsl(250 15% 20% / 0.92) 150%);
-  filter: brightness(0.82) contrast(1.28) saturate(1.35);
-  opacity: calc(var(--card-opacity) * 0.56);
-}
-
-.holo-stable-fullscreen.holo-mythic .holo-shine {
-  background-position: 45% 45%, 55% 55%, center center, center center;
-  filter: brightness(0.64) contrast(1.02) saturate(2.15);
-  opacity: calc(var(--card-opacity) * 0.9);
-}
-
-.holo-stable-fullscreen.holo-mythic .holo-shine::before {
-  background-position: center center, center center, center center;
-  filter: brightness(1.08) contrast(1.08) saturate(0.48);
-  opacity: 0.72;
-}
-
-.holo-stable-fullscreen.holo-mythic .holo-shine::after {
-  background-position: center center;
-  filter: brightness(0.94) contrast(1.18);
-  opacity: 0.78;
-}
-
-.holo-stable-fullscreen.holo-mythic .holo-glare {
-  background-image: radial-gradient(farthest-corner circle at center,
-    hsl(45 8% 82% / 0.3) 0%,
-    hsl(22 15% 12% / 0.92) 180%);
-  filter: brightness(1.12) contrast(1.16);
-}
 
 /* Cutout drop-shadows per rarity */
 .holo-rare    .holo-cutout img { filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4)) drop-shadow(0 0 16px hsla(210,100%,75%,0.35)); }

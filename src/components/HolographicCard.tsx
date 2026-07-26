@@ -15,17 +15,18 @@ interface Props {
   containInteraction?: boolean;
   /** Disable holo shine/glare/cutout/tilt entirely (e.g. uncaptured silhouettes). */
   noHolo?: boolean;
-  /** Temporarily freeze holo tilt updates (e.g. during pinch-zoom). Rebaselines on resume. */
+  /** Freeze the effect (e.g. while pinch-zooming). Recalibrates the gyro on resume. */
   paused?: boolean;
-  /** Use a lighter GPU-friendly holo layer for large/fullscreen renders. */
-  performanceMode?: boolean;
-  /** Fullscreen quality mode: keeps the rich holo art, but smooths gyro updates and compositing. */
-  stableFullscreen?: boolean;
   /** Kept for API compatibility (unused). */
   disableAutoShimmer?: boolean;
 }
 
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
+
+const round = (value: number, precision = 2) => {
+  const p = 10 ** precision;
+  return Math.round(value * p) / p;
+};
 
 const angleDelta = (value: number, origin: number) => {
   let diff = value - origin;
@@ -34,16 +35,45 @@ const angleDelta = (value: number, origin: number) => {
   return diff;
 };
 
+/** Critically-damped spring — identical model for every rarity and every size. */
+interface Spring {
+  value: number;
+  target: number;
+  velocity: number;
+}
+
+const makeSpring = (value: number): Spring => ({ value, target: value, velocity: 0 });
+
+const STIFFNESS = 130; // rad²/s² — snappy but never overshoots visibly
+const DAMPING = 2 * Math.sqrt(STIFFNESS) * 1.02; // ~critical damping
+
+/** Integrate a spring with fixed 1/120s substeps → frame-rate independent, no jitter. */
+const stepSpring = (spring: Spring, dtSeconds: number) => {
+  let remaining = Math.min(dtSeconds, 0.064);
+  const h = 1 / 120;
+  while (remaining > 0) {
+    const step = Math.min(h, remaining);
+    remaining -= step;
+    const accel = (spring.target - spring.value) * STIFFNESS - spring.velocity * DAMPING;
+    spring.velocity += accel * step;
+    spring.value += spring.velocity * step;
+  }
+  if (Math.abs(spring.target - spring.value) < 0.001 && Math.abs(spring.velocity) < 0.01) {
+    spring.value = spring.target;
+    spring.velocity = 0;
+  }
+};
+
 /**
- * Faunex collectible card — inspired by simeydotme/pokemon-cards-css.
+ * Faunex collectible card — direct port of the rendering model used by
+ * simeydotme/pokemon-cards-css.
  *
- * Rarity → effect mapping:
- *   common → Holofoil Rare (scanlines + chromatic bars)
- *   rare   → Reverse Holo (radial foil tracking the pointer)
- *   epic   → Cosmos / Galaxy Holo (multi-layer galaxy texture)
- *   mythic → Secret Rare (gold conic + glitter)
+ * A single spring-driven pointer position (0..100 on both axes) feeds every CSS
+ * variable. There is exactly ONE render path: the card in the detail view and
+ * the fullscreen photo use the same maths, the same layers and the same
+ * compositing, so the effect can never desynchronise between the two.
  *
- * Pointer drives 3D tilt + reflet (mouse + touch). On leave, everything snaps back.
+ * Input: gyroscope on mobile (deviceorientation), mouse on desktop.
  */
 const HolographicCard = ({
   rarity,
@@ -56,262 +86,147 @@ const HolographicCard = ({
   containInteraction = false,
   noHolo = false,
   paused = false,
-  performanceMode = false,
-  stableFullscreen = false,
 }: Props) => {
   const wrapRef = useRef<HTMLDivElement>(null);
-  const rafRef = useRef<number | null>(null);
   const loopRef = useRef<number | null>(null);
-  const baselineRef = useRef<{ beta: number; gamma: number } | null>(null);
-  const warmupRef = useRef<{ count: number; sumBeta: number; sumGamma: number }>({ count: 0, sumBeta: 0, sumGamma: 0 });
-  const smoothRef = useRef<{ px: number; py: number; primed: boolean; lastFrame: number }>({ px: 50, py: 50, primed: false, lastFrame: 0 });
-  const targetRef = useRef<{ px: number; py: number } | null>(null);
-  const filteredRef = useRef<{ beta: number; gamma: number } | null>(null);
-  const lastRawRef = useRef<{ beta: number; gamma: number } | null>(null);
-  // Adaptive tuning: rolling estimate of sensor dt (ms) and angular velocity (°/s).
-  const adaptRef = useRef<{ lastT: number; dt: number; velocity: number; responseMs: number }>({ lastT: 0, dt: 16, velocity: 0, responseMs: 150 });
-  const lastAppliedRef = useRef<{ px: number; py: number; opacity: number }>({ px: 50, py: 50, opacity: 0 });
   const pausedRef = useRef(paused);
+  const activeRef = useRef(false);
 
-  const applyVars = useCallback((px: number, py: number, cx: number, cy: number) => {
+  // Spring state — x/y are pointer coordinates in card space (0..100).
+  const springsRef = useRef({ x: makeSpring(50), y: makeSpring(50), opacity: makeSpring(0) });
+  const lastFrameRef = useRef(0);
+  const dirtyRef = useRef(true);
+
+  // Gyro calibration state.
+  const baselineRef = useRef<{ beta: number; gamma: number } | null>(null);
+  const warmupRef = useRef({ count: 0, beta: 0, gamma: 0 });
+  const filteredRef = useRef<{ beta: number; gamma: number } | null>(null);
+  const lastEventRef = useRef(0);
+
+  const writeVars = useCallback(() => {
     const node = wrapRef.current;
     if (!node) return;
-    const last = lastAppliedRef.current;
-    const opacity = 1;
-    const stableMotion = performanceMode || stableFullscreen;
-    const updateThreshold = stableFullscreen ? 0.035 : performanceMode ? 0.1 : 0.05;
-    if (
-      Math.abs(px - last.px) < updateThreshold &&
-      Math.abs(py - last.py) < updateThreshold &&
-      last.opacity === opacity
-    ) return;
-    lastAppliedRef.current = { px, py, opacity };
-    const fromCenter = Math.min(1, Math.hypot(cx, cy) / 50);
-    const rotationSoftener = stableFullscreen ? 5.1 : performanceMode ? 7.2 : 6;
-    const shineTravel = stableMotion ? 0.46 : 0.42;
-    const glareTravel = stableMotion ? 0.4 : 0.34;
-    const syncedX = clamp(cx / 50, -1, 1);
-    const syncedY = clamp(cy / 50, -1, 1);
-    const fullscreenMotionX = syncedX * 18;
-    const fullscreenMotionY = syncedY * 16;
-    // In fullscreen, keep expensive gradient inputs frozen and move the whole
-    // precomposited artwork via transform only. This avoids mobile GPU repaint
-    // glitches while preserving the same synchronized gyroscope vector.
-    const visualPx = stableFullscreen ? 50 : px;
-    const visualPy = stableFullscreen ? 50 : py;
-    const visualFromCenter = stableFullscreen ? 0 : fromCenter;
+    const { x, y, opacity } = springsRef.current;
+    const px = x.value;
+    const py = y.value;
+    const centerX = px - 50;
+    const centerY = py - 50;
+    const fromCenter = clamp(Math.hypot(centerY, centerX) / 50, 0, 1);
+
     const s = node.style;
-    s.setProperty('--pointer-x', `${visualPx}%`);
-    s.setProperty('--pointer-y', `${visualPy}%`);
-    s.setProperty('--pointer-from-center', `${visualFromCenter.toFixed(3)}`);
-    s.setProperty('--pointer-from-top', `${(visualPy / 100).toFixed(3)}`);
-    s.setProperty('--pointer-from-left', `${(visualPx / 100).toFixed(3)}`);
-    s.setProperty('--background-x', stableFullscreen ? '50%' : `${(37 + (px / 100) * 26).toFixed(2)}%`);
-    s.setProperty('--background-y', stableFullscreen ? '50%' : `${(36 + (py / 100) * 28).toFixed(2)}%`);
-    s.setProperty('--rotate-x', `${(-(cx / rotationSoftener)).toFixed(2)}deg`);
-    s.setProperty('--rotate-y', `${(cy / rotationSoftener).toFixed(2)}deg`);
-    // Fullscreen uses one synchronized gyro vector for image parallax, shine and glare.
-    // Keeping every moving layer on the same pixel offsets avoids compositor drift on mobile GPUs.
-    if (stableFullscreen) {
-      const motionX = `${fullscreenMotionX.toFixed(2)}px`;
-      const motionY = `${fullscreenMotionY.toFixed(2)}px`;
-      s.setProperty('--holo-motion-x', motionX);
-      s.setProperty('--holo-motion-y', motionY);
-      s.setProperty('--holo-image-x', motionX);
-      s.setProperty('--holo-image-y', motionY);
-      s.setProperty('--holo-shine-x', motionX);
-      s.setProperty('--holo-shine-y', motionY);
-      s.setProperty('--holo-glare-x', motionX);
-      s.setProperty('--holo-glare-y', motionY);
-    } else {
-      s.setProperty('--holo-shine-x', `${clamp((50 - px) * shineTravel, -30, 30).toFixed(2)}%`);
-      s.setProperty('--holo-shine-y', `${clamp((50 - py) * shineTravel, -30, 30).toFixed(2)}%`);
-      s.setProperty('--holo-glare-x', `${clamp((px - 50) * glareTravel, -24, 24).toFixed(2)}%`);
-      s.setProperty('--holo-glare-y', `${clamp((py - 50) * glareTravel, -24, 24).toFixed(2)}%`);
-    }
-    s.setProperty('--card-opacity', String(opacity));
-  }, [performanceMode, stableFullscreen]);
+    s.setProperty('--pointer-x', `${round(px)}%`);
+    s.setProperty('--pointer-y', `${round(py)}%`);
+    s.setProperty('--pointer-from-center', `${round(fromCenter, 3)}`);
+    s.setProperty('--pointer-from-top', `${round(py / 100, 3)}`);
+    s.setProperty('--pointer-from-left', `${round(px / 100, 3)}`);
+    // Same mapping as the reference project: 0..100 → 37..63 %
+    s.setProperty('--background-x', `${round(37 + (px / 100) * 26)}%`);
+    s.setProperty('--background-y', `${round(33 + (py / 100) * 34)}%`);
+    s.setProperty('--rotate-x', `${round(-(centerX / 3.5))}deg`);
+    s.setProperty('--rotate-y', `${round(centerY / 3.5)}deg`);
+    s.setProperty('--card-opacity', `${round(opacity.value, 3)}`);
+  }, []);
 
-  const updateFromPointer = useCallback((clientX: number, clientY: number) => {
-    const el = wrapRef.current;
-    if (!el) return;
-    const apply = () => {
-      rafRef.current = null;
-      const node = wrapRef.current;
-      if (!node) return;
-      const rect = node.getBoundingClientRect();
-      if (!rect.width || !rect.height) return;
-      const px = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
-      const py = Math.max(0, Math.min(100, ((clientY - rect.top) / rect.height) * 100));
-      applyVars(px, py, px - 50, py - 50);
-    };
-    if (rafRef.current == null) rafRef.current = requestAnimationFrame(apply);
-  }, [applyVars]);
+  const setTarget = useCallback((px: number, py: number, opacity: number) => {
+    const sp = springsRef.current;
+    sp.x.target = clamp(px, 0, 100);
+    sp.y.target = clamp(py, 0, 100);
+    sp.opacity.target = opacity;
+    dirtyRef.current = true;
+  }, []);
 
-  // Gyroscope-driven update. beta = front/back tilt (-180..180), gamma = left/right (-90..90).
-  const updateFromOrientation = useCallback((beta: number | null, gamma: number | null) => {
+  const snapTo = useCallback((px: number, py: number, opacity: number) => {
+    const sp = springsRef.current;
+    sp.x = makeSpring(px);
+    sp.y = makeSpring(py);
+    sp.opacity.value = opacity;
+    sp.opacity.target = opacity;
+    sp.opacity.velocity = 0;
+    dirtyRef.current = true;
+  }, []);
+
+  const resetCalibration = useCallback(() => {
+    baselineRef.current = null;
+    warmupRef.current = { count: 0, beta: 0, gamma: 0 };
+    filteredRef.current = null;
+    lastEventRef.current = 0;
+  }, []);
+
+  // ── Pointer (desktop) ───────────────────────────────────────────────
+  const handlePointer = useCallback((clientX: number, clientY: number) => {
+    const node = wrapRef.current;
+    if (!node || pausedRef.current) return;
+    const rect = node.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    activeRef.current = true;
+    setTarget(((clientX - rect.left) / rect.width) * 100, ((clientY - rect.top) / rect.height) * 100, 1);
+  }, [setTarget]);
+
+  const handleLeave = useCallback(() => {
+    activeRef.current = false;
+    setTarget(50, 50, 0);
+  }, [setTarget]);
+
+  // ── Gyroscope (mobile) ──────────────────────────────────────────────
+  const handleOrientation = useCallback((beta: number | null, gamma: number | null) => {
+    if (pausedRef.current) return;
     if (beta == null || gamma == null) return;
     if (!Number.isFinite(beta) || !Number.isFinite(gamma)) return;
 
-    // --- Adaptive tuning: measure sensor cadence & angular velocity ---
     const now = performance.now();
-    const a = adaptRef.current;
-    const last = lastRawRef.current;
-    let safeBeta = beta;
-    let safeGamma = gamma;
-    let dt = a.dt || 16.67;
-    if (last && a.lastT) {
-      dt = clamp(now - a.lastT, 8, 80);
-      // Clamp impossible sensor spikes instead of dropping a frame entirely: dropping
-      // keeps a stale target, then the next valid frame visibly snaps the effect.
-      const maxDelta = clamp(dt * 0.42, 4.5, 18);
-      const dBeta = clamp(angleDelta(beta, last.beta), -maxDelta, maxDelta);
-      const dGamma = clamp(gamma - last.gamma, -maxDelta, maxDelta);
-      safeBeta = last.beta + dBeta;
-      safeGamma = last.gamma + dGamma;
+    const dt = lastEventRef.current ? clamp(now - lastEventRef.current, 4, 100) : 16;
+    lastEventRef.current = now;
 
-      // EMA of dt (ms between events) and angular velocity (°/s combined axes).
-      a.dt += (dt - a.dt) * 0.18;
-      const v = (Math.hypot(dBeta, dGamma) / dt) * 1000;
-      a.velocity += (v - a.velocity) * 0.18;
-    }
-    a.lastT = now;
-    lastRawRef.current = { beta: safeBeta, gamma: safeGamma };
-
-    const filterMs = stableFullscreen
-      ? (a.velocity < 8 ? 96 : a.velocity > 120 ? 48 : 68)
-      : (a.velocity < 8 ? 150 : a.velocity > 120 ? 72 : 105);
-    const filterK = stableFullscreen
-      ? clamp(1 - Math.exp(-dt / filterMs), 0.075, 0.5)
-      : clamp(1 - Math.exp(-dt / filterMs), 0.045, 0.38);
+    // Light low-pass on the raw sensor: removes hand tremor without adding lag.
+    const k = clamp(1 - Math.exp(-dt / 40), 0.05, 0.6);
     if (!filteredRef.current) {
-      filteredRef.current = { beta: safeBeta, gamma: safeGamma };
+      filteredRef.current = { beta, gamma };
     } else {
-      filteredRef.current.beta += angleDelta(safeBeta, filteredRef.current.beta) * filterK;
-      filteredRef.current.gamma += (safeGamma - filteredRef.current.gamma) * filterK;
+      filteredRef.current.beta += angleDelta(beta, filteredRef.current.beta) * k;
+      filteredRef.current.gamma += angleDelta(gamma, filteredRef.current.gamma) * k;
     }
     const filtered = filteredRef.current;
-    if (!filtered) return;
 
-    // Warm-up: average the first ~16 filtered frames so the baseline reflects the actual
-    // resting pose (angle at which the user is holding the phone), not motion.
+    // Calibrate on the resting pose (average of the first frames).
     if (!baselineRef.current) {
       const w = warmupRef.current;
       w.count += 1;
-      w.sumBeta += filtered.beta;
-      w.sumGamma += filtered.gamma;
-      if (w.count < 12) return;
-      baselineRef.current = { beta: w.sumBeta / w.count, gamma: w.sumGamma / w.count };
+      w.beta += filtered.beta;
+      w.gamma += filtered.gamma;
+      if (w.count < 8) return;
+      baselineRef.current = { beta: w.beta / w.count, gamma: w.gamma / w.count };
+      snapTo(50, 50, 0);
     }
+
     const base = baselineRef.current;
-    // The holo reflection is a subtle card parallax, not a full-screen pan.
-    // Keep movement bounded and soft so normal phone motion cannot create large jumps.
-    const RANGE_X = stableFullscreen ? 18 : 23;
-    const RANGE_Y = stableFullscreen ? 20 : 25;
-    const TRAVEL_X = stableFullscreen ? 43 : 34;
-    const TRAVEL_Y = stableFullscreen ? 39 : 31;
-    // Small dead-zone near baseline to filter out micro-shakes.
-    const DEAD = stableFullscreen ? 0.45 : 1.15;
-    const rawDGamma = filtered.gamma - base.gamma;
-    const rawDBeta = angleDelta(filtered.beta, base.beta);
-    const applyDeadZone = (value: number) => {
-      const abs = Math.abs(value);
-      if (abs <= DEAD) return 0;
-      return Math.sign(value) * (abs - DEAD);
-    };
-    const shapeParallax = (value: number, range: number) => {
-      const normalized = clamp(applyDeadZone(value) / range, -1, 1);
-      return Math.tanh(normalized * 1.45) / Math.tanh(1.45);
-    };
-    const dGamma = shapeParallax(rawDGamma, RANGE_X);
-    const dBeta = shapeParallax(rawDBeta, RANGE_Y);
-    // Recenter only when the phone is almost still; never chase real movement.
-    const drift = a.velocity < 5 && Math.hypot(rawDBeta, rawDGamma) < 5 ? 0.0012 : 0;
-    base.gamma += rawDGamma * drift;
-    base.beta += rawDBeta * drift;
-    const targetPx = 50 + dGamma * TRAVEL_X;
-    const targetPy = 50 + dBeta * TRAVEL_Y;
-    if (!smoothRef.current.primed) {
-      smoothRef.current.px = targetPx;
-      smoothRef.current.py = targetPy;
-      smoothRef.current.primed = true;
-      smoothRef.current.lastFrame = performance.now();
-      applyVars(targetPx, targetPy, targetPx - 50, targetPy - 50);
-    }
-    targetRef.current = { px: targetPx, py: targetPy };
-  }, [applyVars, stableFullscreen]);
+    const RANGE = 22; // degrees of tilt that map to the full effect travel
+    const dGamma = clamp(angleDelta(filtered.gamma, base.gamma) / RANGE, -1, 1);
+    const dBeta = clamp(angleDelta(filtered.beta, base.beta) / RANGE, -1, 1);
 
-  const resetTracking = useCallback(() => {
-    baselineRef.current = null;
-    warmupRef.current = { count: 0, sumBeta: 0, sumGamma: 0 };
-    lastRawRef.current = null;
-    filteredRef.current = null;
-    adaptRef.current = { lastT: 0, dt: 16, velocity: 0, responseMs: 150 };
-    smoothRef.current = { px: 50, py: 50, primed: false, lastFrame: 0 };
-    targetRef.current = null;
-  }, []);
+    activeRef.current = true;
+    setTarget(50 + dGamma * 50, 50 + dBeta * 50, 1);
+  }, [setTarget, snapTo]);
 
-  const reset = useCallback(() => {
-    if (rafRef.current != null) {
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = null;
-    }
-    const el = wrapRef.current;
-    if (!el) return;
-    const s = el.style;
-    lastAppliedRef.current = { px: 50, py: 50, opacity: 0 };
-    s.setProperty('--pointer-x', '50%');
-    s.setProperty('--pointer-y', '50%');
-    s.setProperty('--pointer-from-center', '0');
-    s.setProperty('--pointer-from-top', '0.5');
-    s.setProperty('--pointer-from-left', '0.5');
-    s.setProperty('--background-x', '50%');
-    s.setProperty('--background-y', '50%');
-    s.setProperty('--rotate-x', '0deg');
-    s.setProperty('--rotate-y', '0deg');
-    s.setProperty('--holo-motion-x', '0px');
-    s.setProperty('--holo-motion-y', '0px');
-    s.setProperty('--holo-image-x', '0px');
-    s.setProperty('--holo-image-y', '0px');
-    s.setProperty('--holo-shine-x', '0px');
-    s.setProperty('--holo-shine-y', '0px');
-    s.setProperty('--holo-glare-x', '0px');
-    s.setProperty('--holo-glare-y', '0px');
-    s.setProperty('--card-opacity', '0');
-  }, []);
-
-  const containEvent = useCallback((event: { stopPropagation: () => void; preventDefault?: () => void; cancelable?: boolean }) => {
-    if (!containInteraction) return;
-    event.stopPropagation();
-    if (event.cancelable) event.preventDefault?.();
-  }, [containInteraction]);
-
-  // Attach gyroscope listener while the card is mounted.
+  // ── Render loop ─────────────────────────────────────────────────────
   useEffect(() => {
-    if (noHolo) return;
-    if (typeof window === 'undefined') return;
+    if (noHolo || typeof window === 'undefined') return;
 
-    const handler = (e: DeviceOrientationEvent) => {
-      if (pausedRef.current) return;
-      updateFromOrientation(e.beta, e.gamma);
-    };
+    const orientationHandler = (e: DeviceOrientationEvent) => handleOrientation(e.beta, e.gamma);
 
     let attached = false;
     const attach = () => {
       if (attached) return;
-      window.addEventListener('deviceorientation', handler, { passive: true });
+      window.addEventListener('deviceorientation', orientationHandler, { passive: true });
       attached = true;
     };
 
     const RequestPerm = (window as any).DeviceOrientationEvent?.requestPermission;
+    let askOnce: (() => void) | null = null;
     if (typeof RequestPerm === 'function') {
-      // iOS 13+: needs a user gesture to request permission.
-      const askOnce = () => {
-        RequestPerm().then((state: string) => {
-          if (state === 'granted') attach();
-        }).catch(() => {});
-        window.removeEventListener('touchend', askOnce);
-        window.removeEventListener('click', askOnce);
+      askOnce = () => {
+        RequestPerm()
+          .then((state: string) => { if (state === 'granted') attach(); })
+          .catch(() => {});
       };
       window.addEventListener('touchend', askOnce, { once: true, passive: true });
       window.addEventListener('click', askOnce, { once: true });
@@ -319,79 +234,64 @@ const HolographicCard = ({
       attach();
     }
 
-    // Continuous rAF loop with time-based damping. Sensor events can arrive at
-    // irregular frequencies, so CSS vars are updated from this stable render loop.
-    const tick = () => {
-      const t = targetRef.current;
-      if (t && !pausedRef.current) {
-        const s = smoothRef.current;
-        const a = adaptRef.current;
-        const now = performance.now();
-        const frameDt = s.lastFrame ? clamp(now - s.lastFrame, 8, 34) : 16.67;
-        s.lastFrame = now;
-        const desiredResponse = stableFullscreen
-          ? (a.velocity < 8 ? 112 : a.velocity > 120 ? 58 : 82)
-          : (a.velocity < 8 ? 185 : a.velocity > 120 ? 82 : 120);
-        a.responseMs += (desiredResponse - a.responseMs) * 0.08;
-        const k = stableFullscreen
-          ? clamp(1 - Math.exp(-frameDt / a.responseMs), 0.08, 0.48)
-          : clamp(1 - Math.exp(-frameDt / a.responseMs), 0.035, 0.32);
-        const dx = t.px - s.px;
-        const dy = t.py - s.py;
-        s.px += dx * k;
-        s.py += dy * k;
-        if (Math.abs(dx) < 0.018) s.px = t.px;
-        if (Math.abs(dy) < 0.018) s.py = t.py;
-        applyVars(s.px, s.py, s.px - 50, s.py - 50);
-      }
+    const tick = (now: number) => {
       loopRef.current = requestAnimationFrame(tick);
+      const dt = lastFrameRef.current ? (now - lastFrameRef.current) / 1000 : 1 / 60;
+      lastFrameRef.current = now;
+      if (!dirtyRef.current) return;
+      const sp = springsRef.current;
+      stepSpring(sp.x, dt);
+      stepSpring(sp.y, dt);
+      stepSpring(sp.opacity, dt);
+      writeVars();
+      dirtyRef.current =
+        sp.x.value !== sp.x.target || sp.y.value !== sp.y.target || sp.opacity.value !== sp.opacity.target;
     };
     loopRef.current = requestAnimationFrame(tick);
 
     return () => {
-      window.removeEventListener('deviceorientation', handler);
+      window.removeEventListener('deviceorientation', orientationHandler);
+      if (askOnce) {
+        window.removeEventListener('touchend', askOnce);
+        window.removeEventListener('click', askOnce);
+      }
       if (loopRef.current != null) cancelAnimationFrame(loopRef.current);
       loopRef.current = null;
-      resetTracking();
-      reset();
+      lastFrameRef.current = 0;
+      resetCalibration();
     };
-  }, [noHolo, updateFromOrientation, reset, applyVars, resetTracking, stableFullscreen]);
+  }, [noHolo, handleOrientation, writeVars, resetCalibration]);
 
-  // Sync paused state and rebaseline whenever we resume so the resting pose recalibrates.
+  // Pause / resume: fade out flat, then recalibrate the resting pose on resume.
   useEffect(() => {
     pausedRef.current = paused;
     if (paused) {
-      reset();
+      activeRef.current = false;
+      setTarget(50, 50, 0);
     } else {
-      resetTracking();
+      resetCalibration();
+      snapTo(50, 50, 0);
     }
-  }, [paused, reset, resetTracking]);
+  }, [paused, setTarget, snapTo, resetCalibration]);
 
-
-
-
-  // Random cosmos position per card so two epics never look identical
-  const cosmosStyle = useMemo(
-    () => {
-      const base: React.CSSProperties = {
-        ['--cosmos-x' as any]: `${Math.floor(Math.random() * 734)}px`,
-        ['--cosmos-y' as any]: `${Math.floor(Math.random() * 1280)}px`,
-      };
-      if (subjectBox) {
-        const cx = (subjectBox.x + subjectBox.w / 2) * 100;
-        const cy = (subjectBox.y + subjectBox.h / 2) * 100;
-        // Inflate radii slightly so the holo fades softly around the subject.
-        const rx = Math.min(95, (subjectBox.w / 2) * 100 * 1.15);
-        const ry = Math.min(95, (subjectBox.h / 2) * 100 * 1.15);
-        (base as any)['--subj-cx'] = `${cx.toFixed(2)}%`;
-        (base as any)['--subj-cy'] = `${cy.toFixed(2)}%`;
-        (base as any)['--subj-rx'] = `${rx.toFixed(2)}%`;
-        (base as any)['--subj-ry'] = `${ry.toFixed(2)}%`;
-      }
-      return base;
-    },
-    [subjectBox],
-  );
+  // Random cosmos position per card so two epics never look identical.
+  const cosmosStyle = useMemo(() => {
+    const base: React.CSSProperties = {
+      ['--cosmos-x' as any]: `${Math.floor(Math.random() * 734)}px`,
+      ['--cosmos-y' as any]: `${Math.floor(Math.random() * 1280)}px`,
+    };
+    if (subjectBox) {
+      const cx = (subjectBox.x + subjectBox.w / 2) * 100;
+      const cy = (subjectBox.y + subjectBox.h / 2) * 100;
+      const rx = Math.min(95, (subjectBox.w / 2) * 100 * 1.15);
+      const ry = Math.min(95, (subjectBox.h / 2) * 100 * 1.15);
+      (base as any)['--subj-cx'] = `${cx.toFixed(2)}%`;
+      (base as any)['--subj-cy'] = `${cy.toFixed(2)}%`;
+      (base as any)['--subj-rx'] = `${rx.toFixed(2)}%`;
+      (base as any)['--subj-ry'] = `${ry.toFixed(2)}%`;
+    }
+    return base;
+  }, [subjectBox]);
 
   if (noHolo) {
     return (
@@ -413,13 +313,13 @@ const HolographicCard = ({
   return (
     <div
       ref={wrapRef}
-      className={`holo-wrap holo-${rarity} ${performanceMode ? 'holo-performance' : ''} ${stableFullscreen ? 'holo-stable-fullscreen' : ''} ${className} ${appearAnimation}`}
+      className={`holo-wrap holo-${rarity} ${className} ${appearAnimation}`}
       data-subject={subjectBox ? 'on' : undefined}
       data-cutout={cutoutUrl ? 'on' : undefined}
       data-paused={paused ? 'true' : undefined}
       style={cosmosStyle}
-      onMouseMove={(e) => updateFromPointer(e.clientX, e.clientY)}
-      onMouseLeave={reset}
+      onMouseMove={(e) => handlePointer(e.clientX, e.clientY)}
+      onMouseLeave={handleLeave}
       onClick={(e) => {
         if (containInteraction) e.stopPropagation();
         onTap?.();
