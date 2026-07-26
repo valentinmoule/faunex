@@ -180,7 +180,7 @@ const CapturePage = () => {
       <div className="flex-1 relative flex flex-col overflow-hidden">
         {/* Camera or captured photo background */}
         <div
-          ref={videoContainerRef}
+          className="absolute inset-0 touch-none"
           className="absolute inset-0 touch-none"
           onTouchStart={!capturedPhoto ? handleTouchStart : undefined}
           onTouchMove={!capturedPhoto ? handleTouchMove : undefined}
