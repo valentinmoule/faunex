@@ -44,6 +44,8 @@ const ModerationPage = () => {
   const [captures, setCaptures] = useState<PendingCapture[]>([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState<string | null>(null);
+  const [preview, setPreview] = useState<{ capture: PendingCapture; animal: EnrichedAnimal } | null>(null);
+  const [confirming, setConfirming] = useState(false);
 
   useEffect(() => {
     if (!session?.user) return;
