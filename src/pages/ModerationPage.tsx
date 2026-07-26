@@ -287,16 +287,16 @@ const ModerationPage = () => {
                           <X className="w-3.5 h-3.5" /> Rejeter
                         </button>
                         <button
-                          onClick={() => approve(capture)}
+                          onClick={() => prepareApprove(capture)}
                           disabled={processing === capture.id}
                           className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-display font-semibold disabled:opacity-50"
                         >
                           {processing === capture.id ? (
                             <Loader2 className="w-3.5 h-3.5 animate-spin" />
                           ) : (
-                            <Check className="w-3.5 h-3.5" />
+                            <Sparkles className="w-3.5 h-3.5" />
                           )}
-                          Approuver
+                          {processing === capture.id ? 'Génération…' : 'Prévisualiser'}
                         </button>
                       </div>
                     </div>
