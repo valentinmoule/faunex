@@ -233,6 +233,18 @@ const ModerationPage = () => {
                         )}
                       </div>
 
+                      {(capture.description || capture.caption) && (
+                        <div className="rounded-xl bg-muted/60 border border-border/60 p-3">
+                          <p className="text-[10px] font-display font-bold uppercase tracking-wide text-muted-foreground mb-1">
+                            Description de l'explorateur
+                          </p>
+                          <p className="text-sm text-foreground whitespace-pre-wrap break-words">
+                            {capture.description || capture.caption}
+                          </p>
+                        </div>
+                      )}
+
+
                       <div className="flex gap-2 pt-1">
                         <button
                           onClick={() => reject(capture)}
