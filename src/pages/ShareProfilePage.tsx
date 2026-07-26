@@ -12,7 +12,7 @@ interface PublicProfile {
   username: string | null;
   avatar_url: string | null;
   level: number;
-  species_count: number;
+  total_captures: number;
 }
 
 const ShareProfilePage = () => {
@@ -33,7 +33,7 @@ const ShareProfilePage = () => {
       const searchName = username.startsWith('@') ? username : `@${username}`;
       const { data, error } = await supabase
         .from('profiles')
-        .select('user_id, display_name, username, avatar_url, level, species_count')
+        .select('user_id, display_name, username, avatar_url, level, total_captures')
         .eq('username', searchName)
         .single();
 
@@ -121,12 +121,12 @@ const ShareProfilePage = () => {
     <main className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
       <Helmet>
         <title>{`${profile.display_name || 'Explorateur'} (${profile.username || '@inconnu'}) — Faunex`}</title>
-        <meta name="description" content={`Découvre le profil Faunex de ${profile.display_name || 'cet explorateur'} : niveau ${profile.level}, ${profile.species_count} captures collectionnées.`} />
+        <meta name="description" content={`Découvre le profil Faunex de ${profile.display_name || 'cet explorateur'} : niveau ${profile.level}, ${profile.total_captures} captures collectionnées.`} />
         <link rel="canonical" href={`https://faunex.fr/u/${(profile.username || '').replace(/^@/, '')}`} />
         <meta property="og:type" content="profile" />
         <meta property="og:url" content={`https://faunex.fr/u/${(profile.username || '').replace(/^@/, '')}`} />
         <meta property="og:title" content={`${profile.display_name || 'Explorateur'} sur Faunex`} />
-        <meta property="og:description" content={`Niveau ${profile.level} · ${profile.species_count} captures collectionnées.`} />
+        <meta property="og:description" content={`Niveau ${profile.level} · ${profile.total_captures} captures collectionnées.`} />
         {profile.avatar_url && <meta property="og:image" content={profile.avatar_url} />}
       </Helmet>
       <div className="w-full max-w-sm space-y-6">
@@ -158,7 +158,7 @@ const ShareProfilePage = () => {
               <p className="text-[10px] text-muted-foreground">Niveau</p>
             </div>
             <div className="text-center">
-              <p className="text-lg font-display font-bold text-foreground">{profile.species_count}</p>
+              <p className="text-lg font-display font-bold text-foreground">{profile.total_captures}</p>
               <p className="text-[10px] text-muted-foreground">Captures</p>
             </div>
           </div>

@@ -17,7 +17,7 @@ interface Profile {
   level: number;
   xp: number;
   xp_to_next: number;
-  species_count: number;
+  total_captures: number;
   regions_explored: number;
 }
 
@@ -113,7 +113,7 @@ const ProfilePage = () => {
       const userId = session.user.id;
 
       const [profileRes, followersRes, followingRes, capturesRes, claimedBadgesRes] = await Promise.all([
-        supabase.from('profiles').select('display_name, username, avatar_url, level, xp, xp_to_next, species_count, regions_explored').eq('user_id', userId).single(),
+        supabase.from('profiles').select('display_name, username, avatar_url, level, xp, xp_to_next, total_captures, regions_explored').eq('user_id', userId).single(),
         supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('following_id', userId),
         supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('follower_id', userId),
         supabase.from('captures').select('category, rarity').eq('user_id', userId),
@@ -132,10 +132,6 @@ const ProfilePage = () => {
       const captures = capturesRes.data || [];
       const totalCaptures = captures.length;
 
-      if (data && data.species_count !== totalCaptures) {
-        await supabase.from('profiles').update({ total_captures: totalCaptures, species_count: totalCaptures }).eq('user_id', userId);
-        setProfile(prev => prev ? { ...prev, species_count: totalCaptures } : prev);
-      }
 
       const claimedSet = new Set((claimedBadgesRes.data || []).map((b: any) => b.badge_id));
 
@@ -194,7 +190,7 @@ const ProfilePage = () => {
 
       const { data: refreshed } = await supabase
         .from('profiles')
-        .select('display_name, username, avatar_url, level, xp, xp_to_next, species_count, regions_explored')
+        .select('display_name, username, avatar_url, level, xp, xp_to_next, total_captures, regions_explored')
         .eq('user_id', session.user.id)
         .single();
       if (refreshed) setProfile(refreshed as Profile);
@@ -259,7 +255,7 @@ const ProfilePage = () => {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 gap-3">
-          <StatCard icon={<BookOpen className="w-5 h-5 text-primary" />} value={profile.species_count} label="Captures" />
+          <StatCard icon={<BookOpen className="w-5 h-5 text-primary" />} value={profile.total_captures} label="Captures" />
           <StatCard icon={<MapPin className="w-5 h-5 text-sky" />} value={profile.regions_explored} label="Régions" />
           <StatCard icon={<Users className="w-5 h-5 text-amber" />} value={followersCount} label="Abonnés" />
           <StatCard icon={<UserPlus className="w-5 h-5 text-emerald" />} value={followingCount} label="Abonnements" />

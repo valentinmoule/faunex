@@ -482,7 +482,6 @@ export type Database = {
           notify_push_follows: boolean
           notify_push_likes: boolean
           regions_explored: number
-          species_count: number
           total_captures: number
           updated_at: string
           user_id: string
@@ -507,7 +506,6 @@ export type Database = {
           notify_push_follows?: boolean
           notify_push_likes?: boolean
           regions_explored?: number
-          species_count?: number
           total_captures?: number
           updated_at?: string
           user_id: string
@@ -532,7 +530,6 @@ export type Database = {
           notify_push_follows?: boolean
           notify_push_likes?: boolean
           regions_explored?: number
-          species_count?: number
           total_captures?: number
           updated_at?: string
           user_id?: string
@@ -712,7 +709,6 @@ export type Database = {
           notify_push_follows: boolean
           notify_push_likes: boolean
           regions_explored: number
-          species_count: number
           total_captures: number
           updated_at: string
           user_id: string

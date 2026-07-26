@@ -47,7 +47,7 @@ interface FollowProfile {
   username: string | null;
   avatar_url: string | null;
   level: number;
-  species_count: number;
+  total_captures: number;
 }
 
 const FriendCollectionPage = () => {
@@ -187,7 +187,7 @@ const FriendCollectionPage = () => {
     if (ids.length > 0) {
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('user_id, display_name, username, avatar_url, level, species_count')
+        .select('user_id, display_name, username, avatar_url, level, total_captures')
         .in('user_id', ids);
       setSheetProfiles((profiles || []) as FollowProfile[]);
     } else {
@@ -467,7 +467,7 @@ const FriendCollectionPage = () => {
                       </div>
                       <div className="flex-1 min-w-0 text-left">
                         <p className="text-sm font-display font-semibold text-foreground truncate">{friend.display_name || 'Sans nom'}</p>
-                        <p className="text-[11px] text-muted-foreground truncate">{friend.username} · Niv. {friend.level} · {friend.species_count} captures</p>
+                        <p className="text-[11px] text-muted-foreground truncate">{friend.username} · Niv. {friend.level} · {friend.total_captures} captures</p>
                       </div>
                     </button>
                     <div className="shrink-0">
