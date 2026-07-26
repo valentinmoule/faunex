@@ -416,7 +416,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
                   className={`relative w-full h-full rounded-[1.75rem] overflow-hidden holo-frame holo-frame--${card.rarity}`}
                 >
 
-                  <div className="relative w-full h-full rounded-[1.2rem] overflow-hidden">
+                  <div className="relative w-full h-full rounded-[1.125rem] overflow-hidden">
 
                     {card.image ? (
                       <img src={card.image} alt={card.name} loading="eager" decoding="async" fetchPriority="high" className="w-full h-full object-cover pointer-events-none select-none" draggable={false} />
