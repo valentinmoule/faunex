@@ -583,19 +583,27 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
             </div>
           </div>
           <button
-            onClick={(e) => {
+            type="button"
+            onPointerDown={(e) => {
               e.stopPropagation();
+              e.preventDefault();
               if (zoom.scale > 1.05) {
                 resetZoom();
               } else {
                 setImageFullscreen(false);
               }
             }}
-            className="absolute top-5 right-5 z-20 w-11 h-11 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white/90 hover:text-white hover:bg-black/60 transition-colors"
+            onTouchStart={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
+            onTouchEnd={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
+            className="absolute top-3 right-3 z-[60] w-16 h-16 -m-1 p-1 rounded-full flex items-center justify-center text-white/90 active:text-white transition-colors"
+            style={{ touchAction: 'manipulation' }}
             aria-label="Fermer l'image en plein écran"
           >
-            <span className="text-2xl font-light leading-none">✕</span>
+            <span className="w-11 h-11 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center text-2xl font-light leading-none pointer-events-none">✕</span>
           </button>
+
         </div>
       )}
     </>
