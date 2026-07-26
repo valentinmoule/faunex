@@ -54,7 +54,7 @@ interface SearchUser {
   username: string | null;
   avatar_url: string | null;
   level: number;
-  species_count: number;
+  total_captures: number;
 }
 
 interface FollowProfile {
@@ -247,7 +247,7 @@ const ExplorersPage = () => {
     setPendingIds(new Set(myPendingUserIds));
 
     if (allIds.length > 0) {
-      const { data: profiles } = await supabase.from('profiles').select('user_id, display_name, username, avatar_url, level, species_count').in('user_id', allIds);
+      const { data: profiles } = await supabase.from('profiles').select('user_id, display_name, username, avatar_url, level, total_captures').in('user_id', allIds);
       const profileMap = new Map((profiles || []).map(p => [p.user_id, p]));
       setFollowing(followingUserIds.map(id => ({ user_id: id, profile: profileMap.get(id) as SearchUser | undefined })));
       setFollowers(followerUserIds.map(id => ({ user_id: id, profile: profileMap.get(id) as SearchUser | undefined })));
@@ -286,10 +286,10 @@ const ExplorersPage = () => {
     const to = from + PAGE_SIZE - 1;
     const { data, error } = await supabase
       .from('profiles')
-      .select('user_id, display_name, username, avatar_url, level, species_count')
+      .select('user_id, display_name, username, avatar_url, level, total_captures')
       .neq('user_id', userId)
       .order('level', { ascending: false })
-      .order('species_count', { ascending: false })
+      .order('total_captures', { ascending: false })
       .order('user_id', { ascending: true })
       .range(from, to);
     if (!error && data) {
@@ -425,7 +425,7 @@ const ExplorersPage = () => {
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-display font-semibold text-foreground truncate">{user.display_name || 'Sans nom'}</p>
-        <p className="text-[11px] text-muted-foreground truncate">{user.username} · Niv. {user.level} · {user.species_count} captures</p>
+        <p className="text-[11px] text-muted-foreground truncate">{user.username} · Niv. {user.level} · {user.total_captures} captures</p>
       </div>
       <div onClick={e => e.stopPropagation()}>{action}</div>
     </div>
