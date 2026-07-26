@@ -110,7 +110,7 @@ const Index = () => {
 
     const fetchAll = async () => {
       const [profileRes, capturesRes, questsRes, notifRes] = await Promise.all([
-        supabase.from('profiles').select('display_name, username, avatar_url, level, xp, xp_to_next, total_captures, total_captures').eq('user_id', uid).single(),
+        supabase.from('profiles').select('display_name, username, avatar_url, level, xp, xp_to_next, total_captures').eq('user_id', uid).single(),
         supabase.from('captures').select('*').eq('user_id', uid).eq('status', 'approved').order('created_at', { ascending: false }),
         supabase.from('daily_quests').select('completed, claimed').eq('user_id', uid).eq('quest_date', startOfWeekISO()),
         supabase.from('notifications').select('*', { count: 'exact', head: true }).eq('user_id', uid).eq('read', false),
