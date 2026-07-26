@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { signCaptureRows } from '@/lib/captureImages';
 import { notifyCaptureInteraction } from '@/lib/notifyCaptureInteraction';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Search, Bell, Heart, MessageCircle, Send, UserPlus, UserCheck, X, Users, ChevronRight, Clock, Check as CheckIcon, XCircle, ArrowLeft } from 'lucide-react';
@@ -185,7 +186,8 @@ const ExplorersPage = () => {
         return next;
       });
 
-      const newPosts = (data.map((c: any) => ({ ...c, profiles: profileMap.get(c.user_id) || null })) as FeedCapture[]);
+      const signedRows = await signCaptureRows(data as any[]);
+      const newPosts = (signedRows.map((c: any) => ({ ...c, profiles: profileMap.get(c.user_id) || null })) as FeedCapture[]);
       setPosts(prev => replace ? newPosts : [...prev, ...newPosts]);
       setFeedOffset(offset + data.length);
       if (data.length < FEED_PAGE_SIZE) setFeedHasMore(false);

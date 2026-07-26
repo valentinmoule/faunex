@@ -74,8 +74,21 @@ Deno.serve(async (req) => {
 
     const content: unknown[] = [{ type: 'text', text: userText }]
     if (capture.image_url) {
-      content.push({ type: 'image_url', image_url: { url: capture.image_url } })
+      // Le bucket "captures" est privé : on génère une URL signée temporaire
+      // pour que la passerelle IA puisse lire la photo.
+      let imageUrl = capture.image_url as string
+      const marker = '/storage/v1/object/public/captures/'
+      const idx = imageUrl.indexOf(marker)
+      if (idx !== -1) {
+        const path = decodeURIComponent(imageUrl.slice(idx + marker.length).split('?')[0])
+        const { data: signed } = await supabase.storage
+          .from('captures')
+          .createSignedUrl(path, 600)
+        if (signed?.signedUrl) imageUrl = signed.signedUrl
+      }
+      content.push({ type: 'image_url', image_url: { url: imageUrl } })
     }
+
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',

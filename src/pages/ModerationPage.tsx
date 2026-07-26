@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { signCaptureRows } from '@/lib/captureImages';
 import { ArrowLeft, Check, X, Loader2, AlertTriangle, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -72,7 +73,9 @@ const ModerationPage = () => {
         (profiles || []).map(p => [p.user_id, p.display_name || p.username || 'Inconnu'])
       );
 
-      setCaptures(data.map(c => ({
+      const signedRows = await signCaptureRows(data as any[]);
+
+      setCaptures(signedRows.map((c: any) => ({
         ...c,
         user_display_name: profileMap.get(c.user_id) || 'Inconnu',
       })));

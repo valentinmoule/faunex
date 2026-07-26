@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ComponentType } from 'react';
+import { signCaptureRows } from '@/lib/captureImages';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
@@ -122,7 +123,8 @@ const MapPage = () => {
         .not('longitude', 'is', null);
 
       if (!error && data) {
-        setCaptures(data as CaptureMarker[]);
+        const signedRows = await signCaptureRows(data as any[]);
+        setCaptures(signedRows as CaptureMarker[]);
         if (data.length > 0) {
           setCenter([data[0].latitude!, data[0].longitude!]);
         }

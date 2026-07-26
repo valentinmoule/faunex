@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { signCaptureRows } from '@/lib/captureImages';
 import { useNavigate } from 'react-router-dom';
 import { Camera, Target, ChevronRight, Bell, Flame, Zap, Trophy, BookOpen, Users } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
@@ -121,7 +122,8 @@ const Index = () => {
       let resolvedCaptureCards: AnimalCard[] = [];
 
       if (capturesRes.data) {
-        const cards = capturesRes.data.map((c: any) => ({
+        const signedCaptures = await signCaptureRows(capturesRes.data as any[]);
+        const cards = signedCaptures.map((c: any) => ({
           id: c.id, name: c.animal_name, scientificName: c.scientific_name || '',
           image: c.image_url, subjectBox: c.subject_bbox, rarity: c.rarity as Rarity, category: c.category || '',
           description: c.description || '', habitat: c.habitat || '', diet: c.diet || '',

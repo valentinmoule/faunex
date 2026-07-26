@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { signCaptureRows } from '@/lib/captureImages';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Users, UserPlus, UserCheck, Award } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
@@ -112,7 +113,8 @@ const FriendCollectionPage = () => {
       }
 
       if (!capturesRes.error && capturesRes.data) {
-        setCaptures(capturesRes.data.map((c: any) => ({
+        const signedCaptures = await signCaptureRows(capturesRes.data as any[]);
+        setCaptures(signedCaptures.map((c: any) => ({
           id: c.id,
           name: c.animal_name,
           scientificName: c.scientific_name || '',
