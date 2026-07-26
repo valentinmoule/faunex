@@ -15,13 +15,23 @@ export const markFirstLoginDone = (userId: string) => {
 
 const WelcomeInstallPopup = () => {
   const { session } = useAuth();
-  const { promptInstall, canInstall, isIos, isInstalled } = usePwaInstall();
+  const { promptInstall, canInstall, isIos, isInstalled, guideOpen, closeInstallGuide } = usePwaInstall();
   const hasShown = useRef(false);
   const [visible, setVisible] = useState(false);
   const [phase, setPhase] = useState<'hidden' | 'in' | 'visible' | 'out'>('hidden');
   const [showIosHelp, setShowIosHelp] = useState(false);
   const [showAndroidHelp, setShowAndroidHelp] = useState(false);
 
+  const open = (delay: number) => {
+    const timer = setTimeout(() => {
+      setVisible(true);
+      setPhase('in');
+      setTimeout(() => setPhase('visible'), 50);
+    }, delay);
+    return () => clearTimeout(timer);
+  };
+
+  // Première connexion après création du compte
   useEffect(() => {
     if (!session?.user || hasShown.current) return;
     if (!isFirstLogin(session.user.id)) return;
@@ -32,20 +42,24 @@ const WelcomeInstallPopup = () => {
     }
 
     hasShown.current = true;
+    return open(800);
+  }, [session, isInstalled]);
 
-    const timer = setTimeout(() => {
-      setVisible(true);
-      setPhase('in');
-      setTimeout(() => setPhase('visible'), 50);
-    }, 800);
-
-    return () => clearTimeout(timer);
-  }, [session]);
+  // Ouverture manuelle (Réglages → Installer l'application)
+  useEffect(() => {
+    if (!guideOpen || visible) return;
+    return open(0);
+  }, [guideOpen]);
 
   const dismiss = () => {
     if (session?.user) markFirstLoginDone(session.user.id);
+    closeInstallGuide();
     setPhase('out');
-    setTimeout(() => setVisible(false), 400);
+    setTimeout(() => {
+      setVisible(false);
+      setShowIosHelp(false);
+      setShowAndroidHelp(false);
+    }, 400);
   };
 
   const handleInstall = async () => {

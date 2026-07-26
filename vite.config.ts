@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => ({
       registerType: "autoUpdate",
       injectRegister: null,
       devOptions: { enabled: false },
-      includeAssets: ["favicon.ico", "pwa-icon-192.png", "pwa-icon-512.png"],
+      includeAssets: ["favicon.png", "pwa-icon-192.png", "pwa-icon-512.png"],
       workbox: {
         skipWaiting: true,
         clientsClaim: true,
@@ -40,9 +40,13 @@ export default defineConfig(({ mode }) => ({
         ],
       },
       manifest: {
+        id: "/",
         name: "Faunex — Collecte la faune sauvage",
         short_name: "Faunex",
         description: "Capture, identifie et collectionne les animaux sauvages autour de toi.",
+        lang: "fr",
+        dir: "ltr",
+        categories: ["education", "lifestyle", "photo"],
         theme_color: "#1a3a2a",
         background_color: "#f5f7f5",
         display: "standalone",
@@ -54,11 +58,19 @@ export default defineConfig(({ mode }) => ({
             src: "/pwa-icon-192.png",
             sizes: "192x192",
             type: "image/png",
+            purpose: "any",
           },
           {
             src: "/pwa-icon-512.png",
             sizes: "512x512",
             type: "image/png",
+            purpose: "any",
+          },
+          {
+            src: "/pwa-icon-192.png",
+            sizes: "192x192",
+            type: "image/png",
+            purpose: "maskable",
           },
           {
             src: "/pwa-icon-512.png",

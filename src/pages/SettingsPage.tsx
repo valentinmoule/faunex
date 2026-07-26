@@ -21,7 +21,7 @@ const SettingsPage = () => {
   const { session, signOut } = useAuth();
   const navigate = useNavigate();
   const { theme, resolvedTheme, setTheme } = useTheme();
-  const { isInstalled, canInstall, isIos, resetDismiss } = usePwaInstall();
+  const { isInstalled, canInstall, isIos, resetDismiss, openInstallGuide } = usePwaInstall();
   const [section, setSection] = useState<'menu' | 'edit' | 'password' | 'delete'>('menu');
   const [profile, setProfile] = useState<{ display_name: string; username: string; avatar_url: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -259,11 +259,10 @@ const SettingsPage = () => {
             {!isInstalled && (
               <MenuItem
                 icon={<Smartphone className="w-5 h-5" />}
-                label={canInstall || isIos ? "Installer sur l'écran d'accueil" : "Installer l'application"}
+                label="Installer sur l'écran d'accueil"
                 onClick={() => {
                   resetDismiss();
-                  toast.success("La carte d'installation est réaffichée en bas de l'écran.");
-                  navigate('/home');
+                  openInstallGuide();
                 }}
               />
             )}
