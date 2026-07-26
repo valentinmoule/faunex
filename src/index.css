@@ -2286,12 +2286,14 @@
   transform: translate3d(0, 0, 0) rotateY(var(--rotate-x)) rotateX(var(--rotate-y));
   transform-origin: center center;
   will-change: transform;
+  transform-style: flat;
+  isolation: isolate;
 }
 
 .holo-stable-fullscreen .holo-card {
   contain: layout paint style;
   transform: translate3d(0, 0, 0);
-  transform-style: preserve-3d;
+  transform-style: flat;
   box-shadow: 0 14px 34px -16px hsl(0 0% 0% / 0.7);
 }
 
@@ -2307,18 +2309,20 @@
 }
 
 .holo-stable-fullscreen .holo-content {
-  transform: translate3d(0, 0, 1px);
+  z-index: 1;
+  transform: translate3d(0, 0, 0);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
 
 .holo-stable-fullscreen .fullscreen-photo-parallax {
-  transform: translate3d(var(--holo-image-x), var(--holo-image-y), 1px) scale(1.035);
+  transform: translate3d(var(--holo-image-x), var(--holo-image-y), 0) scale(1.035);
   transform-origin: center center;
   will-change: transform;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   pointer-events: none;
+  z-index: 1;
 }
 
 .holo-stable-fullscreen .holo-shine,
@@ -2332,14 +2336,18 @@
   transform-origin: center;
   background-repeat: repeat;
   pointer-events: none;
+  transform-style: flat;
+  isolation: isolate;
 }
 
 .holo-stable-fullscreen .holo-shine {
-  transform: translate3d(var(--holo-motion-x), var(--holo-motion-y), 2px) scale(1.1);
+  z-index: 2;
+  transform: translate3d(var(--holo-motion-x), var(--holo-motion-y), 0) scale(1.1);
 }
 
 .holo-stable-fullscreen .holo-glare {
-  transform: translate3d(var(--holo-motion-x), var(--holo-motion-y), 3px) scale(1.1);
+  z-index: 3;
+  transform: translate3d(var(--holo-motion-x), var(--holo-motion-y), 0) scale(1.1);
 }
 
 .holo-stable-fullscreen[data-cutout="on"][data-subject="on"] .holo-shine,
@@ -2350,7 +2358,8 @@
 
 .holo-stable-fullscreen.holo-fullscreen-photo .holo-cutout {
   display: flex;
-  transform: translate3d(var(--holo-image-x), var(--holo-image-y), 4px) scale(1.035);
+  z-index: 4;
+  transform: translate3d(var(--holo-image-x), var(--holo-image-y), 0) scale(1.035);
   transform-origin: center center;
   will-change: transform;
   backface-visibility: hidden;
