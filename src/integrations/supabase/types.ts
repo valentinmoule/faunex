@@ -747,6 +747,16 @@ export type Database = {
         Returns: boolean
       }
       is_profile_private: { Args: { _user_id: string }; Returns: boolean }
+      match_animal: {
+        Args: { p_name: string; p_scientific?: string }
+        Returns: {
+          category: string
+          id: string
+          name: string
+          rarity: string
+          scientific_name: string
+        }[]
+      }
       move_to_dlq: {
         Args: {
           dlq_name: string
@@ -756,6 +766,7 @@ export type Database = {
         }
         Returns: number
       }
+      normalize_animal_label: { Args: { p_label: string }; Returns: string }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
         Returns: {
