@@ -15,6 +15,9 @@ interface PendingCapture {
   location: string | null;
   created_at: string;
   user_id: string;
+  description: string | null;
+  caption: string | null;
+
   user_display_name?: string;
 }
 
