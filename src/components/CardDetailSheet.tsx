@@ -261,10 +261,10 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
       z.initialPan = { x: zoom.x, y: zoom.y };
       z.lastTouch = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     }
-  }, [card?.image, zoom.scale, zoom.x, zoom.y, resetZoom, pauseFullscreenHolo]);
+  }, [card?.image, zoom.scale, zoom.x, zoom.y, resetZoom]);
 
   const handleFullscreenTouchMove = useCallback((e: React.TouchEvent) => {
-    pauseFullscreenHolo();
+
     const z = zoomRef.current;
     if (e.touches.length === 2 && z.isPinching) {
       e.preventDefault();
@@ -280,7 +280,7 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
       z.lastTouch = { x: touch.clientX, y: touch.clientY };
       setZoom(prev => ({ ...prev, x: prev.x + dx, y: prev.y + dy }));
     }
-  }, [zoom.scale, pauseFullscreenHolo]);
+  }, [zoom.scale]);
 
   const handleFullscreenTouchEnd = useCallback(() => {
     const z = zoomRef.current;
