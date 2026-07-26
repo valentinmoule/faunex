@@ -96,6 +96,24 @@ const ModerationPage = () => {
 
       toast.success(`${capture.animal_name} approuvé !`);
       setCaptures(prev => prev.filter(c => c.id !== capture.id));
+    }
+    setProcessing(null);
+  };
+
+  const reject = async (capture: PendingCapture) => {
+    setProcessing(capture.id);
+    // Notify the user BEFORE deleting (the capture row disappears afterwards)
+    if (session?.user) {
+      const { error: notifError } = await supabase.from('notifications').insert({
+        user_id: capture.user_id,
+        type: 'capture_rejected',
+        actor_id: session.user.id,
+        comment_text: capture.animal_name,
+      });
+      if (notifError) {
+        console.error('notification reject failed', notifError);
+        toast.warning('La notification de rejet n\'a pas pu être envoyée');
+      }
       supabase.functions
         .invoke('notify-moderation-decision', {
           body: {
@@ -108,8 +126,6 @@ const ModerationPage = () => {
         .then(({ error: fnError }) => {
           if (fnError) console.error('notify-moderation-decision failed', fnError);
         });
-    }
-
     }
 
     const { error } = await supabase
@@ -125,6 +141,7 @@ const ModerationPage = () => {
     }
     setProcessing(null);
   };
+
 
 
   const timeAgo = (date: string) => {
