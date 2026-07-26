@@ -99,7 +99,7 @@ const ModerationPage = () => {
             body: {
               user_id: capture.user_id,
               decision: 'approved',
-              animal_name: capture.animal_name,
+              animal_name: finalName,
               capture_id: capture.id,
             },
           })
@@ -108,7 +108,8 @@ const ModerationPage = () => {
           });
       }
 
-      toast.success(`${capture.animal_name} approuvé !`);
+      toast.success(`${finalName} approuvé !`);
+
       setCaptures(prev => prev.filter(c => c.id !== capture.id));
     }
     setProcessing(null);
