@@ -11,6 +11,8 @@ import { useGeoTag } from '@/hooks/useGeoTag';
 import { useAnimalIdentification } from '@/hooks/useAnimalIdentification';
 import { useCaptureSave } from '@/hooks/useCaptureSave';
 import { useCaptureReveal, REVEAL_TIMINGS } from '@/hooks/useCaptureReveal';
+import { useCaptureQuota, DAILY_CAPTURE_LIMIT } from '@/hooks/useCaptureQuota';
+
 import type { AnimalResult } from '@/types/capture';
 
 const rarityColors: Record<string, string> = {
