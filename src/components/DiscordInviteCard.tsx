@@ -93,7 +93,7 @@ const DiscordInviteCard = ({ onBadgeEarned }: DiscordInviteCardProps) => {
 
             {/* Description */}
             <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-              Échange avec les autres naturalistes, partage tes meilleures captures, propose des idées pour améliorer Faunex et suis les dernières nouveautés du projet.
+              Échange avec les autres explorateurs, partage tes meilleures captures, propose des idées pour améliorer Faunex et suis les dernières nouveautés du projet.
             </p>
 
             {/* CTA principal */}
