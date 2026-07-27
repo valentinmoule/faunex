@@ -314,7 +314,7 @@ const ProfilePage = () => {
         <QuestsInline />
 
         {/* Discord Community Invitation */}
-        <DiscordInviteCard />
+        <DiscordInviteCard onBadgeEarned={() => setRefreshKey(k => k + 1)} />
 
         {/* Badges Section — Gaming Style */}
         <div id="badges" className="scroll-mt-20">
