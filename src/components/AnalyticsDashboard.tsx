@@ -19,7 +19,7 @@ import {
   Legend,
 } from 'recharts';
 
-type Period = 7 | 30 | 90 | 'custom';
+type Period = 7 | 30 | 90 | 'all' | 'custom';
 
 interface AnalyticsData {
   range: { startISO: string; endISO: string; days: number };
