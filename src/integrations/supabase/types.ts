@@ -676,6 +676,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      captures_remaining_today: { Args: never; Returns: number }
       claim_badge: {
         Args: { p_badge_id: string; p_xp_reward: number }
         Returns: boolean

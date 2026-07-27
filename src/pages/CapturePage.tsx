@@ -100,6 +100,9 @@ const CapturePage = () => {
     resumePreview();
   };
 
+  const isDailyLimitError = (err: unknown) =>
+    JSON.stringify((err as any)?.message ?? err ?? '').includes('DAILY_CAPTURE_LIMIT_REACHED');
+
   const saveManualEntry = async () => {
     const trimmedName = manualName.trim();
     const trimmedSpecies = manualSpecies.trim();
@@ -116,7 +119,7 @@ const CapturePage = () => {
       setTimeout(() => navigate('/home'), 1500);
     } catch (err) {
       console.error(err);
-      toast.error("Erreur lors de la soumission");
+      toast.error(isDailyLimitError(err) ? "Limite atteinte : 4 captures par jour maximum. Reviens demain !" : "Erreur lors de la soumission");
     }
   };
 
@@ -146,7 +149,7 @@ const CapturePage = () => {
       finishSave(animalResult, imageUrl, `${animalResult.animal_name} ajouté à ton Faunex !`);
     } catch (err) {
       console.error(err);
-      toast.error("Erreur lors de la sauvegarde");
+      toast.error(isDailyLimitError(err) ? "Limite atteinte : 4 captures par jour maximum. Reviens demain !" : "Erreur lors de la sauvegarde");
     }
   };
 
