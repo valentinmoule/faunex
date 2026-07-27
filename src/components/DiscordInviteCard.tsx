@@ -67,7 +67,7 @@ const DiscordInviteCard = ({ onBadgeEarned }: DiscordInviteCardProps) => {
             {/* En-tête avec icône et fermeture */}
             <div className="flex items-start justify-between gap-3 mb-3">
               <div className="flex items-center gap-3">
-                <div className="relative shrink-0 w-13 h-13 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border-2 border-primary/20 flex items-center justify-center shadow-sm">
+                <div className="relative shrink-0 w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border-2 border-primary/20 flex items-center justify-center shadow-sm">
                   <MessageCircle className="w-6 h-6 text-primary" />
                   <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-amber text-amber-dark text-[10px] flex items-center justify-center border-2 border-background shadow-sm">
                     💬
