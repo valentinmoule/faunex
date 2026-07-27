@@ -55,6 +55,13 @@ const CapturePage = () => {
 
   /** Shared pipeline for both the camera shot and the gallery import. */
   const processPhoto = useCallback(async (dataUrl: string) => {
+    // Every analysis consumes a daily slot, even if the animal is not saved.
+    const allowed = await quota.consume();
+    if (!allowed) {
+      toast.error(`Limite atteinte : ${DAILY_CAPTURE_LIMIT} captures par jour maximum. Reviens demain !`);
+      return;
+    }
+
     setCapturedPhoto(dataUrl);
     setAnimalResult(null);
     setSaved(false);
@@ -66,7 +73,8 @@ const CapturePage = () => {
     } else {
       setManualMode(true);
     }
-  }, [geo, identify, triggerReveal]);
+  }, [geo, identify, triggerReveal, quota]);
+
 
   const takePhoto = async () => {
     const dataUrl = grabFrame();
