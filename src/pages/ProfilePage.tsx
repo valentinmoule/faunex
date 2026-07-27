@@ -78,6 +78,7 @@ const ProfilePage = () => {
   const [badges, setBadges] = useState<BadgeProgress[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     if (!session?.user) return;
