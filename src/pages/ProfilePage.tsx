@@ -8,7 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePwaInstall } from '@/contexts/PwaInstallContext';
 import XpParticles from '@/components/XpParticles';
 import QuestsInline from '@/components/QuestsInline';
-import DiscordInviteCard from '@/components/DiscordInviteCard';
+import DiscordInviteCard, { COMMUNITY_BADGE_ID, COMMUNITY_BADGE_XP } from '@/components/DiscordInviteCard';
 
 
 interface Profile {
@@ -42,6 +42,7 @@ const BADGE_DEFS: BadgeDef[] = [
   { id: 'mythic_1', name: 'Mythique !', icon: '🔥', description: 'Trouver un animal mythique', total: 1 },
   { id: 'social_3', name: 'Sociable', icon: '🤝', description: 'Suivre 3 explorateurs', total: 3 },
   { id: 'level_5', name: 'Niveau 5', icon: '🏅', description: 'Atteindre le niveau 5', total: 5 },
+  { id: COMMUNITY_BADGE_ID, name: 'Membre de la communauté', icon: '💬', description: 'Rejoindre le Discord Faunex', total: 1 },
 ];
 
 const BADGE_XP_REWARDS: Record<string, number> = {
@@ -56,6 +57,7 @@ const BADGE_XP_REWARDS: Record<string, number> = {
   mythic_1: 500,
   social_3: 75,
   level_5: 150,
+  [COMMUNITY_BADGE_ID]: COMMUNITY_BADGE_XP,
 };
 
 interface BadgeProgress {
@@ -76,6 +78,7 @@ const ProfilePage = () => {
   const [badges, setBadges] = useState<BadgeProgress[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     if (!session?.user) return;
@@ -155,6 +158,7 @@ const ProfilePage = () => {
         mythic_1: hasMythic ? 1 : 0,
         social_3: Math.min(fCount, 3),
         level_5: Math.min(level, 5),
+        [COMMUNITY_BADGE_ID]: claimedSet.has(COMMUNITY_BADGE_ID) ? 1 : 0,
       };
 
       setBadges(BADGE_DEFS.map(b => ({
@@ -167,7 +171,7 @@ const ProfilePage = () => {
       setLoading(false);
     };
     fetchAll();
-  }, [session]);
+  }, [session, refreshKey]);
 
 
   const [claiming, setClaiming] = useState<string | null>(null);
@@ -310,7 +314,7 @@ const ProfilePage = () => {
         <QuestsInline />
 
         {/* Discord Community Invitation */}
-        <DiscordInviteCard />
+        <DiscordInviteCard onBadgeEarned={() => setRefreshKey(k => k + 1)} />
 
         {/* Badges Section — Gaming Style */}
         <div id="badges" className="scroll-mt-20">
