@@ -11,6 +11,8 @@ import { useGeoTag } from '@/hooks/useGeoTag';
 import { useAnimalIdentification } from '@/hooks/useAnimalIdentification';
 import { useCaptureSave } from '@/hooks/useCaptureSave';
 import { useCaptureReveal, REVEAL_TIMINGS } from '@/hooks/useCaptureReveal';
+import { useCaptureQuota, DAILY_CAPTURE_LIMIT } from '@/hooks/useCaptureQuota';
+
 import type { AnimalResult } from '@/types/capture';
 
 const rarityColors: Record<string, string> = {
@@ -37,6 +39,8 @@ const CapturePage = () => {
   const camera = useCamera({ paused: !!capturedPhoto });
   const geo = useGeoTag();
   const { identifying, identify } = useAnimalIdentification();
+  const quota = useCaptureQuota(session?.user?.id);
+
   const { revealPhase, revealRarity, freezeFlash, triggerReveal, reset: resetReveal } =
     useCaptureReveal(setAnimalResult);
   const { saving, findDuplicate, insertCapture, replaceCapture, submitManualEntry } = useCaptureSave({
@@ -55,6 +59,13 @@ const CapturePage = () => {
 
   /** Shared pipeline for both the camera shot and the gallery import. */
   const processPhoto = useCallback(async (dataUrl: string) => {
+    // Every analysis consumes a daily slot, even if the animal is not saved.
+    const allowed = await quota.consume();
+    if (!allowed) {
+      toast.error(`Limite atteinte : ${DAILY_CAPTURE_LIMIT} captures par jour maximum. Reviens demain !`);
+      return;
+    }
+
     setCapturedPhoto(dataUrl);
     setAnimalResult(null);
     setSaved(false);
@@ -66,7 +77,8 @@ const CapturePage = () => {
     } else {
       setManualMode(true);
     }
-  }, [geo, identify, triggerReveal]);
+  }, [geo, identify, triggerReveal, quota]);
+
 
   const takePhoto = async () => {
     const dataUrl = grabFrame();
@@ -293,10 +305,21 @@ const CapturePage = () => {
               </>
             )}
           </div>
-          <div className="flex items-center gap-1.5 bg-primary-foreground/10 rounded-full px-3 py-1.5">
-            <MapPin className="w-3.5 h-3.5 text-primary" />
-            <span className="text-primary-foreground/70 text-xs font-display">{geoName || 'Localisation…'}</span>
+          <div className="flex items-center gap-2">
+            {quota.remaining !== null && (
+              <div className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 ${quota.exhausted ? 'bg-destructive/25' : 'bg-primary-foreground/10'}`}>
+                <Camera className={`w-3.5 h-3.5 ${quota.exhausted ? 'text-destructive' : 'text-primary'}`} />
+                <span className="text-primary-foreground/80 text-xs font-display">
+                  {quota.remaining}/{DAILY_CAPTURE_LIMIT}
+                </span>
+              </div>
+            )}
+            <div className="flex items-center gap-1.5 bg-primary-foreground/10 rounded-full px-3 py-1.5">
+              <MapPin className="w-3.5 h-3.5 text-primary" />
+              <span className="text-primary-foreground/70 text-xs font-display">{geoName || 'Localisation…'}</span>
+            </div>
           </div>
+
         </div>
 
         {/* AI Result overlay */}
@@ -559,19 +582,35 @@ const CapturePage = () => {
           </button>
         ) : identifying ? null : capturedPhoto ? null : (
           <>
-            <button onClick={() => fileInputRef.current?.click()} className="w-12 h-12 rounded-xl bg-primary-foreground/10 flex items-center justify-center">
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={quota.exhausted}
+              className="w-12 h-12 rounded-xl bg-primary-foreground/10 flex items-center justify-center disabled:opacity-40"
+            >
               <Image className="w-5 h-5 text-primary-foreground/70" />
             </button>
-            <button
-              onClick={takePhoto}
-              className="w-20 h-20 rounded-full border-4 border-primary flex items-center justify-center group active:scale-95 transition-transform"
-            >
-              <div className="w-16 h-16 rounded-full bg-primary group-hover:bg-forest-light transition-colors flex items-center justify-center">
-                <Camera className="w-7 h-7 text-primary-foreground" />
-              </div>
-            </button>
+            <div className="flex flex-col items-center gap-2">
+              <button
+                onClick={takePhoto}
+                disabled={quota.exhausted}
+                aria-label={quota.exhausted ? 'Quota de captures atteint' : 'Prendre une photo'}
+                className="w-20 h-20 rounded-full border-4 border-primary flex items-center justify-center group active:scale-95 transition-transform disabled:opacity-40 disabled:active:scale-100 disabled:cursor-not-allowed"
+              >
+                <div className="w-16 h-16 rounded-full bg-primary group-hover:bg-forest-light transition-colors flex items-center justify-center">
+                  <Camera className="w-7 h-7 text-primary-foreground" />
+                </div>
+              </button>
+              <p className="text-primary-foreground/70 text-[11px] font-display text-center">
+                {quota.exhausted
+                  ? 'Quota atteint — reviens demain !'
+                  : quota.remaining !== null
+                  ? `${quota.remaining} capture${quota.remaining > 1 ? 's' : ''} restante${quota.remaining > 1 ? 's' : ''} aujourd'hui`
+                  : ''}
+              </p>
+            </div>
             <button onClick={switchCamera} className="w-12 h-12 rounded-xl bg-primary-foreground/10 flex items-center justify-center">
               <SwitchCamera className="w-5 h-5 text-primary-foreground/70" />
+
             </button>
           </>
         )}
