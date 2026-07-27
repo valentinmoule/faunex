@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePwaInstall } from '@/contexts/PwaInstallContext';
 import XpParticles from '@/components/XpParticles';
 import QuestsInline from '@/components/QuestsInline';
+import DiscordInviteCard from '@/components/DiscordInviteCard';
 
 
 interface Profile {
