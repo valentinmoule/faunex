@@ -105,6 +105,14 @@ const AnalyticsDashboard = () => {
         ))}
         <Button
           size="sm"
+          variant={period === 'all' ? 'default' : 'outline'}
+          onClick={() => setPeriod('all')}
+          className="rounded-full text-xs"
+        >
+          Tout
+        </Button>
+        <Button
+          size="sm"
           variant={period === 'custom' ? 'default' : 'outline'}
           onClick={() => setPeriod('custom')}
           className="rounded-full text-xs"
