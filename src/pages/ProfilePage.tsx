@@ -171,7 +171,7 @@ const ProfilePage = () => {
       setLoading(false);
     };
     fetchAll();
-  }, [session]);
+  }, [session, refreshKey]);
 
 
   const [claiming, setClaiming] = useState<string | null>(null);
