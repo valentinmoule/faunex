@@ -305,10 +305,21 @@ const CapturePage = () => {
               </>
             )}
           </div>
-          <div className="flex items-center gap-1.5 bg-primary-foreground/10 rounded-full px-3 py-1.5">
-            <MapPin className="w-3.5 h-3.5 text-primary" />
-            <span className="text-primary-foreground/70 text-xs font-display">{geoName || 'Localisation…'}</span>
+          <div className="flex items-center gap-2">
+            {quota.remaining !== null && (
+              <div className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 ${quota.exhausted ? 'bg-destructive/25' : 'bg-primary-foreground/10'}`}>
+                <Camera className={`w-3.5 h-3.5 ${quota.exhausted ? 'text-destructive' : 'text-primary'}`} />
+                <span className="text-primary-foreground/80 text-xs font-display">
+                  {quota.remaining}/{DAILY_CAPTURE_LIMIT}
+                </span>
+              </div>
+            )}
+            <div className="flex items-center gap-1.5 bg-primary-foreground/10 rounded-full px-3 py-1.5">
+              <MapPin className="w-3.5 h-3.5 text-primary" />
+              <span className="text-primary-foreground/70 text-xs font-display">{geoName || 'Localisation…'}</span>
+            </div>
           </div>
+
         </div>
 
         {/* AI Result overlay */}
