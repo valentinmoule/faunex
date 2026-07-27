@@ -58,7 +58,9 @@ const AnalyticsDashboard = () => {
       setError(null);
       const body: any = period === 'custom'
         ? { start: customStart || undefined, end: customEnd || undefined }
-        : { days: period };
+        : period === 'all'
+          ? { all: true }
+          : { days: period };
       const { data: res, error } = await supabase.functions.invoke('admin-analytics', { body });
       if (cancelled) return;
       if (error) {
