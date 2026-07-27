@@ -108,7 +108,7 @@ const DiscordInviteCard = ({ onBadgeEarned }: DiscordInviteCardProps) => {
 
             {/* Mention badge */}
             <div className="mt-3 flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
-              <AwardIcon className="w-3.5 h-3.5 text-amber" />
+              <Award className="w-3.5 h-3.5 text-amber" />
               <span>
                 Débloque le badge <span className="font-semibold text-foreground">Membre de la communauté</span> +{COMMUNITY_BADGE_XP} XP
               </span>
@@ -119,22 +119,5 @@ const DiscordInviteCard = ({ onBadgeEarned }: DiscordInviteCardProps) => {
     </div>
   );
 };
-
-function AwardIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="12" cy="8" r="6" />
-      <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
-    </svg>
-  );
-}
 
 export default DiscordInviteCard;
