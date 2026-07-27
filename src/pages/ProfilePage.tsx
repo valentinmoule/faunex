@@ -309,6 +309,8 @@ const ProfilePage = () => {
         {/* Quests Section */}
         <QuestsInline />
 
+        {/* Discord Community Invitation */}
+        <DiscordInviteCard />
 
         {/* Badges Section — Gaming Style */}
         <div id="badges" className="scroll-mt-20">
