@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, MessageCircle, ExternalLink, Sparkles } from 'lucide-react';
+import { X, MessageCircle, ExternalLink, Sparkles, Award } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
