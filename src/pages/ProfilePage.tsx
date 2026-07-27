@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePwaInstall } from '@/contexts/PwaInstallContext';
 import XpParticles from '@/components/XpParticles';
 import QuestsInline from '@/components/QuestsInline';
+import DiscordInviteCard from '@/components/DiscordInviteCard';
 
 
 interface Profile {
@@ -308,6 +309,8 @@ const ProfilePage = () => {
         {/* Quests Section */}
         <QuestsInline />
 
+        {/* Discord Community Invitation */}
+        <DiscordInviteCard />
 
         {/* Badges Section — Gaming Style */}
         <div id="badges" className="scroll-mt-20">
