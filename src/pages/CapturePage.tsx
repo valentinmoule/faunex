@@ -100,6 +100,9 @@ const CapturePage = () => {
     resumePreview();
   };
 
+  const isDailyLimitError = (err: unknown) =>
+    JSON.stringify((err as any)?.message ?? err ?? '').includes('DAILY_CAPTURE_LIMIT_REACHED');
+
   const saveManualEntry = async () => {
     const trimmedName = manualName.trim();
     const trimmedSpecies = manualSpecies.trim();
