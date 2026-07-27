@@ -1,10 +1,18 @@
 import { useState, useEffect } from 'react';
 import { X, MessageCircle, ExternalLink } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 const STORAGE_KEY = 'faunex_discord_card_closed';
 const DISCORD_INVITE_URL = 'https://discord.gg/ZrQhZUZG2';
+export const COMMUNITY_BADGE_ID = 'community_member';
+export const COMMUNITY_BADGE_XP = 50;
 
-const DiscordInviteCard = () => {
+interface DiscordInviteCardProps {
+  onBadgeEarned?: () => void;
+}
+
+const DiscordInviteCard = ({ onBadgeEarned }: DiscordInviteCardProps) => {
   const [visible, setVisible] = useState(false);
   const [dismissed, setDismissed] = useState(false);
 
