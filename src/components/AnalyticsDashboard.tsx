@@ -19,7 +19,7 @@ import {
   Legend,
 } from 'recharts';
 
-type Period = 7 | 30 | 90 | 'custom';
+type Period = 7 | 30 | 90 | 'all' | 'custom';
 
 interface AnalyticsData {
   range: { startISO: string; endISO: string; days: number };
@@ -58,7 +58,9 @@ const AnalyticsDashboard = () => {
       setError(null);
       const body: any = period === 'custom'
         ? { start: customStart || undefined, end: customEnd || undefined }
-        : { days: period };
+        : period === 'all'
+          ? { all: true }
+          : { days: period };
       const { data: res, error } = await supabase.functions.invoke('admin-analytics', { body });
       if (cancelled) return;
       if (error) {
@@ -101,6 +103,14 @@ const AnalyticsDashboard = () => {
             {d}j
           </Button>
         ))}
+        <Button
+          size="sm"
+          variant={period === 'all' ? 'default' : 'outline'}
+          onClick={() => setPeriod('all')}
+          className="rounded-full text-xs"
+        >
+          Tout
+        </Button>
         <Button
           size="sm"
           variant={period === 'custom' ? 'default' : 'outline'}

@@ -36,10 +36,24 @@ Deno.serve(async (req) => {
     if (!roleRow) return json({ error: 'Forbidden' }, 403)
 
     const body = await req.json().catch(() => ({}))
-    const days = Math.max(1, Math.min(365, Number(body.days) || 30))
-    const startISO = body.start
-      ? new Date(body.start).toISOString()
-      : new Date(Date.now() - days * 86400000).toISOString()
+    const isAll = body.all === true || body.days === 'all'
+    const days = isAll ? 0 : Math.max(1, Math.min(365, Number(body.days) || 30))
+    let startISO: string
+    if (isAll) {
+      const { data: firstProfile } = await admin
+        .from('profiles')
+        .select('created_at')
+        .order('created_at', { ascending: true })
+        .limit(1)
+        .maybeSingle()
+      startISO = firstProfile?.created_at
+        ? new Date(firstProfile.created_at).toISOString()
+        : new Date(0).toISOString()
+    } else {
+      startISO = body.start
+        ? new Date(body.start).toISOString()
+        : new Date(Date.now() - days * 86400000).toISOString()
+    }
     const endISO = body.end ? new Date(body.end).toISOString() : new Date().toISOString()
     const now = new Date()
     const day1 = new Date(now.getTime() - 86400000).toISOString()
