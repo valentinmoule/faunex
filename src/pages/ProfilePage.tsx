@@ -157,6 +157,7 @@ const ProfilePage = () => {
         mythic_1: hasMythic ? 1 : 0,
         social_3: Math.min(fCount, 3),
         level_5: Math.min(level, 5),
+        [COMMUNITY_BADGE_ID]: claimedSet.has(COMMUNITY_BADGE_ID) ? 1 : 0,
       };
 
       setBadges(BADGE_DEFS.map(b => ({
