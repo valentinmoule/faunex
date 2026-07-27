@@ -42,6 +42,7 @@ const BADGE_DEFS: BadgeDef[] = [
   { id: 'mythic_1', name: 'Mythique !', icon: '🔥', description: 'Trouver un animal mythique', total: 1 },
   { id: 'social_3', name: 'Sociable', icon: '🤝', description: 'Suivre 3 explorateurs', total: 3 },
   { id: 'level_5', name: 'Niveau 5', icon: '🏅', description: 'Atteindre le niveau 5', total: 5 },
+  { id: COMMUNITY_BADGE_ID, name: 'Membre de la communauté', icon: '💬', description: 'Rejoindre le Discord Faunex', total: 1 },
 ];
 
 const BADGE_XP_REWARDS: Record<string, number> = {
@@ -56,6 +57,7 @@ const BADGE_XP_REWARDS: Record<string, number> = {
   mythic_1: 500,
   social_3: 75,
   level_5: 150,
+  [COMMUNITY_BADGE_ID]: COMMUNITY_BADGE_XP,
 };
 
 interface BadgeProgress {
