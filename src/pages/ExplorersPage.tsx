@@ -418,7 +418,6 @@ const ExplorersPage = () => {
   };
 
   // ── UserRow component ──
-  const displayHandle = (username?: string | null) => username?.replace(/^@/, '') || '';
 
   const UserRow = ({ user, action, onClick }: { user: SearchUser; action: React.ReactNode; onClick?: () => void }) => (
     <div className={`flex items-center gap-3 py-3 ${onClick ? 'cursor-pointer active:bg-muted/50 transition-colors rounded-lg -mx-2 px-2' : ''}`} onClick={onClick}>
@@ -427,7 +426,7 @@ const ExplorersPage = () => {
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-display font-semibold text-foreground truncate">{user.display_name || 'Sans nom'}</p>
-        <p className="text-[11px] text-muted-foreground truncate">{displayHandle(user.username)} · Niv. {user.level} · {user.total_captures} espèces</p>
+        <p className="text-[11px] text-muted-foreground truncate">Niv. {user.level} · {user.total_captures} espèces</p>
       </div>
       <div onClick={e => e.stopPropagation()}>{action}</div>
     </div>
