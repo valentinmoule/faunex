@@ -30,8 +30,20 @@ const DiscordInviteCard = ({ onBadgeEarned }: DiscordInviteCardProps) => {
     setTimeout(() => setDismissed(true), 300);
   };
 
-  const handleJoin = () => {
+  const handleJoin = async () => {
     window.open(DISCORD_INVITE_URL, '_blank', 'noopener,noreferrer');
+    try {
+      const { data: claimed } = await supabase.rpc('claim_badge', {
+        p_badge_id: COMMUNITY_BADGE_ID,
+        p_xp_reward: COMMUNITY_BADGE_XP,
+      });
+      if (claimed) {
+        toast.success(`Badge « Membre de la communauté » débloqué ! +${COMMUNITY_BADGE_XP} XP 🎉`);
+        onBadgeEarned?.();
+      }
+    } catch {
+      // silencieux : l'ouverture du Discord reste prioritaire
+    }
   };
 
   if (dismissed) return null;
