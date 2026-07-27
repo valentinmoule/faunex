@@ -325,18 +325,18 @@ const CapturePage = () => {
         {/* Quota exhausted banner — above the camera viewfinder */}
         {!capturedPhoto && quota.exhausted && (
           <div className="relative z-20 mx-6 mt-4">
-            <div className="rounded-2xl border border-destructive/30 bg-destructive/20 backdrop-blur-md p-4 shadow-lg">
+            <div className="rounded-2xl border border-amber/30 bg-amber/15 backdrop-blur-md p-4 shadow-lg">
               <div className="flex items-start gap-3">
-                <div className="shrink-0 w-10 h-10 rounded-full bg-destructive/25 flex items-center justify-center">
-                  <Clock className="w-5 h-5 text-destructive" />
+                <div className="shrink-0 w-10 h-10 rounded-full bg-amber/25 flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 text-amber-light" />
                 </div>
                 <div>
-                  <p className="text-primary-foreground font-display font-bold text-sm">Quota atteint</p>
+                  <p className="text-primary-foreground font-display font-bold text-sm">Pause nature 🌿</p>
                   <p className="text-primary-foreground/80 text-xs mt-1 leading-relaxed">
-                    Faunex est un projet indépendant. Pour garder le service accessible à tous, les captures sont limitées à 4 par jour.
+                    Tu as bien exploré aujourd'hui ! Faunex est un projet indépendant, c'est pourquoi les captures sont limitées à 4 par jour.
                   </p>
                   <p className="text-primary-foreground/90 text-xs mt-2 font-display font-semibold">
-                    Reviens demain pour continuer !
+                    Reviens demain pour de nouvelles découvertes ✨
                   </p>
                 </div>
               </div>
