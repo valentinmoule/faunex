@@ -582,19 +582,35 @@ const CapturePage = () => {
           </button>
         ) : identifying ? null : capturedPhoto ? null : (
           <>
-            <button onClick={() => fileInputRef.current?.click()} className="w-12 h-12 rounded-xl bg-primary-foreground/10 flex items-center justify-center">
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={quota.exhausted}
+              className="w-12 h-12 rounded-xl bg-primary-foreground/10 flex items-center justify-center disabled:opacity-40"
+            >
               <Image className="w-5 h-5 text-primary-foreground/70" />
             </button>
-            <button
-              onClick={takePhoto}
-              className="w-20 h-20 rounded-full border-4 border-primary flex items-center justify-center group active:scale-95 transition-transform"
-            >
-              <div className="w-16 h-16 rounded-full bg-primary group-hover:bg-forest-light transition-colors flex items-center justify-center">
-                <Camera className="w-7 h-7 text-primary-foreground" />
-              </div>
-            </button>
+            <div className="flex flex-col items-center gap-2">
+              <button
+                onClick={takePhoto}
+                disabled={quota.exhausted}
+                aria-label={quota.exhausted ? 'Quota de captures atteint' : 'Prendre une photo'}
+                className="w-20 h-20 rounded-full border-4 border-primary flex items-center justify-center group active:scale-95 transition-transform disabled:opacity-40 disabled:active:scale-100 disabled:cursor-not-allowed"
+              >
+                <div className="w-16 h-16 rounded-full bg-primary group-hover:bg-forest-light transition-colors flex items-center justify-center">
+                  <Camera className="w-7 h-7 text-primary-foreground" />
+                </div>
+              </button>
+              <p className="text-primary-foreground/70 text-[11px] font-display text-center">
+                {quota.exhausted
+                  ? 'Quota atteint — reviens demain !'
+                  : quota.remaining !== null
+                  ? `${quota.remaining} capture${quota.remaining > 1 ? 's' : ''} restante${quota.remaining > 1 ? 's' : ''} aujourd'hui`
+                  : ''}
+              </p>
+            </div>
             <button onClick={switchCamera} className="w-12 h-12 rounded-xl bg-primary-foreground/10 flex items-center justify-center">
               <SwitchCamera className="w-5 h-5 text-primary-foreground/70" />
+
             </button>
           </>
         )}
