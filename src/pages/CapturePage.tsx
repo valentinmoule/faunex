@@ -623,9 +623,7 @@ const CapturePage = () => {
                 </div>
               </button>
               <p className="text-primary-foreground/70 text-[11px] font-display text-center max-w-[200px]">
-                {quota.exhausted
-                  ? 'Quota atteint. Faunex est un projet indépendant, c\'est pourquoi les captures sont limitées à 4/jour. Reviens demain !'
-                  : quota.remaining !== null
+                {quota.remaining !== null && !quota.exhausted
                   ? `${quota.remaining} capture${quota.remaining > 1 ? 's' : ''} restante${quota.remaining > 1 ? 's' : ''} aujourd'hui`
                   : ''}
               </p>
