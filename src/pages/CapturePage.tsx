@@ -39,6 +39,8 @@ const CapturePage = () => {
   const camera = useCamera({ paused: !!capturedPhoto });
   const geo = useGeoTag();
   const { identifying, identify } = useAnimalIdentification();
+  const quota = useCaptureQuota(session?.user?.id);
+
   const { revealPhase, revealRarity, freezeFlash, triggerReveal, reset: resetReveal } =
     useCaptureReveal(setAnimalResult);
   const { saving, findDuplicate, insertCapture, replaceCapture, submitManualEntry } = useCaptureSave({
