@@ -62,7 +62,11 @@ interface FollowProfile {
   profile?: SearchUser;
 }
 
+// Comptes techniques masqués de la liste des explorateurs (review App Store)
+const HIDDEN_USER_IDS = ['f7910e92-39a6-4703-b31d-bf1e245e2a4e'];
+
 const ExplorersPage = () => {
+
   const { session } = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -267,7 +271,7 @@ const ExplorersPage = () => {
     try {
       const { data, error } = await supabase.functions.invoke('search-users', { body: { query: searchQuery.trim() } });
       if (error) throw error;
-      setSearchResults(data?.users || []);
+      setSearchResults(((data?.users || []) as SearchUser[]).filter(u => !HIDDEN_USER_IDS.includes(u.user_id)));
     } catch { toast.error('Erreur de recherche'); } finally { setSearching(false); }
   };
 
@@ -288,6 +292,7 @@ const ExplorersPage = () => {
       .from('profiles')
       .select('user_id, display_name, username, avatar_url, level, total_captures')
       .neq('user_id', userId)
+      .not('user_id', 'in', `(${HIDDEN_USER_IDS.join(',')})`)
       .order('level', { ascending: false })
       .order('total_captures', { ascending: false })
       .order('user_id', { ascending: true })
@@ -297,6 +302,7 @@ const ExplorersPage = () => {
       setAllOffset(from + data.length);
       if (data.length < PAGE_SIZE) setAllHasMore(false);
     }
+
     setAllLoading(false);
   }, [allLoading, allHasMore, allOffset, userId]);
 
