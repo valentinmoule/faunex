@@ -1,10 +1,9 @@
 import { useState, useRef, useEffect, Fragment } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Pencil, KeyRound, Share2, Scale, LogOut, Trash2, Loader2, Camera, Check, X, ChevronRight, Sun, Moon, Monitor, Mail, Lock, Smartphone, Bell } from 'lucide-react';
+import { ArrowLeft, Pencil, KeyRound, Share2, Scale, LogOut, Trash2, Loader2, Camera, Check, X, ChevronRight, Mail, Lock, Smartphone, Bell } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { useTheme } from 'next-themes';
 import { usePwaInstall } from '@/contexts/PwaInstallContext';
 import { isPushSupported, subscribeToPush, unsubscribeFromPush, hasActivePushSubscription } from '@/lib/pushNotifications';
 
@@ -20,7 +19,6 @@ interface SettingsProps {
 const SettingsPage = () => {
   const { session, signOut } = useAuth();
   const navigate = useNavigate();
-  const { theme, resolvedTheme, setTheme } = useTheme();
   const { isInstalled, canInstall, isIos, resetDismiss, openInstallGuide } = usePwaInstall();
   const [section, setSection] = useState<'menu' | 'edit' | 'password' | 'delete'>('menu');
   const [profile, setProfile] = useState<{ display_name: string; username: string; avatar_url: string | null } | null>(null);
@@ -104,7 +102,6 @@ const SettingsPage = () => {
       await supabase.from('profiles').update({ [key]: newVal } as any).eq('user_id', session.user.id);
     }
   };
-
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -221,11 +218,6 @@ const SettingsPage = () => {
       <div className="max-w-lg mx-auto px-4 pt-4">
         {section === 'menu' && (
           <div className="space-y-1">
-
-
-
-
-
 
             <MenuItem icon={<Pencil className="w-5 h-5" />} label="Modifier le profil" onClick={() => setSection('edit')} />
             <MenuItem icon={<KeyRound className="w-5 h-5" />} label="Changer le mot de passe" onClick={() => setSection('password')} />
@@ -377,7 +369,6 @@ const SettingsPage = () => {
               </button>
             </div>
 
-
             {/* Granular notification preferences */}
             <div className="bg-muted rounded-xl p-4 space-y-3">
               <div className="flex items-center gap-1.5">
@@ -411,7 +402,6 @@ const SettingsPage = () => {
               )}
             </div>
             </div>
-
 
             <button
               onClick={handleSaveProfile}
@@ -510,6 +500,5 @@ const NotifToggle = ({ on, onClick }: { on: boolean; onClick: () => void }) => (
     <span className={`absolute top-0.5 left-0.5 w-[1rem] h-[1rem] rounded-full bg-card shadow transition-transform ${on ? 'translate-x-[1.125rem]' : 'translate-x-0'}`} />
   </button>
 );
-
 
 export default SettingsPage;
