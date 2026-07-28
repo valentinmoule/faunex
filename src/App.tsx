@@ -119,7 +119,17 @@ const AppRoutes = () => {
     <>
       <Suspense fallback={<LoadingScreen />}>
         <Routes>
-          <Route path="/" element={<LandingRoute><LandingPage /></LandingRoute>} />
+          <Route
+            path="/"
+            element={
+              SHOW_MARKETING_PAGES && LandingPage ? (
+                <LandingRoute><LandingPage /></LandingRoute>
+              ) : (
+                <Navigate to="/auth" replace />
+              )
+            }
+          />
+
           <Route path="/auth" element={<AuthRoute><AuthPage /></AuthRoute>} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/complete-profile" element={<ProtectedRoute><CompleteProfilePage /></ProtectedRoute>} />
