@@ -271,7 +271,7 @@ const ExplorersPage = () => {
     try {
       const { data, error } = await supabase.functions.invoke('search-users', { body: { query: searchQuery.trim() } });
       if (error) throw error;
-      setSearchResults(data?.users || []);
+      setSearchResults(((data?.users || []) as SearchUser[]).filter(u => !HIDDEN_USER_IDS.includes(u.user_id)));
     } catch { toast.error('Erreur de recherche'); } finally { setSearching(false); }
   };
 
