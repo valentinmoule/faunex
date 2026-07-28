@@ -1,10 +1,10 @@
 import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
 
 const rarityStyles: Record<Rarity, string> = {
-  common: 'border-rarity-common/30 bg-card card-hover-effect shadow-[0_0_0_1px_hsl(var(--rarity-common)/0.12)]',
-  rare: 'border-rarity-rare/40 bg-card card-hover-effect shadow-[0_0_0_1px_hsl(var(--rarity-rare)/0.18),0_0_18px_hsl(var(--rarity-rare)/0.16)]',
-  epic: 'border-rarity-epic/40 bg-card card-hover-effect shadow-[0_0_0_1px_hsl(var(--rarity-epic)/0.18),0_0_22px_hsl(var(--rarity-epic)/0.18)]',
-  mythic: 'border-rarity-mythic/40 bg-card card-hover-effect shadow-[0_0_0_1px_hsl(var(--rarity-mythic)/0.2),0_0_26px_hsl(var(--rarity-mythic)/0.2)]',
+  common: 'border-border bg-card card-hover-effect shadow-card',
+  rare: 'border-rarity-rare/25 bg-card card-hover-effect shadow-[0_1px_2px_hsla(165,25%,11%,0.05),0_10px_28px_-14px_hsl(var(--rarity-rare)/0.6)]',
+  epic: 'border-rarity-epic/25 bg-card card-hover-effect shadow-[0_1px_2px_hsla(165,25%,11%,0.05),0_10px_28px_-14px_hsl(var(--rarity-epic)/0.6)]',
+  mythic: 'border-rarity-mythic/30 bg-card card-hover-effect shadow-[0_1px_2px_hsla(165,25%,11%,0.05),0_10px_28px_-14px_hsl(var(--rarity-mythic)/0.7)]',
 };
 
 const rarityBadgeStyles: Record<Rarity, string> = {
@@ -24,25 +24,25 @@ const AnimalCardComponent = ({ card, onClick, compact }: Props) => {
   return (
     <button
       onClick={onClick}
-      className={`group relative overflow-hidden rounded-2xl border-2 transition-all duration-300 animate-card-appear text-left w-full ${rarityStyles[card.rarity]}`}
+      className={`group relative overflow-hidden rounded-[22px] border transition-all duration-300 active:scale-[0.98] animate-card-appear text-left w-full ${rarityStyles[card.rarity]}`}
     >
       <div className="relative flex h-full flex-col bg-card">
         <div className="relative aspect-[4/5] overflow-hidden">
           <img
             src={card.image}
             alt={card.name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
             decoding="async"
             fetchPriority="low"
           />
-          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 via-black/10 to-transparent pointer-events-none" />
           <div className={`absolute top-2 right-2 px-2 py-0.5 rounded-full text-[9px] font-display font-bold uppercase tracking-wider backdrop-blur-md ${rarityBadgeStyles[card.rarity]}`}>
             {RARITY_LABELS[card.rarity]}
           </div>
         </div>
         <div className={`px-3 py-2.5 bg-card ${compact ? '' : 'space-y-0.5'}`}>
-          <h3 className="font-display font-bold text-[13px] text-foreground leading-tight truncate">{card.name}</h3>
+          <h3 className="font-display font-semibold text-[13px] text-foreground leading-tight tracking-[-0.01em] truncate">{card.name}</h3>
           {!compact && card.scientificName && (
             <p className="text-[10px] text-muted-foreground italic truncate">{card.scientificName}</p>
           )}
