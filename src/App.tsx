@@ -153,7 +153,7 @@ const AppRoutes = () => {
 };
 
 const App = () => (
-  <ThemeProvider attribute="class" defaultTheme="system" enableSystem={true}>
+  <ThemeProvider attribute="class" defaultTheme="light" forcedTheme="light" enableSystem={false}>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
