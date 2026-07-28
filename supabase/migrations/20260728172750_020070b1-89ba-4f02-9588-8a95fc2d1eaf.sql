@@ -1,0 +1,2 @@
+UPDATE public.animals SET name = 'Jack Russell Terrier' WHERE name = 'Croisé Jack Russell Terrier';
+UPDATE public.captures SET animal_name = 'Jack Russell Terrier' WHERE animal_name = 'Croisé Jack Russell Terrier';
