@@ -24,25 +24,25 @@ const AnimalCardComponent = ({ card, onClick, compact }: Props) => {
   return (
     <button
       onClick={onClick}
-      className={`group relative overflow-hidden rounded-2xl border-2 transition-all duration-300 animate-card-appear text-left w-full ${rarityStyles[card.rarity]}`}
+      className={`group relative overflow-hidden rounded-[22px] border transition-all duration-300 active:scale-[0.98] animate-card-appear text-left w-full ${rarityStyles[card.rarity]}`}
     >
       <div className="relative flex h-full flex-col bg-card">
         <div className="relative aspect-[4/5] overflow-hidden">
           <img
             src={card.image}
             alt={card.name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
             decoding="async"
             fetchPriority="low"
           />
-          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 via-black/10 to-transparent pointer-events-none" />
           <div className={`absolute top-2 right-2 px-2 py-0.5 rounded-full text-[9px] font-display font-bold uppercase tracking-wider backdrop-blur-md ${rarityBadgeStyles[card.rarity]}`}>
             {RARITY_LABELS[card.rarity]}
           </div>
         </div>
         <div className={`px-3 py-2.5 bg-card ${compact ? '' : 'space-y-0.5'}`}>
-          <h3 className="font-display font-bold text-[13px] text-foreground leading-tight truncate">{card.name}</h3>
+          <h3 className="font-display font-semibold text-[13px] text-foreground leading-tight tracking-[-0.01em] truncate">{card.name}</h3>
           {!compact && card.scientificName && (
             <p className="text-[10px] text-muted-foreground italic truncate">{card.scientificName}</p>
           )}
