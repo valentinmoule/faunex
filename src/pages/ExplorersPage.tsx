@@ -288,6 +288,7 @@ const ExplorersPage = () => {
       .from('profiles')
       .select('user_id, display_name, username, avatar_url, level, total_captures')
       .neq('user_id', userId)
+      .not('user_id', 'in', `(${HIDDEN_USER_IDS.join(',')})`)
       .order('level', { ascending: false })
       .order('total_captures', { ascending: false })
       .order('user_id', { ascending: true })
@@ -297,6 +298,7 @@ const ExplorersPage = () => {
       setAllOffset(from + data.length);
       if (data.length < PAGE_SIZE) setAllHasMore(false);
     }
+
     setAllLoading(false);
   }, [allLoading, allHasMore, allOffset, userId]);
 
