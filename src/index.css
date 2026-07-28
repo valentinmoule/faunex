@@ -5,127 +5,73 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --background: 150 10% 97%;
-    --foreground: 160 30% 8%;
+  :root,
+  .dark {
+    /* ── Faunex 2.0 — light only, Apple-inspired, fresh green ── */
+    --background: 150 25% 98%;
+    --foreground: 165 25% 11%;
 
     --card: 0 0% 100%;
-    --card-foreground: 160 30% 8%;
+    --card-foreground: 165 25% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 160 30% 8%;
+    --popover-foreground: 165 25% 11%;
 
-    --primary: 152 55% 28%;
-    --primary-foreground: 60 20% 97%;
+    --primary: 155 68% 36%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 42 80% 55%;
-    --secondary-foreground: 30 40% 10%;
+    --secondary: 150 30% 95%;
+    --secondary-foreground: 165 25% 14%;
 
-    --muted: 150 12% 92%;
-    --muted-foreground: 155 10% 45%;
+    --muted: 150 20% 95.5%;
+    --muted-foreground: 158 8% 44%;
 
-    --accent: 42 80% 55%;
-    --accent-foreground: 30 40% 10%;
+    --accent: 88 62% 46%;
+    --accent-foreground: 100 40% 10%;
 
-    --destructive: 0 72% 51%;
+    --destructive: 4 78% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 150 12% 88%;
-    --input: 150 12% 88%;
-    --ring: 152 55% 28%;
+    --border: 152 16% 90%;
+    --input: 152 16% 90%;
+    --ring: 155 68% 36%;
 
-    --radius: 1rem;
+    --radius: 1.25rem;
 
     /* Faunex custom tokens */
-    --forest: 152 55% 28%;
-    --forest-light: 152 40% 45%;
-    --forest-dark: 155 60% 15%;
-    --amber: 42 80% 55%;
-    --amber-light: 42 85% 70%;
-    --amber-dark: 38 75% 40%;
-    --earth: 25 30% 35%;
-    --sky: 200 70% 55%;
-    
+    --forest: 155 68% 36%;
+    --forest-light: 150 55% 52%;
+    --forest-dark: 162 62% 20%;
+    --amber: 38 92% 56%;
+    --amber-light: 42 96% 68%;
+    --amber-dark: 32 82% 45%;
+    --earth: 25 24% 40%;
+    --sky: 205 88% 55%;
+
     /* Rarity colors — 4 tiers */
-    --rarity-common: 210 8% 55%;
-    --rarity-rare: 210 70% 55%;
-    --rarity-epic: 270 70% 60%;
-    --rarity-mythic: 42 85% 55%;
+    --rarity-common: 210 10% 58%;
+    --rarity-rare: 208 88% 55%;
+    --rarity-epic: 268 78% 60%;
+    --rarity-mythic: 40 92% 54%;
 
     /* Gradients */
-    --gradient-forest: linear-gradient(135deg, hsl(152, 55%, 28%), hsl(155, 60%, 15%));
-    --gradient-amber: linear-gradient(135deg, hsl(42, 80%, 55%), hsl(38, 75%, 40%));
-    --gradient-card-shine: linear-gradient(135deg, transparent 0%, hsla(42, 80%, 55%, 0.15) 50%, transparent 100%);
+    --gradient-forest: linear-gradient(135deg, hsl(150 62% 44%), hsl(160 66% 28%));
+    --gradient-amber: linear-gradient(135deg, hsl(42 96% 62%), hsl(32 82% 48%));
+    --gradient-card-shine: linear-gradient(135deg, transparent 0%, hsla(88, 62%, 60%, 0.18) 50%, transparent 100%);
 
-    --shadow-card: 0 4px 20px -4px hsla(152, 55%, 28%, 0.15);
-    --shadow-card-hover: 0 8px 30px -4px hsla(152, 55%, 28%, 0.25);
-    --shadow-glow-amber: 0 0 20px hsla(42, 80%, 55%, 0.4);
+    /* Apple-like elevation: tight contact shadow + soft ambient */
+    --shadow-card: 0 1px 2px hsla(165, 25%, 11%, 0.05), 0 8px 24px -12px hsla(165, 25%, 11%, 0.16);
+    --shadow-card-hover: 0 2px 4px hsla(165, 25%, 11%, 0.06), 0 18px 40px -16px hsla(165, 25%, 11%, 0.22);
+    --shadow-glow-amber: 0 8px 26px -10px hsla(38, 92%, 56%, 0.55);
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 160 20% 8%;
-    --foreground: 150 10% 92%;
-
-    --card: 160 18% 12%;
-    --card-foreground: 150 10% 92%;
-
-    --popover: 160 18% 12%;
-    --popover-foreground: 150 10% 92%;
-
-    --primary: 152 55% 38%;
-    --primary-foreground: 160 20% 8%;
-
-    --secondary: 42 70% 50%;
-    --secondary-foreground: 160 20% 8%;
-
-    --muted: 160 15% 16%;
-    --muted-foreground: 150 10% 55%;
-
-    --accent: 42 70% 50%;
-    --accent-foreground: 160 20% 8%;
-
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 160 12% 20%;
-    --input: 160 12% 20%;
-    --ring: 152 55% 38%;
-
-    --forest: 152 55% 38%;
-    --forest-light: 152 40% 50%;
-    --forest-dark: 155 60% 22%;
-    --amber: 42 70% 50%;
-    --amber-light: 42 75% 62%;
-    --amber-dark: 38 65% 38%;
-    --earth: 25 25% 45%;
-    --sky: 200 60% 50%;
-
-    --rarity-common: 210 6% 50%;
-    --rarity-rare: 210 65% 50%;
-    --rarity-epic: 270 65% 55%;
-    --rarity-mythic: 42 80% 52%;
-
-    --shadow-card: 0 4px 20px -4px hsla(0, 0%, 0%, 0.4);
-    --shadow-card-hover: 0 8px 30px -4px hsla(0, 0%, 0%, 0.5);
-    --shadow-glow-amber: 0 0 20px hsla(42, 70%, 50%, 0.3);
-
-    --sidebar-background: 160 18% 10%;
-    --sidebar-foreground: 150 10% 85%;
-    --sidebar-primary: 150 10% 92%;
-    --sidebar-primary-foreground: 160 18% 10%;
-    --sidebar-accent: 160 15% 16%;
-    --sidebar-accent-foreground: 150 10% 92%;
-    --sidebar-border: 160 12% 20%;
-    --sidebar-ring: 152 55% 38%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 165 20% 26%;
+    --sidebar-primary: 155 68% 36%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 150 20% 95.5%;
+    --sidebar-accent-foreground: 165 25% 14%;
+    --sidebar-border: 152 16% 90%;
+    --sidebar-ring: 155 68% 36%;
   }
 }
 
@@ -133,11 +79,20 @@
   * {
     @apply border-border;
   }
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
   body {
     @apply bg-background text-foreground font-body antialiased;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display font-bold tracking-tight;
+    @apply font-display font-bold;
+    letter-spacing: -0.022em;
+  }
+  button, a {
+    -webkit-tap-highlight-color: transparent;
   }
 }
 
