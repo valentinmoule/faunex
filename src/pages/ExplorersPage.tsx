@@ -62,7 +62,11 @@ interface FollowProfile {
   profile?: SearchUser;
 }
 
+// Comptes techniques masqués de la liste des explorateurs (review App Store)
+const HIDDEN_USER_IDS = ['f7910e92-39a6-4703-b31d-bf1e245e2a4e'];
+
 const ExplorersPage = () => {
+
   const { session } = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
