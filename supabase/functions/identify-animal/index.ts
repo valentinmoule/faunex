@@ -20,9 +20,14 @@ Avant de répondre, analyse systématiquement :
 - Identifie au niveau le plus précis possible : sous-espèce > race > espèce > genre > famille
 
 ### CHIENS
-- Identifie TOUJOURS la race précise (ex: "Golden Retriever", "Berger Australien", "Shiba Inu").
-- Si croisé, indique les races probables (ex: "Croisé Labrador-Berger").
-- animal_name = la race. scientific_name = "Canis lupus familiaris".
+- Identifie TOUJOURS la race précise (ex: "Golden Retriever", "Berger Australien", "Jack Russell Terrier").
+- animal_name = UNIQUEMENT le nom de la race, jamais de mention de croisement.
+  N'écris JAMAIS "Croisé ...", "Type ...", "Mélange ...", ni deux races séparées par un tiret.
+  Si le chien semble croisé, retiens la race dominante (celle qu'il rappelle le plus) et mets-la seule dans animal_name ;
+  les autres hypothèses vont dans "alternatives".
+- Si vraiment aucune race n'est identifiable → "Chien domestique".
+- scientific_name = "Canis lupus familiaris".
+
 
 ### CHATS — IDENTIFICATION DÉTAILLÉE DES RACES
 Analyse ces critères pour déterminer la race :
