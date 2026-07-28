@@ -221,33 +221,8 @@ const SettingsPage = () => {
       <div className="max-w-lg mx-auto px-4 pt-4">
         {section === 'menu' && (
           <div className="space-y-1">
-            {/* Theme selector */}
-            <div className="px-4 py-3.5 rounded-xl hover:bg-muted transition-colors">
-              <div className="flex items-center gap-3 mb-2.5">
-                {resolvedTheme === 'dark' ? <Moon className="w-5 h-5 text-foreground" /> : <Sun className="w-5 h-5 text-foreground" />}
-                <span className="text-sm font-display font-semibold text-foreground">Apparence</span>
-              </div>
-              <div className="flex gap-1.5 ml-8">
-                {([
-                  { value: 'system', label: 'Auto', icon: Monitor },
-                  { value: 'light', label: 'Clair', icon: Sun },
-                  { value: 'dark', label: 'Sombre', icon: Moon },
-                ] as const).map(({ value, label, icon: Icon }) => (
-                  <button
-                    key={value}
-                    onClick={() => setTheme(value)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-display font-semibold transition-colors ${
-                      theme === value
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    <Icon className="w-3.5 h-3.5" />
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
+
+
 
 
 
