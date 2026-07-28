@@ -14,6 +14,8 @@ import LoadingScreen from "./components/LoadingScreen";
 import BottomNav from "./components/BottomNav";
 import ScrollToTop from "./components/ScrollToTop";
 import { PushPermissionPrompt } from "./components/PushPermissionPrompt";
+import { SHOW_MARKETING_PAGES } from "./lib/platform";
+
 
 // Lazy-loaded routes for smaller initial bundle
 
