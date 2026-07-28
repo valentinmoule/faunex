@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "assets:generate": "capacitor-assets generate --iconBackgroundColor '#f7fbf9' --iconBackgroundColorDark '#f7fbf9' --splashBackgroundColor '#f7fbf9' --splashBackgroundColorDark '#f7fbf9'"
+    "assets:generate": "capacitor-assets generate --iconBackgroundColor '#f7fbf9' --iconBackgroundColorDark '#f7fbf9' --splashBackgroundColor '#f7fbf9' --splashBackgroundColorDark '#f7fbf9'",
+    "build:app": "VITE_APP_TARGET=native vite build"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.2",

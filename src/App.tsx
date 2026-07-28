@@ -14,6 +14,8 @@ import LoadingScreen from "./components/LoadingScreen";
 import BottomNav from "./components/BottomNav";
 import ScrollToTop from "./components/ScrollToTop";
 import { PushPermissionPrompt } from "./components/PushPermissionPrompt";
+import { SHOW_MARKETING_PAGES } from "./lib/platform";
+
 
 // Lazy-loaded routes for smaller initial bundle
 
@@ -33,11 +35,12 @@ const ShareProfilePage = lazy(() => import("./pages/ShareProfilePage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
 const QuestsPage = lazy(() => import("./pages/QuestsPage"));
-const LandingPage = lazy(() => import("./pages/LandingPage"));
+const LandingPage = SHOW_MARKETING_PAGES ? lazy(() => import("./pages/LandingPage")) : null;
 const CompleteProfilePage = lazy(() => import("./pages/CompleteProfilePage"));
 const UnsubscribePage = lazy(() => import("./pages/UnsubscribePage"));
-const ContentIndexPage = lazy(() => import("./pages/ContentIndexPage"));
-const ArticlePage = lazy(() => import("./pages/ArticlePage"));
+const ContentIndexPage = SHOW_MARKETING_PAGES ? lazy(() => import("./pages/ContentIndexPage")) : null;
+const ArticlePage = SHOW_MARKETING_PAGES ? lazy(() => import("./pages/ArticlePage")) : null;
+
 
 
 const queryClient = new QueryClient({
@@ -116,7 +119,17 @@ const AppRoutes = () => {
     <>
       <Suspense fallback={<LoadingScreen />}>
         <Routes>
-          <Route path="/" element={<LandingRoute><LandingPage /></LandingRoute>} />
+          <Route
+            path="/"
+            element={
+              SHOW_MARKETING_PAGES && LandingPage ? (
+                <LandingRoute><LandingPage /></LandingRoute>
+              ) : (
+                <Navigate to="/auth" replace />
+              )
+            }
+          />
+
           <Route path="/auth" element={<AuthRoute><AuthPage /></AuthRoute>} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/complete-profile" element={<ProtectedRoute><CompleteProfilePage /></ProtectedRoute>} />
@@ -135,10 +148,15 @@ const AppRoutes = () => {
           <Route path="/legal" element={<LegalPage />} />
           <Route path="/u/:username" element={<ShareProfilePage />} />
           <Route path="/unsubscribe" element={<UnsubscribePage />} />
-          <Route path="/guides" element={<ContentIndexPage type="guide" />} />
-          <Route path="/guides/:slug" element={<ArticlePage type="guide" />} />
-          <Route path="/fonctionnalites" element={<ContentIndexPage type="usecase" />} />
-          <Route path="/fonctionnalites/:slug" element={<ArticlePage type="usecase" />} />
+          {SHOW_MARKETING_PAGES && ContentIndexPage && ArticlePage && (
+            <>
+              <Route path="/guides" element={<ContentIndexPage type="guide" />} />
+              <Route path="/guides/:slug" element={<ArticlePage type="guide" />} />
+              <Route path="/fonctionnalites" element={<ContentIndexPage type="usecase" />} />
+              <Route path="/fonctionnalites/:slug" element={<ArticlePage type="usecase" />} />
+            </>
+          )}
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
