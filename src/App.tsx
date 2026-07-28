@@ -148,10 +148,15 @@ const AppRoutes = () => {
           <Route path="/legal" element={<LegalPage />} />
           <Route path="/u/:username" element={<ShareProfilePage />} />
           <Route path="/unsubscribe" element={<UnsubscribePage />} />
-          <Route path="/guides" element={<ContentIndexPage type="guide" />} />
-          <Route path="/guides/:slug" element={<ArticlePage type="guide" />} />
-          <Route path="/fonctionnalites" element={<ContentIndexPage type="usecase" />} />
-          <Route path="/fonctionnalites/:slug" element={<ArticlePage type="usecase" />} />
+          {SHOW_MARKETING_PAGES && ContentIndexPage && ArticlePage && (
+            <>
+              <Route path="/guides" element={<ContentIndexPage type="guide" />} />
+              <Route path="/guides/:slug" element={<ArticlePage type="guide" />} />
+              <Route path="/fonctionnalites" element={<ContentIndexPage type="usecase" />} />
+              <Route path="/fonctionnalites/:slug" element={<ArticlePage type="usecase" />} />
+            </>
+          )}
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
