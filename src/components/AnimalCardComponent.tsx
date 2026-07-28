@@ -1,10 +1,10 @@
 import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
 
 const rarityStyles: Record<Rarity, string> = {
-  common: 'border-rarity-common/30 bg-card card-hover-effect shadow-[0_0_0_1px_hsl(var(--rarity-common)/0.12)]',
-  rare: 'border-rarity-rare/40 bg-card card-hover-effect shadow-[0_0_0_1px_hsl(var(--rarity-rare)/0.18),0_0_18px_hsl(var(--rarity-rare)/0.16)]',
-  epic: 'border-rarity-epic/40 bg-card card-hover-effect shadow-[0_0_0_1px_hsl(var(--rarity-epic)/0.18),0_0_22px_hsl(var(--rarity-epic)/0.18)]',
-  mythic: 'border-rarity-mythic/40 bg-card card-hover-effect shadow-[0_0_0_1px_hsl(var(--rarity-mythic)/0.2),0_0_26px_hsl(var(--rarity-mythic)/0.2)]',
+  common: 'border-border bg-card card-hover-effect shadow-card',
+  rare: 'border-rarity-rare/25 bg-card card-hover-effect shadow-[0_1px_2px_hsla(165,25%,11%,0.05),0_10px_28px_-14px_hsl(var(--rarity-rare)/0.6)]',
+  epic: 'border-rarity-epic/25 bg-card card-hover-effect shadow-[0_1px_2px_hsla(165,25%,11%,0.05),0_10px_28px_-14px_hsl(var(--rarity-epic)/0.6)]',
+  mythic: 'border-rarity-mythic/30 bg-card card-hover-effect shadow-[0_1px_2px_hsla(165,25%,11%,0.05),0_10px_28px_-14px_hsl(var(--rarity-mythic)/0.7)]',
 };
 
 const rarityBadgeStyles: Record<Rarity, string> = {
