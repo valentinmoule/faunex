@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.181091a8bd704e77aac62d50eae60ac0',
+  appId: 'fr.faunex.app',
   appName: 'faunex',
   webDir: 'dist',
   server: {
