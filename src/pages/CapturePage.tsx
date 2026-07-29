@@ -115,6 +115,15 @@ const CapturePage = () => {
   const isDailyLimitError = (err: unknown) =>
     JSON.stringify((err as any)?.message ?? err ?? '').includes('DAILY_CAPTURE_LIMIT_REACHED');
 
+  /** Consumes a daily slot right before persisting a capture. */
+  const consumeSlot = async () => {
+    const allowed = await quota.consume();
+    if (!allowed) {
+      toast.error(`Limite atteinte : ${DAILY_CAPTURE_LIMIT} captures par jour maximum. Reviens demain !`);
+    }
+    return allowed;
+  };
+
   const saveManualEntry = async () => {
     const trimmedName = manualName.trim();
     const trimmedSpecies = manualSpecies.trim();
@@ -123,6 +132,7 @@ const CapturePage = () => {
       toast.error('Remplis au moins le nom et la description');
       return;
     }
+    if (!(await consumeSlot())) return;
     try {
       const ok = await submitManualEntry({ name: trimmedName, species: trimmedSpecies, description: trimmedDesc });
       if (!ok) return;
@@ -156,6 +166,7 @@ const CapturePage = () => {
         setDuplicateCapture(existing);
         return;
       }
+      if (!(await consumeSlot())) return;
       const imageUrl = await insertCapture(animalResult);
       if (!imageUrl) return;
       finishSave(animalResult, imageUrl, `${animalResult.animal_name} ajouté à ton Faunex !`);
@@ -168,6 +179,7 @@ const CapturePage = () => {
   const doReplaceExisting = async () => {
     if (!animalResult || !duplicateCapture) return;
     try {
+      if (!(await consumeSlot())) return;
       const imageUrl = await replaceCapture(animalResult, duplicateCapture.id);
       if (!imageUrl) return;
       finishSave(animalResult, imageUrl, `${animalResult.animal_name} mis à jour dans ton Faunex !`);
@@ -176,6 +188,7 @@ const CapturePage = () => {
       toast.error("Erreur lors de la mise à jour");
     }
   };
+
 
   const keepExisting = () => {
     setDuplicateCapture(null);
