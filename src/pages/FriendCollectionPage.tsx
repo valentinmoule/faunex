@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { PageHeader } from '@/components/PageHeader';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Users, UserPlus, UserCheck, Award } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';

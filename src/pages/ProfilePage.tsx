@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { PageHeader } from '@/components/PageHeader';
 import { Settings, Award, MapPin, BookOpen, Lock, Download, Bell, Gift, Users, UserPlus, ShieldCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Progress } from '@/components/ui/progress';

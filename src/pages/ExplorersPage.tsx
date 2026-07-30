@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { PageHeader } from '@/components/PageHeader';
 import { notifyCaptureInteraction } from '@/lib/notifyCaptureInteraction';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Search, Bell, Heart, MessageCircle, Send, UserPlus, UserCheck, X, Users, ChevronRight, Clock, Check as CheckIcon, XCircle, ArrowLeft } from 'lucide-react';

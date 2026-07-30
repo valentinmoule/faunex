@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { PageHeader } from '@/components/PageHeader';
 import { useNavigate } from 'react-router-dom';
 import { Target, Gift, Check, Loader2, ArrowLeft, Share2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';

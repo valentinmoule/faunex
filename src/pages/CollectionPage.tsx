@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
+import { PageHeader } from '@/components/PageHeader';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Bell, Target, ChevronRight } from 'lucide-react';
 import NearbyAnimalsSection from '@/components/NearbyAnimalsSection';

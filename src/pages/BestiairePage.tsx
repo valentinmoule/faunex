@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
+import { PageHeader } from '@/components/PageHeader';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Bell, ChevronLeft, PawPrint, MapPin, Plus, Search, Trash2, X, Building2, Map as MapIcon, Home, Compass, Loader2 } from 'lucide-react';

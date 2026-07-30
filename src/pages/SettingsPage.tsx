@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, Fragment } from 'react';
+import { PageHeader } from '@/components/PageHeader';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Pencil, KeyRound, Share2, Scale, LogOut, Trash2, Loader2, Camera, Check, X, ChevronRight, Mail, Lock, Smartphone, Bell } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
