@@ -96,7 +96,15 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    // Un échec réseau/timeout côté gateway renverrait l'utilisateur vers la
+    // soumission manuelle : on retente une fois avant d'abandonner.
+    const callGateway = async () => {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 90_000);
+      try {
+        return await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          signal: controller.signal,
+
       method: "POST",
       headers: {
         Authorization: `Bearer ${LOVABLE_API_KEY}`,
