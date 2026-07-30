@@ -125,6 +125,8 @@ const CapturePage = () => {
     setSaved(false);
     setDuplicateCapture(null);
     setManualMode(false);
+    setIdentifyError(null);
+
     setManualName('');
     setManualSpecies('');
     setManualDescription('');
