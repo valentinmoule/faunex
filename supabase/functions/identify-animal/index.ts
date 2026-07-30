@@ -213,51 +213,84 @@ serve(async (req) => {
       }
     };
 
-    let response: Response;
-    try {
-      response = await callGateway();
-      if (!response.ok && response.status >= 500) {
-        console.error("AI gateway 5xx, retrying once");
-        response = await callGateway();
+    const tryModel = async (model: string, timeoutMs: number) => {
+      try {
+        let r = await callGateway(model, timeoutMs);
+        if (!r.ok && r.status >= 500) {
+          console.error("AI gateway 5xx, retrying once", model);
+          r = await callGateway(model, timeoutMs);
+        }
+        return r;
+      } catch (netErr) {
+        console.error("AI gateway network failure", model, netErr);
+        return null;
       }
-    } catch (netErr) {
-      console.error("AI gateway network failure, retrying once", netErr);
-      response = await callGateway();
+    };
+
+    const parseAnimal = async (r: Response) => {
+      const d = await r.json();
+      const tc = d.choices?.[0]?.message?.tool_calls?.[0];
+      if (!tc) return null;
+      try {
+        return JSON.parse(tc.function.arguments);
+      } catch {
+        return null;
+      }
+    };
+
+    // 1) Passe rapide (Flash) — couvre la grande majorité des cas en quelques secondes.
+    let response = await tryModel(FAST_MODEL, 40_000);
+    let animalData = response?.ok ? await parseAnimal(response) : null;
+
+    // 2) Escalade vers Pro seulement si Flash échoue, doute, ou ne reconnaît rien.
+    const needsDeep =
+      !animalData ||
+      typeof animalData.confidence !== "number" ||
+      animalData.confidence < 60 ||
+      String(animalData.animal_name || "").toLowerCase() === "inconnu";
+
+    if (needsDeep) {
+      const deep = await tryModel(DEEP_MODEL, 60_000);
+      if (deep?.ok) {
+        const deepData = await parseAnimal(deep);
+        if (deepData) {
+          animalData = deepData;
+          response = deep;
+        }
+      } else if (deep) {
+        response = response?.ok ? response : deep;
+      }
     }
 
-
-
-    if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Trop de requêtes, réessayez dans un moment." }), {
-          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    if (!animalData) {
+      if (response && !response.ok) {
+        if (response.status === 429) {
+          return new Response(JSON.stringify({ error: "Trop de requêtes, réessayez dans un moment." }), {
+            status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        if (response.status === 402) {
+          return new Response(JSON.stringify({ error: "Crédits IA épuisés." }), {
+            status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        console.error("AI gateway error:", response.status);
+        return new Response(JSON.stringify({ error: "Erreur d'identification" }), {
+          status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "Crédits IA épuisés." }), {
-          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      if (!response) {
+        return new Response(JSON.stringify({ error: "Analyse interrompue (réseau)" }), {
+          status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      const t = await response.text();
-      console.error("AI gateway error:", response.status, t);
-      return new Response(JSON.stringify({ error: "Erreur d'identification" }), {
-        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const data = await response.json();
-    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
-
-    if (!toolCall) {
       // Vraie non-reconnaissance : on répond 200 pour que le client bascule
       // sur la saisie manuelle (et non sur l'écran d'erreur technique).
       return new Response(JSON.stringify({ success: false, reason: "not_identified" }), {
         status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
-
       });
     }
 
-    const animalData = JSON.parse(toolCall.function.arguments);
 
     // Déduplication : si l'espèce existe déjà dans le bestiaire (nom commun OU nom
     // scientifique, insensible casse/accents/tirets), on réutilise la fiche canonique
