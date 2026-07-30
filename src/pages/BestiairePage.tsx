@@ -496,7 +496,7 @@ const BestiairePage = () => {
   if (!selectedCategory) {
     return (
       <main className="min-h-screen bg-background pb-24">
-        <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
+        <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
           <div className="max-w-lg mx-auto">
             <div className="flex items-center justify-between">
               <h1 className="text-2xl font-display font-bold text-primary">mon faunex</h1>
@@ -519,7 +519,7 @@ const BestiairePage = () => {
               </div>
             </div>
           </div>
-        </header>
+        </PageHeader>
 
         <div className="max-w-lg mx-auto px-4 pt-4 space-y-6">
           {/* View toggle + rarity filter */}
