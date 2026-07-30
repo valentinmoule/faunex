@@ -94,6 +94,13 @@
   button, a {
     -webkit-tap-highlight-color: transparent;
   }
+
+  /* Push sticky app headers below the mobile status bar/notch without shifting body content */
+  @supports (padding-top: env(safe-area-inset-top)) {
+    header.sticky {
+      padding-top: env(safe-area-inset-top);
+    }
+  }
 }
 
 /* ═══════════════════════════════════════════════════
