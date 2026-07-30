@@ -48,7 +48,7 @@ export const useAnimalIdentification = () => {
   const identify = useCallback(async (dataUrl: string): Promise<IdentifyOutcome> => {
     setIdentifying(true);
     try {
-      const compressedUrl = await compressForAI(dataUrl, 1024, 0.6);
+      const compressedUrl = await compressForAI(dataUrl, 900, 0.6);
 
       let lastError: unknown = null;
       for (let attempt = 0; attempt < 2; attempt++) {
