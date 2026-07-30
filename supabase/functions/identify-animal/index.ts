@@ -204,7 +204,25 @@ serve(async (req) => {
         ],
         tool_choice: { type: "function", function: { name: "identify_animal" } },
       }),
-    });
+        });
+      } finally {
+        clearTimeout(timer);
+      }
+    };
+
+    let response: Response;
+    try {
+      response = await callGateway();
+      if (!response.ok && response.status >= 500) {
+        console.error("AI gateway 5xx, retrying once");
+        response = await callGateway();
+      }
+    } catch (netErr) {
+      console.error("AI gateway network failure, retrying once", netErr);
+      response = await callGateway();
+    }
+
+
 
     if (!response.ok) {
       if (response.status === 429) {
