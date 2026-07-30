@@ -140,16 +140,40 @@ const LegalPage = () => {
           </p>
         </section>
 
+        {/* Suppression de compte */}
+        <section>
+          <h2 className="text-lg font-display font-bold text-foreground mb-2">8. Suppression de compte</h2>
+          <p>
+            Vous pouvez supprimer votre compte et l'ensemble de vos données directement depuis l'application :
+          </p>
+          <ol className="mt-2 space-y-1 list-decimal list-inside">
+            <li>Ouvrez votre <strong>Profil</strong></li>
+            <li>Accédez aux <strong>Paramètres</strong></li>
+            <li>Sélectionnez <strong>Supprimer mon compte</strong></li>
+          </ol>
+          <p className="mt-3">
+            La suppression entraîne l'effacement définitif des éléments suivants :
+          </p>
+          <ul className="mt-2 space-y-1 list-disc list-inside">
+            <li>Votre profil utilisateur</li>
+            <li>L'ensemble de vos captures et photographies associées</li>
+            <li>Vos relations et abonnements</li>
+          </ul>
+          <p className="mt-3">
+            Une fois la demande confirmée, la suppression est irréversible. Vos données sont effacées dans un délai de <strong>30 jours</strong> maximum après la demande.
+          </p>
+        </section>
+
         {/* Droit applicable */}
         <section>
-          <h2 className="text-lg font-display font-bold text-foreground mb-2">8. Droit applicable</h2>
+          <h2 className="text-lg font-display font-bold text-foreground mb-2">9. Droit applicable</h2>
           <p>
             Les présentes mentions légales sont régies par le droit français. Tout litige sera soumis à la compétence des tribunaux français.
           </p>
         </section>
 
         <p className="text-xs text-muted-foreground pt-4 pb-8">
-          Première publication (V.0.0) : 8 mars 2026 · Dernière mise à jour : 13 mars 2026
+          Première publication (V.0.0) : 8 mars 2026 · Dernière mise à jour : 30 juillet 2026
         </p>
       </div>
       <Footer />
