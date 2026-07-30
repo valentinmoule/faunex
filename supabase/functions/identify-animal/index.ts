@@ -96,11 +96,14 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    // Un échec réseau/timeout côté gateway renverrait l'utilisateur vers la
-    // soumission manuelle : on retente une fois avant d'abandonner.
-    const callGateway = async () => {
+    // Performance : Flash répond en ~3-6 s là où Pro prend 20-40 s (thinking).
+    // On appelle Flash d'abord et on n'escalade vers Pro que si l'IA doute.
+    const FAST_MODEL = "google/gemini-2.5-flash";
+    const DEEP_MODEL = "google/gemini-2.5-pro";
+
+    const callGateway = async (model: string, timeoutMs: number) => {
       const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 90_000);
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
       try {
         return await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
           signal: controller.signal,
@@ -111,7 +114,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-pro",
+        model,
         temperature: 0,
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
