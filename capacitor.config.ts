@@ -11,7 +11,13 @@ const config: CapacitorConfig = {
       androidScaleType: 'CENTER_CROP',
       showSpinner: false,
     },
+    StatusBar: {
+      overlaysWebView: false,
+      style: 'LIGHT',
+      backgroundColor: '#f9f5ec',
+    },
   },
+
   // Pas de `server.url` : l'app native embarque le build local (`npm run build:app`),
   // sans le site vitrine ni le blog.
 };
