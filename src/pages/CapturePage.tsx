@@ -276,7 +276,7 @@ const CapturePage = () => {
         )}
 
         {/* Overlay gradient for readability */}
-        {(animalResult || identifying || manualMode || revealPhase === 'freeze' || revealPhase === 'shaking') && (
+        {(animalResult || identifying || manualMode || identifyError || revealPhase === 'freeze' || revealPhase === 'shaking') && (
           <div className={`absolute inset-0 transition-opacity duration-300 ${
             revealPhase === 'freeze' ? 'bg-black/60' :
             revealPhase === 'shaking' ? 'bg-gradient-to-t from-black/90 via-black/60 to-black/40' :
