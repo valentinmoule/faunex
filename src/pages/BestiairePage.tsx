@@ -378,7 +378,7 @@ const BestiairePage = () => {
     const HeaderIcon = selectedZone.isHome ? Home : (isCity ? Building2 : MapPin);
     return (
       <main className="min-h-screen bg-background pb-24">
-        <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
+        <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
           <div className="max-w-lg mx-auto">
             <div className="flex items-center gap-3">
               <button
@@ -420,7 +420,7 @@ const BestiairePage = () => {
               </button>
             </div>
           </div>
-        </header>
+        </PageHeader>
 
         <div className="max-w-lg mx-auto px-3 pt-3">
           {isCity && (

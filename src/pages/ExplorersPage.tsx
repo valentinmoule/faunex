@@ -446,7 +446,7 @@ const ExplorersPage = () => {
   if (view === 'search') {
     return (
       <main className="min-h-screen bg-background pb-24">
-        <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
+        <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
           <div className="max-w-lg mx-auto">
             <div className="flex items-center gap-3 mb-3">
               <button onClick={() => { setView('feed'); setSearchQuery(''); setSearchTab('following'); }} className="p-1.5 rounded-full hover:bg-muted transition-colors">
@@ -471,7 +471,7 @@ const ExplorersPage = () => {
               )}
             </div>
           </div>
-        </header>
+        </PageHeader>
 
         {searchTab !== 'search' && (
           <div className="max-w-lg mx-auto px-4 pt-3">
