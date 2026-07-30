@@ -70,15 +70,34 @@ const CapturePage = () => {
     setCapturedPhoto(dataUrl);
     setAnimalResult(null);
     setSaved(false);
+    setIdentifyError(null);
+    setManualMode(false);
     geo.capture();
 
     const outcome = await identify(dataUrl);
     if (outcome.status === 'identified') {
       triggerReveal(outcome.animal);
+    } else if (outcome.status === 'error') {
+      setIdentifyError(outcome.message);
     } else {
       setManualMode(true);
     }
   }, [geo, identify, triggerReveal, quota]);
+
+  /** Relance l'analyse IA sur la photo déjà prise (sans reprendre la photo). */
+  const retryIdentify = useCallback(async () => {
+    if (!capturedPhoto) return;
+    setIdentifyError(null);
+    const outcome = await identify(capturedPhoto);
+    if (outcome.status === 'identified') {
+      triggerReveal(outcome.animal);
+    } else if (outcome.status === 'error') {
+      setIdentifyError(outcome.message);
+    } else {
+      setManualMode(true);
+    }
+  }, [capturedPhoto, identify, triggerReveal]);
+
 
 
 
