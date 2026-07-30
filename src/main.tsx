@@ -3,6 +3,7 @@ import { HelmetProvider } from "react-helmet-async";
 import App from "./App.tsx";
 import "./index.css";
 import { registerAppSW } from "./lib/registerSW";
+import { setupNativeStatusBar } from "./lib/nativeUI";
 
 createRoot(document.getElementById("root")!).render(
   <HelmetProvider>
@@ -11,4 +12,6 @@ createRoot(document.getElementById("root")!).render(
 );
 
 registerAppSW();
+setupNativeStatusBar();
+
 
