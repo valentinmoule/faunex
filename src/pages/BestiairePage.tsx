@@ -782,7 +782,7 @@ const BestiairePage = () => {
         <meta property="og:url" content="https://faunex.fr/bestiaire" />
         <meta property="og:description" content="Catalogue complet de la faune sauvage : oiseaux, mammifères, insectes, reptiles, amphibiens…" />
       </Helmet>
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
+      <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center gap-3">
             <button
@@ -807,7 +807,7 @@ const BestiairePage = () => {
             </div>
           </div>
         </div>
-      </header>
+      </PageHeader>
 
       <div className="max-w-lg mx-auto px-3 pt-3">
         {/* 4x4 TCG binder grid */}
