@@ -528,7 +528,35 @@ const CapturePage = () => {
           </div>
         )}
 
+        {/* Technical failure (network / AI) — not a real "unknown animal" */}
+        {identifyError && !identifying && !animalResult && (
+          <div className="relative z-20 flex-1 flex flex-col justify-end px-5 pb-4">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Info className="w-5 h-5 text-amber" />
+                <h2 className="text-lg font-display font-bold text-primary-foreground">Analyse interrompue</h2>
+              </div>
+              <p className="text-primary-foreground/90 text-sm">{identifyError}</p>
+              <div className="flex gap-3">
+                <button
+                  onClick={retryIdentify}
+                  className="flex-1 py-3 rounded-xl bg-primary text-primary-foreground font-display font-semibold text-sm flex items-center justify-center gap-2"
+                >
+                  <RefreshCw className="w-4 h-4" /> Relancer l'analyse
+                </button>
+                <button
+                  onClick={() => { setIdentifyError(null); setManualMode(true); }}
+                  className="flex-1 py-3 rounded-xl bg-primary-foreground/10 text-primary-foreground font-display font-semibold text-sm flex items-center justify-center gap-2"
+                >
+                  <PenLine className="w-4 h-4" /> Saisir à la main
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Manual entry form when AI can't identify */}
+
         {manualMode && !identifying && !animalResult && (
           <div className="relative z-20 flex-1 flex flex-col justify-end px-5 pb-4">
             <div className="space-y-3">
