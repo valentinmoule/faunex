@@ -143,7 +143,7 @@ const CollectionPage = () => {
 
   return (
     <main className="min-h-screen bg-background pb-24">
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
+      <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center justify-between mb-3">
             <h1 className="text-2xl font-display font-bold text-primary">mon faunex</h1>
@@ -160,7 +160,7 @@ const CollectionPage = () => {
             </div>
           </div>
         </div>
-      </header>
+      </PageHeader>
 
       {/* Rarity filter chips */}
       <div className="max-w-lg mx-auto px-4 pt-3">

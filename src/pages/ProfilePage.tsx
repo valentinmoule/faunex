@@ -221,7 +221,7 @@ const ProfilePage = () => {
     <>
     <XpParticles active={showXpParticles} onComplete={() => setShowXpParticles(false)} />
     <main className="min-h-screen bg-background pb-24">
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
+      <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="flex items-center justify-between max-w-lg mx-auto">
           <h1 className="text-2xl font-display font-bold text-primary">Profil</h1>
           <div className="flex items-center gap-2">
@@ -233,7 +233,7 @@ const ProfilePage = () => {
             </button>
           </div>
         </div>
-      </header>
+      </PageHeader>
 
       <div className="max-w-lg mx-auto px-4 pt-6 space-y-6">
         {/* Profile Header */}

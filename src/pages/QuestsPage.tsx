@@ -142,7 +142,7 @@ const QuestsPage = () => {
 
   return (
     <main className="min-h-screen bg-background pb-24">
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
+      <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="max-w-lg mx-auto flex items-center gap-3">
           <button onClick={() => navigate(-1)} className="p-1.5 rounded-full hover:bg-muted transition-colors">
             <ArrowLeft className="w-5 h-5 text-foreground" />
@@ -159,7 +159,7 @@ const QuestsPage = () => {
             </div>
           </div>
         </div>
-      </header>
+      </PageHeader>
 
       <div className="max-w-lg mx-auto px-4 pt-4">
         {loading ? (

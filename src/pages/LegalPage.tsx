@@ -16,14 +16,14 @@ const LegalPage = () => {
         <meta property="og:url" content="https://faunex.fr/legal" />
         <meta property="og:title" content="Mentions légales & confidentialité — Faunex" />
       </Helmet>
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
+      <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="flex items-center gap-3 max-w-2xl mx-auto">
           <button onClick={() => navigate(-1)} aria-label="Retour à la page précédente" className="p-1.5 rounded-full hover:bg-muted transition-colors">
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
           <h1 className="text-xl font-display font-bold text-foreground">Mentions légales</h1>
         </div>
-      </header>
+      </PageHeader>
 
       <div className="max-w-2xl mx-auto px-5 pt-6 space-y-8 text-sm text-foreground/80 leading-relaxed font-body">
 
