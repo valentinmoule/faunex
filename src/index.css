@@ -2378,3 +2378,12 @@
 }
 
 
+
+/* --- App native (iOS / Android) : la status bar ne recouvre plus l'app --- */
+html.is-native-app {
+  /* La WebView démarre sous la status bar : on garde une respiration minimale */
+  --native-header-gap: 0.5rem;
+}
+html.is-native-app body {
+  padding-top: env(safe-area-inset-top);
+}
