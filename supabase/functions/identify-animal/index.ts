@@ -246,8 +246,11 @@ serve(async (req) => {
     const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
 
     if (!toolCall) {
-      return new Response(JSON.stringify({ error: "L'IA n'a pas pu identifier l'animal" }), {
-        status: 422, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      // Vraie non-reconnaissance : on répond 200 pour que le client bascule
+      // sur la saisie manuelle (et non sur l'écran d'erreur technique).
+      return new Response(JSON.stringify({ success: false, reason: "not_identified" }), {
+        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
+
       });
     }
 
