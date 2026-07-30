@@ -31,9 +31,11 @@ const CapturePage = () => {
   const [saved, setSaved] = useState(false);
   const [duplicateCapture, setDuplicateCapture] = useState<{ id: string; image_url: string; animal_name: string } | null>(null);
   const [manualMode, setManualMode] = useState(false);
+  const [identifyError, setIdentifyError] = useState<string | null>(null);
   const [manualName, setManualName] = useState('');
   const [manualSpecies, setManualSpecies] = useState('');
   const [manualDescription, setManualDescription] = useState('');
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const camera = useCamera({ paused: !!capturedPhoto });
@@ -68,15 +70,34 @@ const CapturePage = () => {
     setCapturedPhoto(dataUrl);
     setAnimalResult(null);
     setSaved(false);
+    setIdentifyError(null);
+    setManualMode(false);
     geo.capture();
 
     const outcome = await identify(dataUrl);
     if (outcome.status === 'identified') {
       triggerReveal(outcome.animal);
+    } else if (outcome.status === 'error') {
+      setIdentifyError(outcome.message);
     } else {
       setManualMode(true);
     }
   }, [geo, identify, triggerReveal, quota]);
+
+  /** Relance l'analyse IA sur la photo déjà prise (sans reprendre la photo). */
+  const retryIdentify = useCallback(async () => {
+    if (!capturedPhoto) return;
+    setIdentifyError(null);
+    const outcome = await identify(capturedPhoto);
+    if (outcome.status === 'identified') {
+      triggerReveal(outcome.animal);
+    } else if (outcome.status === 'error') {
+      setIdentifyError(outcome.message);
+    } else {
+      setManualMode(true);
+    }
+  }, [capturedPhoto, identify, triggerReveal]);
+
 
 
 
@@ -104,6 +125,8 @@ const CapturePage = () => {
     setSaved(false);
     setDuplicateCapture(null);
     setManualMode(false);
+    setIdentifyError(null);
+
     setManualName('');
     setManualSpecies('');
     setManualDescription('');
@@ -253,7 +276,7 @@ const CapturePage = () => {
         )}
 
         {/* Overlay gradient for readability */}
-        {(animalResult || identifying || manualMode || revealPhase === 'freeze' || revealPhase === 'shaking') && (
+        {(animalResult || identifying || manualMode || identifyError || revealPhase === 'freeze' || revealPhase === 'shaking') && (
           <div className={`absolute inset-0 transition-opacity duration-300 ${
             revealPhase === 'freeze' ? 'bg-black/60' :
             revealPhase === 'shaking' ? 'bg-gradient-to-t from-black/90 via-black/60 to-black/40' :
@@ -505,7 +528,35 @@ const CapturePage = () => {
           </div>
         )}
 
+        {/* Technical failure (network / AI) — not a real "unknown animal" */}
+        {identifyError && !identifying && !animalResult && (
+          <div className="relative z-20 flex-1 flex flex-col justify-end px-5 pb-4">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Info className="w-5 h-5 text-amber" />
+                <h2 className="text-lg font-display font-bold text-primary-foreground">Analyse interrompue</h2>
+              </div>
+              <p className="text-primary-foreground/90 text-sm">{identifyError}</p>
+              <div className="flex gap-3">
+                <button
+                  onClick={retryIdentify}
+                  className="flex-1 py-3 rounded-xl bg-primary text-primary-foreground font-display font-semibold text-sm flex items-center justify-center gap-2"
+                >
+                  <RefreshCw className="w-4 h-4" /> Relancer l'analyse
+                </button>
+                <button
+                  onClick={() => { setIdentifyError(null); setManualMode(true); }}
+                  className="flex-1 py-3 rounded-xl bg-primary-foreground/10 text-primary-foreground font-display font-semibold text-sm flex items-center justify-center gap-2"
+                >
+                  <PenLine className="w-4 h-4" /> Saisir à la main
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Manual entry form when AI can't identify */}
+
         {manualMode && !identifying && !animalResult && (
           <div className="relative z-20 flex-1 flex flex-col justify-end px-5 pb-4">
             <div className="space-y-3">

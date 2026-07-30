@@ -5,7 +5,8 @@ import type { AnimalResult } from '@/types/capture';
 
 type IdentifyOutcome =
   | { status: 'identified'; animal: AnimalResult }
-  | { status: 'unknown' };
+  | { status: 'unknown' }
+  | { status: 'error'; message: string };
 
 const normalize = (v?: string | null) =>
   (v || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -31,9 +32,15 @@ const isHuman = (animal: { animal_name?: string; scientific_name?: string; categ
   return HUMAN_NAMES.some((h) => name === h || name.includes(h));
 };
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 /**
  * Single source of truth for the AI identification flow.
  * Used identically by the camera shot and the gallery import.
+ *
+ * A network/AI failure is NOT the same thing as "animal non reconnu":
+ * transient errors are retried once and then surfaced as `error` so the user
+ * can retry instead of being pushed into the manual moderation queue.
  */
 export const useAnimalIdentification = () => {
   const [identifying, setIdentifying] = useState(false);
@@ -42,21 +49,38 @@ export const useAnimalIdentification = () => {
     setIdentifying(true);
     try {
       const compressedUrl = await compressForAI(dataUrl, 1024, 0.6);
-      const { data, error } = await supabase.functions.invoke('identify-animal', {
-        body: { imageBase64: compressedUrl },
-      });
-      if (error) throw error;
-      const animal = data?.success ? (data.animal as AnimalResult | undefined) : undefined;
-      if (!animal || !animal.animal_name || animal.animal_name.toLowerCase() === 'inconnu') {
-        return { status: 'unknown' };
+
+      let lastError: unknown = null;
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const { data, error } = await supabase.functions.invoke('identify-animal', {
+            body: { imageBase64: compressedUrl },
+          });
+          if (error) throw error;
+
+          const animal = data?.success ? (data.animal as AnimalResult | undefined) : undefined;
+          if (!animal || !animal.animal_name) {
+            // Réponse valide mais sans animal exploitable → vraie non-reconnaissance
+            return { status: 'unknown' };
+          }
+          if (animal.animal_name.toLowerCase() === 'inconnu' || isHuman(animal)) {
+            return { status: 'unknown' };
+          }
+          return { status: 'identified', animal };
+        } catch (err) {
+          lastError = err;
+          console.error('identify-animal attempt failed', attempt, err);
+          if (attempt === 0) await sleep(1200);
+        }
       }
-      if (isHuman(animal)) {
-        return { status: 'unknown' };
-      }
-      return { status: 'identified', animal };
-    } catch (err) {
-      console.error(err);
-      return { status: 'unknown' };
+
+      const raw = JSON.stringify((lastError as any)?.message ?? lastError ?? '');
+      const message = raw.includes('429')
+        ? "L'IA est surchargée, réessaie dans quelques secondes."
+        : raw.includes('402')
+          ? "Le service d'identification est momentanément indisponible."
+          : "L'analyse a échoué (connexion ou serveur). Réessaie.";
+      return { status: 'error', message };
     } finally {
       setIdentifying(false);
     }

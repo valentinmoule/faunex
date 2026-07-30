@@ -96,7 +96,15 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    // Un échec réseau/timeout côté gateway renverrait l'utilisateur vers la
+    // soumission manuelle : on retente une fois avant d'abandonner.
+    const callGateway = async () => {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 90_000);
+      try {
+        return await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          signal: controller.signal,
+
       method: "POST",
       headers: {
         Authorization: `Bearer ${LOVABLE_API_KEY}`,
@@ -196,7 +204,25 @@ serve(async (req) => {
         ],
         tool_choice: { type: "function", function: { name: "identify_animal" } },
       }),
-    });
+        });
+      } finally {
+        clearTimeout(timer);
+      }
+    };
+
+    let response: Response;
+    try {
+      response = await callGateway();
+      if (!response.ok && response.status >= 500) {
+        console.error("AI gateway 5xx, retrying once");
+        response = await callGateway();
+      }
+    } catch (netErr) {
+      console.error("AI gateway network failure, retrying once", netErr);
+      response = await callGateway();
+    }
+
+
 
     if (!response.ok) {
       if (response.status === 429) {
@@ -220,8 +246,11 @@ serve(async (req) => {
     const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
 
     if (!toolCall) {
-      return new Response(JSON.stringify({ error: "L'IA n'a pas pu identifier l'animal" }), {
-        status: 422, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      // Vraie non-reconnaissance : on répond 200 pour que le client bascule
+      // sur la saisie manuelle (et non sur l'écran d'erreur technique).
+      return new Response(JSON.stringify({ success: false, reason: "not_identified" }), {
+        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
+
       });
     }
 
