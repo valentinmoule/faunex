@@ -31,9 +31,11 @@ const CapturePage = () => {
   const [saved, setSaved] = useState(false);
   const [duplicateCapture, setDuplicateCapture] = useState<{ id: string; image_url: string; animal_name: string } | null>(null);
   const [manualMode, setManualMode] = useState(false);
+  const [identifyError, setIdentifyError] = useState<string | null>(null);
   const [manualName, setManualName] = useState('');
   const [manualSpecies, setManualSpecies] = useState('');
   const [manualDescription, setManualDescription] = useState('');
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const camera = useCamera({ paused: !!capturedPhoto });
