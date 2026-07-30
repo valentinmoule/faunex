@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { PageHeader } from '@/components/PageHeader';
 import { notifyCaptureInteraction } from '@/lib/notifyCaptureInteraction';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Bell, Heart, MessageCircle, Share2, Send, X } from 'lucide-react';
@@ -320,7 +321,7 @@ const FeedPage = () => {
 
   return (
     <main className="min-h-screen bg-background pb-24">
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
+      <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="flex items-center justify-between max-w-lg mx-auto">
           <h1 className="text-2xl font-display font-bold text-primary">Faunex</h1>
           <div className="flex items-center gap-2">
@@ -343,7 +344,7 @@ const FeedPage = () => {
             </button>
           </div>
         </div>
-      </header>
+      </PageHeader>
 
       <div className="max-w-lg mx-auto">
         {loading ? (

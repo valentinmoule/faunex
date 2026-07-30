@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { PageHeader } from '@/components/PageHeader';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Users, UserPlus, UserCheck, Award } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
@@ -252,7 +253,7 @@ const FriendCollectionPage = () => {
 
   return (
     <main className="min-h-screen bg-background pb-24">
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
+      <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center gap-3 mb-3">
             <button onClick={() => navigate(-1)} className="p-1.5 rounded-lg hover:bg-muted transition-colors">
@@ -308,7 +309,7 @@ const FriendCollectionPage = () => {
             </button>
           </div>
         </div>
-      </header>
+      </PageHeader>
 
       {/* Collection - always visible */}
       <div className="max-w-lg mx-auto px-4 pt-3">

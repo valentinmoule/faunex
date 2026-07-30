@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { PageHeader } from '@/components/PageHeader';
 import { ArrowLeft, Heart, MessageCircle, UserPlus, UserCheck, CheckCircle, XCircle, Award } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -116,14 +117,14 @@ const NotificationsPage = () => {
 
   return (
     <main className="min-h-screen bg-background pb-24">
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
+      <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="flex items-center gap-3 max-w-lg mx-auto">
           <button onClick={() => navigate(-1)} className="p-1.5 rounded-full hover:bg-muted transition-colors">
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
           <h1 className="text-xl font-display font-bold text-foreground">Notifications</h1>
         </div>
-      </header>
+      </PageHeader>
 
       <div className="max-w-lg mx-auto px-4 pt-2">
         {loading ? (

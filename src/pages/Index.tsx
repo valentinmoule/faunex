@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { PageHeader } from '@/components/PageHeader';
 import { useNavigate } from 'react-router-dom';
 import { Camera, Target, ChevronRight, Bell, Flame, Zap, Trophy, BookOpen, Users } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
@@ -218,7 +219,7 @@ const Index = () => {
     <main className="min-h-screen bg-background pb-24">
       {/* Header */}
       {/* Immersive Header */}
-      <header className="relative z-40 bg-gradient-to-b from-primary/15 via-primary/5 to-background px-5 pt-4 pb-6">
+      <PageHeader className="relative z-40 bg-gradient-to-b from-primary/15 via-primary/5 to-background px-5 pb-6">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
@@ -269,7 +270,7 @@ const Index = () => {
             </div>
           )}
         </div>
-      </header>
+      </PageHeader>
 
       <div className="max-w-lg mx-auto px-4 pt-3 space-y-4 pb-24">
 

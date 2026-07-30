@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { PageHeader } from '@/components/PageHeader';
 import { notifyCaptureInteraction } from '@/lib/notifyCaptureInteraction';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Search, Bell, Heart, MessageCircle, Send, UserPlus, UserCheck, X, Users, ChevronRight, Clock, Check as CheckIcon, XCircle, ArrowLeft } from 'lucide-react';
@@ -445,7 +446,7 @@ const ExplorersPage = () => {
   if (view === 'search') {
     return (
       <main className="min-h-screen bg-background pb-24">
-        <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
+        <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
           <div className="max-w-lg mx-auto">
             <div className="flex items-center gap-3 mb-3">
               <button onClick={() => { setView('feed'); setSearchQuery(''); setSearchTab('following'); }} className="p-1.5 rounded-full hover:bg-muted transition-colors">
@@ -470,7 +471,7 @@ const ExplorersPage = () => {
               )}
             </div>
           </div>
-        </header>
+        </PageHeader>
 
         {searchTab !== 'search' && (
           <div className="max-w-lg mx-auto px-4 pt-3">
@@ -588,7 +589,7 @@ const ExplorersPage = () => {
   // ══════════════════════════════════════════════
   return (
     <main className="min-h-screen bg-background pb-24">
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
+      <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="flex items-center justify-between max-w-lg mx-auto">
           <h1 className="text-2xl font-display font-bold text-primary">Explorateurs</h1>
           <div className="flex items-center gap-2">
@@ -610,7 +611,7 @@ const ExplorersPage = () => {
             </button>
           </div>
         </div>
-      </header>
+      </PageHeader>
 
       <div className="max-w-lg mx-auto">
         {feedLoading ? (

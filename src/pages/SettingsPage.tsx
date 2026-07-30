@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, Fragment } from 'react';
+import { PageHeader } from '@/components/PageHeader';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Pencil, KeyRound, Share2, Scale, LogOut, Trash2, Loader2, Camera, Check, X, ChevronRight, Mail, Lock, Smartphone, Bell } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -198,7 +199,7 @@ const SettingsPage = () => {
 
   return (
     <main className="min-h-screen bg-background pb-24">
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
+      <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="flex items-center gap-3 max-w-lg mx-auto">
           <button
             onClick={() => section === 'menu' ? navigate('/profile') : setSection('menu')}
@@ -213,7 +214,7 @@ const SettingsPage = () => {
             {section === 'delete' && 'Supprimer le compte'}
           </h1>
         </div>
-      </header>
+      </PageHeader>
 
       <div className="max-w-lg mx-auto px-4 pt-4">
         {section === 'menu' && (

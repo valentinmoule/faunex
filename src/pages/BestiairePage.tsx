@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
+import { PageHeader } from '@/components/PageHeader';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Bell, ChevronLeft, PawPrint, MapPin, Plus, Search, Trash2, X, Building2, Map as MapIcon, Home, Compass, Loader2 } from 'lucide-react';
@@ -377,7 +378,7 @@ const BestiairePage = () => {
     const HeaderIcon = selectedZone.isHome ? Home : (isCity ? Building2 : MapPin);
     return (
       <main className="min-h-screen bg-background pb-24">
-        <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
+        <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
           <div className="max-w-lg mx-auto">
             <div className="flex items-center gap-3">
               <button
@@ -419,7 +420,7 @@ const BestiairePage = () => {
               </button>
             </div>
           </div>
-        </header>
+        </PageHeader>
 
         <div className="max-w-lg mx-auto px-3 pt-3">
           {isCity && (
@@ -495,7 +496,7 @@ const BestiairePage = () => {
   if (!selectedCategory) {
     return (
       <main className="min-h-screen bg-background pb-24">
-        <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
+        <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
           <div className="max-w-lg mx-auto">
             <div className="flex items-center justify-between">
               <h1 className="text-2xl font-display font-bold text-primary">mon faunex</h1>
@@ -518,7 +519,7 @@ const BestiairePage = () => {
               </div>
             </div>
           </div>
-        </header>
+        </PageHeader>
 
         <div className="max-w-lg mx-auto px-4 pt-4 space-y-6">
           {/* View toggle + rarity filter */}
@@ -781,7 +782,7 @@ const BestiairePage = () => {
         <meta property="og:url" content="https://faunex.fr/bestiaire" />
         <meta property="og:description" content="Catalogue complet de la faune sauvage : oiseaux, mammifères, insectes, reptiles, amphibiens…" />
       </Helmet>
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
+      <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center gap-3">
             <button
@@ -806,7 +807,7 @@ const BestiairePage = () => {
             </div>
           </div>
         </div>
-      </header>
+      </PageHeader>
 
       <div className="max-w-lg mx-auto px-3 pt-3">
         {/* 4x4 TCG binder grid */}
