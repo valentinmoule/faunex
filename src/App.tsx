@@ -34,6 +34,7 @@ const LegalPage = lazy(() => import("./pages/LegalPage"));
 const ShareProfilePage = lazy(() => import("./pages/ShareProfilePage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
+const NativeAuthCallbackPage = lazy(() => import("./pages/NativeAuthCallbackPage"));
 const QuestsPage = lazy(() => import("./pages/QuestsPage"));
 const LandingPage = SHOW_MARKETING_PAGES ? lazy(() => import("./pages/LandingPage")) : null;
 const CompleteProfilePage = lazy(() => import("./pages/CompleteProfilePage"));
@@ -106,7 +107,7 @@ const AppRoutes = () => {
   const isModerationPage = location.pathname === '/moderation';
   const isPublicPage =
     location.pathname === '/' ||
-    location.pathname === '/auth' ||
+    location.pathname.startsWith('/auth') ||
     location.pathname === '/reset-password' ||
     location.pathname === '/complete-profile' ||
     location.pathname === '/legal' ||
@@ -132,6 +133,7 @@ const AppRoutes = () => {
 
           <Route path="/auth" element={<AuthRoute><AuthPage /></AuthRoute>} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/auth/native-callback" element={<NativeAuthCallbackPage />} />
           <Route path="/complete-profile" element={<ProtectedRoute><CompleteProfilePage /></ProtectedRoute>} />
           <Route path="/home" element={<ProtectedRoute><BestiairePage /></ProtectedRoute>} />
           <Route path="/collection" element={<ProtectedRoute><CollectionPage /></ProtectedRoute>} />

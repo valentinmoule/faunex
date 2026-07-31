@@ -4,6 +4,7 @@ import App from "./App.tsx";
 import "./index.css";
 import { registerAppSW } from "./lib/registerSW";
 import { setupNativeStatusBar } from "./lib/nativeUI";
+import { setupAuthDeepLinks } from "./lib/authDeepLinks";
 
 createRoot(document.getElementById("root")!).render(
   <HelmetProvider>
@@ -13,5 +14,6 @@ createRoot(document.getElementById("root")!).render(
 
 registerAppSW();
 setupNativeStatusBar();
+setupAuthDeepLinks();
 
 
