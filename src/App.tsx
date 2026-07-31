@@ -35,6 +35,7 @@ const ShareProfilePage = lazy(() => import("./pages/ShareProfilePage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
 const NativeAuthCallbackPage = lazy(() => import("./pages/NativeAuthCallbackPage"));
+const NativeAuthBridgePage = lazy(() => import("./pages/NativeAuthBridgePage"));
 const QuestsPage = lazy(() => import("./pages/QuestsPage"));
 const LandingPage = SHOW_MARKETING_PAGES ? lazy(() => import("./pages/LandingPage")) : null;
 const CompleteProfilePage = lazy(() => import("./pages/CompleteProfilePage"));
@@ -134,6 +135,7 @@ const AppRoutes = () => {
           <Route path="/auth" element={<AuthRoute><AuthPage /></AuthRoute>} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/auth/native-callback" element={<NativeAuthCallbackPage />} />
+          <Route path="/auth/native-bridge" element={<NativeAuthBridgePage />} />
           <Route path="/complete-profile" element={<ProtectedRoute><CompleteProfilePage /></ProtectedRoute>} />
           <Route path="/home" element={<ProtectedRoute><BestiairePage /></ProtectedRoute>} />
           <Route path="/collection" element={<ProtectedRoute><CollectionPage /></ProtectedRoute>} />
