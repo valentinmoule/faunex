@@ -29,6 +29,13 @@ export const setupAuthDeepLinks = () => {
         return;
       }
 
+      try {
+        const { Browser } = await import('@capacitor/browser');
+        await Browser.close();
+      } catch {
+        // le navigateur système est peut-être déjà fermé
+      }
+
       const target = url.pathname.includes('reset-password') ? '/reset-password' : '/home';
       window.location.replace(`${window.location.origin}${target}`);
     } catch {

@@ -9,7 +9,8 @@ import { toast } from 'sonner';
 import { Eye, EyeOff, MailCheck, ArrowLeft } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { translateAuthError, authRedirectUrl } from '@/lib/authErrors';
-import { oauthRedirectUri } from '@/lib/authRedirect';
+import { oauthRedirectUri, nativeAuthBridgeUrl } from '@/lib/authRedirect';
+import { IS_NATIVE_APP } from '@/lib/platform';
 
 const AuthPage = () => {
   const [searchParams] = useSearchParams();
@@ -314,6 +315,11 @@ const AuthPage = () => {
                   if (typeof window !== 'undefined' && (window as any).gtag_report_conversion) {
                     (window as any).gtag_report_conversion();
                   }
+                  if (IS_NATIVE_APP) {
+                    const { Browser } = await import('@capacitor/browser');
+                    await Browser.open({ url: nativeAuthBridgeUrl('google'), presentationStyle: 'popover' });
+                    return;
+                  }
                   const { error } = await lovable.auth.signInWithOAuth('google', {
                     redirect_uri: oauthRedirectUri(),
                   });
@@ -336,6 +342,11 @@ const AuthPage = () => {
                 onClick={async () => {
                   if (typeof window !== 'undefined' && (window as any).gtag_report_conversion) {
                     (window as any).gtag_report_conversion();
+                  }
+                  if (IS_NATIVE_APP) {
+                    const { Browser } = await import('@capacitor/browser');
+                    await Browser.open({ url: nativeAuthBridgeUrl('apple'), presentationStyle: 'popover' });
+                    return;
                   }
                   const { error } = await lovable.auth.signInWithOAuth('apple', {
                     redirect_uri: oauthRedirectUri(),

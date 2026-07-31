@@ -31,3 +31,11 @@ export const buildAuthRedirectUrl = (path = ''): string => `${authOrigin()}${pat
 /** redirect_uri à passer au SSO (Google / Apple). */
 export const oauthRedirectUri = (): string =>
   IS_NATIVE_APP ? NATIVE_CALLBACK_URL : window.location.origin;
+
+/**
+ * URL du pont web à ouvrir dans le navigateur système depuis l'app native.
+ * Le broker OAuth (`/~oauth/initiate`) n'existe que sur le domaine public :
+ * l'ouvrir depuis `capacitor://localhost` renvoyait une erreur de redirection.
+ */
+export const nativeAuthBridgeUrl = (provider: 'google' | 'apple'): string =>
+  `${WEB_ORIGIN}/auth/native-bridge?provider=${provider}`;
