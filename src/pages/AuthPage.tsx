@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { Eye, EyeOff, MailCheck, ArrowLeft } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { translateAuthError, authRedirectUrl } from '@/lib/authErrors';
+import { oauthRedirectUri } from '@/lib/authRedirect';
 
 const AuthPage = () => {
   const [searchParams] = useSearchParams();
@@ -314,7 +315,7 @@ const AuthPage = () => {
                     (window as any).gtag_report_conversion();
                   }
                   const { error } = await lovable.auth.signInWithOAuth('google', {
-                    redirect_uri: window.location.origin,
+                    redirect_uri: oauthRedirectUri(),
                   });
                   if (error) toast.error('Erreur de connexion Google');
                 }}
@@ -337,7 +338,7 @@ const AuthPage = () => {
                     (window as any).gtag_report_conversion();
                   }
                   const { error } = await lovable.auth.signInWithOAuth('apple', {
-                    redirect_uri: window.location.origin,
+                    redirect_uri: oauthRedirectUri(),
                   });
                   if (error) toast.error('Erreur de connexion Apple');
                 }}

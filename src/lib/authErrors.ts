@@ -35,6 +35,5 @@ export const translateAuthError = (message?: string): string => {
   return message || 'Une erreur est survenue';
 };
 
-/** URL de retour pour les emails d'auth : reste sur le domaine courant. */
-export const authRedirectUrl = (path = '') =>
-  `${window.location.origin}${path}`;
+/** URL de retour pour les emails d'auth (domaine public sur mobile). */
+export { buildAuthRedirectUrl as authRedirectUrl } from './authRedirect';
