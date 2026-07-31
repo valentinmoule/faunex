@@ -5,9 +5,9 @@
 	<key>CAPACITOR_DEBUG</key>
 	<string>$(CAPACITOR_DEBUG)</string>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>en</string>
+	<string>fr</string>
 	<key>CFBundleDisplayName</key>
-	<string>faunex</string>
+	<string>Faunex</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -35,8 +35,6 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
@@ -45,9 +43,25 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+
+	<!-- Permissions (chaînes obligatoires pour la review App Store) -->
+	<key>NSCameraUsageDescription</key>
+	<string>Faunex utilise l'appareil photo pour capturer les animaux que tu observes et les identifier.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Faunex accède à tes photos pour importer une observation déjà prise avec ton téléphone.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Faunex peut enregistrer les cartes de tes captures dans ta galerie photo.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Faunex utilise ta position pour situer tes captures sur la carte et te proposer les espèces autour de toi.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>Faunex utilise les capteurs de mouvement pour l'effet holographique des cartes de collection.</string>
+
+	<!-- Deep link d'authentification (retour SSO Google / Apple) -->
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
 			<key>CFBundleURLName</key>
 			<string>fr.faunex.app</string>
 			<key>CFBundleURLSchemes</key>
@@ -56,6 +70,15 @@
 			</array>
 		</dict>
 	</array>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>https</string>
+	</array>
+
+	<!-- Conformité export (évite le questionnaire chiffrement à chaque build) -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
 </dict>
