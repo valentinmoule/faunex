@@ -171,7 +171,9 @@ const CapturePage = () => {
       toast.error('Remplis au moins le nom et la description');
       return;
     }
-    if (!(await consumeSlot())) return;
+    // Une demande de vérification porte sur une capture déjà identifiée : elle consomme un slot.
+    // Une soumission « animal non reconnu » n'en consomme pas.
+    if (disputedResult && !(await consumeSlot())) return;
     try {
       // Le modérateur doit voir ce que l'IA proposait pour arbitrer.
       const aiNote = disputedResult
