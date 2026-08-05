@@ -151,6 +151,18 @@ const CapturePage = () => {
     return allowed;
   };
 
+  /** L'utilisateur estime que l'identification IA est fausse : bascule sur le formulaire de vérification. */
+  const requestVerification = () => {
+    if (!animalResult) return;
+    setDisputedResult(animalResult);
+    setManualName('');
+    setManualSpecies('');
+    setManualDescription('');
+    setAnimalResult(null);
+    resetReveal();
+    setManualMode(true);
+  };
+
   const saveManualEntry = async () => {
     const trimmedName = manualName.trim();
     const trimmedSpecies = manualSpecies.trim();
@@ -161,16 +173,31 @@ const CapturePage = () => {
     }
     if (!(await consumeSlot())) return;
     try {
-      const ok = await submitManualEntry({ name: trimmedName, species: trimmedSpecies, description: trimmedDesc });
+      // Le modérateur doit voir ce que l'IA proposait pour arbitrer.
+      const aiNote = disputedResult
+        ? `\n\n[Vérification demandée] L'IA proposait : ${disputedResult.animal_name}${
+            disputedResult.scientific_name ? ` (${disputedResult.scientific_name})` : ''
+          }${typeof disputedResult.confidence === 'number' ? ` — ${disputedResult.confidence}% de confiance` : ''}.`
+        : '';
+      const ok = await submitManualEntry({
+        name: trimmedName,
+        species: trimmedSpecies,
+        description: `${trimmedDesc}${aiNote}`,
+      });
       if (!ok) return;
       setSaved(true);
-      toast.success('Soumis pour validation ! Tu seras notifié une fois approuvé.');
+      toast.success(
+        disputedResult
+          ? 'Vérification demandée ! Un modérateur va confirmer ou corriger l\'identification.'
+          : 'Soumis pour validation ! Tu seras notifié une fois approuvé.'
+      );
       setTimeout(() => navigate('/home'), 1500);
     } catch (err) {
       console.error(err);
       toast.error(isDailyLimitError(err) ? "Limite atteinte : 4 captures par jour maximum. Reviens demain !" : "Erreur lors de la soumission");
     }
   };
+
 
   const finishSave = (animal: AnimalResult, imageUrl: string, message: string) => {
     setSaved(true);
