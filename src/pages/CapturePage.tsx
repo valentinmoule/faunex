@@ -555,7 +555,17 @@ const CapturePage = () => {
                 <p className="text-primary-foreground/90 text-xs font-display">💡 {animalResult.fun_fact}</p>
               </div>
 
+              {/* L'utilisateur peut contester l'identification et demander un arbitrage humain */}
+              <button
+                onClick={requestVerification}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-primary-foreground/25 bg-primary-foreground/5 text-primary-foreground/85 text-xs font-display font-semibold"
+              >
+                <ShieldQuestion className="w-4 h-4" />
+                Ce n'est pas le bon animal — Demander une vérification
+              </button>
+
             </div>
+
           </div>
         )}
 
