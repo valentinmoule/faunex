@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Camera, Zap, MapPin, Image, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine, ZoomIn, Focus, Crosshair, ArrowLeft, Clock, Info, Sparkles } from 'lucide-react';
+import { Camera, Zap, MapPin, Image, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine, ZoomIn, Focus, Crosshair, ArrowLeft, Clock, Info, Sparkles, ShieldQuestion } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { type Rarity, RARITY_LABELS } from '@/data/mockData';
@@ -31,6 +31,8 @@ const CapturePage = () => {
   const [saved, setSaved] = useState(false);
   const [duplicateCapture, setDuplicateCapture] = useState<{ id: string; image_url: string; animal_name: string } | null>(null);
   const [manualMode, setManualMode] = useState(false);
+  /** Non-null quand l'utilisateur contexte l'identification IA et demande une vérification humaine. */
+  const [disputedResult, setDisputedResult] = useState<AnimalResult | null>(null);
   const [identifyError, setIdentifyError] = useState<string | null>(null);
   const [manualName, setManualName] = useState('');
   const [manualSpecies, setManualSpecies] = useState('');
@@ -72,6 +74,7 @@ const CapturePage = () => {
     setSaved(false);
     setIdentifyError(null);
     setManualMode(false);
+    setDisputedResult(null);
     geo.capture();
 
     const outcome = await identify(dataUrl);
@@ -125,6 +128,7 @@ const CapturePage = () => {
     setSaved(false);
     setDuplicateCapture(null);
     setManualMode(false);
+    setDisputedResult(null);
     setIdentifyError(null);
 
     setManualName('');
@@ -147,6 +151,18 @@ const CapturePage = () => {
     return allowed;
   };
 
+  /** L'utilisateur estime que l'identification IA est fausse : bascule sur le formulaire de vérification. */
+  const requestVerification = () => {
+    if (!animalResult) return;
+    setDisputedResult(animalResult);
+    setManualName('');
+    setManualSpecies('');
+    setManualDescription('');
+    setAnimalResult(null);
+    resetReveal();
+    setManualMode(true);
+  };
+
   const saveManualEntry = async () => {
     const trimmedName = manualName.trim();
     const trimmedSpecies = manualSpecies.trim();
@@ -157,16 +173,31 @@ const CapturePage = () => {
     }
     if (!(await consumeSlot())) return;
     try {
-      const ok = await submitManualEntry({ name: trimmedName, species: trimmedSpecies, description: trimmedDesc });
+      // Le modérateur doit voir ce que l'IA proposait pour arbitrer.
+      const aiNote = disputedResult
+        ? `\n\n[Vérification demandée] L'IA proposait : ${disputedResult.animal_name}${
+            disputedResult.scientific_name ? ` (${disputedResult.scientific_name})` : ''
+          }${typeof disputedResult.confidence === 'number' ? ` — ${disputedResult.confidence}% de confiance` : ''}.`
+        : '';
+      const ok = await submitManualEntry({
+        name: trimmedName,
+        species: trimmedSpecies,
+        description: `${trimmedDesc}${aiNote}`,
+      });
       if (!ok) return;
       setSaved(true);
-      toast.success('Soumis pour validation ! Tu seras notifié une fois approuvé.');
+      toast.success(
+        disputedResult
+          ? 'Vérification demandée ! Un modérateur va confirmer ou corriger l\'identification.'
+          : 'Soumis pour validation ! Tu seras notifié une fois approuvé.'
+      );
       setTimeout(() => navigate('/home'), 1500);
     } catch (err) {
       console.error(err);
       toast.error(isDailyLimitError(err) ? "Limite atteinte : 4 captures par jour maximum. Reviens demain !" : "Erreur lors de la soumission");
     }
   };
+
 
   const finishSave = (animal: AnimalResult, imageUrl: string, message: string) => {
     setSaved(true);
@@ -524,7 +555,17 @@ const CapturePage = () => {
                 <p className="text-primary-foreground/90 text-xs font-display">💡 {animalResult.fun_fact}</p>
               </div>
 
+              {/* L'utilisateur peut contester l'identification et demander un arbitrage humain */}
+              <button
+                onClick={requestVerification}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-primary-foreground/25 bg-primary-foreground/5 text-primary-foreground/85 text-xs font-display font-semibold"
+              >
+                <ShieldQuestion className="w-4 h-4" />
+                Ce n'est pas le bon animal — Demander une vérification
+              </button>
+
             </div>
+
           </div>
         )}
 
@@ -561,12 +602,28 @@ const CapturePage = () => {
           <div className="relative z-20 flex-1 flex flex-col justify-end px-5 pb-4">
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <PenLine className="w-5 h-5 text-amber" />
-                <h2 className="text-lg font-display font-bold text-primary-foreground">Animal non reconnu</h2>
+                {disputedResult ? <ShieldQuestion className="w-5 h-5 text-amber" /> : <PenLine className="w-5 h-5 text-amber" />}
+                <h2 className="text-lg font-display font-bold text-primary-foreground">
+                  {disputedResult ? 'Demander une vérification' : 'Animal non reconnu'}
+                </h2>
               </div>
+              {disputedResult && (
+                <div className="rounded-xl border border-primary-foreground/20 bg-primary-foreground/5 px-3 py-2">
+                  <p className="text-[10px] font-display uppercase tracking-wide text-primary-foreground/60">
+                    Proposition de l'IA
+                  </p>
+                  <p className="text-sm text-primary-foreground/90 font-display">
+                    {disputedResult.animal_name}
+                    {typeof disputedResult.confidence === 'number' && ` · ${disputedResult.confidence}% sûr`}
+                  </p>
+                </div>
+              )}
               <p className="text-primary-foreground/90 text-sm">
-                Décris l'animal que tu as observé. Ta capture sera vérifiée par un modérateur avant d'être ajoutée à ton Faunex.
+                {disputedResult
+                  ? "Indique l'animal que tu as observé. Un modérateur confirmera ou corrigera l'identification avant l'ajout à ton Faunex."
+                  : "Décris l'animal que tu as observé. Ta capture sera vérifiée par un modérateur avant d'être ajoutée à ton Faunex."}
               </p>
+
               <input
                 type="text"
                 placeholder="Nom de l'animal (ex: Lynx boréal)"
@@ -663,8 +720,8 @@ const CapturePage = () => {
             disabled={saving || !manualName.trim() || !manualDescription.trim()}
             className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-amber text-foreground font-display text-sm disabled:opacity-50"
           >
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <PenLine className="w-4 h-4" />}
-            {saving ? 'Envoi…' : 'Soumettre pour validation'}
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : disputedResult ? <ShieldQuestion className="w-4 h-4" /> : <PenLine className="w-4 h-4" />}
+            {saving ? 'Envoi…' : disputedResult ? 'Demander une vérification' : 'Soumettre pour validation'}
           </button>
         ) : identifying ? null : capturedPhoto ? null : (
           <>
