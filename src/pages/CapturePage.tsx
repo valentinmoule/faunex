@@ -602,12 +602,28 @@ const CapturePage = () => {
           <div className="relative z-20 flex-1 flex flex-col justify-end px-5 pb-4">
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <PenLine className="w-5 h-5 text-amber" />
-                <h2 className="text-lg font-display font-bold text-primary-foreground">Animal non reconnu</h2>
+                {disputedResult ? <ShieldQuestion className="w-5 h-5 text-amber" /> : <PenLine className="w-5 h-5 text-amber" />}
+                <h2 className="text-lg font-display font-bold text-primary-foreground">
+                  {disputedResult ? 'Demander une vérification' : 'Animal non reconnu'}
+                </h2>
               </div>
+              {disputedResult && (
+                <div className="rounded-xl border border-primary-foreground/20 bg-primary-foreground/5 px-3 py-2">
+                  <p className="text-[10px] font-display uppercase tracking-wide text-primary-foreground/60">
+                    Proposition de l'IA
+                  </p>
+                  <p className="text-sm text-primary-foreground/90 font-display">
+                    {disputedResult.animal_name}
+                    {typeof disputedResult.confidence === 'number' && ` · ${disputedResult.confidence}% sûr`}
+                  </p>
+                </div>
+              )}
               <p className="text-primary-foreground/90 text-sm">
-                Décris l'animal que tu as observé. Ta capture sera vérifiée par un modérateur avant d'être ajoutée à ton Faunex.
+                {disputedResult
+                  ? "Indique l'animal que tu as observé. Un modérateur confirmera ou corrigera l'identification avant l'ajout à ton Faunex."
+                  : "Décris l'animal que tu as observé. Ta capture sera vérifiée par un modérateur avant d'être ajoutée à ton Faunex."}
               </p>
+
               <input
                 type="text"
                 placeholder="Nom de l'animal (ex: Lynx boréal)"
