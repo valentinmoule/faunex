@@ -31,6 +31,8 @@ const CapturePage = () => {
   const [saved, setSaved] = useState(false);
   const [duplicateCapture, setDuplicateCapture] = useState<{ id: string; image_url: string; animal_name: string } | null>(null);
   const [manualMode, setManualMode] = useState(false);
+  /** Non-null quand l'utilisateur contexte l'identification IA et demande une vérification humaine. */
+  const [disputedResult, setDisputedResult] = useState<AnimalResult | null>(null);
   const [identifyError, setIdentifyError] = useState<string | null>(null);
   const [manualName, setManualName] = useState('');
   const [manualSpecies, setManualSpecies] = useState('');
