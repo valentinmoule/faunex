@@ -74,6 +74,7 @@ const CapturePage = () => {
     setSaved(false);
     setIdentifyError(null);
     setManualMode(false);
+    setDisputedResult(null);
     geo.capture();
 
     const outcome = await identify(dataUrl);
