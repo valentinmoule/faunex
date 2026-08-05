@@ -128,6 +128,7 @@ const CapturePage = () => {
     setSaved(false);
     setDuplicateCapture(null);
     setManualMode(false);
+    setDisputedResult(null);
     setIdentifyError(null);
 
     setManualName('');
