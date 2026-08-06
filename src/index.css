@@ -1731,6 +1731,13 @@
   --cosmos-y: 0px;
 }
 
+/* Vue plein écran : la carte capture les gestes (pinch/pan personnalisés) */
+.holo-wrap[data-contain="true"] {
+  touch-action: none;
+}
+
+
+
 .holo-rotator {
   display: block;
   transform-style: preserve-3d;
