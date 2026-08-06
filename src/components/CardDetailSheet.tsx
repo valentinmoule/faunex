@@ -555,7 +555,19 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
                 <p className="text-sm text-foreground/80 leading-relaxed">{card.funFact}</p>
               </div>
             </div>
+
+            {/* Delete own capture */}
+            {isOwner && (
+              <button
+                onClick={() => setConfirmDelete(true)}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border border-destructive/30 bg-destructive/5 text-destructive font-display font-semibold text-sm hover:bg-destructive/10 transition-colors"
+              >
+                <Trash2 className="w-4 h-4" />
+                Supprimer cette capture
+              </button>
+            )}
           </div>
+
           </div>
           </Drawer.Content>
         </Drawer.Portal>
