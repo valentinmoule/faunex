@@ -646,16 +646,41 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
               })()}
             </div>
 
-            <p className="text-sm text-foreground/80 leading-relaxed text-center max-w-sm mx-auto">{card.description}</p>
+            {isUncaptured ? (
+              <div className="rounded-2xl border border-dashed border-primary/25 bg-primary/[0.04] p-4 text-center">
+                <div className="mx-auto mb-2.5 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Camera className="w-5 h-5 text-primary" />
+                </div>
+                <p className="text-sm font-display font-semibold text-foreground mb-1">
+                  Explorez la nature et photographiez cet animal pour débloquer sa fiche complète.
+                </p>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Son habitat, son alimentation et ses secrets ne seront révélés qu'après votre découverte.
+                </p>
+              </div>
+            ) : (
+              <p className="text-sm text-foreground/80 leading-relaxed text-center max-w-sm mx-auto">{card.description}</p>
+            )}
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 gap-2.5">
-              <StatCard icon={<MapPin className="w-4 h-4" />} label="Habitat" value={card.habitat} color="text-primary" bg="bg-primary/8" />
-              <StatCard icon={<UtensilsCrossed className="w-4 h-4" />} label="Alimentation" value={card.diet} color="text-amber" bg="bg-amber/8" />
-              <StatCard icon={<Shield className="w-4 h-4" />} label="Conservation" value={card.conservation} color="text-sky" bg="bg-sky/8" />
-              <StatCard icon={<Leaf className="w-4 h-4" />} label="Lieu" value={location || 'Non renseigné'} color="text-forest-light" bg="bg-forest-light/8"
-                link={card.latitude && card.longitude ? `https://www.google.com/maps?q=${card.latitude},${card.longitude}` : undefined}
-              />
+              {isUncaptured ? (
+                <>
+                  <LockedField icon={<MapPin className="w-4 h-4" />} label="Habitat" />
+                  <LockedField icon={<UtensilsCrossed className="w-4 h-4" />} label="Alimentation" />
+                  <LockedField icon={<Shield className="w-4 h-4" />} label="Conservation" />
+                  <LockedField icon={<Leaf className="w-4 h-4" />} label="Lieu" />
+                </>
+              ) : (
+                <>
+                  <StatCard icon={<MapPin className="w-4 h-4" />} label="Habitat" value={card.habitat} color="text-primary" bg="bg-primary/8" />
+                  <StatCard icon={<UtensilsCrossed className="w-4 h-4" />} label="Alimentation" value={card.diet} color="text-amber" bg="bg-amber/8" />
+                  <StatCard icon={<Shield className="w-4 h-4" />} label="Conservation" value={card.conservation} color="text-sky" bg="bg-sky/8" />
+                  <StatCard icon={<Leaf className="w-4 h-4" />} label="Lieu" value={location || 'Non renseigné'} color="text-forest-light" bg="bg-forest-light/8"
+                    link={card.latitude && card.longitude ? `https://www.google.com/maps?q=${card.latitude},${card.longitude}` : undefined}
+                  />
+                </>
+              )}
             </div>
 
             {/* Location editor (owner only) */}
