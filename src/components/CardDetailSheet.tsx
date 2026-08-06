@@ -667,7 +667,28 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
 
         </div>
       )}
+
+      <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
+        <AlertDialogContent className="z-[10000]">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer cette capture ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {card.name} sera retiré de ton Faunex et de ton nombre d'espèces. Cette action est définitive.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); handleDelete(); }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? 'Suppression…' : 'Supprimer'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
+
   );
 };
 
