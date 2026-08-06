@@ -65,6 +65,17 @@ const getCategoryIcon = (category: string): ComponentType<{ className?: string; 
   return PawPrint;
 };
 
+const LockedField = ({ icon, label }: { icon: React.ReactNode; label: string }) => (
+  <div className="flex items-center gap-3 rounded-2xl border border-dashed border-border bg-muted/30 px-4 py-3.5">
+    <div className="text-muted-foreground/60">{icon}</div>
+    <div className="flex-1 min-w-0">
+      <p className="text-[10px] font-display font-bold uppercase tracking-wider text-muted-foreground/70">{label}</p>
+      <p className="text-sm text-muted-foreground/50 italic truncate">À découvrir</p>
+    </div>
+    <Lock className="w-3.5 h-3.5 text-muted-foreground/40" />
+  </div>
+);
+
 
 const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
   const { session } = useAuth();
