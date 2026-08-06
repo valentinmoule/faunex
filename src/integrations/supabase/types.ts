@@ -95,6 +95,7 @@ export type Database = {
           likes_count: number
           location: string | null
           longitude: number | null
+          note: string | null
           rarity: string
           scientific_name: string | null
           shared: boolean
@@ -119,6 +120,7 @@ export type Database = {
           likes_count?: number
           location?: string | null
           longitude?: number | null
+          note?: string | null
           rarity?: string
           scientific_name?: string | null
           shared?: boolean
@@ -143,6 +145,7 @@ export type Database = {
           likes_count?: number
           location?: string | null
           longitude?: number | null
+          note?: string | null
           rarity?: string
           scientific_name?: string | null
           shared?: boolean

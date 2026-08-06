@@ -71,6 +71,10 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
   const [isOwner, setIsOwner] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [note, setNote] = useState('');
+  const [noteDraft, setNoteDraft] = useState('');
+  const [editingNote, setEditingNote] = useState(false);
+  const [savingNote, setSavingNote] = useState(false);
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -117,23 +121,46 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
     }
   }, [card, open]);
 
-  // Ownership check — only the author can delete their capture
+  // Ownership check + personal note — only the author can edit or delete their capture
   useEffect(() => {
     setIsOwner(false);
     setConfirmDelete(false);
+    setNote('');
+    setNoteDraft('');
+    setEditingNote(false);
     if (!card || !open || !session?.user) return;
     if (!card.image || card.id.startsWith('uncaptured-')) return;
     let cancelled = false;
     (async () => {
       const { data } = await supabase
         .from('captures')
-        .select('user_id')
+        .select('user_id, note')
         .eq('id', card.id)
         .maybeSingle();
-      if (!cancelled && data) setIsOwner((data as any).user_id === session.user.id);
+      if (!cancelled && data) {
+        setIsOwner((data as any).user_id === session.user.id);
+        setNote((data as any).note || '');
+        setNoteDraft((data as any).note || '');
+      }
     })();
     return () => { cancelled = true; };
   }, [card, open, session]);
+
+  const saveNote = useCallback(async () => {
+    if (!card || savingNote) return;
+    const clean = noteDraft.trim().slice(0, 500);
+    setSavingNote(true);
+    const { error } = await supabase.from('captures').update({ note: clean || null }).eq('id', card.id);
+    setSavingNote(false);
+    if (error) {
+      toast({ title: 'Note non enregistrée', description: 'Réessaie dans un instant.', variant: 'destructive' });
+      return;
+    }
+    setNote(clean);
+    setNoteDraft(clean);
+    setEditingNote(false);
+    toast({ title: clean ? 'Note enregistrée' : 'Note supprimée' });
+  }, [card, noteDraft, savingNote]);
 
   const handleDelete = useCallback(async () => {
     if (!card || deleting) return;
@@ -149,6 +176,7 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
     onDeleted?.(card.id);
     onClose();
   }, [card, deleting, onDeleted, onClose]);
+
 
 
 
@@ -555,6 +583,60 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
                 <p className="text-sm text-foreground/80 leading-relaxed">{card.funFact}</p>
               </div>
             </div>
+
+            {/* Personal note (owner only) */}
+            {isOwner && (
+              <div className="rounded-2xl border border-border bg-card p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs font-display font-bold uppercase tracking-wider text-muted-foreground">Ma note</p>
+                  {!editingNote && (
+                    <button
+                      onClick={() => { setNoteDraft(note); setEditingNote(true); }}
+                      className="text-xs font-display font-semibold text-primary"
+                    >
+                      {note ? 'Modifier' : 'Ajouter'}
+                    </button>
+                  )}
+                </div>
+                {editingNote ? (
+                  <div className="space-y-2">
+                    <textarea
+                      value={noteDraft}
+                      onChange={(e) => setNoteDraft(e.target.value.slice(0, 500))}
+                      maxLength={500}
+                      rows={4}
+                      autoFocus
+                      placeholder="Où l'as-tu vu ? Que faisait-il ? Note tes observations…"
+                      className="w-full rounded-xl border border-border bg-background p-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 resize-none"
+                    />
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-muted-foreground">{noteDraft.length}/500</span>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => { setNoteDraft(note); setEditingNote(false); }}
+                          className="px-3 py-1.5 rounded-full text-xs font-display font-semibold bg-muted text-muted-foreground"
+                        >
+                          Annuler
+                        </button>
+                        <button
+                          onClick={saveNote}
+                          disabled={savingNote}
+                          className="px-3 py-1.5 rounded-full text-xs font-display font-semibold bg-primary text-primary-foreground disabled:opacity-60"
+                        >
+                          {savingNote ? 'Enregistrement…' : 'Enregistrer'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ) : note ? (
+                  <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">{note}</p>
+                ) : (
+                  <p className="text-sm text-muted-foreground">Aucune note pour l'instant.</p>
+                )}
+              </div>
+            )}
+
+
 
             {/* Delete own capture */}
             {isOwner && (
