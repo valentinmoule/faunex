@@ -3,7 +3,7 @@ import { notifyCaptureInteraction } from '@/lib/notifyCaptureInteraction';
 import { Drawer } from 'vaul';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
-import { MapPin, Leaf, UtensilsCrossed, Shield, Sparkles, Heart, MessageCircle, Send, PawPrint, Bird, Fish, Bug, Turtle, Shell, Waves, type LucideIcon } from 'lucide-react';
+import { MapPin, Leaf, UtensilsCrossed, Shield, Sparkles, Heart, MessageCircle, Send, PawPrint, Bird, Fish, Bug, Turtle, Shell, Waves, Lock, Camera, type LucideIcon } from 'lucide-react';
 import { FrogIcon } from '@/components/icons/FrogIcon';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -64,6 +64,17 @@ const getCategoryIcon = (category: string): ComponentType<{ className?: string; 
   if (cat.includes('mammifère')) return PawPrint;
   return PawPrint;
 };
+
+const LockedField = ({ icon, label }: { icon: React.ReactNode; label: string }) => (
+  <div className="flex items-center gap-3 rounded-2xl border border-dashed border-border bg-muted/30 px-4 py-3.5">
+    <div className="text-muted-foreground/60">{icon}</div>
+    <div className="flex-1 min-w-0">
+      <p className="text-[10px] font-display font-bold uppercase tracking-wider text-muted-foreground/70">{label}</p>
+      <p className="text-sm text-muted-foreground/50 italic truncate">À découvrir</p>
+    </div>
+    <Lock className="w-3.5 h-3.5 text-muted-foreground/40" />
+  </div>
+);
 
 
 const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
@@ -519,8 +530,14 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
                       (() => {
                         const CatIcon = getCategoryIcon(card.category);
                         return (
-                          <div className="w-full h-full flex items-center justify-center bg-muted/40">
-                            <CatIcon className="w-24 h-24 text-muted-foreground" strokeWidth={1.5} />
+                          <div className="w-full h-full flex flex-col items-center justify-center bg-muted/30">
+                            <div className="relative">
+                              <div className="absolute inset-0 rounded-full bg-muted-foreground/5 animate-pulse" />
+                              <CatIcon className="w-20 h-20 text-muted-foreground/40 relative z-10" strokeWidth={1.5} />
+                            </div>
+                            <div className="mt-4 px-5 text-center">
+                              <p className="text-xs font-display font-semibold text-muted-foreground/70">Non découvert</p>
+                            </div>
                           </div>
                         );
                       })()
@@ -549,17 +566,19 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
           {/* Card Body */}
           <div className="relative -mt-8 bg-background rounded-t-3xl px-5 pb-10 pt-5 space-y-5">
 
-            {/* Like & Comment bar */}
-            <div className="flex items-center justify-center gap-6">
-              <button onClick={handleLike} className="flex items-center gap-2 group">
-                <Heart className={`w-6 h-6 transition-all ${liked ? 'fill-destructive text-destructive scale-110' : 'text-muted-foreground group-hover:text-destructive'}`} />
-                <span className={`text-sm font-display font-semibold ${liked ? 'text-destructive' : 'text-muted-foreground'}`}>{likeCount}</span>
-              </button>
-              <button onClick={() => setShowComments(!showComments)} className="flex items-center gap-2 group">
-                <MessageCircle className={`w-6 h-6 transition-colors ${showComments ? 'text-primary fill-primary/20' : 'text-muted-foreground group-hover:text-primary'}`} />
-                <span className={`text-sm font-display font-semibold ${showComments ? 'text-primary' : 'text-muted-foreground'}`}>{commentCount}</span>
-              </button>
-            </div>
+            {/* Like & Comment bar — hidden for undiscovered animals */}
+            {!isUncaptured && (
+              <div className="flex items-center justify-center gap-6">
+                <button onClick={handleLike} className="flex items-center gap-2 group">
+                  <Heart className={`w-6 h-6 transition-all ${liked ? 'fill-destructive text-destructive scale-110' : 'text-muted-foreground group-hover:text-destructive'}`} />
+                  <span className={`text-sm font-display font-semibold ${liked ? 'text-destructive' : 'text-muted-foreground'}`}>{likeCount}</span>
+                </button>
+                <button onClick={() => setShowComments(!showComments)} className="flex items-center gap-2 group">
+                  <MessageCircle className={`w-6 h-6 transition-colors ${showComments ? 'text-primary fill-primary/20' : 'text-muted-foreground group-hover:text-primary'}`} />
+                  <span className={`text-sm font-display font-semibold ${showComments ? 'text-primary' : 'text-muted-foreground'}`}>{commentCount}</span>
+                </button>
+              </div>
+            )}
 
             {/* Comments section */}
             {showComments && (
@@ -627,16 +646,41 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
               })()}
             </div>
 
-            <p className="text-sm text-foreground/80 leading-relaxed text-center max-w-sm mx-auto">{card.description}</p>
+            {isUncaptured ? (
+              <div className="rounded-2xl border border-dashed border-primary/25 bg-primary/[0.04] p-4 text-center">
+                <div className="mx-auto mb-2.5 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Camera className="w-5 h-5 text-primary" />
+                </div>
+                <p className="text-sm font-display font-semibold text-foreground mb-1">
+                  Explorez la nature et photographiez cet animal pour débloquer sa fiche complète.
+                </p>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Son habitat, son alimentation et ses secrets ne seront révélés qu'après votre découverte.
+                </p>
+              </div>
+            ) : (
+              <p className="text-sm text-foreground/80 leading-relaxed text-center max-w-sm mx-auto">{card.description}</p>
+            )}
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 gap-2.5">
-              <StatCard icon={<MapPin className="w-4 h-4" />} label="Habitat" value={card.habitat} color="text-primary" bg="bg-primary/8" />
-              <StatCard icon={<UtensilsCrossed className="w-4 h-4" />} label="Alimentation" value={card.diet} color="text-amber" bg="bg-amber/8" />
-              <StatCard icon={<Shield className="w-4 h-4" />} label="Conservation" value={card.conservation} color="text-sky" bg="bg-sky/8" />
-              <StatCard icon={<Leaf className="w-4 h-4" />} label="Lieu" value={location || 'Non renseigné'} color="text-forest-light" bg="bg-forest-light/8"
-                link={card.latitude && card.longitude ? `https://www.google.com/maps?q=${card.latitude},${card.longitude}` : undefined}
-              />
+              {isUncaptured ? (
+                <>
+                  <LockedField icon={<MapPin className="w-4 h-4" />} label="Habitat" />
+                  <LockedField icon={<UtensilsCrossed className="w-4 h-4" />} label="Alimentation" />
+                  <LockedField icon={<Shield className="w-4 h-4" />} label="Conservation" />
+                  <LockedField icon={<Leaf className="w-4 h-4" />} label="Lieu" />
+                </>
+              ) : (
+                <>
+                  <StatCard icon={<MapPin className="w-4 h-4" />} label="Habitat" value={card.habitat} color="text-primary" bg="bg-primary/8" />
+                  <StatCard icon={<UtensilsCrossed className="w-4 h-4" />} label="Alimentation" value={card.diet} color="text-amber" bg="bg-amber/8" />
+                  <StatCard icon={<Shield className="w-4 h-4" />} label="Conservation" value={card.conservation} color="text-sky" bg="bg-sky/8" />
+                  <StatCard icon={<Leaf className="w-4 h-4" />} label="Lieu" value={location || 'Non renseigné'} color="text-forest-light" bg="bg-forest-light/8"
+                    link={card.latitude && card.longitude ? `https://www.google.com/maps?q=${card.latitude},${card.longitude}` : undefined}
+                  />
+                </>
+              )}
             </div>
 
             {/* Location editor (owner only) */}
@@ -704,7 +748,7 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
 
 
             {/* Fun Fact */}
-            <div className={`relative overflow-hidden rounded-2xl border ${isMythic ? 'border-rarity-mythic/30 bg-rarity-mythic/5' : isEpic ? 'border-rarity-epic/30 bg-rarity-epic/5' : 'border-border bg-muted/30'}`}>
+            <div className={`relative overflow-hidden rounded-2xl border ${isMythic ? 'border-rarity-mythic/30 bg-rarity-mythic/5' : isEpic ? 'border-rarity-epic/30 bg-rarity-epic/5' : 'border-border bg-muted/30'} ${isUncaptured ? 'opacity-70' : ''}`}>
               <div className="px-4 py-4">
                 <div className="flex items-center gap-2 mb-2">
                   <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${isMythic ? 'bg-rarity-mythic/15' : 'bg-primary/15'}`}>
@@ -714,7 +758,14 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
                     Le saviez-vous ?
                   </p>
                 </div>
-                <p className="text-sm text-foreground/80 leading-relaxed">{card.funFact}</p>
+                {isUncaptured ? (
+                  <div className="flex items-center gap-2 text-muted-foreground/50">
+                    <Lock className="w-3.5 h-3.5" />
+                    <p className="text-sm italic">Anecdote cachée — à découvrir</p>
+                  </div>
+                ) : (
+                  <p className="text-sm text-foreground/80 leading-relaxed">{card.funFact}</p>
+                )}
               </div>
             </div>
 
