@@ -75,6 +75,13 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
   const [noteDraft, setNoteDraft] = useState('');
   const [editingNote, setEditingNote] = useState(false);
   const [savingNote, setSavingNote] = useState(false);
+  const [location, setLocation] = useState<string | null>(null);
+  const [editingLocation, setEditingLocation] = useState(false);
+  const [savingLocation, setSavingLocation] = useState(false);
+  const [locQuery, setLocQuery] = useState('');
+  const [locResults, setLocResults] = useState<{ nom: string; centre?: { coordinates: [number, number] } }[]>([]);
+  const [locLoading, setLocLoading] = useState(false);
+
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [comments, setComments] = useState<Comment[]>([]);
