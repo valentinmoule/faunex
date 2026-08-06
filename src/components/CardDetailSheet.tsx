@@ -530,8 +530,14 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
                       (() => {
                         const CatIcon = getCategoryIcon(card.category);
                         return (
-                          <div className="w-full h-full flex items-center justify-center bg-muted/40">
-                            <CatIcon className="w-24 h-24 text-muted-foreground" strokeWidth={1.5} />
+                          <div className="w-full h-full flex flex-col items-center justify-center bg-muted/30">
+                            <div className="relative">
+                              <div className="absolute inset-0 rounded-full bg-muted-foreground/5 animate-pulse" />
+                              <CatIcon className="w-20 h-20 text-muted-foreground/40 relative z-10" strokeWidth={1.5} />
+                            </div>
+                            <div className="mt-4 px-5 text-center">
+                              <p className="text-xs font-display font-semibold text-muted-foreground/70">Non découvert</p>
+                            </div>
                           </div>
                         );
                       })()
