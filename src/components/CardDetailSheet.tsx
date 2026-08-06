@@ -13,6 +13,8 @@ interface Props {
   card: AnimalCard | null;
   open: boolean;
   onClose: () => void;
+  /** Called after the user deleted their own capture, so the parent list can drop it. */
+  onDeleted?: (captureId: string) => void;
 }
 
 interface Comment {
