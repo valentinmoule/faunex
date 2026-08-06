@@ -584,6 +584,60 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
               </div>
             </div>
 
+            {/* Personal note (owner only) */}
+            {isOwner && (
+              <div className="rounded-2xl border border-border bg-card p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs font-display font-bold uppercase tracking-wider text-muted-foreground">Ma note</p>
+                  {!editingNote && (
+                    <button
+                      onClick={() => { setNoteDraft(note); setEditingNote(true); }}
+                      className="text-xs font-display font-semibold text-primary"
+                    >
+                      {note ? 'Modifier' : 'Ajouter'}
+                    </button>
+                  )}
+                </div>
+                {editingNote ? (
+                  <div className="space-y-2">
+                    <textarea
+                      value={noteDraft}
+                      onChange={(e) => setNoteDraft(e.target.value.slice(0, 500))}
+                      maxLength={500}
+                      rows={4}
+                      autoFocus
+                      placeholder="Où l'as-tu vu ? Que faisait-il ? Note tes observations…"
+                      className="w-full rounded-xl border border-border bg-background p-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 resize-none"
+                    />
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-muted-foreground">{noteDraft.length}/500</span>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => { setNoteDraft(note); setEditingNote(false); }}
+                          className="px-3 py-1.5 rounded-full text-xs font-display font-semibold bg-muted text-muted-foreground"
+                        >
+                          Annuler
+                        </button>
+                        <button
+                          onClick={saveNote}
+                          disabled={savingNote}
+                          className="px-3 py-1.5 rounded-full text-xs font-display font-semibold bg-primary text-primary-foreground disabled:opacity-60"
+                        >
+                          {savingNote ? 'Enregistrement…' : 'Enregistrer'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ) : note ? (
+                  <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">{note}</p>
+                ) : (
+                  <p className="text-sm text-muted-foreground">Aucune note pour l'instant.</p>
+                )}
+              </div>
+            )}
+
+
+
             {/* Delete own capture */}
             {isOwner && (
               <button
