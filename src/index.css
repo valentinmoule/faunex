@@ -1712,7 +1712,8 @@
   position: relative;
   display: block;
   perspective: 600px;
-  touch-action: none;
+  /* Laisse le scroll/swipe natif traverser la carte (carrousels mobiles) */
+  touch-action: pan-x pan-y pinch-zoom;
   -webkit-tap-highlight-color: transparent;
   cursor: pointer;
   /* CSS variables driven by the spring loop in HolographicCard.tsx */
@@ -1729,6 +1730,13 @@
   --cosmos-x: 0px;
   --cosmos-y: 0px;
 }
+
+/* Vue plein écran : la carte capture les gestes (pinch/pan personnalisés) */
+.holo-wrap[data-contain="true"] {
+  touch-action: none;
+}
+
+
 
 .holo-rotator {
   display: block;

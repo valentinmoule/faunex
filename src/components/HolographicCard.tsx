@@ -311,6 +311,7 @@ const HolographicCard = ({
     <div
       ref={wrapRef}
       className={`holo-wrap holo-${rarity} ${className} ${appearAnimation}`}
+      data-contain={containInteraction ? 'true' : undefined}
       data-subject={subjectBox ? 'on' : undefined}
       data-paused={paused ? 'true' : undefined}
       style={cosmosStyle}
