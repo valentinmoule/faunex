@@ -114,6 +114,41 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
     }
   }, [card, open]);
 
+  // Ownership check — only the author can delete their capture
+  useEffect(() => {
+    setIsOwner(false);
+    setConfirmDelete(false);
+    if (!card || !open || !session?.user) return;
+    if (!card.image || card.id.startsWith('uncaptured-')) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from('captures')
+        .select('user_id')
+        .eq('id', card.id)
+        .maybeSingle();
+      if (!cancelled && data) setIsOwner((data as any).user_id === session.user.id);
+    })();
+    return () => { cancelled = true; };
+  }, [card, open, session]);
+
+  const handleDelete = useCallback(async () => {
+    if (!card || deleting) return;
+    setDeleting(true);
+    const { error } = await supabase.from('captures').delete().eq('id', card.id);
+    setDeleting(false);
+    if (error) {
+      toast({ title: 'Suppression impossible', description: 'Réessaie dans un instant.', variant: 'destructive' });
+      return;
+    }
+    setConfirmDelete(false);
+    toast({ title: 'Capture supprimée', description: 'Elle a été retirée de ton Faunex.' });
+    onDeleted?.(card.id);
+    onClose();
+  }, [card, deleting, onDeleted, onClose]);
+
+
+
   // Reset pinch-zoom when entering/leaving fullscreen so the photo always starts at 1x.
   useEffect(() => {
     if (imageFullscreen) {
