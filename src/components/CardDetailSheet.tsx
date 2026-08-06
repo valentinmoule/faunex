@@ -748,7 +748,7 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
 
 
             {/* Fun Fact */}
-            <div className={`relative overflow-hidden rounded-2xl border ${isMythic ? 'border-rarity-mythic/30 bg-rarity-mythic/5' : isEpic ? 'border-rarity-epic/30 bg-rarity-epic/5' : 'border-border bg-muted/30'}`}>
+            <div className={`relative overflow-hidden rounded-2xl border ${isMythic ? 'border-rarity-mythic/30 bg-rarity-mythic/5' : isEpic ? 'border-rarity-epic/30 bg-rarity-epic/5' : 'border-border bg-muted/30'} ${isUncaptured ? 'opacity-70' : ''}`}>
               <div className="px-4 py-4">
                 <div className="flex items-center gap-2 mb-2">
                   <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${isMythic ? 'bg-rarity-mythic/15' : 'bg-primary/15'}`}>
@@ -758,7 +758,14 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
                     Le saviez-vous ?
                   </p>
                 </div>
-                <p className="text-sm text-foreground/80 leading-relaxed">{card.funFact}</p>
+                {isUncaptured ? (
+                  <div className="flex items-center gap-2 text-muted-foreground/50">
+                    <Lock className="w-3.5 h-3.5" />
+                    <p className="text-sm italic">Anecdote cachée — à découvrir</p>
+                  </div>
+                ) : (
+                  <p className="text-sm text-foreground/80 leading-relaxed">{card.funFact}</p>
+                )}
               </div>
             </div>
 
