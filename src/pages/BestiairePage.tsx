@@ -41,6 +41,7 @@ const BestiairePage = () => {
   const {
     animals,
     myCaptures,
+    setMyCaptures,
     loading,
     unreadCount,
     subscribedZones,
@@ -486,7 +487,7 @@ const BestiairePage = () => {
           )}
         </div>
 
-        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} />
+        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
         {deptPickerSheet}
       </main>
     );
@@ -763,7 +764,7 @@ const BestiairePage = () => {
           )}
 
         </div>
-        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} />
+        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
         {deptPickerSheet}
       </main>
     );
@@ -882,7 +883,7 @@ const BestiairePage = () => {
         )}
       </div>
 
-      <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} />
+      <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
 
       {/* Flying card overlay for shelve animation */}
       {flyingCardStyle && pendingShelve && (

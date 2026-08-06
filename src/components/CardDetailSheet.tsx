@@ -8,11 +8,16 @@ import { FrogIcon } from '@/components/icons/FrogIcon';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import HolographicCard from '@/components/HolographicCard';
+import { toast } from '@/hooks/use-toast';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Trash2 } from 'lucide-react';
 
 interface Props {
   card: AnimalCard | null;
   open: boolean;
   onClose: () => void;
+  /** Called after the user deleted their own capture, so the parent list can drop it. */
+  onDeleted?: (captureId: string) => void;
 }
 
 interface Comment {
@@ -61,8 +66,11 @@ const getCategoryIcon = (category: string): ComponentType<{ className?: string; 
 };
 
 
-const CardDetailSheet = ({ card, open, onClose }: Props) => {
+const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
   const { session } = useAuth();
+  const [isOwner, setIsOwner] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -108,6 +116,41 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
       img.src = card.image;
     }
   }, [card, open]);
+
+  // Ownership check — only the author can delete their capture
+  useEffect(() => {
+    setIsOwner(false);
+    setConfirmDelete(false);
+    if (!card || !open || !session?.user) return;
+    if (!card.image || card.id.startsWith('uncaptured-')) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from('captures')
+        .select('user_id')
+        .eq('id', card.id)
+        .maybeSingle();
+      if (!cancelled && data) setIsOwner((data as any).user_id === session.user.id);
+    })();
+    return () => { cancelled = true; };
+  }, [card, open, session]);
+
+  const handleDelete = useCallback(async () => {
+    if (!card || deleting) return;
+    setDeleting(true);
+    const { error } = await supabase.from('captures').delete().eq('id', card.id);
+    setDeleting(false);
+    if (error) {
+      toast({ title: 'Suppression impossible', description: 'Réessaie dans un instant.', variant: 'destructive' });
+      return;
+    }
+    setConfirmDelete(false);
+    toast({ title: 'Capture supprimée', description: 'Elle a été retirée de ton Faunex.' });
+    onDeleted?.(card.id);
+    onClose();
+  }, [card, deleting, onDeleted, onClose]);
+
+
 
   // Reset pinch-zoom when entering/leaving fullscreen so the photo always starts at 1x.
   useEffect(() => {
@@ -512,7 +555,19 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
                 <p className="text-sm text-foreground/80 leading-relaxed">{card.funFact}</p>
               </div>
             </div>
+
+            {/* Delete own capture */}
+            {isOwner && (
+              <button
+                onClick={() => setConfirmDelete(true)}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border border-destructive/30 bg-destructive/5 text-destructive font-display font-semibold text-sm hover:bg-destructive/10 transition-colors"
+              >
+                <Trash2 className="w-4 h-4" />
+                Supprimer cette capture
+              </button>
+            )}
           </div>
+
           </div>
           </Drawer.Content>
         </Drawer.Portal>
@@ -612,7 +667,28 @@ const CardDetailSheet = ({ card, open, onClose }: Props) => {
 
         </div>
       )}
+
+      <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
+        <AlertDialogContent className="z-[10000]">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer cette capture ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {card.name} sera retiré de ton Faunex et de ton nombre d'espèces. Cette action est définitive.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); handleDelete(); }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? 'Suppression…' : 'Supprimer'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
+
   );
 };
 

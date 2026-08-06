@@ -479,7 +479,7 @@ const Index = () => {
         )}
       </div>
 
-      <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} />
+      <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} onDeleted={(id) => setAllCaptures(prev => prev.filter(c => c.id !== id))} />
       <WelcomeInstallPopup />
       <DailyQuestPopup />
     </main>

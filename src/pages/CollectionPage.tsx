@@ -274,7 +274,7 @@ const CollectionPage = () => {
         )}
       </div>
 
-      <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} />
+      <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} onDeleted={(id) => setCaptures(prev => prev.filter(c => c.id !== id))} />
     </main>
   );
 };
