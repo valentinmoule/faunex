@@ -135,23 +135,85 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
     setNote('');
     setNoteDraft('');
     setEditingNote(false);
+    setEditingLocation(false);
+    setLocQuery('');
+    setLocResults([]);
+    setLocation(card?.location ?? null);
     if (!card || !open || !session?.user) return;
     if (!card.image || card.id.startsWith('uncaptured-')) return;
     let cancelled = false;
     (async () => {
       const { data } = await supabase
         .from('captures')
-        .select('user_id, note')
+        .select('user_id, note, location')
         .eq('id', card.id)
         .maybeSingle();
       if (!cancelled && data) {
         setIsOwner((data as any).user_id === session.user.id);
         setNote((data as any).note || '');
         setNoteDraft((data as any).note || '');
+        setLocation((data as any).location || null);
       }
     })();
     return () => { cancelled = true; };
   }, [card, open, session]);
+
+  // Debounced French commune search (geo.api.gouv.fr) for editing the capture location
+  useEffect(() => {
+    if (!editingLocation) return;
+    const q = locQuery.trim();
+    if (q.length < 2) {
+      setLocResults([]);
+      return;
+    }
+    let cancelled = false;
+    setLocLoading(true);
+    const t = setTimeout(async () => {
+      try {
+        const url = `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(q)}&fields=nom,centre&boost=population&limit=10`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (!cancelled) setLocResults(Array.isArray(data) ? data : []);
+      } catch {
+        if (!cancelled) setLocResults([]);
+      } finally {
+        if (!cancelled) setLocLoading(false);
+      }
+    }, 250);
+    return () => { cancelled = true; clearTimeout(t); };
+  }, [locQuery, editingLocation]);
+
+  const saveLocation = useCallback(async (nom: string | null, coords?: [number, number]) => {
+    if (!card || savingLocation) return;
+    setSavingLocation(true);
+    const payload: Record<string, unknown> = { location: nom };
+    if (coords) {
+      payload.longitude = coords[0];
+      payload.latitude = coords[1];
+    } else if (nom === null) {
+      payload.longitude = null;
+      payload.latitude = null;
+    }
+    const { error } = await supabase.from('captures').update(payload).eq('id', card.id);
+    setSavingLocation(false);
+    if (error) {
+      toast({ title: 'Localisation non enregistrée', description: 'Réessaie dans un instant.', variant: 'destructive' });
+      return;
+    }
+    setLocation(nom);
+    if (coords) {
+      (card as any).latitude = coords[1];
+      (card as any).longitude = coords[0];
+    } else if (nom === null) {
+      (card as any).latitude = null;
+      (card as any).longitude = null;
+    }
+    (card as any).location = nom;
+    setEditingLocation(false);
+    setLocQuery('');
+    setLocResults([]);
+    toast({ title: nom ? 'Localisation mise à jour' : 'Localisation retirée' });
+  }, [card, savingLocation]);
 
   const saveNote = useCallback(async () => {
     if (!card || savingNote) return;
@@ -178,6 +240,7 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
       toast({ title: 'Suppression impossible', description: 'Réessaie dans un instant.', variant: 'destructive' });
       return;
     }
+
     setConfirmDelete(false);
     toast({ title: 'Capture supprimée', description: 'Elle a été retirée de ton Faunex.' });
     onDeleted?.(card.id);
