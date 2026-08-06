@@ -166,6 +166,7 @@ export const useBestiaryData = (userId: string | undefined) => {
   return {
     animals,
     myCaptures,
+    setMyCaptures,
     loading,
     unreadCount,
     subscribedZones,
