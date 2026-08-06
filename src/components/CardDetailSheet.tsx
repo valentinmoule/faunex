@@ -71,6 +71,10 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
   const [isOwner, setIsOwner] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [note, setNote] = useState('');
+  const [noteDraft, setNoteDraft] = useState('');
+  const [editingNote, setEditingNote] = useState(false);
+  const [savingNote, setSavingNote] = useState(false);
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [comments, setComments] = useState<Comment[]>([]);
