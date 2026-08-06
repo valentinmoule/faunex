@@ -75,6 +75,13 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
   const [noteDraft, setNoteDraft] = useState('');
   const [editingNote, setEditingNote] = useState(false);
   const [savingNote, setSavingNote] = useState(false);
+  const [location, setLocation] = useState<string | null>(null);
+  const [editingLocation, setEditingLocation] = useState(false);
+  const [savingLocation, setSavingLocation] = useState(false);
+  const [locQuery, setLocQuery] = useState('');
+  const [locResults, setLocResults] = useState<{ nom: string; centre?: { coordinates: [number, number] } }[]>([]);
+  const [locLoading, setLocLoading] = useState(false);
+
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -128,23 +135,85 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
     setNote('');
     setNoteDraft('');
     setEditingNote(false);
+    setEditingLocation(false);
+    setLocQuery('');
+    setLocResults([]);
+    setLocation(card?.location ?? null);
     if (!card || !open || !session?.user) return;
     if (!card.image || card.id.startsWith('uncaptured-')) return;
     let cancelled = false;
     (async () => {
       const { data } = await supabase
         .from('captures')
-        .select('user_id, note')
+        .select('user_id, note, location')
         .eq('id', card.id)
         .maybeSingle();
       if (!cancelled && data) {
         setIsOwner((data as any).user_id === session.user.id);
         setNote((data as any).note || '');
         setNoteDraft((data as any).note || '');
+        setLocation((data as any).location || null);
       }
     })();
     return () => { cancelled = true; };
   }, [card, open, session]);
+
+  // Debounced French commune search (geo.api.gouv.fr) for editing the capture location
+  useEffect(() => {
+    if (!editingLocation) return;
+    const q = locQuery.trim();
+    if (q.length < 2) {
+      setLocResults([]);
+      return;
+    }
+    let cancelled = false;
+    setLocLoading(true);
+    const t = setTimeout(async () => {
+      try {
+        const url = `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(q)}&fields=nom,centre&boost=population&limit=10`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (!cancelled) setLocResults(Array.isArray(data) ? data : []);
+      } catch {
+        if (!cancelled) setLocResults([]);
+      } finally {
+        if (!cancelled) setLocLoading(false);
+      }
+    }, 250);
+    return () => { cancelled = true; clearTimeout(t); };
+  }, [locQuery, editingLocation]);
+
+  const saveLocation = useCallback(async (nom: string | null, coords?: [number, number]) => {
+    if (!card || savingLocation) return;
+    setSavingLocation(true);
+    const payload: Record<string, unknown> = { location: nom };
+    if (coords) {
+      payload.longitude = coords[0];
+      payload.latitude = coords[1];
+    } else if (nom === null) {
+      payload.longitude = null;
+      payload.latitude = null;
+    }
+    const { error } = await supabase.from('captures').update(payload).eq('id', card.id);
+    setSavingLocation(false);
+    if (error) {
+      toast({ title: 'Localisation non enregistrée', description: 'Réessaie dans un instant.', variant: 'destructive' });
+      return;
+    }
+    setLocation(nom);
+    if (coords) {
+      (card as any).latitude = coords[1];
+      (card as any).longitude = coords[0];
+    } else if (nom === null) {
+      (card as any).latitude = null;
+      (card as any).longitude = null;
+    }
+    (card as any).location = nom;
+    setEditingLocation(false);
+    setLocQuery('');
+    setLocResults([]);
+    toast({ title: nom ? 'Localisation mise à jour' : 'Localisation retirée' });
+  }, [card, savingLocation]);
 
   const saveNote = useCallback(async () => {
     if (!card || savingNote) return;
@@ -171,6 +240,7 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
       toast({ title: 'Suppression impossible', description: 'Réessaie dans un instant.', variant: 'destructive' });
       return;
     }
+
     setConfirmDelete(false);
     toast({ title: 'Capture supprimée', description: 'Elle a été retirée de ton Faunex.' });
     onDeleted?.(card.id);
@@ -564,10 +634,74 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
               <StatCard icon={<MapPin className="w-4 h-4" />} label="Habitat" value={card.habitat} color="text-primary" bg="bg-primary/8" />
               <StatCard icon={<UtensilsCrossed className="w-4 h-4" />} label="Alimentation" value={card.diet} color="text-amber" bg="bg-amber/8" />
               <StatCard icon={<Shield className="w-4 h-4" />} label="Conservation" value={card.conservation} color="text-sky" bg="bg-sky/8" />
-              <StatCard icon={<Leaf className="w-4 h-4" />} label="Lieu" value={card.location || 'Non renseigné'} color="text-forest-light" bg="bg-forest-light/8"
+              <StatCard icon={<Leaf className="w-4 h-4" />} label="Lieu" value={location || 'Non renseigné'} color="text-forest-light" bg="bg-forest-light/8"
                 link={card.latitude && card.longitude ? `https://www.google.com/maps?q=${card.latitude},${card.longitude}` : undefined}
               />
             </div>
+
+            {/* Location editor (owner only) */}
+            {isOwner && (
+              <div className="rounded-2xl border border-border bg-card p-4">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-display font-bold uppercase tracking-wider text-muted-foreground">Localisation</p>
+                  {!editingLocation && (
+                    <button
+                      onClick={() => { setEditingLocation(true); setLocQuery(''); }}
+                      className="text-xs font-display font-semibold text-primary"
+                    >
+                      {location ? 'Modifier' : 'Ajouter'}
+                    </button>
+                  )}
+                </div>
+                {editingLocation ? (
+                  <div className="mt-2 space-y-2">
+                    <input
+                      type="text"
+                      value={locQuery}
+                      onChange={(e) => setLocQuery(e.target.value)}
+                      autoFocus
+                      placeholder="Rechercher une commune…"
+                      className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+                    />
+                    {locLoading && <p className="text-[11px] text-muted-foreground">Recherche…</p>}
+                    {locResults.length > 0 && (
+                      <div className="max-h-48 overflow-y-auto rounded-xl border border-border divide-y divide-border">
+                        {locResults.map((c, i) => (
+                          <button
+                            key={`${c.nom}-${i}`}
+                            onClick={() => saveLocation(c.nom, c.centre?.coordinates)}
+                            disabled={savingLocation}
+                            className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-muted disabled:opacity-60"
+                          >
+                            {c.nom}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between pt-1">
+                      {location ? (
+                        <button
+                          onClick={() => saveLocation(null)}
+                          disabled={savingLocation}
+                          className="text-xs font-display font-semibold text-destructive disabled:opacity-60"
+                        >
+                          Retirer la localisation
+                        </button>
+                      ) : <span />}
+                      <button
+                        onClick={() => { setEditingLocation(false); setLocQuery(''); setLocResults([]); }}
+                        className="px-3 py-1.5 rounded-full text-xs font-display font-semibold bg-muted text-muted-foreground"
+                      >
+                        Annuler
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="mt-1 text-sm text-foreground/80">{location || 'Non renseignée'}</p>
+                )}
+              </div>
+            )}
+
 
             {/* Fun Fact */}
             <div className={`relative overflow-hidden rounded-2xl border ${isMythic ? 'border-rarity-mythic/30 bg-rarity-mythic/5' : isEpic ? 'border-rarity-epic/30 bg-rarity-epic/5' : 'border-border bg-muted/30'}`}>
