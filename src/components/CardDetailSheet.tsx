@@ -634,10 +634,74 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
               <StatCard icon={<MapPin className="w-4 h-4" />} label="Habitat" value={card.habitat} color="text-primary" bg="bg-primary/8" />
               <StatCard icon={<UtensilsCrossed className="w-4 h-4" />} label="Alimentation" value={card.diet} color="text-amber" bg="bg-amber/8" />
               <StatCard icon={<Shield className="w-4 h-4" />} label="Conservation" value={card.conservation} color="text-sky" bg="bg-sky/8" />
-              <StatCard icon={<Leaf className="w-4 h-4" />} label="Lieu" value={card.location || 'Non renseigné'} color="text-forest-light" bg="bg-forest-light/8"
+              <StatCard icon={<Leaf className="w-4 h-4" />} label="Lieu" value={location || 'Non renseigné'} color="text-forest-light" bg="bg-forest-light/8"
                 link={card.latitude && card.longitude ? `https://www.google.com/maps?q=${card.latitude},${card.longitude}` : undefined}
               />
             </div>
+
+            {/* Location editor (owner only) */}
+            {isOwner && (
+              <div className="rounded-2xl border border-border bg-card p-4">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-display font-bold uppercase tracking-wider text-muted-foreground">Localisation</p>
+                  {!editingLocation && (
+                    <button
+                      onClick={() => { setEditingLocation(true); setLocQuery(''); }}
+                      className="text-xs font-display font-semibold text-primary"
+                    >
+                      {location ? 'Modifier' : 'Ajouter'}
+                    </button>
+                  )}
+                </div>
+                {editingLocation ? (
+                  <div className="mt-2 space-y-2">
+                    <input
+                      type="text"
+                      value={locQuery}
+                      onChange={(e) => setLocQuery(e.target.value)}
+                      autoFocus
+                      placeholder="Rechercher une commune…"
+                      className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+                    />
+                    {locLoading && <p className="text-[11px] text-muted-foreground">Recherche…</p>}
+                    {locResults.length > 0 && (
+                      <div className="max-h-48 overflow-y-auto rounded-xl border border-border divide-y divide-border">
+                        {locResults.map((c, i) => (
+                          <button
+                            key={`${c.nom}-${i}`}
+                            onClick={() => saveLocation(c.nom, c.centre?.coordinates)}
+                            disabled={savingLocation}
+                            className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-muted disabled:opacity-60"
+                          >
+                            {c.nom}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between pt-1">
+                      {location ? (
+                        <button
+                          onClick={() => saveLocation(null)}
+                          disabled={savingLocation}
+                          className="text-xs font-display font-semibold text-destructive disabled:opacity-60"
+                        >
+                          Retirer la localisation
+                        </button>
+                      ) : <span />}
+                      <button
+                        onClick={() => { setEditingLocation(false); setLocQuery(''); setLocResults([]); }}
+                        className="px-3 py-1.5 rounded-full text-xs font-display font-semibold bg-muted text-muted-foreground"
+                      >
+                        Annuler
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="mt-1 text-sm text-foreground/80">{location || 'Non renseignée'}</p>
+                )}
+              </div>
+            )}
+
 
             {/* Fun Fact */}
             <div className={`relative overflow-hidden rounded-2xl border ${isMythic ? 'border-rarity-mythic/30 bg-rarity-mythic/5' : isEpic ? 'border-rarity-epic/30 bg-rarity-epic/5' : 'border-border bg-muted/30'}`}>
