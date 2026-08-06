@@ -117,23 +117,46 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
     }
   }, [card, open]);
 
-  // Ownership check — only the author can delete their capture
+  // Ownership check + personal note — only the author can edit or delete their capture
   useEffect(() => {
     setIsOwner(false);
     setConfirmDelete(false);
+    setNote('');
+    setNoteDraft('');
+    setEditingNote(false);
     if (!card || !open || !session?.user) return;
     if (!card.image || card.id.startsWith('uncaptured-')) return;
     let cancelled = false;
     (async () => {
       const { data } = await supabase
         .from('captures')
-        .select('user_id')
+        .select('user_id, note')
         .eq('id', card.id)
         .maybeSingle();
-      if (!cancelled && data) setIsOwner((data as any).user_id === session.user.id);
+      if (!cancelled && data) {
+        setIsOwner((data as any).user_id === session.user.id);
+        setNote((data as any).note || '');
+        setNoteDraft((data as any).note || '');
+      }
     })();
     return () => { cancelled = true; };
   }, [card, open, session]);
+
+  const saveNote = useCallback(async () => {
+    if (!card || savingNote) return;
+    const clean = noteDraft.trim().slice(0, 500);
+    setSavingNote(true);
+    const { error } = await supabase.from('captures').update({ note: clean || null }).eq('id', card.id);
+    setSavingNote(false);
+    if (error) {
+      toast({ title: 'Note non enregistrée', description: 'Réessaie dans un instant.', variant: 'destructive' });
+      return;
+    }
+    setNote(clean);
+    setNoteDraft(clean);
+    setEditingNote(false);
+    toast({ title: clean ? 'Note enregistrée' : 'Note supprimée' });
+  }, [card, noteDraft, savingNote]);
 
   const handleDelete = useCallback(async () => {
     if (!card || deleting) return;
@@ -149,6 +172,7 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
     onDeleted?.(card.id);
     onClose();
   }, [card, deleting, onDeleted, onClose]);
+
 
 
 
