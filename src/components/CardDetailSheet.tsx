@@ -63,8 +63,11 @@ const getCategoryIcon = (category: string): ComponentType<{ className?: string; 
 };
 
 
-const CardDetailSheet = ({ card, open, onClose }: Props) => {
+const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
   const { session } = useAuth();
+  const [isOwner, setIsOwner] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [comments, setComments] = useState<Comment[]>([]);
