@@ -243,6 +243,8 @@ const CapturePage = () => {
 
   const doReplaceExisting = async () => {
     if (!animalResult || !duplicateCapture) return;
+    if (savingRef.current) return;
+    savingRef.current = true;
     try {
       if (!(await consumeSlot())) return;
       const imageUrl = await replaceCapture(animalResult, duplicateCapture.id);
@@ -251,8 +253,11 @@ const CapturePage = () => {
     } catch (err) {
       console.error(err);
       toast.error("Erreur lors de la mise à jour");
+    } finally {
+      savingRef.current = false;
     }
   };
+
 
 
   const keepExisting = () => {
