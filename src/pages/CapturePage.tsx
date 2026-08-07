@@ -29,6 +29,9 @@ const CapturePage = () => {
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
   const [animalResult, setAnimalResult] = useState<AnimalResult | null>(null);
   const [saved, setSaved] = useState(false);
+  /** Verrou synchrone contre les doubles taps sur « Ajouter ». */
+  const savingRef = useRef(false);
+
   const [duplicateCapture, setDuplicateCapture] = useState<{ id: string; image_url: string; animal_name: string } | null>(null);
   const [manualMode, setManualMode] = useState(false);
   /** Non-null quand l'utilisateur contexte l'identification IA et demande une vérification humaine. */
