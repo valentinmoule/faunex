@@ -29,6 +29,9 @@ const CapturePage = () => {
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
   const [animalResult, setAnimalResult] = useState<AnimalResult | null>(null);
   const [saved, setSaved] = useState(false);
+  /** Verrou synchrone contre les doubles taps sur « Ajouter ». */
+  const savingRef = useRef(false);
+
   const [duplicateCapture, setDuplicateCapture] = useState<{ id: string; image_url: string; animal_name: string } | null>(null);
   const [manualMode, setManualMode] = useState(false);
   /** Non-null quand l'utilisateur contexte l'identification IA et demande une vérification humaine. */
@@ -216,6 +219,9 @@ const CapturePage = () => {
 
   const saveToCollection = async () => {
     if (!animalResult) return;
+    // Verrou synchrone : plusieurs taps rapides déclenchaient autant d'insertions.
+    if (savingRef.current) return;
+    savingRef.current = true;
     try {
       const existing = await findDuplicate(animalResult.animal_name);
       if (existing) {
@@ -229,11 +235,16 @@ const CapturePage = () => {
     } catch (err) {
       console.error(err);
       toast.error(isDailyLimitError(err) ? "Limite atteinte : 4 captures par jour maximum. Reviens demain !" : "Erreur lors de la sauvegarde");
+    } finally {
+      savingRef.current = false;
     }
   };
 
+
   const doReplaceExisting = async () => {
     if (!animalResult || !duplicateCapture) return;
+    if (savingRef.current) return;
+    savingRef.current = true;
     try {
       if (!(await consumeSlot())) return;
       const imageUrl = await replaceCapture(animalResult, duplicateCapture.id);
@@ -242,8 +253,11 @@ const CapturePage = () => {
     } catch (err) {
       console.error(err);
       toast.error("Erreur lors de la mise à jour");
+    } finally {
+      savingRef.current = false;
     }
   };
+
 
 
   const keepExisting = () => {
