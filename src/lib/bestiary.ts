@@ -1,6 +1,7 @@
 import type { ComponentType } from 'react';
-import { PawPrint, Bird, Fish, Bug, Turtle, Shell, Waves } from 'lucide-react';
+import { PawPrint, Bird, Fish, Bug, Turtle, Shell, Snail, Waves } from 'lucide-react';
 import { FrogIcon } from '@/components/icons/FrogIcon';
+import { SpiderIcon } from '@/components/icons/SpiderIcon';
 import type { AnimalCard } from '@/data/mockData';
 
 export interface BestiaryAnimal {
@@ -30,9 +31,9 @@ export const getCategoryIcon = (
   if (cat.includes('insecte')) return Bug;
   if (cat.includes('reptile')) return Turtle;
   if (cat.includes('amphibien')) return FrogIcon;
-  if (cat.includes('arachnide')) return Bug;
+  if (cat.includes('arachnide')) return SpiderIcon;
   if (cat.includes('crustacé')) return Shell;
-  if (cat.includes('mollusque')) return Shell;
+  if (cat.includes('mollusque')) return Snail;
   if (cat.includes('mammifère') && cat.includes('marin')) return Waves;
   if (cat.includes('mammifère')) return PawPrint;
   return PawPrint;
