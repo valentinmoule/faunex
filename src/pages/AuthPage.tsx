@@ -317,7 +317,7 @@ const AuthPage = () => {
                   }
                   if (IS_NATIVE_APP) {
                     const { Browser } = await import('@capacitor/browser');
-                    await Browser.open({ url: nativeAuthBridgeUrl('google'), presentationStyle: 'popover' });
+                    await Browser.open({ url: nativeAuthBridgeUrl('google')});
                     return;
                   }
                   const { error } = await lovable.auth.signInWithOAuth('google', {
@@ -345,7 +345,7 @@ const AuthPage = () => {
                   }
                   if (IS_NATIVE_APP) {
                     const { Browser } = await import('@capacitor/browser');
-                    await Browser.open({ url: nativeAuthBridgeUrl('apple'), presentationStyle: 'popover' });
+                    await Browser.open({ url: nativeAuthBridgeUrl('apple')});
                     return;
                   }
                   const { error } = await lovable.auth.signInWithOAuth('apple', {

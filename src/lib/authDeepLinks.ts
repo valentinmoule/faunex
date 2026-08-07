@@ -20,14 +20,35 @@ export const setupAuthDeepLinks = () => {
       const accessToken = hashParams.get('access_token') || url.searchParams.get('access_token');
       const refreshToken = hashParams.get('refresh_token') || url.searchParams.get('refresh_token');
       const code = url.searchParams.get('code') || hashParams.get('code');
+      console.log('🔑 TOKENS FOUND', {
+  hasAccessToken: !!accessToken,
+  hasRefreshToken: !!refreshToken,
+  hasCode: !!code,
+});
 
-      if (accessToken && refreshToken) {
-        await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
-      } else if (code) {
-        await supabase.auth.exchangeCodeForSession(code);
-      } else {
-        return;
-      }
+  if (accessToken && refreshToken) {
+  const { data, error } = await supabase.auth.setSession({
+    access_token: accessToken,
+    refresh_token: refreshToken,
+  });
+
+  console.log('🔥 SESSION RESULT', {
+    user: data.session?.user?.email,
+    error,
+  });
+
+} else if (code) {
+  const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+
+  console.log('🔥 CODE SESSION RESULT', {
+    user: data.session?.user?.email,
+    error,
+  });
+
+} else {
+  console.log('❌ Aucun token/code dans le deep link');
+  return;
+}
 
       try {
         const { Browser } = await import('@capacitor/browser');
@@ -36,18 +57,24 @@ export const setupAuthDeepLinks = () => {
         // le navigateur système est peut-être déjà fermé
       }
 
-      const target = url.pathname.includes('reset-password') ? '/reset-password' : '/home';
-      window.location.replace(`${window.location.origin}${target}`);
-    } catch {
-      // lien non lié à l'auth : on ignore
-    }
+    const target = url.pathname.includes('reset-password')
+  ? '/reset-password'
+  : '/home';
+
+window.history.replaceState({}, '', target);
+window.dispatchEvent(new PopStateEvent('popstate'));
+    } catch (e) {
+  console.error('❌ DEEP LINK ERROR', e);
+}
   };
 
-  CapacitorApp.addListener('appUrlOpen', ({ url }) => {
-    void handleUrl(url);
-  });
+CapacitorApp.addListener('appUrlOpen', ({ url }) => {
+  console.log('🔥 DEEP LINK RECEIVED:', url);
+  void handleUrl(url);
+});
 
-  void CapacitorApp.getLaunchUrl().then((launch) => {
-    if (launch?.url) void handleUrl(launch.url);
-  });
+void CapacitorApp.getLaunchUrl().then((launch) => {
+  console.log('🚀 LAUNCH URL:', launch?.url);
+  if (launch?.url) void handleUrl(launch.url);
+});
 };

@@ -45,7 +45,6 @@
     <uses-permission android:name="android.permission.CAMERA" />
 
     <!-- Import depuis la galerie (Android 13+ et versions antérieures) -->
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
 
     <!-- Géolocalisation des captures -->
