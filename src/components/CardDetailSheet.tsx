@@ -449,6 +449,22 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
     });
   }, []);
 
+  const handleShare = useCallback(async () => {
+    if (!card?.image) return;
+    setSharing(true);
+    try {
+      const result = await shareCapture(card);
+      if (result === 'downloaded') {
+        toast({ title: 'Image enregistrée', description: 'Ta carte est prête à être partagée.' });
+      }
+    } catch (err) {
+      console.error(err);
+      toast({ title: 'Partage impossible', description: "L'image n'a pas pu être générée.", variant: 'destructive' });
+    } finally {
+      setSharing(false);
+    }
+  }, [card]);
+
   if (!card) return null;
 
 
