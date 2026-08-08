@@ -105,6 +105,7 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
   const [submitting, setSubmitting] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [imageFullscreen, setImageFullscreen] = useState(false);
+  const [sharing, setSharing] = useState(false);
   // Pinch-to-zoom state for the fullscreen photo
   const [zoom, setZoom] = useState({ scale: 1, x: 0, y: 0 });
   const zoomRef = useRef({
