@@ -190,18 +190,55 @@ export const buildShareImage = async (card: AnimalCard): Promise<Blob> => {
 
 export type ShareResult = 'shared' | 'downloaded';
 
-/** Partage la carte via l'API Web Share, sinon télécharge l'image. */
+const blobToBase64 = (blob: Blob): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const res = String(reader.result);
+      resolve(res.slice(res.indexOf(',') + 1));
+    };
+    reader.onerror = () => reject(new Error('read failed'));
+    reader.readAsDataURL(blob);
+  });
+
+/** Partage la carte : feuille de partage native (iOS/Android), sinon Web Share, sinon téléchargement. */
 export const shareCapture = async (card: AnimalCard): Promise<ShareResult> => {
   const blob = await buildShareImage(card);
   const fileName = `faunex-${(card.name || 'capture').toLowerCase().replace(/[^a-z0-9]+/g, '-')}.jpg`;
-  const file = new File([blob], fileName, { type: 'image/jpeg' });
-
   const text = `J'ai capturé ${card.name} sur Faunex 🌿`;
+
+  // ── App native (Capacitor) : feuille de partage système ────────────
+  if (IS_NATIVE_APP) {
+    const [{ Share }, { Filesystem, Directory }] = await Promise.all([
+      import('@capacitor/share'),
+      import('@capacitor/filesystem'),
+    ]);
+    const data = await blobToBase64(blob);
+    const written = await Filesystem.writeFile({
+      path: fileName,
+      data,
+      directory: Directory.Cache,
+    });
+    await Share.share({ title: 'Faunex', text, files: [written.uri], dialogTitle: 'Partager ta carte' });
+    return 'shared';
+  }
+
+  // ── Web : Web Share API niveau 2 (fichiers) ────────────────────────
+  const file = new File([blob], fileName, { type: 'image/jpeg' });
   const nav = navigator as Navigator & { canShare?: (data: ShareData) => boolean };
 
-  if (nav.share && nav.canShare?.({ files: [file] })) {
-    await nav.share({ files: [file], title: 'Faunex', text });
-    return 'shared';
+  if (nav.share) {
+    try {
+      if (nav.canShare?.({ files: [file] })) {
+        await nav.share({ files: [file], title: 'Faunex', text });
+        return 'shared';
+      }
+      await nav.share({ title: 'Faunex', text, url: window.location.href });
+      return 'shared';
+    } catch (err) {
+      if ((err as Error)?.name === 'AbortError') return 'shared';
+      // sinon on retombe sur le téléchargement
+    }
   }
 
   const url = URL.createObjectURL(blob);
@@ -212,3 +249,4 @@ export const shareCapture = async (card: AnimalCard): Promise<ShareResult> => {
   setTimeout(() => URL.revokeObjectURL(url), 2000);
   return 'downloaded';
 };
+
