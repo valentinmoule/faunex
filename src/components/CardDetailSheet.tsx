@@ -11,7 +11,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import HolographicCard from '@/components/HolographicCard';
 import { toast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Share2, Loader2 } from 'lucide-react';
+import { shareCapture } from '@/lib/shareCapture';
 
 interface Props {
   card: AnimalCard | null;
@@ -104,6 +105,7 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
   const [submitting, setSubmitting] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [imageFullscreen, setImageFullscreen] = useState(false);
+  const [sharing, setSharing] = useState(false);
   // Pinch-to-zoom state for the fullscreen photo
   const [zoom, setZoom] = useState({ scale: 1, x: 0, y: 0 });
   const zoomRef = useRef({
@@ -448,7 +450,24 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
     });
   }, []);
 
+  const handleShare = useCallback(async () => {
+    if (!card?.image) return;
+    setSharing(true);
+    try {
+      const result = await shareCapture(card);
+      if (result === 'downloaded') {
+        toast({ title: 'Image enregistrée', description: 'Ta carte est prête à être partagée.' });
+      }
+    } catch (err) {
+      console.error(err);
+      toast({ title: 'Partage impossible', description: "L'image n'a pas pu être générée.", variant: 'destructive' });
+    } finally {
+      setSharing(false);
+    }
+  }, [card]);
+
   if (!card) return null;
+
 
   const isUncaptured = !card.image || card.id.startsWith('uncaptured-');
   const isMythic = !isUncaptured && card.rarity === 'mythic';
@@ -580,6 +599,16 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
                   <MessageCircle className={`w-6 h-6 transition-colors ${showComments ? 'text-primary fill-primary/20' : 'text-muted-foreground group-hover:text-primary'}`} />
                   <span className={`text-sm font-display font-semibold ${showComments ? 'text-primary' : 'text-muted-foreground'}`}>{commentCount}</span>
                 </button>
+                {card.image && (
+                  <button onClick={handleShare} disabled={sharing} className="flex items-center gap-2 group disabled:opacity-50">
+                    {sharing ? (
+                      <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" />
+                    ) : (
+                      <Share2 className="w-6 h-6 text-muted-foreground transition-colors group-hover:text-primary" />
+                    )}
+                    <span className="text-sm font-display font-semibold text-muted-foreground">Partager</span>
+                  </button>
+                )}
               </div>
             )}
 
