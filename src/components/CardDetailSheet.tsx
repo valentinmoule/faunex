@@ -11,7 +11,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import HolographicCard from '@/components/HolographicCard';
 import { toast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Share2, Loader2 } from 'lucide-react';
+import { shareCapture } from '@/lib/shareCapture';
 
 interface Props {
   card: AnimalCard | null;
