@@ -580,6 +580,16 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
                   <MessageCircle className={`w-6 h-6 transition-colors ${showComments ? 'text-primary fill-primary/20' : 'text-muted-foreground group-hover:text-primary'}`} />
                   <span className={`text-sm font-display font-semibold ${showComments ? 'text-primary' : 'text-muted-foreground'}`}>{commentCount}</span>
                 </button>
+                {card.image && (
+                  <button onClick={handleShare} disabled={sharing} className="flex items-center gap-2 group disabled:opacity-50">
+                    {sharing ? (
+                      <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" />
+                    ) : (
+                      <Share2 className="w-6 h-6 text-muted-foreground transition-colors group-hover:text-primary" />
+                    )}
+                    <span className="text-sm font-display font-semibold text-muted-foreground">Partager</span>
+                  </button>
+                )}
               </div>
             )}
 
