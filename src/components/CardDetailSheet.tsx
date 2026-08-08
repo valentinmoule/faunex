@@ -451,6 +451,7 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
 
   if (!card) return null;
 
+
   const isUncaptured = !card.image || card.id.startsWith('uncaptured-');
   const isMythic = !isUncaptured && card.rarity === 'mythic';
   const isEpic = !isUncaptured && card.rarity === 'epic';
