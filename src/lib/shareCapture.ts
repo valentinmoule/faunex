@@ -6,6 +6,7 @@
  * aucune dépendance, et le résultat peut être partagé via l'API Web Share.
  */
 import type { AnimalCard, Rarity } from '@/data/mockData';
+import { IS_NATIVE_APP } from '@/lib/platform';
 
 const W = 1080;
 const H = 1350;
