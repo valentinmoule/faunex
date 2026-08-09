@@ -96,9 +96,10 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    // Performance : Flash répond en ~3-6 s là où Pro prend 20-40 s (thinking).
-    // On appelle Flash d'abord et on n'escalade vers Pro que si l'IA doute.
-    const FAST_MODEL = "google/gemini-2.5-flash";
+    // Cost optimisation : Flash Lite is the cheapest Gemini vision model.
+    // We escalate to Pro only when Lite is unsure, keeping most common
+    // animals (dogs, cats, pigeons, common birds) on the cheapest path.
+    const FAST_MODEL = "google/gemini-2.5-flash-lite";
     const DEEP_MODEL = "google/gemini-2.5-pro";
 
     const callGateway = async (model: string, timeoutMs: number) => {
@@ -238,15 +239,16 @@ serve(async (req) => {
       }
     };
 
-    // 1) Passe rapide (Flash) — couvre la grande majorité des cas en quelques secondes.
-    let response = await tryModel(FAST_MODEL, 40_000);
+    // 1) Cheap pass (Flash Lite) — covers the vast majority of common animals.
+    let response = await tryModel(FAST_MODEL, 30_000);
     let animalData = response?.ok ? await parseAnimal(response) : null;
 
-    // 2) Escalade vers Pro seulement si Flash échoue, doute, ou ne reconnaît rien.
+    // 2) Escalate to Pro only when Lite is unsure or fails.
+    // Threshold raised to 70 so only genuinely ambiguous cases hit the expensive model.
     const needsDeep =
       !animalData ||
       typeof animalData.confidence !== "number" ||
-      animalData.confidence < 60 ||
+      animalData.confidence < 70 ||
       String(animalData.animal_name || "").toLowerCase() === "inconnu";
 
     if (needsDeep) {
