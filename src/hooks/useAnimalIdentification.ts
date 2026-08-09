@@ -1,6 +1,6 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { compressForAI } from '@/lib/imageProcessing';
+import { compressForAI, hashDataUrl } from '@/lib/imageProcessing';
 import type { AnimalResult } from '@/types/capture';
 
 type IdentifyOutcome =
@@ -41,46 +41,63 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
  * A network/AI failure is NOT the same thing as "animal non reconnu":
  * transient errors are retried once and then surfaced as `error` so the user
  * can retry instead of being pushed into the manual moderation queue.
+ *
+ * Cost optimisations:
+ * - Images are compressed to 640px / quality 0.5 before upload (keeps accuracy
+ *   high for common animals while reducing token cost).
+ * - Results for identical images are cached in-memory for the session to avoid
+ *   double-billing when the user retries the same photo.
  */
 export const useAnimalIdentification = () => {
   const [identifying, setIdentifying] = useState(false);
+  const cacheRef = useRef<Map<string, Promise<IdentifyOutcome>>>(new Map());
 
   const identify = useCallback(async (dataUrl: string): Promise<IdentifyOutcome> => {
     setIdentifying(true);
     try {
-      const compressedUrl = await compressForAI(dataUrl, 900, 0.6);
+      const compressedUrl = await compressForAI(dataUrl, 640, 0.5);
+      const imageHash = await hashDataUrl(compressedUrl);
 
-      let lastError: unknown = null;
-      for (let attempt = 0; attempt < 2; attempt++) {
-        try {
-          const { data, error } = await supabase.functions.invoke('identify-animal', {
-            body: { imageBase64: compressedUrl },
-          });
-          if (error) throw error;
+      const cached = cacheRef.current.get(imageHash);
+      if (cached) return cached;
 
-          const animal = data?.success ? (data.animal as AnimalResult | undefined) : undefined;
-          if (!animal || !animal.animal_name) {
-            // Réponse valide mais sans animal exploitable → vraie non-reconnaissance
-            return { status: 'unknown' };
+      const run = async (): Promise<IdentifyOutcome> => {
+        let lastError: unknown = null;
+        for (let attempt = 0; attempt < 2; attempt++) {
+          try {
+            const { data, error } = await supabase.functions.invoke('identify-animal', {
+              body: { imageBase64: compressedUrl },
+            });
+            if (error) throw error;
+
+            const animal = data?.success ? (data.animal as AnimalResult | undefined) : undefined;
+            if (!animal || !animal.animal_name) {
+              // Réponse valide mais sans animal exploitable → vraie non-reconnaissance
+              return { status: 'unknown' };
+            }
+            if (animal.animal_name.toLowerCase() === 'inconnu' || isHuman(animal)) {
+              return { status: 'unknown' };
+            }
+            return { status: 'identified', animal };
+          } catch (err) {
+            lastError = err;
+            console.error('identify-animal attempt failed', attempt, err);
+            if (attempt === 0) await sleep(1200);
           }
-          if (animal.animal_name.toLowerCase() === 'inconnu' || isHuman(animal)) {
-            return { status: 'unknown' };
-          }
-          return { status: 'identified', animal };
-        } catch (err) {
-          lastError = err;
-          console.error('identify-animal attempt failed', attempt, err);
-          if (attempt === 0) await sleep(1200);
         }
-      }
 
-      const raw = JSON.stringify((lastError as any)?.message ?? lastError ?? '');
-      const message = raw.includes('429')
-        ? "L'IA est surchargée, réessaie dans quelques secondes."
-        : raw.includes('402')
-          ? "Le service d'identification est momentanément indisponible."
-          : "L'analyse a échoué (connexion ou serveur). Réessaie.";
-      return { status: 'error', message };
+        const raw = JSON.stringify((lastError as any)?.message ?? lastError ?? '');
+        const message = raw.includes('429')
+          ? "L'IA est surchargée, réessaie dans quelques secondes."
+          : raw.includes('402')
+            ? "Le service d'identification est momentanément indisponible."
+            : "L'analyse a échoué (connexion ou serveur). Réessaie.";
+        return { status: 'error', message };
+      };
+
+      const promise = run();
+      cacheRef.current.set(imageHash, promise);
+      return promise;
     } finally {
       setIdentifying(false);
     }
