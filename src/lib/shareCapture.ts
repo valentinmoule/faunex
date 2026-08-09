@@ -202,6 +202,122 @@ const blobToBase64 = (blob: Blob): Promise<string> =>
     reader.readAsDataURL(blob);
   });
 
+export type ShareTarget = 'stories' | 'instagram' | 'facebook' | 'whatsapp' | 'system' | 'download';
+
+export const shareFileName = (card: AnimalCard) =>
+  `faunex-${(card.name || 'capture').toLowerCase().replace(/[^a-z0-9]+/g, '-')}.jpg`;
+
+export const shareText = (card: AnimalCard) => `J'ai capturé ${card.name} sur Faunex 🌿`;
+
+export const shareLink = (card: AnimalCard) => {
+  const origin = IS_NATIVE_APP ? 'https://faunex.fr' : window.location.origin;
+  return `${origin}/collection?capture=${card.id}`;
+};
+
+const downloadBlob = (blob: Blob, fileName: string) => {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileName;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+};
+
+/** Écrit l'image dans le cache natif et renvoie son URI (app Capacitor uniquement). */
+const writeNativeFile = async (blob: Blob, fileName: string): Promise<string> => {
+  const [{ Filesystem, Directory }] = await Promise.all([import('@capacitor/filesystem')]);
+  const data = await blobToBase64(blob);
+  const written = await Filesystem.writeFile({ path: fileName, data, directory: Directory.Cache });
+  return written.uri;
+};
+
+const openExternal = async (url: string) => {
+  if (IS_NATIVE_APP) {
+    const { Browser } = await import('@capacitor/browser');
+    await Browser.open({ url });
+    return;
+  }
+  window.open(url, '_blank', 'noopener,noreferrer');
+};
+
+/**
+ * Partage la carte vers une cible précise.
+ * Instagram / Stories ne proposent aucune API web : on passe par la feuille de
+ * partage système sur mobile (l'utilisateur choisit Instagram ou Stories),
+ * et par le téléchargement de l'image sur desktop.
+ */
+export const shareCaptureTo = async (card: AnimalCard, target: ShareTarget, blob?: Blob): Promise<ShareResult> => {
+  const image = blob ?? (await buildShareImage(card));
+  const fileName = shareFileName(card);
+  const text = shareText(card);
+  const link = shareLink(card);
+
+  if (target === 'download') {
+    downloadBlob(image, fileName);
+    return 'downloaded';
+  }
+
+  // ── App native ────────────────────────────────────────────────────
+  if (IS_NATIVE_APP) {
+    const { Share } = await import('@capacitor/share');
+    const uri = await writeNativeFile(image, fileName);
+
+    if (target === 'facebook' || target === 'whatsapp') {
+      // Ces apps acceptent l'image via la feuille système ; le lien est joint au texte.
+      await Share.share({ title: 'Faunex', text: `${text} ${link}`, files: [uri], dialogTitle: 'Partager ta carte' });
+      return 'shared';
+    }
+
+    await Share.share({ title: 'Faunex', text, files: [uri], dialogTitle: 'Partager ta carte' });
+    return 'shared';
+  }
+
+  // ── Web ───────────────────────────────────────────────────────────
+  const file = new File([image], fileName, { type: 'image/jpeg' });
+  const nav = navigator as Navigator & { canShare?: (data: ShareData) => boolean };
+  const canShareFile = !!nav.share && !!nav.canShare?.({ files: [file] });
+
+  if (target === 'facebook') {
+    if (canShareFile) {
+      try {
+        await nav.share({ files: [file], title: 'Faunex', text });
+        return 'shared';
+      } catch (err) {
+        if ((err as Error)?.name === 'AbortError') return 'shared';
+      }
+    }
+    downloadBlob(image, fileName);
+    await openExternal(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}`);
+    return 'downloaded';
+  }
+
+  if (target === 'whatsapp') {
+    if (canShareFile) {
+      try {
+        await nav.share({ files: [file], title: 'Faunex', text });
+        return 'shared';
+      } catch (err) {
+        if ((err as Error)?.name === 'AbortError') return 'shared';
+      }
+    }
+    await openExternal(`https://wa.me/?text=${encodeURIComponent(`${text} ${link}`)}`);
+    return 'shared';
+  }
+
+  // Instagram / Stories / système
+  if (canShareFile) {
+    try {
+      await nav.share({ files: [file], title: 'Faunex', text });
+      return 'shared';
+    } catch (err) {
+      if ((err as Error)?.name === 'AbortError') return 'shared';
+    }
+  }
+
+  downloadBlob(image, fileName);
+  return 'downloaded';
+};
+
 /** Partage la carte : feuille de partage native (iOS/Android), sinon Web Share, sinon téléchargement. */
 export const shareCapture = async (card: AnimalCard): Promise<ShareResult> => {
   const blob = await buildShareImage(card);
