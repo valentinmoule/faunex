@@ -92,8 +92,8 @@ const ShareCaptureSheet = ({ card, open, onClose }: Props) => {
   return (
     <Drawer.Root open={open} onOpenChange={(o) => !o && onClose()}>
       <Drawer.Portal>
-        <Drawer.Overlay className="fixed inset-0 z-[70] bg-foreground/40 backdrop-blur-sm" />
-        <Drawer.Content className="fixed inset-x-0 bottom-0 z-[71] max-h-[92vh] rounded-t-3xl bg-background pb-[calc(1.5rem+env(safe-area-inset-bottom))] outline-none">
+        <Drawer.Overlay className="fixed inset-0 z-[1400] bg-foreground/40 backdrop-blur-sm" />
+        <Drawer.Content className="fixed inset-x-0 bottom-0 z-[1401] max-h-[92vh] rounded-t-3xl bg-background pb-[calc(1.5rem+env(safe-area-inset-bottom))] outline-none">
           <div className="mx-auto mt-3 h-1.5 w-10 rounded-full bg-muted" />
 
           <div className="px-5 pt-4 space-y-5 overflow-y-auto">
