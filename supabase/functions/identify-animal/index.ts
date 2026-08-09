@@ -96,9 +96,10 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    // Performance : Flash répond en ~3-6 s là où Pro prend 20-40 s (thinking).
-    // On appelle Flash d'abord et on n'escalade vers Pro que si l'IA doute.
-    const FAST_MODEL = "google/gemini-2.5-flash";
+    // Cost optimisation : Flash Lite is the cheapest Gemini vision model.
+    // We escalate to Pro only when Lite is unsure, keeping most common
+    // animals (dogs, cats, pigeons, common birds) on the cheapest path.
+    const FAST_MODEL = "google/gemini-2.5-flash-lite";
     const DEEP_MODEL = "google/gemini-2.5-pro";
 
     const callGateway = async (model: string, timeoutMs: number) => {
