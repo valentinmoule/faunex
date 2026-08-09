@@ -239,15 +239,16 @@ serve(async (req) => {
       }
     };
 
-    // 1) Passe rapide (Flash) — couvre la grande majorité des cas en quelques secondes.
-    let response = await tryModel(FAST_MODEL, 40_000);
+    // 1) Cheap pass (Flash Lite) — covers the vast majority of common animals.
+    let response = await tryModel(FAST_MODEL, 30_000);
     let animalData = response?.ok ? await parseAnimal(response) : null;
 
-    // 2) Escalade vers Pro seulement si Flash échoue, doute, ou ne reconnaît rien.
+    // 2) Escalate to Pro only when Lite is unsure or fails.
+    // Threshold raised to 70 so only genuinely ambiguous cases hit the expensive model.
     const needsDeep =
       !animalData ||
       typeof animalData.confidence !== "number" ||
-      animalData.confidence < 60 ||
+      animalData.confidence < 70 ||
       String(animalData.animal_name || "").toLowerCase() === "inconnu";
 
     if (needsDeep) {
