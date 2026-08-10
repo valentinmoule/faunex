@@ -270,13 +270,18 @@ serve(async (req) => {
     let response = await tryModel(FAST_MODEL, 30_000);
     let animalData = response?.ok ? await parseAnimal(response) : null;
 
-    // 2) Escalate to Pro only when Lite is unsure or fails.
+    // 2) Escalate to Pro when Lite is unsure or fails.
     // Threshold raised to 70 so only genuinely ambiguous cases hit the expensive model.
+    // Groupes d'espèces très proches (cervidés, coccinelles, mésanges…) : on escalade
+    // dès que la confiance n'est pas franche, car Lite tranche mal ces cas.
+    const CONFUSABLE = /(chevreuil|biche|cerf|daim|faon|coccinelle|mesange|mésange|pouillot|goeland|goéland|mouette|hirondelle|martinet|bourdon|abeille|corneille|corbeau|choucas|lezard|lézard|pipistrelle)/i;
+    const label = String(animalData?.animal_name || "");
+    const confidence = typeof animalData?.confidence === "number" ? animalData.confidence : -1;
     const needsDeep =
       !animalData ||
-      typeof animalData.confidence !== "number" ||
-      animalData.confidence < 70 ||
-      String(animalData.animal_name || "").toLowerCase() === "inconnu";
+      confidence < 70 ||
+      (CONFUSABLE.test(label) && confidence < 90) ||
+      label.toLowerCase() === "inconnu";
 
     if (needsDeep) {
       const deep = await tryModel(DEEP_MODEL, 60_000);
