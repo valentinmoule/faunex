@@ -52,6 +52,15 @@ animal_name = la race. scientific_name = "Felis catus".
 
 Si l'image ne contient pas d'animal → animal_name "Inconnu" et confidence 0.
 
+### INTERDICTION ABSOLUE : ANIMAUX FANTASTIQUES, INVENTÉS OU DISPARUS
+Seules les espèces réelles et actuellement vivantes sont valides.
+- JAMAIS de créature imaginaire, mythologique, de fiction ou de jeu (dragon, licorne, phénix, griffon, kraken, sirène, yéti, chimère, Pokémon, etc.).
+- JAMAIS d'espèce éteinte ou préhistorique (dodo, tyrannosaure/dinosaures, mammouth, thylacine, grand pingouin, aurochs, smilodon, moa, etc.).
+- JAMAIS de nom scientifique inventé (ex: "Creatura ficta"). Le nom latin doit être un binôme réel et vérifiable.
+- Un jouet, une peluche, une statue, un dessin ou une illustration d'animal n'est PAS une capture valide.
+Si le sujet correspond à l'un de ces cas → animal_name "Inconnu", confidence 0, aucune alternative.
+Exception : les espèces réelles portant "dragon" dans leur nom commun sont valides (Dragon de Komodo, Dragon barbu, Dragon volant).
+
 ### INTERDICTION ABSOLUE : ÊTRES HUMAINS
 L'être humain (Homo sapiens) n'est JAMAIS un résultat valide. Si le sujet principal de la photo est une personne (visage, selfie, portrait, corps humain, partie du corps comme main/pied/œil) → réponds OBLIGATOIREMENT animal_name "Inconnu", confidence 0, et ne propose aucune alternative humaine.
 Si un humain est présent MAIS qu'un animal est aussi visible (ex: personne tenant un chien), identifie l'animal et ignore l'humain.
