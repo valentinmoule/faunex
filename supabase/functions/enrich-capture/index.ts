@@ -88,7 +88,9 @@ Deno.serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-pro',
+        // Fiche générée après validation humaine : la description de l'utilisateur
+        // donne déjà l'espèce, un modèle léger suffit largement.
+        model: 'google/gemini-2.5-flash-lite',
         temperature: 0,
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
