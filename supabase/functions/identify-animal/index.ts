@@ -266,25 +266,22 @@ serve(async (req) => {
       }
     };
 
-    // 1) Cheap pass (Flash Lite) — covers the vast majority of common animals.
+    // 1) Passe économique (Flash Lite) — couvre la grande majorité des animaux.
     let response = await tryModel(FAST_MODEL, 30_000);
     let animalData = response?.ok ? await parseAnimal(response) : null;
 
-    // 2) Escalate to Pro when Lite is unsure or fails.
-    // Threshold raised to 70 so only genuinely ambiguous cases hit the expensive model.
-    // Groupes d'espèces très proches (cervidés, coccinelles, mésanges…) : on escalade
-    // dès que la confiance n'est pas franche, car Lite tranche mal ces cas.
+    // 2) Second passage sur Flash (modèle bon marché, pas de Pro) uniquement
+    // quand Lite échoue ou est franchement incertain.
     const CONFUSABLE = /(chevreuil|biche|cerf|daim|faon|coccinelle|mesange|mésange|pouillot|goeland|goéland|mouette|hirondelle|martinet|bourdon|abeille|corneille|corbeau|choucas|lezard|lézard|pipistrelle)/i;
     const label = String(animalData?.animal_name || "");
     const confidence = typeof animalData?.confidence === "number" ? animalData.confidence : -1;
     const needsDeep =
       !animalData ||
-      confidence < 70 ||
-      (CONFUSABLE.test(label) && confidence < 90) ||
-      label.toLowerCase() === "inconnu";
+      confidence < 60 ||
+      (CONFUSABLE.test(label) && confidence < 75);
 
     if (needsDeep) {
-      const deep = await tryModel(DEEP_MODEL, 60_000);
+      const deep = await tryModel(DEEP_MODEL, 45_000);
       if (deep?.ok) {
         const deepData = await parseAnimal(deep);
         if (deepData) {
