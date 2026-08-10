@@ -49,8 +49,26 @@ animal_name = la race. scientific_name = "Felis catus".
 
 ### FAUNE SAUVAGE
 - Sois le plus précis possible sur l'espèce et la sous-espèce.
+- Ne te contente JAMAIS de l'espèce la plus courante par défaut : compare explicitement les critères diagnostiques avant de conclure.
+
+#### CERVIDÉS (erreur fréquente : tout appeler "Chevreuil")
+Compare TOUJOURS la taille, la silhouette, le miroir fessier et la queue :
+- **Chevreuil (Capreolus capreolus)** : petit (env. 65-75 cm au garrot), silhouette compacte, museau court et noir, queue quasi invisible, miroir fessier blanc en forme de haricot/cœur, bois courts à 3 pointes max chez le mâle.
+- **Biche / Cerf élaphe (Cervus elaphus)** : grand (env. 110-140 cm au garrot), corps allongé et puissant, encolure épaisse, museau long, queue courte mais visible, croupe beige-roux avec zone claire bordée de sombre. Une femelle sans bois de grande taille = **Biche**, pas un chevreuil.
+- **Daim (Dama dama)** : taille intermédiaire, robe souvent fortement tachetée de blanc en été, queue longue avec raie noire médiane, bois aplatis en palmes chez le mâle.
+- **Faon / jeune** : tacheté, pattes très longues par rapport au corps → précise le nom de l'espèce parente.
+Si la taille n'est pas estimable, appuie-toi sur les proportions tête/corps et la longueur du museau ; en cas de doute réel, baisse confidence et propose les deux espèces dans "alternatives".
+
+#### COCCINELLES (erreur fréquente : tout appeler "Coccinelle asiatique")
+Compte les points et observe la couleur de fond et le pronotum :
+- **Coccinelle à 22 points (Psyllobora vigintiduopunctata)** : petite (3-4 mm), fond **jaune vif**, ~22 points noirs ronds, pronotum jaune ponctué de noir. Fond jaune + nombreux petits points = cette espèce, jamais l'asiatique.
+- **Coccinelle asiatique (Harmonia axyridis)** : 6-8 mm, fond orange à rouge (parfois noir), 0 à 19 points, pronotum blanc avec dessin noir en **M/W** caractéristique.
+- **Coccinelle à 7 points (Coccinella septempunctata)** : rouge vif, exactement 7 points, pronotum noir à deux taches blanches antérieures.
+- **Coccinelle à 14 points (Propylea quatuordecimpunctata)** : fond jaune, taches noires **carrées/anguleuses** souvent fusionnées (damier).
+Applique la même rigueur à tous les groupes d'espèces proches (mésanges, pouillots, goélands/mouettes, hirondelles/martinets, lézards, papillons blancs, bourdons/abeilles, corvidés).
 
 Si l'image ne contient pas d'animal → animal_name "Inconnu" et confidence 0.
+
 
 ### INTERDICTION ABSOLUE : ANIMAUX FANTASTIQUES, INVENTÉS OU DISPARUS
 Seules les espèces réelles et actuellement vivantes sont valides.
@@ -252,13 +270,18 @@ serve(async (req) => {
     let response = await tryModel(FAST_MODEL, 30_000);
     let animalData = response?.ok ? await parseAnimal(response) : null;
 
-    // 2) Escalate to Pro only when Lite is unsure or fails.
+    // 2) Escalate to Pro when Lite is unsure or fails.
     // Threshold raised to 70 so only genuinely ambiguous cases hit the expensive model.
+    // Groupes d'espèces très proches (cervidés, coccinelles, mésanges…) : on escalade
+    // dès que la confiance n'est pas franche, car Lite tranche mal ces cas.
+    const CONFUSABLE = /(chevreuil|biche|cerf|daim|faon|coccinelle|mesange|mésange|pouillot|goeland|goéland|mouette|hirondelle|martinet|bourdon|abeille|corneille|corbeau|choucas|lezard|lézard|pipistrelle)/i;
+    const label = String(animalData?.animal_name || "");
+    const confidence = typeof animalData?.confidence === "number" ? animalData.confidence : -1;
     const needsDeep =
       !animalData ||
-      typeof animalData.confidence !== "number" ||
-      animalData.confidence < 70 ||
-      String(animalData.animal_name || "").toLowerCase() === "inconnu";
+      confidence < 70 ||
+      (CONFUSABLE.test(label) && confidence < 90) ||
+      label.toLowerCase() === "inconnu";
 
     if (needsDeep) {
       const deep = await tryModel(DEEP_MODEL, 60_000);

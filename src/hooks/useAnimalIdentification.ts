@@ -117,7 +117,9 @@ export const useAnimalIdentification = () => {
   const identify = useCallback(async (dataUrl: string): Promise<IdentifyOutcome> => {
     setIdentifying(true);
     try {
-      const compressedUrl = await compressForAI(dataUrl, 640, 0.5);
+      // 1024px / 0.62 : nécessaire pour les détails fins (points des coccinelles,
+      // miroir fessier des cervidés) qui étaient perdus à 640px.
+      const compressedUrl = await compressForAI(dataUrl, 1024, 0.62);
       const imageHash = await hashDataUrl(compressedUrl);
 
       const cached = cacheRef.current.get(imageHash);
