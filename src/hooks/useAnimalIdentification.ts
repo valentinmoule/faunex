@@ -137,7 +137,11 @@ export const useAnimalIdentification = () => {
               // Réponse valide mais sans animal exploitable → vraie non-reconnaissance
               return { status: 'unknown' };
             }
-            if (animal.animal_name.toLowerCase() === 'inconnu' || isHuman(animal)) {
+            if (
+              animal.animal_name.toLowerCase() === 'inconnu' ||
+              isHuman(animal) ||
+              isFictionalOrExtinct(animal)
+            ) {
               return { status: 'unknown' };
             }
             return { status: 'identified', animal };
