@@ -123,11 +123,11 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    // Cost optimisation : Flash Lite is the cheapest Gemini vision model.
-    // We escalate to Pro only when Lite is unsure, keeping most common
-    // animals (dogs, cats, pigeons, common birds) on the cheapest path.
+    // Cost optimisation : on reste sur des modèles bon marché.
+    // Flash Lite en premier ; second passage sur Flash (toujours peu cher)
+    // uniquement si Lite échoue ou est vraiment incertain. Jamais de modèle Pro.
     const FAST_MODEL = "google/gemini-2.5-flash-lite";
-    const DEEP_MODEL = "google/gemini-2.5-pro";
+    const DEEP_MODEL = "google/gemini-2.5-flash";
 
     const callGateway = async (model: string, timeoutMs: number) => {
       const controller = new AbortController();
