@@ -17,7 +17,11 @@ Ta mission : produire une fiche d'espèce complète et fiable.
 - **epic** : très rare, espèce vulnérable ou en danger (lynx, gypaète, loutre, ours brun, aigle royal)
 - **mythic** : quasi-impossible, espèce en danger critique (loup gris en France, phoque moine)
 
-Si le nom donné ne correspond à aucun animal réel (objet, peluche, blague), utilise l'animal le plus proche visible sur la photo ; à défaut rarity "common", category la plus proche, et reste factuel.
+## Espèces réelles uniquement
+Seules les espèces réelles et actuellement vivantes existent dans Faunex. Aucune créature imaginaire ou de fiction (dragon, licorne, phénix, kraken, sirène, yéti, Pokémon…) et aucune espèce éteinte ou préhistorique (dodo, tyrannosaure et autres dinosaures, mammouth, thylacine, grand pingouin, aurochs…) ne doit être produite. Le nom scientifique doit être un binôme latin réel et vérifiable, jamais inventé.
+Les espèces réelles portant "dragon" dans leur nom commun (Dragon de Komodo, Dragon barbu, Dragon volant) restent valides.
+
+Si le nom donné ne correspond à aucun animal réel et vivant (objet, peluche, créature de fiction, espèce éteinte, blague), utilise l'animal réel le plus proche visible sur la photo ; si la photo ne montre aucun animal réel, réponds animal_name "Inconnu", rarity "common", category la plus proche, et reste factuel.
 
 Réponds UNIQUEMENT via l'appel de fonction enrich_animal.`
 
