@@ -32,6 +32,68 @@ const isHuman = (animal: { animal_name?: string; scientific_name?: string; categ
   return HUMAN_NAMES.some((h) => name === h || name.includes(h));
 };
 
+/** Créatures de fiction et espèces éteintes : jamais des captures valides. */
+const FICTIONAL_NAMES = [
+  'licorne',
+  'phenix',
+  'griffon',
+  'kraken',
+  'sirene',
+  'yeti',
+  'chimere',
+  'pokemon',
+  'wyvern',
+  'basilic',
+  'hydre',
+  'centaure',
+  'pegase',
+];
+
+const EXTINCT_NAMES = [
+  'dodo',
+  'tyrannosaure',
+  'tyrannosaurus',
+  'dinosaure',
+  'velociraptor',
+  'mammouth',
+  'thylacine',
+  'tigre de tasmanie',
+  'grand pingouin',
+  'aurochs',
+  'smilodon',
+  'tigre a dents de sabre',
+  'moa',
+  'ptérodactyle',
+  'pterodactyle',
+];
+
+const EXTINCT_SCIENTIFIC = [
+  'raphus cucullatus',
+  'tyrannosaurus',
+  'mammuthus',
+  'thylacinus',
+  'pinguinus impennis',
+  'smilodon',
+  'creatura',
+];
+
+/** Une espèce réelle peut contenir "dragon" (Komodo, barbu, volant) : on ne bloque
+ *  que si le nom scientifique n'est pas un binôme latin plausible. */
+const isFictionalOrExtinct = (animal: { animal_name?: string; scientific_name?: string }) => {
+  const name = normalize(animal.animal_name);
+  const sci = normalize(animal.scientific_name);
+  if (EXTINCT_SCIENTIFIC.some((s) => sci.includes(s))) return true;
+  if (FICTIONAL_NAMES.some((f) => name.includes(f))) return true;
+  if (EXTINCT_NAMES.some((e) => name.includes(e))) return true;
+  if (name.includes('dragon')) {
+    const realDragons = ['komodo', 'barbu', 'volant', 'pogona', 'varanus', 'draco'];
+    const looksReal = realDragons.some((r) => name.includes(r) || sci.includes(r));
+    if (!looksReal) return true;
+  }
+  return false;
+};
+
+
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 /**
@@ -75,7 +137,11 @@ export const useAnimalIdentification = () => {
               // Réponse valide mais sans animal exploitable → vraie non-reconnaissance
               return { status: 'unknown' };
             }
-            if (animal.animal_name.toLowerCase() === 'inconnu' || isHuman(animal)) {
+            if (
+              animal.animal_name.toLowerCase() === 'inconnu' ||
+              isHuman(animal) ||
+              isFictionalOrExtinct(animal)
+            ) {
               return { status: 'unknown' };
             }
             return { status: 'identified', animal };
