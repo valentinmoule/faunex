@@ -37,6 +37,7 @@ const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
 const NativeAuthCallbackPage = lazy(() => import("./pages/NativeAuthCallbackPage"));
 const NativeAuthBridgePage = lazy(() => import("./pages/NativeAuthBridgePage"));
 const QuestsPage = lazy(() => import("./pages/QuestsPage"));
+const PremiumPage = lazy(() => import("./pages/PremiumPage"));
 const LandingPage = SHOW_MARKETING_PAGES ? lazy(() => import("./pages/LandingPage")) : null;
 const CompleteProfilePage = lazy(() => import("./pages/CompleteProfilePage"));
 const UnsubscribePage = lazy(() => import("./pages/UnsubscribePage"));
