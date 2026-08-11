@@ -47,6 +47,17 @@ animal_name = la race. scientific_name = "Felis catus".
 ### CHEVAUX
 - Identifie la race (ex: "Pur-sang Arabe", "Frison", "Shetland").
 
+### BOVINS
+- Races françaises/européennes attestées : Limousine, Charolaise, Montbéliarde, Normande, Salers, Aubrac, Abondance, Tarentaise, Blonde d'Aquitaine, Gasconne, Bazadaise, Parthenaise, Maine-Anjou, Prim'Holstein, Brune des Alpes, Simmental, Blanc Bleu Belge, Highland, Angus, Hereford, Jersiaise, Bretonne Pie Noir, Vosgienne, Ferrandaise, Aure-et-Saint-Girons.
+- Écris le nom sous la forme "Vache <Race>" (ex: "Vache Limousine", "Vache Charolaise"), sauf "Prim'Holstein".
+- Si la race n'est pas certaine → "Vache domestique". scientific_name = "Bos taurus".
+
+### NOMS DE RACES — INTERDICTION D'INVENTER
+- N'utilise QUE des noms de races réels et officiellement reconnus, orthographiés correctement.
+- N'invente jamais un nom approximatif ou phonétique (ex: "Limonaine", "Limonera" au lieu de "Limousine").
+- Si tu hésites sur l'orthographe ou l'existence d'une race, utilise le nom générique de l'espèce ("Vache domestique", "Chien domestique", "Chat Européen") et mets tes hypothèses dans "alternatives".
+
+
 ### FAUNE SAUVAGE
 - Sois le plus précis possible sur l'espèce et la sous-espèce.
 - Ne te contente JAMAIS de l'espèce la plus courante par défaut : compare explicitement les critères diagnostiques avant de conclure.
