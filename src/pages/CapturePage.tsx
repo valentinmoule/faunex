@@ -418,9 +418,12 @@ const CapturePage = () => {
                   <p className="text-primary-foreground/80 text-xs mt-1 leading-relaxed">
                     Tu as bien exploré aujourd'hui ! Faunex est un projet indépendant, c'est pourquoi les captures sont limitées à 4 par jour.
                   </p>
-                  <p className="text-primary-foreground/90 text-xs mt-2 font-display font-semibold">
-                    Reviens demain pour de nouvelles découvertes ✨
-                  </p>
+                  <button
+                    onClick={() => navigate('/premium')}
+                    className="mt-2 rounded-full bg-primary-foreground/90 px-3 py-1.5 text-xs font-display font-semibold text-primary"
+                  >
+                    Captures illimitées avec Premium ✨
+                  </button>
                 </div>
               </div>
             </div>
