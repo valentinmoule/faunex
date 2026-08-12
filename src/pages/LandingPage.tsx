@@ -70,8 +70,8 @@ const benefits = [
 
 const faq = [
   {
-    q: "C'est vraiment gratuit ?",
-    a: 'Oui, 100% gratuit. Pas de pub, pas d\'abonnement caché.',
+    q: 'Combien ça coûte ?',
+    a: "Faunex est gratuit avec 4 captures par jour, sans publicité. L'abonnement facultatif Faunex Premium coûte 1,99 €/mois (captures illimitées, identification plus fine, localisation, notes), sans engagement et remboursable 30 jours. Détails sur la page Tarifs.",
   },
   {
     q: 'Mes données sont-elles protégées ?',
