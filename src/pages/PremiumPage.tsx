@@ -91,11 +91,14 @@ const PremiumPage = () => {
             <Crown className="h-3.5 w-3.5" /> Faunex Premium
           </span>
           <h1 className="relative mt-4 font-display text-2xl font-bold leading-tight">
-            Essayer le meilleur de Faunex
+            Soutenez Faunex et débloquez le meilleur de l'application.
           </h1>
           <p className="relative mt-2 text-sm text-muted-foreground">
-            Tout ce qu'il faut pour explorer sans limite et documenter chaque rencontre.
+            Faunex est un petit projet indépendant qui grandit grâce à vous. Votre abonnement aide
+            directement à financer les serveurs, les modèles d'IA et le développement de nouvelles
+            fonctionnalités.
           </p>
+
 
           <div className="relative mt-5 flex items-end gap-1.5">
             <span className="font-display text-4xl font-bold">1,99 €</span>
