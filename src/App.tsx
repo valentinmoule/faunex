@@ -154,6 +154,8 @@ const AppRoutes = () => {
           <Route path="/premium" element={<ProtectedRoute><PremiumPage /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
           <Route path="/legal" element={<LegalPage />} />
+          <Route path="/tarifs" element={<PricingPage />} />
+          <Route path="/remboursement" element={<RefundPolicyPage />} />
           <Route path="/u/:username" element={<ShareProfilePage />} />
           <Route path="/unsubscribe" element={<UnsubscribePage />} />
           {SHOW_MARKETING_PAGES && ContentIndexPage && ArticlePage && (
