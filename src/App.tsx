@@ -113,6 +113,8 @@ const AppRoutes = () => {
     location.pathname === '/reset-password' ||
     location.pathname === '/complete-profile' ||
     location.pathname === '/legal' ||
+    location.pathname === '/tarifs' ||
+    location.pathname === '/remboursement' ||
     location.pathname === '/unsubscribe' ||
     location.pathname.startsWith('/guides') ||
     location.pathname.startsWith('/fonctionnalites') ||
