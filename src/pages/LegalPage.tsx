@@ -234,7 +234,7 @@ const LegalPage = () => {
         </section>
 
         <p className="text-xs text-muted-foreground pt-4 pb-8">
-          Première publication (V.0.0) : 8 mars 2026 · Dernière mise à jour : 30 juillet 2026
+          Première publication (V.0.0) : 8 mars 2026 · Dernière mise à jour : 12 août 2026
         </p>
       </div>
       <Footer />
