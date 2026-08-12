@@ -38,6 +38,8 @@ const NativeAuthCallbackPage = lazy(() => import("./pages/NativeAuthCallbackPage
 const NativeAuthBridgePage = lazy(() => import("./pages/NativeAuthBridgePage"));
 const QuestsPage = lazy(() => import("./pages/QuestsPage"));
 const PremiumPage = lazy(() => import("./pages/PremiumPage"));
+const PricingPage = lazy(() => import("./pages/PricingPage"));
+const RefundPolicyPage = lazy(() => import("./pages/RefundPolicyPage"));
 const LandingPage = SHOW_MARKETING_PAGES ? lazy(() => import("./pages/LandingPage")) : null;
 const CompleteProfilePage = lazy(() => import("./pages/CompleteProfilePage"));
 const UnsubscribePage = lazy(() => import("./pages/UnsubscribePage"));
@@ -113,6 +115,8 @@ const AppRoutes = () => {
     location.pathname === '/reset-password' ||
     location.pathname === '/complete-profile' ||
     location.pathname === '/legal' ||
+    location.pathname === '/tarifs' ||
+    location.pathname === '/remboursement' ||
     location.pathname === '/unsubscribe' ||
     location.pathname.startsWith('/guides') ||
     location.pathname.startsWith('/fonctionnalites') ||
@@ -152,6 +156,8 @@ const AppRoutes = () => {
           <Route path="/premium" element={<ProtectedRoute><PremiumPage /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
           <Route path="/legal" element={<LegalPage />} />
+          <Route path="/tarifs" element={<PricingPage />} />
+          <Route path="/remboursement" element={<RefundPolicyPage />} />
           <Route path="/u/:username" element={<ShareProfilePage />} />
           <Route path="/unsubscribe" element={<UnsubscribePage />} />
           {SHOW_MARKETING_PAGES && ContentIndexPage && ArticlePage && (

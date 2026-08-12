@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { BookOpen, FileText, Home, Mail, Sparkles, UserPlus } from 'lucide-react';
+import { BookOpen, FileText, Home, Mail, Receipt, Sparkles, Tag, UserPlus } from 'lucide-react';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -43,8 +43,18 @@ const Footer = () => {
             <h3 className="font-display font-bold text-sm text-foreground mb-3">Légal & compte</h3>
             <ul className="space-y-2">
               <li>
+                <Link to="/tarifs" className="text-sm text-muted-foreground hover:text-primary transition-colors font-body inline-flex items-center gap-2">
+                  <Tag className="w-4 h-4" /> Tarifs
+                </Link>
+              </li>
+              <li>
+                <Link to="/remboursement" className="text-sm text-muted-foreground hover:text-primary transition-colors font-body inline-flex items-center gap-2">
+                  <Receipt className="w-4 h-4" /> Remboursement
+                </Link>
+              </li>
+              <li>
                 <Link to="/legal" className="text-sm text-muted-foreground hover:text-primary transition-colors font-body inline-flex items-center gap-2">
-                  <FileText className="w-4 h-4" /> Mentions légales
+                  <FileText className="w-4 h-4" /> Mentions légales & CGU
                 </Link>
               </li>
               <li>
