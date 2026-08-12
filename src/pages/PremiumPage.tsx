@@ -55,13 +55,21 @@ const PremiumPage = () => {
   };
 
   const handleManage = async () => {
+    // Ouvre l'onglet immédiatement (dans le geste utilisateur) pour éviter le blocage de popup
+    const tab = window.open('', '_blank');
     const { data, error } = await supabase.functions.invoke('paddle-portal');
     if (error || !data?.url) {
+      tab?.close();
       toast.error("Impossible d'ouvrir la gestion de l'abonnement.");
       return;
     }
-    window.open(data.url as string, '_blank');
+    if (tab) {
+      tab.location.href = data.url as string;
+    } else {
+      window.location.href = data.url as string;
+    }
   };
+
 
   return (
     <div className="min-h-screen bg-background pb-28">
