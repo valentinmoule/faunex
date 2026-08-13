@@ -9,12 +9,15 @@ interface Props {
   recipientName?: string
   animalName?: string
   captureUrl?: string
+  /** 'duplicate' = espèce déjà présente dans le bestiaire de l'explorateur. */
+  reason?: 'not_identifiable' | 'duplicate' | string
 }
 
 const CaptureRejectedEmail = ({
   recipientName = 'Explorateur',
   animalName = 'ta capture',
   captureUrl = 'https://faunex.lovable.app',
+  reason = 'not_identifiable',
 }: Props) => (
   <Html lang="fr" dir="ltr">
     <Head />
@@ -27,12 +30,22 @@ const CaptureRejectedEmail = ({
         />
         <Heading style={h1}>Capture non validée</Heading>
         <Text style={text}>Salut <strong>{recipientName}</strong>,</Text>
-        <Text style={text}>
-          Ta capture de <strong>{animalName}</strong> n'a pas pu être validée : l'espèce
-          n'était pas identifiable sur la photo. Rien de grave, retente ta chance avec un
-          cliché plus net ou plus rapproché.
-        </Text>
-        <Button style={button} href={captureUrl}>Refaire une capture</Button>
+        {reason === 'duplicate' ? (
+          <Text style={text}>
+            Ta capture de <strong>{animalName}</strong> n'a pas été ajoutée : cette espèce
+            figure déjà dans ton bestiaire. Chaque espèce ne compte qu'une seule fois dans
+            Faunex — part à la rencontre d'une nouvelle espèce pour agrandir ta collection !
+          </Text>
+        ) : (
+          <Text style={text}>
+            Ta capture de <strong>{animalName}</strong> n'a pas pu être validée : l'espèce
+            n'était pas identifiable sur la photo. Rien de grave, retente ta chance avec un
+            cliché plus net ou plus rapproché.
+          </Text>
+        )}
+        <Button style={button} href={captureUrl}>
+          {reason === 'duplicate' ? 'Capturer une nouvelle espèce' : 'Refaire une capture'}
+        </Button>
         <Text style={footer}>À bientôt sur le terrain !</Text>
       </Container>
     </Body>
@@ -41,7 +54,10 @@ const CaptureRejectedEmail = ({
 
 export const template = {
   component: CaptureRejectedEmail,
-  subject: (d: Props) => `${d?.animalName || 'Ta capture'} n'a pas pu être validée`,
+  subject: (d: Props) =>
+    d?.reason === 'duplicate'
+      ? `${d?.animalName || 'Cette espèce'} est déjà dans ton bestiaire`
+      : `${d?.animalName || 'Ta capture'} n'a pas pu être validée`,
   displayName: 'Capture rejetée',
   previewData: { recipientName: 'Sam', animalName: 'Renard roux', captureUrl: 'https://faunex.lovable.app' },
 } satisfies TemplateEntry

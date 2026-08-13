@@ -53,11 +53,14 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}))
     const captureId: string | undefined = body?.capture_id
     const overrideName: string | undefined = body?.animal_name
+    // 'high' fait basculer sur un modèle plus performant quand le modèle léger échoue.
+    const quality: string = body?.quality === 'high' ? 'high' : 'standard'
+    const skipDuplicateCheck: boolean = body?.skip_duplicate_check === true
     if (!captureId) return json({ error: 'capture_id is required' }, 400)
 
     const { data: capture, error: capErr } = await supabase
       .from('captures')
-      .select('id, animal_name, description, image_url, location')
+      .select('id, animal_name, description, image_url, location, user_id')
       .eq('id', captureId)
       .maybeSingle()
 
@@ -65,6 +68,18 @@ Deno.serve(async (req) => {
 
     const animalName = (overrideName || capture.animal_name || '').toString().trim()
     if (!animalName) return json({ error: 'Nom d\'animal manquant' }, 400)
+
+    // Doublon : l'utilisateur possède déjà cette espèce (une capture par espèce).
+    if (!skipDuplicateCheck) {
+      const dup = await findUserDuplicate(supabase, capture.user_id, captureId, animalName, null)
+      if (dup) {
+        return json({
+          error: `L'explorateur possède déjà « ${dup.animal_name} » dans son bestiaire.`,
+          code: 'duplicate',
+          duplicate: dup,
+        }, 409)
+      }
+    }
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY')
     if (!LOVABLE_API_KEY) return json({ error: 'LOVABLE_API_KEY manquant' }, 500)
@@ -90,7 +105,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         // Fiche générée après validation humaine : la description de l'utilisateur
         // donne déjà l'espèce, un modèle léger suffit largement.
-        model: 'google/gemini-2.5-flash-lite',
+        model: quality === 'high' ? 'google/gemini-2.5-pro' : 'google/gemini-2.5-flash-lite',
         temperature: 0,
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
@@ -151,15 +166,36 @@ Deno.serve(async (req) => {
     })
 
     if (!response.ok) {
-      if (response.status === 429) return json({ error: 'Trop de requêtes, réessaye dans un moment.' }, 429)
-      if (response.status === 402) return json({ error: 'Crédits IA épuisés.' }, 402)
-      console.error('AI gateway error', response.status, await response.text())
-      return json({ error: 'Erreur IA' }, 500)
+      const detail = await response.text().catch(() => '')
+      if (response.status === 429) {
+        return json({ error: 'Trop de requêtes IA, réessaye dans un moment.', code: 'ai_rate_limited' }, 429)
+      }
+      if (response.status === 402) {
+        return json({ error: 'Crédits IA épuisés.', code: 'ai_no_credits' }, 402)
+      }
+      console.error('AI gateway error', response.status, detail)
+      return json({
+        error: `Le modèle IA a répondu ${response.status}.`,
+        code: 'ai_error',
+        model_used: quality,
+        detail: detail.slice(0, 400),
+      }, 502)
     }
 
     const data = await response.json()
     const toolCall = data.choices?.[0]?.message?.tool_calls?.[0]
-    if (!toolCall) return json({ error: 'Enrichissement impossible' }, 422)
+    if (!toolCall) {
+      // Le modèle n'a pas rempli la fiche : souvent une photo ambiguë. Un modèle
+      // plus performant peut débloquer la situation (quality: 'high').
+      return json({
+        error: quality === 'high'
+          ? "Le modèle avancé n'a pas réussi à produire la fiche (photo trop ambiguë ?)."
+          : "Le modèle léger n'a pas réussi à produire la fiche.",
+        code: 'ai_no_result',
+        model_used: quality,
+        can_retry_high: quality !== 'high',
+      }, 422)
+    }
 
     const animal = JSON.parse(toolCall.function.arguments)
 
@@ -180,6 +216,21 @@ Deno.serve(async (req) => {
     }
 
 
+    // Second contrôle avec le nom canonique retenu par l'IA / le bestiaire.
+    if (!skipDuplicateCheck) {
+      const dup = await findUserDuplicate(
+        supabase, capture.user_id, captureId,
+        animal.animal_name || animalName, animal.scientific_name || null,
+      )
+      if (dup) {
+        return json({
+          error: `L'explorateur possède déjà « ${dup.animal_name} » dans son bestiaire.`,
+          code: 'duplicate',
+          duplicate: dup,
+        }, 409)
+      }
+    }
+
     const update: Record<string, unknown> = {
       animal_name: animal.animal_name || animalName,
       scientific_name: animal.scientific_name || null,
@@ -196,7 +247,14 @@ Deno.serve(async (req) => {
     const { error: updErr } = await supabase.from('captures').update(update).eq('id', captureId)
     if (updErr) {
       console.error('capture update failed', updErr)
-      return json({ error: 'Mise à jour impossible' }, 500)
+      const isUnique = /duplicate key|unique/i.test(updErr.message || '')
+      return json({
+        error: isUnique
+          ? "Conflit d'unicité : cette espèce existe déjà pour cet explorateur."
+          : `Mise à jour impossible : ${updErr.message}`,
+        code: isUnique ? 'duplicate' : 'db_error',
+        detail: updErr.message,
+      }, isUnique ? 409 : 500)
     }
 
     return json({ success: true, animal: update })
@@ -205,6 +263,36 @@ Deno.serve(async (req) => {
     return json({ error: e instanceof Error ? e.message : 'Erreur inconnue' }, 500)
   }
 })
+
+const norm = (v: string | null | undefined) =>
+  (v ?? '')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
+
+/** Retourne la capture approuvée existante de la même espèce pour cet explorateur. */
+async function findUserDuplicate(
+  supabase: any,
+  userId: string,
+  currentCaptureId: string,
+  name: string,
+  scientific: string | null,
+) {
+  const { data, error } = await supabase
+    .from('captures')
+    .select('id, animal_name, scientific_name, created_at')
+    .eq('user_id', userId)
+    .eq('status', 'approved')
+  if (error) {
+    console.error('duplicate lookup failed', error)
+    return null
+  }
+  const n = norm(name)
+  const s = norm(scientific)
+  return (data || []).find((c: any) =>
+    c.id !== currentCaptureId &&
+    ((n && norm(c.animal_name) === n) || (s && norm(c.scientific_name) === s))
+  ) || null
+}
 
 function json(payload: unknown, status = 200) {
   return new Response(JSON.stringify(payload), {
