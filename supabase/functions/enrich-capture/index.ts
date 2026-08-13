@@ -96,7 +96,19 @@ Deno.serve(async (req) => {
       content.push({ type: 'image_url', image_url: { url: capture.image_url } })
     }
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    // Le gateway peut stagner (503 amont, modèle lent) : on borne chaque appel et on
+    // retente avec un modèle de repli plutôt que de laisser le modérateur attendre.
+    const models = quality === 'high'
+      ? ['google/gemini-2.5-pro', 'google/gemini-2.5-flash']
+      : ['google/gemini-2.5-flash-lite', 'google/gemini-2.5-flash']
+
+    const callGateway = async (model: string, timeoutMs: number) => {
+      const controller = new AbortController()
+      const timer = setTimeout(() => controller.abort(), timeoutMs)
+      try {
+        return await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+          signal: controller.signal,
+          method: 'POST',
       method: 'POST',
       headers: {
         Authorization: `Bearer ${LOVABLE_API_KEY}`,
