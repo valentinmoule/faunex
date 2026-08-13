@@ -119,9 +119,34 @@ const ModerationPage = () => {
       delete next[capture.id];
       return next;
     });
-    const { data: enriched, error: enrichError } = await supabase.functions.invoke('enrich-capture', {
-      body: { capture_id: capture.id, animal_name: capture.animal_name, quality },
-    });
+    // Filet de sécurité : si la fonction ne répond jamais (gateway bloqué), on
+    // libère l'UI au lieu de laisser un loader infini.
+    const withTimeout = <T,>(p: Promise<T>, ms: number): Promise<T> =>
+      Promise.race([
+        p,
+        new Promise<T>((_, reject) => setTimeout(() => reject(new Error('client_timeout')), ms)),
+      ]);
+
+    let enriched: any = null;
+    let enrichError: any = null;
+    try {
+      const res = await withTimeout(
+        supabase.functions.invoke('enrich-capture', {
+          body: { capture_id: capture.id, animal_name: capture.animal_name, quality },
+        }),
+        75_000,
+      );
+      enriched = res.data;
+      enrichError = res.error;
+    } catch {
+      enrichError = null;
+      enriched = null;
+      setProcessing(null);
+      const failure = { code: 'client_timeout', message: "La génération a dépassé 75 s. Réessaye ou utilise le modèle avancé." };
+      setFailures(prev => ({ ...prev, [capture.id]: failure }));
+      toast.error(failure.message);
+      return;
+    }
     setProcessing(null);
 
     if (enrichError || !enriched?.animal) {
