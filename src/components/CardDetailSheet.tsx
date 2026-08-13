@@ -541,14 +541,19 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
                       (() => {
                         const CatIcon = getCategoryIcon(card.category);
                         return (
-                          <div className="w-full h-full flex flex-col items-center justify-center bg-muted/30">
-                            <div className="relative">
-                              <div className="absolute inset-0 rounded-full bg-muted-foreground/5 animate-pulse" />
-                              <CatIcon className="w-20 h-20 text-muted-foreground/40 relative z-10" strokeWidth={1.5} />
+                          <div className="w-full h-full flex flex-col items-center justify-center bg-muted/40 p-6 text-center">
+                            <div className="relative mb-4">
+                              <div className="absolute inset-0 rounded-full bg-primary/10 animate-pulse" />
+                              <div className="relative z-10 w-24 h-24 rounded-full bg-background/80 backdrop-blur-sm border border-border flex items-center justify-center shadow-sm">
+                                <CatIcon className="w-12 h-12 text-primary/70" strokeWidth={1.8} />
+                              </div>
                             </div>
-                            <div className="mt-4 px-5 text-center">
-                              <p className="text-xs font-display font-semibold text-muted-foreground/70">Non découvert</p>
-                            </div>
+                            <p className="text-base font-display font-bold text-foreground mb-1.5 leading-tight">
+                              Animal non découvert
+                            </p>
+                            <p className="text-sm text-muted-foreground/80 leading-snug max-w-[220px]">
+                              Aucune capture disponible
+                            </p>
                           </div>
                         );
                       })()
