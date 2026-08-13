@@ -39,6 +39,34 @@ interface EnrichedAnimal {
 }
 
 
+interface PrepareFailure {
+  code: string;
+  message: string;
+  detail?: string;
+  canRetryHigh?: boolean;
+  duplicate?: { id: string; animal_name: string; created_at: string } | null;
+}
+
+/** Récupère le corps JSON d'une erreur d'edge function (statut non-2xx). */
+const readFunctionError = async (error: any): Promise<PrepareFailure> => {
+  try {
+    const ctx = error?.context;
+    if (ctx && typeof ctx.json === 'function') {
+      const body = await ctx.clone().json();
+      return {
+        code: body?.code || 'unknown',
+        message: body?.error || 'Erreur inconnue',
+        detail: body?.detail,
+        canRetryHigh: body?.can_retry_high,
+        duplicate: body?.duplicate ?? null,
+      };
+    }
+  } catch (e) {
+    console.error('unreadable function error', e);
+  }
+  return { code: 'network', message: error?.message || 'Fonction injoignable (réseau ou timeout).' };
+};
+
 const ModerationPage = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
@@ -47,6 +75,8 @@ const ModerationPage = () => {
   const [processing, setProcessing] = useState<string | null>(null);
   const [preview, setPreview] = useState<{ capture: PendingCapture; animal: EnrichedAnimal } | null>(null);
   const [confirming, setConfirming] = useState(false);
+  /** Diagnostic d'échec de la prévisualisation, par capture. */
+  const [failures, setFailures] = useState<Record<string, PrepareFailure>>({});
 
   useEffect(() => {
     if (!session?.user) return;
@@ -82,16 +112,25 @@ const ModerationPage = () => {
   };
 
   /** Step 1 — generate the enriched sheet and open the preview (no approval yet). */
-  const prepareApprove = async (capture: PendingCapture) => {
+  const prepareApprove = async (capture: PendingCapture, quality: 'standard' | 'high' = 'standard') => {
     setProcessing(capture.id);
+    setFailures(prev => {
+      const next = { ...prev };
+      delete next[capture.id];
+      return next;
+    });
     const { data: enriched, error: enrichError } = await supabase.functions.invoke('enrich-capture', {
-      body: { capture_id: capture.id, animal_name: capture.animal_name },
+      body: { capture_id: capture.id, animal_name: capture.animal_name, quality },
     });
     setProcessing(null);
 
     if (enrichError || !enriched?.animal) {
-      console.error('enrich-capture failed', enrichError);
-      toast.error('Fiche IA non générée, réessaye');
+      const failure = enrichError
+        ? await readFunctionError(enrichError)
+        : { code: 'empty_response', message: "La fonction a répondu sans fiche exploitable." };
+      console.error('enrich-capture failed', failure);
+      setFailures(prev => ({ ...prev, [capture.id]: failure }));
+      toast.error(failure.message);
       return;
     }
 
@@ -149,7 +188,7 @@ const ModerationPage = () => {
   };
 
 
-  const reject = async (capture: PendingCapture) => {
+  const reject = async (capture: PendingCapture, reason: 'not_identifiable' | 'duplicate' = 'not_identifiable') => {
     setProcessing(capture.id);
     // Notify the user BEFORE deleting (the capture row disappears afterwards)
     if (session?.user) {
@@ -170,6 +209,7 @@ const ModerationPage = () => {
             decision: 'rejected',
             animal_name: capture.animal_name,
             capture_id: capture.id,
+            reason,
           },
         })
         .then(({ error: fnError }) => {
@@ -185,7 +225,11 @@ const ModerationPage = () => {
     if (error) {
       toast.error('Erreur lors du rejet');
     } else {
-      toast.success(`${capture.animal_name} rejeté et supprimé`);
+      toast.success(
+        reason === 'duplicate'
+          ? `${capture.animal_name} rejeté (doublon) — l'explorateur est prévenu`
+          : `${capture.animal_name} rejeté et supprimé`
+      );
       setCaptures(prev => prev.filter(c => c.id !== capture.id));
     }
     setProcessing(null);
@@ -278,6 +322,49 @@ const ModerationPage = () => {
                         </div>
                       )}
 
+
+                      {failures[capture.id] && (
+                        <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-3 space-y-2">
+                          <p className="text-[10px] font-display font-bold uppercase tracking-wide text-destructive">
+                            {failures[capture.id].code === 'duplicate'
+                              ? 'Espèce déjà collectionnée'
+                              : failures[capture.id].code === 'ai_no_result' || failures[capture.id].code === 'ai_error'
+                                ? 'Échec du modèle IA'
+                                : 'Échec de la prévisualisation'}
+                          </p>
+                          <p className="text-xs text-foreground">{failures[capture.id].message}</p>
+                          {failures[capture.id].duplicate && (
+                            <p className="text-[11px] text-muted-foreground">
+                              Capture existante : {failures[capture.id].duplicate!.animal_name} (
+                              {new Date(failures[capture.id].duplicate!.created_at).toLocaleDateString('fr-FR')})
+                            </p>
+                          )}
+                          {failures[capture.id].detail && (
+                            <p className="text-[10px] text-muted-foreground break-words">
+                              Détail technique : {failures[capture.id].detail}
+                            </p>
+                          )}
+                          <div className="flex flex-wrap gap-2 pt-1">
+                            {failures[capture.id].code === 'duplicate' ? (
+                              <button
+                                onClick={() => reject(capture, 'duplicate')}
+                                disabled={processing === capture.id}
+                                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-destructive text-destructive-foreground text-xs font-display font-semibold disabled:opacity-50"
+                              >
+                                <X className="w-3.5 h-3.5" /> Rejeter (doublon)
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => prepareApprove(capture, 'high')}
+                                disabled={processing === capture.id}
+                                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-display font-semibold disabled:opacity-50"
+                              >
+                                <Sparkles className="w-3.5 h-3.5" /> Réessayer (modèle avancé)
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      )}
 
                       <div className="flex gap-2 pt-1">
                         <button
