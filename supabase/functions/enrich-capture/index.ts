@@ -109,15 +109,12 @@ Deno.serve(async (req) => {
         return await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
           signal: controller.signal,
           method: 'POST',
-      method: 'POST',
       headers: {
         Authorization: `Bearer ${LOVABLE_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        // Fiche générée après validation humaine : la description de l'utilisateur
-        // donne déjà l'espèce, un modèle léger suffit largement.
-        model: quality === 'high' ? 'google/gemini-2.5-pro' : 'google/gemini-2.5-flash-lite',
+        model,
         temperature: 0,
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
