@@ -541,16 +541,16 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
                       (() => {
                         const CatIcon = getCategoryIcon(card.category);
                         return (
-                          <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-muted/30">
-                            <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle, hsl(var(--foreground)) 1px, transparent 1px)', backgroundSize: '18px 18px' }} />
+                          <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-gradient-to-b from-muted/40 via-muted/70 to-muted/90">
+                            <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'radial-gradient(circle, hsl(var(--background)) 1px, transparent 1px)', backgroundSize: '18px 18px' }} />
                             <div className="relative z-10 mb-6">
-                              <CatIcon className="w-16 h-16 text-foreground" strokeWidth={1.5} />
+                              <CatIcon className="w-16 h-16 text-white drop-shadow-sm" strokeWidth={1.5} />
                             </div>
                             <div className="relative z-10 space-y-1.5 max-w-[240px]">
-                              <p className="text-xl font-display font-bold text-foreground tracking-tight">
+                              <p className="text-xl font-display font-bold text-white tracking-tight drop-shadow-md">
                                 Non découvert
                               </p>
-                              <p className="text-sm font-body text-muted-foreground leading-relaxed">
+                              <p className="text-sm font-body text-white/85 leading-relaxed drop-shadow-sm">
                                 Capture cet animal pour débloquer sa fiche.
                               </p>
                             </div>
