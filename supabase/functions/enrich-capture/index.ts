@@ -172,24 +172,48 @@ Deno.serve(async (req) => {
         ],
         tool_choice: { type: 'function', function: { name: 'enrich_animal' } },
       }),
-    })
-
-    if (!response.ok) {
-      const detail = await response.text().catch(() => '')
-      if (response.status === 429) {
-        return json({ error: 'Trop de requêtes IA, réessaye dans un moment.', code: 'ai_rate_limited' }, 429)
+        })
+      } finally {
+        clearTimeout(timer)
       }
-      if (response.status === 402) {
-        return json({ error: 'Crédits IA épuisés.', code: 'ai_no_credits' }, 402)
-      }
-      console.error('AI gateway error', response.status, detail)
-      return json({
-        error: `Le modèle IA a répondu ${response.status}.`,
-        code: 'ai_error',
-        model_used: quality,
-        detail: detail.slice(0, 400),
-      }, 502)
     }
+
+    let response: Response | null = null
+    let lastStatus = 0
+    let lastDetail = ''
+    let timedOut = false
+
+    for (let i = 0; i < models.length; i++) {
+      try {
+        const res = await callGateway(models[i], 55_000)
+        if (res.ok) { response = res; break }
+        lastStatus = res.status
+        lastDetail = await res.text().catch(() => '')
+        if (res.status === 429) {
+          return json({ error: 'Trop de requêtes IA, réessaye dans un moment.', code: 'ai_rate_limited' }, 429)
+        }
+        if (res.status === 402) {
+          return json({ error: 'Crédits IA épuisés.', code: 'ai_no_credits' }, 402)
+        }
+        console.error('AI gateway error', models[i], res.status, lastDetail)
+      } catch (err) {
+        timedOut = true
+        console.error('AI gateway timeout/abort', models[i], String(err))
+      }
+    }
+
+    if (!response) {
+      return json({
+        error: timedOut
+          ? "Le modèle IA n'a pas répondu à temps (photo trop lourde ou service saturé). Réessaye."
+          : `Le service IA est momentanément indisponible (${lastStatus}). Réessaye dans quelques instants.`,
+        code: timedOut ? 'ai_timeout' : 'ai_error',
+        model_used: quality,
+        can_retry_high: quality !== 'high',
+        detail: lastDetail.slice(0, 400),
+      }, timedOut ? 504 : 502)
+    }
+
 
     const data = await response.json()
     const toolCall = data.choices?.[0]?.message?.tool_calls?.[0]
