@@ -541,19 +541,25 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
                       (() => {
                         const CatIcon = getCategoryIcon(card.category);
                         return (
-                          <div className="w-full h-full flex flex-col items-center justify-center bg-muted/40 p-6 text-center">
-                            <div className="relative mb-4">
-                              <div className="absolute inset-0 rounded-full bg-primary/10 animate-pulse" />
-                              <div className="relative z-10 w-24 h-24 rounded-full bg-background/80 backdrop-blur-sm border border-border flex items-center justify-center shadow-sm">
-                                <CatIcon className="w-12 h-12 text-primary/70" strokeWidth={1.8} />
+                          <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-muted/60 via-muted/30 to-muted/60">
+                            <div className="absolute inset-4 rounded-[0.875rem] border-2 border-dashed border-border/60 bg-background/20" />
+                            <div className="relative z-10 mb-5">
+                              <div className="absolute inset-0 rounded-full bg-primary/8 animate-pulse scale-110" />
+                              <div className="relative w-28 h-28 rounded-full bg-background/90 backdrop-blur-sm border-2 border-dashed border-primary/30 flex items-center justify-center shadow-sm">
+                                <CatIcon className="w-13 h-13 text-muted-foreground/70" strokeWidth={1.6} />
+                              </div>
+                              <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-background border border-border flex items-center justify-center shadow-sm">
+                                <Lock className="w-3.5 h-3.5 text-muted-foreground/70" />
                               </div>
                             </div>
-                            <p className="text-base font-display font-bold text-foreground mb-1.5 leading-tight">
-                              Animal non découvert
-                            </p>
-                            <p className="text-sm text-muted-foreground/80 leading-snug max-w-[220px]">
-                              Aucune capture disponible
-                            </p>
+                            <div className="relative z-10 space-y-2">
+                              <p className="text-lg font-display font-bold text-foreground leading-tight">
+                                Non découvert
+                              </p>
+                              <p className="text-sm text-muted-foreground/90 leading-snug max-w-[220px]">
+                                Capture cet animal pour révéler sa fiche complète.
+                              </p>
+                            </div>
                           </div>
                         );
                       })()
