@@ -43,6 +43,8 @@ Deno.serve(async (req) => {
     const decision: string | undefined = body?.decision
     const animalName: string = (body?.animal_name || 'Ta capture').toString().slice(0, 120)
     const captureId: string | undefined = body?.capture_id
+    // 'duplicate' : rejet parce que l'espèce est déjà dans le bestiaire de l'explorateur.
+    const reason: string = body?.reason === 'duplicate' ? 'duplicate' : 'not_identifiable'
 
     if (!userId || !decision || !['approved', 'rejected'].includes(decision)) {
       return json({ error: 'Missing or invalid params' }, 400)
@@ -64,10 +66,11 @@ Deno.serve(async (req) => {
         body: {
           templateName: approved ? 'capture-approved' : 'capture-rejected',
           recipientEmail: email,
-          idempotencyKey: `moderation-${decision}-${captureId ?? userId}-${animalName}`,
+          idempotencyKey: `moderation-${decision}-${reason}-${captureId ?? userId}-${animalName}`,
           templateData: {
             recipientName,
             animalName,
+            reason,
             captureUrl: approved
               ? `${APP_URL}/collection${captureId ? `?capture=${captureId}` : ''}`
               : `${APP_URL}/capture`,
@@ -79,10 +82,14 @@ Deno.serve(async (req) => {
     }
 
     const pushResult = await sendPushToUser(supabase, userId, {
-      title: approved ? 'Capture validée 🎉' : 'Capture non validée',
+      title: approved
+        ? 'Capture validée 🎉'
+        : reason === 'duplicate' ? 'Espèce déjà collectionnée' : 'Capture non validée',
       body: approved
         ? `${animalName} rejoint ton bestiaire !`
-        : `${animalName} n'a pas pu être identifiée. Retente avec une photo plus nette.`,
+        : reason === 'duplicate'
+          ? `${animalName} est déjà dans ton bestiaire. Pars à la rencontre d'une nouvelle espèce !`
+          : `${animalName} n'a pas pu être identifiée. Retente avec une photo plus nette.`,
       url: approved ? `/collection${captureId ? `?capture=${captureId}` : ''}` : '/capture',
       tag: `moderation-${captureId ?? userId}`,
     })
