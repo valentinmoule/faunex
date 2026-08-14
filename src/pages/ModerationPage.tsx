@@ -111,8 +111,16 @@ const ModerationPage = () => {
     setLoading(false);
   };
 
-  /** Step 1 — generate the enriched sheet and open the preview (no approval yet). */
-  const prepareApprove = async (capture: PendingCapture, quality: 'standard' | 'high' = 'standard') => {
+  /**
+   * Step 1 — generate the enriched sheet and open the preview (no approval yet).
+   * `forceName` : le nom de l'explorateur fait autorité, l'IA ne fait aucune
+   * reconnaissance d'image et complète uniquement la fiche documentaire.
+   */
+  const prepareApprove = async (
+    capture: PendingCapture,
+    quality: 'standard' | 'high' = 'standard',
+    forceName = false,
+  ) => {
     setProcessing(capture.id);
     setFailures(prev => {
       const next = { ...prev };
@@ -132,7 +140,7 @@ const ModerationPage = () => {
     try {
       const res = await withTimeout(
         supabase.functions.invoke('enrich-capture', {
-          body: { capture_id: capture.id, animal_name: capture.animal_name, quality },
+          body: { capture_id: capture.id, animal_name: capture.animal_name, quality, force_name: forceName },
         }),
         75_000,
       );
