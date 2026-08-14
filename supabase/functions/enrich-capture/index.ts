@@ -92,6 +92,9 @@ Deno.serve(async (req) => {
     const skipDuplicateCheck: boolean = body?.skip_duplicate_check === true
     // apply=true : écriture réelle de la fiche (confirmation du modérateur).
     const apply: boolean = body?.apply === true
+    // force_name=true : le nom de l'observateur fait autorité. L'IA ne fait aucune
+    // reconnaissance d'image, elle rédige seulement la fiche documentaire.
+    const forceName: boolean = body?.force_name === true
     const providedAnimal = body?.animal && typeof body.animal === 'object' ? body.animal : null
     if (!captureId) return json({ error: 'capture_id is required' }, 400)
 
