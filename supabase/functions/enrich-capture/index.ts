@@ -324,7 +324,11 @@ Deno.serve(async (req) => {
     })
     if (matchErr) console.error('match_animal failed', matchErr)
     const existing = Array.isArray(matches) ? matches[0] : matches
-    if (existing) {
+    // Races domestiques : même binôme latin pour des races différentes, on ne doit
+    // pas fusionner un Épagneul picard avec un Braque d'Auvergne.
+    const sharedBinomial = SHARED_BINOMIALS.has(norm(existing?.scientific_name))
+    const sameCommonName = norm(existing?.name) === norm(animal.animal_name || animalName)
+    if (existing && (!sharedBinomial || sameCommonName)) {
       // En mode forcé, on n'adopte le nom canonique que s'il désigne bien le même nom.
       if (!forceName || norm(existing.name) === norm(animalName)) {
         animal.animal_name = existing.name || animal.animal_name
@@ -333,6 +337,7 @@ Deno.serve(async (req) => {
       animal.category = existing.category || animal.category
       animal.rarity = existing.rarity || animal.rarity
     }
+
 
 
     // Second contrôle avec le nom canonique retenu par l'IA / le bestiaire.
