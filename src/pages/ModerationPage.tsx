@@ -169,6 +169,17 @@ const ModerationPage = () => {
     const finalName = animal.animal_name || capture.animal_name;
     setConfirming(true);
 
+    // La prévisualisation n'écrit rien : on applique la fiche enrichie maintenant.
+    const { error: applyError } = await supabase.functions.invoke('enrich-capture', {
+      body: { capture_id: capture.id, apply: true, animal },
+    });
+    if (applyError) {
+      const failure = await readFunctionError(applyError);
+      toast.error(failure.message);
+      setConfirming(false);
+      return;
+    }
+
     const { error } = await supabase
       .from('captures')
       .update({ status: 'approved' })
@@ -177,6 +188,7 @@ const ModerationPage = () => {
     if (error) {
       toast.error('Erreur lors de l\'approbation');
     } else {
+
 
       // Notify the user that their capture was approved
       if (session?.user) {
