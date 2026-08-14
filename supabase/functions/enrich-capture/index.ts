@@ -396,6 +396,21 @@ const norm = (v: string | null | undefined) =>
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
 
+/**
+ * Espèces domestiques : toutes les races partagent le même binôme latin
+ * (Épagneul picard et Braque d'Auvergne = Canis lupus familiaris). Le nom
+ * scientifique ne peut donc pas servir à détecter un doublon pour elles.
+ */
+const SHARED_BINOMIALS = new Set([
+  'canis lupus familiaris', 'canis familiaris', 'canis lupus',
+  'felis catus', 'felis silvestris catus',
+  'equus caballus', 'equus ferus caballus', 'equus asinus',
+  'bos taurus', 'bos primigenius taurus', 'ovis aries', 'capra hircus',
+  'sus scrofa domesticus', 'gallus gallus domesticus', 'gallus gallus',
+  'oryctolagus cuniculus', 'anas platyrhynchos domesticus',
+  'cavia porcellus', 'mesocricetus auratus', 'columba livia domestica',
+])
+
 /** Retourne la capture approuvée existante de la même espèce pour cet explorateur. */
 async function findUserDuplicate(
   supabase: any,
@@ -414,12 +429,14 @@ async function findUserDuplicate(
     return null
   }
   const n = norm(name)
-  const s = norm(scientific)
+  const s = SHARED_BINOMIALS.has(norm(scientific)) ? '' : norm(scientific)
   return (data || []).find((c: any) =>
     c.id !== currentCaptureId &&
-    ((n && norm(c.animal_name) === n) || (s && norm(c.scientific_name) === s))
+    ((n && norm(c.animal_name) === n) ||
+      (s && !SHARED_BINOMIALS.has(norm(c.scientific_name)) && norm(c.scientific_name) === s))
   ) || null
 }
+
 
 function json(payload: unknown, status = 200) {
   return new Response(JSON.stringify(payload), {
