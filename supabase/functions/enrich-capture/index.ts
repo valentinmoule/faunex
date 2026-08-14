@@ -277,6 +277,13 @@ Deno.serve(async (req) => {
     }
     if (animal.subject_bbox) update.subject_bbox = animal.subject_bbox
 
+    // Prévisualisation : on ne touche PAS à la capture. Le nom et la description de
+    // l'utilisateur restent intacts si le modérateur annule. L'écriture n'a lieu
+    // qu'à la confirmation (apply: true).
+    if (!apply) {
+      return json({ success: true, preview: true, animal: update })
+    }
+
     const { error: updErr } = await supabase.from('captures').update(update).eq('id', captureId)
     if (updErr) {
       console.error('capture update failed', updErr)
@@ -291,6 +298,7 @@ Deno.serve(async (req) => {
     }
 
     return json({ success: true, animal: update })
+
   } catch (e) {
     console.error('enrich-capture error', e)
     return json({ error: e instanceof Error ? e.message : 'Erreur inconnue' }, 500)
