@@ -399,37 +399,56 @@ const ModerationPage = () => {
                                 <X className="w-3.5 h-3.5" /> Rejeter (doublon)
                               </button>
                             ) : (
-                              <button
-                                onClick={() => prepareApprove(capture, 'high')}
-                                disabled={processing === capture.id}
-                                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-display font-semibold disabled:opacity-50"
-                              >
-                                <Sparkles className="w-3.5 h-3.5" /> Réessayer (modèle avancé)
-                              </button>
+                              <>
+                                <button
+                                  onClick={() => prepareApprove(capture, 'high')}
+                                  disabled={processing === capture.id}
+                                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-display font-semibold disabled:opacity-50"
+                                >
+                                  <Sparkles className="w-3.5 h-3.5" /> Réessayer (modèle avancé)
+                                </button>
+                                <button
+                                  onClick={() => prepareApprove(capture, 'standard', true)}
+                                  disabled={processing === capture.id}
+                                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-muted text-foreground text-xs font-display font-semibold disabled:opacity-50"
+                                >
+                                  <Lock className="w-3.5 h-3.5" /> Forcer « {capture.animal_name} »
+                                </button>
+                              </>
                             )}
                           </div>
                         </div>
                       )}
 
-                      <div className="flex gap-2 pt-1">
+                      <div className="space-y-2 pt-1">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => reject(capture)}
+                            disabled={processing === capture.id}
+                            className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-destructive/10 text-destructive text-xs font-display font-semibold disabled:opacity-50 hover:bg-destructive/20 transition-colors"
+                          >
+                            <X className="w-3.5 h-3.5" /> Rejeter
+                          </button>
+                          <button
+                            onClick={() => prepareApprove(capture)}
+                            disabled={processing === capture.id}
+                            className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-display font-semibold disabled:opacity-50"
+                          >
+                            {processing === capture.id ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <Sparkles className="w-3.5 h-3.5" />
+                            )}
+                            {processing === capture.id ? 'Génération…' : 'Prévisualiser (IA + photo)'}
+                          </button>
+                        </div>
                         <button
-                          onClick={() => reject(capture)}
+                          onClick={() => prepareApprove(capture, 'standard', true)}
                           disabled={processing === capture.id}
-                          className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-destructive/10 text-destructive text-xs font-display font-semibold disabled:opacity-50 hover:bg-destructive/20 transition-colors"
+                          className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-muted text-foreground text-xs font-display font-semibold disabled:opacity-50 hover:bg-muted/80 transition-colors"
                         >
-                          <X className="w-3.5 h-3.5" /> Rejeter
-                        </button>
-                        <button
-                          onClick={() => prepareApprove(capture)}
-                          disabled={processing === capture.id}
-                          className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-display font-semibold disabled:opacity-50"
-                        >
-                          {processing === capture.id ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          ) : (
-                            <Sparkles className="w-3.5 h-3.5" />
-                          )}
-                          {processing === capture.id ? 'Génération…' : 'Prévisualiser'}
+                          <Lock className="w-3.5 h-3.5" />
+                          Forcer le nom de l'explorateur (fiche seule)
                         </button>
                       </div>
                     </div>
