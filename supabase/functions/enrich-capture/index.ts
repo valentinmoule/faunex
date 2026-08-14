@@ -126,10 +126,13 @@ Deno.serve(async (req) => {
     if (!LOVABLE_API_KEY) return json({ error: 'LOVABLE_API_KEY manquant' }, 500)
 
     const userText = [
-      `Nom validé par le modérateur : "${animalName}".`,
-      capture.description ? `Note de l'observateur : "${String(capture.description).slice(0, 400)}".` : null,
+      `Nom proposé par l'observateur (validé par le modérateur) : "${animalName}".`,
+      capture.description
+        ? `Description de l'observateur (indices de terrain à prendre en compte pour l'identification) : "${String(capture.description).slice(0, 1500)}".`
+        : "L'observateur n'a pas fourni de description : appuie-toi uniquement sur la photo et le nom proposé.",
       capture.location ? `Lieu d'observation : ${capture.location}.` : null,
-      'Produis la fiche complète de cet animal et la boîte englobante du sujet sur la photo.',
+      "Croise la photo, le nom proposé et la description avant de conclure, puis produis la fiche complète de cet animal et la boîte englobante du sujet sur la photo.",
+
     ].filter(Boolean).join('\n')
 
     const content: unknown[] = [{ type: 'text', text: userText }]
