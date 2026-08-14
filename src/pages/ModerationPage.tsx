@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { PageHeader } from '@/components/PageHeader';
-import { ArrowLeft, Check, X, Loader2, AlertTriangle, Sparkles } from 'lucide-react';
+import { ArrowLeft, Check, X, Loader2, AlertTriangle, Sparkles, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -111,8 +111,16 @@ const ModerationPage = () => {
     setLoading(false);
   };
 
-  /** Step 1 — generate the enriched sheet and open the preview (no approval yet). */
-  const prepareApprove = async (capture: PendingCapture, quality: 'standard' | 'high' = 'standard') => {
+  /**
+   * Step 1 — generate the enriched sheet and open the preview (no approval yet).
+   * `forceName` : le nom de l'explorateur fait autorité, l'IA ne fait aucune
+   * reconnaissance d'image et complète uniquement la fiche documentaire.
+   */
+  const prepareApprove = async (
+    capture: PendingCapture,
+    quality: 'standard' | 'high' = 'standard',
+    forceName = false,
+  ) => {
     setProcessing(capture.id);
     setFailures(prev => {
       const next = { ...prev };
@@ -132,7 +140,7 @@ const ModerationPage = () => {
     try {
       const res = await withTimeout(
         supabase.functions.invoke('enrich-capture', {
-          body: { capture_id: capture.id, animal_name: capture.animal_name, quality },
+          body: { capture_id: capture.id, animal_name: capture.animal_name, quality, force_name: forceName },
         }),
         75_000,
       );
@@ -391,37 +399,56 @@ const ModerationPage = () => {
                                 <X className="w-3.5 h-3.5" /> Rejeter (doublon)
                               </button>
                             ) : (
-                              <button
-                                onClick={() => prepareApprove(capture, 'high')}
-                                disabled={processing === capture.id}
-                                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-display font-semibold disabled:opacity-50"
-                              >
-                                <Sparkles className="w-3.5 h-3.5" /> Réessayer (modèle avancé)
-                              </button>
+                              <>
+                                <button
+                                  onClick={() => prepareApprove(capture, 'high')}
+                                  disabled={processing === capture.id}
+                                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-display font-semibold disabled:opacity-50"
+                                >
+                                  <Sparkles className="w-3.5 h-3.5" /> Réessayer (modèle avancé)
+                                </button>
+                                <button
+                                  onClick={() => prepareApprove(capture, 'standard', true)}
+                                  disabled={processing === capture.id}
+                                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-muted text-foreground text-xs font-display font-semibold disabled:opacity-50"
+                                >
+                                  <Lock className="w-3.5 h-3.5" /> Forcer « {capture.animal_name} »
+                                </button>
+                              </>
                             )}
                           </div>
                         </div>
                       )}
 
-                      <div className="flex gap-2 pt-1">
+                      <div className="space-y-2 pt-1">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => reject(capture)}
+                            disabled={processing === capture.id}
+                            className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-destructive/10 text-destructive text-xs font-display font-semibold disabled:opacity-50 hover:bg-destructive/20 transition-colors"
+                          >
+                            <X className="w-3.5 h-3.5" /> Rejeter
+                          </button>
+                          <button
+                            onClick={() => prepareApprove(capture)}
+                            disabled={processing === capture.id}
+                            className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-display font-semibold disabled:opacity-50"
+                          >
+                            {processing === capture.id ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <Sparkles className="w-3.5 h-3.5" />
+                            )}
+                            {processing === capture.id ? 'Génération…' : 'Prévisualiser (IA + photo)'}
+                          </button>
+                        </div>
                         <button
-                          onClick={() => reject(capture)}
+                          onClick={() => prepareApprove(capture, 'standard', true)}
                           disabled={processing === capture.id}
-                          className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-destructive/10 text-destructive text-xs font-display font-semibold disabled:opacity-50 hover:bg-destructive/20 transition-colors"
+                          className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-muted text-foreground text-xs font-display font-semibold disabled:opacity-50 hover:bg-muted/80 transition-colors"
                         >
-                          <X className="w-3.5 h-3.5" /> Rejeter
-                        </button>
-                        <button
-                          onClick={() => prepareApprove(capture)}
-                          disabled={processing === capture.id}
-                          className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-display font-semibold disabled:opacity-50"
-                        >
-                          {processing === capture.id ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          ) : (
-                            <Sparkles className="w-3.5 h-3.5" />
-                          )}
-                          {processing === capture.id ? 'Génération…' : 'Prévisualiser'}
+                          <Lock className="w-3.5 h-3.5" />
+                          Forcer le nom de l'explorateur (fiche seule)
                         </button>
                       </div>
                     </div>

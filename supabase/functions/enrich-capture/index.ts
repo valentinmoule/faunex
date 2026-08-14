@@ -36,6 +36,29 @@ Si le nom donné ne correspond à aucun animal réel et vivant (objet, peluche, 
 
 Réponds UNIQUEMENT via l'appel de fonction enrich_animal.`
 
+const FORCE_NAME_PROMPT = `Tu es un expert naturaliste de renommée mondiale (zoologie, ornithologie, herpétologie, entomologie, cynologie, félinologie).
+
+Un modérateur humain a DÉJÀ validé l'identification. Le nom d'animal qui t'est donné fait autorité absolue : tu ne dois PAS le remettre en question, ni le remplacer, ni l'affiner vers une autre espèce. Aucune reconnaissance d'image n'est demandée.
+
+Ta seule mission : rédiger la fiche documentaire de cette espèce (nom scientifique, catégorie, description, habitat, régime, statut de conservation, anecdote, rareté).
+
+Règles :
+- Reprends EXACTEMENT le nom commun fourni dans animal_name (tu peux uniquement corriger l'orthographe évidente et la casse, jamais changer d'espèce ou de race).
+- Le nom scientifique doit être le binôme latin réel de cette espèce (pour une race domestique, le binôme de l'espèce domestique).
+- La description de l'observateur peut préciser la race, la couleur ou le contexte : intègre-la si elle est cohérente.
+- N'invente aucun fait : reste factuel et vérifiable.
+
+## Évaluation de la rareté (probabilité d'observation en Europe/France)
+- **common** : observation quotidienne ou fréquente
+- **rare** : observation nécessitant patience ou chance
+- **epic** : très rare, espèce vulnérable ou en danger
+- **mythic** : quasi-impossible, espèce en danger critique
+
+## Espèces réelles uniquement
+Aucune créature imaginaire ni espèce éteinte. Si le nom fourni ne correspond à aucun animal réel et vivant, réponds animal_name "Inconnu".
+
+Réponds UNIQUEMENT via l'appel de fonction enrich_animal.`
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
 
@@ -69,6 +92,9 @@ Deno.serve(async (req) => {
     const skipDuplicateCheck: boolean = body?.skip_duplicate_check === true
     // apply=true : écriture réelle de la fiche (confirmation du modérateur).
     const apply: boolean = body?.apply === true
+    // force_name=true : le nom de l'observateur fait autorité. L'IA ne fait aucune
+    // reconnaissance d'image, elle rédige seulement la fiche documentaire.
+    const forceName: boolean = body?.force_name === true
     const providedAnimal = body?.animal && typeof body.animal === 'object' ? body.animal : null
     if (!captureId) return json({ error: 'capture_id is required' }, 400)
 
@@ -125,20 +151,30 @@ Deno.serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY')
     if (!LOVABLE_API_KEY) return json({ error: 'LOVABLE_API_KEY manquant' }, 500)
 
-    const userText = [
-      `Nom proposé par l'observateur (validé par le modérateur) : "${animalName}".`,
-      capture.description
-        ? `Description de l'observateur (indices de terrain à prendre en compte pour l'identification) : "${String(capture.description).slice(0, 1500)}".`
-        : "L'observateur n'a pas fourni de description : appuie-toi uniquement sur la photo et le nom proposé.",
-      capture.location ? `Lieu d'observation : ${capture.location}.` : null,
-      "Croise la photo, le nom proposé et la description avant de conclure, puis produis la fiche complète de cet animal et la boîte englobante du sujet sur la photo.",
-
-    ].filter(Boolean).join('\n')
+    const userText = forceName
+      ? [
+          `Nom d'animal validé par le modérateur (autorité absolue, à conserver tel quel) : "${animalName}".`,
+          capture.description
+            ? `Description de l'observateur (contexte utile pour la fiche) : "${String(capture.description).slice(0, 1500)}".`
+            : null,
+          capture.location ? `Lieu d'observation : ${capture.location}.` : null,
+          "Rédige la fiche documentaire complète de cette espèce sans remettre en cause le nom.",
+        ].filter(Boolean).join('\n')
+      : [
+          `Nom proposé par l'observateur (validé par le modérateur) : "${animalName}".`,
+          capture.description
+            ? `Description de l'observateur (indices de terrain à prendre en compte pour l'identification) : "${String(capture.description).slice(0, 1500)}".`
+            : "L'observateur n'a pas fourni de description : appuie-toi uniquement sur la photo et le nom proposé.",
+          capture.location ? `Lieu d'observation : ${capture.location}.` : null,
+          "Croise la photo, le nom proposé et la description avant de conclure, puis produis la fiche complète de cet animal et la boîte englobante du sujet sur la photo.",
+        ].filter(Boolean).join('\n')
 
     const content: unknown[] = [{ type: 'text', text: userText }]
-    if (capture.image_url) {
+    // En mode forcé on n'envoie pas la photo : pas de reconnaissance d'image, coût réduit.
+    if (!forceName && capture.image_url) {
       content.push({ type: 'image_url', image_url: { url: capture.image_url } })
     }
+
 
     // Le gateway peut stagner (503 amont, modèle lent) : on borne chaque appel et on
     // retente avec un modèle de repli plutôt que de laisser le modérateur attendre.
@@ -161,7 +197,7 @@ Deno.serve(async (req) => {
         model,
         temperature: 0,
         messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'system', content: forceName ? FORCE_NAME_PROMPT : SYSTEM_PROMPT },
           { role: 'user', content },
         ],
         tools: [
@@ -276,6 +312,9 @@ Deno.serve(async (req) => {
 
     const animal = JSON.parse(toolCall.function.arguments)
 
+    // Mode forcé : le nom du modérateur/observateur prime sur toute reformulation IA.
+    if (forceName) animal.animal_name = animalName
+
     // Déduplication : si l'espèce existe déjà dans le bestiaire (nom commun OU nom
     // scientifique, insensible à la casse/accents/tirets), on réutilise la fiche
     // canonique au lieu de créer une variante ("Canard colvert" vs "canard Colvert").
@@ -286,7 +325,10 @@ Deno.serve(async (req) => {
     if (matchErr) console.error('match_animal failed', matchErr)
     const existing = Array.isArray(matches) ? matches[0] : matches
     if (existing) {
-      animal.animal_name = existing.name || animal.animal_name
+      // En mode forcé, on n'adopte le nom canonique que s'il désigne bien le même nom.
+      if (!forceName || norm(existing.name) === norm(animalName)) {
+        animal.animal_name = existing.name || animal.animal_name
+      }
       animal.scientific_name = existing.scientific_name || animal.scientific_name
       animal.category = existing.category || animal.category
       animal.rarity = existing.rarity || animal.rarity
