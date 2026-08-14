@@ -151,20 +151,30 @@ Deno.serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY')
     if (!LOVABLE_API_KEY) return json({ error: 'LOVABLE_API_KEY manquant' }, 500)
 
-    const userText = [
-      `Nom proposé par l'observateur (validé par le modérateur) : "${animalName}".`,
-      capture.description
-        ? `Description de l'observateur (indices de terrain à prendre en compte pour l'identification) : "${String(capture.description).slice(0, 1500)}".`
-        : "L'observateur n'a pas fourni de description : appuie-toi uniquement sur la photo et le nom proposé.",
-      capture.location ? `Lieu d'observation : ${capture.location}.` : null,
-      "Croise la photo, le nom proposé et la description avant de conclure, puis produis la fiche complète de cet animal et la boîte englobante du sujet sur la photo.",
-
-    ].filter(Boolean).join('\n')
+    const userText = forceName
+      ? [
+          `Nom d'animal validé par le modérateur (autorité absolue, à conserver tel quel) : "${animalName}".`,
+          capture.description
+            ? `Description de l'observateur (contexte utile pour la fiche) : "${String(capture.description).slice(0, 1500)}".`
+            : null,
+          capture.location ? `Lieu d'observation : ${capture.location}.` : null,
+          "Rédige la fiche documentaire complète de cette espèce sans remettre en cause le nom.",
+        ].filter(Boolean).join('\n')
+      : [
+          `Nom proposé par l'observateur (validé par le modérateur) : "${animalName}".`,
+          capture.description
+            ? `Description de l'observateur (indices de terrain à prendre en compte pour l'identification) : "${String(capture.description).slice(0, 1500)}".`
+            : "L'observateur n'a pas fourni de description : appuie-toi uniquement sur la photo et le nom proposé.",
+          capture.location ? `Lieu d'observation : ${capture.location}.` : null,
+          "Croise la photo, le nom proposé et la description avant de conclure, puis produis la fiche complète de cet animal et la boîte englobante du sujet sur la photo.",
+        ].filter(Boolean).join('\n')
 
     const content: unknown[] = [{ type: 'text', text: userText }]
-    if (capture.image_url) {
+    // En mode forcé on n'envoie pas la photo : pas de reconnaissance d'image, coût réduit.
+    if (!forceName && capture.image_url) {
       content.push({ type: 'image_url', image_url: { url: capture.image_url } })
     }
+
 
     // Le gateway peut stagner (503 amont, modèle lent) : on borne chaque appel et on
     // retente avec un modèle de repli plutôt que de laisser le modérateur attendre.
