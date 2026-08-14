@@ -312,6 +312,9 @@ Deno.serve(async (req) => {
 
     const animal = JSON.parse(toolCall.function.arguments)
 
+    // Mode forcé : le nom du modérateur/observateur prime sur toute reformulation IA.
+    if (forceName) animal.animal_name = animalName
+
     // Déduplication : si l'espèce existe déjà dans le bestiaire (nom commun OU nom
     // scientifique, insensible à la casse/accents/tirets), on réutilise la fiche
     // canonique au lieu de créer une variante ("Canard colvert" vs "canard Colvert").
@@ -322,7 +325,10 @@ Deno.serve(async (req) => {
     if (matchErr) console.error('match_animal failed', matchErr)
     const existing = Array.isArray(matches) ? matches[0] : matches
     if (existing) {
-      animal.animal_name = existing.name || animal.animal_name
+      // En mode forcé, on n'adopte le nom canonique que s'il désigne bien le même nom.
+      if (!forceName || norm(existing.name) === norm(animalName)) {
+        animal.animal_name = existing.name || animal.animal_name
+      }
       animal.scientific_name = existing.scientific_name || animal.scientific_name
       animal.category = existing.category || animal.category
       animal.rarity = existing.rarity || animal.rarity
