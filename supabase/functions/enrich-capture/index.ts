@@ -56,7 +56,37 @@ Deno.serve(async (req) => {
     // 'high' fait basculer sur un modèle plus performant quand le modèle léger échoue.
     const quality: string = body?.quality === 'high' ? 'high' : 'standard'
     const skipDuplicateCheck: boolean = body?.skip_duplicate_check === true
+    // apply=true : écriture réelle de la fiche (confirmation du modérateur).
+    const apply: boolean = body?.apply === true
+    const providedAnimal = body?.animal && typeof body.animal === 'object' ? body.animal : null
     if (!captureId) return json({ error: 'capture_id is required' }, 400)
+
+    // Confirmation avec la fiche déjà prévisualisée : on l'écrit sans rappeler l'IA.
+    if (apply && providedAnimal) {
+      const fields = [
+        'animal_name', 'scientific_name', 'category', 'description',
+        'habitat', 'diet', 'conservation', 'fun_fact', 'rarity', 'subject_bbox',
+      ]
+      const payload: Record<string, unknown> = {}
+      for (const k of fields) {
+        if (providedAnimal[k] !== undefined) payload[k] = providedAnimal[k]
+      }
+      if (!payload.animal_name) return json({ error: 'animal_name manquant', code: 'bad_request' }, 400)
+      const { error: applyErr } = await supabase.from('captures').update(payload).eq('id', captureId)
+      if (applyErr) {
+        console.error('apply update failed', applyErr)
+        const isUnique = /duplicate key|unique/i.test(applyErr.message || '')
+        return json({
+          error: isUnique
+            ? "Conflit d'unicité : cette espèce existe déjà pour cet explorateur."
+            : `Mise à jour impossible : ${applyErr.message}`,
+          code: isUnique ? 'duplicate' : 'db_error',
+          detail: applyErr.message,
+        }, isUnique ? 409 : 500)
+      }
+      return json({ success: true, animal: payload })
+    }
+
 
     const { data: capture, error: capErr } = await supabase
       .from('captures')
