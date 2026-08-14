@@ -197,7 +197,7 @@ Deno.serve(async (req) => {
         model,
         temperature: 0,
         messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'system', content: forceName ? FORCE_NAME_PROMPT : SYSTEM_PROMPT },
           { role: 'user', content },
         ],
         tools: [
