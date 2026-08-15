@@ -120,7 +120,10 @@ const ModerationPage = () => {
     capture: PendingCapture,
     quality: 'standard' | 'high' = 'standard',
     forceName = false,
+    /** Nom saisi par le modérateur : remplace celui de l'explorateur. */
+    nameOverride?: string,
   ) => {
+
     setProcessing(capture.id);
     setFailures(prev => {
       const next = { ...prev };
