@@ -462,7 +462,47 @@ const ModerationPage = () => {
                           <Lock className="w-3.5 h-3.5" />
                           Forcer le nom de l'explorateur (fiche seule)
                         </button>
+
+                        {/* Nom proposé par le modérateur */}
+                        <div className="rounded-xl border border-border bg-muted/30 p-3 space-y-2">
+                          <p className="text-[10px] font-display font-bold uppercase tracking-wide text-muted-foreground">
+                            Mon identification
+                          </p>
+                          <input
+                            value={nameOverrides[capture.id] ?? ''}
+                            onChange={e =>
+                              setNameOverrides(prev => ({ ...prev, [capture.id]: e.target.value }))
+                            }
+                            placeholder="Ex. Épagneul picard"
+                            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+                          />
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() =>
+                                prepareApprove(capture, 'standard', true, nameOverrides[capture.id])
+                              }
+                              disabled={
+                                processing === capture.id || !(nameOverrides[capture.id] || '').trim()
+                              }
+                              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-display font-semibold disabled:opacity-50"
+                            >
+                              <Lock className="w-3.5 h-3.5" /> Forcer ce nom
+                            </button>
+                            <button
+                              onClick={() =>
+                                prepareApprove(capture, 'standard', false, nameOverrides[capture.id])
+                              }
+                              disabled={
+                                processing === capture.id || !(nameOverrides[capture.id] || '').trim()
+                              }
+                              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-muted text-foreground text-xs font-display font-semibold disabled:opacity-50 hover:bg-muted/80 transition-colors"
+                            >
+                              <Sparkles className="w-3.5 h-3.5" /> Vérifier avec l'IA
+                            </button>
+                          </div>
+                        </div>
                       </div>
+
                     </div>
                   </div>
                 ))}
