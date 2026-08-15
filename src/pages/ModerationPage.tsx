@@ -77,6 +77,9 @@ const ModerationPage = () => {
   const [confirming, setConfirming] = useState(false);
   /** Diagnostic d'échec de la prévisualisation, par capture. */
   const [failures, setFailures] = useState<Record<string, PrepareFailure>>({});
+  /** Nom d'animal proposé par le modérateur, par capture. */
+  const [nameOverrides, setNameOverrides] = useState<Record<string, string>>({});
+
 
   useEffect(() => {
     if (!session?.user) return;
