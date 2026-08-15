@@ -112,13 +112,41 @@ const BestiairePage = () => {
       .map(([name, data]) => ({ name, ...data }));
   }, [animals]);
 
-  // Animals for selected category (with rarity filter)
+  // Normalized search query (accents & case insensitive)
+  const normalizeSearch = (v: string) =>
+    v.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+  const speciesQuery = normalizeSearch(speciesSearch);
+
+  const matchesSearch = useCallback(
+    (a: { name: string; scientific_name?: string | null; category?: string | null }) => {
+      if (!speciesQuery) return true;
+      return (
+        normalizeSearch(a.name).includes(speciesQuery) ||
+        normalizeSearch(a.scientific_name || '').includes(speciesQuery) ||
+        normalizeSearch(a.category || '').includes(speciesQuery)
+      );
+    },
+    [speciesQuery]
+  );
+
+  // Animals for selected category (with rarity filter + search)
   const categoryAnimals = useMemo(() => {
     if (!selectedCategory) return [];
     return animals
       .filter(a => normalizeCategory(a.category) === selectedCategory)
-      .filter(a => rarityFilter === 'all' || a.rarity === rarityFilter);
-  }, [animals, selectedCategory, rarityFilter]);
+      .filter(a => rarityFilter === 'all' || a.rarity === rarityFilter)
+      .filter(matchesSearch);
+  }, [animals, selectedCategory, rarityFilter, matchesSearch]);
+
+  // Global species search results (across all categories)
+  const searchResults = useMemo(() => {
+    if (speciesQuery.length < 2) return [];
+    return animals
+      .filter(a => rarityFilter === 'all' || a.rarity === rarityFilter)
+      .filter(matchesSearch)
+      .sort((a, b) => a.name.localeCompare(b.name, 'fr'))
+      .slice(0, 60);
+  }, [animals, rarityFilter, matchesSearch, speciesQuery]);
 
   // Flat list of my own captures (one entry per capture), most recent first
   const myCapturedAnimals = useMemo(() => {
