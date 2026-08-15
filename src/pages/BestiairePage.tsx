@@ -37,6 +37,7 @@ const BestiairePage = () => {
   const [pickerMode, setPickerMode] = useState<'hub' | 'explore'>('hub');
   const [pickerTab, setPickerTab] = useState<'department' | 'city'>('department');
   const [deptSearch, setDeptSearch] = useState('');
+  const [speciesSearch, setSpeciesSearch] = useState('');
 
   const {
     animals,
@@ -111,13 +112,41 @@ const BestiairePage = () => {
       .map(([name, data]) => ({ name, ...data }));
   }, [animals]);
 
-  // Animals for selected category (with rarity filter)
+  // Normalized search query (accents & case insensitive)
+  const normalizeSearch = (v: string) =>
+    v.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+  const speciesQuery = normalizeSearch(speciesSearch);
+
+  const matchesSearch = useCallback(
+    (a: { name: string; scientific_name?: string | null; category?: string | null }) => {
+      if (!speciesQuery) return true;
+      return (
+        normalizeSearch(a.name).includes(speciesQuery) ||
+        normalizeSearch(a.scientific_name || '').includes(speciesQuery) ||
+        normalizeSearch(a.category || '').includes(speciesQuery)
+      );
+    },
+    [speciesQuery]
+  );
+
+  // Animals for selected category (with rarity filter + search)
   const categoryAnimals = useMemo(() => {
     if (!selectedCategory) return [];
     return animals
       .filter(a => normalizeCategory(a.category) === selectedCategory)
-      .filter(a => rarityFilter === 'all' || a.rarity === rarityFilter);
-  }, [animals, selectedCategory, rarityFilter]);
+      .filter(a => rarityFilter === 'all' || a.rarity === rarityFilter)
+      .filter(matchesSearch);
+  }, [animals, selectedCategory, rarityFilter, matchesSearch]);
+
+  // Global species search results (across all categories)
+  const searchResults = useMemo(() => {
+    if (speciesQuery.length < 2) return [];
+    return animals
+      .filter(a => rarityFilter === 'all' || a.rarity === rarityFilter)
+      .filter(matchesSearch)
+      .sort((a, b) => a.name.localeCompare(b.name, 'fr'))
+      .slice(0, 60);
+  }, [animals, rarityFilter, matchesSearch, speciesQuery]);
 
   // Flat list of my own captures (one entry per capture), most recent first
   const myCapturedAnimals = useMemo(() => {
@@ -631,44 +660,141 @@ const BestiairePage = () => {
 
           {viewMode === 'categories' && (
             <section>
-              <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide mb-3">Catégories</h2>
-              <div className="grid grid-cols-2 gap-3">
-                {categoryData
-                  .map(cat => {
-                    if (rarityFilter === 'all') return cat;
-                    const inCat = animals.filter(
-                      a => normalizeCategory(a.category) === cat.name && a.rarity === rarityFilter
-                    );
-                    return {
-                      name: cat.name,
-                      total: inCat.length,
-                      captured: inCat.filter(a => a.captured).length,
-                    };
-                  })
-                  .filter(cat => cat.total > 0)
-                  .map(cat => {
-                    const CatIcon = getCategoryIcon(cat.name);
-                    const progress = cat.total > 0 ? Math.round((cat.captured / cat.total) * 100) : 0;
-                    return (
-                      <button
-                        key={cat.name}
-                        onClick={() => setSelectedCategory(cat.name)}
-                        className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-md"
-                      >
-                        <div className="mb-2">
-                          <CatIcon className="w-7 h-7 text-primary" strokeWidth={1.75} />
-                        </div>
-                        <h3 className="font-display font-bold text-sm text-foreground leading-tight mb-1 truncate">{cat.name}</h3>
-                        <p className="text-[11px] text-muted-foreground font-display mb-3">
-                          {cat.captured}/{cat.total} capturés
-                        </p>
-                        <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
-                          <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${progress}%` }} />
-                        </div>
-                      </button>
-                    );
-                  })}
+              <div className="relative mb-3">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  value={speciesSearch}
+                  onChange={(e) => setSpeciesSearch(e.target.value)}
+                  placeholder="Rechercher une espèce ou une catégorie…"
+                  className="w-full pl-9 pr-9 py-2.5 rounded-xl bg-card border border-border text-sm font-display placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
+                />
+                {speciesSearch && (
+                  <button
+                    onClick={() => setSpeciesSearch('')}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-muted transition"
+                  >
+                    <X className="w-3.5 h-3.5 text-muted-foreground" />
+                  </button>
+                )}
               </div>
+
+              {speciesQuery.length >= 2 ? (
+                <>
+                  <div className="flex items-center justify-between mb-3">
+                    <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Résultats</h2>
+                    <span className="text-[11px] font-display text-muted-foreground tabular-nums">
+                      {searchResults.length} espèce{searchResults.length > 1 ? 's' : ''}
+                    </span>
+                  </div>
+                  {searchResults.length === 0 ? (
+                    <div className="text-center py-12 rounded-2xl border border-dashed border-border">
+                      <p className="text-3xl mb-2">🔍</p>
+                      <p className="text-xs font-display text-muted-foreground px-6">
+                        Aucune espèce ne correspond à « {speciesSearch.trim()} ».
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-4 gap-1.5">
+                      {searchResults.map((animal) => (
+                        <div
+                          key={animal.name}
+                          onClick={() => {
+                            if (animal.captured && animal.captureData) {
+                              setSelectedCard(animal.captureData);
+                            } else {
+                              setSelectedCard({
+                                id: `uncaptured-${animal.name}`,
+                                name: animal.name,
+                                scientificName: animal.scientific_name || '',
+                                image: '',
+                                rarity: animal.rarity as Rarity,
+                                category: animal.category,
+                                description: '',
+                                habitat: '',
+                                diet: '',
+                                conservation: '',
+                                funFact: '',
+                                discoveredAt: '',
+                                location: '',
+                              });
+                            }
+                          }}
+                          className={`relative aspect-[3/4] rounded-xl border-2 overflow-hidden transition-all cursor-pointer active:scale-[0.96] ${
+                            animal.captured
+                              ? `${rarityBorderColor[animal.rarity] || 'border-border'} bg-card`
+                              : 'border-border/40 bg-muted/30'
+                          }`}
+                        >
+                          {animal.captured && animal.captureData ? (
+                            <div className="w-full h-full flex flex-col">
+                              <div className="flex-1 overflow-hidden relative">
+                                <img
+                                  src={animal.captureData.image}
+                                  alt={animal.name}
+                                  className="w-full h-full object-cover"
+                                  loading="lazy"
+                                />
+                                <div className={`absolute top-1.5 right-1.5 w-2 h-2 rounded-full ${rarityDot[animal.rarity] || 'bg-muted-foreground'}`} />
+                              </div>
+                              <div className="px-1.5 py-1 bg-card">
+                                <p className="text-[9px] font-display font-bold text-foreground truncate leading-tight">{animal.name}</p>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="w-full h-full flex flex-col items-center justify-center gap-1 p-1">
+                              <span className="text-base">{getCategoryEmoji(normalizeCategory(animal.category))}</span>
+                              <p className="text-[8px] font-display text-muted-foreground text-center leading-tight line-clamp-2">{animal.name}</p>
+                              <div className={`w-1.5 h-1.5 rounded-full ${rarityDot[animal.rarity] || 'bg-muted-foreground'} opacity-40`} />
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide mb-3">Catégories</h2>
+                  <div className="grid grid-cols-2 gap-3">
+                    {categoryData
+                      .map(cat => {
+                        if (rarityFilter === 'all') return cat;
+                        const inCat = animals.filter(
+                          a => normalizeCategory(a.category) === cat.name && a.rarity === rarityFilter
+                        );
+                        return {
+                          name: cat.name,
+                          total: inCat.length,
+                          captured: inCat.filter(a => a.captured).length,
+                        };
+                      })
+                      .filter(cat => cat.total > 0)
+                      .map(cat => {
+                        const CatIcon = getCategoryIcon(cat.name);
+                        const progress = cat.total > 0 ? Math.round((cat.captured / cat.total) * 100) : 0;
+                        return (
+                          <button
+                            key={cat.name}
+                            onClick={() => setSelectedCategory(cat.name)}
+                            className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-md"
+                          >
+                            <div className="mb-2">
+                              <CatIcon className="w-7 h-7 text-primary" strokeWidth={1.75} />
+                            </div>
+                            <h3 className="font-display font-bold text-sm text-foreground leading-tight mb-1 truncate">{cat.name}</h3>
+                            <p className="text-[11px] text-muted-foreground font-display mb-3">
+                              {cat.captured}/{cat.total} capturés
+                            </p>
+                            <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
+                              <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${progress}%` }} />
+                            </div>
+                          </button>
+                        );
+                      })}
+                  </div>
+                </>
+              )}
             </section>
           )}
 
@@ -811,6 +937,24 @@ const BestiairePage = () => {
       </PageHeader>
 
       <div className="max-w-lg mx-auto px-3 pt-3">
+        <div className="relative mb-3">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <input
+            type="text"
+            value={speciesSearch}
+            onChange={(e) => setSpeciesSearch(e.target.value)}
+            placeholder={`Rechercher dans ${selectedCategory}…`}
+            className="w-full pl-9 pr-9 py-2.5 rounded-xl bg-card border border-border text-sm font-display placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
+          />
+          {speciesSearch && (
+            <button
+              onClick={() => setSpeciesSearch('')}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-muted transition"
+            >
+              <X className="w-3.5 h-3.5 text-muted-foreground" />
+            </button>
+          )}
+        </div>
         {/* 4x4 TCG binder grid */}
         <div className="grid grid-cols-4 gap-1.5">
           {categoryAnimals.map((animal, index) => {
