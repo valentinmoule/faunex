@@ -143,7 +143,13 @@ const ModerationPage = () => {
     try {
       const res = await withTimeout(
         supabase.functions.invoke('enrich-capture', {
-          body: { capture_id: capture.id, animal_name: capture.animal_name, quality, force_name: forceName },
+          body: {
+            capture_id: capture.id,
+            animal_name: (nameOverride?.trim() || capture.animal_name),
+            quality,
+            force_name: forceName,
+          },
+
         }),
         75_000,
       );
