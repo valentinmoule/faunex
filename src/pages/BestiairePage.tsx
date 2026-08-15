@@ -937,6 +937,24 @@ const BestiairePage = () => {
       </PageHeader>
 
       <div className="max-w-lg mx-auto px-3 pt-3">
+        <div className="relative mb-3">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <input
+            type="text"
+            value={speciesSearch}
+            onChange={(e) => setSpeciesSearch(e.target.value)}
+            placeholder={`Rechercher dans ${selectedCategory}…`}
+            className="w-full pl-9 pr-9 py-2.5 rounded-xl bg-card border border-border text-sm font-display placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
+          />
+          {speciesSearch && (
+            <button
+              onClick={() => setSpeciesSearch('')}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-muted transition"
+            >
+              <X className="w-3.5 h-3.5 text-muted-foreground" />
+            </button>
+          )}
+        </div>
         {/* 4x4 TCG binder grid */}
         <div className="grid grid-cols-4 gap-1.5">
           {categoryAnimals.map((animal, index) => {
