@@ -37,6 +37,7 @@ const BestiairePage = () => {
   const [pickerMode, setPickerMode] = useState<'hub' | 'explore'>('hub');
   const [pickerTab, setPickerTab] = useState<'department' | 'city'>('department');
   const [deptSearch, setDeptSearch] = useState('');
+  const [speciesSearch, setSpeciesSearch] = useState('');
 
   const {
     animals,
