@@ -26,11 +26,11 @@ const PricingPage = () => {
   return (
     <main className="min-h-screen bg-background pb-16">
       <Helmet>
-        <title>Tarifs — Faunex Premium à 1,99 €/mois</title>
-        <meta name="description" content="Faunex est gratuit avec 4 captures par jour. Faunex Premium coûte 1,99 € par mois : captures illimitées, identification plus fine, localisation et notes. Sans engagement." />
+        <title>Tarifs — Faunex Premium à 2,40 €/mois ou 24 €/an</title>
+        <meta name="description" content="Faunex est gratuit avec 4 captures par jour. Faunex Premium : 2,40 € par mois ou 24 € par an (2 mois offerts) — captures illimitées, identification plus fine, localisation et notes. Sans engagement." />
         <link rel="canonical" href="https://faunex.fr/tarifs" />
         <meta property="og:url" content="https://faunex.fr/tarifs" />
-        <meta property="og:title" content="Tarifs — Faunex Premium à 1,99 €/mois" />
+        <meta property="og:title" content="Tarifs — Faunex Premium à 2,40 €/mois ou 24 €/an" />
       </Helmet>
 
       <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
@@ -69,11 +69,18 @@ const PricingPage = () => {
             <Crown className="h-3.5 w-3.5" /> Faunex Premium
           </span>
           <div className="relative mt-3 flex items-end gap-1.5">
-            <span className="font-display text-4xl font-bold text-foreground">1,99 €</span>
+            <span className="font-display text-4xl font-bold text-foreground">2,40 €</span>
             <span className="pb-1 text-sm text-muted-foreground">/ mois</span>
           </div>
+          <div className="relative mt-1 flex items-end gap-1.5">
+            <span className="font-display text-2xl font-bold text-foreground">24 €</span>
+            <span className="pb-0.5 text-sm text-muted-foreground">/ an</span>
+            <span className="mb-1 ml-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-bold text-primary">
+              2 mois offerts
+            </span>
+          </div>
           <p className="relative mt-1 text-xs text-muted-foreground font-body">
-            Facturation récurrente mensuelle, TVA incluse le cas échéant. Sans engagement, annulable à tout moment.
+            Facturation récurrente mensuelle ou annuelle, TVA incluse le cas échéant. Sans engagement, annulable à tout moment.
           </p>
 
           <ul className="relative mt-5 space-y-3">
@@ -91,7 +98,7 @@ const PricingPage = () => {
           </ul>
 
           <Button asChild className="relative mt-6 h-12 w-full rounded-2xl text-base font-semibold">
-            <Link to="/premium">S'abonner pour 1,99 €/mois</Link>
+            <Link to="/premium">Choisir mon abonnement</Link>
           </Button>
           <p className="relative mt-2 text-center text-[11px] text-muted-foreground font-body">
             Un compte Faunex est nécessaire pour finaliser l'abonnement.

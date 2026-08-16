@@ -38,7 +38,7 @@ const RefundPolicyPage = () => {
         <section>
           <h2 className="text-lg font-display font-bold text-foreground mb-2">1. Délai de remboursement</h2>
           <p>
-            Si l'abonnement <strong>Faunex Premium</strong> (1,99 €/mois) ne vous convient pas, vous pouvez demander
+            Si l'abonnement <strong>Faunex Premium</strong> (2,40 €/mois ou 24 €/an) ne vous convient pas, vous pouvez demander
             un remboursement intégral dans un délai de <strong>30 jours</strong> à compter de la date de la commande,
             sans avoir à justifier votre décision.
           </p>
