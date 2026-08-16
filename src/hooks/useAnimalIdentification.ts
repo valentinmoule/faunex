@@ -110,12 +110,16 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
  * - Results for identical images are cached in-memory for the session to avoid
  *   double-billing when the user retries the same photo.
  */
+export type IdentifyStage = 'idle' | 'compressing' | 'analyzing' | 'retrying';
+
 export const useAnimalIdentification = () => {
   const [identifying, setIdentifying] = useState(false);
+  const [stage, setStage] = useState<IdentifyStage>('idle');
   const cacheRef = useRef<Map<string, Promise<IdentifyOutcome>>>(new Map());
 
   const identify = useCallback(async (dataUrl: string): Promise<IdentifyOutcome> => {
     setIdentifying(true);
+    setStage('compressing');
     try {
       // 1024px / 0.62 : nécessaire pour les détails fins (points des coccinelles,
       // miroir fessier des cervidés) qui étaient perdus à 640px.
@@ -128,6 +132,7 @@ export const useAnimalIdentification = () => {
       const run = async (): Promise<IdentifyOutcome> => {
         let lastError: unknown = null;
         for (let attempt = 0; attempt < 2; attempt++) {
+          setStage(attempt === 0 ? 'analyzing' : 'retrying');
           try {
             const { data, error } = await supabase.functions.invoke('identify-animal', {
               body: { imageBase64: compressedUrl },
@@ -135,6 +140,7 @@ export const useAnimalIdentification = () => {
             if (error) throw error;
 
             const animal = data?.success ? (data.animal as AnimalResult | undefined) : undefined;
+
             if (!animal || !animal.animal_name) {
               // Réponse valide mais sans animal exploitable → vraie non-reconnaissance
               return { status: 'unknown' };
@@ -178,9 +184,11 @@ export const useAnimalIdentification = () => {
       return { status: 'error', message: "L'analyse a échoué. Réessaie." };
     } finally {
       setIdentifying(false);
+      setStage('idle');
     }
   }, []);
 
 
-  return { identifying, identify };
+  return { identifying, stage, identify };
+
 };

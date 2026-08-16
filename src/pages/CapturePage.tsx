@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Camera, Zap, MapPin, Image, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine, ZoomIn, Focus, Crosshair, ArrowLeft, Clock, Info, Sparkles, ShieldQuestion } from 'lucide-react';
 import { toast } from 'sonner';
@@ -48,7 +48,19 @@ const CapturePage = () => {
 
   const camera = useCamera({ paused: !!capturedPhoto });
   const geo = useGeoTag();
-  const { identifying, identify } = useAnimalIdentification();
+  const { identifying, stage: identifyStage, identify } = useAnimalIdentification();
+  /** Compteur de secondes pour rassurer l'utilisateur pendant l'analyse. */
+  const [elapsed, setElapsed] = useState(0);
+  useEffect(() => {
+    if (!identifying) {
+      setElapsed(0);
+      return;
+    }
+    const started = Date.now();
+    const t = window.setInterval(() => setElapsed(Math.round((Date.now() - started) / 1000)), 1000);
+    return () => window.clearInterval(t);
+  }, [identifying]);
+
   const quota = useCaptureQuota(session?.user?.id);
 
   const { revealPhase, revealRarity, freezeFlash, triggerReveal, reset: resetReveal } =
@@ -451,13 +463,27 @@ const CapturePage = () => {
 
         {/* AI Result overlay */}
         {identifying && (
-          <div className="relative z-20 flex-1 flex items-center justify-center">
-            <div className="text-center">
+          <div className="relative z-20 flex-1 flex items-center justify-center px-8">
+            <div className="text-center max-w-xs">
               <Loader2 className="w-10 h-10 text-primary animate-spin mx-auto mb-3" />
-              <p className="text-primary-foreground font-display text-sm">Identification en cours…</p>
+              <p className="text-primary-foreground font-display text-sm">
+                {identifyStage === 'compressing'
+                  ? 'Préparation de la photo…'
+                  : identifyStage === 'retrying'
+                    ? 'Nouvelle tentative d’identification…'
+                    : 'Identification en cours…'}
+              </p>
+              <p className="text-primary-foreground/60 text-xs mt-2">
+                {elapsed < 6
+                  ? 'L’IA compare ta photo aux espèces connues.'
+                  : elapsed < 15
+                    ? `Analyse un peu plus longue que d’habitude… (${elapsed}s)`
+                    : `Toujours en cours, ne quitte pas l’écran (${elapsed}s)`}
+              </p>
             </div>
           </div>
         )}
+
 
         {/* Freeze phase — suspense */}
         {revealPhase === 'freeze' && (
