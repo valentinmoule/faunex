@@ -48,7 +48,19 @@ const CapturePage = () => {
 
   const camera = useCamera({ paused: !!capturedPhoto });
   const geo = useGeoTag();
-  const { identifying, identify } = useAnimalIdentification();
+  const { identifying, stage: identifyStage, identify } = useAnimalIdentification();
+  /** Compteur de secondes pour rassurer l'utilisateur pendant l'analyse. */
+  const [elapsed, setElapsed] = useState(0);
+  useEffect(() => {
+    if (!identifying) {
+      setElapsed(0);
+      return;
+    }
+    const started = Date.now();
+    const t = window.setInterval(() => setElapsed(Math.round((Date.now() - started) / 1000)), 1000);
+    return () => window.clearInterval(t);
+  }, [identifying]);
+
   const quota = useCaptureQuota(session?.user?.id);
 
   const { revealPhase, revealRarity, freezeFlash, triggerReveal, reset: resetReveal } =
