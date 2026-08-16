@@ -9,6 +9,8 @@ declare global {
 }
 
 export const PREMIUM_PRICE_ID = "faunex_premium_monthly";
+export const PREMIUM_MONTHLY_PRICE_ID = "faunex_premium_monthly";
+export const PREMIUM_YEARLY_PRICE_ID = "faunex_premium_yearly";
 
 export function getPaddleEnvironment(): "sandbox" | "live" {
   return clientToken?.startsWith("test_") ? "sandbox" : "live";
