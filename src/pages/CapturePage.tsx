@@ -71,6 +71,9 @@ const CapturePage = () => {
       toast.error(`Limite atteinte : ${DAILY_CAPTURE_LIMIT} captures par jour maximum. Reviens demain !`);
       return;
     }
+    // Une analyse déjà en cours ne doit pas être écrasée par une seconde.
+    if (identifyingRef.current) return;
+    identifyingRef.current = true;
 
     setCapturedPhoto(dataUrl);
     setAnimalResult(null);
@@ -80,27 +83,36 @@ const CapturePage = () => {
     setDisputedResult(null);
     geo.capture();
 
-    const outcome = await identify(dataUrl);
-    if (outcome.status === 'identified') {
-      triggerReveal(outcome.animal);
-    } else if (outcome.status === 'error') {
-      setIdentifyError(outcome.message);
-    } else {
-      setManualMode(true);
+    try {
+      const outcome = await identify(dataUrl);
+      if (outcome.status === 'identified') {
+        triggerReveal(outcome.animal);
+      } else if (outcome.status === 'error') {
+        setIdentifyError(outcome.message);
+      } else {
+        setManualMode(true);
+      }
+    } finally {
+      identifyingRef.current = false;
     }
   }, [geo, identify, triggerReveal, quota]);
 
   /** Relance l'analyse IA sur la photo déjà prise (sans reprendre la photo). */
   const retryIdentify = useCallback(async () => {
-    if (!capturedPhoto) return;
+    if (!capturedPhoto || identifyingRef.current) return;
+    identifyingRef.current = true;
     setIdentifyError(null);
-    const outcome = await identify(capturedPhoto);
-    if (outcome.status === 'identified') {
-      triggerReveal(outcome.animal);
-    } else if (outcome.status === 'error') {
-      setIdentifyError(outcome.message);
-    } else {
-      setManualMode(true);
+    try {
+      const outcome = await identify(capturedPhoto);
+      if (outcome.status === 'identified') {
+        triggerReveal(outcome.animal);
+      } else if (outcome.status === 'error') {
+        setIdentifyError(outcome.message);
+      } else {
+        setManualMode(true);
+      }
+    } finally {
+      identifyingRef.current = false;
     }
   }, [capturedPhoto, identify, triggerReveal]);
 
@@ -109,9 +121,13 @@ const CapturePage = () => {
 
   const takePhoto = async () => {
     const dataUrl = grabFrame();
-    if (!dataUrl) return;
+    if (!dataUrl) {
+      toast.error('La caméra se réinitialise, réessaie dans un instant');
+      return;
+    }
     await processPhoto(dataUrl);
   };
+
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
