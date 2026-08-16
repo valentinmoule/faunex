@@ -31,6 +31,9 @@ const CapturePage = () => {
   const [saved, setSaved] = useState(false);
   /** Verrou synchrone contre les doubles taps sur « Ajouter ». */
   const savingRef = useRef(false);
+  /** Verrou synchrone contre deux analyses IA simultanées. */
+  const identifyingRef = useRef(false);
+
 
   const [duplicateCapture, setDuplicateCapture] = useState<{ id: string; image_url: string; animal_name: string } | null>(null);
   const [manualMode, setManualMode] = useState(false);
