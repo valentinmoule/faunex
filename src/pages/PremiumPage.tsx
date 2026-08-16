@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Check, Infinity as InfinityIcon, Sparkles, MapPin, NotebookPen, Loader2, Crown } from 'lucide-react';
 import { toast } from 'sonner';
@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/hooks/useSubscription';
 import { usePaddleCheckout } from '@/hooks/usePaddleCheckout';
-import { PREMIUM_PRICE_ID } from '@/lib/paddle';
+import { PREMIUM_MONTHLY_PRICE_ID, PREMIUM_YEARLY_PRICE_ID } from '@/lib/paddle';
 import { supabase } from '@/integrations/supabase/client';
 
 const BENEFITS = [
