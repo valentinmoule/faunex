@@ -191,7 +191,7 @@ const PremiumPage = () => {
               disabled={checkoutLoading}
               className="h-12 w-full rounded-2xl text-base font-semibold"
             >
-              {checkoutLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "S'abonner pour 1,99 €/mois"}
+              {checkoutLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : selected.cta}
             </Button>
           )}
           <p className="text-center text-[11px] text-muted-foreground">
