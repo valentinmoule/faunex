@@ -234,6 +234,14 @@ export const useCamera = ({ paused }: UseCameraOptions) => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
 
+    // Piste morte ou frame non encore décodé : on relance la caméra plutôt que
+    // de produire une image vide qui bloquerait l'analyse.
+    if (!video.videoWidth || !video.videoHeight || video.readyState < 2) {
+      startCamera();
+      return null;
+    }
+
+
     const useDigitalCrop = !supportsNativeZoom && zoomLevel > 1;
     const srcW = useDigitalCrop ? video.videoWidth / zoomLevel : video.videoWidth;
     const srcH = useDigitalCrop ? video.videoHeight / zoomLevel : video.videoHeight;
