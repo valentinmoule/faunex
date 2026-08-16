@@ -121,12 +121,33 @@ const PremiumPage = () => {
           </p>
 
 
+          {!isPremium && (
+            <div className="relative mt-5 grid grid-cols-2 gap-2 rounded-2xl bg-muted p-1">
+              {(Object.keys(PLANS) as Array<keyof typeof PLANS>).map((key) => (
+                <button
+                  key={key}
+                  onClick={() => setPlan(key)}
+                  className={`relative rounded-xl px-3 py-2 text-sm font-semibold transition-colors ${
+                    plan === key ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground'
+                  }`}
+                >
+                  {PLANS[key].label}
+                  {key === 'yearly' && (
+                    <span className="ml-1.5 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary">
+                      -17%
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+
           <div className="relative mt-5 flex items-end gap-1.5">
-            <span className="font-display text-4xl font-bold">1,99 €</span>
-            <span className="pb-1 text-sm text-muted-foreground">/ mois</span>
+            <span className="font-display text-4xl font-bold">{selected.price}</span>
+            <span className="pb-1 text-sm text-muted-foreground">{selected.period}</span>
           </div>
           <p className="relative mt-1 text-xs text-muted-foreground">
-            Facturation récurrente, annulez à tout moment.
+            {selected.note}
           </p>
         </section>
 
