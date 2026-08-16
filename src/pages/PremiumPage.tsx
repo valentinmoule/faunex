@@ -19,12 +19,33 @@ const BENEFITS = [
   { icon: Crown, title: "Plein d'autres choses à venir…", description: 'Les prochaines nouveautés arrivent en priorité chez les abonnés.' },
 ];
 
+const PLANS = {
+  monthly: {
+    priceId: PREMIUM_MONTHLY_PRICE_ID,
+    label: 'Mensuel',
+    price: '2,40 €',
+    period: '/ mois',
+    note: 'Facturation mensuelle, annulez à tout moment.',
+    cta: "S'abonner pour 2,40 €/mois",
+  },
+  yearly: {
+    priceId: PREMIUM_YEARLY_PRICE_ID,
+    label: 'Annuel',
+    price: '24 €',
+    period: '/ an',
+    note: 'Soit 2 € par mois — 2 mois offerts par rapport au mensuel.',
+    cta: "S'abonner pour 24 €/an",
+  },
+} as const;
+
 const PremiumPage = () => {
   const navigate = useNavigate();
   const { session } = useAuth();
   const [params, setParams] = useSearchParams();
   const { isPremium, subscription, loading, refresh } = useSubscription(session?.user?.id);
   const { openCheckout, loading: checkoutLoading } = usePaddleCheckout();
+  const [plan, setPlan] = useState<'monthly' | 'yearly'>('yearly');
+  const selected = PLANS[plan];
 
   useEffect(() => {
     if (params.get('checkout') === 'success') {
@@ -43,7 +64,7 @@ const PremiumPage = () => {
     }
     try {
       await openCheckout({
-        priceId: PREMIUM_PRICE_ID,
+        priceId: selected.priceId,
         customerEmail: session.user.email ?? undefined,
         customData: { userId: session.user.id },
         successUrl: `${window.location.origin}/premium?checkout=success`,
