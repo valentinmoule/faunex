@@ -80,6 +80,38 @@ export const useCamera = ({ paused }: UseCameraOptions) => {
     return () => stopCamera();
   }, [startCamera, stopCamera]);
 
+  /**
+   * iOS/Android suspendent (ou tuent) la piste vidéo quand l'app passe en
+   * arrière-plan ou quand la page est mise en cache. Sans ça, au retour sur
+   * l'écran de capture la preview restait figée : la photo suivante était un
+   * frame mort et l'analyse ne partait jamais.
+   */
+  useEffect(() => {
+    const ensureLive = () => {
+      if (document.visibilityState !== 'visible') return;
+      const live = streamRef.current?.getVideoTracks().some((t) => t.readyState === 'live');
+      if (!live) {
+        startCamera();
+        return;
+      }
+      const video = videoRef.current;
+      if (video) {
+        if (video.srcObject !== streamRef.current) video.srcObject = streamRef.current;
+        if (video.paused) video.play().catch(() => {});
+      }
+    };
+
+    document.addEventListener('visibilitychange', ensureLive);
+    window.addEventListener('pageshow', ensureLive);
+    window.addEventListener('focus', ensureLive);
+    return () => {
+      document.removeEventListener('visibilitychange', ensureLive);
+      window.removeEventListener('pageshow', ensureLive);
+      window.removeEventListener('focus', ensureLive);
+    };
+  }, [startCamera]);
+
+
   // Toggle torch on the active camera track
   useEffect(() => {
     if (!streamRef.current) return;
@@ -202,6 +234,14 @@ export const useCamera = ({ paused }: UseCameraOptions) => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
 
+    // Piste morte ou frame non encore décodé : on relance la caméra plutôt que
+    // de produire une image vide qui bloquerait l'analyse.
+    if (!video.videoWidth || !video.videoHeight || video.readyState < 2) {
+      startCamera();
+      return null;
+    }
+
+
     const useDigitalCrop = !supportsNativeZoom && zoomLevel > 1;
     const srcW = useDigitalCrop ? video.videoWidth / zoomLevel : video.videoWidth;
     const srcH = useDigitalCrop ? video.videoHeight / zoomLevel : video.videoHeight;
@@ -219,7 +259,7 @@ export const useCamera = ({ paused }: UseCameraOptions) => {
     }
     ctx.drawImage(video, srcX, srcY, srcW, srcH, 0, 0, canvas.width, canvas.height);
     return canvas.toDataURL('image/jpeg', 0.85);
-  }, [facingMode, supportsNativeZoom, zoomLevel]);
+  }, [facingMode, supportsNativeZoom, zoomLevel, startCamera]);
 
   /** Restores camera state after a capture is discarded. */
   const resumePreview = useCallback(() => {

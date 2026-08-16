@@ -123,7 +123,7 @@ export const useAnimalIdentification = () => {
       const imageHash = await hashDataUrl(compressedUrl);
 
       const cached = cacheRef.current.get(imageHash);
-      if (cached) return cached;
+      if (cached) return await cached;
 
       const run = async (): Promise<IdentifyOutcome> => {
         let lastError: unknown = null;
@@ -165,11 +165,22 @@ export const useAnimalIdentification = () => {
 
       const promise = run();
       cacheRef.current.set(imageHash, promise);
-      return promise;
+      // On attend le résultat ici : sinon `identifying` retombait à false
+      // immédiatement (le finally s'exécutait avant la résolution) et l'UI
+      // n'affichait plus aucun indicateur d'analyse.
+      const outcome = await promise;
+      // Un échec ou une non-reconnaissance ne doit jamais être mis en cache,
+      // sinon une nouvelle tentative sur la même image ne relance rien.
+      if (outcome.status !== 'identified') cacheRef.current.delete(imageHash);
+      return outcome;
+    } catch (err) {
+      console.error('identify failed', err);
+      return { status: 'error', message: "L'analyse a échoué. Réessaie." };
     } finally {
       setIdentifying(false);
     }
   }, []);
+
 
   return { identifying, identify };
 };
