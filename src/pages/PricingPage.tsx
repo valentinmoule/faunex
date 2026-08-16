@@ -98,7 +98,7 @@ const PricingPage = () => {
           </ul>
 
           <Button asChild className="relative mt-6 h-12 w-full rounded-2xl text-base font-semibold">
-            <Link to="/premium">S'abonner pour 1,99 €/mois</Link>
+            <Link to="/premium">Choisir mon abonnement</Link>
           </Button>
           <p className="relative mt-2 text-center text-[11px] text-muted-foreground font-body">
             Un compte Faunex est nécessaire pour finaliser l'abonnement.
