@@ -781,6 +781,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      canonical_animal_category: {
+        Args: { p_category: string; p_name?: string; p_scientific?: string }
+        Returns: string
+      }
       captures_remaining_today: { Args: never; Returns: number }
       claim_badge: {
         Args: { p_badge_id: string; p_xp_reward: number }
