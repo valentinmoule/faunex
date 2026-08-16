@@ -259,7 +259,7 @@ export const useCamera = ({ paused }: UseCameraOptions) => {
     }
     ctx.drawImage(video, srcX, srcY, srcW, srcH, 0, 0, canvas.width, canvas.height);
     return canvas.toDataURL('image/jpeg', 0.85);
-  }, [facingMode, supportsNativeZoom, zoomLevel]);
+  }, [facingMode, supportsNativeZoom, zoomLevel, startCamera]);
 
   /** Restores camera state after a capture is discarded. */
   const resumePreview = useCallback(() => {
