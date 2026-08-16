@@ -184,9 +184,11 @@ export const useAnimalIdentification = () => {
       return { status: 'error', message: "L'analyse a échoué. Réessaie." };
     } finally {
       setIdentifying(false);
+      setStage('idle');
     }
   }, []);
 
 
-  return { identifying, identify };
+  return { identifying, stage, identify };
+
 };
