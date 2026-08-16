@@ -174,7 +174,7 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
     return () => { cancelled = true; };
   }, [card, open, session]);
 
-  // Debounced French commune search (geo.api.gouv.fr) for editing the capture location
+  // Debounced location search: French communes (with postal code) + worldwide places
   useEffect(() => {
     if (!editingLocation) return;
     const q = locQuery.trim();
@@ -186,16 +186,49 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
     setLocLoading(true);
     const t = setTimeout(async () => {
       try {
-        const url = `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(q)}&fields=nom,centre&boost=population&limit=10`;
-        const res = await fetch(url);
-        const data = await res.json();
-        if (!cancelled) setLocResults(Array.isArray(data) ? data : []);
+        const [frRes, worldRes] = await Promise.allSettled([
+          fetch(`https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(q)}&fields=nom,centre,codesPostaux,codeDepartement&boost=population&limit=8`).then(r => r.json()),
+          fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&addressdetails=1&limit=8&accept-language=fr`).then(r => r.json()),
+        ]);
+
+        const results: { label: string; sub: string; coords?: [number, number] }[] = [];
+
+        if (frRes.status === 'fulfilled' && Array.isArray(frRes.value)) {
+          for (const c of frRes.value) {
+            const cp = Array.isArray(c.codesPostaux) && c.codesPostaux.length ? c.codesPostaux[0] : '';
+            results.push({
+              label: cp ? `${c.nom} (${cp})` : c.nom,
+              sub: 'France',
+              coords: c.centre?.coordinates,
+            });
+          }
+        }
+
+        if (worldRes.status === 'fulfilled' && Array.isArray(worldRes.value)) {
+          for (const p of worldRes.value) {
+            const a = p.address || {};
+            const city = a.city || a.town || a.village || a.municipality || a.county || p.name;
+            if (!city) continue;
+            const cp = a.postcode || '';
+            const country = a.country || '';
+            if (country === 'France' && results.some(r => r.label.startsWith(city))) continue;
+            const label = cp ? `${city} (${cp})` : city;
+            if (results.some(r => r.label === label && r.sub === country)) continue;
+            results.push({
+              label,
+              sub: [a.state, country].filter(Boolean).join(', ') || country,
+              coords: [parseFloat(p.lon), parseFloat(p.lat)],
+            });
+          }
+        }
+
+        if (!cancelled) setLocResults(results.slice(0, 12));
       } catch {
         if (!cancelled) setLocResults([]);
       } finally {
         if (!cancelled) setLocLoading(false);
       }
-    }, 250);
+    }, 300);
     return () => { cancelled = true; clearTimeout(t); };
   }, [locQuery, editingLocation]);
 
