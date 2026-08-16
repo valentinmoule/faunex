@@ -26,11 +26,11 @@ const PricingPage = () => {
   return (
     <main className="min-h-screen bg-background pb-16">
       <Helmet>
-        <title>Tarifs — Faunex Premium à 1,99 €/mois</title>
-        <meta name="description" content="Faunex est gratuit avec 4 captures par jour. Faunex Premium coûte 1,99 € par mois : captures illimitées, identification plus fine, localisation et notes. Sans engagement." />
+        <title>Tarifs — Faunex Premium à 2,40 €/mois ou 24 €/an</title>
+        <meta name="description" content="Faunex est gratuit avec 4 captures par jour. Faunex Premium : 2,40 € par mois ou 24 € par an (2 mois offerts) — captures illimitées, identification plus fine, localisation et notes. Sans engagement." />
         <link rel="canonical" href="https://faunex.fr/tarifs" />
         <meta property="og:url" content="https://faunex.fr/tarifs" />
-        <meta property="og:title" content="Tarifs — Faunex Premium à 1,99 €/mois" />
+        <meta property="og:title" content="Tarifs — Faunex Premium à 2,40 €/mois ou 24 €/an" />
       </Helmet>
 
       <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
