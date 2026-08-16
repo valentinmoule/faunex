@@ -94,7 +94,7 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
   const [editingLocation, setEditingLocation] = useState(false);
   const [savingLocation, setSavingLocation] = useState(false);
   const [locQuery, setLocQuery] = useState('');
-  const [locResults, setLocResults] = useState<{ nom: string; centre?: { coordinates: [number, number] } }[]>([]);
+  const [locResults, setLocResults] = useState<{ label: string; sub: string; coords?: [number, number] }[]>([]);
   const [locLoading, setLocLoading] = useState(false);
 
   const [liked, setLiked] = useState(false);
