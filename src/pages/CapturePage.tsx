@@ -451,13 +451,27 @@ const CapturePage = () => {
 
         {/* AI Result overlay */}
         {identifying && (
-          <div className="relative z-20 flex-1 flex items-center justify-center">
-            <div className="text-center">
+          <div className="relative z-20 flex-1 flex items-center justify-center px-8">
+            <div className="text-center max-w-xs">
               <Loader2 className="w-10 h-10 text-primary animate-spin mx-auto mb-3" />
-              <p className="text-primary-foreground font-display text-sm">Identification en cours…</p>
+              <p className="text-primary-foreground font-display text-sm">
+                {identifyStage === 'compressing'
+                  ? 'Préparation de la photo…'
+                  : identifyStage === 'retrying'
+                    ? 'Nouvelle tentative d’identification…'
+                    : 'Identification en cours…'}
+              </p>
+              <p className="text-primary-foreground/60 text-xs mt-2">
+                {elapsed < 6
+                  ? 'L’IA compare ta photo aux espèces connues.'
+                  : elapsed < 15
+                    ? `Analyse un peu plus longue que d’habitude… (${elapsed}s)`
+                    : `Toujours en cours, ne quitte pas l’écran (${elapsed}s)`}
+              </p>
             </div>
           </div>
         )}
+
 
         {/* Freeze phase — suspense */}
         {revealPhase === 'freeze' && (
