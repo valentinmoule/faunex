@@ -69,11 +69,18 @@ const PricingPage = () => {
             <Crown className="h-3.5 w-3.5" /> Faunex Premium
           </span>
           <div className="relative mt-3 flex items-end gap-1.5">
-            <span className="font-display text-4xl font-bold text-foreground">1,99 €</span>
+            <span className="font-display text-4xl font-bold text-foreground">2,40 €</span>
             <span className="pb-1 text-sm text-muted-foreground">/ mois</span>
           </div>
+          <div className="relative mt-1 flex items-end gap-1.5">
+            <span className="font-display text-2xl font-bold text-foreground">24 €</span>
+            <span className="pb-0.5 text-sm text-muted-foreground">/ an</span>
+            <span className="mb-1 ml-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-bold text-primary">
+              2 mois offerts
+            </span>
+          </div>
           <p className="relative mt-1 text-xs text-muted-foreground font-body">
-            Facturation récurrente mensuelle, TVA incluse le cas échéant. Sans engagement, annulable à tout moment.
+            Facturation récurrente mensuelle ou annuelle, TVA incluse le cas échéant. Sans engagement, annulable à tout moment.
           </p>
 
           <ul className="relative mt-5 space-y-3">
