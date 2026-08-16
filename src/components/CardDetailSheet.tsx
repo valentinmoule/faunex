@@ -759,7 +759,7 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
                       value={locQuery}
                       onChange={(e) => setLocQuery(e.target.value)}
                       autoFocus
-                      placeholder="Rechercher une commune…"
+                      placeholder="Ville, code postal ou pays…"
                       className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
                     />
                     {locLoading && <p className="text-[11px] text-muted-foreground">Recherche…</p>}
@@ -767,12 +767,13 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
                       <div className="max-h-48 overflow-y-auto rounded-xl border border-border divide-y divide-border">
                         {locResults.map((c, i) => (
                           <button
-                            key={`${c.nom}-${i}`}
-                            onClick={() => saveLocation(c.nom, c.centre?.coordinates)}
+                            key={`${c.label}-${c.sub}-${i}`}
+                            onClick={() => saveLocation(c.sub ? `${c.label}, ${c.sub}` : c.label, c.coords)}
                             disabled={savingLocation}
-                            className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-muted disabled:opacity-60"
+                            className="w-full text-left px-3 py-2 hover:bg-muted disabled:opacity-60"
                           >
-                            {c.nom}
+                            <span className="block text-sm text-foreground">{c.label}</span>
+                            {c.sub && <span className="block text-[11px] text-muted-foreground">{c.sub}</span>}
                           </button>
                         ))}
                       </div>
