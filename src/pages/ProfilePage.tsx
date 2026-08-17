@@ -70,7 +70,7 @@ interface BadgeProgress {
 
 const ProfilePage = () => {
   const { session } = useAuth();
-  const { canInstall, isInstalled, promptInstall } = usePwaInstall();
+  const { canInstall, isInstalled, isNative, promptInstall } = usePwaInstall();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -268,7 +268,7 @@ const ProfilePage = () => {
         </div>
 
         {/* PWA Install Card */}
-        {canInstall && !isInstalled && (
+        {!isNative && canInstall && !isInstalled && (
           <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
               <Download className="w-5 h-5 text-primary" />
