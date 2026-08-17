@@ -20,7 +20,7 @@ interface SettingsProps {
 const SettingsPage = () => {
   const { session, signOut } = useAuth();
   const navigate = useNavigate();
-  const { isInstalled, canInstall, isIos, resetDismiss, openInstallGuide } = usePwaInstall();
+  const { isInstalled, isNative, resetDismiss, openInstallGuide } = usePwaInstall();
   const [section, setSection] = useState<'menu' | 'edit' | 'password' | 'delete'>('menu');
   const [profile, setProfile] = useState<{ display_name: string; username: string; avatar_url: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -225,7 +225,7 @@ const SettingsPage = () => {
             <MenuItem icon={<KeyRound className="w-5 h-5" />} label="Changer le mot de passe" onClick={() => setSection('password')} />
             <MenuItem icon={<Share2 className="w-5 h-5" />} label="Partager mon profil" onClick={handleShare} />
             <MenuItem icon={<Scale className="w-5 h-5" />} label="Mentions légales" onClick={() => navigate('/legal')} />
-            {!isInstalled && (
+            {!isNative && !isInstalled && (
               <MenuItem
                 icon={<Smartphone className="w-5 h-5" />}
                 label="Installer sur l'écran d'accueil"
