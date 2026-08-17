@@ -17,7 +17,10 @@ Deno.serve(async (req) => {
     }
     const env: PaddleEnv = environment === 'live' ? 'live' : 'sandbox';
 
-    const response = await gatewayFetch(env, `/prices?external_id=${encodeURIComponent(priceId)}`);
+    const response = await gatewayFetch(
+      env,
+      `/prices?external_id=${encodeURIComponent(priceId)}&status=active`,
+    );
     if (!response.ok) {
       const details = await response.text();
       console.error(`Paddle price lookup failed [${response.status}]: ${details}`);
@@ -28,13 +31,16 @@ Deno.serve(async (req) => {
     }
 
     const data = await response.json();
-    const paddleId = data?.data?.[0]?.id;
+    const active = (data?.data ?? []).filter((p: { status?: string }) => p?.status === 'active');
+    const paddleId = active[0]?.id;
     if (!paddleId) {
-      return new Response(JSON.stringify({ error: 'Price not found' }), {
+      console.error(`No active Paddle price for external_id "${priceId}" in ${env}`);
+      return new Response(JSON.stringify({ error: 'Price not found or inactive', priceId, environment: env }), {
         status: 404,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
 
     return new Response(JSON.stringify({ paddleId }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
