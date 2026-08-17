@@ -8,8 +8,11 @@ declare global {
   }
 }
 
-export const PREMIUM_PRICE_ID = "faunex_premium_monthly";
-export const PREMIUM_MONTHLY_PRICE_ID = "faunex_premium_monthly";
+// Nouveau tarif mensuel (2,40 €). L'ancien "faunex_premium_monthly" (1,99 €)
+// reste archivé côté Paddle : les abonnés actuels conservent leur tarif.
+export const PREMIUM_PRICE_ID = "faunex_premium_monthly_v2";
+export const PREMIUM_MONTHLY_PRICE_ID = "faunex_premium_monthly_v2";
+export const PREMIUM_LEGACY_MONTHLY_PRICE_ID = "faunex_premium_monthly";
 export const PREMIUM_YEARLY_PRICE_ID = "faunex_premium_yearly";
 
 export function getPaddleEnvironment(): "sandbox" | "live" {
