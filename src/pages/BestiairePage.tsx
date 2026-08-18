@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { PageHeader } from '@/components/PageHeader';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Bell, ChevronLeft, PawPrint, MapPin, Plus, Search, Trash2, X, Building2, Map as MapIcon, Home, Compass, Loader2, ArrowDownUp } from 'lucide-react';
+import { Bell, ChevronLeft, PawPrint, MapPin, Plus, Search, Trash2, X, Building2, Map as MapIcon, Home, Compass, Loader2 } from 'lucide-react';
 import { type Rarity, type AnimalCard, RARITY_LABELS } from '@/data/mockData';
 import { useAuth } from '@/contexts/AuthContext';
 import CardDetailSheet from '@/components/CardDetailSheet';
@@ -39,7 +39,6 @@ const BestiairePage = () => {
   const [deptSearch, setDeptSearch] = useState('');
   const [speciesSearch, setSpeciesSearch] = useState('');
   const [mineSearch, setMineSearch] = useState('');
-  const [mineSort, setMineSort] = useState<'recent' | 'oldest' | 'az' | 'za' | 'rarity'>('recent');
 
 
   const {
@@ -151,11 +150,10 @@ const BestiairePage = () => {
       .slice(0, 60);
   }, [animals, rarityFilter, matchesSearch, speciesQuery]);
 
-  // Flat list of my own captures (one entry per capture), filtered + sorted
-  const RARITY_WEIGHT: Record<string, number> = { mythic: 4, epic: 3, rare: 2, common: 1 };
+  // Flat list of my own captures (one entry per capture), filtered + sorted by most recent
   const myCapturedAnimals = useMemo(() => {
     const q = normalizeSearch(mineSearch);
-    const list = myCaptures
+    return myCaptures
       .filter(c => rarityFilter === 'all' || c.rarity === rarityFilter)
       .filter(c =>
         !q ||
@@ -163,29 +161,9 @@ const BestiairePage = () => {
         normalizeSearch(c.scientificName || '').includes(q) ||
         normalizeSearch(c.category || '').includes(q) ||
         normalizeSearch(c.location || '').includes(q)
-      );
-    const sorted = [...list];
-    switch (mineSort) {
-      case 'oldest':
-        sorted.sort((a, b) => +new Date(a.discoveredAt || 0) - +new Date(b.discoveredAt || 0));
-        break;
-      case 'az':
-        sorted.sort((a, b) => a.name.localeCompare(b.name, 'fr'));
-        break;
-      case 'za':
-        sorted.sort((a, b) => b.name.localeCompare(a.name, 'fr'));
-        break;
-      case 'rarity':
-        sorted.sort((a, b) =>
-          (RARITY_WEIGHT[b.rarity] || 0) - (RARITY_WEIGHT[a.rarity] || 0) ||
-          a.name.localeCompare(b.name, 'fr')
-        );
-        break;
-      default:
-        sorted.sort((a, b) => +new Date(b.discoveredAt || 0) - +new Date(a.discoveredAt || 0));
-    }
-    return sorted;
-  }, [myCaptures, rarityFilter, mineSearch, mineSort]);
+      )
+      .sort((a, b) => +new Date(b.discoveredAt || 0) - +new Date(a.discoveredAt || 0));
+  }, [myCaptures, rarityFilter, mineSearch]);
 
 
   const selectedZone: ZoneSub | null = useMemo(
@@ -667,29 +645,6 @@ const BestiairePage = () => {
                     <X className="w-3.5 h-3.5 text-muted-foreground" />
                   </button>
                 )}
-              </div>
-
-              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1 mb-3">
-                <ArrowDownUp className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                {([
-                  { key: 'recent', label: 'Plus récentes' },
-                  { key: 'oldest', label: 'Plus anciennes' },
-                  { key: 'az', label: 'A → Z' },
-                  { key: 'za', label: 'Z → A' },
-                  { key: 'rarity', label: 'Rareté' },
-                ] as const).map((opt) => (
-                  <button
-                    key={opt.key}
-                    onClick={() => setMineSort(opt.key)}
-                    className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-display font-semibold border transition-all ${
-                      mineSort === opt.key
-                        ? 'bg-primary text-primary-foreground border-primary'
-                        : 'bg-card text-muted-foreground border-border hover:border-primary/40'
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
               </div>
 
               <div className="flex items-center justify-between mb-3">
