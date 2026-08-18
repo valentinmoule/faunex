@@ -649,12 +649,56 @@ const BestiairePage = () => {
 
           {viewMode === 'mine' && (
             <section>
+              <div className="relative mb-2">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  value={mineSearch}
+                  onChange={(e) => setMineSearch(e.target.value)}
+                  placeholder="Rechercher dans mes captures…"
+                  className="w-full pl-9 pr-9 py-2.5 rounded-xl bg-card border border-border text-sm font-display placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
+                />
+                {mineSearch && (
+                  <button
+                    onClick={() => setMineSearch('')}
+                    aria-label="Effacer la recherche"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-muted transition"
+                  >
+                    <X className="w-3.5 h-3.5 text-muted-foreground" />
+                  </button>
+                )}
+              </div>
+
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1 mb-3">
+                <ArrowDownUp className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                {([
+                  { key: 'recent', label: 'Plus récentes' },
+                  { key: 'oldest', label: 'Plus anciennes' },
+                  { key: 'az', label: 'A → Z' },
+                  { key: 'za', label: 'Z → A' },
+                  { key: 'rarity', label: 'Rareté' },
+                ] as const).map((opt) => (
+                  <button
+                    key={opt.key}
+                    onClick={() => setMineSort(opt.key)}
+                    className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-display font-semibold border transition-all ${
+                      mineSort === opt.key
+                        ? 'bg-primary text-primary-foreground border-primary'
+                        : 'bg-card text-muted-foreground border-border hover:border-primary/40'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Mes captures</h2>
                 <span className="text-[11px] font-display text-muted-foreground tabular-nums">
                   {myCapturedAnimals.length} capture{myCapturedAnimals.length > 1 ? 's' : ''}
                 </span>
               </div>
+
               {myCapturedAnimals.length === 0 ? (
                 <div className="text-center py-12 rounded-2xl border border-dashed border-border">
                   <p className="text-3xl mb-2">🔍</p>
