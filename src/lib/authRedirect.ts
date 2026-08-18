@@ -33,9 +33,26 @@ export const oauthRedirectUri = (): string =>
   IS_NATIVE_APP ? NATIVE_CALLBACK_URL : window.location.origin;
 
 /**
+ * Origine "www" du site.
+ *
+ * Le Return URL configuré chez Apple pointe sur `https://www.faunex.fr/~oauth/callback`.
+ * Le broker OAuth (`/~oauth/initiate`) mémorise le `state`/PKCE sur l'hôte exact où
+ * le flow démarre : si on initie sur `faunex.fr` alors qu'Apple renvoie (en POST
+ * form_post) sur `www.faunex.fr`, l'hôte change et le state est perdu
+ * → "Authorization failed / Missing state parameter".
+ * On démarre donc le flow Apple directement sur `www.faunex.fr`.
+ */
+export const WWW_ORIGIN = 'https://www.faunex.fr';
+
+/** Origine sur laquelle le flow OAuth doit démarrer, par provider. */
+export const oauthInitiateOrigin = (provider: 'google' | 'apple'): string =>
+  provider === 'apple' ? WWW_ORIGIN : WEB_ORIGIN;
+
+/**
  * URL du pont web à ouvrir dans le navigateur système depuis l'app native.
  * Le broker OAuth (`/~oauth/initiate`) n'existe que sur le domaine public :
  * l'ouvrir depuis `capacitor://localhost` renvoyait une erreur de redirection.
  */
 export const nativeAuthBridgeUrl = (provider: 'google' | 'apple'): string =>
-  `${WEB_ORIGIN}/auth/native-bridge?provider=${provider}`;
+  `${oauthInitiateOrigin(provider)}/auth/native-bridge?provider=${provider}`;
+
