@@ -148,10 +148,42 @@ const BestiairePage = () => {
       .slice(0, 60);
   }, [animals, rarityFilter, matchesSearch, speciesQuery]);
 
-  // Flat list of my own captures (one entry per capture), most recent first
+  // Flat list of my own captures (one entry per capture), filtered + sorted
+  const RARITY_WEIGHT: Record<string, number> = { mythic: 4, epic: 3, rare: 2, common: 1 };
   const myCapturedAnimals = useMemo(() => {
-    return myCaptures.filter(c => rarityFilter === 'all' || c.rarity === rarityFilter);
-  }, [myCaptures, rarityFilter]);
+    const q = normalizeSearch(mineSearch);
+    const list = myCaptures
+      .filter(c => rarityFilter === 'all' || c.rarity === rarityFilter)
+      .filter(c =>
+        !q ||
+        normalizeSearch(c.name).includes(q) ||
+        normalizeSearch(c.scientificName || '').includes(q) ||
+        normalizeSearch(c.category || '').includes(q) ||
+        normalizeSearch(c.location || '').includes(q)
+      );
+    const sorted = [...list];
+    switch (mineSort) {
+      case 'oldest':
+        sorted.sort((a, b) => +new Date(a.discoveredAt || 0) - +new Date(b.discoveredAt || 0));
+        break;
+      case 'az':
+        sorted.sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+        break;
+      case 'za':
+        sorted.sort((a, b) => b.name.localeCompare(a.name, 'fr'));
+        break;
+      case 'rarity':
+        sorted.sort((a, b) =>
+          (RARITY_WEIGHT[b.rarity] || 0) - (RARITY_WEIGHT[a.rarity] || 0) ||
+          a.name.localeCompare(b.name, 'fr')
+        );
+        break;
+      default:
+        sorted.sort((a, b) => +new Date(b.discoveredAt || 0) - +new Date(a.discoveredAt || 0));
+    }
+    return sorted;
+  }, [myCaptures, rarityFilter, mineSearch, mineSort]);
+
 
   const selectedZone: ZoneSub | null = useMemo(
     () => subscribedZones.find((z) => z.id === selectedZoneId) || null,
