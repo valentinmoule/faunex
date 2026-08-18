@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { PageHeader } from '@/components/PageHeader';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Bell, ChevronLeft, PawPrint, MapPin, Plus, Search, Trash2, X, Building2, Map as MapIcon, Home, Compass, Loader2 } from 'lucide-react';
+import { Bell, ChevronLeft, PawPrint, MapPin, Plus, Search, Trash2, X, Building2, Map as MapIcon, Home, Compass, Loader2, ArrowDownUp } from 'lucide-react';
 import { type Rarity, type AnimalCard, RARITY_LABELS } from '@/data/mockData';
 import { useAuth } from '@/contexts/AuthContext';
 import CardDetailSheet from '@/components/CardDetailSheet';
@@ -38,6 +38,9 @@ const BestiairePage = () => {
   const [pickerTab, setPickerTab] = useState<'department' | 'city'>('department');
   const [deptSearch, setDeptSearch] = useState('');
   const [speciesSearch, setSpeciesSearch] = useState('');
+  const [mineSearch, setMineSearch] = useState('');
+  const [mineSort, setMineSort] = useState<'recent' | 'oldest' | 'az' | 'za' | 'rarity'>('recent');
+
 
   const {
     animals,
@@ -148,10 +151,42 @@ const BestiairePage = () => {
       .slice(0, 60);
   }, [animals, rarityFilter, matchesSearch, speciesQuery]);
 
-  // Flat list of my own captures (one entry per capture), most recent first
+  // Flat list of my own captures (one entry per capture), filtered + sorted
+  const RARITY_WEIGHT: Record<string, number> = { mythic: 4, epic: 3, rare: 2, common: 1 };
   const myCapturedAnimals = useMemo(() => {
-    return myCaptures.filter(c => rarityFilter === 'all' || c.rarity === rarityFilter);
-  }, [myCaptures, rarityFilter]);
+    const q = normalizeSearch(mineSearch);
+    const list = myCaptures
+      .filter(c => rarityFilter === 'all' || c.rarity === rarityFilter)
+      .filter(c =>
+        !q ||
+        normalizeSearch(c.name).includes(q) ||
+        normalizeSearch(c.scientificName || '').includes(q) ||
+        normalizeSearch(c.category || '').includes(q) ||
+        normalizeSearch(c.location || '').includes(q)
+      );
+    const sorted = [...list];
+    switch (mineSort) {
+      case 'oldest':
+        sorted.sort((a, b) => +new Date(a.discoveredAt || 0) - +new Date(b.discoveredAt || 0));
+        break;
+      case 'az':
+        sorted.sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+        break;
+      case 'za':
+        sorted.sort((a, b) => b.name.localeCompare(a.name, 'fr'));
+        break;
+      case 'rarity':
+        sorted.sort((a, b) =>
+          (RARITY_WEIGHT[b.rarity] || 0) - (RARITY_WEIGHT[a.rarity] || 0) ||
+          a.name.localeCompare(b.name, 'fr')
+        );
+        break;
+      default:
+        sorted.sort((a, b) => +new Date(b.discoveredAt || 0) - +new Date(a.discoveredAt || 0));
+    }
+    return sorted;
+  }, [myCaptures, rarityFilter, mineSearch, mineSort]);
+
 
   const selectedZone: ZoneSub | null = useMemo(
     () => subscribedZones.find((z) => z.id === selectedZoneId) || null,
@@ -614,19 +649,66 @@ const BestiairePage = () => {
 
           {viewMode === 'mine' && (
             <section>
+              <div className="relative mb-2">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  value={mineSearch}
+                  onChange={(e) => setMineSearch(e.target.value)}
+                  placeholder="Rechercher dans mes captures…"
+                  className="w-full pl-9 pr-9 py-2.5 rounded-xl bg-card border border-border text-sm font-display placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
+                />
+                {mineSearch && (
+                  <button
+                    onClick={() => setMineSearch('')}
+                    aria-label="Effacer la recherche"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-muted transition"
+                  >
+                    <X className="w-3.5 h-3.5 text-muted-foreground" />
+                  </button>
+                )}
+              </div>
+
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1 mb-3">
+                <ArrowDownUp className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                {([
+                  { key: 'recent', label: 'Plus récentes' },
+                  { key: 'oldest', label: 'Plus anciennes' },
+                  { key: 'az', label: 'A → Z' },
+                  { key: 'za', label: 'Z → A' },
+                  { key: 'rarity', label: 'Rareté' },
+                ] as const).map((opt) => (
+                  <button
+                    key={opt.key}
+                    onClick={() => setMineSort(opt.key)}
+                    className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-display font-semibold border transition-all ${
+                      mineSort === opt.key
+                        ? 'bg-primary text-primary-foreground border-primary'
+                        : 'bg-card text-muted-foreground border-border hover:border-primary/40'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Mes captures</h2>
                 <span className="text-[11px] font-display text-muted-foreground tabular-nums">
                   {myCapturedAnimals.length} capture{myCapturedAnimals.length > 1 ? 's' : ''}
                 </span>
               </div>
+
               {myCapturedAnimals.length === 0 ? (
                 <div className="text-center py-12 rounded-2xl border border-dashed border-border">
                   <p className="text-3xl mb-2">🔍</p>
                   <p className="text-xs font-display text-muted-foreground px-6">
-                    {rarityFilter === 'all'
+                    {mineSearch.trim()
+                      ? `Aucune capture ne correspond à « ${mineSearch.trim()} ».`
+                      : rarityFilter === 'all'
                       ? "Tu n'as pas encore de capture. Pars en exploration !"
                       : `Aucune capture ${RARITY_LABELS[rarityFilter as Rarity].toLowerCase()} pour l'instant.`}
+
                   </p>
                 </div>
               ) : (
