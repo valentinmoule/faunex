@@ -703,9 +703,12 @@ const BestiairePage = () => {
                 <div className="text-center py-12 rounded-2xl border border-dashed border-border">
                   <p className="text-3xl mb-2">🔍</p>
                   <p className="text-xs font-display text-muted-foreground px-6">
-                    {rarityFilter === 'all'
+                    {mineSearch.trim()
+                      ? `Aucune capture ne correspond à « ${mineSearch.trim()} ».`
+                      : rarityFilter === 'all'
                       ? "Tu n'as pas encore de capture. Pars en exploration !"
                       : `Aucune capture ${RARITY_LABELS[rarityFilter as Rarity].toLowerCase()} pour l'instant.`}
+
                   </p>
                 </div>
               ) : (
