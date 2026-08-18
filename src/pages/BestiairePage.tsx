@@ -38,6 +38,9 @@ const BestiairePage = () => {
   const [pickerTab, setPickerTab] = useState<'department' | 'city'>('department');
   const [deptSearch, setDeptSearch] = useState('');
   const [speciesSearch, setSpeciesSearch] = useState('');
+  const [mineSearch, setMineSearch] = useState('');
+  const [mineSort, setMineSort] = useState<'recent' | 'oldest' | 'az' | 'za' | 'rarity'>('recent');
+
 
   const {
     animals,
