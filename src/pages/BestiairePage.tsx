@@ -22,19 +22,14 @@ import { useBestiaryData } from '@/hooks/useBestiaryData';
 import { useCitySearch } from '@/hooks/useCitySearch';
 import { useShelveAnimation } from '@/hooks/useShelveAnimation';
 import { useZoneSubscriptions } from '@/hooks/useZoneSubscriptions';
-import SpecializedCollections from '@/components/SpecializedCollections';
-import { useSubscription } from '@/hooks/useSubscription';
-
 
 
 const BestiairePage = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
-  const { isPremium } = useSubscription(session?.user?.id);
-
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'mine' | 'categories' | 'collections' | 'territory'>('mine');
+  const [viewMode, setViewMode] = useState<'mine' | 'categories' | 'territory'>('mine');
   const [rarityFilter, setRarityFilter] = useState<Rarity | 'all'>('all');
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
@@ -594,16 +589,6 @@ const BestiairePage = () => {
                 Catégories
               </button>
               <button
-                onClick={() => setViewMode('collections')}
-                className={`flex-1 text-xs font-display font-semibold py-2 rounded-full transition-all ${
-                  viewMode === 'collections'
-                    ? 'bg-background text-foreground shadow-sm'
-                    : 'text-muted-foreground'
-                }`}
-              >
-                Collections
-              </button>
-              <button
                 onClick={() => setViewMode('territory')}
                 className={`flex-1 text-xs font-display font-semibold py-2 rounded-full transition-all ${
                   viewMode === 'territory'
@@ -614,8 +599,7 @@ const BestiairePage = () => {
                 Territoires
               </button>
             </div>
-
-            {viewMode !== 'territory' && viewMode !== 'collections' && (
+            {viewMode !== 'territory' && (
               <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1">
                 {(['all', 'common', 'rare', 'epic', 'mythic'] as const).map((r) => {
                   const active = rarityFilter === r;
@@ -851,12 +835,7 @@ const BestiairePage = () => {
             </section>
           )}
 
-          {viewMode === 'collections' && (
-            <SpecializedCollections userId={session?.user?.id} isPremium={isPremium} />
-          )}
-
           {viewMode === 'territory' && (
-
             <section>
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Mes territoires</h2>
