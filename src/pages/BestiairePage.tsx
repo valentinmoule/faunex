@@ -1011,8 +1011,9 @@ const BestiairePage = () => {
                 </p>
               </div>
             </div>
-
+          </div>
         </div>
+
       </PageHeader>
 
       <div className="max-w-lg mx-auto px-3 pt-3">
