@@ -231,6 +231,7 @@ async function examine(
   await logDatasetEvent(supabase, {
     event_type: 'auto_moderation_approved',
     source: 'auto-moderate-capture',
+    model: usedModel,
     capture_id: capture.id,
     user_id: capture.user_id,
     image_url: capture.image_url,
