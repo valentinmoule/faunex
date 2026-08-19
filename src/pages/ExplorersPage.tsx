@@ -530,7 +530,7 @@ const ExplorersPage = () => {
                 {isSearching && searching && <p className="text-center py-8 text-muted-foreground text-sm font-display">Recherche…</p>}
                 {isSearching && !searching && list.length === 0 && <p className="text-center py-8 text-muted-foreground text-sm font-display">Aucun explorateur trouvé</p>}
                 {list.map(user => (
-                  <UserRow key={user.user_id} user={user} onClick={() => navigate(`/explorer/${user.user_id}/collection`)} action={renderAction(user)} />
+                  <UserRow key={user.user_id} user={user} onClick={() => navigate(`/explorer/${user.user_id}/collection`)} action={renderAction(user)} isPremium={searchPremiumIds.has(user.user_id)} />
                 ))}
                 {!isSearching && allLoading && <p className="text-center py-6 text-muted-foreground text-sm font-display">Chargement…</p>}
                 {!isSearching && !allLoading && allUsers.length === 0 && <p className="text-center py-8 text-muted-foreground text-sm font-display">Aucun explorateur pour le moment</p>}
