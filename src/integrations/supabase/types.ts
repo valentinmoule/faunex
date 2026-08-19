@@ -444,6 +444,110 @@ export type Database = {
         }
         Relationships: []
       }
+      ml_dataset_events: {
+        Row: {
+          alternatives: Json | null
+          capture_id: string | null
+          confidence: number | null
+          created_at: string
+          decision_reason: string | null
+          event_type: string
+          forced_name: boolean
+          id: string
+          image_hash: string | null
+          image_url: string | null
+          is_ground_truth: boolean
+          label_category: string | null
+          label_name: string | null
+          label_rarity: string | null
+          label_scientific_name: string | null
+          latitude: number | null
+          location: string | null
+          longitude: number | null
+          model: string | null
+          moderator_id: string | null
+          payload: Json | null
+          predicted_category: string | null
+          predicted_name: string | null
+          predicted_rarity: string | null
+          predicted_scientific_name: string | null
+          source: string
+          subject_bbox: Json | null
+          user_description: string | null
+          user_id: string | null
+        }
+        Insert: {
+          alternatives?: Json | null
+          capture_id?: string | null
+          confidence?: number | null
+          created_at?: string
+          decision_reason?: string | null
+          event_type: string
+          forced_name?: boolean
+          id?: string
+          image_hash?: string | null
+          image_url?: string | null
+          is_ground_truth?: boolean
+          label_category?: string | null
+          label_name?: string | null
+          label_rarity?: string | null
+          label_scientific_name?: string | null
+          latitude?: number | null
+          location?: string | null
+          longitude?: number | null
+          model?: string | null
+          moderator_id?: string | null
+          payload?: Json | null
+          predicted_category?: string | null
+          predicted_name?: string | null
+          predicted_rarity?: string | null
+          predicted_scientific_name?: string | null
+          source: string
+          subject_bbox?: Json | null
+          user_description?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          alternatives?: Json | null
+          capture_id?: string | null
+          confidence?: number | null
+          created_at?: string
+          decision_reason?: string | null
+          event_type?: string
+          forced_name?: boolean
+          id?: string
+          image_hash?: string | null
+          image_url?: string | null
+          is_ground_truth?: boolean
+          label_category?: string | null
+          label_name?: string | null
+          label_rarity?: string | null
+          label_scientific_name?: string | null
+          latitude?: number | null
+          location?: string | null
+          longitude?: number | null
+          model?: string | null
+          moderator_id?: string | null
+          payload?: Json | null
+          predicted_category?: string | null
+          predicted_name?: string | null
+          predicted_rarity?: string | null
+          predicted_scientific_name?: string | null
+          source?: string
+          subject_bbox?: Json | null
+          user_description?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ml_dataset_events_capture_id_fkey"
+            columns: ["capture_id"]
+            isOneToOne: false
+            referencedRelation: "captures"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           actor_id: string
@@ -778,7 +882,77 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      ml_dataset_ground_truth: {
+        Row: {
+          capture_id: string | null
+          confidence: number | null
+          created_at: string | null
+          event_type: string | null
+          id: string | null
+          image_hash: string | null
+          image_url: string | null
+          label_category: string | null
+          label_name: string | null
+          label_rarity: string | null
+          label_scientific_name: string | null
+          latitude: number | null
+          location: string | null
+          longitude: number | null
+          model: string | null
+          source: string | null
+          subject_bbox: Json | null
+          user_description: string | null
+        }
+        Insert: {
+          capture_id?: string | null
+          confidence?: number | null
+          created_at?: string | null
+          event_type?: string | null
+          id?: string | null
+          image_hash?: string | null
+          image_url?: string | null
+          label_category?: never
+          label_name?: never
+          label_rarity?: never
+          label_scientific_name?: never
+          latitude?: number | null
+          location?: string | null
+          longitude?: number | null
+          model?: string | null
+          source?: string | null
+          subject_bbox?: Json | null
+          user_description?: string | null
+        }
+        Update: {
+          capture_id?: string | null
+          confidence?: number | null
+          created_at?: string | null
+          event_type?: string | null
+          id?: string | null
+          image_hash?: string | null
+          image_url?: string | null
+          label_category?: never
+          label_name?: never
+          label_rarity?: never
+          label_scientific_name?: never
+          latitude?: number | null
+          location?: string | null
+          longitude?: number | null
+          model?: string | null
+          source?: string | null
+          subject_bbox?: Json | null
+          user_description?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ml_dataset_events_capture_id_fkey"
+            columns: ["capture_id"]
+            isOneToOne: false
+            referencedRelation: "captures"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       canonical_animal_category: {
