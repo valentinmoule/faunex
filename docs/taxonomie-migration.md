@@ -153,3 +153,21 @@ Seule la phase 7 modifie des données existantes, et uniquement la colonne `cate
 1. Validation des phases 0→6 (non destructives) en un seul lot, ou phase par phase ?
 2. Arbitrage des 3 cas ambigus `Mollusques` (§C) avant la phase 7.
 3. Confirmation que les nouvelles catégories peuvent exister en base sans être encore visibles côté UI.
+
+---
+
+## I. Rapport d'exécution (19/08/2026) — phases 0 à 6 terminées, phase 7 NON lancée
+
+| Phase | Résultat | Contrôle |
+| --- | --- | --- |
+| 0 | Snapshots `animals_backup_20260819` (2 647), `animal_departments_backup_20260819` (871), `profiles_counters_backup_20260819` (1 390 explorateurs, 9 820 découvertes, 152 440 XP) | OK |
+| 1 | `taxa`, `taxon_synonyms`, `collections`, `collection_taxa` + `taxon_id` sur animals/captures/ml_dataset_events/animal_departments | linter inchangé (21 warns préexistants) |
+| 2 | 2 647 taxons importés, `animals.taxon_id` 100 % renseigné | 0 ligne de `animals` modifiée |
+| 3 | 35 groupes créés → 186 `group` non collectionnables, 314 `breed`, 68 `subspecies`, 2 114 `species`, 852 taxons parentés, 41 entrées génériques en `pending` | 0 suppression |
+| 4 | 9 822 captures et 9 822 événements dataset reliés (0 capture approuvée non reliée), 763/871 territoires reliés (108 orphelins conservés) | compteurs stables |
+| 5 | `match_animal` déduit l'ambiguïté du référentiel (fin de la liste de 14 binômes en dur), `match_taxon` ajouté, triggers de liaison automatique sur captures et dataset | comportement identique vérifié |
+| 6 | 12 collections principales + 13 collections Premium, 2 970 rattachements (chiens 118, papillons 80, rapaces 46, bovins 44, volailles 40, équins 35, chats 31, libellules 29, ovins/caprins 20, cervidés 9, lapins 9, coccinelles 8, porcins 5) | invisible en UI |
+
+Note : les collections `echinodermes`, `cnidaires` et `autres-invertebres` sont créées mais vides — elles se rempliront à la **phase 7** (reclassement Mollusques), non exécutée.
+
+Anomalie tracée et écartée : un explorateur est passé de 7 à 6 découvertes pendant la fenêtre de migration ; cause identifiée = suppression volontaire d'une capture par l'utilisateur à 14:38 (XP en hausse 160 → 180, niveau inchangé). Aucune instruction des phases 0→6 n'écrit dans `captures` ni `profiles`.
