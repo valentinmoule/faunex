@@ -116,6 +116,8 @@ const MapPage = () => {
   const [discovered, setDiscovered] = useState<{ location: string; animals: DiscoveredAnimal[] } | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
+  const [groupItems, setGroupItems] = useState<CaptureMarker[] | null>(null);
+
 
   useEffect(() => {
     if (!session?.user) return;
