@@ -699,6 +699,95 @@ const BestiairePage = () => {
     );
   }
 
+  // Species collection detail view (races de chien, papillons…)
+  if (selectedCollection) {
+    return (
+      <main className="min-h-screen bg-background pb-24">
+        <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
+          <div className="max-w-lg mx-auto">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setSelectedCollectionKey(null)}
+                className="p-1.5 rounded-full hover:bg-muted transition-colors"
+              >
+                <ChevronLeft className="w-5 h-5 text-foreground" />
+              </button>
+              <div className="flex-1 min-w-0 flex items-center gap-2">
+                <span className="text-lg shrink-0">{selectedCollection.group.emoji}</span>
+                <div className="min-w-0">
+                  <h1 className="text-lg font-display font-bold text-foreground truncate">{selectedCollection.group.label}</h1>
+                  <p className="text-[11px] text-muted-foreground font-display">
+                    {selectedCollection.captured}/{selectedCollection.total} capturés
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => { removeCollection(selectedCollection.group.key); setSelectedCollectionKey(null); }}
+                className="p-2 rounded-full hover:bg-destructive/10 text-destructive transition"
+                aria-label="Retirer la collection"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </PageHeader>
+
+        <div className="max-w-lg mx-auto px-3 pt-3">
+          <div className="grid grid-cols-4 gap-1.5">
+            {collectionAnimals.map((animal, index) => (
+              <div
+                key={animal.name}
+                onClick={() => {
+                  if (animal.captured && animal.captureData) {
+                    setSelectedCard(animal.captureData);
+                  } else {
+                    setSelectedCard({
+                      id: `uncaptured-${animal.name}`,
+                      name: animal.name,
+                      scientificName: animal.scientific_name || '',
+                      image: '',
+                      rarity: animal.rarity as Rarity,
+                      category: animal.category,
+                      description: '', habitat: '', diet: '', conservation: '', funFact: '',
+                      discoveredAt: '', location: '',
+                    });
+                  }
+                }}
+                className={`relative aspect-[3/4] rounded-xl border-2 overflow-hidden transition-all cursor-pointer active:scale-[0.96] ${
+                  animal.captured
+                    ? `${rarityBorderColor[animal.rarity] || 'border-border'} bg-card`
+                    : 'border-border/40 bg-muted/30'
+                }`}
+              >
+                {animal.captured && animal.captureData ? (
+                  <div className="w-full h-full flex flex-col">
+                    <div className="flex-1 overflow-hidden relative">
+                      <img src={animal.captureData.image} alt={animal.name} className="w-full h-full object-cover" loading="lazy" />
+                      <div className={`absolute top-1.5 right-1.5 w-2 h-2 rounded-full ${rarityDot[animal.rarity] || 'bg-muted-foreground'}`} />
+                    </div>
+                    <div className="px-1.5 py-1 bg-card">
+                      <p className="text-[9px] font-display font-bold text-foreground truncate leading-tight">{animal.name}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center gap-1">
+                    <span className="text-lg font-display font-bold text-muted-foreground">
+                      {String(index + 1).padStart(3, '0')}
+                    </span>
+                    <div className={`w-1.5 h-1.5 rounded-full ${rarityDot[animal.rarity] || 'bg-muted-foreground'} opacity-30`} />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
+        {deptPickerSheet}
+      </main>
+    );
+  }
+
   // Category grid view
   if (!selectedCategory) {
     return (
