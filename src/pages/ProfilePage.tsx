@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { PageHeader } from '@/components/PageHeader';
-import { Settings, Award, MapPin, BookOpen, Lock, Download, Bell, Gift, Users, UserPlus, ShieldCheck } from 'lucide-react';
+import { Settings, MapPin, BookOpen, Download, Bell, Users, UserPlus, ShieldCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
@@ -75,12 +75,10 @@ const ProfilePage = () => {
       setLoading(true);
       const userId = session.user.id;
 
-      const [profileRes, followersRes, followingRes, capturesRes, claimedBadgesRes] = await Promise.all([
+      const [profileRes, followersRes, followingRes] = await Promise.all([
         supabase.from('profiles').select('display_name, username, avatar_url, level, xp, xp_to_next, total_captures, regions_explored').eq('user_id', userId).single(),
         supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('following_id', userId),
         supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('follower_id', userId),
-        supabase.from('captures').select('category, rarity').eq('user_id', userId),
-        supabase.from('user_badges').select('badge_id').eq('user_id', userId),
       ]);
 
       const data = profileRes.data;
@@ -90,7 +88,6 @@ const ProfilePage = () => {
 
       setFollowersCount(followersRes.count || 0);
       setFollowingCount(followingRes.count || 0);
-      const fCount = followingRes.count || 0;
 
       setLoading(false);
     };
