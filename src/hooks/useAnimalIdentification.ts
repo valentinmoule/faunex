@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { compressForAI, hashDataUrl } from '@/lib/imageProcessing';
+import { compressForAI, dataUrlBytes, hashDataUrl } from '@/lib/imageProcessing';
 import type { AnimalResult } from '@/types/capture';
 
 type IdentifyOutcome =
