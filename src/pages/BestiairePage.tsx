@@ -44,7 +44,7 @@ const BestiairePage = () => {
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
   const [selectedCollectionKey, setSelectedCollectionKey] = useState<string | null>(null);
   const [showDeptPicker, setShowDeptPicker] = useState(false);
-  const [pickerMode, setPickerMode] = useState<'hub' | 'explore' | 'species'>('hub');
+  const [pickerMode, setPickerMode] = useState<'hub' | 'explore' | 'species' | 'upsell'>('hub');
   const [pickerTab, setPickerTab] = useState<'department' | 'city'>('department');
   const [deptSearch, setDeptSearch] = useState('');
   const [collectionSearch, setCollectionSearch] = useState('');
