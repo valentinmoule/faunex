@@ -1123,7 +1123,7 @@ const BestiairePage = () => {
           })}
         </div>
 
-        {categoryAnimals.length === 0 && !loading && (
+        {gridAnimals.length === 0 && breedGroupsInCategory.length === 0 && !loading && (
           <div className="text-center py-16">
             <p className="text-4xl mb-3">📭</p>
             <p className="text-muted-foreground font-display text-sm">Aucune espèce dans cette catégorie</p>
