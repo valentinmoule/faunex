@@ -234,25 +234,49 @@ const MapPage = () => {
   const markers = useMemo(
     () =>
       groups.flatMap((g) => {
-        // Au zoom élevé, on éclate les captures empilées en couronne autour du point
+        // Au zoom élevé, on éclate les captures empilées en couronnes (écart constant à l'écran)
         if (g.items.length > 1 && zoom >= 13) {
-          const spread = 0.00035 * Math.pow(2, 16 - Math.min(zoom, 16));
-          return g.items.map((c, i) => {
-            const angle = (2 * Math.PI * i) / g.items.length;
-            const lat = c.latitude + spread * Math.cos(angle);
-            const lng =
-              c.longitude +
-              (spread * Math.sin(angle)) / Math.max(0.2, Math.cos((c.latitude * Math.PI) / 180));
-            return (
-              <Marker
-                key={c.id}
-                position={[lat, lng]}
-                icon={buildIcon(c.rarity, c.category, 1)}
-                eventHandlers={{ click: () => openCapture(c) }}
-              />
-            );
+          const latRad = (g.lead.latitude * Math.PI) / 180;
+          // mètres par pixel à ce zoom, puis conversion en degrés
+          const mPerPx = (156543.03392 * Math.cos(latRad)) / Math.pow(2, zoom);
+          const degPerPx = mPerPx / 111320;
+          const PIN = 44; // taille du pin + marge, en px
+
+          // répartition en anneaux : 8 pins max sur le 1er, puis de plus en plus
+          const rings: CaptureMarker[][] = [];
+          let idx = 0;
+          let ring = 0;
+          while (idx < g.items.length) {
+            const capacity = ring === 0 ? 8 : 8 + ring * 5;
+            rings.push(g.items.slice(idx, idx + capacity));
+            idx += capacity;
+            ring += 1;
+          }
+
+          return rings.flatMap((items, ringIndex) => {
+            const radiusPx = Math.max(
+              PIN * 0.75,
+              (PIN * items.length) / (2 * Math.PI),
+            ) + ringIndex * PIN;
+            const radiusDeg = radiusPx * degPerPx;
+            const offset = ringIndex * (Math.PI / items.length);
+            return items.map((c, i) => {
+              const angle = (2 * Math.PI * i) / items.length + offset;
+              const lat = c.latitude + radiusDeg * Math.cos(angle);
+              const lng =
+                c.longitude + (radiusDeg * Math.sin(angle)) / Math.max(0.2, Math.cos(latRad));
+              return (
+                <Marker
+                  key={c.id}
+                  position={[lat, lng]}
+                  icon={buildIcon(c.rarity, c.category, 1)}
+                  eventHandlers={{ click: () => openCapture(c) }}
+                />
+              );
+            });
           });
         }
+
         return [
           <Marker
             key={g.key}
