@@ -1165,11 +1165,7 @@ const BestiairePage = () => {
             </section>
           )}
 
-                  </div>
-                )}
-              </div>
-            </section>
-          )}
+
 
         </div>
         <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
