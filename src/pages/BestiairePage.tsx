@@ -1087,6 +1087,55 @@ const BestiairePage = () => {
                   })}
                 </div>
               )}
+
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Mes collections d'espèces</h2>
+                  <button
+                    onClick={() => { setPickerMode('species'); setCollectionSearch(''); setShowDeptPicker(true); }}
+                    className="flex items-center gap-1 text-xs font-display font-semibold text-primary px-2 py-1 rounded-lg hover:bg-primary/10 transition"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    Ajouter
+                  </button>
+                </div>
+                {myCollections.length === 0 ? (
+                  <button
+                    onClick={() => { setPickerMode('species'); setCollectionSearch(''); setShowDeptPicker(true); }}
+                    className="w-full rounded-2xl border border-dashed border-border p-5 text-center transition active:scale-[0.98] hover:border-primary/40"
+                  >
+                    <div className="inline-flex w-11 h-11 rounded-2xl bg-muted items-center justify-center mb-2">
+                      <Layers className="w-5 h-5 text-foreground" strokeWidth={2} />
+                    </div>
+                    <h3 className="font-display font-bold text-sm text-foreground">Choisis une collection</h3>
+                    <p className="text-[11px] text-muted-foreground font-display leading-relaxed mt-0.5 px-2">
+                      Races de chien, races de chat, papillons, rapaces… complète des séries thématiques.
+                    </p>
+                  </button>
+                ) : (
+                  <div className="grid grid-cols-2 gap-3">
+                    {myCollections.map(({ group, total, captured }) => {
+                      const pct = total > 0 ? Math.round((captured / total) * 100) : 0;
+                      return (
+                        <button
+                          key={group.key}
+                          onClick={() => setSelectedCollectionKey(group.key)}
+                          className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-md"
+                        >
+                          <div className="text-xl mb-2">{group.emoji}</div>
+                          <h3 className="font-display font-bold text-sm text-foreground leading-tight mb-1 truncate">{group.label}</h3>
+                          <p className="text-[11px] text-muted-foreground font-display mb-3">
+                            {captured}/{total} capturés
+                          </p>
+                          <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
+                            <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${pct}%` }} />
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </section>
           )}
 
