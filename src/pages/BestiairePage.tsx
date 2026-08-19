@@ -1035,9 +1035,33 @@ const BestiairePage = () => {
             </button>
           )}
         </div>
+        {/* Sub-level: breed groups (races de chien, de chat…) */}
+        {!activeBreedGroup && breedGroupsInCategory.length > 0 && (
+          <div className="mb-4">
+            <p className="text-[11px] font-display font-bold uppercase tracking-wide text-muted-foreground mb-2">
+              Sous-catégories
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              {breedGroupsInCategory.map(({ group, total, captured }) => (
+                <button
+                  key={group.key}
+                  onClick={() => setSelectedBreedGroup(group.key)}
+                  className="flex items-center gap-2.5 p-3 rounded-2xl bg-card border border-border hover:border-primary/50 transition-all active:scale-[0.98] text-left"
+                >
+                  <span className="text-xl shrink-0">{group.emoji}</span>
+                  <div className="min-w-0">
+                    <p className="text-[13px] font-display font-bold text-foreground truncate">{group.label}</p>
+                    <p className="text-[11px] text-muted-foreground font-display">{captured}/{total} capturés</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         {/* 4x4 TCG binder grid */}
         <div className="grid grid-cols-4 gap-1.5">
-          {categoryAnimals.map((animal, index) => {
+          {gridAnimals.map((animal, index) => {
+
             const slotKey = animal.name.toLowerCase();
             const isFlashing = flashSlotName === slotKey;
             return (
