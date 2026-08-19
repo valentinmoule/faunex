@@ -375,6 +375,52 @@ const MapPage = () => {
         </SheetContent>
       </Sheet>
 
+      <Sheet open={!!groupItems} onOpenChange={(o) => !o && setGroupItems(null)}>
+        <SheetContent side="bottom" className="max-h-[75vh] overflow-y-auto z-[1200]">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2 font-display">
+              <MapPin className="w-5 h-5 text-primary" />
+              {groupItems?.[0]?.location || 'Cette position'}
+            </SheetTitle>
+          </SheetHeader>
+          <p className="text-[12px] text-muted-foreground mt-1">
+            {groupItems?.length} capture{(groupItems?.length || 0) > 1 ? 's' : ''} à cet endroit
+          </p>
+          <div className="mt-4 space-y-2">
+            {groupItems?.map((c) => (
+              <button
+                key={c.id}
+                onClick={() => { setGroupItems(null); openCapture(c); }}
+                className="w-full flex items-center gap-3 p-2 rounded-2xl border border-border bg-card text-left hover:bg-muted/50 transition-colors"
+              >
+                {c.image_url && (
+                  <img
+                    src={c.image_url}
+                    alt={c.animal_name}
+                    loading="lazy"
+                    className="w-12 h-12 rounded-xl object-cover shrink-0"
+                  />
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="font-display font-bold text-sm text-foreground truncate">{c.animal_name}</p>
+                  <p className="text-[11px] italic text-muted-foreground truncate">{c.scientific_name}</p>
+                </div>
+                <span
+                  className="text-[10px] font-display font-bold uppercase px-2 py-1 rounded-full shrink-0"
+                  style={{
+                    background: `${RARITY_COLORS[c.rarity] || RARITY_COLORS.common}22`,
+                    color: RARITY_COLORS[c.rarity] || RARITY_COLORS.common,
+                  }}
+                >
+                  {c.rarity}
+                </span>
+              </button>
+            ))}
+          </div>
+        </SheetContent>
+      </Sheet>
+
+
       <CardDetailSheet
         card={selectedCard}
         open={!!selectedCard}
