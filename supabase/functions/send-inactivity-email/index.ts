@@ -133,13 +133,19 @@ Deno.serve(async (req) => {
       )
 
       const { error: enqueueError } = await supabase.rpc('enqueue_email', {
-        p_queue_name: 'transactional_emails',
-        p_message_id: messageId,
-        p_to: email,
-        p_subject: `${displayName}, la nature t'attend 🌿`,
-        p_html: html,
-        p_from: 'Faunex <noreply@notify.faunex.fr>',
-        p_template_name: 'inactivity-email',
+        queue_name: 'transactional_emails',
+        payload: {
+          message_id: messageId,
+          to: email,
+          from: 'Faunex <noreply@notify.faunex.fr>',
+          sender_domain: 'notify.faunex.fr',
+          subject: `${displayName}, la nature t'attend 🌿`,
+          html,
+          label: 'inactivity-email',
+          purpose: 'transactional',
+          idempotency_key: messageId,
+          queued_at: new Date().toISOString(),
+        },
       })
 
       if (enqueueError) {
