@@ -1153,21 +1153,53 @@ const BestiairePage = () => {
                       .map(cat => {
                         const CatIcon = getCategoryIcon(cat.name);
                         const progress = cat.total > 0 ? Math.round((cat.captured / cat.total) * 100) : 0;
+                        const recentCaptures = animals
+                          .filter(a => normalizeCategory(a.category) === cat.name && a.captured && a.captureData?.image)
+                          .sort((a, b) => (b.captureData?.discoveredAt || '').localeCompare(a.captureData?.discoveredAt || ''))
+                          .slice(0, 4);
+                        const emptySlots = Math.max(0, 4 - recentCaptures.length);
                         return (
                           <button
                             key={cat.name}
                             onClick={() => { setSelectedBreedGroup(null); setSelectedCategory(cat.name); }}
-                            className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-md"
+                            className="group relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-primary/[0.04] via-card to-card p-4 text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-[0_8px_30px_-12px_hsl(var(--primary)/0.22)]"
                           >
-                            <div className="mb-2">
-                              <CatIcon className="w-7 h-7 text-primary" strokeWidth={1.75} />
-                            </div>
-                            <h3 className="font-display font-bold text-sm text-foreground leading-tight mb-1 truncate">{cat.name}</h3>
-                            <p className="text-[11px] text-muted-foreground font-display mb-3">
-                              {cat.captured}/{cat.total} capturés
-                            </p>
-                            <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
-                              <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${progress}%` }} />
+                            <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                            <div className="relative flex items-start justify-between gap-3">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-3 mb-3">
+                                  <div className="flex-shrink-0 w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center">
+                                    <CatIcon className="w-6 h-6 text-primary" strokeWidth={1.75} />
+                                  </div>
+                                  <div className="min-w-0">
+                                    <h3 className="font-display font-bold text-base text-foreground leading-tight truncate">{cat.name}</h3>
+                                    <p className="text-[11px] text-muted-foreground font-display mt-0.5">
+                                      {cat.captured}/{cat.total} capturés
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2 mb-3">
+                                  <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
+                                    <div className="h-full rounded-full bg-primary transition-all duration-700" style={{ width: `${progress}%` }} />
+                                  </div>
+                                  <span className="text-[11px] font-display font-bold text-primary tabular-nums">{progress}%</span>
+                                </div>
+                                <div className="flex items-center gap-1.5">
+                                  {recentCaptures.map((a, i) => (
+                                    <div key={i} className="w-9 h-9 rounded-xl overflow-hidden border border-border/40 bg-muted">
+                                      <img src={a.captureData?.image} alt={a.name} className="w-full h-full object-cover" loading="lazy" />
+                                    </div>
+                                  ))}
+                                  {Array.from({ length: emptySlots }).map((_, i) => (
+                                    <div key={`empty-${i}`} className="w-9 h-9 rounded-xl border border-dashed border-border/50 bg-muted/30 flex items-center justify-center">
+                                      <span className="text-[10px] text-muted-foreground/50">?</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                <span className="text-lg">{getCategoryEmoji(cat.name)}</span>
+                              </div>
                             </div>
                           </button>
                         );
