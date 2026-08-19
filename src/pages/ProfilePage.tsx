@@ -142,22 +142,15 @@ const ProfilePage = () => {
       <div className="max-w-lg mx-auto px-4 pt-6 space-y-6">
         {/* Profile Header */}
         <div className="flex items-center gap-4">
-          <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center text-3xl font-display font-bold text-primary border-2 border-primary/30 overflow-hidden shrink-0">
-            {profile.avatar_url ? (
-              <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
-            ) : (
-              <span>{(profile.display_name || '?').charAt(0).toUpperCase()}</span>
-            )}
-          </div>
+          <PremiumAvatar
+            avatarUrl={profile.avatar_url}
+            name={profile.display_name}
+            size="xl"
+            isPremium={isPremium}
+            className="border-2 border-primary/30 rounded-full"
+          />
           <div className="flex-1">
-            <div className="flex items-center gap-1.5">
-              <h2 className="text-xl font-display font-bold text-foreground">{profile.display_name || 'Sans nom'}</h2>
-              {isPremium && (
-                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber/15 text-amber" aria-label="Premium">
-                  <Crown className="w-3 h-3" strokeWidth={2.5} />
-                </span>
-              )}
-            </div>
+            <h2 className="text-xl font-display font-bold text-foreground">{profile.display_name || 'Sans nom'}</h2>
             <p className="text-sm text-muted-foreground">{profile.username || '@inconnu'}</p>
             <div className="mt-2">
               <div className="flex items-center gap-2 mb-1">
