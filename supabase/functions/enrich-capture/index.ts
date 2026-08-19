@@ -416,6 +416,23 @@ const SHARED_BINOMIALS = new Set([
   'cavia porcellus', 'mesocricetus auratus', 'columba livia domestica',
 ])
 
+/**
+ * Un nom scientifique n'identifie une espèce que s'il est un vrai binôme
+ * (genre + épithète). Beaucoup de fiches portent un rang supérieur
+ * (Araneae, Coleoptera, Cicadidae…) partagé par des milliers d'espèces
+ * différentes : s'en servir pour détecter un doublon créait de faux positifs.
+ */
+const isSpeciesBinomial = (sci: string | null | undefined) => {
+  const s = norm(sci)
+  if (!s) return false
+  if (SHARED_BINOMIALS.has(s)) return false
+  const parts = s.split(' ').filter(Boolean)
+  if (parts.length < 2) return false
+  // Rangs supra-spécifiques : familles, sous-familles, super-familles, ordres…
+  if (/(idae|inae|oidea|aceae|iformes|ptera|morpha)$/.test(parts[0])) return false
+  return true
+}
+
 /** Retourne la capture approuvée existante de la même espèce pour cet explorateur. */
 async function findUserDuplicate(
   supabase: any,
@@ -434,13 +451,14 @@ async function findUserDuplicate(
     return null
   }
   const n = norm(name)
-  const s = SHARED_BINOMIALS.has(norm(scientific)) ? '' : norm(scientific)
+  const s = isSpeciesBinomial(scientific) ? norm(scientific) : ''
   return (data || []).find((c: any) =>
     c.id !== currentCaptureId &&
     ((n && norm(c.animal_name) === n) ||
-      (s && !SHARED_BINOMIALS.has(norm(c.scientific_name)) && norm(c.scientific_name) === s))
+      (s && isSpeciesBinomial(c.scientific_name) && norm(c.scientific_name) === s))
   ) || null
 }
+
 
 
 function json(payload: unknown, status = 200) {
