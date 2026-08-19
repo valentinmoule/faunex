@@ -1035,6 +1035,8 @@ const BestiairePage = () => {
             </button>
           )}
         </div>
+        {/* Classement des explorateurs de la catégorie */}
+        {!activeBreedGroup && selectedCategory && <CategoryLeaderboard category={selectedCategory} />}
         {/* Sub-level: breed groups (races de chien, de chat…) */}
         {!activeBreedGroup && breedGroupsInCategory.length > 0 && (
           <div className="mb-4">
