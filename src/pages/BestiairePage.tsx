@@ -341,27 +341,20 @@ const BestiairePage = () => {
             <button
               onClick={handleDetectHome}
               disabled={detectingHome}
-              className="w-full relative overflow-hidden rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-5 text-left transition active:scale-[0.98] disabled:opacity-60"
+              className="w-full rounded-2xl border border-border bg-card p-5 text-left transition active:scale-[0.98] hover:border-primary/30 disabled:opacity-60"
             >
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-primary/15 flex items-center justify-center shrink-0">
+                <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center shrink-0">
                   {detectingHome ? (
                     <Loader2 className="w-6 h-6 text-primary animate-spin" />
                   ) : (
-                    <Home className="w-6 h-6 text-primary" strokeWidth={2} />
+                    <Home className="w-6 h-6 text-foreground" strokeWidth={2} />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-display font-bold text-base text-foreground">Chez moi</h3>
-                    <span className="text-[9px] font-display font-bold uppercase tracking-wide text-primary bg-primary/15 px-1.5 py-0.5 rounded-full">
-                      Auto
-                    </span>
-                  </div>
+                  <h3 className="font-display font-bold text-base text-foreground">Ma position</h3>
                   <p className="text-[11px] text-muted-foreground font-display leading-relaxed mt-0.5">
-                    {hasHomeZone
-                      ? 'Mettre à jour ton territoire principal via ta position.'
-                      : 'Détecte ta commune et suis la faune autour de toi au quotidien.'}
+                    Détecte ta commune et ajoute-la à tes zones suivies.
                   </p>
                 </div>
               </div>
@@ -376,7 +369,7 @@ const BestiairePage = () => {
                   <Compass className="w-6 h-6 text-foreground" strokeWidth={2} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-display font-bold text-base text-foreground">Explorer une zone</h3>
+                  <h3 className="font-display font-bold text-base text-foreground">Ajouter une zone</h3>
                   <p className="text-[11px] text-muted-foreground font-display leading-relaxed mt-0.5">
                     Prépare un voyage, une rando ou une visite : ajoute n'importe quelle ville ou département.
                   </p>
@@ -393,7 +386,7 @@ const BestiairePage = () => {
                   <Layers className="w-6 h-6 text-foreground" strokeWidth={2} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-display font-bold text-base text-foreground">Collection d'espèces</h3>
+                  <h3 className="font-display font-bold text-base text-foreground">Ajouter une collection</h3>
                   <p className="text-[11px] text-muted-foreground font-display leading-relaxed mt-0.5">
                     Races de chien, races de chat, papillons, rapaces, serpents… choisis ce que tu veux compléter.
                   </p>
@@ -402,8 +395,9 @@ const BestiairePage = () => {
             </button>
 
             <p className="text-[10px] text-muted-foreground font-display text-center pt-2">
-              Tu peux suivre plusieurs zones et collections, et changer ton « Chez moi » à tout moment.
+              Tu peux suivre autant de zones et de collections que tu veux.
             </p>
+
           </div>
         )}
 
