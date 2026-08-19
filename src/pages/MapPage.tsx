@@ -98,12 +98,14 @@ const RecenterOnUser = ({ position }: { position: [number, number] | null }) => 
   return null;
 };
 
-const CenterTracker = ({ onMove }: { onMove: (center: L.LatLng) => void }) => {
+const CenterTracker = ({ onMove, onZoom }: { onMove: (center: L.LatLng) => void; onZoom: (z: number) => void }) => {
   useMapEvents({
     moveend: (e) => onMove(e.target.getCenter()),
+    zoomend: (e) => onZoom(e.target.getZoom()),
   });
   return null;
 };
+
 
 const MapPage = () => {
   const { session } = useAuth();
