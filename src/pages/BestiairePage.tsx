@@ -1017,19 +1017,26 @@ const BestiairePage = () => {
                       onClick={() => setSelectedCard(animal)}
                       className={`relative aspect-[3/4] rounded-xl border-2 overflow-hidden transition-all cursor-pointer active:scale-[0.96] ${rarityBorderColor[animal.rarity] || 'border-border'} bg-card`}
                     >
-                      <div className="w-full h-full flex flex-col">
-                        <div className="flex-1 overflow-hidden relative">
-                          <img
-                            src={animal.image}
-                            alt={animal.name}
-                            className="w-full h-full object-cover"
-                            loading="lazy"
-                          />
-                          <div className={`absolute top-1.5 right-1.5 w-2 h-2 rounded-full ${rarityDot[animal.rarity] || 'bg-muted-foreground'}`} />
-                        </div>
-                        <div className="px-1.5 py-1 bg-card">
-                          <p className="text-[9px] font-display font-bold text-foreground truncate leading-tight">{animal.name}</p>
-                        </div>
+                      <img
+                        src={animal.image}
+                        alt={animal.name}
+                        className="absolute inset-0 w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                      <div className="absolute top-2 left-2">
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[9px] font-display font-bold uppercase tracking-wide bg-black/60 text-white backdrop-blur-sm">
+                          {RARITY_LABELS[animal.rarity] || animal.rarity}
+                        </span>
+                      </div>
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5 pt-8">
+                        <p className="text-xs font-display font-bold text-white truncate leading-tight">
+                          {animal.name}
+                        </p>
+                        {animal.scientificName && (
+                          <p className="text-[9px] font-body italic text-white/80 truncate">
+                            {animal.scientificName}
+                          </p>
+                        )}
                       </div>
                     </div>
                   ))}
