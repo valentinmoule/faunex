@@ -18,7 +18,7 @@ import {
   rarityDot,
   type ZoneSub,
 } from '@/lib/bestiary';
-import { MIN_BREEDS_PER_GROUP, getBreedGroup, type BreedGroup } from '@/lib/breedGroups';
+import { MIN_BREEDS_PER_GROUP, getBreedGroup, getSpeciesGroup, type BreedGroup } from '@/lib/breedGroups';
 import { useBestiaryData } from '@/hooks/useBestiaryData';
 import { useCitySearch } from '@/hooks/useCitySearch';
 import { useShelveAnimation } from '@/hooks/useShelveAnimation';
@@ -143,11 +143,11 @@ const BestiairePage = () => {
       .filter(matchesSearch);
   }, [animals, selectedCategory, rarityFilter, matchesSearch]);
 
-  // Sub-level inside a category: breed groups (races de chien, de chat, de vache…)
+  // Sub-level inside a category: breed groups (races de chien…) + type groups (papillons, rapaces…)
   const breedGroupsInCategory = useMemo(() => {
     const map = new Map<string, { group: BreedGroup; total: number; captured: number }>();
     categoryAnimals.forEach(a => {
-      const group = getBreedGroup(a.scientific_name);
+      const group = getSpeciesGroup(a.name, a.scientific_name, a.category);
       if (!group) return;
       const entry = map.get(group.key) || { group, total: 0, captured: 0 };
       entry.total++;
@@ -164,17 +164,21 @@ const BestiairePage = () => {
     [breedGroupsInCategory, selectedBreedGroup],
   );
 
-  /** Cards shown in the binder grid: breeds of the open group, or species without their breeds. */
+  /** Cards shown in the binder grid: members of the open group, or all species minus breeds. */
   const gridAnimals = useMemo(() => {
     if (activeBreedGroup) {
-      return categoryAnimals.filter(a => getBreedGroup(a.scientific_name)?.key === activeBreedGroup.group.key);
+      return categoryAnimals.filter(
+        a => getSpeciesGroup(a.name, a.scientific_name, a.category)?.key === activeBreedGroup.group.key,
+      );
     }
-    const groupedKeys = new Set(breedGroupsInCategory.map(e => e.group.key));
+    // Only domestic breed groups are hidden from the full grid (they are too numerous).
+    const hiddenKeys = new Set(breedGroupsInCategory.filter(e => e.group.breeds).map(e => e.group.key));
     return categoryAnimals.filter(a => {
       const group = getBreedGroup(a.scientific_name);
-      return !group || !groupedKeys.has(group.key);
+      return !group || !hiddenKeys.has(group.key);
     });
   }, [categoryAnimals, breedGroupsInCategory, activeBreedGroup]);
+
 
 
   // Global species search results (across all categories)
