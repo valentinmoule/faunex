@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { PageHeader } from '@/components/PageHeader';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Bell, ChevronLeft, PawPrint, MapPin, Plus, Search, Trash2, X, Building2, Map as MapIcon, Home, Compass, Loader2 } from 'lucide-react';
+import { Bell, ChevronLeft, PawPrint, MapPin, Plus, Search, Trash2, X, Building2, Map as MapIcon, Home, Compass, Layers, Loader2 } from 'lucide-react';
 import { type Rarity, type AnimalCard, RARITY_LABELS } from '@/data/mockData';
 import { useAuth } from '@/contexts/AuthContext';
 import CardDetailSheet from '@/components/CardDetailSheet';
@@ -18,11 +18,12 @@ import {
   rarityDot,
   type ZoneSub,
 } from '@/lib/bestiary';
-import { MIN_BREEDS_PER_GROUP, getBreedGroup, getSpeciesGroup, type BreedGroup } from '@/lib/breedGroups';
+import { MIN_BREEDS_PER_GROUP, BREED_GROUPS, getBreedGroup, getSpeciesGroup, type BreedGroup } from '@/lib/breedGroups';
 import { useBestiaryData } from '@/hooks/useBestiaryData';
 import { useCitySearch } from '@/hooks/useCitySearch';
 import { useShelveAnimation } from '@/hooks/useShelveAnimation';
 import { useZoneSubscriptions } from '@/hooks/useZoneSubscriptions';
+import { useSpeciesCollections } from '@/hooks/useSpeciesCollections';
 import CategoryLeaderboard from '@/components/CategoryLeaderboard';
 
 
@@ -32,16 +33,19 @@ const BestiairePage = () => {
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedBreedGroup, setSelectedBreedGroup] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'mine' | 'categories' | 'territory'>('mine');
+  const [viewMode, setViewMode] = useState<'mine' | 'categories' | 'collections'>('mine');
   const [rarityFilter, setRarityFilter] = useState<Rarity | 'all'>('all');
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
+  const [selectedCollectionKey, setSelectedCollectionKey] = useState<string | null>(null);
   const [showDeptPicker, setShowDeptPicker] = useState(false);
-  const [pickerMode, setPickerMode] = useState<'hub' | 'explore'>('hub');
+  const [pickerMode, setPickerMode] = useState<'hub' | 'explore' | 'species'>('hub');
   const [pickerTab, setPickerTab] = useState<'department' | 'city'>('department');
   const [deptSearch, setDeptSearch] = useState('');
+  const [collectionSearch, setCollectionSearch] = useState('');
   const [speciesSearch, setSpeciesSearch] = useState('');
   const [mineSearch, setMineSearch] = useState('');
+
 
 
   const {
@@ -97,10 +101,47 @@ const BestiairePage = () => {
     onZoneReady: handleZoneReady,
   });
 
+  const { collectionKeys, addCollection, removeCollection } = useSpeciesCollections(session?.user?.id);
+
   const handleRemoveZone = async (zoneId: string) => {
     await removeZone(zoneId);
     setSelectedZoneId(null);
   };
+
+  /** Every species group that actually has species in the bestiary, with progress. */
+  const availableCollections = useMemo(() => {
+    const counts = new Map<string, { total: number; captured: number }>();
+    animals.forEach((a) => {
+      const group = getSpeciesGroup(a.name, a.scientific_name, a.category);
+      if (!group) return;
+      const entry = counts.get(group.key) || { total: 0, captured: 0 };
+      entry.total++;
+      if (a.captured) entry.captured++;
+      counts.set(group.key, entry);
+    });
+    return BREED_GROUPS.map((group) => ({ group, ...(counts.get(group.key) || { total: 0, captured: 0 }) }))
+      .filter((e) => e.total >= MIN_BREEDS_PER_GROUP)
+      .sort((a, b) => a.group.label.localeCompare(b.group.label, 'fr'));
+  }, [animals]);
+
+  const myCollections = useMemo(
+    () => availableCollections.filter((e) => collectionKeys.includes(e.group.key)),
+    [availableCollections, collectionKeys],
+  );
+
+  const selectedCollection = useMemo(
+    () => availableCollections.find((e) => e.group.key === selectedCollectionKey) || null,
+    [availableCollections, selectedCollectionKey],
+  );
+
+  const collectionAnimals = useMemo(() => {
+    if (!selectedCollection) return [];
+    return animals
+      .filter((a) => getSpeciesGroup(a.name, a.scientific_name, a.category)?.key === selectedCollection.group.key)
+      .sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+  }, [animals, selectedCollection]);
+
+
 
   // Categories with counts
   const categoryData = useMemo(() => {
@@ -249,6 +290,10 @@ const BestiairePage = () => {
     );
   }, [deptSearch]);
 
+  const filteredCollectionOptions = useMemo(() => {
+    const q = normalizeSearch(collectionSearch);
+    return availableCollections.filter((e) => !q || normalizeSearch(e.group.label).includes(q));
+  }, [availableCollections, collectionSearch]);
 
 
   // Single source of truth for "how many captures": the raw approved captures list.
@@ -267,7 +312,7 @@ const BestiairePage = () => {
       <SheetContent side="bottom" className="h-[85vh] p-0 flex flex-col">
         <SheetHeader className="px-5 py-4 border-b border-border">
           <div className="flex items-center gap-2">
-            {pickerMode === 'explore' && (
+            {pickerMode !== 'hub' && (
               <button
                 onClick={() => setPickerMode('hub')}
                 className="p-1 -ml-1 rounded-full hover:bg-muted transition"
@@ -277,7 +322,11 @@ const BestiairePage = () => {
               </button>
             )}
             <SheetTitle className="font-display">
-              {pickerMode === 'hub' ? 'Ajouter un territoire' : 'Explorer une zone'}
+              {pickerMode === 'hub'
+                ? 'Ajouter à ma collection'
+                : pickerMode === 'species'
+                ? "Collections d'espèces"
+                : 'Explorer une zone'}
             </SheetTitle>
           </div>
         </SheetHeader>
@@ -285,8 +334,9 @@ const BestiairePage = () => {
         {pickerMode === 'hub' && (
           <div className="flex-1 overflow-y-auto px-5 py-5 space-y-3">
             <p className="text-xs text-muted-foreground font-display leading-relaxed">
-              Suis la faune locale là où tu vis, ou prépare ta prochaine sortie nature.
+              Ajoute une zone à suivre, ou une collection d'espèces à compléter (races de chien, papillons, rapaces…).
             </p>
+
 
             <button
               onClick={handleDetectHome}
@@ -334,11 +384,84 @@ const BestiairePage = () => {
               </div>
             </button>
 
+            <button
+              onClick={() => { setPickerMode('species'); setCollectionSearch(''); }}
+              className="w-full rounded-2xl border border-border bg-card p-5 text-left transition active:scale-[0.98] hover:border-primary/30"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center shrink-0">
+                  <Layers className="w-6 h-6 text-foreground" strokeWidth={2} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-display font-bold text-base text-foreground">Collection d'espèces</h3>
+                  <p className="text-[11px] text-muted-foreground font-display leading-relaxed mt-0.5">
+                    Races de chien, races de chat, papillons, rapaces, serpents… choisis ce que tu veux compléter.
+                  </p>
+                </div>
+              </div>
+            </button>
+
             <p className="text-[10px] text-muted-foreground font-display text-center pt-2">
-              Tu peux ajouter plusieurs territoires et changer ton « Chez moi » à tout moment.
+              Tu peux suivre plusieurs zones et collections, et changer ton « Chez moi » à tout moment.
             </p>
           </div>
         )}
+
+        {pickerMode === 'species' && (
+          <>
+            <div className="px-5 pt-3">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  value={collectionSearch}
+                  onChange={(e) => setCollectionSearch(e.target.value)}
+                  placeholder="Rechercher une collection…"
+                  className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-card border border-border text-sm font-display placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
+                />
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto px-2 py-2">
+              {filteredCollectionOptions.length === 0 ? (
+                <p className="text-center text-xs font-display text-muted-foreground py-8">Aucune collection trouvée.</p>
+              ) : (
+                filteredCollectionOptions.map(({ group, total, captured }) => {
+                  const already = collectionKeys.includes(group.key);
+                  return (
+                    <button
+                      key={group.key}
+                      onClick={() => {
+                        if (already) {
+                          removeCollection(group.key);
+                        } else {
+                          addCollection(group.key);
+                          setShowDeptPicker(false);
+                          setPickerMode('hub');
+                          setViewMode('collections');
+                        }
+                      }}
+                      className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-muted transition text-left"
+                    >
+                      <span className="text-xl shrink-0">{group.emoji}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-display font-semibold text-foreground truncate">{group.label}</p>
+                        <p className="text-[11px] text-muted-foreground font-display">
+                          {captured}/{total} capturés
+                        </p>
+                      </div>
+                      {already ? (
+                        <span className="text-[10px] font-display text-primary">Ajoutée</span>
+                      ) : (
+                        <Plus className="w-4 h-4 text-primary" />
+                      )}
+                    </button>
+                  );
+                })
+              )}
+            </div>
+          </>
+        )}
+
 
         {pickerMode === 'explore' && (
           <>
@@ -576,6 +699,95 @@ const BestiairePage = () => {
     );
   }
 
+  // Species collection detail view (races de chien, papillons…)
+  if (selectedCollection) {
+    return (
+      <main className="min-h-screen bg-background pb-24">
+        <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
+          <div className="max-w-lg mx-auto">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setSelectedCollectionKey(null)}
+                className="p-1.5 rounded-full hover:bg-muted transition-colors"
+              >
+                <ChevronLeft className="w-5 h-5 text-foreground" />
+              </button>
+              <div className="flex-1 min-w-0 flex items-center gap-2">
+                <span className="text-lg shrink-0">{selectedCollection.group.emoji}</span>
+                <div className="min-w-0">
+                  <h1 className="text-lg font-display font-bold text-foreground truncate">{selectedCollection.group.label}</h1>
+                  <p className="text-[11px] text-muted-foreground font-display">
+                    {selectedCollection.captured}/{selectedCollection.total} capturés
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => { removeCollection(selectedCollection.group.key); setSelectedCollectionKey(null); }}
+                className="p-2 rounded-full hover:bg-destructive/10 text-destructive transition"
+                aria-label="Retirer la collection"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </PageHeader>
+
+        <div className="max-w-lg mx-auto px-3 pt-3">
+          <div className="grid grid-cols-4 gap-1.5">
+            {collectionAnimals.map((animal, index) => (
+              <div
+                key={animal.name}
+                onClick={() => {
+                  if (animal.captured && animal.captureData) {
+                    setSelectedCard(animal.captureData);
+                  } else {
+                    setSelectedCard({
+                      id: `uncaptured-${animal.name}`,
+                      name: animal.name,
+                      scientificName: animal.scientific_name || '',
+                      image: '',
+                      rarity: animal.rarity as Rarity,
+                      category: animal.category,
+                      description: '', habitat: '', diet: '', conservation: '', funFact: '',
+                      discoveredAt: '', location: '',
+                    });
+                  }
+                }}
+                className={`relative aspect-[3/4] rounded-xl border-2 overflow-hidden transition-all cursor-pointer active:scale-[0.96] ${
+                  animal.captured
+                    ? `${rarityBorderColor[animal.rarity] || 'border-border'} bg-card`
+                    : 'border-border/40 bg-muted/30'
+                }`}
+              >
+                {animal.captured && animal.captureData ? (
+                  <div className="w-full h-full flex flex-col">
+                    <div className="flex-1 overflow-hidden relative">
+                      <img src={animal.captureData.image} alt={animal.name} className="w-full h-full object-cover" loading="lazy" />
+                      <div className={`absolute top-1.5 right-1.5 w-2 h-2 rounded-full ${rarityDot[animal.rarity] || 'bg-muted-foreground'}`} />
+                    </div>
+                    <div className="px-1.5 py-1 bg-card">
+                      <p className="text-[9px] font-display font-bold text-foreground truncate leading-tight">{animal.name}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center gap-1">
+                    <span className="text-lg font-display font-bold text-muted-foreground">
+                      {String(index + 1).padStart(3, '0')}
+                    </span>
+                    <div className={`w-1.5 h-1.5 rounded-full ${rarityDot[animal.rarity] || 'bg-muted-foreground'} opacity-30`} />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
+        {deptPickerSheet}
+      </main>
+    );
+  }
+
   // Category grid view
   if (!selectedCategory) {
     return (
@@ -630,17 +842,17 @@ const BestiairePage = () => {
                 Catégories
               </button>
               <button
-                onClick={() => setViewMode('territory')}
+                onClick={() => setViewMode('collections')}
                 className={`flex-1 text-xs font-display font-semibold py-2 rounded-full transition-all ${
-                  viewMode === 'territory'
+                  viewMode === 'collections'
                     ? 'bg-background text-foreground shadow-sm'
                     : 'text-muted-foreground'
                 }`}
               >
-                Territoires
+                Collections
               </button>
             </div>
-            {viewMode !== 'territory' && (
+            {viewMode !== 'collections' && (
               <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1">
                 {(['all', 'common', 'rare', 'epic', 'mythic'] as const).map((r) => {
                   const active = rarityFilter === r;
@@ -876,10 +1088,10 @@ const BestiairePage = () => {
             </section>
           )}
 
-          {viewMode === 'territory' && (
-            <section>
+          {viewMode === 'collections' && (
+            <section className="space-y-6">
               <div className="flex items-center justify-between mb-3">
-                <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Mes territoires</h2>
+                <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Mes zones</h2>
                 <button
                   onClick={() => { setPickerMode('hub'); setShowDeptPicker(true); }}
                   className="flex items-center gap-1 text-xs font-display font-semibold text-primary px-2 py-1 rounded-lg hover:bg-primary/10 transition"
@@ -964,6 +1176,55 @@ const BestiairePage = () => {
                   })}
                 </div>
               )}
+
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Mes collections d'espèces</h2>
+                  <button
+                    onClick={() => { setPickerMode('species'); setCollectionSearch(''); setShowDeptPicker(true); }}
+                    className="flex items-center gap-1 text-xs font-display font-semibold text-primary px-2 py-1 rounded-lg hover:bg-primary/10 transition"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    Ajouter
+                  </button>
+                </div>
+                {myCollections.length === 0 ? (
+                  <button
+                    onClick={() => { setPickerMode('species'); setCollectionSearch(''); setShowDeptPicker(true); }}
+                    className="w-full rounded-2xl border border-dashed border-border p-5 text-center transition active:scale-[0.98] hover:border-primary/40"
+                  >
+                    <div className="inline-flex w-11 h-11 rounded-2xl bg-muted items-center justify-center mb-2">
+                      <Layers className="w-5 h-5 text-foreground" strokeWidth={2} />
+                    </div>
+                    <h3 className="font-display font-bold text-sm text-foreground">Choisis une collection</h3>
+                    <p className="text-[11px] text-muted-foreground font-display leading-relaxed mt-0.5 px-2">
+                      Races de chien, races de chat, papillons, rapaces… complète des séries thématiques.
+                    </p>
+                  </button>
+                ) : (
+                  <div className="grid grid-cols-2 gap-3">
+                    {myCollections.map(({ group, total, captured }) => {
+                      const pct = total > 0 ? Math.round((captured / total) * 100) : 0;
+                      return (
+                        <button
+                          key={group.key}
+                          onClick={() => setSelectedCollectionKey(group.key)}
+                          className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-md"
+                        >
+                          <div className="text-xl mb-2">{group.emoji}</div>
+                          <h3 className="font-display font-bold text-sm text-foreground leading-tight mb-1 truncate">{group.label}</h3>
+                          <p className="text-[11px] text-muted-foreground font-display mb-3">
+                            {captured}/{total} capturés
+                          </p>
+                          <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
+                            <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${pct}%` }} />
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </section>
           )}
 
