@@ -1615,7 +1615,6 @@ export type Database = {
         | "Échinodermes"
         | "Cnidaires"
         | "Autres invertébrés"
-        | "Autre (non animal)"
       taxon_rank: "group" | "species" | "subspecies" | "breed"
       taxon_scope: "france" | "monde"
       taxon_status: "validated" | "pending" | "deprecated"
@@ -1760,7 +1759,6 @@ export const Constants = {
         "Échinodermes",
         "Cnidaires",
         "Autres invertébrés",
-        "Autre (non animal)",
       ],
       taxon_rank: ["group", "species", "subspecies", "breed"],
       taxon_scope: ["france", "monde"],
