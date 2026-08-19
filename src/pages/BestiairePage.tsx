@@ -29,7 +29,7 @@ const BestiairePage = () => {
   const navigate = useNavigate();
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'mine' | 'categories' | 'territory'>('mine');
+  const [viewMode, setViewMode] = useState<'mine' | 'categories' | 'collections' | 'territory'>('mine');
   const [rarityFilter, setRarityFilter] = useState<Rarity | 'all'>('all');
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
