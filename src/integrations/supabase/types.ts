@@ -1211,6 +1211,7 @@ export type Database = {
           merged_into: string | null
           notes: string | null
           parent_id: string | null
+          progress_taxon_id: string | null
           rank: Database["public"]["Enums"]["taxon_rank"]
           rarity: string
           scientific_name: string | null
@@ -1230,6 +1231,7 @@ export type Database = {
           merged_into?: string | null
           notes?: string | null
           parent_id?: string | null
+          progress_taxon_id?: string | null
           rank: Database["public"]["Enums"]["taxon_rank"]
           rarity?: string
           scientific_name?: string | null
@@ -1249,6 +1251,7 @@ export type Database = {
           merged_into?: string | null
           notes?: string | null
           parent_id?: string | null
+          progress_taxon_id?: string | null
           rank?: Database["public"]["Enums"]["taxon_rank"]
           rarity?: string
           scientific_name?: string | null
@@ -1269,6 +1272,13 @@ export type Database = {
           {
             foreignKeyName: "taxa_parent_id_fkey"
             columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "taxa"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "taxa_progress_taxon_id_fkey"
+            columns: ["progress_taxon_id"]
             isOneToOne: false
             referencedRelation: "taxa"
             referencedColumns: ["id"]
@@ -1450,6 +1460,26 @@ export type Database = {
       }
     }
     Views: {
+      bestiary_catalogue: {
+        Row: {
+          category: string | null
+          is_breed: boolean | null
+          name: string | null
+          progress_name: string | null
+          rarity: string | null
+          scientific_name: string | null
+          taxon_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "animals_taxon_id_fkey"
+            columns: ["taxon_id"]
+            isOneToOne: false
+            referencedRelation: "taxa"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ml_dataset_captures: {
         Row: {
           animal_id: string | null
@@ -1705,6 +1735,7 @@ export type Database = {
         Returns: number
       }
       normalize_animal_label: { Args: { p_label: string }; Returns: string }
+      progress_taxon: { Args: { p_taxon_id: string }; Returns: string }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
         Returns: {

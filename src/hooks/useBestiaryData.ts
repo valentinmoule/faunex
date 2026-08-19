@@ -45,8 +45,8 @@ export const useBestiaryData = (userId: string | undefined) => {
       const pageSize = 1000;
       while (true) {
         const { data } = await supabase
-          .from('animals')
-          .select('name, scientific_name, rarity, category')
+          .from('bestiary_catalogue')
+          .select('name, scientific_name, rarity, category, is_breed, progress_name')
           .order('name')
           .range(page * pageSize, (page + 1) * pageSize - 1);
         if (!data || data.length === 0) break;
@@ -54,6 +54,15 @@ export const useBestiaryData = (userId: string | undefined) => {
         if (data.length < pageSize) break;
         page++;
       }
+
+      // Races/variétés : elles ne sont plus des espèces de la progression générale,
+      // elles font découvrir leur espèce générique (Chat Norvégien -> Chat domestique).
+      const progressByName = new Map<string, string>();
+      allAnimals.forEach((a: any) => {
+        if (a.is_breed && a.progress_name) {
+          progressByName.set((a.name || '').toLowerCase(), a.progress_name);
+        }
+      });
 
       const { data: userCaptures } = await supabase
         .from('captures')
@@ -96,20 +105,27 @@ export const useBestiaryData = (userId: string | undefined) => {
 
       const capturesByName = new Map<string, any>();
       (userCaptures || []).forEach((c) => {
-        capturesByName.set(c.animal_name.toLowerCase(), c);
+        const raw = (c.animal_name || '').toLowerCase();
+        // La capture compte pour l'espèce générique quand il s'agit d'une race.
+        const key = (progressByName.get(raw) || c.animal_name).toLowerCase();
+        if (!capturesByName.has(key)) capturesByName.set(key, c);
       });
 
-      const list: BestiaryAnimal[] = allAnimals.map((a: any) => {
-        const capture = capturesByName.get(a.name.toLowerCase());
-        return {
-          name: a.name,
-          scientific_name: a.scientific_name,
-          rarity: a.rarity,
-          category: a.category,
-          captured: !!capture,
-          captureData: capture ? toCard(capture) : undefined,
-        };
-      });
+      const list: BestiaryAnimal[] = allAnimals
+        // Les races restent collectionnables uniquement via les collections spécialisées.
+        .filter((a: any) => !a.is_breed)
+        .map((a: any) => {
+          const capture = capturesByName.get(a.name.toLowerCase());
+          return {
+            name: a.name,
+            scientific_name: a.scientific_name,
+            rarity: a.rarity,
+            category: a.category,
+            captured: !!capture,
+            captureData: capture ? toCard(capture) : undefined,
+          };
+        });
+
 
       list.sort((a, b) => a.name.localeCompare(b.name, 'fr'));
 
