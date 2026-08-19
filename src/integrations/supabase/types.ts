@@ -61,6 +61,27 @@ export type Database = {
         }
         Relationships: []
       }
+      animal_merge_map: {
+        Row: {
+          created_at: string
+          mode: string
+          new_name: string
+          old_name: string
+        }
+        Insert: {
+          created_at?: string
+          mode?: string
+          new_name: string
+          old_name: string
+        }
+        Update: {
+          created_at?: string
+          mode?: string
+          new_name?: string
+          old_name?: string
+        }
+        Relationships: []
+      }
       animals: {
         Row: {
           category: string
@@ -1570,6 +1591,7 @@ export type Database = {
         Args: { p_category: string; p_name?: string; p_scientific?: string }
         Returns: string
       }
+      canonical_animal_name: { Args: { p_name: string }; Returns: string }
       captures_remaining_today: { Args: never; Returns: number }
       claim_badge: {
         Args: { p_badge_id: string; p_xp_reward: number }
