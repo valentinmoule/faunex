@@ -229,18 +229,40 @@ const MapPage = () => {
 
   const markers = useMemo(
     () =>
-      groups.map((g) => (
-        <Marker
-          key={g.key}
-          position={[g.lead.latitude, g.lead.longitude]}
-          icon={buildIcon(g.lead.rarity, g.lead.category, g.items.length)}
-          eventHandlers={{
-            click: () => (g.items.length === 1 ? openCapture(g.lead) : setGroupItems(g.items)),
-          }}
-        />
-      )),
-    [groups],
+      groups.flatMap((g) => {
+        // Au zoom élevé, on éclate les captures empilées en couronne autour du point
+        if (g.items.length > 1 && zoom >= 13) {
+          const spread = 0.00035 * Math.pow(2, 16 - Math.min(zoom, 16));
+          return g.items.map((c, i) => {
+            const angle = (2 * Math.PI * i) / g.items.length;
+            const lat = c.latitude + spread * Math.cos(angle);
+            const lng =
+              c.longitude +
+              (spread * Math.sin(angle)) / Math.max(0.2, Math.cos((c.latitude * Math.PI) / 180));
+            return (
+              <Marker
+                key={c.id}
+                position={[lat, lng]}
+                icon={buildIcon(c.rarity, c.category, 1)}
+                eventHandlers={{ click: () => openCapture(c) }}
+              />
+            );
+          });
+        }
+        return [
+          <Marker
+            key={g.key}
+            position={[g.lead.latitude, g.lead.longitude]}
+            icon={buildIcon(g.lead.rarity, g.lead.category, g.items.length)}
+            eventHandlers={{
+              click: () => (g.items.length === 1 ? openCapture(g.lead) : setGroupItems(g.items)),
+            }}
+          />,
+        ];
+      }),
+    [groups, zoom],
   );
+
 
 
   const localizedSpeciesCount = useMemo(
