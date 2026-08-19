@@ -34,7 +34,7 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [followersCount, setFollowersCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
-  const [badges, setBadges] = useState<BadgeProgress[]>([]);
+  const [showXpParticles, setShowXpParticles] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
   const [refreshKey, setRefreshKey] = useState(0);
