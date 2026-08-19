@@ -52,7 +52,12 @@ const BestiairePage = () => {
   const [speciesSearch, setSpeciesSearch] = useState('');
   const [mineSearch, setMineSearch] = useState('');
 
-
+  // Scroll to top when entering a category detail view
+  useEffect(() => {
+    if (selectedCategory) {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    }
+  }, [selectedCategory]);
 
   const {
     animals,
