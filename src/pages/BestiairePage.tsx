@@ -23,6 +23,7 @@ import { useBestiaryData } from '@/hooks/useBestiaryData';
 import { useCitySearch } from '@/hooks/useCitySearch';
 import { useShelveAnimation } from '@/hooks/useShelveAnimation';
 import { useZoneSubscriptions } from '@/hooks/useZoneSubscriptions';
+import CategoryLeaderboard from '@/components/CategoryLeaderboard';
 
 
 const BestiairePage = () => {
