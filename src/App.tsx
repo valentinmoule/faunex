@@ -42,7 +42,6 @@ const PricingPage = lazy(() => import("./pages/PricingPage"));
 const RefundPolicyPage = lazy(() => import("./pages/RefundPolicyPage"));
 const LandingPage = SHOW_MARKETING_PAGES ? lazy(() => import("./pages/LandingPage")) : null;
 const CompleteProfilePage = lazy(() => import("./pages/CompleteProfilePage"));
-const UnsubscribePage = lazy(() => import("./pages/UnsubscribePage"));
 const ContentIndexPage = SHOW_MARKETING_PAGES ? lazy(() => import("./pages/ContentIndexPage")) : null;
 const ArticlePage = SHOW_MARKETING_PAGES ? lazy(() => import("./pages/ArticlePage")) : null;
 
@@ -117,7 +116,6 @@ const AppRoutes = () => {
     location.pathname === '/legal' ||
     location.pathname === '/tarifs' ||
     location.pathname === '/remboursement' ||
-    location.pathname === '/unsubscribe' ||
     location.pathname.startsWith('/guides') ||
     location.pathname.startsWith('/fonctionnalites') ||
     location.pathname.startsWith('/u/');
@@ -159,7 +157,6 @@ const AppRoutes = () => {
           <Route path="/tarifs" element={<PricingPage />} />
           <Route path="/remboursement" element={<RefundPolicyPage />} />
           <Route path="/u/:username" element={<ShareProfilePage />} />
-          <Route path="/unsubscribe" element={<UnsubscribePage />} />
           {SHOW_MARKETING_PAGES && ContentIndexPage && ArticlePage && (
             <>
               <Route path="/guides" element={<ContentIndexPage type="guide" />} />
