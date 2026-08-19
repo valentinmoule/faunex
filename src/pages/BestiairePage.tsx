@@ -407,64 +407,96 @@ const BestiairePage = () => {
 
         {pickerMode === 'species' && (
           <>
-            <div className="px-5 pt-3">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  value={collectionSearch}
-                  onChange={(e) => setCollectionSearch(e.target.value)}
-                  placeholder="Rechercher une collection…"
-                  className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-card border border-border text-sm font-display placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
-                />
+            {!isPremium && slotsUsed >= FREE_SLOT_LIMIT ? (
+              <div className="flex-1 flex flex-col items-center justify-center px-8 text-center space-y-5">
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Crown className="w-8 h-8 text-primary" strokeWidth={2} />
+                </div>
+                <div className="space-y-2">
+                  <h3 className="font-display font-bold text-lg text-foreground">Limite atteinte</h3>
+                  <p className="text-sm text-muted-foreground font-display leading-relaxed">
+                    Tu peux suivre jusqu’à <strong className="text-foreground">{FREE_SLOT_LIMIT}</strong> zones ou collections avec un compte gratuit.
+                    Passe à Premium pour ajouter autant de collections que tu veux.
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowDeptPicker(false);
+                    navigate('/premium');
+                  }}
+                  className="w-full max-w-xs rounded-2xl bg-primary text-primary-foreground py-3.5 font-display font-semibold text-sm active:scale-[0.98] transition"
+                >
+                  Passer à Premium
+                </button>
+                <button
+                  onClick={() => setShowDeptPicker(false)}
+                  className="text-xs font-display text-muted-foreground underline"
+                >
+                  Plus tard
+                </button>
               </div>
-            </div>
-            <div className="flex-1 overflow-y-auto px-2 py-2">
-              {filteredCollectionOptions.length === 0 ? (
-                <p className="text-center text-xs font-display text-muted-foreground py-8">Aucune collection trouvée.</p>
-              ) : (
-                filteredCollectionOptions.map(({ group, total, captured }) => {
-                  const already = collectionKeys.includes(group.key);
-                  return (
-                    <button
-                      key={group.key}
-                      disabled={already}
-                      onClick={
-                        already
-                          ? undefined
-                          : () => {
-                              if (!guardSlot()) return;
-                              addCollection(group.key);
-                              setShowDeptPicker(false);
-                              setPickerMode('hub');
-                              setViewMode('collections');
-                            }
-                      }
-                      className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-left transition ${
-                        already
-                          ? 'bg-muted/40 text-muted-foreground cursor-not-allowed'
-                          : 'hover:bg-muted text-foreground'
-                      }`}
-                    >
-                      <span className={`text-xl shrink-0 ${already ? 'opacity-50' : ''}`}>{group.emoji}</span>
-                      <div className="flex-1 min-w-0">
-                        <p className={`text-sm font-display font-semibold truncate ${already ? 'text-muted-foreground' : 'text-foreground'}`}>
-                          {group.label}
-                        </p>
-                        <p className="text-[11px] text-muted-foreground font-display">
-                          {captured}/{total} capturés
-                        </p>
-                      </div>
-                      {already ? (
-                        <span className="text-[10px] font-display text-muted-foreground">Ajoutée</span>
-                      ) : (
-                        <Plus className="w-4 h-4 text-primary" />
-                      )}
-                    </button>
-                  );
-                })
-              )}
-            </div>
+            ) : (
+              <>
+                <div className="px-5 pt-3">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <input
+                      type="text"
+                      value={collectionSearch}
+                      onChange={(e) => setCollectionSearch(e.target.value)}
+                      placeholder="Rechercher une collection…"
+                      className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-card border border-border text-sm font-display placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
+                    />
+                  </div>
+                </div>
+                <div className="flex-1 overflow-y-auto px-2 py-2">
+                  {filteredCollectionOptions.length === 0 ? (
+                    <p className="text-center text-xs font-display text-muted-foreground py-8">Aucune collection trouvée.</p>
+                  ) : (
+                    filteredCollectionOptions.map(({ group, total, captured }) => {
+                      const already = collectionKeys.includes(group.key);
+                      return (
+                        <button
+                          key={group.key}
+                          disabled={already}
+                          onClick={
+                            already
+                              ? undefined
+                              : () => {
+                                  if (!guardSlot()) return;
+                                  addCollection(group.key);
+                                  setShowDeptPicker(false);
+                                  setPickerMode('hub');
+                                  setViewMode('collections');
+                                }
+                          }
+                          className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-left transition ${
+                            already
+                              ? 'bg-muted/40 text-muted-foreground cursor-not-allowed'
+                              : 'hover:bg-muted text-foreground'
+                          }`}
+                        >
+                          <span className={`text-xl shrink-0 ${already ? 'opacity-50' : ''}`}>{group.emoji}</span>
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-sm font-display font-semibold truncate ${already ? 'text-muted-foreground' : 'text-foreground'}`}>
+                              {group.label}
+                            </p>
+                            <p className="text-[11px] text-muted-foreground font-display">
+                              {captured}/{total} capturés
+                            </p>
+                          </div>
+                          {already ? (
+                            <span className="text-[10px] font-display text-muted-foreground">Ajoutée</span>
+                          ) : (
+                            <Plus className="w-4 h-4 text-primary" />
+                          )}
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
+              </>
+            )}
           </>
         )}
 
