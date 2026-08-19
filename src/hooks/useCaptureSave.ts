@@ -129,27 +129,41 @@ export const useCaptureSave = ({ userId, photo, geo }: SaveContext) => {
       try {
         const imageUrl = await uploadImage();
         if (!imageUrl) return false;
-        const { error } = await supabase.from('captures').insert({
-          user_id: userId,
-          image_url: imageUrl,
-          animal_name: entry.name,
-          scientific_name: entry.species || null,
-          category: null,
-          description: entry.description,
-          habitat: null,
-          diet: null,
-          conservation: null,
-          fun_fact: null,
-          rarity: 'common',
-          shared: defaultShare,
-          caption: null,
-          location: geo.name || null,
-          latitude: geo.coords?.lat || null,
-          longitude: geo.coords?.lng || null,
-          status: 'pending_review',
-        });
+        const { data: inserted, error } = await supabase
+          .from('captures')
+          .insert({
+            user_id: userId,
+            image_url: imageUrl,
+            animal_name: entry.name,
+            scientific_name: entry.species || null,
+            category: null,
+            description: entry.description,
+            habitat: null,
+            diet: null,
+            conservation: null,
+            fun_fact: null,
+            rarity: 'common',
+            shared: defaultShare,
+            caption: null,
+            location: geo.name || null,
+            latitude: geo.coords?.lat || null,
+            longitude: geo.coords?.lng || null,
+            status: 'pending_review',
+          })
+          .select('id')
+          .single();
         if (error) throw error;
+        // Pré-modération automatique : si l'IA confirme le nom sans ambiguïté,
+        // la capture est validée immédiatement, sinon elle reste en modération.
+        if (inserted?.id) {
+          supabase.functions
+            .invoke('auto-moderate-capture', { body: { capture_id: inserted.id } })
+            .then(({ error: autoError }) => {
+              if (autoError) console.error('auto-moderate-capture failed', autoError);
+            });
+        }
         return true;
+
       } finally {
         setSaving(false);
       }

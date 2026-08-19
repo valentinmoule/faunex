@@ -75,6 +75,9 @@ const ModerationPage = () => {
   const [processing, setProcessing] = useState<string | null>(null);
   const [preview, setPreview] = useState<{ capture: PendingCapture; animal: EnrichedAnimal } | null>(null);
   const [confirming, setConfirming] = useState(false);
+  /** Pré-modération IA en cours sur la file d'attente. */
+  const [autoRunning, setAutoRunning] = useState(false);
+
   /** Diagnostic d'échec de la prévisualisation, par capture. */
   const [failures, setFailures] = useState<Record<string, PrepareFailure>>({});
   /** Nom d'animal proposé par le modérateur, par capture. */
@@ -294,6 +297,26 @@ const ModerationPage = () => {
 
 
 
+  /** Passe la file d'attente à l'IA : elle valide seule les cas évidents. */
+  const runAutoModeration = async () => {
+    setAutoRunning(true);
+    const { data, error } = await supabase.functions.invoke('auto-moderate-capture', {
+      body: { batch: true, limit: 25 },
+    });
+    setAutoRunning(false);
+    if (error) {
+      toast.error("La pré-modération automatique n'a pas pu s'exécuter");
+      return;
+    }
+    const approved = (data as any)?.approved ?? 0;
+    toast.success(
+      approved > 0
+        ? `${approved} capture${approved > 1 ? 's' : ''} validée${approved > 1 ? 's' : ''} automatiquement`
+        : 'Aucune capture assez évidente : inspection manuelle nécessaire'
+    );
+    fetchPending();
+  };
+
   const timeAgo = (date: string) => {
     const diff = Date.now() - new Date(date).getTime();
     const mins = Math.floor(diff / 60000);
@@ -314,8 +337,17 @@ const ModerationPage = () => {
             <h1 className="text-xl font-display font-bold text-foreground">Backoffice</h1>
             <p className="text-xs text-muted-foreground">{captures.length} en attente</p>
           </div>
+          <button
+            onClick={runAutoModeration}
+            disabled={autoRunning || captures.length === 0}
+            className="flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-xs font-display font-bold text-primary-foreground disabled:opacity-50"
+          >
+            {autoRunning ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+            Auto-valider
+          </button>
         </div>
       </PageHeader>
+
 
       <div className="max-w-3xl mx-auto px-4 pt-4">
         <Tabs defaultValue="moderation" className="w-full">
