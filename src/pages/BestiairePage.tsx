@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { PageHeader } from '@/components/PageHeader';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Bell, ChevronLeft, PawPrint, MapPin, Plus, Search, Trash2, X, Building2, Map as MapIcon, Home, Compass, Layers, Loader2 } from 'lucide-react';
+import { Bell, ChevronLeft, PawPrint, MapPin, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2 } from 'lucide-react';
 import { type Rarity, type AnimalCard, RARITY_LABELS } from '@/data/mockData';
 import { useAuth } from '@/contexts/AuthContext';
 import CardDetailSheet from '@/components/CardDetailSheet';
@@ -106,12 +106,9 @@ const BestiairePage = () => {
 
   const {
     loadingDept,
-    detectingHome,
     addDepartment: handleAddDept,
     addCity: handleAddCity,
     removeZone,
-    setAsHome: handleSetAsHome,
-    detectHome: handleDetectHome,
   } = useZoneSubscriptions({
     userId: session?.user?.id,
     animals,
@@ -317,8 +314,6 @@ const BestiairePage = () => {
 
   // Single source of truth for "how many captures": the raw approved captures list.
 
-  const hasHomeZone = subscribedZones.some((z) => z.isHome);
-
   // Zone picker sheet — hub with presets + explore mode
   const deptPickerSheet = (
     <Sheet
@@ -356,28 +351,6 @@ const BestiairePage = () => {
               Ajoute une zone à suivre, ou une collection d'espèces à compléter (races de chien, papillons, rapaces…).
             </p>
 
-
-            <button
-              onClick={handleDetectHome}
-              disabled={detectingHome}
-              className="w-full rounded-2xl border border-border bg-card p-5 text-left transition active:scale-[0.98] hover:border-primary/30 disabled:opacity-60"
-            >
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center shrink-0">
-                  {detectingHome ? (
-                    <Loader2 className="w-6 h-6 text-primary animate-spin" />
-                  ) : (
-                    <Home className="w-6 h-6 text-foreground" strokeWidth={2} />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-display font-bold text-base text-foreground">Ma position</h3>
-                  <p className="text-[11px] text-muted-foreground font-display leading-relaxed mt-0.5">
-                    Détecte ta commune et ajoute-la à tes zones suivies.
-                  </p>
-                </div>
-              </div>
-            </button>
 
             <button
               onClick={() => { setPickerMode('explore'); setPickerTab('city'); }}
@@ -608,7 +581,7 @@ const BestiairePage = () => {
     const subtitle = isCity
       ? `${selectedZone.cityPostcode || ''}${dept ? ` · ${dept.name}` : ''} · ${prog.captured}/${prog.total} capturés`
       : `${prog.captured}/${prog.total} capturés`;
-    const HeaderIcon = selectedZone.isHome ? Home : (isCity ? Building2 : MapPin);
+    const HeaderIcon = isCity ? Building2 : MapPin;
     return (
       <main className="min-h-screen bg-background pb-24">
         <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
@@ -625,25 +598,10 @@ const BestiairePage = () => {
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5">
                     <h1 className="text-lg font-display font-bold text-foreground truncate">{title}</h1>
-                    {selectedZone.isHome && (
-                      <span className="text-[9px] font-display font-bold uppercase tracking-wide text-primary bg-primary/15 px-1.5 py-0.5 rounded-full shrink-0">
-                        Chez moi
-                      </span>
-                    )}
                   </div>
                   <p className="text-[11px] text-muted-foreground font-display truncate">{subtitle}</p>
                 </div>
               </div>
-              {!selectedZone.isHome && (
-                <button
-                  onClick={() => handleSetAsHome(selectedZone.id)}
-                  className="p-2 rounded-full hover:bg-primary/10 text-primary transition"
-                  aria-label="Définir comme Chez moi"
-                  title="Définir comme Chez moi"
-                >
-                  <Home className="w-4 h-4" strokeWidth={2} />
-                </button>
-              )}
               <button
                 onClick={() => handleRemoveZone(selectedZone.id)}
                 className="p-2 rounded-full hover:bg-destructive/10 text-destructive transition"
