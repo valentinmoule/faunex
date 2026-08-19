@@ -18,11 +18,12 @@ import {
   rarityDot,
   type ZoneSub,
 } from '@/lib/bestiary';
-import { MIN_BREEDS_PER_GROUP, getBreedGroup, getSpeciesGroup, type BreedGroup } from '@/lib/breedGroups';
+import { MIN_BREEDS_PER_GROUP, BREED_GROUPS, getBreedGroup, getSpeciesGroup, type BreedGroup } from '@/lib/breedGroups';
 import { useBestiaryData } from '@/hooks/useBestiaryData';
 import { useCitySearch } from '@/hooks/useCitySearch';
 import { useShelveAnimation } from '@/hooks/useShelveAnimation';
 import { useZoneSubscriptions } from '@/hooks/useZoneSubscriptions';
+import { useSpeciesCollections } from '@/hooks/useSpeciesCollections';
 import CategoryLeaderboard from '@/components/CategoryLeaderboard';
 
 
