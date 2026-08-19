@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { compressForAI, hashDataUrl } from '@/lib/imageProcessing';
+import { compressForAI, dataUrlBytes, hashDataUrl } from '@/lib/imageProcessing';
 import type { AnimalResult } from '@/types/capture';
 
 type IdentifyOutcome =
@@ -96,6 +96,17 @@ const isFictionalOrExtinct = (animal: { animal_name?: string; scientific_name?: 
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+/** Empêche une analyse de rester bloquée indéfiniment (réseau mobile instable). */
+const withTimeout = <T,>(promise: PromiseLike<T>, ms: number): Promise<T> =>
+  new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error("TIMEOUT: l'analyse a pris trop de temps")), ms);
+    Promise.resolve(promise).then(
+      (v) => { clearTimeout(timer); resolve(v); },
+      (e) => { clearTimeout(timer); reject(e); },
+    );
+  });
+
+
 /**
  * Single source of truth for the AI identification flow.
  * Used identically by the camera shot and the gallery import.
@@ -123,7 +134,13 @@ export const useAnimalIdentification = () => {
     try {
       // 1024px / 0.62 : nécessaire pour les détails fins (points des coccinelles,
       // miroir fessier des cervidés) qui étaient perdus à 640px.
-      const compressedUrl = await compressForAI(dataUrl, 1024, 0.62);
+      let compressedUrl = await compressForAI(dataUrl, 1024, 0.62);
+      // Garde-fou : une photo très détaillée peut rester lourde après le premier
+      // passage. Au-delà de ~1,2 Mo l'upload devient le goulot d'étranglement,
+      // on repasse alors en 820px / 0.55 (toujours suffisant pour l'IA).
+      if (dataUrlBytes(compressedUrl) > 1_200_000) {
+        compressedUrl = await compressForAI(compressedUrl, 820, 0.55);
+      }
       const imageHash = await hashDataUrl(compressedUrl);
 
       const cached = cacheRef.current.get(imageHash);
@@ -134,10 +151,14 @@ export const useAnimalIdentification = () => {
         for (let attempt = 0; attempt < 2; attempt++) {
           setStage(attempt === 0 ? 'analyzing' : 'retrying');
           try {
-            const { data, error } = await supabase.functions.invoke('identify-animal', {
-              body: { imageBase64: compressedUrl },
-            });
+            const { data, error } = await withTimeout(
+              supabase.functions.invoke('identify-animal', {
+                body: { imageBase64: compressedUrl },
+              }),
+              60_000,
+            );
             if (error) throw error;
+
 
             const animal = data?.success ? (data.animal as AnimalResult | undefined) : undefined;
 
@@ -161,11 +182,14 @@ export const useAnimalIdentification = () => {
         }
 
         const raw = JSON.stringify((lastError as any)?.message ?? lastError ?? '');
-        const message = raw.includes('429')
-          ? "L'IA est surchargée, réessaie dans quelques secondes."
-          : raw.includes('402')
-            ? "Le service d'identification est momentanément indisponible."
-            : "L'analyse a échoué (connexion ou serveur). Réessaie.";
+        const message = raw.includes('TIMEOUT')
+          ? "L'analyse a été trop longue (connexion lente). Réessaie."
+          : raw.includes('429')
+            ? "L'IA est surchargée, réessaie dans quelques secondes."
+            : raw.includes('402')
+              ? "Le service d'identification est momentanément indisponible."
+              : "L'analyse a échoué (connexion ou serveur). Réessaie.";
+
         return { status: 'error', message };
       };
 

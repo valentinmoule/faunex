@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { type Rarity, RARITY_LABELS } from '@/data/mockData';
 import { setPendingShelve } from '@/lib/shelveAnimation';
-import { readFileAsDataUrl } from '@/lib/imageProcessing';
+import { readFileAsDataUrl, prepareSourceImage } from '@/lib/imageProcessing';
 import { useCamera } from '@/hooks/useCamera';
 import { useGeoTag } from '@/hooks/useGeoTag';
 import { useAnimalIdentification } from '@/hooks/useAnimalIdentification';
@@ -80,7 +80,7 @@ const CapturePage = () => {
   } = camera;
 
   /** Shared pipeline for both the camera shot and the gallery import. */
-  const processPhoto = useCallback(async (dataUrl: string) => {
+  const processPhoto = useCallback(async (rawDataUrl: string) => {
     // The daily slot is only consumed when the capture is added to the Faunex.
     if (quota.exhausted) {
       toast.error(`Limite atteinte : ${DAILY_CAPTURE_LIMIT} captures par jour maximum. Reviens demain !`);
@@ -90,6 +90,10 @@ const CapturePage = () => {
     if (identifyingRef.current) return;
     identifyingRef.current = true;
 
+    // Toute photo est normalisée (max 1600px / JPEG 0.82) avant d'être affichée,
+    // analysée ou envoyée au stockage : évite les uploads interminables et les
+    // pics mémoire sur les imports galerie très lourds (12 Mpx / 15 Mo).
+    const dataUrl = await prepareSourceImage(rawDataUrl);
     setCapturedPhoto(dataUrl);
     setAnimalResult(null);
     setSaved(false);

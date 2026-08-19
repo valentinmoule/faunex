@@ -1,25 +1,71 @@
 /** Image helpers shared by the capture flow (camera + gallery import). */
 
-/** Compress an image dataURL to a max dimension and JPEG quality for AI.
- *  Higher resolution + quality => better recognition accuracy, but also
- *  higher token cost and slower uploads. For cost-sensitive vision calls
- *  we default to 640px / 0.5 which keeps recognition high for most animals. */
-export const compressForAI = (dataUrl: string, maxSize = 1600, quality = 0.85): Promise<string> => {
-  return new Promise((resolve) => {
+/** Decode a dataURL into a drawable bitmap/image, preferring the (much faster,
+ *  off-main-thread) createImageBitmap path when available. */
+const decode = async (dataUrl: string): Promise<ImageBitmap | HTMLImageElement> => {
+  if (typeof createImageBitmap === 'function') {
+    try {
+      const blob = await (await fetch(dataUrl)).blob();
+      return await createImageBitmap(blob);
+    } catch {
+      /* fall through to the <img> path */
+    }
+  }
+  return await new Promise((resolve, reject) => {
     const img = new window.Image();
-    img.onload = () => {
-      const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
-      const w = Math.round(img.width * scale);
-      const h = Math.round(img.height * scale);
-      const c = document.createElement('canvas');
-      c.width = w;
-      c.height = h;
-      c.getContext('2d')!.drawImage(img, 0, 0, w, h);
-      resolve(c.toDataURL('image/jpeg', quality));
-    };
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('decode failed'));
     img.src = dataUrl;
   });
 };
+
+/** Approximate byte size of a base64 dataURL. */
+export const dataUrlBytes = (dataUrl: string): number => {
+  const base64 = dataUrl.split(',')[1] ?? '';
+  return Math.floor((base64.length * 3) / 4);
+};
+
+/** Resize + re-encode an image dataURL. Returns the original when it is already
+ *  smaller than the target (no useless re-encode/quality loss). */
+export const resizeDataUrl = async (
+  dataUrl: string,
+  maxSize: number,
+  quality: number,
+): Promise<string> => {
+  try {
+    const img = await decode(dataUrl);
+    const w0 = 'width' in img ? img.width : 0;
+    const h0 = 'height' in img ? img.height : 0;
+    if (!w0 || !h0) return dataUrl;
+    const scale = Math.min(1, maxSize / Math.max(w0, h0));
+    const w = Math.round(w0 * scale);
+    const h = Math.round(h0 * scale);
+    const c = document.createElement('canvas');
+    c.width = w;
+    c.height = h;
+    c.getContext('2d')!.drawImage(img as CanvasImageSource, 0, 0, w, h);
+    if ('close' in img) img.close();
+    const out = c.toDataURL('image/jpeg', quality);
+    // Une image déjà légère ne doit pas être ré-encodée pour rien.
+    return scale === 1 && out.length > dataUrl.length ? dataUrl : out;
+  } catch {
+    return dataUrl;
+  }
+};
+
+/** Normalise the source photo (camera frame or imported file) before it is used
+ *  anywhere in the app: keeps memory, storage upload and preview rendering sane
+ *  even when the user imports a 12 Mpx / 15 MB photo from the gallery.
+ *  1600px / 0.82 stays well above what the AI and the card display need. */
+export const prepareSourceImage = (dataUrl: string): Promise<string> =>
+  resizeDataUrl(dataUrl, 1600, 0.82);
+
+/** Compress an image dataURL to a max dimension and JPEG quality for AI.
+ *  Higher resolution + quality => better recognition accuracy, but also
+ *  higher token cost and slower uploads. */
+export const compressForAI = (dataUrl: string, maxSize = 1024, quality = 0.62): Promise<string> =>
+  resizeDataUrl(dataUrl, maxSize, quality);
+
 
 /** Compute a stable SHA-256 hash of a dataURL so we can cache AI results
  *  for identical images and avoid paying twice for the same photo. */
