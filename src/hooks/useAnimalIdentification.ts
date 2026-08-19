@@ -2,6 +2,7 @@ import { useCallback, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { compressForAI, dataUrlBytes, hashDataUrl } from '@/lib/imageProcessing';
 import type { AnimalResult } from '@/types/capture';
+import { logDatasetEvent, setPendingImageHash } from '@/lib/dataset';
 
 type IdentifyOutcome =
   | { status: 'identified'; animal: AnimalResult }
@@ -143,6 +144,8 @@ export const useAnimalIdentification = () => {
       }
       const imageHash = await hashDataUrl(compressedUrl);
 
+      setPendingImageHash(imageHash);
+
       const cached = cacheRef.current.get(imageHash);
       if (cached) return await cached;
 
@@ -175,6 +178,20 @@ export const useAnimalIdentification = () => {
             ) {
               return { status: 'unknown' };
             }
+            // Dataset : on archive la prédiction brute du modèle (jamais une
+            // vérité terrain) pour pouvoir la comparer plus tard au label retenu.
+            void logDatasetEvent({
+              event_type: 'ai_prediction',
+              source: 'client',
+              image_hash: imageHash,
+              predicted_name: animal.animal_name,
+              predicted_scientific_name: animal.scientific_name ?? null,
+              predicted_category: animal.category ?? null,
+              predicted_rarity: animal.rarity ?? null,
+              confidence: animal.confidence ?? null,
+              alternatives: animal.alternatives ?? null,
+              subject_bbox: animal.subject_bbox ?? null,
+            });
             return { status: 'identified', animal };
           } catch (err) {
             lastError = err;
