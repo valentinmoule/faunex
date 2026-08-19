@@ -371,6 +371,13 @@ export type Database = {
             referencedRelation: "captures"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "feed_comments_capture_id_fkey"
+            columns: ["capture_id"]
+            isOneToOne: false
+            referencedRelation: "ml_dataset_captures"
+            referencedColumns: ["capture_id"]
+          },
         ]
       }
       feed_likes: {
@@ -399,6 +406,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "captures"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feed_likes_capture_id_fkey"
+            columns: ["capture_id"]
+            isOneToOne: false
+            referencedRelation: "ml_dataset_captures"
+            referencedColumns: ["capture_id"]
           },
         ]
       }
@@ -447,6 +461,7 @@ export type Database = {
       ml_dataset_events: {
         Row: {
           alternatives: Json | null
+          animal_id: string | null
           capture_id: string | null
           confidence: number | null
           created_at: string
@@ -478,6 +493,7 @@ export type Database = {
         }
         Insert: {
           alternatives?: Json | null
+          animal_id?: string | null
           capture_id?: string | null
           confidence?: number | null
           created_at?: string
@@ -509,6 +525,7 @@ export type Database = {
         }
         Update: {
           alternatives?: Json | null
+          animal_id?: string | null
           capture_id?: string | null
           confidence?: number | null
           created_at?: string
@@ -540,11 +557,32 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "ml_dataset_events_animal_id_fkey"
+            columns: ["animal_id"]
+            isOneToOne: false
+            referencedRelation: "animals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ml_dataset_events_animal_id_fkey"
+            columns: ["animal_id"]
+            isOneToOne: false
+            referencedRelation: "ml_dataset_captures"
+            referencedColumns: ["animal_id"]
+          },
+          {
             foreignKeyName: "ml_dataset_events_capture_id_fkey"
             columns: ["capture_id"]
             isOneToOne: false
             referencedRelation: "captures"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ml_dataset_events_capture_id_fkey"
+            columns: ["capture_id"]
+            isOneToOne: false
+            referencedRelation: "ml_dataset_captures"
+            referencedColumns: ["capture_id"]
           },
         ]
       }
@@ -586,6 +624,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "captures"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_capture_id_fkey"
+            columns: ["capture_id"]
+            isOneToOne: false
+            referencedRelation: "ml_dataset_captures"
+            referencedColumns: ["capture_id"]
           },
         ]
       }
@@ -882,6 +927,27 @@ export type Database = {
       }
     }
     Views: {
+      ml_dataset_captures: {
+        Row: {
+          animal_id: string | null
+          capture_id: string | null
+          created_at: string | null
+          image_url: string | null
+          label_category: string | null
+          label_name: string | null
+          label_rarity: string | null
+          label_scientific_name: string | null
+          label_status: string | null
+          latitude: number | null
+          location: string | null
+          longitude: number | null
+          subject_bbox: Json | null
+          user_description: string | null
+          user_id: string | null
+          user_note: string | null
+        }
+        Relationships: []
+      }
       ml_dataset_ground_truth: {
         Row: {
           capture_id: string | null
@@ -950,6 +1016,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "captures"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ml_dataset_events_capture_id_fkey"
+            columns: ["capture_id"]
+            isOneToOne: false
+            referencedRelation: "ml_dataset_captures"
+            referencedColumns: ["capture_id"]
           },
         ]
       }
