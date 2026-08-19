@@ -39,3 +39,6 @@ project_id = "pakwuooxumrghsbwczwx"
     verify_jwt = true
   [functions.populate-department-fauna]
     verify_jwt = true
+
+[functions.auth-email-hook]
+verify_jwt = false
