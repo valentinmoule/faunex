@@ -1423,6 +1423,18 @@ export type Database = {
           scientific_name: string
         }[]
       }
+      match_taxon: {
+        Args: { p_name: string; p_scientific?: string }
+        Returns: {
+          collectible: boolean
+          id: string
+          main_category: Database["public"]["Enums"]["main_category"]
+          rank: Database["public"]["Enums"]["taxon_rank"]
+          rarity: string
+          scientific_name: string
+          vernacular_name: string
+        }[]
+      }
       move_to_dlq: {
         Args: {
           dlq_name: string
