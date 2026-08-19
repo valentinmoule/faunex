@@ -93,7 +93,6 @@ const BestiairePage = () => {
   const { collectionKeys, addCollection, removeCollection } = useSpeciesCollections(session?.user?.id);
 
   const slotsUsed = subscribedZones.length + collectionKeys.length;
-  const slotsLocked = !isPremium && slotsUsed >= FREE_SLOT_LIMIT;
 
   const guardSlot = useCallback(() => {
     if (isPremium) return true;
