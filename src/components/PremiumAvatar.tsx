@@ -12,6 +12,7 @@ const sizeClasses = {
   sm: { wrapper: "w-8 h-8", text: "text-[10px]", badge: "w-3.5 h-3.5", icon: "w-2 h-2" },
   md: { wrapper: "w-9 h-9", text: "text-xs", badge: "w-4 h-4", icon: "w-2 h-2" },
   lg: { wrapper: "w-11 h-11", text: "text-sm", badge: "w-5 h-5", icon: "w-2.5 h-2.5" },
+  xl: { wrapper: "w-20 h-20", text: "text-3xl", badge: "w-7 h-7", icon: "w-3.5 h-3.5" },
 };
 
 export function PremiumAvatar({
