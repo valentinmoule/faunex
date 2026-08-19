@@ -96,6 +96,17 @@ const isFictionalOrExtinct = (animal: { animal_name?: string; scientific_name?: 
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+/** Empêche une analyse de rester bloquée indéfiniment (réseau mobile instable). */
+const withTimeout = <T,>(promise: PromiseLike<T>, ms: number): Promise<T> =>
+  new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error("TIMEOUT: l'analyse a pris trop de temps")), ms);
+    Promise.resolve(promise).then(
+      (v) => { clearTimeout(timer); resolve(v); },
+      (e) => { clearTimeout(timer); reject(e); },
+    );
+  });
+
+
 /**
  * Single source of truth for the AI identification flow.
  * Used identically by the camera shot and the gallery import.
