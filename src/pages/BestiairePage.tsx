@@ -428,28 +428,35 @@ const BestiairePage = () => {
                   return (
                     <button
                       key={group.key}
-                      onClick={() => {
-                        if (already) {
-                          removeCollection(group.key);
-                        } else {
-                          if (!guardSlot()) return;
-                          addCollection(group.key);
-                          setShowDeptPicker(false);
-                          setPickerMode('hub');
-                          setViewMode('collections');
-                        }
-                      }}
-                      className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-muted transition text-left"
+                      disabled={already}
+                      onClick={
+                        already
+                          ? undefined
+                          : () => {
+                              if (!guardSlot()) return;
+                              addCollection(group.key);
+                              setShowDeptPicker(false);
+                              setPickerMode('hub');
+                              setViewMode('collections');
+                            }
+                      }
+                      className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-left transition ${
+                        already
+                          ? 'bg-muted/40 text-muted-foreground cursor-not-allowed'
+                          : 'hover:bg-muted text-foreground'
+                      }`}
                     >
-                      <span className="text-xl shrink-0">{group.emoji}</span>
+                      <span className={`text-xl shrink-0 ${already ? 'opacity-50' : ''}`}>{group.emoji}</span>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-display font-semibold text-foreground truncate">{group.label}</p>
+                        <p className={`text-sm font-display font-semibold truncate ${already ? 'text-muted-foreground' : 'text-foreground'}`}>
+                          {group.label}
+                        </p>
                         <p className="text-[11px] text-muted-foreground font-display">
                           {captured}/{total} capturés
                         </p>
                       </div>
                       {already ? (
-                        <span className="text-[10px] font-display text-primary">Ajoutée</span>
+                        <span className="text-[10px] font-display text-muted-foreground">Ajoutée</span>
                       ) : (
                         <Plus className="w-4 h-4 text-primary" />
                       )}
