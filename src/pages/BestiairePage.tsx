@@ -1038,26 +1038,37 @@ const BestiairePage = () => {
         </div>
         {/* Classement des explorateurs de la catégorie */}
         {!activeBreedGroup && selectedCategory && <CategoryLeaderboard category={selectedCategory} />}
-        {/* Sub-level: breed groups (races de chien, de chat…) */}
-        {!activeBreedGroup && breedGroupsInCategory.length > 0 && (
-          <div className="mb-4">
-            <p className="text-[11px] font-display font-bold uppercase tracking-wide text-muted-foreground mb-2">
-              Sous-catégories
-            </p>
-            <div className="grid grid-cols-2 gap-2">
-              {breedGroupsInCategory.map(({ group, total, captured }) => (
-                <button
-                  key={group.key}
-                  onClick={() => setSelectedBreedGroup(group.key)}
-                  className="flex items-center gap-2.5 p-3 rounded-2xl bg-card border border-border hover:border-primary/50 transition-all active:scale-[0.98] text-left"
-                >
-                  <span className="text-xl shrink-0">{group.emoji}</span>
-                  <div className="min-w-0">
-                    <p className="text-[13px] font-display font-bold text-foreground truncate">{group.label}</p>
-                    <p className="text-[11px] text-muted-foreground font-display">{captured}/{total} capturés</p>
-                  </div>
-                </button>
-              ))}
+        {/* Sub-level: breed groups as horizontal chips (races de chien, de chat…) */}
+        {breedGroupsInCategory.length > 0 && (
+          <div className="-mx-3 mb-3 overflow-x-auto no-scrollbar">
+            <div className="flex gap-2 px-3 py-0.5">
+              <button
+                onClick={() => setSelectedBreedGroup(null)}
+                className={`whitespace-nowrap px-4 py-2 rounded-full text-[12px] font-display transition-colors ${
+                  !activeBreedGroup
+                    ? 'bg-primary text-primary-foreground font-bold'
+                    : 'bg-muted text-muted-foreground font-semibold'
+                }`}
+              >
+                Toutes les espèces
+              </button>
+              {breedGroupsInCategory.map(({ group, total, captured }) => {
+                const active = activeBreedGroup?.group.key === group.key;
+                return (
+                  <button
+                    key={group.key}
+                    onClick={() => setSelectedBreedGroup(active ? null : group.key)}
+                    className={`whitespace-nowrap px-4 py-2 rounded-full text-[12px] font-display transition-colors ${
+                      active
+                        ? 'bg-primary text-primary-foreground font-bold'
+                        : 'bg-muted text-muted-foreground font-semibold'
+                    }`}
+                  >
+                    {group.label}
+                    <span className={`ml-1.5 ${active ? 'opacity-80' : 'opacity-60'}`}>{captured}/{total}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
