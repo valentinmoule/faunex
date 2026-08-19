@@ -116,6 +116,15 @@ const BestiairePage = () => {
     setShowDeptPicker(true);
   }, [isPremium, slotsUsed]);
 
+  const openAddSlotModal = useCallback(() => {
+    if (!isPremium && slotsUsed >= FREE_SLOT_LIMIT) {
+      setPickerMode('upsell');
+    } else {
+      setPickerMode('hub');
+    }
+    setShowDeptPicker(true);
+  }, [isPremium, slotsUsed]);
+
   const {
     loadingDept,
     addDepartment: handleAddDept,
