@@ -68,6 +68,13 @@ export const rarityDot: Record<string, string> = {
   mythic: 'bg-rarity-mythic',
 };
 
+export const rarityBadge: Record<string, string> = {
+  common: 'bg-rarity-common text-black',
+  rare: 'bg-rarity-rare text-white',
+  epic: 'bg-rarity-epic text-white',
+  mythic: 'bg-rarity-mythic text-white',
+};
+
 export const normalizeCategory = (cat: string) => cat.replace(/\s*\(monde\)$/i, '');
 
 export const normalizeText = (value: string) =>
