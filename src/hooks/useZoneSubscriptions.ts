@@ -115,7 +115,6 @@ export const useZoneSubscriptions = ({
   const removeZone = useCallback(
     async (zoneId: string) => {
       if (!userId) return;
-      if (!confirm('Supprimer cette rubrique ?')) return;
       await supabase
         .from('user_department_subscriptions')
         .delete()
