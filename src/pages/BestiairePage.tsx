@@ -589,6 +589,16 @@ const BestiairePage = () => {
                 Catégories
               </button>
               <button
+                onClick={() => setViewMode('collections')}
+                className={`flex-1 text-xs font-display font-semibold py-2 rounded-full transition-all ${
+                  viewMode === 'collections'
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground'
+                }`}
+              >
+                Collections
+              </button>
+              <button
                 onClick={() => setViewMode('territory')}
                 className={`flex-1 text-xs font-display font-semibold py-2 rounded-full transition-all ${
                   viewMode === 'territory'
@@ -599,6 +609,7 @@ const BestiairePage = () => {
                 Territoires
               </button>
             </div>
+
             {viewMode !== 'territory' && (
               <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1">
                 {(['all', 'common', 'rare', 'epic', 'mythic'] as const).map((r) => {
