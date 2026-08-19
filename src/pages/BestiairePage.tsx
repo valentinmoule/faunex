@@ -351,6 +351,8 @@ const BestiairePage = () => {
                 ? 'Ajouter à ma collection'
                 : pickerMode === 'species'
                 ? "Collections d'espèces"
+                : pickerMode === 'upsell'
+                ? 'Collections illimitées'
                 : 'Explorer une zone'}
             </SheetTitle>
           </div>
