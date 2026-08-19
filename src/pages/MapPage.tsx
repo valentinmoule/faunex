@@ -209,18 +209,37 @@ const MapPage = () => {
     });
   };
 
+  const groups = useMemo(() => {
+    const map = new Map<string, CaptureMarker[]>();
+    captures.forEach((c) => {
+      const key = `${c.latitude.toFixed(4)},${c.longitude.toFixed(4)}`;
+      const arr = map.get(key);
+      if (arr) arr.push(c);
+      else map.set(key, [c]);
+    });
+    return Array.from(map.entries()).map(([key, items]) => {
+      const sorted = [...items].sort(
+        (a, b) => RARITY_ORDER.indexOf(b.rarity) - RARITY_ORDER.indexOf(a.rarity),
+      );
+      return { key, items: sorted, lead: sorted[0] };
+    });
+  }, [captures]);
+
   const markers = useMemo(
     () =>
-      captures.map((c) => (
+      groups.map((g) => (
         <Marker
-          key={c.id}
-          position={[c.latitude, c.longitude]}
-          icon={buildIcon(c.rarity, c.category)}
-          eventHandlers={{ click: () => openCapture(c) }}
+          key={g.key}
+          position={[g.lead.latitude, g.lead.longitude]}
+          icon={buildIcon(g.lead.rarity, g.lead.category, g.items.length)}
+          eventHandlers={{
+            click: () => (g.items.length === 1 ? openCapture(g.lead) : setGroupItems(g.items)),
+          }}
         />
       )),
-    [captures],
+    [groups],
   );
+
 
   const localizedSpeciesCount = useMemo(
     () => new Set(captures.map((c) => (c.animal_name || '').toLowerCase())).size,
