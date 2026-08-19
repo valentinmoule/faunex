@@ -66,7 +66,9 @@ const getCategoryIcon = (category: string): ComponentType<{ className?: string; 
   return PawPrint;
 };
 
-const buildIcon = (rarity: string, category: string) => {
+const RARITY_ORDER = ['common', 'rare', 'epic', 'mythic'];
+
+const buildIcon = (rarity: string, category: string, count = 1) => {
   const color = RARITY_COLORS[rarity] || RARITY_COLORS.common;
   const CatIcon = getCategoryIcon(category);
   const iconSvg = renderToStaticMarkup(
@@ -79,12 +81,14 @@ const buildIcon = (rarity: string, category: string) => {
         <div class="faunex-pin-inner">
           <span class="faunex-pin-icon">${iconSvg}</span>
         </div>
+        ${count > 1 ? `<span class="faunex-pin-count">${count > 99 ? '99+' : count}</span>` : ''}
       </div>
     `,
     iconSize: [40, 40],
     iconAnchor: [20, 20],
   });
 };
+
 
 const RecenterOnUser = ({ position }: { position: [number, number] | null }) => {
   const map = useMap();
