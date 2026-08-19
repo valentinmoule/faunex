@@ -168,7 +168,7 @@ const LegalPage = () => {
 
           <h3 className="text-base font-display font-semibold text-foreground mt-4 mb-1">7.2 Formules et abonnement Faunex Premium</h3>
           <p>
-            Faunex propose une formule gratuite (limitée à 4 captures par jour) et un abonnement <strong>Faunex Premium</strong> au prix de <strong>2,40 € par mois</strong> ou <strong>24 € par an</strong> (2 mois offerts), débloquant les captures illimitées, une identification plus performante, la localisation des espèces autour de vous et les notes sur les captures. Les tarifs et le détail des fonctionnalités sont publics sur la page <a href="/tarifs" className="text-primary underline">Tarifs</a>.
+            Faunex propose une formule gratuite (limitée à 4 captures par jour) et un abonnement <strong>Faunex Premium</strong> au prix de <strong>2,40 € par mois</strong> ou <strong>24 € par an</strong> (2 mois offerts), débloquant les captures illimitées, une détection et une modération plus performantes, la localisation des espèces autour de vous et les notes sur les captures. Les tarifs et le détail des fonctionnalités sont publics sur la page <a href="/tarifs" className="text-primary underline">Tarifs</a>.
           </p>
           <p className="mt-2">
             L'abonnement est mensuel et se renouvelle automatiquement à chaque échéance jusqu'à son annulation. Vous pouvez annuler à tout moment depuis <strong>Réglages → Faunex Premium → Gérer mon abonnement</strong> ; l'annulation prend effet à la fin de la période en cours, sans frais supplémentaires. Les prix sont indiqués en euros ; les taxes applicables (TVA) sont calculées et ajoutées au moment du paiement selon votre pays.

@@ -13,7 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 const BENEFITS = [
   { icon: InfinityIcon, title: 'Captures illimitées', description: 'Plus de limite de 4 captures par jour.' },
-  { icon: Sparkles, title: 'Modèle de modération plus performant', description: 'Une identification plus fine et plus rapide de tes espèces.' },
+  { icon: Sparkles, title: 'Détection et modération plus performantes', description: 'Identifie et valide tes espèces plus vite et plus précisément.' },
   { icon: MapPin, title: 'Localisation des animaux autour de toi', description: 'Repère les espèces présentes près de ta position.' },
   { icon: NotebookPen, title: 'Notes sur tes captures', description: 'Garde tes observations de terrain avec chaque carte.' },
   { icon: Crown, title: "Plein d'autres choses à venir…", description: 'Les prochaines nouveautés arrivent en priorité chez les abonnés.' },
