@@ -575,7 +575,7 @@ const ExplorersPage = () => {
                   ) : (
                     <button onClick={() => handleFollow(f.user_id)} className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-display font-semibold"><UserPlus className="w-3.5 h-3.5" /> S'abonner</button>
                   )
-                } />)}
+                } isPremium={searchPremiumIds.has(f.user_id)} />)}
               </div>
             )
           )}
