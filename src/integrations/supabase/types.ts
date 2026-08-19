@@ -293,6 +293,54 @@ export type Database = {
         }
         Relationships: []
       }
+      collection_rules: {
+        Row: {
+          collection_id: string
+          created_at: string
+          id: string
+          include: boolean
+          is_core: boolean
+          params: Json
+          rule_type: string
+          updated_at: string
+        }
+        Insert: {
+          collection_id: string
+          created_at?: string
+          id?: string
+          include?: boolean
+          is_core?: boolean
+          params?: Json
+          rule_type: string
+          updated_at?: string
+        }
+        Update: {
+          collection_id?: string
+          created_at?: string
+          id?: string
+          include?: boolean
+          is_core?: boolean
+          params?: Json
+          rule_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collection_rules_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "collections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collection_rules_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "my_collection_progress"
+            referencedColumns: ["collection_id"]
+          },
+        ]
+      }
       collection_taxa: {
         Row: {
           collection_id: string
@@ -319,6 +367,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "collections"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collection_taxa_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "my_collection_progress"
+            referencedColumns: ["collection_id"]
           },
           {
             foreignKeyName: "collection_taxa_taxon_id_fkey"
@@ -1473,6 +1528,42 @@ export type Database = {
           },
         ]
       }
+      my_collection_progress: {
+        Row: {
+          collection_id: string | null
+          icon: string | null
+          is_premium: boolean | null
+          kind: string | null
+          owned: number | null
+          slug: string | null
+          sort_order: number | null
+          title: string | null
+          total: number | null
+        }
+        Insert: {
+          collection_id?: string | null
+          icon?: string | null
+          is_premium?: boolean | null
+          kind?: string | null
+          owned?: never
+          slug?: string | null
+          sort_order?: number | null
+          title?: string | null
+          total?: never
+        }
+        Update: {
+          collection_id?: string | null
+          icon?: string | null
+          is_premium?: boolean | null
+          kind?: string | null
+          owned?: never
+          slug?: string | null
+          sort_order?: number | null
+          title?: string | null
+          total?: never
+        }
+        Relationships: []
+      }
     }
     Functions: {
       canonical_animal_category: {
@@ -1485,6 +1576,12 @@ export type Database = {
         Returns: boolean
       }
       claim_quest_reward: { Args: { p_quest_id: string }; Returns: boolean }
+      collection_rule_taxa: {
+        Args: { p_rule_id: string }
+        Returns: {
+          taxon_id: string
+        }[]
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
@@ -1599,6 +1696,10 @@ export type Database = {
         Returns: undefined
       }
       record_capture_attempt: { Args: never; Returns: number }
+      refresh_collection_membership: {
+        Args: { p_collection_id?: string }
+        Returns: number
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
