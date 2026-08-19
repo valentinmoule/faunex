@@ -18,6 +18,7 @@ import {
   rarityDot,
   type ZoneSub,
 } from '@/lib/bestiary';
+import { BREED_GROUPS, MIN_BREEDS_PER_GROUP, getBreedGroup, type BreedGroup } from '@/lib/breedGroups';
 import { useBestiaryData } from '@/hooks/useBestiaryData';
 import { useCitySearch } from '@/hooks/useCitySearch';
 import { useShelveAnimation } from '@/hooks/useShelveAnimation';
@@ -29,6 +30,7 @@ const BestiairePage = () => {
   const navigate = useNavigate();
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedBreedGroup, setSelectedBreedGroup] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'mine' | 'categories' | 'territory'>('mine');
   const [rarityFilter, setRarityFilter] = useState<Rarity | 'all'>('all');
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
