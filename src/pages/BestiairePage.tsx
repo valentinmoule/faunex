@@ -846,7 +846,12 @@ const BestiairePage = () => {
             </section>
           )}
 
+          {viewMode === 'collections' && (
+            <SpecializedCollections userId={session?.user?.id} isPremium={isPremium} />
+          )}
+
           {viewMode === 'territory' && (
+
             <section>
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Mes territoires</h2>
