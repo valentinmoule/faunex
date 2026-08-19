@@ -104,6 +104,17 @@ const BestiairePage = () => {
     return false;
   }, [isPremium, subscribedZones.length, collectionKeys.length, navigate]);
 
+  const handleAddCollectionClick = useCallback(() => {
+    if (!isPremium && slotsUsed >= FREE_SLOT_LIMIT) {
+      setPickerMode('upsell');
+      setShowDeptPicker(true);
+      return;
+    }
+    setPickerMode('species');
+    setCollectionSearch('');
+    setShowDeptPicker(true);
+  }, [isPremium, slotsUsed]);
+
   const {
     loadingDept,
     addDepartment: handleAddDept,
