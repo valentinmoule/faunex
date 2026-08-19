@@ -849,7 +849,7 @@ const BestiairePage = () => {
                         return (
                           <button
                             key={cat.name}
-                            onClick={() => setSelectedCategory(cat.name)}
+                            onClick={() => { setSelectedBreedGroup(null); setSelectedCategory(cat.name); }}
                             className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-md"
                           >
                             <div className="mb-2">
