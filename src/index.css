@@ -2155,9 +2155,11 @@
 
 /* Marker pulse rings */
 .faunex-pin-outer {
+  position: relative;
   width: 40px;
   height: 40px;
   border-radius: 50%;
+
   background: var(--pin-color);
   display: flex;
   align-items: center;
