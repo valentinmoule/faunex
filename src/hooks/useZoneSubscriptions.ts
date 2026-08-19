@@ -15,7 +15,7 @@ interface Options {
   canAddZone?: () => boolean;
 }
 
-/** CRUD for territory subscriptions (departments, cities, "chez moi"). */
+/** CRUD for territory subscriptions (departments, cities). */
 export const useZoneSubscriptions = ({
   userId,
   animals,
