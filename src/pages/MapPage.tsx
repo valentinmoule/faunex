@@ -11,7 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import LoadingScreen from '@/components/LoadingScreen';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import CardDetailSheet from '@/components/CardDetailSheet';
-import { type AnimalCard, type Rarity } from '@/data/mockData';
+import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
 import { toast } from 'sonner';
 
 
