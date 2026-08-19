@@ -88,10 +88,10 @@ const CategoryLeaderboard = ({ category }: { category: string }) => {
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-3xl px-0">
           <SheetHeader className="px-5 text-left">
-            <SheetTitle className="font-display text-base">Classement · {category}</SheetTitle>
+            <SheetTitle className="font-display text-base">Top {category}</SheetTitle>
           </SheetHeader>
           <p className="px-5 text-[12px] font-display text-muted-foreground mb-2">
-            Nombre d'espèces distinctes capturées dans cette catégorie
+            Qui a capturé le plus d'espèces ?
           </p>
           <ul className="divide-y divide-border">
             {rows.map((r) => (
