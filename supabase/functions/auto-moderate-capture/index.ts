@@ -143,7 +143,9 @@ async function examine(
   ].filter(Boolean).join('\n')
 
   let verdict: any = null
-  for (const model of ['google/gemini-2.5-flash', 'google/gemini-2.5-pro']) {
+  let usedModel: string | null = null
+  // Modération : on privilégie le modèle le plus performant, avec replis.
+  for (const model of ['google/gemini-2.5-pro', 'google/gemini-2.5-flash', 'google/gemini-2.5-flash-lite']) {
     try {
       const res = await callGateway(apiKey, model, userText, capture.image_url, 55_000)
       if (!res.ok) {
@@ -154,6 +156,7 @@ async function examine(
       const toolCall = data.choices?.[0]?.message?.tool_calls?.[0]
       if (!toolCall) continue
       verdict = JSON.parse(toolCall.function.arguments)
+      usedModel = model
       break
     } catch (err) {
       console.error('auto-moderate gateway failure', model, String(err))
@@ -161,6 +164,7 @@ async function examine(
   }
 
   if (!verdict) return { capture_id: capture.id, approved: false, reason: 'ai_unavailable' }
+
 
   const confidence = Number(verdict.confidence) || 0
   const matches = verdict.name_matches === true
@@ -172,6 +176,7 @@ async function examine(
     await logDatasetEvent(supabase, {
       event_type: 'auto_moderation_deferred',
       source: 'auto-moderate-capture',
+      model: usedModel,
       capture_id: capture.id,
       user_id: capture.user_id,
       image_url: capture.image_url,
@@ -226,6 +231,7 @@ async function examine(
   await logDatasetEvent(supabase, {
     event_type: 'auto_moderation_approved',
     source: 'auto-moderate-capture',
+    model: usedModel,
     capture_id: capture.id,
     user_id: capture.user_id,
     image_url: capture.image_url,
