@@ -14,6 +14,7 @@ import {
   getCategoryEmoji,
   getCategoryIcon,
   normalizeCategory,
+  rarityBadge,
   rarityBorderColor,
   rarityDot,
   type ZoneSub,
