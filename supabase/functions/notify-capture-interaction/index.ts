@@ -1,5 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import webpush from 'npm:web-push@3.6.7'
+import { sendAppEmail } from '../_shared/transactional-email-templates/send-app-email.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -80,22 +81,16 @@ Deno.serve(async (req) => {
         ? `like-${capture_id}-${actor_id}`
         : `comment-${capture_id}-${actor_id}-${Date.now()}`
 
-      const { error } = await supabase.functions.invoke('send-transactional-email', {
-        body: {
-          templateName,
-          recipientEmail: ownerAuth.user.email,
-          idempotencyKey: idempotencyBase,
-          templateData: {
-            actorName,
-            recipientName,
-            animalName: capture.animal_name,
-            commentText: type === 'comment' ? (content || '').slice(0, 500) : undefined,
-            captureUrl: `${APP_URL}/explorers`,
-          },
+      emailResult = await sendAppEmail(supabase, templateName, ownerAuth.user.email, {
+        templateData: {
+          actorName,
+          recipientName,
+          animalName: capture.animal_name,
+          commentText: type === 'comment' ? (content || '').slice(0, 500) : undefined,
+          captureUrl: `${APP_URL}/explorers`,
         },
+        idempotencyKey: `${templateName}-${idempotencyBase}`,
       })
-      if (error) console.error('send-transactional-email failed', error)
-      emailResult = error ? 'failed' : 'sent'
     }
 
     let pushResult: unknown = 'skipped'

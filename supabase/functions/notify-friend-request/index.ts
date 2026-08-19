@@ -1,5 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import webpush from 'npm:web-push@3.6.7'
+import { sendAppEmail } from '../_shared/transactional-email-templates/send-app-email.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -70,20 +71,14 @@ Deno.serve(async (req) => {
 
     let emailResult: unknown = 'skipped'
     if (addresseeProfile.marketing_emails && addresseeProfile.notify_email_follows) {
-      const { data, error } = await supabase.functions.invoke('send-transactional-email', {
-        body: {
-          templateName: 'new-follower',
-          recipientEmail,
-          idempotencyKey: `new-follower-${requester_id}-${addressee_id}-${Date.now()}`,
-          templateData: {
-            followerName: requesterName,
-            recipientName,
-            profileUrl: `${APP_URL}/explorers`,
-          },
+      emailResult = await sendAppEmail(supabase, 'new-follower', recipientEmail, {
+        templateData: {
+          followerName: requesterName,
+          recipientName,
+          profileUrl: `${APP_URL}/explorers`,
         },
+        idempotencyKey: `new-follower-${requester_id}-${addressee_id}-${Date.now()}`,
       })
-      if (error) console.error('send-transactional-email invocation failed', error)
-      emailResult = error ? 'failed' : data
     }
 
     let pushResult: unknown = 'skipped'
