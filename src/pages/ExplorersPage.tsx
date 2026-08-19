@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { PageHeader } from '@/components/PageHeader';
 import { notifyCaptureInteraction } from '@/lib/notifyCaptureInteraction';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -9,6 +9,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { followUser as followUserUtil } from '@/lib/followUtils';
+import { PremiumAvatar } from '@/components/PremiumAvatar';
+import { usePremiumUsers } from '@/hooks/usePremiumUsers';
 
 // ── Feed types ──
 interface FeedCapture {
@@ -118,6 +120,21 @@ const ExplorersPage = () => {
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   const userId = session?.user?.id;
+
+  // ── Premium status ──
+  const feedUserIds = useMemo(() => [...new Set(posts.map(p => p.user_id))], [posts]);
+  const feedPremiumIds = usePremiumUsers(feedUserIds);
+
+  const searchUserIds = useMemo(() => {
+    const ids = new Set<string>();
+    searchResults.forEach(u => ids.add(u.user_id));
+    allUsers.forEach(u => ids.add(u.user_id));
+    following.forEach(f => { if (f.profile) ids.add(f.profile.user_id); });
+    followers.forEach(f => { if (f.profile) ids.add(f.profile.user_id); });
+    pendingRequests.forEach(f => { if (f.profile) ids.add(f.profile.user_id); });
+    return [...ids];
+  }, [searchResults, allUsers, following, followers, pendingRequests]);
+  const searchPremiumIds = usePremiumUsers(searchUserIds);
 
   // ── Header data ──
   useEffect(() => {
@@ -426,11 +443,14 @@ const ExplorersPage = () => {
 
   // ── UserRow component ──
 
-  const UserRow = ({ user, action, onClick }: { user: SearchUser; action: React.ReactNode; onClick?: () => void }) => (
+  const UserRow = ({ user, action, onClick, isPremium }: { user: SearchUser; action: React.ReactNode; onClick?: () => void; isPremium?: boolean }) => (
     <div className={`flex items-center gap-3 py-3 ${onClick ? 'cursor-pointer active:bg-muted/50 transition-colors rounded-lg -mx-2 px-2' : ''}`} onClick={onClick}>
-      <div className="w-11 h-11 rounded-full bg-primary/20 flex items-center justify-center text-sm font-display font-bold text-primary shrink-0 overflow-hidden">
-        {user.avatar_url ? <img src={user.avatar_url} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" /> : (user.display_name || user.username || '?').charAt(0).toUpperCase()}
-      </div>
+      <PremiumAvatar
+        avatarUrl={user.avatar_url}
+        name={user.display_name || user.username}
+        size="lg"
+        isPremium={isPremium}
+      />
       <div className="flex-1 min-w-0">
         <p className="text-sm font-display font-semibold text-foreground truncate">{user.display_name || 'Sans nom'}</p>
         <p className="text-[11px] text-muted-foreground truncate">Niv. {user.level} · {user.total_captures} espèces</p>
@@ -510,7 +530,7 @@ const ExplorersPage = () => {
                 {isSearching && searching && <p className="text-center py-8 text-muted-foreground text-sm font-display">Recherche…</p>}
                 {isSearching && !searching && list.length === 0 && <p className="text-center py-8 text-muted-foreground text-sm font-display">Aucun explorateur trouvé</p>}
                 {list.map(user => (
-                  <UserRow key={user.user_id} user={user} onClick={() => navigate(`/explorer/${user.user_id}/collection`)} action={renderAction(user)} />
+                  <UserRow key={user.user_id} user={user} onClick={() => navigate(`/explorer/${user.user_id}/collection`)} action={renderAction(user)} isPremium={searchPremiumIds.has(user.user_id)} />
                 ))}
                 {!isSearching && allLoading && <p className="text-center py-6 text-muted-foreground text-sm font-display">Chargement…</p>}
                 {!isSearching && !allLoading && allUsers.length === 0 && <p className="text-center py-8 text-muted-foreground text-sm font-display">Aucun explorateur pour le moment</p>}
@@ -531,7 +551,7 @@ const ExplorersPage = () => {
               </div>
             ) : (
               <div className="divide-y divide-border">
-                {following.map(f => f.profile && <UserRow key={f.user_id} user={f.profile} onClick={() => navigate(`/explorer/${f.user_id}/collection`)} action={<ChevronRight className="w-4 h-4 text-muted-foreground" />} />)}
+                {following.map(f => f.profile && <UserRow key={f.user_id} user={f.profile} onClick={() => navigate(`/explorer/${f.user_id}/collection`)} action={<ChevronRight className="w-4 h-4 text-muted-foreground" />} isPremium={searchPremiumIds.has(f.user_id)} />)}
               </div>
             )
           )}
@@ -555,7 +575,7 @@ const ExplorersPage = () => {
                   ) : (
                     <button onClick={() => handleFollow(f.user_id)} className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-display font-semibold"><UserPlus className="w-3.5 h-3.5" /> S'abonner</button>
                   )
-                } />)}
+                } isPremium={searchPremiumIds.has(f.user_id)} />)}
               </div>
             )
           )}
@@ -575,7 +595,7 @@ const ExplorersPage = () => {
                     <button onClick={() => acceptRequest(f.user_id)} className="p-2 rounded-lg bg-primary text-primary-foreground"><CheckIcon className="w-4 h-4" /></button>
                     <button onClick={() => rejectRequest(f.user_id)} className="p-2 rounded-lg bg-muted text-muted-foreground hover:text-destructive"><XCircle className="w-4 h-4" /></button>
                   </div>
-                } />)}
+                } isPremium={searchPremiumIds.has(f.user_id)} />)}
               </div>
             )
           )}
@@ -636,8 +656,13 @@ const ExplorersPage = () => {
               return (
                 <article key={post.id} className="py-3">
                   <div className="flex items-center gap-3 px-4">
-                    <button onClick={() => navigate(`/explorer/${post.user_id}/collection`)} className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-xs font-display font-bold text-primary overflow-hidden shrink-0">
-                      {avatarUrl ? <img src={avatarUrl} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" /> : userName.charAt(0).toUpperCase()}
+                    <button onClick={() => navigate(`/explorer/${post.user_id}/collection`)}>
+                      <PremiumAvatar
+                        avatarUrl={avatarUrl}
+                        name={userName}
+                        size="md"
+                        isPremium={feedPremiumIds.has(post.user_id)}
+                      />
                     </button>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-baseline gap-1.5">
