@@ -75,6 +75,9 @@ const ModerationPage = () => {
   const [processing, setProcessing] = useState<string | null>(null);
   const [preview, setPreview] = useState<{ capture: PendingCapture; animal: EnrichedAnimal } | null>(null);
   const [confirming, setConfirming] = useState(false);
+  /** Pré-modération IA en cours sur la file d'attente. */
+  const [autoRunning, setAutoRunning] = useState(false);
+
   /** Diagnostic d'échec de la prévisualisation, par capture. */
   const [failures, setFailures] = useState<Record<string, PrepareFailure>>({});
   /** Nom d'animal proposé par le modérateur, par capture. */
