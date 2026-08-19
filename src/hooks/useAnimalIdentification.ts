@@ -123,7 +123,13 @@ export const useAnimalIdentification = () => {
     try {
       // 1024px / 0.62 : nécessaire pour les détails fins (points des coccinelles,
       // miroir fessier des cervidés) qui étaient perdus à 640px.
-      const compressedUrl = await compressForAI(dataUrl, 1024, 0.62);
+      let compressedUrl = await compressForAI(dataUrl, 1024, 0.62);
+      // Garde-fou : une photo très détaillée peut rester lourde après le premier
+      // passage. Au-delà de ~1,2 Mo l'upload devient le goulot d'étranglement,
+      // on repasse alors en 820px / 0.55 (toujours suffisant pour l'IA).
+      if (dataUrlBytes(compressedUrl) > 1_200_000) {
+        compressedUrl = await compressForAI(compressedUrl, 820, 0.55);
+      }
       const imageHash = await hashDataUrl(compressedUrl);
 
       const cached = cacheRef.current.get(imageHash);
@@ -134,10 +140,14 @@ export const useAnimalIdentification = () => {
         for (let attempt = 0; attempt < 2; attempt++) {
           setStage(attempt === 0 ? 'analyzing' : 'retrying');
           try {
-            const { data, error } = await supabase.functions.invoke('identify-animal', {
-              body: { imageBase64: compressedUrl },
-            });
+            const { data, error } = await withTimeout(
+              supabase.functions.invoke('identify-animal', {
+                body: { imageBase64: compressedUrl },
+              }),
+              60_000,
+            );
             if (error) throw error;
+
 
             const animal = data?.success ? (data.animal as AnimalResult | undefined) : undefined;
 
