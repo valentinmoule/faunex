@@ -5,10 +5,16 @@ import { NoCaptureNudgeEmail } from '../_shared/email-templates/no-capture-j7.ts
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-cron-secret',
 }
 
 async function requireAdmin(req: Request, adminClient: any): Promise<Response | null> {
+  // Appels planifiés (pg_cron) : authentifiés par un secret partagé, pas par un JWT utilisateur.
+  const cronSecret = Deno.env.get('CRON_SECRET');
+  const providedCronSecret = req.headers.get('x-cron-secret');
+  if (cronSecret && providedCronSecret && providedCronSecret === cronSecret) {
+    return null;
+  }
   const authHeader = req.headers.get('Authorization');
   if (!authHeader?.startsWith('Bearer ')) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
