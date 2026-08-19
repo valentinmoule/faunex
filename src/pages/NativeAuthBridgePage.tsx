@@ -14,12 +14,10 @@ const NativeAuthBridgePage = () => {
       return;
     }
 
-    // Le broker garde le state/PKCE sur l'hôte où le flow démarre.
-    // Apple renvoie sur www.faunex.fr : on s'assure d'être sur le bon hôte
-    // AVANT d'appeler /~oauth/initiate, sinon le state est perdu au retour.
-    const expectedOrigin = oauthInitiateOrigin(provider);
-    if (window.location.origin !== expectedOrigin) {
-      window.location.replace(`${expectedOrigin}/auth/native-bridge?provider=${provider}`);
+    // Le flow natif démarre toujours sur l'apex : `www` redirige vers l'apex
+    // (307 en POST), ce qui ajoute un hop inutile et casse le form_post d'Apple.
+    if (window.location.origin !== WEB_ORIGIN) {
+      window.location.replace(`${WEB_ORIGIN}/auth/native-bridge?provider=${provider}`);
       return;
     }
 
