@@ -313,7 +313,8 @@ serve(async (req) => {
       (CONFUSABLE.test(label) && confidence < 75);
 
     if (needsDeep) {
-      const deep = await tryModel(DEEP_MODEL, 20_000, 2);
+      // Budget restant : 24 s (2× Lite) + 20 s = 44 s max, sous le timeout client.
+      const deep = await tryModel(DEEP_MODEL, 20_000);
       if (deep?.ok) {
         const deepData = await parseAnimal(deep);
         if (deepData) {
