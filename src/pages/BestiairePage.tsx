@@ -341,27 +341,20 @@ const BestiairePage = () => {
             <button
               onClick={handleDetectHome}
               disabled={detectingHome}
-              className="w-full relative overflow-hidden rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-5 text-left transition active:scale-[0.98] disabled:opacity-60"
+              className="w-full rounded-2xl border border-border bg-card p-5 text-left transition active:scale-[0.98] hover:border-primary/30 disabled:opacity-60"
             >
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-primary/15 flex items-center justify-center shrink-0">
+                <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center shrink-0">
                   {detectingHome ? (
                     <Loader2 className="w-6 h-6 text-primary animate-spin" />
                   ) : (
-                    <Home className="w-6 h-6 text-primary" strokeWidth={2} />
+                    <Home className="w-6 h-6 text-foreground" strokeWidth={2} />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-display font-bold text-base text-foreground">Chez moi</h3>
-                    <span className="text-[9px] font-display font-bold uppercase tracking-wide text-primary bg-primary/15 px-1.5 py-0.5 rounded-full">
-                      Auto
-                    </span>
-                  </div>
+                  <h3 className="font-display font-bold text-base text-foreground">Ma position</h3>
                   <p className="text-[11px] text-muted-foreground font-display leading-relaxed mt-0.5">
-                    {hasHomeZone
-                      ? 'Mettre à jour ton territoire principal via ta position.'
-                      : 'Détecte ta commune et suis la faune autour de toi au quotidien.'}
+                    Détecte ta commune et ajoute-la à tes zones suivies.
                   </p>
                 </div>
               </div>
@@ -376,7 +369,7 @@ const BestiairePage = () => {
                   <Compass className="w-6 h-6 text-foreground" strokeWidth={2} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-display font-bold text-base text-foreground">Explorer une zone</h3>
+                  <h3 className="font-display font-bold text-base text-foreground">Ajouter une zone</h3>
                   <p className="text-[11px] text-muted-foreground font-display leading-relaxed mt-0.5">
                     Prépare un voyage, une rando ou une visite : ajoute n'importe quelle ville ou département.
                   </p>
@@ -393,7 +386,7 @@ const BestiairePage = () => {
                   <Layers className="w-6 h-6 text-foreground" strokeWidth={2} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-display font-bold text-base text-foreground">Collection d'espèces</h3>
+                  <h3 className="font-display font-bold text-base text-foreground">Ajouter une collection</h3>
                   <p className="text-[11px] text-muted-foreground font-display leading-relaxed mt-0.5">
                     Races de chien, races de chat, papillons, rapaces, serpents… choisis ce que tu veux compléter.
                   </p>
@@ -402,8 +395,9 @@ const BestiairePage = () => {
             </button>
 
             <p className="text-[10px] text-muted-foreground font-display text-center pt-2">
-              Tu peux suivre plusieurs zones et collections, et changer ton « Chez moi » à tout moment.
+              Tu peux suivre autant de zones et de collections que tu veux.
             </p>
+
           </div>
         )}
 
@@ -1089,9 +1083,9 @@ const BestiairePage = () => {
           )}
 
           {viewMode === 'collections' && (
-            <section className="space-y-6">
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Mes zones</h2>
+            <section className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Mes collections</h2>
                 <button
                   onClick={() => { setPickerMode('hub'); setShowDeptPicker(true); }}
                   className="flex items-center gap-1 text-xs font-display font-semibold text-primary px-2 py-1 rounded-lg hover:bg-primary/10 transition"
@@ -1100,39 +1094,20 @@ const BestiairePage = () => {
                   Ajouter
                 </button>
               </div>
-              {subscribedZones.length === 0 ? (
-                <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/8 via-primary/4 to-transparent p-5 space-y-4">
-                  <div className="text-center space-y-1.5">
-                    <div className="inline-flex w-12 h-12 rounded-2xl bg-primary/15 items-center justify-center">
-                      <Home className="w-6 h-6 text-primary" strokeWidth={2} />
-                    </div>
-                    <h3 className="font-display font-bold text-sm text-foreground">Découvre la faune autour de toi</h3>
-                    <p className="text-[11px] text-muted-foreground font-display leading-relaxed px-2">
-                      Définis ton « Chez moi » pour suivre les espèces de ta région, ou ajoute une zone avant un voyage ou une sortie nature.
-                    </p>
+
+              {subscribedZones.length === 0 && myCollections.length === 0 ? (
+                <button
+                  onClick={() => { setPickerMode('hub'); setShowDeptPicker(true); }}
+                  className="w-full rounded-2xl border border-dashed border-border p-6 text-center transition active:scale-[0.98] hover:border-primary/40"
+                >
+                  <div className="inline-flex w-12 h-12 rounded-2xl bg-primary/15 items-center justify-center mb-2">
+                    <Layers className="w-6 h-6 text-primary" strokeWidth={2} />
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      onClick={handleDetectHome}
-                      disabled={detectingHome}
-                      className="flex flex-col items-center gap-1 py-3 rounded-xl bg-primary text-primary-foreground font-display font-semibold text-xs transition active:scale-95 disabled:opacity-60"
-                    >
-                      {detectingHome ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <Home className="w-4 h-4" strokeWidth={2.25} />
-                      )}
-                      Chez moi
-                    </button>
-                    <button
-                      onClick={() => { setPickerMode('explore'); setPickerTab('city'); setShowDeptPicker(true); }}
-                      className="flex flex-col items-center gap-1 py-3 rounded-xl bg-card border border-border text-foreground font-display font-semibold text-xs transition active:scale-95 hover:border-primary/40"
-                    >
-                      <Compass className="w-4 h-4" strokeWidth={2.25} />
-                      Explorer
-                    </button>
-                  </div>
-                </div>
+                  <h3 className="font-display font-bold text-sm text-foreground">Ajoute une zone et/ou une collection</h3>
+                  <p className="text-[11px] text-muted-foreground font-display leading-relaxed mt-1 px-2">
+                    Suis la faune d'une ville ou d'un département, et complète des séries thématiques (races de chien, papillons, rapaces…).
+                  </p>
+                </button>
               ) : (
                 <div className="grid grid-cols-2 gap-3">
                   {subscribedZones.map((zone) => {
@@ -1140,7 +1115,7 @@ const BestiairePage = () => {
                     const p = zoneProgress[zone.id] || { total: 0, captured: 0 };
                     const pct = p.total > 0 ? Math.round((p.captured / p.total) * 100) : 0;
                     const isCity = zone.kind === 'city';
-                    const ZoneIcon = zone.isHome ? Home : (isCity ? Building2 : MapPin);
+                    const ZoneIcon = isCity ? Building2 : MapPin;
                     const title = isCity ? (zone.cityName || 'Ville') : (d?.name || zone.departmentCode);
                     const sub = isCity
                       ? `${zone.cityPostcode || ''}${d ? ` · ${d.name}` : ''}`
@@ -1149,17 +1124,8 @@ const BestiairePage = () => {
                       <button
                         key={zone.id}
                         onClick={() => setSelectedZoneId(zone.id)}
-                        className={`relative overflow-hidden rounded-2xl border p-4 text-left transition-all active:scale-[0.97] hover:shadow-md ${
-                          zone.isHome
-                            ? 'border-primary/40 bg-gradient-to-br from-primary/10 via-primary/5 to-card'
-                            : 'border-border bg-card hover:border-primary/30'
-                        }`}
+                        className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-md"
                       >
-                        {zone.isHome && (
-                          <span className="absolute top-2 right-2 text-[9px] font-display font-bold uppercase tracking-wide text-primary bg-primary/15 px-1.5 py-0.5 rounded-full">
-                            Chez moi
-                          </span>
-                        )}
                         <div className="flex items-center gap-1.5 mb-2">
                           <ZoneIcon className="w-5 h-5 text-primary" strokeWidth={1.75} />
                           <span className="text-[10px] font-display font-bold text-muted-foreground tabular-nums truncate">{sub}</span>
@@ -1174,59 +1140,32 @@ const BestiairePage = () => {
                       </button>
                     );
                   })}
+
+                  {myCollections.map(({ group, total, captured }) => {
+                    const pct = total > 0 ? Math.round((captured / total) * 100) : 0;
+                    return (
+                      <button
+                        key={group.key}
+                        onClick={() => setSelectedCollectionKey(group.key)}
+                        className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-md"
+                      >
+                        <div className="text-xl mb-2 leading-none h-5 flex items-center">{group.emoji}</div>
+                        <h3 className="font-display font-bold text-sm text-foreground leading-tight mb-1 truncate">{group.label}</h3>
+                        <p className="text-[11px] text-muted-foreground font-display mb-3">
+                          {captured}/{total} capturés
+                        </p>
+                        <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
+                          <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${pct}%` }} />
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               )}
-
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Mes collections d'espèces</h2>
-                  <button
-                    onClick={() => { setPickerMode('species'); setCollectionSearch(''); setShowDeptPicker(true); }}
-                    className="flex items-center gap-1 text-xs font-display font-semibold text-primary px-2 py-1 rounded-lg hover:bg-primary/10 transition"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    Ajouter
-                  </button>
-                </div>
-                {myCollections.length === 0 ? (
-                  <button
-                    onClick={() => { setPickerMode('species'); setCollectionSearch(''); setShowDeptPicker(true); }}
-                    className="w-full rounded-2xl border border-dashed border-border p-5 text-center transition active:scale-[0.98] hover:border-primary/40"
-                  >
-                    <div className="inline-flex w-11 h-11 rounded-2xl bg-muted items-center justify-center mb-2">
-                      <Layers className="w-5 h-5 text-foreground" strokeWidth={2} />
-                    </div>
-                    <h3 className="font-display font-bold text-sm text-foreground">Choisis une collection</h3>
-                    <p className="text-[11px] text-muted-foreground font-display leading-relaxed mt-0.5 px-2">
-                      Races de chien, races de chat, papillons, rapaces… complète des séries thématiques.
-                    </p>
-                  </button>
-                ) : (
-                  <div className="grid grid-cols-2 gap-3">
-                    {myCollections.map(({ group, total, captured }) => {
-                      const pct = total > 0 ? Math.round((captured / total) * 100) : 0;
-                      return (
-                        <button
-                          key={group.key}
-                          onClick={() => setSelectedCollectionKey(group.key)}
-                          className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-md"
-                        >
-                          <div className="text-xl mb-2">{group.emoji}</div>
-                          <h3 className="font-display font-bold text-sm text-foreground leading-tight mb-1 truncate">{group.label}</h3>
-                          <p className="text-[11px] text-muted-foreground font-display mb-3">
-                            {captured}/{total} capturés
-                          </p>
-                          <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
-                            <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${pct}%` }} />
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
             </section>
           )}
+
+
 
         </div>
         <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
