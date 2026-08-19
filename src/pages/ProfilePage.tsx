@@ -30,6 +30,7 @@ interface Profile {
 const ProfilePage = () => {
   const { session } = useAuth();
   const { canInstall, isInstalled, isNative, promptInstall } = usePwaInstall();
+  const { isPremium } = useSubscription(session?.user?.id);
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
