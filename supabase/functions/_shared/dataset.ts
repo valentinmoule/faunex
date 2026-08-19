@@ -43,6 +43,17 @@ export interface ServerDatasetEvent {
 
 export async function logDatasetEvent(supabase: any, event: ServerDatasetEvent) {
   try {
+    // Le dataset consolidé n'accepte qu'une seule identification confirmée par
+    // capture (un trigger l'écrit aussi dès qu'une capture passe en 'approved').
+    if (event.is_ground_truth && event.capture_id) {
+      const { data: existing } = await supabase
+        .from('ml_dataset_events')
+        .select('id')
+        .eq('capture_id', event.capture_id)
+        .eq('is_ground_truth', true)
+        .maybeSingle()
+      if (existing) return
+    }
     const { error } = await supabase.from('ml_dataset_events').insert(event)
     if (error) console.error('dataset event insert failed', error.message)
   } catch (err) {
