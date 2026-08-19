@@ -117,6 +117,8 @@ const MapPage = () => {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [groupItems, setGroupItems] = useState<CaptureMarker[] | null>(null);
+  const [zoom, setZoom] = useState(8);
+
 
 
   useEffect(() => {
