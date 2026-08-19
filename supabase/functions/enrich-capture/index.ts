@@ -1,4 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
+import { logDatasetEvent } from '../_shared/dataset.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -121,6 +122,29 @@ Deno.serve(async (req) => {
           detail: applyErr.message,
         }, isUnique ? 409 : 500)
       }
+      // Dataset : fiche confirmée par un modérateur humain → vérité terrain.
+      const { data: applied } = await supabase
+        .from('captures')
+        .select('user_id, image_url, description, location')
+        .eq('id', captureId)
+        .maybeSingle()
+      await logDatasetEvent(supabase, {
+        event_type: 'moderation_approved',
+        source: 'enrich-capture',
+        capture_id: captureId,
+        user_id: applied?.user_id ?? null,
+        image_url: applied?.image_url ?? null,
+        label_name: (payload.animal_name as string) ?? null,
+        label_scientific_name: (payload.scientific_name as string) ?? null,
+        label_category: (payload.category as string) ?? null,
+        label_rarity: (payload.rarity as string) ?? null,
+        subject_bbox: payload.subject_bbox ?? null,
+        user_description: applied?.description ?? null,
+        location: applied?.location ?? null,
+        moderator_id: callerId,
+        forced_name: forceName,
+        is_ground_truth: true,
+      })
       return json({ success: true, animal: payload })
     }
 
@@ -387,6 +411,28 @@ Deno.serve(async (req) => {
         detail: updErr.message,
       }, isUnique ? 409 : 500)
     }
+
+    await logDatasetEvent(supabase, {
+      event_type: 'moderation_approved',
+      source: 'enrich-capture',
+      capture_id: captureId,
+      user_id: capture.user_id,
+      image_url: capture.image_url,
+      predicted_name: animal.animal_name || null,
+      predicted_scientific_name: animal.scientific_name || null,
+      predicted_category: animal.category || null,
+      predicted_rarity: animal.rarity || null,
+      subject_bbox: animal.subject_bbox ?? null,
+      label_name: (update.animal_name as string) ?? null,
+      label_scientific_name: (update.scientific_name as string) ?? null,
+      label_category: (update.category as string) ?? null,
+      label_rarity: (update.rarity as string) ?? null,
+      user_description: capture.description || null,
+      location: capture.location || null,
+      moderator_id: callerId,
+      forced_name: forceName,
+      is_ground_truth: true,
+    })
 
     return json({ success: true, animal: update })
 

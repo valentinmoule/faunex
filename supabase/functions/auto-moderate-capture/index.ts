@@ -1,4 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
+import { logDatasetEvent } from '../_shared/dataset.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -167,6 +168,25 @@ async function examine(
   const unknown = norm(finalName) === 'inconnu' || !finalName
 
   if (!matches || unknown || confidence < AUTO_APPROVE_THRESHOLD) {
+    // Dataset : prédiction non concluante → la capture reste en modération humaine.
+    await logDatasetEvent(supabase, {
+      event_type: 'auto_moderation_deferred',
+      source: 'auto-moderate-capture',
+      capture_id: capture.id,
+      user_id: capture.user_id,
+      image_url: capture.image_url,
+      predicted_name: verdict.animal_name || null,
+      predicted_scientific_name: verdict.scientific_name || null,
+      predicted_category: verdict.category || null,
+      predicted_rarity: verdict.rarity || null,
+      confidence,
+      label_name: name,
+      label_scientific_name: capture.scientific_name || null,
+      user_description: capture.description || null,
+      location: capture.location || null,
+      decision_reason: verdict.reason ?? 'needs_human',
+      is_ground_truth: false,
+    })
     return {
       capture_id: capture.id,
       approved: false,
@@ -201,6 +221,29 @@ async function examine(
     console.error('auto-approve update failed', updErr)
     return { capture_id: capture.id, approved: false, reason: 'db_error', detail: updErr.message }
   }
+
+  // Dataset : validation automatique à haute confiance → vérité terrain.
+  await logDatasetEvent(supabase, {
+    event_type: 'auto_moderation_approved',
+    source: 'auto-moderate-capture',
+    capture_id: capture.id,
+    user_id: capture.user_id,
+    image_url: capture.image_url,
+    predicted_name: verdict.animal_name || null,
+    predicted_scientific_name: verdict.scientific_name || null,
+    predicted_category: verdict.category || null,
+    predicted_rarity: verdict.rarity || null,
+    confidence,
+    subject_bbox: verdict.subject_bbox ?? null,
+    label_name: finalName,
+    label_scientific_name: verdict.scientific_name || null,
+    label_category: verdict.category || null,
+    label_rarity: verdict.rarity || 'common',
+    user_description: capture.description || null,
+    location: capture.location || null,
+    decision_reason: verdict.reason ?? null,
+    is_ground_truth: true,
+  })
 
   if (adminActorId) {
     await supabase.from('notifications').insert({
