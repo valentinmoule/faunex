@@ -69,7 +69,7 @@ export const rarityDot: Record<string, string> = {
 };
 
 export const rarityBadge: Record<string, string> = {
-  common: 'bg-rarity-common text-black',
+  common: 'bg-black/60 text-white backdrop-blur-sm',
   rare: 'bg-rarity-rare text-white',
   epic: 'bg-rarity-epic text-white',
   mythic: 'bg-rarity-mythic text-white',
