@@ -14,13 +14,12 @@ const MESSAGES = [
 ];
 
 async function requireAdmin(req: Request, adminClient: any): Promise<Response | null> {
-  // Appels planifiés (pg_cron) : authentifiés par un secret partagé, pas par un JWT utilisateur.
-  const cronSecret = Deno.env.get('CRON_SECRET');
-  const providedCronSecret = req.headers.get('x-cron-secret');
-  if (cronSecret && providedCronSecret && providedCronSecret === cronSecret) {
+  const authHeader = req.headers.get('Authorization');
+  // Appels planifiés (pg_cron) : la tâche présente la clé service role, pas un JWT utilisateur.
+  const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  if (serviceKey && authHeader === `Bearer ${serviceKey}`) {
     return null;
   }
-  const authHeader = req.headers.get('Authorization');
   if (!authHeader?.startsWith('Bearer ')) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   }
