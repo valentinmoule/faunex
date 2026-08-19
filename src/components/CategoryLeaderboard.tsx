@@ -21,7 +21,7 @@ interface MyRank {
   total_players: number;
 }
 
-const podiumRing = ['ring-amber-400', 'ring-muted-foreground/40', 'ring-orange-400'];
+
 
 const Avatar = ({ row, isPremium, size = 'w-6 h-6', className = '' }: { row: Row; isPremium?: boolean; size?: string; className?: string }) => {
   return (
