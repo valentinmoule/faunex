@@ -1,7 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
-import * as React from 'npm:react@18.3.1'
-import { render } from 'npm:@react-email/components@0.0.22'
-import { ReengagementEmail } from '../_shared/email-templates/reengagement.tsx'
+import { sendAppEmail } from '../_shared/transactional-email-templates/send-app-email.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -84,13 +82,11 @@ Deno.serve(async (req) => {
 
       if (count && count > 0) continue // Already active, skip
 
-      // Check suppression list
       const { data: authUser } = await supabase.auth.admin.getUserById(profile.user_id)
-      if (!authUser?.user?.email) continue
+      const email = authUser?.user?.email
+      if (!email) continue
 
-      const email = authUser.user.email
-
-      // Check if already sent (idempotency via message_id)
+      // Idempotency: one-shot per user
       const messageId = `reengagement-j2-${profile.user_id}`
       const { data: existingLog } = await supabase
         .from('email_send_log')
@@ -98,46 +94,20 @@ Deno.serve(async (req) => {
         .eq('message_id', messageId)
         .limit(1)
 
-      if (existingLog && existingLog.length > 0) continue // Already sent
-
-      // Check suppressed
-      const { data: suppressed } = await supabase
-        .from('suppressed_emails')
-        .select('id')
-        .eq('email', email)
-        .limit(1)
-
-      if (suppressed && suppressed.length > 0) continue
+      if (existingLog && existingLog.length > 0) continue
 
       const displayName = profile.display_name || profile.username || 'Explorateur'
       const siteUrl = 'https://faunex.lovable.app'
 
-      // Render the email
-      const html = await render(
-        React.createElement(ReengagementEmail, { displayName, siteUrl })
-      )
 
-      // Enqueue via the transactional email queue
-      const { error: enqueueError } = await supabase.rpc('enqueue_email', {
-        queue_name: 'transactional_emails',
-        payload: {
-          message_id: messageId,
-          to: email,
-          from: 'Faunex <noreply@notify.faunex.fr>',
-          sender_domain: 'notify.faunex.fr',
-          subject: `${displayName}, la nature t'attend ! 🌿`,
-          html,
-          label: 'reengagement-j2',
-          purpose: 'transactional',
-          idempotency_key: messageId,
-          queued_at: new Date().toISOString(),
-        },
+
+      const outcome = await sendAppEmail(supabase, 'reengagement-j2', email, {
+        templateData: { displayName, siteUrl },
+        idempotencyKey: messageId,
+        messageId,
       })
 
-      if (enqueueError) {
-        console.error(`Failed to enqueue for ${profile.user_id}:`, enqueueError)
-        continue
-      }
+      if (outcome !== 'sent') continue
 
       sentCount++
     }

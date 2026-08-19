@@ -1,5 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import webpush from 'npm:web-push@3.6.7'
+import { sendAppEmail } from '../_shared/transactional-email-templates/send-app-email.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -64,11 +65,11 @@ Deno.serve(async (req) => {
 
     let emailResult: unknown = 'skipped'
     if (email) {
-      const { error } = await supabase.functions.invoke('send-transactional-email', {
-        body: {
-          templateName: approved ? 'capture-approved' : 'capture-rejected',
-          recipientEmail: email,
-          idempotencyKey: `moderation-${decision}-${reason}-${captureId ?? userId}-${animalName}`,
+      emailResult = await sendAppEmail(
+        supabase,
+        approved ? 'capture-approved' : 'capture-rejected',
+        email,
+        {
           templateData: {
             recipientName,
             animalName,
@@ -77,10 +78,9 @@ Deno.serve(async (req) => {
               ? `${APP_URL}/collection${captureId ? `?capture=${captureId}` : ''}`
               : `${APP_URL}/capture`,
           },
+          idempotencyKey: `moderation-${decision}-${reason}-${captureId ?? userId}-${animalName}`,
         },
-      })
-      if (error) console.error('send-transactional-email failed', error)
-      emailResult = error ? 'failed' : 'sent'
+      )
     }
 
     const pushResult = await sendPushToUser(supabase, userId, {

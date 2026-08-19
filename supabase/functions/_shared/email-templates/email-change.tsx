@@ -17,6 +17,7 @@ import {
 
 interface EmailChangeEmailProps {
   siteName: string
+  oldEmail?: string
   email: string
   newEmail: string
   confirmationUrl: string
