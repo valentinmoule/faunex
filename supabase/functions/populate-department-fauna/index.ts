@@ -78,8 +78,8 @@ Deno.serve(async (req) => {
 
   try {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-    const forbidden = await requireAdmin(req, supabase);
-    if (forbidden) return forbidden;
+    const unauthorized = await requireAuth(req);
+    if (unauthorized) return unauthorized;
 
     const { department_code } = await req.json();
     if (!department_code || !DEPT_NAMES[department_code]) {
