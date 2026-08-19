@@ -313,7 +313,7 @@ serve(async (req) => {
       (CONFUSABLE.test(label) && confidence < 75);
 
     if (needsDeep) {
-      const deep = await tryModel(DEEP_MODEL, 45_000);
+      const deep = await tryModel(DEEP_MODEL, 20_000, 2);
       if (deep?.ok) {
         const deepData = await parseAnimal(deep);
         if (deepData) {
