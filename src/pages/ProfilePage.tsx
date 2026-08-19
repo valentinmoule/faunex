@@ -23,50 +23,8 @@ interface Profile {
   regions_explored: number;
 }
 
-interface BadgeDef {
-  id: string;
-  name: string;
-  icon: string;
-  description: string;
-  total: number;
-}
 
-const BADGE_DEFS: BadgeDef[] = [
-  { id: 'first_capture', name: 'Première capture', icon: '📸', description: 'Capturer ton premier animal', total: 1 },
-  { id: 'explorer_10', name: 'Explorateur', icon: '🧭', description: 'Réaliser 10 captures', total: 10 },
-  { id: 'explorer_25', name: 'Naturaliste', icon: '🌿', description: 'Réaliser 25 captures', total: 25 },
-  { id: 'explorer_50', name: 'Expert faune', icon: '🔬', description: 'Réaliser 50 captures', total: 50 },
-  { id: 'birds_5', name: 'Ornithologue', icon: '🐦', description: 'Capturer 5 oiseaux', total: 5 },
-  { id: 'mammals_5', name: 'Mammalogiste', icon: '🦊', description: 'Capturer 5 mammifères', total: 5 },
-  { id: 'rare_1', name: 'Chasseur rare', icon: '💎', description: 'Trouver un animal rare ou mieux', total: 1 },
-  { id: 'legendary_1', name: 'Légende vivante', icon: '⭐', description: 'Trouver un animal épique', total: 1 },
-  { id: 'mythic_1', name: 'Mythique !', icon: '🔥', description: 'Trouver un animal mythique', total: 1 },
-  { id: 'social_3', name: 'Sociable', icon: '🤝', description: 'Suivre 3 explorateurs', total: 3 },
-  { id: 'level_5', name: 'Niveau 5', icon: '🏅', description: 'Atteindre le niveau 5', total: 5 },
-  { id: COMMUNITY_BADGE_ID, name: 'Membre de la communauté', icon: '💬', description: 'Rejoindre le Discord Faunex', total: 1 },
-];
 
-const BADGE_XP_REWARDS: Record<string, number> = {
-  first_capture: 50,
-  explorer_10: 100,
-  explorer_25: 200,
-  explorer_50: 500,
-  birds_5: 100,
-  mammals_5: 100,
-  rare_1: 150,
-  legendary_1: 300,
-  mythic_1: 500,
-  social_3: 75,
-  level_5: 150,
-  [COMMUNITY_BADGE_ID]: COMMUNITY_BADGE_XP,
-};
-
-interface BadgeProgress {
-  badge: BadgeDef;
-  progress: number;
-  earned: boolean;
-  claimed: boolean;
-}
 
 const ProfilePage = () => {
   const { session } = useAuth();
