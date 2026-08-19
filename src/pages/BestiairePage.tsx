@@ -30,6 +30,8 @@ import { useSubscription } from '@/hooks/useSubscription';
 const BestiairePage = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
+  const { isPremium } = useSubscription(session?.user?.id);
+
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'mine' | 'categories' | 'collections' | 'territory'>('mine');
