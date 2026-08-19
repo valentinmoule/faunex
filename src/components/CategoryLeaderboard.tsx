@@ -66,15 +66,13 @@ const CategoryLeaderboard = ({ category }: { category: string }) => {
         onClick={() => setOpen(true)}
         className="w-full mb-3 flex items-center justify-between gap-3 rounded-2xl bg-card border border-border px-3 py-2.5 shadow-sm active:scale-[0.99] transition-transform"
       >
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-9 h-9 shrink-0 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-[11px] font-display font-bold ring-4 ring-primary/10">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-11 h-11 shrink-0 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-display font-bold ring-4 ring-primary/10">
             {mine ? `${mine.rank}${mine.rank === 1 ? 'er' : 'e'}` : '—'}
           </div>
           <div className="min-w-0 text-left">
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-bold">Ma position</p>
-            <p className="text-[13px] font-display font-bold text-foreground truncate">
-              {mine ? `${mine.species} espèce${mine.species > 1 ? 's' : ''} · ${mine.total_players} explorateurs` : `${rows.length} explorateurs`}
-            </p>
+            <p className="text-[13px] font-display font-bold text-foreground truncate">Voir le classement</p>
           </div>
         </div>
         <div className="flex items-center gap-2.5 shrink-0">
