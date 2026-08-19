@@ -29,7 +29,11 @@ project_id = "pakwuooxumrghsbwczwx"
     verify_jwt = true
   [functions.send-inactivity-push]
     verify_jwt = true
+  [functions.send-inactivity-email]
+    verify_jwt = true
   [functions.send-no-capture-nudge]
+    verify_jwt = true
+  [functions.send-reengagement]
     verify_jwt = true
   [functions.populate-bestiary]
     verify_jwt = true
