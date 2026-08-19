@@ -11,6 +11,8 @@ interface Options {
   loadDeptAnimals: (code: string, sourceAnimals?: BestiaryAnimal[], useFallback?: boolean) => Promise<Set<string>>;
   /** Called once a zone is added/selected so the page can close the picker. */
   onZoneReady: (zoneId: string, source: 'department' | 'city' | 'detect') => void;
+  /** Returns false (and warns the user) when the free collection quota is reached. */
+  canAddZone?: () => boolean;
 }
 
 /** CRUD for territory subscriptions (departments, cities, "chez moi"). */
@@ -21,6 +23,7 @@ export const useZoneSubscriptions = ({
   setSubscribedZones,
   loadDeptAnimals,
   onZoneReady,
+  canAddZone,
 }: Options) => {
   const [loadingDept, setLoadingDept] = useState(false);
   const [detectingHome, setDetectingHome] = useState(false);
@@ -42,6 +45,7 @@ export const useZoneSubscriptions = ({
         onZoneReady(existing.id, 'department');
         return;
       }
+      if (canAddZone && !canAddZone()) return;
       setLoadingDept(true);
       try {
         const { data, error } = await supabase
@@ -62,7 +66,7 @@ export const useZoneSubscriptions = ({
         setLoadingDept(false);
       }
     },
-    [userId, subscribedZones, setSubscribedZones, loadDeptAnimals, animals, populateFauna, onZoneReady]
+    [userId, subscribedZones, setSubscribedZones, loadDeptAnimals, animals, populateFauna, onZoneReady, canAddZone]
   );
 
   const addCity = useCallback(
@@ -76,6 +80,7 @@ export const useZoneSubscriptions = ({
         onZoneReady(existing.id, 'city');
         return;
       }
+      if (canAddZone && !canAddZone()) return;
       setLoadingDept(true);
       try {
         const { data, error } = await supabase
@@ -109,7 +114,7 @@ export const useZoneSubscriptions = ({
         setLoadingDept(false);
       }
     },
-    [userId, subscribedZones, setSubscribedZones, loadDeptAnimals, animals, populateFauna, onZoneReady]
+    [userId, subscribedZones, setSubscribedZones, loadDeptAnimals, animals, populateFauna, onZoneReady, canAddZone]
   );
 
   const removeZone = useCallback(
@@ -178,6 +183,7 @@ export const useZoneSubscriptions = ({
         (z) => z.kind === 'city' && z.cityName === commune.nom && z.cityPostcode === postcode,
       );
       if (!zone) {
+        if (canAddZone && !canAddZone()) return;
         const { data: ins, error } = await supabase
           .from('user_department_subscriptions')
           .insert({
@@ -219,7 +225,7 @@ export const useZoneSubscriptions = ({
     } finally {
       setDetectingHome(false);
     }
-  }, [userId, subscribedZones, setSubscribedZones, loadDeptAnimals, animals, populateFauna, setAsHome, onZoneReady]);
+  }, [userId, subscribedZones, setSubscribedZones, loadDeptAnimals, animals, populateFauna, setAsHome, onZoneReady, canAddZone]);
 
   return { loadingDept, detectingHome, addDepartment, addCity, removeZone, setAsHome, detectHome };
 };
