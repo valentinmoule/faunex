@@ -188,7 +188,7 @@ serve(async (req) => {
                   category: {
                     type: "string",
                     enum: ["Mammifères", "Oiseaux", "Reptiles", "Amphibiens", "Poissons", "Insectes", "Arachnides", "Crustacés", "Mollusques"],
-                    description: "Classe zoologique de l'animal. OBLIGATOIRE : choisis exactement UNE de ces 9 catégories, jamais 'Autres'. Pour les annélides/vers utilise 'Mollusques', pour les myriapodes utilise 'Insectes', pour les échinodermes utilise 'Mollusques'. Rattache toujours l'animal à la catégorie zoologique la plus proche."
+                    description: "Classe zoologique de l'animal. OBLIGATOIRE : choisis exactement UNE de ces 9 catégories, jamais 'Autres', jamais 'Cnidaires' ni 'Échinodermes'. Pour les annélides/vers utilise 'Mollusques', pour les myriapodes utilise 'Insectes', pour les échinodermes (oursins, étoiles de mer, holothuries) et les cnidaires (méduses, anémones, coraux) utilise 'Mollusques'. Rattache toujours l'animal à la catégorie zoologique la plus proche."
                   },
                   description: {
                     type: "string",
