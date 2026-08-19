@@ -999,10 +999,10 @@ const BestiairePage = () => {
             </section>
           )}
 
-          {viewMode === 'territory' && (
-            <section>
+          {viewMode === 'collections' && (
+            <section className="space-y-6">
               <div className="flex items-center justify-between mb-3">
-                <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Mes territoires</h2>
+                <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Mes zones</h2>
                 <button
                   onClick={() => { setPickerMode('hub'); setShowDeptPicker(true); }}
                   className="flex items-center gap-1 text-xs font-display font-semibold text-primary px-2 py-1 rounded-lg hover:bg-primary/10 transition"
