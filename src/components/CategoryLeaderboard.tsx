@@ -84,7 +84,7 @@ const CategoryLeaderboard = ({ category }: { category: string }) => {
         <div className="flex items-center gap-2.5 shrink-0">
           <div className="flex -space-x-2">
             {podium.map((r, i) => (
-              <Avatar key={r.user_id} row={r} className={`ring-2 ${podiumRing[i]} border-2 border-card`} />
+              <Avatar key={r.user_id} row={r} isPremium={premiumIds.has(r.user_id)} className={`ring-2 ${podiumRing[i]} border-2 border-card`} />
             ))}
           </div>
           <ChevronRight className="w-4 h-4 text-muted-foreground" />
@@ -105,7 +105,7 @@ const CategoryLeaderboard = ({ category }: { category: string }) => {
                 <span className={`w-6 text-center text-[13px] font-display font-bold ${r.is_me ? 'text-primary' : 'text-muted-foreground'}`}>
                   {r.rank}
                 </span>
-                <Avatar row={r} size="w-8 h-8" />
+                <Avatar row={r} isPremium={premiumIds.has(r.user_id)} size="w-8 h-8" />
                 <p className={`flex-1 min-w-0 truncate text-[13px] font-display ${r.is_me ? 'font-bold text-primary' : 'text-foreground'}`}>
                   {r.is_me ? 'Toi' : r.display_name || r.username || 'Explorateur'}
                 </p>
