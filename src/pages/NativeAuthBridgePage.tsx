@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { lovable } from '@/integrations/lovable/index';
-import { NATIVE_CALLBACK_URL, oauthInitiateOrigin } from '@/lib/authRedirect';
+import { NATIVE_CALLBACK_URL, WEB_ORIGIN } from '@/lib/authRedirect';
 import LoadingScreen from '@/components/LoadingScreen';
 
 const NativeAuthBridgePage = () => {
