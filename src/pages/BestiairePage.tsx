@@ -610,7 +610,7 @@ const BestiairePage = () => {
               </button>
             </div>
 
-            {viewMode !== 'territory' && (
+            {viewMode !== 'territory' && viewMode !== 'collections' && (
               <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1">
                 {(['all', 'common', 'rare', 'epic', 'mythic'] as const).map((r) => {
                   const active = rarityFilter === r;
