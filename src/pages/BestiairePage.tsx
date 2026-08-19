@@ -380,11 +380,84 @@ const BestiairePage = () => {
               </div>
             </button>
 
+            <button
+              onClick={() => { setPickerMode('species'); setCollectionSearch(''); }}
+              className="w-full rounded-2xl border border-border bg-card p-5 text-left transition active:scale-[0.98] hover:border-primary/30"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center shrink-0">
+                  <Layers className="w-6 h-6 text-foreground" strokeWidth={2} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-display font-bold text-base text-foreground">Collection d'espèces</h3>
+                  <p className="text-[11px] text-muted-foreground font-display leading-relaxed mt-0.5">
+                    Races de chien, races de chat, papillons, rapaces, serpents… choisis ce que tu veux compléter.
+                  </p>
+                </div>
+              </div>
+            </button>
+
             <p className="text-[10px] text-muted-foreground font-display text-center pt-2">
-              Tu peux ajouter plusieurs territoires et changer ton « Chez moi » à tout moment.
+              Tu peux suivre plusieurs zones et collections, et changer ton « Chez moi » à tout moment.
             </p>
           </div>
         )}
+
+        {pickerMode === 'species' && (
+          <>
+            <div className="px-5 pt-3">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  value={collectionSearch}
+                  onChange={(e) => setCollectionSearch(e.target.value)}
+                  placeholder="Rechercher une collection…"
+                  className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-card border border-border text-sm font-display placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
+                />
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto px-2 py-2">
+              {filteredCollectionOptions.length === 0 ? (
+                <p className="text-center text-xs font-display text-muted-foreground py-8">Aucune collection trouvée.</p>
+              ) : (
+                filteredCollectionOptions.map(({ group, total, captured }) => {
+                  const already = collectionKeys.includes(group.key);
+                  return (
+                    <button
+                      key={group.key}
+                      onClick={() => {
+                        if (already) {
+                          removeCollection(group.key);
+                        } else {
+                          addCollection(group.key);
+                          setShowDeptPicker(false);
+                          setPickerMode('hub');
+                          setViewMode('collections');
+                        }
+                      }}
+                      className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-muted transition text-left"
+                    >
+                      <span className="text-xl shrink-0">{group.emoji}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-display font-semibold text-foreground truncate">{group.label}</p>
+                        <p className="text-[11px] text-muted-foreground font-display">
+                          {captured}/{total} capturés
+                        </p>
+                      </div>
+                      {already ? (
+                        <span className="text-[10px] font-display text-primary">Ajoutée</span>
+                      ) : (
+                        <Plus className="w-4 h-4 text-primary" />
+                      )}
+                    </button>
+                  );
+                })
+              )}
+            </div>
+          </>
+        )}
+
 
         {pickerMode === 'explore' && (
           <>
