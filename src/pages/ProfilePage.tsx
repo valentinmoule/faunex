@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { PageHeader } from '@/components/PageHeader';
-import { Settings, MapPin, BookOpen, Download, Bell, Users, UserPlus, ShieldCheck } from 'lucide-react';
+import { Settings, MapPin, BookOpen, Download, Bell, Users, UserPlus, ShieldCheck, Crown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePwaInstall } from '@/contexts/PwaInstallContext';
+import { useSubscription } from '@/hooks/useSubscription';
 import XpParticles from '@/components/XpParticles';
 import QuestsInline from '@/components/QuestsInline';
 import DiscordInviteCard from '@/components/DiscordInviteCard';
@@ -29,6 +30,7 @@ interface Profile {
 const ProfilePage = () => {
   const { session } = useAuth();
   const { canInstall, isInstalled, isNative, promptInstall } = usePwaInstall();
+  const { isPremium } = useSubscription(session?.user?.id);
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -147,7 +149,14 @@ const ProfilePage = () => {
             )}
           </div>
           <div className="flex-1">
-            <h2 className="text-xl font-display font-bold text-foreground">{profile.display_name || 'Sans nom'}</h2>
+            <div className="flex items-center gap-1.5">
+              <h2 className="text-xl font-display font-bold text-foreground">{profile.display_name || 'Sans nom'}</h2>
+              {isPremium && (
+                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber/15 text-amber" aria-label="Premium">
+                  <Crown className="w-3 h-3" strokeWidth={2.5} />
+                </span>
+              )}
+            </div>
             <p className="text-sm text-muted-foreground">{profile.username || '@inconnu'}</p>
             <div className="mt-2">
               <div className="flex items-center gap-2 mb-1">
