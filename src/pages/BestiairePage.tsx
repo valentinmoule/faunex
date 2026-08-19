@@ -381,7 +381,7 @@ const BestiairePage = () => {
             </button>
 
             <button
-              onClick={() => { setPickerMode('species'); setCollectionSearch(''); }}
+              onClick={handleAddCollectionClick}
               className="w-full rounded-2xl border border-border bg-card p-5 text-left transition active:scale-[0.98] hover:border-primary/30"
             >
               <div className="flex items-start gap-4">
