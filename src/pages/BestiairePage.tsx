@@ -449,7 +449,6 @@ const BestiairePage = () => {
                 'Collections illimitées',
                 'Zones et territoires illimités',
                 'Classements détaillés par catégorie',
-                'Partage HD de tes plus belles captures',
               ].map((benefit) => (
                 <div key={benefit} className="flex items-center gap-2.5 text-sm font-display text-foreground">
                   <div className="w-5 h-5 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
