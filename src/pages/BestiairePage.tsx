@@ -33,16 +33,19 @@ const BestiairePage = () => {
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedBreedGroup, setSelectedBreedGroup] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'mine' | 'categories' | 'territory'>('mine');
+  const [viewMode, setViewMode] = useState<'mine' | 'categories' | 'collections'>('mine');
   const [rarityFilter, setRarityFilter] = useState<Rarity | 'all'>('all');
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
+  const [selectedCollectionKey, setSelectedCollectionKey] = useState<string | null>(null);
   const [showDeptPicker, setShowDeptPicker] = useState(false);
-  const [pickerMode, setPickerMode] = useState<'hub' | 'explore'>('hub');
+  const [pickerMode, setPickerMode] = useState<'hub' | 'explore' | 'species'>('hub');
   const [pickerTab, setPickerTab] = useState<'department' | 'city'>('department');
   const [deptSearch, setDeptSearch] = useState('');
+  const [collectionSearch, setCollectionSearch] = useState('');
   const [speciesSearch, setSpeciesSearch] = useState('');
   const [mineSearch, setMineSearch] = useState('');
+
 
 
   const {
