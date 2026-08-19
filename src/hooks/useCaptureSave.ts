@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { dataUrlToBytes } from '@/lib/imageProcessing';
 import type { AnimalResult, GeoTag } from '@/types/capture';
+import { logDatasetEvent } from '@/lib/dataset';
 
 interface SaveContext {
   userId: string | undefined;
@@ -78,6 +79,25 @@ export const useCaptureSave = ({ userId, photo, geo }: SaveContext) => {
           subject_bbox: animal.subject_bbox ?? null,
         });
         if (error) throw error;
+        // Dataset : l'explorateur a accepté la proposition de l'IA.
+        void logDatasetEvent({
+          event_type: 'user_accepted',
+          source: 'client',
+          image_url: imageUrl,
+          predicted_name: animal.animal_name,
+          predicted_scientific_name: animal.scientific_name ?? null,
+          predicted_category: animal.category ?? null,
+          predicted_rarity: animal.rarity ?? null,
+          confidence: animal.confidence ?? null,
+          subject_bbox: animal.subject_bbox ?? null,
+          label_name: animal.animal_name,
+          label_scientific_name: animal.scientific_name ?? null,
+          label_category: animal.category ?? null,
+          label_rarity: animal.rarity ?? null,
+          location: geo.name || null,
+          latitude: geo.coords?.lat ?? null,
+          longitude: geo.coords?.lng ?? null,
+        });
         return imageUrl;
       } finally {
         setSaving(false);
@@ -153,6 +173,20 @@ export const useCaptureSave = ({ userId, photo, geo }: SaveContext) => {
           .select('id')
           .single();
         if (error) throw error;
+        // Dataset : saisie manuelle de l'explorateur (correction ou contestation
+        // de l'IA). Le label n'est PAS une vérité terrain avant modération.
+        void logDatasetEvent({
+          event_type: 'user_correction',
+          source: 'client',
+          capture_id: inserted?.id ?? null,
+          image_url: imageUrl,
+          label_name: entry.name,
+          label_scientific_name: entry.species || null,
+          user_description: entry.description || null,
+          location: geo.name || null,
+          latitude: geo.coords?.lat ?? null,
+          longitude: geo.coords?.lng ?? null,
+        });
         // Pré-modération automatique : si l'IA confirme le nom sans ambiguïté,
         // la capture est validée immédiatement, sinon elle reste en modération.
         if (inserted?.id) {
