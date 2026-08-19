@@ -41,6 +41,9 @@ const CategoryLeaderboard = ({ category }: { category: string }) => {
   const [ready, setReady] = useState(false);
   const [open, setOpen] = useState(false);
 
+  const userIds = useMemo(() => rows.map(r => r.user_id), [rows]);
+  const premiumIds = usePremiumUsers(userIds);
+
   useEffect(() => {
     let cancelled = false;
     setReady(false);
