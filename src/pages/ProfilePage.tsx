@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { PageHeader } from '@/components/PageHeader';
-import { Settings, MapPin, BookOpen, Download, Bell, Users, UserPlus, ShieldCheck } from 'lucide-react';
+import { Settings, MapPin, BookOpen, Download, Bell, Users, UserPlus, ShieldCheck, Crown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePwaInstall } from '@/contexts/PwaInstallContext';
+import { useSubscription } from '@/hooks/useSubscription';
 import XpParticles from '@/components/XpParticles';
 import QuestsInline from '@/components/QuestsInline';
 import DiscordInviteCard from '@/components/DiscordInviteCard';
