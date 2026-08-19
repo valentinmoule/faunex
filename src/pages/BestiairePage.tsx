@@ -308,7 +308,7 @@ const BestiairePage = () => {
       <SheetContent side="bottom" className="h-[85vh] p-0 flex flex-col">
         <SheetHeader className="px-5 py-4 border-b border-border">
           <div className="flex items-center gap-2">
-            {pickerMode === 'explore' && (
+            {pickerMode !== 'hub' && (
               <button
                 onClick={() => setPickerMode('hub')}
                 className="p-1 -ml-1 rounded-full hover:bg-muted transition"
@@ -318,7 +318,11 @@ const BestiairePage = () => {
               </button>
             )}
             <SheetTitle className="font-display">
-              {pickerMode === 'hub' ? 'Ajouter un territoire' : 'Explorer une zone'}
+              {pickerMode === 'hub'
+                ? 'Ajouter à ma collection'
+                : pickerMode === 'species'
+                ? "Collections d'espèces"
+                : 'Explorer une zone'}
             </SheetTitle>
           </div>
         </SheetHeader>
@@ -326,8 +330,9 @@ const BestiairePage = () => {
         {pickerMode === 'hub' && (
           <div className="flex-1 overflow-y-auto px-5 py-5 space-y-3">
             <p className="text-xs text-muted-foreground font-display leading-relaxed">
-              Suis la faune locale là où tu vis, ou prépare ta prochaine sortie nature.
+              Ajoute une zone à suivre, ou une collection d'espèces à compléter (races de chien, papillons, rapaces…).
             </p>
+
 
             <button
               onClick={handleDetectHome}
