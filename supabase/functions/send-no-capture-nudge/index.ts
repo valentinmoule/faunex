@@ -1,7 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
-import * as React from 'npm:react@18.3.1'
-import { render } from 'npm:@react-email/components@0.0.22'
-import { NoCaptureNudgeEmail } from '../_shared/email-templates/no-capture-j7.tsx'
+import { sendAppEmail } from '../_shared/transactional-email-templates/send-app-email.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -98,41 +96,17 @@ Deno.serve(async (req) => {
 
       if (existingLog && existingLog.length > 0) continue
 
-      // Suppression list
-      const { data: suppressed } = await supabase
-        .from('suppressed_emails')
-        .select('id')
-        .eq('email', email)
-        .limit(1)
-
-      if (suppressed && suppressed.length > 0) continue
 
       const displayName = profile.display_name || profile.username || 'Explorateur'
 
-      const html = await render(
-        React.createElement(NoCaptureNudgeEmail, { displayName, siteUrl })
-      )
 
-      const { error: enqueueError } = await supabase.rpc('enqueue_email', {
-        queue_name: 'transactional_emails',
-        payload: {
-          message_id: messageId,
-          to: email,
-          from: 'Faunex <noreply@notify.faunex.fr>',
-          sender_domain: 'notify.faunex.fr',
-          subject: `${displayName}, ta première carte t'attend 🦊`,
-          html,
-          label: 'no-capture-j7',
-          purpose: 'transactional',
-          idempotency_key: messageId,
-          queued_at: new Date().toISOString(),
-        },
+      const outcome = await sendAppEmail(supabase, 'no-capture-j7', email, {
+        templateData: { displayName, siteUrl },
+        idempotencyKey: messageId,
+        messageId,
       })
 
-      if (enqueueError) {
-        console.error(`Failed to enqueue for ${profile.user_id}:`, enqueueError)
-        continue
-      }
+      if (outcome !== 'sent') continue
 
       sentCount++
     }
