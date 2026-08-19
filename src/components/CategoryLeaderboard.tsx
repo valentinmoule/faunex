@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { ChevronRight } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { PremiumAvatar } from '@/components/PremiumAvatar';
+import { usePremiumUsers } from '@/hooks/usePremiumUsers';
 
 interface Row {
   rank: number;
@@ -21,14 +23,15 @@ interface MyRank {
 
 const podiumRing = ['ring-amber-400', 'ring-muted-foreground/40', 'ring-orange-400'];
 
-const Avatar = ({ row, size = 'w-6 h-6', className = '' }: { row: Row; size?: string; className?: string }) => {
-  const initial = (row.display_name || row.username || '?').charAt(0).toUpperCase();
-  return row.avatar_url ? (
-    <img src={row.avatar_url} alt="" loading="lazy" className={`${size} rounded-full object-cover ${className}`} />
-  ) : (
-    <div className={`${size} rounded-full bg-muted flex items-center justify-center text-[10px] font-display font-bold text-muted-foreground ${className}`}>
-      {initial}
-    </div>
+const Avatar = ({ row, isPremium, size = 'w-6 h-6', className = '' }: { row: Row; isPremium?: boolean; size?: string; className?: string }) => {
+  return (
+    <PremiumAvatar
+      avatarUrl={row.avatar_url}
+      name={row.display_name || row.username || '?'}
+      isPremium={isPremium}
+      size={size === 'w-6 h-6' ? 'sm' : size === 'w-8 h-8' ? 'md' : 'lg'}
+      className={className}
+    />
   );
 };
 
