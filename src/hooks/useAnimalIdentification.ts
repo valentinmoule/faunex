@@ -182,11 +182,14 @@ export const useAnimalIdentification = () => {
         }
 
         const raw = JSON.stringify((lastError as any)?.message ?? lastError ?? '');
-        const message = raw.includes('429')
-          ? "L'IA est surchargée, réessaie dans quelques secondes."
-          : raw.includes('402')
-            ? "Le service d'identification est momentanément indisponible."
-            : "L'analyse a échoué (connexion ou serveur). Réessaie.";
+        const message = raw.includes('TIMEOUT')
+          ? "L'analyse a été trop longue (connexion lente). Réessaie."
+          : raw.includes('429')
+            ? "L'IA est surchargée, réessaie dans quelques secondes."
+            : raw.includes('402')
+              ? "Le service d'identification est momentanément indisponible."
+              : "L'analyse a échoué (connexion ou serveur). Réessaie.";
+
         return { status: 'error', message };
       };
 
