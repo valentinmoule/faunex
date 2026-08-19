@@ -595,7 +595,7 @@ const ExplorersPage = () => {
                     <button onClick={() => acceptRequest(f.user_id)} className="p-2 rounded-lg bg-primary text-primary-foreground"><CheckIcon className="w-4 h-4" /></button>
                     <button onClick={() => rejectRequest(f.user_id)} className="p-2 rounded-lg bg-muted text-muted-foreground hover:text-destructive"><XCircle className="w-4 h-4" /></button>
                   </div>
-                } />)}
+                } isPremium={searchPremiumIds.has(f.user_id)} />)}
               </div>
             )
           )}
