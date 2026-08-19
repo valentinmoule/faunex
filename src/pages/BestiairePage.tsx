@@ -101,10 +101,47 @@ const BestiairePage = () => {
     onZoneReady: handleZoneReady,
   });
 
+  const { collectionKeys, addCollection, removeCollection } = useSpeciesCollections(session?.user?.id);
+
   const handleRemoveZone = async (zoneId: string) => {
     await removeZone(zoneId);
     setSelectedZoneId(null);
   };
+
+  /** Every species group that actually has species in the bestiary, with progress. */
+  const availableCollections = useMemo(() => {
+    const counts = new Map<string, { total: number; captured: number }>();
+    animals.forEach((a) => {
+      const group = getSpeciesGroup(a.name, a.scientific_name, a.category);
+      if (!group) return;
+      const entry = counts.get(group.key) || { total: 0, captured: 0 };
+      entry.total++;
+      if (a.captured) entry.captured++;
+      counts.set(group.key, entry);
+    });
+    return BREED_GROUPS.map((group) => ({ group, ...(counts.get(group.key) || { total: 0, captured: 0 }) }))
+      .filter((e) => e.total >= MIN_BREEDS_PER_GROUP)
+      .sort((a, b) => a.group.label.localeCompare(b.group.label, 'fr'));
+  }, [animals]);
+
+  const myCollections = useMemo(
+    () => availableCollections.filter((e) => collectionKeys.includes(e.group.key)),
+    [availableCollections, collectionKeys],
+  );
+
+  const selectedCollection = useMemo(
+    () => availableCollections.find((e) => e.group.key === selectedCollectionKey) || null,
+    [availableCollections, selectedCollectionKey],
+  );
+
+  const collectionAnimals = useMemo(() => {
+    if (!selectedCollection) return [];
+    return animals
+      .filter((a) => getSpeciesGroup(a.name, a.scientific_name, a.category)?.key === selectedCollection.group.key)
+      .sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+  }, [animals, selectedCollection]);
+
+
 
   // Categories with counts
   const categoryData = useMemo(() => {
