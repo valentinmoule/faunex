@@ -551,7 +551,7 @@ const ExplorersPage = () => {
               </div>
             ) : (
               <div className="divide-y divide-border">
-                {following.map(f => f.profile && <UserRow key={f.user_id} user={f.profile} onClick={() => navigate(`/explorer/${f.user_id}/collection`)} action={<ChevronRight className="w-4 h-4 text-muted-foreground" />} />)}
+                {following.map(f => f.profile && <UserRow key={f.user_id} user={f.profile} onClick={() => navigate(`/explorer/${f.user_id}/collection`)} action={<ChevronRight className="w-4 h-4 text-muted-foreground" />} isPremium={searchPremiumIds.has(f.user_id)} />)}
               </div>
             )
           )}
