@@ -14,7 +14,7 @@ const FREE_FEATURES = [
 
 const PREMIUM_FEATURES = [
   { icon: InfinityIcon, title: 'Captures illimitées', description: 'Plus de limite de 4 captures par jour.' },
-  { icon: Sparkles, title: 'Modèle de modération plus performant', description: 'Une identification plus fine et plus rapide de tes espèces.' },
+  { icon: Sparkles, title: 'Détection et modération plus performantes', description: 'Identifie et valide tes espèces plus vite et plus précisément.' },
   { icon: MapPin, title: 'Localisation des animaux autour de toi', description: 'Repère les espèces présentes près de ta position.' },
   { icon: NotebookPen, title: 'Notes sur tes captures', description: 'Garde tes observations de terrain avec chaque carte.' },
   { icon: Crown, title: "Plein d'autres choses à venir…", description: 'Les prochaines nouveautés arrivent en priorité chez les abonnés.' },
@@ -27,7 +27,7 @@ const PricingPage = () => {
     <main className="min-h-screen bg-background pb-16">
       <Helmet>
         <title>Tarifs — Faunex Premium à 2,40 €/mois ou 24 €/an</title>
-        <meta name="description" content="Faunex est gratuit avec 4 captures par jour. Faunex Premium : 2,40 € par mois ou 24 € par an (2 mois offerts) — captures illimitées, identification plus fine, localisation et notes. Sans engagement." />
+        <meta name="description" content="Faunex est gratuit avec 4 captures par jour. Faunex Premium : 2,40 € par mois ou 24 € par an (2 mois offerts) — captures illimitées, détection et modération plus performantes, localisation et notes. Sans engagement." />
         <link rel="canonical" href="https://faunex.fr/tarifs" />
         <meta property="og:url" content="https://faunex.fr/tarifs" />
         <meta property="og:title" content="Tarifs — Faunex Premium à 2,40 €/mois ou 24 €/an" />

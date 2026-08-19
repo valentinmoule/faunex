@@ -420,7 +420,7 @@ const BestiairePage = () => {
               >
                 <p className="text-[10px] text-muted-foreground font-display">
                   {slotsUsed}/{FREE_SLOT_LIMIT} zones ou collections utilisées ·{' '}
-                  <span className="text-primary font-semibold">Passe en Premium pour l'illimité</span>
+                  <span className="text-primary font-semibold">Passe en Premium pour des zones et collections illimitées</span>
                 </p>
               </button>
             )}
