@@ -4,7 +4,6 @@ import { Settings, MapPin, BookOpen, Download, Bell, Users, UserPlus, ShieldChec
 import { useNavigate } from 'react-router-dom';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePwaInstall } from '@/contexts/PwaInstallContext';
 import XpParticles from '@/components/XpParticles';
