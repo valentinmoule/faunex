@@ -19,16 +19,66 @@ export type Database = {
           animal_name: string
           created_at: string
           department_code: string
+          taxon_id: string | null
         }
         Insert: {
           animal_name: string
           created_at?: string
           department_code: string
+          taxon_id?: string | null
         }
         Update: {
           animal_name?: string
           created_at?: string
           department_code?: string
+          taxon_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "animal_departments_taxon_id_fkey"
+            columns: ["taxon_id"]
+            isOneToOne: false
+            referencedRelation: "taxa"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      animal_departments_backup_20260819: {
+        Row: {
+          animal_name: string | null
+          created_at: string | null
+          department_code: string | null
+        }
+        Insert: {
+          animal_name?: string | null
+          created_at?: string | null
+          department_code?: string | null
+        }
+        Update: {
+          animal_name?: string | null
+          created_at?: string | null
+          department_code?: string | null
+        }
+        Relationships: []
+      }
+      animal_merge_map: {
+        Row: {
+          created_at: string
+          mode: string
+          new_name: string
+          old_name: string
+        }
+        Insert: {
+          created_at?: string
+          mode?: string
+          new_name: string
+          old_name: string
+        }
+        Update: {
+          created_at?: string
+          mode?: string
+          new_name?: string
+          old_name?: string
         }
         Relationships: []
       }
@@ -40,6 +90,7 @@ export type Database = {
           name: string
           rarity: string
           scientific_name: string | null
+          taxon_id: string | null
         }
         Insert: {
           category: string
@@ -48,6 +99,7 @@ export type Database = {
           name: string
           rarity?: string
           scientific_name?: string | null
+          taxon_id?: string | null
         }
         Update: {
           category?: string
@@ -56,6 +108,72 @@ export type Database = {
           name?: string
           rarity?: string
           scientific_name?: string | null
+          taxon_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "animals_taxon_id_fkey"
+            columns: ["taxon_id"]
+            isOneToOne: false
+            referencedRelation: "taxa"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      animals_backup_20260819: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          id: string | null
+          name: string | null
+          rarity: string | null
+          scientific_name: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          id?: string | null
+          name?: string | null
+          rarity?: string | null
+          scientific_name?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          id?: string | null
+          name?: string | null
+          rarity?: string | null
+          scientific_name?: string | null
+        }
+        Relationships: []
+      }
+      animals_phase7_backup_20260819: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          id: string | null
+          name: string | null
+          rarity: string | null
+          scientific_name: string | null
+          taxon_id: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          id?: string | null
+          name?: string | null
+          rarity?: string | null
+          scientific_name?: string | null
+          taxon_id?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          id?: string | null
+          name?: string | null
+          rarity?: string | null
+          scientific_name?: string | null
+          taxon_id?: string | null
         }
         Relationships: []
       }
@@ -101,6 +219,7 @@ export type Database = {
           shared: boolean
           status: string
           subject_bbox: Json | null
+          taxon_id: string | null
           user_id: string
         }
         Insert: {
@@ -126,6 +245,7 @@ export type Database = {
           shared?: boolean
           status?: string
           subject_bbox?: Json | null
+          taxon_id?: string | null
           user_id: string
         }
         Update: {
@@ -151,7 +271,197 @@ export type Database = {
           shared?: boolean
           status?: string
           subject_bbox?: Json | null
+          taxon_id?: string | null
           user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "captures_taxon_id_fkey"
+            columns: ["taxon_id"]
+            isOneToOne: false
+            referencedRelation: "taxa"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      captures_phase7_backup_20260819: {
+        Row: {
+          animal_name: string | null
+          category: string | null
+          id: string | null
+          rarity: string | null
+          snapshot_at: string | null
+          taxon_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          animal_name?: string | null
+          category?: string | null
+          id?: string | null
+          rarity?: string | null
+          snapshot_at?: string | null
+          taxon_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          animal_name?: string | null
+          category?: string | null
+          id?: string | null
+          rarity?: string | null
+          snapshot_at?: string | null
+          taxon_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      collection_rules: {
+        Row: {
+          collection_id: string
+          created_at: string
+          id: string
+          include: boolean
+          is_core: boolean
+          params: Json
+          rule_type: string
+          updated_at: string
+        }
+        Insert: {
+          collection_id: string
+          created_at?: string
+          id?: string
+          include?: boolean
+          is_core?: boolean
+          params?: Json
+          rule_type: string
+          updated_at?: string
+        }
+        Update: {
+          collection_id?: string
+          created_at?: string
+          id?: string
+          include?: boolean
+          is_core?: boolean
+          params?: Json
+          rule_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collection_rules_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "collections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collection_rules_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "my_collection_progress"
+            referencedColumns: ["collection_id"]
+          },
+        ]
+      }
+      collection_taxa: {
+        Row: {
+          collection_id: string
+          created_at: string
+          is_core: boolean
+          taxon_id: string
+        }
+        Insert: {
+          collection_id: string
+          created_at?: string
+          is_core?: boolean
+          taxon_id: string
+        }
+        Update: {
+          collection_id?: string
+          created_at?: string
+          is_core?: boolean
+          taxon_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collection_taxa_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "collections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collection_taxa_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "my_collection_progress"
+            referencedColumns: ["collection_id"]
+          },
+          {
+            foreignKeyName: "collection_taxa_taxon_id_fkey"
+            columns: ["taxon_id"]
+            isOneToOne: false
+            referencedRelation: "taxa"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      collection_taxa_phase7_backup_20260819: {
+        Row: {
+          collection_id: string | null
+          created_at: string | null
+          is_core: boolean | null
+          taxon_id: string | null
+        }
+        Insert: {
+          collection_id?: string | null
+          created_at?: string | null
+          is_core?: boolean | null
+          taxon_id?: string | null
+        }
+        Update: {
+          collection_id?: string | null
+          created_at?: string | null
+          is_core?: boolean | null
+          taxon_id?: string | null
+        }
+        Relationships: []
+      }
+      collections: {
+        Row: {
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          is_premium: boolean
+          kind: string
+          slug: string
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_premium?: boolean
+          kind?: string
+          slug: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_premium?: boolean
+          kind?: string
+          slug?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -488,6 +798,7 @@ export type Database = {
           predicted_scientific_name: string | null
           source: string
           subject_bbox: Json | null
+          taxon_id: string | null
           user_description: string | null
           user_id: string | null
         }
@@ -520,6 +831,7 @@ export type Database = {
           predicted_scientific_name?: string | null
           source: string
           subject_bbox?: Json | null
+          taxon_id?: string | null
           user_description?: string | null
           user_id?: string | null
         }
@@ -552,6 +864,7 @@ export type Database = {
           predicted_scientific_name?: string | null
           source?: string
           subject_bbox?: Json | null
+          taxon_id?: string | null
           user_description?: string | null
           user_id?: string | null
         }
@@ -583,6 +896,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "ml_dataset_captures"
             referencedColumns: ["capture_id"]
+          },
+          {
+            foreignKeyName: "ml_dataset_events_taxon_id_fkey"
+            columns: ["taxon_id"]
+            isOneToOne: false
+            referencedRelation: "taxa"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -739,6 +1059,36 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles_counters_backup_20260819: {
+        Row: {
+          level: number | null
+          regions_explored: number | null
+          snapshot_at: string | null
+          total_captures: number | null
+          user_id: string | null
+          xp: number | null
+          xp_to_next: number | null
+        }
+        Insert: {
+          level?: number | null
+          regions_explored?: number | null
+          snapshot_at?: string | null
+          total_captures?: number | null
+          user_id?: string | null
+          xp?: number | null
+          xp_to_next?: number | null
+        }
+        Update: {
+          level?: number | null
+          regions_explored?: number | null
+          snapshot_at?: string | null
+          total_captures?: number | null
+          user_id?: string | null
+          xp?: number | null
+          xp_to_next?: number | null
+        }
+        Relationships: []
+      }
       push_subscriptions: {
         Row: {
           auth: string
@@ -850,6 +1200,189 @@ export type Database = {
         }
         Relationships: []
       }
+      taxa: {
+        Row: {
+          collectible: boolean
+          created_at: string
+          external_ids: Json
+          id: string
+          is_domestic: boolean
+          main_category: Database["public"]["Enums"]["main_category"]
+          merged_into: string | null
+          notes: string | null
+          parent_id: string | null
+          progress_taxon_id: string | null
+          rank: Database["public"]["Enums"]["taxon_rank"]
+          rarity: string
+          scientific_name: string | null
+          scientific_rank: string | null
+          scope: Database["public"]["Enums"]["taxon_scope"]
+          status: Database["public"]["Enums"]["taxon_status"]
+          updated_at: string
+          vernacular_name: string
+        }
+        Insert: {
+          collectible?: boolean
+          created_at?: string
+          external_ids?: Json
+          id?: string
+          is_domestic?: boolean
+          main_category: Database["public"]["Enums"]["main_category"]
+          merged_into?: string | null
+          notes?: string | null
+          parent_id?: string | null
+          progress_taxon_id?: string | null
+          rank: Database["public"]["Enums"]["taxon_rank"]
+          rarity?: string
+          scientific_name?: string | null
+          scientific_rank?: string | null
+          scope?: Database["public"]["Enums"]["taxon_scope"]
+          status?: Database["public"]["Enums"]["taxon_status"]
+          updated_at?: string
+          vernacular_name: string
+        }
+        Update: {
+          collectible?: boolean
+          created_at?: string
+          external_ids?: Json
+          id?: string
+          is_domestic?: boolean
+          main_category?: Database["public"]["Enums"]["main_category"]
+          merged_into?: string | null
+          notes?: string | null
+          parent_id?: string | null
+          progress_taxon_id?: string | null
+          rank?: Database["public"]["Enums"]["taxon_rank"]
+          rarity?: string
+          scientific_name?: string | null
+          scientific_rank?: string | null
+          scope?: Database["public"]["Enums"]["taxon_scope"]
+          status?: Database["public"]["Enums"]["taxon_status"]
+          updated_at?: string
+          vernacular_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "taxa_merged_into_fkey"
+            columns: ["merged_into"]
+            isOneToOne: false
+            referencedRelation: "taxa"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "taxa_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "taxa"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "taxa_progress_taxon_id_fkey"
+            columns: ["progress_taxon_id"]
+            isOneToOne: false
+            referencedRelation: "taxa"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      taxa_phase7_backup_20260819: {
+        Row: {
+          collectible: boolean | null
+          created_at: string | null
+          external_ids: Json | null
+          id: string | null
+          is_domestic: boolean | null
+          main_category: Database["public"]["Enums"]["main_category"] | null
+          merged_into: string | null
+          notes: string | null
+          parent_id: string | null
+          rank: Database["public"]["Enums"]["taxon_rank"] | null
+          rarity: string | null
+          scientific_name: string | null
+          scientific_rank: string | null
+          scope: Database["public"]["Enums"]["taxon_scope"] | null
+          status: Database["public"]["Enums"]["taxon_status"] | null
+          updated_at: string | null
+          vernacular_name: string | null
+        }
+        Insert: {
+          collectible?: boolean | null
+          created_at?: string | null
+          external_ids?: Json | null
+          id?: string | null
+          is_domestic?: boolean | null
+          main_category?: Database["public"]["Enums"]["main_category"] | null
+          merged_into?: string | null
+          notes?: string | null
+          parent_id?: string | null
+          rank?: Database["public"]["Enums"]["taxon_rank"] | null
+          rarity?: string | null
+          scientific_name?: string | null
+          scientific_rank?: string | null
+          scope?: Database["public"]["Enums"]["taxon_scope"] | null
+          status?: Database["public"]["Enums"]["taxon_status"] | null
+          updated_at?: string | null
+          vernacular_name?: string | null
+        }
+        Update: {
+          collectible?: boolean | null
+          created_at?: string | null
+          external_ids?: Json | null
+          id?: string | null
+          is_domestic?: boolean | null
+          main_category?: Database["public"]["Enums"]["main_category"] | null
+          merged_into?: string | null
+          notes?: string | null
+          parent_id?: string | null
+          rank?: Database["public"]["Enums"]["taxon_rank"] | null
+          rarity?: string | null
+          scientific_name?: string | null
+          scientific_rank?: string | null
+          scope?: Database["public"]["Enums"]["taxon_scope"] | null
+          status?: Database["public"]["Enums"]["taxon_status"] | null
+          updated_at?: string | null
+          vernacular_name?: string | null
+        }
+        Relationships: []
+      }
+      taxon_synonyms: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          label: string
+          lang: string
+          normalized_label: string
+          taxon_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind?: string
+          label: string
+          lang?: string
+          normalized_label: string
+          taxon_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          label?: string
+          lang?: string
+          normalized_label?: string
+          taxon_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "taxon_synonyms_taxon_id_fkey"
+            columns: ["taxon_id"]
+            isOneToOne: false
+            referencedRelation: "taxa"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_badges: {
         Row: {
           badge_id: string
@@ -927,6 +1460,26 @@ export type Database = {
       }
     }
     Views: {
+      bestiary_catalogue: {
+        Row: {
+          category: string | null
+          is_breed: boolean | null
+          name: string | null
+          progress_name: string | null
+          rarity: string | null
+          scientific_name: string | null
+          taxon_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "animals_taxon_id_fkey"
+            columns: ["taxon_id"]
+            isOneToOne: false
+            referencedRelation: "taxa"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ml_dataset_captures: {
         Row: {
           animal_id: string | null
@@ -1026,18 +1579,61 @@ export type Database = {
           },
         ]
       }
+      my_collection_progress: {
+        Row: {
+          collection_id: string | null
+          icon: string | null
+          is_premium: boolean | null
+          kind: string | null
+          owned: number | null
+          slug: string | null
+          sort_order: number | null
+          title: string | null
+          total: number | null
+        }
+        Insert: {
+          collection_id?: string | null
+          icon?: string | null
+          is_premium?: boolean | null
+          kind?: string | null
+          owned?: never
+          slug?: string | null
+          sort_order?: number | null
+          title?: string | null
+          total?: never
+        }
+        Update: {
+          collection_id?: string | null
+          icon?: string | null
+          is_premium?: boolean | null
+          kind?: string | null
+          owned?: never
+          slug?: string | null
+          sort_order?: number | null
+          title?: string | null
+          total?: never
+        }
+        Relationships: []
+      }
     }
     Functions: {
       canonical_animal_category: {
         Args: { p_category: string; p_name?: string; p_scientific?: string }
         Returns: string
       }
+      canonical_animal_name: { Args: { p_name: string }; Returns: string }
       captures_remaining_today: { Args: never; Returns: number }
       claim_badge: {
         Args: { p_badge_id: string; p_xp_reward: number }
         Returns: boolean
       }
       claim_quest_reward: { Args: { p_quest_id: string }; Returns: boolean }
+      collection_rule_taxa: {
+        Args: { p_rule_id: string }
+        Returns: {
+          taxon_id: string
+        }[]
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
@@ -1117,6 +1713,18 @@ export type Database = {
           scientific_name: string
         }[]
       }
+      match_taxon: {
+        Args: { p_name: string; p_scientific?: string }
+        Returns: {
+          collectible: boolean
+          id: string
+          main_category: Database["public"]["Enums"]["main_category"]
+          rank: Database["public"]["Enums"]["taxon_rank"]
+          rarity: string
+          scientific_name: string
+          vernacular_name: string
+        }[]
+      }
       move_to_dlq: {
         Args: {
           dlq_name: string
@@ -1127,6 +1735,7 @@ export type Database = {
         Returns: number
       }
       normalize_animal_label: { Args: { p_label: string }; Returns: string }
+      progress_taxon: { Args: { p_taxon_id: string }; Returns: string }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
         Returns: {
@@ -1140,9 +1749,29 @@ export type Database = {
         Returns: undefined
       }
       record_capture_attempt: { Args: never; Returns: number }
+      refresh_collection_membership: {
+        Args: { p_collection_id?: string }
+        Returns: number
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      main_category:
+        | "Mammifères"
+        | "Oiseaux"
+        | "Reptiles"
+        | "Amphibiens"
+        | "Poissons"
+        | "Insectes"
+        | "Arachnides"
+        | "Crustacés"
+        | "Mollusques"
+        | "Échinodermes"
+        | "Cnidaires"
+        | "Autres invertébrés"
+      taxon_rank: "group" | "species" | "subspecies" | "breed"
+      taxon_scope: "france" | "monde"
+      taxon_status: "validated" | "pending" | "deprecated"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1271,6 +1900,23 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      main_category: [
+        "Mammifères",
+        "Oiseaux",
+        "Reptiles",
+        "Amphibiens",
+        "Poissons",
+        "Insectes",
+        "Arachnides",
+        "Crustacés",
+        "Mollusques",
+        "Échinodermes",
+        "Cnidaires",
+        "Autres invertébrés",
+      ],
+      taxon_rank: ["group", "species", "subspecies", "breed"],
+      taxon_scope: ["france", "monde"],
+      taxon_status: ["validated", "pending", "deprecated"],
     },
   },
 } as const
