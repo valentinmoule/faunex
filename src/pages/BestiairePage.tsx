@@ -1157,17 +1157,28 @@ const BestiairePage = () => {
                           <button
                             key={cat.name}
                             onClick={() => { setSelectedBreedGroup(null); setSelectedCategory(cat.name); }}
-                            className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-md"
+                            className="group relative overflow-hidden rounded-2xl border border-border bg-card p-4 text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-md"
                           >
-                            <div className="mb-2">
-                              <CatIcon className="w-7 h-7 text-primary" strokeWidth={1.75} />
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                                <CatIcon className="w-5 h-5 text-primary" strokeWidth={1.75} />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h3 className="font-display font-bold text-sm text-foreground leading-tight truncate">{cat.name}</h3>
+                                <p className="text-[11px] text-muted-foreground font-display mt-0.5">
+                                  {cat.total} espèce{cat.total > 1 ? 's' : ''}
+                                </p>
+                              </div>
+                              <div className="text-right shrink-0">
+                                <span className="font-display font-bold text-sm text-foreground">{cat.captured}</span>
+                                <span className="text-[10px] text-muted-foreground font-display">/{cat.total}</span>
+                              </div>
                             </div>
-                            <h3 className="font-display font-bold text-sm text-foreground leading-tight mb-1 truncate">{cat.name}</h3>
-                            <p className="text-[11px] text-muted-foreground font-display mb-3">
-                              {cat.captured}/{cat.total} capturés
-                            </p>
-                            <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
-                              <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${progress}%` }} />
+                            <div className="flex items-center gap-2">
+                              <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
+                                <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${progress}%` }} />
+                              </div>
+                              <span className="text-[10px] font-display font-semibold text-muted-foreground w-8 text-right">{progress}%</span>
                             </div>
                           </button>
                         );
