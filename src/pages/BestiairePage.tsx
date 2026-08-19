@@ -18,7 +18,7 @@ import {
   rarityDot,
   type ZoneSub,
 } from '@/lib/bestiary';
-import { MIN_BREEDS_PER_GROUP, getBreedGroup, type BreedGroup } from '@/lib/breedGroups';
+import { MIN_BREEDS_PER_GROUP, getBreedGroup, getSpeciesGroup, type BreedGroup } from '@/lib/breedGroups';
 import { useBestiaryData } from '@/hooks/useBestiaryData';
 import { useCitySearch } from '@/hooks/useCitySearch';
 import { useShelveAnimation } from '@/hooks/useShelveAnimation';
