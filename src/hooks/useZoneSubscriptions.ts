@@ -26,7 +26,6 @@ export const useZoneSubscriptions = ({
   canAddZone,
 }: Options) => {
   const [loadingDept, setLoadingDept] = useState(false);
-  const [detectingHome, setDetectingHome] = useState(false);
 
   const populateFauna = useCallback(
     (code: string) => {
@@ -130,102 +129,5 @@ export const useZoneSubscriptions = ({
     [userId, setSubscribedZones]
   );
 
-  const setAsHome = useCallback(
-    async (zoneId: string) => {
-      if (!userId) return;
-      try {
-        await supabase
-          .from('user_department_subscriptions')
-          .update({ is_home: false })
-          .eq('user_id', userId)
-          .eq('is_home', true);
-        const { error } = await supabase
-          .from('user_department_subscriptions')
-          .update({ is_home: true })
-          .eq('user_id', userId)
-          .eq('id', zoneId);
-        if (error) throw error;
-        setSubscribedZones((prev) => prev.map((z) => ({ ...z, isHome: z.id === zoneId })));
-        toast.success('Territoire défini comme « Chez moi »');
-      } catch (e: any) {
-        toast.error(e.message || 'Erreur');
-      }
-    },
-    [userId, setSubscribedZones]
-  );
-
-  const detectHome = useCallback(async () => {
-    if (!userId) return;
-    if (!('geolocation' in navigator)) {
-      toast.error('Géolocalisation indisponible');
-      return;
-    }
-    setDetectingHome(true);
-    try {
-      const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: false,
-          timeout: 10000,
-          maximumAge: 60000,
-        });
-      });
-      const { latitude, longitude } = pos.coords;
-      const url = `https://geo.api.gouv.fr/communes?lat=${latitude}&lon=${longitude}&fields=nom,code,codeDepartement,codesPostaux&limit=1`;
-      const res = await fetch(url);
-      const data = await res.json();
-      const commune = Array.isArray(data) && data[0];
-      if (!commune) {
-        toast.error('Impossible de détecter ta commune (hors France ?)');
-        return;
-      }
-      const postcode = commune.codesPostaux?.[0] || '';
-      let zone = subscribedZones.find(
-        (z) => z.kind === 'city' && z.cityName === commune.nom && z.cityPostcode === postcode,
-      );
-      if (!zone) {
-        if (canAddZone && !canAddZone()) return;
-        const { data: ins, error } = await supabase
-          .from('user_department_subscriptions')
-          .insert({
-            user_id: userId,
-            department_code: commune.codeDepartement,
-            kind: 'city',
-            city_name: commune.nom,
-            city_postcode: postcode,
-            is_home: true,
-          })
-          .select('id')
-          .single();
-        if (error) throw error;
-        zone = {
-          id: ins.id,
-          kind: 'city',
-          departmentCode: commune.codeDepartement,
-          cityName: commune.nom,
-          cityPostcode: postcode,
-          isHome: true,
-        };
-        await supabase
-          .from('user_department_subscriptions')
-          .update({ is_home: false })
-          .eq('user_id', userId)
-          .eq('is_home', true)
-          .neq('id', zone.id);
-        setSubscribedZones((prev) => [...prev.map((z) => ({ ...z, isHome: false })), zone!]);
-        await loadDeptAnimals(commune.codeDepartement, animals);
-        populateFauna(commune.codeDepartement);
-      } else {
-        await setAsHome(zone.id);
-      }
-      toast.success(`Chez toi : ${commune.nom} 🏠`);
-      onZoneReady(zone.id, 'detect');
-    } catch (e: any) {
-      const msg = e?.code === 1 ? 'Autorise la géolocalisation pour détecter ta zone' : (e?.message || 'Erreur de géolocalisation');
-      toast.error(msg);
-    } finally {
-      setDetectingHome(false);
-    }
-  }, [userId, subscribedZones, setSubscribedZones, loadDeptAnimals, animals, populateFauna, setAsHome, onZoneReady, canAddZone]);
-
-  return { loadingDept, detectingHome, addDepartment, addCity, removeZone, setAsHome, detectHome };
+  return { loadingDept, addDepartment, addCity, removeZone };
 };
