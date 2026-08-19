@@ -1,65 +1,25 @@
+# Modération : passer sur un modèle plus performant
+
 ## Objectif
+Améliorer la fiabilité des décisions de modération (auto-validation et prévisualisation de fiche) en utilisant en priorité le modèle le plus performant, avec repli automatique en cas d'erreur.
 
-Envoyer une notification push PWA à chaque utilisateur qui ne s'est pas connecté depuis **10 jours**, une seule fois (pas de spam si l'inactivité continue), avec un message engageant qui le ramène dans Faunex.
+## Situation actuelle
+- Auto-modération (`auto-moderate-capture`) : essaie `google/gemini-2.5-flash`, puis `google/gemini-2.5-pro` en repli.
+- Enrichissement de fiche (`enrich-capture`) : `gemini-2.5-pro` puis `flash` en qualité "high", `flash-lite` puis `flash` sinon.
+- Seuil d'auto-approbation actuel conservé (confiance ≥ 90 %).
 
----
+## Changements proposés
+1. Auto-modération : inverser l'ordre → `google/gemini-2.5-pro` en principal, `google/gemini-2.5-flash` en repli (puis `flash-lite` en dernier recours si les deux échouent).
+2. Enrichissement : utiliser la chaîne "haute qualité" (`pro` → `flash`) pour toute demande venant de la modération, et non seulement en mode `high`.
+3. Journaliser le modèle réellement utilisé dans les événements dataset, pour comparer la qualité des décisions.
+4. Aucun changement du seuil de confiance ni du parcours utilisateur : la modération humaine reste le repli.
 
-## Ce qui sera mis en place
+## Impact
+- Meilleure précision sur les cas difficiles (races, insectes, espèces proches), donc moins de captures renvoyées en modération manuelle.
+- Coût IA par modération plus élevé (le flux de modération est faible en volume, contrairement à l'identification côté capture qui reste inchangée).
+- Latence légèrement supérieure ; les timeouts et repli existants sont conservés.
 
-### 1. Infrastructure Web Push (VAPID)
-
-- Génération d'une paire de clés VAPID (publique + privée).
-- Clé **publique** exposée côté client (variable d'env).
-- Clé **privée** stockée en secret Supabase, utilisée côté edge function pour signer les pushs.
-
-### 2. Service Worker dédié push
-
-- Nouveau fichier `public/push-sw.js` (séparé de tout futur service worker PWA app-shell, pour ne pas casser les previews Lovable).
-- Gère les événements `push` (affichage notif avec icône Faunex 🦊, vibration, titre/corps dynamiques) et `notificationclick` (ouvre l'app sur `/home`).
-
-### 3. Table `push_subscriptions`
-
-```
-id, user_id (FK profiles), endpoint (unique), p256dh, auth, 
-user_agent, created_at, last_used_at
-```
-
-- RLS : chaque user gère uniquement ses propres subscriptions.
-- GRANTs standards + service_role.
-
-### 4. Onboarding côté client
-
-- **Nouveau composant `PushPermissionPrompt`** : popup discret qui apparaît une fois (après le `PwaInstallBanner`), demandant l'autorisation des notifications avec un wording motivant ("Sois prévenu quand de nouvelles espèces apparaissent près de toi 🦊").
-- Si accepté → enregistre le service worker, crée la subscription, l'enregistre en base.
-- **Réglage opt-out** dans la page Profil → Paramètres ("Notifications push").
-
-### 5. Edge function `send-inactivity-push` + cron quotidien
-
-- Récupère les utilisateurs avec `last_login_at < now() - 10 days` ET pas de notif inactivité envoyée dans les 30 derniers jours.
-- Envoie le push via Web Push API (signé VAPID) à chaque subscription valide.
-- Si une subscription renvoie 410 Gone → la supprime de la base.
-- Trace dans une nouvelle table `inactivity_notifications_log` (`user_id`, `sent_at`) pour éviter le spam.
-- Cron quotidien à 18h00 (heure de pointe d'engagement).
-
-### 6. Tracking `last_login_at`
-
-- Déjà partiellement présent via `login_events`. Ajout d'une colonne `last_login_at` sur `profiles` mise à jour par trigger sur `login_events`, plus performant à requêter quotidiennement.
-
----
-
-## Limitations à connaître (importantes)
-
-- **iOS Safari** : les notifications push PWA ne fonctionnent que si l'utilisateur a **installé l'app sur son écran d'accueil** (iOS 16.4+). Pas en navigation classique. Ton `PwaInstallBanner` existant prend déjà ça en charge.
-- **Android Chrome / Firefox / Edge desktop** : fonctionnent partout, app installée ou non.
-- Les notifications n'arrivent que si le navigateur tourne en arrière-plan (cas standard sur mobile).
-
----
-
-## Variantes possibles (dis-moi si tu préfères)
-
-- **Délai** : 10 jours fixe, ou configurable (ex. à régler depuis le backoffice) ?
-- **Fréquence de relance** : une seule fois ? ou une rappel tous les 30 jours s'il ne revient toujours pas ?
-- **Wording du push** : générique ("Faunex t'attend 🦊") ou personnalisé ("Reviens chasser de nouvelles espèces !") — je peux aussi varier aléatoirement entre 3-4 messages.
-- **Heure d'envoi** : 18h (proposé), 12h ou 9h ?
-
-Tu valides ce plan ? Ou tu veux ajuster un point avant que je code ?
+## Détails techniques
+- `supabase/functions/auto-moderate-capture/index.ts` : liste de modèles réordonnée, ajout d'un dernier repli, capture du modèle utilisé pour le log dataset.
+- `supabase/functions/enrich-capture/index.ts` : `quality` par défaut passe sur la chaîne `pro` → `flash` pour les appels de modération.
+- Vérification par appel réel des deux fonctions après déploiement (une capture en attente).
