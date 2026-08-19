@@ -1,42 +1,65 @@
-# Plan : Afficher la date de renouvellement des crédits / abonnement
-
 ## Objectif
-Permettre à l'utilisateur de voir clairement la date exacte de renouvellement (ou de fin d'accès) de son abonnement Premium, directement depuis les paramètres et le profil, sans devoir aller sur la page Premium.
 
-## Contexte actuel
-- La date `current_period_end` est déjà récupérée par le hook `useSubscription`.
-- Elle est actuellement affichée uniquement dans `src/pages/PremiumPage.tsx`, sous le bouton "Abonnement actif".
-- `SettingsPage.tsx` a déjà un item "Faunex Premium" qui redirige vers `/premium`.
-- `ProfilePage.tsx` utilise déjà `useSubscription` pour afficher le badge couronne.
+Envoyer une notification push PWA à chaque utilisateur qui ne s'est pas connecté depuis **10 jours**, une seule fois (pas de spam si l'inactivité continue), avec un message engageant qui le ramène dans Faunex.
 
-## Implémentation prévue
+---
 
-### 1. Composant réutilisable `SubscriptionStatusCard`
-Créer `src/components/SubscriptionStatusCard.tsx` qui affiche :
-- Badge "Abonnement actif" avec icône `Check`.
-- Date de renouvellement formatée en français : "Prochain renouvellement le JJ/MM/AAAA".
-- Si `cancel_at_period_end` est vrai : "Accès jusqu'au JJ/MM/AAAA".
-- Bouton "Gérer mon abonnement" qui appelle `supabase.functions.invoke('paddle-portal')` comme dans `PremiumPage.tsx`.
+## Ce qui sera mis en place
 
-### 2. Intégration dans `SettingsPage.tsx`
-- Récupérer `subscription` et `isPremium` via `useSubscription(session?.user?.id)`.
-- Au-dessus de l'item "Faunex Premium", afficher `SubscriptionStatusCard` quand `isPremium` est vrai.
-- Garder l'item "Faunex Premium" existant pour les non-abonnés (upsell).
+### 1. Infrastructure Web Push (VAPID)
 
-### 3. Intégration dans `ProfilePage.tsx`
-- `useSubscription` est déjà utilisé pour `isPremium`.
-- Ajouter `subscription` dans le destructuring.
-- Sous le header profil / au-dessus des stats, afficher discrètement `SubscriptionStatusCard` si `isPremium` est vrai.
+- Génération d'une paire de clés VAPID (publique + privée).
+- Clé **publique** exposée côté client (variable d'env).
+- Clé **privée** stockée en secret Supabase, utilisée côté edge function pour signer les pushs.
 
-### 4. Ajustement mineur de `PremiumPage.tsx`
-- Remplacer le bloc date + bouton actuel par `SubscriptionStatusCard` pour éviter la duplication et garantir le même wording partout.
+### 2. Service Worker dédié push
 
-## Fichiers concernés
-- `src/components/SubscriptionStatusCard.tsx` (création)
-- `src/pages/SettingsPage.tsx` (modification)
-- `src/pages/ProfilePage.tsx` (modification)
-- `src/pages/PremiumPage.tsx` (modification mineure)
+- Nouveau fichier `public/push-sw.js` (séparé de tout futur service worker PWA app-shell, pour ne pas casser les previews Lovable).
+- Gère les événements `push` (affichage notif avec icône Faunex 🦊, vibration, titre/corps dynamiques) et `notificationclick` (ouvre l'app sur `/home`).
 
-## Non-objectifs
-- Pas de modification de la base de données ni des Edge Functions.
-- Pas de changement du modèle de tarification ou des hooks existants.
+### 3. Table `push_subscriptions`
+
+```
+id, user_id (FK profiles), endpoint (unique), p256dh, auth, 
+user_agent, created_at, last_used_at
+```
+
+- RLS : chaque user gère uniquement ses propres subscriptions.
+- GRANTs standards + service_role.
+
+### 4. Onboarding côté client
+
+- **Nouveau composant `PushPermissionPrompt`** : popup discret qui apparaît une fois (après le `PwaInstallBanner`), demandant l'autorisation des notifications avec un wording motivant ("Sois prévenu quand de nouvelles espèces apparaissent près de toi 🦊").
+- Si accepté → enregistre le service worker, crée la subscription, l'enregistre en base.
+- **Réglage opt-out** dans la page Profil → Paramètres ("Notifications push").
+
+### 5. Edge function `send-inactivity-push` + cron quotidien
+
+- Récupère les utilisateurs avec `last_login_at < now() - 10 days` ET pas de notif inactivité envoyée dans les 30 derniers jours.
+- Envoie le push via Web Push API (signé VAPID) à chaque subscription valide.
+- Si une subscription renvoie 410 Gone → la supprime de la base.
+- Trace dans une nouvelle table `inactivity_notifications_log` (`user_id`, `sent_at`) pour éviter le spam.
+- Cron quotidien à 18h00 (heure de pointe d'engagement).
+
+### 6. Tracking `last_login_at`
+
+- Déjà partiellement présent via `login_events`. Ajout d'une colonne `last_login_at` sur `profiles` mise à jour par trigger sur `login_events`, plus performant à requêter quotidiennement.
+
+---
+
+## Limitations à connaître (importantes)
+
+- **iOS Safari** : les notifications push PWA ne fonctionnent que si l'utilisateur a **installé l'app sur son écran d'accueil** (iOS 16.4+). Pas en navigation classique. Ton `PwaInstallBanner` existant prend déjà ça en charge.
+- **Android Chrome / Firefox / Edge desktop** : fonctionnent partout, app installée ou non.
+- Les notifications n'arrivent que si le navigateur tourne en arrière-plan (cas standard sur mobile).
+
+---
+
+## Variantes possibles (dis-moi si tu préfères)
+
+- **Délai** : 10 jours fixe, ou configurable (ex. à régler depuis le backoffice) ?
+- **Fréquence de relance** : une seule fois ? ou une rappel tous les 30 jours s'il ne revient toujours pas ?
+- **Wording du push** : générique ("Faunex t'attend 🦊") ou personnalisé ("Reviens chasser de nouvelles espèces !") — je peux aussi varier aléatoirement entre 3-4 messages.
+- **Heure d'envoi** : 18h (proposé), 12h ou 9h ?
+
+Tu valides ce plan ? Ou tu veux ajuster un point avant que je code ?
