@@ -418,6 +418,60 @@ const BestiairePage = () => {
           </div>
         )}
 
+        {pickerMode === 'upsell' && (
+          <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
+            <div className="relative mb-6">
+              <div className="absolute inset-0 rounded-full bg-primary/20 blur-2xl" />
+              <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 flex items-center justify-center">
+                <Crown className="w-11 h-11 text-primary" strokeWidth={1.75} />
+              </div>
+            </div>
+
+            <h3 className="font-display font-bold text-xl text-foreground mb-2">
+              Débloque toutes les collections
+            </h3>
+            <p className="text-sm text-muted-foreground font-display leading-relaxed max-w-xs mb-6">
+              Avec <span className="text-foreground font-semibold">Faunex Premium</span>, crée autant de séries thématiques que tu veux : races de chien, races de chat, papillons, rapaces, serpents… et suis toutes les zones que tu veux.
+            </p>
+
+            <div className="w-full max-w-xs space-y-2.5 mb-8 text-left">
+              {[
+                'Collections illimitées',
+                'Zones et territoires illimités',
+                'Classements détaillés par catégorie',
+                'Partage HD de tes plus belles captures',
+              ].map((benefit) => (
+                <div key={benefit} className="flex items-center gap-2.5 text-sm font-display text-foreground">
+                  <div className="w-5 h-5 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+                    <Plus className="w-3 h-3 text-primary" strokeWidth={2.5} />
+                  </div>
+                  {benefit}
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={() => {
+                setShowDeptPicker(false);
+                setPickerMode('hub');
+                navigate('/premium');
+              }}
+              className="w-full max-w-xs rounded-2xl bg-primary text-primary-foreground py-3.5 font-display font-semibold text-sm active:scale-[0.98] transition shadow-lg shadow-primary/20"
+            >
+              Passer à Premium
+            </button>
+            <button
+              onClick={() => {
+                setShowDeptPicker(false);
+                setPickerMode('hub');
+              }}
+              className="mt-3 text-xs font-display text-muted-foreground underline"
+            >
+              Plus tard
+            </button>
+          </div>
+        )}
+
         {pickerMode === 'species' && (
           <>
             {!isPremium && slotsUsed >= FREE_SLOT_LIMIT ? (
