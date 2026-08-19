@@ -5,11 +5,16 @@ import { ReengagementEmail } from '../_shared/email-templates/reengagement.tsx'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-cron-secret',
 }
 
 async function requireAdmin(req: Request, adminClient: any): Promise<Response | null> {
   const authHeader = req.headers.get('Authorization');
+  // Appels planifiés (pg_cron) : la tâche présente la clé service role, pas un JWT utilisateur.
+  const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  if (serviceKey && authHeader === `Bearer ${serviceKey}`) {
+    return null;
+  }
   if (!authHeader?.startsWith('Bearer ')) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   }
