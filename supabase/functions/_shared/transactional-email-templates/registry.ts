@@ -21,4 +21,7 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'capture-comment': captureComment,
   'capture-approved': captureApproved,
   'capture-rejected': captureRejected,
+  'reengagement-j2': reengagementJ2,
+  'no-capture-j7': noCaptureJ7,
+  'inactivity-email': inactivityEmail,
 }
