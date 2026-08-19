@@ -26,7 +26,7 @@ export function PremiumAvatar({
   const initial = (name || "?").charAt(0).toUpperCase();
 
   return (
-    <div className={`relative inline-flex shrink-0 ${className}`}>
+    <div className={`relative inline-flex shrink-0 rounded-full ${className}`}>
       {avatarUrl ? (
         <img
           src={avatarUrl}
