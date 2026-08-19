@@ -186,9 +186,11 @@ Périmètre exact : **114 taxons** actuellement en `main_category = 'Mollusques'
 | Cnidaires | 15 | 41 | 15 | 13 |
 | Échinodermes | 14 | 19 | 14 | 12 |
 | Autres invertébrés | 3 | 5 | 3 | 2 |
-| Autre (non animal) | 3 | 3 | 3 | 3 (retirés, non remplacés) |
+| Autre (non animal) — `Trous de ver marin` seul | 1 | 1 | 1 | 1 (retiré, non remplacé) |
+| **Supprimés du référentiel** (2 plantes, cf. §K) | 2 | 2 | 2 (lignes supprimées) | 2 (retirés) |
 | Arachnides | 1 | 1 | 1 | 1 |
 | Mammifères | 1 | 1 | 1 | 2 (dont 1 conservé) |
+
 
 ### J.2 Mollusques → Cnidaires (15 taxons, 41 captures)
 
