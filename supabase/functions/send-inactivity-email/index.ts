@@ -1,7 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import * as React from 'npm:react@18.3.1'
 import { render } from 'npm:@react-email/components@0.0.22'
-import { NoCaptureNudgeEmail } from '../_shared/email-templates/no-capture-j7.tsx'
+import { InactivityEmail } from '../_shared/email-templates/inactivity-email.tsx'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -50,24 +50,60 @@ Deno.serve(async (req) => {
     const forbidden = await requireAdmin(req, supabase)
     if (forbidden) return forbidden
 
-    // Find users who signed up exactly 7 days ago (window: ±12h to be tolerant
-    // to missed cron runs without ever sending twice — idempotency via message_id).
+    const INACTIVE_DAYS = 14
+    const COOLDOWN_DAYS = 30
     const now = new Date()
-    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
-    const windowStart = new Date(sevenDaysAgo.getTime() - 12 * 60 * 60 * 1000)
-    const windowEnd = new Date(sevenDaysAgo.getTime() + 12 * 60 * 60 * 1000)
+    const inactiveBefore = new Date(now.getTime() - INACTIVE_DAYS * 86400000).toISOString()
+    const cooldownAfter = new Date(now.getTime() - COOLDOWN_DAYS * 86400000).toISOString()
 
+    // 1. Find inactive users via profiles.last_login_at (maintenu à jour par le trigger)
+    const { data: inactiveProfiles, error: profErr } = await supabase
+      .from('profiles')
+      .select('user_id, last_login_at')
+      .lt('last_login_at', inactiveBefore)
+      .not('last_login_at', 'is', null)
+
+    if (profErr) throw profErr
+
+    if (!inactiveProfiles || inactiveProfiles.length === 0) {
+      return new Response(JSON.stringify({ sent: 0, message: 'No inactive users' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    const candidateIds = inactiveProfiles.map(p => p.user_id)
+
+    // 2. Exclude users who already received an inactivity email in the cooldown window
+    const messageIdPrefix = `inactivity-email-`
+    const { data: recentLogs } = await supabase
+      .from('email_send_log')
+      .select('message_id')
+      .ilike('message_id', `${messageIdPrefix}%`)
+      .gte('created_at', cooldownAfter)
+
+    const recentlyNotified = new Set((recentLogs ?? []).map(r => {
+      const parts = r.message_id.split('-')
+      return parts[parts.length - 1]
+    }))
+    const toNotify = candidateIds.filter(id => !recentlyNotified.has(id))
+
+    if (toNotify.length === 0) {
+      return new Response(JSON.stringify({ sent: 0, candidates: candidateIds.length, reason: 'recently notified' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // 3. Fetch profiles with marketing consent
     const { data: profiles, error: profilesError } = await supabase
       .from('profiles')
       .select('user_id, display_name, username, marketing_emails')
-      .gte('created_at', windowStart.toISOString())
-      .lte('created_at', windowEnd.toISOString())
+      .in('user_id', toNotify)
       .eq('marketing_emails', true)
 
     if (profilesError) throw profilesError
 
     if (!profiles || profiles.length === 0) {
-      return new Response(JSON.stringify({ sent: 0, message: 'No users to nudge' }), {
+      return new Response(JSON.stringify({ sent: 0, candidates: toNotify.length, reason: 'no marketing consent' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
@@ -76,29 +112,11 @@ Deno.serve(async (req) => {
     const siteUrl = 'https://faunex.fr'
 
     for (const profile of profiles) {
-      // Skip users who already captured something
-      const { count } = await supabase
-        .from('captures')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', profile.user_id)
-
-      if (count && count > 0) continue
-
       const { data: authUser } = await supabase.auth.admin.getUserById(profile.user_id)
       const email = authUser?.user?.email
       if (!email) continue
 
-      // Idempotency: one-shot per user
-      const messageId = `no-capture-j7-${profile.user_id}`
-      const { data: existingLog } = await supabase
-        .from('email_send_log')
-        .select('id')
-        .eq('message_id', messageId)
-        .limit(1)
-
-      if (existingLog && existingLog.length > 0) continue
-
-      // Suppression list
+      // Check suppression list
       const { data: suppressed } = await supabase
         .from('suppressed_emails')
         .select('id')
@@ -108,25 +126,20 @@ Deno.serve(async (req) => {
       if (suppressed && suppressed.length > 0) continue
 
       const displayName = profile.display_name || profile.username || 'Explorateur'
+      const messageId = `inactivity-email-${profile.user_id}`
 
       const html = await render(
-        React.createElement(NoCaptureNudgeEmail, { displayName, siteUrl })
+        React.createElement(InactivityEmail, { displayName, siteUrl })
       )
 
       const { error: enqueueError } = await supabase.rpc('enqueue_email', {
-        queue_name: 'transactional_emails',
-        payload: {
-          message_id: messageId,
-          to: email,
-          from: 'Faunex <noreply@notify.faunex.fr>',
-          sender_domain: 'notify.faunex.fr',
-          subject: `${displayName}, ta première carte t'attend 🦊`,
-          html,
-          label: 'no-capture-j7',
-          purpose: 'transactional',
-          idempotency_key: messageId,
-          queued_at: new Date().toISOString(),
-        },
+        p_queue_name: 'transactional_emails',
+        p_message_id: messageId,
+        p_to: email,
+        p_subject: `${displayName}, la nature t'attend 🌿`,
+        p_html: html,
+        p_from: 'Faunex <noreply@notify.faunex.fr>',
+        p_template_name: 'inactivity-email',
       })
 
       if (enqueueError) {
@@ -137,11 +150,11 @@ Deno.serve(async (req) => {
       sentCount++
     }
 
-    return new Response(JSON.stringify({ sent: sentCount, total: profiles.length }), {
+    return new Response(JSON.stringify({ sent: sentCount, candidates: profiles.length }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   } catch (error) {
-    console.error('no-capture-j7 error:', error)
+    console.error('Inactivity email error:', error)
     return new Response(JSON.stringify({ error: (error as Error).message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

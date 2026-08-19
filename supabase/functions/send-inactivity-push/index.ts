@@ -15,7 +15,13 @@ const MESSAGES = [
 
 async function requireAdmin(req: Request, adminClient: any): Promise<Response | null> {
   const authHeader = req.headers.get('Authorization');
-  // Appels planifiés (pg_cron) : la tâche présente la clé service role, pas un JWT utilisateur.
+  const cronSecret = req.headers.get('x-cron-secret');
+  const expectedCronSecret = Deno.env.get('CRON_SECRET');
+  // Appels planifiés (pg_cron) : la tâche présente le secret CRON_SECRET.
+  if (expectedCronSecret && cronSecret === expectedCronSecret) {
+    return null;
+  }
+  // Rétrocompatibilité : appels directement authentifiés avec la service role key.
   const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
   if (serviceKey && authHeader === `Bearer ${serviceKey}`) {
     return null;
@@ -60,7 +66,7 @@ Deno.serve(async (req) => {
     const inactiveBefore = new Date(now.getTime() - INACTIVE_DAYS * 86400000).toISOString();
     const cooldownAfter = new Date(now.getTime() - COOLDOWN_DAYS * 86400000).toISOString();
 
-    // 1. Find inactive users
+    // 1. Find inactive users via profiles.last_login_at (maintenu à jour par le trigger)
     const { data: inactiveProfiles, error: profErr } = await supabase
       .from('profiles')
       .select('user_id, last_login_at')

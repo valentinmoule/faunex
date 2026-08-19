@@ -69,6 +69,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             if (!sessionStorage.getItem(key)) {
               sessionStorage.setItem(key, '1');
               supabase.from('login_events').insert({ user_id: session.user.id }).then(() => {});
+              // Backup : met à jour last_login_at au cas où le trigger serait absent.
+              supabase.from('profiles').update({ last_login_at: new Date().toISOString() }).eq('user_id', session.user.id).then(() => {});
             }
           }, 0);
         }
