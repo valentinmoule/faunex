@@ -248,15 +248,16 @@ Note : « Étoile de mer rouge » (*Echinaster sepositus*) est aujourd'hui class
 | Siamois Seal point (Mollusques, `breed`, *Felis catus*) | **Mammifères**, parent « Chats », `breed` | rejoint la collection « Races de chats » (déjà rattaché) et quitte la collection Mollusques pour Mammifères | 1 / 1 explorateur |
 | Limule royal (Mollusques, `species`, *Limulus polyphemus*) | **Arachnides**, `species`, rareté rare conservée | classement correct (chélicérate) | 1 / 1 explorateur |
 
-### J.6 Entrées non animales → « Autre (non animal) » (3 taxons, 3 captures)
+### J.6 Entrée non animale conservée → « Autre (non animal) » (1 taxon, 1 capture)
 
 | Ancien taxon | Nom scientifique | Nouveau taxon | Captures |
 | --- | --- | --- | --- |
-| Aconit napel | *Aconitum napellus* | Autre (non animal), `collectible = false`, `status = 'pending'` | 1 / 1 explorateur |
-| Pulsatilla vulgaris | *Pulsatilla vulgaris* | Autre (non animal), `collectible = false`, `status = 'pending'` | 1 / 1 explorateur |
 | Trous de ver marin | *Diverses espèces de vers polychètes* | Autre (non animal), `collectible = false`, `status = 'pending'` | 1 / 1 explorateur |
 
-Ces 3 taxons perdent leur rattachement de collection (aucune collection « Autre (non animal) » n'est créée) : ils disparaîtront des grilles de bestiaire **le jour où l'UI basculera sur les collections**, mais les 3 captures, leurs photos et l'XP déjà gagné restent intacts.
+Il s'agit d'une trace d'observation animale (vers polychètes) : le taxon est **conservé** mais non collectionnable. Il perd son rattachement de collection et disparaîtra des grilles de bestiaire le jour où l'UI basculera sur les collections ; la capture, sa photo et l'XP acquis restent intacts.
+
+Les deux plantes (*Aconitum napellus*, *Pulsatilla vulgaris*) ne sont plus reclassées : elles sont **supprimées du référentiel** — voir §K.
+
 
 ### J.7 Impact précis sur captures, XP et progression
 
