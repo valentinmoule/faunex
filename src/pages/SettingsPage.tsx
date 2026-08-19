@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, Fragment } from 'react';
 import { PageHeader } from '@/components/PageHeader';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Pencil, KeyRound, Share2, Scale, LogOut, Trash2, Loader2, Camera, Check, X, ChevronRight, Mail, Lock, Smartphone, Bell, Crown } from 'lucide-react';
+import { ArrowLeft, Pencil, KeyRound, Share2, Scale, LogOut, Trash2, Loader2, Camera, Check, X, ChevronRight, Mail, Lock, Smartphone, Bell, Crown, MessageCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -224,6 +224,7 @@ const SettingsPage = () => {
             <MenuItem icon={<Pencil className="w-5 h-5" />} label="Modifier le profil" onClick={() => setSection('edit')} />
             <MenuItem icon={<KeyRound className="w-5 h-5" />} label="Changer le mot de passe" onClick={() => setSection('password')} />
             <MenuItem icon={<Share2 className="w-5 h-5" />} label="Partager mon profil" onClick={handleShare} />
+            <MenuItem icon={<MessageCircle className="w-5 h-5" />} label="Communauté Discord" onClick={() => window.open('https://discord.gg/ZrQhZUZG2', '_blank', 'noopener,noreferrer')} />
             <MenuItem icon={<Scale className="w-5 h-5" />} label="Mentions légales" onClick={() => navigate('/legal')} />
             {!isNative && !isInstalled && (
               <MenuItem
