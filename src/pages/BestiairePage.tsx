@@ -1211,7 +1211,7 @@ const BestiairePage = () => {
               <div className="flex items-center justify-between">
                 <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Mes collections</h2>
                 <button
-                  onClick={() => { setPickerMode('hub'); setShowDeptPicker(true); }}
+                  onClick={openAddSlotModal}
                   className="flex items-center gap-1 text-xs font-display font-semibold text-primary px-2 py-1 rounded-lg hover:bg-primary/10 transition"
                 >
                   <Plus className="w-3.5 h-3.5" />
@@ -1221,7 +1221,7 @@ const BestiairePage = () => {
 
               {subscribedZones.length === 0 && myCollections.length === 0 ? (
                 <button
-                  onClick={() => { setPickerMode('hub'); setShowDeptPicker(true); }}
+                  onClick={openAddSlotModal}
                   className="w-full rounded-2xl border border-dashed border-border p-6 text-center transition active:scale-[0.98] hover:border-primary/40"
                 >
                   <div className="inline-flex w-12 h-12 rounded-2xl bg-primary/15 items-center justify-center mb-2">
