@@ -25,6 +25,11 @@ import { useShelveAnimation } from '@/hooks/useShelveAnimation';
 import { useZoneSubscriptions } from '@/hooks/useZoneSubscriptions';
 import { useSpeciesCollections } from '@/hooks/useSpeciesCollections';
 import CategoryLeaderboard from '@/components/CategoryLeaderboard';
+import { useSubscription } from '@/hooks/useSubscription';
+import { toast } from 'sonner';
+
+/** Zones + collections combinées, limite gratuite. */
+const FREE_SLOT_LIMIT = 3;
 
 
 const BestiairePage = () => {
@@ -84,6 +89,22 @@ const BestiairePage = () => {
     [setCitySearch, setCityResults]
   );
 
+  const { isPremium } = useSubscription(session?.user?.id);
+  const { collectionKeys, addCollection, removeCollection } = useSpeciesCollections(session?.user?.id);
+
+  const slotsUsed = subscribedZones.length + collectionKeys.length;
+  const slotsLocked = !isPremium && slotsUsed >= FREE_SLOT_LIMIT;
+
+  const guardSlot = useCallback(() => {
+    if (isPremium) return true;
+    if (subscribedZones.length + collectionKeys.length < FREE_SLOT_LIMIT) return true;
+    toast.error(`Limite de ${FREE_SLOT_LIMIT} zones ou collections atteinte`, {
+      description: 'Passe en Premium pour en suivre autant que tu veux.',
+      action: { label: 'Premium', onClick: () => navigate('/premium') },
+    });
+    return false;
+  }, [isPremium, subscribedZones.length, collectionKeys.length, navigate]);
+
   const {
     loadingDept,
     detectingHome,
@@ -99,9 +120,8 @@ const BestiairePage = () => {
     setSubscribedZones,
     loadDeptAnimals,
     onZoneReady: handleZoneReady,
+    canAddZone: guardSlot,
   });
-
-  const { collectionKeys, addCollection, removeCollection } = useSpeciesCollections(session?.user?.id);
 
   const handleRemoveZone = async (zoneId: string) => {
     await removeZone(zoneId);
@@ -394,9 +414,21 @@ const BestiairePage = () => {
               </div>
             </button>
 
-            <p className="text-[10px] text-muted-foreground font-display text-center pt-2">
-              Tu peux suivre autant de zones et de collections que tu veux.
-            </p>
+            {isPremium ? (
+              <p className="text-[10px] text-muted-foreground font-display text-center pt-2">
+                Premium : tu peux suivre autant de zones et de collections que tu veux.
+              </p>
+            ) : (
+              <button
+                onClick={() => navigate('/premium')}
+                className="w-full pt-2 text-center"
+              >
+                <p className="text-[10px] text-muted-foreground font-display">
+                  {slotsUsed}/{FREE_SLOT_LIMIT} zones ou collections utilisées ·{' '}
+                  <span className="text-primary font-semibold">Passe en Premium pour l'illimité</span>
+                </p>
+              </button>
+            )}
 
           </div>
         )}
@@ -428,6 +460,7 @@ const BestiairePage = () => {
                         if (already) {
                           removeCollection(group.key);
                         } else {
+                          if (!guardSlot()) return;
                           addCollection(group.key);
                           setShowDeptPicker(false);
                           setPickerMode('hub');
