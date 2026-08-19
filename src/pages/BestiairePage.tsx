@@ -1023,7 +1023,7 @@ const BestiairePage = () => {
                         className="absolute inset-0 w-full h-full object-cover"
                         loading="lazy"
                       />
-                      <div className="absolute top-2 right-2">
+                      <div className="absolute top-1 right-1">
                         <span className="inline-flex items-center px-1 py-px rounded-md text-[8px] font-display font-bold uppercase tracking-wide bg-black/60 text-white backdrop-blur-sm">
                           {RARITY_LABELS[animal.rarity] || animal.rarity}
                         </span>
