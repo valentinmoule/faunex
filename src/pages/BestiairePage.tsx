@@ -1154,8 +1154,8 @@ const BestiairePage = () => {
                         const CatIcon = getCategoryIcon(cat.name);
                         const progress = cat.total > 0 ? Math.round((cat.captured / cat.total) * 100) : 0;
                         const recentCaptures = animals
-                          .filter(a => normalizeCategory(a.category) === cat.name && a.captured && a.image)
-                          .sort((a, b) => (b.capturedAt || '').localeCompare(a.capturedAt || ''))
+                          .filter(a => normalizeCategory(a.category) === cat.name && a.captured && a.captureData?.image)
+                          .sort((a, b) => (b.captureData?.discoveredAt || '').localeCompare(a.captureData?.discoveredAt || ''))
                           .slice(0, 4);
                         const emptySlots = Math.max(0, 4 - recentCaptures.length);
                         return (
@@ -1187,7 +1187,7 @@ const BestiairePage = () => {
                                 <div className="flex items-center gap-1.5">
                                   {recentCaptures.map((a, i) => (
                                     <div key={i} className="w-9 h-9 rounded-xl overflow-hidden border border-border/40 bg-muted">
-                                      <img src={a.image} alt={a.name} className="w-full h-full object-cover" loading="lazy" />
+                                      <img src={a.captureData?.image} alt={a.name} className="w-full h-full object-cover" loading="lazy" />
                                     </div>
                                   ))}
                                   {Array.from({ length: emptySlots }).map((_, i) => (
