@@ -336,7 +336,7 @@ const MapPage = () => {
           url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
         />
         <RecenterOnUser position={userPos} />
-        <CenterTracker onMove={(c) => { centerRef.current = c; }} />
+        <CenterTracker onMove={(c) => { centerRef.current = c; }} onZoom={setZoom} />
         {userPos && (
           <Marker
             position={userPos}
