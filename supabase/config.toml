@@ -28,9 +28,13 @@ project_id = "pakwuooxumrghsbwczwx"
   [functions.generate-daily-quests]
     verify_jwt = true
   [functions.send-inactivity-push]
-    verify_jwt = true
+    verify_jwt = false
+  [functions.send-inactivity-email]
+    verify_jwt = false
   [functions.send-no-capture-nudge]
-    verify_jwt = true
+    verify_jwt = false
+  [functions.send-reengagement]
+    verify_jwt = false
   [functions.populate-bestiary]
     verify_jwt = true
   [functions.populate-department-fauna]
