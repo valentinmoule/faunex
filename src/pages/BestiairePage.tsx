@@ -290,6 +290,10 @@ const BestiairePage = () => {
     );
   }, [deptSearch]);
 
+  const filteredCollectionOptions = useMemo(() => {
+    const q = normalizeSearch(collectionSearch);
+    return availableCollections.filter((e) => !q || normalizeSearch(e.group.label).includes(q));
+  }, [availableCollections, collectionSearch]);
 
 
   // Single source of truth for "how many captures": the raw approved captures list.
