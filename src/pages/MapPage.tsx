@@ -438,7 +438,7 @@ const MapPage = () => {
                     color: RARITY_COLORS[c.rarity] || RARITY_COLORS.common,
                   }}
                 >
-                  {c.rarity}
+                  {RARITY_LABELS[c.rarity as Rarity] || c.rarity}
                 </span>
               </button>
             ))}
