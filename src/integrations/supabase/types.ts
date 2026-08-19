@@ -1623,6 +1623,18 @@ export type Database = {
       }
       canonical_animal_name: { Args: { p_name: string }; Returns: string }
       captures_remaining_today: { Args: never; Returns: number }
+      category_leaderboard: {
+        Args: { p_category: string; p_limit?: number }
+        Returns: {
+          avatar_url: string
+          display_name: string
+          is_me: boolean
+          rank: number
+          species: number
+          user_id: string
+          username: string
+        }[]
+      }
       claim_badge: {
         Args: { p_badge_id: string; p_xp_reward: number }
         Returns: boolean
@@ -1733,6 +1745,14 @@ export type Database = {
           source_queue: string
         }
         Returns: number
+      }
+      my_category_rank: {
+        Args: { p_category: string }
+        Returns: {
+          rank: number
+          species: number
+          total_players: number
+        }[]
       }
       normalize_animal_label: { Args: { p_label: string }; Returns: string }
       progress_taxon: { Args: { p_taxon_id: string }; Returns: string }

@@ -23,6 +23,7 @@ import { useBestiaryData } from '@/hooks/useBestiaryData';
 import { useCitySearch } from '@/hooks/useCitySearch';
 import { useShelveAnimation } from '@/hooks/useShelveAnimation';
 import { useZoneSubscriptions } from '@/hooks/useZoneSubscriptions';
+import CategoryLeaderboard from '@/components/CategoryLeaderboard';
 
 
 const BestiairePage = () => {
@@ -1035,6 +1036,8 @@ const BestiairePage = () => {
             </button>
           )}
         </div>
+        {/* Classement des explorateurs de la catégorie */}
+        {!activeBreedGroup && selectedCategory && <CategoryLeaderboard category={selectedCategory} />}
         {/* Sub-level: breed groups (races de chien, de chat…) */}
         {!activeBreedGroup && breedGroupsInCategory.length > 0 && (
           <div className="mb-4">
