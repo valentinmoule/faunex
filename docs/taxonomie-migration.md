@@ -331,7 +331,47 @@ Ces 2 captures deviennent des observations orphelines : visibles dans l'historiq
 - Avant : snapshot `taxa_phase7_backup_<date>` incluant les 2 lignes `taxa` et `animals` supprimées (rollback complet possible).
 - Après : `count(*) = 0` pour ces 2 noms dans `animals` et `taxa`, `count(captures) = 9825` inchangé, `sum(total_captures)` et `sum(xp)` ≥ relevé initial, `0` explorateur en régression.
 
-**Statut : préparé, en attente de validation explicite. Aucune écriture effectuée.**
+**Statut : EXÉCUTÉ le 19/08/2026 — voir §L.**
 
+---
 
-**Statut : préparé, en attente de validation explicite. Aucune écriture effectuée.**
+## L. Rapport d'exécution Phase 7 (19/08/2026, 15h05 UTC)
+
+Sauvegardes créées avant écriture (lecture réservée aux administrateurs) :
+`taxa_phase7_backup_20260819`, `animals_phase7_backup_20260819`,
+`collection_taxa_phase7_backup_20260819`, `captures_phase7_backup_20260819`.
+
+Correctif préalable : `canonical_animal_category` acceptait uniquement 9 catégories et ramenait de force `Cnidaires` / `Échinodermes` / `Autres invertébrés` / `Autre (non animal)` vers une ancienne valeur. La fonction reconnaît désormais ces 4 catégories (le trigger `enforce_animal_category_trg` n'écrase plus les nouvelles valeurs).
+
+### L.1 Résultat mesuré
+
+| Contrôle | Attendu | Constaté |
+| --- | --- | --- |
+| Taxons `Cnidaires` | 15 | **15** |
+| Taxons `Échinodermes` | 14 | **14** |
+| Taxons `Autres invertébrés` | 3 | **3** |
+| Taxons `Autre (non animal)` | 1 (Trous de ver marin) | **1** |
+| Taxons `Mollusques` restants | 77 | **77** |
+| Limule royal → Arachnides | 1 | **OK** |
+| Siamois Seal point → Mammifères, parent « Chats » | 1 | **OK** |
+| Lignes `animals` sur nouvelles catégories | 33 | **33** |
+| `taxa` / `animals` pour les 2 plantes | 0 | **0** |
+| Captures des 2 plantes conservées | 2 | **2** (`taxon_id = NULL`, `category = 'N/A'`) |
+| `sum(profiles.total_captures)` | ≥ 9 820 | **9 825** |
+| `sum(profiles.xp)` | ≥ relevé | **152 970** |
+| Captures supprimées | 0 | **0** |
+
+### L.2 Non-régression
+
+Un seul explorateur ressort en écart par rapport au snapshot du 19/08 (7 → 6 découvertes) : c'est **exactement l'anomalie déjà tracée en §I**, causée par la suppression volontaire d'une capture par l'utilisateur à 14:38, avant la phase 7 (XP en hausse 160 → 180, 6 captures approuvées pour 6 espèces distinctes, compteur donc cohérent). Aucune instruction de la phase 7 n'écrit dans `profiles` ni ne supprime de capture.
+
+### L.3 Suppression des 2 plantes
+
+Séquence appliquée : retrait des liens de collection → retrait des synonymes → détachement de `ml_dataset_events` (`animal_id`/`taxon_id` à `NULL`) → détachement de `animal_departments` → détachement des 2 captures (`taxon_id = NULL`, `category = 'N/A'`) → `DELETE` sur `animals` puis sur `taxa`. Aucune clé étrangère orpheline, aucune capture supprimée. Les 2 observations restent dans l'historique de leurs explorateurs mais ne sont plus rattachées à aucun animal et n'apparaissent plus dans le bestiaire.
+
+### L.4 Reste à faire (hors périmètre)
+
+- L'UI (`src/lib/bestiary.ts`) n'a ni libellé ni icône pour `Échinodermes`, `Cnidaires`, `Autres invertébrés`, `Autre (non animal)` : à traiter lors de la bascule UI sur les collections.
+- « Étoile de mer rouge » (*Echinaster sepositus*) reste classée **Poissons**, hors périmètre validé.
+- « Anémone bulle » (*Entacmaea quadricolor*) reste classée **Mollusques** : absente de la liste validée en §J.2, elle relève pourtant des Cnidaires — à arbitrer.
+

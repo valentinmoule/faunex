@@ -126,6 +126,36 @@ export type Database = {
         }
         Relationships: []
       }
+      animals_phase7_backup_20260819: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          id: string | null
+          name: string | null
+          rarity: string | null
+          scientific_name: string | null
+          taxon_id: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          id?: string | null
+          name?: string | null
+          rarity?: string | null
+          scientific_name?: string | null
+          taxon_id?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          id?: string | null
+          name?: string | null
+          rarity?: string | null
+          scientific_name?: string | null
+          taxon_id?: string | null
+        }
+        Relationships: []
+      }
       capture_attempts: {
         Row: {
           created_at: string
@@ -233,6 +263,36 @@ export type Database = {
           },
         ]
       }
+      captures_phase7_backup_20260819: {
+        Row: {
+          animal_name: string | null
+          category: string | null
+          id: string | null
+          rarity: string | null
+          snapshot_at: string | null
+          taxon_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          animal_name?: string | null
+          category?: string | null
+          id?: string | null
+          rarity?: string | null
+          snapshot_at?: string | null
+          taxon_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          animal_name?: string | null
+          category?: string | null
+          id?: string | null
+          rarity?: string | null
+          snapshot_at?: string | null
+          taxon_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       collection_taxa: {
         Row: {
           collection_id: string
@@ -268,6 +328,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      collection_taxa_phase7_backup_20260819: {
+        Row: {
+          collection_id: string | null
+          created_at: string | null
+          is_core: boolean | null
+          taxon_id: string | null
+        }
+        Insert: {
+          collection_id?: string | null
+          created_at?: string | null
+          is_core?: boolean | null
+          taxon_id?: string | null
+        }
+        Update: {
+          collection_id?: string | null
+          created_at?: string | null
+          is_core?: boolean | null
+          taxon_id?: string | null
+        }
+        Relationships: []
       }
       collections: {
         Row: {
@@ -1117,6 +1198,66 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      taxa_phase7_backup_20260819: {
+        Row: {
+          collectible: boolean | null
+          created_at: string | null
+          external_ids: Json | null
+          id: string | null
+          is_domestic: boolean | null
+          main_category: Database["public"]["Enums"]["main_category"] | null
+          merged_into: string | null
+          notes: string | null
+          parent_id: string | null
+          rank: Database["public"]["Enums"]["taxon_rank"] | null
+          rarity: string | null
+          scientific_name: string | null
+          scientific_rank: string | null
+          scope: Database["public"]["Enums"]["taxon_scope"] | null
+          status: Database["public"]["Enums"]["taxon_status"] | null
+          updated_at: string | null
+          vernacular_name: string | null
+        }
+        Insert: {
+          collectible?: boolean | null
+          created_at?: string | null
+          external_ids?: Json | null
+          id?: string | null
+          is_domestic?: boolean | null
+          main_category?: Database["public"]["Enums"]["main_category"] | null
+          merged_into?: string | null
+          notes?: string | null
+          parent_id?: string | null
+          rank?: Database["public"]["Enums"]["taxon_rank"] | null
+          rarity?: string | null
+          scientific_name?: string | null
+          scientific_rank?: string | null
+          scope?: Database["public"]["Enums"]["taxon_scope"] | null
+          status?: Database["public"]["Enums"]["taxon_status"] | null
+          updated_at?: string | null
+          vernacular_name?: string | null
+        }
+        Update: {
+          collectible?: boolean | null
+          created_at?: string | null
+          external_ids?: Json | null
+          id?: string | null
+          is_domestic?: boolean | null
+          main_category?: Database["public"]["Enums"]["main_category"] | null
+          merged_into?: string | null
+          notes?: string | null
+          parent_id?: string | null
+          rank?: Database["public"]["Enums"]["taxon_rank"] | null
+          rarity?: string | null
+          scientific_name?: string | null
+          scientific_rank?: string | null
+          scope?: Database["public"]["Enums"]["taxon_scope"] | null
+          status?: Database["public"]["Enums"]["taxon_status"] | null
+          updated_at?: string | null
+          vernacular_name?: string | null
+        }
+        Relationships: []
       }
       taxon_synonyms: {
         Row: {
