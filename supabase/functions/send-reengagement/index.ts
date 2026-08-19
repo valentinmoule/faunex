@@ -82,9 +82,23 @@ Deno.serve(async (req) => {
 
       if (count && count > 0) continue // Already active, skip
 
+      const { data: authUser } = await supabase.auth.admin.getUserById(profile.user_id)
+      const email = authUser?.user?.email
+      if (!email) continue
+
+      // Idempotency: one-shot per user
+      const messageId = `reengagement-j2-${profile.user_id}`
+      const { data: existingLog } = await supabase
+        .from('email_send_log')
+        .select('id')
+        .eq('message_id', messageId)
+        .limit(1)
+
+      if (existingLog && existingLog.length > 0) continue
 
       const displayName = profile.display_name || profile.username || 'Explorateur'
       const siteUrl = 'https://faunex.lovable.app'
+
 
 
       const outcome = await sendAppEmail(supabase, 'reengagement-j2', email, {
