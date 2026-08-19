@@ -155,7 +155,9 @@ export const useAnimalIdentification = () => {
               supabase.functions.invoke('identify-animal', {
                 body: { imageBase64: compressedUrl },
               }),
-              60_000,
+              // Le serveur est borné à ~44 s (2 passes Lite + 1 passe Flash) :
+              // au-delà la requête est perdue, on relance immédiatement.
+              50_000,
             );
             if (error) throw error;
 

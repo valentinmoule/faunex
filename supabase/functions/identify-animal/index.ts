@@ -252,18 +252,36 @@ serve(async (req) => {
       }
     };
 
-    const tryModel = async (model: string, timeoutMs: number) => {
-      try {
-        let r = await callGateway(model, timeoutMs);
-        if (!r.ok && r.status >= 500) {
-          console.error("AI gateway 5xx, retrying once", model);
-          r = await callGateway(model, timeoutMs);
+    /**
+     * L'upstream Flash Lite se bloque parfois (~90 s sans le moindre octet) :
+     * c'est la cause des "il faut scanner deux fois". On borne donc chaque appel
+     * à un délai court et on relance immédiatement une requête neuve, qui
+     * répond en général en 2 s. Budget total borné (< 50 s) pour rester sous le
+     * timeout client.
+     */
+    const tryModel = async (model: string, timeoutMs: number, attempts = 1) => {
+      for (let i = 0; i < attempts; i++) {
+        const startedAt = Date.now();
+        try {
+          let r = await callGateway(model, timeoutMs);
+          if (!r.ok && r.status >= 500) {
+            console.error("AI gateway 5xx, retrying once", model);
+            r = await callGateway(model, timeoutMs);
+          }
+          if (!r.ok && r.status >= 500 && i < attempts - 1) continue;
+          return r;
+        } catch (netErr) {
+          console.error(
+            "AI gateway stalled/failed",
+            model,
+            `attempt ${i + 1}/${attempts}`,
+            `${Date.now() - startedAt}ms`,
+            netErr,
+          );
+          if (i === attempts - 1) return null;
         }
-        return r;
-      } catch (netErr) {
-        console.error("AI gateway network failure", model, netErr);
-        return null;
       }
+      return null;
     };
 
     const parseAnimal = async (r: Response) => {
@@ -278,8 +296,11 @@ serve(async (req) => {
     };
 
     // 1) Passe économique (Flash Lite) — couvre la grande majorité des animaux.
-    let response = await tryModel(FAST_MODEL, 30_000);
+    //    12 s suffisent largement (médiane ~2,5 s) ; au-delà l'appel est bloqué,
+    //    on repart sur une requête neuve plutôt que d'attendre.
+    let response = await tryModel(FAST_MODEL, 12_000, 2);
     let animalData = response?.ok ? await parseAnimal(response) : null;
+
 
     // 2) Second passage sur Flash (modèle bon marché, pas de Pro) uniquement
     // quand Lite échoue ou est franchement incertain.
@@ -292,7 +313,8 @@ serve(async (req) => {
       (CONFUSABLE.test(label) && confidence < 75);
 
     if (needsDeep) {
-      const deep = await tryModel(DEEP_MODEL, 45_000);
+      // Budget restant : 24 s (2× Lite) + 20 s = 44 s max, sous le timeout client.
+      const deep = await tryModel(DEEP_MODEL, 20_000);
       if (deep?.ok) {
         const deepData = await parseAnimal(deep);
         if (deepData) {
