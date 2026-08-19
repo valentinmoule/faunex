@@ -91,77 +91,24 @@ const ProfilePage = () => {
       setFollowingCount(followingRes.count || 0);
       const fCount = followingRes.count || 0;
 
-      const captures = capturesRes.data || [];
-      const totalCaptures = captures.length;
-
-
-      const claimedSet = new Set((claimedBadgesRes.data || []).map((b: any) => b.badge_id));
-
-      const birdCount = captures.filter(c => c.category?.toLowerCase().includes('oiseau')).length;
-      const mammalCount = captures.filter(c => c.category?.toLowerCase().includes('mammif')).length;
-      const hasRare = captures.some(c => ['rare', 'epic', 'mythic'].includes(c.rarity));
-      const hasLegendary = captures.some(c => ['epic', 'mythic'].includes(c.rarity));
-      const hasMythic = captures.some(c => c.rarity === 'mythic');
-      const level = data?.level || 1;
-
-      const progressMap: Record<string, number> = {
-        first_capture: Math.min(totalCaptures, 1),
-        explorer_10: Math.min(totalCaptures, 10),
-        explorer_25: Math.min(totalCaptures, 25),
-        explorer_50: Math.min(totalCaptures, 50),
-        birds_5: Math.min(birdCount, 5),
-        mammals_5: Math.min(mammalCount, 5),
-        rare_1: hasRare ? 1 : 0,
-        legendary_1: hasLegendary ? 1 : 0,
-        mythic_1: hasMythic ? 1 : 0,
-        social_3: Math.min(fCount, 3),
-        level_5: Math.min(level, 5),
-        [COMMUNITY_BADGE_ID]: claimedSet.has(COMMUNITY_BADGE_ID) ? 1 : 0,
-      };
-
-      setBadges(BADGE_DEFS.map(b => ({
-        badge: b,
-        progress: progressMap[b.id] || 0,
-        earned: (progressMap[b.id] || 0) >= b.total,
-        claimed: claimedSet.has(b.id),
-      })));
-
       setLoading(false);
     };
     fetchAll();
   }, [session, refreshKey]);
 
-
-  const [claiming, setClaiming] = useState<string | null>(null);
   const [showXpParticles, setShowXpParticles] = useState(false);
 
-  const claimBadge = useCallback(async (badgeId: string) => {
-    if (!session?.user || claiming) return;
-    setClaiming(badgeId);
-    const xpReward = BADGE_XP_REWARDS[badgeId] || 50;
-
-    const { data: claimed, error } = await supabase.rpc('claim_badge', {
-      p_badge_id: badgeId,
-      p_xp_reward: xpReward,
-    });
-
-    if (!error && claimed) {
-      setBadges(prev => prev.map(b => b.badge.id === badgeId ? { ...b, claimed: true } : b));
-
-      // Show XP particles
-      setShowXpParticles(true);
-
-      const { data: refreshed } = await supabase
-        .from('profiles')
-        .select('display_name, username, avatar_url, level, xp, xp_to_next, total_captures, regions_explored')
-        .eq('user_id', session.user.id)
-        .single();
-      if (refreshed) setProfile(refreshed as Profile);
-
-      toast.success(`Badge débloqué ! +${xpReward} XP 🎉`);
-    }
-    setClaiming(null);
-  }, [session, claiming]);
+  /** After a badge claim: play the XP particles and refresh the profile XP/level. */
+  const handleBadgeClaimed = useCallback(async () => {
+    if (!session?.user) return;
+    setShowXpParticles(true);
+    const { data: refreshed } = await supabase
+      .from('profiles')
+      .select('display_name, username, avatar_url, level, xp, xp_to_next, total_captures, regions_explored')
+      .eq('user_id', session.user.id)
+      .single();
+    if (refreshed) setProfile(refreshed as Profile);
+  }, [session]);
 
   if (loading || !profile) {
     return (
@@ -172,7 +119,7 @@ const ProfilePage = () => {
   }
 
   const xpPercent = Math.round((profile.xp / profile.xp_to_next) * 100);
-  const claimedCount = badges.filter(b => b.claimed).length;
+
 
   return (
     <>
