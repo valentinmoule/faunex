@@ -83,8 +83,8 @@ const CategoryLeaderboard = ({ category }: { category: string }) => {
         </div>
         <div className="flex items-center gap-2.5 shrink-0">
           <div className="flex -space-x-2">
-            {podium.map((r, i) => (
-              <Avatar key={r.user_id} row={r} isPremium={premiumIds.has(r.user_id)} className={`ring-2 ${podiumRing[i]} border-2 border-card`} />
+            {podium.map((r) => (
+              <Avatar key={r.user_id} row={r} isPremium={premiumIds.has(r.user_id)} className="border-2 border-card" />
             ))}
           </div>
           <ChevronRight className="w-4 h-4 text-muted-foreground" />
