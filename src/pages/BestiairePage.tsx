@@ -14,6 +14,7 @@ import {
   getCategoryEmoji,
   getCategoryIcon,
   normalizeCategory,
+  rarityBadge,
   rarityBorderColor,
   rarityDot,
   type ZoneSub,
@@ -1024,7 +1025,7 @@ const BestiairePage = () => {
                         loading="lazy"
                       />
                       <div className="absolute top-1 right-1">
-                        <span className="inline-flex items-center px-1 py-px rounded-md text-[8px] font-display font-bold uppercase tracking-wide bg-black/60 text-white backdrop-blur-sm">
+                        <span className={`inline-flex items-center px-1 py-px rounded-md text-[8px] font-display font-bold uppercase tracking-wide backdrop-blur-sm ${rarityBadge[animal.rarity] || 'bg-black/60 text-white'}`}>
                           {RARITY_LABELS[animal.rarity] || animal.rarity}
                         </span>
                       </div>
