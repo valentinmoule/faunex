@@ -22,6 +22,9 @@ import { useBestiaryData } from '@/hooks/useBestiaryData';
 import { useCitySearch } from '@/hooks/useCitySearch';
 import { useShelveAnimation } from '@/hooks/useShelveAnimation';
 import { useZoneSubscriptions } from '@/hooks/useZoneSubscriptions';
+import SpecializedCollections from '@/components/SpecializedCollections';
+import { useSubscription } from '@/hooks/useSubscription';
+
 
 
 const BestiairePage = () => {
