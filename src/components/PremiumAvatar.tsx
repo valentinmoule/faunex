@@ -3,7 +3,7 @@ import { Crown } from "lucide-react";
 interface PremiumAvatarProps {
   avatarUrl?: string | null;
   name?: string | null;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
   isPremium?: boolean;
   className?: string;
 }
