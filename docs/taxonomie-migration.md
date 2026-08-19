@@ -276,9 +276,62 @@ Les deux plantes (*Aconitum napellus*, *Pulsatilla vulgaris*) ne sont plus recla
 
 ### J.8 Contrôles prévus autour de l'exécution
 
-1. Avant : snapshot ciblé `taxa_phase7_backup_<date>` des 114 lignes concernées + relevé `sum(total_captures)`, `sum(xp)`.
-2. Écritures : `UPDATE` sur `taxa` (37 lignes), `animals` (37 lignes), `captures.category` (70 lignes), `collection_taxa` (28 remplacements + 3 retraits). **Aucun `DELETE` sur `captures`.**
+1. Avant : snapshot ciblé `taxa_phase7_backup_<date>` des 114 lignes concernées (+ les 2 lignes `animals` supprimées) et relevé `sum(total_captures)`, `sum(xp)`.
+2. Écritures : `UPDATE` sur `taxa` (35 lignes), `animals` (35 lignes), `captures.category` (68 lignes), `collection_taxa` (28 remplacements + 1 retrait), plus les suppressions de §K. **Aucun `DELETE` sur `captures`.**
 3. Après : contrôle `count(captures) = 9825`, `sum(total_captures)` et `sum(xp)` ≥ valeurs relevées, `0` explorateur en régression, répartition par catégorie conforme au tableau J.1.
-4. Rollback : restauration des colonnes depuis le snapshot ciblé, sans toucher aux captures.
+4. Rollback : restauration des colonnes et des 2 lignes supprimées depuis le snapshot ciblé, sans toucher aux captures.
+
+---
+
+## K. Suppression définitive des 2 entrées végétales (validée le 19/08/2026, NON exécutée)
+
+Faunex est un catalogue **animal** : *Aconitum napellus* (« Aconit napel ») et *Pulsatilla vulgaris* n'ont pas à figurer dans le référentiel. Elles ne sont donc plus reclassées en « Autre (non animal) » mais **retirées de la base animale**.
+
+### K.1 État actuel (relevé en base)
+
+| Entrée | `taxa.id` | `animals.id` | Catégorie | Liens collection | Synonymes | Territoires | Captures | Événements dataset |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Aconit napel (*Aconitum napellus*) | `129e22f5…` | `40819d33…` | Mollusques | 1 | 0 | 0 | 1 | 1 |
+| Pulsatilla vulgaris | `bfa4d13b…` | `9e1b2c1f…` | Mollusques | 1 | 0 | 0 | 1 | 1 |
+
+### K.2 Opérations prévues
+
+1. `DELETE FROM collection_taxa` pour les 2 taxons (2 liens retirés, aucun remplacement).
+2. `DELETE FROM taxon_synonyms` pour les 2 taxons (0 ligne aujourd'hui, sécurité).
+3. Détachement des références avant suppression : `captures.taxon_id → NULL` (2 captures), `ml_dataset_events.animal_id → NULL` et `ml_dataset_events.taxon_id → NULL` (2 événements), `animal_departments` (0 ligne).
+4. `DELETE FROM animals` (2 lignes) — elles disparaissent immédiatement du bestiaire et de la recherche.
+5. `DELETE FROM taxa` (2 lignes) — plus aucun rang, parent ni catégorie associés.
+
+### K.3 Traitement des 2 captures historiques
+
+Conformément à la consigne, **les captures ne sont pas supprimées** :
+
+| Champ | Traitement |
+| --- | --- |
+| `id`, `user_id`, `image_url`, `animal_name`, `rarity`, `created_at`, `status` | inchangés — l'historique et les photos restent intacts |
+| `taxon_id` | passé à `NULL` (plus aucun animal existant associé) |
+| `category` | passée à `N/A` afin qu'elles ne remontent dans aucune catégorie du bestiaire |
+
+Ces 2 captures deviennent des observations orphelines : visibles dans l'historique personnel, absentes du bestiaire, de la carte des catégories et des collections.
+
+### K.4 Impact sur la progression
+
+| Objet | Impact |
+| --- | --- |
+| XP / niveaux | **Aucun** — aucune rareté modifiée, aucun trigger XP déclenché, l'XP déjà acquis reste acquis |
+| `profiles.total_captures` | **Aucun** — le compteur porte sur `distinct lower(animal_name)` des captures approuvées, que l'on ne touche pas |
+| `regions_explored`, badges, quêtes | Aucun |
+| Index `captures_unique_species_per_user` | Inchangé (porte sur `user_id` + nom) |
+| Intégrité référentielle | Aucune clé étrangère orpheline : toutes les références sont détachées **avant** les suppressions |
+
+`Trous de ver marin` **n'est pas concerné** par cette suppression : il reste une observation animale, traité en §J.6.
+
+### K.5 Contrôles
+
+- Avant : snapshot `taxa_phase7_backup_<date>` incluant les 2 lignes `taxa` et `animals` supprimées (rollback complet possible).
+- Après : `count(*) = 0` pour ces 2 noms dans `animals` et `taxa`, `count(captures) = 9825` inchangé, `sum(total_captures)` et `sum(xp)` ≥ relevé initial, `0` explorateur en régression.
+
+**Statut : préparé, en attente de validation explicite. Aucune écriture effectuée.**
+
 
 **Statut : préparé, en attente de validation explicite. Aucune écriture effectuée.**
