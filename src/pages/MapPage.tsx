@@ -66,7 +66,9 @@ const getCategoryIcon = (category: string): ComponentType<{ className?: string; 
   return PawPrint;
 };
 
-const buildIcon = (rarity: string, category: string) => {
+const RARITY_ORDER = ['common', 'rare', 'epic', 'mythic'];
+
+const buildIcon = (rarity: string, category: string, count = 1) => {
   const color = RARITY_COLORS[rarity] || RARITY_COLORS.common;
   const CatIcon = getCategoryIcon(category);
   const iconSvg = renderToStaticMarkup(
@@ -79,12 +81,14 @@ const buildIcon = (rarity: string, category: string) => {
         <div class="faunex-pin-inner">
           <span class="faunex-pin-icon">${iconSvg}</span>
         </div>
+        ${count > 1 ? `<span class="faunex-pin-count">${count > 99 ? '99+' : count}</span>` : ''}
       </div>
     `,
     iconSize: [40, 40],
     iconAnchor: [20, 20],
   });
 };
+
 
 const RecenterOnUser = ({ position }: { position: [number, number] | null }) => {
   const map = useMap();
@@ -112,6 +116,8 @@ const MapPage = () => {
   const [discovered, setDiscovered] = useState<{ location: string; animals: DiscoveredAnimal[] } | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
+  const [groupItems, setGroupItems] = useState<CaptureMarker[] | null>(null);
+
 
   useEffect(() => {
     if (!session?.user) return;
@@ -205,18 +211,37 @@ const MapPage = () => {
     });
   };
 
+  const groups = useMemo(() => {
+    const map = new Map<string, CaptureMarker[]>();
+    captures.forEach((c) => {
+      const key = `${c.latitude.toFixed(4)},${c.longitude.toFixed(4)}`;
+      const arr = map.get(key);
+      if (arr) arr.push(c);
+      else map.set(key, [c]);
+    });
+    return Array.from(map.entries()).map(([key, items]) => {
+      const sorted = [...items].sort(
+        (a, b) => RARITY_ORDER.indexOf(b.rarity) - RARITY_ORDER.indexOf(a.rarity),
+      );
+      return { key, items: sorted, lead: sorted[0] };
+    });
+  }, [captures]);
+
   const markers = useMemo(
     () =>
-      captures.map((c) => (
+      groups.map((g) => (
         <Marker
-          key={c.id}
-          position={[c.latitude, c.longitude]}
-          icon={buildIcon(c.rarity, c.category)}
-          eventHandlers={{ click: () => openCapture(c) }}
+          key={g.key}
+          position={[g.lead.latitude, g.lead.longitude]}
+          icon={buildIcon(g.lead.rarity, g.lead.category, g.items.length)}
+          eventHandlers={{
+            click: () => (g.items.length === 1 ? openCapture(g.lead) : setGroupItems(g.items)),
+          }}
         />
       )),
-    [captures],
+    [groups],
   );
+
 
   const localizedSpeciesCount = useMemo(
     () => new Set(captures.map((c) => (c.animal_name || '').toLowerCase())).size,
@@ -349,6 +374,52 @@ const MapPage = () => {
           </div>
         </SheetContent>
       </Sheet>
+
+      <Sheet open={!!groupItems} onOpenChange={(o) => !o && setGroupItems(null)}>
+        <SheetContent side="bottom" className="max-h-[75vh] overflow-y-auto z-[1200]">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2 font-display">
+              <MapPin className="w-5 h-5 text-primary" />
+              {groupItems?.[0]?.location || 'Cette position'}
+            </SheetTitle>
+          </SheetHeader>
+          <p className="text-[12px] text-muted-foreground mt-1">
+            {groupItems?.length} capture{(groupItems?.length || 0) > 1 ? 's' : ''} à cet endroit
+          </p>
+          <div className="mt-4 space-y-2">
+            {groupItems?.map((c) => (
+              <button
+                key={c.id}
+                onClick={() => { setGroupItems(null); openCapture(c); }}
+                className="w-full flex items-center gap-3 p-2 rounded-2xl border border-border bg-card text-left hover:bg-muted/50 transition-colors"
+              >
+                {c.image_url && (
+                  <img
+                    src={c.image_url}
+                    alt={c.animal_name}
+                    loading="lazy"
+                    className="w-12 h-12 rounded-xl object-cover shrink-0"
+                  />
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="font-display font-bold text-sm text-foreground truncate">{c.animal_name}</p>
+                  <p className="text-[11px] italic text-muted-foreground truncate">{c.scientific_name}</p>
+                </div>
+                <span
+                  className="text-[10px] font-display font-bold uppercase px-2 py-1 rounded-full shrink-0"
+                  style={{
+                    background: `${RARITY_COLORS[c.rarity] || RARITY_COLORS.common}22`,
+                    color: RARITY_COLORS[c.rarity] || RARITY_COLORS.common,
+                  }}
+                >
+                  {c.rarity}
+                </span>
+              </button>
+            ))}
+          </div>
+        </SheetContent>
+      </Sheet>
+
 
       <CardDetailSheet
         card={selectedCard}
