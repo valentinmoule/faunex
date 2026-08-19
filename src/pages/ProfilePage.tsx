@@ -1,15 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
 import { PageHeader } from '@/components/PageHeader';
-import { Settings, Award, MapPin, BookOpen, Lock, Download, Bell, Gift, Users, UserPlus, ShieldCheck } from 'lucide-react';
+import { Settings, MapPin, BookOpen, Download, Bell, Users, UserPlus, ShieldCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePwaInstall } from '@/contexts/PwaInstallContext';
 import XpParticles from '@/components/XpParticles';
 import QuestsInline from '@/components/QuestsInline';
-import DiscordInviteCard, { COMMUNITY_BADGE_ID, COMMUNITY_BADGE_XP } from '@/components/DiscordInviteCard';
+import DiscordInviteCard from '@/components/DiscordInviteCard';
+import BadgesSection from '@/components/BadgesSection';
 
 
 interface Profile {
@@ -23,50 +23,8 @@ interface Profile {
   regions_explored: number;
 }
 
-interface BadgeDef {
-  id: string;
-  name: string;
-  icon: string;
-  description: string;
-  total: number;
-}
 
-const BADGE_DEFS: BadgeDef[] = [
-  { id: 'first_capture', name: 'Première capture', icon: '📸', description: 'Capturer ton premier animal', total: 1 },
-  { id: 'explorer_10', name: 'Explorateur', icon: '🧭', description: 'Réaliser 10 captures', total: 10 },
-  { id: 'explorer_25', name: 'Naturaliste', icon: '🌿', description: 'Réaliser 25 captures', total: 25 },
-  { id: 'explorer_50', name: 'Expert faune', icon: '🔬', description: 'Réaliser 50 captures', total: 50 },
-  { id: 'birds_5', name: 'Ornithologue', icon: '🐦', description: 'Capturer 5 oiseaux', total: 5 },
-  { id: 'mammals_5', name: 'Mammalogiste', icon: '🦊', description: 'Capturer 5 mammifères', total: 5 },
-  { id: 'rare_1', name: 'Chasseur rare', icon: '💎', description: 'Trouver un animal rare ou mieux', total: 1 },
-  { id: 'legendary_1', name: 'Légende vivante', icon: '⭐', description: 'Trouver un animal épique', total: 1 },
-  { id: 'mythic_1', name: 'Mythique !', icon: '🔥', description: 'Trouver un animal mythique', total: 1 },
-  { id: 'social_3', name: 'Sociable', icon: '🤝', description: 'Suivre 3 explorateurs', total: 3 },
-  { id: 'level_5', name: 'Niveau 5', icon: '🏅', description: 'Atteindre le niveau 5', total: 5 },
-  { id: COMMUNITY_BADGE_ID, name: 'Membre de la communauté', icon: '💬', description: 'Rejoindre le Discord Faunex', total: 1 },
-];
 
-const BADGE_XP_REWARDS: Record<string, number> = {
-  first_capture: 50,
-  explorer_10: 100,
-  explorer_25: 200,
-  explorer_50: 500,
-  birds_5: 100,
-  mammals_5: 100,
-  rare_1: 150,
-  legendary_1: 300,
-  mythic_1: 500,
-  social_3: 75,
-  level_5: 150,
-  [COMMUNITY_BADGE_ID]: COMMUNITY_BADGE_XP,
-};
-
-interface BadgeProgress {
-  badge: BadgeDef;
-  progress: number;
-  earned: boolean;
-  claimed: boolean;
-}
 
 const ProfilePage = () => {
   const { session } = useAuth();
@@ -76,7 +34,6 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [followersCount, setFollowersCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
-  const [badges, setBadges] = useState<BadgeProgress[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -117,12 +74,10 @@ const ProfilePage = () => {
       setLoading(true);
       const userId = session.user.id;
 
-      const [profileRes, followersRes, followingRes, capturesRes, claimedBadgesRes] = await Promise.all([
+      const [profileRes, followersRes, followingRes] = await Promise.all([
         supabase.from('profiles').select('display_name, username, avatar_url, level, xp, xp_to_next, total_captures, regions_explored').eq('user_id', userId).single(),
         supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('following_id', userId),
         supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('follower_id', userId),
-        supabase.from('captures').select('category, rarity').eq('user_id', userId),
-        supabase.from('user_badges').select('badge_id').eq('user_id', userId),
       ]);
 
       const data = profileRes.data;
@@ -132,79 +87,25 @@ const ProfilePage = () => {
 
       setFollowersCount(followersRes.count || 0);
       setFollowingCount(followingRes.count || 0);
-      const fCount = followingRes.count || 0;
-
-      const captures = capturesRes.data || [];
-      const totalCaptures = captures.length;
-
-
-      const claimedSet = new Set((claimedBadgesRes.data || []).map((b: any) => b.badge_id));
-
-      const birdCount = captures.filter(c => c.category?.toLowerCase().includes('oiseau')).length;
-      const mammalCount = captures.filter(c => c.category?.toLowerCase().includes('mammif')).length;
-      const hasRare = captures.some(c => ['rare', 'epic', 'mythic'].includes(c.rarity));
-      const hasLegendary = captures.some(c => ['epic', 'mythic'].includes(c.rarity));
-      const hasMythic = captures.some(c => c.rarity === 'mythic');
-      const level = data?.level || 1;
-
-      const progressMap: Record<string, number> = {
-        first_capture: Math.min(totalCaptures, 1),
-        explorer_10: Math.min(totalCaptures, 10),
-        explorer_25: Math.min(totalCaptures, 25),
-        explorer_50: Math.min(totalCaptures, 50),
-        birds_5: Math.min(birdCount, 5),
-        mammals_5: Math.min(mammalCount, 5),
-        rare_1: hasRare ? 1 : 0,
-        legendary_1: hasLegendary ? 1 : 0,
-        mythic_1: hasMythic ? 1 : 0,
-        social_3: Math.min(fCount, 3),
-        level_5: Math.min(level, 5),
-        [COMMUNITY_BADGE_ID]: claimedSet.has(COMMUNITY_BADGE_ID) ? 1 : 0,
-      };
-
-      setBadges(BADGE_DEFS.map(b => ({
-        badge: b,
-        progress: progressMap[b.id] || 0,
-        earned: (progressMap[b.id] || 0) >= b.total,
-        claimed: claimedSet.has(b.id),
-      })));
 
       setLoading(false);
     };
     fetchAll();
   }, [session, refreshKey]);
 
-
-  const [claiming, setClaiming] = useState<string | null>(null);
   const [showXpParticles, setShowXpParticles] = useState(false);
 
-  const claimBadge = useCallback(async (badgeId: string) => {
-    if (!session?.user || claiming) return;
-    setClaiming(badgeId);
-    const xpReward = BADGE_XP_REWARDS[badgeId] || 50;
-
-    const { data: claimed, error } = await supabase.rpc('claim_badge', {
-      p_badge_id: badgeId,
-      p_xp_reward: xpReward,
-    });
-
-    if (!error && claimed) {
-      setBadges(prev => prev.map(b => b.badge.id === badgeId ? { ...b, claimed: true } : b));
-
-      // Show XP particles
-      setShowXpParticles(true);
-
-      const { data: refreshed } = await supabase
-        .from('profiles')
-        .select('display_name, username, avatar_url, level, xp, xp_to_next, total_captures, regions_explored')
-        .eq('user_id', session.user.id)
-        .single();
-      if (refreshed) setProfile(refreshed as Profile);
-
-      toast.success(`Badge débloqué ! +${xpReward} XP 🎉`);
-    }
-    setClaiming(null);
-  }, [session, claiming]);
+  /** After a badge claim: play the XP particles and refresh the profile XP/level. */
+  const handleBadgeClaimed = useCallback(async () => {
+    if (!session?.user) return;
+    setShowXpParticles(true);
+    const { data: refreshed } = await supabase
+      .from('profiles')
+      .select('display_name, username, avatar_url, level, xp, xp_to_next, total_captures, regions_explored')
+      .eq('user_id', session.user.id)
+      .single();
+    if (refreshed) setProfile(refreshed as Profile);
+  }, [session]);
 
   if (loading || !profile) {
     return (
@@ -215,7 +116,7 @@ const ProfilePage = () => {
   }
 
   const xpPercent = Math.round((profile.xp / profile.xp_to_next) * 100);
-  const claimedCount = badges.filter(b => b.claimed).length;
+
 
   return (
     <>
@@ -318,98 +219,14 @@ const ProfilePage = () => {
         <DiscordInviteCard onBadgeEarned={() => setRefreshKey(k => k + 1)} />
 
         {/* Badges Section — Gaming Style */}
-        <div id="badges" className="scroll-mt-20">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-amber/15 border border-amber/25 flex items-center justify-center">
-                <Award className="w-4.5 h-4.5 text-amber" />
-              </div>
-              <h3 className="text-lg font-display font-black text-foreground">Badges</h3>
-            </div>
-            <span className="text-[11px] font-display font-semibold text-amber bg-amber/10 border border-amber/20 px-2.5 py-1 rounded-full">
-              🏆 {claimedCount}/{badges.length}
-            </span>
-          </div>
-          <div className="grid grid-cols-3 gap-3">
-            {badges.map(({ badge, progress, earned, claimed }, i) => {
-              const pct = Math.round((progress / badge.total) * 100);
-              const readyToClaim = earned && !claimed;
-              const xpReward = BADGE_XP_REWARDS[badge.id] || 50;
-              return (
-                <button
-                  key={badge.id}
-                  disabled={!readyToClaim || claiming === badge.id}
-                  onClick={() => readyToClaim && claimBadge(badge.id)}
-                  className={`relative rounded-2xl p-3.5 text-center transition-all duration-500 game-card-appear ${
-                    claimed
-                      ? 'bg-gradient-to-b from-amber/10 via-amber/5 to-card border-2 border-amber/40 shadow-[0_0_20px_hsla(42,85%,55%,0.15)] badge-earned-glow'
-                      : readyToClaim
-                      ? 'bg-gradient-to-b from-primary/10 via-primary/5 to-card border-2 border-primary/50 shadow-[0_0_20px_hsla(var(--primary)/0.2)] animate-pulse cursor-pointer active:scale-95'
-                      : 'bg-card/80 border border-border/60 hover:border-border'
-                  }`}
-                  style={{ animationDelay: `${i * 60}ms` }}
-                >
-                  {/* Claimed sparkle */}
-                  {claimed && (
-                    <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-amber flex items-center justify-center shadow-[0_0_8px_hsla(42,85%,55%,0.5)] badge-sparkle">
-                      <span className="text-[8px]">✓</span>
-                    </div>
-                  )}
-                  {/* Ready to claim indicator */}
-                  {readyToClaim && (
-                    <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-primary flex items-center justify-center shadow-[0_0_10px_hsla(var(--primary)/0.5)]">
-                      <Gift className="w-3 h-3 text-primary-foreground" />
-                    </div>
-                  )}
-                  {/* Lock icon */}
-                  {!earned && (
-                    <div className="absolute top-2 right-2">
-                      <Lock className="w-3 h-3 text-muted-foreground" />
-                    </div>
-                  )}
-                  {/* Icon with glow ring */}
-                  <div className={`relative mx-auto w-12 h-12 rounded-xl flex items-center justify-center mb-2 transition-all ${
-                    claimed
-                      ? 'bg-amber/15 border border-amber/30 shadow-[0_0_12px_hsla(42,85%,55%,0.2)]'
-                      : readyToClaim
-                      ? 'bg-primary/15 border border-primary/30 shadow-[0_0_12px_hsla(var(--primary)/0.2)]'
-                      : 'bg-muted/60 border border-border/40'
-                  }`}>
-                    <span className={`text-2xl ${claimed ? 'badge-icon-float' : readyToClaim ? '' : 'grayscale opacity-40'}`}>{badge.icon}</span>
-                  </div>
-                  <p className={`text-[11px] font-display font-black leading-tight mb-0.5 ${claimed || readyToClaim ? 'text-foreground' : 'text-muted-foreground'}`}>
-                    {badge.name}
-                  </p>
-                  <p className={`text-[9px] leading-tight mb-2 ${claimed ? 'text-muted-foreground' : readyToClaim ? 'text-muted-foreground' : 'text-muted-foreground'}`}>
-                    {badge.description}
-                  </p>
-                  {/* Progress bar */}
-                  {!earned && (
-                    <div className="space-y-1">
-                      <div className="h-1.5 bg-muted/80 rounded-full overflow-hidden">
-                        <div
-                          className="h-full rounded-full bg-gradient-to-r from-primary/60 to-primary transition-all duration-700 ease-out"
-                          style={{ width: `${pct}%` }}
-                        />
-                      </div>
-                      <p className="text-[9px] font-display font-bold text-muted-foreground">{progress}/{badge.total}</p>
-                    </div>
-                  )}
-                  {readyToClaim && (
-                    <span className="inline-flex items-center gap-1 text-[9px] font-display font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                      <Gift className="w-2.5 h-2.5" /> +{xpReward} XP
-                    </span>
-                  )}
-                  {claimed && (
-                    <span className="inline-block text-[9px] font-display font-bold text-amber bg-amber/10 px-2 py-0.5 rounded-full">
-                      Débloqué ✨
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        <BadgesSection
+          userId={session!.user.id}
+          level={profile.level}
+          regionsExplored={profile.regions_explored}
+          refreshKey={refreshKey}
+          onClaimed={handleBadgeClaimed}
+        />
+
 
       </div>
     </main>
