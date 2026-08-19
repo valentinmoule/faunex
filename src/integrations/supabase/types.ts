@@ -1755,6 +1755,12 @@ export type Database = {
         }[]
       }
       normalize_animal_label: { Args: { p_label: string }; Returns: string }
+      premium_user_ids: {
+        Args: { p_user_ids: string[] }
+        Returns: {
+          user_id: string
+        }[]
+      }
       progress_taxon: { Args: { p_taxon_id: string }; Returns: string }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
