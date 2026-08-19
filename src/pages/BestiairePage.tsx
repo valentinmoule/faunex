@@ -18,6 +18,7 @@ import {
   rarityDot,
   type ZoneSub,
 } from '@/lib/bestiary';
+import { MIN_BREEDS_PER_GROUP, getBreedGroup, type BreedGroup } from '@/lib/breedGroups';
 import { useBestiaryData } from '@/hooks/useBestiaryData';
 import { useCitySearch } from '@/hooks/useCitySearch';
 import { useShelveAnimation } from '@/hooks/useShelveAnimation';
@@ -29,6 +30,7 @@ const BestiairePage = () => {
   const navigate = useNavigate();
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedBreedGroup, setSelectedBreedGroup] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'mine' | 'categories' | 'territory'>('mine');
   const [rarityFilter, setRarityFilter] = useState<Rarity | 'all'>('all');
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
@@ -139,6 +141,40 @@ const BestiairePage = () => {
       .filter(a => rarityFilter === 'all' || a.rarity === rarityFilter)
       .filter(matchesSearch);
   }, [animals, selectedCategory, rarityFilter, matchesSearch]);
+
+  // Sub-level inside a category: breed groups (races de chien, de chat, de vache…)
+  const breedGroupsInCategory = useMemo(() => {
+    const map = new Map<string, { group: BreedGroup; total: number; captured: number }>();
+    categoryAnimals.forEach(a => {
+      const group = getBreedGroup(a.scientific_name);
+      if (!group) return;
+      const entry = map.get(group.key) || { group, total: 0, captured: 0 };
+      entry.total++;
+      if (a.captured) entry.captured++;
+      map.set(group.key, entry);
+    });
+    return Array.from(map.values())
+      .filter(e => e.total >= MIN_BREEDS_PER_GROUP)
+      .sort((a, b) => b.total - a.total);
+  }, [categoryAnimals]);
+
+  const activeBreedGroup = useMemo(
+    () => breedGroupsInCategory.find(e => e.group.key === selectedBreedGroup) || null,
+    [breedGroupsInCategory, selectedBreedGroup],
+  );
+
+  /** Cards shown in the binder grid: breeds of the open group, or species without their breeds. */
+  const gridAnimals = useMemo(() => {
+    if (activeBreedGroup) {
+      return categoryAnimals.filter(a => getBreedGroup(a.scientific_name)?.key === activeBreedGroup.group.key);
+    }
+    const groupedKeys = new Set(breedGroupsInCategory.map(e => e.group.key));
+    return categoryAnimals.filter(a => {
+      const group = getBreedGroup(a.scientific_name);
+      return !group || !groupedKeys.has(group.key);
+    });
+  }, [categoryAnimals, breedGroupsInCategory, activeBreedGroup]);
+
 
   // Global species search results (across all categories)
   const searchResults = useMemo(() => {
@@ -813,7 +849,7 @@ const BestiairePage = () => {
                         return (
                           <button
                             key={cat.name}
-                            onClick={() => setSelectedCategory(cat.name)}
+                            onClick={() => { setSelectedBreedGroup(null); setSelectedCategory(cat.name); }}
                             className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-md"
                           >
                             <div className="mb-2">
@@ -950,27 +986,34 @@ const BestiairePage = () => {
         <div className="max-w-lg mx-auto">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setSelectedCategory(null)}
+              onClick={() => (activeBreedGroup ? setSelectedBreedGroup(null) : setSelectedCategory(null))}
               className="p-1.5 rounded-full hover:bg-muted transition-colors"
             >
               <ChevronLeft className="w-5 h-5 text-foreground" />
             </button>
             <div className="flex-1 min-w-0 flex items-center gap-2">
-              {(() => {
-                const HeaderIcon = getCategoryIcon(selectedCategory);
-                return <HeaderIcon className="w-5 h-5 text-primary shrink-0" strokeWidth={1.75} />;
-              })()}
+              {activeBreedGroup ? (
+                <span className="text-lg shrink-0">{activeBreedGroup.group.emoji}</span>
+              ) : (
+                (() => {
+                  const HeaderIcon = getCategoryIcon(selectedCategory);
+                  return <HeaderIcon className="w-5 h-5 text-primary shrink-0" strokeWidth={1.75} />;
+                })()
+              )}
               <div className="min-w-0">
                 <h1 className="text-lg font-display font-bold text-foreground truncate">
-                  {selectedCategory}
+                  {activeBreedGroup ? activeBreedGroup.group.label : selectedCategory}
                 </h1>
                 <p className="text-[11px] text-muted-foreground font-display">
-                  {catInfo?.captured || 0}/{catInfo?.total || 0} capturés
+                  {activeBreedGroup
+                    ? `${activeBreedGroup.captured}/${activeBreedGroup.total} capturés · ${selectedCategory}`
+                    : `${catInfo?.captured || 0}/${catInfo?.total || 0} capturés`}
                 </p>
               </div>
             </div>
           </div>
         </div>
+
       </PageHeader>
 
       <div className="max-w-lg mx-auto px-3 pt-3">
@@ -992,9 +1035,33 @@ const BestiairePage = () => {
             </button>
           )}
         </div>
+        {/* Sub-level: breed groups (races de chien, de chat…) */}
+        {!activeBreedGroup && breedGroupsInCategory.length > 0 && (
+          <div className="mb-4">
+            <p className="text-[11px] font-display font-bold uppercase tracking-wide text-muted-foreground mb-2">
+              Sous-catégories
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              {breedGroupsInCategory.map(({ group, total, captured }) => (
+                <button
+                  key={group.key}
+                  onClick={() => setSelectedBreedGroup(group.key)}
+                  className="flex items-center gap-2.5 p-3 rounded-2xl bg-card border border-border hover:border-primary/50 transition-all active:scale-[0.98] text-left"
+                >
+                  <span className="text-xl shrink-0">{group.emoji}</span>
+                  <div className="min-w-0">
+                    <p className="text-[13px] font-display font-bold text-foreground truncate">{group.label}</p>
+                    <p className="text-[11px] text-muted-foreground font-display">{captured}/{total} capturés</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         {/* 4x4 TCG binder grid */}
         <div className="grid grid-cols-4 gap-1.5">
-          {categoryAnimals.map((animal, index) => {
+          {gridAnimals.map((animal, index) => {
+
             const slotKey = animal.name.toLowerCase();
             const isFlashing = flashSlotName === slotKey;
             return (
@@ -1056,7 +1123,7 @@ const BestiairePage = () => {
           })}
         </div>
 
-        {categoryAnimals.length === 0 && !loading && (
+        {gridAnimals.length === 0 && breedGroupsInCategory.length === 0 && !loading && (
           <div className="text-center py-16">
             <p className="text-4xl mb-3">📭</p>
             <p className="text-muted-foreground font-display text-sm">Aucune espèce dans cette catégorie</p>
