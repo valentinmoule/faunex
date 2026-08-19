@@ -140,6 +140,40 @@ const BestiairePage = () => {
       .filter(matchesSearch);
   }, [animals, selectedCategory, rarityFilter, matchesSearch]);
 
+  // Sub-level inside a category: breed groups (races de chien, de chat, de vache…)
+  const breedGroupsInCategory = useMemo(() => {
+    const map = new Map<string, { group: BreedGroup; total: number; captured: number }>();
+    categoryAnimals.forEach(a => {
+      const group = getBreedGroup(a.scientific_name);
+      if (!group) return;
+      const entry = map.get(group.key) || { group, total: 0, captured: 0 };
+      entry.total++;
+      if (a.captured) entry.captured++;
+      map.set(group.key, entry);
+    });
+    return Array.from(map.values())
+      .filter(e => e.total >= MIN_BREEDS_PER_GROUP)
+      .sort((a, b) => b.total - a.total);
+  }, [categoryAnimals]);
+
+  const activeBreedGroup = useMemo(
+    () => breedGroupsInCategory.find(e => e.group.key === selectedBreedGroup) || null,
+    [breedGroupsInCategory, selectedBreedGroup],
+  );
+
+  /** Cards shown in the binder grid: breeds of the open group, or species without their breeds. */
+  const gridAnimals = useMemo(() => {
+    if (activeBreedGroup) {
+      return categoryAnimals.filter(a => getBreedGroup(a.scientific_name)?.key === activeBreedGroup.group.key);
+    }
+    const groupedKeys = new Set(breedGroupsInCategory.map(e => e.group.key));
+    return categoryAnimals.filter(a => {
+      const group = getBreedGroup(a.scientific_name);
+      return !group || !groupedKeys.has(group.key);
+    });
+  }, [categoryAnimals, breedGroupsInCategory, activeBreedGroup]);
+
+
   // Global species search results (across all categories)
   const searchResults = useMemo(() => {
     if (speciesQuery.length < 2) return [];
