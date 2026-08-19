@@ -9,7 +9,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePwaInstall } from '@/contexts/PwaInstallContext';
 import XpParticles from '@/components/XpParticles';
 import QuestsInline from '@/components/QuestsInline';
-import DiscordInviteCard, { COMMUNITY_BADGE_ID, COMMUNITY_BADGE_XP } from '@/components/DiscordInviteCard';
+import DiscordInviteCard from '@/components/DiscordInviteCard';
+import BadgesSection from '@/components/BadgesSection';
 
 
 interface Profile {
