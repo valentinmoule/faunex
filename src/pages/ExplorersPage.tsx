@@ -121,6 +121,21 @@ const ExplorersPage = () => {
 
   const userId = session?.user?.id;
 
+  // ── Premium status ──
+  const feedUserIds = useMemo(() => [...new Set(posts.map(p => p.user_id))], [posts]);
+  const feedPremiumIds = usePremiumUsers(feedUserIds);
+
+  const searchUserIds = useMemo(() => {
+    const ids = new Set<string>();
+    searchResults.forEach(u => ids.add(u.user_id));
+    allUsers.forEach(u => ids.add(u.user_id));
+    following.forEach(f => { if (f.profile) ids.add(f.profile.user_id); });
+    followers.forEach(f => { if (f.profile) ids.add(f.profile.user_id); });
+    pendingRequests.forEach(f => { if (f.profile) ids.add(f.profile.user_id); });
+    return [...ids];
+  }, [searchResults, allUsers, following, followers, pendingRequests]);
+  const searchPremiumIds = usePremiumUsers(searchUserIds);
+
   // ── Header data ──
   useEffect(() => {
     if (!session?.user) return;
