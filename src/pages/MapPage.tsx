@@ -11,7 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import LoadingScreen from '@/components/LoadingScreen';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import CardDetailSheet from '@/components/CardDetailSheet';
-import { type AnimalCard, type Rarity } from '@/data/mockData';
+import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
 import { toast } from 'sonner';
 
 
@@ -98,12 +98,14 @@ const RecenterOnUser = ({ position }: { position: [number, number] | null }) => 
   return null;
 };
 
-const CenterTracker = ({ onMove }: { onMove: (center: L.LatLng) => void }) => {
+const CenterTracker = ({ onMove, onZoom }: { onMove: (center: L.LatLng) => void; onZoom: (z: number) => void }) => {
   useMapEvents({
     moveend: (e) => onMove(e.target.getCenter()),
+    zoomend: (e) => onZoom(e.target.getZoom()),
   });
   return null;
 };
+
 
 const MapPage = () => {
   const { session } = useAuth();
@@ -117,6 +119,8 @@ const MapPage = () => {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [groupItems, setGroupItems] = useState<CaptureMarker[] | null>(null);
+  const [zoom, setZoom] = useState(8);
+
 
 
   useEffect(() => {
@@ -229,18 +233,40 @@ const MapPage = () => {
 
   const markers = useMemo(
     () =>
-      groups.map((g) => (
-        <Marker
-          key={g.key}
-          position={[g.lead.latitude, g.lead.longitude]}
-          icon={buildIcon(g.lead.rarity, g.lead.category, g.items.length)}
-          eventHandlers={{
-            click: () => (g.items.length === 1 ? openCapture(g.lead) : setGroupItems(g.items)),
-          }}
-        />
-      )),
-    [groups],
+      groups.flatMap((g) => {
+        // Au zoom élevé, on éclate les captures empilées en couronne autour du point
+        if (g.items.length > 1 && zoom >= 13) {
+          const spread = 0.00035 * Math.pow(2, 16 - Math.min(zoom, 16));
+          return g.items.map((c, i) => {
+            const angle = (2 * Math.PI * i) / g.items.length;
+            const lat = c.latitude + spread * Math.cos(angle);
+            const lng =
+              c.longitude +
+              (spread * Math.sin(angle)) / Math.max(0.2, Math.cos((c.latitude * Math.PI) / 180));
+            return (
+              <Marker
+                key={c.id}
+                position={[lat, lng]}
+                icon={buildIcon(c.rarity, c.category, 1)}
+                eventHandlers={{ click: () => openCapture(c) }}
+              />
+            );
+          });
+        }
+        return [
+          <Marker
+            key={g.key}
+            position={[g.lead.latitude, g.lead.longitude]}
+            icon={buildIcon(g.lead.rarity, g.lead.category, g.items.length)}
+            eventHandlers={{
+              click: () => (g.items.length === 1 ? openCapture(g.lead) : setGroupItems(g.items)),
+            }}
+          />,
+        ];
+      }),
+    [groups, zoom],
   );
+
 
 
   const localizedSpeciesCount = useMemo(
@@ -310,7 +336,7 @@ const MapPage = () => {
           url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
         />
         <RecenterOnUser position={userPos} />
-        <CenterTracker onMove={(c) => { centerRef.current = c; }} />
+        <CenterTracker onMove={(c) => { centerRef.current = c; }} onZoom={setZoom} />
         {userPos && (
           <Marker
             position={userPos}
@@ -412,7 +438,7 @@ const MapPage = () => {
                     color: RARITY_COLORS[c.rarity] || RARITY_COLORS.common,
                   }}
                 >
-                  {c.rarity}
+                  {RARITY_LABELS[c.rarity as Rarity] || c.rarity}
                 </span>
               </button>
             ))}
