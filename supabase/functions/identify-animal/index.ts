@@ -462,16 +462,23 @@ serve(async (req) => {
       return null;
     };
 
-    const parseAnimal = async (r: Response) => {
+    // Réponse brute du modèle conservée pour tracer les hallucinations.
+    let rawModelOutput: string | null = null;
+    let usedModel: string | null = null;
+
+    const parseAnimal = async (r: Response, model: string) => {
       const d = await r.json();
       const tc = d.choices?.[0]?.message?.tool_calls?.[0];
       if (!tc) return null;
+      rawModelOutput = typeof tc.function?.arguments === "string" ? tc.function.arguments : JSON.stringify(tc.function?.arguments ?? null);
+      usedModel = model;
       try {
         return JSON.parse(tc.function.arguments);
       } catch {
         return null;
       }
     };
+
 
     // 1) Passe économique (Flash Lite) — couvre la grande majorité des animaux.
     //    12 s suffisent largement (médiane ~2,5 s) ; au-delà l'appel est bloqué,
