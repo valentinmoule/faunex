@@ -298,24 +298,30 @@ const ModerationPage = () => {
 
 
   /** Passe la file d'attente à l'IA : elle valide seule les cas évidents. */
-  const runAutoModeration = async () => {
+  const runAutoModeration = async (silent = false) => {
+    if (autoRunningRef.current) return;
+    autoRunningRef.current = true;
     setAutoRunning(true);
     const { data, error } = await supabase.functions.invoke('auto-moderate-capture', {
       body: { batch: true, limit: 25 },
     });
+    autoRunningRef.current = false;
     setAutoRunning(false);
     if (error) {
-      toast.error("La pré-modération automatique n'a pas pu s'exécuter");
+      if (!silent) toast.error("La pré-modération automatique n'a pas pu s'exécuter");
       return;
     }
     const approved = (data as any)?.approved ?? 0;
-    toast.success(
-      approved > 0
-        ? `${approved} capture${approved > 1 ? 's' : ''} validée${approved > 1 ? 's' : ''} automatiquement`
-        : 'Aucune capture assez évidente : inspection manuelle nécessaire'
-    );
+    if (!silent || approved > 0) {
+      toast.success(
+        approved > 0
+          ? `${approved} capture${approved > 1 ? 's' : ''} validée${approved > 1 ? 's' : ''} automatiquement`
+          : 'Aucune capture assez évidente : inspection manuelle nécessaire'
+      );
+    }
     fetchPending();
   };
+
 
   const timeAgo = (date: string) => {
     const diff = Date.now() - new Date(date).getTime();
