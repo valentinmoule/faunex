@@ -7,50 +7,161 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const CATEGORY_CLASSES: Record<string, string[]> = {
+  "Mammifères": ["Mammalia"],
+  "Oiseaux": ["Aves"],
+  "Reptiles": ["Reptilia", "Squamata", "Testudines", "Crocodylia"],
+  "Amphibiens": ["Amphibia"],
+  "Poissons": ["Actinopterygii", "Chondrichthyes", "Elasmobranchii", "Sarcopterygii", "Myxini", "Petromyzonti", "Teleostei"],
+  "Insectes": ["Insecta", "Collembola", "Diplopoda", "Chilopoda", "Entognatha"],
+  "Arachnides": ["Arachnida"],
+  "Crustacés": ["Malacostraca", "Maxillopoda", "Branchiopoda", "Hexanauplia", "Thecostraca", "Ostracoda"],
+  "Mollusques": [], // fourre-tout assumé (annélides, cnidaires, échinodermes…)
+};
+
+type TaxonVerdict = {
+  /** valid : espèce (ou sous-espèce) réellement publiée et cohérente.
+   *  downgrade : le binôme n'existe pas mais un rang supérieur réel est identifié.
+   *  invalid : rien de réel derrière le nom proposé.
+   *  unknown : GBIF injoignable → on ne pénalise pas l'utilisateur. */
+  status: "valid" | "downgrade" | "invalid" | "unknown";
+  canonicalName?: string;
+  rank?: string;
+  /** Nom du rang de repli utilisable (genre, famille, ordre). */
+  fallbackName?: string;
+  fallbackRank?: string;
+  reason?: string;
+  gbif?: unknown;
+};
+
+const gbifMatch = async (params: Record<string, string>) => {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 4_000);
+  try {
+    const qs = new URLSearchParams({ strict: "false", verbose: "false", ...params });
+    const res = await fetch(`https://api.gbif.org/v1/species/match?${qs}`, { signal: ctrl.signal });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+};
+
+const RANK_FR: Record<string, string> = {
+  GENUS: "genre",
+  FAMILY: "famille",
+  ORDER: "ordre",
+  CLASS: "classe",
+  PHYLUM: "embranchement",
+};
+
 /**
- * Vérifie qu'un nom scientifique existe réellement dans le référentiel
- * taxonomique mondial GBIF (API publique, sans clé).
- * - "valid"   : le taxon (ou au moins son genre) existe
- * - "invalid" : aucune correspondance → binôme inventé par le modèle
- * - "unknown" : GBIF injoignable → on ne bloque pas l'utilisateur
+ * Vérifie qu'un nom scientifique correspond à un taxon réellement publié
+ * (référentiel mondial GBIF), que le genre et l'espèce sont cohérents entre eux,
+ * et que le taxon est bien un animal compatible avec la catégorie annoncée.
+ *
+ * Aucun nom n'est déduit du nom vernaculaire : seul le binôme proposé est testé,
+ * et à défaut on remonte au genre / famille RÉELS renvoyés par GBIF.
  */
 const verifyTaxon = async (
   scientificName?: string | null,
-): Promise<"valid" | "invalid" | "unknown"> => {
-  const name = (scientificName || "").trim();
-  if (!name) return "unknown";
-  // Les races domestiques ne sont pas des taxons GBIF distincts : déjà couvertes
-  // par un binôme parent valide, inutile de les interroger.
-  const lookup = async (q: string) => {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 4_000);
-    try {
-      const res = await fetch(
-        `https://api.gbif.org/v1/species/match?strict=false&name=${encodeURIComponent(q)}`,
-        { signal: ctrl.signal },
-      );
-      if (!res.ok) return null;
-      return await res.json();
-    } catch {
-      return null;
-    } finally {
-      clearTimeout(timer);
+  category?: string | null,
+): Promise<TaxonVerdict> => {
+  const raw = (scientificName || "").trim().replace(/\s+/g, " ");
+  if (!raw) return { status: "invalid", reason: "missing_scientific_name" };
+
+  const parts = raw.split(" ");
+  const genus = parts[0];
+  const isBinomial = parts.length >= 2 && /^[a-z-]+$/i.test(parts[1]);
+
+  const data = await gbifMatch({ name: raw });
+  if (!data) return { status: "unknown", reason: "gbif_unreachable" };
+
+  const matchType = String(data.matchType || "NONE").toUpperCase();
+  const rank = String(data.rank || "").toUpperCase();
+  const confidence = typeof data.confidence === "number" ? data.confidence : 0;
+
+  const checkKingdom = (d: any): string | null => {
+    if (d.kingdom && d.kingdom !== "Animalia") return "not_an_animal";
+    const allowed = category ? CATEGORY_CLASSES[category] : undefined;
+    // Cohérence classe ↔ catégorie annoncée : un binôme réel mais rattaché à une
+    // toute autre classe signale une association douteuse (nom plaqué au hasard).
+    if (allowed && allowed.length > 0 && d.class && !allowed.includes(d.class)) {
+      return `class_mismatch:${d.class}`;
     }
+    return null;
   };
 
-  const data = await lookup(name);
-  if (!data) return "unknown";
-  if (data.matchType && data.matchType !== "NONE") return "valid";
+  const higherFallback = (d: any): TaxonVerdict | null => {
+    const candidates: Array<[string, string | undefined]> = [
+      ["GENUS", d.genus],
+      ["FAMILY", d.family],
+      ["ORDER", d.order],
+      ["CLASS", d.class],
+    ];
+    for (const [r, n] of candidates) {
+      if (n) return { status: "downgrade", fallbackName: n, fallbackRank: r, gbif: d };
+    }
+    return null;
+  };
 
-  // Repli : le genre seul est-il réel ? (binôme approximatif mais genre existant)
-  const genus = name.split(/\s+/)[0];
-  if (genus && genus.toLowerCase() !== name.toLowerCase()) {
-    const g = await lookup(genus);
-    if (!g) return "unknown";
-    if (g.matchType && g.matchType !== "NONE") return "valid";
+  // 1) Correspondance exploitable au rang espèce / sous-espèce.
+  if (matchType !== "NONE" && (rank === "SPECIES" || rank === "SUBSPECIES" || rank === "FORM" || rank === "VARIETY")) {
+    // Un FUZZY faible = le nom proposé n'existe pas, GBIF a "rapproché" autre chose.
+    if (matchType === "FUZZY" && confidence < 95) {
+      const fb = higherFallback(data);
+      return fb ?? { status: "invalid", reason: "fuzzy_low_confidence", gbif: data };
+    }
+    const problem = checkKingdom(data);
+    if (problem) {
+      const fb = higherFallback(data);
+      return fb ?? { status: "invalid", reason: problem, gbif: data };
+    }
+    // Cohérence genre ↔ espèce : le genre proposé doit être celui du taxon accepté.
+    if (isBinomial && data.genus && data.genus.toLowerCase() !== genus.toLowerCase()) {
+      const fb = higherFallback(data);
+      return fb ?? { status: "invalid", reason: "genus_mismatch", gbif: data };
+    }
+    return {
+      status: "valid",
+      canonicalName: data.canonicalName || data.scientificName || raw,
+      rank,
+      gbif: data,
+    };
   }
-  return "invalid";
+
+  // 2) GBIF ne reconnaît qu'un rang supérieur (HIGHERRANK) : le binôme est inventé.
+  if (matchType !== "NONE" && rank && rank !== "SPECIES") {
+    if (!isBinomial) {
+      const problem = checkKingdom(data);
+      if (!problem) {
+        return {
+          status: "valid",
+          canonicalName: data.canonicalName || raw,
+          rank,
+          gbif: data,
+        };
+      }
+    }
+    const fb = higherFallback(data);
+    return fb ?? { status: "invalid", reason: "higher_rank_only", gbif: data };
+  }
+
+  // 3) Aucune correspondance : le genre seul existe-t-il réellement ?
+  if (isBinomial) {
+    const g = await gbifMatch({ name: genus, rank: "genus" });
+    if (!g) return { status: "unknown", reason: "gbif_unreachable" };
+    const gMatch = String(g.matchType || "NONE").toUpperCase();
+    if (gMatch === "EXACT" && !checkKingdom(g)) {
+      return { status: "downgrade", fallbackName: g.genus || genus, fallbackRank: "GENUS", gbif: g };
+    }
+  }
+
+  return { status: "invalid", reason: "no_match", gbif: data };
 };
+
 
 
 const SYSTEM_PROMPT = `Tu es un expert naturaliste de renommée mondiale, spécialisé en zoologie, ornithologie, herpétologie, entomologie, cynologie et félinologie. Tu identifies les animaux avec une précision scientifique.
