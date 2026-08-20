@@ -44,7 +44,9 @@ const isAtTop = (target: EventTarget | null) => {
 const PullToDiscover = () => {
   const { session } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const enabled = ENABLED_ROUTES.includes(location.pathname) && !!session?.user;
+  const { remaining, unlimited, exhausted, consume } = useNearbyQuota(session?.user?.id);
 
   const [pull, setPull] = useState(0);
   const [dragging, setDragging] = useState(false);
