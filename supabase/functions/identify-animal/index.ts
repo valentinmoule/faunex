@@ -484,7 +484,7 @@ serve(async (req) => {
     //    12 s suffisent largement (médiane ~2,5 s) ; au-delà l'appel est bloqué,
     //    on repart sur une requête neuve plutôt que d'attendre.
     let response = await tryModel(FAST_MODEL, 12_000, 2);
-    let animalData = response?.ok ? await parseAnimal(response) : null;
+    let animalData = response?.ok ? await parseAnimal(response, FAST_MODEL) : null;
 
 
     // 2) Second passage sur Flash (modèle bon marché, pas de Pro) uniquement
@@ -501,7 +501,7 @@ serve(async (req) => {
       // Budget restant : 24 s (2× Lite) + 20 s = 44 s max, sous le timeout client.
       const deep = await tryModel(DEEP_MODEL, 20_000);
       if (deep?.ok) {
-        const deepData = await parseAnimal(deep);
+        const deepData = await parseAnimal(deep, DEEP_MODEL);
         if (deepData) {
           animalData = deepData;
           response = deep;
