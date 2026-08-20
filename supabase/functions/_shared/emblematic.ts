@@ -81,11 +81,40 @@ const BIOME_EMBLEMATIC: Array<{ depts: Set<string>; keywords: string[] }> = [
     depts: DENSE_URBAN_DEPTS,
     keywords: ['perruche a collier', 'martinet noir', 'pipistrelle', 'lezard des murailles', 'faucon crecerelle', 'effraie', 'renard roux', 'herisson', 'pigeon biset', 'moineau domestique', 'mouette rieuse'],
   },
-  {
-    depts: OVERSEAS_DEPTS,
-    keywords: ['colibri', 'iguane', 'tortue verte', 'tortue luth', 'baleine a bosse', 'dauphin', 'fregate', 'paille-en-queue', 'cameleon', 'gecko', 'ara', 'toucan', 'paresseux', 'jaguar', 'caiman', 'requin citron', 'crabe de terre', 'lemurien'],
-  },
 ];
+
+/** Outre-mer : chaque territoire n'a que sa propre faune, pas une liste tropicale générique. */
+const OVERSEAS_KEYWORDS: Record<string, string[]> = {
+  '971': ['iguane des petites antilles', 'racoon', 'colibri madere', 'colibri huppe', 'sucrier a ventre jaune', 'pelican brun', 'fregate superbe', 'tortue verte', 'tortue imbriquee', 'anolis', 'crabe de terre', 'grand dauphin', 'baleine a bosse', 'sphinx', 'mabuya'],
+  '972': ['matoutou falaise', 'colibri huppe', 'colibri falle-vert', 'sucrier a ventre jaune', 'fregate superbe', 'pelican brun', 'tortue luth', 'tortue verte', 'anolis', 'crabe de terre', 'trigonocephale', 'grand dauphin', 'baleine a bosse', 'manicou'],
+  '973': ['jaguar', 'ara macao', 'ara bleu', 'toucan', 'paresseux', 'caiman', 'singe hurleur', 'tapir', 'tamanoir', 'coq de roche', 'ibis rouge', 'iguane vert', 'anaconda', 'tortue luth', 'dendrobate', 'morpho', 'raie', 'piranha', 'loutre geante'],
+  '974': ['paille-en-queue', 'tuit-tuit', 'papangue', 'oiseau la vierge', 'zosterops', 'gecko vert de manapany', 'cameleon panthere', 'endormi', 'baleine a bosse', 'grand dauphin', 'tortue verte', 'tortue imbriquee', 'requin bouledogue', 'poisson-papillon', 'bourbon'],
+  '976': ['maki', 'lemurien', 'roussette', 'drongo', 'foudi', 'cameleon de mayotte', 'tortue verte', 'tortue imbriquee', 'dugong', 'baleine a bosse', 'dauphin', 'poisson-clown', 'raie manta', 'crabier blanc'],
+};
+
+/** Marqueurs géographiques : une espèce nommée « ... de Madagascar » n'est pas d'un autre territoire. */
+const GEO_MARKERS: Array<{ marker: string; depts: string[] }> = [
+  { marker: 'de madagascar', depts: [] },
+  { marker: 'de mayotte', depts: ['976'] },
+  { marker: 'de la reunion', depts: ['974'] },
+  { marker: 'des petites antilles', depts: ['971', '972'] },
+  { marker: 'de guyane', depts: ['973'] },
+  { marker: 'de corse', depts: ['2A', '2B'] },
+  { marker: 'de mediterranee', depts: [...MEDITERRANEAN_DEPTS] },
+  { marker: 'du pacifique', depts: [] },
+  { marker: 'de cuba', depts: [] },
+  { marker: 'de floride', depts: [] },
+  { marker: 'du bresil', depts: [] },
+  { marker: 'd amerique', depts: [] },
+  { marker: 'd afrique', depts: [] },
+  { marker: 'du japon', depts: [] },
+  { marker: 'de chine', depts: [] },
+  { marker: 'd asie', depts: [] },
+];
+
+const geoAllows = (name: string, code: string) =>
+  GEO_MARKERS.every(({ marker, depts }) => !name.includes(marker) || depts.includes(code));
+
 
 /** Espèce « drapeau » de quelques territoires très identifiés. */
 const DEPT_FLAGSHIPS: Record<string, string[]> = {
@@ -135,18 +164,18 @@ export const emblematicKeywords = (code: string) => {
   const overseas = OVERSEAS_DEPTS.has(code);
   const keywords: string[] = [...(DEPT_FLAGSHIPS[code] || [])];
 
-  for (const biome of BIOME_EMBLEMATIC) {
-    // Un territoire ultramarin ne récupère que sa propre faune.
-    if (overseas !== (biome.depts === OVERSEAS_DEPTS)) continue;
-    if (biome.depts.has(code)) keywords.push(...biome.keywords);
-  }
-
-  if (!overseas) {
+  if (overseas) {
+    keywords.push(...(OVERSEAS_KEYWORDS[code] || []));
+  } else {
+    for (const biome of BIOME_EMBLEMATIC) {
+      if (biome.depts.has(code)) keywords.push(...biome.keywords);
+    }
     keywords.push(...(DENSE_URBAN_DEPTS.has(code) ? URBAN_CORE : RURAL_CORE));
   }
 
   return keywords.map(norm);
 };
+
 
 /** 0 = nom exact, 1 = commence par le mot-clé, 2 = mot-clé présent en mot entier. */
 const matchScore = (name: string, keyword: string): number | null => {
@@ -167,7 +196,9 @@ export const buildEmblematicAnimals = <T extends EmblematicCandidate>(code: stri
   const candidates = sourceAnimals
     .filter((animal) => !animal.category.toLowerCase().includes('(monde)'))
     .map((animal) => ({ animal, name: norm(animal.name) }))
+    .filter(({ name }) => geoAllows(name, code))
     .filter(({ name }) => !NEVER_EMBLEMATIC.some((bad) => name.includes(bad)));
+
 
   const picked: T[] = [];
   const usedNames = new Set<string>();
