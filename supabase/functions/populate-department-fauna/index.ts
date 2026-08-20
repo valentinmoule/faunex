@@ -22,18 +22,19 @@ const buildRows = (
   }));
 
 
-async function requireAuth(req: Request): Promise<Response | null> {
+async function requireAuth(req: Request): Promise<{ response: Response } | { userId: string }> {
   const authHeader = req.headers.get('Authorization');
-  if (!authHeader?.startsWith('Bearer ')) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-  }
+  const deny = () => ({
+    response: new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    }),
+  });
+  if (!authHeader?.startsWith('Bearer ')) return deny();
   const anon = createClient(SUPABASE_URL, Deno.env.get('SUPABASE_ANON_KEY')!, { global: { headers: { Authorization: authHeader } } });
   const { data: claimsData, error } = await anon.auth.getClaims(authHeader.replace('Bearer ', ''));
-  const callerId = claimsData?.claims?.sub;
-  if (error || !callerId) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-  }
-  return null;
+  const callerId = claimsData?.claims?.sub as string | undefined;
+  if (error || !callerId) return deny();
+  return { userId: callerId };
 }
 
 Deno.serve(async (req) => {
@@ -42,8 +43,10 @@ Deno.serve(async (req) => {
 
   try {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-    const unauthorized = await requireAuth(req);
-    if (unauthorized) return unauthorized;
+    const auth = await requireAuth(req);
+    if ('response' in auth) return auth.response;
+    const callerId = auth.userId;
+
 
     const { department_code, force } = await req.json();
     if (!department_code || !DEPT_NAMES[department_code]) {
