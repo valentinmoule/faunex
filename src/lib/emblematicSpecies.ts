@@ -166,7 +166,12 @@ export interface EmblematicCandidate {
   name: string;
   category: string;
   rarity: string;
+  scientific_name?: string | null;
 }
+
+/** Nombre d'espèces « drapeau » réservées avant de compléter avec les observations réelles. */
+export const FLAGSHIP_QUOTA = 16;
+
 
 export const emblematicKeywords = (code: string) => {
   const overseas = OVERSEAS_DEPTS.has(code);
