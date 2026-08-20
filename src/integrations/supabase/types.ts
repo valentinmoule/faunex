@@ -906,6 +906,24 @@ export type Database = {
           },
         ]
       }
+      nearby_search_attempts: {
+        Row: {
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           actor_id: string
@@ -1757,6 +1775,7 @@ export type Database = {
           total_players: number
         }[]
       }
+      nearby_searches_remaining_today: { Args: never; Returns: number }
       normalize_animal_label: { Args: { p_label: string }; Returns: string }
       premium_user_ids: {
         Args: { p_user_ids: string[] }
@@ -1770,6 +1789,7 @@ export type Database = {
         Returns: undefined
       }
       record_capture_attempt: { Args: never; Returns: number }
+      record_nearby_search: { Args: never; Returns: number }
       refresh_collection_membership: {
         Args: { p_collection_id?: string }
         Returns: number

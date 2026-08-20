@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Loader2, Radar, Sparkles, MapPin } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNearbyQuota, DAILY_NEARBY_LIMIT } from '@/hooks/useNearbyQuota';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -43,7 +44,9 @@ const isAtTop = (target: EventTarget | null) => {
 const PullToDiscover = () => {
   const { session } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const enabled = ENABLED_ROUTES.includes(location.pathname) && !!session?.user;
+  const { remaining, unlimited, exhausted, consume } = useNearbyQuota(session?.user?.id);
 
   const [pull, setPull] = useState(0);
   const [dragging, setDragging] = useState(false);
@@ -61,6 +64,21 @@ const PullToDiscover = () => {
   const runDiscovery = useCallback(async () => {
     if (!('geolocation' in navigator)) {
       toast.error('Géolocalisation indisponible');
+      return;
+    }
+    if (exhausted) {
+      toast.error('Limite de 4 explorations par jour atteinte', {
+        description: 'Passe au Premium pour explorer sans limite.',
+        action: { label: 'Premium', onClick: () => navigate('/premium') },
+      });
+      return;
+    }
+    const allowed = await consume();
+    if (!allowed) {
+      toast.error('Limite de 4 explorations par jour atteinte', {
+        description: 'Passe au Premium pour explorer sans limite.',
+        action: { label: 'Premium', onClick: () => navigate('/premium') },
+      });
       return;
     }
     setLoading(true);
@@ -90,7 +108,7 @@ const PullToDiscover = () => {
       },
       { enableHighAccuracy: false, timeout: 10000 },
     );
-  }, []);
+  }, [consume, exhausted, navigate]);
 
   useEffect(() => {
     if (!enabled) {
@@ -187,12 +205,23 @@ const PullToDiscover = () => {
               />
             )}
           </span>
-          <span className="text-[12.5px] font-display font-bold text-foreground leading-none">
-            {loading
-              ? 'Exploration en cours…'
-              : ready
-                ? 'Relâche pour explorer'
-                : 'Tire pour explorer autour de toi'}
+          <span className="flex flex-col gap-0.5">
+            <span className="text-[12.5px] font-display font-bold text-foreground leading-none">
+              {loading
+                ? 'Exploration en cours…'
+                : exhausted
+                  ? 'Limite quotidienne atteinte'
+                  : ready
+                    ? 'Relâche pour explorer'
+                    : 'Tire pour explorer autour de toi'}
+            </span>
+            {!loading && !unlimited && remaining !== null && (
+              <span className="text-[10px] font-medium text-muted-foreground leading-none">
+                {exhausted
+                  ? 'Passe au Premium pour explorer sans limite'
+                  : `${remaining}/${DAILY_NEARBY_LIMIT} explorations restantes aujourd'hui`}
+              </span>
+            )}
           </span>
         </div>
       </div>
