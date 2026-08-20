@@ -70,16 +70,21 @@ const BIOME_EMBLEMATIC: Array<{ depts: Set<string>; keywords: string[] }> = [
   },
   {
     depts: COASTAL_DEPTS,
-    keywords: ['phoque', 'goeland argente', 'huitrier pie', 'sterne', 'fou de bassan', 'macareux', 'grand cormoran', 'avocette', 'tadorne', 'grand dauphin', 'etoile de mer', 'hippocampe', 'crabe vert'],
+    keywords: ['goeland argente', 'huitrier pie', 'sterne pierregarin', 'grand cormoran', 'avocette elegante', 'tadorne de belon', 'grand dauphin', 'etoile de mer commune', 'hippocampe mouchete', 'crabe vert'],
+  },
+  {
+    depts: ATLANTIC_DEPTS,
+    keywords: ['phoque gris', 'phoque veau-marin', 'fou de bassan', 'macareux moine', 'pingouin torda', 'guillemot de troil', 'mouette tridactyle', 'homard europeen'],
   },
   {
     depts: MEDITERRANEAN_DEPTS,
-    keywords: ['flamant rose', 'cigale', 'mante religieuse', 'tortue d hermann', 'lezard ocelle', 'guepier', 'rollier', 'gecko', 'scorpion languedocien', 'cistude', 'merou brun'],
+    keywords: ['flamant rose', 'cigale', 'mante religieuse', 'tortue d hermann', 'lezard ocelle', 'guepier d europe', 'rollier d europe', 'tarente de mauretanie', 'scorpion languedocien', 'cistude d europe', 'merou brun', 'goeland leucophee'],
   },
   {
     depts: WETLAND_DEPTS,
-    keywords: ['heron cendre', 'aigrette garzette', 'busard des roseaux', 'grebe huppe', 'cygne tubercule', 'loutre', 'castor', 'brochet', 'caloptery', 'anax', 'agrion'],
+    keywords: ['heron cendre', 'aigrette garzette', 'busard des roseaux', 'grebe huppe', 'cygne tubercule', 'loutre d europe', 'castor d europe', 'brochet', 'calopteryx', 'anax empereur', 'agrion'],
   },
+
   {
     depts: DENSE_URBAN_DEPTS,
     keywords: ['perruche a collier', 'martinet noir', 'pipistrelle', 'lezard des murailles', 'faucon crecerelle', 'effraie', 'renard roux', 'herisson', 'pigeon biset', 'moineau domestique', 'mouette rieuse'],
