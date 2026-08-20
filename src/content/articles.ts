@@ -269,6 +269,154 @@ On installe depuis le navigateur (PWA), pas d'app store, pas de téléchargement
 > Ce qu'on entend le plus souvent : "Maintenant, dès qu'on entend un oiseau, il faut absolument l'attraper." C'est exactement ce qu'on voulait.
 `,
   },
+  {
+    slug: 'identification-insectes',
+    type: 'guide',
+    title: "Identification des insectes : la méthode qui marche vraiment sur le terrain",
+    description:
+      "Comment identifier un insecte à partir d'une photo : les 5 critères qui comptent, les confusions classiques (guêpe/syrphe, libellule/demoiselle) et les limites de l'IA.",
+    category: 'Identification',
+    readingMinutes: 7,
+    publishedAt: '2026-08-20',
+    body: `# Identification des insectes : la méthode qui marche vraiment sur le terrain
+
+Il y a en France environ 40 000 espèces d'insectes. Quarante mille. À côté, les 300 espèces d'oiseaux régulières ressemblent à une petite liste de courses. C'est pour ça que l'identification des insectes fait peur : on a l'impression qu'il faut un doctorat pour mettre un nom sur une bestiole posée sur une ombelle.
+
+En réalité, non. Il faut juste arrêter de chercher "l'espèce" tout de suite et apprendre à descendre l'escalier : d'abord le grand groupe, ensuite la famille, et seulement après le nom précis. C'est exactement ce que fait une IA d'identification, et c'est ce que tu peux faire à l'œil nu.
+
+## Étape 1 : trouver le grand groupe (30 secondes)
+
+Regarde les ailes. C'est le seul critère qui compte au début.
+
+- **Deux ailes seulement** → mouches, syrphes, moustiques (les diptères). L'arrière du corps n'a pas de deuxième paire visible.
+- **Quatre ailes, taille de guêpe, "taille de guêpe" marquée** → abeilles, guêpes, bourdons, fourmis (hyménoptères).
+- **Ailes couvertes d'écailles poudreuses** → papillons de jour et de nuit (lépidoptères).
+- **Élytres durs qui se rejoignent en ligne droite sur le dos** → coléoptères (coccinelles, carabes, hannetons, capricornes).
+- **Quatre grandes ailes transparentes nervurées, corps allongé** → libellules et demoiselles (odonates).
+- **Bec piqueur, dos en écusson triangulaire** → punaises (hémiptères).
+
+Avec ces six cases, tu classes 90 % de ce que tu croises dans un jardin. Et surtout, tu élimines d'un coup 39 000 espèces.
+
+## Étape 2 : les 5 critères à photographier
+
+Pour aller plus loin, il faut de l'information dans l'image. Une photo d'insecte utilisable montre :
+
+1. **Le dessus du corps**, à plat, perpendiculaire à l'objectif. Pas de trois quarts flou.
+2. **Les antennes en entier** — leur longueur et leur forme (en massue, en peigne, filiformes) séparent des familles entières.
+3. **Les pattes**, notamment les postérieures (épaissies chez les sauteurs).
+4. **Le motif des ailes ou des élytres** : nombre de points, bandes, taches claires.
+5. **La plante ou le support**. Une chenille sur son plant nourricier, c'est la moitié de l'identification faite.
+
+Astuce concrète : approche-toi lentement, sans ombre portée sur l'insecte. C'est l'ombre qui déclenche la fuite, pas le bruit. Et prends trois photos plutôt qu'une seule "parfaite" — tu n'auras pas de deuxième chance.
+
+## Étape 3 : les confusions classiques
+
+Ce sont toujours les mêmes qui piègent, humains comme algorithmes :
+
+- **Guêpe vs syrphe.** Le syrphe est une mouche déguisée en guêpe : deux ailes, gros yeux qui couvrent la tête, et il fait du surplace en vol stationnaire. Une guêpe ne fait jamais de surplace.
+- **Abeille domestique vs abeille sauvage.** Il existe presque 1 000 espèces d'abeilles sauvages en France. La plupart sont solitaires, plus petites, parfois noires ou métalliques. Si tu photographies "une abeille", il y a une bonne chance que ce ne soit pas *Apis mellifera*.
+- **Libellule vs demoiselle.** Au repos : libellule = ailes ouvertes à plat, corps trapu. Demoiselle = ailes repliées au-dessus du dos, corps fin comme une allumette.
+- **Frelon européen vs frelon asiatique.** L'asiatique a les pattes jaunes aux extrémités et le thorax presque entièrement noir. L'européen est plus roux, avec du jaune rayé.
+- **Coccinelle asiatique vs coccinelle à 7 points.** Compte les points, et regarde le "M" blanc et noir derrière la tête chez l'asiatique.
+
+## Ce que l'IA sait faire — et là où elle bloque
+
+Une IA d'identification a appris sur des centaines de milliers de photos étiquetées. Elle est excellente sur les insectes bien contrastés et fréquemment photographiés : papillons de jour, coccinelles, libellules, bourdons, punaises graphiques.
+
+Elle est beaucoup plus prudente sur :
+
+- les **petits diptères et micro-hyménoptères**, où la distinction se fait sur la nervation des ailes ou la pilosité, invisible sur une photo de téléphone ;
+- les **larves et chenilles**, dont beaucoup n'ont aucune photo de référence ;
+- les **groupes qui exigent un examen en laboratoire**. Pour certaines familles, même un spécialiste ne tranche pas sans microscope.
+
+Sur Faunex, quand la certitude est trop faible, on préfère annoncer le genre ou la famille plutôt que d'inventer un nom d'espèce. C'est moins spectaculaire, mais une identification fausse pollue les données de tout le monde — et surtout ta propre mémoire.
+
+## Pourquoi ça vaut le coup de s'y mettre
+
+Les insectes sont le groupe qui s'effondre le plus vite, et le plus mal suivi. Chaque observation datée et localisée compte réellement. Mais au-delà de ça, il se passe un truc bête : dès que tu sais nommer trois syrphes, tu ne vois plus un massif de fleurs de la même façon. Le jardin devient bruyant de détails.
+
+Commence petit : cinq espèces sur ton balcon. Photographie-les, identifie-les, garde-les. Le reste vient tout seul.
+`,
+  },
+  {
+    slug: 'identification-animaux',
+    type: 'guide',
+    title: "Identification des animaux : reconnaître une espèce à partir d'une photo",
+    description:
+      "Guide pratique pour identifier un animal sauvage : silhouette, taille, habitat, indices de présence. Ce qu'une photo doit montrer pour une identification fiable.",
+    category: 'Identification',
+    readingMinutes: 7,
+    publishedAt: '2026-08-20',
+    body: `# Identification des animaux : reconnaître une espèce à partir d'une photo
+
+La plupart des gens croient qu'identifier un animal, c'est une question de mémoire : connaître les noms. En pratique, c'est surtout une question de méthode. Un naturaliste débutant avec la bonne grille de lecture identifie plus d'espèces qu'un curieux qui a lu trois livres sans jamais regarder de près.
+
+Voici la grille, dans l'ordre où on l'utilise sur le terrain.
+
+## 1. La silhouette avant la couleur
+
+Notre cerveau attrape la couleur en premier. C'est une erreur : la couleur change avec la lumière, la saison, l'âge et le sexe. La silhouette, non.
+
+Pose-toi trois questions dans cet ordre :
+
+- **Quelle forme générale ?** Trapu, élancé, compact, allongé.
+- **Quelles proportions ?** Longueur de la queue par rapport au corps, longueur des pattes, taille de la tête.
+- **Quel profil de bec, de museau ou de rostre ?** Fin, épais, crochu, aplati.
+
+Un merle noir et un étourneau sansonnet ont tous les deux l'air "noirs" de loin. Le merle a une longue queue et marche par bonds ; l'étourneau a une queue courte, une silhouette triangulaire et court au sol. La couleur ne t'aurait rien dit.
+
+## 2. La taille, mais relative
+
+"Il était gros comme ça" ne veut rien dire. Compare toujours à quelque chose de connu dans la scène : un pigeon, un moineau, une main, un pavé, une feuille. Une buse variable et un épervier d'Europe font la même forme en photo — c'est l'échelle qui tranche.
+
+Sur une photo, ce repère disparaît si tu cadres serré. Prends donc **deux images** : une serrée pour les détails, une large pour le contexte et l'échelle.
+
+## 3. L'habitat et la géographie
+
+C'est le filtre le plus puissant et le plus négligé. Un écureuil roux en ville dense, ce n'est pas impossible mais c'est rare. Une anémone de mer dans un étang d'Île-de-France, c'est impossible.
+
+Note systématiquement :
+
+- le **milieu** : forêt, lisière, prairie, zone humide, littoral, ville ;
+- la **date** : beaucoup d'espèces ne sont présentes qu'une partie de l'année ;
+- la **région**. La moitié des confusions se règlent en regardant l'aire de répartition.
+
+C'est aussi pour ça qu'une app d'identification qui utilise ta localisation est plus fiable qu'un moteur d'images générique : elle écarte les espèces qui n'ont rien à faire là.
+
+## 4. Les pièges qui reviennent tout le temps
+
+- **Les juvéniles.** Un rouge-gorge jeune n'a pas de bavette orange. Un goéland met quatre ans à ressembler à l'illustration du guide.
+- **Les femelles.** Chez beaucoup d'oiseaux et de papillons, elles sont ternes alors que les manuels montrent le mâle.
+- **Le mimétisme.** Certaines espèces imitent volontairement une autre, plus dangereuse.
+- **Les animaux domestiques et croisements.** Chats, chiens, chevaux, canards de mare, pigeons de ville : la variabilité est telle que le nom de race est souvent hors de portée d'une photo. On peut donner l'espèce, rarement mieux.
+- **La photo de zoo ou de volière.** Elle biaise tout : espèce exotique, décor artificiel. Ce n'est pas une observation de faune sauvage.
+
+## 5. Quand l'animal n'est pas là : les indices de présence
+
+Une bonne part de la faune se reconnaît sans jamais la voir. C'est même souvent la seule façon.
+
+- **Empreintes** : nombre de doigts, présence de griffes, alignement des pas.
+- **Crottes** : forme, contenu (poils, noyaux, débris d'insectes).
+- **Restes de repas** : cônes d'épicéa décortiqués par un écureuil, noisettes percées par un mulot, plumes en rond d'un rapace.
+- **Traces sur le bois** : trous de pic, écorce frottée par un cervidé.
+- **Sons** : le chant est souvent plus discriminant que la vue, surtout chez les oiseaux et les amphibiens.
+
+## Ce que fait — et ne fait pas — l'identification par IA
+
+Une IA compare ta photo à des centaines de milliers d'images étiquetées, et elle mesure des motifs : proportions, contrastes, formes de bec, motifs de plumage ou de pelage. Sur une photo correcte d'espèce commune, elle est très bonne et instantanée.
+
+Elle reste faillible sur les juvéniles, les hybrides, les photos à contre-jour et les groupes qui demandent un critère invisible en image. C'est pourquoi, sur Faunex, chaque identification affiche un **niveau de fiabilité** : au-dessus de 90 %, la fiche est validée automatiquement ; en dessous, tu peux contester ou demander une vérification humaine, et l'espèce n'entre pas dans le bestiaire sans contrôle. Les taxons sont en plus recoupés avec les référentiels scientifiques, pour éviter les noms d'espèces inventés.
+
+## La routine simple à adopter
+
+1. Deux photos : une serrée, une large.
+2. Note le milieu et la date (l'app le fait pour toi).
+3. Cherche le grand groupe, pas l'espèce.
+4. Accepte l'incertitude quand elle est justifiée — "mésange, probablement charbonnière" est une donnée honnête et utile.
+
+Au bout de quelques semaines, tu ne consultes plus rien pour les vingt espèces de ton quartier. C'est là que ça devient vraiment intéressant : tu commences à remarquer les absences, les arrivées, les changements. L'identification n'est que la porte d'entrée.
+`,
+  },
 ];
 
 export const guides = articles.filter((a) => a.type === 'guide');
