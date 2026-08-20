@@ -360,6 +360,7 @@ serve(async (req) => {
     // Déduplication : si l'espèce existe déjà dans le bestiaire (nom commun OU nom
     // scientifique, insensible casse/accents/tirets), on réutilise la fiche canonique
     // pour éviter les doublons type "Graphosome rayé" / "Graphosome d'Italie".
+    let knownInBestiary = false;
     if (animalData?.animal_name && animalData.animal_name.toLowerCase() !== "inconnu") {
       try {
         const supabase = createClient(
@@ -373,6 +374,7 @@ serve(async (req) => {
         if (matchErr) console.error("match_animal failed", matchErr);
         const existing = Array.isArray(matches) ? matches[0] : matches;
         if (existing) {
+          knownInBestiary = true;
           animalData.animal_name = existing.name || animalData.animal_name;
           animalData.scientific_name = existing.scientific_name || animalData.scientific_name;
           animalData.category = existing.category || animalData.category;
@@ -380,6 +382,24 @@ serve(async (req) => {
         }
       } catch (e) {
         console.error("dedup lookup failed", e);
+      }
+    }
+
+    // Garde-fou anti-hallucination : une espèce inconnue de notre bestiaire doit
+    // exister dans le référentiel taxonomique mondial (GBIF). Sinon le modèle a
+    // inventé le binôme (ex. "Oleaopteryx oleae") et on bascule l'utilisateur sur
+    // la saisie manuelle / modération plutôt que de polluer le bestiaire.
+    if (
+      !knownInBestiary &&
+      animalData?.animal_name &&
+      animalData.animal_name.toLowerCase() !== "inconnu"
+    ) {
+      const verdict = await verifyTaxon(animalData.scientific_name);
+      if (verdict === "invalid") {
+        console.warn("taxon rejected (not found in GBIF):", animalData.scientific_name);
+        return new Response(JSON.stringify({ success: false, reason: "not_identified" }), {
+          status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
     }
 
