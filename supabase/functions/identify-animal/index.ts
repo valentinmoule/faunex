@@ -7,6 +7,52 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+/**
+ * Vérifie qu'un nom scientifique existe réellement dans le référentiel
+ * taxonomique mondial GBIF (API publique, sans clé).
+ * - "valid"   : le taxon (ou au moins son genre) existe
+ * - "invalid" : aucune correspondance → binôme inventé par le modèle
+ * - "unknown" : GBIF injoignable → on ne bloque pas l'utilisateur
+ */
+const verifyTaxon = async (
+  scientificName?: string | null,
+): Promise<"valid" | "invalid" | "unknown"> => {
+  const name = (scientificName || "").trim();
+  if (!name) return "unknown";
+  // Les races domestiques ne sont pas des taxons GBIF distincts : déjà couvertes
+  // par un binôme parent valide, inutile de les interroger.
+  const lookup = async (q: string) => {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 4_000);
+    try {
+      const res = await fetch(
+        `https://api.gbif.org/v1/species/match?strict=false&name=${encodeURIComponent(q)}`,
+        { signal: ctrl.signal },
+      );
+      if (!res.ok) return null;
+      return await res.json();
+    } catch {
+      return null;
+    } finally {
+      clearTimeout(timer);
+    }
+  };
+
+  const data = await lookup(name);
+  if (!data) return "unknown";
+  if (data.matchType && data.matchType !== "NONE") return "valid";
+
+  // Repli : le genre seul est-il réel ? (binôme approximatif mais genre existant)
+  const genus = name.split(/\s+/)[0];
+  if (genus && genus.toLowerCase() !== name.toLowerCase()) {
+    const g = await lookup(genus);
+    if (!g) return "unknown";
+    if (g.matchType && g.matchType !== "NONE") return "valid";
+  }
+  return "invalid";
+};
+
+
 const SYSTEM_PROMPT = `Tu es un expert naturaliste de renommée mondiale, spécialisé en zoologie, ornithologie, herpétologie, entomologie, cynologie et félinologie. Tu identifies les animaux avec une précision scientifique.
 
 ## Méthode d'identification
@@ -85,7 +131,8 @@ Si l'image ne contient pas d'animal → animal_name "Inconnu" et confidence 0.
 Seules les espèces réelles et actuellement vivantes sont valides.
 - JAMAIS de créature imaginaire, mythologique, de fiction ou de jeu (dragon, licorne, phénix, griffon, kraken, sirène, yéti, chimère, Pokémon, etc.).
 - JAMAIS d'espèce éteinte ou préhistorique (dodo, tyrannosaure/dinosaures, mammouth, thylacine, grand pingouin, aurochs, smilodon, moa, etc.).
-- JAMAIS de nom scientifique inventé (ex: "Creatura ficta"). Le nom latin doit être un binôme réel et vérifiable.
+- JAMAIS de nom scientifique inventé (ex: "Creatura ficta", "Oleaopteryx oleae"). Le nom latin doit être un binôme réel, publié et vérifiable dans les référentiels taxonomiques (GBIF, ITIS). Si tu n'es pas certain du binôme exact, remonte au genre ou à la famille réels (ex: "Miridae") plutôt que d'inventer une combinaison.
+- JAMAIS de nom commun composite inventé (ex: "punaise de lit de l'olivier"). Utilise uniquement des noms vernaculaires réellement employés.
 - Un jouet, une peluche, une statue, un dessin ou une illustration d'animal n'est PAS une capture valide.
 Si le sujet correspond à l'un de ces cas → animal_name "Inconnu", confidence 0, aucune alternative.
 Exception : les espèces réelles portant "dragon" dans leur nom commun sont valides (Dragon de Komodo, Dragon barbu, Dragon volant).
@@ -359,6 +406,7 @@ serve(async (req) => {
     // Déduplication : si l'espèce existe déjà dans le bestiaire (nom commun OU nom
     // scientifique, insensible casse/accents/tirets), on réutilise la fiche canonique
     // pour éviter les doublons type "Graphosome rayé" / "Graphosome d'Italie".
+    let knownInBestiary = false;
     if (animalData?.animal_name && animalData.animal_name.toLowerCase() !== "inconnu") {
       try {
         const supabase = createClient(
@@ -372,6 +420,7 @@ serve(async (req) => {
         if (matchErr) console.error("match_animal failed", matchErr);
         const existing = Array.isArray(matches) ? matches[0] : matches;
         if (existing) {
+          knownInBestiary = true;
           animalData.animal_name = existing.name || animalData.animal_name;
           animalData.scientific_name = existing.scientific_name || animalData.scientific_name;
           animalData.category = existing.category || animalData.category;
@@ -379,6 +428,24 @@ serve(async (req) => {
         }
       } catch (e) {
         console.error("dedup lookup failed", e);
+      }
+    }
+
+    // Garde-fou anti-hallucination : une espèce inconnue de notre bestiaire doit
+    // exister dans le référentiel taxonomique mondial (GBIF). Sinon le modèle a
+    // inventé le binôme (ex. "Oleaopteryx oleae") et on bascule l'utilisateur sur
+    // la saisie manuelle / modération plutôt que de polluer le bestiaire.
+    if (
+      !knownInBestiary &&
+      animalData?.animal_name &&
+      animalData.animal_name.toLowerCase() !== "inconnu"
+    ) {
+      const verdict = await verifyTaxon(animalData.scientific_name);
+      if (verdict === "invalid") {
+        console.warn("taxon rejected (not found in GBIF):", animalData.scientific_name);
+        return new Response(JSON.stringify({ success: false, reason: "not_identified" }), {
+          status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
     }
 
