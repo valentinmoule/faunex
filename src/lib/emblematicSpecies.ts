@@ -244,7 +244,9 @@ export const eligibleCandidates = <T extends EmblematicCandidate>(code: string, 
     .filter((animal) => !animal.category.toLowerCase().includes('(monde)'))
     .map((animal) => ({ animal, name: norm(animal.name) }))
     .filter(({ name }) => geoAllows(name, code))
-    .filter(({ name }) => !NEVER_EMBLEMATIC.some((bad) => name.includes(bad)));
+    .filter(({ name }) => !NEVER_EMBLEMATIC.some((bad) => name.includes(bad)))
+    .filter(({ name }) => !LIFE_STAGE_PREFIXES.some((stage) => name.startsWith(stage)));
+
 
 const normSci = (value: string) => value.toLowerCase().trim().replace(/\s+/g, ' ');
 
