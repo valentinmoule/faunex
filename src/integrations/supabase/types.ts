@@ -1458,6 +1458,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_species_collections: {
+        Row: {
+          collection_key: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          collection_key: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          collection_key?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       bestiary_catalogue: {
