@@ -1646,15 +1646,6 @@ export type Database = {
           taxon_id: string
         }[]
       }
-      delete_email: {
-        Args: { message_id: number; queue_name: string }
-        Returns: boolean
-      }
-      email_queue_dispatch: { Args: never; Returns: undefined }
-      enqueue_email: {
-        Args: { payload: Json; queue_name: string }
-        Returns: number
-      }
       ensure_weekly_quests: { Args: never; Returns: number }
       ensure_weekly_quests_for: { Args: { p_user_id: string }; Returns: number }
       get_my_profile: {
@@ -1737,15 +1728,6 @@ export type Database = {
           vernacular_name: string
         }[]
       }
-      move_to_dlq: {
-        Args: {
-          dlq_name: string
-          message_id: number
-          payload: Json
-          source_queue: string
-        }
-        Returns: number
-      }
       my_category_rank: {
         Args: { p_category: string }
         Returns: {
@@ -1762,14 +1744,6 @@ export type Database = {
         }[]
       }
       progress_taxon: { Args: { p_taxon_id: string }; Returns: string }
-      read_email_batch: {
-        Args: { batch_size: number; queue_name: string; vt: number }
-        Returns: {
-          message: Json
-          msg_id: number
-          read_ct: number
-        }[]
-      }
       recompute_profile_counters: {
         Args: { p_user_id: string }
         Returns: undefined
