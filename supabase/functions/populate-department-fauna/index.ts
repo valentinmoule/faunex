@@ -45,31 +45,43 @@ Deno.serve(async (req) => {
     const unauthorized = await requireAuth(req);
     if (unauthorized) return unauthorized;
 
-    const { department_code } = await req.json();
+    const { department_code, force } = await req.json();
     if (!department_code || !DEPT_NAMES[department_code]) {
       return new Response(JSON.stringify({ error: 'Invalid department_code' }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
-    // Already populated? skip
+
+    let isAdmin = false;
+    if (force) {
+      const { data } = await supabase.rpc('has_role', { _user_id: callerId, _role: 'admin' });
+      isAdmin = data === true;
+      if (!isAdmin) {
+        return new Response(JSON.stringify({ error: 'Forbidden' }), {
+          status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
+    // Already populated? skip (sauf reconstruction demandée par un admin)
     const { count: existing } = await supabase
       .from('animal_departments')
       .select('*', { count: 'exact', head: true })
       .eq('department_code', department_code);
 
-    if (existing && existing > 0) {
+    if (existing && existing > 0 && !isAdmin) {
       return new Response(JSON.stringify({ ok: true, cached: true, count: existing }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
     // Fetch all known animals
-    let allAnimals: { name: string; category: string; rarity: string }[] = [];
+    let allAnimals: { name: string; category: string; rarity: string; scientific_name: string | null }[] = [];
     let page = 0;
     while (true) {
       const { data } = await supabase
         .from('animals')
-        .select('name, category, rarity')
+        .select('name, category, rarity, scientific_name')
         .range(page * 1000, (page + 1) * 1000 - 1);
       if (!data || data.length === 0) break;
       allAnimals = allAnimals.concat(data);
@@ -83,16 +95,28 @@ Deno.serve(async (req) => {
       });
     }
 
-    const rows = buildRows(allAnimals, department_code);
+    // Classement des espèces réellement observées sur le territoire (iNaturalist).
+    const observed = await observedSpeciesForDepartment(department_code, DEPT_NAMES[department_code]);
 
-    console.log(`[dept ${department_code}] inserting ${rows.length} rows`);
+    const rows = buildRows(allAnimals, department_code, observed);
+
+    console.log(`[dept ${department_code}] inserting ${rows.length} rows (observed=${observed.length})`);
 
     if (rows.length > 0) {
+      if (isAdmin) {
+        const keep = rows.map((row) => row.animal_name);
+        await supabase
+          .from('animal_departments')
+          .delete()
+          .eq('department_code', department_code)
+          .not('animal_name', 'in', `(${keep.map((n) => `"${n.replace(/"/g, '')}"`).join(',')})`);
+      }
       const { error: upErr } = await supabase
         .from('animal_departments')
         .upsert(rows, { onConflict: 'department_code,animal_name' });
       if (upErr) console.error(`[dept ${department_code}] upsert error`, upErr);
     }
+
 
     return new Response(JSON.stringify({ ok: true, count: rows.length }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
