@@ -3,6 +3,8 @@ import { PawPrint, Bird, Fish, Bug, Turtle, Shell, Snail, Waves } from 'lucide-r
 import { FrogIcon } from '@/components/icons/FrogIcon';
 import { SpiderIcon } from '@/components/icons/SpiderIcon';
 import type { AnimalCard } from '@/data/mockData';
+import { buildEmblematicSet } from '@/lib/emblematicSpecies';
+
 
 export interface BestiaryAnimal {
   name: string;
@@ -93,58 +95,13 @@ const URBAN_DEPTS = new Set(['59', '69', '75', '92', '93', '94']);
 const WETLAND_DEPTS = new Set(['01', '13', '17', '30', '33', '34', '35', '37', '41', '44', '45', '49', '51', '56', '67', '68', '80', '85']);
 const OVERSEAS_DEPTS = new Set(['971', '972', '973', '974', '976']);
 
-const BASE_DEPT_KEYWORDS = [
-  'abeille', 'bourdon', 'fourmi', 'coccinelle', 'papillon', 'mouche', 'moustique', 'libellule', 'araignée', 'escargot', 'limace',
-  'moineau', 'mésange', 'merle', 'rougegorge', 'pigeon', 'pie', 'corneille', 'étourneau', 'hirondelle', 'martinet', 'pinson', 'verdier', 'chardonneret',
-  'hérisson', 'écureuil', 'renard', 'chevreuil', 'sanglier', 'lièvre', 'lapin', 'chauve-souris', 'fouine', 'belette', 'mulot', 'campagnol', 'rat', 'souris',
-  'grenouille', 'crapaud', 'triton', 'salamandre', 'lézard', 'couleuvre', 'chien', 'chat', 'cheval', 'âne', 'vache', 'mouton', 'chèvre', 'poule', 'canard',
-];
+/**
+ * Territoire = sélection courte d'espèces emblématiques (voir emblematicSpecies.ts).
+ * Utilisé en repli quand la table serveur n'est pas encore peuplée.
+ */
+export const buildRegionalAnimalSet = (code: string, sourceAnimals: BestiaryAnimal[]) =>
+  buildEmblematicSet(code, sourceAnimals);
 
-const getDeptKeywords = (code: string) => {
-  const keywords = [...BASE_DEPT_KEYWORDS];
-  if (COASTAL_DEPTS.has(code)) {
-    keywords.push('goéland', 'mouette', 'cormoran', 'aigrette', 'héron', 'avocette', 'huîtrier', 'phoque', 'crabe', 'crevette', 'homard', 'moule', 'huître', 'bar', 'dorade', 'sardine', 'anchois', 'méduse', 'oursin', 'balane');
-  }
-  if (MOUNTAIN_DEPTS.has(code)) {
-    keywords.push('aigle', 'vautour', 'marmotte', 'chamois', 'bouquetin', 'isard', 'mouflon', 'lynx', 'loup', 'tétras', 'lagopède', 'truite', 'apollon', 'accenteur alpin');
-  }
-  if (MEDITERRANEAN_DEPTS.has(code)) {
-    keywords.push('flamant', 'cigale', 'gecko', 'tortue', 'lézard ocellé', 'couleuvre', 'rollier', 'guêpier', 'mérou', 'murène', 'dorade', 'sardine', 'anchois', 'scorpion');
-  }
-  if (URBAN_DEPTS.has(code)) {
-    keywords.push('perruche', 'rat', 'souris', 'pigeon', 'moineau', 'martinet', 'corneille', 'pie', 'renard', 'hérisson', 'fouine', 'étourneau');
-  }
-  if (WETLAND_DEPTS.has(code)) {
-    keywords.push('canard', 'cygne', 'foulque', 'grèbe', 'héron', 'aigrette', 'grenouille', 'triton', 'libellule', 'agrion', 'brochet', 'carpe', 'ablette');
-  }
-  if (OVERSEAS_DEPTS.has(code)) {
-    keywords.push('iguane', 'gecko', 'tortue', 'colibri', 'pélican', 'frégate', 'crabe', 'crevette', 'dauphin', 'baleine', 'requin', 'raie', 'mérou', 'perroquet', 'caméléon');
-  }
-  return keywords.map(normalizeText);
-};
-
-export const buildRegionalAnimalSet = (code: string, sourceAnimals: BestiaryAnimal[]) => {
-  const keywords = getDeptKeywords(code);
-  const selected = new Set<string>();
-  const localAnimals = sourceAnimals.filter((animal) => !animal.category.toLowerCase().includes('(monde)'));
-
-  localAnimals.forEach((animal) => {
-    const normalizedName = normalizeText(animal.name);
-    if (keywords.some((keyword) => normalizedName.includes(keyword))) {
-      selected.add(animal.name.toLowerCase());
-    }
-  });
-
-  const targetSize = OVERSEAS_DEPTS.has(code) ? 90 : 140;
-  if (selected.size < targetSize) {
-    localAnimals
-      .filter((animal) => animal.rarity === 'common')
-      .slice(0, targetSize - selected.size)
-      .forEach((animal) => selected.add(animal.name.toLowerCase()));
-  }
-
-  return selected;
-};
 
 // --- City filter: realistic urban/peri-urban subset ---
 // Animals commonly observable in/around a French city (parcs, jardins, rues, toits, points d'eau).
