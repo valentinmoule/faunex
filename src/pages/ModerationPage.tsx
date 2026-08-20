@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { PageHeader } from '@/components/PageHeader';
 import { ArrowLeft, Check, X, Loader2, AlertTriangle, Sparkles, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -77,6 +77,7 @@ const ModerationPage = () => {
   const [confirming, setConfirming] = useState(false);
   /** Pré-modération IA en cours sur la file d'attente. */
   const [autoRunning, setAutoRunning] = useState(false);
+  const autoRunningRef = useRef(false);
 
   /** Diagnostic d'échec de la prévisualisation, par capture. */
   const [failures, setFailures] = useState<Record<string, PrepareFailure>>({});
@@ -88,6 +89,7 @@ const ModerationPage = () => {
     if (!session?.user) return;
     fetchPending();
   }, [session]);
+
 
   const fetchPending = async () => {
     setLoading(true);
@@ -298,24 +300,62 @@ const ModerationPage = () => {
 
 
   /** Passe la file d'attente à l'IA : elle valide seule les cas évidents. */
-  const runAutoModeration = async () => {
+  const runAutoModeration = async (silent = false) => {
+    if (autoRunningRef.current) return;
+    autoRunningRef.current = true;
     setAutoRunning(true);
     const { data, error } = await supabase.functions.invoke('auto-moderate-capture', {
       body: { batch: true, limit: 25 },
     });
+    autoRunningRef.current = false;
     setAutoRunning(false);
     if (error) {
-      toast.error("La pré-modération automatique n'a pas pu s'exécuter");
+      if (!silent) toast.error("La pré-modération automatique n'a pas pu s'exécuter");
       return;
     }
     const approved = (data as any)?.approved ?? 0;
-    toast.success(
-      approved > 0
-        ? `${approved} capture${approved > 1 ? 's' : ''} validée${approved > 1 ? 's' : ''} automatiquement`
-        : 'Aucune capture assez évidente : inspection manuelle nécessaire'
-    );
+    if (!silent || approved > 0) {
+      toast.success(
+        approved > 0
+          ? `${approved} capture${approved > 1 ? 's' : ''} validée${approved > 1 ? 's' : ''} automatiquement`
+          : 'Aucune capture assez évidente : inspection manuelle nécessaire'
+      );
+    }
     fetchPending();
   };
+
+  /**
+   * Pré-modération en flux : dès qu'une capture arrive dans la file (ou à
+   * l'ouverture du backoffice), l'IA passe automatiquement dessus. Aucun clic
+   * n'est nécessaire, seuls les cas douteux restent affichés.
+   */
+  useEffect(() => {
+    if (!session?.user || loading) return;
+    if (captures.length > 0) void runAutoModeration(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, session]);
+
+  useEffect(() => {
+    if (!session?.user) return;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const channel = supabase
+      .channel('moderation-queue')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'captures', filter: 'status=eq.pending_review' },
+        () => {
+          if (timer) clearTimeout(timer);
+          // Petit délai : on laisse l'insertion se stabiliser et on regroupe les rafales.
+          timer = setTimeout(() => void runAutoModeration(true), 3000);
+        }
+      )
+      .subscribe();
+    return () => {
+      if (timer) clearTimeout(timer);
+      supabase.removeChannel(channel);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session]);
 
   const timeAgo = (date: string) => {
     const diff = Date.now() - new Date(date).getTime();
@@ -337,14 +377,11 @@ const ModerationPage = () => {
             <h1 className="text-xl font-display font-bold text-foreground">Backoffice</h1>
             <p className="text-xs text-muted-foreground">{captures.length} en attente</p>
           </div>
-          <button
-            onClick={runAutoModeration}
-            disabled={autoRunning || captures.length === 0}
-            className="flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-xs font-display font-bold text-primary-foreground disabled:opacity-50"
-          >
+          <div className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-display font-bold text-primary">
             {autoRunning ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
-            Auto-valider
-          </button>
+            {autoRunning ? 'Analyse IA…' : 'Auto-validation active'}
+          </div>
+
         </div>
       </PageHeader>
 
