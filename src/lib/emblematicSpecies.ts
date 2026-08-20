@@ -196,7 +196,9 @@ export const buildEmblematicAnimals = <T extends EmblematicCandidate>(code: stri
   const candidates = sourceAnimals
     .filter((animal) => !animal.category.toLowerCase().includes('(monde)'))
     .map((animal) => ({ animal, name: norm(animal.name) }))
+    .filter(({ name }) => geoAllows(name, code))
     .filter(({ name }) => !NEVER_EMBLEMATIC.some((bad) => name.includes(bad)));
+
 
   const picked: T[] = [];
   const usedNames = new Set<string>();
