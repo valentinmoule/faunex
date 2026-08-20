@@ -306,11 +306,12 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    // Cost optimisation : on reste sur des modèles bon marché.
-    // Flash Lite en premier ; second passage sur Flash (toujours peu cher)
-    // uniquement si Lite échoue ou est vraiment incertain. Jamais de modèle Pro.
-    const FAST_MODEL = "google/gemini-2.5-flash-lite";
-    const DEEP_MODEL = "google/gemini-2.5-flash";
+    // Montée d'un cran en qualité sans partir sur du Pro : génération 3.x.
+    // Flash Lite 3.1 en première passe (coût proche de l'ancien 2.5 Lite mais
+    // sensiblement meilleur en vision), Flash 3.5 en seconde passe quand le
+    // premier modèle échoue ou hésite. Jamais de modèle Pro.
+    const FAST_MODEL = "google/gemini-3.1-flash-lite";
+    const DEEP_MODEL = "google/gemini-3.5-flash";
 
     const callGateway = async (model: string, timeoutMs: number) => {
       const controller = new AbortController();
