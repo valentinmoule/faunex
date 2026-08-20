@@ -8,10 +8,9 @@ const corsHeaders = {
 
 // Floors so the landing never looks empty even at zero data
 const FLOORS = {
-  totalUsers: 250,
-  totalCaptures: 1200,
-  totalSpecies: 180,
-  totalRegions: 24,
+  totalUsers: 2000,
+  totalCaptures: 15000,
+  totalSpecies: 1000,
 };
 
 serve(async (req) => {

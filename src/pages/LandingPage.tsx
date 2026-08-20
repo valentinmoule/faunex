@@ -135,10 +135,9 @@ const Stat = ({ value, label, prefix }: { value: number; label: string; prefix?:
 const LandingPage = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState<Stats>({
-    totalUsers: 250,
-    totalCaptures: 1200,
-    totalSpecies: 180,
-    totalRegions: 24,
+    totalUsers: 2000,
+    totalCaptures: 15000,
+    totalSpecies: 1000,
   });
   const [showStickyCta, setShowStickyCta] = useState(false);
   const [recentCaptures, setRecentCaptures] = useState<RecentCapture[]>([]);
@@ -373,7 +372,7 @@ const LandingPage = () => {
         <div className="max-w-lg mx-auto grid grid-cols-3 gap-3">
           <Stat value={stats.totalUsers} label="Explorateurs" prefix="+" />
           <Stat value={stats.totalCaptures} label="Captures" prefix="+" />
-          <Stat value={stats.totalRegions} label="Régions" prefix="+" />
+          <Stat value={stats.totalSpecies} label="Espèces" prefix="+" />
         </div>
       </section>
 
