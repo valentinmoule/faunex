@@ -164,18 +164,18 @@ export const emblematicKeywords = (code: string) => {
   const overseas = OVERSEAS_DEPTS.has(code);
   const keywords: string[] = [...(DEPT_FLAGSHIPS[code] || [])];
 
-  for (const biome of BIOME_EMBLEMATIC) {
-    // Un territoire ultramarin ne récupère que sa propre faune.
-    if (overseas !== (biome.depts === OVERSEAS_DEPTS)) continue;
-    if (biome.depts.has(code)) keywords.push(...biome.keywords);
-  }
-
-  if (!overseas) {
+  if (overseas) {
+    keywords.push(...(OVERSEAS_KEYWORDS[code] || []));
+  } else {
+    for (const biome of BIOME_EMBLEMATIC) {
+      if (biome.depts.has(code)) keywords.push(...biome.keywords);
+    }
     keywords.push(...(DENSE_URBAN_DEPTS.has(code) ? URBAN_CORE : RURAL_CORE));
   }
 
   return keywords.map(norm);
 };
+
 
 /** 0 = nom exact, 1 = commence par le mot-clé, 2 = mot-clé présent en mot entier. */
 const matchScore = (name: string, keyword: string): number | null => {
