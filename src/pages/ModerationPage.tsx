@@ -67,6 +67,10 @@ const readFunctionError = async (error: any): Promise<PrepareFailure> => {
   return { code: 'network', message: error?.message || 'Fonction injoignable (réseau ou timeout).' };
 };
 
+/** État de la tâche planifiée d'auto-modération. */
+type JobState = { status: string; paused_reason: string | null; last_run_at: string | null };
+
+
 const ModerationPage = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
