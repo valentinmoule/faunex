@@ -4,10 +4,17 @@
  * Objectif produit : une collection « territoire » doit être une sélection courte
  * et désirable (les espèces qui font l'identité du territoire), pas un catalogue
  * exhaustif. On plafonne donc volontairement la taille de la sélection.
+ *
+ * Principe : chaque département reçoit
+ *   1. ses espèces « drapeau » (identité forte),
+ *   2. les espèces de ses biomes (montagne, littoral, méditerranéen, zones humides,
+ *      urbain dense, outre-mer),
+ *   3. un socle de faune commune adapté au type de territoire (urbain vs nature).
+ * L'ordre est important : les premières espèces trouvées remplissent le quota.
  */
 
-export const MAX_EMBLEMATIC = 36;
-export const MAX_EMBLEMATIC_OVERSEAS = 28;
+export const MAX_EMBLEMATIC = 32;
+export const MAX_EMBLEMATIC_OVERSEAS = 26;
 
 const norm = (value: string) =>
   value
@@ -22,20 +29,35 @@ export const COASTAL_DEPTS = new Set([
 export const MOUNTAIN_DEPTS = new Set(['04', '05', '06', '09', '15', '25', '26', '31', '38', '39', '42', '43', '48', '63', '64', '65', '66', '67', '68', '73', '74', '88', '2A', '2B']);
 export const MEDITERRANEAN_DEPTS = new Set(['04', '05', '06', '11', '13', '30', '34', '66', '83', '84', '2A', '2B']);
 export const URBAN_DEPTS = new Set(['59', '69', '75', '92', '93', '94']);
+/** Départements où la nature « sauvage » est marginale : le socle devient urbain. */
+export const DENSE_URBAN_DEPTS = new Set(['75', '92', '93', '94']);
 export const WETLAND_DEPTS = new Set(['01', '13', '17', '30', '33', '34', '35', '37', '41', '44', '45', '49', '51', '56', '67', '68', '80', '85']);
 export const OVERSEAS_DEPTS = new Set(['971', '972', '973', '974', '976']);
 
-/** Faune sauvage emblématique commune à la France métropolitaine. */
-const CORE_EMBLEMATIC = [
+/** Socle de faune sauvage des territoires « nature » (métropole). */
+const RURAL_CORE = [
   // Mammifères
-  'renard roux', 'chevreuil', 'sanglier', 'ecureuil roux', 'herisson', 'blaireau', 'martre des pins', 'cerf elaphe', 'lievre d europe',
+  'renard roux', 'chevreuil', 'sanglier', 'ecureuil roux', 'herisson', 'blaireau', 'cerf elaphe', 'lievre d europe',
   // Oiseaux
-  'chouette hulotte', 'effraie', 'faucon crecerelle', 'buse variable', 'pic vert', 'pic epeiche', 'huppe fasciee',
-  'martin-pecheur', 'geai des chenes', 'mesange bleue', 'rougegorge', 'hirondelle rustique', 'chardonneret',
+  'chouette hulotte', 'effraie', 'buse variable', 'faucon crecerelle', 'pic vert', 'pic epeiche',
+  'martin-pecheur', 'geai des chenes', 'mesange bleue', 'rougegorge', 'hirondelle rustique', 'chardonneret', 'huppe fasciee',
   // Insectes & invertébrés
-  'machaon', 'paon-du-jour', 'vulcain', 'flambe', 'lucane cerf-volant', 'mante religieuse', 'abeille domestique',
+  'machaon', 'paon-du-jour', 'vulcain', 'lucane cerf-volant', 'abeille domestique', 'coccinelle a 7 points',
   // Reptiles & amphibiens
-  'salamandre tachetee', 'triton crete', 'lezard vert', 'couleuvre a collier', 'orvet',
+  'salamandre tachetee', 'lezard vert', 'couleuvre a collier', 'crapaud commun', 'orvet',
+];
+
+/** Socle de la faune que l'on croise réellement en ville dense. */
+const URBAN_CORE = [
+  // Oiseaux du quotidien urbain
+  'pigeon biset', 'moineau domestique', 'merle noir', 'pie bavarde', 'corneille noire', 'etourneau sansonnet',
+  'mouette rieuse', 'martinet noir', 'rougequeue noir', 'mesange charbonniere', 'rougegorge', 'perruche a collier',
+  'faucon crecerelle', 'effraie', 'canard colvert', 'foulque macroule', 'cygne tubercule', 'heron cendre', 'choucas des tours',
+  // Mammifères
+  'renard roux', 'herisson', 'ecureuil roux', 'pipistrelle',
+  // Reptiles & invertébrés
+  'lezard des murailles', 'abeille domestique', 'bourdon terrestre', 'coccinelle a 7 points', 'machaon',
+  'paon-du-jour', 'vulcain', 'araignee des murs',
 ];
 
 const BIOME_EMBLEMATIC: Array<{ depts: Set<string>; keywords: string[] }> = [
@@ -49,15 +71,15 @@ const BIOME_EMBLEMATIC: Array<{ depts: Set<string>; keywords: string[] }> = [
   },
   {
     depts: MEDITERRANEAN_DEPTS,
-    keywords: ['flamant rose', 'cigale', 'tortue d hermann', 'lezard ocelle', 'guepier', 'rollier', 'gecko', 'scorpion languedocien', 'cistude', 'merou brun'],
+    keywords: ['flamant rose', 'cigale', 'mante religieuse', 'tortue d hermann', 'lezard ocelle', 'guepier', 'rollier', 'gecko', 'scorpion languedocien', 'cistude', 'merou brun'],
   },
   {
     depts: WETLAND_DEPTS,
     keywords: ['heron cendre', 'aigrette garzette', 'busard des roseaux', 'grebe huppe', 'cygne tubercule', 'loutre', 'castor', 'brochet', 'caloptery', 'anax', 'agrion'],
   },
   {
-    depts: URBAN_DEPTS,
-    keywords: ['perruche a collier', 'martinet noir', 'pipistrelle', 'lezard des murailles', 'faucon crecerelle', 'effraie', 'renard roux', 'herisson'],
+    depts: DENSE_URBAN_DEPTS,
+    keywords: ['perruche a collier', 'martinet noir', 'pipistrelle', 'lezard des murailles', 'faucon crecerelle', 'effraie', 'renard roux', 'herisson', 'pigeon biset', 'moineau domestique', 'mouette rieuse'],
   },
   {
     depts: OVERSEAS_DEPTS,
@@ -73,11 +95,16 @@ const DEPT_FLAGSHIPS: Record<string, string[]> = {
   '17': ['loutre', 'avocette'],
   '29': ['macareux', 'phoque gris', 'fou de bassan'],
   '33': ['esturgeon', 'cigogne blanche'],
+  '59': ['phoque veau-marin', 'goeland argente', 'heron cendre'],
   '64': ['ours brun', 'desman', 'gypaete'],
   '65': ['ours brun', 'isard', 'gypaete'],
+  '69': ['martinet noir', 'faucon crecerelle', 'castor'],
   '73': ['bouquetin des alpes', 'aigle royal', 'gypaete'],
   '74': ['bouquetin des alpes', 'chamois', 'lynx'],
-  '75': ['faucon crecerelle', 'perruche a collier', 'renard roux'],
+  '75': ['pigeon biset', 'faucon crecerelle', 'perruche a collier', 'moineau domestique', 'renard roux'],
+  '92': ['perruche a collier', 'ecureuil roux', 'pigeon biset'],
+  '93': ['renard roux', 'pigeon biset', 'faucon crecerelle'],
+  '94': ['heron cendre', 'pigeon biset', 'perruche a collier'],
   '971': ['racoon', 'iguane des petites antilles', 'tortue verte'],
   '972': ['colibri', 'matoutou', 'tortue luth'],
   '973': ['jaguar', 'ara', 'paresseux', 'caiman', 'tortue luth'],
@@ -85,11 +112,15 @@ const DEPT_FLAGSHIPS: Record<string, string[]> = {
   '976': ['lemurien', 'maki', 'baleine a bosse', 'tortue verte'],
 };
 
-/** Animaux jamais considérés comme emblématiques d'un territoire. */
+/**
+ * Animaux jamais considérés comme emblématiques d'un territoire :
+ * animaux de compagnie / d'élevage et vraies nuisances domestiques.
+ * (Les oiseaux urbains comme le pigeon biset restent éligibles en ville.)
+ */
 const NEVER_EMBLEMATIC = [
   'chien', 'chat', 'vache', 'boeuf', 'mouton', 'chevre', 'poule', 'coq', 'canard domestique', 'oie', 'dinde', 'cochon', 'porc',
-  'lapin domestique', 'cobaye', 'hamster', 'furet', 'poisson rouge', 'pigeon biset', 'rat surmulot', 'souris domestique',
-  'moustique', 'mouche domestique', 'cafard', 'blatte', 'pou', 'puce', 'tique', 'frelon asiatique',
+  'lapin domestique', 'cobaye', 'hamster', 'furet', 'poisson rouge', 'carpe koi', 'rat surmulot', 'souris domestique',
+  'moustique', 'mouche domestique', 'cafard', 'blatte', 'pou', 'puce', 'tique', 'frelon asiatique', 'punaise de lit',
 ].map(norm);
 
 const RARITY_WEIGHT: Record<string, number> = { mythic: 0, epic: 1, rare: 2, common: 3 };
@@ -101,15 +132,19 @@ export interface EmblematicCandidate {
 }
 
 export const emblematicKeywords = (code: string) => {
-  const keywords = OVERSEAS_DEPTS.has(code)
-    ? [...(DEPT_FLAGSHIPS[code] || [])]
-    : [...(DEPT_FLAGSHIPS[code] || []), ...CORE_EMBLEMATIC];
   const overseas = OVERSEAS_DEPTS.has(code);
+  const keywords: string[] = [...(DEPT_FLAGSHIPS[code] || [])];
+
   for (const biome of BIOME_EMBLEMATIC) {
     // Un territoire ultramarin ne récupère que sa propre faune.
     if (overseas !== (biome.depts === OVERSEAS_DEPTS)) continue;
     if (biome.depts.has(code)) keywords.push(...biome.keywords);
   }
+
+  if (!overseas) {
+    keywords.push(...(DENSE_URBAN_DEPTS.has(code) ? URBAN_CORE : RURAL_CORE));
+  }
+
   return keywords.map(norm);
 };
 
@@ -158,4 +193,3 @@ export const buildEmblematicAnimals = <T extends EmblematicCandidate>(code: stri
 
 export const buildEmblematicSet = (code: string, sourceAnimals: EmblematicCandidate[]) =>
   new Set(buildEmblematicAnimals(code, sourceAnimals).map((animal) => animal.name.toLowerCase()));
-
