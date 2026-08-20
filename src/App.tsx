@@ -13,6 +13,7 @@ import LevelUpCelebration from "./components/LevelUpCelebration";
 import LoadingScreen from "./components/LoadingScreen";
 import BottomNav from "./components/BottomNav";
 import ScrollToTop from "./components/ScrollToTop";
+import PullToDiscover from "./components/PullToDiscover";
 import { PushPermissionPrompt } from "./components/PushPermissionPrompt";
 import { SHOW_MARKETING_PAGES } from "./lib/platform";
 
@@ -171,6 +172,7 @@ const AppRoutes = () => {
       </Suspense>
       {!isCapturePage && !isModerationPage && !isPublicPage && <BottomNav />}
 
+      <PullToDiscover />
       <WelcomeInstallPopup />
       <PushPermissionPrompt />
       <LevelSplash />
