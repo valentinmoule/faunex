@@ -205,12 +205,23 @@ const PullToDiscover = () => {
               />
             )}
           </span>
-          <span className="text-[12.5px] font-display font-bold text-foreground leading-none">
-            {loading
-              ? 'Exploration en cours…'
-              : ready
-                ? 'Relâche pour explorer'
-                : 'Tire pour explorer autour de toi'}
+          <span className="flex flex-col gap-0.5">
+            <span className="text-[12.5px] font-display font-bold text-foreground leading-none">
+              {loading
+                ? 'Exploration en cours…'
+                : exhausted
+                  ? 'Limite quotidienne atteinte'
+                  : ready
+                    ? 'Relâche pour explorer'
+                    : 'Tire pour explorer autour de toi'}
+            </span>
+            {!loading && !unlimited && remaining !== null && (
+              <span className="text-[10px] font-medium text-muted-foreground leading-none">
+                {exhausted
+                  ? 'Passe au Premium pour explorer sans limite'
+                  : `${remaining}/${DAILY_NEARBY_LIMIT} explorations restantes aujourd'hui`}
+              </span>
+            )}
           </span>
         </div>
       </div>
