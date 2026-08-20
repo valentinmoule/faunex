@@ -332,19 +332,6 @@ const MapPage = () => {
             </button>
           </div>
 
-          <button
-            onClick={discoverInZone}
-            disabled={discovering}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground font-display font-bold text-sm shadow-lg shadow-primary/25 hover:scale-105 active:scale-95 transition-transform disabled:opacity-70 disabled:scale-100"
-            aria-label="Chercher dans cette zone"
-          >
-            {discovering ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Search className="w-4 h-4" />
-            )}
-            Chercher dans cette zone
-          </button>
         </div>
       </div>
 
