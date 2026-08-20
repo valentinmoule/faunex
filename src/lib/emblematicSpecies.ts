@@ -28,7 +28,7 @@ export const OVERSEAS_DEPTS = new Set(['971', '972', '973', '974', '976']);
 /** Faune sauvage emblématique commune à la France métropolitaine. */
 const CORE_EMBLEMATIC = [
   // Mammifères
-  'renard roux', 'chevreuil', 'sanglier', 'ecureuil roux', 'herisson', 'blaireau', 'martre', 'cerf elaphe', 'lievre',
+  'renard roux', 'chevreuil', 'sanglier', 'ecureuil roux', 'herisson', 'blaireau', 'martre des pins', 'cerf elaphe', 'lievre',
   // Oiseaux
   'chouette hulotte', 'effraie', 'faucon crecerelle', 'buse variable', 'pic vert', 'pic epeiche', 'huppe fasciee',
   'martin-pecheur', 'geai des chenes', 'mesange bleue', 'rougegorge', 'hirondelle rustique', 'chardonneret',
@@ -101,7 +101,9 @@ export interface EmblematicCandidate {
 }
 
 export const emblematicKeywords = (code: string) => {
-  const keywords = [...(DEPT_FLAGSHIPS[code] || []), ...CORE_EMBLEMATIC];
+  const keywords = OVERSEAS_DEPTS.has(code)
+    ? [...(DEPT_FLAGSHIPS[code] || [])]
+    : [...(DEPT_FLAGSHIPS[code] || []), ...CORE_EMBLEMATIC];
   for (const biome of BIOME_EMBLEMATIC) {
     if (biome.depts.has(code)) keywords.push(...biome.keywords);
   }
