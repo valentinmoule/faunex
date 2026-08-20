@@ -144,12 +144,18 @@ async function examine(
 
   let verdict: any = null
   let usedModel: string | null = null
+  let blockedStatus: number | null = null
   // Modération : on privilégie le modèle le plus performant, avec replis.
   for (const model of ['google/gemini-2.5-pro', 'google/gemini-2.5-flash', 'google/gemini-2.5-flash-lite']) {
     try {
       const res = await callGateway(apiKey, model, userText, capture.image_url, 55_000)
       if (!res.ok) {
         console.error('auto-moderate gateway error', model, res.status, await res.text().catch(() => ''))
+        // 402 (crédits épuisés) / 403 (bloqué) / 429 (quota) : inutile d'insister.
+        if (res.status === 402 || res.status === 403 || res.status === 429) {
+          blockedStatus = res.status
+          break
+        }
         continue
       }
       const data = await res.json()
@@ -163,7 +169,10 @@ async function examine(
     }
   }
 
-  if (!verdict) return { capture_id: capture.id, approved: false, reason: 'ai_unavailable' }
+  if (!verdict) {
+    return { capture_id: capture.id, approved: false, reason: 'ai_unavailable', blocked_status: blockedStatus }
+  }
+
 
 
   const confidence = Number(verdict.confidence) || 0
