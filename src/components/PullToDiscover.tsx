@@ -55,6 +55,8 @@ const PullToDiscover = () => {
   const startX = useRef(0);
   const active = useRef(false);
   const locked = useRef(false);
+  const pullRef = useRef(0);
+  pullRef.current = pull;
 
   const runDiscovery = useCallback(async () => {
     if (!('geolocation' in navigator)) {
@@ -145,9 +147,6 @@ const PullToDiscover = () => {
       window.removeEventListener('touchcancel', onEnd, { capture: true } as any);
     };
   }, [enabled, loading, open, runDiscovery]);
-
-  const pullRef = useRef(0);
-  pullRef.current = pull;
 
   const progress = Math.min(1, pull / THRESHOLD);
   const ready = progress >= 1;
