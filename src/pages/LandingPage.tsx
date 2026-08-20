@@ -14,7 +14,6 @@ interface Stats {
   totalUsers: number;
   totalCaptures: number;
   totalSpecies: number;
-  totalRegions: number;
 }
 
 interface RecentCapture {
