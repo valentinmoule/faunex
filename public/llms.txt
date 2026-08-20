@@ -17,6 +17,12 @@ Faunex combine une IA naturaliste (reconnaissance d'espèces à partir d'une pho
 - [Profil public](https://faunex.fr/u/:username) : profil d'un explorateur (collection, niveau, captures publiques)
 - [Mentions légales & confidentialité](https://faunex.fr/legal)
 
+## Guides
+- [Identification des insectes](/guides/identification-insectes) : méthode de terrain, critères, confusions classiques
+- [Identification des animaux](/guides/identification-animaux) : silhouette, taille, habitat, indices de présence
+- [Identifier un oiseau avec une photo](/guides/identifier-oiseau-photo-ia) : cadrage, lumière, limites de l'IA
+- [Tous les guides](/guides)
+
 ## Technique
 - PWA installable, pas de publication sur App Store / Play Store
 - Backend Supabase (RLS strict, captures isolées par UID)
