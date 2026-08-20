@@ -108,35 +108,49 @@ export const emblematicKeywords = (code: string) => {
   return keywords.map(norm);
 };
 
+/** 0 = nom exact, 1 = commence par le mot-clé, 2 = mot-clé présent en mot entier. */
+const matchScore = (name: string, keyword: string): number | null => {
+  if (name === keyword) return 0;
+  if (name.startsWith(`${keyword} `) || name.startsWith(`${keyword}-`)) return 1;
+  const boundary = new RegExp(`(^|[\\s\\-(])${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}($|[\\s\\-)])`);
+  return boundary.test(name) ? 2 : null;
+};
+
 /**
- * Sélectionne une courte liste d'espèces emblématiques du territoire, triées
- * des plus prestigieuses (mythique) aux plus accessibles.
+ * Sélectionne une courte liste d'espèces emblématiques du territoire :
+ * au plus une espèce par espèce-drapeau, dans l'ordre d'emblématicité.
  */
 export const buildEmblematicAnimals = <T extends EmblematicCandidate>(code: string, sourceAnimals: T[]): T[] => {
   const keywords = emblematicKeywords(code);
   const limit = OVERSEAS_DEPTS.has(code) ? MAX_EMBLEMATIC_OVERSEAS : MAX_EMBLEMATIC;
 
-  const seen = new Set<string>();
-  const matched: { animal: T; score: number }[] = [];
+  const candidates = sourceAnimals
+    .filter((animal) => !animal.category.toLowerCase().includes('(monde)'))
+    .map((animal) => ({ animal, name: norm(animal.name) }))
+    .filter(({ name }) => !NEVER_EMBLEMATIC.some((bad) => name.includes(bad)));
 
-  for (const animal of sourceAnimals) {
-    if (animal.category.toLowerCase().includes('(monde)')) continue;
-    const name = norm(animal.name);
-    if (NEVER_EMBLEMATIC.some((bad) => name.includes(bad))) continue;
-    const index = keywords.findIndex((keyword) => name.includes(keyword));
-    if (index === -1) continue;
-    const key = animal.name.toLowerCase();
-    if (seen.has(key)) continue;
-    seen.add(key);
-    // Priorité : position dans la liste (flagships d'abord) puis rareté.
-    matched.push({ animal, score: index * 10 + (RARITY_WEIGHT[animal.rarity] ?? 3) });
+  const picked: T[] = [];
+  const usedNames = new Set<string>();
+
+  for (const keyword of keywords) {
+    if (picked.length >= limit) break;
+    let best: { animal: T; score: number } | null = null;
+    for (const { animal, name } of candidates) {
+      if (usedNames.has(name)) continue;
+      const position = matchScore(name, keyword);
+      if (position === null) continue;
+      const score = position * 10 + (RARITY_WEIGHT[animal.rarity] ?? 3) + name.length / 1000;
+      if (!best || score < best.score) best = { animal, score };
+    }
+    if (best) {
+      picked.push(best.animal);
+      usedNames.add(norm(best.animal.name));
+    }
   }
 
-  return matched
-    .sort((a, b) => a.score - b.score)
-    .slice(0, limit)
-    .map((entry) => entry.animal);
+  return picked;
 };
 
 export const buildEmblematicSet = (code: string, sourceAnimals: EmblematicCandidate[]) =>
   new Set(buildEmblematicAnimals(code, sourceAnimals).map((animal) => animal.name.toLowerCase()));
+
