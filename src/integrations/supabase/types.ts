@@ -177,6 +177,42 @@ export type Database = {
         }
         Relationships: []
       }
+      background_jobs: {
+        Row: {
+          consecutive_failures: number
+          created_at: string
+          job_key: string
+          last_error: string | null
+          last_run_at: string | null
+          lease_until: string | null
+          paused_reason: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          consecutive_failures?: number
+          created_at?: string
+          job_key: string
+          last_error?: string | null
+          last_run_at?: string | null
+          lease_until?: string | null
+          paused_reason?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          consecutive_failures?: number
+          created_at?: string
+          job_key?: string
+          last_error?: string | null
+          last_run_at?: string | null
+          lease_until?: string | null
+          paused_reason?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       capture_attempts: {
         Row: {
           created_at: string
@@ -1656,6 +1692,10 @@ export type Database = {
       }
     }
     Functions: {
+      acquire_background_job: {
+        Args: { p_job_key: string; p_lease_seconds?: number }
+        Returns: string
+      }
       canonical_animal_category: {
         Args: { p_category: string; p_name?: string; p_scientific?: string }
         Returns: string
@@ -1777,6 +1817,10 @@ export type Database = {
       }
       nearby_searches_remaining_today: { Args: never; Returns: number }
       normalize_animal_label: { Args: { p_label: string }; Returns: string }
+      pause_background_job: {
+        Args: { p_job_key: string; p_reason: string }
+        Returns: undefined
+      }
       premium_user_ids: {
         Args: { p_user_ids: string[] }
         Returns: {
@@ -1793,6 +1837,10 @@ export type Database = {
       refresh_collection_membership: {
         Args: { p_collection_id?: string }
         Returns: number
+      }
+      release_background_job: {
+        Args: { p_error?: string; p_job_key: string; p_resume?: boolean }
+        Returns: undefined
       }
     }
     Enums: {
