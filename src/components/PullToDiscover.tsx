@@ -63,6 +63,21 @@ const PullToDiscover = () => {
       toast.error('Géolocalisation indisponible');
       return;
     }
+    if (exhausted) {
+      toast.error('Limite de 4 explorations par jour atteinte', {
+        description: 'Passe au Premium pour explorer sans limite.',
+        action: { label: 'Premium', onClick: () => navigate('/premium') },
+      });
+      return;
+    }
+    const allowed = await consume();
+    if (!allowed) {
+      toast.error('Limite de 4 explorations par jour atteinte', {
+        description: 'Passe au Premium pour explorer sans limite.',
+        action: { label: 'Premium', onClick: () => navigate('/premium') },
+      });
+      return;
+    }
     setLoading(true);
     if ('vibrate' in navigator) navigator.vibrate?.(18);
     navigator.geolocation.getCurrentPosition(
@@ -90,7 +105,7 @@ const PullToDiscover = () => {
       },
       { enableHighAccuracy: false, timeout: 10000 },
     );
-  }, []);
+  }, [consume, exhausted, navigate]);
 
   useEffect(() => {
     if (!enabled) {
