@@ -42,41 +42,66 @@ Réponds UNIQUEMENT via l'appel de fonction verify_animal.`
 /** Seuil de confiance minimal pour valider sans modérateur humain. */
 const AUTO_APPROVE_THRESHOLD = 0.9
 
+/** Clé de la tâche de fond (verrou + état de pause en base). */
+const JOB_KEY = 'auto_moderate_captures'
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
 
-  try {
-    const authHeader = req.headers.get('Authorization')
-    if (!authHeader?.startsWith('Bearer ')) return json({ error: 'Unauthorized' }, 401)
-    const token = authHeader.replace('Bearer ', '')
+  const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+  const supabase = createClient(Deno.env.get('SUPABASE_URL')!, serviceKey)
+  let holdsLock = false
 
-    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    const supabase = createClient(Deno.env.get('SUPABASE_URL')!, serviceKey)
+  try {
+    const cronSecret = req.headers.get('x-cron-secret')
+    const expectedCronSecret = Deno.env.get('CRON_SECRET')
+    const isCron = !!expectedCronSecret && cronSecret === expectedCronSecret
 
     let callerId: string | null = null
-    let isAdmin = false
-    if (token === serviceKey) {
-      isAdmin = true
-    } else {
-      const anonClient = createClient(
-        Deno.env.get('SUPABASE_URL')!,
-        Deno.env.get('SUPABASE_ANON_KEY')!,
-        { global: { headers: { Authorization: authHeader } } }
-      )
-      const { data: claimsData, error: claimsError } = await anonClient.auth.getClaims(token)
-      if (claimsError || !claimsData?.claims?.sub) return json({ error: 'Unauthorized' }, 401)
-      callerId = claimsData.claims.sub as string
-      const { data: admin } = await supabase.rpc('has_role', { _user_id: callerId, _role: 'admin' })
-      isAdmin = admin === true
+    let isAdmin = isCron
+
+    if (!isCron) {
+      const authHeader = req.headers.get('Authorization')
+      if (!authHeader?.startsWith('Bearer ')) return json({ error: 'Unauthorized' }, 401)
+      const token = authHeader.replace('Bearer ', '')
+
+      if (token === serviceKey) {
+        isAdmin = true
+      } else {
+        const anonClient = createClient(
+          Deno.env.get('SUPABASE_URL')!,
+          Deno.env.get('SUPABASE_ANON_KEY')!,
+          { global: { headers: { Authorization: authHeader } } }
+        )
+        const { data: claimsData, error: claimsError } = await anonClient.auth.getClaims(token)
+        if (claimsError || !claimsData?.claims?.sub) return json({ error: 'Unauthorized' }, 401)
+        callerId = claimsData.claims.sub as string
+        const { data: admin } = await supabase.rpc('has_role', { _user_id: callerId, _role: 'admin' })
+        isAdmin = admin === true
+      }
     }
 
     const body = await req.json().catch(() => ({}))
     const captureId: string | undefined = body?.capture_id
     const batch: boolean = body?.batch === true
-    const limit = Math.min(Math.max(Number(body?.limit) || 10, 1), 25)
+    let limit = Math.min(Math.max(Number(body?.limit) || 10, 1), 25)
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY')
     if (!LOVABLE_API_KEY) return json({ error: 'LOVABLE_API_KEY manquant' }, 500)
+
+    // Lot planifié : verrou unique + garde de pause (crédits IA épuisés, etc.).
+    if (batch) {
+      if (!isAdmin) return json({ error: 'Forbidden' }, 403)
+      const { data: mode, error: lockErr } = await supabase.rpc('acquire_background_job', {
+        p_job_key: JOB_KEY,
+        p_lease_seconds: 600,
+      })
+      if (lockErr) return json({ error: lockErr.message }, 500)
+      if (mode === 'skip') return json({ success: true, skipped: 'already_running', results: [] })
+      holdsLock = true
+      // En pause : une seule capture de test pour détecter la reprise du service.
+      if (mode === 'probe') limit = 1
+    }
 
     // Sélection des captures à examiner.
     let query = supabase
@@ -86,7 +111,6 @@ Deno.serve(async (req) => {
       .order('created_at', { ascending: true })
 
     if (batch) {
-      if (!isAdmin) return json({ error: 'Forbidden' }, 403)
       query = query.limit(limit)
     } else {
       if (!captureId) return json({ error: 'capture_id is required' }, 400)
@@ -96,26 +120,66 @@ Deno.serve(async (req) => {
 
     const { data: pending, error: pendErr } = await query
     if (pendErr) return json({ error: pendErr.message }, 500)
-    if (!pending || pending.length === 0) return json({ success: true, results: [] })
+    if (!pending || pending.length === 0) {
+      if (holdsLock) {
+        await supabase.rpc('release_background_job', { p_job_key: JOB_KEY, p_error: null, p_resume: false })
+        holdsLock = false
+      }
+      return json({ success: true, results: [] })
+    }
 
     const adminActorId = await getAdminActorId(supabase)
-    const results: unknown[] = []
+    const results: any[] = []
+    let blocked: number | null = null
 
     for (const capture of pending) {
-      const result = await examine(supabase, capture, LOVABLE_API_KEY, adminActorId)
+      const result: any = await examine(supabase, capture, LOVABLE_API_KEY, adminActorId)
       results.push(result)
+      // Disjoncteur : on arrête le lot dès que la passerelle IA nous refuse.
+      if (result?.blocked_status) {
+        blocked = result.blocked_status
+        break
+      }
+    }
+
+    if (holdsLock) {
+      if (blocked === 402 || blocked === 403) {
+        await supabase.rpc('pause_background_job', {
+          p_job_key: JOB_KEY,
+          p_reason: blocked === 402
+            ? 'Crédits IA épuisés (402) : auto-modération en pause.'
+            : 'IA bloquée par la politique du workspace (403) : auto-modération en pause.',
+        })
+      } else {
+        await supabase.rpc('release_background_job', {
+          p_job_key: JOB_KEY,
+          p_error: blocked === 429 ? 'Limite de débit IA atteinte (429), reprise à la prochaine exécution.' : null,
+          // Un lot réussi après une pause = le service est revenu.
+          p_resume: blocked === null,
+        })
+      }
+      holdsLock = false
     }
 
     return json({
       success: true,
       approved: results.filter((r: any) => r.approved).length,
+      paused: blocked === 402 || blocked === 403,
       results,
     })
   } catch (e) {
     console.error('auto-moderate-capture error', e)
+    if (holdsLock) {
+      await supabase.rpc('release_background_job', {
+        p_job_key: JOB_KEY,
+        p_error: e instanceof Error ? e.message : 'Erreur inconnue',
+        p_resume: false,
+      }).catch(() => {})
+    }
     return json({ error: e instanceof Error ? e.message : 'Erreur inconnue' }, 500)
   }
 })
+
 
 async function examine(
   supabase: any,
