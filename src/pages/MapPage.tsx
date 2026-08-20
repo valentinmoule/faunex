@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Loader2, Compass, Search, MapPin, Sparkles, Bird, Fish, Bug, Turtle, Shell, Snail, Waves, PawPrint } from 'lucide-react';
+import { Compass, MapPin, Bird, Fish, Bug, Turtle, Shell, Snail, Waves, PawPrint } from 'lucide-react';
 import { FrogIcon } from '@/components/icons/FrogIcon';
 import { SpiderIcon } from '@/components/icons/SpiderIcon';
 import { supabase } from '@/integrations/supabase/client';
@@ -33,15 +33,6 @@ interface CaptureMarker {
   created_at: string;
 }
 
-
-interface DiscoveredAnimal {
-  name: string;
-  scientific_name: string;
-  category: string;
-  rarity: string;
-  description: string;
-  tip: string;
-}
 
 const RARITY_COLORS: Record<string, string> = {
   common: '#94a3b8',
@@ -114,9 +105,6 @@ const MapPage = () => {
   const [userPos, setUserPos] = useState<[number, number] | null>(null);
   const [center, setCenter] = useState<[number, number]>([46.6, 2.4]);
   const centerRef = useRef<L.LatLng | null>(null);
-  const [discovering, setDiscovering] = useState(false);
-  const [discovered, setDiscovered] = useState<{ location: string; animals: DiscoveredAnimal[] } | null>(null);
-  const [sheetOpen, setSheetOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [groupItems, setGroupItems] = useState<CaptureMarker[] | null>(null);
   const [zoom, setZoom] = useState(8);
@@ -170,31 +158,6 @@ const MapPage = () => {
       },
       () => toast.error("Impossible d'obtenir ta position"),
     );
-  };
-
-  const discoverInZone = async () => {
-    const c = centerRef.current;
-    if (!c) {
-      toast.error('Déplace la carte sur une zone à explorer');
-      return;
-    }
-    setDiscovering(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('nearby-animals', {
-        body: { latitude: c.lat, longitude: c.lng },
-      });
-      if (error) throw error;
-      setDiscovered({
-        location: (data as any).location_name || 'Cette zone',
-        animals: (data as any).animals || [],
-      });
-      setSheetOpen(true);
-    } catch (e) {
-      console.error(e);
-      toast.error('Impossible de chercher les espèces ici');
-    } finally {
-      setDiscovering(false);
-    }
   };
 
   const openCapture = (c: CaptureMarker) => {
@@ -332,19 +295,6 @@ const MapPage = () => {
             </button>
           </div>
 
-          <button
-            onClick={discoverInZone}
-            disabled={discovering}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground font-display font-bold text-sm shadow-lg shadow-primary/25 hover:scale-105 active:scale-95 transition-transform disabled:opacity-70 disabled:scale-100"
-            aria-label="Chercher dans cette zone"
-          >
-            {discovering ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Search className="w-4 h-4" />
-            )}
-            Chercher dans cette zone
-          </button>
         </div>
       </div>
 
@@ -386,44 +336,6 @@ const MapPage = () => {
           </div>
         </div>
       )}
-
-      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-        <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto z-[1200]">
-          <SheetHeader>
-            <SheetTitle className="flex items-center gap-2 font-display">
-              <Sparkles className="w-5 h-5 text-primary" />
-              {discovered?.location || 'Espèces à découvrir'}
-            </SheetTitle>
-          </SheetHeader>
-          <div className="mt-4 space-y-3">
-            {discovered?.animals.map((a, i) => (
-              <div
-                key={i}
-                className="p-4 rounded-2xl border border-border bg-card"
-                style={{ borderColor: RARITY_COLORS[a.rarity] ? `${RARITY_COLORS[a.rarity]}55` : undefined }}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-display font-bold text-foreground">{a.name}</p>
-                    <p className="text-xs italic text-muted-foreground">{a.scientific_name}</p>
-                    <p className="text-xs mt-2 text-foreground/80">{a.description}</p>
-                    <p className="text-[11px] mt-2 text-muted-foreground"><span className="font-semibold">Astuce&nbsp;:</span> {a.tip}</p>
-                  </div>
-                  <span
-                    className="text-[10px] font-display font-bold uppercase px-2 py-1 rounded-full shrink-0"
-                    style={{
-                      background: `${RARITY_COLORS[a.rarity] || RARITY_COLORS.common}22`,
-                      color: RARITY_COLORS[a.rarity] || RARITY_COLORS.common,
-                    }}
-                  >
-                    {a.rarity}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </SheetContent>
-      </Sheet>
 
       <Sheet open={!!groupItems} onOpenChange={(o) => !o && setGroupItems(null)}>
         <SheetContent side="bottom" className="max-h-[75vh] overflow-y-auto z-[1200]">
