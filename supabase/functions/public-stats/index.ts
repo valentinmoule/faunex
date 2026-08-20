@@ -10,7 +10,6 @@ const corsHeaders = {
 const FLOORS = {
   totalUsers: 2000,
   totalCaptures: 15000,
-  totalSpecies: 1000,
 };
 
 serve(async (req) => {
@@ -21,24 +20,14 @@ serve(async (req) => {
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, serviceKey);
 
-    const [usersRes, capturesRes, speciesRes, regionsRes] = await Promise.all([
+    const [usersRes, capturesRes] = await Promise.all([
       supabase.from("profiles").select("*", { count: "exact", head: true }),
       supabase.from("captures").select("*", { count: "exact", head: true }).eq("status", "approved"),
-      supabase.from("animals").select("*", { count: "exact", head: true }),
-      supabase.from("captures").select("location").eq("status", "approved").not("location", "is", null),
     ]);
-
-    const distinctRegions = new Set(
-      (regionsRes.data || [])
-        .map((r: { location: string | null }) => (r.location || "").trim().toLowerCase())
-        .filter(Boolean)
-    ).size;
 
     const stats = {
       totalUsers: Math.max(usersRes.count ?? 0, FLOORS.totalUsers),
       totalCaptures: Math.max(capturesRes.count ?? 0, FLOORS.totalCaptures),
-      totalSpecies: Math.max(speciesRes.count ?? 0, FLOORS.totalSpecies),
-      totalRegions: Math.max(distinctRegions, FLOORS.totalRegions),
     };
 
     return new Response(JSON.stringify(stats), {

@@ -13,7 +13,6 @@ import type { Rarity } from '@/data/mockData';
 interface Stats {
   totalUsers: number;
   totalCaptures: number;
-  totalSpecies: number;
 }
 
 interface RecentCapture {
@@ -136,7 +135,6 @@ const LandingPage = () => {
   const [stats, setStats] = useState<Stats>({
     totalUsers: 2000,
     totalCaptures: 15000,
-    totalSpecies: 1000,
   });
   const [showStickyCta, setShowStickyCta] = useState(false);
   const [recentCaptures, setRecentCaptures] = useState<RecentCapture[]>([]);
