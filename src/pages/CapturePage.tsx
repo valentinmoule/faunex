@@ -37,6 +37,8 @@ const CapturePage = () => {
 
   const [duplicateCapture, setDuplicateCapture] = useState<{ id: string; image_url: string; animal_name: string } | null>(null);
   const [manualMode, setManualMode] = useState(false);
+  /** Repli taxonomique honnête renvoyé par le serveur (genre / famille). */
+  const [taxonHint, setTaxonHint] = useState<string | null>(null);
   /** Non-null quand l'utilisateur contexte l'identification IA et demande une vérification humaine. */
   const [disputedResult, setDisputedResult] = useState<AnimalResult | null>(null);
   const [identifyError, setIdentifyError] = useState<string | null>(null);
@@ -99,6 +101,7 @@ const CapturePage = () => {
     setSaved(false);
     setIdentifyError(null);
     setManualMode(false);
+    setTaxonHint(null);
     setDisputedResult(null);
     geo.capture();
 
@@ -109,6 +112,7 @@ const CapturePage = () => {
       } else if (outcome.status === 'error') {
         setIdentifyError(outcome.message);
       } else {
+        setTaxonHint(outcome.hint ?? null);
         setManualMode(true);
       }
     } finally {
@@ -128,6 +132,7 @@ const CapturePage = () => {
       } else if (outcome.status === 'error') {
         setIdentifyError(outcome.message);
       } else {
+        setTaxonHint(outcome.hint ?? null);
         setManualMode(true);
       }
     } finally {
@@ -684,6 +689,11 @@ const CapturePage = () => {
                     {disputedResult.animal_name}
                     {typeof disputedResult.confidence === 'number' && ` · ${disputedResult.confidence}% sûr`}
                   </p>
+                </div>
+              )}
+              {!disputedResult && taxonHint && (
+                <div className="rounded-xl border border-amber/30 bg-amber/10 px-3 py-2">
+                  <p className="text-sm text-primary-foreground/90">{taxonHint}</p>
                 </div>
               )}
               <p className="text-primary-foreground/90 text-sm">
