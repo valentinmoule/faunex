@@ -324,6 +324,38 @@ const ModerationPage = () => {
     fetchPending();
   };
 
+  /**
+   * Pré-modération en flux : dès qu'une capture arrive dans la file (ou à
+   * l'ouverture du backoffice), l'IA passe automatiquement dessus. Aucun clic
+   * n'est nécessaire, seuls les cas douteux restent affichés.
+   */
+  useEffect(() => {
+    if (!session?.user || loading) return;
+    if (captures.length > 0) void runAutoModeration(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, session]);
+
+  useEffect(() => {
+    if (!session?.user) return;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const channel = supabase
+      .channel('moderation-queue')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'captures', filter: 'status=eq.pending_review' },
+        () => {
+          if (timer) clearTimeout(timer);
+          // Petit délai : on laisse l'insertion se stabiliser et on regroupe les rafales.
+          timer = setTimeout(() => void runAutoModeration(true), 3000);
+        }
+      )
+      .subscribe();
+    return () => {
+      if (timer) clearTimeout(timer);
+      supabase.removeChannel(channel);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session]);
 
   const timeAgo = (date: string) => {
     const diff = Date.now() - new Date(date).getTime();
@@ -345,14 +377,11 @@ const ModerationPage = () => {
             <h1 className="text-xl font-display font-bold text-foreground">Backoffice</h1>
             <p className="text-xs text-muted-foreground">{captures.length} en attente</p>
           </div>
-          <button
-            onClick={runAutoModeration}
-            disabled={autoRunning || captures.length === 0}
-            className="flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-xs font-display font-bold text-primary-foreground disabled:opacity-50"
-          >
+          <div className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-display font-bold text-primary">
             {autoRunning ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
-            Auto-valider
-          </button>
+            {autoRunning ? 'Analyse IA…' : 'Auto-validation active'}
+          </div>
+
         </div>
       </PageHeader>
 
