@@ -28,7 +28,7 @@ export const OVERSEAS_DEPTS = new Set(['971', '972', '973', '974', '976']);
 /** Faune sauvage emblématique commune à la France métropolitaine. */
 const CORE_EMBLEMATIC = [
   // Mammifères
-  'renard roux', 'chevreuil', 'sanglier', 'ecureuil roux', 'herisson', 'blaireau', 'martre des pins', 'cerf elaphe', 'lievre',
+  'renard roux', 'chevreuil', 'sanglier', 'ecureuil roux', 'herisson', 'blaireau', 'martre des pins', 'cerf elaphe', 'lievre d europe',
   // Oiseaux
   'chouette hulotte', 'effraie', 'faucon crecerelle', 'buse variable', 'pic vert', 'pic epeiche', 'huppe fasciee',
   'martin-pecheur', 'geai des chenes', 'mesange bleue', 'rougegorge', 'hirondelle rustique', 'chardonneret',
@@ -41,7 +41,7 @@ const CORE_EMBLEMATIC = [
 const BIOME_EMBLEMATIC: Array<{ depts: Set<string>; keywords: string[] }> = [
   {
     depts: MOUNTAIN_DEPTS,
-    keywords: ['chamois', 'bouquetin', 'isard', 'marmotte', 'lynx', 'loup gris', 'gypaete', 'vautour fauve', 'aigle royal', 'tetras', 'lagopede', 'apollon', 'chocard', 'accenteur alpin', 'ours brun'],
+    keywords: ['chamois', 'bouquetin des alpes', 'isard', 'marmotte', 'lynx', 'loup gris', 'gypaete', 'vautour fauve', 'aigle royal', 'tetras', 'lagopede', 'apollon', 'chocard', 'accenteur alpin', 'ours brun'],
   },
   {
     depts: COASTAL_DEPTS,
@@ -75,8 +75,8 @@ const DEPT_FLAGSHIPS: Record<string, string[]> = {
   '33': ['esturgeon', 'cigogne blanche'],
   '64': ['ours brun', 'desman', 'gypaete'],
   '65': ['ours brun', 'isard', 'gypaete'],
-  '73': ['bouquetin', 'aigle royal', 'gypaete'],
-  '74': ['bouquetin', 'chamois', 'lynx'],
+  '73': ['bouquetin des alpes', 'aigle royal', 'gypaete'],
+  '74': ['bouquetin des alpes', 'chamois', 'lynx'],
   '75': ['faucon crecerelle', 'perruche a collier', 'renard roux'],
   '971': ['racoon', 'iguane des petites antilles', 'tortue verte'],
   '972': ['colibri', 'matoutou', 'tortue luth'],
@@ -104,7 +104,10 @@ export const emblematicKeywords = (code: string) => {
   const keywords = OVERSEAS_DEPTS.has(code)
     ? [...(DEPT_FLAGSHIPS[code] || [])]
     : [...(DEPT_FLAGSHIPS[code] || []), ...CORE_EMBLEMATIC];
+  const overseas = OVERSEAS_DEPTS.has(code);
   for (const biome of BIOME_EMBLEMATIC) {
+    // Un territoire ultramarin ne récupère que sa propre faune.
+    if (overseas !== (biome.depts === OVERSEAS_DEPTS)) continue;
     if (biome.depts.has(code)) keywords.push(...biome.keywords);
   }
   return keywords.map(norm);
