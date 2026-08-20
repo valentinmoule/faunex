@@ -85,7 +85,8 @@ Si l'image ne contient pas d'animal → animal_name "Inconnu" et confidence 0.
 Seules les espèces réelles et actuellement vivantes sont valides.
 - JAMAIS de créature imaginaire, mythologique, de fiction ou de jeu (dragon, licorne, phénix, griffon, kraken, sirène, yéti, chimère, Pokémon, etc.).
 - JAMAIS d'espèce éteinte ou préhistorique (dodo, tyrannosaure/dinosaures, mammouth, thylacine, grand pingouin, aurochs, smilodon, moa, etc.).
-- JAMAIS de nom scientifique inventé (ex: "Creatura ficta"). Le nom latin doit être un binôme réel et vérifiable.
+- JAMAIS de nom scientifique inventé (ex: "Creatura ficta", "Oleaopteryx oleae"). Le nom latin doit être un binôme réel, publié et vérifiable dans les référentiels taxonomiques (GBIF, ITIS). Si tu n'es pas certain du binôme exact, remonte au genre ou à la famille réels (ex: "Miridae") plutôt que d'inventer une combinaison.
+- JAMAIS de nom commun composite inventé (ex: "punaise de lit de l'olivier"). Utilise uniquement des noms vernaculaires réellement employés.
 - Un jouet, une peluche, une statue, un dessin ou une illustration d'animal n'est PAS une capture valide.
 Si le sujet correspond à l'un de ces cas → animal_name "Inconnu", confidence 0, aucune alternative.
 Exception : les espèces réelles portant "dragon" dans leur nom commun sont valides (Dragon de Komodo, Dragon barbu, Dragon volant).
