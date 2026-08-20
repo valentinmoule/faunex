@@ -67,6 +67,10 @@ const readFunctionError = async (error: any): Promise<PrepareFailure> => {
   return { code: 'network', message: error?.message || 'Fonction injoignable (réseau ou timeout).' };
 };
 
+/** État de la tâche planifiée d'auto-modération. */
+type JobState = { status: string; paused_reason: string | null; last_run_at: string | null };
+
+
 const ModerationPage = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
@@ -75,9 +79,9 @@ const ModerationPage = () => {
   const [processing, setProcessing] = useState<string | null>(null);
   const [preview, setPreview] = useState<{ capture: PendingCapture; animal: EnrichedAnimal } | null>(null);
   const [confirming, setConfirming] = useState(false);
-  /** Pré-modération IA en cours sur la file d'attente. */
-  const [autoRunning, setAutoRunning] = useState(false);
-  const autoRunningRef = useRef(false);
+  /** État de la tâche de fond d'auto-modération (serveur). */
+  const [jobState, setJobState] = useState<JobState | null>(null);
+
 
   /** Diagnostic d'échec de la prévisualisation, par capture. */
   const [failures, setFailures] = useState<Record<string, PrepareFailure>>({});
@@ -297,65 +301,31 @@ const ModerationPage = () => {
     setProcessing(null);
   };
 
-
-
-  /** Passe la file d'attente à l'IA : elle valide seule les cas évidents. */
-  const runAutoModeration = async (silent = false) => {
-    if (autoRunningRef.current) return;
-    autoRunningRef.current = true;
-    setAutoRunning(true);
-    const { data, error } = await supabase.functions.invoke('auto-moderate-capture', {
-      body: { batch: true, limit: 25 },
-    });
-    autoRunningRef.current = false;
-    setAutoRunning(false);
-    if (error) {
-      if (!silent) toast.error("La pré-modération automatique n'a pas pu s'exécuter");
-      return;
-    }
-    const approved = (data as any)?.approved ?? 0;
-    if (!silent || approved > 0) {
-      toast.success(
-        approved > 0
-          ? `${approved} capture${approved > 1 ? 's' : ''} validée${approved > 1 ? 's' : ''} automatiquement`
-          : 'Aucune capture assez évidente : inspection manuelle nécessaire'
-      );
-    }
-    fetchPending();
-  };
-
   /**
-   * Pré-modération en flux : dès qu'une capture arrive dans la file (ou à
-   * l'ouverture du backoffice), l'IA passe automatiquement dessus. Aucun clic
-   * n'est nécessaire, seuls les cas douteux restent affichés.
+   * La pré-modération IA ne tourne plus depuis le backoffice : elle s'exécute
+   * côté serveur au fil de l'eau (dès l'enregistrement d'une capture) et par
+   * petits lots planifiés toutes les 2 heures. Ici on affiche seulement l'état
+   * de cette tâche de fond.
    */
   useEffect(() => {
-    if (!session?.user || loading) return;
-    if (captures.length > 0) void runAutoModeration(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, session]);
-
-  useEffect(() => {
     if (!session?.user) return;
-    let timer: ReturnType<typeof setTimeout> | null = null;
-    const channel = supabase
-      .channel('moderation-queue')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'captures', filter: 'status=eq.pending_review' },
-        () => {
-          if (timer) clearTimeout(timer);
-          // Petit délai : on laisse l'insertion se stabiliser et on regroupe les rafales.
-          timer = setTimeout(() => void runAutoModeration(true), 3000);
-        }
-      )
-      .subscribe();
-    return () => {
-      if (timer) clearTimeout(timer);
-      supabase.removeChannel(channel);
+    let active = true;
+    const load = async () => {
+      const { data } = await supabase
+        .from('background_jobs')
+        .select('status, paused_reason, last_run_at')
+        .eq('job_key', 'auto_moderate_captures')
+        .maybeSingle();
+      if (active && data) setJobState(data as JobState);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    void load();
+    const interval = setInterval(load, 60_000);
+    return () => {
+      active = false;
+      clearInterval(interval);
+    };
   }, [session]);
+
 
   const timeAgo = (date: string) => {
     const diff = Date.now() - new Date(date).getTime();
@@ -377,10 +347,18 @@ const ModerationPage = () => {
             <h1 className="text-xl font-display font-bold text-foreground">Backoffice</h1>
             <p className="text-xs text-muted-foreground">{captures.length} en attente</p>
           </div>
-          <div className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-display font-bold text-primary">
-            {autoRunning ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
-            {autoRunning ? 'Analyse IA…' : 'Auto-validation active'}
+          <div
+            className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-display font-bold ${
+              jobState?.status === 'paused'
+                ? 'bg-destructive/10 text-destructive'
+                : 'bg-primary/10 text-primary'
+            }`}
+            title={jobState?.paused_reason ?? undefined}
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            {jobState?.status === 'paused' ? 'Auto-validation en pause' : 'Auto-validation planifiée'}
           </div>
+
 
         </div>
       </PageHeader>
