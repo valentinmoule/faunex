@@ -267,6 +267,15 @@ export const buildTerritoryAnimals = <T extends EmblematicCandidate>(
   const picked = buildEmblematicAnimals(code, sourceAnimals, { limit: flagshipQuota });
   const usedNames = new Set(picked.map((animal) => norm(animal.name)));
 
+  const categoryCount = new Map<string, number>();
+  const bump = (animal: T) => {
+    const key = animal.category.toLowerCase();
+    categoryCount.set(key, (categoryCount.get(key) ?? 0) + 1);
+  };
+  picked.forEach(bump);
+  /** Aucune catégorie ne doit monopoliser la collection (ex. littoral 100 % oiseaux). */
+  const categoryCap = Math.max(4, Math.ceil(limit * 0.45));
+
   if (observedScientificNames.length > 0) {
     const bySci = new Map<string, T>();
     for (const { animal } of eligibleCandidates(code, sourceAnimals)) {
@@ -280,10 +289,13 @@ export const buildTerritoryAnimals = <T extends EmblematicCandidate>(
       if (!animal) continue;
       const key = norm(animal.name);
       if (usedNames.has(key)) continue;
+      if ((categoryCount.get(animal.category.toLowerCase()) ?? 0) >= categoryCap) continue;
       picked.push(animal);
       usedNames.add(key);
+      bump(animal);
     }
   }
+
 
   if (picked.length < limit) {
     for (const animal of buildEmblematicAnimals(code, sourceAnimals, { limit })) {
