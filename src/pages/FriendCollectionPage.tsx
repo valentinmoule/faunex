@@ -349,14 +349,34 @@ const FriendCollectionPage = () => {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 gap-3">
-              {filtered.map((card, i) => (
-                <div key={card.id} style={{ animationDelay: `${i * 80}ms` }}>
-                  <AnimalCardComponent
-                    card={card}
-                    compact
-                    onClick={() => setSelectedCard(card)}
+            <div className="grid grid-cols-2 gap-2">
+              {filtered.map((card) => (
+                <div
+                  key={card.id}
+                  onClick={() => setSelectedCard(card)}
+                  className={`relative aspect-[3/4] rounded-xl border-2 overflow-hidden transition-all cursor-pointer active:scale-[0.96] ${rarityBorderColor[card.rarity] || 'border-border'} bg-card`}
+                >
+                  <img
+                    src={card.image}
+                    alt={card.name}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    loading="lazy"
                   />
+                  <div className="absolute top-1 right-1">
+                    <span className={`inline-flex items-center px-1 py-px rounded-md text-[8px] font-display font-bold uppercase tracking-wide backdrop-blur-sm ${rarityBadge[card.rarity] || 'bg-black/60 text-white'}`}>
+                      {RARITY_LABELS[card.rarity] || card.rarity}
+                    </span>
+                  </div>
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5 pt-8">
+                    <p className="text-xs font-display font-bold text-white truncate leading-tight">
+                      {card.name}
+                    </p>
+                    {card.scientificName && (
+                      <p className="text-[9px] font-body italic text-white/80 truncate">
+                        {card.scientificName}
+                      </p>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
