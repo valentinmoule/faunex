@@ -4,10 +4,17 @@
  * Objectif produit : une collection « territoire » doit être une sélection courte
  * et désirable (les espèces qui font l'identité du territoire), pas un catalogue
  * exhaustif. On plafonne donc volontairement la taille de la sélection.
+ *
+ * Principe : chaque département reçoit
+ *   1. ses espèces « drapeau » (identité forte),
+ *   2. les espèces de ses biomes (montagne, littoral, méditerranéen, zones humides,
+ *      urbain dense, outre-mer),
+ *   3. un socle de faune commune adapté au type de territoire (urbain vs nature).
+ * L'ordre est important : les premières espèces trouvées remplissent le quota.
  */
 
-export const MAX_EMBLEMATIC = 36;
-export const MAX_EMBLEMATIC_OVERSEAS = 28;
+export const MAX_EMBLEMATIC = 32;
+export const MAX_EMBLEMATIC_OVERSEAS = 26;
 
 const norm = (value: string) =>
   value
@@ -22,74 +29,135 @@ export const COASTAL_DEPTS = new Set([
 export const MOUNTAIN_DEPTS = new Set(['04', '05', '06', '09', '15', '25', '26', '31', '38', '39', '42', '43', '48', '63', '64', '65', '66', '67', '68', '73', '74', '88', '2A', '2B']);
 export const MEDITERRANEAN_DEPTS = new Set(['04', '05', '06', '11', '13', '30', '34', '66', '83', '84', '2A', '2B']);
 export const URBAN_DEPTS = new Set(['59', '69', '75', '92', '93', '94']);
+/** Départements où la nature « sauvage » est marginale : le socle devient urbain. */
+export const DENSE_URBAN_DEPTS = new Set(['75', '92', '93', '94']);
 export const WETLAND_DEPTS = new Set(['01', '13', '17', '30', '33', '34', '35', '37', '41', '44', '45', '49', '51', '56', '67', '68', '80', '85']);
 export const OVERSEAS_DEPTS = new Set(['971', '972', '973', '974', '976']);
+/** Façade Atlantique / Manche / mer du Nord (faune marine froide). */
+export const ATLANTIC_DEPTS = new Set(['14', '17', '22', '29', '33', '35', '40', '44', '50', '56', '59', '62', '64', '76', '80', '85']);
 
-/** Faune sauvage emblématique commune à la France métropolitaine. */
-const CORE_EMBLEMATIC = [
+
+/** Socle de faune sauvage des territoires « nature » (métropole). */
+const RURAL_CORE = [
   // Mammifères
-  'renard roux', 'chevreuil', 'sanglier', 'ecureuil roux', 'herisson', 'blaireau', 'martre des pins', 'cerf elaphe', 'lievre d europe',
+  'renard roux', 'chevreuil', 'sanglier', 'ecureuil roux', 'herisson', 'blaireau', 'cerf elaphe', 'lievre d europe',
   // Oiseaux
-  'chouette hulotte', 'effraie', 'faucon crecerelle', 'buse variable', 'pic vert', 'pic epeiche', 'huppe fasciee',
-  'martin-pecheur', 'geai des chenes', 'mesange bleue', 'rougegorge', 'hirondelle rustique', 'chardonneret',
+  'chouette hulotte', 'effraie', 'buse variable', 'faucon crecerelle', 'pic vert', 'pic epeiche',
+  'martin-pecheur', 'geai des chenes', 'mesange bleue', 'rougegorge', 'hirondelle rustique', 'chardonneret', 'huppe fasciee',
   // Insectes & invertébrés
-  'machaon', 'paon-du-jour', 'vulcain', 'flambe', 'lucane cerf-volant', 'mante religieuse', 'abeille domestique',
+  'machaon', 'paon-du-jour', 'vulcain', 'lucane cerf-volant', 'abeille domestique', 'coccinelle a 7 points',
   // Reptiles & amphibiens
-  'salamandre tachetee', 'triton crete', 'lezard vert', 'couleuvre a collier', 'orvet',
+  'salamandre tachetee', 'lezard vert', 'couleuvre a collier', 'crapaud commun', 'orvet',
+];
+
+/** Socle de la faune que l'on croise réellement en ville dense. */
+const URBAN_CORE = [
+  // Oiseaux du quotidien urbain
+  'pigeon biset', 'moineau domestique', 'merle noir', 'pie bavarde', 'corneille noire', 'etourneau sansonnet',
+  'mouette rieuse', 'martinet noir', 'rougequeue noir', 'mesange charbonniere', 'rougegorge', 'perruche a collier',
+  'faucon crecerelle', 'effraie', 'canard colvert', 'foulque macroule', 'cygne tubercule', 'heron cendre', 'choucas des tours',
+  // Mammifères
+  'renard roux', 'herisson', 'ecureuil roux', 'pipistrelle',
+  // Reptiles & invertébrés
+  'lezard des murailles', 'abeille domestique', 'bourdon terrestre', 'coccinelle a 7 points', 'machaon',
+  'paon-du-jour', 'vulcain', 'araignee des murs',
 ];
 
 const BIOME_EMBLEMATIC: Array<{ depts: Set<string>; keywords: string[] }> = [
   {
     depts: MOUNTAIN_DEPTS,
-    keywords: ['chamois', 'bouquetin des alpes', 'isard', 'marmotte', 'lynx', 'loup gris', 'gypaete', 'vautour fauve', 'aigle royal', 'tetras', 'lagopede', 'apollon', 'chocard', 'accenteur alpin', 'ours brun'],
+    keywords: ['chamois', 'bouquetin des alpes', 'isard', 'marmotte', 'lynx boreal', 'loup gris', 'gypaete barbu', 'vautour fauve', 'aigle royal', 'tetras', 'lagopede', 'apollon', 'chocard', 'accenteur alpin', 'ours brun'],
   },
   {
     depts: COASTAL_DEPTS,
-    keywords: ['phoque', 'goeland argente', 'huitrier pie', 'sterne', 'fou de bassan', 'macareux', 'grand cormoran', 'avocette', 'tadorne', 'grand dauphin', 'etoile de mer', 'hippocampe', 'crabe vert'],
+    keywords: ['goeland argente', 'huitrier pie', 'sterne pierregarin', 'grand cormoran', 'avocette elegante', 'tadorne de belon', 'grand dauphin', 'etoile de mer commune', 'hippocampe mouchete', 'crabe vert'],
+  },
+  {
+    depts: ATLANTIC_DEPTS,
+    keywords: ['phoque gris', 'phoque veau-marin', 'fou de bassan', 'macareux moine', 'pingouin torda', 'guillemot de troil', 'mouette tridactyle', 'homard europeen'],
   },
   {
     depts: MEDITERRANEAN_DEPTS,
-    keywords: ['flamant rose', 'cigale', 'tortue d hermann', 'lezard ocelle', 'guepier', 'rollier', 'gecko', 'scorpion languedocien', 'cistude', 'merou brun'],
+    keywords: ['flamant rose', 'cigale', 'mante religieuse', 'tortue d hermann', 'lezard ocelle', 'guepier d europe', 'rollier d europe', 'tarente de mauretanie', 'scorpion languedocien', 'cistude d europe', 'merou brun', 'goeland leucophee'],
   },
   {
     depts: WETLAND_DEPTS,
-    keywords: ['heron cendre', 'aigrette garzette', 'busard des roseaux', 'grebe huppe', 'cygne tubercule', 'loutre', 'castor', 'brochet', 'caloptery', 'anax', 'agrion'],
+    keywords: ['heron cendre', 'aigrette garzette', 'busard des roseaux', 'grebe huppe', 'cygne tubercule', 'loutre d europe', 'castor d europe', 'brochet', 'calopteryx', 'anax empereur', 'agrion'],
   },
+
   {
-    depts: URBAN_DEPTS,
-    keywords: ['perruche a collier', 'martinet noir', 'pipistrelle', 'lezard des murailles', 'faucon crecerelle', 'effraie', 'renard roux', 'herisson'],
-  },
-  {
-    depts: OVERSEAS_DEPTS,
-    keywords: ['colibri', 'iguane', 'tortue verte', 'tortue luth', 'baleine a bosse', 'dauphin', 'fregate', 'paille-en-queue', 'cameleon', 'gecko', 'ara', 'toucan', 'paresseux', 'jaguar', 'caiman', 'requin citron', 'crabe de terre', 'lemurien'],
+    depts: DENSE_URBAN_DEPTS,
+    keywords: ['perruche a collier', 'martinet noir', 'pipistrelle', 'lezard des murailles', 'faucon crecerelle', 'effraie', 'renard roux', 'herisson', 'pigeon biset', 'moineau domestique', 'mouette rieuse'],
   },
 ];
 
+/** Outre-mer : chaque territoire n'a que sa propre faune, pas une liste tropicale générique. */
+const OVERSEAS_KEYWORDS: Record<string, string[]> = {
+  '971': ['iguane des petites antilles', 'racoon', 'colibri madere', 'colibri huppe', 'sucrier a ventre jaune', 'pelican brun', 'fregate superbe', 'tortue verte', 'tortue imbriquee', 'anolis', 'crabe de terre', 'grand dauphin', 'baleine a bosse', 'sphinx', 'mabuya'],
+  '972': ['matoutou falaise', 'colibri huppe', 'colibri falle-vert', 'sucrier a ventre jaune', 'fregate superbe', 'pelican brun', 'tortue luth', 'tortue verte', 'anolis', 'crabe de terre', 'trigonocephale', 'grand dauphin', 'baleine a bosse', 'manicou'],
+  '973': ['jaguar', 'ara macao', 'ara bleu', 'toucan', 'paresseux', 'caiman', 'singe hurleur', 'tapir terrestre', 'tamanoir', 'coq de roche', 'ibis rouge', 'iguane vert', 'anaconda', 'tortue luth', 'dendrobate', 'morpho', 'raie', 'piranha', 'loutre geante'],
+  '974': ['paille-en-queue', 'tuit-tuit', 'papangue', 'oiseau la vierge', 'zosterops', 'gecko vert de manapany', 'cameleon panthere', 'endormi', 'baleine a bosse', 'grand dauphin', 'tortue verte', 'tortue imbriquee', 'requin bouledogue', 'poisson-papillon', 'bourbon'],
+  '976': ['maki', 'lemurien', 'roussette', 'drongo', 'foudi', 'cameleon de mayotte', 'tortue verte', 'tortue imbriquee', 'dugong', 'baleine a bosse', 'dauphin', 'poisson-clown', 'raie manta', 'crabier blanc'],
+};
+
+/** Marqueurs géographiques : une espèce nommée « ... de Madagascar » n'est pas d'un autre territoire. */
+const GEO_MARKERS: Array<{ marker: string; depts: string[] }> = [
+  { marker: 'de madagascar', depts: [] },
+  { marker: 'de mayotte', depts: ['976'] },
+  { marker: 'de la reunion', depts: ['974'] },
+  { marker: 'des petites antilles', depts: ['971', '972'] },
+  { marker: 'de guyane', depts: ['973'] },
+  { marker: 'de corse', depts: ['2A', '2B'] },
+  { marker: 'de mediterranee', depts: [...MEDITERRANEAN_DEPTS] },
+  { marker: 'du pacifique', depts: [] },
+  { marker: 'de cuba', depts: [] },
+  { marker: 'de floride', depts: [] },
+  { marker: 'du bresil', depts: [] },
+  { marker: 'd amerique', depts: [] },
+  { marker: 'd afrique', depts: [] },
+  { marker: 'du japon', depts: [] },
+  { marker: 'de chine', depts: [] },
+  { marker: 'd asie', depts: [] },
+];
+
+const geoAllows = (name: string, code: string) =>
+  GEO_MARKERS.every(({ marker, depts }) => !name.includes(marker) || depts.includes(code));
+
+
 /** Espèce « drapeau » de quelques territoires très identifiés. */
 const DEPT_FLAGSHIPS: Record<string, string[]> = {
-  '2A': ['mouflon de corse', 'gypaete', 'balbuzard'],
-  '2B': ['mouflon de corse', 'gypaete', 'balbuzard'],
+  '2A': ['mouflon de corse', 'gypaete barbu', 'balbuzard pecheur'],
+  '2B': ['mouflon de corse', 'gypaete barbu', 'balbuzard pecheur'],
   '13': ['flamant rose', 'cheval de camargue', 'taureau de camargue'],
-  '17': ['loutre', 'avocette'],
-  '29': ['macareux', 'phoque gris', 'fou de bassan'],
+  '17': ['loutre d europe', 'avocette elegante'],
+  '29': ['macareux moine', 'phoque gris', 'fou de bassan'],
   '33': ['esturgeon', 'cigogne blanche'],
-  '64': ['ours brun', 'desman', 'gypaete'],
-  '65': ['ours brun', 'isard', 'gypaete'],
-  '73': ['bouquetin des alpes', 'aigle royal', 'gypaete'],
+  '59': ['phoque veau-marin', 'goeland argente', 'heron cendre'],
+  '64': ['ours brun', 'desman des pyrenees', 'gypaete barbu'],
+  '65': ['ours brun', 'isard', 'gypaete barbu'],
+  '69': ['martinet noir', 'faucon crecerelle', 'castor d europe'],
+  '73': ['bouquetin des alpes', 'aigle royal', 'gypaete barbu'],
   '74': ['bouquetin des alpes', 'chamois', 'lynx'],
-  '75': ['faucon crecerelle', 'perruche a collier', 'renard roux'],
+  '75': ['pigeon biset', 'faucon crecerelle', 'perruche a collier', 'moineau domestique', 'renard roux'],
+  '92': ['perruche a collier', 'ecureuil roux', 'pigeon biset'],
+  '93': ['renard roux', 'pigeon biset', 'faucon crecerelle'],
+  '94': ['heron cendre', 'pigeon biset', 'perruche a collier'],
   '971': ['racoon', 'iguane des petites antilles', 'tortue verte'],
   '972': ['colibri', 'matoutou', 'tortue luth'],
-  '973': ['jaguar', 'ara', 'paresseux', 'caiman', 'tortue luth'],
-  '974': ['paille-en-queue', 'tuit-tuit', 'baleine a bosse', 'cameleon'],
+  '973': ['jaguar', 'ara macao', 'paresseux tridactyle', 'caiman a lunettes', 'tortue luth'],
+  '974': ['paille-en-queue', 'tuit-tuit', 'papangue', 'baleine a bosse'],
   '976': ['lemurien', 'maki', 'baleine a bosse', 'tortue verte'],
 };
 
-/** Animaux jamais considérés comme emblématiques d'un territoire. */
+/**
+ * Animaux jamais considérés comme emblématiques d'un territoire :
+ * animaux de compagnie / d'élevage et vraies nuisances domestiques.
+ * (Les oiseaux urbains comme le pigeon biset restent éligibles en ville.)
+ */
 const NEVER_EMBLEMATIC = [
   'chien', 'chat', 'vache', 'boeuf', 'mouton', 'chevre', 'poule', 'coq', 'canard domestique', 'oie', 'dinde', 'cochon', 'porc',
-  'lapin domestique', 'cobaye', 'hamster', 'furet', 'poisson rouge', 'pigeon biset', 'rat surmulot', 'souris domestique',
-  'moustique', 'mouche domestique', 'cafard', 'blatte', 'pou', 'puce', 'tique', 'frelon asiatique',
+  'lapin domestique', 'cobaye', 'hamster', 'furet', 'poisson rouge', 'carpe koi', 'rat surmulot', 'souris domestique',
+  'moustique', 'mouche domestique', 'cafard', 'blatte', 'pou', 'puce', 'tique', 'frelon asiatique', 'punaise de lit',
 ].map(norm);
 
 const RARITY_WEIGHT: Record<string, number> = { mythic: 0, epic: 1, rare: 2, common: 3 };
@@ -101,17 +169,21 @@ export interface EmblematicCandidate {
 }
 
 export const emblematicKeywords = (code: string) => {
-  const keywords = OVERSEAS_DEPTS.has(code)
-    ? [...(DEPT_FLAGSHIPS[code] || [])]
-    : [...(DEPT_FLAGSHIPS[code] || []), ...CORE_EMBLEMATIC];
   const overseas = OVERSEAS_DEPTS.has(code);
-  for (const biome of BIOME_EMBLEMATIC) {
-    // Un territoire ultramarin ne récupère que sa propre faune.
-    if (overseas !== (biome.depts === OVERSEAS_DEPTS)) continue;
-    if (biome.depts.has(code)) keywords.push(...biome.keywords);
+  const keywords: string[] = [...(DEPT_FLAGSHIPS[code] || [])];
+
+  if (overseas) {
+    keywords.push(...(OVERSEAS_KEYWORDS[code] || []));
+  } else {
+    for (const biome of BIOME_EMBLEMATIC) {
+      if (biome.depts.has(code)) keywords.push(...biome.keywords);
+    }
+    keywords.push(...(DENSE_URBAN_DEPTS.has(code) ? URBAN_CORE : RURAL_CORE));
   }
+
   return keywords.map(norm);
 };
+
 
 /** 0 = nom exact, 1 = commence par le mot-clé, 2 = mot-clé présent en mot entier. */
 const matchScore = (name: string, keyword: string): number | null => {
@@ -132,7 +204,9 @@ export const buildEmblematicAnimals = <T extends EmblematicCandidate>(code: stri
   const candidates = sourceAnimals
     .filter((animal) => !animal.category.toLowerCase().includes('(monde)'))
     .map((animal) => ({ animal, name: norm(animal.name) }))
+    .filter(({ name }) => geoAllows(name, code))
     .filter(({ name }) => !NEVER_EMBLEMATIC.some((bad) => name.includes(bad)));
+
 
   const picked: T[] = [];
   const usedNames = new Set<string>();
@@ -158,4 +232,3 @@ export const buildEmblematicAnimals = <T extends EmblematicCandidate>(code: stri
 
 export const buildEmblematicSet = (code: string, sourceAnimals: EmblematicCandidate[]) =>
   new Set(buildEmblematicAnimals(code, sourceAnimals).map((animal) => animal.name.toLowerCase()));
-
