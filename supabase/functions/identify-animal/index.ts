@@ -355,8 +355,14 @@ serve(async (req) => {
                   },
                   scientific_name: {
                     type: "string",
-                    description: "Nom scientifique latin complet (genre + espèce). Ex: 'Parus caeruleus', 'Canis lupus familiaris'."
+                    description: "Nom scientifique latin RÉEL et vérifiable. Binôme (genre + espèce) UNIQUEMENT si l'espèce est certaine (ex: 'Cyanistes caeruleus', 'Canis lupus familiaris'). Sinon, le nom du rang supérieur réel seul (ex: 'Miridae', 'Pyrrhocoris', 'Hemiptera'). Ne jamais fabriquer un binôme à partir du nom vernaculaire."
                   },
+                  scientific_rank: {
+                    type: "string",
+                    enum: ["subspecies", "species", "genus", "family", "order", "class"],
+                    description: "Rang taxonomique effectivement atteint par scientific_name. 'species'/'subspecies' seulement si le binôme est certain, sinon 'genus'/'family'/'order' avec confidence ≤ 60."
+                  },
+
                   category: {
                     type: "string",
                     enum: ["Mammifères", "Oiseaux", "Reptiles", "Amphibiens", "Poissons", "Insectes", "Arachnides", "Crustacés", "Mollusques"],
