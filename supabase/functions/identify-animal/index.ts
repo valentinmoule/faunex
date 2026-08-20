@@ -7,6 +7,52 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+/**
+ * Vérifie qu'un nom scientifique existe réellement dans le référentiel
+ * taxonomique mondial GBIF (API publique, sans clé).
+ * - "valid"   : le taxon (ou au moins son genre) existe
+ * - "invalid" : aucune correspondance → binôme inventé par le modèle
+ * - "unknown" : GBIF injoignable → on ne bloque pas l'utilisateur
+ */
+const verifyTaxon = async (
+  scientificName?: string | null,
+): Promise<"valid" | "invalid" | "unknown"> => {
+  const name = (scientificName || "").trim();
+  if (!name) return "unknown";
+  // Les races domestiques ne sont pas des taxons GBIF distincts : déjà couvertes
+  // par un binôme parent valide, inutile de les interroger.
+  const lookup = async (q: string) => {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 4_000);
+    try {
+      const res = await fetch(
+        `https://api.gbif.org/v1/species/match?strict=false&name=${encodeURIComponent(q)}`,
+        { signal: ctrl.signal },
+      );
+      if (!res.ok) return null;
+      return await res.json();
+    } catch {
+      return null;
+    } finally {
+      clearTimeout(timer);
+    }
+  };
+
+  const data = await lookup(name);
+  if (!data) return "unknown";
+  if (data.matchType && data.matchType !== "NONE") return "valid";
+
+  // Repli : le genre seul est-il réel ? (binôme approximatif mais genre existant)
+  const genus = name.split(/\s+/)[0];
+  if (genus && genus.toLowerCase() !== name.toLowerCase()) {
+    const g = await lookup(genus);
+    if (!g) return "unknown";
+    if (g.matchType && g.matchType !== "NONE") return "valid";
+  }
+  return "invalid";
+};
+
+
 const SYSTEM_PROMPT = `Tu es un expert naturaliste de renommée mondiale, spécialisé en zoologie, ornithologie, herpétologie, entomologie, cynologie et félinologie. Tu identifies les animaux avec une précision scientifique.
 
 ## Méthode d'identification
