@@ -6,7 +6,7 @@ import { logDatasetEvent, setPendingImageHash } from '@/lib/dataset';
 
 type IdentifyOutcome =
   | { status: 'identified'; animal: AnimalResult }
-  | { status: 'unknown' }
+  | { status: 'unknown'; hint?: string }
   | { status: 'error'; message: string };
 
 const normalize = (v?: string | null) =>
@@ -168,8 +168,10 @@ export const useAnimalIdentification = () => {
             const animal = data?.success ? (data.animal as AnimalResult | undefined) : undefined;
 
             if (!animal || !animal.animal_name) {
-              // Réponse valide mais sans animal exploitable → vraie non-reconnaissance
-              return { status: 'unknown' };
+              // Réponse valide mais sans animal exploitable → vraie non-reconnaissance.
+              // `hint` porte le repli taxonomique honnête (genre / famille) quand le
+              // serveur a rejeté une espèce non validée.
+              return { status: 'unknown', hint: typeof data?.hint === 'string' ? data.hint : undefined };
             }
             if (
               animal.animal_name.toLowerCase() === 'inconnu' ||
