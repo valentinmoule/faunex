@@ -7,7 +7,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
-const ENABLED_ROUTES = ['/home', '/bestiaire', '/explorers', '/profile'];
+const ENABLED_ROUTES = ['/home', '/explorers', '/profile'];
 
 const THRESHOLD = 88;
 const MAX_PULL = 150;
