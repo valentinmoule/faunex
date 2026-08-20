@@ -160,7 +160,11 @@ const NEVER_EMBLEMATIC = [
   'moustique', 'mouche domestique', 'cafard', 'blatte', 'pou', 'puce', 'tique', 'frelon asiatique', 'punaise de lit',
 ].map(norm);
 
+/** Fiches de stades juvéniles : ce ne sont pas des espèces présentables en collection. */
+const LIFE_STAGE_PREFIXES = ['nymphe', 'larve', 'chenille', 'juvenile', 'oeuf', 'tetard', 'chrysalide'];
+
 const RARITY_WEIGHT: Record<string, number> = { mythic: 0, epic: 1, rare: 2, common: 3 };
+
 
 export interface EmblematicCandidate {
   name: string;
@@ -240,7 +244,9 @@ export const eligibleCandidates = <T extends EmblematicCandidate>(code: string, 
     .filter((animal) => !animal.category.toLowerCase().includes('(monde)'))
     .map((animal) => ({ animal, name: norm(animal.name) }))
     .filter(({ name }) => geoAllows(name, code))
-    .filter(({ name }) => !NEVER_EMBLEMATIC.some((bad) => name.includes(bad)));
+    .filter(({ name }) => !NEVER_EMBLEMATIC.some((bad) => name.includes(bad)))
+    .filter(({ name }) => !LIFE_STAGE_PREFIXES.some((stage) => name.startsWith(stage)));
+
 
 const normSci = (value: string) => value.toLowerCase().trim().replace(/\s+/g, ' ');
 
