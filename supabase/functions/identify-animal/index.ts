@@ -541,17 +541,51 @@ serve(async (req) => {
     }
 
 
+    const admin = (() => {
+      try {
+        return createClient(
+          Deno.env.get("SUPABASE_URL")!,
+          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+        );
+      } catch (e) {
+        console.error("admin client init failed", e);
+        return null;
+      }
+    })();
+
+    /** Trace « best effort » de la réponse brute du modèle + verdict taxonomique. */
+    const logRaw = async (verdict: TaxonVerdict | null, outcome: string) => {
+      if (!admin) return;
+      try {
+        await admin.from("ml_dataset_events").insert({
+          event_type: "ai_prediction",
+          source: "server",
+          model: usedModel,
+          predicted_name: animalData?.animal_name ?? null,
+          predicted_scientific_name: animalData?.scientific_name ?? null,
+          predicted_category: animalData?.category ?? null,
+          predicted_rarity: animalData?.rarity ?? null,
+          confidence: typeof animalData?.confidence === "number" ? animalData.confidence : null,
+          subject_bbox: animalData?.subject_bbox ?? null,
+          is_ground_truth: false,
+          payload: {
+            raw_model_output: rawModelOutput,
+            taxon_verdict: verdict,
+            outcome,
+          },
+        });
+      } catch (e) {
+        console.error("raw identification log failed", e);
+      }
+    };
+
     // Déduplication : si l'espèce existe déjà dans le bestiaire (nom commun OU nom
     // scientifique, insensible casse/accents/tirets), on réutilise la fiche canonique
     // pour éviter les doublons type "Graphosome rayé" / "Graphosome d'Italie".
     let knownInBestiary = false;
-    if (animalData?.animal_name && animalData.animal_name.toLowerCase() !== "inconnu") {
+    if (admin && animalData?.animal_name && animalData.animal_name.toLowerCase() !== "inconnu") {
       try {
-        const supabase = createClient(
-          Deno.env.get("SUPABASE_URL")!,
-          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-        );
-        const { data: matches, error: matchErr } = await supabase.rpc("match_animal", {
+        const { data: matches, error: matchErr } = await admin.rpc("match_animal", {
           p_name: animalData.animal_name,
           p_scientific: animalData.scientific_name || null,
         });
@@ -569,27 +603,77 @@ serve(async (req) => {
       }
     }
 
-    // Garde-fou anti-hallucination : une espèce inconnue de notre bestiaire doit
-    // exister dans le référentiel taxonomique mondial (GBIF). Sinon le modèle a
-    // inventé le binôme (ex. "Oleaopteryx oleae") et on bascule l'utilisateur sur
-    // la saisie manuelle / modération plutôt que de polluer le bestiaire.
+    /**
+     * Garde-fou anti-hallucination.
+     * Une espèce absente du bestiaire canonique doit être validée taxonomiquement
+     * (GBIF) : binôme réellement publié, genre cohérent avec l'espèce, taxon animal
+     * compatible avec la catégorie annoncée. Sinon, aucune fiche n'est créée et
+     * l'utilisateur bascule sur la saisie manuelle / modération, avec un repli
+     * honnête au rang supérieur réel (genre / famille / ordre).
+     */
     if (
       !knownInBestiary &&
       animalData?.animal_name &&
       animalData.animal_name.toLowerCase() !== "inconnu"
     ) {
-      const verdict = await verifyTaxon(animalData.scientific_name);
-      if (verdict === "invalid") {
-        console.warn("taxon rejected (not found in GBIF):", animalData.scientific_name);
-        return new Response(JSON.stringify({ success: false, reason: "not_identified" }), {
-          status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+      const verdict = await verifyTaxon(animalData.scientific_name, animalData.category);
+
+      if (verdict.status === "invalid" || verdict.status === "downgrade") {
+        console.warn(
+          "taxon rejected",
+          animalData.scientific_name,
+          verdict.status,
+          verdict.reason ?? verdict.fallbackRank,
+        );
+        await logRaw(verdict, `rejected_${verdict.status}`);
+
+        const rankFr = verdict.fallbackRank ? RANK_FR[verdict.fallbackRank] : null;
+        const hint = verdict.fallbackName
+          ? `Identification probable : ${rankFr ?? "rang"} ${verdict.fallbackName}. L'espèce ne peut pas être confirmée avec suffisamment de fiabilité.`
+          : "L'espèce proposée n'a pas pu être confirmée dans les référentiels taxonomiques. Décris l'animal pour vérification.";
+
+        return new Response(
+          JSON.stringify({
+            success: false,
+            reason: "unverified_species",
+            hint,
+            suggestion: verdict.fallbackName
+              ? { scientific_name: verdict.fallbackName, rank: verdict.fallbackRank }
+              : null,
+          }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
       }
+
+      if (verdict.status === "valid") {
+        // On aligne le nom latin sur le nom accepté par GBIF (orthographe, synonymie).
+        if (verdict.canonicalName) animalData.scientific_name = verdict.canonicalName;
+        animalData.scientific_rank = (verdict.rank || animalData.scientific_rank || "").toString().toLowerCase();
+        animalData.taxon_validated = true;
+        // Une confiance élevée n'est jamais affichée si l'espèce n'est pas atteinte.
+        const isSpecies = ["species", "subspecies", "form", "variety"].includes(animalData.scientific_rank);
+        if (!isSpecies && typeof animalData.confidence === "number") {
+          animalData.confidence = Math.min(animalData.confidence, 60);
+        }
+      } else {
+        // GBIF injoignable : on n'empêche pas la capture mais on ne prétend pas
+        // à une identification validée, et la confiance affichée est plafonnée.
+        animalData.taxon_validated = false;
+        if (typeof animalData.confidence === "number") {
+          animalData.confidence = Math.min(animalData.confidence, 70);
+        }
+      }
+
+      await logRaw(verdict, `accepted_${verdict.status}`);
+    } else {
+      animalData.taxon_validated = knownInBestiary;
+      await logRaw(null, knownInBestiary ? "accepted_known_bestiary" : "accepted_unknown_label");
     }
 
     return new Response(JSON.stringify({ success: true, animal: animalData }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
+
 
   } catch (e) {
     console.error("identify-animal error:", e);
