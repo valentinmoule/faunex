@@ -202,16 +202,15 @@ const matchScore = (name: string, keyword: string): number | null => {
  * Sélectionne une courte liste d'espèces emblématiques du territoire :
  * au plus une espèce par espèce-drapeau, dans l'ordre d'emblématicité.
  */
-export const buildEmblematicAnimals = <T extends EmblematicCandidate>(code: string, sourceAnimals: T[]): T[] => {
+export const buildEmblematicAnimals = <T extends EmblematicCandidate>(
+  code: string,
+  sourceAnimals: T[],
+  options?: { limit?: number },
+): T[] => {
   const keywords = emblematicKeywords(code);
-  const limit = OVERSEAS_DEPTS.has(code) ? MAX_EMBLEMATIC_OVERSEAS : MAX_EMBLEMATIC;
+  const limit = options?.limit ?? (OVERSEAS_DEPTS.has(code) ? MAX_EMBLEMATIC_OVERSEAS : MAX_EMBLEMATIC);
 
-  const candidates = sourceAnimals
-    .filter((animal) => !animal.category.toLowerCase().includes('(monde)'))
-    .map((animal) => ({ animal, name: norm(animal.name) }))
-    .filter(({ name }) => geoAllows(name, code))
-    .filter(({ name }) => !NEVER_EMBLEMATIC.some((bad) => name.includes(bad)));
-
+  const candidates = eligibleCandidates(code, sourceAnimals);
 
   const picked: T[] = [];
   const usedNames = new Set<string>();
@@ -235,5 +234,64 @@ export const buildEmblematicAnimals = <T extends EmblematicCandidate>(code: stri
   return picked;
 };
 
+/** Candidats éligibles au territoire (hors faune « (monde) », domestiques et incohérences géographiques). */
+export const eligibleCandidates = <T extends EmblematicCandidate>(code: string, sourceAnimals: T[]) =>
+  sourceAnimals
+    .filter((animal) => !animal.category.toLowerCase().includes('(monde)'))
+    .map((animal) => ({ animal, name: norm(animal.name) }))
+    .filter(({ name }) => geoAllows(name, code))
+    .filter(({ name }) => !NEVER_EMBLEMATIC.some((bad) => name.includes(bad)));
+
+const normSci = (value: string) => value.toLowerCase().trim().replace(/\s+/g, ' ');
+
+/**
+ * Sélection finale d'un territoire :
+ *   1. les espèces « drapeau » (identité culturelle du territoire),
+ *   2. complétées par les espèces réellement les plus observées sur place
+ *      (classement iNaturalist / GBIF, transmis via `observedScientificNames`).
+ */
+export const buildTerritoryAnimals = <T extends EmblematicCandidate>(
+  code: string,
+  sourceAnimals: T[],
+  observedScientificNames: string[] = [],
+): T[] => {
+  const limit = OVERSEAS_DEPTS.has(code) ? MAX_EMBLEMATIC_OVERSEAS : MAX_EMBLEMATIC;
+  const flagshipQuota = observedScientificNames.length > 0 ? Math.min(FLAGSHIP_QUOTA, limit) : limit;
+
+  const picked = buildEmblematicAnimals(code, sourceAnimals, { limit: flagshipQuota });
+  const usedNames = new Set(picked.map((animal) => norm(animal.name)));
+
+  if (observedScientificNames.length > 0) {
+    const bySci = new Map<string, T>();
+    for (const { animal } of eligibleCandidates(code, sourceAnimals)) {
+      const sci = animal.scientific_name ? normSci(animal.scientific_name) : '';
+      if (sci && !bySci.has(sci)) bySci.set(sci, animal);
+    }
+
+    for (const sci of observedScientificNames) {
+      if (picked.length >= limit) break;
+      const animal = bySci.get(normSci(sci));
+      if (!animal) continue;
+      const key = norm(animal.name);
+      if (usedNames.has(key)) continue;
+      picked.push(animal);
+      usedNames.add(key);
+    }
+  }
+
+  if (picked.length < limit) {
+    for (const animal of buildEmblematicAnimals(code, sourceAnimals, { limit })) {
+      if (picked.length >= limit) break;
+      const key = norm(animal.name);
+      if (usedNames.has(key)) continue;
+      picked.push(animal);
+      usedNames.add(key);
+    }
+  }
+
+  return picked;
+};
+
 export const buildEmblematicSet = (code: string, sourceAnimals: EmblematicCandidate[]) =>
   new Set(buildEmblematicAnimals(code, sourceAnimals).map((animal) => animal.name.toLowerCase()));
+
