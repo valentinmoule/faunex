@@ -347,10 +347,18 @@ const ModerationPage = () => {
             <h1 className="text-xl font-display font-bold text-foreground">Backoffice</h1>
             <p className="text-xs text-muted-foreground">{captures.length} en attente</p>
           </div>
-          <div className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-display font-bold text-primary">
-            {autoRunning ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
-            {autoRunning ? 'Analyse IA…' : 'Auto-validation active'}
+          <div
+            className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-display font-bold ${
+              jobState?.status === 'paused'
+                ? 'bg-destructive/10 text-destructive'
+                : 'bg-primary/10 text-primary'
+            }`}
+            title={jobState?.paused_reason ?? undefined}
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            {jobState?.status === 'paused' ? 'Auto-validation en pause' : 'Auto-validation planifiée'}
           </div>
+
 
         </div>
       </PageHeader>
