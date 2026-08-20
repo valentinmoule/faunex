@@ -33,6 +33,9 @@ export const URBAN_DEPTS = new Set(['59', '69', '75', '92', '93', '94']);
 export const DENSE_URBAN_DEPTS = new Set(['75', '92', '93', '94']);
 export const WETLAND_DEPTS = new Set(['01', '13', '17', '30', '33', '34', '35', '37', '41', '44', '45', '49', '51', '56', '67', '68', '80', '85']);
 export const OVERSEAS_DEPTS = new Set(['971', '972', '973', '974', '976']);
+/** Façade Atlantique / Manche / mer du Nord (faune marine froide). */
+export const ATLANTIC_DEPTS = new Set(['14', '17', '22', '29', '33', '35', '40', '44', '50', '56', '59', '62', '64', '76', '80', '85']);
+
 
 /** Socle de faune sauvage des territoires « nature » (métropole). */
 const RURAL_CORE = [
