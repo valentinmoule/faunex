@@ -77,6 +77,7 @@ const ModerationPage = () => {
   const [confirming, setConfirming] = useState(false);
   /** Pré-modération IA en cours sur la file d'attente. */
   const [autoRunning, setAutoRunning] = useState(false);
+  const autoRunningRef = useRef(false);
 
   /** Diagnostic d'échec de la prévisualisation, par capture. */
   const [failures, setFailures] = useState<Record<string, PrepareFailure>>({});
@@ -88,6 +89,7 @@ const ModerationPage = () => {
     if (!session?.user) return;
     fetchPending();
   }, [session]);
+
 
   const fetchPending = async () => {
     setLoading(true);
