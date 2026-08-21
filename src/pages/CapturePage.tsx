@@ -103,6 +103,7 @@ const CapturePage = () => {
     setAnimalResult(null);
     setSaved(false);
     setIdentifyError(null);
+    setRejectedImage(null);
     setManualMode(false);
     setTaxonHint(null);
     setDisputedResult(null);
@@ -114,6 +115,8 @@ const CapturePage = () => {
         triggerReveal(outcome.animal);
       } else if (outcome.status === 'error') {
         setIdentifyError(outcome.message);
+      } else if (outcome.status === 'not_photo') {
+        setRejectedImage(outcome.message);
       } else {
         setTaxonHint(outcome.hint ?? null);
         setManualMode(true);
@@ -128,12 +131,15 @@ const CapturePage = () => {
     if (!capturedPhoto || identifyingRef.current) return;
     identifyingRef.current = true;
     setIdentifyError(null);
+    setRejectedImage(null);
     try {
       const outcome = await identify(capturedPhoto);
       if (outcome.status === 'identified') {
         triggerReveal(outcome.animal);
       } else if (outcome.status === 'error') {
         setIdentifyError(outcome.message);
+      } else if (outcome.status === 'not_photo') {
+        setRejectedImage(outcome.message);
       } else {
         setTaxonHint(outcome.hint ?? null);
         setManualMode(true);
@@ -142,6 +148,7 @@ const CapturePage = () => {
       identifyingRef.current = false;
     }
   }, [capturedPhoto, identify, triggerReveal]);
+
 
 
 
