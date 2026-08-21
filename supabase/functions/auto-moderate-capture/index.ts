@@ -27,6 +27,8 @@ Règles de vérification (sois strict) :
 - confidence = ta certitude réelle (0 à 1). N'utilise > 0.9 que si un expert n'hésiterait pas une seconde.
 - Si la photo est floue, trop lointaine, partielle, si plusieurs espèces ressemblantes sont possibles (biche/chevreuil, coccinelle asiatique/autochtone, races de chiens, passereaux…) ou si l'animal n'est pas visible : name_matches = false et confidence basse.
 - Si la photo montre un humain, un objet, une peluche, une plante ou aucun animal : name_matches = false, confidence 0.
+- AUTHENTICITÉ : la plateforme n'accepte que des PHOTOGRAPHIES RÉELLES prises par l'observateur. Une illustration, un dessin, un logo, une icône, un pictogramme, une mascotte, une peinture, un rendu 3D, une image générée par IA, une capture d'écran, une photo d'écran ou de page imprimée, un autocollant, un tatouage, une peluche ou une figurine représentant un animal N'EST PAS une photo d'animal. Indices : contours vectoriels nets, aplats de couleur, absence de grain photographique, ombres inexistantes ou parfaites, stylisation des yeux/oreilles, fond uni ou transparent, présence de texte/typographie/watermark, symétrie parfaite. Dans ce cas : image_type = le type réel, is_real_photo = false, name_matches = false, confidence 0.
+
 - Espèces réelles et vivantes uniquement : aucune créature de fiction (dragon, licorne, phénix…) ni espèce éteinte (dodo, mammouth, dinosaure…). Dans ce cas name_matches = false, confidence 0.
 - animal_name : reprends le nom de l'observateur normalisé (orthographe, casse, race précise si visible). Ne change jamais d'espèce.
 - Le nom scientifique doit être un binôme latin réel.
