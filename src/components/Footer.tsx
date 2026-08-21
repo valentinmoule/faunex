@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { BookOpen, FileText, Home, Mail, Receipt, Sparkles, Tag, UserPlus } from 'lucide-react';
+import { BookOpen, FileText, Home, Lock, Mail, Receipt, Sparkles, Tag, UserPlus } from 'lucide-react';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
