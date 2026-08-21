@@ -383,11 +383,20 @@ function callGateway(
             parameters: {
               type: 'object',
               properties: {
+                is_real_photo: {
+                  type: 'boolean',
+                  description: "true seulement si l'image est une photographie réelle d'un animal vivant (grain photo, éclairage naturel, profondeur de champ). false pour illustration, dessin, logo, icône, mascotte, peinture, rendu 3D, image IA, capture d'écran, photo d'écran, autocollant, peluche ou figurine.",
+                },
+                image_type: {
+                  type: 'string',
+                  enum: ['photo_reelle', 'illustration', 'dessin', 'logo_icone', 'peinture', 'rendu_3d', 'image_generee_ia', 'capture_ecran', 'photo_ecran_ou_papier', 'jouet_peluche_figurine', 'autre'],
+                  description: "Nature réelle de l'image.",
+                },
                 name_matches: {
                   type: 'boolean',
                   description: 'true seulement si la photo montre sans ambiguïté l\'animal nommé.',
                 },
-                confidence: {
+
                   type: 'number',
                   minimum: 0,
                   maximum: 1,
