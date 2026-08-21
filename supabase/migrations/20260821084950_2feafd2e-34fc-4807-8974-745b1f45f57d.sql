@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.trigger_auto_moderate_capture() FROM PUBLIC, anon, authenticated;
