@@ -432,7 +432,7 @@ function callGateway(
                   additionalProperties: false,
                 },
               },
-              required: ['name_matches', 'confidence', 'reason', 'animal_name', 'scientific_name', 'category', 'description', 'habitat', 'diet', 'conservation', 'fun_fact', 'rarity'],
+              required: ['is_real_photo', 'image_type', 'name_matches', 'confidence', 'reason', 'animal_name', 'scientific_name', 'category', 'description', 'habitat', 'diet', 'conservation', 'fun_fact', 'rarity'],
               additionalProperties: false,
             },
           },
