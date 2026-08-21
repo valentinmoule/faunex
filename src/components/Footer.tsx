@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { BookOpen, FileText, Home, Mail, Receipt, Sparkles, Tag, UserPlus } from 'lucide-react';
+import { BookOpen, FileText, Home, Lock, Mail, Receipt, Sparkles, Tag, UserPlus } from 'lucide-react';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -55,6 +55,11 @@ const Footer = () => {
               <li>
                 <Link to="/legal" className="text-sm text-muted-foreground hover:text-primary transition-colors font-body inline-flex items-center gap-2">
                   <FileText className="w-4 h-4" /> Mentions légales & CGU
+                </Link>
+              </li>
+              <li>
+                <Link to="/confidentialite" className="text-sm text-muted-foreground hover:text-primary transition-colors font-body inline-flex items-center gap-2">
+                  <Lock className="w-4 h-4" /> Politique de confidentialité
                 </Link>
               </li>
               <li>
