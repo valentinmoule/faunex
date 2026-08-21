@@ -538,6 +538,27 @@ serve(async (req) => {
       }
     }
 
+    // 3) Contrôle d'authenticité : une illustration, un logo, un dessin ou une
+    // capture d'écran représentant un animal n'est jamais une capture valide.
+    // Le verdict retenu est celui du dernier modèle exécuté (le modèle profond
+    // repasse systématiquement sur les cas à confiance faible, dont ceux-ci).
+    const imageType = typeof animalData?.image_type === "string" ? animalData.image_type : null;
+    const notRealPhoto =
+      animalData?.is_real_photo === false || (imageType !== null && imageType !== "photo_reelle");
+
+    if (animalData && notRealPhoto) {
+      console.log("rejected non-photographic image", imageType);
+      return new Response(
+        JSON.stringify({
+          success: false,
+          reason: "not_a_real_photo",
+          image_type: imageType,
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
+
     if (!animalData) {
       if (response && !response.ok) {
         if (response.status === 429) {
