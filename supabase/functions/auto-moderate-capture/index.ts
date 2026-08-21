@@ -245,8 +245,13 @@ async function examine(
   const matches = verdict.name_matches === true
   const finalName = (verdict.animal_name || name).toString().trim()
   const unknown = norm(finalName) === 'inconnu' || !finalName
+  // Authenticité : une illustration / logo / dessin / capture d'écran n'est jamais
+  // une capture valide et ne doit jamais passer en auto-approbation.
+  const imageType = typeof verdict.image_type === 'string' ? verdict.image_type : null
+  const notRealPhoto = verdict.is_real_photo === false || (imageType !== null && imageType !== 'photo_reelle')
 
-  if (!matches || unknown || confidence < AUTO_APPROVE_THRESHOLD) {
+  if (!matches || unknown || notRealPhoto || confidence < AUTO_APPROVE_THRESHOLD) {
+
     // Dataset : prédiction non concluante → la capture reste en modération humaine.
     await logDatasetEvent(supabase, {
       event_type: 'auto_moderation_deferred',
