@@ -269,16 +269,22 @@ async function examine(
       label_scientific_name: capture.scientific_name || null,
       user_description: capture.description || null,
       location: capture.location || null,
-      decision_reason: verdict.reason ?? 'needs_human',
+      decision_reason: notRealPhoto
+        ? `not_a_real_photo:${imageType ?? 'unknown'}`
+        : (verdict.reason ?? 'needs_human'),
       is_ground_truth: false,
     })
     return {
       capture_id: capture.id,
       approved: false,
-      reason: 'needs_human',
+      reason: notRealPhoto ? 'not_a_real_photo' : 'needs_human',
+      image_type: imageType,
       confidence,
-      ai_note: verdict.reason ?? null,
+      ai_note: notRealPhoto
+        ? `Image non photographique (${imageType ?? 'type inconnu'}) : illustration/logo/dessin détecté.`
+        : (verdict.reason ?? null),
     }
+
   }
 
   // Le nom validé peut différer légèrement (race précisée) : on re-vérifie le doublon.
