@@ -167,7 +167,7 @@ Deno.serve(async (req) => {
 
     // Doublon : l'utilisateur possède déjà cette espèce (une capture par espèce).
     if (!skipDuplicateCheck) {
-      const dup = await findUserDuplicate(supabase, capture.user_id, captureId, animalName, null)
+      const dup = await findUserDuplicate(supabase, capture.user_id, captureId, animalName, overrideScientific)
       if (dup) {
         return json({
           error: `L'explorateur possède déjà « ${dup.animal_name} »${dup.scientific_name ? ` (${dup.scientific_name})` : ''} dans son bestiaire — même espèce que « ${animalName} ».`,
