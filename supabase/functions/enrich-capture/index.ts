@@ -349,7 +349,10 @@ Deno.serve(async (req) => {
     const animal = JSON.parse(toolCall.function.arguments)
 
     // Mode forcé : le nom du modérateur/observateur prime sur toute reformulation IA.
-    if (forceName) animal.animal_name = animalName
+    if (forceName) {
+      animal.animal_name = animalName
+      if (overrideScientific) animal.scientific_name = overrideScientific
+    }
 
     // Déduplication : si l'espèce existe déjà dans le bestiaire (nom commun OU nom
     // scientifique, insensible à la casse/accents/tirets), on réutilise la fiche
