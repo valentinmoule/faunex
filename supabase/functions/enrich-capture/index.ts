@@ -88,6 +88,11 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}))
     const captureId: string | undefined = body?.capture_id
     const overrideName: string | undefined = body?.animal_name
+    // Nom scientifique saisi par le modérateur (indice fort ou autorité en mode forcé).
+    const overrideScientific: string | null =
+      typeof body?.scientific_name === 'string' && body.scientific_name.trim()
+        ? body.scientific_name.trim()
+        : null
     // 'high' fait basculer sur un modèle plus performant quand le modèle léger échoue.
     const quality: string = body?.quality === 'high' ? 'high' : 'standard'
     const skipDuplicateCheck: boolean = body?.skip_duplicate_check === true
