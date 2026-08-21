@@ -523,16 +523,33 @@ const ModerationPage = () => {
                             onChange={e =>
                               setNameOverrides(prev => ({ ...prev, [capture.id]: e.target.value }))
                             }
-                            placeholder="Ex. Épagneul picard"
+                            placeholder="Nom commun — ex. Épagneul picard"
                             className="w-full px-3 py-2 rounded-lg border border-border bg-background text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
                           />
+                          <input
+                            value={scientificOverrides[capture.id] ?? ''}
+                            onChange={e =>
+                              setScientificOverrides(prev => ({ ...prev, [capture.id]: e.target.value }))
+                            }
+                            placeholder="Nom scientifique — ex. Canis lupus familiaris"
+                            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-xs italic text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+                          />
+                          <p className="text-[10px] text-muted-foreground">
+                            « Forcer » impose le nom (et le binôme s'il est saisi) sans reconnaissance d'image.
+                            « Vérifier avec l'IA » les utilise comme indices.
+                          </p>
                           <div className="flex gap-2">
                             <button
                               onClick={() =>
-                                prepareApprove(capture, 'standard', true, nameOverrides[capture.id])
+                                prepareApprove(
+                                  capture, 'standard', true,
+                                  nameOverrides[capture.id], scientificOverrides[capture.id],
+                                )
                               }
                               disabled={
-                                processing === capture.id || !(nameOverrides[capture.id] || '').trim()
+                                processing === capture.id ||
+                                !((nameOverrides[capture.id] || '').trim() ||
+                                  (scientificOverrides[capture.id] || '').trim())
                               }
                               className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-display font-semibold disabled:opacity-50"
                             >
@@ -540,10 +557,15 @@ const ModerationPage = () => {
                             </button>
                             <button
                               onClick={() =>
-                                prepareApprove(capture, 'standard', false, nameOverrides[capture.id])
+                                prepareApprove(
+                                  capture, 'standard', false,
+                                  nameOverrides[capture.id], scientificOverrides[capture.id],
+                                )
                               }
                               disabled={
-                                processing === capture.id || !(nameOverrides[capture.id] || '').trim()
+                                processing === capture.id ||
+                                !((nameOverrides[capture.id] || '').trim() ||
+                                  (scientificOverrides[capture.id] || '').trim())
                               }
                               className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-muted text-foreground text-xs font-display font-semibold disabled:opacity-50 hover:bg-muted/80 transition-colors"
                             >
