@@ -87,6 +87,8 @@ const ModerationPage = () => {
   const [failures, setFailures] = useState<Record<string, PrepareFailure>>({});
   /** Nom d'animal proposé par le modérateur, par capture. */
   const [nameOverrides, setNameOverrides] = useState<Record<string, string>>({});
+  /** Nom scientifique proposé par le modérateur, par capture. */
+  const [scientificOverrides, setScientificOverrides] = useState<Record<string, string>>({});
 
 
   useEffect(() => {
