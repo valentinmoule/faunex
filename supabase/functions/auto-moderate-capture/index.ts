@@ -27,6 +27,8 @@ Règles de vérification (sois strict) :
 - confidence = ta certitude réelle (0 à 1). N'utilise > 0.9 que si un expert n'hésiterait pas une seconde.
 - Si la photo est floue, trop lointaine, partielle, si plusieurs espèces ressemblantes sont possibles (biche/chevreuil, coccinelle asiatique/autochtone, races de chiens, passereaux…) ou si l'animal n'est pas visible : name_matches = false et confidence basse.
 - Si la photo montre un humain, un objet, une peluche, une plante ou aucun animal : name_matches = false, confidence 0.
+- AUTHENTICITÉ : la plateforme n'accepte que des PHOTOGRAPHIES RÉELLES prises par l'observateur. Une illustration, un dessin, un logo, une icône, un pictogramme, une mascotte, une peinture, un rendu 3D, une image générée par IA, une capture d'écran, une photo d'écran ou de page imprimée, un autocollant, un tatouage, une peluche ou une figurine représentant un animal N'EST PAS une photo d'animal. Indices : contours vectoriels nets, aplats de couleur, absence de grain photographique, ombres inexistantes ou parfaites, stylisation des yeux/oreilles, fond uni ou transparent, présence de texte/typographie/watermark, symétrie parfaite. Dans ce cas : image_type = le type réel, is_real_photo = false, name_matches = false, confidence 0.
+
 - Espèces réelles et vivantes uniquement : aucune créature de fiction (dragon, licorne, phénix…) ni espèce éteinte (dodo, mammouth, dinosaure…). Dans ce cas name_matches = false, confidence 0.
 - animal_name : reprends le nom de l'observateur normalisé (orthographe, casse, race précise si visible). Ne change jamais d'espèce.
 - Le nom scientifique doit être un binôme latin réel.
@@ -243,8 +245,13 @@ async function examine(
   const matches = verdict.name_matches === true
   const finalName = (verdict.animal_name || name).toString().trim()
   const unknown = norm(finalName) === 'inconnu' || !finalName
+  // Authenticité : une illustration / logo / dessin / capture d'écran n'est jamais
+  // une capture valide et ne doit jamais passer en auto-approbation.
+  const imageType = typeof verdict.image_type === 'string' ? verdict.image_type : null
+  const notRealPhoto = verdict.is_real_photo === false || (imageType !== null && imageType !== 'photo_reelle')
 
-  if (!matches || unknown || confidence < AUTO_APPROVE_THRESHOLD) {
+  if (!matches || unknown || notRealPhoto || confidence < AUTO_APPROVE_THRESHOLD) {
+
     // Dataset : prédiction non concluante → la capture reste en modération humaine.
     await logDatasetEvent(supabase, {
       event_type: 'auto_moderation_deferred',
@@ -262,16 +269,22 @@ async function examine(
       label_scientific_name: capture.scientific_name || null,
       user_description: capture.description || null,
       location: capture.location || null,
-      decision_reason: verdict.reason ?? 'needs_human',
+      decision_reason: notRealPhoto
+        ? `not_a_real_photo:${imageType ?? 'unknown'}`
+        : (verdict.reason ?? 'needs_human'),
       is_ground_truth: false,
     })
     return {
       capture_id: capture.id,
       approved: false,
-      reason: 'needs_human',
+      reason: notRealPhoto ? 'not_a_real_photo' : 'needs_human',
+      image_type: imageType,
       confidence,
-      ai_note: verdict.reason ?? null,
+      ai_note: notRealPhoto
+        ? `Image non photographique (${imageType ?? 'type inconnu'}) : illustration/logo/dessin détecté.`
+        : (verdict.reason ?? null),
     }
+
   }
 
   // Le nom validé peut différer légèrement (race précisée) : on re-vérifie le doublon.
@@ -381,12 +394,22 @@ function callGateway(
             parameters: {
               type: 'object',
               properties: {
+                is_real_photo: {
+                  type: 'boolean',
+                  description: "true seulement si l'image est une photographie réelle d'un animal vivant (grain photo, éclairage naturel, profondeur de champ). false pour illustration, dessin, logo, icône, mascotte, peinture, rendu 3D, image IA, capture d'écran, photo d'écran, autocollant, peluche ou figurine.",
+                },
+                image_type: {
+                  type: 'string',
+                  enum: ['photo_reelle', 'illustration', 'dessin', 'logo_icone', 'peinture', 'rendu_3d', 'image_generee_ia', 'capture_ecran', 'photo_ecran_ou_papier', 'jouet_peluche_figurine', 'autre'],
+                  description: "Nature réelle de l'image.",
+                },
                 name_matches: {
                   type: 'boolean',
                   description: 'true seulement si la photo montre sans ambiguïté l\'animal nommé.',
                 },
                 confidence: {
                   type: 'number',
+
                   minimum: 0,
                   maximum: 1,
                   description: 'Certitude réelle de la vérification (0 à 1).',
@@ -420,7 +443,7 @@ function callGateway(
                   additionalProperties: false,
                 },
               },
-              required: ['name_matches', 'confidence', 'reason', 'animal_name', 'scientific_name', 'category', 'description', 'habitat', 'diet', 'conservation', 'fun_fact', 'rarity'],
+              required: ['is_real_photo', 'image_type', 'name_matches', 'confidence', 'reason', 'animal_name', 'scientific_name', 'category', 'description', 'habitat', 'diet', 'conservation', 'fun_fact', 'rarity'],
               additionalProperties: false,
             },
           },

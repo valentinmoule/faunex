@@ -7,7 +7,22 @@ import { logDatasetEvent, setPendingImageHash } from '@/lib/dataset';
 type IdentifyOutcome =
   | { status: 'identified'; animal: AnimalResult }
   | { status: 'unknown'; hint?: string }
+  | { status: 'not_photo'; message: string }
   | { status: 'error'; message: string };
+
+/** Libellés lisibles des types d'images non photographiques refusés. */
+const IMAGE_TYPE_LABELS: Record<string, string> = {
+  illustration: 'une illustration',
+  dessin: 'un dessin',
+  logo_icone: 'un logo ou une icône',
+  peinture: 'une peinture',
+  rendu_3d: 'une image de synthèse',
+  image_generee_ia: 'une image générée par IA',
+  capture_ecran: "une capture d'écran",
+  photo_ecran_ou_papier: "la photo d'un écran ou d'une image imprimée",
+  jouet_peluche_figurine: 'un jouet, une peluche ou une figurine',
+};
+
 
 const normalize = (v?: string | null) =>
   (v || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -165,7 +180,20 @@ export const useAnimalIdentification = () => {
             if (error) throw error;
 
 
+            // Image non photographique (illustration, logo, dessin, capture
+            // d'écran…) : refus net, sans bascule vers la saisie manuelle pour
+            // ne pas laisser passer un faux positif en modération.
+            if (data?.reason === 'not_a_real_photo') {
+              const label = IMAGE_TYPE_LABELS[String(data?.image_type ?? '')] ?? 'une image graphique';
+              return {
+                status: 'not_photo',
+                message: `Cette image semble être ${label}, pas une photo d'animal prise sur le terrain. Faunex n'accepte que de vraies photographies : prends une photo de l'animal réel pour l'ajouter à ta collection.`,
+              };
+            }
+
             const animal = data?.success ? (data.animal as AnimalResult | undefined) : undefined;
+
+
 
             if (!animal || !animal.animal_name) {
               // Réponse valide mais sans animal exploitable → vraie non-reconnaissance.

@@ -42,6 +42,9 @@ const CapturePage = () => {
   /** Non-null quand l'utilisateur contexte l'identification IA et demande une vérification humaine. */
   const [disputedResult, setDisputedResult] = useState<AnimalResult | null>(null);
   const [identifyError, setIdentifyError] = useState<string | null>(null);
+  /** Image refusée (illustration, logo, dessin, capture d'écran…) : pas de saisie manuelle. */
+  const [rejectedImage, setRejectedImage] = useState<string | null>(null);
+
   const [manualName, setManualName] = useState('');
   const [manualSpecies, setManualSpecies] = useState('');
   const [manualDescription, setManualDescription] = useState('');
@@ -100,6 +103,7 @@ const CapturePage = () => {
     setAnimalResult(null);
     setSaved(false);
     setIdentifyError(null);
+    setRejectedImage(null);
     setManualMode(false);
     setTaxonHint(null);
     setDisputedResult(null);
@@ -111,6 +115,8 @@ const CapturePage = () => {
         triggerReveal(outcome.animal);
       } else if (outcome.status === 'error') {
         setIdentifyError(outcome.message);
+      } else if (outcome.status === 'not_photo') {
+        setRejectedImage(outcome.message);
       } else {
         setTaxonHint(outcome.hint ?? null);
         setManualMode(true);
@@ -125,12 +131,15 @@ const CapturePage = () => {
     if (!capturedPhoto || identifyingRef.current) return;
     identifyingRef.current = true;
     setIdentifyError(null);
+    setRejectedImage(null);
     try {
       const outcome = await identify(capturedPhoto);
       if (outcome.status === 'identified') {
         triggerReveal(outcome.animal);
       } else if (outcome.status === 'error') {
         setIdentifyError(outcome.message);
+      } else if (outcome.status === 'not_photo') {
+        setRejectedImage(outcome.message);
       } else {
         setTaxonHint(outcome.hint ?? null);
         setManualMode(true);
@@ -139,6 +148,7 @@ const CapturePage = () => {
       identifyingRef.current = false;
     }
   }, [capturedPhoto, identify, triggerReveal]);
+
 
 
 
@@ -173,6 +183,8 @@ const CapturePage = () => {
     setManualMode(false);
     setDisputedResult(null);
     setIdentifyError(null);
+    setRejectedImage(null);
+
 
     setManualName('');
     setManualSpecies('');
@@ -363,7 +375,7 @@ const CapturePage = () => {
         )}
 
         {/* Overlay gradient for readability */}
-        {(animalResult || identifying || manualMode || identifyError || revealPhase === 'freeze' || revealPhase === 'shaking') && (
+        {(animalResult || identifying || manualMode || identifyError || rejectedImage || revealPhase === 'freeze' || revealPhase === 'shaking') && (
           <div className={`absolute inset-0 transition-opacity duration-300 ${
             revealPhase === 'freeze' ? 'bg-black/60' :
             revealPhase === 'shaking' ? 'bg-gradient-to-t from-black/90 via-black/60 to-black/40' :
@@ -668,6 +680,27 @@ const CapturePage = () => {
             </div>
           </div>
         )}
+
+        {/* Image non photographique (illustration, logo, dessin, capture d'écran) :
+            refus explicite, aucune bascule vers la saisie manuelle. */}
+        {rejectedImage && !identifying && !animalResult && (
+          <div className="relative z-20 flex-1 flex flex-col justify-end px-5 pb-4">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <ShieldQuestion className="w-5 h-5 text-amber" />
+                <h2 className="text-lg font-display font-bold text-primary-foreground">Image refusée</h2>
+              </div>
+              <p className="text-primary-foreground/90 text-sm">{rejectedImage}</p>
+              <button
+                onClick={resetCapture}
+                className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-display font-semibold text-sm flex items-center justify-center gap-2"
+              >
+                <RefreshCw className="w-4 h-4" /> Reprendre une photo
+              </button>
+            </div>
+          </div>
+        )}
+
 
         {/* Manual entry form when AI can't identify */}
 

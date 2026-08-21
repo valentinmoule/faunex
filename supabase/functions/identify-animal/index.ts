@@ -238,15 +238,31 @@ Applique la même rigueur à tous les groupes d'espèces proches (mésanges, pou
 Si l'image ne contient pas d'animal → animal_name "Inconnu" et confidence 0.
 
 
+### AUTHENTICITÉ DE L'IMAGE (contrôle prioritaire, AVANT toute identification)
+Faunex n'accepte que des PHOTOGRAPHIES RÉELLES d'animaux prises par l'utilisateur.
+Commence par déterminer la nature de l'image et renseigne \`image_type\` + \`is_real_photo\`.
+Ne sont PAS des photographies réelles (is_real_photo = false) :
+- illustration, dessin, croquis, bande dessinée, art vectoriel, sticker, emoji, clipart
+- logo, icône, pictogramme, mascotte, blason, enseigne, packaging, affiche
+- peinture, aquarelle, gravure, tatouage, broderie, sculpture, statue, taxidermie
+- rendu 3D, image de synthèse, image générée par IA, personnage de jeu vidéo
+- capture d'écran, photo d'un écran, d'un livre, d'un poster ou d'une page imprimée
+- jouet, peluche, figurine, animal en plastique
+Indices d'image non photographique : contours nets et réguliers de type vectoriel, aplats de couleur uniformes, absence totale de grain/bruit photographique, absence de profondeur de champ, ombres inexistantes ou trop parfaites, stylisation ou simplification des yeux/oreilles/pattes, proportions caricaturales, fond uni, blanc pur ou transparent, présence de texte, typographie, watermark ou cadre graphique, symétrie parfaite.
+Indices de vraie photo : grain/bruit du capteur, flou de profondeur, micro-détails de pelage/plumage/écailles, éclairage naturel irrégulier, arrière-plan réel désordonné (végétation, sol, textures).
+Le doute profite à la rigueur : si l'image ressemble à un rendu graphique ou stylisé, is_real_photo = false.
+Quand is_real_photo = false → animal_name "Inconnu", confidence 0, aucune alternative, MÊME si l'animal représenté est parfaitement reconnaissable (ex : un logo de renard n'est PAS un renard roux).
+
 ### INTERDICTION ABSOLUE : ANIMAUX FANTASTIQUES, INVENTÉS OU DISPARUS
 Seules les espèces réelles et actuellement vivantes sont valides.
 - JAMAIS de créature imaginaire, mythologique, de fiction ou de jeu (dragon, licorne, phénix, griffon, kraken, sirène, yéti, chimère, Pokémon, etc.).
 - JAMAIS d'espèce éteinte ou préhistorique (dodo, tyrannosaure/dinosaures, mammouth, thylacine, grand pingouin, aurochs, smilodon, moa, etc.).
 - JAMAIS de nom scientifique inventé (ex: "Creatura ficta", "Oleaopteryx oleae"). Le nom latin doit être un binôme réel, publié et vérifiable dans les référentiels taxonomiques (GBIF, ITIS). Si tu n'es pas certain du binôme exact, remonte au genre ou à la famille réels (ex: "Miridae") plutôt que d'inventer une combinaison.
 - JAMAIS de nom commun composite inventé (ex: "punaise de lit de l'olivier"). Utilise uniquement des noms vernaculaires réellement employés.
-- Un jouet, une peluche, une statue, un dessin ou une illustration d'animal n'est PAS une capture valide.
+- Un jouet, une peluche, une statue, un dessin, un logo ou une illustration d'animal n'est PAS une capture valide.
 Si le sujet correspond à l'un de ces cas → animal_name "Inconnu", confidence 0, aucune alternative.
 Exception : les espèces réelles portant "dragon" dans leur nom commun sont valides (Dragon de Komodo, Dragon barbu, Dragon volant).
+
 
 ### RÈGLE TAXONOMIQUE STRICTE (priorité absolue)
 Le nom scientifique n'est JAMAIS déduit, traduit ou fabriqué à partir du nom vernaculaire, ni d'un genre qui "ressemble", ni d'une combinaison de termes plausibles (nom d'hôte, de plante, de lieu latinisé).
@@ -335,7 +351,7 @@ serve(async (req) => {
             content: [
               {
                 type: "text",
-                text: "Analyse cette photo en détail et identifie l'animal avec la plus grande précision possible. Examine attentivement la morphologie, le pelage/plumage, les proportions et tout trait distinctif. Si c'est un chat ou un chien, détermine la race exacte. Évalue ta confiance honnêtement et propose des alternatives si tu n'es pas sûr."
+                text: "Étape 1 — Détermine d'abord la nature de l'image : est-ce une VRAIE PHOTOGRAPHIE (grain, profondeur de champ, arrière-plan réel) ou une illustration / dessin / logo / icône / mascotte / peinture / rendu 3D / image IA / capture d'écran / photo d'écran ou de papier / peluche ou figurine ? Renseigne image_type et is_real_photo. Si ce n'est pas une vraie photo, réponds animal_name \"Inconnu\" et confidence 0, même si l'animal est reconnaissable. Étape 2 — Seulement si c'est une vraie photo : identifie l'animal avec la plus grande précision possible (morphologie, pelage/plumage, proportions, traits distinctifs ; race exacte pour un chat ou un chien). Évalue ta confiance honnêtement et propose des alternatives si tu n'es pas sûr."
               },
               { type: "image_url", image_url: { url: imageUrl } }
             ]
@@ -350,7 +366,17 @@ serve(async (req) => {
               parameters: {
                 type: "object",
                 properties: {
+                  is_real_photo: {
+                    type: "boolean",
+                    description: "true UNIQUEMENT si l'image est une photographie réelle prise par l'utilisateur (grain photo, profondeur de champ, éclairage naturel). false pour illustration, dessin, logo, icône, mascotte, sticker, peinture, tatouage, rendu 3D, image générée par IA, capture d'écran, photo d'écran/livre/poster, jouet, peluche, figurine, statue ou taxidermie."
+                  },
+                  image_type: {
+                    type: "string",
+                    enum: ["photo_reelle", "illustration", "dessin", "logo_icone", "peinture", "rendu_3d", "image_generee_ia", "capture_ecran", "photo_ecran_ou_papier", "jouet_peluche_figurine", "autre"],
+                    description: "Nature réelle de l'image analysée."
+                  },
                   animal_name: {
+
                     type: "string",
                     description: "Nom précis en français. Pour les domestiques: nom de la race (ex: 'Golden Retriever', 'Maine Coon'). Pour la faune sauvage: nom commun précis (ex: 'Mésange bleue')."
                   },
@@ -417,7 +443,7 @@ serve(async (req) => {
                     additionalProperties: false
                   }
                 },
-                required: ["animal_name", "scientific_name", "category", "description", "habitat", "diet", "conservation", "fun_fact", "rarity", "confidence"],
+                required: ["is_real_photo", "image_type", "animal_name", "scientific_name", "category", "description", "habitat", "diet", "conservation", "fun_fact", "rarity", "confidence"],
                 additionalProperties: false
               }
             }
@@ -511,6 +537,27 @@ serve(async (req) => {
         response = response?.ok ? response : deep;
       }
     }
+
+    // 3) Contrôle d'authenticité : une illustration, un logo, un dessin ou une
+    // capture d'écran représentant un animal n'est jamais une capture valide.
+    // Le verdict retenu est celui du dernier modèle exécuté (le modèle profond
+    // repasse systématiquement sur les cas à confiance faible, dont ceux-ci).
+    const imageType = typeof animalData?.image_type === "string" ? animalData.image_type : null;
+    const notRealPhoto =
+      animalData?.is_real_photo === false || (imageType !== null && imageType !== "photo_reelle");
+
+    if (animalData && notRealPhoto) {
+      console.log("rejected non-photographic image", imageType);
+      return new Response(
+        JSON.stringify({
+          success: false,
+          reason: "not_a_real_photo",
+          image_type: imageType,
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
 
     if (!animalData) {
       if (response && !response.ok) {
