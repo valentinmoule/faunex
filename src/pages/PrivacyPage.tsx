@@ -45,7 +45,7 @@ const PrivacyPage = () => {
         <section>
           <h2 className="text-lg font-display font-bold text-foreground mb-2">1. Qui sommes-nous ?</h2>
           <p>
-            <strong>Faunex</strong> est une application web progressive (PWA) d'identification et de collection de la faune sauvage, éditée par :
+            <strong>Faunex</strong> est une application d'identification et de collection de la faune sauvage, disponible sur le web et en tant qu'application mobile, éditée par :
           </p>
           <ul className="mt-2 space-y-1 list-none">
             <li><strong>Responsable du traitement :</strong> Valentin Moulay</li>
