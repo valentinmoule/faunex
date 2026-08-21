@@ -366,7 +366,17 @@ serve(async (req) => {
               parameters: {
                 type: "object",
                 properties: {
+                  is_real_photo: {
+                    type: "boolean",
+                    description: "true UNIQUEMENT si l'image est une photographie réelle prise par l'utilisateur (grain photo, profondeur de champ, éclairage naturel). false pour illustration, dessin, logo, icône, mascotte, sticker, peinture, tatouage, rendu 3D, image générée par IA, capture d'écran, photo d'écran/livre/poster, jouet, peluche, figurine, statue ou taxidermie."
+                  },
+                  image_type: {
+                    type: "string",
+                    enum: ["photo_reelle", "illustration", "dessin", "logo_icone", "peinture", "rendu_3d", "image_generee_ia", "capture_ecran", "photo_ecran_ou_papier", "jouet_peluche_figurine", "autre"],
+                    description: "Nature réelle de l'image analysée."
+                  },
                   animal_name: {
+
                     type: "string",
                     description: "Nom précis en français. Pour les domestiques: nom de la race (ex: 'Golden Retriever', 'Maine Coon'). Pour la faune sauvage: nom commun précis (ex: 'Mésange bleue')."
                   },
