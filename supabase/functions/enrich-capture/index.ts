@@ -372,7 +372,10 @@ Deno.serve(async (req) => {
       if (!forceName || norm(existing.name) === norm(animalName)) {
         animal.animal_name = existing.name || animal.animal_name
       }
-      animal.scientific_name = existing.scientific_name || animal.scientific_name
+      // En mode forcé, le binôme saisi par le modérateur reste prioritaire.
+      if (!(forceName && overrideScientific)) {
+        animal.scientific_name = existing.scientific_name || animal.scientific_name
+      }
       animal.category = existing.category || animal.category
       animal.rarity = existing.rarity || animal.rarity
     }
