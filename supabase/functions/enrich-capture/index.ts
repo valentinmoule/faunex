@@ -88,6 +88,11 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}))
     const captureId: string | undefined = body?.capture_id
     const overrideName: string | undefined = body?.animal_name
+    // Nom scientifique saisi par le modérateur (indice fort ou autorité en mode forcé).
+    const overrideScientific: string | null =
+      typeof body?.scientific_name === 'string' && body.scientific_name.trim()
+        ? body.scientific_name.trim()
+        : null
     // 'high' fait basculer sur un modèle plus performant quand le modèle léger échoue.
     const quality: string = body?.quality === 'high' ? 'high' : 'standard'
     const skipDuplicateCheck: boolean = body?.skip_duplicate_check === true
@@ -162,7 +167,7 @@ Deno.serve(async (req) => {
 
     // Doublon : l'utilisateur possède déjà cette espèce (une capture par espèce).
     if (!skipDuplicateCheck) {
-      const dup = await findUserDuplicate(supabase, capture.user_id, captureId, animalName, null)
+      const dup = await findUserDuplicate(supabase, capture.user_id, captureId, animalName, overrideScientific)
       if (dup) {
         return json({
           error: `L'explorateur possède déjà « ${dup.animal_name} »${dup.scientific_name ? ` (${dup.scientific_name})` : ''} dans son bestiaire — même espèce que « ${animalName} ».`,
@@ -178,6 +183,9 @@ Deno.serve(async (req) => {
     const userText = forceName
       ? [
           `Nom d'animal validé par le modérateur (autorité absolue, à conserver tel quel) : "${animalName}".`,
+          overrideScientific
+            ? `Nom scientifique imposé par le modérateur (autorité absolue, à conserver tel quel) : "${overrideScientific}".`
+            : null,
           capture.description
             ? `Description de l'observateur (contexte utile pour la fiche) : "${String(capture.description).slice(0, 1500)}".`
             : null,
@@ -186,6 +194,9 @@ Deno.serve(async (req) => {
         ].filter(Boolean).join('\n')
       : [
           `Nom proposé par l'observateur (validé par le modérateur) : "${animalName}".`,
+          overrideScientific
+            ? `Nom scientifique proposé par le modérateur (indice très fiable) : "${overrideScientific}".`
+            : null,
           capture.description
             ? `Description de l'observateur (indices de terrain à prendre en compte pour l'identification) : "${String(capture.description).slice(0, 1500)}".`
             : "L'observateur n'a pas fourni de description : appuie-toi uniquement sur la photo et le nom proposé.",
@@ -338,7 +349,10 @@ Deno.serve(async (req) => {
     const animal = JSON.parse(toolCall.function.arguments)
 
     // Mode forcé : le nom du modérateur/observateur prime sur toute reformulation IA.
-    if (forceName) animal.animal_name = animalName
+    if (forceName) {
+      animal.animal_name = animalName
+      if (overrideScientific) animal.scientific_name = overrideScientific
+    }
 
     // Déduplication : si l'espèce existe déjà dans le bestiaire (nom commun OU nom
     // scientifique, insensible à la casse/accents/tirets), on réutilise la fiche
@@ -358,7 +372,10 @@ Deno.serve(async (req) => {
       if (!forceName || norm(existing.name) === norm(animalName)) {
         animal.animal_name = existing.name || animal.animal_name
       }
-      animal.scientific_name = existing.scientific_name || animal.scientific_name
+      // En mode forcé, le binôme saisi par le modérateur reste prioritaire.
+      if (!(forceName && overrideScientific)) {
+        animal.scientific_name = existing.scientific_name || animal.scientific_name
+      }
       animal.category = existing.category || animal.category
       animal.rarity = existing.rarity || animal.rarity
     }
