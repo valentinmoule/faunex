@@ -1,0 +1,1 @@
+DELETE FROM public.subscriptions WHERE paddle_subscription_id = 'manual_gift_qwerty_1y';
