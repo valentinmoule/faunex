@@ -396,8 +396,9 @@ function callGateway(
                   type: 'boolean',
                   description: 'true seulement si la photo montre sans ambiguïté l\'animal nommé.',
                 },
-
+                confidence: {
                   type: 'number',
+
                   minimum: 0,
                   maximum: 1,
                   description: 'Certitude réelle de la vérification (0 à 1).',
