@@ -681,6 +681,27 @@ const CapturePage = () => {
           </div>
         )}
 
+        {/* Image non photographique (illustration, logo, dessin, capture d'écran) :
+            refus explicite, aucune bascule vers la saisie manuelle. */}
+        {rejectedImage && !identifying && !animalResult && (
+          <div className="relative z-20 flex-1 flex flex-col justify-end px-5 pb-4">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <ShieldQuestion className="w-5 h-5 text-amber" />
+                <h2 className="text-lg font-display font-bold text-primary-foreground">Image refusée</h2>
+              </div>
+              <p className="text-primary-foreground/90 text-sm">{rejectedImage}</p>
+              <button
+                onClick={resetCapture}
+                className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-display font-semibold text-sm flex items-center justify-center gap-2"
+              >
+                <RefreshCw className="w-4 h-4" /> Reprendre une photo
+              </button>
+            </div>
+          </div>
+        )}
+
+
         {/* Manual entry form when AI can't identify */}
 
         {manualMode && !identifying && !animalResult && (
