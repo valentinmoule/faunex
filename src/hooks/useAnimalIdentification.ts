@@ -180,7 +180,20 @@ export const useAnimalIdentification = () => {
             if (error) throw error;
 
 
+            // Image non photographique (illustration, logo, dessin, capture
+            // d'écran…) : refus net, sans bascule vers la saisie manuelle pour
+            // ne pas laisser passer un faux positif en modération.
+            if (data?.reason === 'not_a_real_photo') {
+              const label = IMAGE_TYPE_LABELS[String(data?.image_type ?? '')] ?? 'une image graphique';
+              return {
+                status: 'not_photo',
+                message: `Cette image semble être ${label}, pas une photo d'animal prise sur le terrain. Faunex n'accepte que de vraies photographies : prends une photo de l'animal réel pour l'ajouter à ta collection.`,
+              };
+            }
+
             const animal = data?.success ? (data.animal as AnimalResult | undefined) : undefined;
+
+
 
             if (!animal || !animal.animal_name) {
               // Réponse valide mais sans animal exploitable → vraie non-reconnaissance.
