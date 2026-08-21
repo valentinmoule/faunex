@@ -238,15 +238,31 @@ Applique la même rigueur à tous les groupes d'espèces proches (mésanges, pou
 Si l'image ne contient pas d'animal → animal_name "Inconnu" et confidence 0.
 
 
+### AUTHENTICITÉ DE L'IMAGE (contrôle prioritaire, AVANT toute identification)
+Faunex n'accepte que des PHOTOGRAPHIES RÉELLES d'animaux prises par l'utilisateur.
+Commence par déterminer la nature de l'image et renseigne \`image_type\` + \`is_real_photo\`.
+Ne sont PAS des photographies réelles (is_real_photo = false) :
+- illustration, dessin, croquis, bande dessinée, art vectoriel, sticker, emoji, clipart
+- logo, icône, pictogramme, mascotte, blason, enseigne, packaging, affiche
+- peinture, aquarelle, gravure, tatouage, broderie, sculpture, statue, taxidermie
+- rendu 3D, image de synthèse, image générée par IA, personnage de jeu vidéo
+- capture d'écran, photo d'un écran, d'un livre, d'un poster ou d'une page imprimée
+- jouet, peluche, figurine, animal en plastique
+Indices d'image non photographique : contours nets et réguliers de type vectoriel, aplats de couleur uniformes, absence totale de grain/bruit photographique, absence de profondeur de champ, ombres inexistantes ou trop parfaites, stylisation ou simplification des yeux/oreilles/pattes, proportions caricaturales, fond uni, blanc pur ou transparent, présence de texte, typographie, watermark ou cadre graphique, symétrie parfaite.
+Indices de vraie photo : grain/bruit du capteur, flou de profondeur, micro-détails de pelage/plumage/écailles, éclairage naturel irrégulier, arrière-plan réel désordonné (végétation, sol, textures).
+Le doute profite à la rigueur : si l'image ressemble à un rendu graphique ou stylisé, is_real_photo = false.
+Quand is_real_photo = false → animal_name "Inconnu", confidence 0, aucune alternative, MÊME si l'animal représenté est parfaitement reconnaissable (ex : un logo de renard n'est PAS un renard roux).
+
 ### INTERDICTION ABSOLUE : ANIMAUX FANTASTIQUES, INVENTÉS OU DISPARUS
 Seules les espèces réelles et actuellement vivantes sont valides.
 - JAMAIS de créature imaginaire, mythologique, de fiction ou de jeu (dragon, licorne, phénix, griffon, kraken, sirène, yéti, chimère, Pokémon, etc.).
 - JAMAIS d'espèce éteinte ou préhistorique (dodo, tyrannosaure/dinosaures, mammouth, thylacine, grand pingouin, aurochs, smilodon, moa, etc.).
 - JAMAIS de nom scientifique inventé (ex: "Creatura ficta", "Oleaopteryx oleae"). Le nom latin doit être un binôme réel, publié et vérifiable dans les référentiels taxonomiques (GBIF, ITIS). Si tu n'es pas certain du binôme exact, remonte au genre ou à la famille réels (ex: "Miridae") plutôt que d'inventer une combinaison.
 - JAMAIS de nom commun composite inventé (ex: "punaise de lit de l'olivier"). Utilise uniquement des noms vernaculaires réellement employés.
-- Un jouet, une peluche, une statue, un dessin ou une illustration d'animal n'est PAS une capture valide.
+- Un jouet, une peluche, une statue, un dessin, un logo ou une illustration d'animal n'est PAS une capture valide.
 Si le sujet correspond à l'un de ces cas → animal_name "Inconnu", confidence 0, aucune alternative.
 Exception : les espèces réelles portant "dragon" dans leur nom commun sont valides (Dragon de Komodo, Dragon barbu, Dragon volant).
+
 
 ### RÈGLE TAXONOMIQUE STRICTE (priorité absolue)
 Le nom scientifique n'est JAMAIS déduit, traduit ou fabriqué à partir du nom vernaculaire, ni d'un genre qui "ressemble", ni d'une combinaison de termes plausibles (nom d'hôte, de plante, de lieu latinisé).
