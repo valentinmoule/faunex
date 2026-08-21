@@ -183,6 +183,9 @@ Deno.serve(async (req) => {
     const userText = forceName
       ? [
           `Nom d'animal validé par le modérateur (autorité absolue, à conserver tel quel) : "${animalName}".`,
+          overrideScientific
+            ? `Nom scientifique imposé par le modérateur (autorité absolue, à conserver tel quel) : "${overrideScientific}".`
+            : null,
           capture.description
             ? `Description de l'observateur (contexte utile pour la fiche) : "${String(capture.description).slice(0, 1500)}".`
             : null,
@@ -191,6 +194,9 @@ Deno.serve(async (req) => {
         ].filter(Boolean).join('\n')
       : [
           `Nom proposé par l'observateur (validé par le modérateur) : "${animalName}".`,
+          overrideScientific
+            ? `Nom scientifique proposé par le modérateur (indice très fiable) : "${overrideScientific}".`
+            : null,
           capture.description
             ? `Description de l'observateur (indices de terrain à prendre en compte pour l'identification) : "${String(capture.description).slice(0, 1500)}".`
             : "L'observateur n'a pas fourni de description : appuie-toi uniquement sur la photo et le nom proposé.",
