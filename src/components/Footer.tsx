@@ -58,6 +58,11 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
+                <Link to="/confidentialite" className="text-sm text-muted-foreground hover:text-primary transition-colors font-body inline-flex items-center gap-2">
+                  <Lock className="w-4 h-4" /> Politique de confidentialité
+                </Link>
+              </li>
+              <li>
                 <Link to="/auth?mode=signup" className="text-sm text-muted-foreground hover:text-primary transition-colors font-body inline-flex items-center gap-2">
                   <UserPlus className="w-4 h-4" /> Créer un compte
                 </Link>

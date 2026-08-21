@@ -226,6 +226,7 @@ const SettingsPage = () => {
             <MenuItem icon={<Share2 className="w-5 h-5" />} label="Partager mon profil" onClick={handleShare} />
             <MenuItem icon={<MessageCircle className="w-5 h-5" />} label="Communauté Discord" onClick={() => window.open('https://discord.gg/ZrQhZUZG2', '_blank', 'noopener,noreferrer')} />
             <MenuItem icon={<Scale className="w-5 h-5" />} label="Mentions légales" onClick={() => navigate('/legal')} />
+            <MenuItem icon={<Lock className="w-5 h-5" />} label="Politique de confidentialité" onClick={() => navigate('/confidentialite')} />
             {!isNative && !isInstalled && (
               <MenuItem
                 icon={<Smartphone className="w-5 h-5" />}
