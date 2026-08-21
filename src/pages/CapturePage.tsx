@@ -183,6 +183,8 @@ const CapturePage = () => {
     setManualMode(false);
     setDisputedResult(null);
     setIdentifyError(null);
+    setRejectedImage(null);
+
 
     setManualName('');
     setManualSpecies('');
