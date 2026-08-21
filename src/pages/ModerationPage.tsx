@@ -134,6 +134,8 @@ const ModerationPage = () => {
     forceName = false,
     /** Nom saisi par le modérateur : remplace celui de l'explorateur. */
     nameOverride?: string,
+    /** Nom scientifique saisi par le modérateur. */
+    scientificOverride?: string,
   ) => {
 
     setProcessing(capture.id);
@@ -158,6 +160,7 @@ const ModerationPage = () => {
           body: {
             capture_id: capture.id,
             animal_name: (nameOverride?.trim() || capture.animal_name),
+            scientific_name: (scientificOverride?.trim() || undefined),
             quality,
             force_name: forceName,
           },
