@@ -141,8 +141,9 @@ const CapturePage = () => {
         triggerReveal(outcome.animal);
       } else if (outcome.status === 'error') {
         setIdentifyError(outcome.message);
-      } else if (outcome.status === 'not_photo') {
-        setRejectedImage(outcome.message);
+      } else if (outcome.status === 'rejected') {
+        setRejectedImage({ kind: outcome.kind, title: outcome.title, message: outcome.message });
+
       } else {
         setTaxonHint(outcome.hint ?? null);
         setManualMode(true);
