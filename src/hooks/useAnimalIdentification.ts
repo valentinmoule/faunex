@@ -4,10 +4,13 @@ import { compressForAI, dataUrlBytes, hashDataUrl } from '@/lib/imageProcessing'
 import type { AnimalResult } from '@/types/capture';
 import { logDatasetEvent, setPendingImageHash } from '@/lib/dataset';
 
+/** Motifs de refus explicites (l'utilisateur peut toujours demander une modération). */
+export type RejectionKind = 'representation' | 'internet' | 'human';
+
 type IdentifyOutcome =
   | { status: 'identified'; animal: AnimalResult }
   | { status: 'unknown'; hint?: string }
-  | { status: 'not_photo'; message: string }
+  | { status: 'rejected'; kind: RejectionKind; title: string; message: string }
   | { status: 'error'; message: string };
 
 /** Libellés lisibles des types d'images non photographiques refusés. */
@@ -23,6 +26,10 @@ const IMAGE_TYPE_LABELS: Record<string, string> = {
   jouet_peluche_figurine: 'un jouet, une peluche ou une figurine',
   objet_representation: 'un objet représentant un animal (statue, décoration, souvenir…)',
 };
+
+/** Types d'images qui trahissent une photo récupérée en ligne plutôt qu'une observation. */
+const INTERNET_IMAGE_TYPES = ['capture_ecran', 'photo_ecran_ou_papier', 'image_generee_ia'];
+
 
 
 const normalize = (v?: string | null) =>
