@@ -194,9 +194,25 @@ async function examine(
     return { capture_id: capture.id, approved: false, reason: 'missing_data' }
   }
 
+
+  // Anti-doublon d'exécution : le trigger SQL et le lot planifié pouvaient
+  // examiner la même capture à quelques secondes d'intervalle, donc payer deux
+  // fois l'appel IA. Un événement dataset récent = examen déjà effectué.
+  const { data: recent } = await supabase
+    .from('ml_dataset_events')
+    .select('id')
+    .eq('capture_id', capture.id)
+    .eq('source', 'auto-moderate-capture')
+    .gte('created_at', new Date(Date.now() - 10 * 60_000).toISOString())
+    .limit(1)
+  if (recent && recent.length > 0) {
+    return { capture_id: capture.id, approved: false, reason: 'already_examined' }
+  }
+
   // Doublon : l'explorateur possède déjà cette espèce → décision humaine.
   const dup = await findUserDuplicate(supabase, capture.user_id, capture.id, name, capture.scientific_name)
   if (dup) return { capture_id: capture.id, approved: false, reason: 'duplicate' }
+
 
   const userText = [
     `Nom proposé par l'observateur : "${name}".`,
@@ -208,36 +224,67 @@ async function examine(
     'Vérifie si le nom proposé correspond à la photo, puis rédige la fiche.',
   ].filter(Boolean).join('\n')
 
-  let verdict: any = null
-  let usedModel: string | null = null
-  let blockedStatus: number | null = null
-  // Modération : on privilégie le modèle le plus performant, avec replis.
-  for (const model of ['google/gemini-2.5-pro', 'google/gemini-2.5-flash', 'google/gemini-2.5-flash-lite']) {
+  /** Une réponse est « concluante » si elle suffit à décider seule (approbation
+   *  franche, ou refus net type non-photo / espèce fictive / humain). */
+  const isConclusive = (v: any) => {
+    if (!v) return false
+    const c = Number(v.confidence) || 0
+    const imgType = typeof v.image_type === 'string' ? v.image_type : null
+    const notPhoto = v.is_real_photo === false || (imgType !== null && imgType !== 'photo_reelle')
+    if (notPhoto) return true
+    if (v.name_matches === true && c >= AUTO_APPROVE_THRESHOLD) return true
+    // Refus catégorique (le modèle est certain que ça ne correspond pas).
+    if (v.name_matches === false && c === 0) return true
+    return false
+  }
+
+  const askModel = async (model: string) => {
     try {
       const res = await callGateway(apiKey, model, userText, capture.image_url, 55_000)
       if (!res.ok) {
         console.error('auto-moderate gateway error', model, res.status, await res.text().catch(() => ''))
         // 402 (crédits épuisés) / 403 (bloqué) / 429 (quota) : inutile d'insister.
         if (res.status === 402 || res.status === 403 || res.status === 429) {
-          blockedStatus = res.status
-          break
+          return { verdict: null, blocked: res.status }
         }
-        continue
+        return { verdict: null, blocked: null }
       }
       const data = await res.json()
       const toolCall = data.choices?.[0]?.message?.tool_calls?.[0]
-      if (!toolCall) continue
-      verdict = JSON.parse(toolCall.function.arguments)
-      usedModel = model
-      break
+      if (!toolCall) return { verdict: null, blocked: null }
+      return { verdict: JSON.parse(toolCall.function.arguments), blocked: null }
     } catch (err) {
       console.error('auto-moderate gateway failure', model, String(err))
+      return { verdict: null, blocked: null }
+    }
+  }
+
+  let verdict: any = null
+  let usedModel: string | null = null
+  let blockedStatus: number | null = null
+
+  // Cascade coût/qualité : Flash tranche la grande majorité des cas de façon
+  // catégorique. On n'escalade vers Pro (≈4× plus cher) que sur les cas
+  // réellement ambigus, donc la qualité des décisions difficiles est conservée.
+  for (const model of ['google/gemini-2.5-flash', 'google/gemini-2.5-pro']) {
+    const { verdict: v, blocked } = await askModel(model)
+    if (blocked) {
+      blockedStatus = blocked
+      break
+    }
+    if (v) {
+      verdict = v
+      usedModel = model
+      if (isConclusive(v)) break
     }
   }
 
   if (!verdict) {
     return { capture_id: capture.id, approved: false, reason: 'ai_unavailable', blocked_status: blockedStatus }
   }
+
+
+
 
 
 
