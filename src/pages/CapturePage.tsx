@@ -724,9 +724,9 @@ const CapturePage = () => {
           <div className="relative z-20 flex-1 flex flex-col justify-end px-5 pb-4">
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                {disputedResult ? <ShieldQuestion className="w-5 h-5 text-amber" /> : <PenLine className="w-5 h-5 text-amber" />}
+                {disputedResult || rejectedImage ? <ShieldQuestion className="w-5 h-5 text-amber" /> : <PenLine className="w-5 h-5 text-amber" />}
                 <h2 className="text-lg font-display font-bold text-primary-foreground">
-                  {disputedResult ? 'Demander une vérification' : 'Animal non reconnu'}
+                  {disputedResult || rejectedImage ? 'Demander une vérification' : 'Animal non reconnu'}
                 </h2>
               </div>
               {disputedResult && (
@@ -740,7 +740,15 @@ const CapturePage = () => {
                   </p>
                 </div>
               )}
-              {!disputedResult && taxonHint && (
+              {!disputedResult && rejectedImage && (
+                <div className="rounded-xl border border-amber/30 bg-amber/10 px-3 py-2">
+                  <p className="text-[10px] font-display uppercase tracking-wide text-primary-foreground/60">
+                    Refus de l'IA
+                  </p>
+                  <p className="text-sm text-primary-foreground/90">{rejectedImage.title}</p>
+                </div>
+              )}
+              {!disputedResult && !rejectedImage && taxonHint && (
                 <div className="rounded-xl border border-amber/30 bg-amber/10 px-3 py-2">
                   <p className="text-sm text-primary-foreground/90">{taxonHint}</p>
                 </div>
@@ -748,8 +756,11 @@ const CapturePage = () => {
               <p className="text-primary-foreground/90 text-sm">
                 {disputedResult
                   ? "Indique l'animal que tu as observé. Un modérateur confirmera ou corrigera l'identification avant l'ajout à ton Faunex."
-                  : "Décris l'animal que tu as observé. Ta capture sera vérifiée par un modérateur avant d'être ajoutée à ton Faunex."}
+                  : rejectedImage
+                    ? "Explique ce que tu as observé : un modérateur regardera ta photo. Si l'image ne respecte pas les règles de Faunex, elle sera refusée."
+                    : "Décris l'animal que tu as observé. Ta capture sera vérifiée par un modérateur avant d'être ajoutée à ton Faunex."}
               </p>
+
 
               <input
                 type="text"
