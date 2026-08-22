@@ -194,9 +194,25 @@ async function examine(
     return { capture_id: capture.id, approved: false, reason: 'missing_data' }
   }
 
+
+  // Anti-doublon d'exécution : le trigger SQL et le lot planifié pouvaient
+  // examiner la même capture à quelques secondes d'intervalle, donc payer deux
+  // fois l'appel IA. Un événement dataset récent = examen déjà effectué.
+  const { data: recent } = await supabase
+    .from('ml_dataset_events')
+    .select('id')
+    .eq('capture_id', capture.id)
+    .eq('source', 'auto-moderate-capture')
+    .gte('created_at', new Date(Date.now() - 10 * 60_000).toISOString())
+    .limit(1)
+  if (recent && recent.length > 0) {
+    return { capture_id: capture.id, approved: false, reason: 'already_examined' }
+  }
+
   // Doublon : l'explorateur possède déjà cette espèce → décision humaine.
   const dup = await findUserDuplicate(supabase, capture.user_id, capture.id, name, capture.scientific_name)
   if (dup) return { capture_id: capture.id, approved: false, reason: 'duplicate' }
+
 
   const userText = [
     `Nom proposé par l'observateur : "${name}".`,
