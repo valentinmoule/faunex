@@ -21,6 +21,7 @@ const IMAGE_TYPE_LABELS: Record<string, string> = {
   capture_ecran: "une capture d'écran",
   photo_ecran_ou_papier: "la photo d'un écran ou d'une image imprimée",
   jouet_peluche_figurine: 'un jouet, une peluche ou une figurine',
+  objet_representation: 'un objet représentant un animal (statue, décoration, souvenir…)',
 };
 
 
