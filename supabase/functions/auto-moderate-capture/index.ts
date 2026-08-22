@@ -263,6 +263,12 @@ async function examine(
     }
   }
 
+  if (!verdict) {
+    return { capture_id: capture.id, approved: false, reason: 'ai_unavailable', blocked_status: blockedStatus }
+  }
+
+
+
 
 
 
