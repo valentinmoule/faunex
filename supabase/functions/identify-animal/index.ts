@@ -267,8 +267,11 @@ serve(async (req) => {
             content: [
               {
                 type: "text",
-                text: "Étape 1 — Détermine d'abord la nature de l'image : est-ce une VRAIE PHOTOGRAPHIE (grain, profondeur de champ, arrière-plan réel) ou une illustration / dessin / logo / icône / mascotte / peinture / rendu 3D / image IA / capture d'écran / photo d'écran ou de papier / peluche ou figurine ? Renseigne image_type et is_real_photo. Si ce n'est pas une vraie photo, réponds animal_name \"Inconnu\" et confidence 0, même si l'animal est reconnaissable. Étape 2 — Seulement si c'est une vraie photo : identifie l'animal avec la plus grande précision possible (morphologie, pelage/plumage, proportions, traits distinctifs ; race exacte pour un chat ou un chien). Évalue ta confiance honnêtement et propose des alternatives si tu n'es pas sûr."
+                // Les critères détaillés sont déjà dans le prompte système :
+                // on ne les répète pas ici (double facturation des jetons).
+                text: "Étape 1 : nature de l'image (image_type + is_real_photo). Si ce n'est pas une vraie photo → \"Inconnu\", confidence 0. Étape 2 (seulement si vraie photo) : identifie l'animal au rang le plus précis (race exacte pour chien/chat), calibre la confiance et donne des alternatives en cas de doute."
               },
+
               { type: "image_url", image_url: { url: imageUrl } }
             ]
           }
