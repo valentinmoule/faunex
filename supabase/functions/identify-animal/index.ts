@@ -287,33 +287,33 @@ serve(async (req) => {
                 properties: {
                   is_real_photo: {
                     type: "boolean",
-                    description: "true UNIQUEMENT si l'image est une photographie réelle prise par l'utilisateur (grain photo, profondeur de champ, éclairage naturel). false pour illustration, dessin, logo, icône, mascotte, sticker, peinture, tatouage, rendu 3D, image générée par IA, capture d'écran, photo d'écran/livre/poster, jouet, peluche, figurine, statue ou taxidermie."
+                    description: "true seulement si vraie photographie (cf. règle 1)."
                   },
                   image_type: {
                     type: "string",
                     enum: ["photo_reelle", "illustration", "dessin", "logo_icone", "peinture", "rendu_3d", "image_generee_ia", "capture_ecran", "photo_ecran_ou_papier", "jouet_peluche_figurine", "autre"],
-                    description: "Nature réelle de l'image analysée."
+                    description: "Nature réelle de l'image."
                   },
                   animal_name: {
-
                     type: "string",
-                    description: "Nom précis en français. Pour les domestiques: nom de la race (ex: 'Golden Retriever', 'Maine Coon'). Pour la faune sauvage: nom commun précis (ex: 'Mésange bleue')."
+                    description: "Nom français précis : race pour les domestiques, nom commun exact pour la faune sauvage."
                   },
                   scientific_name: {
                     type: "string",
-                    description: "Nom scientifique latin RÉEL et vérifiable. Binôme (genre + espèce) UNIQUEMENT si l'espèce est certaine (ex: 'Cyanistes caeruleus', 'Canis lupus familiaris'). Sinon, le nom du rang supérieur réel seul (ex: 'Miridae', 'Pyrrhocoris', 'Hemiptera'). Ne jamais fabriquer un binôme à partir du nom vernaculaire."
+                    description: "Nom latin réel : binôme seulement si l'espèce est certaine, sinon le rang supérieur réel seul (cf. règle 3)."
                   },
                   scientific_rank: {
                     type: "string",
                     enum: ["subspecies", "species", "genus", "family", "order", "class"],
-                    description: "Rang taxonomique effectivement atteint par scientific_name. 'species'/'subspecies' seulement si le binôme est certain, sinon 'genus'/'family'/'order' avec confidence ≤ 60."
+                    description: "Rang atteint par scientific_name."
                   },
 
                   category: {
                     type: "string",
                     enum: ["Mammifères", "Oiseaux", "Reptiles", "Amphibiens", "Poissons", "Insectes", "Arachnides", "Crustacés", "Mollusques"],
-                    description: "Classe zoologique de l'animal. OBLIGATOIRE : choisis exactement UNE de ces 9 catégories, jamais 'Autres', jamais 'Cnidaires' ni 'Échinodermes'. Pour les annélides/vers utilise 'Mollusques', pour les myriapodes utilise 'Insectes', pour les échinodermes (oursins, étoiles de mer, holothuries) et les cnidaires (méduses, anémones, coraux) utilise 'Mollusques'. Rattache toujours l'animal à la catégorie zoologique la plus proche."
+                    description: "Exactement une de ces 9 classes. Myriapodes → Insectes ; vers/annélides, échinodermes (oursins, étoiles de mer) et cnidaires (méduses, anémones, coraux) → Mollusques."
                   },
+
                   description: {
                     type: "string",
                     description: "Description de 2-3 phrases : caractéristiques physiques distinctives et comportement typique."
