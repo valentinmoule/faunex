@@ -4,10 +4,13 @@ import { compressForAI, dataUrlBytes, hashDataUrl } from '@/lib/imageProcessing'
 import type { AnimalResult } from '@/types/capture';
 import { logDatasetEvent, setPendingImageHash } from '@/lib/dataset';
 
+/** Motifs de refus explicites (l'utilisateur peut toujours demander une modération). */
+export type RejectionKind = 'representation' | 'internet' | 'human';
+
 type IdentifyOutcome =
   | { status: 'identified'; animal: AnimalResult }
   | { status: 'unknown'; hint?: string }
-  | { status: 'not_photo'; message: string }
+  | { status: 'rejected'; kind: RejectionKind; title: string; message: string }
   | { status: 'error'; message: string };
 
 /** Libellés lisibles des types d'images non photographiques refusés. */
@@ -23,6 +26,10 @@ const IMAGE_TYPE_LABELS: Record<string, string> = {
   jouet_peluche_figurine: 'un jouet, une peluche ou une figurine',
   objet_representation: 'un objet représentant un animal (statue, décoration, souvenir…)',
 };
+
+/** Types d'images qui trahissent une photo récupérée en ligne plutôt qu'une observation. */
+const INTERNET_IMAGE_TYPES = ['capture_ecran', 'photo_ecran_ou_papier', 'image_generee_ia'];
+
 
 
 const normalize = (v?: string | null) =>
@@ -181,14 +188,24 @@ export const useAnimalIdentification = () => {
             if (error) throw error;
 
 
-            // Image non photographique (illustration, logo, dessin, capture
-            // d'écran…) : refus net, sans bascule vers la saisie manuelle pour
-            // ne pas laisser passer un faux positif en modération.
+            // Image non photographique : refus explicite et assumé. L'utilisateur
+            // garde la possibilité de demander une modération humaine.
             if (data?.reason === 'not_a_real_photo') {
-              const label = IMAGE_TYPE_LABELS[String(data?.image_type ?? '')] ?? 'une image graphique';
+              const imageType = String(data?.image_type ?? '');
+              const label = IMAGE_TYPE_LABELS[imageType] ?? 'une image graphique';
+              if (INTERNET_IMAGE_TYPES.includes(imageType)) {
+                return {
+                  status: 'rejected',
+                  kind: 'internet',
+                  title: 'Photo pas prise sur le terrain 👀',
+                  message: `On a repéré ${label} : cette image ne vient visiblement pas de ton appareil. Faunex, c'est tes propres observations, pas les photos des autres. Reprends l'animal en photo toi-même !`,
+                };
+              }
               return {
-                status: 'not_photo',
-                message: `Cette image semble être ${label}, pas une photo d'animal prise sur le terrain. Faunex n'accepte que de vraies photographies : prends une photo de l'animal réel pour l'ajouter à ta collection.`,
+                status: 'rejected',
+                kind: 'representation',
+                title: 'Bien tenté 😏',
+                message: `Ce n'est pas un animal vivant, mais ${label}. Faunex n'accepte que de vraies photographies d'animaux croisés sur le terrain — les statues, jouets et dessins ne comptent pas.`,
               };
             }
 
@@ -202,13 +219,21 @@ export const useAnimalIdentification = () => {
               // serveur a rejeté une espèce non validée.
               return { status: 'unknown', hint: typeof data?.hint === 'string' ? data.hint : undefined };
             }
+            if (isHuman(animal)) {
+              return {
+                status: 'rejected',
+                kind: 'human',
+                title: 'Les humains ne se collectionnent pas 🙂',
+                message: "Faunex recense la faune sauvage et domestique : les personnes (et les selfies) ne font pas partie du jeu. Vise un animal et retente ta chance !",
+              };
+            }
             if (
               animal.animal_name.toLowerCase() === 'inconnu' ||
-              isHuman(animal) ||
               isFictionalOrExtinct(animal)
             ) {
               return { status: 'unknown' };
             }
+
             // Dataset : on archive la prédiction brute du modèle (jamais une
             // vérité terrain) pour pouvoir la comparer plus tard au label retenu.
             void logDatasetEvent({

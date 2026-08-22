@@ -8,7 +8,7 @@ import { setPendingShelve } from '@/lib/shelveAnimation';
 import { readFileAsDataUrl, prepareSourceImage } from '@/lib/imageProcessing';
 import { useCamera } from '@/hooks/useCamera';
 import { useGeoTag } from '@/hooks/useGeoTag';
-import { useAnimalIdentification } from '@/hooks/useAnimalIdentification';
+import { useAnimalIdentification, type RejectionKind } from '@/hooks/useAnimalIdentification';
 import { useCaptureSave } from '@/hooks/useCaptureSave';
 import { useCaptureReveal, REVEAL_TIMINGS } from '@/hooks/useCaptureReveal';
 import { useCaptureQuota, DAILY_CAPTURE_LIMIT } from '@/hooks/useCaptureQuota';
@@ -42,8 +42,10 @@ const CapturePage = () => {
   /** Non-null quand l'utilisateur contexte l'identification IA et demande une vérification humaine. */
   const [disputedResult, setDisputedResult] = useState<AnimalResult | null>(null);
   const [identifyError, setIdentifyError] = useState<string | null>(null);
-  /** Image refusée (illustration, logo, dessin, capture d'écran…) : pas de saisie manuelle. */
-  const [rejectedImage, setRejectedImage] = useState<string | null>(null);
+  /** Refus explicite de l'IA (représentation, image d'internet, humain) : l'utilisateur
+   *  peut malgré tout demander une vérification humaine. */
+  const [rejectedImage, setRejectedImage] = useState<{ kind: RejectionKind; title: string; message: string } | null>(null);
+
 
   const [manualName, setManualName] = useState('');
   const [manualSpecies, setManualSpecies] = useState('');
@@ -115,8 +117,9 @@ const CapturePage = () => {
         triggerReveal(outcome.animal);
       } else if (outcome.status === 'error') {
         setIdentifyError(outcome.message);
-      } else if (outcome.status === 'not_photo') {
-        setRejectedImage(outcome.message);
+      } else if (outcome.status === 'rejected') {
+        setRejectedImage({ kind: outcome.kind, title: outcome.title, message: outcome.message });
+
       } else {
         setTaxonHint(outcome.hint ?? null);
         setManualMode(true);
@@ -138,8 +141,9 @@ const CapturePage = () => {
         triggerReveal(outcome.animal);
       } else if (outcome.status === 'error') {
         setIdentifyError(outcome.message);
-      } else if (outcome.status === 'not_photo') {
-        setRejectedImage(outcome.message);
+      } else if (outcome.status === 'rejected') {
+        setRejectedImage({ kind: outcome.kind, title: outcome.title, message: outcome.message });
+
       } else {
         setTaxonHint(outcome.hint ?? null);
         setManualMode(true);
@@ -681,25 +685,37 @@ const CapturePage = () => {
           </div>
         )}
 
-        {/* Image non photographique (illustration, logo, dessin, capture d'écran) :
-            refus explicite, aucune bascule vers la saisie manuelle. */}
-        {rejectedImage && !identifying && !animalResult && (
+        {/* Refus explicite (représentation d'animal, image issue d'internet, humain).
+            L'utilisateur peut tout de même demander une vérification humaine. */}
+        {rejectedImage && !manualMode && !identifying && !animalResult && (
           <div className="relative z-20 flex-1 flex flex-col justify-end px-5 pb-4">
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <ShieldQuestion className="w-5 h-5 text-amber" />
-                <h2 className="text-lg font-display font-bold text-primary-foreground">Image refusée</h2>
+                <h2 className="text-lg font-display font-bold text-primary-foreground">{rejectedImage.title}</h2>
               </div>
-              <p className="text-primary-foreground/90 text-sm">{rejectedImage}</p>
-              <button
-                onClick={resetCapture}
-                className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-display font-semibold text-sm flex items-center justify-center gap-2"
-              >
-                <RefreshCw className="w-4 h-4" /> Reprendre une photo
-              </button>
+              <p className="text-primary-foreground/90 text-sm leading-relaxed">{rejectedImage.message}</p>
+              <div className="flex gap-3">
+                <button
+                  onClick={resetCapture}
+                  className="flex-1 py-3 rounded-xl bg-primary text-primary-foreground font-display font-semibold text-sm flex items-center justify-center gap-2"
+                >
+                  <RefreshCw className="w-4 h-4" /> Reprendre
+                </button>
+                <button
+                  onClick={() => setManualMode(true)}
+                  className="flex-1 py-3 rounded-xl bg-primary-foreground/10 text-primary-foreground font-display font-semibold text-sm flex items-center justify-center gap-2"
+                >
+                  <ShieldQuestion className="w-4 h-4" /> Faire vérifier
+                </button>
+              </div>
+              <p className="text-primary-foreground/60 text-[11px] text-center">
+                Tu penses que l'IA se trompe ? Envoie ta capture à un modérateur.
+              </p>
             </div>
           </div>
         )}
+
 
 
         {/* Manual entry form when AI can't identify */}
@@ -708,9 +724,9 @@ const CapturePage = () => {
           <div className="relative z-20 flex-1 flex flex-col justify-end px-5 pb-4">
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                {disputedResult ? <ShieldQuestion className="w-5 h-5 text-amber" /> : <PenLine className="w-5 h-5 text-amber" />}
+                {disputedResult || rejectedImage ? <ShieldQuestion className="w-5 h-5 text-amber" /> : <PenLine className="w-5 h-5 text-amber" />}
                 <h2 className="text-lg font-display font-bold text-primary-foreground">
-                  {disputedResult ? 'Demander une vérification' : 'Animal non reconnu'}
+                  {disputedResult || rejectedImage ? 'Demander une vérification' : 'Animal non reconnu'}
                 </h2>
               </div>
               {disputedResult && (
@@ -724,7 +740,15 @@ const CapturePage = () => {
                   </p>
                 </div>
               )}
-              {!disputedResult && taxonHint && (
+              {!disputedResult && rejectedImage && (
+                <div className="rounded-xl border border-amber/30 bg-amber/10 px-3 py-2">
+                  <p className="text-[10px] font-display uppercase tracking-wide text-primary-foreground/60">
+                    Refus de l'IA
+                  </p>
+                  <p className="text-sm text-primary-foreground/90">{rejectedImage.title}</p>
+                </div>
+              )}
+              {!disputedResult && !rejectedImage && taxonHint && (
                 <div className="rounded-xl border border-amber/30 bg-amber/10 px-3 py-2">
                   <p className="text-sm text-primary-foreground/90">{taxonHint}</p>
                 </div>
@@ -732,8 +756,11 @@ const CapturePage = () => {
               <p className="text-primary-foreground/90 text-sm">
                 {disputedResult
                   ? "Indique l'animal que tu as observé. Un modérateur confirmera ou corrigera l'identification avant l'ajout à ton Faunex."
-                  : "Décris l'animal que tu as observé. Ta capture sera vérifiée par un modérateur avant d'être ajoutée à ton Faunex."}
+                  : rejectedImage
+                    ? "Explique ce que tu as observé : un modérateur regardera ta photo. Si l'image ne respecte pas les règles de Faunex, elle sera refusée."
+                    : "Décris l'animal que tu as observé. Ta capture sera vérifiée par un modérateur avant d'être ajoutée à ton Faunex."}
               </p>
+
 
               <input
                 type="text"
