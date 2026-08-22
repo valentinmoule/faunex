@@ -53,10 +53,24 @@ Deno.serve(async (req) => {
       return json({ error: 'Missing or invalid params' }, 400)
     }
 
+    // Anti-doublon : une même décision (auto-modération + relance manuelle, ou
+    // deux exécutions concurrentes) ne doit produire qu'un seul e-mail et une
+    // seule notification push. Verrou atomique valable 24 h.
+    const dedupeKey = `moderation-${decision}-${reason}-${captureId ?? `${userId}-${animalName}`}`
+    const { data: claimed, error: claimErr } = await supabase.rpc('try_claim_notification', {
+      p_key: dedupeKey,
+      p_ttl_seconds: 86400,
+    })
+    if (claimErr) console.error('try_claim_notification failed', claimErr.message)
+    if (claimed === false) {
+      return json({ success: true, skipped: 'duplicate_notification' })
+    }
+
     const [{ data: profile }, { data: userAuth }] = await Promise.all([
       supabase.from('profiles').select('display_name, username').eq('user_id', userId).single(),
       supabase.auth.admin.getUserById(userId),
     ])
+
 
     const recipientName = profile?.display_name || profile?.username || 'Explorateur'
     const email = userAuth?.user?.email
@@ -78,7 +92,9 @@ Deno.serve(async (req) => {
               ? `${APP_URL}/collection${captureId ? `?capture=${captureId}` : ''}`
               : `${APP_URL}/capture`,
           },
-          idempotencyKey: `moderation-${decision}-${reason}-${captureId ?? userId}-${animalName}`,
+          idempotencyKey: dedupeKey,
+          messageId: dedupeKey,
+
         },
       )
     }

@@ -960,6 +960,21 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_dedupe: {
+        Row: {
+          created_at: string
+          key: string
+        }
+        Insert: {
+          created_at?: string
+          key: string
+        }
+        Update: {
+          created_at?: string
+          key?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           actor_id: string
@@ -1841,6 +1856,10 @@ export type Database = {
       release_background_job: {
         Args: { p_error?: string; p_job_key: string; p_resume?: boolean }
         Returns: undefined
+      }
+      try_claim_notification: {
+        Args: { p_key: string; p_ttl_seconds?: number }
+        Returns: boolean
       }
     }
     Enums: {
