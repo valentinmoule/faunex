@@ -289,11 +289,11 @@ serve(async (req) => {
                 properties: {
                   is_real_photo: {
                     type: "boolean",
-                    description: "true seulement si vraie photographie (cf. règle 1)."
+                    description: "true seulement si vraie photographie d'un animal vivant (cf. règle 1). false pour tout objet, statue, jouet ou représentation."
                   },
                   image_type: {
                     type: "string",
-                    enum: ["photo_reelle", "illustration", "dessin", "logo_icone", "peinture", "rendu_3d", "image_generee_ia", "capture_ecran", "photo_ecran_ou_papier", "jouet_peluche_figurine", "autre"],
+                    enum: ["photo_reelle", "illustration", "dessin", "logo_icone", "peinture", "rendu_3d", "image_generee_ia", "capture_ecran", "photo_ecran_ou_papier", "jouet_peluche_figurine", "objet_representation", "autre"],
                     description: "Nature réelle de l'image."
                   },
                   animal_name: {
