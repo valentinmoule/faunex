@@ -42,8 +42,10 @@ const CapturePage = () => {
   /** Non-null quand l'utilisateur contexte l'identification IA et demande une vérification humaine. */
   const [disputedResult, setDisputedResult] = useState<AnimalResult | null>(null);
   const [identifyError, setIdentifyError] = useState<string | null>(null);
-  /** Image refusée (illustration, logo, dessin, capture d'écran…) : pas de saisie manuelle. */
-  const [rejectedImage, setRejectedImage] = useState<string | null>(null);
+  /** Refus explicite de l'IA (représentation, image d'internet, humain) : l'utilisateur
+   *  peut malgré tout demander une vérification humaine. */
+  const [rejectedImage, setRejectedImage] = useState<{ kind: RejectionKind; title: string; message: string } | null>(null);
+
 
   const [manualName, setManualName] = useState('');
   const [manualSpecies, setManualSpecies] = useState('');
