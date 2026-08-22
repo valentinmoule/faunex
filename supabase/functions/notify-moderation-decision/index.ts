@@ -92,7 +92,9 @@ Deno.serve(async (req) => {
               ? `${APP_URL}/collection${captureId ? `?capture=${captureId}` : ''}`
               : `${APP_URL}/capture`,
           },
-          idempotencyKey: `moderation-${decision}-${reason}-${captureId ?? userId}-${animalName}`,
+          idempotencyKey: dedupeKey,
+          messageId: dedupeKey,
+
         },
       )
     }
