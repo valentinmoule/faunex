@@ -8,7 +8,7 @@ import { setPendingShelve } from '@/lib/shelveAnimation';
 import { readFileAsDataUrl, prepareSourceImage } from '@/lib/imageProcessing';
 import { useCamera } from '@/hooks/useCamera';
 import { useGeoTag } from '@/hooks/useGeoTag';
-import { useAnimalIdentification } from '@/hooks/useAnimalIdentification';
+import { useAnimalIdentification, type RejectionKind } from '@/hooks/useAnimalIdentification';
 import { useCaptureSave } from '@/hooks/useCaptureSave';
 import { useCaptureReveal, REVEAL_TIMINGS } from '@/hooks/useCaptureReveal';
 import { useCaptureQuota, DAILY_CAPTURE_LIMIT } from '@/hooks/useCaptureQuota';
