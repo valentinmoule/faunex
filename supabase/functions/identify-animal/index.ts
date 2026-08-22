@@ -316,24 +316,15 @@ serve(async (req) => {
 
                   description: {
                     type: "string",
-                    description: "Description de 2-3 phrases : caractéristiques physiques distinctives et comportement typique."
+                    description: "2-3 phrases : physique distinctif et comportement."
                   },
-                  habitat: {
-                    type: "string",
-                    description: "Habitat naturel et répartition géographique."
-                  },
-                  diet: {
-                    type: "string",
-                    description: "Régime alimentaire détaillé."
-                  },
+                  habitat: { type: "string", description: "Habitat et répartition." },
+                  diet: { type: "string", description: "Régime alimentaire." },
                   conservation: {
                     type: "string",
-                    description: "Statut UICN : LC, NT, VU, EN, CR, ou 'Domestique'."
+                    description: "Statut UICN : LC, NT, VU, EN, CR ou 'Domestique'."
                   },
-                  fun_fact: {
-                    type: "string",
-                    description: "Un fait surprenant et vérifié scientifiquement sur cette espèce/race."
-                  },
+                  fun_fact: { type: "string", description: "Fait surprenant et vérifié." },
                   rarity: {
                     type: "string",
                     enum: ["common", "rare", "epic", "mythic"]
@@ -342,16 +333,17 @@ serve(async (req) => {
                     type: "integer",
                     minimum: 0,
                     maximum: 100,
-                    description: "Niveau de confiance calibré (0-100) sur l'identification."
+                    description: "Confiance calibrée (cf. règle 7)."
                   },
                   alternatives: {
                     type: "array",
                     items: { type: "string" },
-                    description: "1 à 3 noms d'espèces/races alternatives plausibles si la confiance est < 80."
+                    description: "1 à 3 alternatives plausibles si confidence < 80."
                   },
                   subject_bbox: {
                     type: "object",
-                    description: "Boîte englobante APPROXIMATIVE de l'animal sur l'image, normalisée 0..1 où (0,0) = coin haut-gauche et (1,1) = coin bas-droit. x,y = coin haut-gauche de la boîte ; w,h = largeur/hauteur. Couvre tout le corps visible de l'animal (poils/plumes/queue inclus). Soit généreux : si plusieurs animaux, englobe le sujet principal seulement. Si aucun animal ou cadrage incertain, omets ce champ.",
+                    description: "Boîte englobante approximative du sujet principal, normalisée 0..1 (x,y = coin haut-gauche ; w,h = taille). Couvre tout le corps visible, sois généreux. Omets si aucun animal.",
+
                     properties: {
                       x: { type: "number", minimum: 0, maximum: 1 },
                       y: { type: "number", minimum: 0, maximum: 1 },
