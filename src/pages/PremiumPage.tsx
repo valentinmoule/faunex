@@ -130,7 +130,7 @@ const PremiumPage = () => {
 
 
   return (
-    <div className="min-h-screen bg-background pb-28">
+    <div className="min-h-screen bg-background pb-10">
       <PaymentTestModeBanner />
       <PageHeader className="px-4 pb-2">
         <button
@@ -188,19 +188,28 @@ const PremiumPage = () => {
           </p>
         </section>
 
-        <ul className="mt-5 space-y-3">
-          {BENEFITS.map(({ icon: Icon, title, description }) => (
-            <li key={title} className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm">
-              <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <Icon className="h-4.5 w-4.5" />
-              </span>
-              <div>
-                <p className="text-sm font-semibold">{title}</p>
-                <p className="text-xs text-muted-foreground">{description}</p>
+        <div className="mt-5 rounded-[2rem] border border-border bg-card p-5 shadow-sm">
+          <h2 className="font-display text-lg font-semibold mb-4">Compare les fonctionnalités</h2>
+          <div className="overflow-hidden rounded-2xl border border-border">
+            <div className="grid grid-cols-[1fr_80px_80px] bg-muted">
+              <div className="px-4 py-3 text-xs font-semibold text-muted-foreground">Fonctionnalité</div>
+              <div className="px-2 py-3 text-center text-xs font-semibold text-muted-foreground">Gratuit</div>
+              <div className="px-2 py-3 text-center text-xs font-semibold text-primary">Premium</div>
+            </div>
+            {FEATURES.map((feature, index) => (
+              <div
+                key={feature.label}
+                className={`grid grid-cols-[1fr_80px_80px] items-center ${
+                  index !== FEATURES.length - 1 ? 'border-b border-border' : ''
+                }`}
+              >
+                <div className="px-4 py-3.5 text-sm font-medium">{feature.label}</div>
+                <div className="flex justify-center px-2 py-3.5">{feature.free}</div>
+                <div className="flex justify-center px-2 py-3.5">{feature.premium}</div>
               </div>
-            </li>
-          ))}
-        </ul>
+            ))}
+          </div>
+        </div>
 
         <div className="mt-6 space-y-3">
           {loading ? (
