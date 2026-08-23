@@ -101,7 +101,13 @@ const CapturePage = () => {
     // analysée ou envoyée au stockage : évite les uploads interminables et les
     // pics mémoire sur les imports galerie très lourds (12 Mpx / 15 Mo).
     const dataUrl = await prepareSourceImage(rawDataUrl);
+    if (!dataUrl) {
+      identifyingRef.current = false;
+      toast.error("Cette image n'a pas pu être lue (format HEIC ?). Réessaie avec une photo JPEG.");
+      return;
+    }
     setCapturedPhoto(dataUrl);
+
     setAnimalResult(null);
     setSaved(false);
     setIdentifyError(null);
