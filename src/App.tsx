@@ -110,6 +110,7 @@ const AppRoutes = () => {
   const location = useLocation();
   const isCapturePage = location.pathname === '/capture';
   const isModerationPage = location.pathname === '/moderation';
+  const isPremiumPage = location.pathname === '/premium';
   const isPublicPage =
     location.pathname === '/' ||
     location.pathname.startsWith('/auth') ||
@@ -173,7 +174,7 @@ const AppRoutes = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
-      {!isCapturePage && !isModerationPage && !isPublicPage && <BottomNav />}
+      {!isCapturePage && !isModerationPage && !isPremiumPage && !isPublicPage && <BottomNav />}
 
       <PullToDiscover />
       <WelcomeInstallPopup />
