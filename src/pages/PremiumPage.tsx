@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Check, Infinity as InfinityIcon, Sparkles, MapPin, NotebookPen, Loader2, Crown } from 'lucide-react';
+import { ArrowLeft, Check, Infinity as InfinityIcon, Sparkles, MapPin, NotebookPen, Loader2, Crown, Minus } from 'lucide-react';
 import { toast } from 'sonner';
 import { PageHeader } from '@/components/PageHeader';
 import { PaymentTestModeBanner } from '@/components/PaymentTestModeBanner';
@@ -11,13 +11,50 @@ import { usePaddleCheckout } from '@/hooks/usePaddleCheckout';
 import { PREMIUM_MONTHLY_PRICE_ID, PREMIUM_YEARLY_PRICE_ID } from '@/lib/paddle';
 import { supabase } from '@/integrations/supabase/client';
 
-const BENEFITS = [
-  { icon: InfinityIcon, title: 'Captures illimitées', description: 'Plus de limite de 4 captures par jour.' },
-  { icon: Sparkles, title: 'Détection et modération plus performantes', description: 'Identifie et valide tes espèces plus vite et plus précisément.' },
-  { icon: MapPin, title: 'Localisation des animaux autour de toi', description: 'Repère les espèces présentes près de ta position.' },
-  { icon: NotebookPen, title: 'Notes sur tes captures', description: 'Garde tes observations de terrain avec chaque carte.' },
-  { icon: Crown, title: "Plein d'autres choses à venir…", description: 'Les prochaines nouveautés arrivent en priorité chez les abonnés.' },
+interface FeatureRow {
+  label: string;
+  free: React.ReactNode;
+  premium: React.ReactNode;
+}
+
+const FEATURES: FeatureRow[] = [
+  {
+    label: 'Identification des animaux',
+    free: <span className="text-sm font-medium">4 / jour</span>,
+    premium: <span className="text-sm font-semibold text-primary">Illimitée</span>,
+  },
+  {
+    label: 'Recherche de zones',
+    free: <span className="text-sm font-medium">4 / jour</span>,
+    premium: <span className="text-sm font-semibold text-primary">Illimitée</span>,
+  },
+  {
+    label: 'Collections et territoires',
+    free: <span className="text-sm font-medium">3 maximum</span>,
+    premium: <span className="text-sm font-semibold text-primary">Illimités</span>,
+  },
+  {
+    label: 'Badge Premium sur le profil',
+    free: <Minus className="h-4 w-4 text-muted-foreground" />,
+    premium: <Check className="h-4 w-4 text-primary" />,
+  },
+  {
+    label: 'Notes et localisation',
+    free: <Check className="h-4 w-4 text-foreground" />,
+    premium: <Check className="h-4 w-4 text-primary" />,
+  },
+  {
+    label: 'Quêtes et objectifs',
+    free: <Check className="h-4 w-4 text-foreground" />,
+    premium: <Check className="h-4 w-4 text-primary" />,
+  },
+  {
+    label: 'Classement et badges',
+    free: <Check className="h-4 w-4 text-foreground" />,
+    premium: <Check className="h-4 w-4 text-primary" />,
+  },
 ];
+
 
 const PLANS = {
   monthly: {
