@@ -56,9 +56,15 @@ export const resizeDataUrl = async (
 /** Normalise the source photo (camera frame or imported file) before it is used
  *  anywhere in the app: keeps memory, storage upload and preview rendering sane
  *  even when the user imports a 12 Mpx / 15 MB photo from the gallery.
- *  1600px / 0.82 stays well above what the AI and the card display need. */
-export const prepareSourceImage = (dataUrl: string): Promise<string> =>
-  resizeDataUrl(dataUrl, 1600, 0.82);
+ *  1600px / 0.82 stays well above what the AI and the card display need.
+ *  Renvoie `null` quand le navigateur n'a pas su décoder l'image (typiquement un
+ *  HEIC d'iPhone sur Android) : sans ça, le fichier brut illisible partait tel
+ *  quel au stockage et la carte restait vide pour tout le monde. */
+export const prepareSourceImage = async (dataUrl: string): Promise<string | null> => {
+  const out = await resizeDataUrl(dataUrl, 1600, 0.82);
+  return out.startsWith('data:image/jpeg') ? out : null;
+};
+
 
 /** Compress an image dataURL to a max dimension and JPEG quality for AI.
  *  Higher resolution + quality => better recognition accuracy, but also
