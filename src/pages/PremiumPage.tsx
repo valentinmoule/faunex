@@ -13,8 +13,8 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface FeatureRow {
   label: string;
-  free: React.ReactNode;
-  premium: React.ReactNode;
+  free: ReactNode;
+  premium: ReactNode;
 }
 
 const FEATURES: FeatureRow[] = [
