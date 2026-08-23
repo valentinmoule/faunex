@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Check, Infinity as InfinityIcon, Sparkles, MapPin, NotebookPen, Loader2, Crown, Minus } from 'lucide-react';
+import { ArrowLeft, Check, Loader2, Crown, Minus } from 'lucide-react';
 import { toast } from 'sonner';
 import { PageHeader } from '@/components/PageHeader';
 import { PaymentTestModeBanner } from '@/components/PaymentTestModeBanner';
