@@ -396,6 +396,10 @@ async function examine(
   }
 
   const { error: notifErr } = await supabase.functions.invoke('notify-moderation-decision', {
+    headers: {
+      Authorization: `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''}`,
+      'x-cron-secret': Deno.env.get('CRON_SECRET') ?? '',
+    },
     body: {
       user_id: capture.user_id,
       decision: 'approved',
@@ -404,6 +408,7 @@ async function examine(
     },
   })
   if (notifErr) console.error('notify-moderation-decision failed', notifErr)
+
 
   return { capture_id: capture.id, approved: true, animal_name: finalName, confidence }
 }

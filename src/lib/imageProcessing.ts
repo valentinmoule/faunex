@@ -61,9 +61,20 @@ export const resizeDataUrl = async (
  *  HEIC d'iPhone sur Android) : sans ça, le fichier brut illisible partait tel
  *  quel au stockage et la carte restait vide pour tout le monde. */
 export const prepareSourceImage = async (dataUrl: string): Promise<string | null> => {
-  const out = await resizeDataUrl(dataUrl, 1600, 0.82);
-  return out.startsWith('data:image/jpeg') ? out : null;
+  // Le seul cas à rejeter est l'image que le navigateur ne sait pas décoder
+  // (typiquement un HEIC d'iPhone renommé .jpg) : un PNG ou WebP parfaitement
+  // valide, lui, doit continuer son chemin même si le ré-encodage JPEG est inutile.
+  try {
+    const img = await decode(dataUrl);
+    const w = 'width' in img ? img.width : 0;
+    if ('close' in img) img.close();
+    if (!w) return null;
+  } catch {
+    return null;
+  }
+  return await resizeDataUrl(dataUrl, 1600, 0.82);
 };
+
 
 
 /** Compress an image dataURL to a max dimension and JPEG quality for AI.
