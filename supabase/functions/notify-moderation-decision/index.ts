@@ -14,31 +14,37 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
 
   try {
-    const authHeader = req.headers.get('Authorization')
-    if (!authHeader?.startsWith('Bearer ')) return json({ error: 'Unauthorized' }, 401)
-    const token = authHeader.replace('Bearer ', '')
     const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-
     const supabase = createClient(Deno.env.get('SUPABASE_URL')!, serviceKey)
 
-    // Appel interne (pré-modération automatique) : le service role est de confiance.
-    if (token !== serviceKey) {
-      const anonClient = createClient(
-        Deno.env.get('SUPABASE_URL')!,
-        Deno.env.get('SUPABASE_ANON_KEY')!,
-        { global: { headers: { Authorization: authHeader } } }
-      )
-      const { data: claimsData, error: claimsError } = await anonClient.auth.getClaims(token)
-      if (claimsError || !claimsData?.claims?.sub) return json({ error: 'Unauthorized' }, 401)
-      const callerId = claimsData.claims.sub as string
+    // Appel interne (auto-modération) : reconnu par le secret cron ou la clé service.
+    const cronSecret = Deno.env.get('CRON_SECRET')
+    const isInternal = !!cronSecret && req.headers.get('x-cron-secret') === cronSecret
 
-      // Only admins may trigger moderation notifications.
-      const { data: isAdmin } = await supabase.rpc('has_role', {
-        _user_id: callerId,
-        _role: 'admin',
-      })
-      if (!isAdmin) return json({ error: 'Forbidden' }, 403)
+    if (!isInternal) {
+      const authHeader = req.headers.get('Authorization')
+      if (!authHeader?.startsWith('Bearer ')) return json({ error: 'Unauthorized' }, 401)
+      const token = authHeader.replace('Bearer ', '')
+
+      if (token !== serviceKey) {
+        const anonClient = createClient(
+          Deno.env.get('SUPABASE_URL')!,
+          Deno.env.get('SUPABASE_ANON_KEY')!,
+          { global: { headers: { Authorization: authHeader } } }
+        )
+        const { data: claimsData, error: claimsError } = await anonClient.auth.getClaims(token)
+        if (claimsError || !claimsData?.claims?.sub) return json({ error: 'Unauthorized' }, 401)
+        const callerId = claimsData.claims.sub as string
+
+        // Only admins may trigger moderation notifications.
+        const { data: isAdmin } = await supabase.rpc('has_role', {
+          _user_id: callerId,
+          _role: 'admin',
+        })
+        if (!isAdmin) return json({ error: 'Forbidden' }, 403)
+      }
     }
+
 
 
     const body = await req.json()
