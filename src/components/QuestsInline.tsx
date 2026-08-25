@@ -99,7 +99,7 @@ const QuestsInline = () => {
         await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`);
         toast.success('Lien copié !');
       }
-      await supabase.from('weekly_quests').update({ progress: 1, completed: true }).eq('id', questId);
+      await supabase.rpc('complete_share_quest', { p_quest_id: questId });
       setQuests((prev) => prev.map((q) => (q.id === questId ? { ...q, progress: 1, completed: true } : q)));
       toast.success('Quête complétée ! 🎉');
     } catch { /* cancelled */ }
