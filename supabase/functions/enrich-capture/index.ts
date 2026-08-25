@@ -19,6 +19,8 @@ Méthode obligatoire :
 - Si la description apporte une précision plus fine que le nom (ex. nom "oiseau" + description "petit oiseau jaune au chant flûté dans les roseaux"), affine le nom vers l'espèce la plus précise et cohérente.
 - Si le nom proposé est clairement incompatible avec la photo ET la description, retiens l'espèce que la photo et la description désignent conjointement, et explique le choix dans la description de la fiche.
 - N'invente jamais un détail absent de la photo et de la description : en cas d'incertitude, reste au niveau taxonomique le plus précis dont tu es sûr.
+- animal_name = uniquement le nom commun français, sans parenthèses ni précision ajoutée (pas de "(famille des Lycosidae)", "(genre Bombus)", "(mâle)", "(à préciser)", pas de nom scientifique répété) : le rang précis va dans scientific_name.
+
 
 Ta mission : produire une fiche d'espèce complète et fiable.
 
@@ -44,7 +46,7 @@ Un modérateur humain a DÉJÀ validé l'identification. Le nom d'animal qui t'e
 Ta seule mission : rédiger la fiche documentaire de cette espèce (nom scientifique, catégorie, description, habitat, régime, statut de conservation, anecdote, rareté).
 
 Règles :
-- Reprends EXACTEMENT le nom commun fourni dans animal_name (tu peux uniquement corriger l'orthographe évidente et la casse, jamais changer d'espèce ou de race).
+- Reprends EXACTEMENT le nom commun fourni dans animal_name (tu peux uniquement corriger l'orthographe évidente et la casse, jamais changer d'espèce ou de race) et sans jamais ajouter de parenthèses (pas de "(famille des…)", "(genre…)", "(mâle)", ni de nom scientifique répété).
 - Le nom scientifique doit être le binôme latin réel de cette espèce (pour une race domestique, le binôme de l'espèce domestique).
 - La description de l'observateur peut préciser la race, la couleur ou le contexte : intègre-la si elle est cohérente.
 - N'invente aucun fait : reste factuel et vérifiable.
@@ -348,11 +350,20 @@ Deno.serve(async (req) => {
 
     const animal = JSON.parse(toolCall.function.arguments)
 
+    // Nom commun lisible : jamais de mention entre parenthèses (famille, genre, sexe…).
+    const stripParenthetical = (value: unknown) => {
+      const s = String(value ?? '')
+      const cleaned = s.replace(/\s*\([^)]*\)/g, '').replace(/\s{2,}/g, ' ').trim()
+      return cleaned || s.trim()
+    }
+    if (animal?.animal_name) animal.animal_name = stripParenthetical(animal.animal_name)
+
     // Mode forcé : le nom du modérateur/observateur prime sur toute reformulation IA.
     if (forceName) {
-      animal.animal_name = animalName
+      animal.animal_name = stripParenthetical(animalName)
       if (overrideScientific) animal.scientific_name = overrideScientific
     }
+
 
     // Déduplication : si l'espèce existe déjà dans le bestiaire (nom commun OU nom
     // scientifique, insensible à la casse/accents/tirets), on réutilise la fiche

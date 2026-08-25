@@ -48,6 +48,13 @@ interface Props {
 
 const CACHE_KEY = 'faunex_nearby_cache';
 
+/** Nom commun lisible : on retire toute mention entre parenthèses (famille, genre, sexe…). */
+const cleanName = (value: string) => {
+  const cleaned = (value || '').replace(/\s*\([^)]*\)/g, '').replace(/\s{2,}/g, ' ').trim();
+  return cleaned || (value || '').trim();
+};
+
+
 const NearbyAnimalsSection = ({ capturedNames }: Props) => {
   // Restore from sessionStorage on mount
   const cached = (() => {
@@ -84,7 +91,7 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
           });
           if (fnError) throw fnError;
           if (data?.success) {
-            const fetched: NearbyAnimal[] = (data.animals || []).slice(0, 3);
+            const fetched: NearbyAnimal[] = (data.animals || []).slice(0, 3).map((a: NearbyAnimal) => ({ ...a, name: cleanName(a.name) }));
             const loc = data.location_name || '';
             setAnimals(fetched);
             setLocationName(loc);
