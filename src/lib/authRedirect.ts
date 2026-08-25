@@ -11,7 +11,7 @@ export const WEB_ORIGIN = 'https://faunex.fr';
 /** Schéma d'URL de l'app native (doit matcher l'appId Capacitor). */
 export const NATIVE_SCHEME = 'fr.faunex.app';
 
-/** URL du pont web qui renvoie vers l'app native après un login SSO. */
+/** URL du pont web qui renvoie vers l'app native après un login SSO web. */
 export const NATIVE_CALLBACK_URL = `${WEB_ORIGIN}/auth/native-callback`;
 
 /** Deep link ouvert dans l'app native à la fin du flow d'auth. */
@@ -28,15 +28,16 @@ export const authOrigin = (): string =>
 /** URL de retour pour les emails d'auth (confirmation, reset). */
 export const buildAuthRedirectUrl = (path = ''): string => `${authOrigin()}${path}`;
 
-/** redirect_uri à passer au SSO (Google / Apple). */
+/** redirect_uri à passer au SSO web. */
 export const oauthRedirectUri = (): string =>
   IS_NATIVE_APP ? NATIVE_CALLBACK_URL : window.location.origin;
 
 /**
  * URL du pont web à ouvrir dans le navigateur système depuis l'app native.
  *
- * Le broker OAuth (`/~oauth/initiate`) n'existe que sur le domaine public :
- * l'ouvrir depuis `capacitor://localhost` renvoyait une erreur de redirection.
+ * Google continue d'utiliser le broker web. Apple iOS utilise le flux natif
+ * AuthenticationServices + signInWithIdToken, car le broker web perdait le
+ * redirect final après le `form_post` Apple.
  *
  * Le flow démarre TOUJOURS sur l'apex `https://faunex.fr` : `www.faunex.fr`
  * redirige (301/302, et 307 en POST) vers l'apex, ce qui ajoute un hop inutile
@@ -44,6 +45,6 @@ export const oauthRedirectUri = (): string =>
  * (`oauth.lovable.app`), pas par notre domaine : l'hôte de départ n'a donc
  * aucune influence sur le state.
  */
-export const nativeAuthBridgeUrl = (provider: 'google' | 'apple'): string =>
+export const nativeAuthBridgeUrl = (provider: 'google'): string =>
   `${WEB_ORIGIN}/auth/native-bridge?provider=${provider}`;
 
