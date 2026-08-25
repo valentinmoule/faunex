@@ -21,19 +21,14 @@ const NativeAuthBridgePage = () => {
       return;
     }
 
-    console.log('🔥 START OAUTH', provider, NATIVE_CALLBACK_URL, window.location.origin);
-
     void lovable.auth
       .signInWithOAuth(provider, { redirect_uri: NATIVE_CALLBACK_URL })
       .then((result) => {
-        console.log('🔥 OAUTH RESULT', result);
-
         if (result.error) {
           setError('La connexion a échoué. Reviens dans l\'app et réessaie.');
         }
       })
-      .catch((err) => {
-        console.log('🔥 OAUTH ERROR', err);
+      .catch(() => {
         setError('La connexion a échoué. Reviens dans l\'app et réessaie.');
       });
   }, []);
