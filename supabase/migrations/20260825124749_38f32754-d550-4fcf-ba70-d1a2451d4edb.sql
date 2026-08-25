@@ -1,0 +1,2 @@
+REVOKE EXECUTE ON FUNCTION public.upsert_species_profile(text, text, text, text, text, text, text) FROM anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.species_profile_for(text, text) FROM anon, authenticated;
