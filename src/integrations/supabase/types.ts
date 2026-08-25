@@ -2018,6 +2018,18 @@ export type Database = {
         Args: { p_key: string; p_ttl_seconds?: number }
         Returns: boolean
       }
+      upsert_species_profile: {
+        Args: {
+          p_conservation: string
+          p_description: string
+          p_diet: string
+          p_fun_fact: string
+          p_habitat: string
+          p_name: string
+          p_scientific: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
