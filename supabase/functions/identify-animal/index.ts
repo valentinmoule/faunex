@@ -762,12 +762,16 @@ serve(async (req) => {
         animalData.fun_fact = profile.fun_fact;
         animalData.profile_source = "generated";
 
-        await admin.from("species_profiles").upsert(
-          {
-            normalized_name: null as unknown as string, // rempli côté SQL ci-dessous
-          },
-          { onConflict: "normalized_name", ignoreDuplicates: true },
-        ).select().then(() => undefined).catch(() => undefined);
+        // Mise en cache pour toutes les identifications suivantes de l'espèce.
+        await admin.rpc("upsert_species_profile", {
+          p_name: name,
+          p_scientific: animalData.scientific_name || null,
+          p_description: profile.description,
+          p_habitat: profile.habitat,
+          p_diet: profile.diet,
+          p_conservation: profile.conservation,
+          p_fun_fact: profile.fun_fact,
+        });
       } catch (e) {
         console.error("species profile generation error", e);
       }
