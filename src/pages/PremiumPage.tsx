@@ -20,7 +20,7 @@ interface FeatureRow {
 const FEATURES: FeatureRow[] = [
   {
     label: 'Identification des animaux',
-    free: <span className="text-sm font-medium">4 / jour</span>,
+    free: <span className="text-sm font-medium">4</span>,
     premium: <span className="text-sm font-semibold text-primary">Illimitée</span>,
   },
   {
@@ -30,7 +30,7 @@ const FEATURES: FeatureRow[] = [
   },
   {
     label: 'Collections et territoires',
-    free: <span className="text-sm font-medium">3 maximum</span>,
+    free: <span className="text-sm font-medium">3</span>,
     premium: <span className="text-sm font-semibold text-primary">Illimités</span>,
   },
   {
