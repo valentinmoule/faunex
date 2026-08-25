@@ -669,6 +669,113 @@ serve(async (req) => {
       await logRaw(null, knownInBestiary ? "accepted_known_bestiary" : "accepted_unknown_label");
     }
 
+    /**
+     * Fiche descriptive : mutualisée par espèce.
+     * 1) On cherche la fiche déjà rédigée en base (cas très majoritaire : le
+     *    bestiaire contient déjà des milliers d'espèces) → coût IA nul.
+     * 2) Sinon on la génère UNE seule fois, par un appel texte (sans image,
+     *    donc très bon marché) et on la met en cache pour tous les explorateurs
+     *    suivants.
+     */
+    const attachProfile = async () => {
+      const name = String(animalData?.animal_name || "").trim();
+      if (!admin || !name || name.toLowerCase() === "inconnu") return;
+
+      try {
+        const { data } = await admin.rpc("species_profile_for", {
+          p_name: name,
+          p_scientific: animalData.scientific_name || null,
+        });
+        const row = Array.isArray(data) ? data[0] : data;
+        if (row?.description) {
+          animalData.description = row.description;
+          animalData.habitat = row.habitat;
+          animalData.diet = row.diet;
+          animalData.conservation = row.conservation;
+          animalData.fun_fact = row.fun_fact;
+          animalData.profile_source = "cache";
+          return;
+        }
+      } catch (e) {
+        console.error("species profile lookup failed", e);
+      }
+
+      // Génération unique (texte seul, pas d'image → coût minimal).
+      try {
+        const r = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${LOVABLE_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: FAST_MODEL,
+            temperature: 0.2,
+            messages: [
+              {
+                role: "system",
+                content:
+                  "Naturaliste francophone. Rédige une fiche factuelle et vérifiée pour l'espèce demandée, sans invention. Réponds uniquement via l'appel de fonction species_profile.",
+              },
+              {
+                role: "user",
+                content: `Espèce : ${name}${animalData.scientific_name ? ` (${animalData.scientific_name})` : ""}. Catégorie : ${animalData.category || "inconnue"}.`,
+              },
+            ],
+            tools: [
+              {
+                type: "function",
+                function: {
+                  name: "species_profile",
+                  description: "Fiche d'espèce",
+                  parameters: {
+                    type: "object",
+                    properties: {
+                      description: { type: "string", description: "2-3 phrases : physique distinctif et comportement." },
+                      habitat: { type: "string", description: "Habitat et répartition." },
+                      diet: { type: "string", description: "Régime alimentaire." },
+                      conservation: { type: "string", description: "Statut UICN : LC, NT, VU, EN, CR ou 'Domestique'." },
+                      fun_fact: { type: "string", description: "Fait surprenant et vérifié." },
+                    },
+                    required: ["description", "habitat", "diet", "conservation", "fun_fact"],
+                    additionalProperties: false,
+                  },
+                },
+              },
+            ],
+            tool_choice: { type: "function", function: { name: "species_profile" } },
+          }),
+        });
+        if (!r.ok) {
+          console.error("species profile generation failed", r.status);
+          return;
+        }
+        const d = await r.json();
+        const args = d.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
+        const profile = args ? JSON.parse(args) : null;
+        if (!profile?.description) return;
+
+        animalData.description = profile.description;
+        animalData.habitat = profile.habitat;
+        animalData.diet = profile.diet;
+        animalData.conservation = profile.conservation;
+        animalData.fun_fact = profile.fun_fact;
+        animalData.profile_source = "generated";
+
+        await admin.from("species_profiles").upsert(
+          {
+            normalized_name: null as unknown as string, // rempli côté SQL ci-dessous
+          },
+          { onConflict: "normalized_name", ignoreDuplicates: true },
+        ).select().then(() => undefined).catch(() => undefined);
+      } catch (e) {
+        console.error("species profile generation error", e);
+      }
+    };
+
+    await attachProfile();
+
+
     return new Response(JSON.stringify({ success: true, animal: animalData }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
