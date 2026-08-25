@@ -1229,6 +1229,54 @@ export type Database = {
         }
         Relationships: []
       }
+      species_profiles: {
+        Row: {
+          animal_name: string
+          conservation: string | null
+          created_at: string
+          description: string | null
+          diet: string | null
+          fun_fact: string | null
+          habitat: string | null
+          id: string
+          normalized_name: string
+          normalized_scientific: string | null
+          scientific_name: string | null
+          source: string
+          updated_at: string
+        }
+        Insert: {
+          animal_name: string
+          conservation?: string | null
+          created_at?: string
+          description?: string | null
+          diet?: string | null
+          fun_fact?: string | null
+          habitat?: string | null
+          id?: string
+          normalized_name: string
+          normalized_scientific?: string | null
+          scientific_name?: string | null
+          source?: string
+          updated_at?: string
+        }
+        Update: {
+          animal_name?: string
+          conservation?: string | null
+          created_at?: string
+          description?: string | null
+          diet?: string | null
+          fun_fact?: string | null
+          habitat?: string | null
+          id?: string
+          normalized_name?: string
+          normalized_scientific?: string | null
+          scientific_name?: string | null
+          source?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           cancel_at_period_end: boolean | null
@@ -1953,10 +2001,34 @@ export type Database = {
         Args: { p_error?: string; p_job_key: string; p_resume?: boolean }
         Returns: undefined
       }
+      species_profile_for: {
+        Args: { p_name: string; p_scientific?: string }
+        Returns: {
+          animal_name: string
+          conservation: string
+          description: string
+          diet: string
+          fun_fact: string
+          habitat: string
+          scientific_name: string
+        }[]
+      }
       strip_label_parenthetical: { Args: { p_label: string }; Returns: string }
       try_claim_notification: {
         Args: { p_key: string; p_ttl_seconds?: number }
         Returns: boolean
+      }
+      upsert_species_profile: {
+        Args: {
+          p_conservation: string
+          p_description: string
+          p_diet: string
+          p_fun_fact: string
+          p_habitat: string
+          p_name: string
+          p_scientific: string
+        }
+        Returns: undefined
       }
     }
     Enums: {

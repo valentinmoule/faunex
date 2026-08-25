@@ -165,12 +165,35 @@ const verifyTaxon = async (
 
 
 /**
- * Prompt système compacté (≈ 3× moins de jetons que la version détaillée) :
- * aucune règle n'a été retirée, seules les redondances et les listes
- * illustratives longues ont été condensées. Les critères diagnostiques des
- * confusions fréquentes (cervidés, coccinelles) sont conservés car ils sont
- * directement responsables de la précision.
+ * Deux prompts au lieu d'un seul :
+ *  - FAST_PROMPT (≈ 3× plus court) pour la passe économique, qui traite la
+ *    très grande majorité des photos : authenticité, sujets interdits, règle
+ *    taxonomique, nommage des domestiques, rareté, calibration.
+ *  - SYSTEM_PROMPT (complet, avec les critères diagnostiques des confusions
+ *    fréquentes) réservé à la seconde passe, déclenchée uniquement quand la
+ *    première hésite. La fiabilité est donc conservée là où elle compte, sans
+ *    payer les jetons du prompt long sur chaque requête.
+ * Aucun des deux ne rédige plus la fiche descriptive : celle-ci vient de la
+ * base (species_profiles) et n'est générée qu'une seule fois par espèce.
  */
+const FAST_PROMPT = `Expert naturaliste. Identifie l'animal avec précision scientifique (morphologie, pelage/plumage, traits distinctifs, contexte), au rang le plus précis possible.
+
+1. AUTHENTICITÉ (d'abord) : Faunex n'accepte que de VRAIES PHOTOGRAPHIES d'animaux vivants. Renseigne image_type + is_real_photo. N'est PAS une photo d'animal : illustration, dessin, art vectoriel, sticker, emoji, logo, icône, mascotte, affiche, peinture, gravure, tatouage, sculpture, statue, taxidermie, rendu 3D, image IA, jeu vidéo, capture d'écran, photo d'écran/livre/poster, jouet, peluche, figurine — ni un OBJET en forme d'animal (bibelot, décoration, sculpture, déguisement, gonflable, animatronique, gâteau, graffiti, panneau). Indices objet/non-photo : texture de matériau, coutures, posture rigide, socle, yeux peints, aplats uniformes, absence de grain, fond uni, texte/watermark. Doute → is_real_photo = false → animal_name "Inconnu", confidence 0, aucune alternative (un logo de renard n'est pas un renard).
+
+2. SUJETS INTERDITS → "Inconnu", confidence 0 : humain (si humain + animal, identifie l'animal) ; créatures de fiction/mythologiques ; espèces éteintes ou préhistoriques ; aucun animal visible. Exception : espèces réelles nommées "dragon" (Komodo, barbu, volant).
+
+3. TAXONOMIE STRICTE : le nom scientifique n'est jamais déduit ou fabriqué depuis le nom vernaculaire. N'écris un binôme que si l'espèce est réellement publiée ET que le genre est le bon. Sinon remonte au rang RÉEL sûr (scientific_name = ce rang seul, scientific_rank = genus|family|order|class, animal_name = nom générique court honnête, confidence ≤ 60). animal_name = nom commun français uniquement, JAMAIS de parenthèses ni de précision ajoutée. Jamais de nom composite ou de binôme inventé. confidence ≥ 80 réservée aux binômes certains.
+
+4. DOMESTIQUES : races réelles bien orthographiées, seules (jamais "Croisé…"/"Type…"). Doute → nom générique ("Chien domestique", "Chat Européen", "Vache domestique") + hypothèses en alternatives. Chien : Canis lupus familiaris. Chat : Felis catus. Bovin : "Vache <Race>", Bos taurus.
+
+5. FAUNE SAUVAGE : ne retiens jamais l'espèce la plus courante par défaut ; compare les critères diagnostiques (cervidés, coccinelles, mésanges, goélands, hirondelles, bourdons, lézards…) et baisse la confiance en cas d'ambiguïté.
+
+6. RARETÉ (observation en Europe/France) : common quotidien · rare patience/chance · epic très rare, vulnérable/en danger · mythic quasi-impossible, en danger critique.
+
+7. CONFIANCE (0-100, honnête) : 90-100 certaine · 70-89 très probable · 50-69 plusieurs espèces possibles · 30-49 incertain · 0-29 sans preuve. Si < 80, donne 1 à 3 alternatives.
+
+Réponds UNIQUEMENT via l'appel de fonction identify_animal.`;
+
 const SYSTEM_PROMPT = `Expert naturaliste (zoologie, ornithologie, herpétologie, entomologie, cynologie, félinologie). Tu identifies les animaux avec une précision scientifique.
 
 Méthode : analyse morphologie/proportions, pelage-plumage-peau (couleur, motifs, texture), traits distinctifs (oreilles, queue, bec, bois, nageoires), contexte (habitat, région, saison). Identifie au rang le plus précis possible (sous-espèce > race > espèce > genre > famille).
@@ -220,6 +243,7 @@ common : quotidien (pigeon, moineau, merle, Labrador, écureuil) · rare : patie
 Réponds UNIQUEMENT via l'appel de fonction identify_animal.`;
 
 
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -249,7 +273,7 @@ serve(async (req) => {
     const FAST_MODEL = "google/gemini-3.1-flash-lite";
     const DEEP_MODEL = "google/gemini-3.5-flash";
 
-    const callGateway = async (model: string, timeoutMs: number) => {
+    const callGateway = async (model: string, timeoutMs: number, prompt: string) => {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), timeoutMs);
       try {
@@ -265,7 +289,7 @@ serve(async (req) => {
         model,
         temperature: 0,
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
+          { role: "system", content: prompt },
           {
             role: "user",
             content: [
@@ -318,17 +342,12 @@ serve(async (req) => {
                     description: "Exactement une de ces 9 classes. Myriapodes → Insectes ; vers/annélides, échinodermes (oursins, étoiles de mer) et cnidaires (méduses, anémones, coraux) → Mollusques."
                   },
 
-                  description: {
-                    type: "string",
-                    description: "2-3 phrases : physique distinctif et comportement."
-                  },
-                  habitat: { type: "string", description: "Habitat et répartition." },
-                  diet: { type: "string", description: "Régime alimentaire." },
-                  conservation: {
-                    type: "string",
-                    description: "Statut UICN : LC, NT, VU, EN, CR ou 'Domestique'."
-                  },
-                  fun_fact: { type: "string", description: "Fait surprenant et vérifié." },
+                  // La fiche (description, habitat, régime, conservation,
+                  // anecdote) n'est plus demandée ici : elle est mutualisée en
+                  // base par espèce (species_profiles) et générée au maximum
+                  // une seule fois, ce qui supprime des centaines de jetons de
+                  // sortie sur chaque identification.
+
                   rarity: {
                     type: "string",
                     enum: ["common", "rare", "epic", "mythic"]
@@ -358,7 +377,7 @@ serve(async (req) => {
                     additionalProperties: false
                   }
                 },
-                required: ["is_real_photo", "image_type", "animal_name", "scientific_name", "category", "description", "habitat", "diet", "conservation", "fun_fact", "rarity", "confidence"],
+                required: ["is_real_photo", "image_type", "animal_name", "scientific_name", "category", "rarity", "confidence"],
                 additionalProperties: false
               }
             }
@@ -379,14 +398,14 @@ serve(async (req) => {
      * répond en général en 2 s. Budget total borné (< 50 s) pour rester sous le
      * timeout client.
      */
-    const tryModel = async (model: string, timeoutMs: number, attempts = 1) => {
+    const tryModel = async (model: string, timeoutMs: number, prompt: string, attempts = 1) => {
       for (let i = 0; i < attempts; i++) {
         const startedAt = Date.now();
         try {
-          let r = await callGateway(model, timeoutMs);
+          let r = await callGateway(model, timeoutMs, prompt);
           if (!r.ok && r.status >= 500) {
             console.error("AI gateway 5xx, retrying once", model);
-            r = await callGateway(model, timeoutMs);
+            r = await callGateway(model, timeoutMs, prompt);
           }
           if (!r.ok && r.status >= 500 && i < attempts - 1) continue;
           return r;
@@ -441,12 +460,13 @@ serve(async (req) => {
     // 1) Passe économique (Flash Lite) — couvre la grande majorité des animaux.
     //    12 s suffisent largement (médiane ~2,5 s) ; au-delà l'appel est bloqué,
     //    on repart sur une requête neuve plutôt que d'attendre.
-    let response = await tryModel(FAST_MODEL, 12_000, 2);
+    let response = await tryModel(FAST_MODEL, 12_000, FAST_PROMPT, 2);
     let animalData = response?.ok ? await parseAnimal(response, FAST_MODEL) : null;
 
 
-    // 2) Second passage sur Flash (modèle bon marché, pas de Pro) uniquement
-    // quand Lite échoue ou est franchement incertain.
+    // 2) Second passage sur Flash (modèle bon marché, pas de Pro) avec le prompt
+    // complet (critères diagnostiques détaillés), uniquement quand Lite échoue
+    // ou est franchement incertain.
     const CONFUSABLE = /(chevreuil|biche|cerf|daim|faon|coccinelle|mesange|mésange|pouillot|goeland|goéland|mouette|hirondelle|martinet|bourdon|abeille|corneille|corbeau|choucas|lezard|lézard|pipistrelle)/i;
     const label = String(animalData?.animal_name || "");
     const confidence = typeof animalData?.confidence === "number" ? animalData.confidence : -1;
@@ -457,7 +477,7 @@ serve(async (req) => {
 
     if (needsDeep) {
       // Budget restant : 24 s (2× Lite) + 20 s = 44 s max, sous le timeout client.
-      const deep = await tryModel(DEEP_MODEL, 20_000);
+      const deep = await tryModel(DEEP_MODEL, 20_000, SYSTEM_PROMPT);
       if (deep?.ok) {
         const deepData = await parseAnimal(deep, DEEP_MODEL);
         if (deepData) {
@@ -502,7 +522,7 @@ serve(async (req) => {
             status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
         }
-        console.error("AI gateway error:", response.status);
+        console.error("AI gateway error:", response.status, await response.text().catch(() => ""));
         return new Response(JSON.stringify({ error: "Erreur d'identification" }), {
           status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
@@ -648,6 +668,117 @@ serve(async (req) => {
       animalData.taxon_validated = knownInBestiary;
       await logRaw(null, knownInBestiary ? "accepted_known_bestiary" : "accepted_unknown_label");
     }
+
+    /**
+     * Fiche descriptive : mutualisée par espèce.
+     * 1) On cherche la fiche déjà rédigée en base (cas très majoritaire : le
+     *    bestiaire contient déjà des milliers d'espèces) → coût IA nul.
+     * 2) Sinon on la génère UNE seule fois, par un appel texte (sans image,
+     *    donc très bon marché) et on la met en cache pour tous les explorateurs
+     *    suivants.
+     */
+    const attachProfile = async () => {
+      const name = String(animalData?.animal_name || "").trim();
+      if (!admin || !name || name.toLowerCase() === "inconnu") return;
+
+      try {
+        const { data } = await admin.rpc("species_profile_for", {
+          p_name: name,
+          p_scientific: animalData.scientific_name || null,
+        });
+        const row = Array.isArray(data) ? data[0] : data;
+        if (row?.description) {
+          animalData.description = row.description;
+          animalData.habitat = row.habitat;
+          animalData.diet = row.diet;
+          animalData.conservation = row.conservation;
+          animalData.fun_fact = row.fun_fact;
+          animalData.profile_source = "cache";
+          return;
+        }
+      } catch (e) {
+        console.error("species profile lookup failed", e);
+      }
+
+      // Génération unique (texte seul, pas d'image → coût minimal).
+      try {
+        const r = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${LOVABLE_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: FAST_MODEL,
+            temperature: 0.2,
+            messages: [
+              {
+                role: "system",
+                content:
+                  "Naturaliste francophone. Rédige une fiche factuelle et vérifiée pour l'espèce demandée, sans invention. Réponds uniquement via l'appel de fonction species_profile.",
+              },
+              {
+                role: "user",
+                content: `Espèce : ${name}${animalData.scientific_name ? ` (${animalData.scientific_name})` : ""}. Catégorie : ${animalData.category || "inconnue"}.`,
+              },
+            ],
+            tools: [
+              {
+                type: "function",
+                function: {
+                  name: "species_profile",
+                  description: "Fiche d'espèce",
+                  parameters: {
+                    type: "object",
+                    properties: {
+                      description: { type: "string", description: "2-3 phrases : physique distinctif et comportement." },
+                      habitat: { type: "string", description: "Habitat et répartition." },
+                      diet: { type: "string", description: "Régime alimentaire." },
+                      conservation: { type: "string", description: "Statut UICN : LC, NT, VU, EN, CR ou 'Domestique'." },
+                      fun_fact: { type: "string", description: "Fait surprenant et vérifié." },
+                    },
+                    required: ["description", "habitat", "diet", "conservation", "fun_fact"],
+                    additionalProperties: false,
+                  },
+                },
+              },
+            ],
+            tool_choice: { type: "function", function: { name: "species_profile" } },
+          }),
+        });
+        if (!r.ok) {
+          console.error("species profile generation failed", r.status);
+          return;
+        }
+        const d = await r.json();
+        const args = d.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
+        const profile = args ? JSON.parse(args) : null;
+        if (!profile?.description) return;
+
+        animalData.description = profile.description;
+        animalData.habitat = profile.habitat;
+        animalData.diet = profile.diet;
+        animalData.conservation = profile.conservation;
+        animalData.fun_fact = profile.fun_fact;
+        animalData.profile_source = "generated";
+
+        // Mise en cache pour toutes les identifications suivantes de l'espèce.
+        await admin.rpc("upsert_species_profile", {
+          p_name: name,
+          p_scientific: animalData.scientific_name || null,
+          p_description: profile.description,
+          p_habitat: profile.habitat,
+          p_diet: profile.diet,
+          p_conservation: profile.conservation,
+          p_fun_fact: profile.fun_fact,
+        });
+      } catch (e) {
+        console.error("species profile generation error", e);
+      }
+    };
+
+    await attachProfile();
+
 
     return new Response(JSON.stringify({ success: true, animal: animalData }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
