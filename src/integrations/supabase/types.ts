@@ -506,48 +506,41 @@ export type Database = {
           claimed: boolean
           completed: boolean
           created_at: string
-          description: string
-          icon: string
           id: string
           progress: number
           quest_date: string
-          quest_type: string
-          target: number
-          title: string
+          template_id: string
           user_id: string
-          xp_reward: number
         }
         Insert: {
           claimed?: boolean
           completed?: boolean
           created_at?: string
-          description: string
-          icon?: string
           id?: string
           progress?: number
           quest_date?: string
-          quest_type: string
-          target?: number
-          title: string
+          template_id: string
           user_id: string
-          xp_reward?: number
         }
         Update: {
           claimed?: boolean
           completed?: boolean
           created_at?: string
-          description?: string
-          icon?: string
           id?: string
           progress?: number
           quest_date?: string
-          quest_type?: string
-          target?: number
-          title?: string
+          template_id?: string
           user_id?: string
-          xp_reward?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "daily_quests_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "quest_templates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       email_send_log: {
         Row: {
@@ -1191,6 +1184,51 @@ export type Database = {
         }
         Relationships: []
       }
+      quest_templates: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          description: string
+          difficulty: number
+          icon: string
+          id: string
+          quest_type: string
+          target: number
+          title: string
+          updated_at: string
+          xp_reward: number
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          description: string
+          difficulty?: number
+          icon: string
+          id?: string
+          quest_type: string
+          target: number
+          title: string
+          updated_at?: string
+          xp_reward: number
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          description?: string
+          difficulty?: number
+          icon?: string
+          id?: string
+          quest_type?: string
+          target?: number
+          title?: string
+          updated_at?: string
+          xp_reward?: number
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           cancel_at_period_end: boolean | null
@@ -1548,6 +1586,35 @@ export type Database = {
         }
         Relationships: []
       }
+      weekly_quest_draw: {
+        Row: {
+          created_at: string
+          slot: number
+          template_id: string
+          week_start: string
+        }
+        Insert: {
+          created_at?: string
+          slot: number
+          template_id: string
+          week_start: string
+        }
+        Update: {
+          created_at?: string
+          slot?: number
+          template_id?: string
+          week_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "weekly_quest_draw_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "quest_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       bestiary_catalogue: {
@@ -1705,6 +1772,33 @@ export type Database = {
         }
         Relationships: []
       }
+      weekly_quests: {
+        Row: {
+          claimed: boolean | null
+          completed: boolean | null
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string | null
+          progress: number | null
+          quest_date: string | null
+          quest_type: string | null
+          target: number | null
+          template_id: string | null
+          title: string | null
+          user_id: string | null
+          xp_reward: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_quests_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "quest_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       acquire_background_job: {
@@ -1740,6 +1834,8 @@ export type Database = {
           taxon_id: string
         }[]
       }
+      complete_share_quest: { Args: { p_quest_id: string }; Returns: boolean }
+      draw_weekly_quests: { Args: { p_week?: string }; Returns: number }
       ensure_weekly_quests: { Args: never; Returns: number }
       ensure_weekly_quests_for: { Args: { p_user_id: string }; Returns: number }
       get_my_profile: {
