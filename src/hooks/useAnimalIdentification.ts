@@ -5,7 +5,7 @@ import type { AnimalResult } from '@/types/capture';
 import { logDatasetEvent, setPendingImageHash } from '@/lib/dataset';
 
 /** Motifs de refus explicites (l'utilisateur peut toujours demander une modération). */
-export type RejectionKind = 'representation' | 'internet' | 'human';
+export type RejectionKind = 'representation' | 'internet' | 'human' | 'dead';
 
 type IdentifyOutcome =
   | { status: 'identified'; animal: AnimalResult }
