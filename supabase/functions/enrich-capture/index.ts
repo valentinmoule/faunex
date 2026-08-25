@@ -44,7 +44,7 @@ Un modérateur humain a DÉJÀ validé l'identification. Le nom d'animal qui t'e
 Ta seule mission : rédiger la fiche documentaire de cette espèce (nom scientifique, catégorie, description, habitat, régime, statut de conservation, anecdote, rareté).
 
 Règles :
-- Reprends EXACTEMENT le nom commun fourni dans animal_name (tu peux uniquement corriger l'orthographe évidente et la casse, jamais changer d'espèce ou de race).
+- Reprends EXACTEMENT le nom commun fourni dans animal_name (tu peux uniquement corriger l'orthographe évidente et la casse, jamais changer d'espèce ou de race) et sans jamais ajouter de parenthèses (pas de "(famille des…)", "(genre…)", "(mâle)", ni de nom scientifique répété).
 - Le nom scientifique doit être le binôme latin réel de cette espèce (pour une race domestique, le binôme de l'espèce domestique).
 - La description de l'observateur peut préciser la race, la couleur ou le contexte : intègre-la si elle est cohérente.
 - N'invente aucun fait : reste factuel et vérifiable.
