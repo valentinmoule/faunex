@@ -342,17 +342,12 @@ serve(async (req) => {
                     description: "Exactement une de ces 9 classes. Myriapodes → Insectes ; vers/annélides, échinodermes (oursins, étoiles de mer) et cnidaires (méduses, anémones, coraux) → Mollusques."
                   },
 
-                  description: {
-                    type: "string",
-                    description: "2-3 phrases : physique distinctif et comportement."
-                  },
-                  habitat: { type: "string", description: "Habitat et répartition." },
-                  diet: { type: "string", description: "Régime alimentaire." },
-                  conservation: {
-                    type: "string",
-                    description: "Statut UICN : LC, NT, VU, EN, CR ou 'Domestique'."
-                  },
-                  fun_fact: { type: "string", description: "Fait surprenant et vérifié." },
+                  // La fiche (description, habitat, régime, conservation,
+                  // anecdote) n'est plus demandée ici : elle est mutualisée en
+                  // base par espèce (species_profiles) et générée au maximum
+                  // une seule fois, ce qui supprime des centaines de jetons de
+                  // sortie sur chaque identification.
+
                   rarity: {
                     type: "string",
                     enum: ["common", "rare", "epic", "mythic"]
