@@ -111,14 +111,6 @@ const ExplorersPage = () => {
   const [pendingRequests, setPendingRequests] = useState<FollowProfile[]>([]);
   const [followsLoading, setFollowsLoading] = useState(true);
 
-  // All explorers (paginated)
-  const PAGE_SIZE = 25;
-  const [allUsers, setAllUsers] = useState<SearchUser[]>([]);
-  const [allLoading, setAllLoading] = useState(false);
-  const [allHasMore, setAllHasMore] = useState(true);
-  const [allOffset, setAllOffset] = useState(0);
-  const sentinelRef = useRef<HTMLDivElement | null>(null);
-
   const userId = session?.user?.id;
 
   // ── Premium status ──
@@ -128,12 +120,12 @@ const ExplorersPage = () => {
   const searchUserIds = useMemo(() => {
     const ids = new Set<string>();
     searchResults.forEach(u => ids.add(u.user_id));
-    allUsers.forEach(u => ids.add(u.user_id));
     following.forEach(f => { if (f.profile) ids.add(f.profile.user_id); });
     followers.forEach(f => { if (f.profile) ids.add(f.profile.user_id); });
     pendingRequests.forEach(f => { if (f.profile) ids.add(f.profile.user_id); });
     return [...ids];
-  }, [searchResults, allUsers, following, followers, pendingRequests]);
+  }, [searchResults, following, followers, pendingRequests]);
+
   const searchPremiumIds = usePremiumUsers(searchUserIds);
 
   // ── Header data ──
