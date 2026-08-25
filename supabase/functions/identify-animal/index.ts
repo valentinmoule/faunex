@@ -460,12 +460,13 @@ serve(async (req) => {
     // 1) Passe économique (Flash Lite) — couvre la grande majorité des animaux.
     //    12 s suffisent largement (médiane ~2,5 s) ; au-delà l'appel est bloqué,
     //    on repart sur une requête neuve plutôt que d'attendre.
-    let response = await tryModel(FAST_MODEL, 12_000, 2);
+    let response = await tryModel(FAST_MODEL, 12_000, FAST_PROMPT, 2);
     let animalData = response?.ok ? await parseAnimal(response, FAST_MODEL) : null;
 
 
-    // 2) Second passage sur Flash (modèle bon marché, pas de Pro) uniquement
-    // quand Lite échoue ou est franchement incertain.
+    // 2) Second passage sur Flash (modèle bon marché, pas de Pro) avec le prompt
+    // complet (critères diagnostiques détaillés), uniquement quand Lite échoue
+    // ou est franchement incertain.
     const CONFUSABLE = /(chevreuil|biche|cerf|daim|faon|coccinelle|mesange|mésange|pouillot|goeland|goéland|mouette|hirondelle|martinet|bourdon|abeille|corneille|corbeau|choucas|lezard|lézard|pipistrelle)/i;
     const label = String(animalData?.animal_name || "");
     const confidence = typeof animalData?.confidence === "number" ? animalData.confidence : -1;
@@ -476,7 +477,7 @@ serve(async (req) => {
 
     if (needsDeep) {
       // Budget restant : 24 s (2× Lite) + 20 s = 44 s max, sous le timeout client.
-      const deep = await tryModel(DEEP_MODEL, 20_000);
+      const deep = await tryModel(DEEP_MODEL, 20_000, SYSTEM_PROMPT);
       if (deep?.ok) {
         const deepData = await parseAnimal(deep, DEEP_MODEL);
         if (deepData) {
