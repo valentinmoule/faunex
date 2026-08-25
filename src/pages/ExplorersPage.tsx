@@ -111,14 +111,6 @@ const ExplorersPage = () => {
   const [pendingRequests, setPendingRequests] = useState<FollowProfile[]>([]);
   const [followsLoading, setFollowsLoading] = useState(true);
 
-  // All explorers (paginated)
-  const PAGE_SIZE = 25;
-  const [allUsers, setAllUsers] = useState<SearchUser[]>([]);
-  const [allLoading, setAllLoading] = useState(false);
-  const [allHasMore, setAllHasMore] = useState(true);
-  const [allOffset, setAllOffset] = useState(0);
-  const sentinelRef = useRef<HTMLDivElement | null>(null);
-
   const userId = session?.user?.id;
 
   // ── Premium status ──
@@ -128,12 +120,12 @@ const ExplorersPage = () => {
   const searchUserIds = useMemo(() => {
     const ids = new Set<string>();
     searchResults.forEach(u => ids.add(u.user_id));
-    allUsers.forEach(u => ids.add(u.user_id));
     following.forEach(f => { if (f.profile) ids.add(f.profile.user_id); });
     followers.forEach(f => { if (f.profile) ids.add(f.profile.user_id); });
     pendingRequests.forEach(f => { if (f.profile) ids.add(f.profile.user_id); });
     return [...ids];
-  }, [searchResults, allUsers, following, followers, pendingRequests]);
+  }, [searchResults, following, followers, pendingRequests]);
+
   const searchPremiumIds = usePremiumUsers(searchUserIds);
 
   // ── Header data ──
@@ -282,9 +274,9 @@ const ExplorersPage = () => {
 
   useEffect(() => { fetchFollows(); }, [fetchFollows]);
 
-  // ── Search ──
+  // ── Search (min 3 caractères) ──
   const doSearch = async () => {
-    if (searchQuery.trim().length < 2) return;
+    if (searchQuery.trim().length < 3) return;
     setSearching(true);
     try {
       const { data, error } = await supabase.functions.invoke('search-users', { body: { query: searchQuery.trim() } });
@@ -294,54 +286,12 @@ const ExplorersPage = () => {
   };
 
   useEffect(() => {
-    if (searchQuery.trim().length >= 2) {
+    if (searchQuery.trim().length >= 3) {
       const timer = setTimeout(doSearch, 400);
       return () => clearTimeout(timer);
     } else { setSearchResults([]); }
   }, [searchQuery]);
 
-  // ── All explorers (paginated 25/scroll) ──
-  const loadMoreExplorers = useCallback(async () => {
-    if (allLoading || !allHasMore || !userId) return;
-    setAllLoading(true);
-    const from = allOffset;
-    const to = from + PAGE_SIZE - 1;
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('user_id, display_name, username, avatar_url, level, total_captures')
-      .neq('user_id', userId)
-      .not('user_id', 'in', `(${HIDDEN_USER_IDS.join(',')})`)
-      .order('level', { ascending: false })
-      .order('total_captures', { ascending: false })
-      .order('user_id', { ascending: true })
-      .range(from, to);
-    if (!error && data) {
-      setAllUsers(prev => [...prev, ...(data as SearchUser[])]);
-      setAllOffset(from + data.length);
-      if (data.length < PAGE_SIZE) setAllHasMore(false);
-    }
-
-    setAllLoading(false);
-  }, [allLoading, allHasMore, allOffset, userId]);
-
-  // Initial load when entering search view
-  useEffect(() => {
-    if (view === 'search' && allUsers.length === 0 && allHasMore && userId) {
-      loadMoreExplorers();
-    }
-  }, [view, userId, allUsers.length, allHasMore, loadMoreExplorers]);
-
-  // IntersectionObserver for infinite scroll
-  useEffect(() => {
-    if (view !== 'search' || searchTab !== 'search' || searchQuery.trim().length >= 2) return;
-    const el = sentinelRef.current;
-    if (!el) return;
-    const obs = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting) loadMoreExplorers();
-    }, { rootMargin: '200px' });
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [view, searchTab, searchQuery, loadMoreExplorers]);
 
   // ── Follow actions ──
   const handleFollow = async (targetId: string) => {
@@ -513,10 +463,11 @@ const ExplorersPage = () => {
         )}
 
         <div className="max-w-lg mx-auto px-4 pt-2">
-          {/* Search results OR full explorer list */}
+          {/* Résultats de recherche (min. 3 lettres) */}
           {searchTab === 'search' && (() => {
-            const isSearching = searchQuery.trim().length >= 2;
-            const list = isSearching ? searchResults.filter(u => u.user_id !== userId) : allUsers;
+            const query = searchQuery.trim();
+            const isSearching = query.length >= 3;
+            const list = searchResults.filter(u => u.user_id !== userId);
             const renderAction = (user: SearchUser) =>
               isFollowing(user.user_id) ? (
                 <button onClick={() => unfollowUser(user.user_id)} className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-muted text-foreground text-xs font-display font-semibold"><UserCheck className="w-3.5 h-3.5" /> Abonné</button>
@@ -525,20 +476,28 @@ const ExplorersPage = () => {
               ) : (
                 <button onClick={() => handleFollow(user.user_id)} className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-display font-semibold"><UserPlus className="w-3.5 h-3.5" /> S'abonner</button>
               );
+            if (!isSearching) {
+              return (
+                <div className="text-center py-16 px-6">
+                  <Search className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+                  <p className="text-foreground font-display font-semibold text-sm mb-2">Rechercher un explorateur</p>
+                  <p className="text-muted-foreground text-xs leading-relaxed max-w-xs mx-auto">
+                    Saisis au moins 3 lettres d'un nom ou d'un pseudo pour lancer la recherche.
+                  </p>
+                </div>
+              );
+            }
             return (
               <div className="divide-y divide-border">
-                {isSearching && searching && <p className="text-center py-8 text-muted-foreground text-sm font-display">Recherche…</p>}
-                {isSearching && !searching && list.length === 0 && <p className="text-center py-8 text-muted-foreground text-sm font-display">Aucun explorateur trouvé</p>}
+                {searching && <p className="text-center py-8 text-muted-foreground text-sm font-display">Recherche…</p>}
+                {!searching && list.length === 0 && <p className="text-center py-8 text-muted-foreground text-sm font-display">Aucun explorateur trouvé</p>}
                 {list.map(user => (
                   <UserRow key={user.user_id} user={user} onClick={() => navigate(`/explorer/${user.user_id}/collection`)} action={renderAction(user)} isPremium={searchPremiumIds.has(user.user_id)} />
                 ))}
-                {!isSearching && allLoading && <p className="text-center py-6 text-muted-foreground text-sm font-display">Chargement…</p>}
-                {!isSearching && !allLoading && allUsers.length === 0 && <p className="text-center py-8 text-muted-foreground text-sm font-display">Aucun explorateur pour le moment</p>}
-                {!isSearching && !allHasMore && allUsers.length > 0 && <p className="text-center py-6 text-muted-foreground text-xs font-display">Tu as vu tous les explorateurs</p>}
-                {!isSearching && allHasMore && <div ref={sentinelRef} className="h-8" />}
               </div>
             );
           })()}
+
 
           {/* Following */}
           {searchTab === 'following' && (
