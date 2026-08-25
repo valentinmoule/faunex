@@ -11,7 +11,7 @@ import { Helmet } from 'react-helmet-async';
 import { translateAuthError, authRedirectUrl } from '@/lib/authErrors';
 import { oauthRedirectUri, nativeAuthBridgeUrl } from '@/lib/authRedirect';
 import { IS_NATIVE_APP } from '@/lib/platform';
-import { openNativeAuthBridge } from '@/lib/nativeAuthLauncher';
+import { signInWithNativeApple } from '@/lib/nativeAppleSignIn';
 
 const AuthPage = () => {
   const [searchParams] = useSearchParams();
@@ -345,8 +345,14 @@ const AuthPage = () => {
                     (window as any).gtag_report_conversion();
                   }
                   if (IS_NATIVE_APP) {
-                    // Apple : Safari système obligatoire (voir nativeAuthLauncher)
-                    await openNativeAuthBridge('apple');
+                    setLoading(true);
+                    const { error } = await signInWithNativeApple();
+                    setLoading(false);
+                    if (error) {
+                      toast.error('Erreur de connexion Apple');
+                      return;
+                    }
+                    navigate('/home');
                     return;
                   }
                   const { error } = await lovable.auth.signInWithOAuth('apple', {

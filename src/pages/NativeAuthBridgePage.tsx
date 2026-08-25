@@ -14,8 +14,12 @@ const NativeAuthBridgePage = () => {
       return;
     }
 
-    // Le flow natif démarre toujours sur l'apex : `www` redirige vers l'apex
-    // (307 en POST), ce qui ajoute un hop inutile et casse le form_post d'Apple.
+    if (provider === 'apple') {
+      setError('La connexion Apple native se lance maintenant directement depuis l’app Faunex. Reviens dans l’app et réessaie.');
+      return;
+    }
+
+    // Le flow Google natif démarre toujours sur l'apex pour éviter un hop inutile.
     if (window.location.origin !== WEB_ORIGIN) {
       window.location.replace(`${WEB_ORIGIN}/auth/native-bridge?provider=${provider}`);
       return;
