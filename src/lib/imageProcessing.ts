@@ -53,26 +53,54 @@ export const resizeDataUrl = async (
   }
 };
 
+/** Décode un HEIC/HEIF (photos iPhone) en JPEG dans le navigateur.
+ *  Chargé à la demande : le décodeur libheif (wasm) ne pèse sur le bundle que
+ *  pour les utilisateurs qui importent réellement une photo HEIC. */
+const heicToJpegDataUrl = async (dataUrl: string): Promise<string | null> => {
+  try {
+    const blob = await (await fetch(dataUrl)).blob();
+    const { heicTo } = await import('heic-to');
+    const jpeg = await heicTo({ blob, type: 'image/jpeg', quality: 0.9 });
+    return await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(jpeg);
+    });
+  } catch (e) {
+    console.error('HEIC conversion failed', e);
+    return null;
+  }
+};
+
 /** Normalise the source photo (camera frame or imported file) before it is used
  *  anywhere in the app: keeps memory, storage upload and preview rendering sane
  *  even when the user imports a 12 Mpx / 15 MB photo from the gallery.
  *  1600px / 0.82 stays well above what the AI and the card display need.
- *  Renvoie `null` quand le navigateur n'a pas su décoder l'image (typiquement un
- *  HEIC d'iPhone sur Android) : sans ça, le fichier brut illisible partait tel
- *  quel au stockage et la carte restait vide pour tout le monde. */
+ *  Les HEIC/HEIF (iPhone), que la plupart des navigateurs ne savent pas décoder,
+ *  sont convertis en JPEG à la volée. `null` n'est renvoyé que si l'image reste
+ *  réellement illisible après cette conversion. */
 export const prepareSourceImage = async (dataUrl: string): Promise<string | null> => {
-  // Le seul cas à rejeter est l'image que le navigateur ne sait pas décoder
-  // (typiquement un HEIC d'iPhone renommé .jpg) : un PNG ou WebP parfaitement
-  // valide, lui, doit continuer son chemin même si le ré-encodage JPEG est inutile.
-  try {
-    const img = await decode(dataUrl);
-    const w = 'width' in img ? img.width : 0;
-    if ('close' in img) img.close();
-    if (!w) return null;
-  } catch {
-    return null;
+  const decodable = async (url: string) => {
+    try {
+      const img = await decode(url);
+      const w = 'width' in img ? img.width : 0;
+      if ('close' in img) img.close();
+      return w > 0;
+    } catch {
+      return false;
+    }
+  };
+
+  let source = dataUrl;
+  if (!(await decodable(source))) {
+    // Cas très majoritaire d'un échec de décodage : un HEIC/HEIF d'iPhone
+    // (parfois renommé .jpg). On le convertit plutôt que de le refuser.
+    const converted = await heicToJpegDataUrl(dataUrl);
+    if (!converted || !(await decodable(converted))) return null;
+    source = converted;
   }
-  return await resizeDataUrl(dataUrl, 1600, 0.82);
+  return await resizeDataUrl(source, 1600, 0.82);
 };
 
 
