@@ -273,7 +273,7 @@ serve(async (req) => {
     const FAST_MODEL = "google/gemini-3.1-flash-lite";
     const DEEP_MODEL = "google/gemini-3.5-flash";
 
-    const callGateway = async (model: string, timeoutMs: number) => {
+    const callGateway = async (model: string, timeoutMs: number, prompt: string) => {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), timeoutMs);
       try {
@@ -289,7 +289,7 @@ serve(async (req) => {
         model,
         temperature: 0,
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
+          { role: "system", content: prompt },
           {
             role: "user",
             content: [
