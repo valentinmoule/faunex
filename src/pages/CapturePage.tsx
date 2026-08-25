@@ -103,7 +103,7 @@ const CapturePage = () => {
     const dataUrl = await prepareSourceImage(rawDataUrl);
     if (!dataUrl) {
       identifyingRef.current = false;
-      toast.error("Cette image n'a pas pu être lue (format HEIC ?). Réessaie avec une photo JPEG.");
+      toast.error("Cette image n'a pas pu être lue. Réessaie avec une autre photo (JPEG ou PNG).");
       return;
     }
     setCapturedPhoto(dataUrl);
@@ -177,7 +177,9 @@ const CapturePage = () => {
     const file = e.target.files?.[0];
     e.target.value = ''; // allow re-selecting the same file
     if (!file) return;
-    if (!file.type.startsWith('image/')) {
+    // Certains navigateurs/OS ne renseignent pas de MIME type pour les HEIC :
+    // on se rabat alors sur l'extension du fichier.
+    if (!file.type.startsWith('image/') && !/\.(heic|heif)$/i.test(file.name)) {
       toast.error('Sélectionne une image');
       return;
     }
@@ -334,7 +336,7 @@ const CapturePage = () => {
   return (
     <main className="min-h-screen bg-foreground flex flex-col pb-24">
       <canvas ref={canvasRef} className="hidden" />
-      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
+      <input ref={fileInputRef} type="file" accept="image/*,.heic,.heif" className="hidden" onChange={handleFileSelect} />
 
       {/* Camera / photo / result */}
       <div className="flex-1 relative flex flex-col overflow-hidden">
