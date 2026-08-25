@@ -1857,6 +1857,7 @@ export type Database = {
         Args: { p_error?: string; p_job_key: string; p_resume?: boolean }
         Returns: undefined
       }
+      strip_label_parenthetical: { Args: { p_label: string }; Returns: string }
       try_claim_notification: {
         Args: { p_key: string; p_ttl_seconds?: number }
         Returns: boolean
