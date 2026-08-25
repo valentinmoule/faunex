@@ -1,7 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { NATIVE_CALLBACK_URL } from './authRedirect';
 
-const APPLE_NATIVE_CLIENT_ID = 'com.faunex.faunex';
+const APPLE_NATIVE_CLIENT_ID = 'com.faunex.web';
 
 const sha256Hex = async (value: string): Promise<string> => {
   const bytes = new TextEncoder().encode(value);
