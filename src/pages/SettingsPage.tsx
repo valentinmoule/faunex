@@ -107,13 +107,21 @@ const SettingsPage = () => {
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !session?.user) return;
-    if (!file.type.startsWith('image/')) { toast.error('Seules les images sont acceptées'); return; }
+    const isHeicName = /\.(heic|heif)$/i.test(file.name);
+    if (!file.type.startsWith('image/') && !isHeicName) { toast.error('Seules les images sont acceptées'); return; }
     if (file.size > 5 * 1024 * 1024) { toast.error('Image trop lourde (max 5 Mo)'); return; }
     setUploadingAvatar(true);
     try {
-      const ext = file.name.split('.').pop() || 'jpg';
-      const filePath = `${session.user.id}/avatar.${ext}`;
-      await supabase.storage.from('avatars').upload(filePath, file, { cacheControl: '3600', upsert: true });
+      // Toute image (y compris les HEIC d'iPhone) est normalisée en JPEG :
+      // sinon l'avatar ne s'affiche pas dans les navigateurs sans support HEIC.
+      const normalized = await prepareSourceImage(await readFileAsDataUrl(file));
+      if (!normalized) { toast.error("Cette image n'a pas pu être lue. Réessaie avec une autre photo."); return; }
+      const filePath = `${session.user.id}/avatar.jpg`;
+      await supabase.storage.from('avatars').upload(filePath, dataUrlToBytes(normalized), {
+        cacheControl: '3600',
+        upsert: true,
+        contentType: 'image/jpeg',
+      });
       const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
       const avatarUrl = `${urlData.publicUrl}?t=${Date.now()}`;
       await supabase.from('profiles').update({ avatar_url: avatarUrl }).eq('user_id', session.user.id);
