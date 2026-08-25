@@ -38,7 +38,7 @@ const DailyQuestsSection = () => {
     const weekStart = startOfWeekISO();
 
     const { data, error } = await supabase
-      .from('daily_quests')
+      .from('weekly_quests')
       .select('*')
       .eq('user_id', session.user.id)
       .eq('quest_date', weekStart)
@@ -52,7 +52,7 @@ const DailyQuestsSection = () => {
     if (!error && (!data || data.length === 0)) {
       await supabase.rpc('ensure_weekly_quests');
       const { data: retryData } = await supabase
-        .from('daily_quests')
+        .from('weekly_quests')
         .select('*')
         .eq('user_id', session.user.id)
         .eq('quest_date', weekStart)

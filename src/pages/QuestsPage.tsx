@@ -41,7 +41,7 @@ const QuestsPage = () => {
     const weekStart = startOfWeekISO();
 
     const { data, error } = await supabase
-      .from('daily_quests')
+      .from('weekly_quests')
       .select('*')
       .eq('user_id', session.user.id)
       .eq('quest_date', weekStart)
@@ -54,7 +54,7 @@ const QuestsPage = () => {
     if (!error && (!data || data.length === 0)) {
       await supabase.rpc('ensure_weekly_quests');
       const { data: retryData } = await supabase
-        .from('daily_quests')
+        .from('weekly_quests')
         .select('*')
         .eq('user_id', session.user.id)
         .eq('quest_date', weekStart)
@@ -127,7 +127,7 @@ const QuestsPage = () => {
 
       // Mark quest as completed
       await supabase
-        .from('daily_quests')
+        .from('weekly_quests')
         .update({ progress: 1, completed: true })
         .eq('id', questId);
 

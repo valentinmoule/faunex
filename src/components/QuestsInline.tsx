@@ -37,7 +37,7 @@ const QuestsInline = () => {
     if (!session?.user) return;
     const weekStart = startOfWeekISO();
     const { data, error } = await supabase
-      .from('daily_quests')
+      .from('weekly_quests')
       .select('*')
       .eq('user_id', session.user.id)
       .eq('quest_date', weekStart)
@@ -46,7 +46,7 @@ const QuestsInline = () => {
     if (!error && (!data || data.length === 0)) {
       await supabase.rpc('ensure_weekly_quests');
       const { data: retry } = await supabase
-        .from('daily_quests').select('*')
+        .from('weekly_quests').select('*')
         .eq('user_id', session.user.id)
         .eq('quest_date', weekStart)
         .order('created_at');
@@ -99,7 +99,7 @@ const QuestsInline = () => {
         await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`);
         toast.success('Lien copié !');
       }
-      await supabase.from('daily_quests').update({ progress: 1, completed: true }).eq('id', questId);
+      await supabase.from('weekly_quests').update({ progress: 1, completed: true }).eq('id', questId);
       setQuests((prev) => prev.map((q) => (q.id === questId ? { ...q, progress: 1, completed: true } : q)));
       toast.success('Quête complétée ! 🎉');
     } catch { /* cancelled */ }
