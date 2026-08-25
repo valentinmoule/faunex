@@ -248,7 +248,7 @@ const SettingsPage = () => {
           <div className="space-y-6">
             {/* Avatar */}
             <div className="flex justify-center">
-              <input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+              <input ref={fileInputRef} type="file" accept="image/*,.heic,.heif" onChange={handleAvatarUpload} className="hidden" />
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadingAvatar}
