@@ -211,7 +211,10 @@ const PremiumPage = () => {
           </div>
         </div>
 
-        <div className="mt-6 space-y-3">
+      </main>
+
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/90 backdrop-blur-xl px-5 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+        <div className="mx-auto max-w-2xl space-y-2">
           {loading ? (
             <Button disabled className="h-12 w-full rounded-2xl">
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -244,9 +247,10 @@ const PremiumPage = () => {
             Paiement sécurisé. Sans engagement, résiliable en un clic.
           </p>
         </div>
-      </main>
+      </div>
     </div>
   );
 };
+
 
 export default PremiumPage;
