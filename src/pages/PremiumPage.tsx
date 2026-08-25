@@ -130,7 +130,7 @@ const PremiumPage = () => {
 
 
   return (
-    <div className="min-h-screen bg-background pb-10">
+    <div className="min-h-screen bg-background pb-40">
       <PaymentTestModeBanner />
       <PageHeader className="px-4 pb-2">
         <button
