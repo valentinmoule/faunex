@@ -522,7 +522,7 @@ serve(async (req) => {
             status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
         }
-        console.error("AI gateway error:", response.status);
+        console.error("AI gateway error:", response.status, await response.text().catch(() => ""));
         return new Response(JSON.stringify({ error: "Erreur d'identification" }), {
           status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
