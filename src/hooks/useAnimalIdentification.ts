@@ -25,6 +25,7 @@ const IMAGE_TYPE_LABELS: Record<string, string> = {
   photo_ecran_ou_papier: "la photo d'un écran ou d'une image imprimée",
   jouet_peluche_figurine: 'un jouet, une peluche ou une figurine',
   objet_representation: 'un objet représentant un animal (statue, décoration, souvenir…)',
+  animal_mort_ou_plat: 'un animal mort ou préparé (plat, étal, trophée…)',
 };
 
 /** Types d'images qui trahissent une photo récupérée en ligne plutôt qu'une observation. */
