@@ -68,13 +68,28 @@ window.dispatchEvent(new PopStateEvent('popstate'));
 }
   };
 
-CapacitorApp.addListener('appUrlOpen', ({ url }) => {
-  console.log('🔥 DEEP LINK RECEIVED:', url);
-  void handleUrl(url);
-});
+  // DIAGNOSTIC : on trace la réception (ou l'absence) d'URL côté JS et on la
+  // garde en localStorage pour pouvoir la relire même après un reload.
+  const trace = (label: string, url?: string | null) => {
+    const line = `${new Date().toISOString()} ${label} ${url ?? '(aucune)'}`;
+    console.log('[FAUNEX][deeplink][js]', line);
+    try {
+      const prev = JSON.parse(localStorage.getItem('faunex_deeplink_log') || '[]');
+      localStorage.setItem('faunex_deeplink_log', JSON.stringify([...prev, line].slice(-10)));
+    } catch {
+      // localStorage indisponible : le console.log suffit
+    }
+  };
 
-void CapacitorApp.getLaunchUrl().then((launch) => {
-  console.log('🚀 LAUNCH URL:', launch?.url);
-  if (launch?.url) void handleUrl(launch.url);
-});
+  trace('listener installé');
+
+  CapacitorApp.addListener('appUrlOpen', ({ url }) => {
+    trace('appUrlOpen', url);
+    void handleUrl(url);
+  });
+
+  void CapacitorApp.getLaunchUrl().then((launch) => {
+    trace('getLaunchUrl', launch?.url);
+    if (launch?.url) void handleUrl(launch.url);
+  });
 };
