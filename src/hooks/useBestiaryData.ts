@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { fetchAllRows } from '@/lib/fetchAll';
 import type { Rarity } from '@/data/mockData';
 import { buildRegionalAnimalSet, type BestiaryAnimal, type ZoneSub } from '@/lib/bestiary';
 import type { AnimalCard } from '@/data/mockData';
@@ -55,11 +56,15 @@ export const useBestiaryData = (userId: string | undefined) => {
         page++;
       }
 
-      const { data: userCaptures } = await supabase
-        .from('captures')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('status', 'approved');
+      const { data: userCaptures } = await fetchAllRows<any>((from, to) =>
+        supabase
+          .from('captures')
+          .select('*')
+          .eq('user_id', userId)
+          .eq('status', 'approved')
+          .order('created_at', { ascending: false })
+          .range(from, to),
+      );
 
       const toCard = (capture: any): AnimalCard => ({
         id: capture.id,

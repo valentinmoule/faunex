@@ -7,6 +7,7 @@ import { Compass, MapPin, Bird, Fish, Bug, Turtle, Shell, Snail, Waves, PawPrint
 import { FrogIcon } from '@/components/icons/FrogIcon';
 import { SpiderIcon } from '@/components/icons/SpiderIcon';
 import { supabase } from '@/integrations/supabase/client';
+import { fetchAllRows } from '@/lib/fetchAll';
 import { useAuth } from '@/contexts/AuthContext';
 import LoadingScreen from '@/components/LoadingScreen';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
@@ -114,13 +115,17 @@ const MapPage = () => {
   useEffect(() => {
     if (!session?.user) return;
     (async () => {
-      const { data, error } = await supabase
-        .from('captures')
-        .select('id, animal_name, scientific_name, category, rarity, image_url, description, habitat, diet, conservation, fun_fact, location, latitude, longitude, created_at')
-        .eq('user_id', session.user.id)
-        .eq('status', 'approved')
-        .not('latitude', 'is', null)
-        .not('longitude', 'is', null);
+      const { data, error } = await fetchAllRows<any>((from, to) =>
+        supabase
+          .from('captures')
+          .select('id, animal_name, scientific_name, category, rarity, image_url, description, habitat, diet, conservation, fun_fact, location, latitude, longitude, created_at')
+          .eq('user_id', session.user.id)
+          .eq('status', 'approved')
+          .not('latitude', 'is', null)
+          .not('longitude', 'is', null)
+          .order('created_at', { ascending: false })
+          .range(from, to),
+      );
 
       if (!error && data) {
         setCaptures(data as CaptureMarker[]);

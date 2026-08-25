@@ -7,6 +7,7 @@ import AnimalCardComponent from '@/components/AnimalCardComponent';
 import CardDetailSheet from '@/components/CardDetailSheet';
 import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
+import { fetchAllRows } from '@/lib/fetchAll';
 import { useAuth } from '@/contexts/AuthContext';
 
 const rarityFilters: (Rarity | 'all')[] = ['all', 'common', 'rare', 'epic', 'mythic'];
@@ -51,12 +52,15 @@ const CollectionPage = () => {
     if (!session?.user) return;
     const fetchCaptures = async () => {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('captures')
-        .select('*')
-        .eq('user_id', session.user.id)
-        .eq('status', 'approved')
-        .order('created_at', { ascending: false });
+      const { data, error } = await fetchAllRows<any>((from, to) =>
+        supabase
+          .from('captures')
+          .select('*')
+          .eq('user_id', session.user.id)
+          .eq('status', 'approved')
+          .order('created_at', { ascending: false })
+          .range(from, to),
+      );
 
       if (!error && data) {
         setCaptures(data.map((c: any) => ({
