@@ -177,7 +177,9 @@ const CapturePage = () => {
     const file = e.target.files?.[0];
     e.target.value = ''; // allow re-selecting the same file
     if (!file) return;
-    if (!file.type.startsWith('image/')) {
+    // Certains navigateurs/OS ne renseignent pas de MIME type pour les HEIC :
+    // on se rabat alors sur l'extension du fichier.
+    if (!file.type.startsWith('image/') && !/\.(heic|heif)$/i.test(file.name)) {
       toast.error('Sélectionne une image');
       return;
     }
