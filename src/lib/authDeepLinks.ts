@@ -8,88 +8,76 @@ import { IS_NATIVE_APP } from './platform';
  * Le SSO revient sur https://faunex.fr/auth/native-callback, qui rebascule
  * vers fr.faunex.app://auth/callback?... . On récupère ici le code ou les
  * tokens pour établir la session dans l'app, puis on nettoie l'URL.
+ *
+ * Robustesse : le même deep link peut arriver deux fois (appUrlOpen +
+ * getLaunchUrl), on déduplique donc les URLs déjà traitées, et on ignore les
+ * deep links sans donnée d'auth (test de scheme, ouverture manuelle).
  */
+const handled = new Set<string>();
+
 export const setupAuthDeepLinks = () => {
   if (!IS_NATIVE_APP) return;
 
-  const handleUrl = async (rawUrl: string) => {
+  const closeBrowser = async () => {
     try {
-      const url = new URL(rawUrl);
-      const hashParams = new URLSearchParams(url.hash.replace(/^#/, ''));
-
-      const accessToken = hashParams.get('access_token') || url.searchParams.get('access_token');
-      const refreshToken = hashParams.get('refresh_token') || url.searchParams.get('refresh_token');
-      const code = url.searchParams.get('code') || hashParams.get('code');
-      console.log('🔑 TOKENS FOUND', {
-  hasAccessToken: !!accessToken,
-  hasRefreshToken: !!refreshToken,
-  hasCode: !!code,
-});
-
-  if (accessToken && refreshToken) {
-  const { data, error } = await supabase.auth.setSession({
-    access_token: accessToken,
-    refresh_token: refreshToken,
-  });
-
-  console.log('🔥 SESSION RESULT', {
-    user: data.session?.user?.email,
-    error,
-  });
-
-} else if (code) {
-  const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-
-  console.log('🔥 CODE SESSION RESULT', {
-    user: data.session?.user?.email,
-    error,
-  });
-
-} else {
-  console.log('❌ Aucun token/code dans le deep link');
-  return;
-}
-
-      try {
-        const { Browser } = await import('@capacitor/browser');
-        await Browser.close();
-      } catch {
-        // le navigateur système est peut-être déjà fermé
-      }
-
-    const target = url.pathname.includes('reset-password')
-  ? '/reset-password'
-  : '/home';
-
-window.history.replaceState({}, '', target);
-window.dispatchEvent(new PopStateEvent('popstate'));
-    } catch (e) {
-  console.error('❌ DEEP LINK ERROR', e);
-}
-  };
-
-  // DIAGNOSTIC : on trace la réception (ou l'absence) d'URL côté JS et on la
-  // garde en localStorage pour pouvoir la relire même après un reload.
-  const trace = (label: string, url?: string | null) => {
-    const line = `${new Date().toISOString()} ${label} ${url ?? '(aucune)'}`;
-    console.log('[FAUNEX][deeplink][js]', line);
-    try {
-      const prev = JSON.parse(localStorage.getItem('faunex_deeplink_log') || '[]');
-      localStorage.setItem('faunex_deeplink_log', JSON.stringify([...prev, line].slice(-10)));
+      const { Browser } = await import('@capacitor/browser');
+      await Browser.close();
     } catch {
-      // localStorage indisponible : le console.log suffit
+      // Safari système ou vue déjà fermée : rien à faire.
     }
   };
 
-  trace('listener installé');
+  const handleUrl = async (rawUrl: string) => {
+    if (handled.has(rawUrl)) return;
+    handled.add(rawUrl);
+
+    try {
+      const url = new URL(rawUrl);
+      const hashParams = new URLSearchParams(url.hash.replace(/^#/, ''));
+      const get = (key: string) => url.searchParams.get(key) || hashParams.get(key);
+
+      const accessToken = get('access_token');
+      const refreshToken = get('refresh_token');
+      const code = get('code');
+      const authError = get('error_description') || get('error');
+
+      if (accessToken && refreshToken) {
+        const { error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
+        if (error) {
+          console.error('[FAUNEX][deeplink] setSession a échoué', error.message);
+          return;
+        }
+      } else if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        if (error) {
+          console.error('[FAUNEX][deeplink] exchangeCodeForSession a échoué', error.message);
+          return;
+        }
+      } else {
+        if (authError) console.warn('[FAUNEX][deeplink] retour SSO en erreur :', authError);
+        // Deep link sans donnée d'auth : on ferme juste le navigateur.
+        await closeBrowser();
+        return;
+      }
+
+      await closeBrowser();
+
+      const target = url.pathname.includes('reset-password') ? '/reset-password' : '/home';
+      window.history.replaceState({}, '', target);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    } catch (e) {
+      console.error('[FAUNEX][deeplink] erreur de traitement', e);
+    }
+  };
 
   CapacitorApp.addListener('appUrlOpen', ({ url }) => {
-    trace('appUrlOpen', url);
     void handleUrl(url);
   });
 
   void CapacitorApp.getLaunchUrl().then((launch) => {
-    trace('getLaunchUrl', launch?.url);
     if (launch?.url) void handleUrl(launch.url);
   });
 };

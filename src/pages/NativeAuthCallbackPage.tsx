@@ -2,82 +2,81 @@ import { useEffect, useMemo, useState } from 'react';
 import { NATIVE_DEEP_LINK } from '@/lib/authRedirect';
 
 /**
- * Pont web -> app native.
+ * Pont web -> app native (fin du flow SSO).
  *
- * Le backend d'auth n'autorise que des URLs https de faunex.fr comme
- * redirection. Cette page reçoit donc le retour du SSO puis rebascule
- * vers l'app mobile via son deep link.
+ * Cette page tourne dans le navigateur (Safari système pour Apple,
+ * SFSafariViewController pour Google), PAS dans le conteneur Capacitor.
+ * Elle ne fait donc qu'une chose : rebasculer vers l'app via son deep link
+ * `fr.faunex.app://auth/callback` en conservant TOUS les paramètres reçus
+ * (code ou tokens), que le backend les mette en query ou en hash.
  *
- * IMPORTANT : cette page tourne dans Safari / SFSafariViewController, PAS dans
- * le conteneur Capacitor. iOS bloque les navigations vers un scheme applicatif
- * qui ne viennent pas d'un geste utilisateur : le bouton est donc affiché
- * immédiatement, et la redirection auto n'est qu'une tentative best-effort.
+ * iOS peut refuser une navigation vers un scheme applicatif sans geste
+ * utilisateur : le bouton est donc affiché immédiatement, la redirection
+ * automatique n'est qu'une tentative best-effort.
  */
 const NativeAuthCallbackPage = () => {
   const [autoTried, setAutoTried] = useState(false);
 
-  const target = useMemo(() => {
-    const search = window.location.search || '';
-    const hash = window.location.hash || '';
-    return `${NATIVE_DEEP_LINK}${search}${hash}`;
-  }, []);
-
-  const debug = useMemo(() => {
-    const search = new URLSearchParams(window.location.search);
+  const params = useMemo(() => {
+    const search = new URLSearchParams(window.location.search.replace(/^\?/, ''));
     const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+    const get = (key: string) => search.get(key) || hash.get(key);
     return {
-      href: window.location.href,
-      hasCode: !!(search.get('code') || hash.get('code')),
-      hasAccessToken: !!(search.get('access_token') || hash.get('access_token')),
-      hasRefreshToken: !!(search.get('refresh_token') || hash.get('refresh_token')),
-      error: search.get('error') || hash.get('error') || null,
-      keys: [...search.keys(), ...hash.keys()].join(', ') || '(aucun paramètre)',
+      code: get('code'),
+      accessToken: get('access_token'),
+      refreshToken: get('refresh_token'),
+      error: get('error_description') || get('error'),
+      count: [...search.keys(), ...hash.keys()].length,
     };
   }, []);
 
-  useEffect(() => {
-    // DIAGNOSTIC : visible dans la console Safari (Développement > Simulateur).
-    console.log('[FAUNEX][callback] URL reçue :', debug.href);
-    console.log('[FAUNEX][callback] paramètres :', debug);
-    console.log('[FAUNEX][callback] deep link cible :', target);
+  /**
+   * Le deep link est reconstruit à partir des paramètres réellement utiles :
+   * on ne dépend plus de la présence de `search`/`hash` bruts (vides quand le
+   * backend a livré les données autrement), ce qui évite d'envoyer à l'app un
+   * deep link sans aucune information.
+   */
+  const target = useMemo(() => {
+    const out = new URLSearchParams();
+    if (params.code) out.set('code', params.code);
+    if (params.accessToken) out.set('access_token', params.accessToken);
+    if (params.refreshToken) out.set('refresh_token', params.refreshToken);
+    if (params.error) out.set('error', params.error);
+    const query = out.toString();
+    return query ? `${NATIVE_DEEP_LINK}?${query}` : NATIVE_DEEP_LINK;
+  }, [params]);
 
+  const hasPayload = !!(params.code || (params.accessToken && params.refreshToken));
+
+  useEffect(() => {
     const timer = window.setTimeout(() => {
       setAutoTried(true);
       window.location.href = target;
-    }, 250);
-
+    }, 200);
     return () => window.clearTimeout(timer);
-  }, [debug, target]);
+  }, [target]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-6 text-center">
-      <h1 className="font-display text-2xl">Retour vers l'app</h1>
+      <h1 className="font-display text-2xl">Retour vers Faunex</h1>
 
       <p className="text-muted-foreground text-sm max-w-sm">
-        Appuie sur le bouton ci-dessous pour revenir dans Faunex.
+        {hasPayload
+          ? 'Connexion validée. Appuie sur le bouton pour revenir dans l\'app.'
+          : params.error
+            ? 'La connexion a été interrompue. Reviens dans l\'app et réessaie.'
+            : 'Appuie sur le bouton pour revenir dans l\'app.'}
       </p>
 
       <a
         className="rounded-full bg-primary px-6 py-3 font-display font-semibold text-primary-foreground"
         href={target}
+        // rel/target volontairement absents : navigation directe vers le scheme.
       >
         Ouvrir Faunex
       </a>
 
-      {/* Diagnostic deep link : lien sans paramètre, pour tester le scheme seul. */}
-      <a className="text-xs underline text-muted-foreground" href={NATIVE_DEEP_LINK}>
-        Tester le deep link seul (sans token)
-      </a>
-
-      <pre className="mt-4 max-w-full overflow-x-auto rounded-xl bg-muted p-3 text-left text-[10px] leading-relaxed text-muted-foreground">
-{`auto tenté : ${autoTried}
-code : ${debug.hasCode}
-access_token : ${debug.hasAccessToken}
-refresh_token : ${debug.hasRefreshToken}
-error : ${debug.error ?? '—'}
-params : ${debug.keys}
-cible : ${target}`}
-      </pre>
+      {!autoTried && <span className="sr-only">redirection en cours</span>}
     </div>
   );
 };
