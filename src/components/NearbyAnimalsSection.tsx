@@ -91,7 +91,7 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
           });
           if (fnError) throw fnError;
           if (data?.success) {
-            const fetched: NearbyAnimal[] = (data.animals || []).slice(0, 3);
+            const fetched: NearbyAnimal[] = (data.animals || []).slice(0, 3).map((a: NearbyAnimal) => ({ ...a, name: cleanName(a.name) }));
             const loc = data.location_name || '';
             setAnimals(fetched);
             setLocationName(loc);
