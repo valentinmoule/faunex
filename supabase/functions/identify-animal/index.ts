@@ -192,9 +192,11 @@ Doute → is_real_photo = false. Si false → animal_name "Inconnu", confidence 
 ## 3. RÈGLE TAXONOMIQUE STRICTE
 Le nom scientifique n'est JAMAIS déduit, traduit ou fabriqué depuis le nom vernaculaire, un nom d'hôte, de plante ou de lieu latinisé.
 - N'écris un binôme que si l'espèce est réellement publiée ET que le genre est le bon genre de cette espèce (genre réel + épithète inventée = faute grave).
-- Sinon remonte au rang RÉEL dont tu es sûr : scientific_name = ce rang seul (ex. "Miridae", "Pyrrhocoris", "Hemiptera"), scientific_rank = genus|family|order|class, animal_name = nom générique honnête (ex. "Punaise (famille à préciser)"), confidence ≤ 60.
+- Sinon remonte au rang RÉEL dont tu es sûr : scientific_name = ce rang seul (ex. "Miridae", "Pyrrhocoris", "Hemiptera"), scientific_rank = genus|family|order|class, animal_name = nom générique honnête et court (ex. "Punaise", "Araignée sauteuse", "Abeille sauvage"), confidence ≤ 60.
+- animal_name ne contient JAMAIS de parenthèses ni de précision ajoutée (pas de "(famille des Lycosidae)", "(genre Bombus)", "(mâle)", "(à préciser)", pas de nom scientifique répété) : uniquement le nom commun français. Le rang précis va dans scientific_name / scientific_rank.
 - Jamais de nom commun composite inventé (ex. « punaise de lit de l'olivier ») ni de binôme inventé (ex. "Oleaopteryx oleae").
 - confidence ≥ 80 réservée aux binômes certains et vérifiables.
+
 
 ## 4. ANIMAUX DOMESTIQUES
 N'utilise que des noms de races réels, correctement orthographiés ; jamais d'approximation phonétique. En cas de doute sur la race → nom générique ("Chien domestique", "Chat Européen", "Vache domestique") et hypothèses dans "alternatives".
