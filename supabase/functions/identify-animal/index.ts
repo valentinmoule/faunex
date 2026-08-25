@@ -377,7 +377,7 @@ serve(async (req) => {
                     additionalProperties: false
                   }
                 },
-                required: ["is_real_photo", "image_type", "animal_name", "scientific_name", "category", "description", "habitat", "diet", "conservation", "fun_fact", "rarity", "confidence"],
+                required: ["is_real_photo", "image_type", "animal_name", "scientific_name", "category", "rarity", "confidence"],
                 additionalProperties: false
               }
             }
