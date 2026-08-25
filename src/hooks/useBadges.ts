@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { fetchAllRows } from '@/lib/fetchAll';
 import { getSpeciesGroup, BREED_GROUPS, MIN_BREEDS_PER_GROUP } from '@/lib/breedGroups';
 import { getCategoryEmoji, normalizeCategory } from '@/lib/bestiary';
 import {
@@ -68,11 +69,15 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
       setLoading(true);
 
       const [capturesRes, claimedRes, followersRes, followingRes, catalogue] = await Promise.all([
-        supabase
-          .from('captures')
-          .select('animal_name, scientific_name, category, rarity, latitude, created_at')
-          .eq('user_id', userId)
-          .eq('status', 'approved'),
+        fetchAllRows<any>((from, to) =>
+          supabase
+            .from('captures')
+            .select('animal_name, scientific_name, category, rarity, latitude, created_at')
+            .eq('user_id', userId)
+            .eq('status', 'approved')
+            .order('created_at', { ascending: false })
+            .range(from, to),
+        ),
         supabase.from('user_badges').select('badge_id').eq('user_id', userId),
         supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('following_id', userId),
         supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('follower_id', userId),

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Camera, Target, ChevronRight, Bell, Flame, Zap, Trophy, BookOpen, Users } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
+import { fetchAllRows } from '@/lib/fetchAll';
 import { useAuth } from '@/contexts/AuthContext';
 import { type Rarity, RARITY_LABELS } from '@/data/mockData';
 import AnimalCardComponent from '@/components/AnimalCardComponent';
@@ -112,7 +113,7 @@ const Index = () => {
     const fetchAll = async () => {
       const [profileRes, capturesRes, questsRes, notifRes] = await Promise.all([
         supabase.from('profiles').select('display_name, username, avatar_url, level, xp, xp_to_next, total_captures').eq('user_id', uid).single(),
-        supabase.from('captures').select('*').eq('user_id', uid).eq('status', 'approved').order('created_at', { ascending: false }),
+        fetchAllRows<any>((from, to) => supabase.from('captures').select('*').eq('user_id', uid).eq('status', 'approved').order('created_at', { ascending: false }).range(from, to)),
         supabase.from('daily_quests').select('completed, claimed').eq('user_id', uid).eq('quest_date', startOfWeekISO()),
         supabase.from('notifications').select('*', { count: 'exact', head: true }).eq('user_id', uid).eq('read', false),
       ]);
@@ -150,12 +151,15 @@ const Index = () => {
       setUnreadCount(notifRes.count || 0);
 
       // Calculate streak (consecutive days with captures)
-      const { data: streakData } = await supabase
-        .from('captures')
-        .select('created_at')
-        .eq('user_id', uid)
-        .eq('status', 'approved')
-        .order('created_at', { ascending: false });
+      const { data: streakData } = await fetchAllRows<any>((from, to) =>
+        supabase
+          .from('captures')
+          .select('created_at')
+          .eq('user_id', uid)
+          .eq('status', 'approved')
+          .order('created_at', { ascending: false })
+          .range(from, to),
+      );
       
       if (streakData && streakData.length > 0) {
         let currentStreak = 0;

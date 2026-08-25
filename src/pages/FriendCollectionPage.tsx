@@ -8,6 +8,7 @@ import { rarityBorderColor, rarityBadge } from '@/lib/bestiary';
 import CardDetailSheet from '@/components/CardDetailSheet';
 import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
+import { fetchAllRows } from '@/lib/fetchAll';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { followUser as followUserUtil } from '@/lib/followUtils';
@@ -89,7 +90,7 @@ const FriendCollectionPage = () => {
 
       const [profileRes, capturesRes, followingCountRes, followersCountRes] = await Promise.all([
         supabase.from('profiles').select('display_name, username, level, xp, xp_to_next, avatar_url, total_captures').eq('user_id', userId).maybeSingle(),
-        supabase.from('captures').select('*').eq('user_id', userId).eq('status', 'approved').order('created_at', { ascending: false }),
+        fetchAllRows<any>((from, to) => supabase.from('captures').select('*').eq('user_id', userId).eq('status', 'approved').order('created_at', { ascending: false }).range(from, to)),
         supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('follower_id', userId),
         supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('following_id', userId),
       ]);
