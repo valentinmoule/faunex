@@ -406,6 +406,14 @@ serve(async (req) => {
     let rawModelOutput: string | null = null;
     let usedModel: string | null = null;
 
+    // Le nom commun doit rester lisible : « nom de l'animal » sans mention entre
+    // parenthèses (famille, genre, sexe, nom scientifique répété…).
+    const cleanCommonName = (value: unknown) => {
+      const s = String(value ?? "");
+      const stripped = s.replace(/\s*\([^)]*\)/g, "").replace(/\s{2,}/g, " ").trim();
+      return stripped || s.trim();
+    };
+
     const parseAnimal = async (r: Response, model: string) => {
       const d = await r.json();
       const tc = d.choices?.[0]?.message?.tool_calls?.[0];
@@ -413,11 +421,19 @@ serve(async (req) => {
       rawModelOutput = typeof tc.function?.arguments === "string" ? tc.function.arguments : JSON.stringify(tc.function?.arguments ?? null);
       usedModel = model;
       try {
-        return JSON.parse(tc.function.arguments);
+        const parsed = JSON.parse(tc.function.arguments);
+        if (parsed && typeof parsed === "object") {
+          if (parsed.animal_name) parsed.animal_name = cleanCommonName(parsed.animal_name);
+          if (Array.isArray(parsed.alternatives)) {
+            parsed.alternatives = parsed.alternatives.map((a: unknown) => cleanCommonName(a)).filter(Boolean);
+          }
+        }
+        return parsed;
       } catch {
         return null;
       }
     };
+
 
 
     // 1) Passe économique (Flash Lite) — couvre la grande majorité des animaux.
