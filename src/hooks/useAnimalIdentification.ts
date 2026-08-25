@@ -5,7 +5,7 @@ import type { AnimalResult } from '@/types/capture';
 import { logDatasetEvent, setPendingImageHash } from '@/lib/dataset';
 
 /** Motifs de refus explicites (l'utilisateur peut toujours demander une modération). */
-export type RejectionKind = 'representation' | 'internet' | 'human';
+export type RejectionKind = 'representation' | 'internet' | 'human' | 'dead';
 
 type IdentifyOutcome =
   | { status: 'identified'; animal: AnimalResult }
@@ -25,6 +25,7 @@ const IMAGE_TYPE_LABELS: Record<string, string> = {
   photo_ecran_ou_papier: "la photo d'un écran ou d'une image imprimée",
   jouet_peluche_figurine: 'un jouet, une peluche ou une figurine',
   objet_representation: 'un objet représentant un animal (statue, décoration, souvenir…)',
+  animal_mort_ou_plat: 'un animal mort ou préparé (plat, étal, trophée…)',
 };
 
 /** Types d'images qui trahissent une photo récupérée en ligne plutôt qu'une observation. */
@@ -193,6 +194,14 @@ export const useAnimalIdentification = () => {
             if (data?.reason === 'not_a_real_photo') {
               const imageType = String(data?.image_type ?? '');
               const label = IMAGE_TYPE_LABELS[imageType] ?? 'une image graphique';
+              if (imageType === 'animal_mort_ou_plat') {
+                return {
+                  status: 'rejected',
+                  kind: 'dead',
+                  title: 'Pas au menu 🦀',
+                  message: "Faunex recense les animaux VIVANTS croisés sur le terrain. Un animal mort, servi dans une assiette, sur un étal ou en trophée ne compte pas comme une observation. Retente avec un animal bien vivant !",
+                };
+              }
               if (INTERNET_IMAGE_TYPES.includes(imageType)) {
                 return {
                   status: 'rejected',

@@ -29,6 +29,7 @@ Règles de vérification (sois strict) :
 - Si la photo montre un humain, un objet, une peluche, une plante ou aucun animal : name_matches = false, confidence 0.
 - AUTHENTICITÉ : la plateforme n'accepte que des PHOTOGRAPHIES RÉELLES d'ANIMAUX VIVANTS. Une illustration, un dessin, un logo, une icône, un pictogramme, une mascotte, une peinture, un rendu 3D, une image générée par IA, une capture d'écran, une photo d'écran ou de page imprimée, un autocollant, un tatouage, une peluche ou une figurine N'EST PAS une photo d'animal. Indices : contours vectoriels nets, aplats de couleur, absence de grain photographique, ombres inexistantes ou parfaites, stylisation des yeux/oreilles, fond uni ou transparent, présence de texte/typographie/watermark, symétrie parfaite.
 - OBJET REPRÉSENTANT UN ANIMAL : une photo nette et réelle d'un OBJET en forme d'animal n'est PAS une capture valide (souvenir, bibelot, décoration, sculpture bois/pierre/métal/résine, statue, santon, automate, marionnette, bijou, porte-clés, tirelire, manège, ballon/montgolfière, cerf-volant, déguisement, animal gonflable, mannequin, animatronique, gâteau, chocolat, tricot, graffiti/fresque, panneau routier). Indices : texture de matériau (bois, plastique, tissu, céramique, métal), coutures/joints, posture rigide figée, socle ou support, yeux peints ou en verre, absence de pelage/plumage individuel, mise en scène de vitrine/boutique/salon. Dans ce cas : image_type = objet_representation, is_real_photo = false, name_matches = false, confidence 0 (une statue de dromadaire n'est PAS un dromadaire).
+- ANIMAL MORT OU PRÉPARÉ : Faunex ne recense que des animaux VIVANTS. Un animal mort n'est jamais une capture valide (plat cuisiné ou dressé, fruits de mer/crustacés/poissons servis, sushi, étal de poissonnerie ou de marché, viande, carcasse, dépouille, animal écrasé, trophée de chasse, taxidermie, insecte épinglé, squelette, crâne, coquille/carapace vide). Indices : assiette, plateau, planche, couverts, nappe, glace pilée, citron/persil, cuisson ou découpe, sang, étal réfrigéré, vitrine, épingle, socle. Dans ce cas : image_type = animal_mort_ou_plat, is_real_photo = false, name_matches = false, confidence 0 (une araignée de mer dans une assiette n'est PAS une capture).
 - Au moindre doute sur la nature de l'image : is_real_photo = false.
 
 - Espèces réelles et vivantes uniquement : aucune créature de fiction (dragon, licorne, phénix…) ni espèce éteinte (dodo, mammouth, dinosaure…). Dans ce cas name_matches = false, confidence 0.
@@ -454,7 +455,7 @@ function callGateway(
                 },
                 image_type: {
                   type: 'string',
-                  enum: ['photo_reelle', 'illustration', 'dessin', 'logo_icone', 'peinture', 'rendu_3d', 'image_generee_ia', 'capture_ecran', 'photo_ecran_ou_papier', 'jouet_peluche_figurine', 'objet_representation', 'autre'],
+                  enum: ['photo_reelle', 'illustration', 'dessin', 'logo_icone', 'peinture', 'rendu_3d', 'image_generee_ia', 'capture_ecran', 'photo_ecran_ou_papier', 'jouet_peluche_figurine', 'objet_representation', 'animal_mort_ou_plat', 'autre'],
                   description: "Nature réelle de l'image.",
                 },
                 name_matches: {
