@@ -348,11 +348,20 @@ Deno.serve(async (req) => {
 
     const animal = JSON.parse(toolCall.function.arguments)
 
+    // Nom commun lisible : jamais de mention entre parenthèses (famille, genre, sexe…).
+    const stripParenthetical = (value: unknown) => {
+      const s = String(value ?? '')
+      const cleaned = s.replace(/\s*\([^)]*\)/g, '').replace(/\s{2,}/g, ' ').trim()
+      return cleaned || s.trim()
+    }
+    if (animal?.animal_name) animal.animal_name = stripParenthetical(animal.animal_name)
+
     // Mode forcé : le nom du modérateur/observateur prime sur toute reformulation IA.
     if (forceName) {
-      animal.animal_name = animalName
+      animal.animal_name = stripParenthetical(animalName)
       if (overrideScientific) animal.scientific_name = overrideScientific
     }
+
 
     // Déduplication : si l'espèce existe déjà dans le bestiaire (nom commun OU nom
     // scientifique, insensible à la casse/accents/tirets), on réutilise la fiche
