@@ -194,6 +194,14 @@ export const useAnimalIdentification = () => {
             if (data?.reason === 'not_a_real_photo') {
               const imageType = String(data?.image_type ?? '');
               const label = IMAGE_TYPE_LABELS[imageType] ?? 'une image graphique';
+              if (imageType === 'animal_mort_ou_plat') {
+                return {
+                  status: 'rejected',
+                  kind: 'dead',
+                  title: 'Pas au menu 🦀',
+                  message: "Faunex recense les animaux VIVANTS croisés sur le terrain. Un animal mort, servi dans une assiette, sur un étal ou en trophée ne compte pas comme une observation. Retente avec un animal bien vivant !",
+                };
+              }
               if (INTERNET_IMAGE_TYPES.includes(imageType)) {
                 return {
                   status: 'rejected',
