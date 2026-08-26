@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Patchs Gradle générés (compat AGP 9)
+android/.gradle-plugin-patches/
