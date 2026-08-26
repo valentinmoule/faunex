@@ -1,4 +1,5 @@
 import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
+import { thumbUrl } from '@/lib/imageUrl';
 
 const rarityStyles: Record<Rarity, string> = {
   common: 'border-border bg-card card-hover-effect shadow-card',
@@ -29,7 +30,7 @@ const AnimalCardComponent = ({ card, onClick, compact }: Props) => {
       <div className="relative flex h-full flex-col bg-card">
         <div className="relative aspect-[4/5] overflow-hidden">
           <img
-            src={card.image}
+            src={thumbUrl(card.image, 400)}
             alt={card.name}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
