@@ -4,7 +4,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 
-import androidx.activity.EnableEdgeToEdge;
+import androidx.activity.EdgeToEdge;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
