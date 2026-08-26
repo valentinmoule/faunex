@@ -23,7 +23,7 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         // Bord à bord + barres transparentes (équivalent de EdgeToEdge.enable())
-        androidx.activity.EdgeToEdge.enable(this);
+        EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
 
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
