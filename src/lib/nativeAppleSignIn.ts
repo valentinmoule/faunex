@@ -117,9 +117,20 @@ export const signInWithNativeApple = async (): Promise<{ error?: Error }> => {
 
     return {};
   } catch (error) {
+    const errorJson = (() => {
+      try {
+        return JSON.stringify(error);
+      } catch {
+        return '[unserializable]';
+      }
+    })();
     console.error('APPLE_NATIVE: native flow exception', {
+      raw: error,
+      code: (error as any)?.code,
+      error: (error as any)?.error,
       name: error instanceof Error ? error.name : undefined,
       message: error instanceof Error ? error.message : String(error),
+      json: errorJson,
     });
     return { error: error instanceof Error ? error : new Error(String(error)) };
   }
