@@ -215,6 +215,9 @@ const ProfilePage = () => {
           </button>
         )}
 
+        {/* Weekly global league */}
+        <LeagueCard />
+
         {/* Quests Section */}
         <QuestsInline />
 
