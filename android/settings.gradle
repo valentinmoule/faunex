@@ -3,3 +3,45 @@ include ':capacitor-cordova-android-plugins'
 project(':capacitor-cordova-android-plugins').projectDir = new File('./capacitor-cordova-android-plugins/')
 
 apply from: 'capacitor.settings.gradle'
+
+// --- Compatibilité AGP 9.x ---------------------------------------------------
+// AGP 9 a supprimé "proguard-android.txt" du SDK. Certains plugins Capacitor
+// (ex. @capacitor-community/apple-sign-in) y font encore référence via
+// getDefaultProguardFile('proguard-android.txt'), ce qui fait échouer le build
+// dès l'évaluation de leur build.gradle.
+// On recopie ici les projets fautifs dans un dossier local patché (généré à
+// chaque build, jamais commité) en remplaçant la référence par
+// "proguard-android-optimize.txt", puis on repointe le projectDir dessus.
+// node_modules n'est pas modifié : le correctif survit aux npm install /
+// npx cap sync, et l'iOS n'est pas concerné.
+def patchRoot = new File(rootDir, '.gradle-plugin-patches')
+
+rootProject.children.each { child ->
+    def originalDir = child.projectDir
+    def originalBuildFile = new File(originalDir, 'build.gradle')
+    if (!originalBuildFile.exists()) {
+        return
+    }
+    def originalText = originalBuildFile.text
+    if (!originalText.contains("getDefaultProguardFile('proguard-android.txt')")
+            && !originalText.contains('getDefaultProguardFile("proguard-android.txt")')) {
+        return
+    }
+
+    def patchedDir = new File(patchRoot, child.name)
+    delete(patchedDir)
+    patchedDir.mkdirs()
+    copy {
+        from originalDir
+        into patchedDir
+        exclude 'build'
+        exclude '.gradle'
+    }
+    def patchedBuildFile = new File(patchedDir, 'build.gradle')
+    patchedBuildFile.text = originalText
+            .replace("getDefaultProguardFile('proguard-android.txt')", "getDefaultProguardFile('proguard-android-optimize.txt')")
+            .replace('getDefaultProguardFile("proguard-android.txt")', "getDefaultProguardFile('proguard-android-optimize.txt')")
+
+    child.projectDir = patchedDir
+    println "[faunex] Plugin ${child.name} patché pour AGP 9 (proguard-android-optimize.txt)"
+}
