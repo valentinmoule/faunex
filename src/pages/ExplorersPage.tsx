@@ -6,6 +6,7 @@ import { Search, Bell, Heart, MessageCircle, Send, UserPlus, UserCheck, X, Users
 import CardDetailSheet from '@/components/CardDetailSheet';
 import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
+import { thumbUrl } from '@/lib/imageUrl';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { followUser as followUserUtil } from '@/lib/followUtils';
@@ -636,7 +637,7 @@ const ExplorersPage = () => {
 
                   <button onClick={() => setSelectedCard(toAnimalCard(post))} className="block w-full mt-2">
                     <div className="w-full aspect-[4/5] overflow-hidden">
-                      <img src={post.image_url} alt={post.animal_name} className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                      <img src={thumbUrl(post.image_url, 700)} alt={post.animal_name} className="w-full h-full object-cover" loading="lazy" decoding="async" />
                     </div>
                   </button>
 

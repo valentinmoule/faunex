@@ -264,6 +264,94 @@ serve(async (req) => {
       imageUrl = imageUrl.replace(/^data:[^;]*;base64,/, "data:image/jpeg;base64,");
     }
 
+    /**
+     * Cache d'identification par empreinte d'image.
+     * Deux envois de la même photo (retry après erreur réseau, double clic,
+     * re-import depuis la galerie, réinstallation de l'app…) ne doivent jamais
+     * être facturés deux fois : le résultat est mémorisé côté serveur.
+     * - résultat positif : réutilisé 30 jours ;
+     * - refus (photo non réelle, espèce non vérifiée, non reconnu) : réutilisé
+     *   2 h seulement, pour absorber les retries sans bloquer durablement.
+     */
+    const cacheDb = (() => {
+      try {
+        return createClient(
+          Deno.env.get("SUPABASE_URL")!,
+          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+        );
+      } catch (e) {
+        console.error("cache client init failed", e);
+        return null;
+      }
+    })();
+
+    const sha256Hex = async (value: string) => {
+      const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+      return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+    };
+
+    const imageHash = await sha256Hex((imageUrl.split(",")[1] ?? imageUrl).slice(0, 2_000_000));
+    const NEGATIVE_TTL_MS = 2 * 60 * 60 * 1000;
+
+    const jsonResponse = (body: unknown, status = 200) =>
+      new Response(JSON.stringify(body), {
+        status,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+
+    /** Réponse finale mise en cache (et mesurée). */
+    const finish = async (body: Record<string, unknown>, outcome: string) => {
+      if (cacheDb) {
+        try {
+          await cacheDb.from("identify_cache").upsert({
+            image_hash: imageHash,
+            outcome,
+            payload: { ...body, __outcome: outcome, __at: Date.now() },
+            created_at: new Date().toISOString(),
+            hits: 0,
+          }, { onConflict: "image_hash" });
+        } catch (e) {
+          console.error("identify cache write failed", e);
+        }
+      }
+      return jsonResponse(body);
+    };
+
+    if (cacheDb) {
+      try {
+        const { data: cached } = await cacheDb.rpc("claim_identify_cache", {
+          p_hash: imageHash,
+          p_max_age: "30 days",
+        });
+        if (cached && typeof cached === "object") {
+          const outcome = String((cached as any).__outcome ?? "success");
+          const at = Number((cached as any).__at ?? 0);
+          const fresh = outcome === "success" || Date.now() - at < NEGATIVE_TTL_MS;
+          if (fresh) {
+            const body = { ...(cached as Record<string, unknown>) };
+            delete body.__outcome;
+            delete body.__at;
+            console.log("identify cache hit", outcome);
+            // Mesure : une réutilisation de cache = un appel IA économisé.
+            cacheDb.from("ml_dataset_events").insert({
+              event_type: "identify_cache_hit",
+              source: "server",
+              image_hash: imageHash,
+              is_ground_truth: false,
+              payload: { outcome },
+            }).then(({ error }: { error: unknown }) => {
+              if (error) console.error("cache hit log failed", error);
+            });
+            return jsonResponse({ ...body, cached: true });
+          }
+        }
+      } catch (e) {
+        console.error("identify cache read failed", e);
+      }
+    }
+
+
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
@@ -500,13 +588,9 @@ serve(async (req) => {
 
     if (animalData && notRealPhoto) {
       console.log("rejected non-photographic image", imageType);
-      return new Response(
-        JSON.stringify({
-          success: false,
-          reason: "not_a_real_photo",
-          image_type: imageType,
-        }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      return await finish(
+        { success: false, reason: "not_a_real_photo", image_type: imageType },
+        "not_a_real_photo",
       );
     }
 
@@ -535,9 +619,7 @@ serve(async (req) => {
       }
       // Vraie non-reconnaissance : on répond 200 pour que le client bascule
       // sur la saisie manuelle (et non sur l'écran d'erreur technique).
-      return new Response(JSON.stringify({ success: false, reason: "not_identified" }), {
-        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return await finish({ success: false, reason: "not_identified" }, "not_identified");
     }
 
 
@@ -632,16 +714,16 @@ serve(async (req) => {
           ? `Identification probable : ${rankFr ?? "rang"} ${verdict.fallbackName}. L'espèce ne peut pas être confirmée avec suffisamment de fiabilité.`
           : "L'espèce proposée n'a pas pu être confirmée dans les référentiels taxonomiques. Décris l'animal pour vérification.";
 
-        return new Response(
-          JSON.stringify({
+        return await finish(
+          {
             success: false,
             reason: "unverified_species",
             hint,
             suggestion: verdict.fallbackName
               ? { scientific_name: verdict.fallbackName, rank: verdict.fallbackRank }
               : null,
-          }),
-          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          },
+          "unverified_species",
         );
       }
 
@@ -781,9 +863,7 @@ serve(async (req) => {
     await attachProfile();
 
 
-    return new Response(JSON.stringify({ success: true, animal: animalData }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return await finish({ success: true, animal: animalData }, "success");
 
 
   } catch (e) {
