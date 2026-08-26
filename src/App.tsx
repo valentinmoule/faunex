@@ -156,6 +156,7 @@ const AppRoutes = () => {
           <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
           <Route path="/moderation" element={<AdminRoute><ModerationPage /></AdminRoute>} />
           <Route path="/quests" element={<ProtectedRoute><QuestsPage /></ProtectedRoute>} />
+          <Route path="/ligue" element={<ProtectedRoute><LeaguePage /></ProtectedRoute>} />
           <Route path="/premium" element={<ProtectedRoute><PremiumPage /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
           <Route path="/legal" element={<LegalPage />} />
