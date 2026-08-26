@@ -38,7 +38,6 @@ const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
 const NativeAuthCallbackPage = lazy(() => import("./pages/NativeAuthCallbackPage"));
 const NativeAuthBridgePage = lazy(() => import("./pages/NativeAuthBridgePage"));
 const QuestsPage = lazy(() => import("./pages/QuestsPage"));
-const LeaguePage = lazy(() => import("./pages/LeaguePage"));
 const PremiumPage = lazy(() => import("./pages/PremiumPage"));
 const PricingPage = lazy(() => import("./pages/PricingPage"));
 const RefundPolicyPage = lazy(() => import("./pages/RefundPolicyPage"));
@@ -156,7 +155,6 @@ const AppRoutes = () => {
           <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
           <Route path="/moderation" element={<AdminRoute><ModerationPage /></AdminRoute>} />
           <Route path="/quests" element={<ProtectedRoute><QuestsPage /></ProtectedRoute>} />
-          <Route path="/ligue" element={<ProtectedRoute><LeaguePage /></ProtectedRoute>} />
           <Route path="/premium" element={<ProtectedRoute><PremiumPage /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
           <Route path="/legal" element={<LegalPage />} />

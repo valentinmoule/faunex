@@ -779,136 +779,6 @@ export type Database = {
         }
         Relationships: []
       }
-      league_groups: {
-        Row: {
-          created_at: string
-          group_no: number
-          id: string
-          settled_at: string | null
-          tier: number
-          week_start: string
-        }
-        Insert: {
-          created_at?: string
-          group_no: number
-          id?: string
-          settled_at?: string | null
-          tier: number
-          week_start: string
-        }
-        Update: {
-          created_at?: string
-          group_no?: number
-          id?: string
-          settled_at?: string | null
-          tier?: number
-          week_start?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "league_groups_tier_fkey"
-            columns: ["tier"]
-            isOneToOne: false
-            referencedRelation: "league_tiers"
-            referencedColumns: ["tier"]
-          },
-        ]
-      }
-      league_members: {
-        Row: {
-          created_at: string
-          group_id: string
-          id: string
-          points: number
-          updated_at: string
-          user_id: string
-          week_start: string
-        }
-        Insert: {
-          created_at?: string
-          group_id: string
-          id?: string
-          points?: number
-          updated_at?: string
-          user_id: string
-          week_start: string
-        }
-        Update: {
-          created_at?: string
-          group_id?: string
-          id?: string
-          points?: number
-          updated_at?: string
-          user_id?: string
-          week_start?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "league_members_group_id_fkey"
-            columns: ["group_id"]
-            isOneToOne: false
-            referencedRelation: "league_groups"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      league_results: {
-        Row: {
-          created_at: string
-          id: string
-          next_tier: number
-          outcome: string
-          points: number
-          rank: number
-          tier: number
-          user_id: string
-          week_start: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          next_tier: number
-          outcome: string
-          points: number
-          rank: number
-          tier: number
-          user_id: string
-          week_start: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          next_tier?: number
-          outcome?: string
-          points?: number
-          rank?: number
-          tier?: number
-          user_id?: string
-          week_start?: string
-        }
-        Relationships: []
-      }
-      league_tiers: {
-        Row: {
-          emoji: string
-          label: string
-          slug: string
-          tier: number
-        }
-        Insert: {
-          emoji: string
-          label: string
-          slug: string
-          tier: number
-        }
-        Update: {
-          emoji?: string
-          label?: string
-          slug?: string
-          tier?: number
-        }
-        Relationships: []
-      }
       login_events: {
         Row: {
           created_at: string
@@ -2074,23 +1944,6 @@ export type Database = {
       }
       is_premium: { Args: { p_user_id: string }; Returns: boolean }
       is_profile_private: { Args: { _user_id: string }; Returns: boolean }
-      league_add_points: {
-        Args: { p_amount: number; p_user_id: string }
-        Returns: undefined
-      }
-      league_join: { Args: { p_user_id: string }; Returns: string }
-      league_standings: {
-        Args: never
-        Returns: {
-          avatar_url: string
-          display_name: string
-          is_me: boolean
-          points: number
-          rank: number
-          user_id: string
-          username: string
-        }[]
-      }
       match_animal: {
         Args: { p_name: string; p_scientific?: string }
         Returns: {
@@ -2121,19 +1974,6 @@ export type Database = {
           total_players: number
         }[]
       }
-      my_league: {
-        Args: never
-        Returns: {
-          group_size: number
-          points: number
-          prev_outcome: string
-          prev_rank: number
-          prev_tier: number
-          rank: number
-          tier: number
-          week_start: string
-        }[]
-      }
       nearby_searches_remaining_today: { Args: never; Returns: number }
       normalize_animal_label: { Args: { p_label: string }; Returns: string }
       pause_background_job: {
@@ -2161,7 +2001,6 @@ export type Database = {
         Args: { p_error?: string; p_job_key: string; p_resume?: boolean }
         Returns: undefined
       }
-      settle_league_group: { Args: { p_group_id: string }; Returns: undefined }
       species_profile_for: {
         Args: { p_name: string; p_scientific?: string }
         Returns: {
