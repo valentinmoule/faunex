@@ -755,6 +755,33 @@ export type Database = {
           },
         ]
       }
+      identify_cache: {
+        Row: {
+          created_at: string
+          hits: number
+          image_hash: string
+          last_hit_at: string | null
+          outcome: string
+          payload: Json
+        }
+        Insert: {
+          created_at?: string
+          hits?: number
+          image_hash: string
+          last_hit_at?: string | null
+          outcome?: string
+          payload: Json
+        }
+        Update: {
+          created_at?: string
+          hits?: number
+          image_hash?: string
+          last_hit_at?: string | null
+          outcome?: string
+          payload?: Json
+        }
+        Relationships: []
+      }
       inactivity_notifications_log: {
         Row: {
           failure_count: number
@@ -1983,6 +2010,17 @@ export type Database = {
         Args: { p_job_key: string; p_lease_seconds?: number }
         Returns: string
       }
+      ai_usage_stats: {
+        Args: { p_days?: number }
+        Returns: {
+          auto_moderations: number
+          cache_hits: number
+          calls_per_capture: number
+          captures: number
+          day: string
+          identify_calls: number
+        }[]
+      }
       canonical_animal_category: {
         Args: { p_category: string; p_name?: string; p_scientific?: string }
         Returns: string
@@ -2004,6 +2042,10 @@ export type Database = {
       claim_badge: {
         Args: { p_badge_id: string; p_xp_reward: number }
         Returns: boolean
+      }
+      claim_identify_cache: {
+        Args: { p_hash: string; p_max_age: string }
+        Returns: Json
       }
       claim_quest_reward: { Args: { p_quest_id: string }; Returns: boolean }
       collection_rule_taxa: {
