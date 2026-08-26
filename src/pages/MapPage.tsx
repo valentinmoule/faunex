@@ -7,6 +7,7 @@ import { Compass, MapPin, Bird, Fish, Bug, Turtle, Shell, Snail, Waves, PawPrint
 import { FrogIcon } from '@/components/icons/FrogIcon';
 import { SpiderIcon } from '@/components/icons/SpiderIcon';
 import { supabase } from '@/integrations/supabase/client';
+import { thumbUrl } from '@/lib/imageUrl';
 import { fetchAllRows } from '@/lib/fetchAll';
 import { useAuth } from '@/contexts/AuthContext';
 import LoadingScreen from '@/components/LoadingScreen';
@@ -362,7 +363,7 @@ const MapPage = () => {
               >
                 {c.image_url && (
                   <img
-                    src={c.image_url}
+                    src={thumbUrl(c.image_url, 120)}
                     alt={c.animal_name}
                     loading="lazy"
                     className="w-12 h-12 rounded-xl object-cover shrink-0"
