@@ -588,13 +588,9 @@ serve(async (req) => {
 
     if (animalData && notRealPhoto) {
       console.log("rejected non-photographic image", imageType);
-      return new Response(
-        JSON.stringify({
-          success: false,
-          reason: "not_a_real_photo",
-          image_type: imageType,
-        }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      return await finish(
+        { success: false, reason: "not_a_real_photo", image_type: imageType },
+        "not_a_real_photo",
       );
     }
 
@@ -623,9 +619,7 @@ serve(async (req) => {
       }
       // Vraie non-reconnaissance : on répond 200 pour que le client bascule
       // sur la saisie manuelle (et non sur l'écran d'erreur technique).
-      return new Response(JSON.stringify({ success: false, reason: "not_identified" }), {
-        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return await finish({ success: false, reason: "not_identified" }, "not_identified");
     }
 
 
@@ -720,16 +714,16 @@ serve(async (req) => {
           ? `Identification probable : ${rankFr ?? "rang"} ${verdict.fallbackName}. L'espèce ne peut pas être confirmée avec suffisamment de fiabilité.`
           : "L'espèce proposée n'a pas pu être confirmée dans les référentiels taxonomiques. Décris l'animal pour vérification.";
 
-        return new Response(
-          JSON.stringify({
+        return await finish(
+          {
             success: false,
             reason: "unverified_species",
             hint,
             suggestion: verdict.fallbackName
               ? { scientific_name: verdict.fallbackName, rank: verdict.fallbackRank }
               : null,
-          }),
-          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          },
+          "unverified_species",
         );
       }
 
@@ -869,9 +863,7 @@ serve(async (req) => {
     await attachProfile();
 
 
-    return new Response(JSON.stringify({ success: true, animal: animalData }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return await finish({ success: true, animal: animalData }, "success");
 
 
   } catch (e) {
