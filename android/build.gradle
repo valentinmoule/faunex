@@ -23,24 +23,9 @@ allprojects {
         mavenCentral()
     }
 
-    // Compatibilité AGP 9.x : proguard-android.txt a été supprimé du SDK.
-    // Certains plugins (ex. @capacitor-community/apple-sign-in) y font encore
-    // référence via getDefaultProguardFile('proguard-android.txt'), ce qui
-    // fait échouer le build release. On remplace durablement la référence
-    // manquante par proguard-android-optimize.txt, sans toucher node_modules.
-    project.plugins.withId('com.android.library') {
-        project.afterEvaluate {
-            def release = project.android.buildTypes.findByName('release')
-            if (release != null) {
-                release.proguardFiles = release.proguardFiles.collect { f ->
-                    if (f.name == 'proguard-android.txt' && !f.exists()) {
-                        return new File(project.android.sdkDirectory, 'tools/proguard/proguard-android-optimize.txt')
-                    }
-                    return f
-                }
-            }
-        }
-    }
+    // Note : la compatibilité AGP 9.x des plugins référençant
+    // proguard-android.txt est gérée dans android/settings.gradle (le patch
+    // doit intervenir avant l'évaluation du build.gradle du plugin).
 }
 
 task clean(type: Delete) {
