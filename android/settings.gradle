@@ -8,39 +8,52 @@ apply from: 'capacitor.settings.gradle'
 // AGP 9 a supprimé "proguard-android.txt" du SDK. Certains plugins Capacitor
 // (ex. @capacitor-community/apple-sign-in) y font encore référence via
 // getDefaultProguardFile('proguard-android.txt'), ce qui fait échouer le build
-// dès l'évaluation de leur build.gradle.
-// On recopie ici les projets fautifs dans un dossier local patché (généré à
-// chaque build, jamais commité) en remplaçant la référence par
-// "proguard-android-optimize.txt", puis on repointe le projectDir dessus.
-// node_modules n'est pas modifié : le correctif survit aux npm install /
-// npx cap sync, et l'iOS n'est pas concerné.
+// dès l'évaluation de leur build.gradle (donc avant tout hook afterEvaluate).
+// On recopie ici les projets fautifs dans un dossier local patché (régénéré à
+// chaque build) en remplaçant la référence par "proguard-android-optimize.txt",
+// puis on repointe leur projectDir dessus.
+// node_modules n'est jamais modifié : le correctif survit aux npm install /
+// npx cap sync. Aucun impact iOS.
+
+def deleteRecursively
+deleteRecursively = { File target ->
+    if (!target.exists()) return
+    if (target.isDirectory()) {
+        target.listFiles()?.each { deleteRecursively(it) }
+    }
+    target.delete()
+}
+
+def copyRecursively
+copyRecursively = { File src, File dest ->
+    if (src.isDirectory()) {
+        if (src.name == 'build' || src.name == '.gradle') return
+        dest.mkdirs()
+        src.listFiles()?.each { copyRecursively(it, new File(dest, it.name)) }
+    } else {
+        dest.parentFile.mkdirs()
+        dest.bytes = src.bytes
+    }
+}
+
 def patchRoot = new File(rootDir, '.gradle-plugin-patches')
+def oldRef = "getDefaultProguardFile('proguard-android.txt')"
+def oldRefDq = 'getDefaultProguardFile("proguard-android.txt")'
+def newRef = "getDefaultProguardFile('proguard-android-optimize.txt')"
 
 rootProject.children.each { child ->
-    def originalDir = child.projectDir
-    def originalBuildFile = new File(originalDir, 'build.gradle')
-    if (!originalBuildFile.exists()) {
-        return
-    }
+    def originalBuildFile = new File(child.projectDir, 'build.gradle')
+    if (!originalBuildFile.exists()) return
+
     def originalText = originalBuildFile.text
-    if (!originalText.contains("getDefaultProguardFile('proguard-android.txt')")
-            && !originalText.contains('getDefaultProguardFile("proguard-android.txt")')) {
-        return
-    }
+    if (!originalText.contains(oldRef) && !originalText.contains(oldRefDq)) return
 
     def patchedDir = new File(patchRoot, child.name)
-    delete(patchedDir)
-    patchedDir.mkdirs()
-    copy {
-        from originalDir
-        into patchedDir
-        exclude 'build'
-        exclude '.gradle'
-    }
-    def patchedBuildFile = new File(patchedDir, 'build.gradle')
-    patchedBuildFile.text = originalText
-            .replace("getDefaultProguardFile('proguard-android.txt')", "getDefaultProguardFile('proguard-android-optimize.txt')")
-            .replace('getDefaultProguardFile("proguard-android.txt")', "getDefaultProguardFile('proguard-android-optimize.txt')")
+    deleteRecursively(patchedDir)
+    copyRecursively(child.projectDir, patchedDir)
+
+    new File(patchedDir, 'build.gradle').text =
+            originalText.replace(oldRef, newRef).replace(oldRefDq, newRef)
 
     child.projectDir = patchedDir
     println "[faunex] Plugin ${child.name} patché pour AGP 9 (proguard-android-optimize.txt)"
