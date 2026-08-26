@@ -12,6 +12,7 @@ import XpParticles from '@/components/XpParticles';
 import QuestsInline from '@/components/QuestsInline';
 import DiscordInviteCard from '@/components/DiscordInviteCard';
 import BadgesSection from '@/components/BadgesSection';
+import LeagueCard from '@/components/LeagueCard';
 
 
 interface Profile {
