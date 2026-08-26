@@ -148,10 +148,18 @@ const withTimeout = <T,>(promise: PromiseLike<T>, ms: number): Promise<T> =>
  */
 export type IdentifyStage = 'idle' | 'compressing' | 'analyzing' | 'retrying';
 
+/**
+ * Cache/verrou d'analyse partagé par TOUTE l'application (module-level, pas par
+ * instance de hook) : un double clic, un remontage de la page capture ou un
+ * retry sur la même photo réutilisent l'analyse en cours au lieu de lancer un
+ * second appel IA facturé.
+ */
+const inFlight = new Map<string, Promise<IdentifyOutcome>>();
+
 export const useAnimalIdentification = () => {
   const [identifying, setIdentifying] = useState(false);
   const [stage, setStage] = useState<IdentifyStage>('idle');
-  const cacheRef = useRef<Map<string, Promise<IdentifyOutcome>>>(new Map());
+  const cacheRef = useRef(inFlight);
 
   const identify = useCallback(async (dataUrl: string): Promise<IdentifyOutcome> => {
     setIdentifying(true);
