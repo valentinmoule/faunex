@@ -13,8 +13,8 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:background">@null</item>
-        <!-- Status bar transparente + icônes sombres (thème clair Faunex) -->
-        <item name="android:statusBarColor">@android:color/transparent</item>
+        <!-- La WebView démarre sous la status bar : barre opaque, icônes sombres -->
+        <item name="android:statusBarColor">@color/statusBarColor</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>
 

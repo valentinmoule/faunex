@@ -2408,20 +2408,21 @@
 
 
 
-/* --- App native (iOS / Android) : la status bar ne recouvre plus l'app --- */
+/* --- App native --- */
 html.is-native-app {
-  /* La WebView démarre sous la status bar : on garde une respiration minimale */
   --native-header-gap: 0.5rem;
 }
-/* iOS / Android : la WebView passe sous la status bar, on compense
-   via les safe areas CSS. */
-html.is-native-app body {
+/* iOS : la WebView passe sous la status bar, on compense via la safe area. */
+html.is-native-ios body {
   padding-top: env(safe-area-inset-top);
 }
-
-/* Android : on garantit une respiration minimale sous la status bar
-   même si l'inset CSS est nul ou trop faible. */
+/* Android : la WebView démarre déjà sous la status bar (decor fits system
+   windows), donc aucune compensation ; juste une petite respiration. */
 html.is-native-android body {
-  padding-top: 20px;
-  padding-top: max(env(safe-area-inset-top), 20px);
+  padding-top: 0;
 }
+html.is-native-android .app-header,
+html.is-native-android header {
+  padding-top: 0.75rem;
+}
+
