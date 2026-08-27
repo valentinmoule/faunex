@@ -25,7 +25,7 @@ const FEATURES: FeatureRow[] = [
   },
   {
     label: 'Recherche de zones',
-    free: <span className="text-sm font-medium">4 / jour</span>,
+    free: <span className="text-sm font-medium">4</span>,
     premium: <span className="text-sm font-semibold text-primary">Illimitée</span>,
   },
   {
