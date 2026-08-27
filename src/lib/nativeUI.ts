@@ -23,10 +23,9 @@ export async function setupNativeStatusBar() {
     // Thème clair uniquement -> icônes système sombres
     await StatusBar.setStyle({ style: Style.Light });
 
-    if (platform === 'ios') {
-      // iOS : la WebView ne passe pas sous la status bar
-      await StatusBar.setOverlaysWebView({ overlay: false });
-    }
+    // Android est géré exclusivement par MainActivity afin d'éviter que le
+    // plugin ne réinitialise les encarts après le premier rendu.
+    if (platform === 'ios') await StatusBar.setOverlaysWebView({ overlay: false });
   } catch (err) {
     console.warn('StatusBar setup skipped', err);
   }
