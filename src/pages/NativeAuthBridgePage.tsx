@@ -14,12 +14,7 @@ const NativeAuthBridgePage = () => {
       return;
     }
 
-    if (provider === 'apple') {
-      setError('La connexion Apple native se lance maintenant directement depuis l’app Faunex. Reviens dans l’app et réessaie.');
-      return;
-    }
-
-    // Le flow Google natif démarre toujours sur l'apex pour éviter un hop inutile.
+    // Le flow natif démarre toujours sur l'apex pour éviter un hop inutile.
     if (window.location.origin !== WEB_ORIGIN) {
       window.location.replace(`${WEB_ORIGIN}/auth/native-bridge?provider=${provider}`);
       return;
