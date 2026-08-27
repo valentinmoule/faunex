@@ -10,7 +10,7 @@ import { Eye, EyeOff, MailCheck, ArrowLeft } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { translateAuthError, authRedirectUrl } from '@/lib/authErrors';
 import { oauthRedirectUri, nativeAuthBridgeUrl } from '@/lib/authRedirect';
-import { IS_NATIVE_APP } from '@/lib/platform';
+import { IS_NATIVE_APP, IS_IOS_NATIVE } from '@/lib/platform';
 import { signInWithNativeApple } from '@/lib/nativeAppleSignIn';
 
 const AuthPage = () => {
@@ -344,15 +344,21 @@ const AuthPage = () => {
                   if (typeof window !== 'undefined' && (window as any).gtag_report_conversion) {
                     (window as any).gtag_report_conversion();
                   }
-                  if (IS_NATIVE_APP) {
+                  if (IS_IOS_NATIVE()) {
                     setLoading(true);
                     const { error } = await signInWithNativeApple();
                     setLoading(false);
                     if (error) {
-                      toast.error('Erreur de connexion Apple');
+                      toast.error(error.message || 'Erreur de connexion Apple');
                       return;
                     }
                     navigate('/home');
+                    return;
+                  }
+                  if (IS_NATIVE_APP) {
+                    // Android : pas de feuille Apple système, on passe par le pont web.
+                    const { Browser } = await import('@capacitor/browser');
+                    await Browser.open({ url: nativeAuthBridgeUrl('apple') });
                     return;
                   }
                   const { error } = await lovable.auth.signInWithOAuth('apple', {
