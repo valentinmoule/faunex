@@ -45,6 +45,6 @@ export const oauthRedirectUri = (): string =>
  * (`oauth.lovable.app`), pas par notre domaine : l'hôte de départ n'a donc
  * aucune influence sur le state.
  */
-export const nativeAuthBridgeUrl = (provider: 'google'): string =>
+export const nativeAuthBridgeUrl = (provider: 'google' | 'apple'): string =>
   `${WEB_ORIGIN}/auth/native-bridge?provider=${provider}`;
 

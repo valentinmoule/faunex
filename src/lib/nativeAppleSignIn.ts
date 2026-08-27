@@ -1,7 +1,16 @@
 import { supabase } from '@/integrations/supabase/client';
 import { NATIVE_CALLBACK_URL } from './authRedirect';
 
-const APPLE_NATIVE_CLIENT_ID = 'com.faunex.web';
+/**
+ * Connexion Apple dans l'app iOS native.
+ *
+ * La feuille Apple système émet toujours un jeton dont l'audience est l'App ID
+ * (`com.faunex.faunex`), alors que le web utilise le Service ID
+ * (`com.faunex.web`). Le provider Apple du backend ne pouvant accepter qu'une
+ * seule audience, on échange le jeton via la fonction `apple-native-auth` qui
+ * vérifie la signature Apple et autorise les deux audiences.
+ */
+const APPLE_NATIVE_CLIENT_ID = 'com.faunex.faunex';
 
 const sha256Hex = async (value: string): Promise<string> => {
   const bytes = new TextEncoder().encode(value);
@@ -26,11 +35,6 @@ export const signInWithNativeApple = async (): Promise<{ error?: Error }> => {
     const nonce = safeRandomId();
     const hashedNonce = await sha256Hex(nonce);
 
-    console.info('APPLE_NATIVE: authorize start', {
-      clientId: APPLE_NATIVE_CLIENT_ID,
-      nonceMode: 'sha256-to-apple/raw-to-backend',
-    });
-
     const result = await SignInWithApple.authorize({
       clientId: APPLE_NATIVE_CLIENT_ID,
       redirectURI: NATIVE_CALLBACK_URL,
@@ -39,67 +43,44 @@ export const signInWithNativeApple = async (): Promise<{ error?: Error }> => {
       nonce: hashedNonce,
     });
 
-    console.info('APPLE_NATIVE: authorize success', {
-      hasResponse: Boolean(result.response),
-      hasIdentityToken: Boolean(result.response.identityToken),
-      hasAuthorizationCode: Boolean(result.response.authorizationCode),
-      hasEmail: Boolean(result.response.email),
-      hasName: Boolean(result.response.givenName || result.response.familyName),
-    });
-
     const identityToken = result.response.identityToken;
     if (!identityToken) {
-      console.error('APPLE_NATIVE: identityToken missing');
+      console.error('APPLE_NATIVE: identityToken manquant');
       return { error: new Error('Apple n’a pas renvoyé de jeton d’identité.') };
     }
-
-    console.info('APPLE_NATIVE: identityToken received', {
-      tokenParts: identityToken.split('.').length,
-      tokenLength: identityToken.length,
-    });
-
-    console.info('APPLE_NATIVE: sending token to backend', {
-      provider: 'apple',
-      expectedAudience: APPLE_NATIVE_CLIENT_ID,
-      nonceMode: 'raw',
-    });
-
-    const { data, error } = await supabase.auth.signInWithIdToken({
-      provider: 'apple',
-      token: identityToken,
-      nonce,
-    });
-
-    console.info('APPLE_NATIVE: backend response', {
-      hasSession: Boolean(data.session),
-      hasUser: Boolean(data.user),
-      errorName: error?.name,
-      errorMessage: error?.message,
-      errorStatus: error?.status,
-      errorCode: error?.code,
-    });
-
-    if (error) {
-      console.error('APPLE_NATIVE: backend error', {
-        name: error.name,
-        message: error.message,
-        status: error.status,
-        code: error.code,
-      });
-      return { error };
-    }
-
-    console.info('APPLE_NATIVE: session created', {
-      userId: data.user?.id,
-      hasSession: Boolean(data.session),
-    });
 
     const fullName = [result.response.givenName, result.response.familyName]
       .filter(Boolean)
       .join(' ')
       .trim();
 
-    if (data.user && fullName) {
+    const { data, error } = await supabase.functions.invoke<{
+      token_hash?: string;
+      email?: string;
+      error?: string;
+    }>('apple-native-auth', {
+      body: { identity_token: identityToken, nonce, full_name: fullName || undefined },
+    });
+
+    if (error || !data?.token_hash) {
+      console.error('APPLE_NATIVE: échange serveur en échec', {
+        message: error?.message,
+        serverError: data?.error,
+      });
+      return { error: new Error(data?.error || error?.message || 'Connexion Apple impossible.') };
+    }
+
+    const { data: session, error: verifyError } = await supabase.auth.verifyOtp({
+      type: 'email',
+      token_hash: data.token_hash,
+    });
+
+    if (verifyError || !session.session) {
+      console.error('APPLE_NATIVE: verifyOtp en échec', verifyError?.message);
+      return { error: verifyError ?? new Error('Session Apple impossible à établir.') };
+    }
+
+    if (fullName) {
       await supabase.auth.updateUser({
         data: {
           display_name: fullName,
@@ -112,25 +93,15 @@ export const signInWithNativeApple = async (): Promise<{ error?: Error }> => {
       await supabase
         .from('profiles')
         .update({ display_name: fullName })
-        .eq('user_id', data.user.id);
+        .eq('user_id', session.session.user.id);
     }
 
     return {};
   } catch (error) {
-    const errorJson = (() => {
-      try {
-        return JSON.stringify(error);
-      } catch {
-        return '[unserializable]';
-      }
-    })();
-    console.error('APPLE_NATIVE: native flow exception', {
-      raw: error,
+    console.error('APPLE_NATIVE: exception du flow natif', {
       code: (error as any)?.code,
       error: (error as any)?.error,
-      name: error instanceof Error ? error.name : undefined,
       message: error instanceof Error ? error.message : String(error),
-      json: errorJson,
     });
     return { error: error instanceof Error ? error : new Error(String(error)) };
   }
