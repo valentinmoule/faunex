@@ -2418,3 +2418,10 @@ html.is-native-app {
 html.is-native-app body {
   padding-top: env(safe-area-inset-top);
 }
+
+/* Android : on garantit une respiration minimale sous la status bar
+   même si l'inset CSS est nul ou trop faible. */
+html.is-native-android body {
+  padding-top: 20px;
+  padding-top: max(env(safe-area-inset-top), 20px);
+}
