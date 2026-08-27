@@ -1,63 +1,54 @@
-# Plan d'action : réduire les coûts IA et le trafic réseau
+# Faire marcher "Se connecter avec Apple" partout (web + iOS + Android)
 
-## Ce que disent les chiffres (dernières 24 h)
+## Le problème réel
 
-| Poste | Volume / jour | Modèle | Commentaire |
-|---|---|---|---|
-| Identification (1re passe) | ~1 640 appels | gemini-3.1-flash-lite | pour seulement ~1 100 captures enregistrées → ~33 % d'appels "perdus" |
-| Identification (2e passe) | ~135 appels | gemini-3.5-flash | prompt long (~4× plus long), déclenché en cas de doute |
-| Auto-modération | 35 à 130 appels | gemini-2.5-pro | **le modèle le plus cher du projet**, appelé en 1er |
-| Fiches espèces | ~0 à 45 | flash-lite | déjà mutualisées : 3 970 fiches en base, ça marche |
-| Recherche autour de toi | ~53 appels | gemini-3-flash | aucun cache géographique |
+Apple délivre un jeton d'identité dont le "destinataire" (audience) change selon la plateforme :
 
-Deux constats importants :
-1. **Oui, les descriptions sont déjà mises en cache** en base (`species_profiles`) : ce poste n'est plus le problème.
-2. **Aucune empreinte d'image n'est enregistrée** (0 hash sur 3 570 événements) : impossible aujourd'hui de détecter qu'une même photo est analysée plusieurs fois. C'est le gisement d'économie le plus évident.
+| Plateforme | Identifiant Apple utilisé | Audience du jeton |
+|---|---|---|
+| Web (faunex.fr) | Service ID `com.faunex.web` | `com.faunex.web` |
+| iOS natif (feuille Apple système) | App ID `com.faunex.faunex` | `com.faunex.faunex` |
+| Android natif | Service ID `com.faunex.web` | `com.faunex.web` |
 
-Le vrai coût aujourd'hui = **les jetons image** (chaque photo en 1024 px consomme plus de jetons que tout le prompt) × le nombre d'appels, plus la présence du modèle `pro` sur la modération.
+Le backend d'auth n'accepte aujourd'hui qu'une seule valeur. Quand on met celle du web, iOS est refusé (`Unacceptable audience in id_token: [com.faunex.faunex]`). Quand on met les deux valeurs concaténées dans le champ, c'est le web qui casse (`invalid_client`). C'est pour ça qu'on tourne en rond depuis plusieurs essais.
 
-## Lot 1 — Économies immédiates, sans perte de fiabilité
+En plus, sur Android il n'existe pas de feuille Apple système : le plugin ouvre une page web Apple et a besoin d'une URL de retour autorisée côté Apple Developer.
 
-1. **Cache d'identification par empreinte d'image**
-   - Calculer un hash SHA-256 de l'image compressée, l'enregistrer, et renvoyer le résultat précédent si la même image est renvoyée dans les 24 h (retry réseau, re-soumission, "contester l'IA", double tap).
-   - Gain attendu : 15 à 30 % des appels d'identification.
-2. **Réduire la résolution de la 1re passe : 1024 px → 768 px** (qualité 0,60)
-   - Les jetons image baissent d'environ 40 % pour une précision quasi identique sur cette passe de tri ; la 2e passe (cas douteux) garde 1024 px.
-   - Gain attendu : 25 à 35 % du coût de la 1re passe.
-3. **Auto-modération : inverser l'ordre des modèles**
-   - `gemini-3.1-flash-lite` en 1er, puis escalade vers `gemini-2.5-pro` **uniquement** si le verdict est incertain ou si l'utilisateur a forcé un nom.
-   - Gain attendu : 70 à 85 % du coût de modération, décision finale inchangée sur les cas difficiles (l'humain reste le dernier recours).
-4. **Cache géographique pour "Autour de toi"**
-   - Mémoriser le résultat par zone (~5 km) et par saison pendant 30 jours en base ; les explorations dans la même zone ne rappellent plus l'IA.
-   - Gain attendu : 60 à 80 % des appels de ce poste.
+## La solution
 
-## Lot 2 — Éviter les appels inutiles
+Arrêter de faire dépendre les apps natives de ce champ unique, et valider le jeton Apple nous-mêmes côté serveur.
 
-5. **Ne plus analyser deux fois la même capture** : bloquer un second appel d'identification tant que le premier n'a pas répondu, et ne pas relancer l'IA après un simple changement d'écran.
-6. **Filtre local avant envoi** : refuser côté application les images trop petites/floues ou sans contenu exploitable avant tout appel IA.
-7. **Raccourcir encore le prompt rapide** (regroupement des listes d'indices) : ~20 % de jetons texte en moins sur chaque appel.
+1. **Nouvelle fonction serveur `apple-native-auth`**
+   - reçoit le jeton d'identité Apple envoyé par l'app,
+   - vérifie sa signature avec les clés publiques officielles d'Apple, l'émetteur, l'expiration et le nonce,
+   - accepte les **deux** audiences légitimes (`com.faunex.faunex` pour iOS, `com.faunex.web` pour Android),
+   - retrouve ou crée le compte Faunex correspondant à l'e-mail Apple (relais privé Apple géré),
+   - renvoie une session valide à l'app.
+   Aucun jeton non signé par Apple ne peut passer : la vérification cryptographique est faite côté serveur.
 
-## Lot 3 — Trafic réseau (bande passante)
+2. **iOS** : on garde la feuille Apple native actuelle, mais l'échange final passe par cette fonction au lieu du backend générique. Le Client ID natif redevient l'App ID `com.faunex.faunex` (ce que la feuille iOS impose de fait).
 
-Aujourd'hui, chaque photo est stockée en 1600 px / qualité 0,82 (~300-600 Ko) et c'est **cette même image** qui est chargée dans les grilles du bestiaire, le feed explorateurs et la carte. Une grille de 60 cartes = 20 à 30 Mo transférés.
+3. **Android** : on active le flux Apple du plugin avec le Service ID `com.faunex.web` et une URL de retour dédiée `https://faunex.fr/auth/apple-return`, puis même échange via la fonction serveur.
 
-8. **Générer une vignette 400 px WebP à l'enregistrement** (en plus de l'original) et l'utiliser dans les grilles, le feed, la carte et les avatars. L'image pleine résolution ne se charge plus qu'à l'ouverture du détail / plein écran.
-   - Gain attendu : **80 à 90 % de bande passante** sur les écrans de listes.
-9. **Générer les vignettes manquantes pour l'historique** en tâche de fond (par lots), sans bloquer l'app.
-10. **Cache navigateur long** sur les médias et suppression des rechargements en double d'une même liste.
+4. **Web** : aucun changement. Le champ Client ID Apple du backend doit rester **`com.faunex.web` seul** (à remettre si ce n'est pas déjà le cas), ce qui garde le web fonctionnel.
 
-## Ordre proposé
+## Une action de ta part (Apple Developer)
 
-- Étape A (coût IA, rapide) : points 1, 2, 3, 5 → baisse attendue de l'ordre de **45 à 60 %** de la facture IA quotidienne.
-- Étape B (réseau) : points 8, 9, 10 → baisse attendue de **80 %+** du trafic images.
-- Étape C (finitions) : points 4, 6, 7.
+Pour Android uniquement, dans le Service ID `com.faunex.web` → Sign In with Apple → Configure :
+- Domain : `faunex.fr`
+- Return URL : ajouter `https://faunex.fr/auth/apple-return` (sans supprimer les URLs existantes)
 
-## Détails techniques
+Rien à changer sur l'App ID, les clés, ni sur iOS.
 
-- `supabase/functions/identify-animal/index.ts` : calcul et journalisation de `image_hash`, lecture du cache avant appel IA, 768 px pour la passe rapide.
-- Nouvelle table `identify_cache` (hash, payload jsonb, created_at) avec RLS et GRANT, purge > 24 h ; `ml_dataset_events.image_hash` enfin rempli pour mesurer les gains.
-- `supabase/functions/auto-moderate-capture/index.ts` : chaîne `flash-lite → 2.5-pro` conditionnelle.
-- Nouvelle table `nearby_cache` (cellule géo, mois, payload) pour `nearby-animals`.
-- `src/lib/imageProcessing.ts` : `compressForAI` à 768 px, ajout d'un `makeThumbnail(400, webp)` ; `useCaptureSave.ts` téléverse `image_url` + `thumb_url` (nouvelle colonne sur `captures`).
-- Composants de liste (`AnimalCardComponent`, `FeedPostCard`, carte, avatars) : consommer `thumb_url` avec repli sur `image_url`.
-- Mesure : requête de suivi quotidien appels/captures et coût par capture avant/après chaque lot.
+## Fichiers touchés
+
+- nouveau `supabase/functions/apple-native-auth/index.ts` (vérification JWKS Apple + session)
+- `src/lib/nativeAppleSignIn.ts` (client ID par plateforme, échange via la fonction)
+- nouvelle page `src/pages/AppleReturnPage.tsx` + route (retour Apple pour Android)
+- `src/pages/AuthPage.tsx` (bouton Apple actif sur Android natif)
+
+## Vérification
+
+- typecheck + build
+- test de la fonction avec un jeton invalide (doit être refusé) et avec les deux audiences autorisées
+- web : parcours Apple inchangé
