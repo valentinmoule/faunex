@@ -2,6 +2,7 @@ package fr.faunex.app;
 
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -20,14 +21,24 @@ public class MainActivity extends BridgeActivity {
         // y compris ses éléments CSS fixed/sticky.
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
 
-        View content = findViewById(android.R.id.content);
-        if (content == null) return;
+        if (bridge == null || bridge.getWebView() == null) return;
+        View webView = bridge.getWebView();
+        View decorView = getWindow().getDecorView();
 
-        ViewCompat.setOnApplyWindowInsetsListener(content, (view, windowInsets) -> {
-            Insets statusBars = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars());
-            view.setPadding(0, statusBars.top, 0, 0);
+        ViewCompat.setOnApplyWindowInsetsListener(decorView, (view, windowInsets) -> {
+            Insets statusBars = windowInsets.getInsetsIgnoringVisibility(
+                WindowInsetsCompat.Type.statusBars()
+            );
+            ViewGroup.LayoutParams params = webView.getLayoutParams();
+            if (params instanceof ViewGroup.MarginLayoutParams) {
+                ViewGroup.MarginLayoutParams margins = (ViewGroup.MarginLayoutParams) params;
+                if (margins.topMargin != statusBars.top) {
+                    margins.topMargin = statusBars.top;
+                    webView.setLayoutParams(margins);
+                }
+            }
             return windowInsets;
         });
-        ViewCompat.requestApplyInsets(content);
+        ViewCompat.requestApplyInsets(decorView);
     }
 }
