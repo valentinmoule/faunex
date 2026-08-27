@@ -2413,8 +2413,8 @@ html.is-native-app {
   /* La WebView démarre sous la status bar : on garde une respiration minimale */
   --native-header-gap: 0.5rem;
 }
-/* iOS : la WebView est plein écran, on compense via les safe areas.
-   Android 15+ : les encarts sont déjà appliqués nativement (edge-to-edge). */
-html.is-native-ios body {
+/* iOS / Android : la WebView passe sous la status bar, on compense
+   via les safe areas CSS. */
+html.is-native-app body {
   padding-top: env(safe-area-inset-top);
 }
