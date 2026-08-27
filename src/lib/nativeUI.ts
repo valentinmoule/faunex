@@ -2,9 +2,8 @@
  * Configuration de l'UI système (status bar) sur iOS / Android.
  *
  * iOS : la WebView est plein écran, on compense via les safe areas CSS.
- * Android 15+ (SDK 35/36) : l'affichage bord à bord est obligatoire, les
- * encarts système sont appliqués nativement (MainActivity), donc on ne
- * tente plus de désactiver l'overlay ni de colorer les barres.
+ * Android 15+ (SDK 35/36) : l'affichage bord à bord est obligatoire et
+ * l'encart supérieur réel est appliqué à la WebView dans MainActivity.
  */
 export async function setupNativeStatusBar() {
   if (typeof window === 'undefined') return;
