@@ -1,6 +1,7 @@
 package fr.faunex.app;
 
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -15,16 +16,18 @@ public class MainActivity extends BridgeActivity {
         super.onCreate(savedInstanceState);
 
         // Android 15 impose le bord-à-bord. On applique l'encart système réel
-        // à la WebView pour garder tous les headers sous la barre de statut.
+        // au conteneur natif pour déplacer physiquement toute la WebView,
+        // y compris ses éléments CSS fixed/sticky.
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
 
-        if (bridge == null || bridge.getWebView() == null) return;
+        View content = findViewById(android.R.id.content);
+        if (content == null) return;
 
-        ViewCompat.setOnApplyWindowInsetsListener(bridge.getWebView(), (view, windowInsets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(content, (view, windowInsets) -> {
             Insets statusBars = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars());
             view.setPadding(0, statusBars.top, 0, 0);
             return windowInsets;
         });
-        ViewCompat.requestApplyInsets(bridge.getWebView());
+        ViewCompat.requestApplyInsets(content);
     }
 }
