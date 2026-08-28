@@ -694,6 +694,7 @@ serve(async (req) => {
           payload: {
             raw_model_output: rawModelOutput,
             taxon_verdict: verdict,
+            token_usage: tokenUsage,
             outcome,
           },
         });
