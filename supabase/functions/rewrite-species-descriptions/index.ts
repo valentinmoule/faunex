@@ -77,21 +77,37 @@ Deno.serve(async (req) => {
     const dryRun = body?.dryRun === true
 
     // 1) Fiches à réécrire
-    const bad: Array<{ id: string; animal_name: string; scientific_name: string | null; normalized_name: string; description: string }> = []
-    for (let from = 0; from < 6000 && bad.length < limit; from += 1000) {
-      const { data, error } = await admin
-        .from('species_profiles')
-        .select('id, animal_name, scientific_name, normalized_name, description')
-        .order('animal_name')
-        .range(from, from + 999)
-      if (error) return json({ error: error.message }, 500)
-      if (!data?.length) break
-      for (const row of data) {
-        if (row.description && PHOTO_SPECIFIC.test(row.description)) bad.push(row as typeof bad[number])
-        if (bad.length >= limit) break
+    const bad: Array<{ id: string; animal_name: string; scientific_name: string | null; normalized_name?: string; description?: string }> = []
+
+    const explicitNames: string[] = Array.isArray(body?.names) ? body.names.slice(0, 40) : []
+    if (explicitNames.length) {
+      // Mode ciblé : espèces sans fiche en base (on la crée puis on propage).
+      for (const name of explicitNames) {
+        const { data } = await admin
+          .from('captures')
+          .select('animal_name, scientific_name')
+          .eq('animal_name', name)
+          .limit(1)
+        const row = data?.[0]
+        if (row) bad.push({ id: '', animal_name: row.animal_name, scientific_name: row.scientific_name })
       }
-      if (data.length < 1000) break
+    } else {
+      for (let from = 0; from < 6000 && bad.length < limit; from += 1000) {
+        const { data, error } = await admin
+          .from('species_profiles')
+          .select('id, animal_name, scientific_name, normalized_name, description')
+          .order('animal_name')
+          .range(from, from + 999)
+        if (error) return json({ error: error.message }, 500)
+        if (!data?.length) break
+        for (const row of data) {
+          if (row.description && PHOTO_SPECIFIC.test(row.description)) bad.push(row as typeof bad[number])
+          if (bad.length >= limit) break
+        }
+        if (data.length < 1000) break
+      }
     }
+
 
     if (dryRun) return json({ pending: bad.length, names: bad.map((b) => b.animal_name) })
 
