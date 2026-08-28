@@ -824,7 +824,8 @@ serve(async (req) => {
               {
                 role: "system",
                 content:
-                  "Naturaliste francophone. Rédige une fiche factuelle et vérifiée pour l'espèce demandée, sans invention. Réponds uniquement via l'appel de fonction species_profile.",
+                  "Naturaliste francophone. Rédige une fiche d'encyclopédie GÉNÉRIQUE de l'espèce demandée : elle sera lue par tous les explorateurs, indépendamment de toute photo. Interdiction absolue de décrire une image ou un individu précis : jamais \"sur la photo\", \"on voit\", \"l'image\", \"ce spécimen\", \"ici\", \"au premier plan\", \"photographié\", ni de posture, décor ou arrière-plan. Décris l'espèce en général (morphologie typique, dimorphisme, comportement) au présent, de façon factuelle et vérifiée, sans invention. Réponds uniquement via l'appel de fonction species_profile.",
+
               },
               {
                 role: "user",
@@ -840,7 +841,7 @@ serve(async (req) => {
                   parameters: {
                     type: "object",
                     properties: {
-                      description: { type: "string", description: "2-3 phrases : physique distinctif et comportement." },
+                      description: { type: "string", description: "2-3 phrases GÉNÉRIQUES sur l'espèce (physique distinctif typique, comportement). Aucune référence à une photo ou à un individu observé." },
                       habitat: { type: "string", description: "Habitat et répartition." },
                       diet: { type: "string", description: "Régime alimentaire." },
                       conservation: { type: "string", description: "Statut UICN : LC, NT, VU, EN, CR ou 'Domestique'." },

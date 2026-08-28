@@ -17,12 +17,18 @@ Méthode obligatoire :
 - Lis d'abord la description et le nom proposé, puis confronte-les à la photo. La description est une preuve de terrain : utilise-la activement pour trancher entre espèces ressemblantes (biche vs chevreuil, coccinelle asiatique vs autochtone, races de chiens/chats/vaches, etc.).
 - Le nom proposé fait autorité tant qu'il est cohérent avec la photo et la description : normalise-le en français correct (orthographe, majuscule) et précise la race pour un animal domestique quand la photo ou la description la révèle.
 - Si la description apporte une précision plus fine que le nom (ex. nom "oiseau" + description "petit oiseau jaune au chant flûté dans les roseaux"), affine le nom vers l'espèce la plus précise et cohérente.
-- Si le nom proposé est clairement incompatible avec la photo ET la description, retiens l'espèce que la photo et la description désignent conjointement, et explique le choix dans la description de la fiche.
+- Si le nom proposé est clairement incompatible avec la photo ET la description, retiens l'espèce que la photo et la description désignent conjointement (sans commenter ce choix dans la fiche).
 - N'invente jamais un détail absent de la photo et de la description : en cas d'incertitude, reste au niveau taxonomique le plus précis dont tu es sûr.
 - animal_name = uniquement le nom commun français, sans parenthèses ni précision ajoutée (pas de "(famille des Lycosidae)", "(genre Bombus)", "(mâle)", "(à préciser)", pas de nom scientifique répété) : le rang précis va dans scientific_name.
 
 
 Ta mission : produire une fiche d'espèce complète et fiable.
+
+## Style de la fiche (impératif)
+Les champs description, habitat, diet, conservation et fun_fact décrivent l'ESPÈCE en général : ils seront affichés pour toutes les captures de cette espèce, par tous les explorateurs. Photo et description de l'observateur servent UNIQUEMENT à identifier l'espèce, jamais à rédiger la fiche.
+- Interdit : "sur la photo", "on voit", "l'image", "ce spécimen", "ici", "au premier plan", "photographié", "comme celui-ci", et toute mention de la posture, du décor, de l'arrière-plan ou du contexte de la prise de vue.
+- Attendu : morphologie typique de l'espèce, dimorphisme sexuel ou variations de plumage/pelage décrits de façon générale, comportement habituel, au présent.
+
 
 
 ## Évaluation de la rareté (probabilité d'observation en Europe/France)
@@ -262,7 +268,7 @@ Deno.serve(async (req) => {
                   },
                   description: {
                     type: 'string',
-                    description: 'Description de 2-3 phrases : caractéristiques physiques distinctives et comportement typique.',
+                    description: 'Description GÉNÉRIQUE de l\'espèce en 2-3 phrases : caractéristiques physiques distinctives et comportement typique. Aucune référence à la photo ni à l\'individu observé.',
                   },
                   habitat: { type: 'string', description: 'Habitat naturel et répartition géographique.' },
                   diet: { type: 'string', description: 'Régime alimentaire détaillé.' },
