@@ -591,7 +591,7 @@ serve(async (req) => {
 
     if (needsDeep) {
       // Budget restant : 24 s (2× Lite) + 20 s = 44 s max, sous le timeout client.
-      const deep = await tryModel(DEEP_MODEL, 20_000, SYSTEM_PROMPT, 1, "high");
+      const deep = await tryModel(DEEP_MODEL, [18_000], SYSTEM_PROMPT, "high");
       if (deep?.ok) {
         const deepData = await parseAnimal(deep, DEEP_MODEL);
         if (deepData) {
