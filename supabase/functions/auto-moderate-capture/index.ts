@@ -175,12 +175,14 @@ Deno.serve(async (req) => {
       holdsLock = false
     }
 
-    return json({
+    return {
       success: true,
       approved: results.filter((r: any) => r.approved).length,
+      rejected: results.filter((r: any) => r.rejected).length,
       paused: blocked === 402 || blocked === 403,
       results,
-    })
+    }
+
   } catch (e) {
     console.error('auto-moderate-capture error', e)
     if (holdsLock) {
