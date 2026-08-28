@@ -533,6 +533,28 @@ serve(async (req) => {
     // Réponse brute du modèle conservée pour tracer les hallucinations.
     let rawModelOutput: string | null = null;
     let usedModel: string | null = null;
+    /** Consommation réelle (entrée / sortie / raisonnement) cumulée sur la requête. */
+    const tokenUsage: Record<string, number> = {};
+
+    const addUsage = (model: string, usage: any) => {
+      if (!usage || typeof usage !== "object") return;
+      const prompt = Number(usage.prompt_tokens ?? 0) || 0;
+      const completion = Number(usage.completion_tokens ?? 0) || 0;
+      const reasoning = Number(
+        usage.completion_tokens_details?.reasoning_tokens ??
+          usage.reasoning_tokens ?? 0,
+      ) || 0;
+      const cached = Number(usage.prompt_tokens_details?.cached_tokens ?? 0) || 0;
+      tokenUsage.prompt = (tokenUsage.prompt ?? 0) + prompt;
+      tokenUsage.completion = (tokenUsage.completion ?? 0) + completion;
+      tokenUsage.reasoning = (tokenUsage.reasoning ?? 0) + reasoning;
+      tokenUsage.cached = (tokenUsage.cached ?? 0) + cached;
+      tokenUsage.calls = (tokenUsage.calls ?? 0) + 1;
+      console.log(
+        `token usage ${model} prompt=${prompt} cached=${cached} out=${completion} thinking=${reasoning}`,
+      );
+    };
+
 
     // Le nom commun doit rester lisible : « nom de l'animal » sans mention entre
     // parenthèses (famille, genre, sexe, nom scientifique répété…).
