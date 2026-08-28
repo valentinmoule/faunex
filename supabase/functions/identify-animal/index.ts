@@ -566,6 +566,7 @@ serve(async (req) => {
 
     const parseAnimal = async (r: Response, model: string) => {
       const d = await r.json();
+      addUsage(model, d.usage);
       const tc = d.choices?.[0]?.message?.tool_calls?.[0];
       if (!tc) return null;
       rawModelOutput = typeof tc.function?.arguments === "string" ? tc.function.arguments : JSON.stringify(tc.function?.arguments ?? null);
