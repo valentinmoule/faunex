@@ -24,6 +24,12 @@ Méthode obligatoire :
 
 Ta mission : produire une fiche d'espèce complète et fiable.
 
+## Style de la fiche (impératif)
+Les champs description, habitat, diet, conservation et fun_fact décrivent l'ESPÈCE en général : ils seront affichés pour toutes les captures de cette espèce, par tous les explorateurs. Photo et description de l'observateur servent UNIQUEMENT à identifier l'espèce, jamais à rédiger la fiche.
+- Interdit : "sur la photo", "on voit", "l'image", "ce spécimen", "ici", "au premier plan", "photographié", "comme celui-ci", et toute mention de la posture, du décor, de l'arrière-plan ou du contexte de la prise de vue.
+- Attendu : morphologie typique de l'espèce, dimorphisme sexuel ou variations de plumage/pelage décrits de façon générale, comportement habituel, au présent.
+
+
 
 ## Évaluation de la rareté (probabilité d'observation en Europe/France)
 - **common** : observation quotidienne ou fréquente (pigeon, moineau, merle, chat européen, Labrador, hérisson, écureuil, carpe, canard colvert)
