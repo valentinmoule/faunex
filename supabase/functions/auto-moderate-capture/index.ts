@@ -194,6 +194,22 @@ Deno.serve(async (req) => {
   }
 })
 
+/**
+ * Libère la réservation d'examen d'une capture.
+ *
+ * Le verrou (`notification_dedupe`) évite deux analyses simultanées, mais en cas
+ * d'échec technique il empêcherait aussi toute nouvelle tentative pendant
+ * 10 minutes : on le supprime pour que le lot planifié reprenne la capture,
+ * qui reste de toute façon visible en modération manuelle.
+ */
+async function releaseClaim(supabase: any, captureId: string) {
+  try {
+    await supabase.from('notification_dedupe').delete().eq('key', `auto-moderate-${captureId}`)
+  } catch (err) {
+    console.error('releaseClaim failed', captureId, String(err))
+  }
+}
+
 
 async function examine(
   supabase: any,
