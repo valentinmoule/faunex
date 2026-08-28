@@ -377,8 +377,12 @@ async function examine(
   const { error: updErr } = await supabase.from('captures').update(update).eq('id', capture.id)
   if (updErr) {
     console.error('auto-approve update failed', updErr)
+    // La capture reste 'pending_review' (modération manuelle) et redevient
+    // réexaminable au prochain passage.
+    await releaseClaim(supabase, capture.id)
     return { capture_id: capture.id, approved: false, reason: 'db_error', detail: updErr.message }
   }
+
 
   // Dataset : validation automatique à haute confiance → vérité terrain.
   await logDatasetEvent(supabase, {
