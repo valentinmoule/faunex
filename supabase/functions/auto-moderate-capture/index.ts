@@ -456,6 +456,49 @@ async function examine(
   return { capture_id: capture.id, approved: true, animal_name: finalName, confidence }
 }
 
+/**
+ * Refus automatique : notification (in-app + e-mail/push) puis suppression de la
+ * capture, exactement comme un rejet effectué par un modérateur humain.
+ */
+async function rejectCapture(
+  supabase: any,
+  capture: any,
+  animalName: string,
+  reason: 'duplicate' | 'not_identifiable',
+  adminActorId: string | null,
+  decisionReason: string,
+) {
+  if (adminActorId) {
+    const { error } = await supabase.from('notifications').insert({
+      user_id: capture.user_id,
+      type: 'capture_rejected',
+      actor_id: adminActorId,
+      comment_text: animalName,
+    })
+    if (error) console.error('auto-reject notification failed', error.message)
+  }
+
+  const { error: notifErr } = await supabase.functions.invoke('notify-moderation-decision', {
+    headers: {
+      Authorization: `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''}`,
+      'x-cron-secret': Deno.env.get('CRON_SECRET') ?? '',
+    },
+    body: {
+      user_id: capture.user_id,
+      decision: 'rejected',
+      animal_name: animalName,
+      capture_id: capture.id,
+      reason,
+    },
+  })
+  if (notifErr) console.error('notify-moderation-decision (reject) failed', notifErr)
+
+  const { error: delErr } = await supabase.from('captures').delete().eq('id', capture.id)
+  if (delErr) console.error('auto-reject delete failed', capture.id, delErr.message, decisionReason)
+}
+
+
+
 function callGateway(
   apiKey: string,
   model: string,
