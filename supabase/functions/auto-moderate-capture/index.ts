@@ -138,7 +138,15 @@ Deno.serve(async (req) => {
     let blocked: number | null = null
 
     for (const capture of pending) {
-      const result: any = await examine(supabase, capture, LOVABLE_API_KEY, adminActorId)
+      let result: any
+      try {
+        result = await examine(supabase, capture, LOVABLE_API_KEY, adminActorId)
+      } catch (err) {
+        // Toute erreur inattendue laisse la capture en modération manuelle.
+        console.error('auto-moderate examine failed', capture.id, String(err))
+        await releaseClaim(supabase, capture.id)
+        result = { capture_id: capture.id, approved: false, reason: 'examine_error' }
+      }
       results.push(result)
       // Disjoncteur : on arrête le lot dès que la passerelle IA nous refuse.
       if (result?.blocked_status) {
@@ -146,6 +154,7 @@ Deno.serve(async (req) => {
         break
       }
     }
+
 
     if (holdsLock) {
       if (blocked === 402 || blocked === 403) {
@@ -184,6 +193,22 @@ Deno.serve(async (req) => {
     return json({ error: e instanceof Error ? e.message : 'Erreur inconnue' }, 500)
   }
 })
+
+/**
+ * Libère la réservation d'examen d'une capture.
+ *
+ * Le verrou (`notification_dedupe`) évite deux analyses simultanées, mais en cas
+ * d'échec technique il empêcherait aussi toute nouvelle tentative pendant
+ * 10 minutes : on le supprime pour que le lot planifié reprenne la capture,
+ * qui reste de toute façon visible en modération manuelle.
+ */
+async function releaseClaim(supabase: any, captureId: string) {
+  try {
+    await supabase.from('notification_dedupe').delete().eq('key', `auto-moderate-${captureId}`)
+  } catch (err) {
+    console.error('releaseClaim failed', captureId, String(err))
+  }
+}
 
 
 async function examine(
@@ -283,8 +308,25 @@ async function examine(
   }
 
   if (!verdict) {
+    // Échec technique de l'IA (indisponible, quota, timeout) : la capture doit
+    // rester en modération manuelle ET rester réexaminable → on libère le verrou.
+    await releaseClaim(supabase, capture.id)
+    await logDatasetEvent(supabase, {
+      event_type: 'auto_moderation_deferred',
+      source: 'auto-moderate-capture',
+      capture_id: capture.id,
+      user_id: capture.user_id,
+      image_url: capture.image_url,
+      label_name: name,
+      label_scientific_name: capture.scientific_name || null,
+      user_description: capture.description || null,
+      location: capture.location || null,
+      decision_reason: `ai_unavailable:${blockedStatus ?? 'error'}`,
+      is_ground_truth: false,
+    })
     return { capture_id: capture.id, approved: false, reason: 'ai_unavailable', blocked_status: blockedStatus }
   }
+
 
 
 
@@ -360,8 +402,12 @@ async function examine(
   const { error: updErr } = await supabase.from('captures').update(update).eq('id', capture.id)
   if (updErr) {
     console.error('auto-approve update failed', updErr)
+    // La capture reste 'pending_review' (modération manuelle) et redevient
+    // réexaminable au prochain passage.
+    await releaseClaim(supabase, capture.id)
     return { capture_id: capture.id, approved: false, reason: 'db_error', detail: updErr.message }
   }
+
 
   // Dataset : validation automatique à haute confiance → vérité terrain.
   await logDatasetEvent(supabase, {
