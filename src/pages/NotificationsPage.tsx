@@ -104,6 +104,22 @@ const NotificationsPage = () => {
     };
   }, [session]);
 
+  const markAllAsRead = async () => {
+    if (!session?.user) return;
+    setMarkingAll(true);
+    const { error } = await supabase
+      .from('notifications')
+      .update({ read: true })
+      .eq('user_id', session.user.id)
+      .eq('read', false);
+    if (!error) {
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    }
+    setMarkingAll(false);
+  };
+
+  const hasUnread = notifications.some((n) => !n.read);
+
   const timeAgo = (date: string) => {
     const diff = Date.now() - new Date(date).getTime();
     const mins = Math.floor(diff / 60000);
@@ -123,8 +139,19 @@ const NotificationsPage = () => {
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
           <h1 className="text-xl font-display font-bold text-foreground">Notifications</h1>
+          {hasUnread && (
+            <button
+              onClick={markAllAsRead}
+              disabled={markingAll}
+              className="ml-auto flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-display font-semibold text-primary transition-colors hover:bg-primary/20 disabled:opacity-50"
+            >
+              <CheckCheck className="w-4 h-4" />
+              {markingAll ? '…' : 'Tout marquer comme lu'}
+            </button>
+          )}
         </div>
       </PageHeader>
+
 
       <div className="max-w-lg mx-auto px-4 pt-2">
         {loading ? (
