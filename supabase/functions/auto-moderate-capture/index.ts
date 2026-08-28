@@ -178,9 +178,11 @@ Deno.serve(async (req) => {
     return json({
       success: true,
       approved: results.filter((r: any) => r.approved).length,
+      rejected: results.filter((r: any) => r.rejected).length,
       paused: blocked === 402 || blocked === 403,
       results,
     })
+
   } catch (e) {
     console.error('auto-moderate-capture error', e)
     if (holdsLock) {
@@ -237,9 +239,12 @@ async function examine(
   }
 
 
-  // Doublon : l'explorateur possède déjà cette espèce → décision humaine.
+  // Doublon : l'explorateur possède déjà cette espèce → refus immédiat + notification.
   const dup = await findUserDuplicate(supabase, capture.user_id, capture.id, name, capture.scientific_name)
-  if (dup) return { capture_id: capture.id, approved: false, reason: 'duplicate' }
+  if (dup) {
+    await rejectCapture(supabase, capture, name, 'duplicate', adminActorId, 'duplicate_species')
+    return { capture_id: capture.id, approved: false, rejected: true, reason: 'duplicate' }
+  }
 
 
   const userText = [
@@ -251,20 +256,6 @@ async function examine(
     capture.location ? `Lieu d'observation : ${capture.location}.` : null,
     'Vérifie si le nom proposé correspond à la photo, puis rédige la fiche.',
   ].filter(Boolean).join('\n')
-
-  /** Une réponse est « concluante » si elle suffit à décider seule (approbation
-   *  franche, ou refus net type non-photo / espèce fictive / humain). */
-  const isConclusive = (v: any) => {
-    if (!v) return false
-    const c = Number(v.confidence) || 0
-    const imgType = typeof v.image_type === 'string' ? v.image_type : null
-    const notPhoto = v.is_real_photo === false || (imgType !== null && imgType !== 'photo_reelle')
-    if (notPhoto) return true
-    if (v.name_matches === true && c >= AUTO_APPROVE_THRESHOLD) return true
-    // Refus catégorique (le modèle est certain que ça ne correspond pas).
-    if (v.name_matches === false && c === 0) return true
-    return false
-  }
 
   const askModel = async (model: string) => {
     try {
@@ -287,25 +278,11 @@ async function examine(
     }
   }
 
-  let verdict: any = null
-  let usedModel: string | null = null
-  let blockedStatus: number | null = null
-
-  // Cascade coût/qualité : Flash tranche la grande majorité des cas de façon
-  // catégorique. On n'escalade vers Pro (≈4× plus cher) que sur les cas
-  // réellement ambigus, donc la qualité des décisions difficiles est conservée.
-  for (const model of ['google/gemini-2.5-flash', 'google/gemini-2.5-pro']) {
-    const { verdict: v, blocked } = await askModel(model)
-    if (blocked) {
-      blockedStatus = blocked
-      break
-    }
-    if (v) {
-      verdict = v
-      usedModel = model
-      if (isConclusive(v)) break
-    }
-  }
+  // UN SEUL appel IA par demande de modération : aucune escalade, aucun second
+  // avis. Si le verdict n'est pas concluant, la décision revient à l'humain.
+  const MODEL = 'google/gemini-2.5-flash'
+  const { verdict, blocked: blockedStatus } = await askModel(MODEL)
+  const usedModel = verdict ? MODEL : null
 
   if (!verdict) {
     // Échec technique de l'IA (indisponible, quota, timeout) : la capture doit
@@ -333,6 +310,7 @@ async function examine(
 
 
 
+
   const confidence = Number(verdict.confidence) || 0
   const matches = verdict.name_matches === true
   const finalName = (verdict.animal_name || name).toString().trim()
@@ -342,11 +320,18 @@ async function examine(
   const imageType = typeof verdict.image_type === 'string' ? verdict.image_type : null
   const notRealPhoto = verdict.is_real_photo === false || (imageType !== null && imageType !== 'photo_reelle')
 
-  if (!matches || unknown || notRealPhoto || confidence < AUTO_APPROVE_THRESHOLD) {
+  // Non-respect des règles : image non photographique, objet, animal mort,
+  // humain, espèce fictive/éteinte → refus ferme + notification.
+  const ruleBreach = notRealPhoto || (verdict.name_matches === false && confidence === 0)
 
-    // Dataset : prédiction non concluante → la capture reste en modération humaine.
+  if (!matches || unknown || notRealPhoto || confidence < AUTO_APPROVE_THRESHOLD) {
+    const decisionReason = notRealPhoto
+      ? `not_a_real_photo:${imageType ?? 'unknown'}`
+      : (verdict.reason ?? (ruleBreach ? 'rule_breach' : 'needs_human'))
+
+    // Dataset : décision automatique de refus, ou renvoi vers la modération humaine.
     await logDatasetEvent(supabase, {
-      event_type: 'auto_moderation_deferred',
+      event_type: ruleBreach ? 'moderation_rejected' : 'auto_moderation_deferred',
       source: 'auto-moderate-capture',
       model: usedModel,
       capture_id: capture.id,
@@ -361,20 +346,29 @@ async function examine(
       label_scientific_name: capture.scientific_name || null,
       user_description: capture.description || null,
       location: capture.location || null,
-      decision_reason: notRealPhoto
-        ? `not_a_real_photo:${imageType ?? 'unknown'}`
-        : (verdict.reason ?? 'needs_human'),
+      decision_reason: decisionReason,
       is_ground_truth: false,
     })
+
+    if (ruleBreach) {
+      await rejectCapture(supabase, capture, name, 'not_identifiable', adminActorId, decisionReason)
+      return {
+        capture_id: capture.id,
+        approved: false,
+        rejected: true,
+        reason: notRealPhoto ? 'not_a_real_photo' : 'rule_breach',
+        image_type: imageType,
+        confidence,
+      }
+    }
+
     return {
       capture_id: capture.id,
       approved: false,
-      reason: notRealPhoto ? 'not_a_real_photo' : 'needs_human',
+      reason: 'needs_human',
       image_type: imageType,
       confidence,
-      ai_note: notRealPhoto
-        ? `Image non photographique (${imageType ?? 'type inconnu'}) : illustration/logo/dessin détecté.`
-        : (verdict.reason ?? null),
+      ai_note: verdict.reason ?? null,
     }
 
   }
@@ -383,7 +377,11 @@ async function examine(
   const dup2 = await findUserDuplicate(
     supabase, capture.user_id, capture.id, finalName, verdict.scientific_name || null,
   )
-  if (dup2) return { capture_id: capture.id, approved: false, reason: 'duplicate' }
+  if (dup2) {
+    await rejectCapture(supabase, capture, finalName, 'duplicate', adminActorId, 'duplicate_species')
+    return { capture_id: capture.id, approved: false, rejected: true, reason: 'duplicate' }
+  }
+
 
   const update: Record<string, unknown> = {
     animal_name: finalName,
@@ -459,6 +457,49 @@ async function examine(
 
   return { capture_id: capture.id, approved: true, animal_name: finalName, confidence }
 }
+
+/**
+ * Refus automatique : notification (in-app + e-mail/push) puis suppression de la
+ * capture, exactement comme un rejet effectué par un modérateur humain.
+ */
+async function rejectCapture(
+  supabase: any,
+  capture: any,
+  animalName: string,
+  reason: 'duplicate' | 'not_identifiable',
+  adminActorId: string | null,
+  decisionReason: string,
+) {
+  if (adminActorId) {
+    const { error } = await supabase.from('notifications').insert({
+      user_id: capture.user_id,
+      type: 'capture_rejected',
+      actor_id: adminActorId,
+      comment_text: animalName,
+    })
+    if (error) console.error('auto-reject notification failed', error.message)
+  }
+
+  const { error: notifErr } = await supabase.functions.invoke('notify-moderation-decision', {
+    headers: {
+      Authorization: `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''}`,
+      'x-cron-secret': Deno.env.get('CRON_SECRET') ?? '',
+    },
+    body: {
+      user_id: capture.user_id,
+      decision: 'rejected',
+      animal_name: animalName,
+      capture_id: capture.id,
+      reason,
+    },
+  })
+  if (notifErr) console.error('notify-moderation-decision (reject) failed', notifErr)
+
+  const { error: delErr } = await supabase.from('captures').delete().eq('id', capture.id)
+  if (delErr) console.error('auto-reject delete failed', capture.id, delErr.message, decisionReason)
+}
+
+
 
 function callGateway(
   apiKey: string,
