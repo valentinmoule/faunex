@@ -29,6 +29,7 @@ const NotificationsPage = () => {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
+  const [markingAll, setMarkingAll] = useState(false);
 
   useEffect(() => {
     if (!session?.user) return;
