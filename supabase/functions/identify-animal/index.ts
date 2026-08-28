@@ -395,9 +395,10 @@ serve(async (req) => {
             content: [
               {
                 type: "text",
-                // Les critères détaillés sont déjà dans le prompte système :
-                // on ne les répète pas ici (double facturation des jetons).
-                text: "Étape 1 : nature de l'image (image_type + is_real_photo). Si ce n'est pas une vraie photo → \"Inconnu\", confidence 0. Étape 2 (seulement si vraie photo) : identifie l'animal au rang le plus précis (race exacte pour chien/chat), calibre la confiance et donne des alternatives en cas de doute."
+                // Les critères détaillés sont déjà dans le prompt système :
+                // on ne les répète ni ici ni dans les descriptions du schéma
+                // (chaque répétition est facturée à chaque appel).
+                text: "1) image_type + is_real_photo. 2) Si vraie photo : identifie au rang le plus précis, calibre la confiance, alternatives si doute."
               },
 
               { type: "image_url", image_url: { url: imageUrl } }
@@ -409,37 +410,26 @@ serve(async (req) => {
             type: "function",
             function: {
               name: "identify_animal",
-              description: "Identifie un animal à partir d'une photo avec précision scientifique",
+              description: "Identification d'un animal sur photo",
               parameters: {
                 type: "object",
                 properties: {
-                  is_real_photo: {
-                    type: "boolean",
-                    description: "true seulement si vraie photographie d'un animal vivant (cf. règle 1). false pour tout objet, statue, jouet ou représentation."
-                  },
+                  is_real_photo: { type: "boolean" },
                   image_type: {
                     type: "string",
-                    enum: ["photo_reelle", "illustration", "dessin", "logo_icone", "peinture", "rendu_3d", "image_generee_ia", "capture_ecran", "photo_ecran_ou_papier", "jouet_peluche_figurine", "objet_representation", "animal_mort_ou_plat", "autre"],
-                    description: "Nature réelle de l'image."
+                    enum: ["photo_reelle", "illustration", "dessin", "logo_icone", "peinture", "rendu_3d", "image_generee_ia", "capture_ecran", "photo_ecran_ou_papier", "jouet_peluche_figurine", "objet_representation", "animal_mort_ou_plat", "autre"]
                   },
-                  animal_name: {
-                    type: "string",
-                    description: "Nom français précis : race pour les domestiques, nom commun exact pour la faune sauvage."
-                  },
-                  scientific_name: {
-                    type: "string",
-                    description: "Nom latin réel : binôme seulement si l'espèce est certaine, sinon le rang supérieur réel seul (cf. règle 3)."
-                  },
+                  animal_name: { type: "string" },
+                  scientific_name: { type: "string" },
                   scientific_rank: {
                     type: "string",
-                    enum: ["subspecies", "species", "genus", "family", "order", "class"],
-                    description: "Rang atteint par scientific_name."
+                    enum: ["subspecies", "species", "genus", "family", "order", "class"]
                   },
 
                   category: {
                     type: "string",
                     enum: ["Mammifères", "Oiseaux", "Reptiles", "Amphibiens", "Poissons", "Insectes", "Arachnides", "Crustacés", "Mollusques"],
-                    description: "Exactement une de ces 9 classes. Myriapodes → Insectes ; vers/annélides, échinodermes (oursins, étoiles de mer) et cnidaires (méduses, anémones, coraux) → Mollusques."
+                    description: "Myriapodes → Insectes ; vers, échinodermes et cnidaires → Mollusques."
                   },
 
                   // La fiche (description, habitat, régime, conservation,
@@ -452,20 +442,14 @@ serve(async (req) => {
                     type: "string",
                     enum: ["common", "rare", "epic", "mythic"]
                   },
-                  confidence: {
-                    type: "integer",
-                    minimum: 0,
-                    maximum: 100,
-                    description: "Confiance calibrée (cf. règle 7)."
-                  },
+                  confidence: { type: "integer", minimum: 0, maximum: 100 },
                   alternatives: {
                     type: "array",
-                    items: { type: "string" },
-                    description: "1 à 3 alternatives plausibles si confidence < 80."
+                    items: { type: "string" }
                   },
                   subject_bbox: {
                     type: "object",
-                    description: "Boîte englobante approximative du sujet principal, normalisée 0..1 (x,y = coin haut-gauche ; w,h = taille). Couvre tout le corps visible, sois généreux. Omets si aucun animal.",
+                    description: "Boîte du sujet, normalisée 0..1 (x,y coin haut-gauche, w,h taille), généreuse. Omets si aucun animal.",
 
                     properties: {
                       x: { type: "number", minimum: 0, maximum: 1 },
@@ -483,6 +467,7 @@ serve(async (req) => {
             }
           }
         ],
+
         tool_choice: { type: "function", function: { name: "identify_animal" } },
       }),
         });
