@@ -318,11 +318,18 @@ async function examine(
   const imageType = typeof verdict.image_type === 'string' ? verdict.image_type : null
   const notRealPhoto = verdict.is_real_photo === false || (imageType !== null && imageType !== 'photo_reelle')
 
-  if (!matches || unknown || notRealPhoto || confidence < AUTO_APPROVE_THRESHOLD) {
+  // Non-respect des règles : image non photographique, objet, animal mort,
+  // humain, espèce fictive/éteinte → refus ferme + notification.
+  const ruleBreach = notRealPhoto || (verdict.name_matches === false && confidence === 0)
 
-    // Dataset : prédiction non concluante → la capture reste en modération humaine.
+  if (!matches || unknown || notRealPhoto || confidence < AUTO_APPROVE_THRESHOLD) {
+    const decisionReason = notRealPhoto
+      ? `not_a_real_photo:${imageType ?? 'unknown'}`
+      : (verdict.reason ?? (ruleBreach ? 'rule_breach' : 'needs_human'))
+
+    // Dataset : décision automatique de refus, ou renvoi vers la modération humaine.
     await logDatasetEvent(supabase, {
-      event_type: 'auto_moderation_deferred',
+      event_type: ruleBreach ? 'moderation_rejected' : 'auto_moderation_deferred',
       source: 'auto-moderate-capture',
       model: usedModel,
       capture_id: capture.id,
@@ -337,20 +344,29 @@ async function examine(
       label_scientific_name: capture.scientific_name || null,
       user_description: capture.description || null,
       location: capture.location || null,
-      decision_reason: notRealPhoto
-        ? `not_a_real_photo:${imageType ?? 'unknown'}`
-        : (verdict.reason ?? 'needs_human'),
+      decision_reason: decisionReason,
       is_ground_truth: false,
     })
+
+    if (ruleBreach) {
+      await rejectCapture(supabase, capture, name, 'not_identifiable', adminActorId, decisionReason)
+      return {
+        capture_id: capture.id,
+        approved: false,
+        rejected: true,
+        reason: notRealPhoto ? 'not_a_real_photo' : 'rule_breach',
+        image_type: imageType,
+        confidence,
+      }
+    }
+
     return {
       capture_id: capture.id,
       approved: false,
-      reason: notRealPhoto ? 'not_a_real_photo' : 'needs_human',
+      reason: 'needs_human',
       image_type: imageType,
       confidence,
-      ai_note: notRealPhoto
-        ? `Image non photographique (${imageType ?? 'type inconnu'}) : illustration/logo/dessin détecté.`
-        : (verdict.reason ?? null),
+      ai_note: verdict.reason ?? null,
     }
 
   }
@@ -359,7 +375,11 @@ async function examine(
   const dup2 = await findUserDuplicate(
     supabase, capture.user_id, capture.id, finalName, verdict.scientific_name || null,
   )
-  if (dup2) return { capture_id: capture.id, approved: false, reason: 'duplicate' }
+  if (dup2) {
+    await rejectCapture(supabase, capture, finalName, 'duplicate', adminActorId, 'duplicate_species')
+    return { capture_id: capture.id, approved: false, rejected: true, reason: 'duplicate' }
+  }
+
 
   const update: Record<string, unknown> = {
     animal_name: finalName,
