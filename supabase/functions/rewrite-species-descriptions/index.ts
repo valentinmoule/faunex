@@ -144,21 +144,36 @@ Deno.serve(async (req) => {
           continue
         }
 
-        const { error: upErr } = await admin
-          .from('species_profiles')
-          .update({
-            description: p.description,
-            habitat: p.habitat,
-            diet: p.diet,
-            conservation: p.conservation,
-            fun_fact: p.fun_fact,
-            source: 'generic_rewrite',
-          })
-          .eq('id', row.id)
+        const upErr = row.id
+          ? (
+              await admin
+                .from('species_profiles')
+                .update({
+                  description: p.description,
+                  habitat: p.habitat,
+                  diet: p.diet,
+                  conservation: p.conservation,
+                  fun_fact: p.fun_fact,
+                  source: 'generic_rewrite',
+                })
+                .eq('id', row.id)
+            ).error
+          : (
+              await admin.rpc('upsert_species_profile', {
+                p_name: row.animal_name,
+                p_scientific: row.scientific_name || null,
+                p_description: p.description,
+                p_habitat: p.habitat,
+                p_diet: p.diet,
+                p_conservation: p.conservation,
+                p_fun_fact: p.fun_fact,
+              })
+            ).error
         if (upErr) {
           results.push({ name: row.animal_name, ok: false, error: upErr.message })
           continue
         }
+
 
         // Propagation aux captures de l'espèce
         const { data: caps, error: capErr } = await admin
