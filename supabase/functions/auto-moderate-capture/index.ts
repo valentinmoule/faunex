@@ -283,8 +283,25 @@ async function examine(
   }
 
   if (!verdict) {
+    // Échec technique de l'IA (indisponible, quota, timeout) : la capture doit
+    // rester en modération manuelle ET rester réexaminable → on libère le verrou.
+    await releaseClaim(supabase, capture.id)
+    await logDatasetEvent(supabase, {
+      event_type: 'auto_moderation_deferred',
+      source: 'auto-moderate-capture',
+      capture_id: capture.id,
+      user_id: capture.user_id,
+      image_url: capture.image_url,
+      label_name: name,
+      label_scientific_name: capture.scientific_name || null,
+      user_description: capture.description || null,
+      location: capture.location || null,
+      decision_reason: `ai_unavailable:${blockedStatus ?? 'error'}`,
+      is_ground_truth: false,
+    })
     return { capture_id: capture.id, approved: false, reason: 'ai_unavailable', blocked_status: blockedStatus }
   }
+
 
 
 
