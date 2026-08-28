@@ -176,23 +176,22 @@ const verifyTaxon = async (
  * Aucun des deux ne rédige plus la fiche descriptive : celle-ci vient de la
  * base (species_profiles) et n'est générée qu'une seule fois par espèce.
  */
-const FAST_PROMPT = `Expert naturaliste. Identifie l'animal avec précision scientifique (morphologie, pelage/plumage, traits distinctifs, contexte), au rang le plus précis possible.
+const FAST_PROMPT = `Expert naturaliste. Identifie l'animal au rang le plus précis (morphologie, pelage/plumage, traits distinctifs, contexte).
 
-1. AUTHENTICITÉ (d'abord) : Faunex n'accepte que de VRAIES PHOTOGRAPHIES d'animaux vivants. Renseigne image_type + is_real_photo. N'est PAS une photo d'animal : illustration, dessin, art vectoriel, sticker, emoji, logo, icône, mascotte, affiche, peinture, gravure, tatouage, sculpture, statue, taxidermie, rendu 3D, image IA, jeu vidéo, capture d'écran, photo d'écran/livre/poster, jouet, peluche, figurine — ni un OBJET en forme d'animal (bibelot, décoration, sculpture, déguisement, gonflable, animatronique, gâteau, graffiti, panneau). Indices objet/non-photo : texture de matériau, coutures, posture rigide, socle, yeux peints, aplats uniformes, absence de grain, fond uni, texte/watermark. Un ANIMAL MORT n'est pas une capture valide : plat cuisiné, fruits de mer/poissons/crustacés servis ou en étal, viande, carcasse, dépouille, trophée de chasse, animal écrasé, insecte épinglé, squelette, coquille vide → image_type = animal_mort_ou_plat, is_real_photo = false. Indices : assiette, plateau, table, couverts, glace pilée, citron, cuisson, découpe, sang, étal de marché, mur de trophées. Doute → is_real_photo = false → animal_name "Inconnu", confidence 0, aucune alternative (un logo de renard n'est pas un renard, une araignée de mer dans une assiette n'est pas une capture).
+1. AUTHENTICITÉ (d'abord) : seules de VRAIES PHOTOS d'animaux VIVANTS sont valides. Renseigne image_type + is_real_photo. Invalide : illustration, dessin, vectoriel, sticker, logo, mascotte, affiche, peinture, gravure, tatouage, statue, taxidermie, rendu 3D, image IA, jeu vidéo, capture ou photo d'écran/papier, jouet, peluche, figurine, tout OBJET en forme d'animal (bibelot, déco, déguisement, gonflable, gâteau, graffiti, panneau) — et tout animal MORT ou préparé (plat, fruits de mer/poisson servis ou en étal, viande, carcasse, trophée, animal écrasé, insecte épinglé, squelette, coquille vide → animal_mort_ou_plat). Indices : matériau/couture/socle/yeux peints/posture rigide, aplats sans grain, fond uni, watermark, assiette/couverts/glace/citron/découpe/sang/étal. Doute → is_real_photo false → "Inconnu", confidence 0, aucune alternative.
 
-2. SUJETS INTERDITS → "Inconnu", confidence 0 : humain (si humain + animal, identifie l'animal) ; créatures de fiction/mythologiques ; espèces éteintes ou préhistoriques ; aucun animal visible. Exception : espèces réelles nommées "dragon" (Komodo, barbu, volant).
+2. INTERDITS → "Inconnu", confidence 0 : humain (si humain + animal → identifie l'animal), fiction/mythologie, espèces éteintes/préhistoriques, aucun animal. Exception : espèces réelles dites "dragon" (Komodo, barbu, volant).
 
-3. TAXONOMIE STRICTE : le nom scientifique n'est jamais déduit ou fabriqué depuis le nom vernaculaire. N'écris un binôme que si l'espèce est réellement publiée ET que le genre est le bon. Sinon remonte au rang RÉEL sûr (scientific_name = ce rang seul, scientific_rank = genus|family|order|class, animal_name = nom générique court honnête, confidence ≤ 60). animal_name = nom commun français uniquement, JAMAIS de parenthèses ni de précision ajoutée. Jamais de nom composite ou de binôme inventé. confidence ≥ 80 réservée aux binômes certains.
+3. TAXONOMIE : ne déduis jamais le latin du nom français. Binôme seulement si l'espèce est réellement publiée et le genre correct ; sinon rang RÉEL sûr (scientific_name = ce rang seul, scientific_rank = genus|family|order|class, animal_name générique honnête, confidence ≤ 60). animal_name = nom commun français seul, sans parenthèses. Jamais de nom ou binôme inventé. confidence ≥ 80 = binôme certain.
 
-4. DOMESTIQUES : races réelles bien orthographiées, seules (jamais "Croisé…"/"Type…"). Doute → nom générique ("Chien domestique", "Chat Européen", "Vache domestique") + hypothèses en alternatives. Chien : Canis lupus familiaris. Chat : Felis catus. Bovin : "Vache <Race>", Bos taurus.
+4. DOMESTIQUES : race réelle seule (jamais "Croisé…"). Doute → "Chien domestique" / "Chat Européen" / "Vache domestique" + alternatives. Chien Canis lupus familiaris, chat Felis catus, bovin "Vache <Race>" Bos taurus.
 
-5. FAUNE SAUVAGE : ne retiens jamais l'espèce la plus courante par défaut ; compare les critères diagnostiques (cervidés, coccinelles, mésanges, goélands, hirondelles, bourdons, lézards…) et baisse la confiance en cas d'ambiguïté.
+5. SAUVAGE : jamais l'espèce la plus courante par défaut ; compare les critères diagnostiques (cervidés, coccinelles, mésanges, goélands, hirondelles, bourdons, lézards…) et baisse la confiance si ambigu.
 
-6. RARETÉ (observation en Europe/France) : common quotidien · rare patience/chance · epic très rare, vulnérable/en danger · mythic quasi-impossible, en danger critique.
+6. RARETÉ (Europe/France) : common quotidien · rare chance · epic très rare/menacé · mythic quasi-impossible.
 
-7. CONFIANCE (0-100, honnête) : 90-100 certaine · 70-89 très probable · 50-69 plusieurs espèces possibles · 30-49 incertain · 0-29 sans preuve. Si < 80, donne 1 à 3 alternatives.
+7. CONFIANCE honnête : 90+ certaine · 70-89 probable · 50-69 plusieurs espèces · 30-49 incertain · <30 sans preuve. Si < 80 → 1 à 3 alternatives.`;
 
-Réponds UNIQUEMENT via l'appel de fonction identify_animal.`;
 
 const SYSTEM_PROMPT = `Expert naturaliste (zoologie, ornithologie, herpétologie, entomologie, cynologie, félinologie). Tu identifies les animaux avec une précision scientifique.
 
@@ -362,7 +361,12 @@ serve(async (req) => {
     const FAST_MODEL = "google/gemini-3.1-flash-lite";
     const DEEP_MODEL = "google/gemini-3.5-flash";
 
-    const callGateway = async (model: string, timeoutMs: number, prompt: string) => {
+    const callGateway = async (
+      model: string,
+      timeoutMs: number,
+      prompt: string,
+      effort: "low" | "high" = "low",
+    ) => {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), timeoutMs);
       try {
@@ -377,16 +381,24 @@ serve(async (req) => {
       body: JSON.stringify({
         model,
         temperature: 0,
+        // Les modèles Gemini 3 « réfléchissent » par défaut : ces jetons de
+        // raisonnement sont facturés en sortie et représentent une part
+        // importante de la note. La passe rapide n'en a pas besoin (vision +
+        // schéma imposé) ; la passe profonde, elle, garde un budget élevé
+        // pour trancher les confusions difficiles.
+        reasoning_effort: effort,
         messages: [
           { role: "system", content: prompt },
+
           {
             role: "user",
             content: [
               {
                 type: "text",
-                // Les critères détaillés sont déjà dans le prompte système :
-                // on ne les répète pas ici (double facturation des jetons).
-                text: "Étape 1 : nature de l'image (image_type + is_real_photo). Si ce n'est pas une vraie photo → \"Inconnu\", confidence 0. Étape 2 (seulement si vraie photo) : identifie l'animal au rang le plus précis (race exacte pour chien/chat), calibre la confiance et donne des alternatives en cas de doute."
+                // Les critères détaillés sont déjà dans le prompt système :
+                // on ne les répète ni ici ni dans les descriptions du schéma
+                // (chaque répétition est facturée à chaque appel).
+                text: "1) image_type + is_real_photo. 2) Si vraie photo : identifie au rang le plus précis, calibre la confiance, alternatives si doute."
               },
 
               { type: "image_url", image_url: { url: imageUrl } }
@@ -398,37 +410,26 @@ serve(async (req) => {
             type: "function",
             function: {
               name: "identify_animal",
-              description: "Identifie un animal à partir d'une photo avec précision scientifique",
+              description: "Identification d'un animal sur photo",
               parameters: {
                 type: "object",
                 properties: {
-                  is_real_photo: {
-                    type: "boolean",
-                    description: "true seulement si vraie photographie d'un animal vivant (cf. règle 1). false pour tout objet, statue, jouet ou représentation."
-                  },
+                  is_real_photo: { type: "boolean" },
                   image_type: {
                     type: "string",
-                    enum: ["photo_reelle", "illustration", "dessin", "logo_icone", "peinture", "rendu_3d", "image_generee_ia", "capture_ecran", "photo_ecran_ou_papier", "jouet_peluche_figurine", "objet_representation", "animal_mort_ou_plat", "autre"],
-                    description: "Nature réelle de l'image."
+                    enum: ["photo_reelle", "illustration", "dessin", "logo_icone", "peinture", "rendu_3d", "image_generee_ia", "capture_ecran", "photo_ecran_ou_papier", "jouet_peluche_figurine", "objet_representation", "animal_mort_ou_plat", "autre"]
                   },
-                  animal_name: {
-                    type: "string",
-                    description: "Nom français précis : race pour les domestiques, nom commun exact pour la faune sauvage."
-                  },
-                  scientific_name: {
-                    type: "string",
-                    description: "Nom latin réel : binôme seulement si l'espèce est certaine, sinon le rang supérieur réel seul (cf. règle 3)."
-                  },
+                  animal_name: { type: "string" },
+                  scientific_name: { type: "string" },
                   scientific_rank: {
                     type: "string",
-                    enum: ["subspecies", "species", "genus", "family", "order", "class"],
-                    description: "Rang atteint par scientific_name."
+                    enum: ["subspecies", "species", "genus", "family", "order", "class"]
                   },
 
                   category: {
                     type: "string",
                     enum: ["Mammifères", "Oiseaux", "Reptiles", "Amphibiens", "Poissons", "Insectes", "Arachnides", "Crustacés", "Mollusques"],
-                    description: "Exactement une de ces 9 classes. Myriapodes → Insectes ; vers/annélides, échinodermes (oursins, étoiles de mer) et cnidaires (méduses, anémones, coraux) → Mollusques."
+                    description: "Myriapodes → Insectes ; vers, échinodermes et cnidaires → Mollusques."
                   },
 
                   // La fiche (description, habitat, régime, conservation,
@@ -441,20 +442,14 @@ serve(async (req) => {
                     type: "string",
                     enum: ["common", "rare", "epic", "mythic"]
                   },
-                  confidence: {
-                    type: "integer",
-                    minimum: 0,
-                    maximum: 100,
-                    description: "Confiance calibrée (cf. règle 7)."
-                  },
+                  confidence: { type: "integer", minimum: 0, maximum: 100 },
                   alternatives: {
                     type: "array",
-                    items: { type: "string" },
-                    description: "1 à 3 alternatives plausibles si confidence < 80."
+                    items: { type: "string" }
                   },
                   subject_bbox: {
                     type: "object",
-                    description: "Boîte englobante approximative du sujet principal, normalisée 0..1 (x,y = coin haut-gauche ; w,h = taille). Couvre tout le corps visible, sois généreux. Omets si aucun animal.",
+                    description: "Boîte du sujet, normalisée 0..1 (x,y coin haut-gauche, w,h taille), généreuse. Omets si aucun animal.",
 
                     properties: {
                       x: { type: "number", minimum: 0, maximum: 1 },
@@ -472,6 +467,7 @@ serve(async (req) => {
             }
           }
         ],
+
         tool_choice: { type: "function", function: { name: "identify_animal" } },
       }),
         });
@@ -487,15 +483,20 @@ serve(async (req) => {
      * répond en général en 2 s. Budget total borné (< 50 s) pour rester sous le
      * timeout client.
      */
-    const tryModel = async (model: string, timeoutMs: number, prompt: string, attempts = 1) => {
+    const tryModel = async (
+      model: string,
+      // Un timeout par tentative : le premier essai doit être assez long
+      // pour laisser le modèle finir (sinon on abandonne un appel déjà
+      // facturé et on en relance un second pour rien).
+      timeouts: number[],
+      prompt: string,
+      effort: "low" | "high" = "low",
+    ) => {
+      const attempts = timeouts.length;
       for (let i = 0; i < attempts; i++) {
         const startedAt = Date.now();
         try {
-          let r = await callGateway(model, timeoutMs, prompt);
-          if (!r.ok && r.status >= 500) {
-            console.error("AI gateway 5xx, retrying once", model);
-            r = await callGateway(model, timeoutMs, prompt);
-          }
+          let r = await callGateway(model, timeouts[i], prompt, effort);
           if (!r.ok && r.status >= 500 && i < attempts - 1) continue;
           return r;
         } catch (netErr) {
@@ -512,9 +513,32 @@ serve(async (req) => {
       return null;
     };
 
+
     // Réponse brute du modèle conservée pour tracer les hallucinations.
     let rawModelOutput: string | null = null;
     let usedModel: string | null = null;
+    /** Consommation réelle (entrée / sortie / raisonnement) cumulée sur la requête. */
+    const tokenUsage: Record<string, number> = {};
+
+    const addUsage = (model: string, usage: any) => {
+      if (!usage || typeof usage !== "object") return;
+      const prompt = Number(usage.prompt_tokens ?? 0) || 0;
+      const completion = Number(usage.completion_tokens ?? 0) || 0;
+      const reasoning = Number(
+        usage.completion_tokens_details?.reasoning_tokens ??
+          usage.reasoning_tokens ?? 0,
+      ) || 0;
+      const cached = Number(usage.prompt_tokens_details?.cached_tokens ?? 0) || 0;
+      tokenUsage.prompt = (tokenUsage.prompt ?? 0) + prompt;
+      tokenUsage.completion = (tokenUsage.completion ?? 0) + completion;
+      tokenUsage.reasoning = (tokenUsage.reasoning ?? 0) + reasoning;
+      tokenUsage.cached = (tokenUsage.cached ?? 0) + cached;
+      tokenUsage.calls = (tokenUsage.calls ?? 0) + 1;
+      console.log(
+        `token usage ${model} prompt=${prompt} cached=${cached} out=${completion} thinking=${reasoning}`,
+      );
+    };
+
 
     // Le nom commun doit rester lisible : « nom de l'animal » sans mention entre
     // parenthèses (famille, genre, sexe, nom scientifique répété…).
@@ -526,6 +550,7 @@ serve(async (req) => {
 
     const parseAnimal = async (r: Response, model: string) => {
       const d = await r.json();
+      addUsage(model, d.usage);
       const tc = d.choices?.[0]?.message?.tool_calls?.[0];
       if (!tc) return null;
       rawModelOutput = typeof tc.function?.arguments === "string" ? tc.function.arguments : JSON.stringify(tc.function?.arguments ?? null);
@@ -549,7 +574,7 @@ serve(async (req) => {
     // 1) Passe économique (Flash Lite) — couvre la grande majorité des animaux.
     //    12 s suffisent largement (médiane ~2,5 s) ; au-delà l'appel est bloqué,
     //    on repart sur une requête neuve plutôt que d'attendre.
-    let response = await tryModel(FAST_MODEL, 12_000, FAST_PROMPT, 2);
+    let response = await tryModel(FAST_MODEL, [22_000, 9_000], FAST_PROMPT);
     let animalData = response?.ok ? await parseAnimal(response, FAST_MODEL) : null;
 
 
@@ -566,7 +591,7 @@ serve(async (req) => {
 
     if (needsDeep) {
       // Budget restant : 24 s (2× Lite) + 20 s = 44 s max, sous le timeout client.
-      const deep = await tryModel(DEEP_MODEL, 20_000, SYSTEM_PROMPT);
+      const deep = await tryModel(DEEP_MODEL, [18_000], SYSTEM_PROMPT, "high");
       if (deep?.ok) {
         const deepData = await parseAnimal(deep, DEEP_MODEL);
         if (deepData) {
@@ -653,6 +678,7 @@ serve(async (req) => {
           payload: {
             raw_model_output: rawModelOutput,
             taxon_verdict: verdict,
+            token_usage: tokenUsage,
             outcome,
           },
         });
