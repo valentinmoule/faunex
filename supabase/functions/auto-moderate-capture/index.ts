@@ -138,7 +138,15 @@ Deno.serve(async (req) => {
     let blocked: number | null = null
 
     for (const capture of pending) {
-      const result: any = await examine(supabase, capture, LOVABLE_API_KEY, adminActorId)
+      let result: any
+      try {
+        result = await examine(supabase, capture, LOVABLE_API_KEY, adminActorId)
+      } catch (err) {
+        // Toute erreur inattendue laisse la capture en modération manuelle.
+        console.error('auto-moderate examine failed', capture.id, String(err))
+        await releaseClaim(supabase, capture.id)
+        result = { capture_id: capture.id, approved: false, reason: 'examine_error' }
+      }
       results.push(result)
       // Disjoncteur : on arrête le lot dès que la passerelle IA nous refuse.
       if (result?.blocked_status) {
@@ -146,6 +154,7 @@ Deno.serve(async (req) => {
         break
       }
     }
+
 
     if (holdsLock) {
       if (blocked === 402 || blocked === 403) {
