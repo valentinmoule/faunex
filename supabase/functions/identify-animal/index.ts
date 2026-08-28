@@ -574,7 +574,7 @@ serve(async (req) => {
     // 1) Passe économique (Flash Lite) — couvre la grande majorité des animaux.
     //    12 s suffisent largement (médiane ~2,5 s) ; au-delà l'appel est bloqué,
     //    on repart sur une requête neuve plutôt que d'attendre.
-    let response = await tryModel(FAST_MODEL, 12_000, FAST_PROMPT, 2);
+    let response = await tryModel(FAST_MODEL, [22_000, 9_000], FAST_PROMPT);
     let animalData = response?.ok ? await parseAnimal(response, FAST_MODEL) : null;
 
 
