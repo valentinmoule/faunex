@@ -237,9 +237,12 @@ async function examine(
   }
 
 
-  // Doublon : l'explorateur possède déjà cette espèce → décision humaine.
+  // Doublon : l'explorateur possède déjà cette espèce → refus immédiat + notification.
   const dup = await findUserDuplicate(supabase, capture.user_id, capture.id, name, capture.scientific_name)
-  if (dup) return { capture_id: capture.id, approved: false, reason: 'duplicate' }
+  if (dup) {
+    await rejectCapture(supabase, capture, name, 'duplicate', adminActorId, 'duplicate_species')
+    return { capture_id: capture.id, approved: false, rejected: true, reason: 'duplicate' }
+  }
 
 
   const userText = [
@@ -251,20 +254,6 @@ async function examine(
     capture.location ? `Lieu d'observation : ${capture.location}.` : null,
     'Vérifie si le nom proposé correspond à la photo, puis rédige la fiche.',
   ].filter(Boolean).join('\n')
-
-  /** Une réponse est « concluante » si elle suffit à décider seule (approbation
-   *  franche, ou refus net type non-photo / espèce fictive / humain). */
-  const isConclusive = (v: any) => {
-    if (!v) return false
-    const c = Number(v.confidence) || 0
-    const imgType = typeof v.image_type === 'string' ? v.image_type : null
-    const notPhoto = v.is_real_photo === false || (imgType !== null && imgType !== 'photo_reelle')
-    if (notPhoto) return true
-    if (v.name_matches === true && c >= AUTO_APPROVE_THRESHOLD) return true
-    // Refus catégorique (le modèle est certain que ça ne correspond pas).
-    if (v.name_matches === false && c === 0) return true
-    return false
-  }
 
   const askModel = async (model: string) => {
     try {
@@ -287,25 +276,11 @@ async function examine(
     }
   }
 
-  let verdict: any = null
-  let usedModel: string | null = null
-  let blockedStatus: number | null = null
-
-  // Cascade coût/qualité : Flash tranche la grande majorité des cas de façon
-  // catégorique. On n'escalade vers Pro (≈4× plus cher) que sur les cas
-  // réellement ambigus, donc la qualité des décisions difficiles est conservée.
-  for (const model of ['google/gemini-2.5-flash', 'google/gemini-2.5-pro']) {
-    const { verdict: v, blocked } = await askModel(model)
-    if (blocked) {
-      blockedStatus = blocked
-      break
-    }
-    if (v) {
-      verdict = v
-      usedModel = model
-      if (isConclusive(v)) break
-    }
-  }
+  // UN SEUL appel IA par demande de modération : aucune escalade, aucun second
+  // avis. Si le verdict n'est pas concluant, la décision revient à l'humain.
+  const MODEL = 'google/gemini-2.5-flash'
+  const { verdict, blocked: blockedStatus } = await askModel(MODEL)
+  const usedModel = verdict ? MODEL : null
 
   if (!verdict) {
     // Échec technique de l'IA (indisponible, quota, timeout) : la capture doit
@@ -326,6 +301,7 @@ async function examine(
     })
     return { capture_id: capture.id, approved: false, reason: 'ai_unavailable', blocked_status: blockedStatus }
   }
+
 
 
 
