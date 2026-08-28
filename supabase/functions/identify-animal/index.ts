@@ -499,14 +499,20 @@ serve(async (req) => {
      * répond en général en 2 s. Budget total borné (< 50 s) pour rester sous le
      * timeout client.
      */
-    const tryModel = async (model: string, timeoutMs: number, prompt: string, attempts = 1) => {
+    const tryModel = async (
+      model: string,
+      timeoutMs: number,
+      prompt: string,
+      attempts = 1,
+      effort: "low" | "high" = "low",
+    ) => {
       for (let i = 0; i < attempts; i++) {
         const startedAt = Date.now();
         try {
-          let r = await callGateway(model, timeoutMs, prompt);
+          let r = await callGateway(model, timeoutMs, prompt, effort);
           if (!r.ok && r.status >= 500) {
             console.error("AI gateway 5xx, retrying once", model);
-            r = await callGateway(model, timeoutMs, prompt);
+            r = await callGateway(model, timeoutMs, prompt, effort);
           }
           if (!r.ok && r.status >= 500 && i < attempts - 1) continue;
           return r;
