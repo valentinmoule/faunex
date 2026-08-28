@@ -362,7 +362,12 @@ serve(async (req) => {
     const FAST_MODEL = "google/gemini-3.1-flash-lite";
     const DEEP_MODEL = "google/gemini-3.5-flash";
 
-    const callGateway = async (model: string, timeoutMs: number, prompt: string) => {
+    const callGateway = async (
+      model: string,
+      timeoutMs: number,
+      prompt: string,
+      effort: "low" | "high" = "low",
+    ) => {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), timeoutMs);
       try {
@@ -377,8 +382,15 @@ serve(async (req) => {
       body: JSON.stringify({
         model,
         temperature: 0,
+        // Les modèles Gemini 3 « réfléchissent » par défaut : ces jetons de
+        // raisonnement sont facturés en sortie et représentent une part
+        // importante de la note. La passe rapide n'en a pas besoin (vision +
+        // schéma imposé) ; la passe profonde, elle, garde un budget élevé
+        // pour trancher les confusions difficiles.
+        reasoning_effort: effort,
         messages: [
           { role: "system", content: prompt },
+
           {
             role: "user",
             content: [
