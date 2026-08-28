@@ -15,7 +15,8 @@ const corsHeaders = {
 }
 
 const PHOTO_SPECIFIC =
-  /(sur|dans) (la|cette|l['’]) ?(photo|image|cliché)|on (voit|aperçoit|distingue|observe)|ce spécimen|cet individu|comme (celui|celle)(-ci| sur)|au premier plan|photographié|arrière-plan|à l['’]image/i
+  /(sur|dans) (la|cette|l['’]) ?(photo|image|cliché)|l['’]image|le cliché|on (voit|aperçoit|distingue|observe)|ce spécimen|cet individu|comme (celui|celle)(-ci| sur)|premier plan|photographié|arrière-plan|visible ici|ici,/i
+
 
 const MODEL = 'google/gemini-3.1-flash-lite'
 
