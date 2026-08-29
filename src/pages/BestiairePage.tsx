@@ -10,6 +10,7 @@ import CardDetailSheet from '@/components/CardDetailSheet';
 import RarityBadge from '@/components/RarityBadge';
 import FindersBadge from '@/components/FindersBadge';
 import MyCapturesGrid from '@/components/MyCapturesGrid';
+import SpeciesProgressChip from '@/components/SpeciesProgressChip';
 import LoadingScreen from '@/components/LoadingScreen';
 import { DEPARTEMENTS, getDepartement } from '@/data/departements';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
@@ -1045,6 +1046,7 @@ const browseAnimals = useMemo(() => {
                 <span className="text-sm text-muted-foreground font-display">
                   {myCaptures.length} espèce{myCaptures.length > 1 ? 's' : ''}
                 </span>
+                <SpeciesProgressChip refreshKey={myCaptures.length} />
 
                 <button
                   onClick={() => navigate('/notifications')}
