@@ -1141,6 +1141,9 @@ const BestiairePage = () => {
                 </div>
               )}
 
+              {/* Classement général de la semaine */}
+              <CategoryLeaderboard category="all" />
+
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">
                   {speciesQuery ? 'Résultats' : ALL_SPECIES}
