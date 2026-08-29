@@ -893,8 +893,12 @@ const BestiairePage = () => {
           </div>
         </PageHeader>
 
-        <div className="max-w-lg mx-auto px-3 pt-3">
+        <div className="max-w-lg mx-auto px-3 pt-3 space-y-4">
+          {collectionLeaderboardCategory && (
+            <CategoryLeaderboard category={collectionLeaderboardCategory} />
+          )}
           <div className="grid grid-cols-4 gap-1.5">
+
             {collectionAnimals.map((animal, index) => (
               <div
                 key={animal.name}
