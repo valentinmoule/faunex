@@ -11,9 +11,8 @@ import { DEPARTEMENTS, getDepartement } from '@/data/departements';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import {
   buildCityAnimalSet,
-  getCategoryEmoji,
+getCategoryEmoji,
   getCategoryIcon,
-  getSpeciesEmoji,
   normalizeCategory,
   rarityBadge,
   rarityBorderColor,
@@ -36,6 +35,12 @@ const FREE_SLOT_LIMIT = 3;
 /** Catégorie virtuelle regroupant toutes les espèces + classement général. */
 const ALL_SPECIES = 'Toutes les espèces';
 const ALL_GRID_LIMIT = 200;
+
+/** Icône vectorielle de la catégorie d'une espèce (remplace les emojis sur les cartes). */
+const SpeciesCategoryIcon = ({ category, className }: { category: string; className?: string }) => {
+  const Icon = getCategoryIcon(category);
+  return <Icon className={className} strokeWidth={1.5} />;
+};
 
 
 const BestiairePage = () => {
@@ -1212,7 +1217,7 @@ Bestiaire
                 </div>
               ) : (
                 <>
-<div className="grid grid-cols-2 gap-2">
+<div className="grid grid-cols-3 gap-2">
                     {visibleBrowseAnimals.map((animal) => (
                       <div
                         key={animal.name}
@@ -1270,7 +1275,7 @@ Bestiaire
                         ) : (
                           <>
                             <div className="absolute inset-0 flex items-center justify-center">
-                              <span className="text-4xl leading-none opacity-60">{getSpeciesEmoji(animal.name, animal.category)}</span>
+                              <SpeciesCategoryIcon category={animal.category} className="w-10 h-10 opacity-60" />
                             </div>
                             <div className="absolute top-1 right-1">
                               <span className={`inline-flex items-center px-1 py-px rounded-md text-[8px] font-display font-bold uppercase tracking-wide ${rarityBadge[animal.rarity] || 'bg-muted text-muted-foreground'}`}>
