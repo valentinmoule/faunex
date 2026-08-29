@@ -168,10 +168,20 @@ if (rows.length === 0 && scope === 'global' && !open) return null;
               {isTerritory ? `Top ${territory.label} cette semaine` : category === 'all' ? 'Classement cette semaine' : `Top ${category} cette semaine`}
             </SheetTitle>
           </SheetHeader>
-<p className="px-5 text-[12px] font-display text-muted-foreground flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-muted-foreground animate-[spin_4s_linear_infinite]" />
-            Réinitialisation dans {formatTimeLeft(timeLeft)}
-          </p>
+<div className="px-5 mt-1">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber/5 border border-amber/15">
+              <div className="relative flex items-center justify-center">
+                <Clock className="w-4 h-4 text-muted-foreground animate-[spin_4s_linear_infinite]" />
+                <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber/60" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-amber" />
+                </span>
+              </div>
+              <p className="text-[12px] font-display text-muted-foreground tracking-tight leading-none">
+                Réinitialisation dans <span className="text-foreground font-bold">{formatTimeLeft(timeLeft)}</span>
+              </p>
+            </div>
+          </div>
 
 <div className="mx-4 mt-3 grid grid-cols-2 gap-1 rounded-2xl bg-muted p-1">
             {([['global', 'Global'], ['follows', 'Mes abonnements']] as const).map(([key, label]) => (
