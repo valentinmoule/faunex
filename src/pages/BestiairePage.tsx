@@ -22,7 +22,7 @@ getCategoryEmoji,
   type ZoneSub,
 } from '@/lib/bestiary';
 import { getCollectionArt, getZoneArt } from '@/lib/collectionArt';
-import CollectionAmbience from '@/components/CollectionAmbience';
+
 import { MIN_BREEDS_PER_GROUP, BREED_GROUPS, getBreedGroup, getSpeciesGroup, type BreedGroup } from '@/lib/breedGroups';
 import { useBestiaryData } from '@/hooks/useBestiaryData';
 import { useCitySearch } from '@/hooks/useCitySearch';
@@ -879,7 +879,7 @@ const browseAnimals = useMemo(() => {
     const HeaderIcon = isCity ? Building2 : MapPin;
     return (
       <main className="min-h-screen bg-background pb-24">
-        <CollectionAmbience art={getZoneArt(selectedZone.kind)} />
+        
         <CollectionHero
           image={getZoneArt(selectedZone.kind).image}
           overlay={getZoneArt(selectedZone.kind).overlay}
@@ -928,7 +928,7 @@ const browseAnimals = useMemo(() => {
   if (selectedCollection) {
     return (
       <main className="min-h-screen bg-background pb-24">
-        <CollectionAmbience art={getCollectionArt(selectedCollection.group.key, selectedCollection.group.label)} />
+        
         <CollectionHero
           image={getCollectionArt(selectedCollection.group.key, selectedCollection.group.label).image}
           overlay={getCollectionArt(selectedCollection.group.key, selectedCollection.group.label).overlay}
