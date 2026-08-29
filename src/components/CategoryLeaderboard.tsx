@@ -97,10 +97,10 @@ const CategoryLeaderboard = ({ category }: { category: string }) => {
 
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent
+          ref={swipeClose.ref}
           side="bottom"
           className="max-h-[85vh] overflow-y-auto rounded-t-3xl px-0"
           style={swipeClose.style}
-          {...swipeClose.handlers}
         >
           <SheetHeader className="px-5 text-left">
             <SheetTitle className="font-display text-base">Top {category}</SheetTitle>
