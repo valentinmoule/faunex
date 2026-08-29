@@ -2046,13 +2046,13 @@ export type Database = {
       canonical_animal_name: { Args: { p_name: string }; Returns: string }
       captures_remaining_today: { Args: never; Returns: number }
       category_leaderboard: {
-        Args: { p_category: string; p_limit?: number }
+        Args: { p_category: string; p_limit?: number; p_scope?: string }
         Returns: {
           avatar_url: string
+          captures: number
           display_name: string
           is_me: boolean
           rank: number
-          species: number
           user_id: string
           username: string
         }[]
@@ -2175,10 +2175,10 @@ export type Database = {
         }[]
       }
       my_category_rank: {
-        Args: { p_category: string }
+        Args: { p_category: string; p_scope?: string }
         Returns: {
+          captures: number
           rank: number
-          species: number
           total_players: number
         }[]
       }

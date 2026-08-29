@@ -49,6 +49,7 @@ const CategoryLeaderboard = ({ category }: { category: string }) => {
   const [mine, setMine] = useState<MyRank | null>(null);
   const [ready, setReady] = useState(false);
   const [open, setOpen] = useState(false);
+  const [scope, setScope] = useState<'global' | 'follows'>('global');
 
   const closeSheet = useCallback(() => setOpen(false), []);
   const swipeClose = useSwipeDownClose(closeSheet);
@@ -61,8 +62,8 @@ const CategoryLeaderboard = ({ category }: { category: string }) => {
     setReady(false);
     const load = async () => {
       const [top, me] = await Promise.all([
-        supabase.rpc('category_leaderboard', { p_category: category, p_limit: 20 }),
-        supabase.rpc('my_category_rank', { p_category: category }),
+        supabase.rpc('category_leaderboard', { p_category: category, p_limit: 20, p_scope: scope } as never),
+        supabase.rpc('my_category_rank', { p_category: category, p_scope: scope } as never),
       ]);
       if (cancelled) return;
       setRows(((top.data as unknown as Row[] | null) || []).map(r => ({ ...r, rank: Number(r.rank), captures: Number(r.captures) })));
@@ -72,9 +73,11 @@ const CategoryLeaderboard = ({ category }: { category: string }) => {
     };
     load();
     return () => { cancelled = true; };
-  }, [category]);
+  }, [category, scope]);
 
-  if (!ready || rows.length === 0) return null;
+  if (rows.length === 0 && scope === 'global' && !open) return null;
+
+
 
   const podium = rows.slice(0, 3);
   const podiumOrdered = [podium[1], podium[0], podium[2]].filter(Boolean);
@@ -125,6 +128,30 @@ const CategoryLeaderboard = ({ category }: { category: string }) => {
             Captures du dimanche au dimanche · remise à zéro dans {reset} jour{reset > 1 ? 's' : ''}
           </p>
 
+          <div className="mx-4 mt-3 grid grid-cols-2 gap-1 rounded-2xl bg-muted p-1">
+            {([['global', 'Global'], ['follows', 'Mes abonnements']] as const).map(([key, label]) => (
+              <button
+                key={key}
+                onClick={() => setScope(key)}
+                className={`rounded-xl py-1.5 text-[12px] font-display font-bold transition-colors ${
+                  scope === key ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {rows.length === 0 ? (
+            <p className="px-5 py-10 text-center text-[13px] font-display text-muted-foreground">
+              {ready
+                ? scope === 'follows'
+                  ? 'Aucune capture cette semaine parmi les explorateurs que tu suis.'
+                  : 'Aucune capture cette semaine.'
+                : 'Chargement…'}
+            </p>
+          ) : (
+          <>
           {/* Podium */}
           <div className="mx-4 mt-4 mb-5 rounded-3xl bg-gradient-to-b from-amber/10 via-card to-card border border-border p-4">
             <div className="flex items-end justify-center gap-3">
@@ -156,6 +183,7 @@ const CategoryLeaderboard = ({ category }: { category: string }) => {
             </div>
           </div>
 
+
           <ul className="divide-y divide-border">
             {rest.map((r) => (
               <li key={r.user_id} className={`flex items-center gap-3 px-5 py-2.5 ${r.is_me ? 'bg-primary/5' : ''}`}>
@@ -178,6 +206,9 @@ const CategoryLeaderboard = ({ category }: { category: string }) => {
               </li>
             )}
           </ul>
+          </>
+          )}
+
         </SheetContent>
       </Sheet>
     </>
