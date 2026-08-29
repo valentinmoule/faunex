@@ -1197,26 +1197,50 @@ Bestiaire
                         }`}
                       >
                         {animal.captured && animal.captureData ? (
-                          <div className="w-full h-full flex flex-col">
-                            <div className="flex-1 overflow-hidden relative">
-                              <img
-                                src={animal.captureData.image}
-                                alt={animal.name}
-                                className="w-full h-full object-cover"
-                                loading="lazy"
-                              />
-                              <div className={`absolute top-1.5 right-1.5 w-2 h-2 rounded-full ${rarityDot[animal.rarity] || 'bg-muted-foreground'}`} />
+                          <>
+                            <img
+                              src={animal.captureData.image}
+                              alt={animal.name}
+                              className="absolute inset-0 w-full h-full object-cover"
+                              loading="lazy"
+                            />
+                            <div className="absolute top-1 right-1">
+                              <span className={`inline-flex items-center px-1 py-px rounded-md text-[8px] font-display font-bold uppercase tracking-wide backdrop-blur-sm ${rarityBadge[animal.rarity] || 'bg-black/60 text-white'}`}>
+                                {RARITY_LABELS[animal.rarity] || animal.rarity}
+                              </span>
                             </div>
-                            <div className="px-2 py-1.5 bg-card">
-                              <p className="text-[11px] font-display font-bold text-foreground truncate leading-tight">{animal.name}</p>
+                            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5 pt-8">
+                              <p className="text-xs font-display font-bold text-white truncate leading-tight">
+                                {animal.name}
+                              </p>
+                              {animal.scientific_name && (
+                                <p className="text-[9px] font-body italic text-white/80 truncate">
+                                  {animal.scientific_name}
+                                </p>
+                              )}
                             </div>
-                          </div>
+                          </>
                         ) : (
-                          <div className="w-full h-full flex flex-col items-center justify-center gap-1.5 p-2">
-                            <span className="text-3xl leading-none">{getSpeciesEmoji(animal.name, animal.category)}</span>
-                            <p className="text-[11px] font-display font-semibold text-muted-foreground text-center leading-tight line-clamp-2">{animal.name}</p>
-                            <div className={`w-1.5 h-1.5 rounded-full ${rarityDot[animal.rarity] || 'bg-muted-foreground'} opacity-40`} />
-                          </div>
+                          <>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <span className="text-4xl leading-none opacity-60">{getSpeciesEmoji(animal.name, animal.category)}</span>
+                            </div>
+                            <div className="absolute top-1 right-1">
+                              <span className={`inline-flex items-center px-1 py-px rounded-md text-[8px] font-display font-bold uppercase tracking-wide ${rarityBadge[animal.rarity] || 'bg-muted text-muted-foreground'}`}>
+                                {RARITY_LABELS[animal.rarity] || animal.rarity}
+                              </span>
+                            </div>
+                            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent p-2.5 pt-8">
+                              <p className="text-xs font-display font-bold text-white truncate leading-tight">
+                                {animal.name}
+                              </p>
+                              {animal.scientific_name && (
+                                <p className="text-[9px] font-body italic text-white/80 truncate">
+                                  {animal.scientific_name}
+                                </p>
+                              )}
+                            </div>
+                          </>
                         )}
                       </div>
                     ))}
