@@ -689,9 +689,8 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
 
             {/* Rarity + Category chips */}
             <div className="flex items-center justify-center gap-2">
-              <span className={`px-3 py-1 rounded-full text-[11px] font-display font-bold uppercase tracking-wider ${rarityBg[card.rarity]} ${rarityText[card.rarity]}`}>
-                {RARITY_LABELS[card.rarity]}
-              </span>
+              <RarityBadge rarity={card.rarity} showLabel />
+
               {(() => {
                 const CatIcon = getCategoryIcon(card.category);
                 return (
