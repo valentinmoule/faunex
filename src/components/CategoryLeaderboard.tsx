@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Crown, Trophy } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { PremiumAvatar } from '@/components/PremiumAvatar';
 import { usePremiumUsers } from '@/hooks/usePremiumUsers';
@@ -12,29 +12,37 @@ interface Row {
   display_name: string | null;
   username: string | null;
   avatar_url: string | null;
-  species: number;
+  captures: number;
   is_me: boolean;
 }
 
 interface MyRank {
   rank: number;
-  species: number;
+  captures: number;
   total_players: number;
 }
 
-
-
-const Avatar = ({ row, isPremium, size = 'w-6 h-6', className = '' }: { row: Row; isPremium?: boolean; size?: string; className?: string }) => {
-  return (
-    <PremiumAvatar
-      avatarUrl={row.avatar_url}
-      name={row.display_name || row.username || '?'}
-      isPremium={isPremium}
-      size={size === 'w-6 h-6' ? 'sm' : size === 'w-8 h-8' ? 'md' : 'lg'}
-      className={className}
-    />
-  );
+/** Days left until next Sunday reset (week runs Sunday → Sunday). */
+const daysUntilReset = () => {
+  const dow = new Date().getDay();
+  return 7 - dow;
 };
+
+const Avatar = ({ row, isPremium, size = 'sm', className = '' }: { row: Row; isPremium?: boolean; size?: 'sm' | 'md' | 'lg'; className?: string }) => (
+  <PremiumAvatar
+    avatarUrl={row.avatar_url}
+    name={row.display_name || row.username || '?'}
+    isPremium={isPremium}
+    size={size}
+    className={className}
+  />
+);
+
+const PODIUM = [
+  { height: 'h-16', ring: 'ring-amber/50', badge: 'bg-amber text-amber-dark', label: '1', avatar: 'lg' as const, order: 'order-2' },
+  { height: 'h-11', ring: 'ring-muted-foreground/30', badge: 'bg-muted text-foreground', label: '2', avatar: 'md' as const, order: 'order-1' },
+  { height: 'h-8', ring: 'ring-earth/40', badge: 'bg-earth text-primary-foreground', label: '3', avatar: 'md' as const, order: 'order-3' },
+];
 
 const CategoryLeaderboard = ({ category }: { category: string }) => {
   const [rows, setRows] = useState<Row[]>([]);
@@ -57,9 +65,9 @@ const CategoryLeaderboard = ({ category }: { category: string }) => {
         supabase.rpc('my_category_rank', { p_category: category }),
       ]);
       if (cancelled) return;
-      setRows(((top.data as Row[] | null) || []).map(r => ({ ...r, rank: Number(r.rank), species: Number(r.species) })));
+      setRows(((top.data as Row[] | null) || []).map(r => ({ ...r, rank: Number(r.rank), captures: Number(r.captures) })));
       const m = ((me.data as MyRank[] | null) || [])[0];
-      setMine(m ? { rank: Number(m.rank), species: Number(m.species), total_players: Number(m.total_players) } : null);
+      setMine(m ? { rank: Number(m.rank), captures: Number(m.captures), total_players: Number(m.total_players) } : null);
       setReady(true);
     };
     load();
@@ -69,6 +77,9 @@ const CategoryLeaderboard = ({ category }: { category: string }) => {
   if (!ready || rows.length === 0) return null;
 
   const podium = rows.slice(0, 3);
+  const podiumOrdered = [podium[1], podium[0], podium[2]].filter(Boolean);
+  const rest = rows.slice(3);
+  const reset = daysUntilReset();
 
   return (
     <>
@@ -81,8 +92,10 @@ const CategoryLeaderboard = ({ category }: { category: string }) => {
             {mine ? `${mine.rank}${mine.rank === 1 ? 'er' : 'e'}` : '—'}
           </div>
           <div className="min-w-0 text-left">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-bold">Ma position</p>
-            <p className="text-[13px] font-display font-bold text-foreground truncate">Voir le classement</p>
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-bold">Classement de la semaine</p>
+            <p className="text-[13px] font-display font-bold text-foreground truncate">
+              {mine ? `${mine.captures} capture${mine.captures > 1 ? 's' : ''} cette semaine` : 'Aucune capture cette semaine'}
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-2.5 shrink-0">
@@ -99,26 +112,61 @@ const CategoryLeaderboard = ({ category }: { category: string }) => {
         <SheetContent
           ref={swipeClose.ref}
           side="bottom"
-          className="max-h-[85vh] overflow-y-auto rounded-t-3xl px-0"
+          className="max-h-[88vh] overflow-y-auto rounded-t-3xl px-0"
           style={swipeClose.style}
         >
           <SheetHeader className="px-5 text-left">
-            <SheetTitle className="font-display text-base">Top {category}</SheetTitle>
+            <SheetTitle className="font-display text-base flex items-center gap-2">
+              <Trophy className="w-4 h-4 text-amber" />
+              Top {category} · Semaine
+            </SheetTitle>
           </SheetHeader>
-          <p className="px-5 text-[12px] font-display text-muted-foreground mb-2">
-            Qui a capturé le plus d'espèces ?
+          <p className="px-5 text-[12px] font-display text-muted-foreground">
+            Captures du dimanche au dimanche · remise à zéro dans {reset} jour{reset > 1 ? 's' : ''}
           </p>
+
+          {/* Podium */}
+          <div className="mx-4 mt-4 mb-5 rounded-3xl bg-gradient-to-b from-amber/10 via-card to-card border border-border p-4">
+            <div className="flex items-end justify-center gap-3">
+              {podiumOrdered.map((r) => {
+                const cfg = PODIUM[r.rank === 1 ? 0 : r.rank === 2 ? 1 : 2] ?? PODIUM[2];
+                const isFirst = r === podium[0];
+                return (
+                  <div key={r.user_id} className="flex-1 flex flex-col items-center gap-1.5 max-w-[33%]">
+                    {isFirst && <Crown className="w-5 h-5 text-amber" />}
+                    <div className="relative">
+                      <Avatar
+                        row={r}
+                        isPremium={premiumIds.has(r.user_id)}
+                        size={cfg.avatar}
+                        className={`ring-4 ${cfg.ring}`}
+                      />
+                      <span className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full ${cfg.badge} flex items-center justify-center text-[10px] font-display font-bold shadow-sm`}>
+                        {cfg.label}
+                      </span>
+                    </div>
+                    <p className={`text-[11px] font-display font-bold truncate max-w-full ${r.is_me ? 'text-primary' : 'text-foreground'}`}>
+                      {r.is_me ? 'Toi' : r.display_name || r.username || 'Explorateur'}
+                    </p>
+                    <p className="text-[10px] font-display text-muted-foreground">{r.captures} capt.</p>
+                    <div className={`w-full ${cfg.height} rounded-t-xl bg-gradient-to-t from-primary/15 to-primary/40 border-x border-t border-border`} />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
           <ul className="divide-y divide-border">
-            {rows.map((r) => (
+            {rest.map((r) => (
               <li key={r.user_id} className={`flex items-center gap-3 px-5 py-2.5 ${r.is_me ? 'bg-primary/5' : ''}`}>
                 <span className={`w-6 text-center text-[13px] font-display font-bold ${r.is_me ? 'text-primary' : 'text-muted-foreground'}`}>
                   {r.rank}
                 </span>
-                <Avatar row={r} isPremium={premiumIds.has(r.user_id)} size="w-8 h-8" />
+                <Avatar row={r} isPremium={premiumIds.has(r.user_id)} size="md" />
                 <p className={`flex-1 min-w-0 truncate text-[13px] font-display ${r.is_me ? 'font-bold text-primary' : 'text-foreground'}`}>
                   {r.is_me ? 'Toi' : r.display_name || r.username || 'Explorateur'}
                 </p>
-                <span className="text-[13px] font-display font-bold text-foreground shrink-0">{r.species}</span>
+                <span className="text-[13px] font-display font-bold text-foreground shrink-0">{r.captures}</span>
               </li>
             ))}
             {mine && !rows.some(r => r.is_me) && (
@@ -126,7 +174,7 @@ const CategoryLeaderboard = ({ category }: { category: string }) => {
                 <span className="w-6 text-center text-[13px] font-display font-bold text-primary">{mine.rank}</span>
                 <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center text-[11px] font-display font-bold text-primary">T</div>
                 <p className="flex-1 min-w-0 truncate text-[13px] font-display font-bold text-primary">Toi</p>
-                <span className="text-[13px] font-display font-bold text-foreground shrink-0">{mine.species}</span>
+                <span className="text-[13px] font-display font-bold text-foreground shrink-0">{mine.captures}</span>
               </li>
             )}
           </ul>
