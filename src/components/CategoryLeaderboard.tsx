@@ -128,6 +128,30 @@ const CategoryLeaderboard = ({ category }: { category: string }) => {
             Captures du dimanche au dimanche · remise à zéro dans {reset} jour{reset > 1 ? 's' : ''}
           </p>
 
+          <div className="mx-4 mt-3 grid grid-cols-2 gap-1 rounded-2xl bg-muted p-1">
+            {([['global', 'Global'], ['follows', 'Mes abonnements']] as const).map(([key, label]) => (
+              <button
+                key={key}
+                onClick={() => setScope(key)}
+                className={`rounded-xl py-1.5 text-[12px] font-display font-bold transition-colors ${
+                  scope === key ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {rows.length === 0 ? (
+            <p className="px-5 py-10 text-center text-[13px] font-display text-muted-foreground">
+              {ready
+                ? scope === 'follows'
+                  ? 'Aucune capture cette semaine parmi les explorateurs que tu suis.'
+                  : 'Aucune capture cette semaine.'
+                : 'Chargement…'}
+            </p>
+          ) : (
+          <>
           {/* Podium */}
           <div className="mx-4 mt-4 mb-5 rounded-3xl bg-gradient-to-b from-amber/10 via-card to-card border border-border p-4">
             <div className="flex items-end justify-center gap-3">
@@ -158,6 +182,7 @@ const CategoryLeaderboard = ({ category }: { category: string }) => {
               })}
             </div>
           </div>
+
 
           <ul className="divide-y divide-border">
             {rest.map((r) => (
