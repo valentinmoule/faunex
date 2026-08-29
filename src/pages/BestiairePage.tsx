@@ -1063,10 +1063,8 @@ Bestiaire
                         className="absolute inset-0 w-full h-full object-cover"
                         loading="lazy"
                       />
-                      <div className="absolute top-1 right-1">
-                        <span className={`inline-flex items-center px-1 py-px rounded-md text-[8px] font-display font-bold uppercase tracking-wide backdrop-blur-sm ${rarityBadge[animal.rarity] || 'bg-black/60 text-white'}`}>
-                          {RARITY_LABELS[animal.rarity] || animal.rarity}
-                        </span>
+<div className="absolute top-1 right-1">
+                        <RarityBadge rarity={animal.rarity} />
                       </div>
                       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5 pt-8">
                         <p className="text-xs font-display font-bold text-white truncate leading-tight">
