@@ -181,6 +181,58 @@ const BestiairePage = () => {
     loadDeptAnimals,
   } = useBestiaryData(session?.user?.id);
 
+  const uid = session?.user?.id;
+
+  // Restaure le tri + l'ordre personnalisé de « Mes captures »
+  useEffect(() => {
+    if (!uid) return;
+    try {
+      const savedSort = localStorage.getItem(sortStorageKey(uid));
+      if (savedSort === 'recent' || savedSort === 'alpha' || savedSort === 'custom') {
+        setMineSort(savedSort);
+      }
+      const savedOrder = localStorage.getItem(orderStorageKey(uid));
+      if (savedOrder) {
+        const parsed = JSON.parse(savedOrder);
+        if (Array.isArray(parsed)) setCustomOrder(parsed.filter((v): v is string => typeof v === 'string'));
+      }
+    } catch {
+      /* stockage indisponible */
+    }
+  }, [uid]);
+
+  const applySort = useCallback(
+    (mode: MineSort) => {
+      setMineSort(mode);
+      setSortOpen(false);
+      if (uid) {
+        try {
+          localStorage.setItem(sortStorageKey(uid), mode);
+        } catch {
+          /* stockage indisponible */
+        }
+      }
+    },
+    [uid],
+  );
+
+  const handleReorder = useCallback(
+    (orderedIds: string[]) => {
+      setCustomOrder(orderedIds);
+      setMineSort('custom');
+      if (uid) {
+        try {
+          localStorage.setItem(orderStorageKey(uid), JSON.stringify(orderedIds));
+          localStorage.setItem(sortStorageKey(uid), 'custom');
+        } catch {
+          /* stockage indisponible */
+        }
+      }
+    },
+    [uid],
+  );
+
+
   const { citySearch, setCitySearch, cityResults, setCityResults, cityLoading } =
     useCitySearch(pickerTab === 'city');
 
