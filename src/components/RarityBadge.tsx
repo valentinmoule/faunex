@@ -11,16 +11,19 @@ const badgeVariant: Record<Rarity, string> = {
 };
 
 /** Badge de rareté façon "gemme de niveau" de jeu mobile :
- *  dégradé vertical, reflet supérieur, tranche sombre en bas. */
+ *  jeton serti, dégradé, relief et balayage lumineux. */
 export const RarityBadge = ({ rarity, className }: { rarity: string; className?: string }) => {
   const r: Rarity = (RARITIES as string[]).includes(rarity) ? (rarity as Rarity) : 'common';
   const Icon = r === 'mythic' ? Sparkles : Gem;
   return (
     <span className={`rarity-badge ${badgeVariant[r]} ${className ?? ''}`}>
-      <Icon className="rarity-badge__icon" strokeWidth={2.5} />
-      {RARITY_LABELS[r]}
+      <span className="rarity-badge__icon-wrap">
+        <Icon className="rarity-badge__icon" strokeWidth={2.5} />
+      </span>
+      <span className="rarity-badge__label">{RARITY_LABELS[r]}</span>
     </span>
   );
 };
+
 
 export default RarityBadge;
