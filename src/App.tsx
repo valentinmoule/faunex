@@ -175,6 +175,7 @@ const AppRoutes = () => {
 
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </PageTransition>
       </Suspense>
       {!isCapturePage && !isModerationPage && !isPremiumPage && !isPublicPage && <BottomNav />}
 
