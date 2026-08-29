@@ -13,6 +13,7 @@ import {
   buildCityAnimalSet,
 getCategoryEmoji,
   getCategoryIcon,
+  type BestiaryAnimal,
   normalizeCategory,
   rarityBadge,
   rarityBorderColor,
