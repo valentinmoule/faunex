@@ -906,12 +906,37 @@ const browseAnimals = useMemo(() => {
         </PageHeader>
 
 <div className="max-w-lg mx-auto px-3 pt-3 space-y-4">
+          {(() => {
+            const art = getZoneArt(selectedZone.kind);
+            const pct = prog.total > 0 ? Math.round((prog.captured / prog.total) * 100) : 0;
+            return (
+              <div className="relative overflow-hidden rounded-3xl border border-border shadow-sm">
+                <img
+                  src={art.image}
+                  alt={`Illustration du territoire ${title}`}
+                  loading="lazy"
+                  className="w-full h-40 object-cover"
+                />
+                <div className="absolute inset-0" style={{ background: art.overlay }} />
+                <div className="absolute inset-x-0 bottom-0 p-4">
+                  <h2 className="font-display font-bold text-xl text-primary-foreground leading-tight drop-shadow">{title}</h2>
+                  <p className="text-[11px] text-primary-foreground/85 font-display mb-2">
+                    {prog.captured}/{prog.total} capturés · {pct}%
+                  </p>
+                  <div className="w-full h-1.5 rounded-full bg-primary-foreground/25 overflow-hidden">
+                    <div className="h-full rounded-full bg-primary-foreground transition-all duration-500" style={{ width: `${pct}%` }} />
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
           {isCity && (
             <p className="text-[11px] text-muted-foreground font-display text-center px-3">
               Espèces présentes dans le territoire de {dept?.name || selectedZone.departmentCode}.
             </p>
           )}
           <CategoryLeaderboard territory={{ code: selectedZone.departmentCode, label: title }} />
+
           {zoneAnimals.length === 0 ? (
             <div className="text-center py-16">
               <p className="text-4xl mb-3">📭</p>
