@@ -32,6 +32,10 @@ import { toast } from 'sonner';
 /** Zones + collections combinées, limite gratuite. */
 const FREE_SLOT_LIMIT = 3;
 
+/** Catégorie virtuelle regroupant toutes les espèces + classement général. */
+const ALL_SPECIES = 'Toutes les espèces';
+const ALL_GRID_LIMIT = 200;
+
 
 const BestiairePage = () => {
   const { session } = useAuth();
@@ -221,7 +225,7 @@ const BestiairePage = () => {
   const categoryAnimals = useMemo(() => {
     if (!selectedCategory) return [];
     return animals
-      .filter(a => normalizeCategory(a.category) === selectedCategory)
+      .filter(a => selectedCategory === ALL_SPECIES || normalizeCategory(a.category) === selectedCategory)
       .filter(a => rarityFilter === 'all' || a.rarity === rarityFilter)
       .filter(matchesSearch);
   }, [animals, selectedCategory, rarityFilter, matchesSearch]);
@@ -256,11 +260,14 @@ const BestiairePage = () => {
     }
     // Only domestic breed groups are hidden from the full grid (they are too numerous).
     const hiddenKeys = new Set(breedGroupsInCategory.filter(e => e.group.breeds).map(e => e.group.key));
-    return categoryAnimals.filter(a => {
+    const filtered = categoryAnimals.filter(a => {
       const group = getBreedGroup(a.scientific_name);
       return !group || !hiddenKeys.has(group.key);
     });
-  }, [categoryAnimals, breedGroupsInCategory, activeBreedGroup]);
+    // « Toutes les espèces » peut contenir des milliers de cartes : on plafonne l'affichage.
+    if (selectedCategory === ALL_SPECIES && !speciesQuery) return filtered.slice(0, ALL_GRID_LIMIT);
+    return filtered;
+  }, [categoryAnimals, breedGroupsInCategory, activeBreedGroup, selectedCategory, speciesQuery]);
 
 
 
@@ -922,7 +929,7 @@ const BestiairePage = () => {
         </PageHeader>
 
         <div className="max-w-lg mx-auto px-4 pt-4 space-y-6">
-          <CategoryLeaderboard category="all" />
+
 
           {/* View toggle + rarity filter */}
           <section className="space-y-3">
