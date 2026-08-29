@@ -2686,14 +2686,6 @@ background: linear-gradient(
   animation: tab-pop 0.34s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-@keyframes dot-in {
-  from { opacity: 0; transform: scale(0.2); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-.tab-dot {
-  animation: dot-in 0.24s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-}
 
 /* Apparition en cascade pour les listes / grilles */
 @keyframes rise-in {
@@ -2726,8 +2718,7 @@ background: linear-gradient(
 
 @media (prefers-reduced-motion: reduce) {
   .page-transition,
-  .tab-pop,
-  .tab-dot,
+.tab-pop,
   .rise-in,
   .stagger-children > * {
     animation: none !important;
