@@ -158,12 +158,12 @@ const BestiairePage = () => {
   const [sortOpen, setSortOpen] = useState(false);
 
 
-  // Scroll to top when entering a category detail view
+  // Scroll to top when entering a category, zone or collection detail view
   useEffect(() => {
-    if (selectedCategory) {
+    if (selectedCategory || selectedZoneId || selectedCollectionKey) {
       window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     }
-  }, [selectedCategory]);
+  }, [selectedCategory, selectedZoneId, selectedCollectionKey]);
 
   const {
     animals,
