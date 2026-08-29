@@ -74,7 +74,7 @@ const SpeciesProgressChip = memo(function SpeciesProgressChip({ refreshKey }: { 
   return (
     <span
       title={rank > 0 ? `Tu es ${rank}ᵉ sur ${progress.total_players} explorateurs` : undefined}
-      className={`relative inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[11px] font-display font-bold leading-none ${cls}`}
+      className={`relative inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[11px] whitespace-nowrap shrink-0 font-display font-bold leading-none ${cls}`}
     >
       {glow && (
         <span className="absolute inset-0 rounded-full bg-amber-300/40 animate-ping [animation-duration:2.2s] pointer-events-none" aria-hidden />
