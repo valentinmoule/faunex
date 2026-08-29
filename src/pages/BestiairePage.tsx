@@ -969,13 +969,7 @@ const browseAnimals = useMemo(() => {
         />
 
         <div className="relative z-10 max-w-lg mx-auto px-3 pt-3 space-y-4">
-          {isCity && (
-            <p className="text-[11px] text-muted-foreground font-display text-center px-3">
-              Espèces présentes dans le territoire de {dept?.name || selectedZone.departmentCode}.
-            </p>
-          )}
-
-          <CategoryLeaderboard territory={{ code: selectedZone.departmentCode, label: title }} />
+<CategoryLeaderboard territory={{ code: selectedZone.departmentCode, label: title }} />
 
           {zoneAnimals.length === 0 ? (
             <div className="text-center py-16">
