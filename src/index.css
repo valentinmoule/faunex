@@ -2457,6 +2457,8 @@ html.is-native-android body {
   pointer-events: none;
   z-index: 2;
   box-shadow:
+    inset 0 0 0 var(--tile-ring-width, 0px) var(--tile-ring, transparent),
+    inset 0 0 var(--tile-inner-glow-size, 0px) var(--tile-ring, transparent),
     inset 0 1px 1px hsla(0, 0%, 100%, 0.4),
     inset 0 -8px 14px -10px hsla(165, 25%, 11%, 0.55);
 }
@@ -2471,19 +2473,29 @@ html.is-native-android body {
     linear-gradient(148deg, hsla(0, 0%, 100%, 0.22) 0%, hsla(0, 0%, 100%, 0.05) 32%, transparent 52%);
   opacity: 0.85;
 }
-/* Socles colorés par rareté */
+/* Socles colorés par rareté : plus c'est rare, plus ça brille */
 .game-tile--rare {
-  --tile-depth: hsl(var(--rarity-rare) / 0.45);
-  --tile-glow: hsl(var(--rarity-rare) / 0.45);
+  --tile-depth: hsl(var(--rarity-rare) / 0.6);
+  --tile-glow: hsl(var(--rarity-rare) / 0.55);
+  --tile-ring: hsl(var(--rarity-rare) / 0.7);
+  --tile-ring-width: 1.5px;
+  --tile-inner-glow-size: 8px;
 }
 .game-tile--epic {
-  --tile-depth: hsl(var(--rarity-epic) / 0.45);
-  --tile-glow: hsl(var(--rarity-epic) / 0.5);
+  --tile-depth: hsl(var(--rarity-epic) / 0.7);
+  --tile-glow: hsl(var(--rarity-epic) / 0.7);
+  --tile-ring: hsl(var(--rarity-epic) / 0.85);
+  --tile-ring-width: 2px;
+  --tile-inner-glow-size: 14px;
 }
 .game-tile--mythic {
-  --tile-depth: hsl(var(--rarity-mythic) / 0.55);
-  --tile-glow: hsl(var(--rarity-mythic) / 0.55);
+  --tile-depth: hsl(var(--rarity-mythic) / 0.8);
+  --tile-glow: hsl(var(--rarity-mythic) / 0.85);
+  --tile-ring: hsl(var(--rarity-mythic) / 1);
+  --tile-ring-width: 2.5px;
+  --tile-inner-glow-size: 20px;
 }
+
 /* Emplacement non découvert : creusé plutôt que bombé */
 .game-tile--empty {
   box-shadow:
