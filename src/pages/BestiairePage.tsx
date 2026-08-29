@@ -928,64 +928,19 @@ const browseAnimals = useMemo(() => {
     return (
       <main className="min-h-screen bg-background pb-24">
         <CollectionAmbience art={getCollectionArt(selectedCollection.group.key, selectedCollection.group.label)} />
-        <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
-          <div className="max-w-lg mx-auto">
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setSelectedCollectionKey(null)}
-                className="p-1.5 rounded-full hover:bg-muted transition-colors"
-              >
-                <ChevronLeft className="w-5 h-5 text-foreground" />
-              </button>
-              <div className="flex-1 min-w-0 flex items-center gap-2">
-                <span className="text-lg shrink-0">{selectedCollection.group.emoji}</span>
-                <div className="min-w-0">
-                  <h1 className="text-lg font-display font-bold text-foreground truncate">{selectedCollection.group.label}</h1>
-                  <p className="text-[11px] text-muted-foreground font-display">
-                    {selectedCollection.captured}/{selectedCollection.total} capturés
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => { removeCollection(selectedCollection.group.key); setSelectedCollectionKey(null); }}
-                className="p-2 rounded-full hover:bg-destructive/10 text-destructive transition"
-                aria-label="Retirer la collection"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        </PageHeader>
+        <CollectionHero
+          image={getCollectionArt(selectedCollection.group.key, selectedCollection.group.label).image}
+          overlay={getCollectionArt(selectedCollection.group.key, selectedCollection.group.label).overlay}
+          title={selectedCollection.group.label}
+          captured={selectedCollection.captured}
+          total={selectedCollection.total}
+          onBack={() => setSelectedCollectionKey(null)}
+          onRemove={() => { removeCollection(selectedCollection.group.key); setSelectedCollectionKey(null); }}
+          removeLabel="Retirer la collection"
+        />
 
         <div className="relative z-10 max-w-lg mx-auto px-3 pt-3 space-y-4">
-          {(() => {
-            const art = getCollectionArt(selectedCollection.group.key, selectedCollection.group.label);
-            const pct = selectedCollection.total > 0
-              ? Math.round((selectedCollection.captured / selectedCollection.total) * 100)
-              : 0;
-            return (
-              <div className="relative overflow-hidden rounded-3xl border border-border shadow-sm">
-                <img
-                  src={art.image}
-                  alt={`Illustration de la collection ${selectedCollection.group.label}`}
-                  loading="lazy"
-                  className="w-full h-40 object-cover"
-                />
-                <div className="absolute inset-0" style={{ background: art.overlay }} />
-                <div className="absolute inset-x-0 bottom-0 p-4">
-                  <h2 className="font-display font-bold text-xl text-primary-foreground leading-tight drop-shadow">
-                    {selectedCollection.group.label}
-                  </h2>
-                  <p className="text-[11px] text-primary-foreground/85 font-display mb-2">
-                    {selectedCollection.captured}/{selectedCollection.total} capturés · {pct}%
-                  </p>
-                  <div className="w-full h-1.5 rounded-full bg-primary-foreground/25 overflow-hidden">
-                    <div className="h-full rounded-full bg-primary-foreground transition-all duration-500" style={{ width: `${pct}%` }} />
-                  </div>
-                </div>
-              </div>
-            );
-          })()}
+
           {collectionLeaderboardCategory && (
             <CategoryLeaderboard category={collectionLeaderboardCategory} />
           )}
