@@ -922,6 +922,11 @@ const takePhoto = async () => {
                   <Camera className="w-7 h-7 text-primary-foreground relative z-10" />
                 </span>
               </button>
+{quota.remaining !== null && !quota.exhausted && (
+                <p className="text-primary-foreground/85 text-xs font-display text-center max-w-[230px] leading-snug italic">
+                  {motivation}
+                </p>
+              )}
               <p className="text-primary-foreground/70 text-[11px] font-display text-center max-w-[200px]">
                 {quota.remaining !== null && !quota.exhausted
                   ? `${quota.remaining} capture${quota.remaining > 1 ? 's' : ''} restante${quota.remaining > 1 ? 's' : ''} aujourd'hui`
