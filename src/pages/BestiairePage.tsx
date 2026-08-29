@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { PageHeader } from '@/components/PageHeader';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
@@ -313,13 +313,42 @@ const BestiairePage = () => {
 
   // Browse view: all species, filtered by category chips + rarity + search
   const browseAnimals = useMemo(() => {
-    const list = animals
+    return animals
       .filter(a => categoryFilter.length === 0 || categoryFilter.includes(normalizeCategory(a.category)))
       .filter(a => rarityFilter === 'all' || a.rarity === rarityFilter)
       .filter(matchesSearch)
       .sort((a, b) => Number(b.captured) - Number(a.captured) || a.name.localeCompare(b.name, 'fr'));
-    return list.slice(0, ALL_GRID_LIMIT);
   }, [animals, categoryFilter, rarityFilter, matchesSearch]);
+
+  // Infinite scroll : 50 espèces par lot, chargement automatique en fin de liste
+  const BROWSE_PAGE = 50;
+  const [browseVisible, setBrowseVisible] = useState(BROWSE_PAGE);
+  const browseSentinelRef = useRef<HTMLDivElement | null>(null);
+
+  // Reset quand les filtres/recherche changent
+  useEffect(() => {
+    setBrowseVisible(BROWSE_PAGE);
+  }, [categoryFilter, rarityFilter, matchesSearch]);
+
+  const visibleBrowseAnimals = useMemo(
+    () => browseAnimals.slice(0, browseVisible),
+    [browseAnimals, browseVisible],
+  );
+
+  useEffect(() => {
+    const el = browseSentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setBrowseVisible(v => (v < browseAnimals.length ? v + BROWSE_PAGE : v));
+        }
+      },
+      { rootMargin: '600px 0px' },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [browseAnimals.length]);
 
   const activeFilterCount = categoryFilter.length + (rarityFilter !== 'all' ? 1 : 0);
 
@@ -1208,7 +1237,7 @@ Bestiaire
               ) : (
                 <>
 <div className="grid grid-cols-2 gap-2">
-                    {browseAnimals.map((animal) => (
+                    {visibleBrowseAnimals.map((animal) => (
                       <div
                         key={animal.name}
                         onClick={() => {
@@ -1287,10 +1316,13 @@ Bestiaire
                       </div>
                     ))}
                   </div>
-                  {browseTotal > browseAnimals.length && (
-                    <p className="text-center text-[11px] text-muted-foreground font-display py-4">
-                      {browseAnimals.length} premières espèces affichées · affine ta recherche ou tes filtres
-                    </p>
+                  {visibleBrowseAnimals.length < browseAnimals.length && (
+                    <div ref={browseSentinelRef} className="flex items-center justify-center gap-2 py-6">
+                      <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                      <span className="text-[11px] text-muted-foreground font-display">
+                        Chargement des espèces suivantes…
+                      </span>
+                    </div>
                   )}
                 </>
               )}
