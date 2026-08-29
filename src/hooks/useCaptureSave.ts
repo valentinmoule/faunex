@@ -39,8 +39,19 @@ export const useCaptureSave = ({ userId, photo, geo }: SaveContext) => {
   }, [photo, userId]);
 
   const findDuplicate = useCallback(
-    async (animalName: string) => {
+    async (animalName: string, scientificName?: string | null) => {
       if (!userId) return null;
+      // Le doublon se juge d'abord sur l'espèce (nom scientifique) : deux noms communs
+      // différents peuvent désigner le même taxon (« Chat domestique » / « Chat Européen »).
+      if (scientificName) {
+        const { data } = await supabase
+          .from('captures')
+          .select('id, image_url, animal_name')
+          .eq('user_id', userId)
+          .ilike('scientific_name', scientificName)
+          .limit(1);
+        if (data && data.length > 0) return data[0];
+      }
       const { data } = await supabase
         .from('captures')
         .select('id, image_url, animal_name')
@@ -51,6 +62,7 @@ export const useCaptureSave = ({ userId, photo, geo }: SaveContext) => {
     },
     [userId]
   );
+
 
   const insertCapture = useCallback(
     async (animal: AnimalResult) => {
