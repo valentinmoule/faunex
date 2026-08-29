@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import { PageHeader } from '@/components/PageHeader';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Bell, ChevronLeft, PawPrint, MapPin, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown } from 'lucide-react';
+import { Bell, ChevronLeft, PawPrint, MapPin, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe } from 'lucide-react';
 import { type Rarity, type AnimalCard, RARITY_LABELS } from '@/data/mockData';
 import { useAuth } from '@/contexts/AuthContext';
 import CardDetailSheet from '@/components/CardDetailSheet';
@@ -1167,6 +1167,39 @@ const BestiairePage = () => {
                 <>
                   <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide mb-3">Catégories</h2>
                   <div className="grid grid-cols-1 gap-3">
+                    {(() => {
+                      const inAll = animals.filter(a => rarityFilter === 'all' || a.rarity === rarityFilter);
+                      const captured = inAll.filter(a => a.captured).length;
+                      const progress = inAll.length > 0 ? Math.round((captured / inAll.length) * 100) : 0;
+                      return (
+                        <button
+                          onClick={() => { setSelectedBreedGroup(null); setSelectedCategory(ALL_SPECIES); }}
+                          className="group relative overflow-hidden rounded-2xl border border-primary/30 bg-primary/5 p-4 text-left transition-all active:scale-[0.97] hover:border-primary/50 hover:shadow-md"
+                        >
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+                              <Globe className="w-5 h-5 text-primary" strokeWidth={1.75} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-display font-bold text-sm text-foreground leading-tight truncate">{ALL_SPECIES}</h3>
+                              <p className="text-[11px] text-muted-foreground font-display mt-0.5">
+                                {inAll.length} espèces · classement général
+                              </p>
+                            </div>
+                            <div className="text-right shrink-0">
+                              <span className="font-display font-bold text-sm text-foreground">{captured}</span>
+                              <span className="text-[10px] text-muted-foreground font-display">/{inAll.length}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
+                              <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${progress}%` }} />
+                            </div>
+                            <span className="text-[10px] font-display font-semibold text-muted-foreground w-8 text-right">{progress}%</span>
+                          </div>
+                        </button>
+                      );
+                    })()}
                     {categoryData
                       .map(cat => {
                         if (rarityFilter === 'all') return cat;
@@ -1312,7 +1345,9 @@ const BestiairePage = () => {
   }
 
   // Category detail: 3x3 binder grid
-  const catInfo = categoryData.find(c => c.name === selectedCategory);
+  const catInfo = selectedCategory === ALL_SPECIES
+    ? { name: ALL_SPECIES, total: animals.length, captured: animals.filter(a => a.captured).length }
+    : categoryData.find(c => c.name === selectedCategory);
 
   return (
     <main className="min-h-screen bg-background pb-24">
@@ -1338,7 +1373,7 @@ const BestiairePage = () => {
                 <span className="text-lg shrink-0">{activeBreedGroup.group.emoji}</span>
               ) : (
                 (() => {
-                  const HeaderIcon = getCategoryIcon(selectedCategory);
+                  const HeaderIcon = selectedCategory === ALL_SPECIES ? Globe : getCategoryIcon(selectedCategory);
                   return <HeaderIcon className="w-5 h-5 text-primary shrink-0" strokeWidth={1.75} />;
                 })()
               )}
@@ -1378,7 +1413,9 @@ const BestiairePage = () => {
           )}
         </div>
         {/* Classement des explorateurs de la catégorie */}
-        {!activeBreedGroup && selectedCategory && <CategoryLeaderboard category={selectedCategory} />}
+        {!activeBreedGroup && selectedCategory && (
+          <CategoryLeaderboard category={selectedCategory === ALL_SPECIES ? 'all' : selectedCategory} />
+        )}
         {/* Sub-level: breed groups as horizontal chips (races de chien, de chat…) */}
         {breedGroupsInCategory.length > 0 && (
           <div className="-mx-3 mb-3 overflow-x-auto no-scrollbar">
