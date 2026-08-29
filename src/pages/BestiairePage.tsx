@@ -3,7 +3,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { CollectionHero } from '@/components/CollectionHero';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Bell, ChevronLeft, PawPrint, MapPin, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, SlidersHorizontal } from 'lucide-react';
+import { Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, SlidersHorizontal } from 'lucide-react';
 import { type Rarity, type AnimalCard, RARITY_LABELS } from '@/data/mockData';
 import { useAuth } from '@/contexts/AuthContext';
 import CardDetailSheet from '@/components/CardDetailSheet';
@@ -850,7 +850,7 @@ const browseAnimals = useMemo(() => {
     const subtitle = isCity
       ? `${selectedZone.cityPostcode || ''}${dept ? ` · ${dept.name}` : ''} · ${prog.captured}/${prog.total} capturés`
       : `${prog.captured}/${prog.total} capturés`;
-    const HeaderIcon = isCity ? Building2 : MapPin;
+    
     return (
       <main className="min-h-screen bg-background pb-24">
         
@@ -861,7 +861,7 @@ const browseAnimals = useMemo(() => {
           subtitle={isCity ? `${selectedZone.cityPostcode || ''}${dept ? ` · ${dept.name}` : ''}` : undefined}
           captured={prog.captured}
           total={prog.total}
-          icon={<HeaderIcon className="w-6 h-6 text-primary shrink-0" strokeWidth={1.75} />}
+          
           onBack={() => setSelectedZoneId(null)}
           onRemove={() => handleRemoveZone(selectedZone.id)}
           removeLabel="Supprimer la rubrique"
