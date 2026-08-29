@@ -1033,8 +1033,7 @@ const browseAnimals = useMemo(() => {
             {collectionAnimals.map((animal) => (
               <BrowseSpeciesCard key={animal.name} animal={animal} onSelect={handleSelectBrowseAnimal} />
             ))}
-          </div>
-          </div>
+</div>
         </div>
 
         <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
