@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { compressForAI, dataUrlBytes, hashDataUrl } from '@/lib/imageProcessing';
 import type { AnimalResult } from '@/types/capture';
 import { logDatasetEvent, setPendingImageHash } from '@/lib/dataset';
+import { hapticSuccess } from '@/lib/haptics';
 
 /** Motifs de refus explicites (l'utilisateur peut toujours demander une modération). */
 export type RejectionKind = 'representation' | 'internet' | 'human' | 'dead';
@@ -282,6 +283,7 @@ export const useAnimalIdentification = () => {
               alternatives: animal.alternatives ?? null,
               subject_bbox: animal.subject_bbox ?? null,
             });
+            hapticSuccess();
             return { status: 'identified', animal };
           } catch (err) {
             lastError = err;
