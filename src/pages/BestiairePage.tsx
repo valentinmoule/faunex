@@ -1010,9 +1010,38 @@ const browseAnimals = useMemo(() => {
         </PageHeader>
 
         <div className="max-w-lg mx-auto px-3 pt-3 space-y-4">
+          {(() => {
+            const art = getCollectionArt(selectedCollection.group.key, selectedCollection.group.label);
+            const pct = selectedCollection.total > 0
+              ? Math.round((selectedCollection.captured / selectedCollection.total) * 100)
+              : 0;
+            return (
+              <div className="relative overflow-hidden rounded-3xl border border-border shadow-sm">
+                <img
+                  src={art.image}
+                  alt={`Illustration de la collection ${selectedCollection.group.label}`}
+                  loading="lazy"
+                  className="w-full h-40 object-cover"
+                />
+                <div className="absolute inset-0" style={{ background: art.overlay }} />
+                <div className="absolute inset-x-0 bottom-0 p-4">
+                  <h2 className="font-display font-bold text-xl text-primary-foreground leading-tight drop-shadow">
+                    {selectedCollection.group.label}
+                  </h2>
+                  <p className="text-[11px] text-primary-foreground/85 font-display mb-2">
+                    {selectedCollection.captured}/{selectedCollection.total} capturés · {pct}%
+                  </p>
+                  <div className="w-full h-1.5 rounded-full bg-primary-foreground/25 overflow-hidden">
+                    <div className="h-full rounded-full bg-primary-foreground transition-all duration-500" style={{ width: `${pct}%` }} />
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
           {collectionLeaderboardCategory && (
             <CategoryLeaderboard category={collectionLeaderboardCategory} />
           )}
+
           <div className="grid grid-cols-4 gap-1.5">
 
             {collectionAnimals.map((animal, index) => (
