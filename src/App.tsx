@@ -128,6 +128,7 @@ const AppRoutes = () => {
   return (
     <>
       <Suspense fallback={<LoadingScreen />}>
+        <PageTransition>
         <Routes>
           <Route
             path="/"
