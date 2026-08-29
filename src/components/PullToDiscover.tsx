@@ -7,6 +7,7 @@ import { useNearbyQuota, DAILY_NEARBY_LIMIT } from '@/hooks/useNearbyQuota';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { useSwipeDownClose } from '@/lib/useSwipeDownClose';
 
 const ENABLED_ROUTES = ['/home', '/explorers', '/profile'];
 
