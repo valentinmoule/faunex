@@ -16,33 +16,19 @@ const corsHeaders = {
  * nom incompatible, doublon, espèce fictive/éteinte, humain), la capture reste
  * en modération manuelle.
  */
-const AUTO_PROMPT = `Tu es un expert naturaliste (zoologie, ornithologie, herpétologie, entomologie, cynologie, félinologie) chargé du CONTRÔLE QUALITÉ d'une plateforme de collection d'animaux.
+const AUTO_PROMPT = `Expert naturaliste chargé du contrôle qualité. On te donne une PHOTO, le NOM proposé par l'observateur et sa description. Ta mission : VÉRIFIER le nom, pas deviner.
 
-On te donne : une PHOTO, le NOM proposé par l'observateur et sa DESCRIPTION.
-
-Ta mission n'est PAS de deviner l'espèce : c'est de VÉRIFIER si le nom proposé est correct, puis de rédiger la fiche.
-
-Règles de vérification (sois strict) :
-- name_matches = true UNIQUEMENT si la photo montre sans ambiguïté l'animal nommé (espèce ou race), en cohérence avec la description.
-- confidence = ta certitude réelle (0 à 1). N'utilise > 0.9 que si un expert n'hésiterait pas une seconde.
-- Si la photo est floue, trop lointaine, partielle, si plusieurs espèces ressemblantes sont possibles (biche/chevreuil, coccinelle asiatique/autochtone, races de chiens, passereaux…) ou si l'animal n'est pas visible : name_matches = false et confidence basse.
-- Si la photo montre un humain, un objet, une peluche, une plante ou aucun animal : name_matches = false, confidence 0.
-- AUTHENTICITÉ : la plateforme n'accepte que des PHOTOGRAPHIES RÉELLES d'ANIMAUX VIVANTS. Une illustration, un dessin, un logo, une icône, un pictogramme, une mascotte, une peinture, un rendu 3D, une image générée par IA, une capture d'écran, une photo d'écran ou de page imprimée, un autocollant, un tatouage, une peluche ou une figurine N'EST PAS une photo d'animal. Indices : contours vectoriels nets, aplats de couleur, absence de grain photographique, ombres inexistantes ou parfaites, stylisation des yeux/oreilles, fond uni ou transparent, présence de texte/typographie/watermark, symétrie parfaite.
-- OBJET REPRÉSENTANT UN ANIMAL : une photo nette et réelle d'un OBJET en forme d'animal n'est PAS une capture valide (souvenir, bibelot, décoration, sculpture bois/pierre/métal/résine, statue, santon, automate, marionnette, bijou, porte-clés, tirelire, manège, ballon/montgolfière, cerf-volant, déguisement, animal gonflable, mannequin, animatronique, gâteau, chocolat, tricot, graffiti/fresque, panneau routier). Indices : texture de matériau (bois, plastique, tissu, céramique, métal), coutures/joints, posture rigide figée, socle ou support, yeux peints ou en verre, absence de pelage/plumage individuel, mise en scène de vitrine/boutique/salon. Dans ce cas : image_type = objet_representation, is_real_photo = false, name_matches = false, confidence 0 (une statue de dromadaire n'est PAS un dromadaire).
-- ANIMAL MORT OU PRÉPARÉ : Faunex ne recense que des animaux VIVANTS. Un animal mort n'est jamais une capture valide (plat cuisiné ou dressé, fruits de mer/crustacés/poissons servis, sushi, étal de poissonnerie ou de marché, viande, carcasse, dépouille, animal écrasé, trophée de chasse, taxidermie, insecte épinglé, squelette, crâne, coquille/carapace vide). Indices : assiette, plateau, planche, couverts, nappe, glace pilée, citron/persil, cuisson ou découpe, sang, étal réfrigéré, vitrine, épingle, socle. Dans ce cas : image_type = animal_mort_ou_plat, is_real_photo = false, name_matches = false, confidence 0 (une araignée de mer dans une assiette n'est PAS une capture).
-- Au moindre doute sur la nature de l'image : is_real_photo = false.
-
-- Espèces réelles et vivantes uniquement : aucune créature de fiction (dragon, licorne, phénix…) ni espèce éteinte (dodo, mammouth, dinosaure…). Dans ce cas name_matches = false, confidence 0.
-- animal_name : reprends le nom de l'observateur normalisé (orthographe, casse, race précise si visible). Ne change jamais d'espèce.
-- Le nom scientifique doit être un binôme latin réel.
-
-## Rareté (probabilité d'observation en Europe/France)
-- common : quotidien ou fréquent
-- rare : demande patience ou chance
-- epic : très rare, espèce vulnérable ou en danger
-- mythic : quasi-impossible, en danger critique
+- name_matches = true UNIQUEMENT si la photo montre sans ambiguïté l'animal nommé (espèce ou race), cohérent avec la description.
+- confidence = certitude réelle 0-1 ; > 0,9 seulement si un expert n'hésiterait pas.
+- Photo floue, lointaine, partielle, ou espèces ressemblantes possibles (biche/chevreuil, coccinelles, races de chiens, passereaux) → name_matches false, confidence basse.
+- AUTHENTICITÉ : seule une VRAIE PHOTO d'animal VIVANT est valide. Invalide (is_real_photo false, name_matches false, confidence 0) : illustration, dessin, logo, mascotte, peinture, rendu 3D, image IA, capture/photo d'écran ou de papier, autocollant, tatouage, peluche, figurine, statue et tout OBJET en forme d'animal (déco, bibelot, déguisement, gonflable, gâteau, graffiti, panneau) → objet_representation ; animal MORT ou préparé (plat, poisson/fruits de mer servis ou en étal, viande, carcasse, trophée, taxidermie, écrasé, insecte épinglé, squelette, coquille vide) → animal_mort_ou_plat. Indices : matériau/couture/socle/yeux peints/posture rigide, aplats sans grain, fond uni, watermark, assiette/couverts/glace/découpe/sang.
+- Humain, plante, aucun animal, créature de fiction ou espèce éteinte → name_matches false, confidence 0.
+- Au moindre doute sur la nature de l'image : is_real_photo false.
+- animal_name : le nom de l'observateur normalisé (orthographe, casse, race si visible), jamais une autre espèce. Nom scientifique = binôme latin réel.
+- Rareté (France) : common quotidien · rare chance · epic très rare/menacé · mythic quasi-impossible.
 
 Réponds UNIQUEMENT via l'appel de fonction verify_animal.`
+
 
 /** Seuil de confiance minimal pour valider sans modérateur humain. */
 const AUTO_APPROVE_THRESHOLD = 0.9
@@ -280,7 +266,9 @@ async function examine(
 
   // UN SEUL appel IA par demande de modération : aucune escalade, aucun second
   // avis. Si le verdict n'est pas concluant, la décision revient à l'humain.
-  const MODEL = 'google/gemini-2.5-flash'
+  // Flash Lite 3.1 : vision équivalente ou meilleure que 2.5 Flash pour une
+  // fraction du prix. Un seul appel, jamais d'escalade.
+  const MODEL = 'google/gemini-3.1-flash-lite'
   const { verdict, blocked: blockedStatus } = await askModel(MODEL)
   const usedModel = verdict ? MODEL : null
 
@@ -517,6 +505,10 @@ function callGateway(
     body: JSON.stringify({
       model,
       temperature: 0,
+      // Pas de « réflexion » facturée : la vérification est un contrôle guidé
+      // par un schéma, et la sortie est bornée.
+      reasoning_effort: 'low',
+      max_tokens: 900,
       messages: [
         { role: 'system', content: AUTO_PROMPT },
         {

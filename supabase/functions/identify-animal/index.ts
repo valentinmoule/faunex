@@ -165,82 +165,41 @@ const verifyTaxon = async (
 
 
 /**
- * Deux prompts au lieu d'un seul :
- *  - FAST_PROMPT (≈ 3× plus court) pour la passe économique, qui traite la
- *    très grande majorité des photos : authenticité, sujets interdits, règle
- *    taxonomique, nommage des domestiques, rareté, calibration.
- *  - SYSTEM_PROMPT (complet, avec les critères diagnostiques des confusions
- *    fréquentes) réservé à la seconde passe, déclenchée uniquement quand la
- *    première hésite. La fiabilité est donc conservée là où elle compte, sans
- *    payer les jetons du prompt long sur chaque requête.
- * Aucun des deux ne rédige plus la fiche descriptive : celle-ci vient de la
- * base (species_profiles) et n'est générée qu'une seule fois par espèce.
+ * Deux prompts, tous deux volontairement TRÈS courts : chaque jeton du prompt
+ * système est refacturé à CHAQUE identification (≈ 1 600 par jour), c'est le
+ * premier poste de dépense après l'image elle-même.
+ *  - FAST_PROMPT : passe économique, traite la quasi-totalité des photos.
+ *  - DEEP_ANNEX  : uniquement ajouté à la seconde passe (≈ 7 % des cas) avec
+ *    les critères diagnostiques des confusions fréquentes.
+ * Aucun des deux ne rédige la fiche descriptive (mutualisée en base).
  */
-const FAST_PROMPT = `Expert naturaliste. Identifie l'animal au rang le plus précis (morphologie, pelage/plumage, traits distinctifs, contexte).
+const FAST_PROMPT = `Expert naturaliste. Identifie l'animal au rang le plus précis.
 
-1. AUTHENTICITÉ (d'abord) : seules de VRAIES PHOTOS d'animaux VIVANTS sont valides. Renseigne image_type + is_real_photo. Invalide : illustration, dessin, vectoriel, sticker, logo, mascotte, affiche, peinture, gravure, tatouage, statue, taxidermie, rendu 3D, image IA, jeu vidéo, capture ou photo d'écran/papier, jouet, peluche, figurine, tout OBJET en forme d'animal (bibelot, déco, déguisement, gonflable, gâteau, graffiti, panneau) — et tout animal MORT ou préparé (plat, fruits de mer/poisson servis ou en étal, viande, carcasse, trophée, animal écrasé, insecte épinglé, squelette, coquille vide → animal_mort_ou_plat). Indices : matériau/couture/socle/yeux peints/posture rigide, aplats sans grain, fond uni, watermark, assiette/couverts/glace/citron/découpe/sang/étal. Doute → is_real_photo false → "Inconnu", confidence 0, aucune alternative.
+1. AUTHENTICITÉ d'abord : renseigne image_type + is_real_photo. Seule une VRAIE PHOTO d'animal VIVANT est valide. Invalide : illustration, dessin, vectoriel, logo, mascotte, peinture, tatouage, statue, taxidermie, rendu 3D, image IA, jeu vidéo, capture/photo d'écran ou de papier, jouet, peluche, figurine, tout OBJET en forme d'animal (déco, déguisement, gonflable, gâteau, graffiti, panneau) ; et tout animal MORT ou préparé (plat, poisson/fruits de mer servis ou en étal, viande, carcasse, trophée, écrasé, insecte épinglé, squelette, coquille vide) → animal_mort_ou_plat. Indices : matériau/couture/socle/yeux peints, aplats sans grain, fond uni, watermark, assiette/couverts/glace/découpe/sang. Doute → is_real_photo false, "Inconnu", confidence 0, pas d'alternative.
 
-2. INTERDITS → "Inconnu", confidence 0 : humain (si humain + animal → identifie l'animal), fiction/mythologie, espèces éteintes/préhistoriques, aucun animal. Exception : espèces réelles dites "dragon" (Komodo, barbu, volant).
+2. INTERDITS → "Inconnu", confidence 0 : humain (humain + animal → identifie l'animal), fiction, espèces éteintes, aucun animal. Exception : vraies espèces dites "dragon" (Komodo, barbu, volant).
 
-3. TAXONOMIE : ne déduis jamais le latin du nom français. Binôme seulement si l'espèce est réellement publiée et le genre correct ; sinon rang RÉEL sûr (scientific_name = ce rang seul, scientific_rank = genus|family|order|class, animal_name générique honnête, confidence ≤ 60). animal_name = nom commun français seul, sans parenthèses. Jamais de nom ou binôme inventé. confidence ≥ 80 = binôme certain.
+3. TAXONOMIE : ne déduis jamais le latin du nom français. Binôme uniquement si l'espèce est réellement publiée avec le bon genre ; sinon rang RÉEL sûr (scientific_name = ce rang seul, scientific_rank, animal_name générique, confidence ≤ 60). animal_name = nom commun français seul, sans parenthèses. Jamais de nom inventé.
 
 4. DOMESTIQUES : race réelle seule (jamais "Croisé…"). Doute → "Chien domestique" / "Chat Européen" / "Vache domestique" + alternatives. Chien Canis lupus familiaris, chat Felis catus, bovin "Vache <Race>" Bos taurus.
 
-5. SAUVAGE : jamais l'espèce la plus courante par défaut ; compare les critères diagnostiques (cervidés, coccinelles, mésanges, goélands, hirondelles, bourdons, lézards…) et baisse la confiance si ambigu.
+5. SAUVAGE : jamais l'espèce la plus courante par défaut ; compare les critères diagnostiques et baisse la confiance si ambigu.
 
-6. RARETÉ (Europe/France) : common quotidien · rare chance · epic très rare/menacé · mythic quasi-impossible.
+6. RARETÉ (France) : common quotidien · rare chance · epic très rare/menacé · mythic quasi-impossible.
 
-7. CONFIANCE honnête : 90+ certaine · 70-89 probable · 50-69 plusieurs espèces · 30-49 incertain · <30 sans preuve. Si < 80 → 1 à 3 alternatives.`;
-
-
-const SYSTEM_PROMPT = `Expert naturaliste (zoologie, ornithologie, herpétologie, entomologie, cynologie, félinologie). Tu identifies les animaux avec une précision scientifique.
-
-Méthode : analyse morphologie/proportions, pelage-plumage-peau (couleur, motifs, texture), traits distinctifs (oreilles, queue, bec, bois, nageoires), contexte (habitat, région, saison). Identifie au rang le plus précis possible (sous-espèce > race > espèce > genre > famille).
-
-## 1. AUTHENTICITÉ (contrôle PRIORITAIRE, avant toute identification)
-Faunex n'accepte que de VRAIES PHOTOGRAPHIES d'animaux. Renseigne d'abord image_type + is_real_photo.
-Non photographique : illustration, dessin, croquis, BD, art vectoriel, sticker, emoji, clipart, logo, icône, pictogramme, mascotte, blason, packaging, affiche, peinture, aquarelle, gravure, tatouage, broderie, sculpture, statue, taxidermie, rendu 3D, image de synthèse, image IA, personnage de jeu, capture d'écran, photo d'écran/livre/poster/page imprimée, jouet, peluche, figurine.
-OBJET REPRÉSENTANT UN ANIMAL : une photo NETTE et RÉELLE d'un objet en forme d'animal n'est PAS une photo d'animal (souvenir, bibelot, décoration, sculpture bois/pierre/métal/résine, santon, automate, marionnette, bijou, porte-clés, tirelire, manège, montgolfière, ballon, cerf-volant, déguisement, costume, animal gonflable, mannequin, animatronique, gâteau, chocolat, origami, tricot/crochet, dessin sur mur/graffiti/fresque, panneau routier). image_type = objet_representation, is_real_photo = false.
-ANIMAL MORT OU PRÉPARÉ : Faunex ne recense que des animaux VIVANTS observés sur le terrain. Un animal mort n'est jamais valide (plat cuisiné ou dressé, fruits de mer/crustacés/poissons servis, sushi, étal de poissonnerie ou de marché, viande, carcasse, dépouille, animal écrasé sur la route, trophée de chasse, taxidermie, insecte épinglé en boîte, squelette, crâne, coquille ou carapace vide). image_type = animal_mort_ou_plat, is_real_photo = false. Indices : assiette, plateau, planche, couverts, nappe, glace pilée, citron/persil, cuisson ou découpe, sang, filet de pêche, étal réfrigéré, vitrine de restaurant, épingle, socle de trophée.
-Indices objet : texture de matériau (bois, plastique brillant, tissu, céramique, métal, résine), coutures/joints/soudures, immobilité rigide, posture figée irréaliste, socle/support, yeux en verre ou peints, absence totale de pelage/plumage individuel, mise en scène de vitrine/étagère/boutique/salon.
-Indices non-photo : contours vectoriels nets, aplats uniformes, aucun grain, aucune profondeur de champ, ombres absentes ou parfaites, yeux/pattes stylisés, proportions caricaturales, fond uni/blanc/transparent, texte ou watermark, symétrie parfaite.
-Indices vraie photo : grain du capteur, flou de profondeur, micro-détails de pelage/plumage/écailles, éclairage naturel irrégulier, arrière-plan réel désordonné, animal vivant dans un environnement cohérent.
-Doute → is_real_photo = false. Si false → animal_name "Inconnu", confidence 0, aucune alternative, même si l'animal est parfaitement reconnaissable (un logo de renard n'est PAS un renard roux, une statue de dromadaire n'est PAS un dromadaire).
-
-## 2. SUJETS INTERDITS
-- Humain (Homo sapiens, visage, selfie, main, pied…) : jamais valide → "Inconnu", confidence 0. Si un humain ET un animal sont visibles, identifie l'animal.
-- Créatures de fiction ou mythologiques (dragon, licorne, phénix, griffon, sirène, Pokémon…) et espèces éteintes/préhistoriques (dodo, dinosaures, mammouth, thylacine, aurochs, smilodon, moa…) → "Inconnu", confidence 0. Exception : espèces réelles nommées "dragon" (Dragon de Komodo, Dragon barbu, Dragon volant).
-- Si aucun animal sur l'image → "Inconnu", confidence 0.
-
-## 3. RÈGLE TAXONOMIQUE STRICTE
-Le nom scientifique n'est JAMAIS déduit, traduit ou fabriqué depuis le nom vernaculaire, un nom d'hôte, de plante ou de lieu latinisé.
-- N'écris un binôme que si l'espèce est réellement publiée ET que le genre est le bon genre de cette espèce (genre réel + épithète inventée = faute grave).
-- Sinon remonte au rang RÉEL dont tu es sûr : scientific_name = ce rang seul (ex. "Miridae", "Pyrrhocoris", "Hemiptera"), scientific_rank = genus|family|order|class, animal_name = nom générique honnête et court (ex. "Punaise", "Araignée sauteuse", "Abeille sauvage"), confidence ≤ 60.
-- animal_name ne contient JAMAIS de parenthèses ni de précision ajoutée (pas de "(famille des Lycosidae)", "(genre Bombus)", "(mâle)", "(à préciser)", pas de nom scientifique répété) : uniquement le nom commun français. Le rang précis va dans scientific_name / scientific_rank.
-- Jamais de nom commun composite inventé (ex. « punaise de lit de l'olivier ») ni de binôme inventé (ex. "Oleaopteryx oleae").
-- confidence ≥ 80 réservée aux binômes certains et vérifiables.
+7. CONFIANCE : 90+ certaine · 70-89 probable · 50-69 plusieurs espèces · <50 incertain. Si < 80 → 1 à 3 alternatives.`;
 
 
-## 4. ANIMAUX DOMESTIQUES
-N'utilise que des noms de races réels, correctement orthographiés ; jamais d'approximation phonétique. En cas de doute sur la race → nom générique ("Chien domestique", "Chat Européen", "Vache domestique") et hypothèses dans "alternatives".
-- CHIENS : toujours la race précise, seule (jamais "Croisé…", "Type…", deux races liées par un tiret) ; si croisé, garde la race dominante et mets les autres en alternatives. scientific_name = "Canis lupus familiaris".
-- CHATS : détermine la race via face (ronde : Persan/British ; triangulaire : Siamois/Oriental ; en cœur : Birman), type corporel (cobby / svelte / semi-cobby), oreilles (grandes droites, pliées, très grandes, arrondies), pelage (long soyeux, mi-long à collerette, court dense, nu, ticked), queue (touffue, courte, fine), motifs (colourpoint, bleu uni, tabby, bicolore, écaille), yeux. Races usuelles : Maine Coon, Persan, Siamois, British Shorthair, Ragdoll, Bengal, Abyssin, Sphynx, Chartreux, Bleu Russe, Scottish Fold, Birman, Norvégien, Exotic, Oriental, Angora Turc, Savannah, Bombay, Tonkinois, Burmese, Devon/Cornish Rex. Défaut → "Chat Européen". scientific_name = "Felis catus".
-- CHEVAUX : race précise (Pur-sang Arabe, Frison, Shetland…).
-- BOVINS : "Vache <Race>" (Limousine, Charolaise, Montbéliarde, Normande, Salers, Aubrac, Blonde d'Aquitaine, Prim'Holstein sans préfixe, Highland, Angus, Jersiaise…). Défaut "Vache domestique", scientific_name = "Bos taurus".
+/** Annexe ajoutée seulement à la passe profonde (cas ambigus). */
+const DEEP_ANNEX = `
 
-## 5. FAUNE SAUVAGE — ne jamais retenir l'espèce la plus courante par défaut
-Compare explicitement les critères diagnostiques avant de conclure.
-- CERVIDÉS : Chevreuil (Capreolus capreolus) petit (65-75 cm), compact, museau court noir, queue invisible, miroir fessier blanc en cœur, bois ≤ 3 pointes. Cerf/Biche (Cervus elaphus) grand (110-140 cm), corps allongé, encolure épaisse, museau long, croupe beige-roux : une grande femelle sans bois = Biche, pas un chevreuil. Daim (Dama dama) taille intermédiaire, robe tachetée, longue queue à raie noire, bois palmés. Jeune tacheté → nomme l'espèce parente.
-- COCCINELLES : 22 points (Psyllobora vigintiduopunctata) fond jaune vif, ~22 points ronds, 3-4 mm. Asiatique (Harmonia axyridis) 6-8 mm, fond orange/rouge, pronotum blanc à dessin en M/W. 7 points (Coccinella septempunctata) rouge, exactement 7 points. 14 points (Propylea quatuordecimpunctata) fond jaune, taches carrées en damier.
-- Même rigueur pour mésanges, pouillots, goélands/mouettes, hirondelles/martinets, lézards, piérides, bourdons/abeilles, corvidés.
+CRITÈRES DIAGNOSTIQUES (cas ambigus) :
+- Cervidés : Chevreuil petit/compact, museau court noir, miroir blanc en cœur, bois ≤ 3 pointes. Cerf-Biche grand, corps allongé, encolure épaisse, museau long (grande femelle sans bois = Biche). Daim tacheté, longue queue à raie noire, bois palmés.
+- Coccinelles : 22 points jaune vif 3-4 mm · Asiatique 6-8 mm pronotum blanc en M · 7 points rouge exactement 7 · 14 points damier jaune.
+- Chats : face ronde Persan/British, triangulaire Siamois/Oriental, en cœur Birman ; pelage, oreilles, queue, motifs. Défaut "Chat Européen".
+- Même rigueur pour mésanges, pouillots, goélands/mouettes, hirondelles/martinets, lézards, bourdons/abeilles, corvidés.
+- Objet vs animal : matériau, coutures, posture rigide, socle, yeux en verre, absence de pelage individuel.`;
 
-## 6. RARETÉ (probabilité d'observation en Europe/France)
-common : quotidien (pigeon, moineau, merle, Labrador, écureuil) · rare : patience ou chance (martin-pêcheur, hermine, héron) · epic : très rare, vulnérable/en danger (lynx, loutre, aigle royal) · mythic : quasi-impossible, en danger critique (loup gris en France, phoque moine).
-
-## 7. CONFIANCE (0-100, calibrée honnêtement)
-90-100 certaine (traits diagnostiques nets) · 70-89 très probable · 50-69 plusieurs espèces possibles · 30-49 incertain · 0-29 sans preuve. Si < 80, donne 1 à 3 alternatives.
-
-Réponds UNIQUEMENT via l'appel de fonction identify_animal.`;
 
 
 
@@ -248,7 +207,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { imageBase64 } = await req.json();
+    const { imageBase64, imageFast } = await req.json();
     if (!imageBase64) {
       return new Response(JSON.stringify({ error: "imageBase64 is required" }), {
         status: 400,
@@ -256,12 +215,23 @@ serve(async (req) => {
       });
     }
 
+    const normalizeDataUrl = (value: string) =>
+      value.startsWith("data:") && !value.match(/^data:image\/(png|jpeg|jpg|gif|webp);base64,/)
+        ? value.replace(/^data:[^;]*;base64,/, "data:image/jpeg;base64,")
+        : value;
+
     // Ensure valid data URL format
-    let imageUrl = imageBase64;
-    if (imageUrl.startsWith("data:") && !imageUrl.match(/^data:image\/(png|jpeg|jpg|gif|webp);base64,/)) {
-      // Fix malformed mime types
-      imageUrl = imageUrl.replace(/^data:[^;]*;base64,/, "data:image/jpeg;base64,");
-    }
+    const imageUrl = normalizeDataUrl(imageBase64);
+    /**
+     * Vignette optionnelle envoyée par le client. Mesure faite sur le gateway :
+     * une image coûte un forfait fixe (~1 080 jetons) quelle que soit sa taille,
+     * réduire la résolution ne fait donc PAS baisser la facture — la vignette
+     * n'est gardée que pour accélérer l'upload quand le client en envoie une.
+     */
+    const fastImageUrl = typeof imageFast === "string" && imageFast.length > 100
+      ? normalizeDataUrl(imageFast)
+      : imageUrl;
+
 
     /**
      * Cache d'identification par empreinte d'image.
@@ -350,9 +320,46 @@ serve(async (req) => {
     }
 
 
+    /**
+     * Garde-fou de consommation : un appel IA non caché est facturé, et les
+     * mesures montrent qu'une minorité d'explorateurs lance des dizaines
+     * d'analyses par jour (jusqu'à 148) alors que seules 4 captures par jour
+     * sont enregistrables. On plafonne donc les analyses réellement facturées
+     * (15/jour, 60 pour un compte premium). Les réutilisations de cache, elles,
+     * ne consomment rien : le contrôle est volontairement placé après le cache.
+     */
+    if (cacheDb) {
+      try {
+        const token = req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "") ?? "";
+        const { data: userData } = await cacheDb.auth.getUser(token);
+        const userId = userData?.user?.id;
+        if (userId) {
+          const { data: remaining, error: quotaError } = await cacheDb.rpc("consume_ai_analysis", {
+            p_user: userId,
+          });
+          if (quotaError) {
+            // Le quota ne doit jamais bloquer le service en cas d'incident base.
+            console.error("ai quota check failed", quotaError);
+          } else if (typeof remaining === "number" && remaining < 0) {
+            console.log("ai quota exhausted", userId);
+            // Statut 200 volontaire : le client doit pouvoir afficher le
+            // message tel quel (invoke() masque le corps des réponses 4xx).
+            return jsonResponse({
+              success: false,
+              reason: "daily_limit",
+              message:
+                "Tu as atteint ta limite d'analyses pour aujourd'hui. Reviens demain ou passe en Faunex Premium pour en avoir bien plus.",
+            });
+          }
+        }
+      } catch (e) {
+        console.error("ai quota skipped", e);
+      }
+    }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+
 
     // Montée d'un cran en qualité sans partir sur du Pro : génération 3.x.
     // Flash Lite 3.1 en première passe (coût proche de l'ancien 2.5 Lite mais
@@ -366,6 +373,7 @@ serve(async (req) => {
       timeoutMs: number,
       prompt: string,
       effort: "low" | "high" = "low",
+      image: string = fastImageUrl,
     ) => {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -387,6 +395,9 @@ serve(async (req) => {
         // schéma imposé) ; la passe profonde, elle, garde un budget élevé
         // pour trancher les confusions difficiles.
         reasoning_effort: effort,
+        // Réponse bornée : le schéma est court, un plafond évite les sorties
+        // (et les jetons de raisonnement) qui partent en dérive.
+        max_tokens: effort === "high" ? 1200 : 600,
         messages: [
           { role: "system", content: prompt },
 
@@ -401,10 +412,11 @@ serve(async (req) => {
                 text: "1) image_type + is_real_photo. 2) Si vraie photo : identifie au rang le plus précis, calibre la confiance, alternatives si doute."
               },
 
-              { type: "image_url", image_url: { url: imageUrl } }
+              { type: "image_url", image_url: { url: image } }
             ]
           }
         ],
+
         tools: [
           {
             type: "function",
@@ -491,12 +503,13 @@ serve(async (req) => {
       timeouts: number[],
       prompt: string,
       effort: "low" | "high" = "low",
+      image: string = fastImageUrl,
     ) => {
       const attempts = timeouts.length;
       for (let i = 0; i < attempts; i++) {
         const startedAt = Date.now();
         try {
-          let r = await callGateway(model, timeouts[i], prompt, effort);
+          let r = await callGateway(model, timeouts[i], prompt, effort, image);
           if (!r.ok && r.status >= 500 && i < attempts - 1) continue;
           return r;
         } catch (netErr) {
@@ -512,6 +525,7 @@ serve(async (req) => {
       }
       return null;
     };
+
 
 
     // Réponse brute du modèle conservée pour tracer les hallucinations.
@@ -571,27 +585,34 @@ serve(async (req) => {
 
 
 
-    // 1) Passe économique (Flash Lite) — couvre la grande majorité des animaux.
-    //    12 s suffisent largement (médiane ~2,5 s) ; au-delà l'appel est bloqué,
-    //    on repart sur une requête neuve plutôt que d'attendre.
+    // 1) Passe économique (Flash Lite) sur la vignette basse résolution :
+    //    elle couvre la très grande majorité des animaux pour ~3× moins de
+    //    jetons d'image.
     let response = await tryModel(FAST_MODEL, [22_000, 9_000], FAST_PROMPT);
     let animalData = response?.ok ? await parseAnimal(response, FAST_MODEL) : null;
 
 
-    // 2) Second passage sur Flash (modèle bon marché, pas de Pro) avec le prompt
-    // complet (critères diagnostiques détaillés), uniquement quand Lite échoue
-    // ou est franchement incertain.
+    // 2) Second passage sur Flash (bon marché, jamais de Pro) avec l'annexe
+    // diagnostique ET la photo pleine résolution, uniquement quand Lite échoue
+    // ou hésite franchement. Effort de raisonnement modéré : au-delà, les
+    // jetons de « réflexion » coûtent plus que le gain de précision observé.
     const CONFUSABLE = /(chevreuil|biche|cerf|daim|faon|coccinelle|mesange|mésange|pouillot|goeland|goéland|mouette|hirondelle|martinet|bourdon|abeille|corneille|corbeau|choucas|lezard|lézard|pipistrelle)/i;
     const label = String(animalData?.animal_name || "");
     const confidence = typeof animalData?.confidence === "number" ? animalData.confidence : -1;
     const needsDeep =
       !animalData ||
-      confidence < 60 ||
-      (CONFUSABLE.test(label) && confidence < 75);
+      confidence < 55 ||
+      (CONFUSABLE.test(label) && confidence < 70);
 
     if (needsDeep) {
       // Budget restant : 24 s (2× Lite) + 20 s = 44 s max, sous le timeout client.
-      const deep = await tryModel(DEEP_MODEL, [18_000], SYSTEM_PROMPT, "high");
+      const deep = await tryModel(
+        DEEP_MODEL,
+        [18_000],
+        FAST_PROMPT + DEEP_ANNEX,
+        "low",
+        imageUrl,
+      );
       if (deep?.ok) {
         const deepData = await parseAnimal(deep, DEEP_MODEL);
         if (deepData) {
@@ -602,6 +623,7 @@ serve(async (req) => {
         response = response?.ok ? response : deep;
       }
     }
+
 
     // 3) Contrôle d'authenticité : une illustration, un logo, un dessin ou une
     // capture d'écran représentant un animal n'est jamais une capture valide.

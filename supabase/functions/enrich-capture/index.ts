@@ -223,8 +223,8 @@ Deno.serve(async (req) => {
     // retente avec un modèle de repli plutôt que de laisser le modérateur attendre.
     // La modération privilégie la précision : chaîne haute qualité par défaut.
     const models = quality === 'low'
-      ? ['google/gemini-2.5-flash', 'google/gemini-2.5-flash-lite']
-      : ['google/gemini-2.5-pro', 'google/gemini-2.5-flash']
+      ? ['google/gemini-3.1-flash-lite', 'google/gemini-3.5-flash']
+      : ['google/gemini-3.1-flash-lite', 'google/gemini-3.5-flash']
 
     const callGateway = async (model: string, timeoutMs: number) => {
       const controller = new AbortController()
