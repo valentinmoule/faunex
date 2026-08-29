@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Camera, Zap, MapPin, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine, ZoomIn, Focus, Crosshair, ArrowLeft, Clock, Info, Sparkles, ShieldQuestion } from 'lucide-react';
 import { toast } from 'sonner';
@@ -21,6 +21,30 @@ const rarityColors: Record<string, string> = {
   epic: 'bg-rarity-epic/20 text-rarity-epic border-rarity-epic/40',
   mythic: 'bg-rarity-mythic/20 text-rarity-mythic border-rarity-mythic/40',
 };
+
+/** Accroches affichées à l'ouverture de la caméra : une seule, choisie au hasard. */
+const CAPTURE_MOTIVATION_MESSAGES = [
+  'Prêt à capturer quelque chose de rare ?',
+  'Quel animal vas-tu découvrir ?',
+  'Garde les yeux ouverts…',
+  'Une nouvelle découverte t’attend.',
+  'Regarde bien autour de toi…',
+  'Et si la prochaine capture était exceptionnelle ?',
+  'À toi de jouer !',
+  'Nouvelle capture, nouvelle chance.',
+  'Le prochain animal pourrait te surprendre.',
+  'Bonne chance pour ta prochaine capture !',
+  'Une capture rare est peut-être proche…',
+  'Explore. Observe. Capture.',
+  'C’est parti pour une nouvelle capture !',
+  'Quel sera ton prochain ajout à la collection ?',
+  'Ta collection peut encore s’agrandir.',
+  'La nature réserve toujours des surprises.',
+  'Prêt à ajouter une nouvelle découverte ?',
+  'Peut-être une capture mémorable aujourd’hui…',
+  'Et si celle-ci était légendaire ?',
+  'À la recherche de ta prochaine découverte…',
+];
 
 const CapturePage = () => {
   const { session } = useAuth();
@@ -73,7 +97,13 @@ const CapturePage = () => {
     return () => window.clearInterval(t);
   }, [identifying]);
 
-  const quota = useCaptureQuota(session?.user?.id);
+const quota = useCaptureQuota(session?.user?.id);
+
+  /** Accroche aléatoire, re-tirée à chaque ouverture de la caméra. */
+  const motivation = useMemo(
+    () => CAPTURE_MOTIVATION_MESSAGES[Math.floor(Math.random() * CAPTURE_MOTIVATION_MESSAGES.length)],
+    [],
+  );
 
   const { revealPhase, revealRarity, freezeFlash, triggerReveal, reset: resetReveal } =
     useCaptureReveal(setAnimalResult);
@@ -892,6 +922,11 @@ const takePhoto = async () => {
                   <Camera className="w-7 h-7 text-primary-foreground relative z-10" />
                 </span>
               </button>
+{quota.remaining !== null && !quota.exhausted && (
+                <p className="text-primary-foreground/85 text-xs font-display text-center max-w-[230px] leading-snug italic">
+                  {motivation}
+                </p>
+              )}
               <p className="text-primary-foreground/70 text-[11px] font-display text-center max-w-[200px]">
                 {quota.remaining !== null && !quota.exhausted
                   ? `${quota.remaining} capture${quota.remaining > 1 ? 's' : ''} restante${quota.remaining > 1 ? 's' : ''} aujourd'hui`
