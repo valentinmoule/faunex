@@ -1245,7 +1245,7 @@ const BestiairePage = () => {
                           key={cat.name}
                           onClick={() =>
                             setCategoryFilter(prev =>
-                              active ? prev.filter(c => c !== cat) : [...prev, cat.name]
+                              active ? prev.filter(c => c !== cat.name) : [...prev, cat.name]
                             )
                           }
                           className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-[12px] font-display font-semibold border transition-all active:scale-95 ${
