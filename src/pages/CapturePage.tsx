@@ -173,19 +173,7 @@ const CapturePage = () => {
   };
 
 
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = ''; // allow re-selecting the same file
-    if (!file) return;
-    // Certains navigateurs/OS ne renseignent pas de MIME type pour les HEIC :
-    // on se rabat alors sur l'extension du fichier.
-    if (!file.type.startsWith('image/') && !/\.(heic|heif)$/i.test(file.name)) {
-      toast.error('Sélectionne une image');
-      return;
-    }
-    const dataUrl = await readFileAsDataUrl(file);
-    await processPhoto(dataUrl);
-  };
+
 
   const resetCapture = () => {
     setCapturedPhoto(null);
