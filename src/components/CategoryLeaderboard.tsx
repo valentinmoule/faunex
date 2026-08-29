@@ -179,23 +179,23 @@ if (rows.length === 0 && scope === 'global' && !open) return null;
                   : 'Aucune capture cette semaine.'
                 : 'Chargement…'}
             </p>
-          ) : (
-          <>
-          {/* Podium */}
-          <div className="mx-4 mt-4 mb-5 rounded-3xl bg-gradient-to-b from-amber/10 via-card to-card border border-border p-4">
-            <div className="flex items-end justify-center gap-3">
-              {podiumOrdered.map((r) => {
-                const cfg = PODIUM[r.rank === 1 ? 0 : r.rank === 2 ? 1 : 2] ?? PODIUM[2];
-                const isFirst = r === podium[0];
-                return (
-                  <div key={r.user_id} className="flex-1 flex flex-col items-center gap-1.5 max-w-[33%]">
-                    {isFirst && <Crown className="w-5 h-5 text-amber" />}
-                    <div className="relative">
-<Avatar
-                        row={r}
-                        size={cfg.avatar}
-                        className={`ring-4 ${cfg.ring}`}
-                      />
+) : (
+            <>
+            {/* Podium */}
+            <div className="mx-4 mt-4 mb-5 rounded-3xl bg-gradient-to-b from-amber/10 via-card to-card border border-border p-4">
+              <div className="flex items-end justify-center gap-3">
+                {podiumOrdered.map((r) => {
+                  const cfg = PODIUM[r.rank === 1 ? 0 : r.rank === 2 ? 1 : 2] ?? PODIUM[2];
+                  const isFirst = r === podium[0];
+                  return (
+                    <div key={r.user_id} className="flex-1 flex flex-col items-center gap-1.5 max-w-[33%]">
+                      {isFirst && <Crown className="w-5 h-5 text-amber" />}
+                      <div className="relative">
+                        <Avatar
+                          row={r}
+                          size={cfg.avatar}
+                          className={`ring-4 ${cfg.ring}`}
+                        />
                       <span className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full ${cfg.badge} flex items-center justify-center text-[10px] font-display font-bold shadow-sm`}>
                         {cfg.label}
                       </span>
