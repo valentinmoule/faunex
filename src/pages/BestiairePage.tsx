@@ -387,35 +387,8 @@ const browseAnimals = useMemo(() => {
     // Pas de re-tri : `animals` est déjà trié alphabétiquement au chargement.
   }, [animals, categoryFilter, rarityFilter, matchesSearch]);
 
-  // Infinite scroll : 50 espèces par lot, chargement automatique en fin de liste
-  const BROWSE_PAGE = 50;
-  const [browseVisible, setBrowseVisible] = useState(BROWSE_PAGE);
-  const browseSentinelRef = useRef<HTMLDivElement | null>(null);
+  // Virtualisation : seules les lignes visibles sont montées (mémoire constante).
 
-  // Reset quand les filtres/recherche changent
-  useEffect(() => {
-    setBrowseVisible(BROWSE_PAGE);
-  }, [categoryFilter, rarityFilter, matchesSearch]);
-
-  const visibleBrowseAnimals = useMemo(
-    () => browseAnimals.slice(0, browseVisible),
-    [browseAnimals, browseVisible],
-  );
-
-  useEffect(() => {
-    const el = browseSentinelRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) {
-          setBrowseVisible(v => (v < browseAnimals.length ? v + BROWSE_PAGE : v));
-        }
-      },
-      { rootMargin: '600px 0px' },
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [browseAnimals.length]);
 
   // Callback stable pour les cartes mémoïsées de la grille.
   const handleSelectBrowseAnimal = useCallback((animal: BestiaryAnimal) => {
