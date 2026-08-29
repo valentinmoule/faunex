@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { ChevronRight, Clock, Crown, Trophy } from 'lucide-react';
+import { ChevronRight, Clock, Crown, Lock, Trophy } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { PremiumAvatar } from '@/components/PremiumAvatar';
 import { usePremiumUsers } from '@/hooks/usePremiumUsers';
+import { useSubscription } from '@/hooks/useSubscription';
+import { useAuth } from '@/contexts/AuthContext';
 import { useSwipeDownClose } from '@/lib/useSwipeDownClose';
 
 interface Row {
@@ -63,6 +66,9 @@ interface LeaderboardTarget {
 }
 
 const CategoryLeaderboard = ({ category, territory }: LeaderboardTarget) => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { isPremium, loading: premiumLoading } = useSubscription(user?.id);
   const isTerritory = !!territory;
   const value = isTerritory ? territory.code : (category || 'all');
   const [rows, setRows] = useState<Row[]>([]);
@@ -70,6 +76,7 @@ const CategoryLeaderboard = ({ category, territory }: LeaderboardTarget) => {
   const [ready, setReady] = useState(false);
   const [open, setOpen] = useState(false);
   const [scope, setScope] = useState<'global' | 'follows'>('global');
+  const [lockedTab, setLockedTab] = useState(false);
 
   const closeSheet = useCallback(() => setOpen(false), []);
   const swipeClose = useSwipeDownClose(closeSheet);
