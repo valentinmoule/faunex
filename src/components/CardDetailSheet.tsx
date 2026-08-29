@@ -9,6 +9,7 @@ import { SpiderIcon } from '@/components/icons/SpiderIcon';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import HolographicCard from '@/components/HolographicCard';
+import RarityBadge from '@/components/RarityBadge';
 import { hapticTap } from '@/lib/haptics';
 import { toast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -689,9 +690,8 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
 
             {/* Rarity + Category chips */}
             <div className="flex items-center justify-center gap-2">
-              <span className={`px-3 py-1 rounded-full text-[11px] font-display font-bold uppercase tracking-wider ${rarityBg[card.rarity]} ${rarityText[card.rarity]}`}>
-                {RARITY_LABELS[card.rarity]}
-              </span>
+              <RarityBadge rarity={card.rarity} showLabel />
+
               {(() => {
                 const CatIcon = getCategoryIcon(card.category);
                 return (
