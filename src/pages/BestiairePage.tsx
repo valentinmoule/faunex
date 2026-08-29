@@ -392,9 +392,7 @@ const browseAnimals = useMemo(() => {
     const deptSet = animalsByDept[selectedZone.departmentCode];
     if (!deptSet) return [];
     const set = selectedZone.kind === 'city' ? buildCityAnimalSet(deptSet, animals) : deptSet;
-    return animals
-      .filter((a) => set.has(a.name.toLowerCase()))
-      .sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+    return animals.filter((a) => set.has(a.name.toLowerCase())); // déjà trié via `animals`
   }, [animals, animalsByDept, selectedZone]);
 
   // Progress map keyed by zone id
