@@ -879,13 +879,9 @@ const CapturePage = () => {
           </button>
         ) : identifying ? null : capturedPhoto ? null : (
           <>
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={quota.exhausted}
-              className="w-12 h-12 rounded-xl bg-primary-foreground/10 flex items-center justify-center disabled:opacity-40"
-            >
-              <Image className="w-5 h-5 text-primary-foreground/70" />
-            </button>
+            {/* Espaceur pour garder le déclencheur parfaitement centré. */}
+            <div className="w-12 h-12" aria-hidden="true" />
+
             <div className="flex flex-col items-center gap-2">
               <button
                 onClick={takePhoto}
