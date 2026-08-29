@@ -86,10 +86,18 @@ const CategoryLeaderboard = ({ category, territory }: LeaderboardTarget) => {
   const userIds = useMemo(() => rows.map(r => r.user_id), [rows]);
   const premiumIds = usePremiumUsers(userIds);
 
-  useEffect(() => {
+useEffect(() => {
     const id = setInterval(() => setTimeLeft(msUntilReset()), 60_000);
     return () => clearInterval(id);
   }, []);
+
+  // Le classement "Mes abonnements" est réservé aux Premium : on force le retour à "Global".
+  useEffect(() => {
+    if (!premiumLoading && scope === 'follows' && !isPremium) {
+      setScope('global');
+      setLockedTab(true);
+    }
+  }, [isPremium, premiumLoading, scope]);
 
   useEffect(() => {
     let cancelled = false;
