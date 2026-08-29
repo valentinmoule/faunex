@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { ChevronRight, Clock, Crown, Trophy } from 'lucide-react';
+import { ChevronRight, Clock, Crown, Lock, Trophy } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { PremiumAvatar } from '@/components/PremiumAvatar';
 import { usePremiumUsers } from '@/hooks/usePremiumUsers';
+import { useSubscription } from '@/hooks/useSubscription';
+import { useAuth } from '@/contexts/AuthContext';
 import { useSwipeDownClose } from '@/lib/useSwipeDownClose';
 
 interface Row {
@@ -63,6 +66,9 @@ interface LeaderboardTarget {
 }
 
 const CategoryLeaderboard = ({ category, territory }: LeaderboardTarget) => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { isPremium, loading: premiumLoading } = useSubscription(user?.id);
   const isTerritory = !!territory;
   const value = isTerritory ? territory.code : (category || 'all');
   const [rows, setRows] = useState<Row[]>([]);
@@ -70,6 +76,7 @@ const CategoryLeaderboard = ({ category, territory }: LeaderboardTarget) => {
   const [ready, setReady] = useState(false);
   const [open, setOpen] = useState(false);
   const [scope, setScope] = useState<'global' | 'follows'>('global');
+  const [lockedTab, setLockedTab] = useState(false);
 
   const closeSheet = useCallback(() => setOpen(false), []);
   const swipeClose = useSwipeDownClose(closeSheet);
@@ -79,10 +86,18 @@ const CategoryLeaderboard = ({ category, territory }: LeaderboardTarget) => {
   const userIds = useMemo(() => rows.map(r => r.user_id), [rows]);
   const premiumIds = usePremiumUsers(userIds);
 
-  useEffect(() => {
+useEffect(() => {
     const id = setInterval(() => setTimeLeft(msUntilReset()), 60_000);
     return () => clearInterval(id);
   }, []);
+
+  // Le classement "Mes abonnements" est réservé aux Premium : on force le retour à "Global".
+  useEffect(() => {
+    if (!premiumLoading && scope === 'follows' && !isPremium) {
+      setScope('global');
+      setLockedTab(true);
+    }
+  }, [isPremium, premiumLoading, scope]);
 
   useEffect(() => {
     let cancelled = false;
@@ -158,21 +173,48 @@ if (rows.length === 0 && scope === 'global' && !open) return null;
             Réinitialisation dans {formatTimeLeft(timeLeft)}
           </p>
 
-          <div className="mx-4 mt-3 grid grid-cols-2 gap-1 rounded-2xl bg-muted p-1">
+<div className="mx-4 mt-3 grid grid-cols-2 gap-1 rounded-2xl bg-muted p-1">
             {([['global', 'Global'], ['follows', 'Mes abonnements']] as const).map(([key, label]) => (
               <button
                 key={key}
-                onClick={() => setScope(key)}
-                className={`rounded-xl py-1.5 text-[12px] font-display font-bold transition-colors ${
-                  scope === key ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'
+                onClick={() => {
+                  if (key === 'follows' && !isPremium) {
+                    setLockedTab(true);
+                    return;
+                  }
+                  setLockedTab(false);
+                  setScope(key);
+                }}
+                className={`rounded-xl py-1.5 text-[12px] font-display font-bold transition-colors flex items-center justify-center gap-1 ${
+                  scope === key && !(key === 'follows' && lockedTab) ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'
                 }`}
               >
                 {label}
+                {key === 'follows' && !isPremium && <Lock className="w-3 h-3" />}
               </button>
             ))}
           </div>
 
-          {rows.length === 0 ? (
+          {lockedTab ? (
+            <div className="px-5 py-10 text-center">
+              <div className="mx-auto w-14 h-14 rounded-full bg-gradient-to-b from-amber/25 to-amber/5 border border-amber/30 flex items-center justify-center mb-3">
+                <Crown className="w-6 h-6 text-amber" />
+              </div>
+              <p className="text-[14px] font-display font-bold text-foreground">Classement de tes abonnements</p>
+              <p className="mt-1 text-[12px] font-display text-muted-foreground leading-relaxed">
+                Suis la semaine de tes explorateurs préférés. Cette fonctionnalité est réservée aux membres Faunex Premium.
+              </p>
+              <button
+                onClick={() => {
+                  setOpen(false);
+                  navigate('/premium');
+                }}
+                className="mt-4 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-[13px] font-display font-bold shadow-lg active:scale-[0.98] transition-transform"
+              >
+                Découvrir Faunex Premium
+              </button>
+            </div>
+          ) : rows.length === 0 ? (
             <p className="px-5 py-10 text-center text-[13px] font-display text-muted-foreground">
               {ready
                 ? scope === 'follows'
