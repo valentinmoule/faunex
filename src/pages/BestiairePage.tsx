@@ -1264,7 +1264,7 @@ const BestiairePage = () => {
                     })}
                   </div>
 
-<p className="text-[11px] uppercase tracking-wider text-muted-foreground font-display font-bold mt-5 mb-2">Rareté</p>
+                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-display font-bold mt-5 mb-2">Rareté</p>
                   <div className="flex flex-wrap gap-2">
                     {(['all', 'common', 'rare', 'epic', 'mythic'] as const).map((r) => {
                       const active = rarityFilter === r;
