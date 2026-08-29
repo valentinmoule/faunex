@@ -97,7 +97,13 @@ const CapturePage = () => {
     return () => window.clearInterval(t);
   }, [identifying]);
 
-  const quota = useCaptureQuota(session?.user?.id);
+const quota = useCaptureQuota(session?.user?.id);
+
+  /** Accroche aléatoire, re-tirée à chaque ouverture de la caméra. */
+  const motivation = useMemo(
+    () => CAPTURE_MOTIVATION_MESSAGES[Math.floor(Math.random() * CAPTURE_MOTIVATION_MESSAGES.length)],
+    [],
+  );
 
   const { revealPhase, revealRarity, freezeFlash, triggerReveal, reset: resetReveal } =
     useCaptureReveal(setAnimalResult);
