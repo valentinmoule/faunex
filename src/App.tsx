@@ -15,6 +15,7 @@ import BottomNav from "./components/BottomNav";
 import ScrollToTop from "./components/ScrollToTop";
 import PullToDiscover from "./components/PullToDiscover";
 import { PushPermissionPrompt } from "./components/PushPermissionPrompt";
+import PageTransition from "./components/PageTransition";
 import { SHOW_MARKETING_PAGES } from "./lib/platform";
 
 
@@ -127,6 +128,7 @@ const AppRoutes = () => {
   return (
     <>
       <Suspense fallback={<LoadingScreen />}>
+        <PageTransition>
         <Routes>
           <Route
             path="/"
@@ -173,6 +175,7 @@ const AppRoutes = () => {
 
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </PageTransition>
       </Suspense>
       {!isCapturePage && !isModerationPage && !isPremiumPage && !isPublicPage && <BottomNav />}
 

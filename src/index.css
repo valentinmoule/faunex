@@ -2559,3 +2559,82 @@ html.is-native-android body {
     0 1.5px 0 hsl(32 92% 30%),
     0 0 12px hsl(var(--rarity-mythic) / 0.6);
 }
+
+/* ============================================
+   Transitions de page & micro-animations
+   ============================================ */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0) scale(0.994);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.page-transition {
+  animation: page-enter 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: opacity, transform;
+}
+
+/* Petit "pop" sur l'onglet actif de la barre de navigation */
+@keyframes tab-pop {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  45% { transform: translate3d(0, -3px, 0) scale(1.16); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+
+.tab-pop {
+  animation: tab-pop 0.34s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes dot-in {
+  from { opacity: 0; transform: scale(0.2); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.tab-dot {
+  animation: dot-in 0.24s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Apparition en cascade pour les listes / grilles */
+@keyframes rise-in {
+  from { opacity: 0; transform: translate3d(0, 12px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+.rise-in {
+  animation: rise-in 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.stagger-children > * {
+  animation: rise-in 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.stagger-children > *:nth-child(1) { animation-delay: 0.02s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.06s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.1s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.14s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.18s; }
+.stagger-children > *:nth-child(6) { animation-delay: 0.22s; }
+.stagger-children > *:nth-child(n+7) { animation-delay: 0.26s; }
+
+/* Retour tactile générique sur les éléments cliquables */
+.press {
+  transition: transform 0.16s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.16s ease;
+}
+.press:active {
+  transform: scale(0.965);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-transition,
+  .tab-pop,
+  .tab-dot,
+  .rise-in,
+  .stagger-children > * {
+    animation: none !important;
+  }
+  .press { transition: none; }
+}
