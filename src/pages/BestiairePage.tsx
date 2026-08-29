@@ -41,6 +41,19 @@ const FREE_SLOT_LIMIT = 3;
 const ALL_SPECIES = 'Toutes les espèces';
 const ALL_GRID_LIMIT = 200;
 
+/** Tri de l'onglet « Mes captures ». */
+type MineSort = 'recent' | 'alpha' | 'custom';
+
+const MINE_SORT_LABELS: Record<MineSort, string> = {
+  recent: 'Plus récentes',
+  alpha: 'Ordre alphabétique',
+  custom: 'Personnalisé',
+};
+
+const sortStorageKey = (uid: string) => `faunex:mine-sort:${uid}`;
+const orderStorageKey = (uid: string) => `faunex:mine-order:${uid}`;
+
+
 /** Socle coloré (profondeur "jeu mobile") selon la rareté. */
 const tileDepthClass: Record<string, string> = {
   rare: 'game-tile--rare',
