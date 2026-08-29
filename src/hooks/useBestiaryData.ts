@@ -55,9 +55,10 @@ export const useBestiaryData = (userId: string | undefined) => {
       location: capture.location || '',
     });
 
-    const buildList = (
+const buildList = (
       catalogue: CatalogueEntry[],
       capturesByName: Map<string, any>,
+      findersMap?: Map<string, number>,
     ): BestiaryAnimal[] => {
       const list = catalogue.map((a) => {
         const capture = capturesByName.get(a.name.toLowerCase());
@@ -68,6 +69,7 @@ export const useBestiaryData = (userId: string | undefined) => {
           category: a.category || '',
           captured: !!capture,
           captureData: capture ? toCard(capture) : undefined,
+          finders: findersMap?.get(a.name.toLowerCase()) || 0,
         } as BestiaryAnimal;
       });
       list.sort((a, b) => a.name.localeCompare(b.name, 'fr'));
@@ -78,17 +80,25 @@ export const useBestiaryData = (userId: string | undefined) => {
       const cached = readCatalogueCache();
       setLoading(true);
 
-      // 1) Les captures de l'utilisateur (petit volume) : indispensables pour l'état "capturé".
-      const capturesResult = await fetchAllRows<any>((from, to) =>
-        supabase
-          .from('captures')
-          .select('*')
-          .eq('user_id', userId)
-          .eq('status', 'approved')
-          .order('created_at', { ascending: false })
-          .range(from, to),
-      );
+// 1) Les captures de l'utilisateur (petit volume) : indispensables pour l'état "capturé".
+      //    En parallèle : le nombre d'utilisateurs distincts ayant trouvé chaque espèce.
+      const [capturesResult, findersResult] = await Promise.all([
+        fetchAllRows<any>((from, to) =>
+          supabase
+            .from('captures')
+            .select('*')
+            .eq('user_id', userId)
+            .eq('status', 'approved')
+            .order('created_at', { ascending: false })
+            .range(from, to),
+        ),
+        supabase.rpc('species_finder_counts'),
+      ]);
       const userCaptures = capturesResult.data || [];
+      const findersMap = new Map<string, number>();
+      (findersResult.data || []).forEach((r: any) => {
+        if (typeof r.finders === 'number') findersMap.set(r.animal_key, r.finders);
+      });
 
       // One card per distinct species (most recent capture wins)
       const sortedCaptures = userCaptures
@@ -111,10 +121,10 @@ export const useBestiaryData = (userId: string | undefined) => {
         capturesByName.set(c.animal_name.toLowerCase(), c);
       });
 
-      // 2) Affichage immédiat depuis le cache local du catalogue.
+// 2) Affichage immédiat depuis le cache local du catalogue.
       let list: BestiaryAnimal[] = [];
       if (cached) {
-        list = buildList(cached.entries, capturesByName);
+        list = buildList(cached.entries, capturesByName, findersMap);
         setAnimals(list);
         setLoading(false);
       }
@@ -136,11 +146,11 @@ export const useBestiaryData = (userId: string | undefined) => {
           .order('name')
           .range(p * pageSize, (p + 1) * pageSize - 1);
 
-      // Première page : rendu rapide si on n'avait pas de cache.
+// Première page : rendu rapide si on n'avait pas de cache.
       const first = await fetchPage(0);
       let catalogue = (first.data || []) as CatalogueEntry[];
       if (!cached) {
-        list = buildList(catalogue, capturesByName);
+        list = buildList(catalogue, capturesByName, findersMap);
         setAnimals(list);
         setLoading(false);
       }
@@ -152,7 +162,7 @@ export const useBestiaryData = (userId: string | undefined) => {
         catalogue = catalogue.concat(rest.flatMap((r) => (r.data || []) as CatalogueEntry[]));
       }
 
-      list = buildList(catalogue, capturesByName);
+list = buildList(catalogue, capturesByName, findersMap);
       setAnimals(list);
       setLoading(false);
       writeCatalogueCache(catalogue, count || catalogue.length);

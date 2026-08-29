@@ -2231,6 +2231,13 @@ export type Database = {
         Returns: undefined
       }
       settle_league_group: { Args: { p_group_id: string }; Returns: undefined }
+      species_finder_counts: {
+        Args: never
+        Returns: {
+          animal_key: string
+          finders: number
+        }[]
+      }
       species_profile_for: {
         Args: { p_name: string; p_scientific?: string }
         Returns: {

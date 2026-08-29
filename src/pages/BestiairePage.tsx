@@ -3,7 +3,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { CollectionHero } from '@/components/CollectionHero';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, SlidersHorizontal } from 'lucide-react';
+import { Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, SlidersHorizontal, Users } from 'lucide-react';
 import { type Rarity, type AnimalCard, RARITY_LABELS } from '@/data/mockData';
 import { useAuth } from '@/contexts/AuthContext';
 import CardDetailSheet from '@/components/CardDetailSheet';
@@ -90,8 +90,19 @@ const BrowseSpeciesCard = memo(
             )}
           </div>
         </>
-      ) : (
+) : (
         <>
+          {animal.finders ? (
+            <div
+              className="absolute top-1.5 left-1.5 z-[3] inline-flex items-center gap-1 rounded-full bg-black/50 px-1.5 py-0.5 backdrop-blur-sm"
+              title={`Trouvée par ${animal.finders} naturaliste${animal.finders > 1 ? 's' : ''}`}
+            >
+              <Users className="h-2.5 w-2.5 text-white" />
+              <span className="text-[9px] font-display font-bold text-white leading-none">
+                {animal.finders}
+              </span>
+            </div>
+          ) : null}
           <div className="absolute inset-0 flex items-center justify-center">
             <SpeciesCategoryIcon category={animal.category} className="w-10 h-10 opacity-60" />
           </div>

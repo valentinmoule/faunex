@@ -13,6 +13,8 @@ export interface BestiaryAnimal {
   category: string;
   captured: boolean;
   captureData?: AnimalCard;
+  /** Nombre d'utilisateurs distincts ayant trouvé l'espèce (captures approuvées visibles). */
+  finders?: number;
 }
 
 export interface ZoneSub {
