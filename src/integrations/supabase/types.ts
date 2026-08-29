@@ -2049,10 +2049,10 @@ export type Database = {
         Args: { p_category: string; p_limit?: number }
         Returns: {
           avatar_url: string
+          captures: number
           display_name: string
           is_me: boolean
           rank: number
-          species: number
           user_id: string
           username: string
         }[]
@@ -2177,8 +2177,8 @@ export type Database = {
       my_category_rank: {
         Args: { p_category: string }
         Returns: {
+          captures: number
           rank: number
-          species: number
           total_players: number
         }[]
       }
