@@ -287,7 +287,7 @@ const CapturePage = () => {
     if (savingRef.current) return;
     savingRef.current = true;
     try {
-      const existing = await findDuplicate(animalResult.animal_name);
+      const existing = await findDuplicate(animalResult.animal_name, animalResult.scientific_name);
       if (existing) {
         setDuplicateCapture(existing);
         return;
@@ -298,10 +298,17 @@ const CapturePage = () => {
       finishSave(animalResult, imageUrl, `${animalResult.animal_name} ajouté à ton Faunex !`);
     } catch (err) {
       console.error(err);
+      const msg = String((err as { message?: string })?.message ?? err);
+      if (msg.includes('unique_species_per_user') || msg.includes('duplicate key')) {
+        // Sécurité serveur : l'espèce existe déjà sous un autre nom commun.
+        toast.error(`Tu as déjà cette espèce dans ton Faunex (${animalResult.scientific_name ?? animalResult.animal_name}).`);
+        return;
+      }
       toast.error(isDailyLimitError(err) ? "Limite atteinte : 4 captures par jour maximum. Reviens demain !" : "Erreur lors de la sauvegarde");
     } finally {
       savingRef.current = false;
     }
+
   };
 
 
@@ -804,8 +811,9 @@ const CapturePage = () => {
       {duplicateCapture && (
         <div className="relative z-30 bg-foreground/95 backdrop-blur-sm px-5 py-4 space-y-3 border-t border-primary-foreground/10">
           <p className="text-primary-foreground font-display font-semibold text-sm text-center">
-            ⚠️ {duplicateCapture.animal_name} est déjà dans ton Faunex !
+            ⚠️ Tu as déjà cette espèce dans ton Faunex : {duplicateCapture.animal_name}
           </p>
+
           <div className="flex gap-3 items-center justify-center">
             <div className="text-center">
               <p className="text-[10px] text-primary-foreground/70 font-display mb-1">Actuelle</p>
