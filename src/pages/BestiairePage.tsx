@@ -283,6 +283,8 @@ const BestiairePage = () => {
     return list.slice(0, ALL_GRID_LIMIT);
   }, [animals, categoryFilter, rarityFilter, matchesSearch]);
 
+const activeFilterCount = categoryFilter.length + (rarityFilter !== 'all' ? 1 : 0);
+
   const browseTotal = useMemo(
     () => animals
       .filter(a => categoryFilter.length === 0 || categoryFilter.includes(normalizeCategory(a.category)))
