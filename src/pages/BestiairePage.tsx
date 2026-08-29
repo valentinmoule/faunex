@@ -215,7 +215,7 @@ const BestiairePage = () => {
       : animals.filter(
           (a) => getSpeciesGroup(a.name, a.scientific_name, a.category)?.key === key,
         );
-    return [...list].sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+    return list; // déjà trié alphabétiquement via `animals`
   }, [animals, selectedCollection]);
 
   /** Catégorie utilisée pour le classement affiché dans une collection. */
@@ -321,8 +321,8 @@ const browseAnimals = useMemo(() => {
     return animals
       .filter(a => categoryFilter.length === 0 || categoryFilter.includes(normalizeCategory(a.category)))
       .filter(a => rarityFilter === 'all' || a.rarity === rarityFilter)
-      .filter(matchesSearch)
-      .sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+      .filter(matchesSearch);
+    // Pas de re-tri : `animals` est déjà trié alphabétiquement au chargement.
   }, [animals, categoryFilter, rarityFilter, matchesSearch]);
 
   // Infinite scroll : 50 espèces par lot, chargement automatique en fin de liste
