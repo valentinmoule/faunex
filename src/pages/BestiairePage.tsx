@@ -283,7 +283,7 @@ const BestiairePage = () => {
     return list.slice(0, ALL_GRID_LIMIT);
   }, [animals, categoryFilter, rarityFilter, matchesSearch]);
 
-const activeFilterCount = categoryFilter.length + (rarityFilter !== 'all' ? 1 : 0);
+  const activeFilterCount = categoryFilter.length + (rarityFilter !== 'all' ? 1 : 0);
 
   const browseTotal = useMemo(
     () => animals
