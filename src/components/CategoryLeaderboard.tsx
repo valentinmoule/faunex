@@ -22,10 +22,21 @@ interface MyRank {
   total_players: number;
 }
 
-/** Days left until next Sunday reset (week runs Sunday → Sunday). */
-const daysUntilReset = () => {
-  const dow = new Date().getDay();
-  return 7 - dow;
+/** Milliseconds until next Sunday 00:00 (week runs Sunday → Sunday). */
+const msUntilReset = () => {
+  const now = new Date();
+  const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (7 - now.getDay()), 0, 0, 0, 0);
+  return Math.max(0, next.getTime() - now.getTime());
+};
+
+const formatTimeLeft = (ms: number) => {
+  const totalMinutes = Math.floor(ms / 60000);
+  const days = Math.floor(totalMinutes / 1440);
+  const hours = Math.floor((totalMinutes % 1440) / 60);
+  const minutes = totalMinutes % 60;
+  if (days > 0) return `${days} j ${hours} h`;
+  if (hours > 0) return `${hours} h ${minutes} min`;
+  return `${minutes} min`;
 };
 
 const Avatar = ({ row, isPremium, size = 'sm', className = '' }: { row: Row; isPremium?: boolean; size?: 'sm' | 'md' | 'lg'; className?: string }) => (
@@ -51,11 +62,18 @@ const CategoryLeaderboard = ({ category }: { category: string }) => {
   const [open, setOpen] = useState(false);
   const [scope, setScope] = useState<'global' | 'follows'>('global');
 
-  const closeSheet = useCallback(() => setOpen(false), []);
+const closeSheet = useCallback(() => setOpen(false), []);
   const swipeClose = useSwipeDownClose(closeSheet);
+
+  const [timeLeft, setTimeLeft] = useState(msUntilReset);
 
   const userIds = useMemo(() => rows.map(r => r.user_id), [rows]);
   const premiumIds = usePremiumUsers(userIds);
+
+  useEffect(() => {
+    const id = setInterval(() => setTimeLeft(msUntilReset()), 60_000);
+    return () => clearInterval(id);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -79,10 +97,9 @@ const CategoryLeaderboard = ({ category }: { category: string }) => {
 
 
 
-  const podium = rows.slice(0, 3);
+const podium = rows.slice(0, 3);
   const podiumOrdered = [podium[1], podium[0], podium[2]].filter(Boolean);
   const rest = rows.slice(3);
-  const reset = daysUntilReset();
 
   return (
     <>
@@ -124,8 +141,8 @@ const CategoryLeaderboard = ({ category }: { category: string }) => {
               Top {category} · Semaine
             </SheetTitle>
           </SheetHeader>
-          <p className="px-5 text-[12px] font-display text-muted-foreground">
-            Captures du dimanche au dimanche · remise à zéro dans {reset} jour{reset > 1 ? 's' : ''}
+<p className="px-5 text-[12px] font-display text-muted-foreground">
+            Réinitialisation dans {formatTimeLeft(timeLeft)}
           </p>
 
           <div className="mx-4 mt-3 grid grid-cols-2 gap-1 rounded-2xl bg-muted p-1">
