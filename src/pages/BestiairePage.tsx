@@ -1513,11 +1513,12 @@ const isCity = zone.kind === 'city';
                     });
                   }
                 }}
-                className={`relative aspect-[3/4] rounded-xl border-2 overflow-hidden transition-all cursor-pointer active:scale-[0.96] ${
+                className={`game-tile relative aspect-[3/4] rounded-xl border-2 overflow-hidden cursor-pointer ${
                   animal.captured
-                    ? `${rarityBorderColor[animal.rarity] || 'border-border'} bg-card`
-                    : 'border-border/40 bg-muted/30'
+                    ? `${rarityBorderColor[animal.rarity] || 'border-border'} bg-card ${tileDepthClass[animal.rarity] || ''}`
+                    : 'game-tile--empty border-border/40 bg-muted/30'
                 } ${isFlashing ? 'shelve-slot-flash' : ''}`}
+
               >
                 {animal.captured && animal.captureData ? (
                   <div className="w-full h-full flex flex-col">
