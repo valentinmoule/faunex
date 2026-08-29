@@ -240,10 +240,10 @@ const PullToDiscover = () => {
 
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent
+          ref={swipeClose.ref}
           side="bottom"
           className="max-h-[85vh] overflow-y-auto z-[1500]"
           style={swipeClose.style}
-          {...swipeClose.handlers}
         >
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2 font-display">
