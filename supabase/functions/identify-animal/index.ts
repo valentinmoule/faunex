@@ -346,7 +346,7 @@ serve(async (req) => {
               success: false,
               reason: "daily_limit",
               message:
-                "Tu as atteint ta limite d'analyses pour aujourd'hui. Reviens demain ou passe en Faunex Premium pour en avoir bien plus.",
+                "Tu as atteint ta limite de 4 analyses pour aujourd'hui. Reviens demain, ou passe en Faunex Premium pour des analyses illimitées.",
             });
           }
         }
