@@ -55,14 +55,23 @@ const PODIUM = [
   { height: 'h-8', ring: 'ring-earth/40', badge: 'bg-earth text-primary-foreground', label: '3', avatar: 'md' as const, order: 'order-3' },
 ];
 
-const CategoryLeaderboard = ({ category }: { category: string }) => {
+interface LeaderboardTarget {
+  /** Classement par catégorie d'espèces (ou 'all' pour le général). */
+  category?: string;
+  /** Classement par territoire (département). */
+  territory?: { code: string; label: string };
+}
+
+const CategoryLeaderboard = ({ category, territory }: LeaderboardTarget) => {
+  const isTerritory = !!territory;
+  const value = isTerritory ? territory.code : (category || 'all');
   const [rows, setRows] = useState<Row[]>([]);
   const [mine, setMine] = useState<MyRank | null>(null);
   const [ready, setReady] = useState(false);
   const [open, setOpen] = useState(false);
   const [scope, setScope] = useState<'global' | 'follows'>('global');
 
-const closeSheet = useCallback(() => setOpen(false), []);
+  const closeSheet = useCallback(() => setOpen(false), []);
   const swipeClose = useSwipeDownClose(closeSheet);
 
   const [timeLeft, setTimeLeft] = useState(msUntilReset);
@@ -79,10 +88,15 @@ const closeSheet = useCallback(() => setOpen(false), []);
     let cancelled = false;
     setReady(false);
     const load = async () => {
-      const [top, me] = await Promise.all([
-        supabase.rpc('category_leaderboard', { p_category: category, p_limit: 20, p_scope: scope } as never),
-        supabase.rpc('my_category_rank', { p_category: category, p_scope: scope } as never),
-      ]);
+      const [top, me] = isTerritory
+        ? await Promise.all([
+            supabase.rpc('territory_leaderboard', { p_department: value, p_limit: 20, p_scope: scope } as never),
+            supabase.rpc('my_territory_rank', { p_department: value, p_scope: scope } as never),
+          ])
+        : await Promise.all([
+            supabase.rpc('category_leaderboard', { p_category: value, p_limit: 20, p_scope: scope } as never),
+            supabase.rpc('my_category_rank', { p_category: value, p_scope: scope } as never),
+          ]);
       if (cancelled) return;
       setRows(((top.data as unknown as Row[] | null) || []).map(r => ({ ...r, rank: Number(r.rank), captures: Number(r.captures) })));
       const m = ((me.data as unknown as MyRank[] | null) || [])[0];
@@ -91,7 +105,7 @@ const closeSheet = useCallback(() => setOpen(false), []);
     };
     load();
     return () => { cancelled = true; };
-  }, [category, scope]);
+  }, [isTerritory, value, scope]);
 
   if (rows.length === 0 && scope === 'global' && !open) return null;
 
