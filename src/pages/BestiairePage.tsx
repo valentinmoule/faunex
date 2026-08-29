@@ -1491,12 +1491,8 @@ Bestiaire
                     const d = getDepartement(zone.departmentCode);
                     const p = zoneProgress[zone.id] || { total: 0, captured: 0 };
                     const pct = p.total > 0 ? Math.round((p.captured / p.total) * 100) : 0;
-                    const isCity = zone.kind === 'city';
-                    const ZoneIcon = isCity ? Building2 : MapPin;
+const isCity = zone.kind === 'city';
                     const title = isCity ? (zone.cityName || 'Ville') : (d?.name || zone.departmentCode);
-                    const sub = isCity
-                      ? `${zone.cityPostcode || ''}${d ? ` · ${d.name}` : ''}`
-                      : zone.departmentCode;
                     const art = getZoneArt(zone.kind);
                     return (
                       <button
