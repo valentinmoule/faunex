@@ -62,6 +62,9 @@ const PullToDiscover = () => {
   const pullRef = useRef(0);
   pullRef.current = pull;
 
+  const closeSheet = useCallback(() => setOpen(false), []);
+  const swipeClose = useSwipeDownClose(closeSheet);
+
   const runDiscovery = useCallback(async () => {
     if (!('geolocation' in navigator)) {
       toast.error('Géolocalisation indisponible');
@@ -236,7 +239,12 @@ const PullToDiscover = () => {
       </div>
 
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto z-[1500]">
+        <SheetContent
+          side="bottom"
+          className="max-h-[85vh] overflow-y-auto z-[1500]"
+          style={swipeClose.style}
+          {...swipeClose.handlers}
+        >
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2 font-display">
               <Sparkles className="w-5 h-5 text-primary" />
