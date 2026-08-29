@@ -41,30 +41,37 @@ export const useBestiaryData = (userId: string | undefined) => {
     const fetchData = async () => {
       setLoading(true);
 
-      let allAnimals: any[] = [];
-      let page = 0;
+      // Chargement parallèle : on récupère d'abord le nombre total d'espèces,
+      // puis toutes les pages du catalogue + les captures de l'utilisateur en même temps.
       const pageSize = 1000;
-      while (true) {
-        const { data } = await supabase
+      const { count } = await supabase
+        .from('animals')
+        .select('*', { count: 'exact', head: true });
+
+      const totalPages = count ? Math.ceil(count / pageSize) : 1;
+      const pageRequests = Array.from({ length: totalPages }, (_, p) =>
+        supabase
           .from('animals')
           .select('name, scientific_name, rarity, category')
           .order('name')
-          .range(page * pageSize, (page + 1) * pageSize - 1);
-        if (!data || data.length === 0) break;
-        allAnimals = allAnimals.concat(data);
-        if (data.length < pageSize) break;
-        page++;
-      }
-
-      const { data: userCaptures } = await fetchAllRows<any>((from, to) =>
-        supabase
-          .from('captures')
-          .select('*')
-          .eq('user_id', userId)
-          .eq('status', 'approved')
-          .order('created_at', { ascending: false })
-          .range(from, to),
+          .range(p * pageSize, (p + 1) * pageSize - 1),
       );
+
+      const [pages, capturesResult] = await Promise.all([
+        Promise.all(pageRequests),
+        fetchAllRows<any>((from, to) =>
+          supabase
+            .from('captures')
+            .select('*')
+            .eq('user_id', userId)
+            .eq('status', 'approved')
+            .order('created_at', { ascending: false })
+            .range(from, to),
+        ),
+      ]);
+
+      const allAnimals = pages.flatMap((r) => r.data || []);
+      const userCaptures = capturesResult.data;
 
       const toCard = (capture: any): AnimalCard => ({
         id: capture.id,
