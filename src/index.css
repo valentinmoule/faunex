@@ -2507,27 +2507,22 @@ html.is-native-android body {
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 3.5px 8px 4px 4px;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
   border-radius: 999px;
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
   line-height: 1;
-  color: #fff;
   isolation: isolate;
   overflow: hidden;
-  text-shadow: 0 1px 1px hsla(0, 0%, 0%, 0.25);
-  border: 1px solid hsla(0, 0%, 100%, 0.35);
+  border: 1px solid hsla(0, 0%, 100%, 0.4);
   background:
-    linear-gradient(180deg, hsla(0, 0%, 100%, 0.16), hsla(0, 0%, 100%, 0) 48%),
-    var(--rarity-face, linear-gradient(160deg, #b9c2cc, #7d8792));
+    linear-gradient(180deg, hsla(0, 0%, 100%, 0.22), hsla(0, 0%, 100%, 0) 55%),
+    var(--rarity-face, linear-gradient(160deg, #c9d2db, #8b95a1));
   box-shadow:
-    inset 0 1px 0 hsla(0, 0%, 100%, 0.38),
-    inset 0 -2px 3px hsla(0, 0%, 0%, 0.16),
-    0 1px 0 var(--rarity-edge, hsla(0, 0%, 0%, 0.22)),
-    0 2px 5px hsla(0, 0%, 0%, 0.14),
+    inset 0 1px 0 hsla(0, 0%, 100%, 0.4),
+    inset 0 -1px 2px hsla(0, 0%, 0%, 0.14),
+    0 1px 3px hsla(0, 0%, 0%, 0.16),
     0 0 var(--rarity-glow-size, 0px) var(--rarity-glow, transparent);
 }
 
@@ -2538,11 +2533,11 @@ html.is-native-android body {
   top: -60%;
   bottom: -60%;
   left: -40%;
-  width: 34%;
+  width: 44%;
 background: linear-gradient(
     100deg,
     hsla(0, 0%, 100%, 0) 0%,
-    hsla(0, 0%, 100%, 0.32) 50%,
+    hsla(0, 0%, 100%, 0.35) 50%,
     hsla(0, 0%, 100%, 0) 100%
   );
   transform: skewX(-18deg);
@@ -2566,33 +2561,15 @@ background: linear-gradient(
   }
 }
 
-/* Socle circulaire de l'icone (comme un jeton serti) */
-.rarity-badge__icon-wrap {
-  position: relative;
-  z-index: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 13px;
-  height: 13px;
-  border-radius: 999px;
-  background: radial-gradient(circle at 32% 28%, hsla(0, 0%, 100%, 0.95), hsla(0, 0%, 100%, 0.25) 62%, hsla(0, 0%, 0%, 0.18));
-box-shadow:
-    inset 0 -1px 2px hsla(0, 0%, 0%, 0.18),
-    0 1px 2px hsla(0, 0%, 0%, 0.16);
-}
-
-.rarity-badge__label {
-  position: relative;
-  z-index: 1;
-}
-
 .rarity-badge__icon {
-  width: 8px;
-  height: 8px;
-  color: var(--rarity-ink, #4c5560);
-  fill: currentColor;
+  position: relative;
+  z-index: 1;
+  width: 11px;
+  height: 11px;
+  color: hsla(0, 0%, 100%, 0.95);
+  filter: drop-shadow(0 1px 1px hsla(0, 0%, 0%, 0.28));
 }
+
 
 .rarity-badge--common {
   --rarity-face: linear-gradient(160deg, #c9d2db 0%, #9aa5b0 48%, #717b87 100%);
