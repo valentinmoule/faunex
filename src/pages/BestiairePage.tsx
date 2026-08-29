@@ -13,6 +13,7 @@ import {
   buildCityAnimalSet,
   getCategoryEmoji,
   getCategoryIcon,
+  getSpeciesEmoji,
   normalizeCategory,
   rarityBadge,
   rarityBorderColor,
@@ -964,7 +965,7 @@ const BestiairePage = () => {
                     : 'text-muted-foreground'
                 }`}
               >
-                Catégories
+Bestiaire
               </button>
               <button
                 onClick={() => setViewMode('collections')}
@@ -1164,7 +1165,7 @@ const BestiairePage = () => {
                 </div>
               ) : (
                 <>
-                  <div className="grid grid-cols-4 gap-1.5">
+<div className="grid grid-cols-2 gap-2">
                     {browseAnimals.map((animal) => (
                       <div
                         key={animal.name}
@@ -1206,14 +1207,14 @@ const BestiairePage = () => {
                               />
                               <div className={`absolute top-1.5 right-1.5 w-2 h-2 rounded-full ${rarityDot[animal.rarity] || 'bg-muted-foreground'}`} />
                             </div>
-                            <div className="px-1.5 py-1 bg-card">
-                              <p className="text-[9px] font-display font-bold text-foreground truncate leading-tight">{animal.name}</p>
+                            <div className="px-2 py-1.5 bg-card">
+                              <p className="text-[11px] font-display font-bold text-foreground truncate leading-tight">{animal.name}</p>
                             </div>
                           </div>
                         ) : (
-                          <div className="w-full h-full flex flex-col items-center justify-center gap-1 p-1">
-                            <span className="text-base">{getCategoryEmoji(normalizeCategory(animal.category))}</span>
-                            <p className="text-[8px] font-display text-muted-foreground text-center leading-tight line-clamp-2">{animal.name}</p>
+                          <div className="w-full h-full flex flex-col items-center justify-center gap-1.5 p-2">
+                            <span className="text-3xl leading-none">{getSpeciesEmoji(animal.name, animal.category)}</span>
+                            <p className="text-[11px] font-display font-semibold text-muted-foreground text-center leading-tight line-clamp-2">{animal.name}</p>
                             <div className={`w-1.5 h-1.5 rounded-full ${rarityDot[animal.rarity] || 'bg-muted-foreground'} opacity-40`} />
                           </div>
                         )}
