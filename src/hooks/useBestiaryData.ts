@@ -38,59 +38,59 @@ export const useBestiaryData = (userId: string | undefined) => {
   useEffect(() => {
     if (!userId) return;
 
+    const toCard = (capture: any): AnimalCard => ({
+      id: capture.id,
+      name: capture.animal_name,
+      scientificName: capture.scientific_name || '',
+      image: capture.image_url,
+      rarity: capture.rarity as Rarity,
+      category: capture.category || '',
+      description: capture.description || '',
+      habitat: capture.habitat || '',
+      diet: capture.diet || '',
+      conservation: capture.conservation || '',
+      funFact: capture.fun_fact || '',
+      discoveredAt: capture.created_at,
+      location: capture.location || '',
+    });
+
+    const buildList = (
+      catalogue: CatalogueEntry[],
+      capturesByName: Map<string, any>,
+    ): BestiaryAnimal[] => {
+      const list = catalogue.map((a) => {
+        const capture = capturesByName.get(a.name.toLowerCase());
+        return {
+          name: a.name,
+          scientific_name: a.scientific_name || '',
+          rarity: a.rarity,
+          category: a.category || '',
+          captured: !!capture,
+          captureData: capture ? toCard(capture) : undefined,
+        } as BestiaryAnimal;
+      });
+      list.sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+      return list;
+    };
+
     const fetchData = async () => {
+      const cached = readCatalogueCache();
       setLoading(true);
 
-      // Chargement parallèle : on récupère d'abord le nombre total d'espèces,
-      // puis toutes les pages du catalogue + les captures de l'utilisateur en même temps.
-      const pageSize = 1000;
-      const { count } = await supabase
-        .from('animals')
-        .select('*', { count: 'exact', head: true });
-
-      const totalPages = count ? Math.ceil(count / pageSize) : 1;
-      const pageRequests = Array.from({ length: totalPages }, (_, p) =>
+      // 1) Les captures de l'utilisateur (petit volume) : indispensables pour l'état "capturé".
+      const capturesResult = await fetchAllRows<any>((from, to) =>
         supabase
-          .from('animals')
-          .select('name, scientific_name, rarity, category')
-          .order('name')
-          .range(p * pageSize, (p + 1) * pageSize - 1),
+          .from('captures')
+          .select('*')
+          .eq('user_id', userId)
+          .eq('status', 'approved')
+          .order('created_at', { ascending: false })
+          .range(from, to),
       );
-
-      const [pages, capturesResult] = await Promise.all([
-        Promise.all(pageRequests),
-        fetchAllRows<any>((from, to) =>
-          supabase
-            .from('captures')
-            .select('*')
-            .eq('user_id', userId)
-            .eq('status', 'approved')
-            .order('created_at', { ascending: false })
-            .range(from, to),
-        ),
-      ]);
-
-      const allAnimals = pages.flatMap((r) => r.data || []);
-      const userCaptures = capturesResult.data;
-
-      const toCard = (capture: any): AnimalCard => ({
-        id: capture.id,
-        name: capture.animal_name,
-        scientificName: capture.scientific_name || '',
-        image: capture.image_url,
-        rarity: capture.rarity as Rarity,
-        category: capture.category || '',
-        description: capture.description || '',
-        habitat: capture.habitat || '',
-        diet: capture.diet || '',
-        conservation: capture.conservation || '',
-        funFact: capture.fun_fact || '',
-        discoveredAt: capture.created_at,
-        location: capture.location || '',
-      });
+      const userCaptures = capturesResult.data || [];
 
       // One card per distinct species (most recent capture wins)
-      const sortedCaptures = (userCaptures || [])
+      const sortedCaptures = userCaptures
         .slice()
         .sort((a: any, b: any) => (b.created_at || '').localeCompare(a.created_at || ''));
       const seenSpecies = new Set<string>();
@@ -105,30 +105,59 @@ export const useBestiaryData = (userId: string | undefined) => {
           .map(toCard),
       );
 
-
       const capturesByName = new Map<string, any>();
-      (userCaptures || []).forEach((c) => {
+      userCaptures.forEach((c: any) => {
         capturesByName.set(c.animal_name.toLowerCase(), c);
       });
 
-      const list: BestiaryAnimal[] = allAnimals.map((a: any) => {
-        const capture = capturesByName.get(a.name.toLowerCase());
-        return {
-          name: a.name,
-          scientific_name: a.scientific_name,
-          rarity: a.rarity,
-          category: a.category,
-          captured: !!capture,
-          captureData: capture ? toCard(capture) : undefined,
-        };
-      });
+      // 2) Affichage immédiat depuis le cache local du catalogue.
+      let list: BestiaryAnimal[] = [];
+      if (cached) {
+        list = buildList(cached.entries, capturesByName);
+        setAnimals(list);
+        setLoading(false);
+      }
 
-      list.sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+      // 3) Revalidation : on ne retélécharge le catalogue que si le cache est
+      //    absent, périmé, ou si le nombre d'espèces a changé.
+      const { count } = await supabase
+        .from('animals')
+        .select('*', { count: 'exact', head: true });
 
+      if (cached && cached.fresh && count === cached.count) return list;
+
+      const pageSize = 1000;
+      const totalPages = count ? Math.ceil(count / pageSize) : 1;
+      const fetchPage = (p: number) =>
+        supabase
+          .from('animals')
+          .select('name, scientific_name, rarity, category')
+          .order('name')
+          .range(p * pageSize, (p + 1) * pageSize - 1);
+
+      // Première page : rendu rapide si on n'avait pas de cache.
+      const first = await fetchPage(0);
+      let catalogue = (first.data || []) as CatalogueEntry[];
+      if (!cached) {
+        list = buildList(catalogue, capturesByName);
+        setAnimals(list);
+        setLoading(false);
+      }
+
+      if (totalPages > 1) {
+        const rest = await Promise.all(
+          Array.from({ length: totalPages - 1 }, (_, i) => fetchPage(i + 1)),
+        );
+        catalogue = catalogue.concat(rest.flatMap((r) => (r.data || []) as CatalogueEntry[]));
+      }
+
+      list = buildList(catalogue, capturesByName);
       setAnimals(list);
       setLoading(false);
+      writeCatalogueCache(catalogue, count || catalogue.length);
       return list;
     };
+
 
     const fetchUnread = async () => {
       const { count } = await supabase
