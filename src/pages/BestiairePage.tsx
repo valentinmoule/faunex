@@ -21,6 +21,7 @@ getCategoryEmoji,
   type ZoneSub,
 } from '@/lib/bestiary';
 import { getCollectionArt, getZoneArt } from '@/lib/collectionArt';
+import CollectionAmbience from '@/components/CollectionAmbience';
 import { MIN_BREEDS_PER_GROUP, BREED_GROUPS, getBreedGroup, getSpeciesGroup, type BreedGroup } from '@/lib/breedGroups';
 import { useBestiaryData } from '@/hooks/useBestiaryData';
 import { useCitySearch } from '@/hooks/useCitySearch';
@@ -877,6 +878,7 @@ const browseAnimals = useMemo(() => {
     const HeaderIcon = isCity ? Building2 : MapPin;
     return (
       <main className="min-h-screen bg-background pb-24">
+        <CollectionAmbience art={getZoneArt(selectedZone.kind)} />
         <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
           <div className="max-w-lg mx-auto">
             <div className="flex items-center gap-3">
@@ -906,7 +908,7 @@ const browseAnimals = useMemo(() => {
           </div>
         </PageHeader>
 
-<div className="max-w-lg mx-auto px-3 pt-3 space-y-4">
+<div className="relative z-10 max-w-lg mx-auto px-3 pt-3 space-y-4">
           {(() => {
             const art = getZoneArt(selectedZone.kind);
             const pct = prog.total > 0 ? Math.round((prog.captured / prog.total) * 100) : 0;
@@ -1035,7 +1037,7 @@ const browseAnimals = useMemo(() => {
           </div>
         </PageHeader>
 
-        <div className="max-w-lg mx-auto px-3 pt-3 space-y-4">
+        <div className="relative z-10 max-w-lg mx-auto px-3 pt-3 space-y-4">
           {(() => {
             const art = getCollectionArt(selectedCollection.group.key, selectedCollection.group.label);
             const pct = selectedCollection.total > 0

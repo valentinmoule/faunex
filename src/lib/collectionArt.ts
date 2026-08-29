@@ -25,6 +25,8 @@ export interface CollectionArt {
   image: string;
   /** Dégradé appliqué au-dessus de l'illustration (tokens HSL du design system). */
   overlay: string;
+  /** Couleur dominante de l'illustration (HSL brut, ex. `150 45% 12%`). */
+  tint: string;
   scene: SceneKey;
 }
 
@@ -99,6 +101,7 @@ const GROUP_SCENES: Record<string, SceneKey> = {
 const build = (scene: SceneKey): CollectionArt => ({
   image: SCENES[scene],
   overlay: overlayFor(scene),
+  tint: TINTS[scene],
   scene,
 });
 
