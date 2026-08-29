@@ -95,7 +95,7 @@ const CategoryLeaderboard = ({ category }: { category: string }) => {
             {mine ? `${mine.rank}${mine.rank === 1 ? 'er' : 'e'}` : '—'}
           </div>
           <div className="min-w-0 text-left">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-bold">Classement de la semaine</p>
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-bold">Classement</p>
             <p className="text-[13px] font-display font-bold text-foreground truncate">
               {mine ? `${mine.captures} capture${mine.captures > 1 ? 's' : ''} cette semaine` : 'Aucune capture cette semaine'}
             </p>
