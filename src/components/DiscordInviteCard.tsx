@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 const STORAGE_KEY = 'faunex_discord_card_closed';
-const DISCORD_INVITE_URL = 'https://discord.gg/ZrQhZUZG2';
+const DISCORD_INVITE_URL = 'https://discord.gg/YrAEV5EQa4';
 export const COMMUNITY_BADGE_ID = 'community_member';
 export const COMMUNITY_BADGE_XP = 50;
 
