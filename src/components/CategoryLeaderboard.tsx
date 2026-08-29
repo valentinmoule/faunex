@@ -112,7 +112,7 @@ const podium = rows.slice(0, 3);
             {mine ? `${mine.rank}${mine.rank === 1 ? 'er' : 'e'}` : '—'}
           </div>
           <div className="min-w-0 text-left">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-bold">Classement</p>
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-bold">{category === 'all' ? 'Classement général' : 'Classement'}</p>
             <p className="text-[13px] font-display font-bold text-foreground truncate">
               {mine ? `${mine.captures} capture${mine.captures > 1 ? 's' : ''} cette semaine` : 'Aucune capture cette semaine'}
             </p>
@@ -138,7 +138,7 @@ const podium = rows.slice(0, 3);
           <SheetHeader className="px-5 text-left">
             <SheetTitle className="font-display text-base flex items-center gap-2">
               <Trophy className="w-4 h-4 text-amber" />
-              Top {category} · Semaine
+              {category === 'all' ? 'Classement général · Semaine' : `Top ${category} · Semaine`}
             </SheetTitle>
           </SheetHeader>
 <p className="px-5 text-[12px] font-display text-muted-foreground">
