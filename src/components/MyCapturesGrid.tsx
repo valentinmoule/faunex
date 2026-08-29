@@ -12,6 +12,7 @@ const tileDepthClass: Record<string, string> = {
 };
 
 const LONG_PRESS_MS = 400;
+const MOVE_TOLERANCE = 10;
 
 interface Props {
   items: AnimalCard[];
@@ -24,14 +25,15 @@ interface Props {
 export const MyCapturesGrid = ({ items, onSelect, onReorder }: Props) => {
   const [order, setOrder] = useState<AnimalCard[]>(items);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
-  const [ghost, setGhost] = useState<{ x: number; y: number } | null>(null);
+  const [ghost, setGhost] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
-  const containerRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<number | null>(null);
   const startRef = useRef<{ x: number; y: number } | null>(null);
+  const originRef = useRef<{ x: number; y: number } | null>(null);
   const dragIndexRef = useRef<number | null>(null);
   const movedRef = useRef(false);
   const orderRef = useRef<AnimalCard[]>(items);
+  const cleanupRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     setOrder(items);
@@ -45,30 +47,7 @@ export const MyCapturesGrid = ({ items, onSelect, onReorder }: Props) => {
     }
   };
 
-  const endDrag = useCallback(
-    (commit: boolean) => {
-      clearTimer();
-      const wasDragging = dragIndexRef.current !== null;
-      dragIndexRef.current = null;
-      setDragIndex(null);
-      setGhost(null);
-      startRef.current = null;
-      if (wasDragging && commit) {
-        onReorder(orderRef.current.map((c) => c.id));
-      }
-    },
-    [onReorder],
-  );
-
-  // Empêche le scroll de la page pendant un glisser-déposer tactile.
-  useEffect(() => {
-    if (dragIndex === null) return;
-    const block = (e: TouchEvent) => e.preventDefault();
-    window.addEventListener('touchmove', block, { passive: false });
-    return () => window.removeEventListener('touchmove', block);
-  }, [dragIndex]);
-
-  const moveItem = (from: number, to: number) => {
+  const moveItem = useCallback((from: number, to: number) => {
     setOrder((prev) => {
       if (from === to || from < 0 || to < 0 || to >= prev.length) return prev;
       const next = prev.slice();
@@ -79,14 +58,92 @@ export const MyCapturesGrid = ({ items, onSelect, onReorder }: Props) => {
     });
     dragIndexRef.current = to;
     setDragIndex(to);
-  };
+  }, []);
+
+  const finish = useCallback(
+    (commit: boolean) => {
+      clearTimer();
+      cleanupRef.current?.();
+      cleanupRef.current = null;
+      const wasDragging = dragIndexRef.current !== null;
+      dragIndexRef.current = null;
+      startRef.current = null;
+      originRef.current = null;
+      setDragIndex(null);
+      setGhost({ x: 0, y: 0 });
+      if (wasDragging && commit) {
+        onReorder(orderRef.current.map((c) => c.id));
+      }
+      if (wasDragging) {
+        // Empêche le clic de sélection juste après un drag.
+        movedRef.current = true;
+        window.setTimeout(() => {
+          movedRef.current = false;
+        }, 250);
+      }
+    },
+    [onReorder],
+  );
+
+  useEffect(() => () => cleanupRef.current?.(), []);
 
   const handlePointerDown = (index: number) => (e: React.PointerEvent) => {
     if (e.button !== undefined && e.button !== 0) return;
     movedRef.current = false;
     startRef.current = { x: e.clientX, y: e.clientY };
+    originRef.current = { x: e.clientX, y: e.clientY };
+
+    // Listeners natifs : non-passifs pour pouvoir bloquer le scroll pendant le drag.
+    const onMove = (ev: PointerEvent) => {
+      const start = startRef.current;
+      if (!start) return;
+
+      if (dragIndexRef.current === null) {
+        if (
+          Math.abs(ev.clientX - start.x) > MOVE_TOLERANCE ||
+          Math.abs(ev.clientY - start.y) > MOVE_TOLERANCE
+        ) {
+          // L'utilisateur scrolle : on annule le long press.
+          finish(false);
+        }
+        return;
+      }
+
+      ev.preventDefault();
+      const origin = originRef.current!;
+      setGhost({ x: ev.clientX - origin.x, y: ev.clientY - origin.y });
+
+      const el = document.elementFromPoint(ev.clientX, ev.clientY) as HTMLElement | null;
+      const tile = el?.closest<HTMLElement>('[data-capture-index]');
+      if (!tile) return;
+      const overIndex = Number(tile.dataset.captureIndex);
+      if (!Number.isNaN(overIndex) && overIndex !== dragIndexRef.current) {
+        originRef.current = { x: ev.clientX, y: ev.clientY };
+        setGhost({ x: 0, y: 0 });
+        moveItem(dragIndexRef.current, overIndex);
+        hapticTap();
+      }
+    };
+    const onUp = () => finish(true);
+    const onCancel = () => finish(false);
+    const blockTouch = (ev: TouchEvent) => {
+      if (dragIndexRef.current !== null) ev.preventDefault();
+    };
+
+    document.addEventListener('pointermove', onMove, { passive: false });
+    document.addEventListener('pointerup', onUp);
+    document.addEventListener('pointercancel', onCancel);
+    document.addEventListener('touchmove', blockTouch, { passive: false });
+    cleanupRef.current = () => {
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+      document.removeEventListener('pointercancel', onCancel);
+      document.removeEventListener('touchmove', blockTouch);
+    };
+
     clearTimer();
     timerRef.current = window.setTimeout(() => {
+      if (!startRef.current) return;
       dragIndexRef.current = index;
       setDragIndex(index);
       setGhost({ x: 0, y: 0 });
@@ -94,49 +151,9 @@ export const MyCapturesGrid = ({ items, onSelect, onReorder }: Props) => {
     }, LONG_PRESS_MS);
   };
 
-  const handlePointerMove = (e: React.PointerEvent) => {
-    const start = startRef.current;
-    if (!start) return;
-    const dx = e.clientX - start.x;
-    const dy = e.clientY - start.y;
-
-    if (dragIndexRef.current === null) {
-      // Un mouvement avant la fin du long press = scroll : on annule.
-      if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
-        clearTimer();
-        startRef.current = null;
-      }
-      return;
-    }
-
-    movedRef.current = true;
-    setGhost({ x: dx, y: dy });
-
-    const el = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null;
-    const tile = el?.closest<HTMLElement>('[data-capture-index]');
-    if (!tile) return;
-    const overIndex = Number(tile.dataset.captureIndex);
-    if (!Number.isNaN(overIndex) && overIndex !== dragIndexRef.current) {
-      startRef.current = { x: e.clientX, y: e.clientY };
-      setGhost({ x: 0, y: 0 });
-      moveItem(dragIndexRef.current, overIndex);
-      hapticTap();
-    }
-  };
-
-  const handlePointerUp = () => {
-    const wasDragging = dragIndexRef.current !== null;
-    endDrag(true);
-    if (!wasDragging) startRef.current = null;
-  };
-
   return (
     <div
-      ref={containerRef}
       className="grid grid-cols-2 gap-2 select-none"
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-      onPointerCancel={() => endDrag(false)}
       onContextMenu={(e) => {
         if (dragIndex !== null) e.preventDefault();
       }}
@@ -149,18 +166,17 @@ export const MyCapturesGrid = ({ items, onSelect, onReorder }: Props) => {
             data-capture-index={index}
             onPointerDown={handlePointerDown(index)}
             onClick={() => {
-              if (movedRef.current) {
-                movedRef.current = false;
-                return;
-              }
+              if (movedRef.current) return;
               onSelect(animal);
             }}
             style={
-              isDragging && ghost
+              isDragging
                 ? {
                     transform: `translate3d(${ghost.x}px, ${ghost.y}px, 0) scale(1.06) rotate(1.5deg)`,
                     zIndex: 30,
                     touchAction: 'none',
+                    // Laisse elementFromPoint atteindre les cartes en dessous.
+                    pointerEvents: 'none',
                   }
                 : undefined
             }

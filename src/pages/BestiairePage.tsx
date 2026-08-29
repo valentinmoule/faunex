@@ -1163,17 +1163,13 @@ Bestiaire
                   </p>
                 </div>
               ) : (
-                <>
-                  <MyCapturesGrid
-                    items={myCapturedAnimals}
-                    onSelect={setSelectedCard}
-                    onReorder={handleReorder}
-                  />
-                  <p className="mt-3 text-center text-[11px] font-display text-muted-foreground">
-                    Appui long sur une carte pour la déplacer
-                  </p>
-                </>
+                <MyCapturesGrid
+                  items={myCapturedAnimals}
+                  onSelect={setSelectedCard}
+                  onReorder={handleReorder}
+                />
               )}
+
 
               {/* Modale de tri */}
               <Sheet open={sortOpen} onOpenChange={setSortOpen}>
