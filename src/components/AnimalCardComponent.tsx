@@ -26,7 +26,7 @@ const AnimalCardComponent = ({ card, onClick, compact }: Props) => {
   return (
     <button
       onClick={onClick}
-      className={`group relative overflow-hidden rounded-[22px] border transition-all duration-300 active:scale-[0.98] animate-card-appear text-left w-full ${rarityStyles[card.rarity]}`}
+      className={`game-tile group relative overflow-hidden rounded-[22px] border animate-card-appear text-left w-full ${rarityStyles[card.rarity]}`}
     >
       <div className="relative flex h-full flex-col bg-card">
         <div className="relative aspect-[4/5] overflow-hidden">
