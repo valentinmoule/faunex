@@ -6,6 +6,7 @@ import { Helmet } from 'react-helmet-async';
 import { Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, SlidersHorizontal, Users, ArrowDownUp, Check } from 'lucide-react';
 import { type Rarity, type AnimalCard, RARITY_LABELS } from '@/data/mockData';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import CardDetailSheet from '@/components/CardDetailSheet';
 import RarityBadge from '@/components/RarityBadge';
 import FindersBadge from '@/components/FindersBadge';
@@ -156,6 +157,14 @@ const BestiairePage = () => {
   const [mineSort, setMineSort] = useState<MineSort>('recent');
   const [customOrder, setCustomOrder] = useState<string[]>([]);
   const [sortOpen, setSortOpen] = useState(false);
+  const [myLevel, setMyLevel] = useState<number | null>(null);
+
+  useEffect(() => {
+    const userId = session?.user?.id;
+    if (!userId) return;
+    supabase.from('profiles').select('level').eq('user_id', userId).single()
+      .then(({ data }) => setMyLevel(data?.level ?? null));
+  }, [session?.user?.id]);
 
 
   // Scroll to top when entering a category, zone or collection detail view
@@ -1037,9 +1046,9 @@ const browseAnimals = useMemo(() => {
             <div className="flex items-center justify-between">
               <h1 className="text-2xl font-display font-bold text-primary">mon faunex</h1>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground font-display">
-                  {myCaptures.length} espèce{myCaptures.length > 1 ? 's' : ''}
-                </span>
+                {myLevel != null && (
+                  <span className="text-xs font-display font-semibold text-primary">Niv. {myLevel}</span>
+                )}
                 
 
                 <button
@@ -1267,7 +1276,7 @@ Bestiaire
                   {speciesQuery ? 'Résultats' : ALL_SPECIES}
                 </h2>
                 <span className="text-[11px] font-display text-muted-foreground tabular-nums">
-                  {browseTotal} espèce{browseTotal > 1 ? 's' : ''}
+                  {myCaptures.length} / {browseTotal} espèces
                 </span>
               </div>
 
