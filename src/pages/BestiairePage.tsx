@@ -3,11 +3,12 @@ import { PageHeader } from '@/components/PageHeader';
 import { CollectionHero } from '@/components/CollectionHero';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, SlidersHorizontal, Users } from 'lucide-react';
+import { Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, SlidersHorizontal, Users, ArrowDownUp, Check } from 'lucide-react';
 import { type Rarity, type AnimalCard, RARITY_LABELS } from '@/data/mockData';
 import { useAuth } from '@/contexts/AuthContext';
 import CardDetailSheet from '@/components/CardDetailSheet';
 import RarityBadge from '@/components/RarityBadge';
+import MyCapturesGrid from '@/components/MyCapturesGrid';
 import LoadingScreen from '@/components/LoadingScreen';
 import { DEPARTEMENTS, getDepartement } from '@/data/departements';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
@@ -40,6 +41,19 @@ const FREE_SLOT_LIMIT = 3;
 /** Catégorie virtuelle regroupant toutes les espèces + classement général. */
 const ALL_SPECIES = 'Toutes les espèces';
 const ALL_GRID_LIMIT = 200;
+
+/** Tri de l'onglet « Mes captures ». */
+type MineSort = 'recent' | 'alpha' | 'custom';
+
+const MINE_SORT_LABELS: Record<MineSort, string> = {
+  recent: 'Plus récentes',
+  alpha: 'Ordre alphabétique',
+  custom: 'Personnalisé',
+};
+
+const sortStorageKey = (uid: string) => `faunex:mine-sort:${uid}`;
+const orderStorageKey = (uid: string) => `faunex:mine-order:${uid}`;
+
 
 /** Socle coloré (profondeur "jeu mobile") selon la rareté. */
 const tileDepthClass: Record<string, string> = {
@@ -144,6 +158,10 @@ const BestiairePage = () => {
   const [mineSearch, setMineSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [mineSort, setMineSort] = useState<MineSort>('recent');
+  const [customOrder, setCustomOrder] = useState<string[]>([]);
+  const [sortOpen, setSortOpen] = useState(false);
+
 
   // Scroll to top when entering a category detail view
   useEffect(() => {
@@ -163,6 +181,58 @@ const BestiairePage = () => {
     animalsByDept,
     loadDeptAnimals,
   } = useBestiaryData(session?.user?.id);
+
+  const uid = session?.user?.id;
+
+  // Restaure le tri + l'ordre personnalisé de « Mes captures »
+  useEffect(() => {
+    if (!uid) return;
+    try {
+      const savedSort = localStorage.getItem(sortStorageKey(uid));
+      if (savedSort === 'recent' || savedSort === 'alpha' || savedSort === 'custom') {
+        setMineSort(savedSort);
+      }
+      const savedOrder = localStorage.getItem(orderStorageKey(uid));
+      if (savedOrder) {
+        const parsed = JSON.parse(savedOrder);
+        if (Array.isArray(parsed)) setCustomOrder(parsed.filter((v): v is string => typeof v === 'string'));
+      }
+    } catch {
+      /* stockage indisponible */
+    }
+  }, [uid]);
+
+  const applySort = useCallback(
+    (mode: MineSort) => {
+      setMineSort(mode);
+      setSortOpen(false);
+      if (uid) {
+        try {
+          localStorage.setItem(sortStorageKey(uid), mode);
+        } catch {
+          /* stockage indisponible */
+        }
+      }
+    },
+    [uid],
+  );
+
+  const handleReorder = useCallback(
+    (orderedIds: string[]) => {
+      setCustomOrder(orderedIds);
+      setMineSort('custom');
+      if (uid) {
+        try {
+          localStorage.setItem(orderStorageKey(uid), JSON.stringify(orderedIds));
+          localStorage.setItem(sortStorageKey(uid), 'custom');
+        } catch {
+          /* stockage indisponible */
+        }
+      }
+    },
+    [uid],
+  );
+
 
   const { citySearch, setCitySearch, cityResults, setCityResults, cityLoading } =
     useCitySearch(pickerTab === 'city');
@@ -442,10 +512,10 @@ const browseAnimals = useMemo(() => {
     [animals, categoryFilter, rarityFilter, matchesSearch],
   );
 
-  // Flat list of my own captures (one entry per capture), filtered + sorted by most recent
+  // Flat list of my own captures (one entry per capture), filtered + trié selon le mode choisi
   const myCapturedAnimals = useMemo(() => {
     const q = normalizeSearch(mineSearch);
-    return myCaptures
+    const list = myCaptures
       .filter(c => rarityFilter.length === 0 || rarityFilter.includes(c.rarity))
       .filter(c =>
         !q ||
@@ -453,9 +523,27 @@ const browseAnimals = useMemo(() => {
         normalizeSearch(c.scientificName || '').includes(q) ||
         normalizeSearch(c.category || '').includes(q) ||
         normalizeSearch(c.location || '').includes(q)
-      )
-      .sort((a, b) => +new Date(b.discoveredAt || 0) - +new Date(a.discoveredAt || 0));
-  }, [myCaptures, rarityFilter, mineSearch]);
+      );
+
+    if (mineSort === 'alpha') {
+      return list.sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+    }
+    if (mineSort === 'custom' && customOrder.length > 0) {
+      const rank = new Map(customOrder.map((id, i) => [id, i]));
+      return list.sort((a, b) => {
+        const ra = rank.get(a.id);
+        const rb = rank.get(b.id);
+        if (ra === undefined && rb === undefined) {
+          return +new Date(b.discoveredAt || 0) - +new Date(a.discoveredAt || 0);
+        }
+        if (ra === undefined) return -1; // nouvelles captures en tête
+        if (rb === undefined) return 1;
+        return ra - rb;
+      });
+    }
+    return list.sort((a, b) => +new Date(b.discoveredAt || 0) - +new Date(a.discoveredAt || 0));
+  }, [myCaptures, rarityFilter, mineSearch, mineSort, customOrder]);
+
 
 
   const selectedZone: ZoneSub | null = useMemo(
@@ -1021,24 +1109,38 @@ Bestiaire
 
           {viewMode === 'mine' && (
             <section>
-              <div className="relative mb-2">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  value={mineSearch}
-                  onChange={(e) => setMineSearch(e.target.value)}
-                  placeholder="Rechercher dans mes captures…"
-                  className="w-full pl-9 pr-9 py-2.5 rounded-xl bg-card border border-border text-sm font-display placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
-                />
-                {mineSearch && (
-                  <button
-                    onClick={() => setMineSearch('')}
-                    aria-label="Effacer la recherche"
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-muted transition"
-                  >
-                    <X className="w-3.5 h-3.5 text-muted-foreground" />
-                  </button>
-                )}
+              {/* Recherche + bouton tri */}
+              <div className="flex items-center gap-2 mb-3">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <input
+                    type="text"
+                    value={mineSearch}
+                    onChange={(e) => setMineSearch(e.target.value)}
+                    placeholder="Rechercher dans mes captures…"
+                    className="w-full pl-9 pr-9 py-2.5 rounded-xl bg-card border border-border text-sm font-display placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
+                  />
+                  {mineSearch && (
+                    <button
+                      onClick={() => setMineSearch('')}
+                      aria-label="Effacer la recherche"
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-muted transition"
+                    >
+                      <X className="w-3.5 h-3.5 text-muted-foreground" />
+                    </button>
+                  )}
+                </div>
+                <button
+                  onClick={() => setSortOpen(true)}
+                  className={`relative shrink-0 flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border text-sm font-display font-semibold transition-all active:scale-[0.97] ${
+                    mineSort !== 'recent'
+                      ? 'bg-primary text-primary-foreground border-primary'
+                      : 'bg-card text-foreground border-border hover:border-primary/40'
+                  }`}
+                >
+                  <ArrowDownUp className="w-4 h-4" />
+                  Tri
+                </button>
               </div>
 
               <div className="flex items-center justify-between mb-3">
@@ -1061,38 +1163,51 @@ Bestiaire
                   </p>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-2">
-                  {myCapturedAnimals.map((animal) => (
-                    <div
-                      key={animal.id}
-                      onClick={() => setSelectedCard(animal)}
-                      className={`game-tile relative aspect-[3/4] rounded-xl border-2 overflow-hidden cursor-pointer ${rarityBorderColor[animal.rarity] || 'border-border'} ${tileDepthClass[animal.rarity] || ''} bg-card`}
-                    >
-                      <img
-                        src={animal.image}
-                        alt={animal.name}
-                        className="absolute inset-0 w-full h-full object-cover"
-                        loading="lazy"
-                      />
-<div className="absolute top-1 right-1">
-                        <RarityBadge rarity={animal.rarity} />
-                      </div>
-                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5 pt-8">
-                        <p className="text-xs font-display font-bold text-white truncate leading-tight">
-                          {animal.name}
-                        </p>
-                        {animal.scientificName && (
-                          <p className="text-[9px] font-body italic text-white/80 truncate">
-                            {animal.scientificName}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <>
+                  <MyCapturesGrid
+                    items={myCapturedAnimals}
+                    onSelect={setSelectedCard}
+                    onReorder={handleReorder}
+                  />
+                  <p className="mt-3 text-center text-[11px] font-display text-muted-foreground">
+                    Appui long sur une carte pour la déplacer
+                  </p>
+                </>
               )}
+
+              {/* Modale de tri */}
+              <Sheet open={sortOpen} onOpenChange={setSortOpen}>
+                <SheetContent side="bottom" className="rounded-t-3xl">
+                  <SheetHeader>
+                    <SheetTitle className="font-display">Trier mes captures</SheetTitle>
+                  </SheetHeader>
+                  <div className="mt-4 space-y-2 pb-4">
+                    {(['recent', 'alpha', 'custom'] as MineSort[]).map((mode) => {
+                      const active = mineSort === mode;
+                      return (
+                        <button
+                          key={mode}
+                          onClick={() => applySort(mode)}
+                          className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border text-sm font-display font-semibold transition active:scale-[0.98] ${
+                            active
+                              ? 'bg-primary/10 border-primary text-primary'
+                              : 'bg-card border-border text-foreground'
+                          }`}
+                        >
+                          <span>{MINE_SORT_LABELS[mode]}</span>
+                          {active && <Check className="w-4 h-4" />}
+                        </button>
+                      );
+                    })}
+                    <p className="pt-1 text-[11px] font-display text-muted-foreground">
+                      Le tri personnalisé s'active automatiquement dès que tu déplaces une carte.
+                    </p>
+                  </div>
+                </SheetContent>
+              </Sheet>
             </section>
           )}
+
 
           {viewMode === 'categories' && (
             <section>
