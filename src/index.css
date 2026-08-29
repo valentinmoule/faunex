@@ -2513,7 +2513,7 @@ html.is-native-android body {
 }
 
 /* ──────────────────────────────────────────────────────────
-   Badge de rareté "gemme de niveau" (jeu mobile)
+   Badge de rareté (jeu mobile, style plat)
    ────────────────────────────────────────────────────────── */
 .rarity-badge {
   position: relative;
@@ -2527,50 +2527,8 @@ html.is-native-android body {
   line-height: 1;
   isolation: isolate;
   overflow: hidden;
-  border: 1px solid hsla(0, 0%, 100%, 0.4);
-  background:
-    linear-gradient(180deg, hsla(0, 0%, 100%, 0.22), hsla(0, 0%, 100%, 0) 55%),
-    var(--rarity-face, linear-gradient(160deg, #c9d2db, #8b95a1));
-  box-shadow:
-    inset 0 1px 0 hsla(0, 0%, 100%, 0.4),
-    inset 0 -1px 2px hsla(0, 0%, 0%, 0.14),
-    0 1px 3px hsla(0, 0%, 0%, 0.16),
-    0 0 var(--rarity-glow-size, 0px) var(--rarity-glow, transparent);
-}
-
-/* Balayage lumineux facon carte de jeu */
-.rarity-badge::after {
-  content: '';
-  position: absolute;
-  top: -60%;
-  bottom: -60%;
-  left: -40%;
-  width: 44%;
-background: linear-gradient(
-    100deg,
-    hsla(0, 0%, 100%, 0) 0%,
-    hsla(0, 0%, 100%, 0.35) 50%,
-    hsla(0, 0%, 100%, 0) 100%
-  );
-  transform: skewX(-18deg);
-  animation: rarity-sheen 3.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  pointer-events: none;
-  z-index: 2;
-}
-
-@keyframes rarity-sheen {
-  0%,
-  62% {
-    left: -45%;
-    opacity: 0;
-  }
-  68% {
-    opacity: 0.9;
-  }
-  100% {
-    left: 115%;
-    opacity: 0;
-  }
+  border: 1px solid hsla(0, 0%, 100%, 0.35);
+  box-shadow: 0 2px 6px -2px var(--rarity-glow, hsla(0, 0%, 0%, 0.18));
 }
 
 .rarity-badge__icon {
@@ -2578,10 +2536,8 @@ background: linear-gradient(
   z-index: 1;
   width: 11px;
   height: 11px;
-  color: hsla(0, 0%, 100%, 0.95);
-  filter: drop-shadow(0 1px 1px hsla(0, 0%, 0%, 0.28));
+  color: #fff;
 }
-
 
 /* Variante avec label (card détail) */
 .rarity-badge--labeled {
@@ -2590,128 +2546,109 @@ background: linear-gradient(
   gap: 5px;
   padding: 4px 10px 4px 7px;
   font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.1em;
+  font-weight: 800;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #fff;
-  text-shadow: 0 1px 2px hsla(0, 0%, 0%, 0.35);
+  border-radius: 999px;
+  transform: none !important;
 }
 .rarity-badge--labeled .rarity-badge__icon {
   width: 13px;
   height: 13px;
+  transform: none !important;
 }
 .rarity-badge__label {
   position: relative;
   z-index: 1;
 }
 
+/* Formes et couleurs plates par rareté */
 .rarity-badge--common {
-  --rarity-face: linear-gradient(160deg, #e2e9f1 0%, #9fb0c2 48%, #64748b 100%);
-  --rarity-edge: hsla(0, 0%, 0%, 0.22);
-  --rarity-glow: hsl(215 20% 60% / 0.35);
-  --rarity-glow-size: 4px;
+  --rarity-glow: hsla(215, 10%, 55%, 0.35);
+  background: #aab6c4;
+  border-color: hsla(215, 12%, 45%, 0.45);
 }
+.rarity-badge--common .rarity-badge__icon {
+  color: #475569;
+}
+
+/* Variante labelisée : texte sombre pour le commun, blanc pour les autres */
+.rarity-badge--common.rarity-badge--labeled {
+  color: #334155;
+}
+.rarity-badge--rare.rarity-badge--labeled,
+.rarity-badge--epic.rarity-badge--labeled,
+.rarity-badge--mythic.rarity-badge--labeled {
+  color: #fff;
+}
+
 .rarity-badge--rare {
-  --rarity-face: linear-gradient(160deg, #7df0ff 0%, #12a2ff 45%, #0044ff 100%);
-  --rarity-edge: hsla(215, 100%, 34%, 0.7);
-  --rarity-glow: hsl(205 100% 55% / 0.95);
-  --rarity-glow-size: 11px;
+  --rarity-glow: hsl(205 100% 50% / 0.4);
+  background: #2f9dff;
+  border-radius: 7px;
+  transform: rotate(12deg);
 }
+.rarity-badge--rare .rarity-badge__icon {
+  transform: rotate(-12deg);
+}
+
 .rarity-badge--epic {
-  --rarity-face: linear-gradient(160deg, #ff9df6 0%, #a63dff 45%, #6a00f4 100%);
-  --rarity-edge: hsla(272, 100%, 32%, 0.7);
-  --rarity-glow: hsl(280 100% 62% / 1);
-  --rarity-glow-size: 16px;
-  animation: rarity-pulse 3s ease-in-out infinite;
+  --rarity-glow: hsl(275 90% 60% / 0.45);
+  background: #9b4dff;
 }
+
 .rarity-badge--mythic {
-  --rarity-face: linear-gradient(160deg, #fff7a8 0%, #ffc400 42%, #ff5e00 100%);
-  --rarity-edge: hsla(28, 100%, 36%, 0.7);
-  --rarity-glow: hsl(38 100% 55% / 1);
-  --rarity-glow-size: 20px;
-  animation: rarity-pulse 2.2s ease-in-out infinite;
+  --rarity-glow: hsl(38 100% 50% / 0.5);
+  background: linear-gradient(135deg, #ffd23e 0%, #ff9f1c 100%);
+  border-radius: 7px;
+  transform: rotate(45deg);
+  border-color: hsla(0, 0%, 100%, 0.55);
+  box-shadow:
+    0 3px 10px -3px hsl(38 100% 50% / 0.55),
+    0 0 0 1px hsla(38, 90%, 45%, 0.25);
 }
-
-
-@keyframes rarity-pulse {
-  0%,
-  100% {
-    filter: brightness(1);
-  }
-  50% {
-    filter: brightness(1.12) saturate(1.1);
-  }
+.rarity-badge--mythic .rarity-badge__icon {
+  transform: rotate(-45deg);
+  color: #fff;
+  filter: drop-shadow(0 1px 1px hsla(20, 90%, 30%, 0.5));
 }
-
 
 @media (prefers-reduced-motion: reduce) {
-  .rarity-badge::after,
-  .rarity-badge--epic,
-  .rarity-badge--mythic {
-    animation: none;
+  .rarity-badge {
+    transform: none;
   }
-  .rarity-badge::after {
-    opacity: 0;
+  .rarity-badge--rare .rarity-badge__icon,
+  .rarity-badge--mythic .rarity-badge__icon {
+    transform: none;
   }
 }
 
 /* ──────────────────────────────────────────────────────────
-   Pastille de niveau "gemme" (jeu mobile)
+   Pastille de niveau (jeu mobile, style plat)
    ────────────────────────────────────────────────────────── */
 .level-badge {
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 3px 9px 4px 7px;
+  gap: 5px;
+  padding: 4px 10px 4px 8px;
   border-radius: 999px;
   line-height: 1;
   isolation: isolate;
   overflow: hidden;
-  border: 1px solid hsl(var(--primary) / 0.5);
-  background:
-    linear-gradient(180deg, hsla(0, 0%, 100%, 0.3), hsla(0, 0%, 100%, 0) 55%),
-    linear-gradient(160deg, hsl(155 72% 46%), hsl(155 62% 30%));
-  box-shadow:
-    inset 0 1px 0 hsla(0, 0%, 100%, 0.55),
-    inset 0 -2px 4px hsl(155 80% 12% / 0.4),
-    0 2px 0 0 hsl(155 70% 22% / 0.55),
-    0 4px 10px -4px hsl(155 68% 36% / 0.6);
+  background: hsl(155 68% 30%);
+  border: 1px solid hsla(0, 0%, 100%, 0.22);
+  box-shadow: 0 4px 12px -2px hsl(155 60% 22% / 0.35);
 }
 
-/* Balayage lumineux discret, comme sur une gemme */
-.level-badge::after {
+/* Reflet doux en haut, très discret */
+.level-badge::before {
   content: '';
   position: absolute;
-  top: -60%;
-  bottom: -60%;
-  left: -40%;
-  width: 40%;
-  background: linear-gradient(
-    100deg,
-    hsla(0, 0%, 100%, 0) 0%,
-    hsla(0, 0%, 100%, 0.45) 50%,
-    hsla(0, 0%, 100%, 0) 100%
-  );
-  transform: skewX(-18deg);
-  animation: level-sheen 3.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  inset: 0 0 50% 0;
+  background: linear-gradient(180deg, hsla(0, 0%, 100%, 0.14), hsla(0, 0%, 100%, 0));
   pointer-events: none;
-  z-index: 2;
-}
-
-@keyframes level-sheen {
-  0%,
-  62% {
-    left: -45%;
-    opacity: 0;
-  }
-  68% {
-    opacity: 0.9;
-  }
-  100% {
-    left: 115%;
-    opacity: 0;
-  }
+  z-index: 1;
 }
 
 .level-badge__icon {
@@ -2719,24 +2656,21 @@ background: linear-gradient(
   z-index: 1;
   width: 12px;
   height: 12px;
-  color: #fff;
-  filter: drop-shadow(0 1px 1px hsla(0, 0%, 0%, 0.3));
+  color: hsl(160 90% 78%);
 }
 
 .level-badge__value {
   position: relative;
   z-index: 1;
   font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.04em;
+  font-weight: 800;
+  letter-spacing: 0.02em;
   color: #fff;
-  text-shadow: 0 1px 2px hsl(155 80% 12% / 0.55);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .level-badge::after {
-    animation: none;
-    opacity: 0;
+  .level-badge::before {
+    display: none;
   }
 }
 
@@ -2931,46 +2865,42 @@ background: linear-gradient(
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  padding: 2.5px 6px;
+  padding: 3px 7px;
   border-radius: 999px;
   font-size: 9px;
   font-weight: 800;
   line-height: 1;
   letter-spacing: 0.02em;
-  color: hsla(0, 0%, 100%, 0.96);
-  background: var(--finders-face, hsla(0, 0%, 0%, 0.5));
-  border: 1px solid hsla(0, 0%, 100%, 0.22);
-  backdrop-filter: blur(4px);
-  box-shadow: 0 1px 3px hsla(0, 0%, 0%, 0.2),
-    0 0 var(--finders-glow-size, 0px) var(--finders-glow, transparent);
+  color: #fff;
+  background: var(--finders-face, hsla(0, 0%, 0%, 0.55));
+  border: 1px solid hsla(0, 0%, 100%, 0.3);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 2px 8px -2px var(--finders-glow, hsla(0, 0%, 0%, 0.25));
 }
 .finders-badge__icon {
   width: 10px;
   height: 10px;
-  filter: drop-shadow(0 1px 1px hsla(0, 0%, 0%, 0.3));
+  color: hsla(0, 0%, 100%, 0.9);
 }
 .finders-badge--none {
-  --finders-face: hsla(220, 12%, 22%, 0.55);
-  color: hsla(0, 0%, 100%, 0.8);
+  --finders-face: hsla(220, 12%, 22%, 0.6);
+  color: hsla(0, 0%, 100%, 0.85);
 }
 .finders-badge--rare {
-  --finders-face: linear-gradient(150deg, hsla(268, 78%, 60%, 0.85), hsla(268, 78%, 42%, 0.85));
-  --finders-glow: hsl(268 78% 60% / 0.55);
-  --finders-glow-size: 8px;
+  --finders-face: hsl(268 78% 60% / 0.92);
+  --finders-glow: hsl(268 78% 50% / 0.4);
 }
 .finders-badge--common {
-  --finders-face: hsla(0, 0%, 0%, 0.5);
+  --finders-face: hsla(0, 0%, 0%, 0.55);
 }
 .finders-badge--trending {
-  --finders-face: linear-gradient(150deg, hsla(150, 70%, 42%, 0.9), hsla(160, 75%, 30%, 0.9));
-  --finders-glow: hsl(150 70% 45% / 0.5);
-  --finders-glow-size: 8px;
+  --finders-face: hsl(150 70% 40% / 0.92);
+  --finders-glow: hsl(150 70% 40% / 0.4);
 }
 .finders-badge--hot {
-  --finders-face: linear-gradient(150deg, #ffb020 0%, #ff6a1f 55%, #ef3a2b 100%);
-  --finders-glow: hsl(20 95% 55% / 0.75);
-  --finders-glow-size: 12px;
-  border-color: hsla(0, 0%, 100%, 0.38);
+  --finders-face: linear-gradient(135deg, #ffb020 0%, #ff6a1f 60%, #ef3a2b 100%);
+  --finders-glow: hsl(20 95% 50% / 0.45);
+  border-color: hsla(0, 0%, 100%, 0.45);
 }
 .finders-badge--hot .finders-badge__icon {
   animation: finders-flame 1.6s ease-in-out infinite;
