@@ -131,8 +131,8 @@ if (rows.length === 0 && scope === 'global' && !open) return null;
           </div>
         </div>
         <div className="flex items-center gap-2.5 shrink-0">
-          <div className="flex -space-x-2">
-{podium.map((r) => (
+<div className="flex -space-x-2">
+            {podium.map((r) => (
               <Avatar key={r.user_id} row={r} className="border-2 border-card" />
             ))}
           </div>
