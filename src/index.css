@@ -2549,7 +2549,6 @@ html.is-native-android body {
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #fff;
   border-radius: 999px;
   transform: none !important;
 }
@@ -2567,10 +2566,20 @@ html.is-native-android body {
 .rarity-badge--common {
   --rarity-glow: hsla(215, 10%, 55%, 0.35);
   background: #aab6c4;
-  border-color: hsla(215, 12%, 60%, 0.4);
+  border-color: hsla(215, 12%, 45%, 0.45);
 }
 .rarity-badge--common .rarity-badge__icon {
-  color: #5b6775;
+  color: #475569;
+}
+
+/* Variante labelisée : texte sombre pour le commun, blanc pour les autres */
+.rarity-badge--common.rarity-badge--labeled {
+  color: #334155;
+}
+.rarity-badge--rare.rarity-badge--labeled,
+.rarity-badge--epic.rarity-badge--labeled,
+.rarity-badge--mythic.rarity-badge--labeled {
+  color: #fff;
 }
 
 .rarity-badge--rare {
