@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import CardDetailSheet from '@/components/CardDetailSheet';
 import RarityBadge from '@/components/RarityBadge';
+import LevelBadge from '@/components/LevelBadge';
 import FindersBadge from '@/components/FindersBadge';
 import MyCapturesGrid from '@/components/MyCapturesGrid';
 
@@ -1046,8 +1047,8 @@ const browseAnimals = useMemo(() => {
             <div className="flex items-center justify-between">
               <h1 className="text-2xl font-display font-bold text-primary">mon faunex</h1>
               <div className="flex items-center gap-2">
-                {myLevel != null && (
-                  <span className="text-xs font-display font-semibold text-primary">Niv. {myLevel}</span>
+{myLevel != null && (
+                  <LevelBadge level={myLevel} />
                 )}
                 
 
