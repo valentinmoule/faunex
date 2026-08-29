@@ -144,6 +144,10 @@ const BestiairePage = () => {
   const [mineSearch, setMineSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [mineSort, setMineSort] = useState<MineSort>('recent');
+  const [customOrder, setCustomOrder] = useState<string[]>([]);
+  const [sortOpen, setSortOpen] = useState(false);
+
 
   // Scroll to top when entering a category detail view
   useEffect(() => {
