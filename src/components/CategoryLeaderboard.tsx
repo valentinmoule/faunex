@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { ChevronRight, Crown, Trophy } from 'lucide-react';
+import { ChevronRight, Clock, Crown, Trophy } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { PremiumAvatar } from '@/components/PremiumAvatar';
 import { usePremiumUsers } from '@/hooks/usePremiumUsers';
@@ -153,7 +153,8 @@ if (rows.length === 0 && scope === 'global' && !open) return null;
               {isTerritory ? `Top ${territory.label} cette semaine` : category === 'all' ? 'Classement cette semaine' : `Top ${category} cette semaine`}
             </SheetTitle>
           </SheetHeader>
-          <p className="px-5 text-[12px] font-display text-muted-foreground">
+<p className="px-5 text-[12px] font-display text-muted-foreground flex items-center gap-1.5">
+            <Clock className="w-3.5 h-3.5 text-muted-foreground animate-[spin_4s_linear_infinite]" />
             Réinitialisation dans {formatTimeLeft(timeLeft)}
           </p>
 
