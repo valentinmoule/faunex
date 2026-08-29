@@ -1237,7 +1237,7 @@ Bestiaire
               ) : (
                 <>
 <div className="grid grid-cols-2 gap-2">
-                    {browseAnimals.map((animal) => (
+                    {visibleBrowseAnimals.map((animal) => (
                       <div
                         key={animal.name}
                         onClick={() => {
