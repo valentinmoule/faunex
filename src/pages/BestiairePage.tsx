@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import { PageHeader } from '@/components/PageHeader';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Bell, ChevronLeft, PawPrint, MapPin, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown } from 'lucide-react';
+import { Bell, ChevronLeft, PawPrint, MapPin, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe } from 'lucide-react';
 import { type Rarity, type AnimalCard, RARITY_LABELS } from '@/data/mockData';
 import { useAuth } from '@/contexts/AuthContext';
 import CardDetailSheet from '@/components/CardDetailSheet';
@@ -31,6 +31,10 @@ import { toast } from 'sonner';
 
 /** Zones + collections combinées, limite gratuite. */
 const FREE_SLOT_LIMIT = 3;
+
+/** Catégorie virtuelle regroupant toutes les espèces + classement général. */
+const ALL_SPECIES = 'Toutes les espèces';
+const ALL_GRID_LIMIT = 200;
 
 
 const BestiairePage = () => {
@@ -221,7 +225,7 @@ const BestiairePage = () => {
   const categoryAnimals = useMemo(() => {
     if (!selectedCategory) return [];
     return animals
-      .filter(a => normalizeCategory(a.category) === selectedCategory)
+      .filter(a => selectedCategory === ALL_SPECIES || normalizeCategory(a.category) === selectedCategory)
       .filter(a => rarityFilter === 'all' || a.rarity === rarityFilter)
       .filter(matchesSearch);
   }, [animals, selectedCategory, rarityFilter, matchesSearch]);
@@ -256,11 +260,14 @@ const BestiairePage = () => {
     }
     // Only domestic breed groups are hidden from the full grid (they are too numerous).
     const hiddenKeys = new Set(breedGroupsInCategory.filter(e => e.group.breeds).map(e => e.group.key));
-    return categoryAnimals.filter(a => {
+    const filtered = categoryAnimals.filter(a => {
       const group = getBreedGroup(a.scientific_name);
       return !group || !hiddenKeys.has(group.key);
     });
-  }, [categoryAnimals, breedGroupsInCategory, activeBreedGroup]);
+    // « Toutes les espèces » peut contenir des milliers de cartes : on plafonne l'affichage.
+    if (selectedCategory === ALL_SPECIES && !speciesQuery) return filtered.slice(0, ALL_GRID_LIMIT);
+    return filtered;
+  }, [categoryAnimals, breedGroupsInCategory, activeBreedGroup, selectedCategory, speciesQuery]);
 
 
 
@@ -922,7 +929,7 @@ const BestiairePage = () => {
         </PageHeader>
 
         <div className="max-w-lg mx-auto px-4 pt-4 space-y-6">
-          <CategoryLeaderboard category="all" />
+
 
           {/* View toggle + rarity filter */}
           <section className="space-y-3">
@@ -1160,6 +1167,39 @@ const BestiairePage = () => {
                 <>
                   <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide mb-3">Catégories</h2>
                   <div className="grid grid-cols-1 gap-3">
+                    {(() => {
+                      const inAll = animals.filter(a => rarityFilter === 'all' || a.rarity === rarityFilter);
+                      const captured = inAll.filter(a => a.captured).length;
+                      const progress = inAll.length > 0 ? Math.round((captured / inAll.length) * 100) : 0;
+                      return (
+                        <button
+                          onClick={() => { setSelectedBreedGroup(null); setSelectedCategory(ALL_SPECIES); }}
+                          className="group relative overflow-hidden rounded-2xl border border-primary/30 bg-primary/5 p-4 text-left transition-all active:scale-[0.97] hover:border-primary/50 hover:shadow-md"
+                        >
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+                              <Globe className="w-5 h-5 text-primary" strokeWidth={1.75} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-display font-bold text-sm text-foreground leading-tight truncate">{ALL_SPECIES}</h3>
+                              <p className="text-[11px] text-muted-foreground font-display mt-0.5">
+                                {inAll.length} espèces · classement général
+                              </p>
+                            </div>
+                            <div className="text-right shrink-0">
+                              <span className="font-display font-bold text-sm text-foreground">{captured}</span>
+                              <span className="text-[10px] text-muted-foreground font-display">/{inAll.length}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
+                              <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${progress}%` }} />
+                            </div>
+                            <span className="text-[10px] font-display font-semibold text-muted-foreground w-8 text-right">{progress}%</span>
+                          </div>
+                        </button>
+                      );
+                    })()}
                     {categoryData
                       .map(cat => {
                         if (rarityFilter === 'all') return cat;
@@ -1305,7 +1345,9 @@ const BestiairePage = () => {
   }
 
   // Category detail: 3x3 binder grid
-  const catInfo = categoryData.find(c => c.name === selectedCategory);
+  const catInfo = selectedCategory === ALL_SPECIES
+    ? { name: ALL_SPECIES, total: animals.length, captured: animals.filter(a => a.captured).length }
+    : categoryData.find(c => c.name === selectedCategory);
 
   return (
     <main className="min-h-screen bg-background pb-24">
@@ -1331,7 +1373,7 @@ const BestiairePage = () => {
                 <span className="text-lg shrink-0">{activeBreedGroup.group.emoji}</span>
               ) : (
                 (() => {
-                  const HeaderIcon = getCategoryIcon(selectedCategory);
+                  const HeaderIcon = selectedCategory === ALL_SPECIES ? Globe : getCategoryIcon(selectedCategory);
                   return <HeaderIcon className="w-5 h-5 text-primary shrink-0" strokeWidth={1.75} />;
                 })()
               )}
@@ -1371,7 +1413,9 @@ const BestiairePage = () => {
           )}
         </div>
         {/* Classement des explorateurs de la catégorie */}
-        {!activeBreedGroup && selectedCategory && <CategoryLeaderboard category={selectedCategory} />}
+        {!activeBreedGroup && selectedCategory && (
+          <CategoryLeaderboard category={selectedCategory === ALL_SPECIES ? 'all' : selectedCategory} />
+        )}
         {/* Sub-level: breed groups as horizontal chips (races de chien, de chat…) */}
         {breedGroupsInCategory.length > 0 && (
           <div className="-mx-3 mb-3 overflow-x-auto no-scrollbar">
@@ -1476,6 +1520,12 @@ const BestiairePage = () => {
             <p className="text-4xl mb-3">📭</p>
             <p className="text-muted-foreground font-display text-sm">Aucune espèce dans cette catégorie</p>
           </div>
+        )}
+
+        {selectedCategory === ALL_SPECIES && !speciesQuery && categoryAnimals.length > ALL_GRID_LIMIT && (
+          <p className="text-center text-[11px] text-muted-foreground font-display py-4">
+            {ALL_GRID_LIMIT} premières espèces affichées · utilise la recherche pour en trouver une précise
+          </p>
         )}
       </div>
 
