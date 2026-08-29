@@ -2583,30 +2583,55 @@ background: linear-gradient(
 }
 
 
+/* Variante avec label (card détail) */
+.rarity-badge--labeled {
+  width: auto;
+  height: auto;
+  gap: 5px;
+  padding: 4px 10px 4px 7px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow: 0 1px 2px hsla(0, 0%, 0%, 0.35);
+}
+.rarity-badge--labeled .rarity-badge__icon {
+  width: 13px;
+  height: 13px;
+}
+.rarity-badge__label {
+  position: relative;
+  z-index: 1;
+}
+
 .rarity-badge--common {
-  --rarity-face: linear-gradient(160deg, #d3dbe4 0%, #a2adb9 48%, #78828e 100%);
+  --rarity-face: linear-gradient(160deg, #e2e9f1 0%, #9fb0c2 48%, #64748b 100%);
   --rarity-edge: hsla(0, 0%, 0%, 0.22);
+  --rarity-glow: hsl(215 20% 60% / 0.35);
+  --rarity-glow-size: 4px;
 }
 .rarity-badge--rare {
-  --rarity-face: linear-gradient(160deg, #9be3ff 0%, #38a5ff 48%, #1668f0 100%);
-  --rarity-edge: hsla(212, 90%, 32%, 0.6);
-  --rarity-glow: hsl(var(--rarity-rare) / 0.7);
-  --rarity-glow-size: 8px;
+  --rarity-face: linear-gradient(160deg, #7df0ff 0%, #12a2ff 45%, #0044ff 100%);
+  --rarity-edge: hsla(215, 100%, 34%, 0.7);
+  --rarity-glow: hsl(205 100% 55% / 0.95);
+  --rarity-glow-size: 11px;
 }
 .rarity-badge--epic {
-  --rarity-face: linear-gradient(160deg, #f0c2ff 0%, #b366ff 48%, #7d24ee 100%);
-  --rarity-edge: hsla(268, 85%, 32%, 0.6);
-  --rarity-glow: hsl(var(--rarity-epic) / 0.85);
-  --rarity-glow-size: 12px;
+  --rarity-face: linear-gradient(160deg, #ff9df6 0%, #a63dff 45%, #6a00f4 100%);
+  --rarity-edge: hsla(272, 100%, 32%, 0.7);
+  --rarity-glow: hsl(280 100% 62% / 1);
+  --rarity-glow-size: 16px;
   animation: rarity-pulse 3s ease-in-out infinite;
 }
 .rarity-badge--mythic {
-  --rarity-face: linear-gradient(160deg, #fff3b8 0%, #ffc22e 45%, #ff8a00 100%);
-  --rarity-edge: hsla(32, 95%, 34%, 0.6);
-  --rarity-glow: hsl(var(--rarity-mythic) / 1);
-  --rarity-glow-size: 16px;
+  --rarity-face: linear-gradient(160deg, #fff7a8 0%, #ffc400 42%, #ff5e00 100%);
+  --rarity-edge: hsla(28, 100%, 36%, 0.7);
+  --rarity-glow: hsl(38 100% 55% / 1);
+  --rarity-glow-size: 20px;
   animation: rarity-pulse 2.2s ease-in-out infinite;
 }
+
 
 @keyframes rarity-pulse {
   0%,
