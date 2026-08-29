@@ -53,10 +53,9 @@ export const FindersBadge = ({ count, className }: { count: number; className?: 
   const tier = tierFor(count);
   const { Icon } = tier;
   return (
-    <span className={`finders-badge ${tier.className} ${className ?? ''}`} title={tier.title(count)}>
+<span className={`finders-badge ${tier.className} ${className ?? ''}`} title={tier.title(count)}>
       <Icon className="finders-badge__icon" strokeWidth={2.4} />
       {tier.showCount ? <span className="finders-badge__count">{fmt(count)}</span> : null}
-      {tier.label ? <span className="finders-badge__label">{tier.label}</span> : null}
     </span>
   );
 };

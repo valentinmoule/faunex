@@ -2873,11 +2873,6 @@ background: linear-gradient(
   height: 10px;
   filter: drop-shadow(0 1px 1px hsla(0, 0%, 0%, 0.3));
 }
-.finders-badge__label {
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  font-size: 8px;
-}
 .finders-badge--none {
   --finders-face: hsla(220, 12%, 22%, 0.55);
   color: hsla(0, 0%, 100%, 0.8);
