@@ -118,6 +118,8 @@ const PullToDiscover = () => {
 
     const onStart = (e: TouchEvent) => {
       if (loading || open || e.touches.length !== 1) return;
+      // Une modal / bottom sheet est ouverte : ne jamais déclencher le pull-to-discover
+      if (document.querySelector('[role="dialog"][data-state="open"]')) return;
       if (!isAtTop(e.target)) return;
       active.current = true;
       locked.current = false;
