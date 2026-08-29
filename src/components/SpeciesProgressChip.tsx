@@ -1,5 +1,5 @@
 import { memo, useEffect, useState } from 'react';
-import { Trophy, Sparkles, Rocket, Seedling } from 'lucide-react';
+import { Trophy, Sparkles, Rocket, Sprout } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface SpeciesProgress {
@@ -42,7 +42,7 @@ const SpeciesProgressChip = memo(function SpeciesProgressChip({ refreshKey }: { 
   const { top_percent: top, rank } = progress;
 
   // Paliers gamifiés : couleur + icône selon la position de l'utilisateur.
-  let icon = <Seedling className="w-3.5 h-3.5" />;
+  let icon = <Sprout className="w-3.5 h-3.5" />;
   let cls = 'bg-muted/80 text-muted-foreground border-border';
   let glow = false;
   let label: string;
