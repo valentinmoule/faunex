@@ -121,10 +121,10 @@ const buildList = (
         capturesByName.set(c.animal_name.toLowerCase(), c);
       });
 
-      // 2) Affichage immédiat depuis le cache local du catalogue.
+// 2) Affichage immédiat depuis le cache local du catalogue.
       let list: BestiaryAnimal[] = [];
       if (cached) {
-        list = buildList(cached.entries, capturesByName);
+        list = buildList(cached.entries, capturesByName, findersMap);
         setAnimals(list);
         setLoading(false);
       }
@@ -146,11 +146,11 @@ const buildList = (
           .order('name')
           .range(p * pageSize, (p + 1) * pageSize - 1);
 
-      // Première page : rendu rapide si on n'avait pas de cache.
+// Première page : rendu rapide si on n'avait pas de cache.
       const first = await fetchPage(0);
       let catalogue = (first.data || []) as CatalogueEntry[];
       if (!cached) {
-        list = buildList(catalogue, capturesByName);
+        list = buildList(catalogue, capturesByName, findersMap);
         setAnimals(list);
         setLoading(false);
       }
@@ -162,7 +162,7 @@ const buildList = (
         catalogue = catalogue.concat(rest.flatMap((r) => (r.data || []) as CatalogueEntry[]));
       }
 
-      list = buildList(catalogue, capturesByName);
+list = buildList(catalogue, capturesByName, findersMap);
       setAnimals(list);
       setLoading(false);
       writeCatalogueCache(catalogue, count || catalogue.length);
