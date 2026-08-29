@@ -65,8 +65,8 @@ const CategoryLeaderboard = ({ category }: { category: string }) => {
         supabase.rpc('my_category_rank', { p_category: category }),
       ]);
       if (cancelled) return;
-      setRows(((top.data as Row[] | null) || []).map(r => ({ ...r, rank: Number(r.rank), captures: Number(r.captures) })));
-      const m = ((me.data as MyRank[] | null) || [])[0];
+      setRows(((top.data as unknown as Row[] | null) || []).map(r => ({ ...r, rank: Number(r.rank), captures: Number(r.captures) })));
+      const m = ((me.data as unknown as MyRank[] | null) || [])[0];
       setMine(m ? { rank: Number(m.rank), captures: Number(m.captures), total_players: Number(m.total_players) } : null);
       setReady(true);
     };
