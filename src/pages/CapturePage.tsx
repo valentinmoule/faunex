@@ -31,8 +31,14 @@ const CapturePage = () => {
   const [saved, setSaved] = useState(false);
   /** Verrou synchrone contre les doubles taps sur « Ajouter ». */
   const savingRef = useRef(false);
-  /** Verrou synchrone contre deux analyses IA simultanées. */
+/** Verrou synchrone contre deux analyses IA simultanées. */
   const identifyingRef = useRef(false);
+  /** Effet « prise de photo » : le déclencheur holographique pulse ~700 ms. */
+  const [capturing, setCapturing] = useState(false);
+  const captureTimerRef = useRef<number | null>(null);
+  useEffect(() => () => {
+    if (captureTimerRef.current) window.clearTimeout(captureTimerRef.current);
+  }, []);
 
 
   const [duplicateCapture, setDuplicateCapture] = useState<{ id: string; image_url: string; animal_name: string } | null>(null);
@@ -162,7 +168,10 @@ const CapturePage = () => {
 
 
 
-  const takePhoto = async () => {
+const takePhoto = async () => {
+    setCapturing(true);
+    if (captureTimerRef.current) window.clearTimeout(captureTimerRef.current);
+    captureTimerRef.current = window.setTimeout(() => setCapturing(false), 700);
     const dataUrl = grabFrame();
     if (!dataUrl) {
       toast.error('La caméra se réinitialise, réessaie dans un instant');
@@ -870,15 +879,18 @@ const CapturePage = () => {
             <div className="w-12 h-12" aria-hidden="true" />
 
             <div className="flex flex-col items-center gap-2">
-              <button
+<button
                 onClick={takePhoto}
                 disabled={quota.exhausted}
                 aria-label={quota.exhausted ? 'Quota de captures atteint' : 'Prendre une photo'}
-                className="w-20 h-20 rounded-full border-4 border-primary flex items-center justify-center group active:scale-95 transition-transform disabled:opacity-40 disabled:active:scale-100 disabled:cursor-not-allowed"
+                className={`shutter-holo w-20 h-20 rounded-full flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed ${capturing ? 'shutter-capturing' : ''}`}
               >
-                <div className="w-16 h-16 rounded-full bg-primary group-hover:bg-forest-light transition-colors flex items-center justify-center">
-                  <Camera className="w-7 h-7 text-primary-foreground" />
-                </div>
+                <span className="shutter-ripple" aria-hidden />
+                <span className="shutter-ripple" aria-hidden />
+                <span className="shutter-holo-ring" aria-hidden />
+                <span className="shutter-inner relative w-16 h-16 rounded-full bg-primary flex items-center justify-center">
+                  <Camera className="w-7 h-7 text-primary-foreground relative z-10" />
+                </span>
               </button>
               <p className="text-primary-foreground/70 text-[11px] font-display text-center max-w-[200px]">
                 {quota.remaining !== null && !quota.exhausted

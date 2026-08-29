@@ -2638,3 +2638,115 @@ html.is-native-android body {
   }
   .press { transition: none; }
 }
+
+/* ═══════════════════════════════════════════════════
+   SHUTTER HOLO — déclencheur appareil photo
+   Anneau conique irisé en rotation, reflet lumineux qui
+   balaie le bouton, et onde de choc à la prise de vue.
+   ═══════════════════════════════════════════════════ */
+
+@keyframes shutter-ring-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes shutter-shine-sweep {
+  0%   { transform: translateX(-160%) rotate(18deg); opacity: 0; }
+  12%  { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { transform: translateX(160%) rotate(18deg); opacity: 0; }
+}
+
+@keyframes shutter-ripple-out {
+  0%   { transform: scale(1); opacity: 0.9; }
+  100% { transform: scale(1.85); opacity: 0; }
+}
+
+@keyframes shutter-flash {
+  0%   { background-color: hsl(190 90% 72%); box-shadow: inset 0 0 26px hsl(0 0% 100% / 0.9), inset 0 0 60px hsl(0 0% 100% / 0.5); }
+  100% { background-color: hsl(var(--primary)); box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.25), inset 0 -4px 8px hsl(0 0% 0% / 0.28); }
+}
+
+.shutter-holo {
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+  filter: drop-shadow(0 2px 12px hsl(155 62% 36% / 0.5));
+  transition: transform 0.16s cubic-bezier(0.22, 1, 0.36, 1), filter 0.3s ease;
+}
+.shutter-holo:active:not(:disabled) { transform: scale(0.93); }
+
+/* Anneau holographique tournant */
+.shutter-holo-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  pointer-events: none;
+  background: conic-gradient(
+    from 0deg,
+    hsl(150 62% 44%), hsl(190 85% 55%), hsl(262 70% 62%),
+    hsl(322 75% 58%), hsl(42 92% 58%), hsl(150 62% 44%)
+  );
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 1px));
+          mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 1px));
+  box-shadow: 0 0 12px hsl(190 85% 55% / 0.55), 0 0 26px hsl(190 85% 55% / 0.28);
+  animation: shutter-ring-rotate 3.6s linear infinite;
+  will-change: transform;
+}
+
+/* Reflet conique subtil à l'intérieur du bouton */
+.shutter-inner {
+  position: relative;
+  overflow: hidden;
+  border-radius: 9999px;
+  box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.25), inset 0 -4px 8px hsl(0 0% 0% / 0.28);
+}
+.shutter-inner::before {
+  content: '';
+  position: absolute;
+  inset: -60%;
+  pointer-events: none;
+  background: conic-gradient(
+    from 0deg,
+    hsla(190 85% 60% / 0.30), hsla(322 75% 60% / 0.24),
+    hsla(42 92% 60% / 0.30), hsla(150 62% 48% / 0.26), hsla(190 85% 60% / 0.30)
+  );
+  animation: shutter-ring-rotate 5.5s linear infinite;
+  mix-blend-mode: screen;
+}
+
+/* Bande de lumière qui balaie le bouton */
+.shutter-inner::after {
+  content: '';
+  position: absolute;
+  top: -60%;
+  left: -45%;
+  width: 45%;
+  height: 220%;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, hsl(0 0% 100% / 0.55), transparent);
+  animation: shutter-shine-sweep 3.4s ease-in-out infinite;
+}
+
+/* Onde de choc à la prise de vue */
+.shutter-ripple {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 3px solid hsl(190 85% 68% / 0.9);
+  opacity: 0;
+  pointer-events: none;
+}
+.shutter-capturing .shutter-ripple { animation: shutter-ripple-out 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.shutter-capturing .shutter-ripple:nth-child(2) { animation-delay: 0.14s; }
+.shutter-capturing .shutter-holo-ring { animation-duration: 0.85s; filter: brightness(1.35) saturate(1.25); }
+.shutter-capturing { filter: drop-shadow(0 0 20px hsl(190 85% 60% / 0.85)); }
+.shutter-capturing .shutter-inner { animation: shutter-flash 0.4s ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  .shutter-holo-ring,
+  .shutter-inner::before,
+  .shutter-inner::after,
+  .shutter-ripple {
+    animation: none !important;
+  }
+}
