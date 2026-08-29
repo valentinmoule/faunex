@@ -49,6 +49,7 @@ const CategoryLeaderboard = ({ category }: { category: string }) => {
   const [mine, setMine] = useState<MyRank | null>(null);
   const [ready, setReady] = useState(false);
   const [open, setOpen] = useState(false);
+  const [scope, setScope] = useState<'global' | 'follows'>('global');
 
   const closeSheet = useCallback(() => setOpen(false), []);
   const swipeClose = useSwipeDownClose(closeSheet);
@@ -61,8 +62,8 @@ const CategoryLeaderboard = ({ category }: { category: string }) => {
     setReady(false);
     const load = async () => {
       const [top, me] = await Promise.all([
-        supabase.rpc('category_leaderboard', { p_category: category, p_limit: 20 }),
-        supabase.rpc('my_category_rank', { p_category: category }),
+        supabase.rpc('category_leaderboard', { p_category: category, p_limit: 20, p_scope: scope } as never),
+        supabase.rpc('my_category_rank', { p_category: category, p_scope: scope } as never),
       ]);
       if (cancelled) return;
       setRows(((top.data as unknown as Row[] | null) || []).map(r => ({ ...r, rank: Number(r.rank), captures: Number(r.captures) })));
@@ -72,9 +73,10 @@ const CategoryLeaderboard = ({ category }: { category: string }) => {
     };
     load();
     return () => { cancelled = true; };
-  }, [category]);
+  }, [category, scope]);
 
-  if (!ready || rows.length === 0) return null;
+  if (!ready && rows.length === 0) return null;
+
 
   const podium = rows.slice(0, 3);
   const podiumOrdered = [podium[1], podium[0], podium[2]].filter(Boolean);
