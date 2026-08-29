@@ -51,7 +51,6 @@ const CapturePage = () => {
   const [manualSpecies, setManualSpecies] = useState('');
   const [manualDescription, setManualDescription] = useState('');
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const camera = useCamera({ paused: !!capturedPhoto });
   const geo = useGeoTag();
