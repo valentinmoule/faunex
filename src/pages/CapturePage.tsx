@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Camera, Zap, MapPin, Image, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine, ZoomIn, Focus, Crosshair, ArrowLeft, Clock, Info, Sparkles, ShieldQuestion } from 'lucide-react';
+import { Camera, Zap, MapPin, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine, ZoomIn, Focus, Crosshair, ArrowLeft, Clock, Info, Sparkles, ShieldQuestion } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { type Rarity, RARITY_LABELS } from '@/data/mockData';
 import { setPendingShelve } from '@/lib/shelveAnimation';
-import { readFileAsDataUrl, prepareSourceImage } from '@/lib/imageProcessing';
+import { prepareSourceImage } from '@/lib/imageProcessing';
 import { useCamera } from '@/hooks/useCamera';
 import { useGeoTag } from '@/hooks/useGeoTag';
 import { useAnimalIdentification, type RejectionKind } from '@/hooks/useAnimalIdentification';
