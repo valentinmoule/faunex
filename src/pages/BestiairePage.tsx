@@ -1316,10 +1316,13 @@ Bestiaire
                       </div>
                     ))}
                   </div>
-                  {browseTotal > browseAnimals.length && (
-                    <p className="text-center text-[11px] text-muted-foreground font-display py-4">
-                      {browseAnimals.length} premières espèces affichées · affine ta recherche ou tes filtres
-                    </p>
+                  {visibleBrowseAnimals.length < browseAnimals.length && (
+                    <div ref={browseSentinelRef} className="flex items-center justify-center gap-2 py-6">
+                      <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                      <span className="text-[11px] text-muted-foreground font-display">
+                        Chargement des espèces suivantes…
+                      </span>
+                    </div>
                   )}
                 </>
               )}
