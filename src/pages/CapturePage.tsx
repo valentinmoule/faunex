@@ -343,7 +343,7 @@ const CapturePage = () => {
   return (
     <main className="min-h-screen bg-foreground flex flex-col pb-24">
       <canvas ref={canvasRef} className="hidden" />
-      <input ref={fileInputRef} type="file" accept="image/*,.heic,.heif" className="hidden" onChange={handleFileSelect} />
+      
 
       {/* Camera / photo / result */}
       <div className="flex-1 relative flex flex-col overflow-hidden">
