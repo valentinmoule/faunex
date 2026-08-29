@@ -10,6 +10,8 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { usePaddleCheckout } from '@/hooks/usePaddleCheckout';
 import { PREMIUM_MONTHLY_PRICE_ID, PREMIUM_YEARLY_PRICE_ID } from '@/lib/paddle';
 import { supabase } from '@/integrations/supabase/client';
+import { IS_NATIVE_APP } from '@/lib/platform';
+import { Browser } from '@capacitor/browser';
 
 interface FeatureRow {
   label: string;
@@ -94,6 +96,37 @@ const PremiumPage = () => {
     }
   }, [params, setParams, refresh]);
 
+  // Ouverture automatique du paiement quand l'app native renvoie ici via le
+  // navigateur système (`/premium?checkout=auto&plan=…&uid=…&email=…`).
+  const autoCheckout = params.get('checkout') === 'auto';
+  useEffect(() => {
+    if (!autoCheckout || IS_NATIVE_APP) return;
+    const wanted = params.get('plan') === 'monthly' ? 'monthly' : 'yearly';
+    const uid = params.get('uid') || session?.user?.id;
+    const email = params.get('email') || session?.user?.email || undefined;
+    setPlan(wanted);
+    params.delete('checkout');
+    params.delete('plan');
+    params.delete('email');
+    params.delete('uid');
+    setParams(params, { replace: true });
+    if (!uid) {
+      navigate('/auth');
+      return;
+    }
+    openCheckout({
+      priceId: wanted === 'monthly' ? PREMIUM_MONTHLY_PRICE_ID : PREMIUM_YEARLY_PRICE_ID,
+      plan: wanted,
+      customerEmail: email,
+      customData: { userId: uid },
+      successUrl: `${window.location.origin}/premium?checkout=success`,
+    }).catch((e) => {
+      console.error(e);
+      toast.error("Impossible d'ouvrir le paiement pour le moment.");
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoCheckout]);
+
   const handleSubscribe = async () => {
     if (!session?.user) {
       navigate('/auth');
@@ -102,6 +135,7 @@ const PremiumPage = () => {
     try {
       await openCheckout({
         priceId: selected.priceId,
+        plan,
         customerEmail: session.user.email ?? undefined,
         customData: { userId: session.user.id },
         successUrl: `${window.location.origin}/premium?checkout=success`,
@@ -113,6 +147,17 @@ const PremiumPage = () => {
   };
 
   const handleManage = async () => {
+    if (IS_NATIVE_APP) {
+      // Dans l'app native, `window.open` n'ouvre rien d'utilisable : on passe
+      // par le navigateur système.
+      const { data, error } = await supabase.functions.invoke('paddle-portal');
+      if (error || !data?.url) {
+        toast.error("Impossible d'ouvrir la gestion de l'abonnement.");
+        return;
+      }
+      await Browser.open({ url: data.url as string });
+      return;
+    }
     // Ouvre l'onglet immédiatement (dans le geste utilisateur) pour éviter le blocage de popup
     const tab = window.open('', '_blank');
     const { data, error } = await supabase.functions.invoke('paddle-portal');
