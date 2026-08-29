@@ -8,6 +8,7 @@ import { type Rarity, type AnimalCard, RARITY_LABELS } from '@/data/mockData';
 import { useAuth } from '@/contexts/AuthContext';
 import CardDetailSheet from '@/components/CardDetailSheet';
 import RarityBadge from '@/components/RarityBadge';
+import FindersBadge from '@/components/FindersBadge';
 import MyCapturesGrid from '@/components/MyCapturesGrid';
 import LoadingScreen from '@/components/LoadingScreen';
 import { DEPARTEMENTS, getDepartement } from '@/data/departements';
