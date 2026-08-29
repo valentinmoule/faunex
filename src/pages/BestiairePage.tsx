@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback, useEffect, useRef, memo } from 'react';
 import { PageHeader } from '@/components/PageHeader';
+import { CollectionHero } from '@/components/CollectionHero';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Bell, ChevronLeft, PawPrint, MapPin, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, SlidersHorizontal } from 'lucide-react';
@@ -879,65 +880,26 @@ const browseAnimals = useMemo(() => {
     return (
       <main className="min-h-screen bg-background pb-24">
         <CollectionAmbience art={getZoneArt(selectedZone.kind)} />
-        <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
-          <div className="max-w-lg mx-auto">
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setSelectedZoneId(null)}
-                className="p-1.5 rounded-full hover:bg-muted transition-colors"
-              >
-                <ChevronLeft className="w-5 h-5 text-foreground" />
-              </button>
-              <div className="flex-1 min-w-0 flex items-center gap-2">
-                <HeaderIcon className="w-5 h-5 text-primary shrink-0" strokeWidth={1.75} />
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <h1 className="text-lg font-display font-bold text-foreground truncate">{title}</h1>
-                  </div>
-                  <p className="text-[11px] text-muted-foreground font-display truncate">{subtitle}</p>
-                </div>
-              </div>
-              <button
-                onClick={() => handleRemoveZone(selectedZone.id)}
-                className="p-2 rounded-full hover:bg-destructive/10 text-destructive transition"
-                aria-label="Supprimer la rubrique"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        </PageHeader>
+        <CollectionHero
+          image={getZoneArt(selectedZone.kind).image}
+          overlay={getZoneArt(selectedZone.kind).overlay}
+          title={title}
+          subtitle={isCity ? `${selectedZone.cityPostcode || ''}${dept ? ` · ${dept.name}` : ''}` : undefined}
+          captured={prog.captured}
+          total={prog.total}
+          icon={<HeaderIcon className="w-6 h-6 text-primary shrink-0" strokeWidth={1.75} />}
+          onBack={() => setSelectedZoneId(null)}
+          onRemove={() => handleRemoveZone(selectedZone.id)}
+          removeLabel="Supprimer la rubrique"
+        />
 
-<div className="relative z-10 max-w-lg mx-auto px-3 pt-3 space-y-4">
-          {(() => {
-            const art = getZoneArt(selectedZone.kind);
-            const pct = prog.total > 0 ? Math.round((prog.captured / prog.total) * 100) : 0;
-            return (
-              <div className="relative overflow-hidden rounded-3xl border border-border shadow-sm">
-                <img
-                  src={art.image}
-                  alt={`Illustration du territoire ${title}`}
-                  loading="lazy"
-                  className="w-full h-40 object-cover"
-                />
-                <div className="absolute inset-0" style={{ background: art.overlay }} />
-                <div className="absolute inset-x-0 bottom-0 p-4">
-                  <h2 className="font-display font-bold text-xl text-primary-foreground leading-tight drop-shadow">{title}</h2>
-                  <p className="text-[11px] text-primary-foreground/85 font-display mb-2">
-                    {prog.captured}/{prog.total} capturés · {pct}%
-                  </p>
-                  <div className="w-full h-1.5 rounded-full bg-primary-foreground/25 overflow-hidden">
-                    <div className="h-full rounded-full bg-primary-foreground transition-all duration-500" style={{ width: `${pct}%` }} />
-                  </div>
-                </div>
-              </div>
-            );
-          })()}
+        <div className="relative z-10 max-w-lg mx-auto px-3 pt-3 space-y-4">
           {isCity && (
             <p className="text-[11px] text-muted-foreground font-display text-center px-3">
               Espèces présentes dans le territoire de {dept?.name || selectedZone.departmentCode}.
             </p>
           )}
+
           <CategoryLeaderboard territory={{ code: selectedZone.departmentCode, label: title }} />
 
           {zoneAnimals.length === 0 ? (
@@ -967,64 +929,19 @@ const browseAnimals = useMemo(() => {
     return (
       <main className="min-h-screen bg-background pb-24">
         <CollectionAmbience art={getCollectionArt(selectedCollection.group.key, selectedCollection.group.label)} />
-        <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
-          <div className="max-w-lg mx-auto">
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setSelectedCollectionKey(null)}
-                className="p-1.5 rounded-full hover:bg-muted transition-colors"
-              >
-                <ChevronLeft className="w-5 h-5 text-foreground" />
-              </button>
-              <div className="flex-1 min-w-0 flex items-center gap-2">
-                <span className="text-lg shrink-0">{selectedCollection.group.emoji}</span>
-                <div className="min-w-0">
-                  <h1 className="text-lg font-display font-bold text-foreground truncate">{selectedCollection.group.label}</h1>
-                  <p className="text-[11px] text-muted-foreground font-display">
-                    {selectedCollection.captured}/{selectedCollection.total} capturés
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => { removeCollection(selectedCollection.group.key); setSelectedCollectionKey(null); }}
-                className="p-2 rounded-full hover:bg-destructive/10 text-destructive transition"
-                aria-label="Retirer la collection"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        </PageHeader>
+        <CollectionHero
+          image={getCollectionArt(selectedCollection.group.key, selectedCollection.group.label).image}
+          overlay={getCollectionArt(selectedCollection.group.key, selectedCollection.group.label).overlay}
+          title={selectedCollection.group.label}
+          captured={selectedCollection.captured}
+          total={selectedCollection.total}
+          onBack={() => setSelectedCollectionKey(null)}
+          onRemove={() => { removeCollection(selectedCollection.group.key); setSelectedCollectionKey(null); }}
+          removeLabel="Retirer la collection"
+        />
 
         <div className="relative z-10 max-w-lg mx-auto px-3 pt-3 space-y-4">
-          {(() => {
-            const art = getCollectionArt(selectedCollection.group.key, selectedCollection.group.label);
-            const pct = selectedCollection.total > 0
-              ? Math.round((selectedCollection.captured / selectedCollection.total) * 100)
-              : 0;
-            return (
-              <div className="relative overflow-hidden rounded-3xl border border-border shadow-sm">
-                <img
-                  src={art.image}
-                  alt={`Illustration de la collection ${selectedCollection.group.label}`}
-                  loading="lazy"
-                  className="w-full h-40 object-cover"
-                />
-                <div className="absolute inset-0" style={{ background: art.overlay }} />
-                <div className="absolute inset-x-0 bottom-0 p-4">
-                  <h2 className="font-display font-bold text-xl text-primary-foreground leading-tight drop-shadow">
-                    {selectedCollection.group.label}
-                  </h2>
-                  <p className="text-[11px] text-primary-foreground/85 font-display mb-2">
-                    {selectedCollection.captured}/{selectedCollection.total} capturés · {pct}%
-                  </p>
-                  <div className="w-full h-1.5 rounded-full bg-primary-foreground/25 overflow-hidden">
-                    <div className="h-full rounded-full bg-primary-foreground transition-all duration-500" style={{ width: `${pct}%` }} />
-                  </div>
-                </div>
-              </div>
-            );
-          })()}
+
           {collectionLeaderboardCategory && (
             <CategoryLeaderboard category={collectionLeaderboardCategory} />
           )}
