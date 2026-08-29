@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_analysis_attempts: {
+        Row: {
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       animal_departments: {
         Row: {
           animal_name: string
@@ -2055,6 +2073,7 @@ export type Database = {
         }[]
       }
       complete_share_quest: { Args: { p_quest_id: string }; Returns: boolean }
+      consume_ai_analysis: { Args: { p_user: string }; Returns: number }
       draw_weekly_quests: { Args: { p_week?: string }; Returns: number }
       ensure_weekly_quests: { Args: never; Returns: number }
       ensure_weekly_quests_for: { Args: { p_user_id: string }; Returns: number }

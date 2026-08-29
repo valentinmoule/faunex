@@ -165,8 +165,8 @@ export const useAnimalIdentification = () => {
     setIdentifying(true);
     setStage('compressing');
     try {
-      // 1024px / 0.62 : nécessaire pour les détails fins (points des coccinelles,
-      // miroir fessier des cervidés) qui étaient perdus à 640px.
+      // 1024px / 0.62 : réservé à la passe profonde (détails fins : points des
+      // coccinelles, miroir fessier des cervidés).
       let compressedUrl = await compressForAI(dataUrl, 1024, 0.62);
       // Garde-fou : une photo très détaillée peut rester lourde après le premier
       // passage. Au-delà de ~1,2 Mo l'upload devient le goulot d'étranglement,
@@ -174,6 +174,9 @@ export const useAnimalIdentification = () => {
       if (dataUrlBytes(compressedUrl) > 1_200_000) {
         compressedUrl = await compressForAI(compressedUrl, 820, 0.55);
       }
+      // Une image coûte un forfait fixe de jetons quelle que soit sa taille :
+      // réduire davantage la résolution n'économiserait rien et dégraderait la
+      // détection. On envoie donc une seule image.
       const imageHash = await hashDataUrl(compressedUrl);
 
       setPendingImageHash(imageHash);
@@ -195,6 +198,20 @@ export const useAnimalIdentification = () => {
               50_000,
             );
             if (error) throw error;
+
+            // Quota d'analyses IA quotidien atteint : message explicite, aucune
+            // relance (une nouvelle tentative serait refusée à l'identique).
+            if (data?.reason === 'daily_limit') {
+              return {
+                status: 'error',
+                message:
+                  typeof data?.message === 'string'
+                    ? data.message
+                    : "Tu as atteint ta limite d'analyses pour aujourd'hui.",
+              };
+            }
+
+
 
 
             // Image non photographique : refus explicite et assumé. L'utilisateur
