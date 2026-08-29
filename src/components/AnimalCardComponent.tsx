@@ -2,11 +2,12 @@ import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
 import { thumbUrl } from '@/lib/imageUrl';
 
 const rarityStyles: Record<Rarity, string> = {
-  common: 'border-border bg-card card-hover-effect shadow-card',
-  rare: 'border-rarity-rare/25 bg-card card-hover-effect shadow-[0_1px_2px_hsla(165,25%,11%,0.05),0_10px_28px_-14px_hsl(var(--rarity-rare)/0.6)]',
-  epic: 'border-rarity-epic/25 bg-card card-hover-effect shadow-[0_1px_2px_hsla(165,25%,11%,0.05),0_10px_28px_-14px_hsl(var(--rarity-epic)/0.6)]',
-  mythic: 'border-rarity-mythic/30 bg-card card-hover-effect shadow-[0_1px_2px_hsla(165,25%,11%,0.05),0_10px_28px_-14px_hsl(var(--rarity-mythic)/0.7)]',
+  common: 'border-border bg-card',
+  rare: 'border-rarity-rare/25 bg-card game-tile--rare',
+  epic: 'border-rarity-epic/25 bg-card game-tile--epic',
+  mythic: 'border-rarity-mythic/30 bg-card game-tile--mythic',
 };
+
 
 const rarityBadgeStyles: Record<Rarity, string> = {
   common: 'bg-rarity-common/20 text-rarity-common border border-rarity-common/30',
