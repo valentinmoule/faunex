@@ -55,14 +55,23 @@ const PODIUM = [
   { height: 'h-8', ring: 'ring-earth/40', badge: 'bg-earth text-primary-foreground', label: '3', avatar: 'md' as const, order: 'order-3' },
 ];
 
-const CategoryLeaderboard = ({ category }: { category: string }) => {
+interface LeaderboardTarget {
+  /** Classement par catégorie d'espèces (ou 'all' pour le général). */
+  category?: string;
+  /** Classement par territoire (département). */
+  territory?: { code: string; label: string };
+}
+
+const CategoryLeaderboard = ({ category, territory }: LeaderboardTarget) => {
+  const isTerritory = !!territory;
+  const value = isTerritory ? territory.code : (category || 'all');
   const [rows, setRows] = useState<Row[]>([]);
   const [mine, setMine] = useState<MyRank | null>(null);
   const [ready, setReady] = useState(false);
   const [open, setOpen] = useState(false);
   const [scope, setScope] = useState<'global' | 'follows'>('global');
 
-const closeSheet = useCallback(() => setOpen(false), []);
+  const closeSheet = useCallback(() => setOpen(false), []);
   const swipeClose = useSwipeDownClose(closeSheet);
 
   const [timeLeft, setTimeLeft] = useState(msUntilReset);
@@ -79,10 +88,15 @@ const closeSheet = useCallback(() => setOpen(false), []);
     let cancelled = false;
     setReady(false);
     const load = async () => {
-      const [top, me] = await Promise.all([
-        supabase.rpc('category_leaderboard', { p_category: category, p_limit: 20, p_scope: scope } as never),
-        supabase.rpc('my_category_rank', { p_category: category, p_scope: scope } as never),
-      ]);
+      const [top, me] = isTerritory
+        ? await Promise.all([
+            supabase.rpc('territory_leaderboard', { p_department: value, p_limit: 20, p_scope: scope } as never),
+            supabase.rpc('my_territory_rank', { p_department: value, p_scope: scope } as never),
+          ])
+        : await Promise.all([
+            supabase.rpc('category_leaderboard', { p_category: value, p_limit: 20, p_scope: scope } as never),
+            supabase.rpc('my_category_rank', { p_category: value, p_scope: scope } as never),
+          ]);
       if (cancelled) return;
       setRows(((top.data as unknown as Row[] | null) || []).map(r => ({ ...r, rank: Number(r.rank), captures: Number(r.captures) })));
       const m = ((me.data as unknown as MyRank[] | null) || [])[0];
@@ -91,13 +105,11 @@ const closeSheet = useCallback(() => setOpen(false), []);
     };
     load();
     return () => { cancelled = true; };
-  }, [category, scope]);
+  }, [isTerritory, value, scope]);
 
-  if (rows.length === 0 && scope === 'global' && !open) return null;
+if (rows.length === 0 && scope === 'global' && !open) return null;
 
-
-
-const podium = rows.slice(0, 3);
+  const podium = rows.slice(0, 3);
   const podiumOrdered = [podium[1], podium[0], podium[2]].filter(Boolean);
   const rest = rows.slice(3);
 
@@ -111,16 +123,16 @@ const podium = rows.slice(0, 3);
           <div className="w-11 h-11 shrink-0 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-display font-bold ring-4 ring-primary/10">
             {mine ? `${mine.rank}${mine.rank === 1 ? 'er' : 'e'}` : '—'}
           </div>
-          <div className="min-w-0 text-left">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-bold">{category === 'all' ? 'Classement général' : 'Classement'}</p>
+<div className="min-w-0 text-left">
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-bold">{!isTerritory && category === 'all' ? 'Classement général' : 'Classement'}</p>
             <p className="text-[13px] font-display font-bold text-foreground truncate">
               {mine ? `${mine.captures} capture${mine.captures > 1 ? 's' : ''} cette semaine` : 'Aucune capture cette semaine'}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2.5 shrink-0">
-          <div className="flex -space-x-2">
-{podium.map((r) => (
+<div className="flex -space-x-2">
+            {podium.map((r) => (
               <Avatar key={r.user_id} row={r} className="border-2 border-card" />
             ))}
           </div>
@@ -136,12 +148,12 @@ const podium = rows.slice(0, 3);
           style={swipeClose.style}
         >
           <SheetHeader className="px-5 text-left">
-            <SheetTitle className="font-display text-base flex items-center gap-2">
+<SheetTitle className="font-display text-base flex items-center gap-2">
               <Trophy className="w-4 h-4 text-amber" />
-              {category === 'all' ? 'Classement' : `Top ${category} · Semaine`}
+              {isTerritory ? `Top ${territory.label} · Semaine` : category === 'all' ? 'Classement' : `Top ${category} · Semaine`}
             </SheetTitle>
           </SheetHeader>
-<p className="px-5 text-[12px] font-display text-muted-foreground">
+          <p className="px-5 text-[12px] font-display text-muted-foreground">
             Réinitialisation dans {formatTimeLeft(timeLeft)}
           </p>
 
@@ -167,23 +179,23 @@ const podium = rows.slice(0, 3);
                   : 'Aucune capture cette semaine.'
                 : 'Chargement…'}
             </p>
-          ) : (
-          <>
-          {/* Podium */}
-          <div className="mx-4 mt-4 mb-5 rounded-3xl bg-gradient-to-b from-amber/10 via-card to-card border border-border p-4">
-            <div className="flex items-end justify-center gap-3">
-              {podiumOrdered.map((r) => {
-                const cfg = PODIUM[r.rank === 1 ? 0 : r.rank === 2 ? 1 : 2] ?? PODIUM[2];
-                const isFirst = r === podium[0];
-                return (
-                  <div key={r.user_id} className="flex-1 flex flex-col items-center gap-1.5 max-w-[33%]">
-                    {isFirst && <Crown className="w-5 h-5 text-amber" />}
-                    <div className="relative">
-<Avatar
-                        row={r}
-                        size={cfg.avatar}
-                        className={`ring-4 ${cfg.ring}`}
-                      />
+) : (
+            <>
+            {/* Podium */}
+            <div className="mx-4 mt-4 mb-5 rounded-3xl bg-gradient-to-b from-amber/10 via-card to-card border border-border p-4">
+              <div className="flex items-end justify-center gap-3">
+                {podiumOrdered.map((r) => {
+                  const cfg = PODIUM[r.rank === 1 ? 0 : r.rank === 2 ? 1 : 2] ?? PODIUM[2];
+                  const isFirst = r === podium[0];
+                  return (
+                    <div key={r.user_id} className="flex-1 flex flex-col items-center gap-1.5 max-w-[33%]">
+                      {isFirst && <Crown className="w-5 h-5 text-amber" />}
+                      <div className="relative">
+                        <Avatar
+                          row={r}
+                          size={cfg.avatar}
+                          className={`ring-4 ${cfg.ring}`}
+                        />
                       <span className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full ${cfg.badge} flex items-center justify-center text-[10px] font-display font-bold shadow-sm`}>
                         {cfg.label}
                       </span>
