@@ -65,9 +65,6 @@ const BottomNav = () => {
               >
                 {tab.label}
               </span>
-              {isActive && (
-                <span className="tab-dot absolute -top-0.5 h-1 w-1 rounded-full bg-primary" />
-              )}
             </button>
           );
         })}
