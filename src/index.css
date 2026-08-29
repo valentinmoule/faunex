@@ -2621,6 +2621,7 @@ background: linear-gradient(
 
 @media (prefers-reduced-motion: reduce) {
   .rarity-badge::after,
+  .rarity-badge--epic,
   .rarity-badge--mythic {
     animation: none;
   }
