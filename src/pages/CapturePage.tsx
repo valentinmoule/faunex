@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Camera, Zap, MapPin, Image, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine, ZoomIn, Focus, Crosshair, ArrowLeft, Clock, Info, Sparkles, ShieldQuestion } from 'lucide-react';
+import { Camera, Zap, MapPin, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine, ZoomIn, Focus, Crosshair, ArrowLeft, Clock, Info, Sparkles, ShieldQuestion } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { type Rarity, RARITY_LABELS } from '@/data/mockData';
 import { setPendingShelve } from '@/lib/shelveAnimation';
-import { readFileAsDataUrl, prepareSourceImage } from '@/lib/imageProcessing';
+import { prepareSourceImage } from '@/lib/imageProcessing';
 import { useCamera } from '@/hooks/useCamera';
 import { useGeoTag } from '@/hooks/useGeoTag';
 import { useAnimalIdentification, type RejectionKind } from '@/hooks/useAnimalIdentification';
@@ -51,7 +51,6 @@ const CapturePage = () => {
   const [manualSpecies, setManualSpecies] = useState('');
   const [manualDescription, setManualDescription] = useState('');
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const camera = useCamera({ paused: !!capturedPhoto });
   const geo = useGeoTag();
@@ -173,19 +172,7 @@ const CapturePage = () => {
   };
 
 
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = ''; // allow re-selecting the same file
-    if (!file) return;
-    // Certains navigateurs/OS ne renseignent pas de MIME type pour les HEIC :
-    // on se rabat alors sur l'extension du fichier.
-    if (!file.type.startsWith('image/') && !/\.(heic|heif)$/i.test(file.name)) {
-      toast.error('Sélectionne une image');
-      return;
-    }
-    const dataUrl = await readFileAsDataUrl(file);
-    await processPhoto(dataUrl);
-  };
+
 
   const resetCapture = () => {
     setCapturedPhoto(null);
@@ -343,7 +330,7 @@ const CapturePage = () => {
   return (
     <main className="min-h-screen bg-foreground flex flex-col pb-24">
       <canvas ref={canvasRef} className="hidden" />
-      <input ref={fileInputRef} type="file" accept="image/*,.heic,.heif" className="hidden" onChange={handleFileSelect} />
+      
 
       {/* Camera / photo / result */}
       <div className="flex-1 relative flex flex-col overflow-hidden">
@@ -879,13 +866,9 @@ const CapturePage = () => {
           </button>
         ) : identifying ? null : capturedPhoto ? null : (
           <>
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={quota.exhausted}
-              className="w-12 h-12 rounded-xl bg-primary-foreground/10 flex items-center justify-center disabled:opacity-40"
-            >
-              <Image className="w-5 h-5 text-primary-foreground/70" />
-            </button>
+            {/* Espaceur pour garder le déclencheur parfaitement centré. */}
+            <div className="w-12 h-12" aria-hidden="true" />
+
             <div className="flex flex-col items-center gap-2">
               <button
                 onClick={takePhoto}
