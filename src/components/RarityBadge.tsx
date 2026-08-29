@@ -1,4 +1,4 @@
-import { Gem, Sparkles } from 'lucide-react';
+import { Hexagon, Gem, Star, Crown } from 'lucide-react';
 import { RARITY_LABELS, type Rarity } from '@/data/mockData';
 
 const RARITIES: Rarity[] = ['common', 'rare', 'epic', 'mythic'];
@@ -10,20 +10,26 @@ const badgeVariant: Record<Rarity, string> = {
   mythic: 'rarity-badge--mythic',
 };
 
-/** Badge de rareté façon "gemme de niveau" de jeu mobile :
- *  jeton serti, dégradé, relief et balayage lumineux. */
+const rarityIcon = {
+  common: Hexagon,
+  rare: Gem,
+  epic: Star,
+  mythic: Crown,
+} as const;
+
+/** Jeton de rareté façon jeu mobile : icône seule, relief subtil et balayage lumineux. */
 export const RarityBadge = ({ rarity, className }: { rarity: string; className?: string }) => {
   const r: Rarity = (RARITIES as string[]).includes(rarity) ? (rarity as Rarity) : 'common';
-  const Icon = r === 'mythic' ? Sparkles : Gem;
+  const Icon = rarityIcon[r];
   return (
-    <span className={`rarity-badge ${badgeVariant[r]} ${className ?? ''}`}>
-      <span className="rarity-badge__icon-wrap">
-        <Icon className="rarity-badge__icon" strokeWidth={2.5} />
-      </span>
-      <span className="rarity-badge__label">{RARITY_LABELS[r]}</span>
+    <span
+      className={`rarity-badge ${badgeVariant[r]} ${className ?? ''}`}
+      title={RARITY_LABELS[r]}
+      aria-label={`Rareté : ${RARITY_LABELS[r]}`}
+    >
+      <Icon className="rarity-badge__icon" strokeWidth={2.25} />
     </span>
   );
 };
-
 
 export default RarityBadge;
