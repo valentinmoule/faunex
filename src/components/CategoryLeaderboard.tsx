@@ -107,11 +107,9 @@ const CategoryLeaderboard = ({ category, territory }: LeaderboardTarget) => {
     return () => { cancelled = true; };
   }, [isTerritory, value, scope]);
 
-  if (rows.length === 0 && scope === 'global' && !open) return null;
+if (rows.length === 0 && scope === 'global' && !open) return null;
 
-
-
-const podium = rows.slice(0, 3);
+  const podium = rows.slice(0, 3);
   const podiumOrdered = [podium[1], podium[0], podium[2]].filter(Boolean);
   const rest = rows.slice(3);
 
