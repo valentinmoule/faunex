@@ -317,12 +317,12 @@ const BestiairePage = () => {
 
 
   // Browse view: all species, filtered by category chips + rarity + search
-  const browseAnimals = useMemo(() => {
+const browseAnimals = useMemo(() => {
     return animals
       .filter(a => categoryFilter.length === 0 || categoryFilter.includes(normalizeCategory(a.category)))
       .filter(a => rarityFilter === 'all' || a.rarity === rarityFilter)
       .filter(matchesSearch)
-      .sort((a, b) => Number(b.captured) - Number(a.captured) || a.name.localeCompare(b.name, 'fr'));
+      .sort((a, b) => a.name.localeCompare(b.name, 'fr'));
   }, [animals, categoryFilter, rarityFilter, matchesSearch]);
 
   // Infinite scroll : 50 espèces par lot, chargement automatique en fin de liste
