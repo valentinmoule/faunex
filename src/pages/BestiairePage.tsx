@@ -1521,6 +1521,12 @@ const BestiairePage = () => {
             <p className="text-muted-foreground font-display text-sm">Aucune espèce dans cette catégorie</p>
           </div>
         )}
+
+        {selectedCategory === ALL_SPECIES && !speciesQuery && categoryAnimals.length > ALL_GRID_LIMIT && (
+          <p className="text-center text-[11px] text-muted-foreground font-display py-4">
+            {ALL_GRID_LIMIT} premières espèces affichées · utilise la recherche pour en trouver une précise
+          </p>
+        )}
       </div>
 
       <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
