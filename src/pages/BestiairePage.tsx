@@ -157,6 +157,24 @@ const BestiairePage = () => {
     setSelectedZoneId(null);
   };
 
+  /** Grandes catégories proposées comme collections (clé préfixée "cat:"). */
+  const categoryCollections = useMemo(() => {
+    const counts = new Map<string, { total: number; captured: number }>();
+    animals.forEach((a) => {
+      const norm = normalizeCategory(a.category);
+      const entry = counts.get(norm) || { total: 0, captured: 0 };
+      entry.total++;
+      if (a.captured) entry.captured++;
+      counts.set(norm, entry);
+    });
+    return Array.from(counts.entries())
+      .map(([name, data]) => ({
+        group: { key: `cat:${name}`, label: name, emoji: getCategoryEmoji(name) } as BreedGroup,
+        ...data,
+      }))
+      .sort((a, b) => a.group.label.localeCompare(b.group.label, 'fr'));
+  }, [animals]);
+
   /** Every species group that actually has species in the bestiary, with progress. */
   const availableCollections = useMemo(() => {
     const counts = new Map<string, { total: number; captured: number }>();
@@ -168,10 +186,11 @@ const BestiairePage = () => {
       if (a.captured) entry.captured++;
       counts.set(group.key, entry);
     });
-    return BREED_GROUPS.map((group) => ({ group, ...(counts.get(group.key) || { total: 0, captured: 0 }) }))
+    const groups = BREED_GROUPS.map((group) => ({ group, ...(counts.get(group.key) || { total: 0, captured: 0 }) }))
       .filter((e) => e.total >= MIN_BREEDS_PER_GROUP)
       .sort((a, b) => a.group.label.localeCompare(b.group.label, 'fr'));
-  }, [animals]);
+    return [...categoryCollections, ...groups];
+  }, [animals, categoryCollections]);
 
   const myCollections = useMemo(
     () => availableCollections.filter((e) => collectionKeys.includes(e.group.key)),
@@ -185,10 +204,28 @@ const BestiairePage = () => {
 
   const collectionAnimals = useMemo(() => {
     if (!selectedCollection) return [];
-    return animals
-      .filter((a) => getSpeciesGroup(a.name, a.scientific_name, a.category)?.key === selectedCollection.group.key)
-      .sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+    const key = selectedCollection.group.key;
+    const list = key.startsWith('cat:')
+      ? animals.filter((a) => normalizeCategory(a.category) === selectedCollection.group.label)
+      : animals.filter(
+          (a) => getSpeciesGroup(a.name, a.scientific_name, a.category)?.key === key,
+        );
+    return [...list].sort((a, b) => a.name.localeCompare(b.name, 'fr'));
   }, [animals, selectedCollection]);
+
+  /** Catégorie utilisée pour le classement affiché dans une collection. */
+  const collectionLeaderboardCategory = useMemo(() => {
+    if (!selectedCollection) return null;
+    if (selectedCollection.group.key.startsWith('cat:')) return selectedCollection.group.label;
+    const counts = new Map<string, number>();
+    collectionAnimals.forEach((a) => {
+      const norm = normalizeCategory(a.category);
+      counts.set(norm, (counts.get(norm) || 0) + 1);
+    });
+    const top = Array.from(counts.entries()).sort((a, b) => b[1] - a[1])[0];
+    return top ? top[0] : 'all';
+  }, [selectedCollection, collectionAnimals]);
+
 
 
 
