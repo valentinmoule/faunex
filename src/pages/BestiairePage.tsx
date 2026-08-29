@@ -1057,7 +1057,7 @@ Bestiaire
                     <div
                       key={animal.id}
                       onClick={() => setSelectedCard(animal)}
-                      className={`relative aspect-[3/4] rounded-xl border-2 overflow-hidden transition-all cursor-pointer active:scale-[0.96] ${rarityBorderColor[animal.rarity] || 'border-border'} bg-card`}
+                      className={`game-tile relative aspect-[3/4] rounded-xl border-2 overflow-hidden cursor-pointer ${rarityBorderColor[animal.rarity] || 'border-border'} ${tileDepthClass[animal.rarity] || ''} bg-card`}
                     >
                       <img
                         src={animal.image}
