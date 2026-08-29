@@ -150,7 +150,7 @@ if (rows.length === 0 && scope === 'global' && !open) return null;
           <SheetHeader className="px-5 text-left">
 <SheetTitle className="font-display text-base flex items-center gap-2">
               <Trophy className="w-4 h-4 text-amber" />
-              {isTerritory ? `Top ${territory.label} · Semaine` : category === 'all' ? 'Classement' : `Top ${category} · Semaine`}
+              {isTerritory ? `Top ${territory.label} cette semaine` : category === 'all' ? 'Classement cette semaine' : `Top ${category} cette semaine`}
             </SheetTitle>
           </SheetHeader>
           <p className="px-5 text-[12px] font-display text-muted-foreground">
