@@ -2513,7 +2513,7 @@ html.is-native-android body {
 }
 
 /* ──────────────────────────────────────────────────────────
-   Badge de rareté "gemme de niveau" (jeu mobile)
+   Badge de rareté (jeu mobile, style plat)
    ────────────────────────────────────────────────────────── */
 .rarity-badge {
   position: relative;
@@ -2527,50 +2527,8 @@ html.is-native-android body {
   line-height: 1;
   isolation: isolate;
   overflow: hidden;
-  border: 1px solid hsla(0, 0%, 100%, 0.4);
-  background:
-    linear-gradient(180deg, hsla(0, 0%, 100%, 0.22), hsla(0, 0%, 100%, 0) 55%),
-    var(--rarity-face, linear-gradient(160deg, #c9d2db, #8b95a1));
-  box-shadow:
-    inset 0 1px 0 hsla(0, 0%, 100%, 0.4),
-    inset 0 -1px 2px hsla(0, 0%, 0%, 0.14),
-    0 1px 3px hsla(0, 0%, 0%, 0.16),
-    0 0 var(--rarity-glow-size, 0px) var(--rarity-glow, transparent);
-}
-
-/* Balayage lumineux facon carte de jeu */
-.rarity-badge::after {
-  content: '';
-  position: absolute;
-  top: -60%;
-  bottom: -60%;
-  left: -40%;
-  width: 44%;
-background: linear-gradient(
-    100deg,
-    hsla(0, 0%, 100%, 0) 0%,
-    hsla(0, 0%, 100%, 0.35) 50%,
-    hsla(0, 0%, 100%, 0) 100%
-  );
-  transform: skewX(-18deg);
-  animation: rarity-sheen 3.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  pointer-events: none;
-  z-index: 2;
-}
-
-@keyframes rarity-sheen {
-  0%,
-  62% {
-    left: -45%;
-    opacity: 0;
-  }
-  68% {
-    opacity: 0.9;
-  }
-  100% {
-    left: 115%;
-    opacity: 0;
-  }
+  border: 1px solid hsla(0, 0%, 100%, 0.35);
+  box-shadow: 0 2px 6px -2px var(--rarity-glow, hsla(0, 0%, 0%, 0.18));
 }
 
 .rarity-badge__icon {
@@ -2578,10 +2536,8 @@ background: linear-gradient(
   z-index: 1;
   width: 11px;
   height: 11px;
-  color: hsla(0, 0%, 100%, 0.95);
-  filter: drop-shadow(0 1px 1px hsla(0, 0%, 0%, 0.28));
+  color: #fff;
 }
-
 
 /* Variante avec label (card détail) */
 .rarity-badge--labeled {
@@ -2590,68 +2546,71 @@ background: linear-gradient(
   gap: 5px;
   padding: 4px 10px 4px 7px;
   font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.1em;
+  font-weight: 800;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #fff;
-  text-shadow: 0 1px 2px hsla(0, 0%, 0%, 0.35);
+  border-radius: 999px;
+  transform: none !important;
 }
 .rarity-badge--labeled .rarity-badge__icon {
   width: 13px;
   height: 13px;
+  transform: none !important;
 }
 .rarity-badge__label {
   position: relative;
   z-index: 1;
 }
 
+/* Formes et couleurs plates par rareté */
 .rarity-badge--common {
-  --rarity-face: linear-gradient(160deg, #e2e9f1 0%, #9fb0c2 48%, #64748b 100%);
-  --rarity-edge: hsla(0, 0%, 0%, 0.22);
-  --rarity-glow: hsl(215 20% 60% / 0.35);
-  --rarity-glow-size: 4px;
+  --rarity-glow: hsla(215, 10%, 55%, 0.35);
+  background: #aab6c4;
+  border-color: hsla(215, 12%, 60%, 0.4);
 }
+.rarity-badge--common .rarity-badge__icon {
+  color: #5b6775;
+}
+
 .rarity-badge--rare {
-  --rarity-face: linear-gradient(160deg, #7df0ff 0%, #12a2ff 45%, #0044ff 100%);
-  --rarity-edge: hsla(215, 100%, 34%, 0.7);
-  --rarity-glow: hsl(205 100% 55% / 0.95);
-  --rarity-glow-size: 11px;
+  --rarity-glow: hsl(205 100% 50% / 0.4);
+  background: #2f9dff;
+  border-radius: 7px;
+  transform: rotate(12deg);
 }
+.rarity-badge--rare .rarity-badge__icon {
+  transform: rotate(-12deg);
+}
+
 .rarity-badge--epic {
-  --rarity-face: linear-gradient(160deg, #ff9df6 0%, #a63dff 45%, #6a00f4 100%);
-  --rarity-edge: hsla(272, 100%, 32%, 0.7);
-  --rarity-glow: hsl(280 100% 62% / 1);
-  --rarity-glow-size: 16px;
-  animation: rarity-pulse 3s ease-in-out infinite;
+  --rarity-glow: hsl(275 90% 60% / 0.45);
+  background: #9b4dff;
 }
+
 .rarity-badge--mythic {
-  --rarity-face: linear-gradient(160deg, #fff7a8 0%, #ffc400 42%, #ff5e00 100%);
-  --rarity-edge: hsla(28, 100%, 36%, 0.7);
-  --rarity-glow: hsl(38 100% 55% / 1);
-  --rarity-glow-size: 20px;
-  animation: rarity-pulse 2.2s ease-in-out infinite;
+  --rarity-glow: hsl(38 100% 50% / 0.5);
+  background: linear-gradient(135deg, #ffd23e 0%, #ff9f1c 100%);
+  border-radius: 7px;
+  transform: rotate(45deg);
+  border-color: hsla(0, 0%, 100%, 0.55);
+  box-shadow:
+    0 3px 10px -3px hsl(38 100% 50% / 0.55),
+    0 0 0 1px hsla(38, 90%, 45%, 0.25);
 }
-
-
-@keyframes rarity-pulse {
-  0%,
-  100% {
-    filter: brightness(1);
-  }
-  50% {
-    filter: brightness(1.12) saturate(1.1);
-  }
+.rarity-badge--mythic .rarity-badge__icon {
+  transform: rotate(-45deg);
+  color: #fff;
+  filter: drop-shadow(0 1px 1px hsla(20, 90%, 30%, 0.5));
 }
-
 
 @media (prefers-reduced-motion: reduce) {
-  .rarity-badge::after,
-  .rarity-badge--epic,
-  .rarity-badge--mythic {
-    animation: none;
+  .rarity-badge {
+    transform: none;
   }
-  .rarity-badge::after {
-    opacity: 0;
+  .rarity-badge--rare .rarity-badge__icon,
+  .rarity-badge--mythic .rarity-badge__icon {
+    transform: none;
   }
 }
 
