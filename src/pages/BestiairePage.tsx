@@ -1435,22 +1435,33 @@ Bestiaire
                     const sub = isCity
                       ? `${zone.cityPostcode || ''}${d ? ` · ${d.name}` : ''}`
                       : zone.departmentCode;
+                    const art = getZoneArt(zone.kind);
                     return (
                       <button
                         key={zone.id}
                         onClick={() => setSelectedZoneId(zone.id)}
-                        className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-md"
+                        className="group relative overflow-hidden rounded-2xl border border-border text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-lg"
                       >
-                        <div className="flex items-center gap-1.5 mb-2">
-                          <ZoneIcon className="w-5 h-5 text-primary" strokeWidth={1.75} />
-                          <span className="text-[10px] font-display font-bold text-muted-foreground tabular-nums truncate">{sub}</span>
-                        </div>
-                        <h3 className="font-display font-bold text-sm text-foreground leading-tight mb-1 truncate">{title}</h3>
-                        <p className="text-[11px] text-muted-foreground font-display mb-3">
-                          {p.captured}/{p.total} capturés
-                        </p>
-                        <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
-                          <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${pct}%` }} />
+                        <img
+                          src={art.image}
+                          alt=""
+                          aria-hidden="true"
+                          loading="lazy"
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0" style={{ background: art.overlay }} />
+                        <div className="relative p-4 pt-16">
+                          <div className="flex items-center gap-1.5 mb-1.5">
+                            <ZoneIcon className="w-4 h-4 text-primary-foreground/90" strokeWidth={2} />
+                            <span className="text-[10px] font-display font-bold text-primary-foreground/80 tabular-nums truncate">{sub}</span>
+                          </div>
+                          <h3 className="font-display font-bold text-sm text-primary-foreground leading-tight mb-0.5 truncate drop-shadow">{title}</h3>
+                          <p className="text-[11px] text-primary-foreground/80 font-display mb-2.5">
+                            {p.captured}/{p.total} capturés
+                          </p>
+                          <div className="w-full h-1.5 rounded-full bg-primary-foreground/25 overflow-hidden">
+                            <div className="h-full rounded-full bg-primary-foreground transition-all duration-500" style={{ width: `${pct}%` }} />
+                          </div>
                         </div>
                       </button>
                     );
@@ -1458,24 +1469,35 @@ Bestiaire
 
                   {myCollections.map(({ group, total, captured }) => {
                     const pct = total > 0 ? Math.round((captured / total) * 100) : 0;
+                    const art = getCollectionArt(group.key, group.label);
                     return (
                       <button
                         key={group.key}
                         onClick={() => setSelectedCollectionKey(group.key)}
-                        className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-md"
+                        className="group relative overflow-hidden rounded-2xl border border-border text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-lg"
                       >
-                        <div className="text-xl mb-2 leading-none h-5 flex items-center">{group.emoji}</div>
-                        <h3 className="font-display font-bold text-sm text-foreground leading-tight mb-1 truncate">{group.label}</h3>
-                        <p className="text-[11px] text-muted-foreground font-display mb-3">
-                          {captured}/{total} capturés
-                        </p>
-                        <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
-                          <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${pct}%` }} />
+                        <img
+                          src={art.image}
+                          alt=""
+                          aria-hidden="true"
+                          loading="lazy"
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0" style={{ background: art.overlay }} />
+                        <div className="relative p-4 pt-16">
+                          <h3 className="font-display font-bold text-sm text-primary-foreground leading-tight mb-0.5 truncate drop-shadow">{group.label}</h3>
+                          <p className="text-[11px] text-primary-foreground/80 font-display mb-2.5">
+                            {captured}/{total} capturés
+                          </p>
+                          <div className="w-full h-1.5 rounded-full bg-primary-foreground/25 overflow-hidden">
+                            <div className="h-full rounded-full bg-primary-foreground transition-all duration-500" style={{ width: `${pct}%` }} />
+                          </div>
                         </div>
                       </button>
                     );
                   })}
                 </div>
+
               )}
             </section>
           )}
