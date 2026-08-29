@@ -2718,7 +2718,7 @@ background: linear-gradient(
 
 @media (prefers-reduced-motion: reduce) {
   .page-transition,
-.tab-pop,
+  .tab-pop,
   .rise-in,
   .stagger-children > * {
     animation: none !important;
