@@ -80,17 +80,25 @@ const buildList = (
       const cached = readCatalogueCache();
       setLoading(true);
 
-      // 1) Les captures de l'utilisateur (petit volume) : indispensables pour l'état "capturé".
-      const capturesResult = await fetchAllRows<any>((from, to) =>
-        supabase
-          .from('captures')
-          .select('*')
-          .eq('user_id', userId)
-          .eq('status', 'approved')
-          .order('created_at', { ascending: false })
-          .range(from, to),
-      );
+// 1) Les captures de l'utilisateur (petit volume) : indispensables pour l'état "capturé".
+      //    En parallèle : le nombre d'utilisateurs distincts ayant trouvé chaque espèce.
+      const [capturesResult, findersResult] = await Promise.all([
+        fetchAllRows<any>((from, to) =>
+          supabase
+            .from('captures')
+            .select('*')
+            .eq('user_id', userId)
+            .eq('status', 'approved')
+            .order('created_at', { ascending: false })
+            .range(from, to),
+        ),
+        supabase.rpc('species_finder_counts'),
+      ]);
       const userCaptures = capturesResult.data || [];
+      const findersMap = new Map<string, number>();
+      (findersResult.data || []).forEach((r: any) => {
+        if (typeof r.finders === 'number') findersMap.set(r.animal_key, r.finders);
+      });
 
       // One card per distinct species (most recent capture wins)
       const sortedCaptures = userCaptures
