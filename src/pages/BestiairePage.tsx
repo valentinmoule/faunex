@@ -1342,7 +1342,7 @@ Bestiaire
                               : 'bg-card text-foreground border-border hover:border-primary/40'
                           }`}
                         >
-                          <span>{getCategoryEmoji(cat.name)}</span>
+<SpeciesCategoryIcon category={cat.name} className="w-4 h-4" />
                           {cat.name}
                           <span className={active ? 'opacity-80' : 'opacity-50'}>{cat.total}</span>
                         </button>
