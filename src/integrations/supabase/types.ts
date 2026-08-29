@@ -2195,6 +2195,15 @@ export type Database = {
           week_start: string
         }[]
       }
+      my_species_progress: {
+        Args: never
+        Returns: {
+          rank: number
+          species_count: number
+          top_percent: number
+          total_players: number
+        }[]
+      }
       my_territory_rank: {
         Args: { p_department: string; p_scope?: string }
         Returns: {
