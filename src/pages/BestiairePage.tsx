@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import { PageHeader } from '@/components/PageHeader';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Bell, ChevronLeft, PawPrint, MapPin, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe } from 'lucide-react';
+import { Bell, ChevronLeft, PawPrint, MapPin, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, SlidersHorizontal } from 'lucide-react';
 import { type Rarity, type AnimalCard, RARITY_LABELS } from '@/data/mockData';
 import { useAuth } from '@/contexts/AuthContext';
 import CardDetailSheet from '@/components/CardDetailSheet';
@@ -55,6 +55,8 @@ const BestiairePage = () => {
   const [collectionSearch, setCollectionSearch] = useState('');
   const [speciesSearch, setSpeciesSearch] = useState('');
   const [mineSearch, setMineSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
+  const [filterOpen, setFilterOpen] = useState(false);
 
   // Scroll to top when entering a category detail view
   useEffect(() => {
@@ -271,15 +273,23 @@ const BestiairePage = () => {
 
 
 
-  // Global species search results (across all categories)
-  const searchResults = useMemo(() => {
-    if (speciesQuery.length < 2) return [];
-    return animals
+  // Browse view: all species, filtered by category chips + rarity + search
+  const browseAnimals = useMemo(() => {
+    const list = animals
+      .filter(a => categoryFilter.length === 0 || categoryFilter.includes(normalizeCategory(a.category)))
       .filter(a => rarityFilter === 'all' || a.rarity === rarityFilter)
       .filter(matchesSearch)
-      .sort((a, b) => a.name.localeCompare(b.name, 'fr'))
-      .slice(0, 60);
-  }, [animals, rarityFilter, matchesSearch, speciesQuery]);
+      .sort((a, b) => Number(b.captured) - Number(a.captured) || a.name.localeCompare(b.name, 'fr'));
+    return list.slice(0, ALL_GRID_LIMIT);
+  }, [animals, categoryFilter, rarityFilter, matchesSearch]);
+
+  const browseTotal = useMemo(
+    () => animals
+      .filter(a => categoryFilter.length === 0 || categoryFilter.includes(normalizeCategory(a.category)))
+      .filter(a => rarityFilter === 'all' || a.rarity === rarityFilter)
+      .filter(matchesSearch).length,
+    [animals, categoryFilter, rarityFilter, matchesSearch],
+  );
 
   // Flat list of my own captures (one entry per capture), filtered + sorted by most recent
   const myCapturedAnimals = useMemo(() => {
