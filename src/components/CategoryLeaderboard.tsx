@@ -206,6 +206,9 @@ const CategoryLeaderboard = ({ category }: { category: string }) => {
               </li>
             )}
           </ul>
+          </>
+          )}
+
         </SheetContent>
       </Sheet>
     </>
