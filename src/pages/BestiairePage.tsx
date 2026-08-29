@@ -1080,185 +1080,201 @@ const BestiairePage = () => {
 
           {viewMode === 'categories' && (
             <section>
-              <div className="relative mb-3">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  value={speciesSearch}
-                  onChange={(e) => setSpeciesSearch(e.target.value)}
-                  placeholder="Rechercher une espèce ou une catégorie…"
-                  className="w-full pl-9 pr-9 py-2.5 rounded-xl bg-card border border-border text-sm font-display placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
-                />
-                {speciesSearch && (
-                  <button
-                    onClick={() => setSpeciesSearch('')}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-muted transition"
-                  >
-                    <X className="w-3.5 h-3.5 text-muted-foreground" />
-                  </button>
-                )}
+              {/* Recherche + bouton filtres */}
+              <div className="flex items-center gap-2 mb-3">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <input
+                    type="text"
+                    value={speciesSearch}
+                    onChange={(e) => setSpeciesSearch(e.target.value)}
+                    placeholder="Rechercher une espèce…"
+                    className="w-full pl-9 pr-9 py-2.5 rounded-xl bg-card border border-border text-sm font-display placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
+                  />
+                  {speciesSearch && (
+                    <button
+                      onClick={() => setSpeciesSearch('')}
+                      aria-label="Effacer la recherche"
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-muted transition"
+                    >
+                      <X className="w-3.5 h-3.5 text-muted-foreground" />
+                    </button>
+                  )}
+                </div>
+                <button
+                  onClick={() => setFilterOpen(true)}
+                  className={`relative shrink-0 flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border text-sm font-display font-semibold transition-all active:scale-[0.97] ${
+                    categoryFilter.length > 0
+                      ? 'bg-primary text-primary-foreground border-primary'
+                      : 'bg-card text-foreground border-border hover:border-primary/40'
+                  }`}
+                >
+                  <SlidersHorizontal className="w-4 h-4" />
+                  Filtres
+                  {categoryFilter.length > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-amber text-amber-dark text-[10px] font-bold flex items-center justify-center shadow-sm">
+                      {categoryFilter.length}
+                    </span>
+                  )}
+                </button>
               </div>
 
-              {speciesQuery.length >= 2 ? (
-                <>
-                  <div className="flex items-center justify-between mb-3">
-                    <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Résultats</h2>
-                    <span className="text-[11px] font-display text-muted-foreground tabular-nums">
-                      {searchResults.length} espèce{searchResults.length > 1 ? 's' : ''}
-                    </span>
-                  </div>
-                  {searchResults.length === 0 ? (
-                    <div className="text-center py-12 rounded-2xl border border-dashed border-border">
-                      <p className="text-3xl mb-2">🔍</p>
-                      <p className="text-xs font-display text-muted-foreground px-6">
-                        Aucune espèce ne correspond à « {speciesSearch.trim()} ».
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-4 gap-1.5">
-                      {searchResults.map((animal) => (
-                        <div
-                          key={animal.name}
-                          onClick={() => {
-                            if (animal.captured && animal.captureData) {
-                              setSelectedCard(animal.captureData);
-                            } else {
-                              setSelectedCard({
-                                id: `uncaptured-${animal.name}`,
-                                name: animal.name,
-                                scientificName: animal.scientific_name || '',
-                                image: '',
-                                rarity: animal.rarity as Rarity,
-                                category: animal.category,
-                                description: '',
-                                habitat: '',
-                                diet: '',
-                                conservation: '',
-                                funFact: '',
-                                discoveredAt: '',
-                                location: '',
-                              });
-                            }
-                          }}
-                          className={`relative aspect-[3/4] rounded-xl border-2 overflow-hidden transition-all cursor-pointer active:scale-[0.96] ${
-                            animal.captured
-                              ? `${rarityBorderColor[animal.rarity] || 'border-border'} bg-card`
-                              : 'border-border/40 bg-muted/30'
-                          }`}
-                        >
-                          {animal.captured && animal.captureData ? (
-                            <div className="w-full h-full flex flex-col">
-                              <div className="flex-1 overflow-hidden relative">
-                                <img
-                                  src={animal.captureData.image}
-                                  alt={animal.name}
-                                  className="w-full h-full object-cover"
-                                  loading="lazy"
-                                />
-                                <div className={`absolute top-1.5 right-1.5 w-2 h-2 rounded-full ${rarityDot[animal.rarity] || 'bg-muted-foreground'}`} />
-                              </div>
-                              <div className="px-1.5 py-1 bg-card">
-                                <p className="text-[9px] font-display font-bold text-foreground truncate leading-tight">{animal.name}</p>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="w-full h-full flex flex-col items-center justify-center gap-1 p-1">
-                              <span className="text-base">{getCategoryEmoji(normalizeCategory(animal.category))}</span>
-                              <p className="text-[8px] font-display text-muted-foreground text-center leading-tight line-clamp-2">{animal.name}</p>
-                              <div className={`w-1.5 h-1.5 rounded-full ${rarityDot[animal.rarity] || 'bg-muted-foreground'} opacity-40`} />
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </>
+              {/* Chips des catégories actives */}
+              {categoryFilter.length > 0 && (
+                <div className="flex flex-wrap items-center gap-1.5 mb-3">
+                  {categoryFilter.map(cat => (
+                    <button
+                      key={cat}
+                      onClick={() => setCategoryFilter(prev => prev.filter(c => c !== cat))}
+                      className="flex items-center gap-1 pl-2 pr-1.5 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-display font-semibold active:scale-95 transition"
+                    >
+                      {getCategoryEmoji(cat)} {cat}
+                      <X className="w-3 h-3" />
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => setCategoryFilter([])}
+                    className="px-2 py-1 rounded-full text-[11px] font-display font-semibold text-muted-foreground hover:text-foreground transition"
+                  >
+                    Tout effacer
+                  </button>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">
+                  {speciesQuery ? 'Résultats' : ALL_SPECIES}
+                </h2>
+                <span className="text-[11px] font-display text-muted-foreground tabular-nums">
+                  {browseTotal} espèce{browseTotal > 1 ? 's' : ''}
+                </span>
+              </div>
+
+              {browseAnimals.length === 0 ? (
+                <div className="text-center py-12 rounded-2xl border border-dashed border-border">
+                  <p className="text-3xl mb-2">🔍</p>
+                  <p className="text-xs font-display text-muted-foreground px-6">
+                    Aucune espèce ne correspond à ta recherche ou à tes filtres.
+                  </p>
+                </div>
               ) : (
                 <>
-                  <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide mb-3">Catégories</h2>
-                  <div className="grid grid-cols-1 gap-3">
-                    {(() => {
-                      const inAll = animals.filter(a => rarityFilter === 'all' || a.rarity === rarityFilter);
-                      const captured = inAll.filter(a => a.captured).length;
-                      const progress = inAll.length > 0 ? Math.round((captured / inAll.length) * 100) : 0;
-                      return (
-                        <button
-                          onClick={() => { setSelectedBreedGroup(null); setSelectedCategory(ALL_SPECIES); }}
-                          className="group relative overflow-hidden rounded-2xl border border-primary/30 bg-primary/5 p-4 text-left transition-all active:scale-[0.97] hover:border-primary/50 hover:shadow-md"
-                        >
-                          <div className="flex items-center gap-3 mb-3">
-                            <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
-                              <Globe className="w-5 h-5 text-primary" strokeWidth={1.75} />
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {browseAnimals.map((animal) => (
+                      <div
+                        key={animal.name}
+                        onClick={() => {
+                          if (animal.captured && animal.captureData) {
+                            setSelectedCard(animal.captureData);
+                          } else {
+                            setSelectedCard({
+                              id: `uncaptured-${animal.name}`,
+                              name: animal.name,
+                              scientificName: animal.scientific_name || '',
+                              image: '',
+                              rarity: animal.rarity as Rarity,
+                              category: animal.category,
+                              description: '',
+                              habitat: '',
+                              diet: '',
+                              conservation: '',
+                              funFact: '',
+                              discoveredAt: '',
+                              location: '',
+                            });
+                          }
+                        }}
+                        className={`relative aspect-[3/4] rounded-xl border-2 overflow-hidden transition-all cursor-pointer active:scale-[0.96] ${
+                          animal.captured
+                            ? `${rarityBorderColor[animal.rarity] || 'border-border'} bg-card`
+                            : 'border-border/40 bg-muted/30'
+                        }`}
+                      >
+                        {animal.captured && animal.captureData ? (
+                          <div className="w-full h-full flex flex-col">
+                            <div className="flex-1 overflow-hidden relative">
+                              <img
+                                src={animal.captureData.image}
+                                alt={animal.name}
+                                className="w-full h-full object-cover"
+                                loading="lazy"
+                              />
+                              <div className={`absolute top-1.5 right-1.5 w-2 h-2 rounded-full ${rarityDot[animal.rarity] || 'bg-muted-foreground'}`} />
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-display font-bold text-sm text-foreground leading-tight truncate">{ALL_SPECIES}</h3>
-                              <p className="text-[11px] text-muted-foreground font-display mt-0.5">
-                                {inAll.length} espèces · classement général
-                              </p>
-                            </div>
-                            <div className="text-right shrink-0">
-                              <span className="font-display font-bold text-sm text-foreground">{captured}</span>
-                              <span className="text-[10px] text-muted-foreground font-display">/{inAll.length}</span>
+                            <div className="px-1.5 py-1 bg-card">
+                              <p className="text-[9px] font-display font-bold text-foreground truncate leading-tight">{animal.name}</p>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
-                              <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${progress}%` }} />
-                            </div>
-                            <span className="text-[10px] font-display font-semibold text-muted-foreground w-8 text-right">{progress}%</span>
+                        ) : (
+                          <div className="w-full h-full flex flex-col items-center justify-center gap-1 p-1">
+                            <span className="text-base">{getCategoryEmoji(normalizeCategory(animal.category))}</span>
+                            <p className="text-[8px] font-display text-muted-foreground text-center leading-tight line-clamp-2">{animal.name}</p>
+                            <div className={`w-1.5 h-1.5 rounded-full ${rarityDot[animal.rarity] || 'bg-muted-foreground'} opacity-40`} />
                           </div>
-                        </button>
-                      );
-                    })()}
-                    {categoryData
-                      .map(cat => {
-                        if (rarityFilter === 'all') return cat;
-                        const inCat = animals.filter(
-                          a => normalizeCategory(a.category) === cat.name && a.rarity === rarityFilter
-                        );
-                        return {
-                          name: cat.name,
-                          total: inCat.length,
-                          captured: inCat.filter(a => a.captured).length,
-                        };
-                      })
-                      .filter(cat => cat.total > 0)
-                      .map(cat => {
-                        const CatIcon = getCategoryIcon(cat.name);
-                        const progress = cat.total > 0 ? Math.round((cat.captured / cat.total) * 100) : 0;
-                        return (
-                          <button
-                            key={cat.name}
-                            onClick={() => { setSelectedBreedGroup(null); setSelectedCategory(cat.name); }}
-                            className="group relative overflow-hidden rounded-2xl border border-border bg-card p-4 text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-md"
-                          >
-                            <div className="flex items-center gap-3 mb-3">
-                              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                                <CatIcon className="w-5 h-5 text-primary" strokeWidth={1.75} />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <h3 className="font-display font-bold text-sm text-foreground leading-tight truncate">{cat.name}</h3>
-                                <p className="text-[11px] text-muted-foreground font-display mt-0.5">
-                                  {cat.total} espèce{cat.total > 1 ? 's' : ''}
-                                </p>
-                              </div>
-                              <div className="text-right shrink-0">
-                                <span className="font-display font-bold text-sm text-foreground">{cat.captured}</span>
-                                <span className="text-[10px] text-muted-foreground font-display">/{cat.total}</span>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
-                                <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${progress}%` }} />
-                              </div>
-                              <span className="text-[10px] font-display font-semibold text-muted-foreground w-8 text-right">{progress}%</span>
-                            </div>
-                          </button>
-                        );
-                      })}
+                        )}
+                      </div>
+                    ))}
                   </div>
+                  {browseTotal > browseAnimals.length && (
+                    <p className="text-center text-[11px] text-muted-foreground font-display py-4">
+                      {browseAnimals.length} premières espèces affichées · affine ta recherche ou tes filtres
+                    </p>
+                  )}
                 </>
               )}
+
+              {/* Modale de filtres */}
+              <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
+                <SheetContent side="bottom" className="max-h-[80vh] overflow-y-auto rounded-t-3xl px-5 pb-8">
+                  <SheetHeader className="text-left">
+                    <SheetTitle className="font-display text-base flex items-center gap-2">
+                      <SlidersHorizontal className="w-4 h-4 text-primary" />
+                      Filtres
+                    </SheetTitle>
+                  </SheetHeader>
+
+                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-display font-bold mt-3 mb-2">Catégories</p>
+                  <div className="flex flex-wrap gap-2">
+                    {categoryData.map(cat => {
+                      const active = categoryFilter.includes(cat.name);
+                      return (
+                        <button
+                          key={cat.name}
+                          onClick={() =>
+                            setCategoryFilter(prev =>
+                              active ? prev.filter(c => c !== cat) : [...prev, cat.name]
+                            )
+                          }
+                          className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-[12px] font-display font-semibold border transition-all active:scale-95 ${
+                            active
+                              ? 'bg-primary text-primary-foreground border-primary'
+                              : 'bg-card text-foreground border-border hover:border-primary/40'
+                          }`}
+                        >
+                          <span>{getCategoryEmoji(cat.name)}</span>
+                          {cat.name}
+                          <span className={active ? 'opacity-80' : 'opacity-50'}>{cat.total}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex gap-2 mt-6">
+                    <button
+                      onClick={() => setCategoryFilter([])}
+                      className="px-4 py-2.5 rounded-xl border border-border bg-card text-sm font-display font-semibold text-foreground active:scale-[0.97] transition"
+                    >
+                      Réinitialiser
+                    </button>
+                    <button
+                      onClick={() => setFilterOpen(false)}
+                      className="flex-1 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-display font-bold active:scale-[0.97] transition"
+                    >
+                      Voir {browseTotal} espèce{browseTotal > 1 ? 's' : ''}
+                    </button>
+                  </div>
+                </SheetContent>
+              </Sheet>
             </section>
           )}
 
