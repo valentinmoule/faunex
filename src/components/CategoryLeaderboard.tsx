@@ -153,7 +153,7 @@ if (rows.length === 0 && scope === 'global' && !open) return null;
               {isTerritory ? `Top ${territory.label} · Semaine` : category === 'all' ? 'Classement' : `Top ${category} · Semaine`}
             </SheetTitle>
           </SheetHeader>
-<p className="px-5 text-[12px] font-display text-muted-foreground">
+          <p className="px-5 text-[12px] font-display text-muted-foreground">
             Réinitialisation dans {formatTimeLeft(timeLeft)}
           </p>
 
