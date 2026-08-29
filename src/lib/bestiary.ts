@@ -56,6 +56,83 @@ export const getCategoryEmoji = (category: string): string => {
   return '🐾';
 };
 
+/** Emoji par espèce (nom commun), repli sur l'emoji de catégorie. */
+const SPECIES_EMOJI: Array<[string, string]> = [
+  // Poissons & vie marine
+  ['poisson chat', '🐟'], ['poisson', '🐟'], ['requin', '🦈'], ['raie', '🐟'], ['meduse', '🪼'],
+  ['poulpe', '🐙'], ['pieuvre', '🐙'], ['calmar', '🦑'], ['seiche', '🦑'], ['crevette', '🦐'],
+  ['langouste', '🦞'], ['homard', '🦞'], ['crabe', '🦀'], ['etrille', '🦀'], ['tourteau', '🦀'],
+  ['araignee de mer', '🦀'], ['etolie de mer', '⭐'], ['oursin', '🦔'], ['anemone', '🌺'],
+  ['coquillage', '🐚'], ['huitre', '🦪'], ['moule', '🐚'], ['palourde', '🐚'], ['bigorneau', '🐚'],
+  ['bulot', '🐚'], ['escargot', '🐌'], ['limace', '🐌'], ['lombric', '🪱'], ['sangsue', '🪱'],
+  ['truite', '🐟'], ['saumon', '🐟'], ['carpe', '🐟'], ['brochet', '🐟'], ['perche', '🐟'],
+  ['gardon', '🐟'], ['anguille', '🐟'], ['silure', '🐟'], ['sandre', '🐟'], ['dauphin', '🐬'],
+  ['marsouin', '🐬'], ['baleine', '🐳'], ['rorqual', '🐳'], ['orque', '🐋'], ['cachalot', '🐳'],
+  ['phoque', '🦭'], ['otarie', '🦭'], ['morse', '🦭'], ['lamantin', '🦭'],
+  // Insectes & arachnides
+  ['papillon', '🦋'], ['abeille', '🐝'], ['bourdon', '🐝'], ['guepe', '🐝'], ['frelon', '🐝'],
+  ['coccinelle', '🐞'], ['fourmi', '🐜'], ['libellule', '🪰'], ['sauterelle', '🦗'], ['grillon', '🦗'],
+  ['criquet', '🦗'], ['mante', '🦗'], ['scarabee', '🪲'], ['coleoptere', '🪲'], ['hanneton', '🪲'],
+  ['lucane', '🪲'], ['cetoine', '🪲'], ['punaise', '🪲'], ['moustique', '🦟'], ['mouche', '🪰'],
+  ['taon', '🪰'], ['syrphe', '🪰'], ['chenille', '🐛'], ['puceron', '🐛'], ['cochenille', '🐛'],
+  ['perce oreille', '🐛'], ['araignee', '🕷️'], ['tique', '🕷️'], ['acarien', '🕷️'], ['scorpion', '🦂'],
+  ['opilion', '🕷️'], ['mille pattes', '🐛'], ['scolopendre', '🐛'], ['cloporte', '🪲'],
+  // Oiseaux
+  ['chat huant', '🦉'], ['hibou', '🦉'], ['chouette', '🦉'], ['aigle', '🦅'], ['faucon', '🦅'],
+  ['epervier', '🦅'], ['milan', '🦅'], ['buse', '🦅'], ['vautour', '🦅'], ['corbeau', '🐦‍⬛'],
+  ['corneille', '🐦‍⬛'], ['choucas', '🐦‍⬛'], ['pie', '🐦‍⬛'], ['geai', '🐦'], ['merle', '🐦'],
+  ['moineau', '🐦'], ['mesange', '🐦'], ['rouge gorge', '🐦'], ['pinson', '🐦'], ['verdier', '🐦'],
+  ['chardonneret', '🐦'], ['linotte', '🐦'], ['bouvreuil', '🐦'], ['hirondelle', '🐦'], ['martinet', '🐦'],
+  ['pigeon', '🕊️'], ['colombe', '🕊️'], ['tourterelle', '🕊️'], ['perroquet', '🦜'], ['perruche', '🦜'],
+  ['cacatoes', '🦜'], ['toucan', '🦜'], ['flamant', '🦩'], ['ibis', '🦩'], ['spatule', '🦩'],
+  ['cigogne', '🦩'], ['heron', '🦩'], ['aigrette', '🦩'], ['paon', '🦚'], ['dinde', '🦃'],
+  ['dindon', '🦃'], ['poule', '🐔'], ['coq', '🐓'], ['poussin', '🐤'], ['canard', '🦆'],
+  ['oie', '🦢'], ['cygne', '🦢'], ['goeland', '🐦'], ['mouette', '🐦'], ['sterne', '🐦'],
+  ['albatros', '🐦'], ['fou', '🐦'], ['manchot', '🐧'], ['pingouin', '🐧'], ['autruche', '🐦'],
+  ['faisan', '🐦'], ['perdrix', '🐦'], ['caille', '🐦'], ['becasse', '🐦'], ['pic', '🐦'],
+  ['alouette', '🐦'], ['bergeronnette', '🐦'], ['bruant', '🐦'], ['vanneau', '🐦'], ['pluvier', '🐦'],
+  ['courlis', '🐦'], ['fuligule', '🦆'], ['sarcelle', '🦆'], ['harle', '🦆'], ['eider', '🦆'],
+  ['macreuse', '🦆'], ['foulque', '🐦'], ['gallinule', '🐦'], ['grive', '🐦'], ['etourneau', '🐦'],
+  ['loriot', '🐦'], ['rossignol', '🐦'], ['fauvette', '🐦'], ['troglodyte', '🐦'], ['roitelet', '🐦'],
+  ['gobemouche', '🐦'], ['bec croise', '🐦'], ['sittelle', '🐦'], ['grimpereau', '🐦'], ['accenteur', '🐦'],
+  ['pouillot', '🐦'], ['pipit', '🐦'], ['traquet', '🐦'], ['tarier', '🐦'], ['rousserolle', '🐦'],
+  ['avocette', '🐦'], ['echasse', '🐦'], ['barge', '🐦'], ['chevalier', '🐦'], ['becasseau', '🐦'],
+  ['grebe', '🐦'], ['coucou', '🐦'],
+  // Mammifères
+  ['chauve souris', '🦇'], ['ecureuil', '🐿️'], ['marmotte', '🐿️'], ['herisson', '🦔'], ['blaireau', '🦡'],
+  ['castor', '🦫'], ['loutre', '🦦'], ['belette', '🦦'], ['hermine', '🦦'], ['martre', '🦦'],
+  ['putois', '🦦'], ['vison', '🦦'], ['fouine', '🦦'], ['raton', '🦝'], ['genette', '🦝'],
+  ['coati', '🦝'], ['mangouste', '🦝'], ['sanglier', '🐗'], ['chevreuil', '🦌'], ['cerf', '🦌'],
+  ['daim', '🦌'], ['elan', '🫎'], ['renne', '🦌'], ['cheval', '🐴'], ['poney', '🐴'], ['vache', '🐮'],
+  ['taureau', '🐂'], ['boeuf', '🐂'], ['bison', '🦬'], ['buffle', '🐃'], ['mouton', '🐑'],
+  ['brebis', '🐑'], ['chevre', '🐐'], ['bouc', '🐐'], ['chamois', '🐐'], ['bouquetin', '🐐'],
+  ['mouflon', '🐑'], ['lapin', '🐰'], ['lievre', '🐇'], ['renard', '🦊'], ['fennec', '🦊'],
+  ['loup', '🐺'], ['coyote', '🐺'], ['hyene', '🐺'], ['ours', '🐻'], ['panda', '🐼'], ['chat', '🐱'],
+  ['chien', '🐶'], ['chiot', '🐶'], ['singe', '🐒'], ['macaque', '🐒'], ['babouin', '🐒'],
+  ['gorille', '🦍'], ['orang outan', '🦧'], ['gibbon', '🦧'], ['chimpanze', '🐒'], ['kangourou', '🦘'],
+  ['koala', '🐨'], ['elephant', '🐘'], ['rhinoceros', '🦏'], ['hippopotame', '🦛'], ['girafe', '🦒'],
+  ['zebre', '🦓'], ['lion', '🦁'], ['tigre', '🐯'], ['leopard', '🐆'], ['guepard', '🐆'],
+  ['jaguar', '🐆'], ['lynx', '🐆'], ['puma', '🐆'], ['caracal', '🐆'], ['serval', '🐆'],
+  ['souris', '🐭'], ['mulot', '🐭'], ['campagnol', '🐭'], ['musaraigne', '🐭'], ['taupe', '🐭'],
+  ['hamster', '🐹'], ['rat', '🐀'], ['lama', '🦙'], ['alpaga', '🦙'], ['dromadaire', '🐪'],
+  ['chameau', '🐫'], ['yack', '🐂'], ['antilope', '🦌'], ['gazelle', '🦌'], ['gnou', '🦬'],
+  ['porc', '🐷'], ['cochon', '🐷'],
+  // Reptiles & amphibiens
+  ['grenouille', '🐸'], ['crapaud', '🐸'], ['rainette', '🐸'], ['salamandre', '🦎'], ['triton', '🦎'],
+  ['lezard', '🦎'], ['gecko', '🦎'], ['cameleon', '🦎'], ['iguane', '🦎'], ['varan', '🦎'],
+  ['orvet', '🦎'], ['serpent', '🐍'], ['vipere', '🐍'], ['couleuvre', '🐍'], ['coronelle', '🐍'],
+  ['boa', '🐍'], ['python', '🐍'], ['tortue', '🐢'], ['cistude', '🐢'], ['crocodile', '🐊'],
+  ['alligator', '🐊'],
+];
+
+export const getSpeciesEmoji = (name: string, category: string): string => {
+  const n = ' ' + name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[-'’]/g, ' ') + ' ';
+  for (const [kw, emoji] of SPECIES_EMOJI) {
+    if (n.includes(' ' + kw + ' ')) return emoji;
+  }
+  return getCategoryEmoji(category);
+};
+
 export const rarityBorderColor: Record<string, string> = {
   common: 'border-rarity-common/40',
   rare: 'border-rarity-rare/50',
