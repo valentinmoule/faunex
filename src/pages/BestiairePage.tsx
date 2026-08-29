@@ -27,6 +27,7 @@ import { MIN_BREEDS_PER_GROUP, BREED_GROUPS, getBreedGroup, getSpeciesGroup, typ
 import { useBestiaryData } from '@/hooks/useBestiaryData';
 import { useCitySearch } from '@/hooks/useCitySearch';
 import { useShelveAnimation } from '@/hooks/useShelveAnimation';
+import { VirtualSpeciesGrid } from '@/components/VirtualSpeciesGrid';
 import { useZoneSubscriptions } from '@/hooks/useZoneSubscriptions';
 import { useSpeciesCollections } from '@/hooks/useSpeciesCollections';
 import CategoryLeaderboard from '@/components/CategoryLeaderboard';
@@ -387,35 +388,8 @@ const browseAnimals = useMemo(() => {
     // Pas de re-tri : `animals` est déjà trié alphabétiquement au chargement.
   }, [animals, categoryFilter, rarityFilter, matchesSearch]);
 
-  // Infinite scroll : 50 espèces par lot, chargement automatique en fin de liste
-  const BROWSE_PAGE = 50;
-  const [browseVisible, setBrowseVisible] = useState(BROWSE_PAGE);
-  const browseSentinelRef = useRef<HTMLDivElement | null>(null);
+  // Virtualisation : seules les lignes visibles sont montées (mémoire constante).
 
-  // Reset quand les filtres/recherche changent
-  useEffect(() => {
-    setBrowseVisible(BROWSE_PAGE);
-  }, [categoryFilter, rarityFilter, matchesSearch]);
-
-  const visibleBrowseAnimals = useMemo(
-    () => browseAnimals.slice(0, browseVisible),
-    [browseAnimals, browseVisible],
-  );
-
-  useEffect(() => {
-    const el = browseSentinelRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) {
-          setBrowseVisible(v => (v < browseAnimals.length ? v + BROWSE_PAGE : v));
-        }
-      },
-      { rootMargin: '600px 0px' },
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [browseAnimals.length]);
 
   // Callback stable pour les cartes mémoïsées de la grille.
   const handleSelectBrowseAnimal = useCallback((animal: BestiaryAnimal) => {
@@ -1188,22 +1162,18 @@ Bestiaire
                   </p>
                 </div>
               ) : (
-                <>
-<div className="grid grid-cols-3 gap-2">
-                    {visibleBrowseAnimals.map((animal) => (
-                      <BrowseSpeciesCard key={animal.name} animal={animal} onSelect={handleSelectBrowseAnimal} />
-                    ))}
-                  </div>
-                  {visibleBrowseAnimals.length < browseAnimals.length && (
-                    <div ref={browseSentinelRef} className="flex items-center justify-center gap-2 py-6">
-                      <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                      <span className="text-[11px] text-muted-foreground font-display">
-                        Chargement des espèces suivantes…
-                      </span>
-                    </div>
+                <VirtualSpeciesGrid
+                  items={browseAnimals}
+                  columns={3}
+                  gap={8}
+                  aspectRatio={3 / 4}
+                  getKey={(animal) => animal.name}
+                  renderItem={(animal) => (
+                    <BrowseSpeciesCard animal={animal} onSelect={handleSelectBrowseAnimal} />
                   )}
-                </>
+                />
               )}
+
 
               {/* Modale de filtres */}
               <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
