@@ -41,11 +41,19 @@ const FREE_SLOT_LIMIT = 3;
 const ALL_SPECIES = 'Toutes les espèces';
 const ALL_GRID_LIMIT = 200;
 
+/** Socle coloré (profondeur "jeu mobile") selon la rareté. */
+const tileDepthClass: Record<string, string> = {
+  rare: 'game-tile--rare',
+  epic: 'game-tile--epic',
+  mythic: 'game-tile--mythic',
+};
+
 /** Icône vectorielle de la catégorie d'une espèce (remplace les emojis sur les cartes). */
 const SpeciesCategoryIcon = ({ category, className }: { category: string; className?: string }) => {
   const Icon = getCategoryIcon(category);
   return <Icon className={className} strokeWidth={1.5} />;
 };
+
 
 /** Carte d'espèce de la grille Bestiaire, mémoïsée : les lots déjà affichés
  *  ne se re-rendent pas quand les 50 suivantes arrivent. */
@@ -53,12 +61,13 @@ const BrowseSpeciesCard = memo(
   ({ animal, onSelect }: { animal: BestiaryAnimal; onSelect: (a: BestiaryAnimal) => void }) => (
     <div
       onClick={() => onSelect(animal)}
-      className={`relative aspect-[3/4] rounded-xl border-2 overflow-hidden transition-all cursor-pointer active:scale-[0.96] ${
+      className={`game-tile relative aspect-[3/4] rounded-xl border-2 overflow-hidden cursor-pointer ${
         animal.captured
-          ? `${rarityBorderColor[animal.rarity] || 'border-border'} bg-card`
-          : 'border-border/40 bg-muted/30'
+          ? `${rarityBorderColor[animal.rarity] || 'border-border'} bg-card ${tileDepthClass[animal.rarity] || ''}`
+          : 'game-tile--empty border-border/40 bg-muted/30'
       }`}
     >
+
       {animal.captured && animal.captureData ? (
         <>
           <img
@@ -1048,7 +1057,7 @@ Bestiaire
                     <div
                       key={animal.id}
                       onClick={() => setSelectedCard(animal)}
-                      className={`relative aspect-[3/4] rounded-xl border-2 overflow-hidden transition-all cursor-pointer active:scale-[0.96] ${rarityBorderColor[animal.rarity] || 'border-border'} bg-card`}
+                      className={`game-tile relative aspect-[3/4] rounded-xl border-2 overflow-hidden cursor-pointer ${rarityBorderColor[animal.rarity] || 'border-border'} ${tileDepthClass[animal.rarity] || ''} bg-card`}
                     >
                       <img
                         src={animal.image}
@@ -1504,11 +1513,12 @@ const isCity = zone.kind === 'city';
                     });
                   }
                 }}
-                className={`relative aspect-[3/4] rounded-xl border-2 overflow-hidden transition-all cursor-pointer active:scale-[0.96] ${
+                className={`game-tile relative aspect-[3/4] rounded-xl border-2 overflow-hidden cursor-pointer ${
                   animal.captured
-                    ? `${rarityBorderColor[animal.rarity] || 'border-border'} bg-card`
-                    : 'border-border/40 bg-muted/30'
+                    ? `${rarityBorderColor[animal.rarity] || 'border-border'} bg-card ${tileDepthClass[animal.rarity] || ''}`
+                    : 'game-tile--empty border-border/40 bg-muted/30'
                 } ${isFlashing ? 'shelve-slot-flash' : ''}`}
+
               >
                 {animal.captured && animal.captureData ? (
                   <div className="w-full h-full flex flex-col">

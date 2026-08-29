@@ -2422,3 +2422,80 @@ html.is-native-android body {
   padding-top: 0;
 }
 
+
+/* ──────────────────────────────────────────────────────────
+   Profondeur "jeu mobile" pour les cartes en grille
+   (socle coloré, biseau interne, reflet, enfoncement au tap)
+   ────────────────────────────────────────────────────────── */
+.game-tile {
+  --tile-depth: hsla(165, 25%, 11%, 0.22);
+  --tile-glow: hsla(165, 25%, 11%, 0.28);
+  position: relative;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.18s ease;
+  box-shadow:
+    0 3px 0 0 var(--tile-depth),
+    0 6px 0 -2px hsla(165, 25%, 11%, 0.1),
+    0 12px 20px -10px var(--tile-glow),
+    inset 0 1px 0 hsla(0, 0%, 100%, 0.5);
+}
+.game-tile:active {
+  transform: translate3d(0, 3px, 0) scale(0.985);
+  box-shadow:
+    0 1px 0 0 var(--tile-depth),
+    0 5px 10px -8px var(--tile-glow),
+    inset 0 1px 0 hsla(0, 0%, 100%, 0.35);
+}
+/* Biseau interne + reflet diagonal, au-dessus de la photo */
+.game-tile::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+  box-shadow:
+    inset 0 1px 1px hsla(0, 0%, 100%, 0.4),
+    inset 0 -8px 14px -10px hsla(165, 25%, 11%, 0.55);
+}
+.game-tile::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+  background:
+    linear-gradient(148deg, hsla(0, 0%, 100%, 0.22) 0%, hsla(0, 0%, 100%, 0.05) 32%, transparent 52%);
+  opacity: 0.85;
+}
+/* Socles colorés par rareté */
+.game-tile--rare {
+  --tile-depth: hsl(var(--rarity-rare) / 0.45);
+  --tile-glow: hsl(var(--rarity-rare) / 0.45);
+}
+.game-tile--epic {
+  --tile-depth: hsl(var(--rarity-epic) / 0.45);
+  --tile-glow: hsl(var(--rarity-epic) / 0.5);
+}
+.game-tile--mythic {
+  --tile-depth: hsl(var(--rarity-mythic) / 0.55);
+  --tile-glow: hsl(var(--rarity-mythic) / 0.55);
+}
+/* Emplacement non découvert : creusé plutôt que bombé */
+.game-tile--empty {
+  box-shadow:
+    inset 0 2px 5px hsla(165, 25%, 11%, 0.14),
+    inset 0 -1px 0 hsla(0, 0%, 100%, 0.6),
+    0 1px 0 0 hsla(0, 0%, 100%, 0.7);
+}
+.game-tile--empty::after { opacity: 0.35; }
+.game-tile--empty::before {
+  box-shadow: inset 0 1px 2px hsla(165, 25%, 11%, 0.12);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-tile { transition: none; }
+}
