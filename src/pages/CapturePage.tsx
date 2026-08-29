@@ -287,7 +287,7 @@ const CapturePage = () => {
     if (savingRef.current) return;
     savingRef.current = true;
     try {
-      const existing = await findDuplicate(animalResult.animal_name);
+      const existing = await findDuplicate(animalResult.animal_name, animalResult.scientific_name);
       if (existing) {
         setDuplicateCapture(existing);
         return;
@@ -298,10 +298,17 @@ const CapturePage = () => {
       finishSave(animalResult, imageUrl, `${animalResult.animal_name} ajouté à ton Faunex !`);
     } catch (err) {
       console.error(err);
+      const msg = String((err as { message?: string })?.message ?? err);
+      if (msg.includes('unique_species_per_user') || msg.includes('duplicate key')) {
+        // Sécurité serveur : l'espèce existe déjà sous un autre nom commun.
+        toast.error(`Tu as déjà cette espèce dans ton Faunex (${animalResult.scientific_name ?? animalResult.animal_name}).`);
+        return;
+      }
       toast.error(isDailyLimitError(err) ? "Limite atteinte : 4 captures par jour maximum. Reviens demain !" : "Erreur lors de la sauvegarde");
     } finally {
       savingRef.current = false;
     }
+
   };
 
 
