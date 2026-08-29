@@ -7,6 +7,7 @@ import { useNearbyQuota, DAILY_NEARBY_LIMIT } from '@/hooks/useNearbyQuota';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { useSwipeDownClose } from '@/lib/useSwipeDownClose';
 
 const ENABLED_ROUTES = ['/home', '/explorers', '/profile'];
 
@@ -60,6 +61,9 @@ const PullToDiscover = () => {
   const locked = useRef(false);
   const pullRef = useRef(0);
   pullRef.current = pull;
+
+  const closeSheet = useCallback(() => setOpen(false), []);
+  const swipeClose = useSwipeDownClose(closeSheet);
 
   const runDiscovery = useCallback(async () => {
     if (!('geolocation' in navigator)) {
@@ -118,6 +122,8 @@ const PullToDiscover = () => {
 
     const onStart = (e: TouchEvent) => {
       if (loading || open || e.touches.length !== 1) return;
+      // Une modal / bottom sheet est ouverte : ne jamais déclencher le pull-to-discover
+      if (document.querySelector('[role="dialog"][data-state="open"]')) return;
       if (!isAtTop(e.target)) return;
       active.current = true;
       locked.current = false;
@@ -127,6 +133,12 @@ const PullToDiscover = () => {
 
     const onMove = (e: TouchEvent) => {
       if (!active.current) return;
+      if (document.querySelector('[role="dialog"][data-state="open"]')) {
+        active.current = false;
+        setDragging(false);
+        setPull(0);
+        return;
+      }
       const dy = e.touches[0].clientY - startY.current;
       const dx = e.touches[0].clientX - startX.current;
       if (!locked.current) {
@@ -227,7 +239,12 @@ const PullToDiscover = () => {
       </div>
 
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto z-[1500]">
+        <SheetContent
+          side="bottom"
+          className="max-h-[85vh] overflow-y-auto z-[1500]"
+          style={swipeClose.style}
+          {...swipeClose.handlers}
+        >
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2 font-display">
               <Sparkles className="w-5 h-5 text-primary" />

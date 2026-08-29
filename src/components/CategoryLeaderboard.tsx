@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { ChevronRight } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { PremiumAvatar } from '@/components/PremiumAvatar';
 import { usePremiumUsers } from '@/hooks/usePremiumUsers';
+import { useSwipeDownClose } from '@/lib/useSwipeDownClose';
 
 interface Row {
   rank: number;
@@ -40,6 +41,9 @@ const CategoryLeaderboard = ({ category }: { category: string }) => {
   const [mine, setMine] = useState<MyRank | null>(null);
   const [ready, setReady] = useState(false);
   const [open, setOpen] = useState(false);
+
+  const closeSheet = useCallback(() => setOpen(false), []);
+  const swipeClose = useSwipeDownClose(closeSheet);
 
   const userIds = useMemo(() => rows.map(r => r.user_id), [rows]);
   const premiumIds = usePremiumUsers(userIds);
@@ -92,7 +96,12 @@ const CategoryLeaderboard = ({ category }: { category: string }) => {
       </button>
 
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-3xl px-0">
+        <SheetContent
+          side="bottom"
+          className="max-h-[85vh] overflow-y-auto rounded-t-3xl px-0"
+          style={swipeClose.style}
+          {...swipeClose.handlers}
+        >
           <SheetHeader className="px-5 text-left">
             <SheetTitle className="font-display text-base">Top {category}</SheetTitle>
           </SheetHeader>
