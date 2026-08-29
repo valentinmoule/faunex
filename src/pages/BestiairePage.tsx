@@ -1508,11 +1508,7 @@ const isCity = zone.kind === 'city';
                           className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                         <div className="absolute inset-0" style={{ background: art.overlay }} />
-                        <div className="relative p-4 pt-16">
-                          <div className="flex items-center gap-1.5 mb-1.5">
-                            <ZoneIcon className="w-4 h-4 text-primary-foreground/90" strokeWidth={2} />
-                            <span className="text-[10px] font-display font-bold text-primary-foreground/80 tabular-nums truncate">{sub}</span>
-                          </div>
+<div className="relative p-4 pt-16">
                           <h3 className="font-display font-bold text-sm text-primary-foreground leading-tight mb-0.5 truncate drop-shadow">{title}</h3>
                           <p className="text-[11px] text-primary-foreground/80 font-display mb-2.5">
                             {p.captured}/{p.total} capturés
