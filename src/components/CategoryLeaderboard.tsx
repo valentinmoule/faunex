@@ -75,7 +75,8 @@ const CategoryLeaderboard = ({ category }: { category: string }) => {
     return () => { cancelled = true; };
   }, [category, scope]);
 
-  if (!ready && rows.length === 0) return null;
+  if (rows.length === 0 && scope === 'global' && !open) return null;
+
 
 
   const podium = rows.slice(0, 3);
