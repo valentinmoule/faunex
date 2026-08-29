@@ -20,6 +20,7 @@ getCategoryEmoji,
   rarityDot,
   type ZoneSub,
 } from '@/lib/bestiary';
+import { getCollectionArt, getZoneArt } from '@/lib/collectionArt';
 import { MIN_BREEDS_PER_GROUP, BREED_GROUPS, getBreedGroup, getSpeciesGroup, type BreedGroup } from '@/lib/breedGroups';
 import { useBestiaryData } from '@/hooks/useBestiaryData';
 import { useCitySearch } from '@/hooks/useCitySearch';
