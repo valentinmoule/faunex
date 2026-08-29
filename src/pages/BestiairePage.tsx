@@ -905,12 +905,13 @@ const browseAnimals = useMemo(() => {
           </div>
         </PageHeader>
 
-        <div className="max-w-lg mx-auto px-3 pt-3">
+<div className="max-w-lg mx-auto px-3 pt-3 space-y-4">
           {isCity && (
-            <p className="text-[11px] text-muted-foreground font-display text-center mb-3 px-3">
+            <p className="text-[11px] text-muted-foreground font-display text-center px-3">
               Espèces présentes dans le territoire de {dept?.name || selectedZone.departmentCode}.
             </p>
           )}
+          <CategoryLeaderboard territory={{ code: selectedZone.departmentCode, label: title }} />
           {zoneAnimals.length === 0 ? (
             <div className="text-center py-16">
               <p className="text-4xl mb-3">📭</p>
