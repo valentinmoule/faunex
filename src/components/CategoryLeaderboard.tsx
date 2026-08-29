@@ -150,9 +150,9 @@ const podium = rows.slice(0, 3);
           style={swipeClose.style}
         >
           <SheetHeader className="px-5 text-left">
-            <SheetTitle className="font-display text-base flex items-center gap-2">
+<SheetTitle className="font-display text-base flex items-center gap-2">
               <Trophy className="w-4 h-4 text-amber" />
-              {category === 'all' ? 'Classement' : `Top ${category} · Semaine`}
+              {isTerritory ? `Top ${territory.label} · Semaine` : category === 'all' ? 'Classement' : `Top ${category} · Semaine`}
             </SheetTitle>
           </SheetHeader>
 <p className="px-5 text-[12px] font-display text-muted-foreground">
