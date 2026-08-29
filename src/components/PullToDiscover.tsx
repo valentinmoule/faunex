@@ -129,6 +129,12 @@ const PullToDiscover = () => {
 
     const onMove = (e: TouchEvent) => {
       if (!active.current) return;
+      if (document.querySelector('[role="dialog"][data-state="open"]')) {
+        active.current = false;
+        setDragging(false);
+        setPull(0);
+        return;
+      }
       const dy = e.touches[0].clientY - startY.current;
       const dx = e.touches[0].clientX - startX.current;
       if (!locked.current) {
