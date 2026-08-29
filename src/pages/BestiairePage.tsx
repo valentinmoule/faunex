@@ -41,11 +41,19 @@ const FREE_SLOT_LIMIT = 3;
 const ALL_SPECIES = 'Toutes les espèces';
 const ALL_GRID_LIMIT = 200;
 
+/** Socle coloré (profondeur "jeu mobile") selon la rareté. */
+const tileDepthClass: Record<string, string> = {
+  rare: 'game-tile--rare',
+  epic: 'game-tile--epic',
+  mythic: 'game-tile--mythic',
+};
+
 /** Icône vectorielle de la catégorie d'une espèce (remplace les emojis sur les cartes). */
 const SpeciesCategoryIcon = ({ category, className }: { category: string; className?: string }) => {
   const Icon = getCategoryIcon(category);
   return <Icon className={className} strokeWidth={1.5} />;
 };
+
 
 /** Carte d'espèce de la grille Bestiaire, mémoïsée : les lots déjà affichés
  *  ne se re-rendent pas quand les 50 suivantes arrivent. */
