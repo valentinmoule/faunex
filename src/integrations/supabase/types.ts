@@ -2195,6 +2195,14 @@ export type Database = {
           week_start: string
         }[]
       }
+      my_territory_rank: {
+        Args: { p_department: string; p_scope?: string }
+        Returns: {
+          captures: number
+          rank: number
+          total_players: number
+        }[]
+      }
       nearby_searches_remaining_today: { Args: never; Returns: number }
       normalize_animal_label: { Args: { p_label: string }; Returns: string }
       pause_background_job: {
@@ -2236,6 +2244,18 @@ export type Database = {
         }[]
       }
       strip_label_parenthetical: { Args: { p_label: string }; Returns: string }
+      territory_leaderboard: {
+        Args: { p_department: string; p_limit?: number; p_scope?: string }
+        Returns: {
+          avatar_url: string
+          captures: number
+          display_name: string
+          is_me: boolean
+          rank: number
+          user_id: string
+          username: string
+        }[]
+      }
       try_claim_notification: {
         Args: { p_key: string; p_ttl_seconds?: number }
         Returns: boolean
