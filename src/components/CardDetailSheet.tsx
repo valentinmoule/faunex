@@ -128,6 +128,7 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
   // Reset transient UI state when a new card opens
   useEffect(() => {
     if (!card || !open) return;
+    hapticTap();
     setShowComments(false);
     setNewComment('');
     setImageFullscreen(false);
