@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Crown } from "lucide-react";
 
 interface PremiumAvatarProps {
@@ -24,15 +25,18 @@ export function PremiumAvatar({
 }: PremiumAvatarProps) {
   const s = sizeClasses[size];
   const initial = (name || "?").charAt(0).toUpperCase();
+  const [imgError, setImgError] = useState(false);
+  const showImage = !!avatarUrl && !imgError;
 
   return (
     <div className={`relative inline-flex shrink-0 rounded-full ${className}`}>
-      {avatarUrl ? (
+      {showImage ? (
         <img
-          src={avatarUrl}
+          src={avatarUrl!}
           alt=""
           loading="lazy"
           decoding="async"
+          onError={() => setImgError(true)}
           className={`${s.wrapper} rounded-full object-cover`}
         />
       ) : (
