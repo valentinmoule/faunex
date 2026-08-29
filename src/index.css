@@ -2821,3 +2821,69 @@ background: linear-gradient(
     animation: none !important;
   }
 }
+
+/* ──────────────────────────────────────────────────────────
+   Jeton "popularité d'espèce" (combien l'ont capturée)
+   ────────────────────────────────────────────────────────── */
+.finders-badge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2.5px 6px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: hsla(0, 0%, 100%, 0.96);
+  background: var(--finders-face, hsla(0, 0%, 0%, 0.5));
+  border: 1px solid hsla(0, 0%, 100%, 0.22);
+  backdrop-filter: blur(4px);
+  box-shadow: 0 1px 3px hsla(0, 0%, 0%, 0.2),
+    0 0 var(--finders-glow-size, 0px) var(--finders-glow, transparent);
+}
+.finders-badge__icon {
+  width: 10px;
+  height: 10px;
+  filter: drop-shadow(0 1px 1px hsla(0, 0%, 0%, 0.3));
+}
+.finders-badge__label {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 8px;
+}
+.finders-badge--none {
+  --finders-face: hsla(220, 12%, 22%, 0.55);
+  color: hsla(0, 0%, 100%, 0.8);
+}
+.finders-badge--rare {
+  --finders-face: linear-gradient(150deg, hsla(268, 78%, 60%, 0.85), hsla(268, 78%, 42%, 0.85));
+  --finders-glow: hsl(268 78% 60% / 0.55);
+  --finders-glow-size: 8px;
+}
+.finders-badge--common {
+  --finders-face: hsla(0, 0%, 0%, 0.5);
+}
+.finders-badge--trending {
+  --finders-face: linear-gradient(150deg, hsla(150, 70%, 42%, 0.9), hsla(160, 75%, 30%, 0.9));
+  --finders-glow: hsl(150 70% 45% / 0.5);
+  --finders-glow-size: 8px;
+}
+.finders-badge--hot {
+  --finders-face: linear-gradient(150deg, #ffb020 0%, #ff6a1f 55%, #ef3a2b 100%);
+  --finders-glow: hsl(20 95% 55% / 0.75);
+  --finders-glow-size: 12px;
+  border-color: hsla(0, 0%, 100%, 0.38);
+}
+.finders-badge--hot .finders-badge__icon {
+  animation: finders-flame 1.6s ease-in-out infinite;
+  transform-origin: 50% 90%;
+}
+@keyframes finders-flame {
+  0%, 100% { transform: scale(1) rotate(-2deg); }
+  50% { transform: scale(1.14) rotate(2deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .finders-badge--hot .finders-badge__icon { animation: none; }
+}
