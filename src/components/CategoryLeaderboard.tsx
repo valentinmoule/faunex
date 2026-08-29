@@ -125,8 +125,8 @@ const podium = rows.slice(0, 3);
           <div className="w-11 h-11 shrink-0 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-display font-bold ring-4 ring-primary/10">
             {mine ? `${mine.rank}${mine.rank === 1 ? 'er' : 'e'}` : '—'}
           </div>
-          <div className="min-w-0 text-left">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-bold">{category === 'all' ? 'Classement général' : 'Classement'}</p>
+<div className="min-w-0 text-left">
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-bold">{!isTerritory && category === 'all' ? 'Classement général' : 'Classement'}</p>
             <p className="text-[13px] font-display font-bold text-foreground truncate">
               {mine ? `${mine.captures} capture${mine.captures > 1 ? 's' : ''} cette semaine` : 'Aucune capture cette semaine'}
             </p>
