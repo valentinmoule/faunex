@@ -10,6 +10,8 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { usePaddleCheckout } from '@/hooks/usePaddleCheckout';
 import { PREMIUM_MONTHLY_PRICE_ID, PREMIUM_YEARLY_PRICE_ID } from '@/lib/paddle';
 import { supabase } from '@/integrations/supabase/client';
+import { IS_NATIVE_APP } from '@/lib/platform';
+import { Browser } from '@capacitor/browser';
 
 interface FeatureRow {
   label: string;
@@ -102,6 +104,7 @@ const PremiumPage = () => {
     try {
       await openCheckout({
         priceId: selected.priceId,
+        plan,
         customerEmail: session.user.email ?? undefined,
         customData: { userId: session.user.id },
         successUrl: `${window.location.origin}/premium?checkout=success`,
@@ -113,6 +116,17 @@ const PremiumPage = () => {
   };
 
   const handleManage = async () => {
+    if (IS_NATIVE_APP) {
+      // Dans l'app native, `window.open` n'ouvre rien d'utilisable : on passe
+      // par le navigateur système.
+      const { data, error } = await supabase.functions.invoke('paddle-portal');
+      if (error || !data?.url) {
+        toast.error("Impossible d'ouvrir la gestion de l'abonnement.");
+        return;
+      }
+      await Browser.open({ url: data.url as string });
+      return;
+    }
     // Ouvre l'onglet immédiatement (dans le geste utilisateur) pour éviter le blocage de popup
     const tab = window.open('', '_blank');
     const { data, error } = await supabase.functions.invoke('paddle-portal');
