@@ -1188,22 +1188,18 @@ Bestiaire
                   </p>
                 </div>
               ) : (
-                <>
-<div className="grid grid-cols-3 gap-2">
-                    {visibleBrowseAnimals.map((animal) => (
-                      <BrowseSpeciesCard key={animal.name} animal={animal} onSelect={handleSelectBrowseAnimal} />
-                    ))}
-                  </div>
-                  {visibleBrowseAnimals.length < browseAnimals.length && (
-                    <div ref={browseSentinelRef} className="flex items-center justify-center gap-2 py-6">
-                      <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                      <span className="text-[11px] text-muted-foreground font-display">
-                        Chargement des espèces suivantes…
-                      </span>
-                    </div>
+                <VirtualSpeciesGrid
+                  items={browseAnimals}
+                  columns={3}
+                  gap={8}
+                  aspectRatio={3 / 4}
+                  getKey={(animal) => animal.name}
+                  renderItem={(animal) => (
+                    <BrowseSpeciesCard animal={animal} onSelect={handleSelectBrowseAnimal} />
                   )}
-                </>
+                />
               )}
+
 
               {/* Modale de filtres */}
               <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
