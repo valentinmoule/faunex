@@ -35,8 +35,8 @@ export function CollectionHero({
         alt={`Illustration de ${title}`}
         className="absolute inset-0 w-full h-full object-cover"
       />
-      <div className="absolute inset-0" style={{ background: overlay }} />
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/25 to-transparent" />
+<div className="absolute inset-0" style={{ background: overlay }} />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/15 to-transparent" />
 
       <div className="relative z-10 h-full max-w-lg mx-auto px-4 pt-[max(env(safe-area-inset-top),1rem)] pb-4 flex flex-col">
         <div className="flex items-center justify-between">
@@ -61,21 +61,21 @@ export function CollectionHero({
         <div className="mt-auto">
           <div className="flex items-center gap-2 mb-1">
             {icon}
-            <h1 className="font-display font-bold text-3xl text-foreground leading-tight drop-shadow-sm">
+<h1 className="font-display font-bold text-3xl text-white leading-tight drop-shadow-sm">
               {title}
             </h1>
           </div>
           {subtitle && (
-            <p className="text-xs text-muted-foreground font-display mb-2">{subtitle}</p>
+<p className="text-xs text-white/75 font-display mb-2">{subtitle}</p>
           )}
           <div className="flex items-center gap-3">
-            <div className="flex-1 h-1.5 rounded-full bg-foreground/15 overflow-hidden">
+<div className="flex-1 h-1.5 rounded-full bg-white/25 overflow-hidden">
               <div
-                className="h-full rounded-full bg-primary transition-all duration-500"
+                className="h-full rounded-full bg-white transition-all duration-500"
                 style={{ width: `${pct}%` }}
               />
             </div>
-            <span className="text-xs font-display font-semibold text-foreground shrink-0">
+            <span className="text-xs font-display font-semibold text-white/90 shrink-0">
               {captured}/{total} · {pct}%
             </span>
           </div>
