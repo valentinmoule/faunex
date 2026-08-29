@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef, memo } from 'react';
 import { PageHeader } from '@/components/PageHeader';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
@@ -13,6 +13,7 @@ import {
   buildCityAnimalSet,
 getCategoryEmoji,
   getCategoryIcon,
+  type BestiaryAnimal,
   normalizeCategory,
   rarityBadge,
   rarityBorderColor,
@@ -41,6 +42,69 @@ const SpeciesCategoryIcon = ({ category, className }: { category: string; classN
   const Icon = getCategoryIcon(category);
   return <Icon className={className} strokeWidth={1.5} />;
 };
+
+/** Carte d'espèce de la grille Bestiaire, mémoïsée : les lots déjà affichés
+ *  ne se re-rendent pas quand les 50 suivantes arrivent. */
+const BrowseSpeciesCard = memo(
+  ({ animal, onSelect }: { animal: BestiaryAnimal; onSelect: (a: BestiaryAnimal) => void }) => (
+    <div
+      onClick={() => onSelect(animal)}
+      className={`relative aspect-[3/4] rounded-xl border-2 overflow-hidden transition-all cursor-pointer active:scale-[0.96] ${
+        animal.captured
+          ? `${rarityBorderColor[animal.rarity] || 'border-border'} bg-card`
+          : 'border-border/40 bg-muted/30'
+      }`}
+    >
+      {animal.captured && animal.captureData ? (
+        <>
+          <img
+            src={animal.captureData.image}
+            alt={animal.name}
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="lazy"
+          />
+          <div className="absolute top-1 right-1">
+            <span className={`inline-flex items-center px-1 py-px rounded-md text-[8px] font-display font-bold uppercase tracking-wide backdrop-blur-sm ${rarityBadge[animal.rarity] || 'bg-black/60 text-white'}`}>
+              {RARITY_LABELS[animal.rarity] || animal.rarity}
+            </span>
+          </div>
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5 pt-8">
+            <p className="text-xs font-display font-bold text-white truncate leading-tight">
+              {animal.name}
+            </p>
+            {animal.scientific_name && (
+              <p className="text-[9px] font-body italic text-white/80 truncate">
+                {animal.scientific_name}
+              </p>
+            )}
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <SpeciesCategoryIcon category={animal.category} className="w-10 h-10 opacity-60" />
+          </div>
+          <div className="absolute top-1 right-1">
+            <span className={`inline-flex items-center px-1 py-px rounded-md text-[8px] font-display font-bold uppercase tracking-wide ${rarityBadge[animal.rarity] || 'bg-muted text-muted-foreground'}`}>
+              {RARITY_LABELS[animal.rarity] || animal.rarity}
+            </span>
+          </div>
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent p-2.5 pt-8">
+            <p className="text-xs font-display font-bold text-white truncate leading-tight">
+              {animal.name}
+            </p>
+            {animal.scientific_name && (
+              <p className="text-[9px] font-body italic text-white/80 truncate">
+                {animal.scientific_name}
+              </p>
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  ),
+);
+BrowseSpeciesCard.displayName = 'BrowseSpeciesCard';
 
 
 const BestiairePage = () => {
@@ -215,7 +279,7 @@ const BestiairePage = () => {
       : animals.filter(
           (a) => getSpeciesGroup(a.name, a.scientific_name, a.category)?.key === key,
         );
-    return [...list].sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+    return list; // déjà trié alphabétiquement via `animals`
   }, [animals, selectedCollection]);
 
   /** Catégorie utilisée pour le classement affiché dans une collection. */
@@ -321,8 +385,8 @@ const browseAnimals = useMemo(() => {
     return animals
       .filter(a => categoryFilter.length === 0 || categoryFilter.includes(normalizeCategory(a.category)))
       .filter(a => rarityFilter === 'all' || a.rarity === rarityFilter)
-      .filter(matchesSearch)
-      .sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+      .filter(matchesSearch);
+    // Pas de re-tri : `animals` est déjà trié alphabétiquement au chargement.
   }, [animals, categoryFilter, rarityFilter, matchesSearch]);
 
   // Infinite scroll : 50 espèces par lot, chargement automatique en fin de liste
@@ -354,6 +418,29 @@ const browseAnimals = useMemo(() => {
     observer.observe(el);
     return () => observer.disconnect();
   }, [browseAnimals.length]);
+
+  // Callback stable pour les cartes mémoïsées de la grille.
+  const handleSelectBrowseAnimal = useCallback((animal: BestiaryAnimal) => {
+    if (animal.captured && animal.captureData) {
+      setSelectedCard(animal.captureData);
+    } else {
+      setSelectedCard({
+        id: `uncaptured-${animal.name}`,
+        name: animal.name,
+        scientificName: animal.scientific_name || '',
+        image: '',
+        rarity: animal.rarity as Rarity,
+        category: animal.category,
+        description: '',
+        habitat: '',
+        diet: '',
+        conservation: '',
+        funFact: '',
+        discoveredAt: '',
+        location: '',
+      });
+    }
+  }, []);
 
   const activeFilterCount = categoryFilter.length + (rarityFilter !== 'all' ? 1 : 0);
 
@@ -392,9 +479,7 @@ const browseAnimals = useMemo(() => {
     const deptSet = animalsByDept[selectedZone.departmentCode];
     if (!deptSet) return [];
     const set = selectedZone.kind === 'city' ? buildCityAnimalSet(deptSet, animals) : deptSet;
-    return animals
-      .filter((a) => set.has(a.name.toLowerCase()))
-      .sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+    return animals.filter((a) => set.has(a.name.toLowerCase())); // déjà trié via `animals`
   }, [animals, animalsByDept, selectedZone]);
 
   // Progress map keyed by zone id
@@ -1219,82 +1304,7 @@ Bestiaire
                 <>
 <div className="grid grid-cols-3 gap-2">
                     {visibleBrowseAnimals.map((animal) => (
-                      <div
-                        key={animal.name}
-                        onClick={() => {
-                          if (animal.captured && animal.captureData) {
-                            setSelectedCard(animal.captureData);
-                          } else {
-                            setSelectedCard({
-                              id: `uncaptured-${animal.name}`,
-                              name: animal.name,
-                              scientificName: animal.scientific_name || '',
-                              image: '',
-                              rarity: animal.rarity as Rarity,
-                              category: animal.category,
-                              description: '',
-                              habitat: '',
-                              diet: '',
-                              conservation: '',
-                              funFact: '',
-                              discoveredAt: '',
-                              location: '',
-                            });
-                          }
-                        }}
-                        className={`relative aspect-[3/4] rounded-xl border-2 overflow-hidden transition-all cursor-pointer active:scale-[0.96] ${
-                          animal.captured
-                            ? `${rarityBorderColor[animal.rarity] || 'border-border'} bg-card`
-                            : 'border-border/40 bg-muted/30'
-                        }`}
-                      >
-                        {animal.captured && animal.captureData ? (
-                          <>
-                            <img
-                              src={animal.captureData.image}
-                              alt={animal.name}
-                              className="absolute inset-0 w-full h-full object-cover"
-                              loading="lazy"
-                            />
-                            <div className="absolute top-1 right-1">
-                              <span className={`inline-flex items-center px-1 py-px rounded-md text-[8px] font-display font-bold uppercase tracking-wide backdrop-blur-sm ${rarityBadge[animal.rarity] || 'bg-black/60 text-white'}`}>
-                                {RARITY_LABELS[animal.rarity] || animal.rarity}
-                              </span>
-                            </div>
-                            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5 pt-8">
-                              <p className="text-xs font-display font-bold text-white truncate leading-tight">
-                                {animal.name}
-                              </p>
-                              {animal.scientific_name && (
-                                <p className="text-[9px] font-body italic text-white/80 truncate">
-                                  {animal.scientific_name}
-                                </p>
-                              )}
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <SpeciesCategoryIcon category={animal.category} className="w-10 h-10 opacity-60" />
-                            </div>
-                            <div className="absolute top-1 right-1">
-                              <span className={`inline-flex items-center px-1 py-px rounded-md text-[8px] font-display font-bold uppercase tracking-wide ${rarityBadge[animal.rarity] || 'bg-muted text-muted-foreground'}`}>
-                                {RARITY_LABELS[animal.rarity] || animal.rarity}
-                              </span>
-                            </div>
-                            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent p-2.5 pt-8">
-                              <p className="text-xs font-display font-bold text-white truncate leading-tight">
-                                {animal.name}
-                              </p>
-                              {animal.scientific_name && (
-                                <p className="text-[9px] font-body italic text-white/80 truncate">
-                                  {animal.scientific_name}
-                                </p>
-                              )}
-                            </div>
-                          </>
-                        )}
-                      </div>
+                      <BrowseSpeciesCard key={animal.name} animal={animal} onSelect={handleSelectBrowseAnimal} />
                     ))}
                   </div>
                   {visibleBrowseAnimals.length < browseAnimals.length && (
