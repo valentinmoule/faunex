@@ -1049,31 +1049,7 @@ Bestiaire
                 Collections
               </button>
             </div>
-            {viewMode !== 'collections' && (
-              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1">
-                {(['all', 'common', 'rare', 'epic', 'mythic'] as const).map((r) => {
-                  const active = rarityFilter === r;
-                  const label = r === 'all' ? 'Toutes' : RARITY_LABELS[r as Rarity];
-                  return (
-                    <button
-                      key={r}
-                      onClick={() => setRarityFilter(r)}
-                      className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-display font-semibold border transition-all ${
-                        active
-                          ? 'bg-primary text-primary-foreground border-primary'
-                          : 'bg-card text-muted-foreground border-border hover:border-primary/40'
-                      }`}
-                    >
-                      {r !== 'all' && (
-                        <span className={`w-1.5 h-1.5 rounded-full ${rarityDot[r] || 'bg-muted-foreground'}`} />
-                      )}
-                      {label}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </section>
+</section>
 
           {viewMode === 'mine' && (
             <section>
