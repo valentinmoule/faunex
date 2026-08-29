@@ -96,6 +96,37 @@ const PremiumPage = () => {
     }
   }, [params, setParams, refresh]);
 
+  // Ouverture automatique du paiement quand l'app native renvoie ici via le
+  // navigateur système (`/premium?checkout=auto&plan=…&uid=…&email=…`).
+  const autoCheckout = params.get('checkout') === 'auto';
+  useEffect(() => {
+    if (!autoCheckout || IS_NATIVE_APP) return;
+    const wanted = params.get('plan') === 'monthly' ? 'monthly' : 'yearly';
+    const uid = params.get('uid') || session?.user?.id;
+    const email = params.get('email') || session?.user?.email || undefined;
+    setPlan(wanted);
+    params.delete('checkout');
+    params.delete('plan');
+    params.delete('email');
+    params.delete('uid');
+    setParams(params, { replace: true });
+    if (!uid) {
+      navigate('/auth');
+      return;
+    }
+    openCheckout({
+      priceId: wanted === 'monthly' ? PREMIUM_MONTHLY_PRICE_ID : PREMIUM_YEARLY_PRICE_ID,
+      plan: wanted,
+      customerEmail: email,
+      customData: { userId: uid },
+      successUrl: `${window.location.origin}/premium?checkout=success`,
+    }).catch((e) => {
+      console.error(e);
+      toast.error("Impossible d'ouvrir le paiement pour le moment.");
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoCheckout]);
+
   const handleSubscribe = async () => {
     if (!session?.user) {
       navigate('/auth');
