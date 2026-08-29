@@ -922,6 +922,8 @@ const BestiairePage = () => {
         </PageHeader>
 
         <div className="max-w-lg mx-auto px-4 pt-4 space-y-6">
+          <CategoryLeaderboard category="all" />
+
           {/* View toggle + rarity filter */}
           <section className="space-y-3">
             <div className="flex items-center gap-1 p-1 rounded-full bg-muted/60 border border-border w-full">
