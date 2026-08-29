@@ -811,8 +811,9 @@ const CapturePage = () => {
       {duplicateCapture && (
         <div className="relative z-30 bg-foreground/95 backdrop-blur-sm px-5 py-4 space-y-3 border-t border-primary-foreground/10">
           <p className="text-primary-foreground font-display font-semibold text-sm text-center">
-            ⚠️ {duplicateCapture.animal_name} est déjà dans ton Faunex !
+            ⚠️ Tu as déjà cette espèce dans ton Faunex : {duplicateCapture.animal_name}
           </p>
+
           <div className="flex gap-3 items-center justify-center">
             <div className="text-center">
               <p className="text-[10px] text-primary-foreground/70 font-display mb-1">Actuelle</p>
