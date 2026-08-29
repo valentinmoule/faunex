@@ -321,12 +321,10 @@ serve(async (req) => {
 
 
     /**
-     * Garde-fou de consommation : un appel IA non caché est facturé, et les
-     * mesures montrent qu'une minorité d'explorateurs lance des dizaines
-     * d'analyses par jour (jusqu'à 148) alors que seules 4 captures par jour
-     * sont enregistrables. On plafonne donc les analyses réellement facturées
-     * (15/jour, 60 pour un compte premium). Les réutilisations de cache, elles,
-     * ne consomment rien : le contrôle est volontairement placé après le cache.
+     * Quota d'analyses IA aligné sur le quota de captures : 4 analyses
+     * réellement facturées par jour en gratuit, illimité en Premium.
+     * Les réutilisations de cache ne consomment rien : le contrôle est
+     * volontairement placé après le cache.
      */
     if (cacheDb) {
       try {
@@ -348,7 +346,7 @@ serve(async (req) => {
               success: false,
               reason: "daily_limit",
               message:
-                "Tu as atteint ta limite d'analyses pour aujourd'hui. Reviens demain ou passe en Faunex Premium pour en avoir bien plus.",
+                "Tu as atteint ta limite de 4 analyses pour aujourd'hui. Reviens demain, ou passe en Faunex Premium pour des analyses illimitées.",
             });
           }
         }
