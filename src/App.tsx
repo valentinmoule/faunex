@@ -15,6 +15,7 @@ import BottomNav from "./components/BottomNav";
 import ScrollToTop from "./components/ScrollToTop";
 import PullToDiscover from "./components/PullToDiscover";
 import { PushPermissionPrompt } from "./components/PushPermissionPrompt";
+import PageTransition from "./components/PageTransition";
 import { SHOW_MARKETING_PAGES } from "./lib/platform";
 
 
