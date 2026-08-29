@@ -1008,6 +1008,7 @@ const browseAnimals = useMemo(() => {
   if (selectedCollection) {
     return (
       <main className="min-h-screen bg-background pb-24">
+        <CollectionAmbience art={getCollectionArt(selectedCollection.group.key, selectedCollection.group.label)} />
         <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
           <div className="max-w-lg mx-auto">
             <div className="flex items-center gap-3">
