@@ -331,7 +331,7 @@ const BestiairePage = () => {
     if (!selectedCategory) return [];
     return animals
       .filter(a => selectedCategory === ALL_SPECIES || normalizeCategory(a.category) === selectedCategory)
-.filter(a => rarityFilter.length === 0 || rarityFilter.includes(a.rarity))
+.filter(a => rarityFilter.length === 0 || rarityFilter.includes(a.rarity as Rarity))
       .filter(matchesSearch);
   }, [animals, selectedCategory, rarityFilter, matchesSearch]);
 
@@ -380,7 +380,7 @@ const BestiairePage = () => {
 const browseAnimals = useMemo(() => {
     return animals
       .filter(a => categoryFilter.length === 0 || categoryFilter.includes(normalizeCategory(a.category)))
-.filter(a => rarityFilter.length === 0 || rarityFilter.includes(a.rarity))
+.filter(a => rarityFilter.length === 0 || rarityFilter.includes(a.rarity as Rarity))
       .filter(matchesSearch);
     // Pas de re-tri : `animals` est déjà trié alphabétiquement au chargement.
   }, [animals, categoryFilter, rarityFilter, matchesSearch]);
@@ -443,7 +443,7 @@ const browseAnimals = useMemo(() => {
   const browseTotal = useMemo(
     () => animals
       .filter(a => categoryFilter.length === 0 || categoryFilter.includes(normalizeCategory(a.category)))
-      .filter(a => rarityFilter.length === 0 || rarityFilter.includes(a.rarity))
+      .filter(a => rarityFilter.length === 0 || rarityFilter.includes(a.rarity as Rarity))
       .filter(matchesSearch).length,
     [animals, categoryFilter, rarityFilter, matchesSearch],
   );
