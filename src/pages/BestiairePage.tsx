@@ -419,6 +419,29 @@ const browseAnimals = useMemo(() => {
     return () => observer.disconnect();
   }, [browseAnimals.length]);
 
+  // Callback stable pour les cartes mémoïsées de la grille.
+  const handleSelectBrowseAnimal = useCallback((animal: BestiaryAnimal) => {
+    if (animal.captured && animal.captureData) {
+      setSelectedCard(animal.captureData);
+    } else {
+      setSelectedCard({
+        id: `uncaptured-${animal.name}`,
+        name: animal.name,
+        scientificName: animal.scientific_name || '',
+        image: '',
+        rarity: animal.rarity as Rarity,
+        category: animal.category,
+        description: '',
+        habitat: '',
+        diet: '',
+        conservation: '',
+        funFact: '',
+        discoveredAt: '',
+        location: '',
+      });
+    }
+  }, []);
+
   const activeFilterCount = categoryFilter.length + (rarityFilter !== 'all' ? 1 : 0);
 
   const browseTotal = useMemo(
