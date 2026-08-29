@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { fetchAllRows } from '@/lib/fetchAll';
 import type { Rarity } from '@/data/mockData';
 import { buildRegionalAnimalSet, type BestiaryAnimal, type ZoneSub } from '@/lib/bestiary';
+import { readCatalogueCache, writeCatalogueCache, type CatalogueEntry } from '@/lib/bestiaryCache';
 import type { AnimalCard } from '@/data/mockData';
 
 /** Loads the bestiary catalogue, the user's captures, notifications count and zone subscriptions. */
