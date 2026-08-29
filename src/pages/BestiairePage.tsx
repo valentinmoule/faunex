@@ -20,6 +20,7 @@ getCategoryEmoji,
   rarityDot,
   type ZoneSub,
 } from '@/lib/bestiary';
+import { getCollectionArt, getZoneArt } from '@/lib/collectionArt';
 import { MIN_BREEDS_PER_GROUP, BREED_GROUPS, getBreedGroup, getSpeciesGroup, type BreedGroup } from '@/lib/breedGroups';
 import { useBestiaryData } from '@/hooks/useBestiaryData';
 import { useCitySearch } from '@/hooks/useCitySearch';
@@ -906,12 +907,37 @@ const browseAnimals = useMemo(() => {
         </PageHeader>
 
 <div className="max-w-lg mx-auto px-3 pt-3 space-y-4">
+          {(() => {
+            const art = getZoneArt(selectedZone.kind);
+            const pct = prog.total > 0 ? Math.round((prog.captured / prog.total) * 100) : 0;
+            return (
+              <div className="relative overflow-hidden rounded-3xl border border-border shadow-sm">
+                <img
+                  src={art.image}
+                  alt={`Illustration du territoire ${title}`}
+                  loading="lazy"
+                  className="w-full h-40 object-cover"
+                />
+                <div className="absolute inset-0" style={{ background: art.overlay }} />
+                <div className="absolute inset-x-0 bottom-0 p-4">
+                  <h2 className="font-display font-bold text-xl text-primary-foreground leading-tight drop-shadow">{title}</h2>
+                  <p className="text-[11px] text-primary-foreground/85 font-display mb-2">
+                    {prog.captured}/{prog.total} capturés · {pct}%
+                  </p>
+                  <div className="w-full h-1.5 rounded-full bg-primary-foreground/25 overflow-hidden">
+                    <div className="h-full rounded-full bg-primary-foreground transition-all duration-500" style={{ width: `${pct}%` }} />
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
           {isCity && (
             <p className="text-[11px] text-muted-foreground font-display text-center px-3">
               Espèces présentes dans le territoire de {dept?.name || selectedZone.departmentCode}.
             </p>
           )}
           <CategoryLeaderboard territory={{ code: selectedZone.departmentCode, label: title }} />
+
           {zoneAnimals.length === 0 ? (
             <div className="text-center py-16">
               <p className="text-4xl mb-3">📭</p>
@@ -1010,9 +1036,38 @@ const browseAnimals = useMemo(() => {
         </PageHeader>
 
         <div className="max-w-lg mx-auto px-3 pt-3 space-y-4">
+          {(() => {
+            const art = getCollectionArt(selectedCollection.group.key, selectedCollection.group.label);
+            const pct = selectedCollection.total > 0
+              ? Math.round((selectedCollection.captured / selectedCollection.total) * 100)
+              : 0;
+            return (
+              <div className="relative overflow-hidden rounded-3xl border border-border shadow-sm">
+                <img
+                  src={art.image}
+                  alt={`Illustration de la collection ${selectedCollection.group.label}`}
+                  loading="lazy"
+                  className="w-full h-40 object-cover"
+                />
+                <div className="absolute inset-0" style={{ background: art.overlay }} />
+                <div className="absolute inset-x-0 bottom-0 p-4">
+                  <h2 className="font-display font-bold text-xl text-primary-foreground leading-tight drop-shadow">
+                    {selectedCollection.group.label}
+                  </h2>
+                  <p className="text-[11px] text-primary-foreground/85 font-display mb-2">
+                    {selectedCollection.captured}/{selectedCollection.total} capturés · {pct}%
+                  </p>
+                  <div className="w-full h-1.5 rounded-full bg-primary-foreground/25 overflow-hidden">
+                    <div className="h-full rounded-full bg-primary-foreground transition-all duration-500" style={{ width: `${pct}%` }} />
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
           {collectionLeaderboardCategory && (
             <CategoryLeaderboard category={collectionLeaderboardCategory} />
           )}
+
           <div className="grid grid-cols-4 gap-1.5">
 
             {collectionAnimals.map((animal, index) => (
@@ -1435,22 +1490,33 @@ Bestiaire
                     const sub = isCity
                       ? `${zone.cityPostcode || ''}${d ? ` · ${d.name}` : ''}`
                       : zone.departmentCode;
+                    const art = getZoneArt(zone.kind);
                     return (
                       <button
                         key={zone.id}
                         onClick={() => setSelectedZoneId(zone.id)}
-                        className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-md"
+                        className="group relative overflow-hidden rounded-2xl border border-border text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-lg"
                       >
-                        <div className="flex items-center gap-1.5 mb-2">
-                          <ZoneIcon className="w-5 h-5 text-primary" strokeWidth={1.75} />
-                          <span className="text-[10px] font-display font-bold text-muted-foreground tabular-nums truncate">{sub}</span>
-                        </div>
-                        <h3 className="font-display font-bold text-sm text-foreground leading-tight mb-1 truncate">{title}</h3>
-                        <p className="text-[11px] text-muted-foreground font-display mb-3">
-                          {p.captured}/{p.total} capturés
-                        </p>
-                        <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
-                          <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${pct}%` }} />
+                        <img
+                          src={art.image}
+                          alt=""
+                          aria-hidden="true"
+                          loading="lazy"
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0" style={{ background: art.overlay }} />
+                        <div className="relative p-4 pt-16">
+                          <div className="flex items-center gap-1.5 mb-1.5">
+                            <ZoneIcon className="w-4 h-4 text-primary-foreground/90" strokeWidth={2} />
+                            <span className="text-[10px] font-display font-bold text-primary-foreground/80 tabular-nums truncate">{sub}</span>
+                          </div>
+                          <h3 className="font-display font-bold text-sm text-primary-foreground leading-tight mb-0.5 truncate drop-shadow">{title}</h3>
+                          <p className="text-[11px] text-primary-foreground/80 font-display mb-2.5">
+                            {p.captured}/{p.total} capturés
+                          </p>
+                          <div className="w-full h-1.5 rounded-full bg-primary-foreground/25 overflow-hidden">
+                            <div className="h-full rounded-full bg-primary-foreground transition-all duration-500" style={{ width: `${pct}%` }} />
+                          </div>
                         </div>
                       </button>
                     );
@@ -1458,24 +1524,35 @@ Bestiaire
 
                   {myCollections.map(({ group, total, captured }) => {
                     const pct = total > 0 ? Math.round((captured / total) * 100) : 0;
+                    const art = getCollectionArt(group.key, group.label);
                     return (
                       <button
                         key={group.key}
                         onClick={() => setSelectedCollectionKey(group.key)}
-                        className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-md"
+                        className="group relative overflow-hidden rounded-2xl border border-border text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-lg"
                       >
-                        <div className="text-xl mb-2 leading-none h-5 flex items-center">{group.emoji}</div>
-                        <h3 className="font-display font-bold text-sm text-foreground leading-tight mb-1 truncate">{group.label}</h3>
-                        <p className="text-[11px] text-muted-foreground font-display mb-3">
-                          {captured}/{total} capturés
-                        </p>
-                        <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
-                          <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${pct}%` }} />
+                        <img
+                          src={art.image}
+                          alt=""
+                          aria-hidden="true"
+                          loading="lazy"
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0" style={{ background: art.overlay }} />
+                        <div className="relative p-4 pt-16">
+                          <h3 className="font-display font-bold text-sm text-primary-foreground leading-tight mb-0.5 truncate drop-shadow">{group.label}</h3>
+                          <p className="text-[11px] text-primary-foreground/80 font-display mb-2.5">
+                            {captured}/{total} capturés
+                          </p>
+                          <div className="w-full h-1.5 rounded-full bg-primary-foreground/25 overflow-hidden">
+                            <div className="h-full rounded-full bg-primary-foreground transition-all duration-500" style={{ width: `${pct}%` }} />
+                          </div>
                         </div>
                       </button>
                     );
                   })}
                 </div>
+
               )}
             </section>
           )}
