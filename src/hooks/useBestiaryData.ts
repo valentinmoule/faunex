@@ -55,9 +55,10 @@ export const useBestiaryData = (userId: string | undefined) => {
       location: capture.location || '',
     });
 
-    const buildList = (
+const buildList = (
       catalogue: CatalogueEntry[],
       capturesByName: Map<string, any>,
+      findersMap?: Map<string, number>,
     ): BestiaryAnimal[] => {
       const list = catalogue.map((a) => {
         const capture = capturesByName.get(a.name.toLowerCase());
@@ -68,6 +69,7 @@ export const useBestiaryData = (userId: string | undefined) => {
           category: a.category || '',
           captured: !!capture,
           captureData: capture ? toCard(capture) : undefined,
+          finders: findersMap?.get(a.name.toLowerCase()) || 0,
         } as BestiaryAnimal;
       });
       list.sort((a, b) => a.name.localeCompare(b.name, 'fr'));
