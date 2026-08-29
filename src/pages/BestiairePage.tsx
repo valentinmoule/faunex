@@ -442,10 +442,10 @@ const browseAnimals = useMemo(() => {
     [animals, categoryFilter, rarityFilter, matchesSearch],
   );
 
-  // Flat list of my own captures (one entry per capture), filtered + sorted by most recent
+  // Flat list of my own captures (one entry per capture), filtered + trié selon le mode choisi
   const myCapturedAnimals = useMemo(() => {
     const q = normalizeSearch(mineSearch);
-    return myCaptures
+    const list = myCaptures
       .filter(c => rarityFilter.length === 0 || rarityFilter.includes(c.rarity))
       .filter(c =>
         !q ||
@@ -453,9 +453,27 @@ const browseAnimals = useMemo(() => {
         normalizeSearch(c.scientificName || '').includes(q) ||
         normalizeSearch(c.category || '').includes(q) ||
         normalizeSearch(c.location || '').includes(q)
-      )
-      .sort((a, b) => +new Date(b.discoveredAt || 0) - +new Date(a.discoveredAt || 0));
-  }, [myCaptures, rarityFilter, mineSearch]);
+      );
+
+    if (mineSort === 'alpha') {
+      return list.sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+    }
+    if (mineSort === 'custom' && customOrder.length > 0) {
+      const rank = new Map(customOrder.map((id, i) => [id, i]));
+      return list.sort((a, b) => {
+        const ra = rank.get(a.id);
+        const rb = rank.get(b.id);
+        if (ra === undefined && rb === undefined) {
+          return +new Date(b.discoveredAt || 0) - +new Date(a.discoveredAt || 0);
+        }
+        if (ra === undefined) return -1; // nouvelles captures en tête
+        if (rb === undefined) return 1;
+        return ra - rb;
+      });
+    }
+    return list.sort((a, b) => +new Date(b.discoveredAt || 0) - +new Date(a.discoveredAt || 0));
+  }, [myCaptures, rarityFilter, mineSearch, mineSort, customOrder]);
+
 
 
   const selectedZone: ZoneSub | null = useMemo(
