@@ -84,12 +84,7 @@ const BrowseSpeciesCard = memo(
           <div className="absolute inset-0 flex items-center justify-center">
             <SpeciesCategoryIcon category={animal.category} className="w-10 h-10 opacity-60" />
           </div>
-          <div className="absolute top-1 right-1">
-            <span className={`inline-flex items-center px-1 py-px rounded-md text-[8px] font-display font-bold uppercase tracking-wide ${rarityBadge[animal.rarity] || 'bg-muted text-muted-foreground'}`}>
-              {RARITY_LABELS[animal.rarity] || animal.rarity}
-            </span>
-          </div>
-          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent p-2.5 pt-8">
+<div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent p-2.5 pt-8">
             <p className="text-xs font-display font-bold text-white truncate leading-tight">
               {animal.name}
             </p>
