@@ -9,6 +9,7 @@ import { SpiderIcon } from '@/components/icons/SpiderIcon';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import HolographicCard from '@/components/HolographicCard';
+import RarityBadge from '@/components/RarityBadge';
 import { hapticTap } from '@/lib/haptics';
 import { toast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
