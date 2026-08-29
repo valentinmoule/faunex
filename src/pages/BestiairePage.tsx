@@ -110,7 +110,7 @@ const BestiairePage = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedBreedGroup, setSelectedBreedGroup] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'mine' | 'categories' | 'collections'>('mine');
-  const [rarityFilter, setRarityFilter] = useState<Rarity | 'all'>('all');
+  const [rarityFilter, setRarityFilter] = useState<Rarity[]>([]);
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
   const [selectedCollectionKey, setSelectedCollectionKey] = useState<string | null>(null);
@@ -331,7 +331,7 @@ const BestiairePage = () => {
     if (!selectedCategory) return [];
     return animals
       .filter(a => selectedCategory === ALL_SPECIES || normalizeCategory(a.category) === selectedCategory)
-      .filter(a => rarityFilter === 'all' || a.rarity === rarityFilter)
+.filter(a => rarityFilter.length === 0 || rarityFilter.includes(a.rarity))
       .filter(matchesSearch);
   }, [animals, selectedCategory, rarityFilter, matchesSearch]);
 
@@ -380,7 +380,7 @@ const BestiairePage = () => {
 const browseAnimals = useMemo(() => {
     return animals
       .filter(a => categoryFilter.length === 0 || categoryFilter.includes(normalizeCategory(a.category)))
-      .filter(a => rarityFilter === 'all' || a.rarity === rarityFilter)
+.filter(a => rarityFilter.length === 0 || rarityFilter.includes(a.rarity))
       .filter(matchesSearch);
     // Pas de re-tri : `animals` est déjà trié alphabétiquement au chargement.
   }, [animals, categoryFilter, rarityFilter, matchesSearch]);
@@ -438,12 +438,12 @@ const browseAnimals = useMemo(() => {
     }
   }, []);
 
-  const activeFilterCount = categoryFilter.length + (rarityFilter !== 'all' ? 1 : 0);
+  const activeFilterCount = categoryFilter.length + rarityFilter.length;
 
   const browseTotal = useMemo(
     () => animals
       .filter(a => categoryFilter.length === 0 || categoryFilter.includes(normalizeCategory(a.category)))
-      .filter(a => rarityFilter === 'all' || a.rarity === rarityFilter)
+      .filter(a => rarityFilter.length === 0 || rarityFilter.includes(a.rarity))
       .filter(matchesSearch).length,
     [animals, categoryFilter, rarityFilter, matchesSearch],
   );
@@ -452,7 +452,7 @@ const browseAnimals = useMemo(() => {
   const myCapturedAnimals = useMemo(() => {
     const q = normalizeSearch(mineSearch);
     return myCaptures
-      .filter(c => rarityFilter === 'all' || c.rarity === rarityFilter)
+      .filter(c => rarityFilter.length === 0 || rarityFilter.includes(c.rarity))
       .filter(c =>
         !q ||
         normalizeSearch(c.name).includes(q) ||
@@ -1227,9 +1227,9 @@ Bestiaire
                   <p className="text-xs font-display text-muted-foreground px-6">
                     {mineSearch.trim()
                       ? `Aucune capture ne correspond à « ${mineSearch.trim()} ».`
-                      : rarityFilter === 'all'
+: rarityFilter.length === 0
                       ? "Tu n'as pas encore de capture. Pars en exploration !"
-                      : `Aucune capture ${RARITY_LABELS[rarityFilter as Rarity].toLowerCase()} pour l'instant.`}
+                      : "Aucune capture ne correspond aux raretés sélectionnées."}
 
                   </p>
                 </div>
@@ -1406,25 +1406,29 @@ Bestiaire
                     })}
                   </div>
 
-                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-display font-bold mt-5 mb-2">Rareté</p>
+<p className="text-[11px] uppercase tracking-wider text-muted-foreground font-display font-bold mt-5 mb-2">Rareté</p>
+                  <p className="text-[11px] font-display text-muted-foreground mb-2">
+                    Toutes les raretés sont incluses par défaut — touche une rareté pour la restreindre.
+                  </p>
                   <div className="flex flex-wrap gap-2">
-                    {(['all', 'common', 'rare', 'epic', 'mythic'] as const).map((r) => {
-                      const active = rarityFilter === r;
-                      const label = r === 'all' ? 'Toutes' : RARITY_LABELS[r as Rarity];
+                    {(['common', 'rare', 'epic', 'mythic'] as Rarity[]).map((r) => {
+                      const active = rarityFilter.includes(r);
                       return (
                         <button
                           key={r}
-                          onClick={() => setRarityFilter(r)}
+                          onClick={() =>
+                            setRarityFilter(prev =>
+                              active ? prev.filter(x => x !== r) : [...prev, r]
+                            )
+                          }
                           className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-[12px] font-display font-semibold border transition-all active:scale-95 ${
                             active
                               ? 'bg-primary text-primary-foreground border-primary'
                               : 'bg-card text-foreground border-border hover:border-primary/40'
                           }`}
                         >
-                          {r !== 'all' && (
-                            <span className={`w-1.5 h-1.5 rounded-full ${rarityDot[r] || 'bg-muted-foreground'}`} />
-                          )}
-                          {label}
+                          <span className={`w-1.5 h-1.5 rounded-full ${rarityDot[r] || 'bg-muted-foreground'}`} />
+                          {RARITY_LABELS[r]}
                         </button>
                       );
                     })}
@@ -1434,7 +1438,7 @@ Bestiaire
                     <button
                       onClick={() => {
                         setCategoryFilter([]);
-                        setRarityFilter('all');
+                        setRarityFilter([]);
                       }}
                       className="px-4 py-2.5 rounded-xl border border-border bg-card text-sm font-display font-semibold text-foreground active:scale-[0.97] transition"
                     >
