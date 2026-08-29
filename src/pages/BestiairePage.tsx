@@ -620,7 +620,8 @@ const BestiairePage = () => {
                               {group.label}
                             </p>
                             <p className="text-[11px] text-muted-foreground font-display">
-                              {captured}/{total} capturés
+                              {group.key.startsWith('cat:') ? 'Grande catégorie · ' : ''}{captured}/{total} capturés
+
                             </p>
                           </div>
                           {already ? (
