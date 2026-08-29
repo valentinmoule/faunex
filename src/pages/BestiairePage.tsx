@@ -1264,7 +1264,8 @@ Bestiaire
                       onClick={() => setCategoryFilter(prev => prev.filter(c => c !== cat))}
                       className="flex items-center gap-1 pl-2 pr-1.5 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-display font-semibold active:scale-95 transition"
                     >
-                      {getCategoryEmoji(cat)} {cat}
+<SpeciesCategoryIcon category={cat} className="w-3.5 h-3.5" />
+                      {cat}
                       <X className="w-3 h-3" />
                     </button>
                   ))}
@@ -1342,7 +1343,7 @@ Bestiaire
                               : 'bg-card text-foreground border-border hover:border-primary/40'
                           }`}
                         >
-                          <span>{getCategoryEmoji(cat.name)}</span>
+<SpeciesCategoryIcon category={cat.name} className="w-4 h-4" />
                           {cat.name}
                           <span className={active ? 'opacity-80' : 'opacity-50'}>{cat.total}</span>
                         </button>
