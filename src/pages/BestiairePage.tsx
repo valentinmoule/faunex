@@ -47,13 +47,17 @@ const ALL_SPECIES = 'Toutes les espèces';
 const ALL_GRID_LIMIT = 200;
 
 /** Tri de l'onglet « Mes captures ». */
-type MineSort = 'recent' | 'alpha' | 'custom';
+type MineSort = 'recent' | 'alpha' | 'rarity' | 'custom';
 
 const MINE_SORT_LABELS: Record<MineSort, string> = {
   recent: 'Plus récentes',
   alpha: 'Ordre alphabétique',
+  rarity: 'Plus rares',
   custom: 'Personnalisé',
 };
+
+// Ordre de rareté décroissant : mythique en premier
+const RARITY_SORT_ORDER: Record<string, number> = { mythic: 0, epic: 1, rare: 2, common: 3 };
 
 const sortStorageKey = (uid: string) => `faunex:mine-sort:${uid}`;
 const orderStorageKey = (uid: string) => `faunex:mine-order:${uid}`;
@@ -560,6 +564,13 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
 
     if (mineSort === 'alpha') {
       return list.sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+    }
+    if (mineSort === 'rarity') {
+      return list.sort((a, b) => {
+        const diff = (RARITY_SORT_ORDER[a.rarity] ?? 4) - (RARITY_SORT_ORDER[b.rarity] ?? 4);
+        if (diff !== 0) return diff;
+        return +new Date(b.discoveredAt || 0) - +new Date(a.discoveredAt || 0);
+      });
     }
     if (mineSort === 'custom' && customOrder.length > 0) {
       const rank = new Map(customOrder.map((id, i) => [id, i]));
@@ -1206,7 +1217,7 @@ Bestiaire
                     <SheetTitle className="font-display">Trier mes captures</SheetTitle>
                   </SheetHeader>
                   <div className="mt-4 space-y-2 pb-4">
-                    {(['recent', 'alpha', 'custom'] as MineSort[]).map((mode) => {
+                    {(['recent', 'alpha', 'rarity', 'custom'] as MineSort[]).map((mode) => {
                       const active = mineSort === mode;
                       return (
                         <button
