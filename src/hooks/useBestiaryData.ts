@@ -60,7 +60,17 @@ const buildList = (
       capturesByName: Map<string, any>,
       findersMap?: Map<string, number>,
     ): BestiaryAnimal[] => {
-      const list = catalogue.map((a) => {
+      // Déduplication défensive : la pagination du catalogue peut renvoyer
+      // deux fois la même espèce si l'ordre n'est pas strictement stable.
+      const seen = new Set<string>();
+      const list = catalogue
+        .filter((a) => {
+          const key = (a.name || '').toLowerCase();
+          if (!key || seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        })
+        .map((a) => {
         const capture = capturesByName.get(a.name.toLowerCase());
         return {
           name: a.name,
