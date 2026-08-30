@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { type Rarity, RARITY_LABELS } from '@/data/mockData';
 import { setPendingShelve } from '@/lib/shelveAnimation';
 import { prepareSourceImage, readFileAsDataUrl } from '@/lib/imageProcessing';
+import { isHeicFile, readExifCameraInfo } from '@/lib/exif';
 import { useCamera } from '@/hooks/useCamera';
 import { useGeoTag } from '@/hooks/useGeoTag';
 import { useAnimalIdentification, type RejectionKind } from '@/hooks/useAnimalIdentification';
@@ -121,8 +122,10 @@ const quota = useCaptureQuota(session?.user?.id);
     grabFrame, resumePreview,
   } = camera;
 
-  /** Shared pipeline for both the camera shot and the gallery import. */
-  const processPhoto = useCallback(async (rawDataUrl: string) => {
+  /** Shared pipeline for both the camera shot and the gallery import.
+   *  `manualReason` court-circuite l'analyse IA : la photo est envoyée en
+   *  validation humaine (import suspect, sans métadonnées d'appareil). */
+  const processPhoto = useCallback(async (rawDataUrl: string, manualReason?: string) => {
     // The daily slot is only consumed when the capture is added to the Faunex.
     if (quota.exhausted) {
       toast.error(`Limite atteinte : ${DAILY_CAPTURE_LIMIT} captures par jour maximum. Reviens demain !`);
@@ -152,8 +155,18 @@ const quota = useCaptureQuota(session?.user?.id);
     setDisputedResult(null);
     geo.capture();
 
+    // Photo importée sans signature d'appareil : aucune analyse IA facturée,
+    // l'observation passe par une validation humaine.
+    if (manualReason) {
+      identifyingRef.current = false;
+      setTaxonHint(manualReason);
+      setManualMode(true);
+      return;
+    }
+
     try {
       const outcome = await identify(dataUrl);
+
       if (outcome.status === 'identified') {
         triggerReveal(outcome.animal);
       } else if (outcome.status === 'error') {
@@ -213,7 +226,12 @@ const takePhoto = async () => {
   /** Import galerie : le même pipeline que la photo caméra (normalisation,
    *  conversion HEIC iPhone, analyse IA). Un simple <input type="file"> est
    *  utilisé : il fonctionne aussi bien en web app que dans les WebViews
-   *  Capacitor iOS/Android, sans plugin natif supplémentaire. */
+   *  Capacitor iOS/Android, sans plugin natif supplémentaire.
+   *
+   *  Anti-triche : on vérifie les EXIF. Une image récupérée sur le web ou une
+   *  capture d'écran n'a pas de marque/modèle d'appareil ; plutôt que de la
+   *  refuser sèchement (des apps de messagerie effacent parfois les EXIF de
+   *  vraies photos), elle est routée vers la validation humaine. */
   const galleryInputRef = useRef<HTMLInputElement | null>(null);
   const importFromGallery = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -221,12 +239,18 @@ const takePhoto = async () => {
     e.target.value = '';
     if (!file) return;
     try {
-      await processPhoto(await readFileAsDataUrl(file));
+      const exif = isHeicFile(file) ? null : await readExifCameraInfo(file);
+      const suspicious = exif !== null && !exif.looksLikeCameraPhoto;
+      const reason = suspicious
+        ? "Cette photo n'a pas de métadonnées d'appareil (EXIF) : impossible de confirmer qu'elle vient de ton appareil. Elle ne sera pas identifiée par l'IA — renseigne l'espèce, un modérateur validera ton observation."
+        : undefined;
+      await processPhoto(await readFileAsDataUrl(file), reason);
     } catch (err) {
       console.error(err);
       toast.error("Impossible de lire cette photo. Réessaie avec une autre image.");
     }
   };
+
 
 
 
