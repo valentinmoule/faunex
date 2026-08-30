@@ -386,12 +386,29 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
+    // Effet « première impression » : pour les 4 premières captures d'un
+    // compte, on saute la passe économique et on analyse directement avec le
+    // modèle performant sur l'image pleine résolution. L'utilisateur ne voit
+    // rien — il constate juste que l'app reconnaît bien ses animaux.
+    let isNewUser = false;
+    if (cacheDb && quotaUserId) {
+      try {
+        const { count } = await cacheDb
+          .from("captures")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", quotaUserId);
+        isNewUser = typeof count === "number" && count < 4;
+        if (isNewUser) console.log("new user boost", quotaUserId, count);
+      } catch (e) {
+        console.error("new user check failed", e);
+      }
+    }
 
     // Montée d'un cran en qualité sans partir sur du Pro : génération 3.x.
     // Flash Lite 3.1 en première passe (coût proche de l'ancien 2.5 Lite mais
     // sensiblement meilleur en vision), Flash 3.5 en seconde passe quand le
     // premier modèle échoue ou hésite. Jamais de modèle Pro.
-    const FAST_MODEL = "google/gemini-3.1-flash-lite";
+    const FAST_MODEL = isNewUser ? "google/gemini-3.5-flash" : "google/gemini-3.1-flash-lite";
     const DEEP_MODEL = "google/gemini-3.5-flash";
 
     const callGateway = async (
