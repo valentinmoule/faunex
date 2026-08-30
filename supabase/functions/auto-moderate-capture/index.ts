@@ -16,22 +16,22 @@ const corsHeaders = {
  * nom incompatible, doublon, espèce fictive/éteinte, humain), la capture reste
  * en modération manuelle.
  */
-const AUTO_PROMPT = `Expert naturaliste chargé du contrôle qualité. On te donne une PHOTO, le NOM proposé par l'observateur et sa description. Ta mission : VÉRIFIER le nom, pas deviner.
+const AUTO_PROMPT = `Expert naturaliste chargé du contrôle qualité. On te donne une PHOTO, le NOM proposé par l'observateur et sa description. Ta mission : VÉRIFIER le nom, pas deviner. Sois COOPÉRATIF : si la photo est compatible avec le nom proposé, valide-le.
 
-- name_matches = true UNIQUEMENT si la photo montre sans ambiguïté l'animal nommé (espèce ou race), cohérent avec la description.
-- confidence = certitude réelle 0-1 ; > 0,9 seulement si un expert n'hésiterait pas.
-- Photo floue, lointaine, partielle, ou espèces ressemblantes possibles (biche/chevreuil, coccinelles, races de chiens, passereaux) → name_matches false, confidence basse.
+- name_matches = true dès que la photo est COMPATIBLE avec l'animal nommé (espèce, genre, groupe ou race), même si la photo n'est pas parfaite. Accepte les synonymes, variantes régionales, orthographes approximatives, singulier/pluriel, nom de genre ou de famille au lieu de l'espèce.
+- name_matches = false seulement si la photo montre clairement AUTRE CHOSE que ce que l'observateur a nommé (autre famille, autre catégorie), ou si aucun animal n'est visible.
+- confidence = certitude que le nom proposé est acceptable (0-1). Une photo un peu floue ou lointaine mais clairement compatible reste > 0,8.
 - AUTHENTICITÉ : seule une VRAIE PHOTO d'animal VIVANT est valide. Invalide (is_real_photo false, name_matches false, confidence 0) : illustration, dessin, logo, mascotte, peinture, rendu 3D, image IA, capture/photo d'écran ou de papier, autocollant, tatouage, peluche, figurine, statue et tout OBJET en forme d'animal (déco, bibelot, déguisement, gonflable, gâteau, graffiti, panneau) → objet_representation ; animal MORT ou préparé (plat, poisson/fruits de mer servis ou en étal, viande, carcasse, trophée, taxidermie, écrasé, insecte épinglé, squelette, coquille vide) → animal_mort_ou_plat. Indices : matériau/couture/socle/yeux peints/posture rigide, aplats sans grain, fond uni, watermark, assiette/couverts/glace/découpe/sang.
 - Humain, plante, aucun animal, créature de fiction ou espèce éteinte → name_matches false, confidence 0.
-- Au moindre doute sur la nature de l'image : is_real_photo false.
-- animal_name : le nom de l'observateur normalisé (orthographe, casse, race si visible), jamais une autre espèce. Nom scientifique = binôme latin réel.
+- animal_name : le nom de l'observateur normalisé (orthographe, casse, race si visible), jamais une autre espèce. Nom scientifique = binôme latin réel correspondant au nom de l'observateur.
 - Rareté (France, 8 paliers) : common commune/quotidienne · uncommon peu commune/fréquente · rare plutôt rare, demande de la chance · very_rare rare/très localisée · ultra_rare menacée ou protégée · illustration_rare épique/quasi-impossible · special_rare mythique · hyper_rare légendaire, le sommet.
 
 Réponds UNIQUEMENT via l'appel de fonction verify_animal.`
 
 
 /** Seuil de confiance minimal pour valider sans modérateur humain. */
-const AUTO_APPROVE_THRESHOLD = 0.9
+const AUTO_APPROVE_THRESHOLD = 0.75
+
 
 /** Clé de la tâche de fond (verrou + état de pause en base). */
 const JOB_KEY = 'auto_moderate_captures'
