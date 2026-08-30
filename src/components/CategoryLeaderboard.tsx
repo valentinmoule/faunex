@@ -196,7 +196,7 @@ if (rows.length === 0 && scope === 'global' && !open) return null;
                   setScope(key);
                 }}
                 className={`rounded-xl py-1.5 text-[12px] font-display font-bold transition-colors flex items-center justify-center gap-1 ${
-                  scope === key && !(key === 'follows' && lockedTab) ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'
+                  (lockedTab ? key === 'follows' : scope === key) ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'
                 }`}
               >
                 {label}
