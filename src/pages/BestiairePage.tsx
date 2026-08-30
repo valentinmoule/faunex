@@ -4,7 +4,7 @@ import { CollectionHero } from '@/components/CollectionHero';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, SlidersHorizontal, Users, ArrowDownUp, Check, Ghost, Footprints, TrendingUp, Flame, type LucideIcon } from 'lucide-react';
-import { type Rarity, type AnimalCard, RARITY_LABELS, RARITY_ORDER, RARITY_RANK, RARITY_SYMBOLS } from '@/data/mockData';
+import { type Rarity, type AnimalCard, RARITY_LABELS, RARITY_ORDER, RARITY_RANK, RARITY_SYMBOLS, normalizeRarity } from '@/data/mockData';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import CardDetailSheet from '@/components/CardDetailSheet';
@@ -460,7 +460,7 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
     if (!selectedCategory) return [];
     return animals
       .filter(a => selectedCategory === ALL_SPECIES || normalizeCategory(a.category) === selectedCategory)
-      .filter(a => rarityFilter.length === 0 || rarityFilter.includes(a.rarity as Rarity))
+      .filter(a => rarityFilter.length === 0 || rarityFilter.includes(normalizeRarity(a.rarity)))
       .filter(a => matchesPopularity(a.finders ?? 0))
       .filter(matchesSearch);
   }, [animals, selectedCategory, rarityFilter, matchesPopularity, matchesSearch]);
@@ -510,7 +510,7 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const browseAnimals = useMemo(() => {
     return animals
       .filter(a => categoryFilter.length === 0 || categoryFilter.includes(normalizeCategory(a.category)))
-      .filter(a => rarityFilter.length === 0 || rarityFilter.includes(a.rarity as Rarity))
+      .filter(a => rarityFilter.length === 0 || rarityFilter.includes(normalizeRarity(a.rarity)))
       .filter(a => matchesPopularity(a.finders ?? 0))
       .filter(matchesSearch);
     // Pas de re-tri : `animals` est déjà trié alphabétiquement au chargement.
@@ -549,7 +549,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
   const browseTotal = useMemo(
     () => animals
       .filter(a => categoryFilter.length === 0 || categoryFilter.includes(normalizeCategory(a.category)))
-      .filter(a => rarityFilter.length === 0 || rarityFilter.includes(a.rarity as Rarity))
+      .filter(a => rarityFilter.length === 0 || rarityFilter.includes(normalizeRarity(a.rarity)))
       .filter(a => matchesPopularity(a.finders ?? 0))
       .filter(matchesSearch).length,
     [animals, categoryFilter, rarityFilter, matchesPopularity, matchesSearch],
@@ -559,7 +559,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
   const myCapturedAnimals = useMemo(() => {
     const q = normalizeSearch(mineSearch);
     const list = myCaptures
-      .filter(c => rarityFilter.length === 0 || rarityFilter.includes(c.rarity))
+      .filter(c => rarityFilter.length === 0 || rarityFilter.includes(normalizeRarity(c.rarity)))
       .filter(c =>
         !q ||
         normalizeSearch(c.name).includes(q) ||
