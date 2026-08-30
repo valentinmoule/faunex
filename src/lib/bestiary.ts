@@ -135,18 +135,34 @@ export const getSpeciesEmoji = (name: string, category: string): string => {
   return getCategoryEmoji(category);
 };
 
-const FX_BORDER = { ink: 'border-foreground/20', silver: 'border-rarity-silver/50', gold: 'border-rarity-gold/50' } as const;
-const FX_DOT = { ink: 'bg-foreground/50', silver: 'bg-rarity-silver', gold: 'bg-rarity-gold' } as const;
-const FX_BADGE = {
+/** Maps par rareté (8 niveaux + alias legacy epic/mythic/legendary). */
+const byFx = <T,>(map: Record<RarityFx, T>): Record<string, T> => {
+  const out: Record<string, T> = {};
+  for (const r of RARITY_ORDER) out[r] = map[RARITY_FX[r]];
+  // Anciennes valeurs (caches, données legacy)
+  out.epic = map.silver;
+  out.legendary = map.silver;
+  out.mythic = map.gold;
+  return out;
+};
+
+export const rarityBorderColor: Record<string, string> = byFx({
+  ink: 'border-foreground/20',
+  silver: 'border-rarity-silver/50',
+  gold: 'border-rarity-gold/50',
+});
+
+export const rarityDot: Record<string, string> = byFx({
+  ink: 'bg-foreground/50',
+  silver: 'bg-rarity-silver',
+  gold: 'bg-rarity-gold',
+});
+
+export const rarityBadge: Record<string, string> = byFx({
   ink: 'bg-black/60 text-white backdrop-blur-sm',
   silver: 'bg-rarity-silver text-white',
   gold: 'bg-rarity-gold text-white',
-} as const;
-
-/** Lookup par famille d'effet (encre / argent / or) — tolère les 8 raretés et les anciennes valeurs. */
-export const rarityBorderColor = (rarity: string) => FX_BORDER[RARITY_FX[normalizeRarity(rarity)]];
-export const rarityDot = (rarity: string) => FX_DOT[RARITY_FX[normalizeRarity(rarity)]];
-export const rarityBadge = (rarity: string) => FX_BADGE[RARITY_FX[normalizeRarity(rarity)]];
+});
 
 export const normalizeCategory = (cat: string) => cat.replace(/\s*\(monde\)$/i, '');
 
