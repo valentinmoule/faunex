@@ -48,11 +48,21 @@
     --earth: 25 24% 40%;
     --sky: 205 88% 55%;
 
-    /* Rarity colors — 4 tiers */
-    --rarity-common: 210 10% 58%;
-    --rarity-rare: 208 88% 55%;
-    --rarity-epic: 268 78% 60%;
-    --rarity-mythic: 40 92% 54%;
+    /* Rarity colors — 8 tiers (style cartes Pokémon) */
+    --rarity-common: 220 9% 46%;
+    --rarity-uncommon: 222 12% 38%;
+    --rarity-rare: 225 16% 28%;
+    --rarity-very-rare: 230 20% 16%;
+    --rarity-ultra-rare: 220 18% 62%;
+    --rarity-illustration-rare: 43 92% 55%;
+    --rarity-special-rare: 40 95% 50%;
+    --rarity-hyper-rare: 36 98% 46%;
+    /* Familles d'effets holo */
+    --rarity-silver: 220 18% 62%;
+    --rarity-gold: 40 95% 50%;
+    /* Alias legacy */
+    --rarity-epic: var(--rarity-silver);
+    --rarity-mythic: var(--rarity-gold);
 
     /* Gradients */
     --gradient-forest: linear-gradient(135deg, hsl(150 62% 44%), hsl(160 66% 28%));
