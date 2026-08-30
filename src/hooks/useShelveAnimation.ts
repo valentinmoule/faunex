@@ -101,11 +101,13 @@ export const useShelveAnimation = ({ loading, onPrepare, resolveSlot }: Options)
           setFlyingCardStyle((prev) => (prev ? { ...prev, opacity: 0 } : null));
           hapticDiscovery();
 
+          timers.push(window.setTimeout(() => setFlyingCardStyle(null), 300));
+          // Le flash dure 1100ms : on nettoie tout à la fin (couper `pendingShelve`
+          // plus tôt annulerait ce timer via le cleanup de l'effet).
           timers.push(window.setTimeout(() => {
-            setFlyingCardStyle(null);
+            setFlashSlotName(null);
             setPendingShelve(null);
-          }, 300));
-          timers.push(window.setTimeout(() => setFlashSlotName(null), 1600));
+          }, 1600));
         }, 1450));
       }, 650));
     };
