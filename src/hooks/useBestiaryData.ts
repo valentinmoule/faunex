@@ -160,6 +160,8 @@ const buildList = (
           .from('animals')
           .select('name, scientific_name, rarity, category')
           .order('name')
+          .order('scientific_name')
+          .order('id')
           .range(p * pageSize, (p + 1) * pageSize - 1);
 
 // Première page : rendu rapide si on n'avait pas de cache.
