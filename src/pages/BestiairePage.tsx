@@ -279,7 +279,14 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
     loading,
     selectedCategory,
     setSelectedCategory,
+    allSpeciesLabel: ALL_SPECIES,
+    onOpenTarget: useCallback(() => {
+      setSelectedCollectionKey(null);
+      setSelectedZoneId(null);
+      setSelectedBreedGroup(null);
+    }, []),
   });
+
 
   const handleZoneReady = useCallback(
     (zoneId: string, source: 'department' | 'city' | 'detect') => {
