@@ -309,14 +309,16 @@ async function examine(
   const notRealPhoto = verdict.is_real_photo === false || (imageType !== null && imageType !== 'photo_reelle')
 
   // GARDE-FOU : l'auto-modération VÉRIFIE, elle ne renomme jamais vers une autre
-  // espèce. Si l'IA propose un binôme latin (ou un nom) différent de celui de
-  // l'observateur, sa correction n'est PAS appliquée : la capture part en
-  // modération humaine avec le nom de l'observateur intact.
+  // espèce. La comparaison est TOLÉRANTE (accents, pluriels, qualificatifs
+  // « commun / d'Europe », parenthèses, sous-espèces) : seul un vrai désaccord
+  // d'espèce part en modération humaine, avec le nom de l'observateur intact.
   const userSci = norm(capture.scientific_name)
   const aiSci = norm(verdict.scientific_name)
-  const sciConflict = !!userSci && !!aiSci && userSci !== aiSci
-  const nameConflict = norm(finalName) !== norm(name) && !norm(finalName).includes(norm(name)) && !norm(name).includes(norm(finalName))
-  const speciesOverride = sciConflict || (!userSci && nameConflict)
+  const sciSame = !!userSci && !!aiSci && sameBinomial(userSci, aiSci)
+  const sciConflict = !!userSci && !!aiSci && !sciSame
+  const nameConflict = !compatibleNames(name, finalName)
+  const speciesOverride = sciConflict || (!sciSame && nameConflict)
+
 
 
   // Non-respect des règles : image non photographique, objet, animal mort,
