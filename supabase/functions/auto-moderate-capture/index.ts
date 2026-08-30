@@ -20,6 +20,7 @@ const AUTO_PROMPT = `Expert naturaliste chargé du contrôle qualité. On te don
 
 - name_matches = true dès que la photo est COMPATIBLE avec l'animal nommé (espèce, genre, groupe ou race), même si la photo n'est pas parfaite. Accepte les synonymes, variantes régionales, orthographes approximatives, singulier/pluriel, nom de genre ou de famille au lieu de l'espèce.
 - name_matches = false seulement si la photo montre clairement AUTRE CHOSE que ce que l'observateur a nommé (autre famille, autre catégorie), ou si aucun animal n'est visible.
+- L'OBSERVATEUR A GÉNÉRALEMENT RAISON, surtout s'il fournit aussi un nom scientifique : ne le contredis que si tu es CERTAIN (confiance > 0,95) qu'il s'agit d'une autre espèce. En cas de simple hésitation, valide son nom.
 - confidence = certitude que le nom proposé est acceptable (0-1). Une photo un peu floue ou lointaine mais clairement compatible reste > 0,8.
 - AUTHENTICITÉ : seule une VRAIE PHOTO d'animal VIVANT est valide. Invalide (is_real_photo false, name_matches false, confidence 0) : illustration, dessin, logo, mascotte, peinture, rendu 3D, image IA, capture/photo d'écran ou de papier, autocollant, tatouage, peluche, figurine, statue et tout OBJET en forme d'animal (déco, bibelot, déguisement, gonflable, gâteau, graffiti, panneau) → objet_representation ; animal MORT ou préparé (plat, poisson/fruits de mer servis ou en étal, viande, carcasse, trophée, taxidermie, écrasé, insecte épinglé, squelette, coquille vide) → animal_mort_ou_plat. Indices : matériau/couture/socle/yeux peints/posture rigide, aplats sans grain, fond uni, watermark, assiette/couverts/glace/découpe/sang.
 - Humain, plante, aucun animal, créature de fiction ou espèce éteinte → name_matches false, confidence 0.
@@ -30,7 +31,7 @@ Réponds UNIQUEMENT via l'appel de fonction verify_animal.`
 
 
 /** Seuil de confiance minimal pour valider sans modérateur humain. */
-const AUTO_APPROVE_THRESHOLD = 0.75
+const AUTO_APPROVE_THRESHOLD = 0.6
 
 
 /** Clé de la tâche de fond (verrou + état de pause en base). */
@@ -395,23 +396,23 @@ async function examine(
 
   // Le nom validé peut différer légèrement (race précisée) : on re-vérifie le doublon.
   const dup2 = await findUserDuplicate(
-    supabase, capture.user_id, capture.id, finalName, verdict.scientific_name || null,
+    supabase, capture.user_id, capture.id, approvedName, approvedSci,
   )
   if (dup2) {
-    await rejectCapture(supabase, capture, finalName, 'duplicate', adminActorId, 'duplicate_species')
+    await rejectCapture(supabase, capture, approvedName, 'duplicate', adminActorId, 'duplicate_species')
     return { capture_id: capture.id, approved: false, rejected: true, reason: 'duplicate' }
   }
 
 
   const update: Record<string, unknown> = {
-    animal_name: finalName,
-    scientific_name: verdict.scientific_name || null,
+    animal_name: approvedName,
+    scientific_name: approvedSci,
     category: verdict.category || null,
-    description: verdict.description || capture.description || null,
-    habitat: verdict.habitat || null,
-    diet: verdict.diet || null,
-    conservation: verdict.conservation || null,
-    fun_fact: verdict.fun_fact || null,
+    description: trustUser ? (capture.description || null) : (verdict.description || capture.description || null),
+    habitat: trustUser ? null : (verdict.habitat || null),
+    diet: trustUser ? null : (verdict.diet || null),
+    conservation: trustUser ? null : (verdict.conservation || null),
+    fun_fact: trustUser ? null : (verdict.fun_fact || null),
     rarity: verdict.rarity || 'common',
     status: 'approved',
   }
@@ -441,8 +442,8 @@ async function examine(
     predicted_rarity: verdict.rarity || null,
     confidence,
     subject_bbox: verdict.subject_bbox ?? null,
-    label_name: finalName,
-    label_scientific_name: verdict.scientific_name || null,
+    label_name: approvedName,
+    label_scientific_name: approvedSci,
     label_category: verdict.category || null,
     label_rarity: verdict.rarity || 'common',
     user_description: capture.description || null,
@@ -468,14 +469,14 @@ async function examine(
     body: {
       user_id: capture.user_id,
       decision: 'approved',
-      animal_name: finalName,
+      animal_name: approvedName,
       capture_id: capture.id,
     },
   })
   if (notifErr) console.error('notify-moderation-decision failed', notifErr)
 
 
-  return { capture_id: capture.id, approved: true, animal_name: finalName, confidence }
+  return { capture_id: capture.id, approved: true, animal_name: approvedName, confidence, trusted_user: trustUser }
 }
 
 /**
