@@ -133,7 +133,7 @@ const LandingPhoneShowcase = () => {
                 </p>
 
                 <div className="w-32">
-                  <HolographicCard rarity="mythic">
+                  <HolographicCard rarity="special_rare">
                     <div className="rounded-xl overflow-hidden bg-card border border-border">
                       <img src="/landing/reddeer.jpg" alt="Cerf élaphe" className="w-full aspect-square object-cover" loading="lazy" />
                       <div className="p-1.5 bg-card">
