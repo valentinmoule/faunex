@@ -256,7 +256,7 @@ const takePhoto = async () => {
       const reason = suspicious
         ? "Cette photo n'a pas de métadonnées d'appareil (EXIF) : impossible de confirmer qu'elle vient de ton appareil. Elle ne sera pas identifiée par l'IA — renseigne l'espèce, un modérateur validera ton observation."
         : undefined;
-      await processPhoto(await readFileAsDataUrl(file), reason);
+      await processPhoto(await readFileAsDataUrl(file), reason, exif?.gps ?? null);
     } catch (err) {
       console.error(err);
       toast.error("Impossible de lire cette photo. Réessaie avec une autre image.");
