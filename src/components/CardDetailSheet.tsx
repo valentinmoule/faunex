@@ -582,7 +582,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                 className={`relative mx-auto max-w-[280px] aspect-[4/5] rounded-2xl ${card.image ? 'cursor-pointer' : ''}`}
               >
                 <div
-                  className={`relative w-full h-full rounded-[1.75rem] overflow-hidden holo-frame holo-frame--${card.rarity}`}
+                  className={`relative w-full h-full rounded-[1.75rem] overflow-hidden holo-frame holo-frame--${normalizeRarity(card.rarity).replace(/_/g, '-')}`}
                 >
 
                   <div className="relative w-full h-full rounded-[1.125rem] overflow-hidden">
@@ -968,7 +968,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                 paused={zoomInteracting || zoom.scale > 1.01}
                 className="holo-fullscreen-photo relative rounded-2xl pointer-events-auto touch-none"
               >
-                <div className={`relative w-full h-full rounded-[1.5rem] overflow-hidden shadow-2xl holo-frame holo-frame--fullscreen holo-frame--${card.rarity}`}>
+                <div className={`relative w-full h-full rounded-[1.5rem] overflow-hidden shadow-2xl holo-frame holo-frame--fullscreen holo-frame--${normalizeRarity(card.rarity).replace(/_/g, '-')}`}>
                   <div className="relative w-full h-full rounded-[0.875rem] overflow-hidden bg-black/30">
                     <div className="absolute inset-0">
 

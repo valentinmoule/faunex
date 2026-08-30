@@ -6,12 +6,13 @@ import { hapticTap } from '@/lib/haptics';
 
 /** Socle coloré (profondeur "jeu mobile") selon la rareté. */
 const tileDepthClass: Record<string, string> = {
+  uncommon: 'game-tile--uncommon',
   rare: 'game-tile--rare',
-  very_rare: 'game-tile--rare',
+  very_rare: 'game-tile--very-rare',
   ultra_rare: 'game-tile--silver',
   illustration_rare: 'game-tile--gold',
   special_rare: 'game-tile--gold',
-  hyper_rare: 'game-tile--gold',
+  hyper_rare: 'game-tile--hyper',
 };
 
 const LONG_PRESS_MS = 400;

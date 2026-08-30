@@ -3,7 +3,7 @@ import { PawPrint, Bird, Fish, Bug, Turtle, Shell, Snail, Waves } from 'lucide-r
 import { FrogIcon } from '@/components/icons/FrogIcon';
 import { SpiderIcon } from '@/components/icons/SpiderIcon';
 import type { AnimalCard } from '@/data/mockData';
-import { RARITY_ORDER, RARITY_FX, RARITY_RANK, type RarityFx } from '@/data/mockData';
+import { RARITY_RANK } from '@/data/mockData';
 import { buildEmblematicSet } from '@/lib/emblematicSpecies';
 
 
@@ -136,33 +136,46 @@ export const getSpeciesEmoji = (name: string, category: string): string => {
   return getCategoryEmoji(category);
 };
 
-/** Maps par rareté (8 niveaux + alias legacy epic/mythic/legendary). */
-const byFx = <T,>(map: Record<RarityFx, T>): Record<string, T> => {
-  const out: Record<string, T> = {};
-  for (const r of RARITY_ORDER) out[r] = map[RARITY_FX[r]];
+/** Code couleur par rareté (8 niveaux) + alias legacy. */
+const byRarity = <T,>(map: Record<string, T>): Record<string, T> => ({
+  ...map,
   // Anciennes valeurs (caches, données legacy)
-  out.epic = map.silver;
-  out.legendary = map.silver;
-  out.mythic = map.gold;
-  return out;
-};
-
-export const rarityBorderColor: Record<string, string> = byFx({
-  ink: 'border-foreground/20',
-  silver: 'border-rarity-silver/50',
-  gold: 'border-rarity-gold/50',
+  epic: map.ultra_rare,
+  legendary: map.illustration_rare,
+  mythic: map.special_rare,
 });
 
-export const rarityDot: Record<string, string> = byFx({
-  ink: 'bg-foreground/50',
-  silver: 'bg-rarity-silver',
-  gold: 'bg-rarity-gold',
+export const rarityBorderColor: Record<string, string> = byRarity({
+  common: 'border-foreground/20',
+  uncommon: 'border-rarity-uncommon/50',
+  rare: 'border-rarity-rare/50',
+  very_rare: 'border-rarity-very-rare/50',
+  ultra_rare: 'border-rarity-silver/50',
+  illustration_rare: 'border-rarity-illustration-rare/50',
+  special_rare: 'border-rarity-special-rare/50',
+  hyper_rare: 'border-rarity-hyper-rare/60',
 });
 
-export const rarityBadge: Record<string, string> = byFx({
-  ink: 'bg-black/60 text-white backdrop-blur-sm',
-  silver: 'bg-rarity-silver text-white',
-  gold: 'bg-rarity-gold text-white',
+export const rarityDot: Record<string, string> = byRarity({
+  common: 'bg-foreground/50',
+  uncommon: 'bg-rarity-uncommon',
+  rare: 'bg-rarity-rare',
+  very_rare: 'bg-rarity-very-rare',
+  ultra_rare: 'bg-rarity-silver',
+  illustration_rare: 'bg-rarity-illustration-rare',
+  special_rare: 'bg-rarity-special-rare',
+  hyper_rare: 'bg-rarity-hyper-rare',
+});
+
+export const rarityBadge: Record<string, string> = byRarity({
+  common: 'bg-black/60 text-white backdrop-blur-sm',
+  uncommon: 'bg-rarity-uncommon text-white',
+  rare: 'bg-rarity-rare text-white',
+  very_rare: 'bg-rarity-very-rare text-white',
+  ultra_rare: 'bg-rarity-silver text-white',
+  illustration_rare: 'bg-rarity-illustration-rare text-white',
+  special_rare: 'bg-rarity-special-rare text-white',
+  hyper_rare: 'bg-rarity-hyper-rare text-white',
 });
 
 export const normalizeCategory = (cat: string) => cat.replace(/\s*\(monde\)$/i, '');
