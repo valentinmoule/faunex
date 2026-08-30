@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { consumePendingShelve, peekPendingShelve, type PendingShelve } from '@/lib/shelveAnimation';
-import { normalizeCategory, type BestiaryAnimal } from '@/lib/bestiary';
+import { type BestiaryAnimal } from '@/lib/bestiary';
 import { hapticDiscovery } from '@/lib/haptics';
 
 interface Options {
@@ -8,10 +8,21 @@ interface Options {
   loading: boolean;
   selectedCategory: string | null;
   setSelectedCategory: (cat: string) => void;
+  /** Label of the "all species" view where the animation must be played. */
+  allSpeciesLabel: string;
+  /** Called right before opening the grid — used to close any collection/zone view. */
+  onOpenTarget?: () => void;
 }
 
 /** Plays the "card glides into its shelf slot" animation after a new capture. */
-export const useShelveAnimation = ({ animals, loading, selectedCategory, setSelectedCategory }: Options) => {
+export const useShelveAnimation = ({
+  animals,
+  loading,
+  selectedCategory,
+  setSelectedCategory,
+  allSpeciesLabel,
+  onOpenTarget,
+}: Options) => {
   const [pendingShelve, setPendingShelve] = useState<PendingShelve | null>(null);
   const [flyingCardStyle, setFlyingCardStyle] = useState<React.CSSProperties | null>(null);
   const [flashSlotName, setFlashSlotName] = useState<string | null>(null);
@@ -26,18 +37,15 @@ export const useShelveAnimation = ({ animals, loading, selectedCategory, setSele
     }
   }, []);
 
-  // Auto-open the target category as soon as data is ready
+  // Always play the animation in the full "all species" grid of the bestiary
   useEffect(() => {
     if (!pendingShelve || loading || shelveAnimationRan.current) return;
-    const targetCat = normalizeCategory(pendingShelve.category);
-    const match = animals.find(
-      (a) => a.name.toLowerCase() === pendingShelve.animalName.toLowerCase(),
-    );
-    const catName = match ? normalizeCategory(match.category) : targetCat;
-    if (selectedCategory !== catName) {
-      setSelectedCategory(catName);
+    if (selectedCategory !== allSpeciesLabel) {
+      onOpenTarget?.();
+      setSelectedCategory(allSpeciesLabel);
     }
-  }, [pendingShelve, loading, animals, selectedCategory, setSelectedCategory]);
+  }, [pendingShelve, loading, selectedCategory, setSelectedCategory, allSpeciesLabel, onOpenTarget]);
+
 
   // Play the glide-into-slot animation once the slot is mounted
   useEffect(() => {
