@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Camera, Zap, MapPin, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine, ZoomIn, Focus, Crosshair, ArrowLeft, Clock, Info, Sparkles, ShieldQuestion } from 'lucide-react';
+import { Camera, Zap, MapPin, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine, ZoomIn, Focus, Crosshair, ArrowLeft, Clock, Info, Sparkles, ShieldQuestion, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { type Rarity, RARITY_LABELS } from '@/data/mockData';
 import { setPendingShelve } from '@/lib/shelveAnimation';
-import { prepareSourceImage } from '@/lib/imageProcessing';
+import { prepareSourceImage, readFileAsDataUrl } from '@/lib/imageProcessing';
 import { useCamera } from '@/hooks/useCamera';
 import { useGeoTag } from '@/hooks/useGeoTag';
 import { useAnimalIdentification, type RejectionKind } from '@/hooks/useAnimalIdentification';
@@ -210,6 +210,25 @@ const takePhoto = async () => {
     await processPhoto(dataUrl);
   };
 
+  /** Import galerie : le même pipeline que la photo caméra (normalisation,
+   *  conversion HEIC iPhone, analyse IA). Un simple <input type="file"> est
+   *  utilisé : il fonctionne aussi bien en web app que dans les WebViews
+   *  Capacitor iOS/Android, sans plugin natif supplémentaire. */
+  const galleryInputRef = useRef<HTMLInputElement | null>(null);
+  const importFromGallery = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    // Permet de réimporter deux fois de suite le même fichier.
+    e.target.value = '';
+    if (!file) return;
+    try {
+      await processPhoto(await readFileAsDataUrl(file));
+    } catch (err) {
+      console.error(err);
+      toast.error("Impossible de lire cette photo. Réessaie avec une autre image.");
+    }
+  };
+
+
 
 
 
@@ -369,6 +388,15 @@ const takePhoto = async () => {
   return (
     <main className="min-h-screen bg-foreground flex flex-col pb-24">
       <canvas ref={canvasRef} className="hidden" />
+      <input
+        ref={galleryInputRef}
+        type="file"
+        accept="image/*,.heic,.heif"
+        className="hidden"
+        onChange={importFromGallery}
+      />
+      
+
       
 
       {/* Camera / photo / result */}
@@ -905,8 +933,16 @@ const takePhoto = async () => {
           </button>
         ) : identifying ? null : capturedPhoto ? null : (
           <>
-            {/* Espaceur pour garder le déclencheur parfaitement centré. */}
-            <div className="w-12 h-12" aria-hidden="true" />
+            {/* Import depuis la bibliothèque photo (web app + apps natives). */}
+            <button
+              onClick={() => galleryInputRef.current?.click()}
+              disabled={quota.exhausted}
+              aria-label="Importer une photo depuis la galerie"
+              className="w-12 h-12 rounded-xl bg-primary-foreground/10 flex items-center justify-center disabled:opacity-40"
+            >
+              <ImageIcon className="w-5 h-5 text-primary-foreground/70" />
+            </button>
+
 
             <div className="flex flex-col items-center gap-2">
 <button
