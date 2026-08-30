@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import HolographicCard from '@/components/HolographicCard';
-import { RARITY_LABELS, RARITY_ORDER, type Rarity } from '@/data/mockData';
+import { type Rarity } from '@/data/mockData';
 import RarityBadge from '@/components/RarityBadge';
 
 import AnalyticsDashboard from '@/components/AnalyticsDashboard';
