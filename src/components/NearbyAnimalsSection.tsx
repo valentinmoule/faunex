@@ -17,29 +17,45 @@ interface NearbyAnimal {
 const rarityDot: Record<string, string> = {
   common: 'bg-rarity-common',
   rare: 'bg-rarity-rare',
-  epic: 'bg-rarity-silver',
-  mythic: 'bg-rarity-gold',
+  uncommon: 'bg-rarity-uncommon',
+  very_rare: 'bg-rarity-very-rare',
+  ultra_rare: 'bg-rarity-silver',
+  illustration_rare: 'bg-rarity-gold',
+  special_rare: 'bg-rarity-gold',
+  hyper_rare: 'bg-rarity-gold',
 };
 
 const rarityBadge: Record<string, string> = {
   common: 'bg-rarity-common/15 text-rarity-common',
   rare: 'bg-rarity-rare/15 text-rarity-rare',
-  epic: 'bg-rarity-silver/15 text-rarity-silver',
-  mythic: 'bg-rarity-gold/15 text-rarity-gold',
+  uncommon: 'bg-rarity-uncommon/15 text-rarity-uncommon',
+  very_rare: 'bg-rarity-very-rare/15 text-rarity-very-rare',
+  ultra_rare: 'bg-rarity-silver/15 text-rarity-silver',
+  illustration_rare: 'bg-rarity-gold/15 text-rarity-gold',
+  special_rare: 'bg-rarity-gold/15 text-rarity-gold',
+  hyper_rare: 'bg-rarity-gold/15 text-rarity-gold',
 };
 
 const rarityCardBorder: Record<string, string> = {
   common: 'border-transparent',
   rare: 'border-rarity-rare/30',
-  epic: 'border-rarity-silver/40',
-  mythic: 'border-rarity-gold/50',
+  uncommon: 'border-rarity-uncommon/30',
+  very_rare: 'border-rarity-very-rare/40',
+  ultra_rare: 'border-rarity-silver/40',
+  illustration_rare: 'border-rarity-gold/50',
+  special_rare: 'border-rarity-gold/50',
+  hyper_rare: 'border-rarity-gold/60',
 };
 
 const rarityCardBg: Record<string, string> = {
   common: 'bg-muted/50',
   rare: 'bg-rarity-rare/5',
-  epic: 'bg-rarity-silver/5',
-  mythic: 'bg-rarity-gold/5',
+  uncommon: 'bg-rarity-uncommon/5',
+  very_rare: 'bg-rarity-very-rare/5',
+  ultra_rare: 'bg-rarity-silver/5',
+  illustration_rare: 'bg-rarity-gold/5',
+  special_rare: 'bg-rarity-gold/5',
+  hyper_rare: 'bg-rarity-gold/5',
 };
 
 interface Props {

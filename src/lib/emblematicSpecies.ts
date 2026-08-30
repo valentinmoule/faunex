@@ -1,3 +1,4 @@
+import { RARITY_ORDER } from '@/data/mockData';
 /**
  * Espèces emblématiques par territoire.
  *
