@@ -19,8 +19,12 @@ import type { AnimalResult } from '@/types/capture';
 const rarityColors: Record<string, string> = {
   common: 'bg-rarity-common/20 text-rarity-common border-rarity-common/40',
   rare: 'bg-rarity-rare/20 text-rarity-rare border-rarity-rare/40',
-  epic: 'bg-rarity-silver/20 text-rarity-silver border-rarity-silver/40',
-  mythic: 'bg-rarity-gold/20 text-rarity-gold border-rarity-gold/40',
+  uncommon: 'bg-rarity-uncommon/20 text-rarity-uncommon border-rarity-uncommon/40',
+  very_rare: 'bg-rarity-very-rare/20 text-rarity-very-rare border-rarity-very-rare/40',
+  ultra_rare: 'bg-rarity-silver/20 text-rarity-silver border-rarity-silver/40',
+  illustration_rare: 'bg-rarity-gold/20 text-rarity-gold border-rarity-gold/40',
+  special_rare: 'bg-rarity-gold/20 text-rarity-gold border-rarity-gold/40',
+  hyper_rare: 'bg-rarity-gold/20 text-rarity-gold border-rarity-gold/40',
 };
 
 /** Accroches affichées à l'ouverture de la caméra : une seule, choisie au hasard. */
@@ -630,9 +634,9 @@ setManualMode(false);
           <div className="relative z-20 flex-1 flex items-center justify-center">
             <div className="text-center capture-freeze-pulse">
               <div className={`w-20 h-20 mx-auto rounded-full border-2 flex items-center justify-center mb-4 ${
-                revealRarity === 'mythic' ? 'border-rarity-gold/60 bg-rarity-gold/10' :
-                revealRarity === 'epic' ? 'border-rarity-silver/60 bg-rarity-silver/10' :
-                revealRarity === 'rare' ? 'border-rarity-rare/60 bg-rarity-rare/10' :
+                revealFx === 'gold' ? 'border-rarity-gold/60 bg-rarity-gold/10' :
+                revealFx === 'silver' ? 'border-rarity-silver/60 bg-rarity-silver/10' :
+                revealRank >= 2 ? 'border-foreground/50 bg-foreground/10' :
                 'border-muted-foreground/30 bg-muted/10'
               }`}>
                 <div className="w-3 h-3 rounded-full bg-primary-foreground/80 animate-pulse" />
@@ -645,11 +649,11 @@ setManualMode(false);
         {/* Reveal animation — shaking phase */}
         {revealPhase === 'shaking' && (
           <div className="relative z-20 flex-1 flex items-center justify-center">
-            <div className="text-center reveal-shake" style={{ animationDuration: `${REVEAL_TIMINGS[revealRarity].shake}ms`, animationIterationCount: revealRarity === 'mythic' ? 3 : revealRarity === 'epic' ? 2 : 1 }}>
+            <div className="text-center reveal-shake" style={{ animationDuration: `${REVEAL_TIMINGS[revealRarity].shake}ms`, animationIterationCount: revealFx === 'gold' ? 3 : revealFx === 'silver' ? 2 : 1 }}>
               <div className={`w-28 h-28 mx-auto rounded-2xl border-4 flex items-center justify-center relative overflow-hidden
-                ${revealRarity === 'mythic' ? 'border-rarity-gold bg-rarity-gold/20 shadow-glow-amber capture-suspense-gold' :
-                  revealRarity === 'epic' ? 'border-rarity-silver bg-rarity-silver/20 capture-suspense-silver' :
-                  revealRarity === 'rare' ? 'border-rarity-rare bg-rarity-rare/20 capture-suspense-rare' :
+                ${revealFx === 'gold' ? 'border-rarity-gold bg-rarity-gold/20 shadow-glow-amber capture-suspense-gold' :
+                  revealFx === 'silver' ? 'border-rarity-silver bg-rarity-silver/20 capture-suspense-silver' :
+                  revealRank >= 2 ? 'border-foreground/60 bg-foreground/10 capture-suspense-rare' :
                   'border-muted-foreground/40 bg-muted/20'}`}
               >
                 {capturedPhoto && <img src={capturedPhoto} alt="" className="w-full h-full object-cover blur-sm brightness-75" />}
@@ -658,9 +662,9 @@ setManualMode(false);
                 </div>
               </div>
               <p className="text-primary-foreground/80 font-display text-sm mt-4 font-semibold">
-                {revealRarity === 'mythic' ? '✨ Quelque chose de légendaire…' :
-                 revealRarity === 'epic' ? '💎 Découverte exceptionnelle…' :
-                 revealRarity === 'rare' ? '🔹 Ça brille…' :
+                {revealFx === 'gold' ? '✨ Quelque chose de légendaire…' :
+                 revealFx === 'silver' ? '💎 Découverte exceptionnelle…' :
+                 revealRank >= 2 ? '🔹 Ça brille…' :
                  '🔍 Identification…'}
               </p>
             </div>
@@ -670,43 +674,43 @@ setManualMode(false);
         {/* Reveal animation — burst phase */}
         {revealPhase === 'burst' && animalResult && (
           <div className="relative z-20 flex-1 flex items-center justify-center">
-            {/* Particle explosion for epic/mythic */}
-            {(revealRarity === 'mythic' || revealRarity === 'epic') && (
+            {/* Particle explosion pour les raretés argent & or */}
+            {revealFx !== 'ink' && (
               <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
-                {Array.from({ length: revealRarity === 'mythic' ? 20 : 10 }).map((_, i) => (
+                {Array.from({ length: revealFx === 'gold' ? 20 : 10 }).map((_, i) => (
                   <div
                     key={i}
                     className="capture-burst-particle"
                     style={{
                       left: '50%',
                       top: '50%',
-                      '--angle': `${(360 / (revealRarity === 'mythic' ? 20 : 10)) * i}deg`,
+                      '--angle': `${(360 / (revealFx === 'gold' ? 20 : 10)) * i}deg`,
                       '--distance': `${80 + Math.random() * 120}px`,
                       '--delay': `${Math.random() * 0.3}s`,
                       '--size': `${4 + Math.random() * 6}px`,
-                      '--color': revealRarity === 'mythic'
+                      '--color': revealFx === 'gold'
                         ? `hsla(${42 + Math.random() * 20}, 85%, ${55 + Math.random() * 20}%, 0.9)`
-                        : `hsla(${270 + Math.random() * 30}, 70%, ${55 + Math.random() * 15}%, 0.8)`,
+                        : `hsla(${210 + Math.random() * 20}, 30%, ${70 + Math.random() * 20}%, 0.85)`,
                     } as React.CSSProperties}
                   />
                 ))}
               </div>
             )}
-            <div className={`reveal-${revealRarity} text-center px-6 z-20`}>
+            <div className={`reveal-${revealFx === 'ink' ? (revealRank >= 2 ? 'rare' : 'common') : revealFx} text-center px-6 z-20`}>
               <div className={`w-32 h-32 mx-auto rounded-2xl border-4 flex items-center justify-center relative overflow-hidden
-                ${revealRarity === 'mythic' ? 'border-rarity-gold gold-shiny' :
-                  revealRarity === 'epic' ? 'border-rarity-silver rarity-silver-glow' :
-                  revealRarity === 'rare' ? 'border-rarity-rare rarity-rare-glow' :
+                ${revealFx === 'gold' ? 'border-rarity-gold gold-shiny' :
+                  revealFx === 'silver' ? 'border-rarity-silver rarity-silver-glow' :
+                  revealRank >= 2 ? 'border-foreground/60 rarity-rare-glow' :
                   'border-muted-foreground/40'}`}
               >
                 {capturedPhoto && <img src={capturedPhoto} alt="" className="w-full h-full object-cover" />}
-                {revealRarity === 'mythic' && (
+                {revealFx === 'gold' && (
                   <div className="gold-sparkles">
                     <span /><span /><span /><span /><span /><span />
                   </div>
                 )}
-                {revealRarity === 'epic' && <div className="silver-image-overlay" />}
-                {revealRarity === 'mythic' && <div className="gold-image-overlay" />}
+                {revealFx === 'silver' && <div className="silver-image-overlay" />}
+                {revealFx === 'gold' && <div className="gold-image-overlay" />}
               </div>
               <span className={`inline-block mt-4 px-3 py-1 rounded-full text-xs font-display font-bold uppercase tracking-wider border ${rarityColors[revealRarity]}`}>
                 {RARITY_LABELS[revealRarity]}
