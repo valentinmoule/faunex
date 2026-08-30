@@ -2545,20 +2545,12 @@ html.is-native-android body {
 .rarity-badge__symbols {
   position: relative;
   z-index: 1;
-  display: inline-flex;
-  align-items: center;
-  gap: 1.5px;
+  display: block;
+  flex-shrink: 0;
 }
 
-.rarity-badge__sym {
-  font-size: 10px;
-  line-height: 1;
-  color: hsl(225 15% 18%);
-}
-
-/* Le glyphe ◆ paraît optiquement plus petit que ● et ★ à corps égal. */
-.rarity-badge--uncommon .rarity-badge__sym {
-  font-size: 12px;
+.rarity-svg__sym {
+  display: block;
 }
 
 /* Variante avec label (card détail) */
@@ -2570,12 +2562,6 @@ html.is-native-android body {
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-}
-.rarity-badge--labeled .rarity-badge__sym {
-  font-size: 11px;
-}
-.rarity-badge--labeled.rarity-badge--uncommon .rarity-badge__sym {
-  font-size: 13px;
 }
 .rarity-badge__label {
   position: relative;
@@ -2614,11 +2600,7 @@ html.is-native-android body {
   border-color: hsl(220 15% 60% / 0.5);
   box-shadow: 0 1px 4px hsl(220 20% 50% / 0.25);
 }
-.rarity-badge--silver .rarity-badge__sym {
-  background: linear-gradient(135deg, #f8fafc 0%, #94a3b8 45%, #e2e8f0 70%, #64748b 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+.rarity-badge--silver .rarity-svg__sym {
   filter: drop-shadow(0 1px 0.5px hsla(220, 20%, 30%, 0.35));
 }
 .rarity-badge--silver .rarity-badge__label {
@@ -2631,12 +2613,11 @@ html.is-native-android body {
   border-color: hsl(40 90% 55% / 0.45);
   box-shadow: 0 1px 5px hsl(40 95% 50% / 0.3);
 }
-.rarity-badge--gold .rarity-badge__sym {
-  background: linear-gradient(135deg, #ffe98a 0%, #f5b301 45%, #ffd23e 70%, #c47f0a 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+.rarity-badge--gold .rarity-svg__sym {
   filter: drop-shadow(0 1px 0.5px hsla(35, 90%, 35%, 0.4));
+}
+.rarity-badge--gold.rarity-badge--hyper .rarity-svg__sym {
+  filter: drop-shadow(0 0 2px hsl(40 100% 60% / 0.65));
 }
 .rarity-badge--gold .rarity-badge__label {
   color: hsl(35 80% 28%);
