@@ -67,9 +67,15 @@ export default {
         sky: "hsl(var(--sky))",
         rarity: {
           common: "hsl(var(--rarity-common))",
+          uncommon: "hsl(var(--rarity-uncommon))",
           rare: "hsl(var(--rarity-rare))",
-          epic: "hsl(var(--rarity-epic))",
-          mythic: "hsl(var(--rarity-mythic))",
+          "very-rare": "hsl(var(--rarity-very-rare))",
+          "ultra-rare": "hsl(var(--rarity-ultra-rare))",
+          "illustration-rare": "hsl(var(--rarity-illustration-rare))",
+          "special-rare": "hsl(var(--rarity-special-rare))",
+          "hyper-rare": "hsl(var(--rarity-hyper-rare))",
+          silver: "hsl(var(--rarity-silver))",
+          gold: "hsl(var(--rarity-gold))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
