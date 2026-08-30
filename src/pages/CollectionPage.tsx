@@ -10,7 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { fetchAllRows } from '@/lib/fetchAll';
 import { useAuth } from '@/contexts/AuthContext';
 
-const rarityFilters: (Rarity | 'all')[] = ['all', 'common', 'rare', 'epic', 'mythic'];
+const rarityFilters: (Rarity | 'all')[] = ['all', ...RARITY_ORDER];
 
 const CollectionPage = () => {
   const { session } = useAuth();

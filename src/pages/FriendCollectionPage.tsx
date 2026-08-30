@@ -30,8 +30,8 @@ const BADGE_DEFS: BadgeDef[] = [
   { id: 'birds_5', name: 'Ornithologue', icon: '🐦', description: 'Capturer 5 oiseaux', total: 5 },
   { id: 'mammals_5', name: 'Mammalogiste', icon: '🦊', description: 'Capturer 5 mammifères', total: 5 },
   { id: 'rare_1', name: 'Chasseur rare', icon: '💎', description: 'Trouver un animal rare ou mieux', total: 1 },
-  { id: 'legendary_1', name: 'Légende vivante', icon: '⭐', description: 'Trouver un animal épique', total: 1 },
-  { id: 'mythic_1', name: 'Mythique !', icon: '🔥', description: 'Trouver un animal mythique', total: 1 },
+  { id: 'legendary_1', name: 'Éclat argenté', icon: '⭐', description: 'Trouver une espèce ultra rare', total: 1 },
+  { id: 'mythic_1', name: 'Étoile dorée !', icon: '🔥', description: 'Trouver une espèce de rareté or', total: 1 },
   { id: 'social_3', name: 'Sociable', icon: '🤝', description: 'Suivre 3 explorateurs', total: 3 },
   { id: 'level_5', name: 'Niveau 5', icon: '🏅', description: 'Atteindre le niveau 5', total: 5 },
 ];
@@ -42,7 +42,7 @@ interface BadgeProgress {
   earned: boolean;
 }
 
-const rarityFilters: (Rarity | 'all')[] = ['all', 'common', 'rare', 'epic', 'mythic'];
+const rarityFilters: (Rarity | 'all')[] = ['all', ...RARITY_ORDER];
 
 interface FollowProfile {
   user_id: string;
@@ -140,9 +140,9 @@ const FriendCollectionPage = () => {
       const totalCaptures = rawCaptures.length;
       const birdCount = rawCaptures.filter((c: any) => c.category?.toLowerCase().includes('oiseau')).length;
       const mammalCount = rawCaptures.filter((c: any) => c.category?.toLowerCase().includes('mammif')).length;
-      const hasRare = rawCaptures.some((c: any) => ['rare', 'epic', 'mythic'].includes(c.rarity));
-      const hasLegendary = rawCaptures.some((c: any) => ['epic', 'mythic'].includes(c.rarity));
-      const hasMythic = rawCaptures.some((c: any) => c.rarity === 'mythic');
+      const hasRare = rawCaptures.some((c: any) => (RARITY_RANK[normalizeRarity(c.rarity)] ?? 0) >= 2);
+      const hasLegendary = rawCaptures.some((c: any) => RARITY_FX[normalizeRarity(c.rarity)] === 'silver');
+      const hasMythic = rawCaptures.some((c: any) => RARITY_FX[normalizeRarity(c.rarity)] === 'gold');
       const level = profileRes.data?.level || 1;
       const followCount = followingCountRes.count || 0;
 

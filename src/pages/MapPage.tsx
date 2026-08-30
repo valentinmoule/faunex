@@ -13,7 +13,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import LoadingScreen from '@/components/LoadingScreen';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import CardDetailSheet from '@/components/CardDetailSheet';
-import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
+import { type AnimalCard, type Rarity, RARITY_LABELS, RARITY_ORDER } from '@/data/mockData';
 import { toast } from 'sonner';
 
 
@@ -39,8 +39,12 @@ interface CaptureMarker {
 const RARITY_COLORS: Record<string, string> = {
   common: '#94a3b8',
   rare: '#3b82f6',
-  epic: '#a855f7',
-  mythic: '#f59e0b',
+  uncommon: '#3f4a5c',
+  very_rare: '#1c2333',
+  ultra_rare: '#94a3b8',
+  illustration_rare: '#eab308',
+  special_rare: '#f59e0b',
+  hyper_rare: '#d97706',
 };
 
 
@@ -59,7 +63,7 @@ const getCategoryIcon = (category: string): ComponentType<{ className?: string; 
   return PawPrint;
 };
 
-const RARITY_ORDER = ['common', 'rare', 'epic', 'mythic'];
+const RARITY_ORDER_LOCAL = RARITY_ORDER;
 
 const buildIcon = (rarity: string, category: string, count = 1) => {
   const color = RARITY_COLORS[rarity] || RARITY_COLORS.common;
@@ -194,7 +198,7 @@ const MapPage = () => {
     });
     return Array.from(map.entries()).map(([key, items]) => {
       const sorted = [...items].sort(
-        (a, b) => RARITY_ORDER.indexOf(b.rarity) - RARITY_ORDER.indexOf(a.rarity),
+        (a, b) => RARITY_ORDER_LOCAL.indexOf(b.rarity) - RARITY_ORDER_LOCAL.indexOf(a.rarity),
       );
       return { key, items: sorted, lead: sorted[0] };
     });
