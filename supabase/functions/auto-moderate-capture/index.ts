@@ -310,23 +310,38 @@ async function examine(
 
   // GARDE-FOU : l'auto-modération VÉRIFIE, elle ne renomme jamais vers une autre
   // espèce. La comparaison est TOLÉRANTE (accents, pluriels, qualificatifs
-  // « commun / d'Europe », parenthèses, sous-espèces) : seul un vrai désaccord
-  // d'espèce part en modération humaine, avec le nom de l'observateur intact.
+  // « commun / d'Europe », parenthèses, sous-espèces).
+  // PRINCIPE : l'observateur a généralement raison, surtout quand il fournit à la
+  // fois un nom commun et un nom scientifique. Un désaccord n'envoie en modération
+  // humaine que si l'IA est TRÈS sûre d'elle (confiance élevée sur une autre espèce).
   const userSci = norm(capture.scientific_name)
   const aiSci = norm(verdict.scientific_name)
   const sciSame = !!userSci && !!aiSci && sameBinomial(userSci, aiSci)
   const sciConflict = !!userSci && !!aiSci && !sciSame
   const nameConflict = !compatibleNames(name, finalName)
-  const speciesOverride = sciConflict || (!sciSame && nameConflict)
+  const disagreement = sciConflict || (!sciSame && nameConflict)
+  // L'humain a fourni les deux noms : on exige une certitude quasi totale de l'IA
+  // pour lui donner tort, sinon on fait confiance à l'observateur.
+  const humanProvidedBoth = !!userSci && !!norm(name)
+  const overrideCertainty = humanProvidedBoth ? 0.95 : 0.85
+  const speciesOverride = disagreement && confidence >= overrideCertainty
 
-
+  // Désaccord faible : on valide le nom de l'observateur (jamais celui de l'IA).
+  const trustUser = disagreement && !speciesOverride
+  const approvedName = trustUser ? name : finalName
+  const approvedSci = trustUser ? (capture.scientific_name || null) : (verdict.scientific_name || null)
 
   // Non-respect des règles : image non photographique, objet, animal mort,
   // humain, espèce fictive/éteinte → refus ferme + notification.
   // Un désaccord d'espèce n'est jamais un refus ferme : c'est un arbitrage humain.
-  const ruleBreach = notRealPhoto || (!speciesOverride && verdict.name_matches === false && confidence === 0)
+  const ruleBreach = notRealPhoto || (!disagreement && verdict.name_matches === false && confidence === 0)
 
-  if (!matches || unknown || notRealPhoto || speciesOverride || confidence < AUTO_APPROVE_THRESHOLD) {
+  const humanNeeded = notRealPhoto || unknown || speciesOverride
+    || (!matches && !trustUser)
+    || (!trustUser && confidence < AUTO_APPROVE_THRESHOLD)
+
+  if (humanNeeded) {
+
     const decisionReason = notRealPhoto
       ? `not_a_real_photo:${imageType ?? 'unknown'}`
       : speciesOverride
