@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import HolographicCard from '@/components/HolographicCard';
 import RarityBadge from '@/components/RarityBadge';
+import FindersBadge from '@/components/FindersBadge';
 import { hapticTap } from '@/lib/haptics';
 import { toast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -20,6 +21,8 @@ interface Props {
   card: AnimalCard | null;
   open: boolean;
   onClose: () => void;
+  /** Nombre de naturalistes ayant capturé l'espèce (fiche "non découverte" du bestiaire). */
+  communityFinders?: number;
   /** Called after the user deleted their own capture, so the parent list can drop it. */
   onDeleted?: (captureId: string) => void;
 }
@@ -83,7 +86,7 @@ const LockedField = ({ icon, label }: { icon: React.ReactNode; label: string }) 
 );
 
 
-const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
+const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: Props) => {
   const { session } = useAuth();
   const [isOwner, setIsOwner] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
