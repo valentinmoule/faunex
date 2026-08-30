@@ -1650,18 +1650,23 @@
   position: fixed;
   z-index: 9999;
   pointer-events: none;
-  border-radius: 0.75rem;
+  border-radius: 1rem;
   overflow: hidden;
+  border: 2px solid hsl(var(--primary-foreground) / 0.8);
+  background: hsl(var(--card));
   box-shadow:
     0 20px 50px -10px hsla(0, 0%, 0%, 0.5),
-    0 0 30px 4px hsla(42, 85%, 55%, 0.35);
+    0 0 34px 6px hsl(var(--primary) / 0.38);
   will-change: transform, width, height, opacity;
   transition:
-    transform 850ms cubic-bezier(0.65, 0, 0.35, 1),
-    width 850ms cubic-bezier(0.65, 0, 0.35, 1),
-    height 850ms cubic-bezier(0.65, 0, 0.35, 1),
-    opacity 200ms ease-out 700ms,
-    box-shadow 850ms ease-out;
+    left 900ms cubic-bezier(0.65, 0, 0.2, 1),
+    top 900ms cubic-bezier(0.65, 0, 0.2, 1),
+    transform 900ms cubic-bezier(0.65, 0, 0.2, 1),
+    width 900ms cubic-bezier(0.65, 0, 0.2, 1),
+    height 900ms cubic-bezier(0.65, 0, 0.2, 1),
+    opacity 220ms ease-out,
+    box-shadow 900ms ease-out;
+  animation: shelve-card-reveal 520ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
 }
 
 .shelve-flying-card img {
@@ -1669,6 +1674,78 @@
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+.shelve-card-aura {
+  position: fixed;
+  inset: -100vmax;
+  z-index: -1;
+  background: radial-gradient(circle at center, hsl(var(--primary) / 0.22), transparent 26%);
+  animation: shelve-aura-in 650ms ease-out both;
+}
+
+.shelve-card-shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 26%, hsl(var(--primary-foreground) / 0.72) 45%, transparent 64%);
+  transform: translateX(-130%);
+  mix-blend-mode: screen;
+  animation: shelve-shine 1050ms 180ms ease-in-out both;
+}
+
+.shelve-card-label {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  display: grid;
+  gap: 1px;
+  padding: 28px 10px 10px;
+  color: hsl(var(--primary-foreground));
+  background: linear-gradient(to top, hsl(var(--foreground) / 0.88), transparent);
+}
+
+.shelve-card-label span { font: 600 8px/1.2 'Manrope', sans-serif; text-transform: uppercase; }
+.shelve-card-label strong { font: 700 13px/1.15 'Sora', sans-serif; }
+
+.shelve-card-sparkles i {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: hsl(var(--primary-foreground));
+  box-shadow: 0 0 10px hsl(var(--primary-foreground));
+  animation: shelve-sparkle 900ms ease-out both;
+}
+.shelve-card-sparkles i:nth-child(1) { left: 8%; top: 12%; animation-delay: 80ms; }
+.shelve-card-sparkles i:nth-child(2) { left: 86%; top: 18%; animation-delay: 160ms; }
+.shelve-card-sparkles i:nth-child(3) { left: 16%; top: 48%; animation-delay: 220ms; }
+.shelve-card-sparkles i:nth-child(4) { left: 78%; top: 58%; animation-delay: 120ms; }
+.shelve-card-sparkles i:nth-child(5) { left: 48%; top: 8%; animation-delay: 280ms; }
+.shelve-card-sparkles i:nth-child(6) { left: 92%; top: 42%; animation-delay: 340ms; }
+.shelve-card-sparkles i:nth-child(7) { left: 34%; top: 35%; animation-delay: 400ms; }
+.shelve-card-sparkles i:nth-child(8) { left: 62%; top: 26%; animation-delay: 460ms; }
+.shelve-card-sparkles i:nth-child(9) { left: 24%; top: 72%; animation-delay: 520ms; }
+.shelve-card-sparkles i:nth-child(10) { left: 72%; top: 76%; animation-delay: 580ms; }
+
+@keyframes shelve-card-reveal {
+  0% { filter: brightness(0.75) saturate(0.6); transform: rotate(-7deg) scale(0.55); }
+  70% { filter: brightness(1.35) saturate(1.25); transform: rotate(-7deg) scale(1.08); }
+  100% { filter: brightness(1) saturate(1); transform: rotate(-7deg) scale(1); }
+}
+
+@keyframes shelve-aura-in {
+  from { opacity: 0; transform: scale(0.55); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shelve-shine {
+  0% { transform: translateX(-130%); }
+  100% { transform: translateX(130%); }
+}
+
+@keyframes shelve-sparkle {
+  0%, 100% { opacity: 0; transform: scale(0); }
+  45% { opacity: 1; transform: scale(1.4); }
 }
 
 @keyframes shelve-slot-flash {
@@ -1696,6 +1773,17 @@
 
 .shelve-slot-flash {
   animation: shelve-slot-flash 1100ms ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shelve-flying-card,
+  .shelve-card-aura,
+  .shelve-card-shine,
+  .shelve-card-sparkles i,
+  .shelve-slot-flash {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
 }
 
 /* Safe area for mobile */

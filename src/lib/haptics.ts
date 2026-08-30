@@ -22,3 +22,12 @@ export function hapticSuccess() {
     /* unsupported */
   }
 }
+
+/** Séquence de découverte — montée rapide puis impact lors du rangement. */
+export function hapticDiscovery() {
+  try {
+    if (canVibrate()) navigator.vibrate([24, 35, 42, 45, 85]);
+  } catch {
+    /* unsupported */
+  }
+}
