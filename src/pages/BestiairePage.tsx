@@ -3,7 +3,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { CollectionHero } from '@/components/CollectionHero';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, SlidersHorizontal, Users, ArrowDownUp, Check } from 'lucide-react';
+import { Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, SlidersHorizontal, Users, ArrowDownUp, Check, Ghost, Footprints, TrendingUp, Flame, type LucideIcon } from 'lucide-react';
 import { type Rarity, type AnimalCard, RARITY_LABELS } from '@/data/mockData';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -66,12 +66,12 @@ const orderStorageKey = (uid: string) => `faunex:mine-order:${uid}`;
  *  Seuils alignés sur FindersBadge pour une cohérence badge ↔ filtre. */
 type PopularityTier = 'none' | 'rare' | 'common' | 'trending' | 'hot';
 
-const POPULARITY_LABELS: Record<PopularityTier, { label: string; hint: string }> = {
-  none: { label: 'Jamais capturée', hint: 'personne encore' },
-  rare: { label: 'Peu capturée', hint: '1 à 4' },
-  common: { label: 'Populaire', hint: '5 à 24' },
-  trending: { label: 'Très populaire', hint: '25 à 99' },
-  hot: { label: 'Incontournable', hint: '100+' },
+const POPULARITY_LABELS: Record<PopularityTier, { label: string; Icon: LucideIcon }> = {
+  none: { label: 'Jamais capturée', Icon: Ghost },
+  rare: { label: 'Peu capturée', Icon: Footprints },
+  common: { label: 'Populaire', Icon: Users },
+  trending: { label: 'Très populaire', Icon: TrendingUp },
+  hot: { label: 'Incontournable', Icon: Flame },
 };
 
 const popularityTierOf = (n: number): PopularityTier =>
