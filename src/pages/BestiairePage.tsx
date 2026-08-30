@@ -1039,7 +1039,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
           )}
         </div>
 
-        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
+        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
         {deptPickerSheet}
       </main>
     );
@@ -1074,7 +1074,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
 </div>
         </div>
 
-        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
+        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
         {deptPickerSheet}
       </main>
     );
@@ -1570,7 +1570,7 @@ const isCity = zone.kind === 'city';
 
 
         </div>
-        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
+        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
         {deptPickerSheet}
       </main>
     );
@@ -1764,7 +1764,7 @@ onClick={() => {
         )}
       </div>
 
-      <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
+      <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
 
       {/* Flying card overlay for shelve animation */}
       {flyingCardStyle && pendingShelve && (
