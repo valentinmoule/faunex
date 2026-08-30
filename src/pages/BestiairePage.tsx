@@ -286,6 +286,7 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
     resolveSlot: resolveShelveSlot,
     onPrepare: useCallback(() => {
       // Retour sur la vue « toutes les espèces », sans filtre, pour y voir la carte
+      setViewMode('categories');
       setSelectedCategory(null);
       setSelectedCollectionKey(null);
       setSelectedZoneId(null);
