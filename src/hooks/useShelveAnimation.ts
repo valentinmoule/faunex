@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { consumePendingShelve, peekPendingShelve, type PendingShelve } from '@/lib/shelveAnimation';
-import { normalizeCategory, type BestiaryAnimal } from '@/lib/bestiary';
+import { type BestiaryAnimal } from '@/lib/bestiary';
 import { hapticDiscovery } from '@/lib/haptics';
 
 interface Options {
