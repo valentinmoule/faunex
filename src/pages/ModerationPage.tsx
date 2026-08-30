@@ -220,7 +220,16 @@ const ModerationPage = () => {
       .eq('id', capture.id);
 
     if (error) {
-      toast.error('Erreur lors de l\'approbation');
+      // Index unique (user_id, animal_name) sur les captures approuvées :
+      // l'explorateur possède déjà cette espèce, l'approbation est impossible.
+      const isDuplicate =
+        (error as any).code === '23505' ||
+        /captures_unique_species_per_user|duplicate key/i.test(error.message || '');
+      toast.error(
+        isDuplicate
+          ? `${finalName} : cet explorateur possède déjà cette espèce (1 capture par espèce). Renomme l'espèce ou rejette la capture.`
+          : `Erreur lors de l'approbation : ${error.message}`,
+      );
     } else {
 
 
