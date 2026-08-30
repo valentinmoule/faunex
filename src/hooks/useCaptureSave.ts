@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { dataUrlToBytes } from '@/lib/imageProcessing';
 import type { AnimalResult, GeoTag } from '@/types/capture';
 import { logDatasetEvent } from '@/lib/dataset';
+import { isSpeciesBinomial } from '@/lib/sharedBinomials';
 
 interface SaveContext {
   userId: string | undefined;
