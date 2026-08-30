@@ -388,6 +388,15 @@ const takePhoto = async () => {
   return (
     <main className="min-h-screen bg-foreground flex flex-col pb-24">
       <canvas ref={canvasRef} className="hidden" />
+      <input
+        ref={galleryInputRef}
+        type="file"
+        accept="image/*,.heic,.heif"
+        className="hidden"
+        onChange={importFromGallery}
+      />
+      
+
       
 
       {/* Camera / photo / result */}
