@@ -2916,3 +2916,17 @@ html.is-native-android body {
 @media (prefers-reduced-motion: reduce) {
   .finders-badge--hot .finders-badge__icon { animation: none; }
 }
+
+/* Puces de filtre "Popularité" : mêmes teintes que le jeton, en version douce */
+.popularity-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+.popularity-chip--none { background: hsl(220 12% 22% / 0.08); color: hsl(220 12% 30%); }
+.popularity-chip--rare { background: hsl(168 62% 33% / 0.1); color: hsl(168 58% 27%); }
+.popularity-chip--common { background: hsl(150 55% 30% / 0.1); color: hsl(150 52% 25%); }
+.popularity-chip--trending { background: hsl(340 74% 46% / 0.1); color: hsl(340 72% 38%); }
+.popularity-chip--hot { background: hsl(0 84% 46% / 0.1); color: hsl(0 80% 40%); }
