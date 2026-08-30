@@ -40,7 +40,7 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { toast } from 'sonner';
 
 /** Zones + collections combinées, limite gratuite. */
-const FREE_SLOT_LIMIT = 3;
+const FREE_SLOT_LIMIT = 5;
 
 /** Catégorie virtuelle regroupant toutes les espèces + classement général. */
 const ALL_SPECIES = 'Toutes les espèces';
