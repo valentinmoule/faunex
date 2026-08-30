@@ -186,13 +186,16 @@ export const useAnimalIdentification = () => {
       if (cached) return await cached;
 
       const run = async (): Promise<IdentifyOutcome> => {
+        // Conservé entre les deux appels : le backend traite un retry réseau
+        // comme la même analyse et ne débite donc jamais deux fois le quota.
+        const requestId = crypto.randomUUID();
         let lastError: unknown = null;
         for (let attempt = 0; attempt < 2; attempt++) {
           setStage(attempt === 0 ? 'analyzing' : 'retrying');
           try {
             const { data, error } = await withTimeout(
               supabase.functions.invoke('identify-animal', {
-                body: { imageBase64: compressedUrl },
+                body: { imageBase64: compressedUrl, requestId },
               }),
               // Le serveur est borné à ~44 s (2 passes Lite + 1 passe Flash) :
               // au-delà la requête est perdue, on relance immédiatement.

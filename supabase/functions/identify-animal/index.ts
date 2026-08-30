@@ -206,8 +206,23 @@ CRITÈRES DIAGNOSTIQUES (cas ambigus) :
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  let quotaDb: ReturnType<typeof createClient> | null = null;
+  let quotaUserId: string | null = null;
+  let quotaRequestId: string | null = null;
+  let quotaConsumed = false;
+
+  const refundQuota = async () => {
+    if (!quotaConsumed || !quotaDb || !quotaUserId || !quotaRequestId) return;
+    quotaConsumed = false;
+    const { error } = await quotaDb.rpc("refund_ai_analysis", {
+      p_user: quotaUserId,
+      p_request: quotaRequestId,
+    });
+    if (error) console.error("ai quota refund failed", error);
+  };
+
   try {
-    const { imageBase64, imageFast } = await req.json();
+    const { imageBase64, imageFast, requestId } = await req.json();
     if (!imageBase64) {
       return new Response(JSON.stringify({ error: "imageBase64 is required" }), {
         status: 400,
@@ -253,6 +268,7 @@ serve(async (req) => {
         return null;
       }
     })();
+    quotaDb = cacheDb;
 
     const sha256Hex = async (value: string) => {
       const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
@@ -332,8 +348,15 @@ serve(async (req) => {
         const { data: userData } = await cacheDb.auth.getUser(token);
         const userId = userData?.user?.id;
         if (userId) {
+          const stableRequestId = typeof requestId === "string" &&
+              /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(requestId)
+            ? requestId
+            : crypto.randomUUID();
+          quotaUserId = userId;
+          quotaRequestId = stableRequestId;
           const { data: remaining, error: quotaError } = await cacheDb.rpc("consume_ai_analysis", {
             p_user: userId,
+            p_request: stableRequestId,
           });
           if (quotaError) {
             // Le quota ne doit jamais bloquer le service en cas d'incident base.
@@ -348,6 +371,8 @@ serve(async (req) => {
               message:
                 "Tu as atteint ta limite de 4 analyses pour aujourd'hui. Reviens demain, ou passe en Faunex Premium pour des analyses illimitées.",
             });
+          } else {
+            quotaConsumed = true;
           }
         }
       } catch (e) {
@@ -643,27 +668,32 @@ serve(async (req) => {
     if (!animalData) {
       if (response && !response.ok) {
         if (response.status === 429) {
+          await refundQuota();
           return new Response(JSON.stringify({ error: "Trop de requêtes, réessayez dans un moment." }), {
             status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
         }
         if (response.status === 402) {
+          await refundQuota();
           return new Response(JSON.stringify({ error: "Crédits IA épuisés." }), {
             status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
         }
         console.error("AI gateway error:", response.status, await response.text().catch(() => ""));
+        await refundQuota();
         return new Response(JSON.stringify({ error: "Erreur d'identification" }), {
           status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       if (!response) {
+        await refundQuota();
         return new Response(JSON.stringify({ error: "Analyse interrompue (réseau)" }), {
           status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       // Vraie non-reconnaissance : on répond 200 pour que le client bascule
       // sur la saisie manuelle (et non sur l'écran d'erreur technique).
+      await refundQuota();
       return await finish({ success: false, reason: "not_identified" }, "not_identified");
     }
 
@@ -915,6 +945,7 @@ serve(async (req) => {
 
   } catch (e) {
     console.error("identify-animal error:", e);
+    await refundQuota();
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Erreur inconnue" }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

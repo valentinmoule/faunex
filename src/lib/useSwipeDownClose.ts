@@ -32,19 +32,27 @@ export function useSwipeDownClose(onClose: () => void, threshold = 90) {
       if (el.scrollTop > 4) return;
       startY = e.touches[0].clientY;
       dragging = false;
+      current = 0;
     };
 
     const onMove = (e: TouchEvent) => {
       if (startY == null) return;
       const dy = e.touches[0].clientY - startY;
       if (dy <= 0) {
-        // L'utilisateur remonte : on abandonne, le scroll natif fait le reste
+        // L'utilisateur remonte : annule aussi tout déplacement positif déjà
+        // effectué afin qu'une ancienne valeur ne ferme pas la feuille au relâchement.
+        dragging = false;
+        current = 0;
+        setDragY(0);
         if (dy < -8) startY = null;
         return;
       }
       // Geste vers le bas mais la liste a scrollé entre-temps : abandon
       if (el.scrollTop > 4) {
         startY = null;
+        dragging = false;
+        current = 0;
+        setDragY(0);
         return;
       }
       if (!dragging && dy < 6) return;

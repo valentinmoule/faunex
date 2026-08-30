@@ -18,16 +18,19 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          request_id: string | null
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
+          request_id?: string | null
           user_id: string
         }
         Update: {
           created_at?: string
           id?: string
+          request_id?: string | null
           user_id?: string
         }
         Relationships: []
@@ -2073,7 +2076,9 @@ export type Database = {
         }[]
       }
       complete_share_quest: { Args: { p_quest_id: string }; Returns: boolean }
-      consume_ai_analysis: { Args: { p_user: string }; Returns: number }
+      consume_ai_analysis:
+        | { Args: { p_user: string }; Returns: number }
+        | { Args: { p_request: string; p_user: string }; Returns: number }
       draw_weekly_quests: { Args: { p_week?: string }; Returns: number }
       ensure_weekly_quests: { Args: never; Returns: number }
       ensure_weekly_quests_for: { Args: { p_user_id: string }; Returns: number }
@@ -2234,6 +2239,10 @@ export type Database = {
       refresh_collection_membership: {
         Args: { p_collection_id?: string }
         Returns: number
+      }
+      refund_ai_analysis: {
+        Args: { p_request: string; p_user: string }
+        Returns: boolean
       }
       refund_capture_attempt: { Args: never; Returns: number }
       release_background_job: {
