@@ -47,7 +47,7 @@ const SILVER_STOPS = [
   ['100%', '#64748b'],
 ] as const;
 
-/** Jeton de rareté façon carte Pokémon : ● ◆ ★ noirs, ★★ argent holo, ★ or holo. */
+/** Jeton de rareté façon carte Pokémon : ● ◆ ★ noirs, ★ argent holo, ★★ argent holo, ★ or holo. */
 export const RarityBadge = ({
   rarity,
   className,
