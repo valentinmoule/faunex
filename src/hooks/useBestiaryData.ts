@@ -92,13 +92,18 @@ const buildList = (
             .order('created_at', { ascending: false })
             .range(from, to),
         ),
-        supabase.rpc('species_finder_counts'),
+        // Pagination obligatoire : l'API limite les RPC à 1000 lignes par défaut,
+        // or il y a plus de 4000 espèces capturées par la communauté.
+        fetchAllRows<any>((from, to) =>
+          supabase.rpc('species_finder_counts').range(from, to),
+        ),
       ]);
       const userCaptures = capturesResult.data || [];
       const findersMap = new Map<string, number>();
       (findersResult.data || []).forEach((r: any) => {
         if (typeof r.finders === 'number') findersMap.set(r.animal_key, r.finders);
       });
+
 
       // One card per distinct species (most recent capture wins)
       const sortedCaptures = userCaptures
