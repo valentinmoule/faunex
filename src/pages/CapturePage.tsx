@@ -121,8 +121,10 @@ const quota = useCaptureQuota(session?.user?.id);
     grabFrame, resumePreview,
   } = camera;
 
-  /** Shared pipeline for both the camera shot and the gallery import. */
-  const processPhoto = useCallback(async (rawDataUrl: string) => {
+  /** Shared pipeline for both the camera shot and the gallery import.
+   *  `manualReason` court-circuite l'analyse IA : la photo est envoyée en
+   *  validation humaine (import suspect, sans métadonnées d'appareil). */
+  const processPhoto = useCallback(async (rawDataUrl: string, manualReason?: string) => {
     // The daily slot is only consumed when the capture is added to the Faunex.
     if (quota.exhausted) {
       toast.error(`Limite atteinte : ${DAILY_CAPTURE_LIMIT} captures par jour maximum. Reviens demain !`);
@@ -152,8 +154,18 @@ const quota = useCaptureQuota(session?.user?.id);
     setDisputedResult(null);
     geo.capture();
 
+    // Photo importée sans signature d'appareil : aucune analyse IA facturée,
+    // l'observation passe par une validation humaine.
+    if (manualReason) {
+      identifyingRef.current = false;
+      setTaxonHint(manualReason);
+      setManualMode(true);
+      return;
+    }
+
     try {
       const outcome = await identify(dataUrl);
+
       if (outcome.status === 'identified') {
         triggerReveal(outcome.animal);
       } else if (outcome.status === 'error') {
