@@ -308,6 +308,17 @@ async function examine(
   const imageType = typeof verdict.image_type === 'string' ? verdict.image_type : null
   const notRealPhoto = verdict.is_real_photo === false || (imageType !== null && imageType !== 'photo_reelle')
 
+  // GARDE-FOU : l'auto-modération VÉRIFIE, elle ne renomme jamais vers une autre
+  // espèce. Si l'IA propose un binôme latin (ou un nom) différent de celui de
+  // l'observateur, sa correction n'est PAS appliquée : la capture part en
+  // modération humaine avec le nom de l'observateur intact.
+  const userSci = norm(capture.scientific_name)
+  const aiSci = norm(verdict.scientific_name)
+  const sciConflict = !!userSci && !!aiSci && userSci !== aiSci
+  const nameConflict = norm(finalName) !== norm(name) && !norm(finalName).includes(norm(name)) && !norm(name).includes(norm(finalName))
+  const speciesOverride = sciConflict || (!userSci && nameConflict)
+
+
   // Non-respect des règles : image non photographique, objet, animal mort,
   // humain, espèce fictive/éteinte → refus ferme + notification.
   const ruleBreach = notRealPhoto || (verdict.name_matches === false && confidence === 0)
