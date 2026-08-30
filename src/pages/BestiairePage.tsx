@@ -293,7 +293,7 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
       setCategoryFilter([]);
       setRarityFilter([]);
       setPopularityFilter([]);
-      setSpeciesQuery('');
+      setSpeciesSearch('');
     }, []),
   });
 
