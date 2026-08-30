@@ -321,7 +321,8 @@ async function examine(
 
   // Non-respect des règles : image non photographique, objet, animal mort,
   // humain, espèce fictive/éteinte → refus ferme + notification.
-  const ruleBreach = notRealPhoto || (verdict.name_matches === false && confidence === 0)
+  // Un désaccord d'espèce n'est jamais un refus ferme : c'est un arbitrage humain.
+  const ruleBreach = notRealPhoto || (!speciesOverride && verdict.name_matches === false && confidence === 0)
 
   if (!matches || unknown || notRealPhoto || speciesOverride || confidence < AUTO_APPROVE_THRESHOLD) {
     const decisionReason = notRealPhoto
