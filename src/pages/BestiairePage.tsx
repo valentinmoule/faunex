@@ -1692,10 +1692,12 @@ const isCity = zone.kind === 'city';
               <div
                 key={animal.name}
                 ref={(el) => { slotRefs.current[slotKey] = el; }}
-                onClick={() => {
+onClick={() => {
                   if (animal.captured && animal.captureData) {
+                    setSelectedFinders(undefined);
                     setSelectedCard(animal.captureData);
                   } else {
+                    setSelectedFinders(animal.finders ?? 0);
                     setSelectedCard({
                       id: `uncaptured-${animal.name}`,
                       name: animal.name,
