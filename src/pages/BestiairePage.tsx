@@ -1398,9 +1398,6 @@ Bestiaire
                   </div>
 
 <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-display font-bold mt-5 mb-2">Rareté</p>
-                  <p className="text-[11px] font-display text-muted-foreground mb-2">
-                    Toutes les raretés sont incluses par défaut — touche une rareté pour la restreindre.
-                  </p>
                   <div className="flex flex-wrap gap-2">
                     {RARITY_ORDER.map((r) => {
                       const active = rarityFilter.includes(r);
