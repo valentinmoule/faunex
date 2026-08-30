@@ -135,7 +135,7 @@ const Index = () => {
         setAllCapturedNames(cards.map(c => c.name));
 
         const counts: Record<string, number> = {};
-        cards.forEach((c) => { counts[c.rarity] = (counts[c.rarity] || 0) + 1; });
+        cards.forEach((c) => { const r = normalizeRarity(c.rarity); counts[r] = (counts[r] || 0) + 1; });
         setRarityCounts(counts);
       }
 
