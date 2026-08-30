@@ -2258,8 +2258,6 @@ export type Database = {
         }[]
       }
       settle_league_group: { Args: { p_group_id: string }; Returns: undefined }
-      show_limit: { Args: never; Returns: number }
-      show_trgm: { Args: { "": string }; Returns: string[] }
       species_finder_counts: {
         Args: never
         Returns: {
