@@ -5,7 +5,7 @@ import { Bell, Target, ChevronRight } from 'lucide-react';
 import NearbyAnimalsSection from '@/components/NearbyAnimalsSection';
 import AnimalCardComponent from '@/components/AnimalCardComponent';
 import CardDetailSheet from '@/components/CardDetailSheet';
-import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
+import { type AnimalCard, type Rarity, RARITY_LABELS, RARITY_ORDER } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
 import { fetchAllRows } from '@/lib/fetchAll';
 import { useAuth } from '@/contexts/AuthContext';
