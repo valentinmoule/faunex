@@ -199,6 +199,8 @@ const readIfd = (
         break;
       case TAG_GPS_IFD:
         out.hasGps = true;
+        out.gps =
+          out.gps ?? parseGpsIfd(view, tiffStart, view.getUint32(entry + 8, little), little);
         break;
       case TAG_EXIF_IFD:
         readIfd(view, tiffStart, view.getUint32(entry + 8, little), little, out, depth + 1);
