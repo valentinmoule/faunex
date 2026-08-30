@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { type Rarity, RARITY_LABELS, RARITY_FX, RARITY_RANK } from '@/data/mockData';
 import { setPendingShelve } from '@/lib/shelveAnimation';
-import { prepareSourceImage, readFileAsDataUrl } from '@/lib/imageProcessing';
+import { prepareSourceImage, prepareSourceFile } from '@/lib/imageProcessing';
 import { isHeicFile, readExifCameraInfo } from '@/lib/exif';
 import { useCamera } from '@/hooks/useCamera';
 import { useGeoTag } from '@/hooks/useGeoTag';
@@ -270,11 +270,17 @@ const exif = isHeicFile(file) ? null : await readExifCameraInfo(file);
       if (suspicious) {
         toast.info("Photo sans métadonnées d'appareil (EXIF) : elle part en vérification humaine.");
       }
-      await processPhoto(await readFileAsDataUrl(file), reason, exif?.gps ?? null);
+      const prepared = await prepareSourceFile(file);
+      if (!prepared) {
+        toast.error("Impossible de lire cette photo. Réessaie avec une autre image.");
+        return;
+      }
+      await processPhoto(prepared, reason, exif?.gps ?? null);
     } catch (err) {
       console.error(err);
       toast.error("Impossible de lire cette photo. Réessaie avec une autre image.");
     }
+
   };
 
 
