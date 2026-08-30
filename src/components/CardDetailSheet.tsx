@@ -586,7 +586,9 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                 onTap={card.image ? openFullscreenImage : undefined}
                 subjectBox={card.subjectBox}
                 noHolo={isUncaptured}
-                className={`relative mx-auto max-w-[280px] aspect-[4/5] rounded-2xl ${card.image ? 'cursor-pointer' : ''}`}
+                className={`relative mx-auto max-w-[280px] aspect-[4/5] rounded-[1.75rem] ${card.image ? 'cursor-pointer' : ''}`}
+                style={{ ['--holo-radius' as any]: '1.75rem' }}
+
               >
                 <div
                   className={`relative w-full h-full rounded-[1.75rem] overflow-hidden holo-frame holo-frame--${normalizeRarity(card.rarity).replace(/_/g, '-')}`}
