@@ -103,6 +103,41 @@ export const prepareSourceImage = async (dataUrl: string): Promise<string | null
   return await resizeDataUrl(source, 1600, 0.82);
 };
 
+/** Normalise un fichier image importé depuis la galerie.
+ *
+ *  On décode le fichier directement (createImageBitmap sur le Blob) au lieu de
+ *  passer par un dataURL base64 : sur iOS/Android, une photo de 10-40 Mo lue
+ *  via FileReader fait souvent échouer la lecture (mémoire), ce qui produisait
+ *  un « Impossible de lire cette photo » alors que l'image était parfaitement
+ *  valide. Le repli FileReader reste utilisé pour les HEIC/HEIF que le
+ *  navigateur ne sait pas décoder nativement. */
+export const prepareSourceFile = async (file: File): Promise<string | null> => {
+  if (typeof createImageBitmap === 'function') {
+    try {
+      const bitmap = await createImageBitmap(file);
+      const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
+      const w = Math.round(bitmap.width * scale);
+      const h = Math.round(bitmap.height * scale);
+      const c = document.createElement('canvas');
+      c.width = w;
+      c.height = h;
+      c.getContext('2d')!.drawImage(bitmap, 0, 0, w, h);
+      bitmap.close();
+      return c.toDataURL('image/jpeg', 0.82);
+    } catch {
+      /* HEIC ou décodeur indisponible : on tente le chemin dataURL */
+    }
+  }
+  try {
+    const dataUrl = await readFileAsDataUrl(file);
+    return await prepareSourceImage(dataUrl);
+  } catch (err) {
+    console.error('prepareSourceFile failed', err);
+    return null;
+  }
+};
+
+
 
 
 /** Compress an image dataURL to a max dimension and JPEG quality for AI.
