@@ -1140,6 +1140,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
         </div>
 
         <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
+        {flyingCardOverlay}
         {deptPickerSheet}
       </main>
     );
@@ -1640,6 +1641,7 @@ const isCity = zone.kind === 'city';
 
         </div>
         <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
+        {flyingCardOverlay}
         {deptPickerSheet}
       </main>
     );
