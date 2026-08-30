@@ -323,10 +323,13 @@ async function examine(
   // humain, espèce fictive/éteinte → refus ferme + notification.
   const ruleBreach = notRealPhoto || (verdict.name_matches === false && confidence === 0)
 
-  if (!matches || unknown || notRealPhoto || confidence < AUTO_APPROVE_THRESHOLD) {
+  if (!matches || unknown || notRealPhoto || speciesOverride || confidence < AUTO_APPROVE_THRESHOLD) {
     const decisionReason = notRealPhoto
       ? `not_a_real_photo:${imageType ?? 'unknown'}`
-      : (verdict.reason ?? (ruleBreach ? 'rule_breach' : 'needs_human'))
+      : speciesOverride
+        ? `species_override_blocked:${verdict.scientific_name ?? verdict.animal_name ?? 'inconnu'}`
+        : (verdict.reason ?? (ruleBreach ? 'rule_breach' : 'needs_human'))
+
 
     // Dataset : décision automatique de refus, ou renvoi vers la modération humaine.
     await logDatasetEvent(supabase, {
