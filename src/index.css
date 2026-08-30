@@ -2556,6 +2556,11 @@ html.is-native-android body {
   color: hsl(225 15% 18%);
 }
 
+/* Le glyphe ◆ paraît optiquement plus petit que ● et ★ à corps égal. */
+.rarity-badge--uncommon .rarity-badge__sym {
+  font-size: 12px;
+}
+
 /* Variante avec label (card détail) */
 .rarity-badge--labeled {
   height: auto;
@@ -2568,6 +2573,9 @@ html.is-native-android body {
 }
 .rarity-badge--labeled .rarity-badge__sym {
   font-size: 11px;
+}
+.rarity-badge--labeled.rarity-badge--uncommon .rarity-badge__sym {
+  font-size: 13px;
 }
 .rarity-badge__label {
   position: relative;
@@ -2617,7 +2625,7 @@ html.is-native-android body {
   color: hsl(222 18% 30%);
 }
 
-/* ★ dorées — illustration / spéciale / hyper rare */
+/* ★ dorées — épique / mythique / légendaire */
 .rarity-badge--gold {
   background: linear-gradient(135deg, hsl(45 100% 97%), hsl(42 90% 88%));
   border-color: hsl(40 90% 55% / 0.45);

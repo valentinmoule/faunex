@@ -69,12 +69,12 @@ export interface UserProfile {
 export const RARITY_LABELS: Record<Rarity, string> = {
   common: 'Commune',
   uncommon: 'Peu commune',
-  rare: 'Rare',
-  very_rare: 'Plutôt rare',
+  rare: 'Plutôt rare',
+  very_rare: 'Rare',
   ultra_rare: 'Ultra rare',
-  illustration_rare: 'Illustration rare',
-  special_rare: 'Spéciale rare',
-  hyper_rare: 'Hyper rare',
+  illustration_rare: 'Épique',
+  special_rare: 'Mythique',
+  hyper_rare: 'Légendaire',
 };
 
 /** Ordre croissant de rareté (index = rang). */
