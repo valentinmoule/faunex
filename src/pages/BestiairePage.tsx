@@ -1404,11 +1404,41 @@ Bestiaire
                     })}
                   </div>
 
+                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-display font-bold mt-5 mb-2">Popularité</p>
+                  <p className="text-[11px] font-display text-muted-foreground mb-2">
+                    Combien de naturalistes ont déjà capturé l'espèce — sélection vide = toutes.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {(Object.keys(POPULARITY_LABELS) as PopularityTier[]).map((t) => {
+                      const active = popularityFilter.includes(t);
+                      const { label, hint } = POPULARITY_LABELS[t];
+                      return (
+                        <button
+                          key={t}
+                          onClick={() =>
+                            setPopularityFilter(prev =>
+                              active ? prev.filter(x => x !== t) : [...prev, t]
+                            )
+                          }
+                          className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-[12px] font-display font-semibold border transition-all active:scale-95 ${
+                            active
+                              ? 'bg-primary text-primary-foreground border-primary'
+                              : 'bg-card text-foreground border-border hover:border-primary/40'
+                          }`}
+                        >
+                          {label}
+                          <span className={active ? 'opacity-80' : 'opacity-50'}>{hint}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
                   <div className="flex gap-2 mt-6">
                     <button
                       onClick={() => {
                         setCategoryFilter([]);
                         setRarityFilter([]);
+                        setPopularityFilter([]);
                       }}
                       className="px-4 py-2.5 rounded-xl border border-border bg-card text-sm font-display font-semibold text-foreground active:scale-[0.97] transition"
                     >
