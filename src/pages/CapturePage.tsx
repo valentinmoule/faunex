@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { type Rarity, RARITY_LABELS } from '@/data/mockData';
 import { setPendingShelve } from '@/lib/shelveAnimation';
-import { prepareSourceImage } from '@/lib/imageProcessing';
+import { prepareSourceImage, readFileAsDataUrl } from '@/lib/imageProcessing';
 import { useCamera } from '@/hooks/useCamera';
 import { useGeoTag } from '@/hooks/useGeoTag';
 import { useAnimalIdentification, type RejectionKind } from '@/hooks/useAnimalIdentification';
