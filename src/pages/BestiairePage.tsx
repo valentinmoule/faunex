@@ -514,8 +514,16 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
       return !group || !hiddenKeys.has(group.key);
     });
     // « Toutes les espèces » peut contenir des milliers de cartes : on plafonne l'affichage.
-    if (selectedCategory === ALL_SPECIES && !speciesQuery) return filtered.slice(0, ALL_GRID_LIMIT);
+    if (selectedCategory === ALL_SPECIES && !speciesQuery) {
+      const capped = filtered.slice(0, ALL_GRID_LIMIT);
+      if (pendingName && !capped.some(a => a.name.toLocaleLowerCase('fr') === pendingName)) {
+        const target = filtered.find(a => a.name.toLocaleLowerCase('fr') === pendingName);
+        if (target) capped.unshift(target);
+      }
+      return capped;
+    }
     return filtered;
+
   }, [categoryAnimals, breedGroupsInCategory, activeBreedGroup, selectedCategory, speciesQuery, pendingShelve]);
 
 
