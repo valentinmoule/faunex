@@ -338,8 +338,9 @@ async function examine(
 
     const decisionReason = notRealPhoto
       ? `not_a_real_photo:${imageType ?? 'unknown'}`
-      : speciesOverride
-        ? `species_override_blocked:${verdict.scientific_name ?? verdict.animal_name ?? 'inconnu'}`
+      : disagreement
+        ? `species_disagreement:${verdict.scientific_name ?? verdict.animal_name ?? 'inconnu'}`
+
         : (verdict.reason ?? (ruleBreach ? 'rule_breach' : 'needs_human'))
 
 
