@@ -510,10 +510,17 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
 
 
   const isUncaptured = !card.image || card.id.startsWith('uncaptured-');
-  const cardFx = RARITY_FX[normalizeRarity(card.rarity)];
+  const normalizedRarity = normalizeRarity(card.rarity);
+  const cardFx = RARITY_FX[normalizedRarity];
   const isGold = !isUncaptured && cardFx === 'gold';
   const isSilver = !isUncaptured && cardFx === 'silver';
-  const isRare = !isUncaptured && cardFx === 'ink' && (card.rarity === 'rare' || card.rarity === 'very_rare');
+  const isRare = !isUncaptured && cardFx === 'ink' && (normalizedRarity === 'rare' || normalizedRarity === 'very_rare');
+  /** Famille de fond du hero : chaque rareté a toujours un background. */
+  const heroFamily = isGold ? 'gold'
+    : isSilver ? 'silver'
+    : isRare ? (normalizedRarity === 'very_rare' ? 'very-rare' : 'rare')
+    : normalizedRarity === 'uncommon' ? 'uncommon'
+    : 'common';
   const isShiny = isSilver || isGold;
 
   const detailAppearClass = isGold
@@ -539,7 +546,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
               <span className="text-white text-lg font-light leading-none">✕</span>
             </button>
             <div className="h-full overflow-y-auto">
-          <div className={`relative overflow-hidden detail-hero-${card.rarity}`} style={{ zIndex: 0 }}>
+          <div className={`relative overflow-hidden detail-hero-${heroFamily}`} style={{ zIndex: 0 }}>
             
             {/* Mythic: blurred aurora orbs + light leak */}
             {isGold && (
@@ -930,7 +937,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
       {/* Fullscreen image - outside Sheet to avoid portal conflicts */}
       {imageFullscreen && card.image && (
         <div
-          className={`detail-fullscreen fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden detail-hero-${card.rarity}`}
+          className={`detail-fullscreen fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden detail-hero-${heroFamily}`}
           onClick={() => {
             if (zoom.scale > 1.05) {
               resetZoom();

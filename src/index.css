@@ -894,6 +894,16 @@
   background: linear-gradient(160deg, hsla(210, 10%, 16%, 1) 0%, hsla(210, 8%, 10%, 1) 100%);
 }
 
+/* ── UNCOMMON (vert émeraude) ── */
+.detail-hero-uncommon {
+  background: linear-gradient(160deg, hsla(152, 35%, 15%, 1) 0%, hsla(152, 30%, 9%, 1) 100%);
+}
+
+/* ── VERY RARE (violet) ── */
+.detail-hero-very-rare {
+  background: linear-gradient(160deg, hsla(265, 40%, 18%, 1) 0%, hsla(265, 35%, 10%, 1) 100%);
+}
+
 .animate-float {
   animation: float 3s ease-in-out infinite;
 }
