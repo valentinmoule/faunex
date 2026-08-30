@@ -16,22 +16,22 @@ const corsHeaders = {
  * nom incompatible, doublon, espèce fictive/éteinte, humain), la capture reste
  * en modération manuelle.
  */
-const AUTO_PROMPT = `Expert naturaliste chargé du contrôle qualité. On te donne une PHOTO, le NOM proposé par l'observateur et sa description. Ta mission : VÉRIFIER le nom, pas deviner.
+const AUTO_PROMPT = `Expert naturaliste chargé du contrôle qualité. On te donne une PHOTO, le NOM proposé par l'observateur et sa description. Ta mission : VÉRIFIER le nom, pas deviner. Sois COOPÉRATIF : si la photo est compatible avec le nom proposé, valide-le.
 
-- name_matches = true UNIQUEMENT si la photo montre sans ambiguïté l'animal nommé (espèce ou race), cohérent avec la description.
-- confidence = certitude réelle 0-1 ; > 0,9 seulement si un expert n'hésiterait pas.
-- Photo floue, lointaine, partielle, ou espèces ressemblantes possibles (biche/chevreuil, coccinelles, races de chiens, passereaux) → name_matches false, confidence basse.
+- name_matches = true dès que la photo est COMPATIBLE avec l'animal nommé (espèce, genre, groupe ou race), même si la photo n'est pas parfaite. Accepte les synonymes, variantes régionales, orthographes approximatives, singulier/pluriel, nom de genre ou de famille au lieu de l'espèce.
+- name_matches = false seulement si la photo montre clairement AUTRE CHOSE que ce que l'observateur a nommé (autre famille, autre catégorie), ou si aucun animal n'est visible.
+- confidence = certitude que le nom proposé est acceptable (0-1). Une photo un peu floue ou lointaine mais clairement compatible reste > 0,8.
 - AUTHENTICITÉ : seule une VRAIE PHOTO d'animal VIVANT est valide. Invalide (is_real_photo false, name_matches false, confidence 0) : illustration, dessin, logo, mascotte, peinture, rendu 3D, image IA, capture/photo d'écran ou de papier, autocollant, tatouage, peluche, figurine, statue et tout OBJET en forme d'animal (déco, bibelot, déguisement, gonflable, gâteau, graffiti, panneau) → objet_representation ; animal MORT ou préparé (plat, poisson/fruits de mer servis ou en étal, viande, carcasse, trophée, taxidermie, écrasé, insecte épinglé, squelette, coquille vide) → animal_mort_ou_plat. Indices : matériau/couture/socle/yeux peints/posture rigide, aplats sans grain, fond uni, watermark, assiette/couverts/glace/découpe/sang.
 - Humain, plante, aucun animal, créature de fiction ou espèce éteinte → name_matches false, confidence 0.
-- Au moindre doute sur la nature de l'image : is_real_photo false.
-- animal_name : le nom de l'observateur normalisé (orthographe, casse, race si visible), jamais une autre espèce. Nom scientifique = binôme latin réel.
+- animal_name : le nom de l'observateur normalisé (orthographe, casse, race si visible), jamais une autre espèce. Nom scientifique = binôme latin réel correspondant au nom de l'observateur.
 - Rareté (France, 8 paliers) : common commune/quotidienne · uncommon peu commune/fréquente · rare plutôt rare, demande de la chance · very_rare rare/très localisée · ultra_rare menacée ou protégée · illustration_rare épique/quasi-impossible · special_rare mythique · hyper_rare légendaire, le sommet.
 
 Réponds UNIQUEMENT via l'appel de fonction verify_animal.`
 
 
 /** Seuil de confiance minimal pour valider sans modérateur humain. */
-const AUTO_APPROVE_THRESHOLD = 0.9
+const AUTO_APPROVE_THRESHOLD = 0.75
+
 
 /** Clé de la tâche de fond (verrou + état de pause en base). */
 const JOB_KEY = 'auto_moderate_captures'
@@ -309,14 +309,16 @@ async function examine(
   const notRealPhoto = verdict.is_real_photo === false || (imageType !== null && imageType !== 'photo_reelle')
 
   // GARDE-FOU : l'auto-modération VÉRIFIE, elle ne renomme jamais vers une autre
-  // espèce. Si l'IA propose un binôme latin (ou un nom) différent de celui de
-  // l'observateur, sa correction n'est PAS appliquée : la capture part en
-  // modération humaine avec le nom de l'observateur intact.
+  // espèce. La comparaison est TOLÉRANTE (accents, pluriels, qualificatifs
+  // « commun / d'Europe », parenthèses, sous-espèces) : seul un vrai désaccord
+  // d'espèce part en modération humaine, avec le nom de l'observateur intact.
   const userSci = norm(capture.scientific_name)
   const aiSci = norm(verdict.scientific_name)
-  const sciConflict = !!userSci && !!aiSci && userSci !== aiSci
-  const nameConflict = norm(finalName) !== norm(name) && !norm(finalName).includes(norm(name)) && !norm(name).includes(norm(finalName))
-  const speciesOverride = sciConflict || (!userSci && nameConflict)
+  const sciSame = !!userSci && !!aiSci && sameBinomial(userSci, aiSci)
+  const sciConflict = !!userSci && !!aiSci && !sciSame
+  const nameConflict = !compatibleNames(name, finalName)
+  const speciesOverride = sciConflict || (!sciSame && nameConflict)
+
 
 
   // Non-respect des règles : image non photographique, objet, animal mort,
@@ -613,6 +615,56 @@ const norm = (v: string | null | undefined) =>
   (v ?? '')
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
+
+/** Mots sans valeur discriminante dans un nom vernaculaire français. */
+const NAME_STOPWORDS = new Set([
+  'de', 'du', 'des', 'la', 'le', 'les', 'l', 'd', 'a', 'au', 'aux', 'et',
+  'commun', 'communs', 'commune', 'communes', 'vulgaire', 'ordinaire',
+  'europe', 'europeen', 'europeenne', 'europeens', 'europeennes',
+  'france', 'francais', 'francaise', 'domestique', 'domestiques',
+  'espece', 'sp', 'spp', 'genre',
+])
+
+/** Racine grossière : neutralise pluriels et accords (chats → chat). */
+const stem = (t: string) => (t.length > 4 ? t.replace(/(aux|eaux|es|s|e)$/, '') : t)
+
+const nameTokens = (v: string | null | undefined) =>
+  norm((v ?? '').replace(/\([^)]*\)/g, ' '))
+    .split(' ')
+    .filter((t) => t && !NAME_STOPWORDS.has(t))
+    .map(stem)
+    .filter(Boolean)
+
+/**
+ * Deux noms vernaculaires désignent-ils plausiblement la même chose ?
+ * Tolère orthographe/accents/pluriels, qualificatifs superflus, précision de
+ * race et rang plus large (« mésange » vs « mésange bleue »).
+ */
+const compatibleNames = (a: string, b: string) => {
+  const na = norm(a)
+  const nb = norm(b)
+  if (!na || !nb) return true
+  if (na === nb || na.includes(nb) || nb.includes(na)) return true
+  const ta = nameTokens(a)
+  const tb = nameTokens(b)
+  if (!ta.length || !tb.length) return true
+  const setA = new Set(ta)
+  const setB = new Set(tb)
+  const shared = ta.filter((t) => setB.has(t)).length
+  // Un des deux noms est inclus dans l'autre (rang plus large / race précisée).
+  if (shared === Math.min(setA.size, setB.size)) return true
+  // Sinon : recouvrement majoritaire des mots signifiants.
+  return shared / Math.max(setA.size, setB.size) >= 0.5
+}
+
+/** Compare deux binômes latins au niveau genre + espèce (sous-espèce ignorée). */
+const sameBinomial = (a: string, b: string) => {
+  const ca = norm(a).split(' ').slice(0, 2).join(' ')
+  const cb = norm(b).split(' ').slice(0, 2).join(' ')
+  if (!ca || !cb) return false
+  return ca === cb || ca.startsWith(cb) || cb.startsWith(ca)
+}
+
 
 const SHARED_BINOMIALS = new Set([
   'canis lupus familiaris', 'canis familiaris', 'canis lupus',
