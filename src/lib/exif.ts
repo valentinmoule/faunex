@@ -18,6 +18,8 @@ export interface ExifCameraInfo {
   dateTimeOriginal: string | null;
   software: string | null;
   hasGps: boolean;
+  /** Coordonnées GPS EXIF (degrés décimaux), si présentes. */
+  gps: { lat: number; lng: number } | null;
   /** true si la photo porte une signature d'appareil crédible. */
   looksLikeCameraPhoto: boolean;
 }
@@ -29,6 +31,7 @@ const EMPTY: ExifCameraInfo = {
   dateTimeOriginal: null,
   software: null,
   hasGps: false,
+  gps: null,
   looksLikeCameraPhoto: false,
 };
 
