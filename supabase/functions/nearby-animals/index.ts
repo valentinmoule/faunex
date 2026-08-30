@@ -27,7 +27,7 @@ RÈGLES DE SÉLECTION :
 - Si une espèce rare, menacée, protégée ou difficile à observer existe RÉELLEMENT dans cette zone (même si l'observation est peu fréquente), inclus-la avec la rareté appropriée (rare, very_rare, ultra_rare ou au-delà).
 - Ne JAMAIS inventer une espèce qui n'est pas présente dans cette région. La précision géographique est primordiale.
 - Si aucune espèce rare n'est réaliste pour cette zone, retourne 3 espèces communes. Ne force jamais une rareté élevée.
-- Échelle de rareté (8 paliers) : common = facile à voir · uncommon = fréquent · rare = peu fréquent · very_rare = très localisé · ultra_rare = très difficile / espèce protégée · illustration_rare = en danger critique · special_rare = quasi-mythique · hyper_rare = extrêmement rare.
+- Échelle de rareté (8 paliers) : common = commune, facile à voir · uncommon = peu commune, fréquente · rare = plutôt rare, demande de la chance · very_rare = rare, très localisée · ultra_rare = très difficile / espèce protégée · illustration_rare = épique, en danger critique · special_rare = mythique · hyper_rare = légendaire, extrêmement rare.
 
 PRIORITÉ :
 1. Proximité (espèces typiques de cet écosystème précis)

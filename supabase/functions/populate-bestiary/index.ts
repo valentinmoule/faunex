@@ -27,10 +27,10 @@ const CATEGORIES = [
 const RARITY_RULES = `
 Attribue la rareté selon le statut de conservation RÉEL de l'espèce:
 - "common": espèces très communes ou assez fréquentes, préoccupation mineure (LC), populations stables
-- "rare": espèces peu communes, quasi menacées (NT) ou localisées, nécessitant patience pour les observer
+- "rare": espèces plutôt rares, quasi menacées (NT) ou localisées, nécessitant patience pour les observer
 - "ultra_rare": espèces vulnérables (VU) ou en danger (EN), très rares à observer
-- "illustration_rare"/"special_rare"/"hyper_rare": espèces en danger critique (CR), éteintes à l'état sauvage (EW) ou quasi-mythiques
-- Utilise aussi "uncommon" (peu commune) et "very_rare" (plutôt rare) pour nuancer les paliers intermédiaires
+- "illustration_rare" (épique), "special_rare" (mythique), "hyper_rare" (légendaire): espèces en danger critique (CR), éteintes à l'état sauvage (EW) ou quasi-mythiques
+- Utilise aussi "uncommon" (peu commune) et "very_rare" (rare) pour nuancer les paliers intermédiaires
 `;
 
 async function generateBatch(

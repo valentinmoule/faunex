@@ -33,16 +33,16 @@ Les champs description, habitat, diet, conservation et fun_fact décrivent l'ESP
 
 ## Évaluation de la rareté (probabilité d'observation en Europe/France)
 - **common** : observation quotidienne ou fréquente (pigeon, moineau, merle, chat européen, Labrador, hérisson, écureuil, carpe, canard colvert)
-- **rare** : observation nécessitant patience ou chance (martin-pêcheur, hermine, Bengal, héron)
+- **rare** : observation nécessitant un peu de patience ou de chance (martin-pêcheur, hermine, Bengal, héron)
 - Échelle de rareté (8 paliers, difficulté réelle d'observation) :
 - **common** (commune ●) : très facile, quotidien
 - **uncommon** (peu commune ◆) : fréquente mais pas systématique
-- **rare** (rare ★) : demande de la chance
-- **very_rare** (plutôt rare ★★) : très localisée ou discrète
+- **rare** (plutôt rare ★) : demande un peu de chance
+- **very_rare** (rare ★★) : très localisée ou discrète
 - **ultra_rare** (ultra rare ★★ argentées) : menacée/protégée, observation exceptionnelle (lynx, loup, gypaète, loutre)
-- **illustration_rare** (illustration rare ★ dorée) : en danger critique, quasi-impossible
-- **special_rare** (spéciale rare ★★ dorées) : quasi-mythique, en danger critique
-- **hyper_rare** (hyper rare ★★★ dorées) : le sommet, presque jamais observée
+- **illustration_rare** (épique ★ dorée) : en danger critique, quasi-impossible
+- **special_rare** (mythique ★★ dorées) : quasi-mythique, en danger critique
+- **hyper_rare** (légendaire ★★★ dorées) : le sommet, presque jamais observée
 
 ## Espèces réelles uniquement
 Seules les espèces réelles et actuellement vivantes existent dans Faunex. Aucune créature imaginaire ou de fiction (dragon, licorne, phénix, kraken, sirène, yéti, Pokémon…) et aucune espèce éteinte ou préhistorique (dodo, tyrannosaure et autres dinosaures, mammouth, thylacine, grand pingouin, aurochs…) ne doit être produite. Le nom scientifique doit être un binôme latin réel et vérifiable, jamais inventé.
@@ -66,16 +66,16 @@ Règles :
 
 ## Évaluation de la rareté (probabilité d'observation en Europe/France)
 - **common** : observation quotidienne ou fréquente
-- **rare** : observation nécessitant patience ou chance
+- **rare** : observation nécessitant un peu de patience ou de chance
 - Échelle de rareté (8 paliers, difficulté réelle d'observation) :
 - **common** (commune ●) : très facile, quotidien
 - **uncommon** (peu commune ◆) : fréquente mais pas systématique
-- **rare** (rare ★) : demande de la chance
-- **very_rare** (plutôt rare ★★) : très localisée ou discrète
+- **rare** (plutôt rare ★) : demande un peu de chance
+- **very_rare** (rare ★★) : très localisée ou discrète
 - **ultra_rare** (ultra rare ★★ argentées) : menacée/protégée, observation exceptionnelle (lynx, loup, gypaète, loutre)
-- **illustration_rare** (illustration rare ★ dorée) : en danger critique, quasi-impossible
-- **special_rare** (spéciale rare ★★ dorées) : quasi-mythique, en danger critique
-- **hyper_rare** (hyper rare ★★★ dorées) : le sommet, presque jamais observée
+- **illustration_rare** (épique ★ dorée) : en danger critique, quasi-impossible
+- **special_rare** (mythique ★★ dorées) : quasi-mythique, en danger critique
+- **hyper_rare** (légendaire ★★★ dorées) : le sommet, presque jamais observée
 
 ## Espèces réelles uniquement
 Aucune créature imaginaire ni espèce éteinte. Si le nom fourni ne correspond à aucun animal réel et vivant, réponds animal_name "Inconnu".
