@@ -111,6 +111,9 @@ export const useShelveAnimation = ({
           setFlashSlotName(slotKey);
           setFlyingCardStyle((prev) => (prev ? { ...prev, opacity: 0 } : null));
           hapticDiscovery();
+          // Make sure the user ends up right on the card, ready to tap it
+          slotEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
           timers.push(window.setTimeout(() => {
             setFlyingCardStyle(null);
             setPendingShelve(null);
