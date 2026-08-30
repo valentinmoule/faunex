@@ -2235,6 +2235,7 @@ export type Database = {
         Args: { p_collection_id?: string }
         Returns: number
       }
+      refund_capture_attempt: { Args: never; Returns: number }
       release_background_job: {
         Args: { p_error?: string; p_job_key: string; p_resume?: boolean }
         Returns: undefined

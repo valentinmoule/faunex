@@ -337,7 +337,11 @@ setManualMode(false);
     }
     // Une demande de vérification porte sur une capture déjà identifiée : elle consomme un slot.
     // Une soumission « animal non reconnu » n'en consomme pas.
-    if (disputedResult && !(await consumeSlot())) return;
+    let consumed = false;
+    if (disputedResult) {
+      if (!(await consumeSlot())) return;
+      consumed = true;
+    }
     try {
       // Le modérateur doit voir ce que l'IA proposait pour arbitrer.
       const aiNote = disputedResult
@@ -350,7 +354,11 @@ setManualMode(false);
         species: trimmedSpecies,
         description: `${trimmedDesc}${aiNote}`,
       });
-      if (!ok) return;
+      if (!ok) {
+        // Rien n'a été enregistré : le slot débité est rendu.
+        if (consumed) await quota.refund();
+        return;
+      }
       setSaved(true);
       toast.success(
         disputedResult
@@ -360,6 +368,7 @@ setManualMode(false);
       setTimeout(() => navigate('/home'), 1500);
     } catch (err) {
       console.error(err);
+      if (consumed) await quota.refund();
       toast.error(isDailyLimitError(err) ? "Limite atteinte : 4 captures par jour maximum. Reviens demain !" : "Erreur lors de la soumission");
     }
   };
@@ -383,6 +392,7 @@ setManualMode(false);
     // Verrou synchrone : plusieurs taps rapides déclenchaient autant d'insertions.
     if (savingRef.current) return;
     savingRef.current = true;
+    let consumed = false;
     try {
       const existing = await findDuplicate(animalResult.animal_name, animalResult.scientific_name);
       if (existing) {
@@ -390,11 +400,19 @@ setManualMode(false);
         return;
       }
       if (!(await consumeSlot())) return;
+      consumed = true;
       const imageUrl = await insertCapture(animalResult);
-      if (!imageUrl) return;
+      if (!imageUrl) {
+        // Upload ou insertion refusée : on rend le slot.
+        await quota.refund();
+        consumed = false;
+        return;
+      }
+      consumed = false;
       finishSave(animalResult, imageUrl, `${animalResult.animal_name} ajouté à ton Faunex !`);
     } catch (err) {
       console.error(err);
+      if (consumed) await quota.refund();
       const msg = String((err as { message?: string })?.message ?? err);
       if (msg.includes('unique_species_per_user') || msg.includes('duplicate key')) {
         // Sécurité serveur : l'espèce existe déjà sous un autre nom commun.
@@ -413,18 +431,27 @@ setManualMode(false);
     if (!animalResult || !duplicateCapture) return;
     if (savingRef.current) return;
     savingRef.current = true;
+    let consumed = false;
     try {
       if (!(await consumeSlot())) return;
+      consumed = true;
       const imageUrl = await replaceCapture(animalResult, duplicateCapture.id);
-      if (!imageUrl) return;
+      if (!imageUrl) {
+        await quota.refund();
+        consumed = false;
+        return;
+      }
+      consumed = false;
       finishSave(animalResult, imageUrl, `${animalResult.animal_name} mis à jour dans ton Faunex !`);
     } catch (err) {
       console.error(err);
+      if (consumed) await quota.refund();
       toast.error("Erreur lors de la mise à jour");
     } finally {
       savingRef.current = false;
     }
   };
+
 
 
 

@@ -33,10 +33,25 @@ export const useCaptureQuota = (userId?: string) => {
     return true;
   }, []);
 
+  /**
+   * Rend le slot débité juste avant : une erreur réseau, un refus serveur ou un
+   * doublon détecté après coup ne doit jamais coûter une capture à l'explorateur.
+   */
+  const refund = useCallback(async () => {
+    const { data, error } = await supabase.rpc('refund_capture_attempt');
+    if (error) {
+      console.error('refund_capture_attempt failed', error.message);
+      return;
+    }
+    if (typeof data === 'number') setRemaining(data);
+  }, []);
+
   return {
     remaining,
     exhausted: remaining !== null && remaining <= 0,
     refresh,
     consume,
+    refund,
   };
 };
+
