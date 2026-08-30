@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { MapPin, Loader2, RefreshCw, Sparkles, Flame, Zap, ChevronDown } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { type Rarity, RARITY_LABELS } from '@/data/mockData';
+import { type Rarity, RARITY_LABELS, RARITY_FX, normalizeRarity } from '@/data/mockData';
 import { toast } from 'sonner';
 import NearbyRadar from './NearbyRadar';
 
@@ -169,26 +169,33 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
   const alertConfig: Record<string, { icon: typeof Sparkles; label: string; color: string; glowClass: string }> = {
     gold: { icon: Flame, label: '🔥 Une espèce très rare est proche !', color: 'text-rarity-gold', glowClass: 'nearby-alert-gold' },
     silver: { icon: Zap, label: '⚡ Espèce ultra rare détectée près de toi', color: 'text-rarity-silver', glowClass: 'nearby-alert-silver' },
-    rare: { icon: Sparkles, label: '🔹 Espèce Rare repérée dans ta zone', color: 'text-rarity-rare', glowClass: 'nearby-alert-rare' },
+    rare: { icon: Sparkles, label: '🔹 Espèce rare repérée dans ta zone', color: 'text-rarity-rare', glowClass: 'nearby-alert-rare' },
+    common: { icon: Sparkles, label: '🔹 Espèce repérée dans ta zone', color: 'text-muted-foreground', glowClass: '' },
   };
+
+  const alertFx = alertAnimal ? RARITY_FX[normalizeRarity(alertAnimal.rarity)] : null;
+  const alertKey = alertFx === 'gold' ? 'gold'
+    : alertFx === 'silver' ? 'silver'
+    : (alertAnimal?.rarity === 'rare' || alertAnimal?.rarity === 'very_rare') ? 'rare'
+    : 'common';
 
   return (
     <div className="mb-4">
       {/* Surprise alert banner */}
-      {alertAnimal && alertConfig[alertAnimal.rarity] && (
+      {alertAnimal && alertConfig[alertKey] && (
         <button
           onClick={() => setAlertAnimal(null)}
-          className={`w-full mb-3 px-4 py-3 rounded-2xl border flex items-center gap-3 transition-all animate-nearby-alert-in ${alertConfig[alertAnimal.rarity].glowClass}
+          className={`w-full mb-3 px-4 py-3 rounded-2xl border flex items-center gap-3 transition-all animate-nearby-alert-in ${alertConfig[alertKey].glowClass}
             ${alertFx === 'gold' ? 'bg-rarity-gold/10 border-rarity-gold/40' :
               alertFx === 'silver' ? 'bg-rarity-silver/10 border-rarity-silver/40' :
               'bg-rarity-rare/10 border-rarity-rare/40'}`}
         >
-          <div className={`nearby-alert-icon ${alertConfig[alertAnimal.rarity].color}`}>
-            {(() => { const Icon = alertConfig[alertAnimal.rarity].icon; return <Icon className="w-5 h-5" />; })()}
+          <div className={`nearby-alert-icon ${alertConfig[alertKey].color}`}>
+            {(() => { const Icon = alertConfig[alertKey].icon; return <Icon className="w-5 h-5" />; })()}
           </div>
           <div className="text-left flex-1">
-            <p className={`text-xs font-display font-bold ${alertConfig[alertAnimal.rarity].color}`}>
-              {alertConfig[alertAnimal.rarity].label}
+            <p className={`text-xs font-display font-bold ${alertConfig[alertKey].color}`}>
+              {alertConfig[alertKey].label}
             </p>
             <p className="text-[10px] text-muted-foreground mt-0.5">{alertAnimal.name} — {alertAnimal.tip}</p>
           </div>
