@@ -77,6 +77,84 @@ const readAscii = (view: DataView, offset: number, length: number): string =>
     .replace(/\0.*$/, '')
     .trim();
 
+/** Lit un rationnel EXIF (deux uint32) en nombre flottant. */
+const readRational = (
+  view: DataView,
+  tiffStart: number,
+  valueOffset: number,
+  index: number,
+  little: boolean,
+): number | null => {
+  const base = tiffStart + valueOffset + index * 8;
+  if (base + 8 > view.byteLength) return null;
+  const num = view.getUint32(base, little);
+  const den = view.getUint32(base + 4, little);
+  if (!den) return null;
+  return num / den;
+};
+
+/** Tags du sous-IFD GPS. */
+const GPS_LAT_REF = 0x0001;
+const GPS_LAT = 0x0002;
+const GPS_LNG_REF = 0x0003;
+const GPS_LNG = 0x0004;
+
+/** Extrait lat/lng en degrés décimaux depuis le sous-IFD GPS. */
+const parseGpsIfd = (
+  view: DataView,
+  tiffStart: number,
+  ifdOffset: number,
+  little: boolean,
+): { lat: number; lng: number } | null => {
+  if (ifdOffset <= 0 || tiffStart + ifdOffset + 2 > view.byteLength) return null;
+  const base = tiffStart + ifdOffset;
+  const count = view.getUint16(base, little);
+  let latRef = 'N';
+  let lngRef = 'E';
+  let latValues: number[] | null = null;
+  let lngValues: number[] | null = null;
+  const readDms = (valueOffset: number): number[] | null => {
+    const d = readRational(view, tiffStart, valueOffset, 0, little);
+    const m = readRational(view, tiffStart, valueOffset, 1, little);
+    const s = readRational(view, tiffStart, valueOffset, 2, little);
+    return d === null || m === null || s === null ? null : [d, m, s];
+  };
+  for (let i = 0; i < count; i++) {
+    const entry = base + 2 + i * 12;
+    if (entry + 12 > view.byteLength) return null;
+    const tag = view.getUint16(entry, little);
+    const type = view.getUint16(entry + 2, little);
+    const valueOffset =
+      type === 5 ? view.getUint32(entry + 8, little) : entry + 8;
+    switch (tag) {
+      case GPS_LAT_REF:
+        latRef = String.fromCharCode(view.getUint8(entry + 8)) || 'N';
+        break;
+      case GPS_LNG_REF:
+        lngRef = String.fromCharCode(view.getUint8(entry + 8)) || 'E';
+        break;
+      case GPS_LAT:
+        if (type === 5) latValues = readDms(valueOffset);
+        break;
+      case GPS_LNG:
+        if (type === 5) lngValues = readDms(valueOffset);
+        break;
+      default:
+        break;
+    }
+  }
+  if (!latValues || !lngValues) return null;
+  const toDeg = ([d, m, s]: number[], ref: string, negRef: string) => {
+    const v = d + m / 60 + s / 3600;
+    return ref.toUpperCase() === negRef ? -v : v;
+  };
+  const lat = toDeg(latValues, latRef, 'S');
+  const lng = toDeg(lngValues, lngRef, 'W');
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  if (Math.abs(lat) > 90 || Math.abs(lng) > 180) return null;
+  return { lat, lng };
+};
+
 /** Parcourt un IFD et renseigne les tags qui nous intéressent. */
 const readIfd = (
   view: DataView,
