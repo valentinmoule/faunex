@@ -274,16 +274,27 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const { citySearch, setCitySearch, cityResults, setCityResults, cityLoading } =
     useCitySearch(pickerTab === 'city');
 
-  const { pendingShelve, flyingCardStyle, flashSlotName, slotRefs } = useShelveAnimation({
-    animals,
+  const resolveShelveSlot = useCallback((animalName: string) => {
+    const key = animalName.toLowerCase();
+    return document.querySelector<HTMLElement>(
+      `[data-shelve-slot="${key.replace(/["\\]/g, '\\$&')}"]`,
+    );
+  }, []);
+
+  const { pendingShelve, flyingCardStyle, isFlashing } = useShelveAnimation({
     loading,
-    selectedCategory,
-    setSelectedCategory,
-    allSpeciesLabel: ALL_SPECIES,
-    onOpenTarget: useCallback(() => {
+    resolveSlot: resolveShelveSlot,
+    onPrepare: useCallback(() => {
+      // Retour sur la vue « toutes les espèces », sans filtre, pour y voir la carte
+      setViewMode('categories');
+      setSelectedCategory(null);
       setSelectedCollectionKey(null);
       setSelectedZoneId(null);
       setSelectedBreedGroup(null);
+      setCategoryFilter([]);
+      setRarityFilter([]);
+      setPopularityFilter([]);
+      setSpeciesSearch('');
     }, []),
   });
 
@@ -537,6 +548,14 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
       .filter(matchesSearch);
     // Pas de re-tri : `animals` est déjà trié alphabétiquement au chargement.
   }, [animals, categoryFilter, rarityFilter, matchesPopularity, matchesSearch]);
+
+  /** Index de la carte à rejoindre pour l'animation de rangement. */
+  const shelveTargetIndex = useMemo(() => {
+    if (!pendingShelve) return null;
+    const target = pendingShelve.animalName.toLocaleLowerCase('fr');
+    const idx = browseAnimals.findIndex(a => a.name.toLocaleLowerCase('fr') === target);
+    return idx >= 0 ? idx : null;
+  }, [pendingShelve, browseAnimals]);
 
   // Virtualisation : seules les lignes visibles sont montées (mémoire constante).
 
@@ -1017,6 +1036,26 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
     </Sheet>
   );
 
+  /** Carte volante de l'animation de rangement (rendue dans toutes les vues). */
+  const flyingCardOverlay = flyingCardStyle && pendingShelve ? (
+    <div
+      className="shelve-flying-card"
+      data-rarity={pendingShelve.rarity}
+      style={flyingCardStyle}
+    >
+      <div className="shelve-card-aura" aria-hidden />
+      {pendingShelve.imageUrl && <img src={pendingShelve.imageUrl} alt={pendingShelve.animalName} />}
+      <div className="shelve-card-shine" aria-hidden />
+      <div className="shelve-card-label">
+        <span>Nouvelle découverte</span>
+        <strong>{pendingShelve.animalName}</strong>
+      </div>
+      <div className="shelve-card-sparkles" aria-hidden>
+        {Array.from({ length: 10 }, (_, index) => <i key={index} />)}
+      </div>
+    </div>
+  ) : null;
+
   if (loading) return <LoadingScreen />;
 
   // Zone detail view
@@ -1066,6 +1105,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
 
         <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
         {deptPickerSheet}
+        {flyingCardOverlay}
       </main>
     );
   }
@@ -1100,6 +1140,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
         </div>
 
         <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
+        {flyingCardOverlay}
         {deptPickerSheet}
       </main>
     );
@@ -1376,8 +1417,14 @@ Bestiaire
                   gap={8}
                   aspectRatio={3 / 4}
                   getKey={(animal) => animal.name}
+                  scrollToIndex={shelveTargetIndex}
                   renderItem={(animal) => (
-                    <BrowseSpeciesCard animal={animal} onSelect={handleSelectBrowseAnimal} />
+                    <div
+                      data-shelve-slot={animal.name.toLowerCase()}
+                      className={isFlashing(animal.name) ? 'shelve-slot-flash rounded-xl' : undefined}
+                    >
+                      <BrowseSpeciesCard animal={animal} onSelect={handleSelectBrowseAnimal} />
+                    </div>
                   )}
                 />
               )}
@@ -1594,6 +1641,7 @@ const isCity = zone.kind === 'city';
 
         </div>
         <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
+        {flyingCardOverlay}
         {deptPickerSheet}
       </main>
     );
@@ -1709,12 +1757,9 @@ const isCity = zone.kind === 'city';
         <div className="grid grid-cols-4 gap-1.5">
           {gridAnimals.map((animal, index) => {
 
-            const slotKey = animal.name.toLowerCase();
-            const isFlashing = flashSlotName === slotKey;
             return (
               <div
                 key={animal.name}
-                ref={(el) => { slotRefs.current[slotKey] = el; }}
 onClick={() => {
                   if (animal.captured && animal.captureData) {
                     setSelectedFinders(undefined);
@@ -1742,7 +1787,7 @@ onClick={() => {
                   animal.captured
                     ? `${rarityBorderColor[animal.rarity] || 'border-border'} bg-card ${tileDepthClass[animal.rarity] || ''}`
                     : 'game-tile--empty border-border/40 bg-muted/30'
-                } ${isFlashing ? 'shelve-slot-flash' : ''}`}
+                }`}
 
               >
                 {animal.captured && animal.captureData ? (
@@ -1789,25 +1834,7 @@ onClick={() => {
 
       <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
 
-      {/* Flying card overlay for shelve animation */}
-      {flyingCardStyle && pendingShelve && (
-        <div
-          className="shelve-flying-card"
-          data-rarity={pendingShelve.rarity}
-          style={flyingCardStyle}
-        >
-          <div className="shelve-card-aura" aria-hidden />
-          <img src={pendingShelve.imageUrl} alt={pendingShelve.animalName} />
-          <div className="shelve-card-shine" aria-hidden />
-          <div className="shelve-card-label">
-            <span>Nouvelle découverte</span>
-            <strong>{pendingShelve.animalName}</strong>
-          </div>
-          <div className="shelve-card-sparkles" aria-hidden>
-            {Array.from({ length: 10 }, (_, index) => <i key={index} />)}
-          </div>
-        </div>
-      )}
+      {flyingCardOverlay}
     </main>
   );
 };

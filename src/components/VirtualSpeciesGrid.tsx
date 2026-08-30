@@ -12,6 +12,8 @@ interface VirtualSpeciesGridProps<T> {
   overscanRows?: number;
   getKey: (item: T, index: number) => string;
   renderItem: (item: T, index: number) => ReactNode;
+  /** Index à amener au centre du viewport (ex. animation de rangement). */
+  scrollToIndex?: number | null;
 }
 
 /**
@@ -27,6 +29,7 @@ export function VirtualSpeciesGrid<T>({
   overscanRows = 3,
   getKey,
   renderItem,
+  scrollToIndex = null,
 }: VirtualSpeciesGridProps<T>) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [width, setWidth] = useState(0);
@@ -79,6 +82,20 @@ export function VirtualSpeciesGrid<T>({
       window.removeEventListener('resize', onScroll);
     };
   }, [rowHeight, rowCount, columns, items.length, overscanRows]);
+
+  // Scroll programmé vers une carte précise (la virtualisation la montera ensuite)
+  const scrolledToRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (scrollToIndex == null || scrollToIndex < 0 || rowHeight <= 0) return;
+    if (scrolledToRef.current === scrollToIndex) return;
+    const el = containerRef.current;
+    if (!el) return;
+    scrolledToRef.current = scrollToIndex;
+    const rect = el.getBoundingClientRect();
+    const rowTop = Math.floor(scrollToIndex / columns) * rowHeight;
+    const target = window.scrollY + rect.top + rowTop - (window.innerHeight - rowHeight) / 2;
+    window.scrollTo({ top: Math.max(0, target), behavior: 'auto' });
+  }, [scrollToIndex, rowHeight, columns]);
 
   const slice = useMemo(
     () => items.slice(range.start, range.end),

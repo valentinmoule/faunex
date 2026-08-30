@@ -1,33 +1,23 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { consumePendingShelve, peekPendingShelve, type PendingShelve } from '@/lib/shelveAnimation';
-import { type BestiaryAnimal } from '@/lib/bestiary';
 import { hapticDiscovery } from '@/lib/haptics';
 
 interface Options {
-  animals: BestiaryAnimal[];
+  /** Le catalogue est encore en chargement : on attend avant de jouer l'animation. */
   loading: boolean;
-  selectedCategory: string | null;
-  setSelectedCategory: (cat: string) => void;
-  /** Label of the "all species" view where the animation must be played. */
-  allSpeciesLabel: string;
-  /** Called right before opening the grid — used to close any collection/zone view. */
-  onOpenTarget?: () => void;
+  /** Prépare la vue (ferme collections/territoires, vide les filtres) avant l'animation. */
+  onPrepare?: () => void;
+  /** Retourne l'élément DOM de la carte cible s'il est monté dans la grille. */
+  resolveSlot: (animalName: string) => HTMLElement | null;
 }
 
 /** Plays the "card glides into its shelf slot" animation after a new capture. */
-export const useShelveAnimation = ({
-  animals,
-  loading,
-  selectedCategory,
-  setSelectedCategory,
-  allSpeciesLabel,
-  onOpenTarget,
-}: Options) => {
+export const useShelveAnimation = ({ loading, onPrepare, resolveSlot }: Options) => {
   const [pendingShelve, setPendingShelve] = useState<PendingShelve | null>(null);
   const [flyingCardStyle, setFlyingCardStyle] = useState<React.CSSProperties | null>(null);
   const [flashSlotName, setFlashSlotName] = useState<string | null>(null);
-  const slotRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const shelveAnimationRan = useRef(false);
+  const preparedRef = useRef(false);
 
   // Detect pending shelve animation request on mount
   useEffect(() => {
@@ -37,20 +27,16 @@ export const useShelveAnimation = ({
     }
   }, []);
 
-  // Always play the animation in the full "all species" grid of the bestiary
+  // Reset the bestiary view so the target card is part of the full species grid
   useEffect(() => {
-    if (!pendingShelve || loading || shelveAnimationRan.current) return;
-    if (selectedCategory !== allSpeciesLabel) {
-      onOpenTarget?.();
-      setSelectedCategory(allSpeciesLabel);
-    }
-  }, [pendingShelve, loading, selectedCategory, setSelectedCategory, allSpeciesLabel, onOpenTarget]);
-
+    if (!pendingShelve || preparedRef.current) return;
+    preparedRef.current = true;
+    onPrepare?.();
+  }, [pendingShelve, onPrepare]);
 
   // Play the glide-into-slot animation once the slot is mounted
   useEffect(() => {
-    if (!pendingShelve || shelveAnimationRan.current) return;
-    if (!selectedCategory) return;
+    if (!pendingShelve || shelveAnimationRan.current || loading) return;
 
     const slotKey = pendingShelve.animalName.toLowerCase();
     const timers: number[] = [];
@@ -59,10 +45,10 @@ export const useShelveAnimation = ({
 
     const runWhenMounted = () => {
       if (cancelled) return;
-      const slotEl = slotRefs.current[slotKey];
+      const slotEl = resolveSlot(pendingShelve.animalName);
       if (!slotEl) {
         attempts += 1;
-        if (attempts < 50) timers.push(window.setTimeout(runWhenMounted, 100));
+        if (attempts < 60) timers.push(window.setTimeout(runWhenMounted, 100));
         return;
       }
       shelveAnimationRan.current = true;
@@ -73,9 +59,10 @@ export const useShelveAnimation = ({
 
       timers.push(window.setTimeout(() => {
         if (cancelled) return;
+        const live = resolveSlot(pendingShelve.animalName) || slotEl;
         // Re-check position after any layout shift, then measure
-        slotEl.scrollIntoView({ behavior: 'auto', block: 'center' });
-        const rect = slotEl.getBoundingClientRect();
+        live.scrollIntoView({ behavior: 'auto', block: 'center' });
+        const rect = live.getBoundingClientRect();
 
         const vw = window.innerWidth;
         const vh = window.innerHeight;
@@ -95,11 +82,13 @@ export const useShelveAnimation = ({
 
         timers.push(window.setTimeout(() => {
           requestAnimationFrame(() => {
+            const target = resolveSlot(pendingShelve.animalName) || live;
+            const to = target.getBoundingClientRect();
             setFlyingCardStyle({
-              left: `${rect.left}px`,
-              top: `${rect.top}px`,
-              width: `${rect.width}px`,
-              height: `${rect.height}px`,
+              left: `${to.left}px`,
+              top: `${to.top}px`,
+              width: `${to.width}px`,
+              height: `${to.height}px`,
               transform: 'rotate(0deg) scale(1)',
               opacity: 1,
             });
@@ -111,14 +100,14 @@ export const useShelveAnimation = ({
           setFlashSlotName(slotKey);
           setFlyingCardStyle((prev) => (prev ? { ...prev, opacity: 0 } : null));
           hapticDiscovery();
-          // Make sure the user ends up right on the card, ready to tap it
-          slotEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
+          timers.push(window.setTimeout(() => setFlyingCardStyle(null), 300));
+          // Le flash dure 1100ms : on nettoie tout à la fin (couper `pendingShelve`
+          // plus tôt annulerait ce timer via le cleanup de l'effet).
           timers.push(window.setTimeout(() => {
-            setFlyingCardStyle(null);
+            setFlashSlotName(null);
             setPendingShelve(null);
-          }, 300));
-          timers.push(window.setTimeout(() => setFlashSlotName(null), 1600));
+          }, 1600));
         }, 1450));
       }, 650));
     };
@@ -130,7 +119,12 @@ export const useShelveAnimation = ({
       cancelAnimationFrame(raf);
       timers.forEach(window.clearTimeout);
     };
-  }, [pendingShelve, selectedCategory, animals, loading]);
+  }, [pendingShelve, loading, resolveSlot]);
 
-  return { pendingShelve, flyingCardStyle, flashSlotName, slotRefs };
+  const isFlashing = useCallback(
+    (animalName: string) => flashSlotName === animalName.toLowerCase(),
+    [flashSlotName],
+  );
+
+  return { pendingShelve, flyingCardStyle, flashSlotName, isFlashing };
 };
