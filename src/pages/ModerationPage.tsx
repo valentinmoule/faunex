@@ -363,19 +363,15 @@ const ModerationPage = () => {
             <h1 className="text-xl font-display font-bold text-foreground">Backoffice</h1>
             <p className="text-xs text-muted-foreground">{captures.length} en attente</p>
           </div>
-          <div
-            className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-display font-bold ${
-              jobState?.status === 'paused'
-                ? 'bg-destructive/10 text-destructive'
-                : 'bg-primary/10 text-primary'
-            }`}
-            title={jobState?.paused_reason ?? undefined}
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            {jobState?.status === 'paused' ? 'Auto-validation en pause' : 'Auto-validation planifiée'}
-          </div>
-
-
+          {jobState?.status === 'paused' && (
+            <div
+              className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-display font-bold bg-destructive/10 text-destructive"
+              title={jobState?.paused_reason ?? undefined}
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              Auto-validation en pause
+            </div>
+          )}
         </div>
       </PageHeader>
 
@@ -388,15 +384,7 @@ const ModerationPage = () => {
           </TabsList>
 
           <TabsContent value="moderation">
-            <div className="mb-4 flex gap-2.5 rounded-xl border border-amber/40 bg-amber/10 p-3">
-              <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                <span className="font-semibold text-foreground">Auto-modération permissive :</span> l'observateur est
-                cru par défaut — son nom commun et son nom scientifique sont conservés et validés. Seule une
-                contradiction où l'IA est quasi certaine (≥ 0,95) arrive ici. Vérifie donc les identifications
-                douteuses : une erreur de l'observateur peut passer sans contrôle humain.
-              </p>
-            </div>
+
 
             {loading ? (
               <div className="text-center py-16">
