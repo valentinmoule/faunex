@@ -270,11 +270,17 @@ const exif = isHeicFile(file) ? null : await readExifCameraInfo(file);
       if (suspicious) {
         toast.info("Photo sans métadonnées d'appareil (EXIF) : elle part en vérification humaine.");
       }
-      await processPhoto(await readFileAsDataUrl(file), reason, exif?.gps ?? null);
+      const prepared = await prepareSourceFile(file);
+      if (!prepared) {
+        toast.error("Impossible de lire cette photo. Réessaie avec une autre image.");
+        return;
+      }
+      await processPhoto(prepared, reason, exif?.gps ?? null);
     } catch (err) {
       console.error(err);
       toast.error("Impossible de lire cette photo. Réessaie avec une autre image.");
     }
+
   };
 
 
