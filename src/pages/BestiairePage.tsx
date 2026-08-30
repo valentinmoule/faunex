@@ -534,14 +534,15 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
     }
   }, []);
 
-  const activeFilterCount = categoryFilter.length + rarityFilter.length;
+const activeFilterCount = categoryFilter.length + rarityFilter.length + popularityFilter.length;
 
   const browseTotal = useMemo(
     () => animals
       .filter(a => categoryFilter.length === 0 || categoryFilter.includes(normalizeCategory(a.category)))
       .filter(a => rarityFilter.length === 0 || rarityFilter.includes(a.rarity as Rarity))
+      .filter(a => matchesPopularity(a.finders ?? 0))
       .filter(matchesSearch).length,
-    [animals, categoryFilter, rarityFilter, matchesSearch],
+    [animals, categoryFilter, rarityFilter, matchesPopularity, matchesSearch],
   );
 
   // Flat list of my own captures (one entry per capture), filtered + trié selon le mode choisi
