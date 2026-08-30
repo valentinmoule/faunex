@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Camera, Zap, MapPin, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine, ZoomIn, Focus, Crosshair, ArrowLeft, Clock, Info, Sparkles, ShieldQuestion, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
-import { type Rarity, RARITY_LABELS } from '@/data/mockData';
+import { type Rarity, RARITY_LABELS, RARITY_FX, RARITY_RANK } from '@/data/mockData';
 import { setPendingShelve } from '@/lib/shelveAnimation';
 import { prepareSourceImage, readFileAsDataUrl } from '@/lib/imageProcessing';
 import { isHeicFile, readExifCameraInfo } from '@/lib/exif';
@@ -115,6 +115,8 @@ const quota = useCaptureQuota(session?.user?.id);
 
   const { revealPhase, revealRarity, freezeFlash, triggerReveal, reset: resetReveal } =
     useCaptureReveal(setAnimalResult);
+  const revealFx = RARITY_FX[revealRarity];
+  const revealRank = RARITY_RANK[revealRarity] ?? 0;
   const { saving, findDuplicate, insertCapture, replaceCapture, submitManualEntry } = useCaptureSave({
     userId: session?.user?.id,
     photo: capturedPhoto,
