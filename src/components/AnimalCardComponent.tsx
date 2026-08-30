@@ -25,7 +25,7 @@ const AnimalCardComponent = ({ card, onClick, compact }: Props) => {
       onClick={onClick}
       className={`game-tile group relative overflow-hidden rounded-[22px] border animate-card-appear text-left w-full ${rarityStyles[card.rarity]}`}
     >
-      <div className="relative flex h-full flex-col bg-card">
+      <div className="relative flex h-full flex-col bg-card rounded-[21px] overflow-hidden">
         <div className="relative aspect-[4/5] overflow-hidden">
           <img
             src={thumbUrl(card.image, 400)}
