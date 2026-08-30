@@ -68,11 +68,15 @@ export const useShelveAnimation = ({
       shelveAnimationRan.current = true;
       consumePendingShelve(); // clear storage so it doesn't replay
 
-      slotEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Position the page on the card first (instant, so the measure below is stable)
+      slotEl.scrollIntoView({ behavior: 'auto', block: 'center' });
 
       timers.push(window.setTimeout(() => {
         if (cancelled) return;
+        // Re-check position after any layout shift, then measure
+        slotEl.scrollIntoView({ behavior: 'auto', block: 'center' });
         const rect = slotEl.getBoundingClientRect();
+
         const vw = window.innerWidth;
         const vh = window.innerHeight;
         const startWidth = Math.min(230, vw * 0.56);
