@@ -1274,8 +1274,8 @@ Bestiaire
                 </button>
               </div>
 
-              {/* Chips des catégories actives */}
-              {categoryFilter.length > 0 && (
+{/* Chips des filtres actifs */}
+              {(categoryFilter.length > 0 || popularityFilter.length > 0) && (
                 <div className="flex flex-wrap items-center gap-1.5 mb-3">
                   {categoryFilter.map(cat => (
                     <button
@@ -1288,8 +1288,18 @@ Bestiaire
                       <X className="w-3 h-3" />
                     </button>
                   ))}
+                  {popularityFilter.map(tier => (
+                    <button
+                      key={tier}
+                      onClick={() => setPopularityFilter(prev => prev.filter(t => t !== tier))}
+                      className="flex items-center gap-1 pl-2 pr-1.5 py-1 rounded-full bg-teal-600/10 text-teal-700 text-[11px] font-display font-semibold active:scale-95 transition"
+                    >
+                      {POPULARITY_LABELS[tier].label}
+                      <X className="w-3 h-3" />
+                    </button>
+                  ))}
                   <button
-                    onClick={() => setCategoryFilter([])}
+                    onClick={() => { setCategoryFilter([]); setPopularityFilter([]); }}
                     className="px-2 py-1 rounded-full text-[11px] font-display font-semibold text-muted-foreground hover:text-foreground transition"
                   >
                     Tout effacer
