@@ -3,7 +3,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { CollectionHero } from '@/components/CollectionHero';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, SlidersHorizontal, Users, ArrowDownUp, Check } from 'lucide-react';
+import { Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, SlidersHorizontal, Users, ArrowDownUp, Check, Ghost, Footprints, TrendingUp, Flame, type LucideIcon } from 'lucide-react';
 import { type Rarity, type AnimalCard, RARITY_LABELS } from '@/data/mockData';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -66,12 +66,12 @@ const orderStorageKey = (uid: string) => `faunex:mine-order:${uid}`;
  *  Seuils alignés sur FindersBadge pour une cohérence badge ↔ filtre. */
 type PopularityTier = 'none' | 'rare' | 'common' | 'trending' | 'hot';
 
-const POPULARITY_LABELS: Record<PopularityTier, { label: string; hint: string }> = {
-  none: { label: 'Jamais capturée', hint: 'personne encore' },
-  rare: { label: 'Peu capturée', hint: '1 à 4' },
-  common: { label: 'Populaire', hint: '5 à 24' },
-  trending: { label: 'Très populaire', hint: '25 à 99' },
-  hot: { label: 'Incontournable', hint: '100+' },
+const POPULARITY_LABELS: Record<PopularityTier, { label: string; Icon: LucideIcon }> = {
+  none: { label: 'Jamais capturée', Icon: Ghost },
+  rare: { label: 'Peu capturée', Icon: Footprints },
+  common: { label: 'Populaire', Icon: Users },
+  trending: { label: 'Très populaire', Icon: TrendingUp },
+  hot: { label: 'Incontournable', Icon: Flame },
 };
 
 const popularityTierOf = (n: number): PopularityTier =>
@@ -1302,16 +1302,20 @@ Bestiaire
                       <X className="w-3 h-3" />
                     </button>
                   ))}
-{popularityFilter.map(tier => (
+{popularityFilter.map(tier => {
+                    const { Icon } = POPULARITY_LABELS[tier];
+                    return (
                     <button
                       key={tier}
                       onClick={() => setPopularityFilter(prev => prev.filter(t => t !== tier))}
                       className={`popularity-chip popularity-chip--${tier} text-[11px] font-display font-semibold active:scale-95 transition`}
                     >
+                      <Icon className="w-3 h-3" />
                       {POPULARITY_LABELS[tier].label}
                       <X className="w-3 h-3" />
                     </button>
-                  ))}
+                    );
+                  })}
                   <button
                     onClick={() => { setCategoryFilter([]); setPopularityFilter([]); }}
                     className="px-2 py-1 rounded-full text-[11px] font-display font-semibold text-muted-foreground hover:text-foreground transition"
@@ -1418,14 +1422,11 @@ Bestiaire
                     })}
                   </div>
 
-                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-display font-bold mt-5 mb-2">Popularité</p>
-                  <p className="text-[11px] font-display text-muted-foreground mb-2">
-                    Combien de naturalistes ont déjà capturé l'espèce — sélection vide = toutes.
-                  </p>
+<p className="text-[11px] uppercase tracking-wider text-muted-foreground font-display font-bold mt-5 mb-2">Popularité</p>
                   <div className="flex flex-wrap gap-2">
                     {(Object.keys(POPULARITY_LABELS) as PopularityTier[]).map((t) => {
                       const active = popularityFilter.includes(t);
-                      const { label, hint } = POPULARITY_LABELS[t];
+                      const { label, Icon } = POPULARITY_LABELS[t];
                       return (
                         <button
                           key={t}
@@ -1440,8 +1441,8 @@ Bestiaire
                               : 'bg-card text-foreground border-border hover:border-primary/40'
                           }`}
                         >
+                          <Icon className={`w-4 h-4 ${active ? '' : 'opacity-60'}`} strokeWidth={2.2} />
                           {label}
-                          <span className={active ? 'opacity-80' : 'opacity-50'}>{hint}</span>
                         </button>
                       );
                     })}
