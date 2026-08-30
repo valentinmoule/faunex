@@ -8,7 +8,9 @@ import { toast } from 'sonner';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import HolographicCard from '@/components/HolographicCard';
-import { RARITY_LABELS, type Rarity } from '@/data/mockData';
+import { RARITY_LABELS, RARITY_ORDER, type Rarity } from '@/data/mockData';
+import RarityBadge from '@/components/RarityBadge';
+
 import AnalyticsDashboard from '@/components/AnalyticsDashboard';
 
 interface PendingCapture {
@@ -632,10 +634,30 @@ const ModerationPage = () => {
                 </div>
               </HolographicCard>
 
+              <div className="space-y-2">
+                <p className="text-[11px] font-display font-semibold uppercase tracking-wide text-muted-foreground">Rareté</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {RARITY_ORDER.map((r) => (
+                    <button
+                      key={r}
+                      type="button"
+                      onClick={() =>
+                        setPreview((p) => (p ? { ...p, animal: { ...p.animal, rarity: r } } : p))
+                      }
+                      className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border text-[11px] font-display font-semibold transition-colors ${
+                        preview.animal.rarity === r
+                          ? 'border-primary bg-primary/10 text-foreground'
+                          : 'border-border bg-muted/40 text-muted-foreground'
+                      }`}
+                    >
+                      <RarityBadge rarity={r} />
+                      {RARITY_LABELS[r]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div className="flex flex-wrap items-center gap-2">
-                <span className={`text-[10px] font-display font-bold uppercase tracking-wide px-2.5 py-1 rounded-full rarity-${preview.animal.rarity} bg-muted text-foreground`}>
-                  {RARITY_LABELS[preview.animal.rarity] || preview.animal.rarity}
-                </span>
                 {preview.animal.category && (
                   <span className="text-[10px] font-display uppercase tracking-wide px-2.5 py-1 rounded-full bg-muted text-muted-foreground">
                     {preview.animal.category}
@@ -647,6 +669,7 @@ const ModerationPage = () => {
                   </span>
                 )}
               </div>
+
 
               <div className="space-y-3 text-sm">
                 {preview.animal.description && (
