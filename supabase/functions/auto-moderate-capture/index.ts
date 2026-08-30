@@ -324,7 +324,7 @@ async function examine(
   // L'humain a fourni les deux noms : on exige une certitude quasi totale de l'IA
   // pour lui donner tort, sinon on fait confiance à l'observateur.
   const humanProvidedBoth = !!userSci && !!norm(name)
-  const overrideCertainty = humanProvidedBoth ? 0.95 : 0.85
+  const overrideCertainty = humanProvidedBoth ? 0.97 : 0.95
   const speciesOverride = disagreement && confidence >= overrideCertainty
 
   // Désaccord faible : on valide le nom de l'observateur (jamais celui de l'IA).
