@@ -573,7 +573,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
     }
     if (mineSort === 'rarity') {
       return list.sort((a, b) => {
-        const diff = (RARITY_SORT_ORDER[a.rarity] ?? 99) - (RARITY_SORT_ORDER[b.rarity] ?? 99);
+        const diff = (RARITY_SORT_ORDER[normalizeRarity(b.rarity)] ?? 99) - (RARITY_SORT_ORDER[normalizeRarity(a.rarity)] ?? 99);
         if (diff !== 0) return diff;
         return +new Date(b.discoveredAt || 0) - +new Date(a.discoveredAt || 0);
       });
