@@ -510,9 +510,10 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
 
 
   const isUncaptured = !card.image || card.id.startsWith('uncaptured-');
-  const isGold = !isUncaptured && card.rarity === 'mythic';
-  const isSilver = !isUncaptured && card.rarity === 'epic';
-  const isRare = !isUncaptured && card.rarity === 'rare';
+  const cardFx = RARITY_FX[normalizeRarity(card.rarity)];
+  const isGold = !isUncaptured && cardFx === 'gold';
+  const isSilver = !isUncaptured && cardFx === 'silver';
+  const isRare = !isUncaptured && cardFx === 'ink' && (card.rarity === 'rare' || card.rarity === 'very_rare');
   const isShiny = isSilver || isGold;
 
   const detailAppearClass = isGold
