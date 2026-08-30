@@ -2882,24 +2882,27 @@ html.is-native-android body {
   height: 10px;
   color: hsla(0, 0%, 100%, 0.9);
 }
+/* Palette distincte de la rareté (gris/bleu/violet/doré) : teal, vert, rose, rouge.
+   Elle suit la "température" de popularité sans jamais ressembler à une rareté. */
 .finders-badge--none {
-  --finders-face: hsla(220, 12%, 22%, 0.6);
+  --finders-face: hsla(220, 12%, 22%, 0.62);
   color: hsla(0, 0%, 100%, 0.85);
 }
 .finders-badge--rare {
-  --finders-face: hsl(268 78% 60% / 0.92);
-  --finders-glow: hsl(268 78% 50% / 0.4);
+  --finders-face: hsl(168 62% 33% / 0.94);
+  --finders-glow: hsl(168 62% 29% / 0.35);
 }
 .finders-badge--common {
-  --finders-face: hsla(0, 0%, 0%, 0.55);
+  --finders-face: hsl(150 55% 30% / 0.94);
+  --finders-glow: hsl(150 55% 26% / 0.35);
 }
 .finders-badge--trending {
-  --finders-face: hsl(150 70% 40% / 0.92);
-  --finders-glow: hsl(150 70% 40% / 0.4);
+  --finders-face: hsl(340 74% 46% / 0.94);
+  --finders-glow: hsl(340 74% 42% / 0.4);
 }
 .finders-badge--hot {
-  --finders-face: linear-gradient(135deg, #ffb020 0%, #ff6a1f 60%, #ef3a2b 100%);
-  --finders-glow: hsl(20 95% 50% / 0.45);
+  --finders-face: linear-gradient(135deg, #f43f5e 0%, #dc2626 70%);
+  --finders-glow: hsl(0 84% 46% / 0.45);
   border-color: hsla(0, 0%, 100%, 0.45);
 }
 .finders-badge--hot .finders-badge__icon {
