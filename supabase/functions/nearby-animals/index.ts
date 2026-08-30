@@ -24,10 +24,10 @@ serve(async (req) => {
 
 RÈGLES DE SÉLECTION :
 - Retourne exactement 3 espèces.
-- Si une espèce rare, menacée, protégée ou difficile à observer existe RÉELLEMENT dans cette zone (même si l'observation est peu fréquente), inclus-la avec la rareté appropriée (rare, epic ou mythic).
+- Si une espèce rare, menacée, protégée ou difficile à observer existe RÉELLEMENT dans cette zone (même si l'observation est peu fréquente), inclus-la avec la rareté appropriée (rare, very_rare, ultra_rare ou au-delà).
 - Ne JAMAIS inventer une espèce qui n'est pas présente dans cette région. La précision géographique est primordiale.
 - Si aucune espèce rare n'est réaliste pour cette zone, retourne 3 espèces communes. Ne force jamais une rareté élevée.
-- La rareté doit refléter la difficulté réelle d'observation : common = facile à voir, rare = peu fréquent, epic = très difficile / espèce protégée, mythic = extrêmement rare / en danger critique.
+- Échelle de rareté (8 paliers) : common = facile à voir · uncommon = fréquent · rare = peu fréquent · very_rare = très localisé · ultra_rare = très difficile / espèce protégée · illustration_rare = en danger critique · special_rare = quasi-mythique · hyper_rare = extrêmement rare.
 
 PRIORITÉ :
 1. Proximité (espèces typiques de cet écosystème précis)
@@ -38,7 +38,7 @@ Pour chaque animal, donne :
 - name: nom commun en français
 - scientific_name: nom scientifique
 - category: catégorie (Mammifères, Oiseaux, Reptiles, Amphibiens, Insectes, Poissons)
-- rarity: une rareté parmi common, rare, epic, mythic (basée sur la difficulté réelle d'observation)
+- rarity: une rareté parmi common, uncommon, rare, very_rare, ultra_rare, illustration_rare, special_rare, hyper_rare (basée sur la difficulté réelle d'observation)
 - description: une phrase courte décrivant l'animal
 - tip: un conseil pour l'observer (lieu, moment de la journée, comportement à guetter)
 

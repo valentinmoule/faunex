@@ -34,8 +34,15 @@ Les champs description, habitat, diet, conservation et fun_fact décrivent l'ESP
 ## Évaluation de la rareté (probabilité d'observation en Europe/France)
 - **common** : observation quotidienne ou fréquente (pigeon, moineau, merle, chat européen, Labrador, hérisson, écureuil, carpe, canard colvert)
 - **rare** : observation nécessitant patience ou chance (martin-pêcheur, hermine, Bengal, héron)
-- **epic** : très rare, espèce vulnérable ou en danger (lynx, gypaète, loutre, ours brun, aigle royal)
-- **mythic** : quasi-impossible, espèce en danger critique (loup gris en France, phoque moine)
+- Échelle de rareté (8 paliers, difficulté réelle d'observation) :
+- **common** (commune ●) : très facile, quotidien
+- **uncommon** (peu commune ◆) : fréquente mais pas systématique
+- **rare** (rare ★) : demande de la chance
+- **very_rare** (plutôt rare ★★) : très localisée ou discrète
+- **ultra_rare** (ultra rare ★★ argentées) : menacée/protégée, observation exceptionnelle (lynx, loup, gypaète, loutre)
+- **illustration_rare** (illustration rare ★ dorée) : en danger critique, quasi-impossible
+- **special_rare** (spéciale rare ★★ dorées) : quasi-mythique, en danger critique
+- **hyper_rare** (hyper rare ★★★ dorées) : le sommet, presque jamais observée
 
 ## Espèces réelles uniquement
 Seules les espèces réelles et actuellement vivantes existent dans Faunex. Aucune créature imaginaire ou de fiction (dragon, licorne, phénix, kraken, sirène, yéti, Pokémon…) et aucune espèce éteinte ou préhistorique (dodo, tyrannosaure et autres dinosaures, mammouth, thylacine, grand pingouin, aurochs…) ne doit être produite. Le nom scientifique doit être un binôme latin réel et vérifiable, jamais inventé.
@@ -60,8 +67,15 @@ Règles :
 ## Évaluation de la rareté (probabilité d'observation en Europe/France)
 - **common** : observation quotidienne ou fréquente
 - **rare** : observation nécessitant patience ou chance
-- **epic** : très rare, espèce vulnérable ou en danger
-- **mythic** : quasi-impossible, espèce en danger critique
+- Échelle de rareté (8 paliers, difficulté réelle d'observation) :
+- **common** (commune ●) : très facile, quotidien
+- **uncommon** (peu commune ◆) : fréquente mais pas systématique
+- **rare** (rare ★) : demande de la chance
+- **very_rare** (plutôt rare ★★) : très localisée ou discrète
+- **ultra_rare** (ultra rare ★★ argentées) : menacée/protégée, observation exceptionnelle (lynx, loup, gypaète, loutre)
+- **illustration_rare** (illustration rare ★ dorée) : en danger critique, quasi-impossible
+- **special_rare** (spéciale rare ★★ dorées) : quasi-mythique, en danger critique
+- **hyper_rare** (hyper rare ★★★ dorées) : le sommet, presque jamais observée
 
 ## Espèces réelles uniquement
 Aucune créature imaginaire ni espèce éteinte. Si le nom fourni ne correspond à aucun animal réel et vivant, réponds animal_name "Inconnu".

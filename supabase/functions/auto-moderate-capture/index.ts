@@ -25,7 +25,7 @@ const AUTO_PROMPT = `Expert naturaliste chargé du contrôle qualité. On te don
 - Humain, plante, aucun animal, créature de fiction ou espèce éteinte → name_matches false, confidence 0.
 - Au moindre doute sur la nature de l'image : is_real_photo false.
 - animal_name : le nom de l'observateur normalisé (orthographe, casse, race si visible), jamais une autre espèce. Nom scientifique = binôme latin réel.
-- Rareté (France) : common quotidien · rare chance · epic très rare/menacé · mythic quasi-impossible.
+- Rareté (France, 8 paliers) : common quotidien · uncommon fréquent · rare chance · very_rare très localisé · ultra_rare menacé/protégé · illustration_rare quasi-impossible · special_rare quasi-mythique · hyper_rare le sommet.
 
 Réponds UNIQUEMENT via l'appel de fonction verify_animal.`
 
