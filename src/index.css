@@ -2684,6 +2684,17 @@ html.is-native-android body {
   --tile-inner-glow-size: 26px;
 }
 
+/* Rayon intérieur concentrique : la photo épouse la courbure du cadre
+   (certains navigateurs perdent le clip overflow-hidden sur les tuiles
+   transformées/will-change, d'où un rayon explicite sur le contenu) */
+.game-tile > img {
+  border-radius: calc(0.75rem - 2px);
+}
+.game-tile > div.absolute.inset-x-0.bottom-0 {
+  border-bottom-left-radius: calc(0.75rem - 2px);
+  border-bottom-right-radius: calc(0.75rem - 2px);
+}
+
 /* Emplacement non découvert : creusé plutôt que bombé */
 .game-tile--empty {
   box-shadow:
