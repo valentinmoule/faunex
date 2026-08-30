@@ -634,28 +634,10 @@ const ModerationPage = () => {
                 </div>
               </HolographicCard>
 
-              <div className="space-y-2">
-                <p className="text-[11px] font-display font-semibold uppercase tracking-wide text-muted-foreground">Rareté</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {RARITY_ORDER.map((r) => (
-                    <button
-                      key={r}
-                      type="button"
-                      onClick={() =>
-                        setPreview((p) => (p ? { ...p, animal: { ...p.animal, rarity: r } } : p))
-                      }
-                      className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border text-[11px] font-display font-semibold transition-colors ${
-                        preview.animal.rarity === r
-                          ? 'border-primary bg-primary/10 text-foreground'
-                          : 'border-border bg-muted/40 text-muted-foreground'
-                      }`}
-                    >
-                      <RarityBadge rarity={r} />
-                      {RARITY_LABELS[r]}
-                    </button>
-                  ))}
-                </div>
+              <div className="flex items-center gap-2">
+                <RarityBadge rarity={preview.animal.rarity} showLabel />
               </div>
+
 
               <div className="flex flex-wrap items-center gap-2">
                 {preview.animal.category && (
