@@ -1,4 +1,12 @@
-export type Rarity = 'common' | 'rare' | 'epic' | 'mythic';
+export type Rarity =
+  | 'common'
+  | 'uncommon'
+  | 'rare'
+  | 'very_rare'
+  | 'ultra_rare'
+  | 'illustration_rare'
+  | 'special_rare'
+  | 'hyper_rare';
 
 export interface AnimalCard {
   id: string;
@@ -59,10 +67,68 @@ export interface UserProfile {
 }
 
 export const RARITY_LABELS: Record<Rarity, string> = {
-  common: 'Commun',
+  common: 'Commune',
+  uncommon: 'Peu commune',
   rare: 'Rare',
-  epic: 'Épique',
-  mythic: 'Mythique',
+  very_rare: 'Plutôt rare',
+  ultra_rare: 'Ultra rare',
+  illustration_rare: 'Illustration rare',
+  special_rare: 'Spéciale rare',
+  hyper_rare: 'Hyper rare',
+};
+
+/** Ordre croissant de rareté (index = rang). */
+export const RARITY_ORDER: Rarity[] = [
+  'common',
+  'uncommon',
+  'rare',
+  'very_rare',
+  'ultra_rare',
+  'illustration_rare',
+  'special_rare',
+  'hyper_rare',
+];
+
+export const RARITY_RANK: Record<string, number> = Object.fromEntries(
+  RARITY_ORDER.map((r, i) => [r, i]),
+);
+
+/** Symboles façon cartes Pokémon : ● ◆ ★ (noirs), ★★ argent, ★ or. */
+export const RARITY_SYMBOLS: Record<Rarity, string[]> = {
+  common: ['●'],
+  uncommon: ['◆'],
+  rare: ['★'],
+  very_rare: ['★', '★'],
+  ultra_rare: ['★', '★'],
+  illustration_rare: ['★'],
+  special_rare: ['★', '★'],
+  hyper_rare: ['★', '★', '★'],
+};
+
+/** Famille d'effet visuel : neutre (encre), argent holo, or holo. */
+export type RarityFx = 'ink' | 'silver' | 'gold';
+export const RARITY_FX: Record<Rarity, RarityFx> = {
+  common: 'ink',
+  uncommon: 'ink',
+  rare: 'ink',
+  very_rare: 'ink',
+  ultra_rare: 'silver',
+  illustration_rare: 'gold',
+  special_rare: 'gold',
+  hyper_rare: 'gold',
+};
+
+/** Normalise les anciennes valeurs (caches, données legacy) vers le nouveau système. */
+export const normalizeRarity = (r: string | null | undefined): Rarity => {
+  switch (r) {
+    case 'uncommon': case 'rare': case 'very_rare': case 'ultra_rare':
+    case 'illustration_rare': case 'special_rare': case 'hyper_rare':
+      return r;
+    case 'epic': return 'ultra_rare';
+    case 'legendary': return 'illustration_rare';
+    case 'mythic': return 'special_rare';
+    default: return 'common';
+  }
 };
 
 export const mockCards: AnimalCard[] = [
