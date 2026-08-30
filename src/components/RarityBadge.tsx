@@ -12,12 +12,12 @@ const fxVariant = {
   gold: 'rarity-badge--gold',
 } as const;
 
-/** Nombre de symboles par rareté : ● ◆ ★ (encre), ★★ argent, ★ or. */
+/** Nombre de symboles par rareté : ● ◆ ★ (encre), ★ argent, ★★ argent, ★ or. */
 const SYMBOL_COUNT: Record<Rarity, number> = {
   common: 1,
   uncommon: 1,
   rare: 1,
-  very_rare: 2,
+  very_rare: 1,
   ultra_rare: 2,
   illustration_rare: 1,
   special_rare: 2,
