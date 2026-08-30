@@ -124,8 +124,14 @@ const quota = useCaptureQuota(session?.user?.id);
 
   /** Shared pipeline for both the camera shot and the gallery import.
    *  `manualReason` court-circuite l'analyse IA : la photo est envoyée en
-   *  validation humaine (import suspect, sans métadonnées d'appareil). */
-  const processPhoto = useCallback(async (rawDataUrl: string, manualReason?: string) => {
+   *  validation humaine (import suspect, sans métadonnées d'appareil).
+   *  `exifCoords` : coordonnées GPS lues dans les EXIF d'une photo importée ;
+   *  elles priment alors sur la position actuelle de l'appareil. */
+  const processPhoto = useCallback(async (
+    rawDataUrl: string,
+    manualReason?: string,
+    exifCoords?: { lat: number; lng: number } | null,
+  ) => {
     // The daily slot is only consumed when the capture is added to the Faunex.
     if (quota.exhausted) {
       toast.error(`Limite atteinte : ${DAILY_CAPTURE_LIMIT} captures par jour maximum. Reviens demain !`);
@@ -153,7 +159,13 @@ const quota = useCaptureQuota(session?.user?.id);
     setManualMode(false);
     setTaxonHint(null);
     setDisputedResult(null);
-    geo.capture();
+    // Photo importée avec GPS EXIF : on géolocalise la capture à l'endroit
+    // où la photo a réellement été prise, sinon position actuelle.
+    if (exifCoords) {
+      void geo.apply(exifCoords);
+    } else {
+      geo.capture();
+    }
 
     // Photo importée sans signature d'appareil : aucune analyse IA facturée,
     // l'observation passe par une validation humaine.
@@ -244,7 +256,7 @@ const takePhoto = async () => {
       const reason = suspicious
         ? "Cette photo n'a pas de métadonnées d'appareil (EXIF) : impossible de confirmer qu'elle vient de ton appareil. Elle ne sera pas identifiée par l'IA — renseigne l'espèce, un modérateur validera ton observation."
         : undefined;
-      await processPhoto(await readFileAsDataUrl(file), reason);
+      await processPhoto(await readFileAsDataUrl(file), reason, exif?.gps ?? null);
     } catch (err) {
       console.error(err);
       toast.error("Impossible de lire cette photo. Réessaie avec une autre image.");
