@@ -58,6 +58,21 @@ const MINE_SORT_LABELS: Record<MineSort, string> = {
 const sortStorageKey = (uid: string) => `faunex:mine-sort:${uid}`;
 const orderStorageKey = (uid: string) => `faunex:mine-order:${uid}`;
 
+/** Filtre de popularité communautaire : combien de naturalistes ont capturé l'espèce.
+ *  Seuils alignés sur FindersBadge pour une cohérence badge ↔ filtre. */
+type PopularityTier = 'none' | 'rare' | 'common' | 'trending' | 'hot';
+
+const POPULARITY_LABELS: Record<PopularityTier, { label: string; hint: string }> = {
+  none: { label: 'Jamais capturée', hint: 'personne encore' },
+  rare: { label: 'Peu capturée', hint: '1 à 4' },
+  common: { label: 'Populaire', hint: '5 à 24' },
+  trending: { label: 'Très populaire', hint: '25 à 99' },
+  hot: { label: 'Incontournable', hint: '100+' },
+};
+
+const popularityTierOf = (n: number): PopularityTier =>
+  n <= 0 ? 'none' : n < 5 ? 'rare' : n < 25 ? 'common' : n < 100 ? 'trending' : 'hot';
+
 
 /** Socle coloré (profondeur "jeu mobile") selon la rareté. */
 const tileDepthClass: Record<string, string> = {
@@ -156,7 +171,8 @@ const BestiairePage = () => {
   const [collectionSearch, setCollectionSearch] = useState('');
   const [speciesSearch, setSpeciesSearch] = useState('');
   const [mineSearch, setMineSearch] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
+const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
+  const [popularityFilter, setPopularityFilter] = useState<PopularityTier[]>([]);
   const [filterOpen, setFilterOpen] = useState(false);
   const [mineSort, setMineSort] = useState<MineSort>('recent');
   const [customOrder, setCustomOrder] = useState<string[]>([]);
