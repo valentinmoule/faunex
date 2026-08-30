@@ -68,11 +68,15 @@ export const useShelveAnimation = ({
       shelveAnimationRan.current = true;
       consumePendingShelve(); // clear storage so it doesn't replay
 
-      slotEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Position the page on the card first (instant, so the measure below is stable)
+      slotEl.scrollIntoView({ behavior: 'auto', block: 'center' });
 
       timers.push(window.setTimeout(() => {
         if (cancelled) return;
+        // Re-check position after any layout shift, then measure
+        slotEl.scrollIntoView({ behavior: 'auto', block: 'center' });
         const rect = slotEl.getBoundingClientRect();
+
         const vw = window.innerWidth;
         const vh = window.innerHeight;
         const startWidth = Math.min(230, vw * 0.56);
@@ -107,6 +111,9 @@ export const useShelveAnimation = ({
           setFlashSlotName(slotKey);
           setFlyingCardStyle((prev) => (prev ? { ...prev, opacity: 0 } : null));
           hapticDiscovery();
+          // Make sure the user ends up right on the card, ready to tap it
+          slotEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
           timers.push(window.setTimeout(() => {
             setFlyingCardStyle(null);
             setPendingShelve(null);
