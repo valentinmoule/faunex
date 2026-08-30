@@ -1,23 +1,17 @@
-import { Hexagon, Gem, Star, Crown } from 'lucide-react';
-import { RARITY_LABELS, type Rarity } from '@/data/mockData';
+import {
+  RARITY_LABELS,
+  RARITY_SYMBOLS,
+  RARITY_FX,
+  normalizeRarity,
+} from '@/data/mockData';
 
-const RARITIES: Rarity[] = ['common', 'rare', 'epic', 'mythic'];
-
-const badgeVariant: Record<Rarity, string> = {
-  common: 'rarity-badge--common',
-  rare: 'rarity-badge--rare',
-  epic: 'rarity-badge--epic',
-  mythic: 'rarity-badge--mythic',
-};
-
-const rarityIcon = {
-  common: Hexagon,
-  rare: Gem,
-  epic: Star,
-  mythic: Crown,
+const fxVariant = {
+  ink: '',
+  silver: 'rarity-badge--silver',
+  gold: 'rarity-badge--gold',
 } as const;
 
-/** Jeton de rareté façon jeu mobile : icône (et label optionnel), relief et balayage lumineux. */
+/** Jeton de rareté façon carte Pokémon : ● ◆ ★ noirs, ★★ argent holo, ★ or holo. */
 export const RarityBadge = ({
   rarity,
   className,
@@ -27,15 +21,20 @@ export const RarityBadge = ({
   className?: string;
   showLabel?: boolean;
 }) => {
-  const r: Rarity = (RARITIES as string[]).includes(rarity) ? (rarity as Rarity) : 'common';
-  const Icon = rarityIcon[r];
+  const r = normalizeRarity(rarity);
+  const fx = RARITY_FX[r];
+  const symbols = RARITY_SYMBOLS[r];
   return (
     <span
-      className={`rarity-badge ${badgeVariant[r]} ${showLabel ? 'rarity-badge--labeled' : ''} ${className ?? ''}`}
+      className={`rarity-badge ${fxVariant[fx]} ${r === 'hyper_rare' ? 'rarity-badge--hyper' : ''} ${showLabel ? 'rarity-badge--labeled' : ''} ${className ?? ''}`}
       title={RARITY_LABELS[r]}
       aria-label={`Rareté : ${RARITY_LABELS[r]}`}
     >
-      <Icon className="rarity-badge__icon" strokeWidth={2.25} />
+      <span className="rarity-badge__symbols" aria-hidden="true">
+        {symbols.map((s, i) => (
+          <span key={i} className="rarity-badge__sym">{s}</span>
+        ))}
+      </span>
       {showLabel && <span className="rarity-badge__label">{RARITY_LABELS[r]}</span>}
     </span>
   );
