@@ -159,7 +159,13 @@ const quota = useCaptureQuota(session?.user?.id);
     setManualMode(false);
     setTaxonHint(null);
     setDisputedResult(null);
-    geo.capture();
+    // Photo importée avec GPS EXIF : on géolocalise la capture à l'endroit
+    // où la photo a réellement été prise, sinon position actuelle.
+    if (exifCoords) {
+      void geo.apply(exifCoords);
+    } else {
+      geo.capture();
+    }
 
     // Photo importée sans signature d'appareil : aucune analyse IA facturée,
     // l'observation passe par une validation humaine.
