@@ -790,6 +790,10 @@ serve(async (req) => {
           ? `Identification probable : ${rankFr ?? "rang"} ${verdict.fallbackName}. L'espèce ne peut pas être confirmée avec suffisamment de fiabilité.`
           : "L'espèce proposée n'a pas pu être confirmée dans les référentiels taxonomiques. Décris l'animal pour vérification.";
 
+        // Espèce non confirmée = échec d'identification côté outil, pas une
+        // triche : l'explorateur ne doit pas perdre une de ses 4 analyses.
+        await refundQuota();
+
         return await finish(
           {
             success: false,
