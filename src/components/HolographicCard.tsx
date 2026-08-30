@@ -5,6 +5,8 @@ interface Props {
   rarity: Rarity;
   children: ReactNode;
   className?: string;
+  /** Styles supplémentaires (ex. --holo-radius pour aligner les couches sur le cadre). */
+  style?: React.CSSProperties;
   onTap?: () => void;
   appearAnimation?: string;
   /** Approximate normalized (0..1) bounding box of the animal — holo effects are masked around it. */
@@ -77,6 +79,7 @@ const HolographicCard = ({
   rarity,
   children,
   className = '',
+  style,
   onTap,
   appearAnimation = '',
   subjectBox,
@@ -287,13 +290,14 @@ const HolographicCard = ({
       (base as any)['--subj-rx'] = `${rx.toFixed(2)}%`;
       (base as any)['--subj-ry'] = `${ry.toFixed(2)}%`;
     }
-    return base;
-  }, [subjectBox]);
+    return { ...base, ...style };
+  }, [subjectBox, style]);
 
   if (noHolo) {
     return (
       <div
         className={`holo-wrap holo-no-fx ${className} ${appearAnimation}`}
+        style={style}
         onClick={(e) => { if (containInteraction) e.stopPropagation(); onTap?.(); }}
         role={onTap ? 'button' : undefined}
         tabIndex={onTap ? 0 : undefined}
