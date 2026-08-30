@@ -975,7 +975,8 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                 subjectBox={card.subjectBox}
                 containInteraction
                 paused={zoomInteracting || zoom.scale > 1.01}
-                className="holo-fullscreen-photo relative rounded-2xl pointer-events-auto touch-none"
+                className="holo-fullscreen-photo relative rounded-[1.5rem] pointer-events-auto touch-none"
+                style={{ ['--holo-radius' as any]: '1.5rem' }}
               >
                 <div className={`relative w-full h-full rounded-[1.5rem] overflow-hidden shadow-2xl holo-frame holo-frame--fullscreen holo-frame--${normalizeRarity(card.rarity).replace(/_/g, '-')}`}>
                   <div className="relative w-full h-full rounded-[0.875rem] overflow-hidden bg-black/30">
