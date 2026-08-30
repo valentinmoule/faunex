@@ -499,15 +499,17 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
       );
     }
     // Only domestic breed groups are hidden from the full grid (they are too numerous).
+    const pendingName = pendingShelve?.animalName.toLocaleLowerCase('fr');
     const hiddenKeys = new Set(breedGroupsInCategory.filter(e => e.group.breeds).map(e => e.group.key));
     const filtered = categoryAnimals.filter(a => {
+      if (pendingName && a.name.toLocaleLowerCase('fr') === pendingName) return true;
       const group = getBreedGroup(a.scientific_name);
       return !group || !hiddenKeys.has(group.key);
     });
     // « Toutes les espèces » peut contenir des milliers de cartes : on plafonne l'affichage.
     if (selectedCategory === ALL_SPECIES && !speciesQuery) return filtered.slice(0, ALL_GRID_LIMIT);
     return filtered;
-  }, [categoryAnimals, breedGroupsInCategory, activeBreedGroup, selectedCategory, speciesQuery]);
+  }, [categoryAnimals, breedGroupsInCategory, activeBreedGroup, selectedCategory, speciesQuery, pendingShelve]);
 
 
 
@@ -1774,8 +1776,21 @@ onClick={() => {
 
       {/* Flying card overlay for shelve animation */}
       {flyingCardStyle && pendingShelve && (
-        <div className="shelve-flying-card" style={flyingCardStyle}>
+        <div
+          className="shelve-flying-card"
+          data-rarity={pendingShelve.rarity}
+          style={flyingCardStyle}
+        >
+          <div className="shelve-card-aura" aria-hidden />
           <img src={pendingShelve.imageUrl} alt={pendingShelve.animalName} />
+          <div className="shelve-card-shine" aria-hidden />
+          <div className="shelve-card-label">
+            <span>Nouvelle découverte</span>
+            <strong>{pendingShelve.animalName}</strong>
+          </div>
+          <div className="shelve-card-sparkles" aria-hidden>
+            {Array.from({ length: 10 }, (_, index) => <i key={index} />)}
+          </div>
         </div>
       )}
     </main>

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { consumePendingShelve, peekPendingShelve, type PendingShelve } from '@/lib/shelveAnimation';
 import { normalizeCategory, type BestiaryAnimal } from '@/lib/bestiary';
+import { hapticDiscovery } from '@/lib/haptics';
 
 interface Options {
   animals: BestiaryAnimal[];
@@ -44,32 +45,43 @@ export const useShelveAnimation = ({ animals, loading, selectedCategory, setSele
     if (!selectedCategory) return;
 
     const slotKey = pendingShelve.animalName.toLowerCase();
-    const raf = requestAnimationFrame(() => {
+    const timers: number[] = [];
+    let cancelled = false;
+    let attempts = 0;
+
+    const runWhenMounted = () => {
+      if (cancelled) return;
       const slotEl = slotRefs.current[slotKey];
-      if (!slotEl) return;
+      if (!slotEl) {
+        attempts += 1;
+        if (attempts < 50) timers.push(window.setTimeout(runWhenMounted, 100));
+        return;
+      }
       shelveAnimationRan.current = true;
       consumePendingShelve(); // clear storage so it doesn't replay
 
       slotEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-      setTimeout(() => {
+      timers.push(window.setTimeout(() => {
+        if (cancelled) return;
         const rect = slotEl.getBoundingClientRect();
         const vw = window.innerWidth;
         const vh = window.innerHeight;
-        const startSize = Math.min(280, vw * 0.7);
-        const startLeft = (vw - startSize) / 2;
-        const startTop = (vh - startSize) / 2;
+        const startWidth = Math.min(230, vw * 0.56);
+        const startHeight = startWidth * (rect.height / Math.max(rect.width, 1));
+        const startLeft = (vw - startWidth) / 2;
+        const startTop = (vh - startHeight) / 2;
 
         setFlyingCardStyle({
           left: `${startLeft}px`,
           top: `${startTop}px`,
-          width: `${startSize}px`,
-          height: `${startSize}px`,
-          transform: 'rotate(-4deg) scale(1)',
+          width: `${startWidth}px`,
+          height: `${startHeight}px`,
+          transform: 'rotate(-7deg) scale(1)',
           opacity: 1,
         });
 
-        requestAnimationFrame(() => {
+        timers.push(window.setTimeout(() => {
           requestAnimationFrame(() => {
             setFlyingCardStyle({
               left: `${rect.left}px`,
@@ -80,22 +92,29 @@ export const useShelveAnimation = ({ animals, loading, selectedCategory, setSele
               opacity: 1,
             });
           });
-        });
+        }, 520));
 
-        setTimeout(() => {
+        timers.push(window.setTimeout(() => {
+          if (cancelled) return;
           setFlashSlotName(slotKey);
           setFlyingCardStyle((prev) => (prev ? { ...prev, opacity: 0 } : null));
-          if (navigator.vibrate) navigator.vibrate([30, 20, 60]);
-          setTimeout(() => {
+          hapticDiscovery();
+          timers.push(window.setTimeout(() => {
             setFlyingCardStyle(null);
             setPendingShelve(null);
-          }, 250);
-          setTimeout(() => setFlashSlotName(null), 1200);
-        }, 900);
-      }, 450);
-    });
+          }, 300));
+          timers.push(window.setTimeout(() => setFlashSlotName(null), 1600));
+        }, 1450));
+      }, 650));
+    };
 
-    return () => cancelAnimationFrame(raf);
+    const raf = requestAnimationFrame(runWhenMounted);
+
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(raf);
+      timers.forEach(window.clearTimeout);
+    };
   }, [pendingShelve, selectedCategory, animals, loading]);
 
   return { pendingShelve, flyingCardStyle, flashSlotName, slotRefs };
