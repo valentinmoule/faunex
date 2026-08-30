@@ -210,6 +210,25 @@ const takePhoto = async () => {
     await processPhoto(dataUrl);
   };
 
+  /** Import galerie : le même pipeline que la photo caméra (normalisation,
+   *  conversion HEIC iPhone, analyse IA). Un simple <input type="file"> est
+   *  utilisé : il fonctionne aussi bien en web app que dans les WebViews
+   *  Capacitor iOS/Android, sans plugin natif supplémentaire. */
+  const galleryInputRef = useRef<HTMLInputElement | null>(null);
+  const importFromGallery = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    // Permet de réimporter deux fois de suite le même fichier.
+    e.target.value = '';
+    if (!file) return;
+    try {
+      await processPhoto(await readFileAsDataUrl(file));
+    } catch (err) {
+      console.error(err);
+      toast.error("Impossible de lire cette photo. Réessaie avec une autre image.");
+    }
+  };
+
+
 
 
 
