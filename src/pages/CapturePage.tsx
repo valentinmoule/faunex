@@ -67,9 +67,12 @@ const CapturePage = () => {
 
 
   const [duplicateCapture, setDuplicateCapture] = useState<{ id: string; image_url: string; animal_name: string } | null>(null);
-  const [manualMode, setManualMode] = useState(false);
+const [manualMode, setManualMode] = useState(false);
   /** Repli taxonomique honnête renvoyé par le serveur (genre / famille). */
   const [taxonHint, setTaxonHint] = useState<string | null>(null);
+  /** true quand l'import galerie n'a pas de signature d'appareil (EXIF) :
+   *  la photo part en vérification humaine, sans analyse IA. */
+  const [exifFlagged, setExifFlagged] = useState(false);
   /** Non-null quand l'utilisateur contexte l'identification IA et demande une vérification humaine. */
   const [disputedResult, setDisputedResult] = useState<AnimalResult | null>(null);
   const [identifyError, setIdentifyError] = useState<string | null>(null);
@@ -152,12 +155,13 @@ const quota = useCaptureQuota(session?.user?.id);
     }
     setCapturedPhoto(dataUrl);
 
-    setAnimalResult(null);
+setAnimalResult(null);
     setSaved(false);
     setIdentifyError(null);
     setRejectedImage(null);
     setManualMode(false);
     setTaxonHint(null);
+    setExifFlagged(false);
     setDisputedResult(null);
     // Photo importée avec GPS EXIF : on géolocalise la capture à l'endroit
     // où la photo a réellement été prise, sinon position actuelle.
@@ -167,11 +171,12 @@ const quota = useCaptureQuota(session?.user?.id);
       geo.capture();
     }
 
-    // Photo importée sans signature d'appareil : aucune analyse IA facturée,
+// Photo importée sans signature d'appareil : aucune analyse IA facturée,
     // l'observation passe par une validation humaine.
     if (manualReason) {
       identifyingRef.current = false;
       setTaxonHint(manualReason);
+      setExifFlagged(true);
       setManualMode(true);
       return;
     }
@@ -251,11 +256,14 @@ const takePhoto = async () => {
     e.target.value = '';
     if (!file) return;
     try {
-      const exif = isHeicFile(file) ? null : await readExifCameraInfo(file);
+const exif = isHeicFile(file) ? null : await readExifCameraInfo(file);
       const suspicious = exif !== null && !exif.looksLikeCameraPhoto;
       const reason = suspicious
         ? "Cette photo n'a pas de métadonnées d'appareil (EXIF) : impossible de confirmer qu'elle vient de ton appareil. Elle ne sera pas identifiée par l'IA — renseigne l'espèce, un modérateur validera ton observation."
         : undefined;
+      if (suspicious) {
+        toast.info("Photo sans métadonnées d'appareil (EXIF) : elle part en vérification humaine.");
+      }
       await processPhoto(await readFileAsDataUrl(file), reason, exif?.gps ?? null);
     } catch (err) {
       console.error(err);
@@ -273,10 +281,12 @@ const takePhoto = async () => {
     setAnimalResult(null);
     setSaved(false);
     setDuplicateCapture(null);
-    setManualMode(false);
+setManualMode(false);
     setDisputedResult(null);
     setIdentifyError(null);
     setRejectedImage(null);
+    setTaxonHint(null);
+    setExifFlagged(false);
 
 
     setManualName('');
@@ -829,9 +839,19 @@ const takePhoto = async () => {
           <div className="relative z-20 flex-1 flex flex-col justify-end px-5 pb-4">
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                {disputedResult || rejectedImage ? <ShieldQuestion className="w-5 h-5 text-amber" /> : <PenLine className="w-5 h-5 text-amber" />}
+{exifFlagged ? (
+                  <Info className="w-5 h-5 text-amber" />
+                ) : disputedResult || rejectedImage ? (
+                  <ShieldQuestion className="w-5 h-5 text-amber" />
+                ) : (
+                  <PenLine className="w-5 h-5 text-amber" />
+                )}
                 <h2 className="text-lg font-display font-bold text-primary-foreground">
-                  {disputedResult || rejectedImage ? 'Demander une vérification' : 'Animal non reconnu'}
+                  {exifFlagged
+                    ? 'Vérification humaine'
+                    : disputedResult || rejectedImage
+                      ? 'Demander une vérification'
+                      : 'Animal non reconnu'}
                 </h2>
               </div>
               {disputedResult && (
@@ -853,8 +873,14 @@ const takePhoto = async () => {
                   <p className="text-sm text-primary-foreground/90">{rejectedImage.title}</p>
                 </div>
               )}
-              {!disputedResult && !rejectedImage && taxonHint && (
-                <div className="rounded-xl border border-amber/30 bg-amber/10 px-3 py-2">
+{!disputedResult && !rejectedImage && taxonHint && (
+                <div className="rounded-xl border border-amber/30 bg-amber/10 px-3 py-2.5">
+                  {exifFlagged && (
+                    <p className="mb-1 flex items-center gap-1.5 text-[10px] font-display font-semibold uppercase tracking-wide text-amber">
+                      <Info className="w-3.5 h-3.5 shrink-0" />
+                      Pourquoi cette photo part en modération ?
+                    </p>
+                  )}
                   <p className="text-sm text-primary-foreground/90">{taxonHint}</p>
                 </div>
               )}
