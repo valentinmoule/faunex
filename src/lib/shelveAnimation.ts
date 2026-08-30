@@ -1,3 +1,4 @@
+import type { Rarity } from '@/data/mockData';
 /**
  * Helpers to coordinate the "card shelving into the bestiary binder" animation
  * across the Capture → Bestiaire navigation.

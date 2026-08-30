@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Heart, MessageCircle, Share2 } from 'lucide-react';
-import { type FeedPost, RARITY_LABELS } from '@/data/mockData';
+import { type FeedPost, RARITY_LABELS, RARITY_FX, normalizeRarity } from '@/data/mockData';
 import { thumbUrl } from '@/lib/imageUrl';
 
 interface Props {
