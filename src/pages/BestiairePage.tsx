@@ -441,14 +441,21 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
     [speciesQuery]
   );
 
+// Filtre de popularité communautaire (vide = toutes les popularités)
+  const matchesPopularity = useCallback(
+    (n: number) => popularityFilter.length === 0 || popularityFilter.includes(popularityTierOf(n)),
+    [popularityFilter],
+  );
+
   // Animals for selected category (with rarity filter + search)
   const categoryAnimals = useMemo(() => {
     if (!selectedCategory) return [];
     return animals
       .filter(a => selectedCategory === ALL_SPECIES || normalizeCategory(a.category) === selectedCategory)
-.filter(a => rarityFilter.length === 0 || rarityFilter.includes(a.rarity as Rarity))
+      .filter(a => rarityFilter.length === 0 || rarityFilter.includes(a.rarity as Rarity))
+      .filter(a => matchesPopularity(a.finders ?? 0))
       .filter(matchesSearch);
-  }, [animals, selectedCategory, rarityFilter, matchesSearch]);
+  }, [animals, selectedCategory, rarityFilter, matchesPopularity, matchesSearch]);
 
   // Sub-level inside a category: breed groups (races de chien…) + type groups (papillons, rapaces…)
   const breedGroupsInCategory = useMemo(() => {
@@ -491,14 +498,15 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
 
 
 
-  // Browse view: all species, filtered by category chips + rarity + search
-const browseAnimals = useMemo(() => {
+// Browse view: all species, filtered by category chips + rarity + popularity + search
+  const browseAnimals = useMemo(() => {
     return animals
       .filter(a => categoryFilter.length === 0 || categoryFilter.includes(normalizeCategory(a.category)))
-.filter(a => rarityFilter.length === 0 || rarityFilter.includes(a.rarity as Rarity))
+      .filter(a => rarityFilter.length === 0 || rarityFilter.includes(a.rarity as Rarity))
+      .filter(a => matchesPopularity(a.finders ?? 0))
       .filter(matchesSearch);
     // Pas de re-tri : `animals` est déjà trié alphabétiquement au chargement.
-  }, [animals, categoryFilter, rarityFilter, matchesSearch]);
+  }, [animals, categoryFilter, rarityFilter, matchesPopularity, matchesSearch]);
 
   // Virtualisation : seules les lignes visibles sont montées (mémoire constante).
 
