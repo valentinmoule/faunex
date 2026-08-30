@@ -1036,6 +1036,26 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
     </Sheet>
   );
 
+  /** Carte volante de l'animation de rangement (rendue dans toutes les vues). */
+  const flyingCardOverlay = flyingCardStyle && pendingShelve ? (
+    <div
+      className="shelve-flying-card"
+      data-rarity={pendingShelve.rarity}
+      style={flyingCardStyle}
+    >
+      <div className="shelve-card-aura" aria-hidden />
+      {pendingShelve.imageUrl && <img src={pendingShelve.imageUrl} alt={pendingShelve.animalName} />}
+      <div className="shelve-card-shine" aria-hidden />
+      <div className="shelve-card-label">
+        <span>Nouvelle découverte</span>
+        <strong>{pendingShelve.animalName}</strong>
+      </div>
+      <div className="shelve-card-sparkles" aria-hidden>
+        {Array.from({ length: 10 }, (_, index) => <i key={index} />)}
+      </div>
+    </div>
+  ) : null;
+
   if (loading) return <LoadingScreen />;
 
   // Zone detail view
@@ -1085,6 +1105,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
 
         <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
         {deptPickerSheet}
+        {flyingCardOverlay}
       </main>
     );
   }
@@ -1811,25 +1832,7 @@ onClick={() => {
 
       <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
 
-      {/* Flying card overlay for shelve animation */}
-      {flyingCardStyle && pendingShelve && (
-        <div
-          className="shelve-flying-card"
-          data-rarity={pendingShelve.rarity}
-          style={flyingCardStyle}
-        >
-          <div className="shelve-card-aura" aria-hidden />
-          <img src={pendingShelve.imageUrl} alt={pendingShelve.animalName} />
-          <div className="shelve-card-shine" aria-hidden />
-          <div className="shelve-card-label">
-            <span>Nouvelle découverte</span>
-            <strong>{pendingShelve.animalName}</strong>
-          </div>
-          <div className="shelve-card-sparkles" aria-hidden>
-            {Array.from({ length: 10 }, (_, index) => <i key={index} />)}
-          </div>
-        </div>
-      )}
+      {flyingCardOverlay}
     </main>
   );
 };
