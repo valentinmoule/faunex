@@ -3,7 +3,7 @@ import { PawPrint, Bird, Fish, Bug, Turtle, Shell, Snail, Waves } from 'lucide-r
 import { FrogIcon } from '@/components/icons/FrogIcon';
 import { SpiderIcon } from '@/components/icons/SpiderIcon';
 import type { AnimalCard } from '@/data/mockData';
-import { RARITY_ORDER, RARITY_FX, RARITY_RANK } from '@/data/mockData';
+import { RARITY_ORDER, RARITY_FX, RARITY_RANK, type RarityFx } from '@/data/mockData';
 import { buildEmblematicSet } from '@/lib/emblematicSpecies';
 
 
