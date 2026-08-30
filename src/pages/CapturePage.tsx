@@ -225,7 +225,12 @@ const takePhoto = async () => {
   /** Import galerie : le même pipeline que la photo caméra (normalisation,
    *  conversion HEIC iPhone, analyse IA). Un simple <input type="file"> est
    *  utilisé : il fonctionne aussi bien en web app que dans les WebViews
-   *  Capacitor iOS/Android, sans plugin natif supplémentaire. */
+   *  Capacitor iOS/Android, sans plugin natif supplémentaire.
+   *
+   *  Anti-triche : on vérifie les EXIF. Une image récupérée sur le web ou une
+   *  capture d'écran n'a pas de marque/modèle d'appareil ; plutôt que de la
+   *  refuser sèchement (des apps de messagerie effacent parfois les EXIF de
+   *  vraies photos), elle est routée vers la validation humaine. */
   const galleryInputRef = useRef<HTMLInputElement | null>(null);
   const importFromGallery = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -233,12 +238,18 @@ const takePhoto = async () => {
     e.target.value = '';
     if (!file) return;
     try {
-      await processPhoto(await readFileAsDataUrl(file));
+      const exif = isHeicFile(file) ? null : await readExifCameraInfo(file);
+      const suspicious = exif !== null && !exif.looksLikeCameraPhoto;
+      const reason = suspicious
+        ? "Cette photo n'a pas de métadonnées d'appareil (EXIF) : impossible de confirmer qu'elle vient de ton appareil. Elle ne sera pas identifiée par l'IA — renseigne l'espèce, un modérateur validera ton observation."
+        : undefined;
+      await processPhoto(await readFileAsDataUrl(file), reason);
     } catch (err) {
       console.error(err);
       toast.error("Impossible de lire cette photo. Réessaie avec une autre image.");
     }
   };
+
 
 
 
