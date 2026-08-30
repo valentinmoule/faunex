@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, type ReactNode } from 'react';
-import { type Rarity } from '@/data/mockData';
+import { type Rarity, RARITY_FX, RARITY_RANK, normalizeRarity } from '@/data/mockData';
 
 interface Props {
   rarity: Rarity;
@@ -307,10 +307,17 @@ const HolographicCard = ({
     );
   }
 
-  return (
+    const _r = normalizeRarity(rarity);
+  const _fx = RARITY_FX[_r];
+  const holoClass = _fx === 'gold' ? 'holo-gold'
+    : _fx === 'silver' ? 'holo-silver'
+    : RARITY_RANK[_r] >= 2 ? 'holo-rare'
+    : 'holo-common';
+
+return (
     <div
       ref={wrapRef}
-      className={`holo-wrap holo-${rarity} ${className} ${appearAnimation}`}
+      className={`holo-wrap ${holoClass} ${className} ${appearAnimation}`}
       data-contain={containInteraction ? 'true' : undefined}
       data-subject={subjectBox ? 'on' : undefined}
       data-paused={paused ? 'true' : undefined}
