@@ -2545,20 +2545,12 @@ html.is-native-android body {
 .rarity-badge__symbols {
   position: relative;
   z-index: 1;
-  display: inline-flex;
-  align-items: center;
-  gap: 1.5px;
+  display: block;
+  flex-shrink: 0;
 }
 
-.rarity-badge__sym {
-  font-size: 10px;
-  line-height: 1;
-  color: hsl(225 15% 18%);
-}
-
-/* Le glyphe ◆ paraît optiquement plus petit que ● et ★ à corps égal. */
-.rarity-badge--uncommon .rarity-badge__sym {
-  font-size: 12px;
+.rarity-svg__sym {
+  display: block;
 }
 
 /* Variante avec label (card détail) */
@@ -2570,12 +2562,6 @@ html.is-native-android body {
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-}
-.rarity-badge--labeled .rarity-badge__sym {
-  font-size: 11px;
-}
-.rarity-badge--labeled.rarity-badge--uncommon .rarity-badge__sym {
-  font-size: 13px;
 }
 .rarity-badge__label {
   position: relative;
