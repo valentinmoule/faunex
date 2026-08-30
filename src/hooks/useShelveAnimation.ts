@@ -51,6 +51,7 @@ export const useShelveAnimation = ({ loading, onPrepare, resolveSlot }: Options)
         if (attempts < 60) timers.push(window.setTimeout(runWhenMounted, 100));
         return;
       }
+      console.log('[shelve] slot found');
       shelveAnimationRan.current = true;
       consumePendingShelve(); // clear storage so it doesn't replay
 
@@ -71,6 +72,7 @@ export const useShelveAnimation = ({ loading, onPrepare, resolveSlot }: Options)
         const startLeft = (vw - startWidth) / 2;
         const startTop = (vh - startHeight) / 2;
 
+        console.log('[shelve] fly start');
         setFlyingCardStyle({
           left: `${startLeft}px`,
           top: `${startTop}px`,
@@ -115,6 +117,7 @@ export const useShelveAnimation = ({ loading, onPrepare, resolveSlot }: Options)
     const raf = requestAnimationFrame(runWhenMounted);
 
     return () => {
+      console.log('[shelve] effect cleanup');
       cancelled = true;
       cancelAnimationFrame(raf);
       timers.forEach(window.clearTimeout);
