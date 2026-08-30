@@ -1288,11 +1288,11 @@ Bestiaire
                       <X className="w-3 h-3" />
                     </button>
                   ))}
-                  {popularityFilter.map(tier => (
+{popularityFilter.map(tier => (
                     <button
                       key={tier}
                       onClick={() => setPopularityFilter(prev => prev.filter(t => t !== tier))}
-                      className="flex items-center gap-1 pl-2 pr-1.5 py-1 rounded-full bg-teal-600/10 text-teal-700 text-[11px] font-display font-semibold active:scale-95 transition"
+                      className={`popularity-chip popularity-chip--${tier} text-[11px] font-display font-semibold active:scale-95 transition`}
                     >
                       {POPULARITY_LABELS[tier].label}
                       <X className="w-3 h-3" />
