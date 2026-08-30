@@ -402,11 +402,11 @@ async function examine(
     animal_name: approvedName,
     scientific_name: approvedSci,
     category: verdict.category || null,
-    description: trustUser ? (capture.description || null) : (verdict.description || capture.description || null),
-    habitat: trustUser ? null : (verdict.habitat || null),
-    diet: trustUser ? null : (verdict.diet || null),
-    conservation: trustUser ? null : (verdict.conservation || null),
-    fun_fact: trustUser ? null : (verdict.fun_fact || null),
+    description: verdict.description || capture.description || null,
+    habitat: verdict.habitat || null,
+    diet: verdict.diet || null,
+    conservation: verdict.conservation || null,
+    fun_fact: verdict.fun_fact || null,
     rarity: verdict.rarity || 'common',
     status: 'approved',
   }
@@ -470,7 +470,7 @@ async function examine(
   if (notifErr) console.error('notify-moderation-decision failed', notifErr)
 
 
-  return { capture_id: capture.id, approved: true, animal_name: approvedName, confidence, trusted_user: trustUser }
+  return { capture_id: capture.id, approved: true, animal_name: approvedName, confidence }
 }
 
 /**
