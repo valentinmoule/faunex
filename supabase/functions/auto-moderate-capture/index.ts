@@ -25,7 +25,7 @@ const AUTO_PROMPT = `Expert naturaliste chargé du contrôle qualité. On te don
 - Humain, plante, aucun animal, créature de fiction ou espèce éteinte → name_matches false, confidence 0.
 - Au moindre doute sur la nature de l'image : is_real_photo false.
 - animal_name : le nom de l'observateur normalisé (orthographe, casse, race si visible), jamais une autre espèce. Nom scientifique = binôme latin réel.
-- Rareté (France) : common quotidien · rare chance · epic très rare/menacé · mythic quasi-impossible.
+- Rareté (France, 8 paliers) : common quotidien · uncommon fréquent · rare chance · very_rare très localisé · ultra_rare menacé/protégé · illustration_rare quasi-impossible · special_rare quasi-mythique · hyper_rare le sommet.
 
 Réponds UNIQUEMENT via l'appel de fonction verify_animal.`
 
@@ -563,7 +563,7 @@ function callGateway(
                 diet: { type: 'string' },
                 conservation: { type: 'string', description: "Statut UICN : LC, NT, VU, EN, CR ou 'Domestique'." },
                 fun_fact: { type: 'string' },
-                rarity: { type: 'string', enum: ['common', 'rare', 'epic', 'mythic'] },
+                rarity: { type: 'string', enum: ['common', 'uncommon', 'rare', 'very_rare', 'ultra_rare', 'illustration_rare', 'special_rare', 'hyper_rare'] },
                 subject_bbox: {
                   type: 'object',
                   description: 'Boîte englobante de l\'animal, normalisée 0..1. Omets si aucun animal visible.',

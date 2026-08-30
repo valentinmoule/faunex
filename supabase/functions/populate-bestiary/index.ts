@@ -28,8 +28,9 @@ const RARITY_RULES = `
 Attribue la rareté selon le statut de conservation RÉEL de l'espèce:
 - "common": espèces très communes ou assez fréquentes, préoccupation mineure (LC), populations stables
 - "rare": espèces peu communes, quasi menacées (NT) ou localisées, nécessitant patience pour les observer
-- "epic": espèces vulnérables (VU) ou en danger (EN), très rares à observer
-- "mythic": espèces en danger critique (CR), éteintes à l'état sauvage (EW) ou quasi-mythiques
+- "ultra_rare": espèces vulnérables (VU) ou en danger (EN), très rares à observer
+- "illustration_rare"/"special_rare"/"hyper_rare": espèces en danger critique (CR), éteintes à l'état sauvage (EW) ou quasi-mythiques
+- Utilise aussi "uncommon" (peu commune) et "very_rare" (plutôt rare) pour nuancer les paliers intermédiaires
 `;
 
 async function generateBatch(
@@ -66,7 +67,7 @@ async function generateBatch(
           content: `Tu es un biologiste expert. Tu génères des listes d'espèces animales au format JSON.
 ${RARITY_RULES}
 Réponds UNIQUEMENT avec un tableau JSON valide, sans markdown, sans explication.
-Format: [{"name":"Nom français","scientific_name":"Nom latin","rarity":"common|rare|epic|mythic"}]`,
+Format: [{"name":"Nom français","scientific_name":"Nom latin","rarity":"common|uncommon|rare|very_rare|ultra_rare|illustration_rare|special_rare|hyper_rare"}]`,
         },
         {
           role: "user",
@@ -103,7 +104,7 @@ Pas de doublons, pas d'espèces inventées.`,
     return species.map((s: any) => ({
       name: s.name,
       scientific_name: s.scientific_name,
-      rarity: ["common", "rare", "epic", "mythic"].includes(s.rarity)
+      rarity: ["common", "uncommon", "rare", "very_rare", "ultra_rare", "illustration_rare", "special_rare", "hyper_rare"].includes(s.rarity)
         ? s.rarity
         : "common",
     }));

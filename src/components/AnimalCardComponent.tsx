@@ -5,8 +5,12 @@ import RarityBadge from '@/components/RarityBadge';
 const rarityStyles: Record<Rarity, string> = {
   common: 'border-border bg-card',
   rare: 'border-rarity-rare/25 bg-card game-tile--rare',
-  epic: 'border-rarity-epic/25 bg-card game-tile--epic',
-  mythic: 'border-rarity-mythic/30 bg-card game-tile--mythic',
+  uncommon: 'border-rarity-uncommon/25 bg-card',
+  very_rare: 'border-rarity-very-rare/30 bg-card game-tile--rare',
+  ultra_rare: 'border-rarity-silver/25 bg-card game-tile--silver',
+  illustration_rare: 'border-rarity-gold/30 bg-card game-tile--gold',
+  special_rare: 'border-rarity-gold/30 bg-card game-tile--gold',
+  hyper_rare: 'border-rarity-gold/40 bg-card game-tile--gold',
 };
 
 interface Props {

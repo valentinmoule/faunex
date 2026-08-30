@@ -10,15 +10,21 @@ interface RadarAnimal {
 const rarityColor: Record<string, string> = {
   common: 'hsl(0, 0%, 60%)',
   rare: 'hsl(210, 70%, 55%)',
-  epic: 'hsl(270, 70%, 60%)',
-  mythic: 'hsl(42, 85%, 55%)',
+  uncommon: 'hsl(222, 12%, 38%)',
+  very_rare: 'hsl(230, 20%, 16%)',
+  ultra_rare: 'hsl(220, 18%, 62%)',
+  illustration_rare: 'hsl(43, 92%, 55%)',
+  special_rare: 'hsl(40, 95%, 50%)',
+  hyper_rare: 'hsl(36, 98%, 46%)',
 };
 
 const rarityPulse: Record<string, string> = {
   common: '',
   rare: 'radar-dot-pulse-rare',
-  epic: 'radar-dot-pulse-epic',
-  mythic: 'radar-dot-pulse-mythic',
+  ultra_rare: 'radar-dot-pulse-silver',
+  illustration_rare: 'radar-dot-pulse-gold',
+  special_rare: 'radar-dot-pulse-gold',
+  hyper_rare: 'radar-dot-pulse-gold',
 };
 
 // Generate a pseudo-random but stable angle/distance from animal name

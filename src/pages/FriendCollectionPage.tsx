@@ -30,8 +30,8 @@ const BADGE_DEFS: BadgeDef[] = [
   { id: 'birds_5', name: 'Ornithologue', icon: '🐦', description: 'Capturer 5 oiseaux', total: 5 },
   { id: 'mammals_5', name: 'Mammalogiste', icon: '🦊', description: 'Capturer 5 mammifères', total: 5 },
   { id: 'rare_1', name: 'Chasseur rare', icon: '💎', description: 'Trouver un animal rare ou mieux', total: 1 },
-  { id: 'legendary_1', name: 'Légende vivante', icon: '⭐', description: 'Trouver un animal épique', total: 1 },
-  { id: 'mythic_1', name: 'Mythique !', icon: '🔥', description: 'Trouver un animal mythique', total: 1 },
+  { id: 'legendary_1', name: 'Éclat argenté', icon: '⭐', description: 'Trouver une espèce ultra rare', total: 1 },
+  { id: 'mythic_1', name: 'Étoile dorée !', icon: '🔥', description: 'Trouver une espèce de rareté or', total: 1 },
   { id: 'social_3', name: 'Sociable', icon: '🤝', description: 'Suivre 3 explorateurs', total: 3 },
   { id: 'level_5', name: 'Niveau 5', icon: '🏅', description: 'Atteindre le niveau 5', total: 5 },
 ];
@@ -42,7 +42,7 @@ interface BadgeProgress {
   earned: boolean;
 }
 
-const rarityFilters: (Rarity | 'all')[] = ['all', 'common', 'rare', 'epic', 'mythic'];
+const rarityFilters: (Rarity | 'all')[] = ['all', ...RARITY_ORDER];
 
 interface FollowProfile {
   user_id: string;
@@ -140,9 +140,9 @@ const FriendCollectionPage = () => {
       const totalCaptures = rawCaptures.length;
       const birdCount = rawCaptures.filter((c: any) => c.category?.toLowerCase().includes('oiseau')).length;
       const mammalCount = rawCaptures.filter((c: any) => c.category?.toLowerCase().includes('mammif')).length;
-      const hasRare = rawCaptures.some((c: any) => ['rare', 'epic', 'mythic'].includes(c.rarity));
-      const hasLegendary = rawCaptures.some((c: any) => ['epic', 'mythic'].includes(c.rarity));
-      const hasMythic = rawCaptures.some((c: any) => c.rarity === 'mythic');
+      const hasRare = rawCaptures.some((c: any) => (RARITY_RANK[normalizeRarity(c.rarity)] ?? 0) >= 2);
+      const hasLegendary = rawCaptures.some((c: any) => RARITY_FX[normalizeRarity(c.rarity)] === 'silver');
+      const hasMythic = rawCaptures.some((c: any) => RARITY_FX[normalizeRarity(c.rarity)] === 'gold');
       const level = profileRes.data?.level || 1;
       const followCount = followingCountRes.count || 0;
 
@@ -318,23 +318,22 @@ const FriendCollectionPage = () => {
         <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-2">
           {rarityFilters.map((r) => {
             const isActive = filter === r;
+            const fx = r === 'all' ? null : RARITY_FX[r as Rarity];
             const colorClasses = r === 'all'
               ? isActive ? 'bg-foreground text-background border-foreground shadow-md' : 'bg-muted text-muted-foreground border-border hover:bg-muted/80'
-              : r === 'common'
-              ? isActive ? 'bg-rarity-common/20 text-rarity-common border-rarity-common/50 shadow-[0_0_10px_hsla(0,0%,60%,0.2)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-common/10 hover:text-rarity-common hover:border-rarity-common/30'
-              : r === 'rare'
-              ? isActive ? 'bg-rarity-rare/20 text-rarity-rare border-rarity-rare/50 shadow-[0_0_12px_hsla(210,70%,55%,0.25)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-rare/10 hover:text-rarity-rare hover:border-rarity-rare/30'
-              : r === 'epic'
-              ? isActive ? 'bg-rarity-epic/20 text-rarity-epic border-rarity-epic/50 shadow-[0_0_14px_hsla(270,70%,60%,0.3)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-epic/10 hover:text-rarity-epic hover:border-rarity-epic/30'
-              : isActive ? 'bg-rarity-mythic/20 text-rarity-mythic border-rarity-mythic/50 shadow-[0_0_16px_hsla(42,85%,55%,0.35)]' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-mythic/10 hover:text-rarity-mythic hover:border-rarity-mythic/30';
+              : fx === 'gold'
+              ? isActive ? 'bg-rarity-gold/20 text-rarity-gold border-rarity-gold/50' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-gold/10 hover:text-rarity-gold hover:border-rarity-gold/30'
+              : fx === 'silver'
+              ? isActive ? 'bg-rarity-silver/20 text-rarity-silver border-rarity-silver/50' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-silver/10 hover:text-rarity-silver hover:border-rarity-silver/30'
+              : isActive ? 'bg-foreground/10 text-foreground border-foreground/30' : 'bg-muted text-muted-foreground border-border hover:bg-foreground/5 hover:text-foreground hover:border-foreground/20';
 
-            const dot = r === 'common' ? 'bg-rarity-common' : r === 'rare' ? 'bg-rarity-rare' : r === 'epic' ? 'bg-rarity-epic' : r === 'mythic' ? 'bg-rarity-mythic' : '';
+            const dot = r === 'all' ? '' : fx === 'gold' ? 'bg-rarity-gold' : fx === 'silver' ? 'bg-rarity-silver' : 'bg-foreground/50';
 
             return (
               <button
                 key={r}
                 onClick={() => setFilter(r)}
-                className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-display font-bold border transition-all duration-300 flex items-center gap-1 active:scale-95 ${colorClasses} ${isActive && r !== 'all' ? 'bestiary-filter-glow' : ''} ${r === 'mythic' ? 'mythic-filter-shimmer' : ''}`}
+                className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-display font-bold border transition-all duration-300 flex items-center gap-1 active:scale-95 ${colorClasses} ${isActive && r !== 'all' ? 'bestiary-filter-glow' : ''} ${fx === 'gold' ? 'gold-filter-shimmer' : ''}`}
               >
                 {r !== 'all' && <span className={`w-1.5 h-1.5 rounded-full ${dot} ${isActive ? 'animate-pulse' : ''}`} />}
                 {r === 'all' ? 'Tous' : RARITY_LABELS[r]}
@@ -385,19 +384,19 @@ const FriendCollectionPage = () => {
                 {filter !== 'all' && captures.length > 0 ? (
                   <>
                     <p className="text-4xl mb-3">
-                      {filter === 'common' ? '🌿' : filter === 'rare' ? '💎' : filter === 'epic' ? '⚡' : '✨'}
+                      {RARITY_FX[filter as Rarity] === 'gold' ? '✨' : RARITY_FX[filter as Rarity] === 'silver' ? '⚡' : (RARITY_RANK[filter as Rarity] ?? 0) >= 2 ? '💎' : '🌿'}
                     </p>
                     <p className="text-foreground font-display font-semibold text-sm mb-2">
                       Aucune espèce {RARITY_LABELS[filter].toLowerCase()} capturée
                     </p>
                     <p className="text-muted-foreground text-xs leading-relaxed">
-                      {filter === 'common'
-                        ? 'Les espèces communes sont les plus fréquentes. Elles sont faciles à trouver et idéales pour débuter sa collection.'
-                        : filter === 'rare'
-                        ? 'Les espèces rares sont plus difficiles à croiser. Elles se cachent dans des habitats spécifiques et demandent de l\'exploration.'
-                        : filter === 'epic'
-                        ? 'Les espèces épiques sont exceptionnelles. Très peu d\'explorateurs parviennent à les capturer — un vrai trophée !'
-                        : 'Les espèces mythiques sont légendaires. Extrêmement rares, elles représentent le graal de tout explorateur Faunex.'}
+                      {RARITY_FX[filter as Rarity] === 'gold'
+                        ? 'Les espèces à étoiles dorées sont les plus prestigieuses du jeu — le graal de tout explorateur Faunex.'
+                        : RARITY_FX[filter as Rarity] === 'silver'
+                        ? 'Les espèces ultra rares brillent d\'un éclat argenté. Très peu d\'explorateurs parviennent à les capturer !'
+                        : (RARITY_RANK[filter as Rarity] ?? 0) >= 2
+                        ? 'Ces espèces se cachent dans des habitats spécifiques et demandent de l\'exploration.'
+                        : 'Ces espèces sont fréquentes et idéales pour enrichir sa collection.'}
                     </p>
                   </>
                 ) : (

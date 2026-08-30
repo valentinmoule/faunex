@@ -163,7 +163,7 @@ const NEVER_EMBLEMATIC = [
 /** Fiches de stades juvéniles : ce ne sont pas des espèces présentables en collection. */
 const LIFE_STAGE_PREFIXES = ['nymphe', 'larve', 'chenille', 'juvenile', 'oeuf', 'tetard', 'chrysalide'];
 
-const RARITY_WEIGHT: Record<string, number> = { mythic: 0, epic: 1, rare: 2, common: 3 };
+const RARITY_WEIGHT: Record<string, number> = { hyper_rare: 0, special_rare: 1, illustration_rare: 2, ultra_rare: 3, very_rare: 4, rare: 5, uncommon: 6, common: 7 };
 
 
 export interface EmblematicCandidate {

@@ -6,7 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { fetchAllRows } from '@/lib/fetchAll';
 import { useAuth } from '@/contexts/AuthContext';
-import { type Rarity, RARITY_LABELS } from '@/data/mockData';
+import { type Rarity, RARITY_LABELS, RARITY_ORDER, RARITY_FX, RARITY_RANK, normalizeRarity } from '@/data/mockData';
 import AnimalCardComponent from '@/components/AnimalCardComponent';
 import CardDetailSheet from '@/components/CardDetailSheet';
 import NearbyAnimalsSection from '@/components/NearbyAnimalsSection';
@@ -32,7 +32,7 @@ interface QuestSummary {
   claimable: number;
 }
 
-const RARITY_ORDER: Rarity[] = ['mythic', 'epic', 'rare', 'common'];
+const RARITY_ORDER_DESC: Rarity[] = [...RARITY_ORDER].reverse();
 
 const BADGE_DEFS = [
   { id: 'first_capture', total: 1, type: 'captures' as const },
@@ -42,8 +42,8 @@ const BADGE_DEFS = [
   { id: 'birds_5', total: 5, type: 'birds' as const },
   { id: 'mammals_5', total: 5, type: 'mammals' as const },
   { id: 'rare_1', total: 1, type: 'rare' as const },
-  { id: 'legendary_1', total: 1, type: 'epic' as const },
-  { id: 'mythic_1', total: 1, type: 'mythic' as const },
+  { id: 'legendary_1', total: 1, type: 'silver' as const },
+  { id: 'mythic_1', total: 1, type: 'gold' as const },
   { id: 'social_3', total: 3, type: 'follows' as const },
   { id: 'level_5', total: 5, type: 'level' as const },
 ];
@@ -61,9 +61,9 @@ async function checkBadgeNotifications(uid: string, captures: any[], profile: an
   const total = captures.length;
   const birds = captures.filter(c => c.category?.toLowerCase().includes('oiseau')).length;
   const mammals = captures.filter(c => c.category?.toLowerCase().includes('mammif')).length;
-  const hasRare = captures.some(c => ['rare', 'epic', 'mythic'].includes(c.rarity));
-  const hasEpic = captures.some(c => ['epic', 'mythic'].includes(c.rarity));
-  const hasMythic = captures.some(c => c.rarity === 'mythic');
+  const hasRare = captures.some(c => (RARITY_RANK[normalizeRarity(c.rarity)] ?? 0) >= 2);
+  const hasSilver = captures.some(c => RARITY_FX[normalizeRarity(c.rarity)] === 'silver');
+  const hasGold = captures.some(c => RARITY_FX[normalizeRarity(c.rarity)] === 'gold');
   const level = profile.level || 0;
 
   const earned = (b: typeof BADGE_DEFS[number]) => {
@@ -72,8 +72,8 @@ async function checkBadgeNotifications(uid: string, captures: any[], profile: an
       case 'birds': return birds >= b.total;
       case 'mammals': return mammals >= b.total;
       case 'rare': return hasRare;
-      case 'epic': return hasEpic;
-      case 'mythic': return hasMythic;
+      case 'silver': return hasSilver;
+      case 'gold': return hasGold;
       case 'follows': return followsCount >= b.total;
       case 'level': return level >= b.total;
     }
@@ -135,7 +135,7 @@ const Index = () => {
         setAllCapturedNames(cards.map(c => c.name));
 
         const counts: Record<string, number> = {};
-        cards.forEach((c) => { counts[c.rarity] = (counts[c.rarity] || 0) + 1; });
+        cards.forEach((c) => { const r = normalizeRarity(c.rarity); counts[r] = (counts[r] || 0) + 1; });
         setRarityCounts(counts);
       }
 
@@ -323,12 +323,19 @@ const Index = () => {
 
         {/* Progression personnelle */}
         {allCaptures.length > 0 && (() => {
-          const rarityTiles: { key: Rarity; label: string; dot: string; ring: string }[] = [
-            { key: 'common', label: 'Commun', dot: 'bg-rarity-common', ring: 'border-rarity-common/30' },
-            { key: 'rare', label: 'Rare', dot: 'bg-rarity-rare', ring: 'border-rarity-rare/30' },
-            { key: 'epic', label: 'Épique', dot: 'bg-rarity-epic', ring: 'border-rarity-epic/30' },
-            { key: 'mythic', label: 'Mythique', dot: 'bg-rarity-mythic', ring: 'border-rarity-mythic/30' },
+          // Tuiles par famille de rareté : encre (4 paliers), argent, or (3 paliers)
+          const inkCount = (rarityCounts.common || 0) + (rarityCounts.uncommon || 0)
+            + (rarityCounts.rare || 0) + (rarityCounts.very_rare || 0);
+          const silverCount = rarityCounts.ultra_rare || 0;
+          const goldCount = (rarityCounts.illustration_rare || 0) + (rarityCounts.special_rare || 0)
+            + (rarityCounts.hyper_rare || 0);
+          const rarityTiles: { key: string; label: string; dot: string; ring: string; count: number }[] = [
+            { key: 'common', label: 'Communes', dot: 'bg-rarity-common', ring: 'border-rarity-common/30', count: (rarityCounts.common || 0) + (rarityCounts.uncommon || 0) },
+            { key: 'rare', label: 'Rares', dot: 'bg-rarity-rare', ring: 'border-rarity-rare/30', count: (rarityCounts.rare || 0) + (rarityCounts.very_rare || 0) },
+            { key: 'silver', label: 'Argent', dot: 'bg-rarity-silver', ring: 'border-rarity-silver/30', count: silverCount },
+            { key: 'gold', label: 'Or', dot: 'bg-rarity-gold', ring: 'border-rarity-gold/30', count: goldCount },
           ];
+          void inkCount;
 
           // Categories breakdown (top 3)
           const catMap: Record<string, number> = {};
@@ -344,9 +351,9 @@ const Index = () => {
               case 'captures': return Math.min(total, b.total);
               case 'birds': return Math.min(birds, b.total);
               case 'mammals': return Math.min(mammals, b.total);
-              case 'rare': return rarityCounts.rare || rarityCounts.epic || rarityCounts.mythic ? 1 : 0;
-              case 'epic': return rarityCounts.epic || rarityCounts.mythic ? 1 : 0;
-              case 'mythic': return rarityCounts.mythic ? 1 : 0;
+              case 'rare': return (rarityCounts.rare || 0) + (rarityCounts.very_rare || 0) + (rarityCounts.ultra_rare || 0) + (rarityCounts.illustration_rare || 0) + (rarityCounts.special_rare || 0) + (rarityCounts.hyper_rare || 0) ? 1 : 0;
+              case 'silver': return rarityCounts.ultra_rare ? 1 : 0;
+              case 'gold': return (rarityCounts.illustration_rare || rarityCounts.special_rare || rarityCounts.hyper_rare) ? 1 : 0;
               case 'level': return Math.min(profile.level, b.total);
               default: return 0;
             }
@@ -354,7 +361,7 @@ const Index = () => {
           const BADGE_LABELS: Record<string, string> = {
             first_capture: 'Première capture', explorer_10: 'Explorateur · 10', explorer_25: 'Explorateur · 25',
             explorer_50: 'Explorateur · 50', birds_5: 'Ornithologue', mammals_5: 'Mammalogiste',
-            rare_1: 'Première rare', legendary_1: 'Première épique', mythic_1: 'Première mythique',
+            rare_1: 'Première rare', legendary_1: 'Première ultra rare', mythic_1: 'Première étoile dorée',
             social_3: 'Sociable', level_5: 'Niveau 5',
           };
           const nextBadges = BADGE_DEFS
@@ -375,7 +382,7 @@ const Index = () => {
                 {rarityTiles.map(t => (
                   <div key={t.key} className={`relative p-2.5 rounded-xl border ${t.ring} bg-card/60 flex flex-col items-center gap-1`}>
                     <span className={`w-2 h-2 rounded-full ${t.dot}`} />
-                    <span className="text-lg font-display font-black text-foreground tabular-nums leading-none">{rarityCounts[t.key] || 0}</span>
+                    <span className="text-lg font-display font-black text-foreground tabular-nums leading-none">{t.count}</span>
                     <span className="text-[9px] font-display text-muted-foreground uppercase tracking-wide">{t.label}</span>
                   </div>
                 ))}

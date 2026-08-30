@@ -1,3 +1,4 @@
+import { RARITY_ORDER } from '@/data/mockData';
 /**
  * Espèces emblématiques par territoire.
  *
@@ -163,7 +164,10 @@ const NEVER_EMBLEMATIC = [
 /** Fiches de stades juvéniles : ce ne sont pas des espèces présentables en collection. */
 const LIFE_STAGE_PREFIXES = ['nymphe', 'larve', 'chenille', 'juvenile', 'oeuf', 'tetard', 'chrysalide'];
 
-const RARITY_WEIGHT: Record<string, number> = { mythic: 0, epic: 1, rare: 2, common: 3 };
+// Plus la rareté est haute, plus le poids est faible (triée en premier).
+const RARITY_WEIGHT: Record<string, number> = Object.fromEntries(
+  RARITY_ORDER.map((r, i) => [r, RARITY_ORDER.length - 1 - i]),
+);
 
 
 export interface EmblematicCandidate {

@@ -79,10 +79,10 @@ export const STATIC_BADGES: BadgeDef[] = [
   // ---- Rareté ----
   { id: 'rare_1', name: 'Chasseur rare', icon: '💎', description: 'Trouver un animal rare ou mieux', total: 1, group: 'rarete', xp: 150 },
   { id: 'rare_10', name: 'Traqueur de raretés', icon: '🔎', description: 'Trouver 10 animaux rares ou mieux', total: 10, group: 'rarete', xp: 400 },
-  { id: 'legendary_1', name: 'Légende vivante', icon: '⭐', description: 'Trouver un animal épique', total: 1, group: 'rarete', xp: 300 },
-  { id: 'legendary_5', name: 'Collection épique', icon: '🌟', description: 'Trouver 5 animaux épiques', total: 5, group: 'rarete', xp: 600 },
-  { id: 'mythic_1', name: 'Mythique !', icon: '🔥', description: 'Trouver un animal mythique', total: 1, group: 'rarete', xp: 500 },
-  { id: 'mythic_3', name: 'Panthéon mythique', icon: '🐉', description: 'Trouver 3 animaux mythiques', total: 3, group: 'rarete', xp: 1000 },
+  { id: 'legendary_1', name: 'Éclat argenté', icon: '⭐', description: 'Trouver une espèce ultra rare', total: 1, group: 'rarete', xp: 300 },
+  { id: 'legendary_5', name: 'Collection argent', icon: '🌟', description: 'Trouver 5 espèces ultra rares', total: 5, group: 'rarete', xp: 600 },
+  { id: 'mythic_1', name: 'Étoile dorée !', icon: '🔥', description: 'Trouver une espèce de rareté or', total: 1, group: 'rarete', xp: 500 },
+  { id: 'mythic_3', name: 'Panthéon doré', icon: '🐉', description: 'Trouver 3 espèces de rareté or', total: 3, group: 'rarete', xp: 1000 },
 
   // ---- Classement ----
   { id: 'podium_any', name: 'Sur le podium', icon: '🥉', description: 'Entrer dans le top 3 d’une catégorie', total: 1, group: 'classement', xp: 300 },

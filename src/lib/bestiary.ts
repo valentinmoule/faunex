@@ -135,26 +135,34 @@ export const getSpeciesEmoji = (name: string, category: string): string => {
   return getCategoryEmoji(category);
 };
 
-export const rarityBorderColor: Record<string, string> = {
-  common: 'border-rarity-common/40',
-  rare: 'border-rarity-rare/50',
-  epic: 'border-rarity-epic/50',
-  mythic: 'border-rarity-mythic/50',
+/** Maps par rareté (8 niveaux + alias legacy epic/mythic/legendary). */
+const byFx = <T,>(map: Record<RarityFx, T>): Record<string, T> => {
+  const out: Record<string, T> = {};
+  for (const r of RARITY_ORDER) out[r] = map[RARITY_FX[r]];
+  // Anciennes valeurs (caches, données legacy)
+  out.epic = map.silver;
+  out.legendary = map.silver;
+  out.mythic = map.gold;
+  return out;
 };
 
-export const rarityDot: Record<string, string> = {
-  common: 'bg-rarity-common',
-  rare: 'bg-rarity-rare',
-  epic: 'bg-rarity-epic',
-  mythic: 'bg-rarity-mythic',
-};
+export const rarityBorderColor: Record<string, string> = byFx({
+  ink: 'border-foreground/20',
+  silver: 'border-rarity-silver/50',
+  gold: 'border-rarity-gold/50',
+});
 
-export const rarityBadge: Record<string, string> = {
-  common: 'bg-black/60 text-white backdrop-blur-sm',
-  rare: 'bg-rarity-rare text-white',
-  epic: 'bg-rarity-epic text-white',
-  mythic: 'bg-rarity-mythic text-white',
-};
+export const rarityDot: Record<string, string> = byFx({
+  ink: 'bg-foreground/50',
+  silver: 'bg-rarity-silver',
+  gold: 'bg-rarity-gold',
+});
+
+export const rarityBadge: Record<string, string> = byFx({
+  ink: 'bg-black/60 text-white backdrop-blur-sm',
+  silver: 'bg-rarity-silver text-white',
+  gold: 'bg-rarity-gold text-white',
+});
 
 export const normalizeCategory = (cat: string) => cat.replace(/\s*\(monde\)$/i, '');
 
@@ -259,7 +267,7 @@ export const buildCityAnimalSet = (deptSet: Set<string>, sourceAnimals: Bestiary
       return CITY_ICONIC_KEYWORDS.some((kw) => n.includes(normalizeText(kw)));
     };
     // Prefer commons & rares over epic/mythic when trimming
-    const rank: Record<string, number> = { common: 0, rare: 1, epic: 2, mythic: 3 };
+    const rank: Record<string, number> = RARITY_RANK;
     const trimmed = sourceAnimals
       .filter((a) => selected.has(a.name.toLowerCase()))
       .sort((a, b) => {

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { MapPin, Loader2, RefreshCw, Sparkles, Flame, Zap, ChevronDown } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { type Rarity, RARITY_LABELS } from '@/data/mockData';
+import { type Rarity, RARITY_LABELS, RARITY_FX, normalizeRarity } from '@/data/mockData';
 import { toast } from 'sonner';
 import NearbyRadar from './NearbyRadar';
 
@@ -17,29 +17,45 @@ interface NearbyAnimal {
 const rarityDot: Record<string, string> = {
   common: 'bg-rarity-common',
   rare: 'bg-rarity-rare',
-  epic: 'bg-rarity-epic',
-  mythic: 'bg-rarity-mythic',
+  uncommon: 'bg-rarity-uncommon',
+  very_rare: 'bg-rarity-very-rare',
+  ultra_rare: 'bg-rarity-silver',
+  illustration_rare: 'bg-rarity-gold',
+  special_rare: 'bg-rarity-gold',
+  hyper_rare: 'bg-rarity-gold',
 };
 
 const rarityBadge: Record<string, string> = {
   common: 'bg-rarity-common/15 text-rarity-common',
   rare: 'bg-rarity-rare/15 text-rarity-rare',
-  epic: 'bg-rarity-epic/15 text-rarity-epic',
-  mythic: 'bg-rarity-mythic/15 text-rarity-mythic',
+  uncommon: 'bg-rarity-uncommon/15 text-rarity-uncommon',
+  very_rare: 'bg-rarity-very-rare/15 text-rarity-very-rare',
+  ultra_rare: 'bg-rarity-silver/15 text-rarity-silver',
+  illustration_rare: 'bg-rarity-gold/15 text-rarity-gold',
+  special_rare: 'bg-rarity-gold/15 text-rarity-gold',
+  hyper_rare: 'bg-rarity-gold/15 text-rarity-gold',
 };
 
 const rarityCardBorder: Record<string, string> = {
   common: 'border-transparent',
   rare: 'border-rarity-rare/30',
-  epic: 'border-rarity-epic/40',
-  mythic: 'border-rarity-mythic/50',
+  uncommon: 'border-rarity-uncommon/30',
+  very_rare: 'border-rarity-very-rare/40',
+  ultra_rare: 'border-rarity-silver/40',
+  illustration_rare: 'border-rarity-gold/50',
+  special_rare: 'border-rarity-gold/50',
+  hyper_rare: 'border-rarity-gold/60',
 };
 
 const rarityCardBg: Record<string, string> = {
   common: 'bg-muted/50',
   rare: 'bg-rarity-rare/5',
-  epic: 'bg-rarity-epic/5',
-  mythic: 'bg-rarity-mythic/5',
+  uncommon: 'bg-rarity-uncommon/5',
+  very_rare: 'bg-rarity-very-rare/5',
+  ultra_rare: 'bg-rarity-silver/5',
+  illustration_rare: 'bg-rarity-gold/5',
+  special_rare: 'bg-rarity-gold/5',
+  hyper_rare: 'bg-rarity-gold/5',
 };
 
 interface Props {
@@ -100,8 +116,8 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
             try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ animals: fetched, locationName: loc })); } catch {}
 
             // Find best rare+ animal for surprise alert
-            const special = fetched.find(a => a.rarity === 'mythic')
-              || fetched.find(a => a.rarity === 'epic')
+            const special = fetched.find(a => RARITY_FX[normalizeRarity(a.rarity)] === 'gold')
+              || fetched.find(a => RARITY_FX[normalizeRarity(a.rarity)] === 'silver')
               || fetched.find(a => a.rarity === 'rare');
             if (special) {
               setAlertAnimal(special);
@@ -151,28 +167,35 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
   }
 
   const alertConfig: Record<string, { icon: typeof Sparkles; label: string; color: string; glowClass: string }> = {
-    mythic: { icon: Flame, label: '🔥 Une espèce Mythique est proche !', color: 'text-rarity-mythic', glowClass: 'nearby-alert-mythic' },
-    epic: { icon: Zap, label: '⚡ Espèce Épique détectée près de toi', color: 'text-rarity-epic', glowClass: 'nearby-alert-epic' },
-    rare: { icon: Sparkles, label: '🔹 Espèce Rare repérée dans ta zone', color: 'text-rarity-rare', glowClass: 'nearby-alert-rare' },
+    gold: { icon: Flame, label: '🔥 Une espèce très rare est proche !', color: 'text-rarity-gold', glowClass: 'nearby-alert-gold' },
+    silver: { icon: Zap, label: '⚡ Espèce ultra rare détectée près de toi', color: 'text-rarity-silver', glowClass: 'nearby-alert-silver' },
+    rare: { icon: Sparkles, label: '🔹 Espèce rare repérée dans ta zone', color: 'text-rarity-rare', glowClass: 'nearby-alert-rare' },
+    common: { icon: Sparkles, label: '🔹 Espèce repérée dans ta zone', color: 'text-muted-foreground', glowClass: '' },
   };
+
+  const alertFx = alertAnimal ? RARITY_FX[normalizeRarity(alertAnimal.rarity)] : null;
+  const alertKey = alertFx === 'gold' ? 'gold'
+    : alertFx === 'silver' ? 'silver'
+    : (alertAnimal?.rarity === 'rare' || alertAnimal?.rarity === 'very_rare') ? 'rare'
+    : 'common';
 
   return (
     <div className="mb-4">
       {/* Surprise alert banner */}
-      {alertAnimal && alertConfig[alertAnimal.rarity] && (
+      {alertAnimal && alertConfig[alertKey] && (
         <button
           onClick={() => setAlertAnimal(null)}
-          className={`w-full mb-3 px-4 py-3 rounded-2xl border flex items-center gap-3 transition-all animate-nearby-alert-in ${alertConfig[alertAnimal.rarity].glowClass}
-            ${alertAnimal.rarity === 'mythic' ? 'bg-rarity-mythic/10 border-rarity-mythic/40' :
-              alertAnimal.rarity === 'epic' ? 'bg-rarity-epic/10 border-rarity-epic/40' :
+          className={`w-full mb-3 px-4 py-3 rounded-2xl border flex items-center gap-3 transition-all animate-nearby-alert-in ${alertConfig[alertKey].glowClass}
+            ${alertFx === 'gold' ? 'bg-rarity-gold/10 border-rarity-gold/40' :
+              alertFx === 'silver' ? 'bg-rarity-silver/10 border-rarity-silver/40' :
               'bg-rarity-rare/10 border-rarity-rare/40'}`}
         >
-          <div className={`nearby-alert-icon ${alertConfig[alertAnimal.rarity].color}`}>
-            {(() => { const Icon = alertConfig[alertAnimal.rarity].icon; return <Icon className="w-5 h-5" />; })()}
+          <div className={`nearby-alert-icon ${alertConfig[alertKey].color}`}>
+            {(() => { const Icon = alertConfig[alertKey].icon; return <Icon className="w-5 h-5" />; })()}
           </div>
           <div className="text-left flex-1">
-            <p className={`text-xs font-display font-bold ${alertConfig[alertAnimal.rarity].color}`}>
-              {alertConfig[alertAnimal.rarity].label}
+            <p className={`text-xs font-display font-bold ${alertConfig[alertKey].color}`}>
+              {alertConfig[alertKey].label}
             </p>
             <p className="text-[10px] text-muted-foreground mt-0.5">{alertAnimal.name} — {alertAnimal.tip}</p>
           </div>
@@ -223,7 +246,7 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
             {/* Animal list */}
             {animals.map((animal, i) => {
               const alreadyCaptured = capturedNamesLower.has(animal.name.toLowerCase());
-              const isSpecial = animal.rarity === 'epic' || animal.rarity === 'mythic';
+              const isSpecial = RARITY_FX[normalizeRarity(animal.rarity)] !== 'ink';
               return (
                 <div
                   key={i}

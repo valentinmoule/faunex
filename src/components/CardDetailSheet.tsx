@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef, type ComponentType } from 're
 import { notifyCaptureInteraction } from '@/lib/notifyCaptureInteraction';
 import { Drawer } from 'vaul';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
+import { type AnimalCard, type Rarity, RARITY_LABELS, RARITY_FX, normalizeRarity } from '@/data/mockData';
 import { MapPin, Leaf, UtensilsCrossed, Shield, Sparkles, Heart, MessageCircle, Send, PawPrint, Bird, Fish, Bug, Turtle, Shell, Snail, Waves, Lock, Camera, type LucideIcon } from 'lucide-react';
 import { FrogIcon } from '@/components/icons/FrogIcon';
 import { SpiderIcon } from '@/components/icons/SpiderIcon';
@@ -40,24 +40,36 @@ interface Comment {
 }
 
 const rarityGradients: Record<Rarity, string> = {
-  common: 'from-[hsl(210,5%,55%)] to-[hsl(210,5%,40%)]',
-  rare: 'from-[hsl(210,70%,55%)] to-[hsl(210,70%,38%)]',
-  epic: 'from-[hsl(270,70%,60%)] to-[hsl(270,70%,42%)]',
-  mythic: 'from-[hsl(42,85%,55%)] to-[hsl(38,75%,40%)]',
+  common: 'from-[hsl(220,9%,52%)] to-[hsl(220,9%,38%)]',
+  uncommon: 'from-[hsl(222,12%,44%)] to-[hsl(222,12%,30%)]',
+  rare: 'from-[hsl(225,16%,32%)] to-[hsl(225,16%,20%)]',
+  very_rare: 'from-[hsl(230,20%,20%)] to-[hsl(230,22%,10%)]',
+  ultra_rare: 'from-[hsl(220,20%,72%)] to-[hsl(220,14%,48%)]',
+  illustration_rare: 'from-[hsl(43,90%,60%)] to-[hsl(40,80%,42%)]',
+  special_rare: 'from-[hsl(40,95%,55%)] to-[hsl(36,85%,38%)]',
+  hyper_rare: 'from-[hsl(42,100%,60%)] to-[hsl(30,95%,40%)]',
 };
 
 const rarityBg: Record<Rarity, string> = {
   common: 'bg-rarity-common/15',
+  uncommon: 'bg-rarity-uncommon/15',
   rare: 'bg-rarity-rare/15',
-  epic: 'bg-rarity-epic/15',
-  mythic: 'bg-rarity-mythic/15',
+  very_rare: 'bg-rarity-very-rare/15',
+  ultra_rare: 'bg-rarity-silver/15',
+  illustration_rare: 'bg-rarity-gold/15',
+  special_rare: 'bg-rarity-gold/15',
+  hyper_rare: 'bg-rarity-gold/15',
 };
 
 const rarityText: Record<Rarity, string> = {
   common: 'text-rarity-common',
+  uncommon: 'text-rarity-uncommon',
   rare: 'text-rarity-rare',
-  epic: 'text-rarity-epic',
-  mythic: 'text-rarity-mythic',
+  very_rare: 'text-rarity-very-rare',
+  ultra_rare: 'text-rarity-silver',
+  illustration_rare: 'text-rarity-gold',
+  special_rare: 'text-rarity-gold',
+  hyper_rare: 'text-rarity-gold',
 };
 const getCategoryIcon = (category: string): ComponentType<{ className?: string; strokeWidth?: string | number }> => {
   const cat = category.toLowerCase();
@@ -498,15 +510,16 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
 
 
   const isUncaptured = !card.image || card.id.startsWith('uncaptured-');
-  const isMythic = !isUncaptured && card.rarity === 'mythic';
-  const isEpic = !isUncaptured && card.rarity === 'epic';
-  const isRare = !isUncaptured && card.rarity === 'rare';
-  const isShiny = isEpic || isMythic;
+  const cardFx = RARITY_FX[normalizeRarity(card.rarity)];
+  const isGold = !isUncaptured && cardFx === 'gold';
+  const isSilver = !isUncaptured && cardFx === 'silver';
+  const isRare = !isUncaptured && cardFx === 'ink' && (card.rarity === 'rare' || card.rarity === 'very_rare');
+  const isShiny = isSilver || isGold;
 
-  const detailAppearClass = isMythic
-    ? 'animate-card-appear-mythic'
-    : isEpic
-    ? 'animate-card-appear-epic'
+  const detailAppearClass = isGold
+    ? 'animate-card-appear-gold'
+    : isSilver
+    ? 'animate-card-appear-silver'
     : isRare
     ? 'animate-card-appear-rare'
     : '';
@@ -529,24 +542,24 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
           <div className={`relative overflow-hidden detail-hero-${card.rarity}`} style={{ zIndex: 0 }}>
             
             {/* Mythic: blurred aurora orbs + light leak */}
-            {isMythic && (
+            {isGold && (
               <>
-                <div className="detail-mythic-orb-1 pointer-events-none" />
-                <div className="detail-mythic-orb-2 pointer-events-none" />
-                <div className="detail-mythic-orb-3 pointer-events-none" />
-                <div className="detail-mythic-vignette pointer-events-none" />
-                <div className="detail-mythic-leak" />
-                <div className="detail-mythic-geo" />
+                <div className="detail-gold-orb-1 pointer-events-none" />
+                <div className="detail-gold-orb-2 pointer-events-none" />
+                <div className="detail-gold-orb-3 pointer-events-none" />
+                <div className="detail-gold-vignette pointer-events-none" />
+                <div className="detail-gold-leak" />
+                <div className="detail-gold-geo" />
               </>
             )}
-            {isEpic && (
+            {isSilver && (
               <>
-                <div className="detail-epic-orb-1 pointer-events-none" />
-                <div className="detail-epic-orb-2 pointer-events-none" />
-                <div className="detail-epic-orb-3 pointer-events-none" />
-                <div className="detail-epic-vignette pointer-events-none" />
-                <div className="detail-epic-leak" />
-                <div className="detail-epic-geo" />
+                <div className="detail-silver-orb-1 pointer-events-none" />
+                <div className="detail-silver-orb-2 pointer-events-none" />
+                <div className="detail-silver-orb-3 pointer-events-none" />
+                <div className="detail-silver-vignette pointer-events-none" />
+                <div className="detail-silver-leak" />
+                <div className="detail-silver-geo" />
               </>
             )}
             {isRare && (
@@ -598,8 +611,8 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                       })()
                     )}
                     {/* Glass shimmer overlay on image */}
-                    {card.image && isMythic && <div className="detail-mythic-glass" />}
-                    {card.image && isEpic && <div className="detail-epic-glass" />}
+                    {card.image && isGold && <div className="detail-gold-glass" />}
+                    {card.image && isSilver && <div className="detail-silver-glass" />}
                     {card.image && isRare && <div className="detail-rare-glass" />}
                     {/* Name overlay bottom-left */}
                     <div className="absolute bottom-0 left-0 right-0 pointer-events-none p-3 pr-4 pt-10 bg-gradient-to-t from-black/75 via-black/35 to-transparent">
@@ -821,13 +834,13 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
 
 
             {/* Fun Fact */}
-            <div className={`relative overflow-hidden rounded-2xl border ${isMythic ? 'border-rarity-mythic/30 bg-rarity-mythic/5' : isEpic ? 'border-rarity-epic/30 bg-rarity-epic/5' : 'border-border bg-muted/30'} ${isUncaptured ? 'opacity-70' : ''}`}>
+            <div className={`relative overflow-hidden rounded-2xl border ${isGold ? 'border-rarity-gold/30 bg-rarity-gold/5' : isSilver ? 'border-rarity-silver/30 bg-rarity-silver/5' : 'border-border bg-muted/30'} ${isUncaptured ? 'opacity-70' : ''}`}>
               <div className="px-4 py-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${isMythic ? 'bg-rarity-mythic/15' : 'bg-primary/15'}`}>
-                    <Sparkles className={`w-4 h-4 ${isMythic ? 'text-rarity-mythic' : 'text-primary'}`} />
+                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${isGold ? 'bg-rarity-gold/15' : 'bg-primary/15'}`}>
+                    <Sparkles className={`w-4 h-4 ${isGold ? 'text-rarity-gold' : 'text-primary'}`} />
                   </div>
-                  <p className={`text-xs font-display font-bold uppercase tracking-wider ${isMythic ? 'text-rarity-mythic' : 'text-muted-foreground'}`}>
+                  <p className={`text-xs font-display font-bold uppercase tracking-wider ${isGold ? 'text-rarity-gold' : 'text-muted-foreground'}`}>
                     Le saviez-vous ?
                   </p>
                 </div>
@@ -968,8 +981,8 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                         className="w-full h-full object-cover pointer-events-none select-none"
                         draggable={false}
                       />
-                      {isMythic && <div className="detail-mythic-glass detail-glass--fullscreen" />}
-                      {isEpic && <div className="detail-epic-glass detail-glass--fullscreen" />}
+                      {isGold && <div className="detail-gold-glass detail-glass--fullscreen" />}
+                      {isSilver && <div className="detail-silver-glass detail-glass--fullscreen" />}
                       {isRare && <div className="detail-rare-glass detail-glass--fullscreen" />}
                     </div>
                     {/* Name overlay bottom-left */}

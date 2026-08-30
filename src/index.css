@@ -48,11 +48,18 @@
     --earth: 25 24% 40%;
     --sky: 205 88% 55%;
 
-    /* Rarity colors — 4 tiers */
-    --rarity-common: 210 10% 58%;
-    --rarity-rare: 208 88% 55%;
-    --rarity-epic: 268 78% 60%;
-    --rarity-mythic: 40 92% 54%;
+    /* Rarity colors — 8 tiers (style cartes Pokémon) */
+    --rarity-common: 220 9% 46%;
+    --rarity-uncommon: 222 12% 38%;
+    --rarity-rare: 225 16% 28%;
+    --rarity-very-rare: 230 20% 16%;
+    --rarity-ultra-rare: 220 18% 62%;
+    --rarity-illustration-rare: 43 92% 55%;
+    --rarity-special-rare: 40 95% 50%;
+    --rarity-hyper-rare: 36 98% 46%;
+    /* Familles d'effets holo */
+    --rarity-silver: 220 18% 62%;
+    --rarity-gold: 40 95% 50%;
 
     /* Gradients */
     --gradient-forest: linear-gradient(135deg, hsl(150 62% 44%), hsl(160 66% 28%));
@@ -212,7 +219,7 @@
 }
 
 /* Epic card entrance — dramatic scale + purple pulse */
-@keyframes card-appear-epic {
+@keyframes card-appear-silver {
   0% { opacity: 0; transform: scale(0.5) rotate(-3deg); filter: brightness(0.8); }
   30% { opacity: 1; transform: scale(1.12) rotate(1deg); filter: brightness(1.4); }
   50% { transform: scale(0.95) rotate(-0.5deg); filter: brightness(1.2); }
@@ -220,8 +227,8 @@
   100% { opacity: 1; transform: scale(1) rotate(0); filter: brightness(1); }
 }
 
-/* Mythic card entrance — epic slam with golden flash */
-@keyframes card-appear-mythic {
+/* Mythic card entrance — silver slam with golden flash */
+@keyframes card-appear-gold {
   0% { opacity: 0; transform: scale(0.3) rotateY(180deg); filter: brightness(0.5) saturate(0); }
   25% { opacity: 1; transform: scale(1.15) rotateY(0deg); filter: brightness(2) saturate(1.5); }
   40% { transform: scale(0.9) rotateY(-5deg); filter: brightness(1.3) saturate(1.2); }
@@ -305,12 +312,12 @@
 /* ─────────────────────────────────────
    EPIC — Prismatic purple/pink holo
    ───────────────────────────────────── */
-@keyframes epic-glow {
+@keyframes silver-glow {
   0%, 100% { box-shadow: 0 0 12px hsla(270, 70%, 60%, 0.35), 0 0 35px hsla(270, 70%, 60%, 0.12); }
   50% { box-shadow: 0 0 25px hsla(270, 70%, 60%, 0.55), 0 0 55px hsla(270, 70%, 60%, 0.2); }
 }
 
-@keyframes epic-prism-shift {
+@keyframes silver-prism-shift {
   0% { background-position: 0% 50%; opacity: 0.4; }
   25% { opacity: 0.6; }
   50% { background-position: 100% 50%; opacity: 0.4; }
@@ -318,16 +325,16 @@
   100% { background-position: 0% 50%; opacity: 0.4; }
 }
 
-@keyframes epic-shine-sweep {
+@keyframes silver-shine-sweep {
   0% { transform: translateX(-150%) rotate(20deg); }
   100% { transform: translateX(150%) rotate(20deg); }
 }
 
-.rarity-epic-glow {
-  animation: epic-glow 3s ease-in-out infinite;
+.rarity-silver-glow {
+  animation: silver-glow 3s ease-in-out infinite;
 }
 
-.epic-image-overlay {
+.silver-image-overlay {
   position: absolute;
   inset: 0;
   z-index: 2;
@@ -342,19 +349,19 @@
     hsla(320, 70%, 60%, 0.15) 100%
   );
   background-size: 300% 300%;
-  animation: epic-prism-shift 5s ease-in-out infinite;
+  animation: silver-prism-shift 5s ease-in-out infinite;
   mix-blend-mode: color-dodge;
 }
 
 /* Epic prismatic shine bar */
-.epic-shine-bar {
+.silver-shine-bar {
   position: absolute;
   inset: 0;
   z-index: 3;
   pointer-events: none;
   overflow: hidden;
 }
-.epic-shine-bar::after {
+.silver-shine-bar::after {
   content: '';
   position: absolute;
   top: -60%;
@@ -369,51 +376,51 @@
     hsla(250, 80%, 85%, 0.3),
     transparent
   );
-  animation: epic-shine-sweep 4s ease-in-out infinite;
+  animation: silver-shine-sweep 4s ease-in-out infinite;
 }
 
 /* Epic sparkle dots */
-.epic-sparkles {
+.silver-sparkles {
   position: absolute;
   inset: 0;
   z-index: 3;
   pointer-events: none;
   overflow: hidden;
 }
-.epic-sparkles span {
+.silver-sparkles span {
   position: absolute;
   width: 3px;
   height: 3px;
   border-radius: 50%;
   background: hsla(270, 80%, 85%, 0.9);
   box-shadow: 0 0 4px 1px hsla(270, 80%, 75%, 0.5);
-  animation: mythic-sparkle 2.5s ease-in-out infinite;
+  animation: gold-sparkle 2.5s ease-in-out infinite;
 }
-.epic-sparkles span:nth-child(1) { top: 20%; left: 15%; animation-delay: 0s; }
-.epic-sparkles span:nth-child(2) { top: 40%; left: 80%; animation-delay: 0.6s; }
-.epic-sparkles span:nth-child(3) { top: 70%; left: 35%; animation-delay: 1.2s; }
-.epic-sparkles span:nth-child(4) { top: 85%; left: 70%; animation-delay: 0.9s; }
+.silver-sparkles span:nth-child(1) { top: 20%; left: 15%; animation-delay: 0s; }
+.silver-sparkles span:nth-child(2) { top: 40%; left: 80%; animation-delay: 0.6s; }
+.silver-sparkles span:nth-child(3) { top: 70%; left: 35%; animation-delay: 1.2s; }
+.silver-sparkles span:nth-child(4) { top: 85%; left: 70%; animation-delay: 0.9s; }
 
 /* ─────────────────────────────────────
    MYTHIC — Full golden holographic
    ───────────────────────────────────── */
-@keyframes mythic-sweep {
+@keyframes gold-sweep {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
-@keyframes mythic-sparkle {
+@keyframes gold-sparkle {
   0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
   50% { opacity: 1; transform: scale(1) rotate(180deg); }
 }
 
-@keyframes mythic-glow-pulse {
+@keyframes gold-glow-pulse {
   0%, 100% { box-shadow: 0 0 15px hsla(42, 85%, 55%, 0.4), 0 0 40px hsla(42, 85%, 55%, 0.15), 0 0 60px hsla(42, 85%, 55%, 0.08); }
   33% { box-shadow: 0 0 25px hsla(38, 80%, 50%, 0.55), 0 0 55px hsla(42, 85%, 55%, 0.25), 0 0 80px hsla(42, 85%, 55%, 0.12); }
   66% { box-shadow: 0 0 20px hsla(48, 85%, 55%, 0.45), 0 0 45px hsla(42, 85%, 55%, 0.2), 0 0 70px hsla(42, 85%, 55%, 0.1); }
 }
 
-@keyframes mythic-holo-rainbow {
+@keyframes gold-holo-rainbow {
   0% { background-position: 0% 0%; filter: hue-rotate(0deg) brightness(1.1); }
   25% { filter: hue-rotate(20deg) brightness(1.2); }
   50% { background-position: 100% 100%; filter: hue-rotate(0deg) brightness(1.1); }
@@ -421,14 +428,14 @@
   100% { background-position: 0% 0%; filter: hue-rotate(0deg) brightness(1.1); }
 }
 
-@keyframes mythic-shine-sweep {
+@keyframes gold-shine-sweep {
   0% { transform: translateX(-180%) rotate(15deg); opacity: 0; }
   10% { opacity: 1; }
   90% { opacity: 1; }
   100% { transform: translateX(180%) rotate(15deg); opacity: 0; }
 }
 
-@keyframes mythic-star-pulse {
+@keyframes gold-star-pulse {
   0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
   20% { opacity: 1; transform: scale(1.2) rotate(90deg); }
   40% { opacity: 0.8; transform: scale(0.8) rotate(180deg); }
@@ -436,14 +443,14 @@
   80% { opacity: 0.5; transform: scale(0.6) rotate(360deg); }
 }
 
-.mythic-shiny {
+.gold-shiny {
   position: relative;
   overflow: hidden;
-  animation: mythic-glow-pulse 4s ease-in-out infinite;
+  animation: gold-glow-pulse 4s ease-in-out infinite;
 }
 
 /* Rotating conic gold sweep */
-.mythic-shiny::before {
+.gold-shiny::before {
   content: '';
   position: absolute;
   inset: -50%;
@@ -456,13 +463,13 @@
     hsla(35, 85%, 55%, 0.2),
     hsla(42, 90%, 60%, 0.35)
   );
-  animation: mythic-sweep 6s linear infinite;
+  animation: gold-sweep 6s linear infinite;
   pointer-events: none;
   mix-blend-mode: overlay;
 }
 
 /* Radial golden light spots */
-.mythic-shiny::after {
+.gold-shiny::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -472,11 +479,11 @@
     radial-gradient(circle at 75% 85%, hsla(42, 90%, 80%, 0.25) 0%, transparent 30%),
     radial-gradient(circle at 60% 30%, hsla(48, 90%, 85%, 0.2) 0%, transparent 25%);
   pointer-events: none;
-  animation: mythic-holo-rainbow 5s ease-in-out infinite;
+  animation: gold-holo-rainbow 5s ease-in-out infinite;
 }
 
-/* Sparkle dots on mythic cards */
-.mythic-sparkles {
+/* Sparkle dots on gold cards */
+.gold-sparkles {
   position: absolute;
   inset: 0;
   z-index: 4;
@@ -484,27 +491,27 @@
   overflow: hidden;
 }
 
-.mythic-sparkles span {
+.gold-sparkles span {
   position: absolute;
   width: 5px;
   height: 5px;
   border-radius: 50%;
   background: hsla(42, 90%, 85%, 0.95);
   box-shadow: 0 0 8px 3px hsla(42, 90%, 70%, 0.6), 0 0 15px 5px hsla(42, 90%, 60%, 0.3);
-  animation: mythic-star-pulse 2.5s ease-in-out infinite;
+  animation: gold-star-pulse 2.5s ease-in-out infinite;
 }
 
-.mythic-sparkles span:nth-child(1) { top: 12%; left: 18%; animation-delay: 0s; }
-.mythic-sparkles span:nth-child(2) { top: 30%; left: 78%; animation-delay: 0.4s; }
-.mythic-sparkles span:nth-child(3) { top: 55%; left: 35%; animation-delay: 0.9s; }
-.mythic-sparkles span:nth-child(4) { top: 75%; left: 82%; animation-delay: 1.3s; }
-.mythic-sparkles span:nth-child(5) { top: 8%; left: 55%; animation-delay: 0.2s; }
-.mythic-sparkles span:nth-child(6) { top: 48%; left: 8%; animation-delay: 0.7s; }
-.mythic-sparkles span:nth-child(7) { top: 90%; left: 50%; animation-delay: 1.1s; }
-.mythic-sparkles span:nth-child(8) { top: 65%; left: 65%; animation-delay: 1.6s; }
+.gold-sparkles span:nth-child(1) { top: 12%; left: 18%; animation-delay: 0s; }
+.gold-sparkles span:nth-child(2) { top: 30%; left: 78%; animation-delay: 0.4s; }
+.gold-sparkles span:nth-child(3) { top: 55%; left: 35%; animation-delay: 0.9s; }
+.gold-sparkles span:nth-child(4) { top: 75%; left: 82%; animation-delay: 1.3s; }
+.gold-sparkles span:nth-child(5) { top: 8%; left: 55%; animation-delay: 0.2s; }
+.gold-sparkles span:nth-child(6) { top: 48%; left: 8%; animation-delay: 0.7s; }
+.gold-sparkles span:nth-child(7) { top: 90%; left: 50%; animation-delay: 1.1s; }
+.gold-sparkles span:nth-child(8) { top: 65%; left: 65%; animation-delay: 1.6s; }
 
 /* Mythic image overlay — full holo rainbow */
-.mythic-image-overlay {
+.gold-image-overlay {
   position: absolute;
   inset: 0;
   z-index: 2;
@@ -520,19 +527,19 @@
     hsla(42, 90%, 60%, 0.18) 100%
   );
   background-size: 400% 400%;
-  animation: mythic-holo-rainbow 6s ease-in-out infinite;
+  animation: gold-holo-rainbow 6s ease-in-out infinite;
   mix-blend-mode: color-dodge;
 }
 
 /* Mythic shine bar — thick golden sweep */
-.mythic-shine-bar {
+.gold-shine-bar {
   position: absolute;
   inset: 0;
   z-index: 5;
   pointer-events: none;
   overflow: hidden;
 }
-.mythic-shine-bar::after {
+.gold-shine-bar::after {
   content: '';
   position: absolute;
   top: -80%;
@@ -547,7 +554,7 @@
     hsla(42, 90%, 85%, 0.25),
     transparent
   );
-  animation: mythic-shine-sweep 5s ease-in-out infinite;
+  animation: gold-shine-sweep 5s ease-in-out infinite;
 }
 
 /* ═══════════════════════════════════════════════════
@@ -590,11 +597,11 @@
 }
 
 /* ── MYTHIC ── */
-.detail-hero-mythic {
+.detail-hero-gold {
   background: linear-gradient(160deg, hsla(38, 50%, 12%, 1) 0%, hsla(42, 40%, 8%, 1) 100%);
 }
 
-.detail-mythic-orb-1 {
+.detail-gold-orb-1 {
   position: absolute;
   width: 280px; height: 280px;
   top: -10%; left: -15%;
@@ -604,7 +611,7 @@
   z-index: 1;
   animation: detail-orb-drift 6s ease-in-out infinite;
 }
-.detail-mythic-orb-2 {
+.detail-gold-orb-2 {
   position: absolute;
   width: 220px; height: 220px;
   bottom: -5%; right: -10%;
@@ -614,7 +621,7 @@
   z-index: 1;
   animation: detail-orb-drift-alt 7s ease-in-out infinite;
 }
-.detail-mythic-orb-3 {
+.detail-gold-orb-3 {
   position: absolute;
   width: 160px; height: 160px;
   top: 30%; right: 10%;
@@ -626,14 +633,14 @@
 }
 
 /* Light leak sweep */
-.detail-mythic-leak {
+.detail-gold-leak {
   position: absolute;
   inset: 0;
   z-index: 3;
   overflow: hidden;
   pointer-events: none;
 }
-.detail-mythic-leak::after {
+.detail-gold-leak::after {
   content: '';
   position: absolute;
   top: -20%; bottom: -20%;
@@ -643,7 +650,7 @@
 }
 
 /* Glass shimmer on the image frame */
-.detail-mythic-glass {
+.detail-gold-glass {
   position: absolute;
   inset: 0;
   z-index: 2;
@@ -655,7 +662,7 @@
 }
 
 /* Soft vignette */
-.detail-mythic-vignette {
+.detail-gold-vignette {
   position: absolute;
   inset: 0;
   z-index: 2;
@@ -663,21 +670,21 @@
   pointer-events: none;
 }
 
-/* Geometric diagonal lines — mythic */
-.detail-mythic-geo {
+/* Geometric diagonal lines — gold */
+.detail-gold-geo {
   position: absolute;
   inset: 0;
   z-index: 2;
   overflow: hidden;
   pointer-events: none;
 }
-.detail-mythic-geo::before,
-.detail-mythic-geo::after {
+.detail-gold-geo::before,
+.detail-gold-geo::after {
   content: '';
   position: absolute;
   background: hsla(42, 100%, 70%, 0.12);
 }
-.detail-mythic-geo::before {
+.detail-gold-geo::before {
   width: 200%;
   height: 1px;
   top: 35%;
@@ -686,7 +693,7 @@
   box-shadow: 0 40px 0 hsla(42, 100%, 70%, 0.08), 0 80px 0 hsla(42, 100%, 70%, 0.05);
   animation: detail-geo-slide 8s ease-in-out infinite;
 }
-.detail-mythic-geo::after {
+.detail-gold-geo::after {
   width: 200%;
   height: 1px;
   top: 55%;
@@ -697,11 +704,11 @@
 }
 
 /* ── EPIC ── */
-.detail-hero-epic {
+.detail-hero-silver {
   background: linear-gradient(160deg, hsla(270, 40%, 14%, 1) 0%, hsla(260, 35%, 8%, 1) 100%);
 }
 
-.detail-epic-orb-1 {
+.detail-silver-orb-1 {
   position: absolute;
   width: 260px; height: 260px;
   top: -8%; right: -12%;
@@ -711,7 +718,7 @@
   z-index: 1;
   animation: detail-orb-drift-alt 6.5s ease-in-out infinite;
 }
-.detail-epic-orb-2 {
+.detail-silver-orb-2 {
   position: absolute;
   width: 200px; height: 200px;
   bottom: 0; left: -8%;
@@ -721,7 +728,7 @@
   z-index: 1;
   animation: detail-orb-drift 7.5s ease-in-out infinite;
 }
-.detail-epic-orb-3 {
+.detail-silver-orb-3 {
   position: absolute;
   width: 140px; height: 140px;
   top: 40%; left: 20%;
@@ -732,14 +739,14 @@
   animation: detail-breathe 5s ease-in-out infinite;
 }
 
-.detail-epic-leak {
+.detail-silver-leak {
   position: absolute;
   inset: 0;
   z-index: 3;
   overflow: hidden;
   pointer-events: none;
 }
-.detail-epic-leak::after {
+.detail-silver-leak::after {
   content: '';
   position: absolute;
   top: -20%; bottom: -20%;
@@ -748,7 +755,7 @@
   animation: detail-light-leak 5s ease-in-out infinite;
 }
 
-.detail-epic-glass {
+.detail-silver-glass {
   position: absolute;
   inset: 0;
   z-index: 2;
@@ -759,7 +766,7 @@
   pointer-events: none;
 }
 
-.detail-epic-vignette {
+.detail-silver-vignette {
   position: absolute;
   inset: 0;
   z-index: 2;
@@ -767,21 +774,21 @@
   pointer-events: none;
 }
 
-/* Geometric diagonal lines — epic */
-.detail-epic-geo {
+/* Geometric diagonal lines — silver */
+.detail-silver-geo {
   position: absolute;
   inset: 0;
   z-index: 2;
   overflow: hidden;
   pointer-events: none;
 }
-.detail-epic-geo::before,
-.detail-epic-geo::after {
+.detail-silver-geo::before,
+.detail-silver-geo::after {
   content: '';
   position: absolute;
   background: hsla(270, 90%, 75%, 0.1);
 }
-.detail-epic-geo::before {
+.detail-silver-geo::before {
   width: 200%;
   height: 1px;
   top: 30%;
@@ -790,7 +797,7 @@
   box-shadow: 0 50px 0 hsla(270, 90%, 75%, 0.06), 0 100px 0 hsla(270, 90%, 75%, 0.03);
   animation: detail-geo-slide 9s ease-in-out infinite;
 }
-.detail-epic-geo::after {
+.detail-silver-geo::after {
   width: 200%;
   height: 1px;
   top: 60%;
@@ -897,11 +904,11 @@
 .animate-card-appear-rare {
   animation: card-appear-rare 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
-.animate-card-appear-epic {
-  animation: card-appear-epic 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+.animate-card-appear-silver {
+  animation: card-appear-silver 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
-.animate-card-appear-mythic {
-  animation: card-appear-mythic 1.1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+.animate-card-appear-gold {
+  animation: card-appear-gold 1.1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 /* ═══════════════════════════════════════════════════
@@ -931,13 +938,13 @@
   100% { box-shadow: 0 0 0 hsla(210, 70%, 55%, 0); }
 }
 
-@keyframes reveal-glow-epic {
+@keyframes reveal-glow-silver {
   0% { box-shadow: 0 0 0 hsla(270, 70%, 60%, 0); }
   30% { box-shadow: 0 0 50px hsla(270, 70%, 60%, 0.6); }
   100% { box-shadow: 0 0 0 hsla(270, 70%, 60%, 0); }
 }
 
-@keyframes reveal-glow-mythic {
+@keyframes reveal-glow-gold {
   0% { box-shadow: 0 0 0 hsla(42, 85%, 55%, 0), 0 0 0 hsla(42, 85%, 55%, 0); }
   30% { box-shadow: 0 0 60px hsla(42, 85%, 55%, 0.7), 0 0 120px hsla(42, 85%, 55%, 0.3); }
   100% { box-shadow: 0 0 0 hsla(42, 85%, 55%, 0), 0 0 0 hsla(42, 85%, 55%, 0); }
@@ -959,12 +966,12 @@
   animation: reveal-shake 0.4s ease-in-out, reveal-burst 0.6s 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), reveal-glow-rare 1.2s 0.4s ease-out;
 }
 
-.reveal-epic {
-  animation: reveal-shake 0.6s ease-in-out, reveal-burst 0.7s 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), reveal-glow-epic 1.5s 0.6s ease-out;
+.reveal-silver {
+  animation: reveal-shake 0.6s ease-in-out, reveal-burst 0.7s 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), reveal-glow-silver 1.5s 0.6s ease-out;
 }
 
-.reveal-mythic {
-  animation: reveal-shake 0.8s ease-in-out, reveal-burst 0.8s 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), reveal-glow-mythic 2s 0.8s ease-out;
+.reveal-gold {
+  animation: reveal-shake 0.8s ease-in-out, reveal-burst 0.8s 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), reveal-glow-gold 2s 0.8s ease-out;
 }
 
 /* ═══════════════════════════════════════════════════
@@ -1186,12 +1193,12 @@
   50% { box-shadow: 0 0 16px hsla(210, 70%, 55%, 0.25); }
 }
 
-@keyframes nearby-pulse-epic {
+@keyframes nearby-pulse-silver {
   0%, 100% { box-shadow: 0 0 0 hsla(270, 70%, 60%, 0); }
   50% { box-shadow: 0 0 20px hsla(270, 70%, 60%, 0.3); }
 }
 
-@keyframes nearby-pulse-mythic {
+@keyframes nearby-pulse-gold {
   0%, 100% { box-shadow: 0 0 0 hsla(42, 85%, 55%, 0); }
   50% { box-shadow: 0 0 24px hsla(42, 85%, 55%, 0.4); }
 }
@@ -1206,18 +1213,18 @@
 }
 
 .nearby-alert-rare { animation: nearby-pulse-rare 2s ease-in-out infinite; }
-.nearby-alert-epic { animation: nearby-pulse-epic 2s ease-in-out infinite; }
-.nearby-alert-mythic { animation: nearby-pulse-mythic 1.5s ease-in-out infinite; }
+.nearby-alert-silver { animation: nearby-pulse-silver 2s ease-in-out infinite; }
+.nearby-alert-gold { animation: nearby-pulse-gold 1.5s ease-in-out infinite; }
 
 .nearby-alert-icon {
   animation: nearby-icon-pulse 1.5s ease-in-out infinite;
 }
 
-.nearby-card-glow-epic {
-  animation: nearby-pulse-epic 3s ease-in-out infinite;
+.nearby-card-glow-silver {
+  animation: nearby-pulse-silver 3s ease-in-out infinite;
 }
-.nearby-card-glow-mythic {
-  animation: nearby-pulse-mythic 2.5s ease-in-out infinite;
+.nearby-card-glow-gold {
+  animation: nearby-pulse-gold 2.5s ease-in-out infinite;
 }
 
 /* Radar dot pulses */
@@ -1226,8 +1233,8 @@
   50% { transform: translate(-50%, -50%) scale(1.4); }
 }
 .radar-dot-pulse-rare .w-3 { animation: radar-dot-pulse 2.5s ease-in-out infinite; }
-.radar-dot-pulse-epic .w-3 { animation: radar-dot-pulse 2s ease-in-out infinite; }
-.radar-dot-pulse-mythic .w-3 { animation: radar-dot-pulse 1.5s ease-in-out infinite; }
+.radar-dot-pulse-silver .w-3 { animation: radar-dot-pulse 2s ease-in-out infinite; }
+.radar-dot-pulse-gold .w-3 { animation: radar-dot-pulse 1.5s ease-in-out infinite; }
 
 /* ═══════════════════════════════════════════════════
    CARD HOVER & INTERACTION EFFECTS
@@ -1534,15 +1541,15 @@
 }
 
 /* Mythic filter shimmer */
-@keyframes mythic-shimmer {
+@keyframes gold-shimmer {
   0% { background-position: -200% center; }
   100% { background-position: 200% center; }
 }
-.mythic-filter-shimmer {
+.gold-filter-shimmer {
   position: relative;
   overflow: hidden;
 }
-.mythic-filter-shimmer::after {
+.gold-filter-shimmer::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -1556,7 +1563,7 @@
     transparent 100%
   );
   background-size: 200% 100%;
-  animation: mythic-shimmer 2.5s ease-in-out infinite;
+  animation: gold-shimmer 2.5s ease-in-out infinite;
   pointer-events: none;
 }
 
@@ -1587,19 +1594,19 @@
   0%, 100% { box-shadow: 0 0 15px hsla(210, 70%, 55%, 0.2); }
   50% { box-shadow: 0 0 35px hsla(210, 70%, 55%, 0.5), 0 0 60px hsla(210, 70%, 55%, 0.2); }
 }
-@keyframes suspense-epic {
+@keyframes suspense-silver {
   0%, 100% { box-shadow: 0 0 20px hsla(270, 70%, 60%, 0.2); }
   50% { box-shadow: 0 0 45px hsla(270, 70%, 60%, 0.6), 0 0 80px hsla(270, 70%, 60%, 0.2); }
 }
-@keyframes suspense-mythic {
+@keyframes suspense-gold {
   0%, 100% { box-shadow: 0 0 25px hsla(42, 85%, 55%, 0.3); }
   33% { box-shadow: 0 0 50px hsla(42, 85%, 55%, 0.7), 0 0 100px hsla(42, 85%, 55%, 0.3); }
   66% { box-shadow: 0 0 40px hsla(38, 80%, 50%, 0.5), 0 0 80px hsla(42, 85%, 55%, 0.2); }
 }
 
 .capture-suspense-rare { animation: suspense-rare 0.6s ease-in-out infinite; }
-.capture-suspense-epic { animation: suspense-epic 0.5s ease-in-out infinite; }
-.capture-suspense-mythic { animation: suspense-mythic 0.4s ease-in-out infinite; }
+.capture-suspense-silver { animation: suspense-silver 0.5s ease-in-out infinite; }
+.capture-suspense-gold { animation: suspense-gold 0.4s ease-in-out infinite; }
 
 /* Burst particles */
 @keyframes burst-particle {
@@ -1705,7 +1712,7 @@
    HOLOGRAPHIC CARD — poke-holo inspired
    Pointer-tracked tilt + reflet (real Pokémon TCG feel)
    Mapping: common→Holofoil, rare→Reverse Holo,
-            epic→Cosmos Holo, mythic→Secret Rare (gold)
+            silver→Cosmos Holo, gold→Secret Rare (gold)
    ═══════════════════════════════════════════════════ */
 
 .holo-wrap {
@@ -1869,30 +1876,30 @@
 
 
 
-.detail-fullscreen .detail-mythic-orb-1,
-.detail-fullscreen .detail-mythic-orb-2,
-.detail-fullscreen .detail-mythic-orb-3,
-.detail-fullscreen .detail-epic-orb-1,
-.detail-fullscreen .detail-epic-orb-2,
-.detail-fullscreen .detail-epic-orb-3,
+.detail-fullscreen .detail-gold-orb-1,
+.detail-fullscreen .detail-gold-orb-2,
+.detail-fullscreen .detail-gold-orb-3,
+.detail-fullscreen .detail-silver-orb-1,
+.detail-fullscreen .detail-silver-orb-2,
+.detail-fullscreen .detail-silver-orb-3,
 .detail-fullscreen .detail-rare-orb-1,
 .detail-fullscreen .detail-rare-orb-2,
-.detail-fullscreen .detail-mythic-leak,
-.detail-fullscreen .detail-epic-leak,
+.detail-fullscreen .detail-gold-leak,
+.detail-fullscreen .detail-silver-leak,
 .detail-fullscreen .detail-rare-leak,
-.detail-fullscreen .detail-mythic-geo,
-.detail-fullscreen .detail-epic-geo,
+.detail-fullscreen .detail-gold-geo,
+.detail-fullscreen .detail-silver-geo,
 .detail-fullscreen .detail-rare-geo,
 .detail-glass--fullscreen {
   animation: none !important;
 }
 
-.detail-fullscreen .detail-mythic-orb-1,
-.detail-fullscreen .detail-mythic-orb-2,
-.detail-fullscreen .detail-mythic-orb-3,
-.detail-fullscreen .detail-epic-orb-1,
-.detail-fullscreen .detail-epic-orb-2,
-.detail-fullscreen .detail-epic-orb-3,
+.detail-fullscreen .detail-gold-orb-1,
+.detail-fullscreen .detail-gold-orb-2,
+.detail-fullscreen .detail-gold-orb-3,
+.detail-fullscreen .detail-silver-orb-1,
+.detail-fullscreen .detail-silver-orb-2,
+.detail-fullscreen .detail-silver-orb-3,
 .detail-fullscreen .detail-rare-orb-1,
 .detail-fullscreen .detail-rare-orb-2 {
   filter: none;
@@ -2023,7 +2030,7 @@
 }
 
 /* ───────────── EPIC → Cosmos / Galaxy Holo ───────────── */
-.holo-epic .holo-shine {
+.holo-silver .holo-shine {
   --space: 4%;
   background-image:
     url("/holo/cosmos-bottom.png"),
@@ -2052,7 +2059,7 @@
   background-size: cover, 400% 900%, cover;
   filter: brightness(1) contrast(1) saturate(0.85);
 }
-.holo-epic .holo-shine::before {
+.holo-silver .holo-shine::before {
   background-image:
     url("/holo/cosmos-middle-trans.png"),
     repeating-linear-gradient(82deg,
@@ -2075,14 +2082,14 @@
   filter: brightness(1.25) contrast(1.6) saturate(0.85);
   mix-blend-mode: overlay;
 }
-.holo-epic .holo-shine::after {
+.holo-silver .holo-shine::after {
   background-image: url("/holo/cosmos-top-trans.png");
   background-size: cover;
   background-position: var(--cosmos-x) var(--cosmos-y);
   mix-blend-mode: multiply;
   filter: brightness(1.25) contrast(1.5) saturate(0.85);
 }
-.holo-epic .holo-glare {
+.holo-silver .holo-glare {
   background-image: radial-gradient(farthest-corner circle at var(--pointer-x) var(--pointer-y),
     hsla(204, 100%, 95%, 0.8) 5%,
     hsla(250, 15%, 20%, 1) 150%);
@@ -2091,7 +2098,7 @@
 }
 
 /* ───────────── MYTHIC → Secret Rare (gold + glitter) ───────────── */
-.holo-mythic .holo-shine {
+.holo-gold .holo-shine {
   background-image:
     url("/holo/glitter.png"),
     url("/holo/glitter.png"),
@@ -2109,7 +2116,7 @@
   background-blend-mode: soft-light, hard-light, overlay;
   filter: brightness(calc(0.4 + (var(--pointer-from-center) * 0.2))) contrast(1) saturate(2.7);
 }
-.holo-mythic .holo-shine::before {
+.holo-gold .holo-shine::before {
   background-image:
     url("/holo/geometric.png"),
     linear-gradient(45deg, hsl(46, 95%, 50%), hsl(52, 100%, 69%)),
@@ -2123,7 +2130,7 @@
   filter: brightness(1.25) contrast(1.25) saturate(0.35);
   opacity: 0.8;
 }
-.holo-mythic .holo-shine::after {
+.holo-gold .holo-shine::after {
   background-image: url("/holo/glitter.png");
   background-size: 25% 25%;
   background-position:
@@ -2132,7 +2139,7 @@
   filter: brightness(calc((var(--pointer-from-center) * 0.6) + 0.6)) contrast(1.5);
   mix-blend-mode: overlay;
 }
-.holo-mythic .holo-glare {
+.holo-gold .holo-glare {
   background-image: radial-gradient(farthest-corner circle at var(--pointer-x) var(--pointer-y),
     hsla(45, 8%, 80%, 0.3) 0%,
     hsl(22, 15%, 12%) 180%);
@@ -2328,7 +2335,7 @@
     0 8px 32px rgba(0,0,0,0.4);
 }
 
-.holo-frame--epic {
+.holo-frame--silver {
   --frame-grad: linear-gradient(120deg,
     hsl(270 80% 45%),
     hsl(292 100% 88%),
@@ -2336,13 +2343,13 @@
     hsl(305 90% 70%),
     hsl(270 80% 45%));
   box-shadow:
-    inset 0 0 0 1px hsl(var(--rarity-epic) / 0.6),
-    0 0 28px hsl(var(--rarity-epic) / 0.45),
+    inset 0 0 0 1px hsl(var(--rarity-silver) / 0.6),
+    0 0 28px hsl(var(--rarity-silver) / 0.45),
     0 8px 32px rgba(0,0,0,0.4);
-  animation: holo-frame-glow-epic 3.5s ease-in-out infinite;
+  animation: holo-frame-glow-silver 3.5s ease-in-out infinite;
 }
 
-.holo-frame--mythic {
+.holo-frame--gold {
   --frame-grad: linear-gradient(120deg,
     hsl(38 85% 45%),
     hsl(50 100% 92%),
@@ -2353,56 +2360,56 @@
     hsl(38 85% 45%));
   box-shadow:
     inset 0 0 0 1px hsl(42 100% 75% / 0.85),
-    0 0 34px hsl(var(--rarity-mythic) / 0.55),
+    0 0 34px hsl(var(--rarity-gold) / 0.55),
     0 0 60px hsl(42 100% 60% / 0.35),
     0 8px 32px rgba(0,0,0,0.45);
-  animation: holo-frame-glow-mythic 2.8s ease-in-out infinite;
+  animation: holo-frame-glow-gold 2.8s ease-in-out infinite;
 }
 
 .holo-frame--rare::after   { animation: holo-frame-shift 6s linear infinite; }
-.holo-frame--epic::after   { animation: holo-frame-shift 5s linear infinite; }
-.holo-frame--mythic::after { animation: holo-frame-shift 4s linear infinite; }
+.holo-frame--silver::after   { animation: holo-frame-shift 5s linear infinite; }
+.holo-frame--gold::after { animation: holo-frame-shift 4s linear infinite; }
 
 @keyframes holo-frame-shift {
   0%   { background-position: 0% 50%; }
   100% { background-position: 300% 50%; }
 }
 
-@keyframes holo-frame-glow-epic {
+@keyframes holo-frame-glow-silver {
   0%, 100% {
     box-shadow:
-      inset 0 0 0 1px hsl(var(--rarity-epic) / 0.6),
-      0 0 22px hsl(var(--rarity-epic) / 0.4),
+      inset 0 0 0 1px hsl(var(--rarity-silver) / 0.6),
+      0 0 22px hsl(var(--rarity-silver) / 0.4),
       0 8px 32px rgba(0,0,0,0.4);
   }
   50% {
     box-shadow:
-      inset 0 0 0 1px hsl(var(--rarity-epic) / 0.75),
-      0 0 34px hsl(var(--rarity-epic) / 0.6),
+      inset 0 0 0 1px hsl(var(--rarity-silver) / 0.75),
+      0 0 34px hsl(var(--rarity-silver) / 0.6),
       0 8px 32px rgba(0,0,0,0.4);
   }
 }
 
-@keyframes holo-frame-glow-mythic {
+@keyframes holo-frame-glow-gold {
   0%, 100% {
     box-shadow:
       inset 0 0 0 1px hsl(42 100% 75% / 0.85),
-      0 0 30px hsl(var(--rarity-mythic) / 0.5),
+      0 0 30px hsl(var(--rarity-gold) / 0.5),
       0 0 55px hsl(42 100% 60% / 0.3),
       0 8px 32px rgba(0,0,0,0.45);
   }
   50% {
     box-shadow:
       inset 0 0 0 1px hsl(42 100% 80% / 0.95),
-      0 0 42px hsl(var(--rarity-mythic) / 0.7),
+      0 0 42px hsl(var(--rarity-gold) / 0.7),
       0 0 75px hsl(42 100% 60% / 0.45),
       0 8px 32px rgba(0,0,0,0.45);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .holo-frame--epic,
-  .holo-frame--mythic,
+  .holo-frame--silver,
+  .holo-frame--gold,
   .holo-frame::after { animation: none; }
 }
 
@@ -2481,17 +2488,17 @@ html.is-native-android body {
   --tile-ring-width: 1.5px;
   --tile-inner-glow-size: 8px;
 }
-.game-tile--epic {
-  --tile-depth: hsl(var(--rarity-epic) / 0.7);
-  --tile-glow: hsl(var(--rarity-epic) / 0.7);
-  --tile-ring: hsl(var(--rarity-epic) / 0.85);
+.game-tile--silver {
+  --tile-depth: hsl(var(--rarity-silver) / 0.7);
+  --tile-glow: hsl(var(--rarity-silver) / 0.7);
+  --tile-ring: hsl(var(--rarity-silver) / 0.85);
   --tile-ring-width: 2px;
   --tile-inner-glow-size: 14px;
 }
-.game-tile--mythic {
-  --tile-depth: hsl(var(--rarity-mythic) / 0.8);
-  --tile-glow: hsl(var(--rarity-mythic) / 0.85);
-  --tile-ring: hsl(var(--rarity-mythic) / 1);
+.game-tile--gold {
+  --tile-depth: hsl(var(--rarity-gold) / 0.8);
+  --tile-glow: hsl(var(--rarity-gold) / 0.85);
+  --tile-ring: hsl(var(--rarity-gold) / 1);
   --tile-ring-width: 2.5px;
   --tile-inner-glow-size: 20px;
 }
@@ -2520,106 +2527,122 @@ html.is-native-android body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
+  gap: 1px;
+  min-width: 22px;
   height: 22px;
-  padding: 0;
+  padding: 0 5px;
   border-radius: 999px;
   line-height: 1;
   isolation: isolate;
   overflow: hidden;
-  border: 1px solid hsla(0, 0%, 100%, 0.35);
-  box-shadow: 0 2px 6px -2px var(--rarity-glow, hsla(0, 0%, 0%, 0.18));
+  background: hsl(0 0% 100% / 0.92);
+  border: 1px solid hsl(0 0% 0% / 0.08);
+  box-shadow: 0 1px 3px hsla(0, 0%, 0%, 0.12);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
-.rarity-badge__icon {
+.rarity-badge__symbols {
   position: relative;
   z-index: 1;
-  width: 11px;
-  height: 11px;
-  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 1.5px;
+}
+
+.rarity-badge__sym {
+  font-size: 10px;
+  line-height: 1;
+  color: hsl(225 15% 18%);
 }
 
 /* Variante avec label (card détail) */
 .rarity-badge--labeled {
-  width: auto;
   height: auto;
-  gap: 5px;
-  padding: 4px 10px 4px 7px;
+  gap: 6px;
+  padding: 4px 10px 4px 8px;
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  border-radius: 999px;
-  transform: none !important;
 }
-.rarity-badge--labeled .rarity-badge__icon {
-  width: 13px;
-  height: 13px;
-  transform: none !important;
+.rarity-badge--labeled .rarity-badge__sym {
+  font-size: 11px;
 }
 .rarity-badge__label {
   position: relative;
   z-index: 1;
+  color: hsl(225 15% 18%);
 }
 
-/* Formes et couleurs plates par rareté */
-.rarity-badge--common {
-  --rarity-glow: hsla(215, 10%, 55%, 0.35);
-  background: #aab6c4;
-  border-color: hsla(215, 12%, 45%, 0.45);
-}
-.rarity-badge--common .rarity-badge__icon {
-  color: #475569;
-}
-
-/* Variante labelisée : texte sombre pour le commun, blanc pour les autres */
-.rarity-badge--common.rarity-badge--labeled {
-  color: #334155;
-}
-.rarity-badge--rare.rarity-badge--labeled,
-.rarity-badge--epic.rarity-badge--labeled,
-.rarity-badge--mythic.rarity-badge--labeled {
-  color: #fff;
-}
-
-.rarity-badge--rare {
-  --rarity-glow: hsl(205 100% 50% / 0.4);
-  background: #2f9dff;
-  border-radius: 7px;
-  transform: rotate(12deg);
-}
-.rarity-badge--rare .rarity-badge__icon {
-  transform: rotate(-12deg);
+/* Balayage holo partagé (argent & or) */
+.rarity-badge--silver::after,
+.rarity-badge--gold::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 20%,
+    hsla(0, 0%, 100%, 0.75) 42%,
+    hsla(210, 100%, 85%, 0.45) 50%,
+    hsla(0, 0%, 100%, 0.75) 58%,
+    transparent 80%
+  );
+  background-size: 250% 100%;
+  animation: rarity-badge-shine 3.2s linear infinite;
+  pointer-events: none;
 }
 
-.rarity-badge--epic {
-  --rarity-glow: hsl(275 90% 60% / 0.45);
-  background: #9b4dff;
+@keyframes rarity-badge-shine {
+  0% { background-position: 120% 0; }
+  100% { background-position: -130% 0; }
 }
 
-.rarity-badge--mythic {
-  --rarity-glow: hsl(38 100% 50% / 0.5);
-  background: linear-gradient(135deg, #ffd23e 0%, #ff9f1c 100%);
-  border-radius: 7px;
-  transform: rotate(45deg);
-  border-color: hsla(0, 0%, 100%, 0.55);
+/* ★★ argentées — ultra rare */
+.rarity-badge--silver {
+  background: linear-gradient(135deg, hsl(220 20% 96%), hsl(220 16% 84%));
+  border-color: hsl(220 15% 60% / 0.5);
+  box-shadow: 0 1px 4px hsl(220 20% 50% / 0.25);
+}
+.rarity-badge--silver .rarity-badge__sym {
+  background: linear-gradient(135deg, #f8fafc 0%, #94a3b8 45%, #e2e8f0 70%, #64748b 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 1px 0.5px hsla(220, 20%, 30%, 0.35));
+}
+.rarity-badge--silver .rarity-badge__label {
+  color: hsl(222 18% 30%);
+}
+
+/* ★ dorées — illustration / spéciale / hyper rare */
+.rarity-badge--gold {
+  background: linear-gradient(135deg, hsl(45 100% 97%), hsl(42 90% 88%));
+  border-color: hsl(40 90% 55% / 0.45);
+  box-shadow: 0 1px 5px hsl(40 95% 50% / 0.3);
+}
+.rarity-badge--gold .rarity-badge__sym {
+  background: linear-gradient(135deg, #ffe98a 0%, #f5b301 45%, #ffd23e 70%, #c47f0a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 1px 0.5px hsla(35, 90%, 35%, 0.4));
+}
+.rarity-badge--gold .rarity-badge__label {
+  color: hsl(35 80% 28%);
+}
+.rarity-badge--gold.rarity-badge--hyper {
   box-shadow:
-    0 3px 10px -3px hsl(38 100% 50% / 0.55),
-    0 0 0 1px hsla(38, 90%, 45%, 0.25);
-}
-.rarity-badge--mythic .rarity-badge__icon {
-  transform: rotate(-45deg);
-  color: #fff;
-  filter: drop-shadow(0 1px 1px hsla(20, 90%, 30%, 0.5));
+    0 1px 6px hsl(40 100% 50% / 0.4),
+    0 0 0 1px hsl(42 95% 60% / 0.25);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .rarity-badge {
-    transform: none;
-  }
-  .rarity-badge--rare .rarity-badge__icon,
-  .rarity-badge--mythic .rarity-badge__icon {
-    transform: none;
+  .rarity-badge--silver::after,
+  .rarity-badge--gold::after {
+    animation: none;
   }
 }
 

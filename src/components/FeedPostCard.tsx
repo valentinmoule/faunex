@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Heart, MessageCircle, Share2 } from 'lucide-react';
-import { type FeedPost, RARITY_LABELS } from '@/data/mockData';
+import { type FeedPost, RARITY_LABELS, RARITY_FX, normalizeRarity } from '@/data/mockData';
 import { thumbUrl } from '@/lib/imageUrl';
 
 interface Props {
@@ -11,8 +11,9 @@ interface Props {
 const FeedPostCard = ({ post, onCardClick }: Props) => {
   const [liked, setLiked] = useState(post.liked);
   const [likes, setLikes] = useState(post.likes);
-  const isShiny = post.animal.rarity === 'epic' || post.animal.rarity === 'mythic';
-  const isMythic = post.animal.rarity === 'mythic';
+  const fx = RARITY_FX[normalizeRarity(post.animal.rarity)];
+  const isShiny = fx !== 'ink';
+  const isGold = fx === 'gold';
 
   const handleLike = () => {
     setLiked(!liked);
@@ -38,16 +39,16 @@ const FeedPostCard = ({ post, onCardClick }: Props) => {
       {/* Image */}
       <button
         onClick={() => onCardClick(post.animal.id)}
-        className={`relative w-full aspect-square overflow-hidden ${isMythic ? 'mythic-shiny' : ''}`}
+        className={`relative w-full aspect-square overflow-hidden ${isGold ? 'gold-shiny' : ''}`}
       >
         <img src={thumbUrl(post.animal.image, 700)} alt={post.animal.name} className="w-full h-full object-cover" loading="lazy" decoding="async" />
-        {isMythic && <div className="mythic-image-overlay" />}
-        {isMythic && (
-          <div className="mythic-sparkles">
+        {isGold && <div className="gold-image-overlay" />}
+        {isGold && (
+          <div className="gold-sparkles">
             <span /><span /><span /><span /><span /><span />
           </div>
         )}
-        {isShiny && !isMythic && <div className="absolute inset-0 holographic-card card-shimmer pointer-events-none" style={{ backgroundImage: 'var(--gradient-holographic)', backgroundSize: '200% 200%', opacity: 0.2 }} />}
+        {isShiny && !isGold && <div className="absolute inset-0 holographic-card card-shimmer pointer-events-none" style={{ backgroundImage: 'var(--gradient-holographic)', backgroundSize: '200% 200%', opacity: 0.2 }} />}
         <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-foreground/60 to-transparent p-4 pt-12">
           <p className="text-primary-foreground font-display font-bold text-lg">{post.animal.name}</p>
           <p className="text-primary-foreground/70 text-xs italic">{post.animal.scientificName}</p>

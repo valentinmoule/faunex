@@ -10,7 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { fetchAllRows } from '@/lib/fetchAll';
 import { useAuth } from '@/contexts/AuthContext';
 
-const rarityFilters: (Rarity | 'all')[] = ['all', 'common', 'rare', 'epic', 'mythic'];
+const rarityFilters: (Rarity | 'all')[] = ['all', ...RARITY_ORDER];
 
 const CollectionPage = () => {
   const { session } = useAuth();
@@ -250,20 +250,20 @@ const CollectionPage = () => {
                       Les espèces rares sont des animaux dont les populations diminuent. Les observer dans la nature est un vrai privilège — leur conservation est importante.
                     </p>
                   </>
-                ) : filter === 'epic' ? (
+                ) : filter === 'ultra_rare' ? (
                   <>
                     <p className="text-4xl mb-3">🦅</p>
-                    <p className="text-foreground font-display font-semibold text-sm mb-2">Aucune espèce épique</p>
+                    <p className="text-foreground font-display font-semibold text-sm mb-2">Aucune espèce ultra rare</p>
                     <p className="text-muted-foreground text-xs leading-relaxed max-w-xs mx-auto">
-                      Les espèces épiques sont vulnérables ou en danger. Leur nombre décline sérieusement — chaque observation compte pour suivre leur état dans la nature.
+                      Les espèces ultra rares brillent d'un éclat argenté. Leur observation est un vrai privilège — chaque découverte compte.
                     </p>
                   </>
-                ) : filter === 'mythic' ? (
+                ) : filter === 'illustration_rare' || filter === 'special_rare' || filter === 'hyper_rare' ? (
                   <>
                     <p className="text-4xl mb-3">🐋</p>
-                    <p className="text-foreground font-display font-semibold text-sm mb-2">Aucune espèce mythique</p>
+                    <p className="text-foreground font-display font-semibold text-sm mb-2">Aucune espèce à étoile dorée</p>
                     <p className="text-muted-foreground text-xs leading-relaxed max-w-xs mx-auto">
-                      Les espèces mythiques sont en danger critique d'extinction. Il ne reste que très peu d'individus dans la nature — les capturer sur Faunex est un exploit.
+                      Les espèces à étoiles dorées sont les plus prestigieuses du jeu. Extrêmement rares, les capturer sur Faunex est un exploit.
                     </p>
                   </>
                 ) : (

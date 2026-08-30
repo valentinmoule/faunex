@@ -1,3 +1,4 @@
+import { RARITY_FX, RARITY_RANK, normalizeRarity } from '@/data/mockData';
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { fetchAllRows } from '@/lib/fetchAll';
@@ -100,9 +101,9 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
       });
 
       const total = captures.length;
-      const rareCount = captures.filter((c: any) => ['rare', 'epic', 'mythic'].includes(c.rarity)).length;
-      const epicCount = captures.filter((c: any) => ['epic', 'mythic'].includes(c.rarity)).length;
-      const mythicCount = captures.filter((c: any) => c.rarity === 'mythic').length;
+      const rareCount = captures.filter((c: any) => (RARITY_RANK[normalizeRarity(c.rarity)] ?? 0) >= 2).length;
+      const silverCount = captures.filter((c: any) => RARITY_FX[normalizeRarity(c.rarity)] === 'silver').length;
+      const goldCount = captures.filter((c: any) => RARITY_FX[normalizeRarity(c.rarity)] === 'gold').length;
       const geoCount = captures.filter((c: any) => c.latitude != null).length;
       const hours = captures.map((c: any) => (c.created_at ? new Date(c.created_at).getHours() : -1));
       const nightOwl = hours.some((h) => h >= 21 || (h >= 0 && h < 5));
@@ -192,10 +193,10 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
         categories_all: Math.min(myCategories.size, 9),
         rare_1: Math.min(rareCount, 1),
         rare_10: Math.min(rareCount, 10),
-        legendary_1: Math.min(epicCount, 1),
-        legendary_5: Math.min(epicCount, 5),
-        mythic_1: Math.min(mythicCount, 1),
-        mythic_3: Math.min(mythicCount, 3),
+        legendary_1: Math.min(silverCount, 1),
+        legendary_5: Math.min(silverCount, 5),
+        mythic_1: Math.min(goldCount, 1),
+        mythic_3: Math.min(goldCount, 3),
         podium_any: bestRank != null && bestRank <= 3 ? 1 : 0,
         top10_any: bestRank != null && bestRank <= 10 ? 1 : 0,
         social_3: Math.min(following, 3),
