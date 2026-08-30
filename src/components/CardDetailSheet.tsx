@@ -586,7 +586,9 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                 onTap={card.image ? openFullscreenImage : undefined}
                 subjectBox={card.subjectBox}
                 noHolo={isUncaptured}
-                className={`relative mx-auto max-w-[280px] aspect-[4/5] rounded-2xl ${card.image ? 'cursor-pointer' : ''}`}
+                className={`relative mx-auto max-w-[280px] aspect-[4/5] rounded-[1.75rem] ${card.image ? 'cursor-pointer' : ''}`}
+                style={{ ['--holo-radius' as any]: '1.75rem' }}
+
               >
                 <div
                   className={`relative w-full h-full rounded-[1.75rem] overflow-hidden holo-frame holo-frame--${normalizeRarity(card.rarity).replace(/_/g, '-')}`}
@@ -973,7 +975,8 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                 subjectBox={card.subjectBox}
                 containInteraction
                 paused={zoomInteracting || zoom.scale > 1.01}
-                className="holo-fullscreen-photo relative rounded-2xl pointer-events-auto touch-none"
+                className="holo-fullscreen-photo relative rounded-[1.5rem] pointer-events-auto touch-none"
+                style={{ ['--holo-radius' as any]: '1.5rem' }}
               >
                 <div className={`relative w-full h-full rounded-[1.5rem] overflow-hidden shadow-2xl holo-frame holo-frame--fullscreen holo-frame--${normalizeRarity(card.rarity).replace(/_/g, '-')}`}>
                   <div className="relative w-full h-full rounded-[0.875rem] overflow-hidden bg-black/30">

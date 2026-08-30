@@ -1765,7 +1765,9 @@
 
 .holo-card {
   position: relative;
-  border-radius: 1rem;
+  /* Le rayon suit le cadre réellement rendu à l'intérieur (--holo-radius) pour que
+     les couches holo épousent exactement les coins de la carte. */
+  border-radius: var(--holo-radius, 1rem);
   overflow: hidden;
   isolation: isolate;
   box-shadow: 0 10px 24px -12px hsl(0 0% 0% / 0.5);
