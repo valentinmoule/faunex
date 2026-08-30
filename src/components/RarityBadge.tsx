@@ -26,7 +26,7 @@ export const RarityBadge = ({
   const symbols = RARITY_SYMBOLS[r];
   return (
     <span
-      className={`rarity-badge rarity-badge--${r.replaceAll('_', '-')} ${fxVariant[fx]} ${r === 'hyper_rare' ? 'rarity-badge--hyper' : ''} ${showLabel ? 'rarity-badge--labeled' : ''} ${className ?? ''}`}
+      className={`rarity-badge rarity-badge--${r.replace(/_/g, '-')} ${fxVariant[fx]} ${r === 'hyper_rare' ? 'rarity-badge--hyper' : ''} ${showLabel ? 'rarity-badge--labeled' : ''} ${className ?? ''}`}
       title={RARITY_LABELS[r]}
       aria-label={`Rareté : ${RARITY_LABELS[r]}`}
     >
