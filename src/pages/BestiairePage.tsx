@@ -565,6 +565,13 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
     if (mineSort === 'alpha') {
       return list.sort((a, b) => a.name.localeCompare(b.name, 'fr'));
     }
+    if (mineSort === 'rarity') {
+      return list.sort((a, b) => {
+        const diff = (RARITY_SORT_ORDER[a.rarity] ?? 4) - (RARITY_SORT_ORDER[b.rarity] ?? 4);
+        if (diff !== 0) return diff;
+        return +new Date(b.discoveredAt || 0) - +new Date(a.discoveredAt || 0);
+      });
+    }
     if (mineSort === 'custom' && customOrder.length > 0) {
       const rank = new Map(customOrder.map((id, i) => [id, i]));
       return list.sort((a, b) => {
