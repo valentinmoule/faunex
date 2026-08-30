@@ -27,6 +27,9 @@ export function hapticSuccess() {
 export function hapticDiscovery() {
   try {
     if (canVibrate()) navigator.vibrate([24, 35, 42, 45, 85]);
+    void import('@capacitor/haptics')
+      .then(({ Haptics, ImpactStyle }) => Haptics.impact({ style: ImpactStyle.Heavy }))
+      .catch(() => {});
   } catch {
     /* unsupported */
   }
