@@ -2249,7 +2249,17 @@ export type Database = {
         Args: { p_error?: string; p_job_key: string; p_resume?: boolean }
         Returns: undefined
       }
+      resolve_species_identity: {
+        Args: { p_name: string; p_scientific: string }
+        Returns: {
+          matched: boolean
+          name: string
+          scientific_name: string
+        }[]
+      }
       settle_league_group: { Args: { p_group_id: string }; Returns: undefined }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
       species_finder_counts: {
         Args: never
         Returns: {
