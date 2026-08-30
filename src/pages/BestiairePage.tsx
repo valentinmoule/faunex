@@ -135,26 +135,30 @@ const BrowseSpeciesCard = memo(
           </div>
         </>
 ) : (
-        <>
+        <div className="species-tile-locked absolute inset-0 flex flex-col">
           <div className="absolute top-1.5 left-1.5 z-[3]">
             <FindersBadge count={animal.finders ?? 0} />
           </div>
 
-          <div className="absolute inset-0 flex items-center justify-center">
-            <SpeciesCategoryIcon category={animal.category} className="w-10 h-10 opacity-60" />
+          <div className="flex-1 flex items-center justify-center pt-6">
+            <span className="species-tile-locked__disc flex items-center justify-center rounded-full">
+              <SpeciesCategoryIcon category={animal.category} className="w-7 h-7 text-muted-foreground/70" />
+            </span>
           </div>
-<div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent p-2.5 pt-8">
-            <p className="text-xs font-display font-bold text-white truncate leading-tight">
+
+          <div className="species-tile-locked__label px-2 pb-2 pt-1.5 text-center">
+            <p className="text-[11px] font-display font-semibold text-foreground/80 truncate leading-tight">
               {animal.name}
             </p>
             {animal.scientific_name && (
-              <p className="text-[9px] font-body italic text-white/80 truncate">
+              <p className="text-[9px] font-body italic text-muted-foreground/70 truncate">
                 {animal.scientific_name}
               </p>
             )}
           </div>
-        </>
+        </div>
       )}
+
     </div>
   ),
 );
