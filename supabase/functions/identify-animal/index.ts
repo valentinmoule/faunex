@@ -362,15 +362,18 @@ serve(async (req) => {
             // Le quota ne doit jamais bloquer le service en cas d'incident base.
             console.error("ai quota check failed", quotaError);
           } else if (typeof remaining === "number" && remaining < 0) {
-            console.log("ai quota exhausted", userId);
+            const premiumCap = remaining === -2;
+            console.log("ai quota exhausted", userId, premiumCap ? "premium" : "free");
             // Statut 200 volontaire : le client doit pouvoir afficher le
             // message tel quel (invoke() masque le corps des réponses 4xx).
             return jsonResponse({
               success: false,
               reason: "daily_limit",
-              message:
-                "Tu as atteint ta limite de 4 analyses pour aujourd'hui. Reviens demain, ou passe en Faunex Premium pour des analyses illimitées.",
+              message: premiumCap
+                ? "Tu as atteint le plafond de sécurité de 200 analyses sur les dernières 24 h (protection anti-abus de ton abonnement Premium). Réessaie un peu plus tard."
+                : "Tu as atteint ta limite de 4 analyses pour aujourd'hui. Reviens demain, ou passe en Faunex Premium pour des analyses illimitées.",
             });
+
           } else {
             quotaConsumed = true;
           }
