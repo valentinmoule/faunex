@@ -631,7 +631,13 @@ serve(async (req) => {
     // 1) Passe économique (Flash Lite) sur la vignette basse résolution :
     //    elle couvre la très grande majorité des animaux pour ~3× moins de
     //    jetons d'image.
-    let response = await tryModel(FAST_MODEL, [22_000, 9_000], FAST_PROMPT);
+    let response = await tryModel(
+      FAST_MODEL,
+      [22_000, 9_000],
+      isNewUser ? FAST_PROMPT + DEEP_ANNEX : FAST_PROMPT,
+      isNewUser ? "high" : "low",
+      isNewUser ? imageUrl : undefined,
+    );
     let animalData = response?.ok ? await parseAnimal(response, FAST_MODEL) : null;
 
 
