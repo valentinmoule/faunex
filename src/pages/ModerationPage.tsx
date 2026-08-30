@@ -388,6 +388,16 @@ const ModerationPage = () => {
           </TabsList>
 
           <TabsContent value="moderation">
+            <div className="mb-4 flex gap-2.5 rounded-xl border border-amber/40 bg-amber/10 p-3">
+              <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                <span className="font-semibold text-foreground">Auto-modération permissive :</span> l'observateur est
+                cru par défaut — son nom commun et son nom scientifique sont conservés et validés. Seule une
+                contradiction où l'IA est quasi certaine (≥ 0,95) arrive ici. Vérifie donc les identifications
+                douteuses : une erreur de l'observateur peut passer sans contrôle humain.
+              </p>
+            </div>
+
             {loading ? (
               <div className="text-center py-16">
                 <Loader2 className="w-6 h-6 text-primary animate-spin mx-auto mb-2" />
