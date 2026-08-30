@@ -32,8 +32,8 @@ const rarityToDot: Record<string, string> = {
 const heroCards: { img: string; name: string; rarity: Rarity; label: string }[] = [
   { img: '/landing/ladybug.jpg', name: 'Coccinelle', rarity: 'common', label: 'Commun' },
   { img: '/landing/bluetit.jpg', name: 'Mésange bleue', rarity: 'rare', label: 'Rare' },
-  { img: '/landing/squirrel.jpg', name: 'Écureuil roux', rarity: 'epic', label: 'Épique' },
-  { img: '/landing/reddeer.jpg', name: 'Cerf élaphe', rarity: 'mythic', label: 'Mythique' },
+  { img: '/landing/squirrel.jpg', name: 'Écureuil roux', rarity: 'epic', label: 'Ultra rare' },
+  { img: '/landing/reddeer.jpg', name: 'Cerf élaphe', rarity: 'mythic', label: 'Rareté or' },
 ];
 
 const rarityChip: Record<Rarity, string> = {
