@@ -94,7 +94,10 @@ const BrowseSpeciesCard = memo(
             className="absolute inset-0 w-full h-full object-cover"
             loading="lazy"
           />
-<div className="absolute top-1 right-1">
+          <div className="absolute top-1.5 left-1.5 z-[3]">
+            <FindersBadge count={animal.finders ?? 0} />
+          </div>
+          <div className="absolute top-1 right-1">
             <RarityBadge rarity={animal.rarity} />
           </div>
           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5 pt-8">
