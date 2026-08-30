@@ -103,7 +103,7 @@ Pas de doublons, pas d'espèces inventées.`,
     return species.map((s: any) => ({
       name: s.name,
       scientific_name: s.scientific_name,
-      rarity: ["common", "rare", "epic", "mythic"].includes(s.rarity)
+      rarity: ["common", "uncommon", "rare", "very_rare", "ultra_rare", "illustration_rare", "special_rare", "hyper_rare"].includes(s.rarity)
         ? s.rarity
         : "common",
     }));

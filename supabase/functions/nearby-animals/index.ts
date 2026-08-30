@@ -74,7 +74,7 @@ Sois réaliste et précis selon la géographie et l'écosystème local.`;
                         name: { type: "string" },
                         scientific_name: { type: "string" },
                         category: { type: "string" },
-                        rarity: { type: "string", enum: ["common", "rare", "epic", "mythic"] },
+                        rarity: { type: "string", enum: ["common", "uncommon", "rare", "very_rare", "ultra_rare", "illustration_rare", "special_rare", "hyper_rare"] },
                         description: { type: "string" },
                         tip: { type: "string" },
                       },

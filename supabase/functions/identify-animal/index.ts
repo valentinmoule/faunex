@@ -450,7 +450,7 @@ serve(async (req) => {
 
                   rarity: {
                     type: "string",
-                    enum: ["common", "rare", "epic", "mythic"]
+                    enum: ["common", "uncommon", "rare", "very_rare", "ultra_rare", "illustration_rare", "special_rare", "hyper_rare"]
                   },
                   confidence: { type: "integer", minimum: 0, maximum: 100 },
                   alternatives: {

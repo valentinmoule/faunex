@@ -563,7 +563,7 @@ function callGateway(
                 diet: { type: 'string' },
                 conservation: { type: 'string', description: "Statut UICN : LC, NT, VU, EN, CR ou 'Domestique'." },
                 fun_fact: { type: 'string' },
-                rarity: { type: 'string', enum: ['common', 'rare', 'epic', 'mythic'] },
+                rarity: { type: 'string', enum: ['common', 'uncommon', 'rare', 'very_rare', 'ultra_rare', 'illustration_rare', 'special_rare', 'hyper_rare'] },
                 subject_bbox: {
                   type: 'object',
                   description: 'Boîte englobante de l\'animal, normalisée 0..1. Omets si aucun animal visible.',
