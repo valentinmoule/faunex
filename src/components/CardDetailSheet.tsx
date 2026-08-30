@@ -706,7 +706,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
               })()}
             </div>
 
-            {isUncaptured ? (
+{isUncaptured ? (
               <div className="rounded-2xl border border-dashed border-primary/25 bg-primary/[0.04] p-4 text-center">
                 <div className="mx-auto mb-2.5 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                   <Camera className="w-5 h-5 text-primary" />
@@ -717,6 +717,18 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   Son habitat, son alimentation et ses secrets ne seront révélés qu'après votre découverte.
                 </p>
+                {communityFinders !== undefined && (
+                  <div className="mt-3 flex items-center justify-center">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-background/80 border border-border px-3 py-1.5">
+                      <FindersBadge count={communityFinders} />
+                      <span className="text-[11px] font-display font-medium text-muted-foreground">
+                        {communityFinders > 0
+                          ? 'déjà capturée par la communauté'
+                          : 'personne ne l’a encore capturée'}
+                      </span>
+                    </span>
+                  </div>
+                )}
               </div>
             ) : (
               <p className="text-sm text-foreground/80 leading-relaxed text-center max-w-sm mx-auto">{card.description}</p>
