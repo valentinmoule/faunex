@@ -12,7 +12,7 @@ const W = 1080;
 const H = 1350;
 
 const RARITY: Record<Rarity, { border: [string, string, string]; label: string; holo: number }> = {
-  common: { border: ['#9aa2a8', '#c9d1d6', '#7d858b'], label: 'Commun', holo: 0.1 },
+  common: { border: ['#9aa2a8', '#c9d1d6', '#7d858b'], label: 'Commune', holo: 0.1 },
   rare: { border: ['#3b82f6', '#93c5fd', '#1d4ed8'], label: 'Rare', holo: 0.22 },
   uncommon: { border: ['#3f4a5c', '#c7cfdb', '#232b3a'], label: 'Peu commune', holo: 0.1 },
   very_rare: { border: ['#1c2333', '#4a5568', '#0b0f19'], label: 'Plutôt rare', holo: 0.2 },
@@ -20,6 +20,10 @@ const RARITY: Record<Rarity, { border: [string, string, string]; label: string; 
   illustration_rare: { border: ['#eab308', '#fef3c7', '#a16207'], label: 'Illustration rare', holo: 0.4 },
   special_rare: { border: ['#f59e0b', '#fff0c0', '#b45309'], label: 'Spéciale rare', holo: 0.44 },
   hyper_rare: { border: ['#d97706', '#ffe9b0', '#92400e'], label: 'Hyper rare', holo: 0.5 },
+  // Alias legacy (anciennes captures / caches)
+  epic: { border: ['#94a3b8', '#f1f5f9', '#475569'], label: 'Ultra rare', holo: 0.34 },
+  legendary: { border: ['#eab308', '#fef3c7', '#a16207'], label: 'Illustration rare', holo: 0.4 },
+  mythic: { border: ['#f59e0b', '#fff0c0', '#b45309'], label: 'Spéciale rare', holo: 0.44 },
 };
 
 const roundRect = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) => {
