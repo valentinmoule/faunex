@@ -1217,7 +1217,7 @@ Bestiaire
                     <SheetTitle className="font-display">Trier mes captures</SheetTitle>
                   </SheetHeader>
                   <div className="mt-4 space-y-2 pb-4">
-                    {(['recent', 'alpha', 'custom'] as MineSort[]).map((mode) => {
+                    {(['recent', 'alpha', 'rarity', 'custom'] as MineSort[]).map((mode) => {
                       const active = mineSort === mode;
                       return (
                         <button
