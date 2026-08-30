@@ -58,6 +58,21 @@ const MINE_SORT_LABELS: Record<MineSort, string> = {
 const sortStorageKey = (uid: string) => `faunex:mine-sort:${uid}`;
 const orderStorageKey = (uid: string) => `faunex:mine-order:${uid}`;
 
+/** Filtre de popularité communautaire : combien de naturalistes ont capturé l'espèce.
+ *  Seuils alignés sur FindersBadge pour une cohérence badge ↔ filtre. */
+type PopularityTier = 'none' | 'rare' | 'common' | 'trending' | 'hot';
+
+const POPULARITY_LABELS: Record<PopularityTier, { label: string; hint: string }> = {
+  none: { label: 'Jamais capturée', hint: 'personne encore' },
+  rare: { label: 'Peu capturée', hint: '1 à 4' },
+  common: { label: 'Populaire', hint: '5 à 24' },
+  trending: { label: 'Très populaire', hint: '25 à 99' },
+  hot: { label: 'Incontournable', hint: '100+' },
+};
+
+const popularityTierOf = (n: number): PopularityTier =>
+  n <= 0 ? 'none' : n < 5 ? 'rare' : n < 25 ? 'common' : n < 100 ? 'trending' : 'hot';
+
 
 /** Socle coloré (profondeur "jeu mobile") selon la rareté. */
 const tileDepthClass: Record<string, string> = {
@@ -156,7 +171,8 @@ const BestiairePage = () => {
   const [collectionSearch, setCollectionSearch] = useState('');
   const [speciesSearch, setSpeciesSearch] = useState('');
   const [mineSearch, setMineSearch] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
+const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
+  const [popularityFilter, setPopularityFilter] = useState<PopularityTier[]>([]);
   const [filterOpen, setFilterOpen] = useState(false);
   const [mineSort, setMineSort] = useState<MineSort>('recent');
   const [customOrder, setCustomOrder] = useState<string[]>([]);
@@ -425,14 +441,21 @@ const BestiairePage = () => {
     [speciesQuery]
   );
 
+// Filtre de popularité communautaire (vide = toutes les popularités)
+  const matchesPopularity = useCallback(
+    (n: number) => popularityFilter.length === 0 || popularityFilter.includes(popularityTierOf(n)),
+    [popularityFilter],
+  );
+
   // Animals for selected category (with rarity filter + search)
   const categoryAnimals = useMemo(() => {
     if (!selectedCategory) return [];
     return animals
       .filter(a => selectedCategory === ALL_SPECIES || normalizeCategory(a.category) === selectedCategory)
-.filter(a => rarityFilter.length === 0 || rarityFilter.includes(a.rarity as Rarity))
+      .filter(a => rarityFilter.length === 0 || rarityFilter.includes(a.rarity as Rarity))
+      .filter(a => matchesPopularity(a.finders ?? 0))
       .filter(matchesSearch);
-  }, [animals, selectedCategory, rarityFilter, matchesSearch]);
+  }, [animals, selectedCategory, rarityFilter, matchesPopularity, matchesSearch]);
 
   // Sub-level inside a category: breed groups (races de chien…) + type groups (papillons, rapaces…)
   const breedGroupsInCategory = useMemo(() => {
@@ -475,14 +498,15 @@ const BestiairePage = () => {
 
 
 
-  // Browse view: all species, filtered by category chips + rarity + search
-const browseAnimals = useMemo(() => {
+// Browse view: all species, filtered by category chips + rarity + popularity + search
+  const browseAnimals = useMemo(() => {
     return animals
       .filter(a => categoryFilter.length === 0 || categoryFilter.includes(normalizeCategory(a.category)))
-.filter(a => rarityFilter.length === 0 || rarityFilter.includes(a.rarity as Rarity))
+      .filter(a => rarityFilter.length === 0 || rarityFilter.includes(a.rarity as Rarity))
+      .filter(a => matchesPopularity(a.finders ?? 0))
       .filter(matchesSearch);
     // Pas de re-tri : `animals` est déjà trié alphabétiquement au chargement.
-  }, [animals, categoryFilter, rarityFilter, matchesSearch]);
+  }, [animals, categoryFilter, rarityFilter, matchesPopularity, matchesSearch]);
 
   // Virtualisation : seules les lignes visibles sont montées (mémoire constante).
 
@@ -510,14 +534,15 @@ const browseAnimals = useMemo(() => {
     }
   }, []);
 
-  const activeFilterCount = categoryFilter.length + rarityFilter.length;
+const activeFilterCount = categoryFilter.length + rarityFilter.length + popularityFilter.length;
 
   const browseTotal = useMemo(
     () => animals
       .filter(a => categoryFilter.length === 0 || categoryFilter.includes(normalizeCategory(a.category)))
       .filter(a => rarityFilter.length === 0 || rarityFilter.includes(a.rarity as Rarity))
+      .filter(a => matchesPopularity(a.finders ?? 0))
       .filter(matchesSearch).length,
-    [animals, categoryFilter, rarityFilter, matchesSearch],
+    [animals, categoryFilter, rarityFilter, matchesPopularity, matchesSearch],
   );
 
   // Flat list of my own captures (one entry per capture), filtered + trié selon le mode choisi
@@ -1249,8 +1274,8 @@ Bestiaire
                 </button>
               </div>
 
-              {/* Chips des catégories actives */}
-              {categoryFilter.length > 0 && (
+{/* Chips des filtres actifs */}
+              {(categoryFilter.length > 0 || popularityFilter.length > 0) && (
                 <div className="flex flex-wrap items-center gap-1.5 mb-3">
                   {categoryFilter.map(cat => (
                     <button
@@ -1263,8 +1288,18 @@ Bestiaire
                       <X className="w-3 h-3" />
                     </button>
                   ))}
+{popularityFilter.map(tier => (
+                    <button
+                      key={tier}
+                      onClick={() => setPopularityFilter(prev => prev.filter(t => t !== tier))}
+                      className={`popularity-chip popularity-chip--${tier} text-[11px] font-display font-semibold active:scale-95 transition`}
+                    >
+                      {POPULARITY_LABELS[tier].label}
+                      <X className="w-3 h-3" />
+                    </button>
+                  ))}
                   <button
-                    onClick={() => setCategoryFilter([])}
+                    onClick={() => { setCategoryFilter([]); setPopularityFilter([]); }}
                     className="px-2 py-1 rounded-full text-[11px] font-display font-semibold text-muted-foreground hover:text-foreground transition"
                   >
                     Tout effacer
@@ -1369,11 +1404,41 @@ Bestiaire
                     })}
                   </div>
 
+                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-display font-bold mt-5 mb-2">Popularité</p>
+                  <p className="text-[11px] font-display text-muted-foreground mb-2">
+                    Combien de naturalistes ont déjà capturé l'espèce — sélection vide = toutes.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {(Object.keys(POPULARITY_LABELS) as PopularityTier[]).map((t) => {
+                      const active = popularityFilter.includes(t);
+                      const { label, hint } = POPULARITY_LABELS[t];
+                      return (
+                        <button
+                          key={t}
+                          onClick={() =>
+                            setPopularityFilter(prev =>
+                              active ? prev.filter(x => x !== t) : [...prev, t]
+                            )
+                          }
+                          className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-[12px] font-display font-semibold border transition-all active:scale-95 ${
+                            active
+                              ? 'bg-primary text-primary-foreground border-primary'
+                              : 'bg-card text-foreground border-border hover:border-primary/40'
+                          }`}
+                        >
+                          {label}
+                          <span className={active ? 'opacity-80' : 'opacity-50'}>{hint}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
                   <div className="flex gap-2 mt-6">
                     <button
                       onClick={() => {
                         setCategoryFilter([]);
                         setRarityFilter([]);
+                        setPopularityFilter([]);
                       }}
                       className="px-4 py-2.5 rounded-xl border border-border bg-card text-sm font-display font-semibold text-foreground active:scale-[0.97] transition"
                     >
