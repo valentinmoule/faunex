@@ -19,8 +19,8 @@ import type { AnimalResult } from '@/types/capture';
 const rarityColors: Record<string, string> = {
   common: 'bg-rarity-common/20 text-rarity-common border-rarity-common/40',
   rare: 'bg-rarity-rare/20 text-rarity-rare border-rarity-rare/40',
-  epic: 'bg-rarity-epic/20 text-rarity-epic border-rarity-epic/40',
-  mythic: 'bg-rarity-mythic/20 text-rarity-mythic border-rarity-mythic/40',
+  epic: 'bg-rarity-silver/20 text-rarity-silver border-rarity-silver/40',
+  mythic: 'bg-rarity-gold/20 text-rarity-gold border-rarity-gold/40',
 };
 
 /** Accroches affichées à l'ouverture de la caméra : une seule, choisie au hasard. */
@@ -630,8 +630,8 @@ setManualMode(false);
           <div className="relative z-20 flex-1 flex items-center justify-center">
             <div className="text-center capture-freeze-pulse">
               <div className={`w-20 h-20 mx-auto rounded-full border-2 flex items-center justify-center mb-4 ${
-                revealRarity === 'mythic' ? 'border-rarity-mythic/60 bg-rarity-mythic/10' :
-                revealRarity === 'epic' ? 'border-rarity-epic/60 bg-rarity-epic/10' :
+                revealRarity === 'mythic' ? 'border-rarity-gold/60 bg-rarity-gold/10' :
+                revealRarity === 'epic' ? 'border-rarity-silver/60 bg-rarity-silver/10' :
                 revealRarity === 'rare' ? 'border-rarity-rare/60 bg-rarity-rare/10' :
                 'border-muted-foreground/30 bg-muted/10'
               }`}>
@@ -647,8 +647,8 @@ setManualMode(false);
           <div className="relative z-20 flex-1 flex items-center justify-center">
             <div className="text-center reveal-shake" style={{ animationDuration: `${REVEAL_TIMINGS[revealRarity].shake}ms`, animationIterationCount: revealRarity === 'mythic' ? 3 : revealRarity === 'epic' ? 2 : 1 }}>
               <div className={`w-28 h-28 mx-auto rounded-2xl border-4 flex items-center justify-center relative overflow-hidden
-                ${revealRarity === 'mythic' ? 'border-rarity-mythic bg-rarity-mythic/20 shadow-glow-amber capture-suspense-mythic' :
-                  revealRarity === 'epic' ? 'border-rarity-epic bg-rarity-epic/20 capture-suspense-epic' :
+                ${revealRarity === 'mythic' ? 'border-rarity-gold bg-rarity-gold/20 shadow-glow-amber capture-suspense-gold' :
+                  revealRarity === 'epic' ? 'border-rarity-silver bg-rarity-silver/20 capture-suspense-silver' :
                   revealRarity === 'rare' ? 'border-rarity-rare bg-rarity-rare/20 capture-suspense-rare' :
                   'border-muted-foreground/40 bg-muted/20'}`}
               >
@@ -694,19 +694,19 @@ setManualMode(false);
             )}
             <div className={`reveal-${revealRarity} text-center px-6 z-20`}>
               <div className={`w-32 h-32 mx-auto rounded-2xl border-4 flex items-center justify-center relative overflow-hidden
-                ${revealRarity === 'mythic' ? 'border-rarity-mythic mythic-shiny' :
-                  revealRarity === 'epic' ? 'border-rarity-epic rarity-epic-glow' :
+                ${revealRarity === 'mythic' ? 'border-rarity-gold gold-shiny' :
+                  revealRarity === 'epic' ? 'border-rarity-silver rarity-silver-glow' :
                   revealRarity === 'rare' ? 'border-rarity-rare rarity-rare-glow' :
                   'border-muted-foreground/40'}`}
               >
                 {capturedPhoto && <img src={capturedPhoto} alt="" className="w-full h-full object-cover" />}
                 {revealRarity === 'mythic' && (
-                  <div className="mythic-sparkles">
+                  <div className="gold-sparkles">
                     <span /><span /><span /><span /><span /><span />
                   </div>
                 )}
-                {revealRarity === 'epic' && <div className="epic-image-overlay" />}
-                {revealRarity === 'mythic' && <div className="mythic-image-overlay" />}
+                {revealRarity === 'epic' && <div className="silver-image-overlay" />}
+                {revealRarity === 'mythic' && <div className="gold-image-overlay" />}
               </div>
               <span className={`inline-block mt-4 px-3 py-1 rounded-full text-xs font-display font-bold uppercase tracking-wider border ${rarityColors[revealRarity]}`}>
                 {RARITY_LABELS[revealRarity]}

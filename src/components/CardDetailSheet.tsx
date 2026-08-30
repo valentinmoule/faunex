@@ -49,15 +49,15 @@ const rarityGradients: Record<Rarity, string> = {
 const rarityBg: Record<Rarity, string> = {
   common: 'bg-rarity-common/15',
   rare: 'bg-rarity-rare/15',
-  epic: 'bg-rarity-epic/15',
-  mythic: 'bg-rarity-mythic/15',
+  epic: 'bg-rarity-silver/15',
+  mythic: 'bg-rarity-gold/15',
 };
 
 const rarityText: Record<Rarity, string> = {
   common: 'text-rarity-common',
   rare: 'text-rarity-rare',
-  epic: 'text-rarity-epic',
-  mythic: 'text-rarity-mythic',
+  epic: 'text-rarity-silver',
+  mythic: 'text-rarity-gold',
 };
 const getCategoryIcon = (category: string): ComponentType<{ className?: string; strokeWidth?: string | number }> => {
   const cat = category.toLowerCase();
@@ -504,9 +504,9 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
   const isShiny = isEpic || isMythic;
 
   const detailAppearClass = isMythic
-    ? 'animate-card-appear-mythic'
+    ? 'animate-card-appear-gold'
     : isEpic
-    ? 'animate-card-appear-epic'
+    ? 'animate-card-appear-silver'
     : isRare
     ? 'animate-card-appear-rare'
     : '';
@@ -531,22 +531,22 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
             {/* Mythic: blurred aurora orbs + light leak */}
             {isMythic && (
               <>
-                <div className="detail-mythic-orb-1 pointer-events-none" />
-                <div className="detail-mythic-orb-2 pointer-events-none" />
-                <div className="detail-mythic-orb-3 pointer-events-none" />
-                <div className="detail-mythic-vignette pointer-events-none" />
-                <div className="detail-mythic-leak" />
-                <div className="detail-mythic-geo" />
+                <div className="detail-gold-orb-1 pointer-events-none" />
+                <div className="detail-gold-orb-2 pointer-events-none" />
+                <div className="detail-gold-orb-3 pointer-events-none" />
+                <div className="detail-gold-vignette pointer-events-none" />
+                <div className="detail-gold-leak" />
+                <div className="detail-gold-geo" />
               </>
             )}
             {isEpic && (
               <>
-                <div className="detail-epic-orb-1 pointer-events-none" />
-                <div className="detail-epic-orb-2 pointer-events-none" />
-                <div className="detail-epic-orb-3 pointer-events-none" />
-                <div className="detail-epic-vignette pointer-events-none" />
-                <div className="detail-epic-leak" />
-                <div className="detail-epic-geo" />
+                <div className="detail-silver-orb-1 pointer-events-none" />
+                <div className="detail-silver-orb-2 pointer-events-none" />
+                <div className="detail-silver-orb-3 pointer-events-none" />
+                <div className="detail-silver-vignette pointer-events-none" />
+                <div className="detail-silver-leak" />
+                <div className="detail-silver-geo" />
               </>
             )}
             {isRare && (
@@ -598,8 +598,8 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                       })()
                     )}
                     {/* Glass shimmer overlay on image */}
-                    {card.image && isMythic && <div className="detail-mythic-glass" />}
-                    {card.image && isEpic && <div className="detail-epic-glass" />}
+                    {card.image && isMythic && <div className="detail-gold-glass" />}
+                    {card.image && isEpic && <div className="detail-silver-glass" />}
                     {card.image && isRare && <div className="detail-rare-glass" />}
                     {/* Name overlay bottom-left */}
                     <div className="absolute bottom-0 left-0 right-0 pointer-events-none p-3 pr-4 pt-10 bg-gradient-to-t from-black/75 via-black/35 to-transparent">
@@ -821,13 +821,13 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
 
 
             {/* Fun Fact */}
-            <div className={`relative overflow-hidden rounded-2xl border ${isMythic ? 'border-rarity-mythic/30 bg-rarity-mythic/5' : isEpic ? 'border-rarity-epic/30 bg-rarity-epic/5' : 'border-border bg-muted/30'} ${isUncaptured ? 'opacity-70' : ''}`}>
+            <div className={`relative overflow-hidden rounded-2xl border ${isMythic ? 'border-rarity-gold/30 bg-rarity-gold/5' : isEpic ? 'border-rarity-silver/30 bg-rarity-silver/5' : 'border-border bg-muted/30'} ${isUncaptured ? 'opacity-70' : ''}`}>
               <div className="px-4 py-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${isMythic ? 'bg-rarity-mythic/15' : 'bg-primary/15'}`}>
-                    <Sparkles className={`w-4 h-4 ${isMythic ? 'text-rarity-mythic' : 'text-primary'}`} />
+                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${isMythic ? 'bg-rarity-gold/15' : 'bg-primary/15'}`}>
+                    <Sparkles className={`w-4 h-4 ${isMythic ? 'text-rarity-gold' : 'text-primary'}`} />
                   </div>
-                  <p className={`text-xs font-display font-bold uppercase tracking-wider ${isMythic ? 'text-rarity-mythic' : 'text-muted-foreground'}`}>
+                  <p className={`text-xs font-display font-bold uppercase tracking-wider ${isMythic ? 'text-rarity-gold' : 'text-muted-foreground'}`}>
                     Le saviez-vous ?
                   </p>
                 </div>
@@ -968,8 +968,8 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                         className="w-full h-full object-cover pointer-events-none select-none"
                         draggable={false}
                       />
-                      {isMythic && <div className="detail-mythic-glass detail-glass--fullscreen" />}
-                      {isEpic && <div className="detail-epic-glass detail-glass--fullscreen" />}
+                      {isMythic && <div className="detail-gold-glass detail-glass--fullscreen" />}
+                      {isEpic && <div className="detail-silver-glass detail-glass--fullscreen" />}
                       {isRare && <div className="detail-rare-glass detail-glass--fullscreen" />}
                     </div>
                     {/* Name overlay bottom-left */}

@@ -24,8 +24,8 @@ interface RecentCapture {
 const rarityToDot: Record<string, string> = {
   common: 'bg-rarity-common',
   rare: 'bg-rarity-rare',
-  epic: 'bg-rarity-epic',
-  mythic: 'bg-rarity-mythic',
+  epic: 'bg-rarity-silver',
+  mythic: 'bg-rarity-gold',
 };
 
 // Real wildlife photos hosted locally (Wikimedia Commons originals)
@@ -39,8 +39,8 @@ const heroCards: { img: string; name: string; rarity: Rarity; label: string }[] 
 const rarityChip: Record<Rarity, string> = {
   common: 'bg-muted text-muted-foreground',
   rare: 'bg-rarity-rare/15 text-rarity-rare',
-  epic: 'bg-rarity-epic/15 text-rarity-epic',
-  mythic: 'bg-rarity-mythic/15 text-rarity-mythic',
+  epic: 'bg-rarity-silver/15 text-rarity-silver',
+  mythic: 'bg-rarity-gold/15 text-rarity-gold',
 };
 
 const benefits = [
@@ -393,7 +393,7 @@ const LandingPage = () => {
             {[
               { icon: Camera, num: '01', title: 'Photographie', desc: 'Prends en photo un animal que tu croises lors de tes balades.', rot: '-rotate-2', tint: 'from-primary/15 to-primary/5' },
               { icon: Brain, num: '02', title: "L'IA identifie", desc: "Espèce, habitat, régime, anecdotes : tout en 3 secondes.", rot: 'rotate-1', tint: 'from-amber/20 to-amber/5' },
-              { icon: Trophy, num: '03', title: 'Collectionne', desc: "L'animal devient une carte unique avec sa rareté.", rot: '-rotate-1', tint: 'from-rarity-epic/15 to-rarity-epic/5' },
+              { icon: Trophy, num: '03', title: 'Collectionne', desc: "L'animal devient une carte unique avec sa rareté.", rot: '-rotate-1', tint: 'from-rarity-silver/15 to-rarity-silver/5' },
             ].map((step, i) => (
               <div
                 key={i}
@@ -444,8 +444,8 @@ const LandingPage = () => {
               const badge = {
                 common: 'bg-rarity-common/20 text-rarity-common border border-rarity-common/30',
                 rare: 'bg-rarity-rare/15 text-rarity-rare border border-rarity-rare/30 shadow-[0_0_8px_hsla(210,70%,55%,0.3)]',
-                epic: 'bg-rarity-epic/15 text-rarity-epic border border-rarity-epic/30 shadow-[0_0_8px_hsla(270,70%,60%,0.3)]',
-                mythic: 'bg-rarity-mythic/15 text-rarity-mythic border border-rarity-mythic/30 shadow-[0_0_10px_hsla(42,85%,55%,0.4)]',
+                epic: 'bg-rarity-silver/15 text-rarity-silver border border-rarity-silver/30 shadow-[0_0_8px_hsla(270,70%,60%,0.3)]',
+                mythic: 'bg-rarity-gold/15 text-rarity-gold border border-rarity-gold/30 shadow-[0_0_10px_hsla(42,85%,55%,0.4)]',
               }[card.rarity];
               return (
                 <div key={card.name} className="flex-shrink-0 w-[72%] sm:w-auto snap-start rounded-2xl overflow-hidden">

@@ -79,8 +79,8 @@ const LandingPhoneShowcase = () => {
                   {[
                     { img: '/landing/ladybug.jpg', ring: 'ring-muted' },
                     { img: '/landing/bluetit.jpg', ring: 'ring-rarity-rare/60' },
-                    { img: '/landing/squirrel.jpg', ring: 'ring-rarity-epic/60' },
-                    { img: '/landing/reddeer.jpg', ring: 'ring-rarity-mythic/70' },
+                    { img: '/landing/squirrel.jpg', ring: 'ring-rarity-silver/60' },
+                    { img: '/landing/reddeer.jpg', ring: 'ring-rarity-gold/70' },
                     { img: '/landing/ladybug.jpg', ring: 'ring-muted' },
                     { img: '/landing/bluetit.jpg', ring: 'ring-rarity-rare/60' },
                   ].map((c, i) => (
@@ -116,19 +116,19 @@ const LandingPhoneShowcase = () => {
           {/* PHONE 3 — Card reveal */}
           <div className="flex flex-col items-center">
             <PhoneMockup className="w-[210px] sm:w-[200px] sm:rotate-[3deg] sm:translate-y-4">
-              <div className="relative h-full w-full bg-gradient-to-b from-rarity-mythic/20 via-background to-background flex flex-col items-center justify-center p-4">
+              <div className="relative h-full w-full bg-gradient-to-b from-rarity-gold/20 via-background to-background flex flex-col items-center justify-center p-4">
                 {/* Sparkles */}
-                <div className="absolute top-6 left-6 text-rarity-mythic animate-pulse">
+                <div className="absolute top-6 left-6 text-rarity-gold animate-pulse">
                   <Sparkles className="w-3 h-3" />
                 </div>
-                <div className="absolute top-12 right-8 text-rarity-mythic animate-pulse" style={{ animationDelay: '300ms' }}>
+                <div className="absolute top-12 right-8 text-rarity-gold animate-pulse" style={{ animationDelay: '300ms' }}>
                   <Sparkles className="w-4 h-4" />
                 </div>
-                <div className="absolute bottom-20 left-8 text-rarity-mythic animate-pulse" style={{ animationDelay: '600ms' }}>
+                <div className="absolute bottom-20 left-8 text-rarity-gold animate-pulse" style={{ animationDelay: '600ms' }}>
                   <Sparkles className="w-3 h-3" />
                 </div>
 
-                <p className="text-[10px] font-display font-bold uppercase tracking-[0.2em] text-rarity-mythic mb-2">
+                <p className="text-[10px] font-display font-bold uppercase tracking-[0.2em] text-rarity-gold mb-2">
                   Mythique
                 </p>
 
@@ -138,7 +138,7 @@ const LandingPhoneShowcase = () => {
                       <img src="/landing/reddeer.jpg" alt="Cerf élaphe" className="w-full aspect-square object-cover" loading="lazy" />
                       <div className="p-1.5 bg-card">
                         <p className="font-display font-bold text-[10px] truncate">Cerf élaphe</p>
-                        <p className="text-[8px] text-rarity-mythic font-display font-bold uppercase tracking-wider">Mythique</p>
+                        <p className="text-[8px] text-rarity-gold font-display font-bold uppercase tracking-wider">Mythique</p>
                       </div>
                     </div>
                   </HolographicCard>

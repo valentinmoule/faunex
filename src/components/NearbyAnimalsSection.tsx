@@ -17,29 +17,29 @@ interface NearbyAnimal {
 const rarityDot: Record<string, string> = {
   common: 'bg-rarity-common',
   rare: 'bg-rarity-rare',
-  epic: 'bg-rarity-epic',
-  mythic: 'bg-rarity-mythic',
+  epic: 'bg-rarity-silver',
+  mythic: 'bg-rarity-gold',
 };
 
 const rarityBadge: Record<string, string> = {
   common: 'bg-rarity-common/15 text-rarity-common',
   rare: 'bg-rarity-rare/15 text-rarity-rare',
-  epic: 'bg-rarity-epic/15 text-rarity-epic',
-  mythic: 'bg-rarity-mythic/15 text-rarity-mythic',
+  epic: 'bg-rarity-silver/15 text-rarity-silver',
+  mythic: 'bg-rarity-gold/15 text-rarity-gold',
 };
 
 const rarityCardBorder: Record<string, string> = {
   common: 'border-transparent',
   rare: 'border-rarity-rare/30',
-  epic: 'border-rarity-epic/40',
-  mythic: 'border-rarity-mythic/50',
+  epic: 'border-rarity-silver/40',
+  mythic: 'border-rarity-gold/50',
 };
 
 const rarityCardBg: Record<string, string> = {
   common: 'bg-muted/50',
   rare: 'bg-rarity-rare/5',
-  epic: 'bg-rarity-epic/5',
-  mythic: 'bg-rarity-mythic/5',
+  epic: 'bg-rarity-silver/5',
+  mythic: 'bg-rarity-gold/5',
 };
 
 interface Props {
@@ -151,8 +151,8 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
   }
 
   const alertConfig: Record<string, { icon: typeof Sparkles; label: string; color: string; glowClass: string }> = {
-    mythic: { icon: Flame, label: '🔥 Une espèce Mythique est proche !', color: 'text-rarity-mythic', glowClass: 'nearby-alert-mythic' },
-    epic: { icon: Zap, label: '⚡ Espèce Épique détectée près de toi', color: 'text-rarity-epic', glowClass: 'nearby-alert-epic' },
+    mythic: { icon: Flame, label: '🔥 Une espèce Mythique est proche !', color: 'text-rarity-gold', glowClass: 'nearby-alert-gold' },
+    epic: { icon: Zap, label: '⚡ Espèce Épique détectée près de toi', color: 'text-rarity-silver', glowClass: 'nearby-alert-silver' },
     rare: { icon: Sparkles, label: '🔹 Espèce Rare repérée dans ta zone', color: 'text-rarity-rare', glowClass: 'nearby-alert-rare' },
   };
 
@@ -163,8 +163,8 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
         <button
           onClick={() => setAlertAnimal(null)}
           className={`w-full mb-3 px-4 py-3 rounded-2xl border flex items-center gap-3 transition-all animate-nearby-alert-in ${alertConfig[alertAnimal.rarity].glowClass}
-            ${alertAnimal.rarity === 'mythic' ? 'bg-rarity-mythic/10 border-rarity-mythic/40' :
-              alertAnimal.rarity === 'epic' ? 'bg-rarity-epic/10 border-rarity-epic/40' :
+            ${alertAnimal.rarity === 'mythic' ? 'bg-rarity-gold/10 border-rarity-gold/40' :
+              alertAnimal.rarity === 'epic' ? 'bg-rarity-silver/10 border-rarity-silver/40' :
               'bg-rarity-rare/10 border-rarity-rare/40'}`}
         >
           <div className={`nearby-alert-icon ${alertConfig[alertAnimal.rarity].color}`}>

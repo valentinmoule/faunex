@@ -326,8 +326,8 @@ const Index = () => {
           const rarityTiles: { key: Rarity; label: string; dot: string; ring: string }[] = [
             { key: 'common', label: 'Commun', dot: 'bg-rarity-common', ring: 'border-rarity-common/30' },
             { key: 'rare', label: 'Rare', dot: 'bg-rarity-rare', ring: 'border-rarity-rare/30' },
-            { key: 'epic', label: 'Épique', dot: 'bg-rarity-epic', ring: 'border-rarity-epic/30' },
-            { key: 'mythic', label: 'Mythique', dot: 'bg-rarity-mythic', ring: 'border-rarity-mythic/30' },
+            { key: 'epic', label: 'Épique', dot: 'bg-rarity-silver', ring: 'border-rarity-silver/30' },
+            { key: 'mythic', label: 'Mythique', dot: 'bg-rarity-gold', ring: 'border-rarity-gold/30' },
           ];
 
           // Categories breakdown (top 3)

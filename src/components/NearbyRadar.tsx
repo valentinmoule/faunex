@@ -17,8 +17,8 @@ const rarityColor: Record<string, string> = {
 const rarityPulse: Record<string, string> = {
   common: '',
   rare: 'radar-dot-pulse-rare',
-  epic: 'radar-dot-pulse-epic',
-  mythic: 'radar-dot-pulse-mythic',
+  epic: 'radar-dot-pulse-silver',
+  mythic: 'radar-dot-pulse-gold',
 };
 
 // Generate a pseudo-random but stable angle/distance from animal name
