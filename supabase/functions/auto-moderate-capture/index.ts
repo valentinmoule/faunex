@@ -616,6 +616,56 @@ const norm = (v: string | null | undefined) =>
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
 
+/** Mots sans valeur discriminante dans un nom vernaculaire français. */
+const NAME_STOPWORDS = new Set([
+  'de', 'du', 'des', 'la', 'le', 'les', 'l', 'd', 'a', 'au', 'aux', 'et',
+  'commun', 'communs', 'commune', 'communes', 'vulgaire', 'ordinaire',
+  'europe', 'europeen', 'europeenne', 'europeens', 'europeennes',
+  'france', 'francais', 'francaise', 'domestique', 'domestiques',
+  'espece', 'sp', 'spp', 'genre',
+])
+
+/** Racine grossière : neutralise pluriels et accords (chats → chat). */
+const stem = (t: string) => (t.length > 4 ? t.replace(/(aux|eaux|es|s|e)$/, '') : t)
+
+const nameTokens = (v: string | null | undefined) =>
+  norm((v ?? '').replace(/\([^)]*\)/g, ' '))
+    .split(' ')
+    .filter((t) => t && !NAME_STOPWORDS.has(t))
+    .map(stem)
+    .filter(Boolean)
+
+/**
+ * Deux noms vernaculaires désignent-ils plausiblement la même chose ?
+ * Tolère orthographe/accents/pluriels, qualificatifs superflus, précision de
+ * race et rang plus large (« mésange » vs « mésange bleue »).
+ */
+const compatibleNames = (a: string, b: string) => {
+  const na = norm(a)
+  const nb = norm(b)
+  if (!na || !nb) return true
+  if (na === nb || na.includes(nb) || nb.includes(na)) return true
+  const ta = nameTokens(a)
+  const tb = nameTokens(b)
+  if (!ta.length || !tb.length) return true
+  const setA = new Set(ta)
+  const setB = new Set(tb)
+  const shared = ta.filter((t) => setB.has(t)).length
+  // Un des deux noms est inclus dans l'autre (rang plus large / race précisée).
+  if (shared === Math.min(setA.size, setB.size)) return true
+  // Sinon : recouvrement majoritaire des mots signifiants.
+  return shared / Math.max(setA.size, setB.size) >= 0.5
+}
+
+/** Compare deux binômes latins au niveau genre + espèce (sous-espèce ignorée). */
+const sameBinomial = (a: string, b: string) => {
+  const ca = norm(a).split(' ').slice(0, 2).join(' ')
+  const cb = norm(b).split(' ').slice(0, 2).join(' ')
+  if (!ca || !cb) return false
+  return ca === cb || ca.startsWith(cb) || cb.startsWith(ca)
+}
+
+
 const SHARED_BINOMIALS = new Set([
   'canis lupus familiaris', 'canis familiaris', 'canis lupus',
   'felis catus', 'felis silvestris catus',
