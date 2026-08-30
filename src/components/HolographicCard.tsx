@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, type ReactNode } from 'react';
-import { type Rarity, RARITY_FX, RARITY_RANK, normalizeRarity } from '@/data/mockData';
+import { type Rarity, normalizeRarity } from '@/data/mockData';
 
 interface Props {
   rarity: Rarity;
@@ -308,11 +308,17 @@ const HolographicCard = ({
   }
 
     const _r = normalizeRarity(rarity);
-  const _fx = RARITY_FX[_r];
-  const holoClass = _fx === 'gold' ? 'holo-gold'
-    : _fx === 'silver' ? 'holo-silver'
-    : RARITY_RANK[_r] >= 2 ? 'holo-rare'
-    : 'holo-common';
+  const HOLO_CLASS: Record<Rarity, string> = {
+    common: 'holo-common',
+    uncommon: 'holo-uncommon',
+    rare: 'holo-rare',
+    very_rare: 'holo-very-rare',
+    ultra_rare: 'holo-ultra-rare',
+    illustration_rare: 'holo-illustration-rare',
+    special_rare: 'holo-special-rare',
+    hyper_rare: 'holo-hyper-rare',
+  };
+  const holoClass = HOLO_CLASS[_r] ?? 'holo-common';
 
 return (
     <div
