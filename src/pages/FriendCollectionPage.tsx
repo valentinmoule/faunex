@@ -7,7 +7,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import { rarityBorderColor } from '@/lib/bestiary';
 import RarityBadge from '@/components/RarityBadge';
 import CardDetailSheet from '@/components/CardDetailSheet';
-import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
+import { type AnimalCard, type Rarity, RARITY_LABELS, RARITY_ORDER, RARITY_RANK, RARITY_FX, normalizeRarity } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
 import { fetchAllRows } from '@/lib/fetchAll';
 import { useAuth } from '@/contexts/AuthContext';

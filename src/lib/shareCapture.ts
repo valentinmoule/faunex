@@ -20,7 +20,7 @@ const RARITY: Record<Rarity, { border: [string, string, string]; label: string; 
   illustration_rare: { border: ['#eab308', '#fef3c7', '#a16207'], label: 'Illustration rare', holo: 0.4 },
   special_rare: { border: ['#f59e0b', '#fff0c0', '#b45309'], label: 'Spéciale rare', holo: 0.44 },
   hyper_rare: { border: ['#d97706', '#ffe9b0', '#92400e'], label: 'Hyper rare', holo: 0.5 },
-  // Alias legacy (anciennes captures / caches)
+  // @ts-expect-error alias legacy
   epic: { border: ['#94a3b8', '#f1f5f9', '#475569'], label: 'Ultra rare', holo: 0.34 },
   legendary: { border: ['#eab308', '#fef3c7', '#a16207'], label: 'Illustration rare', holo: 0.4 },
   mythic: { border: ['#f59e0b', '#fff0c0', '#b45309'], label: 'Spéciale rare', holo: 0.44 },

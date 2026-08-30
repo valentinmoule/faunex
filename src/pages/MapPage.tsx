@@ -198,7 +198,7 @@ const MapPage = () => {
     });
     return Array.from(map.entries()).map(([key, items]) => {
       const sorted = [...items].sort(
-        (a, b) => RARITY_ORDER_LOCAL.indexOf(b.rarity) - RARITY_ORDER_LOCAL.indexOf(a.rarity),
+        (a, b) => RARITY_ORDER_LOCAL.indexOf(b.rarity as Rarity) - RARITY_ORDER_LOCAL.indexOf(a.rarity as Rarity),
       );
       return { key, items: sorted, lead: sorted[0] };
     });

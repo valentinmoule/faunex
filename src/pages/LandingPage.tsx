@@ -38,9 +38,13 @@ const heroCards: { img: string; name: string; rarity: Rarity; label: string }[] 
 
 const rarityChip: Record<Rarity, string> = {
   common: 'bg-muted text-muted-foreground',
+  uncommon: 'bg-rarity-uncommon/15 text-rarity-uncommon',
   rare: 'bg-rarity-rare/15 text-rarity-rare',
+  very_rare: 'bg-rarity-very_rare/15 text-rarity-very_rare',
   ultra_rare: 'bg-rarity-silver/15 text-rarity-silver',
+  illustration_rare: 'bg-rarity-gold/15 text-rarity-gold',
   special_rare: 'bg-rarity-gold/15 text-rarity-gold',
+  hyper_rare: 'bg-rarity-gold/15 text-rarity-gold',
 };
 
 const benefits = [
