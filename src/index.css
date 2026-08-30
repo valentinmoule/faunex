@@ -2859,6 +2859,7 @@ html.is-native-android body {
 
 /* ──────────────────────────────────────────────────────────
    Jeton "popularité d'espèce" (combien l'ont capturée)
+   Style neutre : icône + nombre, sans couleur de palier.
    ────────────────────────────────────────────────────────── */
 .finders-badge {
   position: relative;
@@ -2872,49 +2873,15 @@ html.is-native-android body {
   line-height: 1;
   letter-spacing: 0.02em;
   color: #fff;
-  background: var(--finders-face, hsla(0, 0%, 0%, 0.55));
-  border: 1px solid hsla(0, 0%, 100%, 0.3);
+  background: hsla(220, 12%, 18%, 0.6);
+  border: 1px solid hsla(0, 0%, 100%, 0.25);
   backdrop-filter: blur(6px);
-  box-shadow: 0 2px 8px -2px var(--finders-glow, hsla(0, 0%, 0%, 0.25));
+  box-shadow: 0 2px 8px -2px hsla(0, 0%, 0%, 0.25);
 }
 .finders-badge__icon {
   width: 10px;
   height: 10px;
   color: hsla(0, 0%, 100%, 0.9);
-}
-/* Palette distincte de la rareté (gris/bleu/violet/doré) : teal, vert, rose, rouge.
-   Elle suit la "température" de popularité sans jamais ressembler à une rareté. */
-.finders-badge--none {
-  --finders-face: hsla(220, 12%, 22%, 0.62);
-  color: hsla(0, 0%, 100%, 0.85);
-}
-.finders-badge--rare {
-  --finders-face: hsl(168 62% 33% / 0.94);
-  --finders-glow: hsl(168 62% 29% / 0.35);
-}
-.finders-badge--common {
-  --finders-face: hsl(150 55% 30% / 0.94);
-  --finders-glow: hsl(150 55% 26% / 0.35);
-}
-.finders-badge--trending {
-  --finders-face: hsl(340 74% 46% / 0.94);
-  --finders-glow: hsl(340 74% 42% / 0.4);
-}
-.finders-badge--hot {
-  --finders-face: linear-gradient(135deg, #f43f5e 0%, #dc2626 70%);
-  --finders-glow: hsl(0 84% 46% / 0.45);
-  border-color: hsla(0, 0%, 100%, 0.45);
-}
-.finders-badge--hot .finders-badge__icon {
-  animation: finders-flame 1.6s ease-in-out infinite;
-  transform-origin: 50% 90%;
-}
-@keyframes finders-flame {
-  0%, 100% { transform: scale(1) rotate(-2deg); }
-  50% { transform: scale(1.14) rotate(2deg); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .finders-badge--hot .finders-badge__icon { animation: none; }
 }
 
 /* Puces de filtre "Popularité" : mêmes teintes que le jeton, en version douce */

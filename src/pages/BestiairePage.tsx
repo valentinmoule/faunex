@@ -165,7 +165,8 @@ const BestiairePage = () => {
   const [selectedBreedGroup, setSelectedBreedGroup] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'mine' | 'categories' | 'collections'>('mine');
   const [rarityFilter, setRarityFilter] = useState<Rarity[]>([]);
-  const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
+const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
+  const [selectedFinders, setSelectedFinders] = useState<number | undefined>(undefined);
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
   const [selectedCollectionKey, setSelectedCollectionKey] = useState<string | null>(null);
   const [showDeptPicker, setShowDeptPicker] = useState(false);
@@ -515,11 +516,13 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   // Virtualisation : seules les lignes visibles sont montées (mémoire constante).
 
 
-  // Callback stable pour les cartes mémoïsées de la grille.
+// Callback stable pour les cartes mémoïsées de la grille.
   const handleSelectBrowseAnimal = useCallback((animal: BestiaryAnimal) => {
     if (animal.captured && animal.captureData) {
+      setSelectedFinders(undefined);
       setSelectedCard(animal.captureData);
     } else {
+      setSelectedFinders(animal.finders ?? 0);
       setSelectedCard({
         id: `uncaptured-${animal.name}`,
         name: animal.name,
@@ -1036,7 +1039,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
           )}
         </div>
 
-        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
+        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
         {deptPickerSheet}
       </main>
     );
@@ -1071,7 +1074,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
 </div>
         </div>
 
-        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
+        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
         {deptPickerSheet}
       </main>
     );
@@ -1567,7 +1570,7 @@ const isCity = zone.kind === 'city';
 
 
         </div>
-        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
+        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
         {deptPickerSheet}
       </main>
     );
@@ -1689,10 +1692,12 @@ const isCity = zone.kind === 'city';
               <div
                 key={animal.name}
                 ref={(el) => { slotRefs.current[slotKey] = el; }}
-                onClick={() => {
+onClick={() => {
                   if (animal.captured && animal.captureData) {
+                    setSelectedFinders(undefined);
                     setSelectedCard(animal.captureData);
                   } else {
+                    setSelectedFinders(animal.finders ?? 0);
                     setSelectedCard({
                       id: `uncaptured-${animal.name}`,
                       name: animal.name,
@@ -1759,7 +1764,7 @@ const isCity = zone.kind === 'city';
         )}
       </div>
 
-      <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
+      <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
 
       {/* Flying card overlay for shelve animation */}
       {flyingCardStyle && pendingShelve && (

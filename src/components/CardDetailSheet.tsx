@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import HolographicCard from '@/components/HolographicCard';
 import RarityBadge from '@/components/RarityBadge';
+import FindersBadge from '@/components/FindersBadge';
 import { hapticTap } from '@/lib/haptics';
 import { toast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -20,6 +21,8 @@ interface Props {
   card: AnimalCard | null;
   open: boolean;
   onClose: () => void;
+  /** Nombre de naturalistes ayant capturé l'espèce (fiche "non découverte" du bestiaire). */
+  communityFinders?: number;
   /** Called after the user deleted their own capture, so the parent list can drop it. */
   onDeleted?: (captureId: string) => void;
 }
@@ -83,7 +86,7 @@ const LockedField = ({ icon, label }: { icon: React.ReactNode; label: string }) 
 );
 
 
-const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
+const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: Props) => {
   const { session } = useAuth();
   const [isOwner, setIsOwner] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -703,7 +706,7 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
               })()}
             </div>
 
-            {isUncaptured ? (
+{isUncaptured ? (
               <div className="rounded-2xl border border-dashed border-primary/25 bg-primary/[0.04] p-4 text-center">
                 <div className="mx-auto mb-2.5 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                   <Camera className="w-5 h-5 text-primary" />
@@ -714,6 +717,18 @@ const CardDetailSheet = ({ card, open, onClose, onDeleted }: Props) => {
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   Son habitat, son alimentation et ses secrets ne seront révélés qu'après votre découverte.
                 </p>
+                {communityFinders !== undefined && (
+                  <div className="mt-3 flex items-center justify-center">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-background/80 border border-border px-3 py-1.5">
+                      <FindersBadge count={communityFinders} />
+                      <span className="text-[11px] font-display font-medium text-muted-foreground">
+                        {communityFinders > 0
+                          ? 'déjà capturée par la communauté'
+                          : 'personne ne l’a encore capturée'}
+                      </span>
+                    </span>
+                  </div>
+                )}
               </div>
             ) : (
               <p className="text-sm text-foreground/80 leading-relaxed text-center max-w-sm mx-auto">{card.description}</p>
