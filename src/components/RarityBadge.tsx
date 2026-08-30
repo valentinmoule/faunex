@@ -12,12 +12,12 @@ const fxVariant = {
   gold: 'rarity-badge--gold',
 } as const;
 
-/** Nombre de symboles par rareté : ● ◆ ★ (encre), ★★ argent, ★ or. */
+/** Nombre de symboles par rareté : ● ◆ ★ (encre), ★ argent, ★★ argent, ★ or. */
 const SYMBOL_COUNT: Record<Rarity, number> = {
   common: 1,
   uncommon: 1,
   rare: 1,
-  very_rare: 2,
+  very_rare: 1,
   ultra_rare: 2,
   illustration_rare: 1,
   special_rare: 2,
@@ -47,7 +47,7 @@ const SILVER_STOPS = [
   ['100%', '#64748b'],
 ] as const;
 
-/** Jeton de rareté façon carte Pokémon : ● ◆ ★ noirs, ★★ argent holo, ★ or holo. */
+/** Jeton de rareté façon carte Pokémon : ● ◆ ★ noirs, ★ argent holo, ★★ argent holo, ★ or holo. */
 export const RarityBadge = ({
   rarity,
   className,
