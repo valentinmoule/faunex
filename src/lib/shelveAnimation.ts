@@ -12,7 +12,7 @@ const STORAGE_KEY = 'faunex:pending-shelve';
 export interface PendingShelve {
   animalName: string;
   category: string;
-  rarity: 'common' | 'rare' | 'epic' | 'mythic';
+  rarity: Rarity;
   imageUrl: string;
   /** epoch ms — used to expire stale entries */
   ts: number;

@@ -17,8 +17,12 @@ const MAX_PULL = 150;
 const RARITY_COLORS: Record<string, string> = {
   common: '#94a3b8',
   rare: '#3b82f6',
-  epic: '#a855f7',
-  mythic: '#f59e0b',
+  uncommon: '#3f4a5c',
+  very_rare: '#1c2333',
+  ultra_rare: '#94a3b8',
+  illustration_rare: '#eab308',
+  special_rare: '#f59e0b',
+  hyper_rare: '#d97706',
 };
 
 interface DiscoveredAnimal {
