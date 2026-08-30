@@ -185,7 +185,7 @@ const FAST_PROMPT = `Expert naturaliste. Identifie l'animal au rang le plus pré
 
 5. SAUVAGE : jamais l'espèce la plus courante par défaut ; compare les critères diagnostiques et baisse la confiance si ambigu.
 
-6. RARETÉ (France, 8 paliers) : common quotidien · uncommon fréquent · rare chance · very_rare très localisé · ultra_rare menacé/protégé · illustration_rare quasi-impossible · special_rare quasi-mythique · hyper_rare le sommet.
+6. RARETÉ (France, 8 paliers) : common commune/quotidienne · uncommon peu commune/fréquente · rare plutôt rare, demande de la chance · very_rare rare/très localisée · ultra_rare menacée ou protégée · illustration_rare épique/quasi-impossible · special_rare mythique · hyper_rare légendaire, le sommet.
 
 7. CONFIANCE : 90+ certaine · 70-89 probable · 50-69 plusieurs espèces · <50 incertain. Si < 80 → 1 à 3 alternatives.`;
 
