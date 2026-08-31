@@ -108,6 +108,7 @@ export type Database = {
           category: string
           created_at: string
           id: string
+          iucn_status: string | null
           name: string
           rarity: string
           scientific_name: string | null
@@ -117,6 +118,7 @@ export type Database = {
           category: string
           created_at?: string
           id?: string
+          iucn_status?: string | null
           name: string
           rarity?: string
           scientific_name?: string | null
@@ -126,6 +128,7 @@ export type Database = {
           category?: string
           created_at?: string
           id?: string
+          iucn_status?: string | null
           name?: string
           rarity?: string
           scientific_name?: string | null
@@ -1540,6 +1543,8 @@ export type Database = {
           external_ids: Json
           id: string
           is_domestic: boolean
+          iucn_checked_at: string | null
+          iucn_status: string | null
           main_category: Database["public"]["Enums"]["main_category"]
           merged_into: string | null
           notes: string | null
@@ -1560,6 +1565,8 @@ export type Database = {
           external_ids?: Json
           id?: string
           is_domestic?: boolean
+          iucn_checked_at?: string | null
+          iucn_status?: string | null
           main_category: Database["public"]["Enums"]["main_category"]
           merged_into?: string | null
           notes?: string | null
@@ -1580,6 +1587,8 @@ export type Database = {
           external_ids?: Json
           id?: string
           is_domestic?: boolean
+          iucn_checked_at?: string | null
+          iucn_status?: string | null
           main_category?: Database["public"]["Enums"]["main_category"]
           merged_into?: string | null
           notes?: string | null
@@ -2138,6 +2147,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      hybrid_rarity: {
+        Args: {
+          p_is_domestic: boolean
+          p_iucn_status: string
+          p_observation_rarity: string
+        }
+        Returns: string
+      }
       is_premium: { Args: { p_user_id: string }; Returns: boolean }
       is_profile_private: { Args: { _user_id: string }; Returns: boolean }
       league_add_points: {
@@ -2230,6 +2247,9 @@ export type Database = {
         }[]
       }
       progress_taxon: { Args: { p_taxon_id: string }; Returns: string }
+      rarity_floor_for_iucn: { Args: { p_status: string }; Returns: number }
+      rarity_from_rank: { Args: { p_rank: number }; Returns: string }
+      rarity_rank: { Args: { p_rarity: string }; Returns: number }
       recompute_profile_counters: {
         Args: { p_user_id: string }
         Returns: undefined
