@@ -68,7 +68,8 @@ async function iucnFor(scientificName: string): Promise<string | null> {
   const key = match?.usageKey;
   if (!key) return null;
   const cat = await getJson(`https://api.gbif.org/v1/species/${key}/iucnRedListCategory`);
-  const code = String(cat?.category ?? "").toUpperCase();
+  // GBIF renvoie `category` en clair (« VULNERABLE ») et `code` abrégé (« VU »).
+  const code = String(cat?.code ?? "").toUpperCase();
   if (VALID.includes(code)) return code;
   // Taxon reconnu mais absent de la Liste rouge : non évalué.
   return match?.matchType && match.matchType !== "NONE" ? "NE" : null;
@@ -88,18 +89,27 @@ Deno.serve(async (req) => {
   try {
     const body = await req.json().catch(() => ({}));
     const batch = Math.min(Math.max(Number(body.batch) || 0, 0), 400);
+    const offset = Math.max(Number(body.offset) || 0, 0);
     const recomputeOnly = body.recompute === true && batch === 0;
 
     let resolved = 0;
     let unresolved = 0;
+    let scanned = 0;
+    let total = 0;
 
     if (!recomputeOnly && batch > 0) {
-      const { data: pending } = await supabase
+      /* Parcours déterministe du catalogue par tranches (offset), pour que
+       * l'appelant puisse enchaîner les lots sans jamais repasser deux fois
+       * sur les mêmes espèces. */
+      const { data: pending, count } = await supabase
         .from("animals")
-        .select("scientific_name")
-        .is("iucn_status", null)
+        .select("scientific_name", { count: "exact" })
         .not("scientific_name", "is", null)
-        .limit(batch * 3);
+        .order("scientific_name", { ascending: true })
+        .range(offset, offset + batch - 1);
+
+      total = count ?? 0;
+      scanned = pending?.length ?? 0;
 
       const names = [
         ...new Set(
@@ -107,7 +117,7 @@ Deno.serve(async (req) => {
             .map((r: any) => String(r.scientific_name || "").trim())
             .filter((n: string) => n.length > 2 && !n.includes("(")),
         ),
-      ].slice(0, batch);
+      ];
 
       // Concurrence volontairement faible : GBIF limite fortement les clients.
       const CONC = 5;
@@ -135,18 +145,31 @@ Deno.serve(async (req) => {
 
     let rarityChanges: number | null = null;
     if (body.recompute === true) {
-      const { data, error } = await supabase.rpc("apply_hybrid_rarity");
-      if (error) console.error("[iucn] recompute failed", error);
-      else rarityChanges = typeof data === "number" ? data : 0;
+      /* Recalcul par lots : les mises à jour de rareté propagent la valeur aux
+       * captures existantes, ce qui rend une passe unique trop longue. */
+      rarityChanges = 0;
+      for (let pass = 0; pass < 250; pass++) {
+        const { data, error } = await supabase.rpc("apply_hybrid_rarity", { p_limit: 25 });
+        if (error) {
+          console.error("[iucn] recompute failed", error);
+          break;
+        }
+        const n = typeof data === "number" ? data : 0;
+        rarityChanges += n;
+        if (n === 0) break;
+      }
     }
 
-    const { count: remaining } = await supabase
-      .from("animals")
-      .select("id", { count: "exact", head: true })
-      .is("iucn_status", null)
-      .not("scientific_name", "is", null);
+    return json({
+      resolved,
+      unresolved,
+      scanned,
+      total,
+      nextOffset: offset + scanned,
+      done: scanned < batch,
+      rarityChanges,
+    });
 
-    return json({ resolved, unresolved, remaining: remaining ?? 0, rarityChanges });
   } catch (e) {
     console.error("[iucn] error", e);
     return json({ error: String(e) }, 500);

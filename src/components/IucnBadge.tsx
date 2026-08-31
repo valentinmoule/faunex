@@ -34,7 +34,8 @@ export const isIucnStatus = (value?: string | null): value is IucnStatus =>
   !!value && value in IUCN_LABELS;
 
 const IucnBadge = ({ status, className }: { status?: string | null; className?: string }) => {
-  if (!isIucnStatus(status)) return null;
+  // « Non évaluée » n'apporte rien à l'utilisateur : on masque le jeton.
+  if (!isIucnStatus(status) || status === 'NE') return null;
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 ring-1 ${TONE[status]} ${className ?? ''}`}
