@@ -13,7 +13,7 @@ export interface CatalogueEntry {
   category: string | null;
 }
 
-const KEY = 'faunex.catalogue.v2';
+const KEY = 'faunex.catalogue.v3';
 try { localStorage.removeItem('faunex.catalogue.v1'); } catch { /* noop */ }
 const TTL = 24 * 60 * 60 * 1000; // 24 h
 
