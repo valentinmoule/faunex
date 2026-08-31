@@ -146,19 +146,34 @@ Deno.serve(async (req) => {
     let rarityChanges: number | null = null;
     if (body.recompute === true) {
       /* Recalcul par lots : les mises à jour de rareté propagent la valeur aux
-       * captures existantes, ce qui rend une passe unique trop longue. */
+       * captures existantes, ce qui rend une passe unique trop longue.
+       * Un timeout (57014) signale une contention passagère : on lève le pied
+       * (lot plus petit + pause) au lieu d'abandonner toute la file, ce qui
+       * laissait les raretés à moitié à jour et saturait la base. */
       rarityChanges = 0;
+      let limit = 25;
+      let timeouts = 0;
       for (let pass = 0; pass < 250; pass++) {
-        const { data, error } = await supabase.rpc("apply_hybrid_rarity", { p_limit: 25 });
+        const { data, error } = await supabase.rpc("apply_hybrid_rarity", { p_limit: limit });
         if (error) {
+          const isTimeout =
+            (error as any).code === "57014" || String(error.message ?? "").includes("timeout");
           console.error("[iucn] recompute failed", error);
-          break;
+          if (!isTimeout || ++timeouts > 6) break;
+          // Réduction du lot et pause croissante pour laisser respirer la base
+          // (les requêtes utilisateur comme match_animal passent en priorité).
+          limit = Math.max(5, Math.floor(limit / 2));
+          await new Promise((r) => setTimeout(r, 1500 * timeouts));
+          continue;
         }
         const n = typeof data === "number" ? data : 0;
         rarityChanges += n;
         if (n === 0) break;
+        // Respiration entre les lots : évite de monopoliser les verrous.
+        await new Promise((r) => setTimeout(r, 150));
       }
     }
+
 
     return json({
       resolved,
