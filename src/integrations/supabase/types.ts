@@ -1413,6 +1413,27 @@ export type Database = {
         }
         Relationships: []
       }
+      rarity_recompute_queue: {
+        Row: {
+          created_at: string
+          kind: string
+          row_id: string
+          target: string
+        }
+        Insert: {
+          created_at?: string
+          kind: string
+          row_id: string
+          target: string
+        }
+        Update: {
+          created_at?: string
+          kind?: string
+          row_id?: string
+          target?: string
+        }
+        Relationships: []
+      }
       species_profiles: {
         Row: {
           animal_name: string
@@ -2057,7 +2078,7 @@ export type Database = {
           identify_calls: number
         }[]
       }
-      apply_hybrid_rarity: { Args: never; Returns: number }
+      apply_hybrid_rarity: { Args: { p_limit?: number }; Returns: number }
       canonical_animal_category: {
         Args: { p_category: string; p_name?: string; p_scientific?: string }
         Returns: string
@@ -2096,6 +2117,7 @@ export type Database = {
         | { Args: { p_user: string }; Returns: number }
         | { Args: { p_request: string; p_user: string }; Returns: number }
       draw_weekly_quests: { Args: { p_week?: string }; Returns: number }
+      enqueue_hybrid_rarity: { Args: never; Returns: number }
       ensure_weekly_quests: { Args: never; Returns: number }
       ensure_weekly_quests_for: { Args: { p_user_id: string }; Returns: number }
       get_my_profile: {
