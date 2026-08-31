@@ -388,11 +388,23 @@ Deno.serve(async (req) => {
     // Déduplication : si l'espèce existe déjà dans le bestiaire (nom commun OU nom
     // scientifique, insensible à la casse/accents/tirets), on réutilise la fiche
     // canonique au lieu de créer une variante ("Canard colvert" vs "canard Colvert").
-    const { data: matches, error: matchErr } = await supabase.rpc('match_animal', {
-      p_name: animal.animal_name || animalName,
-      p_scientific: animal.scientific_name || null,
-    })
-    if (matchErr) console.error('match_animal failed', matchErr)
+    /* Retry sur timeout Postgres (57014) : sinon la déduplication est ignorée
+     * silencieusement pendant un recalcul de rareté et un doublon est créé. */
+    let matches: any = null
+    let matchErr: any = null
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const res = await supabase.rpc('match_animal', {
+        p_name: animal.animal_name || animalName,
+        p_scientific: animal.scientific_name || null,
+      })
+      matches = res.data
+      matchErr = res.error
+      if (!matchErr) break
+      console.error('match_animal failed', attempt, matchErr)
+      if (matchErr.code !== '57014' && !String(matchErr.message ?? '').includes('timeout')) break
+      await new Promise((r) => setTimeout(r, 700 * (attempt + 1)))
+    }
+
     const existing = Array.isArray(matches) ? matches[0] : matches
     // Races domestiques : même binôme latin pour des races différentes, on ne doit
     // pas fusionner un Épagneul picard avec un Braque d'Auvergne.
