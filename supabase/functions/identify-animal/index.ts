@@ -769,12 +769,25 @@ serve(async (req) => {
     let knownInBestiary = false;
     if (admin && animalData?.animal_name && animalData.animal_name.toLowerCase() !== "inconnu") {
       try {
-        const { data: matches, error: matchErr } = await admin.rpc("match_animal", {
-          p_name: animalData.animal_name,
-          p_scientific: animalData.scientific_name || null,
-        });
-        if (matchErr) console.error("match_animal failed", matchErr);
+        /* Un timeout Postgres (57014) pendant un recalcul de rareté ne doit pas
+         * faire sauter silencieusement la déduplication : on retente avec un
+         * court backoff avant d'abandonner. */
+        let matches: any = null;
+        let matchErr: any = null;
+        for (let attempt = 0; attempt < 3; attempt++) {
+          const res = await admin.rpc("match_animal", {
+            p_name: animalData.animal_name,
+            p_scientific: animalData.scientific_name || null,
+          });
+          matches = res.data;
+          matchErr = res.error;
+          if (!matchErr) break;
+          console.error("match_animal failed", attempt, matchErr);
+          if (matchErr.code !== "57014" && !String(matchErr.message ?? "").includes("timeout")) break;
+          await new Promise((r) => setTimeout(r, 700 * (attempt + 1)));
+        }
         const existing = Array.isArray(matches) ? matches[0] : matches;
+
         if (existing) {
           knownInBestiary = true;
           animalData.animal_name = existing.name || animalData.animal_name;
