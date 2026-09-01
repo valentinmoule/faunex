@@ -227,7 +227,119 @@ export const useAnimalIdentification = () => {
       const cached = cacheRef.current.get(imageHash);
       if (cached) return await cached;
 
+      // 1) Cache local persistant : même photo déjà identifiée sur cet appareil
+      //    → aucun réseau, aucun appel IA.
+      const local = getLocalOutcome(imageHash);
+      if (local) {
+        if (local.status === 'identified') hapticSuccess();
+        return local;
+      }
+
+      /** Traduction d'une réponse serveur (fraîche ou issue du cache) en verdict. */
+      const interpret = (data: any): IdentifyOutcome => {
+        // Quota d'analyses IA quotidien atteint : message explicite, aucune
+        // relance (une nouvelle tentative serait refusée à l'identique).
+        if (data?.reason === 'daily_limit') {
+          return {
+            status: 'error',
+            message:
+              typeof data?.message === 'string'
+                ? data.message
+                : "Tu as atteint ta limite d'analyses pour aujourd'hui.",
+          };
+        }
+
+        // Image non photographique : refus explicite et assumé. L'utilisateur
+        // garde la possibilité de demander une modération humaine.
+        if (data?.reason === 'not_a_real_photo') {
+          const imageType = String(data?.image_type ?? '');
+          const label = IMAGE_TYPE_LABELS[imageType] ?? 'une image graphique';
+          if (imageType === 'animal_mort_ou_plat') {
+            return {
+              status: 'rejected',
+              kind: 'dead',
+              title: 'Pas au menu 🦀',
+              message: "Faunex recense les animaux VIVANTS croisés sur le terrain. Un animal mort, servi dans une assiette, sur un étal ou en trophée ne compte pas comme une observation. Retente avec un animal bien vivant !",
+            };
+          }
+          if (INTERNET_IMAGE_TYPES.includes(imageType)) {
+            return {
+              status: 'rejected',
+              kind: 'internet',
+              title: 'Photo pas prise sur le terrain 👀',
+              message: `On a repéré ${label} : cette image ne vient visiblement pas de ton appareil. Faunex, c'est tes propres observations, pas les photos des autres. Reprends l'animal en photo toi-même !`,
+            };
+          }
+          return {
+            status: 'rejected',
+            kind: 'representation',
+            title: 'Bien tenté 😏',
+            message: `Ce n'est pas un animal vivant, mais ${label}. Faunex n'accepte que de vraies photographies d'animaux croisés sur le terrain — les statues, jouets et dessins ne comptent pas.`,
+          };
+        }
+
+        const animal = data?.success ? (data.animal as AnimalResult | undefined) : undefined;
+
+        if (!animal || !animal.animal_name) {
+          // Réponse valide mais sans animal exploitable → vraie non-reconnaissance.
+          // `hint` porte le repli taxonomique honnête (genre / famille) quand le
+          // serveur a rejeté une espèce non validée.
+          return { status: 'unknown', hint: typeof data?.hint === 'string' ? data.hint : undefined };
+        }
+        if (isHuman(animal)) {
+          return {
+            status: 'rejected',
+            kind: 'human',
+            title: 'Les humains ne se collectionnent pas 🙂',
+            message: "Faunex recense la faune sauvage et domestique : les personnes (et les selfies) ne font pas partie du jeu. Vise un animal et retente ta chance !",
+          };
+        }
+        if (
+          animal.animal_name.toLowerCase() === 'inconnu' ||
+          isFictionalOrExtinct(animal)
+        ) {
+          return { status: 'unknown' };
+        }
+
+        // Dataset : on archive la prédiction brute du modèle (jamais une
+        // vérité terrain) pour pouvoir la comparer plus tard au label retenu.
+        if (!data?.cached) {
+          void logDatasetEvent({
+            event_type: 'ai_prediction',
+            source: 'client',
+            image_hash: imageHash,
+            predicted_name: animal.animal_name,
+            predicted_scientific_name: animal.scientific_name ?? null,
+            predicted_category: animal.category ?? null,
+            predicted_rarity: animal.rarity ?? null,
+            confidence: animal.confidence ?? null,
+            alternatives: animal.alternatives ?? null,
+            subject_bbox: animal.subject_bbox ?? null,
+          });
+        }
+        hapticSuccess();
+        return { status: 'identified', animal };
+      };
+
       const run = async (): Promise<IdentifyOutcome> => {
+        // 2) Sonde par empreinte : on demande d'abord au serveur s'il connaît
+        //    déjà cette photo. Aucun téléversement, aucun quota, aucun appel IA.
+        setStage('analyzing');
+        try {
+          const probe = await withTimeout(
+            supabase.functions.invoke('identify-animal', {
+              body: { imageHash, probe: true },
+            }),
+            8_000,
+          );
+          const probeData = probe?.data as any;
+          if (!probe?.error && probeData && probeData.reason !== 'cache_miss') {
+            return interpret(probeData);
+          }
+        } catch (err) {
+          console.warn('identify probe skipped', err);
+        }
+
         // Conservé entre les deux appels : le backend traite un retry réseau
         // comme la même analyse et ne débite donc jamais deux fois le quota.
         const requestId = crypto.randomUUID();
@@ -237,103 +349,24 @@ export const useAnimalIdentification = () => {
           try {
             const { data, error } = await withTimeout(
               supabase.functions.invoke('identify-animal', {
-                body: { imageBase64: compressedUrl, requestId },
+                body: { imageBase64: compressedUrl, requestId, imageHash },
               }),
-              // Le serveur est borné à ~44 s (2 passes Lite + 1 passe Flash) :
-              // au-delà la requête est perdue, on relance immédiatement.
+              // Le serveur est borné à ~44 s : au-delà la requête est perdue,
+              // on relance immédiatement.
               50_000,
             );
             if (error) throw error;
-
-            // Quota d'analyses IA quotidien atteint : message explicite, aucune
-            // relance (une nouvelle tentative serait refusée à l'identique).
-            if (data?.reason === 'daily_limit') {
-              return {
-                status: 'error',
-                message:
-                  typeof data?.message === 'string'
-                    ? data.message
-                    : "Tu as atteint ta limite d'analyses pour aujourd'hui.",
-              };
-            }
-
-
-
-
-            // Image non photographique : refus explicite et assumé. L'utilisateur
-            // garde la possibilité de demander une modération humaine.
-            if (data?.reason === 'not_a_real_photo') {
-              const imageType = String(data?.image_type ?? '');
-              const label = IMAGE_TYPE_LABELS[imageType] ?? 'une image graphique';
-              if (imageType === 'animal_mort_ou_plat') {
-                return {
-                  status: 'rejected',
-                  kind: 'dead',
-                  title: 'Pas au menu 🦀',
-                  message: "Faunex recense les animaux VIVANTS croisés sur le terrain. Un animal mort, servi dans une assiette, sur un étal ou en trophée ne compte pas comme une observation. Retente avec un animal bien vivant !",
-                };
-              }
-              if (INTERNET_IMAGE_TYPES.includes(imageType)) {
-                return {
-                  status: 'rejected',
-                  kind: 'internet',
-                  title: 'Photo pas prise sur le terrain 👀',
-                  message: `On a repéré ${label} : cette image ne vient visiblement pas de ton appareil. Faunex, c'est tes propres observations, pas les photos des autres. Reprends l'animal en photo toi-même !`,
-                };
-              }
-              return {
-                status: 'rejected',
-                kind: 'representation',
-                title: 'Bien tenté 😏',
-                message: `Ce n'est pas un animal vivant, mais ${label}. Faunex n'accepte que de vraies photographies d'animaux croisés sur le terrain — les statues, jouets et dessins ne comptent pas.`,
-              };
-            }
-
-            const animal = data?.success ? (data.animal as AnimalResult | undefined) : undefined;
-
-
-
-            if (!animal || !animal.animal_name) {
-              // Réponse valide mais sans animal exploitable → vraie non-reconnaissance.
-              // `hint` porte le repli taxonomique honnête (genre / famille) quand le
-              // serveur a rejeté une espèce non validée.
-              return { status: 'unknown', hint: typeof data?.hint === 'string' ? data.hint : undefined };
-            }
-            if (isHuman(animal)) {
-              return {
-                status: 'rejected',
-                kind: 'human',
-                title: 'Les humains ne se collectionnent pas 🙂',
-                message: "Faunex recense la faune sauvage et domestique : les personnes (et les selfies) ne font pas partie du jeu. Vise un animal et retente ta chance !",
-              };
-            }
-            if (
-              animal.animal_name.toLowerCase() === 'inconnu' ||
-              isFictionalOrExtinct(animal)
-            ) {
-              return { status: 'unknown' };
-            }
-
-            // Dataset : on archive la prédiction brute du modèle (jamais une
-            // vérité terrain) pour pouvoir la comparer plus tard au label retenu.
-            void logDatasetEvent({
-              event_type: 'ai_prediction',
-              source: 'client',
-              image_hash: imageHash,
-              predicted_name: animal.animal_name,
-              predicted_scientific_name: animal.scientific_name ?? null,
-              predicted_category: animal.category ?? null,
-              predicted_rarity: animal.rarity ?? null,
-              confidence: animal.confidence ?? null,
-              alternatives: animal.alternatives ?? null,
-              subject_bbox: animal.subject_bbox ?? null,
-            });
-            hapticSuccess();
-            return { status: 'identified', animal };
+            return interpret(data);
           } catch (err) {
             lastError = err;
             console.error('identify-animal attempt failed', attempt, err);
-            if (attempt === 0) await sleep(1200);
+            // Une erreur définitive (surcharge, crédits, refus) ne doit JAMAIS
+            // être relancée : la seconde tentative serait refusée à l'identique
+            // tout en risquant un appel IA facturé de plus.
+            const raw = JSON.stringify((err as any)?.message ?? err ?? '');
+            const terminal = /40[023]|429/.test(raw);
+            if (terminal || attempt === 1) break;
+            await sleep(1200);
           }
         }
 
@@ -358,7 +391,12 @@ export const useAnimalIdentification = () => {
       // Un échec ou une non-reconnaissance ne doit jamais être mis en cache,
       // sinon une nouvelle tentative sur la même image ne relance rien.
       if (outcome.status !== 'identified') cacheRef.current.delete(imageHash);
+      // Verdicts stables mémorisés localement (identification, refus explicite).
+      if (outcome.status === 'identified' || outcome.status === 'rejected') {
+        setLocalOutcome(imageHash, outcome);
+      }
       return outcome;
+
     } catch (err) {
       console.error('identify failed', err);
       return { status: 'error', message: "L'analyse a échoué. Réessaie." };
