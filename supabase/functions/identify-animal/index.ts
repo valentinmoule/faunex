@@ -282,8 +282,17 @@ serve(async (req) => {
       return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
     };
 
-    const imageHash = await sha256Hex((imageUrl.split(",")[1] ?? imageUrl).slice(0, 2_000_000));
+    /**
+     * Clé de cache : on privilégie l'empreinte calculée par le client (SHA-256
+     * des octets de l'image compressée). Elle est identique pour la requête
+     * « sonde » (hash seul, sans upload) et pour l'analyse réelle, ce qui permet
+     * de savoir qu'une photo est déjà identifiée SANS téléverser l'image.
+     */
+    const imageHash = providedHash ??
+      await sha256Hex((imageUrl.split(",")[1] ?? imageUrl).slice(0, 2_000_000));
+    /** Un verdict « ce n'est pas une vraie photo » est déterministe : on le garde longtemps. */
     const NEGATIVE_TTL_MS = 2 * 60 * 60 * 1000;
+    const LONG_LIVED_OUTCOMES = ["success", "not_a_real_photo"];
 
     const jsonResponse = (body: unknown, status = 200) =>
       new Response(JSON.stringify(body), {
@@ -318,19 +327,20 @@ serve(async (req) => {
         if (cached && typeof cached === "object") {
           const outcome = String((cached as any).__outcome ?? "success");
           const at = Number((cached as any).__at ?? 0);
-          const fresh = outcome === "success" || Date.now() - at < NEGATIVE_TTL_MS;
+          const fresh = LONG_LIVED_OUTCOMES.includes(outcome) ||
+            Date.now() - at < NEGATIVE_TTL_MS;
           if (fresh) {
             const body = { ...(cached as Record<string, unknown>) };
             delete body.__outcome;
             delete body.__at;
-            console.log("identify cache hit", outcome);
+            console.log("identify cache hit", outcome, isProbe ? "(probe)" : "");
             // Mesure : une réutilisation de cache = un appel IA économisé.
             cacheDb.from("ml_dataset_events").insert({
               event_type: "identify_cache_hit",
               source: "server",
               image_hash: imageHash,
               is_ground_truth: false,
-              payload: { outcome },
+              payload: { outcome, probe: isProbe },
             }).then(({ error }: { error: unknown }) => {
               if (error) console.error("cache hit log failed", error);
             });
@@ -341,6 +351,13 @@ serve(async (req) => {
         console.error("identify cache read failed", e);
       }
     }
+
+    // Sonde : aucune analyse n'est déclenchée, aucun quota consommé. Le client
+    // enchaîne avec l'analyse complète seulement si le cache est vide.
+    if (isProbe) {
+      return jsonResponse({ success: false, reason: "cache_miss" });
+    }
+
 
 
     /**
