@@ -132,13 +132,14 @@ const quota = useCaptureQuota(session?.user?.id);
   } = camera;
 
   /** Shared pipeline for both the camera shot and the gallery import.
-   *  `manualReason` court-circuite l'analyse IA : la photo est envoyée en
-   *  validation humaine (import suspect, sans métadonnées d'appareil).
+   *  `exifWarning` signale une photo importée sans signature d'appareil : elle
+   *  est tout de même analysée par l'IA, le message n'est affiché que si
+   *  l'identification n'aboutit pas (repli en saisie manuelle).
    *  `exifCoords` : coordonnées GPS lues dans les EXIF d'une photo importée ;
    *  elles priment alors sur la position actuelle de l'appareil. */
   const processPhoto = useCallback(async (
     rawDataUrl: string,
-    manualReason?: string,
+    exifWarning?: string,
     exifCoords?: { lat: number; lng: number } | null,
   ) => {
     // The daily slot is only consumed when the capture is added to the Faunex.
