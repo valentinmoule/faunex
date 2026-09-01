@@ -157,6 +157,48 @@ export type IdentifyStage = 'idle' | 'compressing' | 'analyzing' | 'retrying';
  */
 const inFlight = new Map<string, Promise<IdentifyOutcome>>();
 
+/**
+ * Cache persistant local (30 jours) des résultats déjà obtenus, indexé par
+ * empreinte d'image. Une même photo relancée après un rechargement de page, un
+ * retour arrière ou une réinstallation ne déclenche AUCUN appel réseau ni IA.
+ */
+const LOCAL_CACHE_KEY = 'faunex.identify.cache.v1';
+const LOCAL_CACHE_TTL = 30 * 24 * 60 * 60 * 1000;
+const LOCAL_CACHE_MAX = 60;
+
+type LocalCacheEntry = { at: number; outcome: IdentifyOutcome };
+
+const readLocalCache = (): Record<string, LocalCacheEntry> => {
+  try {
+    const raw = localStorage.getItem(LOCAL_CACHE_KEY);
+    return raw ? (JSON.parse(raw) as Record<string, LocalCacheEntry>) : {};
+  } catch {
+    return {};
+  }
+};
+
+const getLocalOutcome = (hash: string): IdentifyOutcome | null => {
+  const entry = readLocalCache()[hash];
+  if (!entry || Date.now() - entry.at > LOCAL_CACHE_TTL) return null;
+  return entry.outcome;
+};
+
+/** Seuls les verdicts stables sont mémorisés (jamais une erreur réseau). */
+const setLocalOutcome = (hash: string, outcome: IdentifyOutcome) => {
+  if (outcome.status === 'error') return;
+  try {
+    const store = readLocalCache();
+    store[hash] = { at: Date.now(), outcome };
+    const entries = Object.entries(store)
+      .sort((a, b) => b[1].at - a[1].at)
+      .slice(0, LOCAL_CACHE_MAX);
+    localStorage.setItem(LOCAL_CACHE_KEY, JSON.stringify(Object.fromEntries(entries)));
+  } catch {
+    /* quota localStorage plein : le cache serveur reste actif */
+  }
+};
+
+
 export const useAnimalIdentification = () => {
   const [identifying, setIdentifying] = useState(false);
   const [stage, setStage] = useState<IdentifyStage>('idle');
