@@ -222,8 +222,14 @@ serve(async (req) => {
   };
 
   try {
-    const { imageBase64, imageFast, requestId } = await req.json();
-    if (!imageBase64) {
+    const { imageBase64, imageFast, requestId, imageHash: clientHash, probe } = await req.json();
+    /** Empreinte fournie par le client (SHA-256 des octets de l'image compressée). */
+    const providedHash = typeof clientHash === "string" && /^[0-9a-f]{64}$/.test(clientHash)
+      ? clientHash
+      : null;
+    const isProbe = probe === true;
+
+    if (!imageBase64 && !(isProbe && providedHash)) {
       return new Response(JSON.stringify({ error: "imageBase64 is required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -236,7 +242,7 @@ serve(async (req) => {
         : value;
 
     // Ensure valid data URL format
-    const imageUrl = normalizeDataUrl(imageBase64);
+    const imageUrl = imageBase64 ? normalizeDataUrl(imageBase64) : "";
     /**
      * Vignette optionnelle envoyée par le client. Mesure faite sur le gateway :
      * une image coûte un forfait fixe (~1 080 jetons) quelle que soit sa taille,
@@ -246,6 +252,7 @@ serve(async (req) => {
     const fastImageUrl = typeof imageFast === "string" && imageFast.length > 100
       ? normalizeDataUrl(imageFast)
       : imageUrl;
+
 
 
     /**
@@ -275,8 +282,17 @@ serve(async (req) => {
       return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
     };
 
-    const imageHash = await sha256Hex((imageUrl.split(",")[1] ?? imageUrl).slice(0, 2_000_000));
+    /**
+     * Clé de cache : on privilégie l'empreinte calculée par le client (SHA-256
+     * des octets de l'image compressée). Elle est identique pour la requête
+     * « sonde » (hash seul, sans upload) et pour l'analyse réelle, ce qui permet
+     * de savoir qu'une photo est déjà identifiée SANS téléverser l'image.
+     */
+    const imageHash = providedHash ??
+      await sha256Hex((imageUrl.split(",")[1] ?? imageUrl).slice(0, 2_000_000));
+    /** Un verdict « ce n'est pas une vraie photo » est déterministe : on le garde longtemps. */
     const NEGATIVE_TTL_MS = 2 * 60 * 60 * 1000;
+    const LONG_LIVED_OUTCOMES = ["success", "not_a_real_photo"];
 
     const jsonResponse = (body: unknown, status = 200) =>
       new Response(JSON.stringify(body), {
@@ -311,19 +327,20 @@ serve(async (req) => {
         if (cached && typeof cached === "object") {
           const outcome = String((cached as any).__outcome ?? "success");
           const at = Number((cached as any).__at ?? 0);
-          const fresh = outcome === "success" || Date.now() - at < NEGATIVE_TTL_MS;
+          const fresh = LONG_LIVED_OUTCOMES.includes(outcome) ||
+            Date.now() - at < NEGATIVE_TTL_MS;
           if (fresh) {
             const body = { ...(cached as Record<string, unknown>) };
             delete body.__outcome;
             delete body.__at;
-            console.log("identify cache hit", outcome);
+            console.log("identify cache hit", outcome, isProbe ? "(probe)" : "");
             // Mesure : une réutilisation de cache = un appel IA économisé.
             cacheDb.from("ml_dataset_events").insert({
               event_type: "identify_cache_hit",
               source: "server",
               image_hash: imageHash,
               is_ground_truth: false,
-              payload: { outcome },
+              payload: { outcome, probe: isProbe },
             }).then(({ error }: { error: unknown }) => {
               if (error) console.error("cache hit log failed", error);
             });
@@ -334,6 +351,13 @@ serve(async (req) => {
         console.error("identify cache read failed", e);
       }
     }
+
+    // Sonde : aucune analyse n'est déclenchée, aucun quota consommé. Le client
+    // enchaîne avec l'analyse complète seulement si le cache est vide.
+    if (isProbe) {
+      return jsonResponse({ success: false, reason: "cache_miss" });
+    }
+
 
 
     /**
@@ -633,7 +657,11 @@ serve(async (req) => {
     //    jetons d'image.
     let response = await tryModel(
       FAST_MODEL,
-      [22_000, 9_000],
+      // UN seul appel : une relance « au cas où » sur le même modèle est un
+      // second appel facturé pour rien. Si celui-ci échoue ou hésite, c'est la
+      // passe profonde (meilleure) qui prend le relais.
+      [26_000],
+
       isNewUser ? FAST_PROMPT + DEEP_ANNEX : FAST_PROMPT,
       isNewUser ? "high" : "low",
       isNewUser ? imageUrl : undefined,
