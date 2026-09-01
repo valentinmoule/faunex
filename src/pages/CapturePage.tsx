@@ -132,13 +132,14 @@ const quota = useCaptureQuota(session?.user?.id);
   } = camera;
 
   /** Shared pipeline for both the camera shot and the gallery import.
-   *  `manualReason` court-circuite l'analyse IA : la photo est envoyée en
-   *  validation humaine (import suspect, sans métadonnées d'appareil).
+   *  `exifWarning` signale une photo importée sans signature d'appareil : elle
+   *  est tout de même analysée par l'IA, le message n'est affiché que si
+   *  l'identification n'aboutit pas (repli en saisie manuelle).
    *  `exifCoords` : coordonnées GPS lues dans les EXIF d'une photo importée ;
    *  elles priment alors sur la position actuelle de l'appareil. */
   const processPhoto = useCallback(async (
     rawDataUrl: string,
-    manualReason?: string,
+    exifWarning?: string,
     exifCoords?: { lat: number; lng: number } | null,
   ) => {
     // The daily slot is only consumed when the capture is added to the Faunex.
@@ -177,15 +178,9 @@ setAnimalResult(null);
       geo.capture();
     }
 
-// Photo importée sans signature d'appareil : aucune analyse IA facturée,
-    // l'observation passe par une validation humaine.
-    if (manualReason) {
-      identifyingRef.current = false;
-      setTaxonHint(manualReason);
-      setExifFlagged(true);
-      setManualMode(true);
-      return;
-    }
+// Photo importée sans signature d'appareil : l'analyse IA a quand même lieu.
+    // Le message n'est utilisé qu'en repli, si l'espèce n'est pas reconnue.
+    if (exifWarning) setExifFlagged(true);
 
     try {
       const outcome = await identify(dataUrl);
@@ -198,7 +193,7 @@ setAnimalResult(null);
         setRejectedImage({ kind: outcome.kind, title: outcome.title, message: outcome.message });
 
       } else {
-        setTaxonHint(outcome.hint ?? null);
+        setTaxonHint(outcome.hint ?? exifWarning ?? null);
         setManualMode(true);
       }
     } finally {
@@ -251,10 +246,10 @@ const takePhoto = async () => {
    *  utilisé : il fonctionne aussi bien en web app que dans les WebViews
    *  Capacitor iOS/Android, sans plugin natif supplémentaire.
    *
-   *  Anti-triche : on vérifie les EXIF. Une image récupérée sur le web ou une
-   *  capture d'écran n'a pas de marque/modèle d'appareil ; plutôt que de la
-   *  refuser sèchement (des apps de messagerie effacent parfois les EXIF de
-   *  vraies photos), elle est routée vers la validation humaine. */
+   *  Les EXIF sont lus pour la géolocalisation et comme simple indice : une
+   *  photo sans signature d'appareil (messageries qui effacent les EXIF) est
+   *  quand même identifiée par l'IA, le message d'explication ne sert qu'en
+   *  repli si l'espèce n'est pas reconnue. */
   const galleryInputRef = useRef<HTMLInputElement | null>(null);
   const importFromGallery = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -265,11 +260,8 @@ const takePhoto = async () => {
 const exif = isHeicFile(file) ? null : await readExifCameraInfo(file);
       const suspicious = exif !== null && !exif.looksLikeCameraPhoto;
       const reason = suspicious
-        ? "Cette photo n'a pas de métadonnées d'appareil (EXIF) : impossible de confirmer qu'elle vient de ton appareil. Elle ne sera pas identifiée par l'IA — renseigne l'espèce, un modérateur validera ton observation."
+        ? "Cette photo n'a pas de métadonnées d'appareil (EXIF) : impossible de confirmer qu'elle vient de ton appareil. Si l'IA ne reconnaît pas l'espèce, renseigne-la et un modérateur validera ton observation."
         : undefined;
-      if (suspicious) {
-        toast.info("Photo sans métadonnées d'appareil (EXIF) : elle part en vérification humaine.");
-      }
       const prepared = await prepareSourceFile(file);
       if (!prepared) {
         toast.error("Impossible de lire cette photo. Réessaie avec une autre image.");
