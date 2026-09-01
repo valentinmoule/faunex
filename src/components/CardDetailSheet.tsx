@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef, type ComponentType } from 'react';
+import { createPortal } from 'react-dom';
 import { notifyCaptureInteraction } from '@/lib/notifyCaptureInteraction';
 import { Drawer } from 'vaul';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -975,8 +976,8 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
       </Drawer.Root>
       <ShareCaptureSheet card={card} open={shareOpen} onClose={() => setShareOpen(false)} />
 
-      {/* Fullscreen image - outside Sheet to avoid portal conflicts */}
-      {imageFullscreen && card.image && (
+      {/* Fullscreen image - portalled to body so it stacks above the drawer */}
+      {imageFullscreen && card.image && createPortal((
         <div
           className={`detail-fullscreen fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden detail-hero-${heroFamily}`}
           onClick={() => {
@@ -1069,7 +1070,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
           </button>
 
         </div>
-      )}
+      ), document.body)}
 
       <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
         <AlertDialogContent className="z-[10000]">
