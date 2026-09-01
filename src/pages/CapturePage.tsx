@@ -333,13 +333,11 @@ setManualMode(false);
       toast.error('Remplis au moins le nom et la description');
       return;
     }
-    // Une demande de vérification porte sur une capture déjà identifiée : elle consomme un slot.
-    // Une soumission « animal non reconnu » n'en consomme pas.
-    let consumed = false;
-    if (disputedResult) {
-      if (!(await consumeSlot())) return;
-      consumed = true;
-    }
+    // Toute demande de modération (vérification d'une identification IA comme
+    // soumission d'un animal non reconnu) consomme un slot quotidien : elle
+    // aboutit à une capture ajoutée au Faunex après validation.
+    if (!(await consumeSlot())) return;
+    let consumed = true;
     try {
       // Le modérateur doit voir ce que l'IA proposait pour arbitrer.
       const aiNote = disputedResult
