@@ -178,15 +178,9 @@ setAnimalResult(null);
       geo.capture();
     }
 
-// Photo importée sans signature d'appareil : aucune analyse IA facturée,
-    // l'observation passe par une validation humaine.
-    if (manualReason) {
-      identifyingRef.current = false;
-      setTaxonHint(manualReason);
-      setExifFlagged(true);
-      setManualMode(true);
-      return;
-    }
+// Photo importée sans signature d'appareil : l'analyse IA a quand même lieu.
+    // Le message n'est utilisé qu'en repli, si l'espèce n'est pas reconnue.
+    if (exifWarning) setExifFlagged(true);
 
     try {
       const outcome = await identify(dataUrl);
@@ -199,7 +193,7 @@ setAnimalResult(null);
         setRejectedImage({ kind: outcome.kind, title: outcome.title, message: outcome.message });
 
       } else {
-        setTaxonHint(outcome.hint ?? null);
+        setTaxonHint(outcome.hint ?? exifWarning ?? null);
         setManualMode(true);
       }
     } finally {
