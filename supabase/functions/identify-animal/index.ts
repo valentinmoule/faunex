@@ -222,8 +222,14 @@ serve(async (req) => {
   };
 
   try {
-    const { imageBase64, imageFast, requestId } = await req.json();
-    if (!imageBase64) {
+    const { imageBase64, imageFast, requestId, imageHash: clientHash, probe } = await req.json();
+    /** Empreinte fournie par le client (SHA-256 des octets de l'image compressée). */
+    const providedHash = typeof clientHash === "string" && /^[0-9a-f]{64}$/.test(clientHash)
+      ? clientHash
+      : null;
+    const isProbe = probe === true;
+
+    if (!imageBase64 && !(isProbe && providedHash)) {
       return new Response(JSON.stringify({ error: "imageBase64 is required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -236,7 +242,7 @@ serve(async (req) => {
         : value;
 
     // Ensure valid data URL format
-    const imageUrl = normalizeDataUrl(imageBase64);
+    const imageUrl = imageBase64 ? normalizeDataUrl(imageBase64) : "";
     /**
      * Vignette optionnelle envoyée par le client. Mesure faite sur le gateway :
      * une image coûte un forfait fixe (~1 080 jetons) quelle que soit sa taille,
@@ -246,6 +252,7 @@ serve(async (req) => {
     const fastImageUrl = typeof imageFast === "string" && imageFast.length > 100
       ? normalizeDataUrl(imageFast)
       : imageUrl;
+
 
 
     /**
