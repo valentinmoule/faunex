@@ -227,11 +227,14 @@ export const readExifCameraInfo = async (file: File): Promise<ExifCameraInfo> =>
     const info: ExifCameraInfo = { ...EMPTY, hasExif: true };
     readIfd(view, tiffStart, view.getUint32(tiffStart + 4, little), little, info);
 
-    // Une capture d'écran iOS/Android porte un EXIF mais sans marque/modèle
-    // d'appareil : on exige une signature matérielle ou une date de prise de vue
-    // accompagnée d'une géolocalisation.
+    // Heuristique volontairement permissive : beaucoup d'appareils et de
+    // pipelines de traitement ne renseignent qu'une partie des tags (modèle
+    // sans marque, date sans GPS…). Un seul indice matériel ou temporel suffit
+    // donc à considérer la photo comme prise sur le terrain. Seules les images
+    // sans aucun de ces indices (captures d'écran, images téléchargées) sont
+    // signalées.
     info.looksLikeCameraPhoto = Boolean(
-      (info.make && info.model) || (info.dateTimeOriginal && info.hasGps),
+      info.make || info.model || info.dateTimeOriginal || info.hasGps,
     );
     return info;
   } catch (err) {
