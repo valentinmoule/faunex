@@ -8,6 +8,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useSwipeDownClose } from '@/lib/useSwipeDownClose';
+import { RarityBadge } from '@/components/RarityBadge';
 
 const ENABLED_ROUTES = ['/home', '/explorers', '/profile'];
 
@@ -274,15 +275,7 @@ const PullToDiscover = () => {
                       <span className="font-semibold">Astuce&nbsp;:</span> {a.tip}
                     </p>
                   </div>
-                  <span
-                    className="text-[10px] font-display font-bold uppercase px-2 py-1 rounded-full shrink-0"
-                    style={{
-                      background: `${RARITY_COLORS[a.rarity] || RARITY_COLORS.common}22`,
-                      color: RARITY_COLORS[a.rarity] || RARITY_COLORS.common,
-                    }}
-                  >
-                    {a.rarity}
-                  </span>
+                  <RarityBadge rarity={a.rarity} showLabel className="shrink-0" />
                 </div>
               </div>
             ))}

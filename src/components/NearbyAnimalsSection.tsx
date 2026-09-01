@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { MapPin, Loader2, RefreshCw, Sparkles, Flame, Zap, ChevronDown } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { type Rarity, RARITY_LABELS, RARITY_FX, normalizeRarity } from '@/data/mockData';
+import { RarityBadge } from '@/components/RarityBadge';
 import { toast } from 'sonner';
 import NearbyRadar from './NearbyRadar';
 
@@ -260,9 +261,7 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
                       <span className="text-sm font-display font-semibold text-foreground">{animal.name}</span>
-                      <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-display font-bold uppercase ${rarityBadge[animal.rarity] || 'bg-muted text-muted-foreground'}`}>
-                        {RARITY_LABELS[animal.rarity as Rarity] || animal.rarity}
-                      </span>
+                      <RarityBadge rarity={animal.rarity} showLabel />
                       {alreadyCaptured && (
                         <span className="text-[9px] font-display font-bold text-primary uppercase">✓ Capturé</span>
                       )}
