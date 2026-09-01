@@ -657,7 +657,11 @@ serve(async (req) => {
     //    jetons d'image.
     let response = await tryModel(
       FAST_MODEL,
-      [22_000, 9_000],
+      // UN seul appel : une relance « au cas où » sur le même modèle est un
+      // second appel facturé pour rien. Si celui-ci échoue ou hésite, c'est la
+      // passe profonde (meilleure) qui prend le relais.
+      [26_000],
+
       isNewUser ? FAST_PROMPT + DEEP_ANNEX : FAST_PROMPT,
       isNewUser ? "high" : "low",
       isNewUser ? imageUrl : undefined,
