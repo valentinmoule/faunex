@@ -69,6 +69,15 @@ const readFunctionError = async (error: any): Promise<PrepareFailure> => {
   return { code: 'network', message: error?.message || 'Fonction injoignable (réseau ou timeout).' };
 };
 
+/**
+ * Message unique pour le cas « l'explorateur possède déjà cette espèce ».
+ * Toutes les origines (pré-vérification serveur, index unique en base, conflit
+ * lors de l'application de la fiche) affichent exactement le même libellé.
+ */
+const duplicateMessage = (animalName: string) =>
+  `${animalName} : l'explorateur possède déjà cette espèce dans son bestiaire (1 capture par espèce). Renomme l'espèce ou rejette la capture en doublon.`;
+
+
 /** État de la tâche planifiée d'auto-modération. */
 type JobState = { status: string; paused_reason: string | null; last_run_at: string | null };
 
