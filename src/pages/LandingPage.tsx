@@ -272,24 +272,24 @@ const LandingPage = () => {
 
 
           <div className="mt-8 flex flex-col items-center gap-2">
-            <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
               <a
                 href="https://apps.apple.com/fr/app/faunex/id6795586686"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center hover:scale-[1.02] transition-transform"
+                className="inline-flex items-center justify-center p-3 bg-foreground rounded-2xl border border-border/50 shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-transform"
                 aria-label="Télécharger Faunex sur l'App Store"
               >
-                <AppStoreBadge className="h-12 w-auto" />
+                <AppStoreBadge className="h-14 w-auto" />
               </a>
               <a
                 href="https://play.google.com/store/apps/details?id=fr.faunex.app&pcampaignid=web_share"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center hover:scale-[1.02] transition-transform"
+                className="inline-flex items-center justify-center p-3 bg-foreground rounded-2xl border border-border/50 shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-transform"
                 aria-label="Télécharger Faunex sur Google Play"
               >
-                <PlayStoreBadge className="h-12 w-auto" />
+                <PlayStoreBadge className="h-14 w-auto" />
               </a>
             </div>
             <div className="flex items-center gap-3 text-[11px] text-muted-foreground font-display mt-1">
