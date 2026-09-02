@@ -50,7 +50,7 @@ const Footer = () => {
                 aria-label="Télécharger Faunex sur l'App Store"
                 className="inline-flex hover:scale-[1.02] transition-transform"
               >
-                <AppStoreBadge className="h-9 w-auto text-foreground" />
+                <AppStoreBadge className="block h-10 w-auto" />
               </a>
               <a
                 href="https://play.google.com/store/apps/details?id=fr.faunex.app&pcampaignid=web_share"
@@ -59,7 +59,7 @@ const Footer = () => {
                 aria-label="Télécharger Faunex sur Google Play"
                 className="inline-flex hover:scale-[1.02] transition-transform"
               >
-                <PlayStoreBadge className="h-9 w-auto text-foreground" />
+                <PlayStoreBadge className="block h-10 w-auto" />
               </a>
             </div>
             <ul className="space-y-2 pt-3 border-t border-border/50">

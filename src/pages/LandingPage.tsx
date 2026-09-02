@@ -272,7 +272,7 @@ const LandingPage = () => {
 
 
           <div className="mt-8 flex flex-col items-center gap-2">
-            <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
               <a
                 href="https://apps.apple.com/fr/app/faunex/id6795586686"
                 target="_blank"
@@ -280,7 +280,7 @@ const LandingPage = () => {
                 className="inline-block hover:scale-[1.02] active:scale-[0.98] transition-transform"
                 aria-label="Télécharger Faunex sur l'App Store"
               >
-                <AppStoreBadge className="h-16 w-auto drop-shadow-sm" />
+                 <AppStoreBadge className="block h-[60px] w-auto drop-shadow-sm" />
               </a>
               <a
                 href="https://play.google.com/store/apps/details?id=fr.faunex.app&pcampaignid=web_share"
@@ -289,7 +289,7 @@ const LandingPage = () => {
                 className="inline-block hover:scale-[1.02] active:scale-[0.98] transition-transform"
                 aria-label="Télécharger Faunex sur Google Play"
               >
-                <PlayStoreBadge className="h-16 w-auto drop-shadow-sm" />
+                 <PlayStoreBadge className="block h-[60px] w-auto drop-shadow-sm" />
               </a>
             </div>
             <div className="flex items-center gap-3 text-[11px] text-muted-foreground font-display mt-1">
