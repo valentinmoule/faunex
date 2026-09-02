@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
 import { Camera, Brain, Trophy, ChevronRight, Check, Sparkles, MapPin, Users, BookOpen } from 'lucide-react';
 import Footer from '@/components/Footer';
+import { AppStoreBadge, PlayStoreBadge } from '@/components/StoreBadges';
 import HolographicCard from '@/components/HolographicCard';
 import LandingPhoneShowcase from '@/components/LandingPhoneShowcase';
 import { supabase } from '@/integrations/supabase/client';
