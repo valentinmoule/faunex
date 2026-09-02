@@ -69,6 +69,15 @@ const readFunctionError = async (error: any): Promise<PrepareFailure> => {
   return { code: 'network', message: error?.message || 'Fonction injoignable (réseau ou timeout).' };
 };
 
+/**
+ * Message unique pour le cas « l'explorateur possède déjà cette espèce ».
+ * Toutes les origines (pré-vérification serveur, index unique en base, conflit
+ * lors de l'application de la fiche) affichent exactement le même libellé.
+ */
+const duplicateMessage = (animalName: string) =>
+  `${animalName} : l'explorateur possède déjà cette espèce dans son bestiaire (1 capture par espèce). Renomme l'espèce ou rejette la capture en doublon.`;
+
+
 /** État de la tâche planifiée d'auto-modération. */
 type JobState = { status: string; paused_reason: string | null; last_run_at: string | null };
 
@@ -189,6 +198,9 @@ const ModerationPage = () => {
       const failure = enrichError
         ? await readFunctionError(enrichError)
         : { code: 'empty_response', message: "La fonction a répondu sans fiche exploitable." };
+      if (failure.code === 'duplicate') {
+        failure.message = duplicateMessage(nameOverride?.trim() || capture.animal_name);
+      }
       console.error('enrich-capture failed', failure);
       setFailures(prev => ({ ...prev, [capture.id]: failure }));
       toast.error(failure.message);
@@ -205,13 +217,26 @@ const ModerationPage = () => {
     const finalName = animal.animal_name || capture.animal_name;
     setConfirming(true);
 
+    /** Même traitement quelle que soit l'origine du conflit de doublon. */
+    const showDuplicate = (duplicate?: PrepareFailure['duplicate']) => {
+      const failure: PrepareFailure = {
+        code: 'duplicate',
+        message: duplicateMessage(finalName),
+        duplicate: duplicate ?? null,
+      };
+      setFailures(prev => ({ ...prev, [capture.id]: failure }));
+      setPreview(null);
+      toast.error(failure.message);
+    };
+
     // La prévisualisation n'écrit rien : on applique la fiche enrichie maintenant.
     const { error: applyError } = await supabase.functions.invoke('enrich-capture', {
       body: { capture_id: capture.id, apply: true, animal },
     });
     if (applyError) {
       const failure = await readFunctionError(applyError);
-      toast.error(failure.message);
+      if (failure.code === 'duplicate') showDuplicate(failure.duplicate);
+      else toast.error(failure.message);
       setConfirming(false);
       return;
     }
@@ -227,12 +252,10 @@ const ModerationPage = () => {
       const isDuplicate =
         (error as any).code === '23505' ||
         /captures_unique_species_per_user|duplicate key/i.test(error.message || '');
-      toast.error(
-        isDuplicate
-          ? `${finalName} : cet explorateur possède déjà cette espèce (1 capture par espèce). Renomme l'espèce ou rejette la capture.`
-          : `Erreur lors de l'approbation : ${error.message}`,
-      );
+      if (isDuplicate) showDuplicate(null);
+      else toast.error(`Erreur lors de l'approbation : ${error.message}`);
     } else {
+
 
 
       // Notify the user that their capture was approved
