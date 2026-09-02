@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
 import { Camera, Brain, Trophy, ChevronRight, Check, Sparkles, MapPin, Users, BookOpen } from 'lucide-react';
 import Footer from '@/components/Footer';
+import { AppStoreBadge, PlayStoreBadge } from '@/components/StoreBadges';
 import HolographicCard from '@/components/HolographicCard';
 import LandingPhoneShowcase from '@/components/LandingPhoneShowcase';
 import { supabase } from '@/integrations/supabase/client';
@@ -185,10 +186,6 @@ const LandingPage = () => {
     navigate('/auth?mode=signup');
   };
 
-  const handleLogin = () => {
-    console.log('[landing-cta]', 'login');
-    navigate('/auth?mode=login');
-  };
 
   const formatRelativeTime = (iso: string) => {
     const then = new Date(iso).getTime();
@@ -275,25 +272,34 @@ const LandingPage = () => {
 
 
           <div className="mt-8 flex flex-col items-center gap-2">
-            <Button
-              size="lg"
-              className="font-display font-bold gap-2 text-base px-8 py-6 rounded-2xl shadow-[0_10px_28px_-8px_hsla(150,55%,30%,0.55)] hover:scale-[1.02] hover:rotate-[-0.5deg] transition-all w-full sm:w-auto"
-              onClick={() => handleCta('hero')}
-            >
-              Créer mon compte gratuit <ChevronRight className="w-5 h-5" />
-            </Button>
+            <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+              <a
+                href="https://apps.apple.com/fr/app/faunex/id6795586686"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center hover:scale-[1.02] transition-transform"
+                aria-label="Télécharger Faunex sur l'App Store"
+              >
+                <AppStoreBadge className="h-12 w-auto" />
+              </a>
+              <a
+                href="https://play.google.com/store/apps/details?id=fr.faunex.app&pcampaignid=web_share"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center hover:scale-[1.02] transition-transform"
+                aria-label="Télécharger Faunex sur Google Play"
+              >
+                <PlayStoreBadge className="h-12 w-auto" />
+              </a>
+            </div>
             <div className="flex items-center gap-3 text-[11px] text-muted-foreground font-display mt-1">
               <span className="flex items-center gap-1"><Check className="w-3 h-3 text-primary" /> Gratuit</span>
               <span className="flex items-center gap-1"><Check className="w-3 h-3 text-primary" /> Sans pub</span>
               <span className="flex items-center gap-1"><Check className="w-3 h-3 text-primary" /> En français</span>
             </div>
-            <button
-              type="button"
-              onClick={handleLogin}
-              className="mt-3 text-sm text-muted-foreground font-display hover:text-primary transition-colors"
-            >
-              Déjà un compte ? <span className="text-primary font-semibold underline underline-offset-2">Se connecter</span>
-            </button>
+            <p className="mt-3 text-sm text-muted-foreground font-display">
+              Disponible sur iPhone, Android et directement dans ton navigateur.
+            </p>
           </div>
 
         </div>

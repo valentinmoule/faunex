@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { BookOpen, FileText, Home, Lock, Mail, Receipt, Sparkles, Tag, UserPlus } from 'lucide-react';
+import { BookOpen, FileText, Home, Lock, LogIn, Mail, Receipt, Sparkles, Tag, UserPlus } from 'lucide-react';
+import { AppStoreBadge, PlayStoreBadge } from './StoreBadges';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -40,7 +41,45 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="font-display font-bold text-sm text-foreground mb-3">Légal & compte</h3>
+            <h3 className="font-display font-bold text-sm text-foreground mb-3">Télécharger l'app</h3>
+            <div className="flex flex-col gap-2 mb-4">
+              <a
+                href="https://apps.apple.com/fr/app/faunex/id6795586686"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Télécharger Faunex sur l'App Store"
+                className="inline-flex hover:scale-[1.02] transition-transform"
+              >
+                <AppStoreBadge className="h-9 w-auto text-foreground" />
+              </a>
+              <a
+                href="https://play.google.com/store/apps/details?id=fr.faunex.app&pcampaignid=web_share"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Télécharger Faunex sur Google Play"
+                className="inline-flex hover:scale-[1.02] transition-transform"
+              >
+                <PlayStoreBadge className="h-9 w-auto text-foreground" />
+              </a>
+            </div>
+            <ul className="space-y-2 pt-3 border-t border-border/50">
+              <li>
+                <Link to="/auth?mode=signup" className="text-sm text-muted-foreground hover:text-primary transition-colors font-body inline-flex items-center gap-2">
+                  <UserPlus className="w-4 h-4" /> Créer un compte
+                </Link>
+              </li>
+              <li>
+                <Link to="/auth?mode=login" className="text-sm text-muted-foreground hover:text-primary transition-colors font-body inline-flex items-center gap-2">
+                  <LogIn className="w-4 h-4" /> Se connecter
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div>
+            <h3 className="font-display font-bold text-sm text-foreground mb-3">Légal</h3>
             <ul className="space-y-2">
               <li>
                 <Link to="/tarifs" className="text-sm text-muted-foreground hover:text-primary transition-colors font-body inline-flex items-center gap-2">
@@ -62,17 +101,12 @@ const Footer = () => {
                   <Lock className="w-4 h-4" /> Politique de confidentialité
                 </Link>
               </li>
-              <li>
-                <Link to="/auth?mode=signup" className="text-sm text-muted-foreground hover:text-primary transition-colors font-body inline-flex items-center gap-2">
-                  <UserPlus className="w-4 h-4" /> Créer un compte
-                </Link>
-              </li>
-              <li>
-                <a href="mailto:valentinmoulay@gmail.com" className="text-sm text-muted-foreground hover:text-primary transition-colors font-body inline-flex items-center gap-2">
-                  <Mail className="w-4 h-4" /> Contact
-                </a>
-              </li>
             </ul>
+          </div>
+          <div className="flex flex-col justify-end">
+            <a href="mailto:valentinmoulay@gmail.com" className="text-sm text-muted-foreground hover:text-primary transition-colors font-body inline-flex items-center gap-2">
+              <Mail className="w-4 h-4" /> Contact
+            </a>
           </div>
         </div>
 
