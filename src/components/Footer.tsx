@@ -104,7 +104,7 @@ const Footer = () => {
             </ul>
           </div>
           <div className="flex flex-col justify-end">
-            <a href="mailto:valentinmoulay@gmail.com" className="text-sm text-muted-foreground hover:text-primary transition-colors font-body inline-flex items-center gap-2">
+            <a href="mailto:contact@faunex.fr" className="text-sm text-muted-foreground hover:text-primary transition-colors font-body inline-flex items-center gap-2">
               <Mail className="w-4 h-4" /> Contact
             </a>
           </div>
