@@ -301,13 +301,9 @@ const LandingPage = () => {
               <span className="flex items-center gap-1"><Check className="w-3 h-3 text-primary" /> Sans pub</span>
               <span className="flex items-center gap-1"><Check className="w-3 h-3 text-primary" /> En français</span>
             </div>
-            <button
-              type="button"
-              onClick={handleLogin}
-              className="mt-3 text-sm text-muted-foreground font-display hover:text-primary transition-colors"
-            >
-              Déjà un compte ? <span className="text-primary font-semibold underline underline-offset-2">Se connecter</span>
-            </button>
+            <p className="mt-3 text-sm text-muted-foreground font-display">
+              Disponible sur iPhone, Android et directement dans ton navigateur.
+            </p>
           </div>
 
         </div>
