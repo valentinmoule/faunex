@@ -276,13 +276,26 @@ const LandingPage = () => {
 
 
           <div className="mt-8 flex flex-col items-center gap-2">
-            <Button
-              size="lg"
-              className="font-display font-bold gap-2 text-base px-8 py-6 rounded-2xl shadow-[0_10px_28px_-8px_hsla(150,55%,30%,0.55)] hover:scale-[1.02] hover:rotate-[-0.5deg] transition-all w-full sm:w-auto"
-              onClick={() => handleCta('hero')}
-            >
-              Créer mon compte gratuit <ChevronRight className="w-5 h-5" />
-            </Button>
+            <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+              <a
+                href="https://apps.apple.com/fr/app/faunex/id6795586686"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center hover:scale-[1.02] transition-transform"
+                aria-label="Télécharger Faunex sur l'App Store"
+              >
+                <AppStoreBadge className="h-12 w-auto" />
+              </a>
+              <a
+                href="https://play.google.com/store/apps/details?id=fr.faunex.app&pcampaignid=web_share"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center hover:scale-[1.02] transition-transform"
+                aria-label="Télécharger Faunex sur Google Play"
+              >
+                <PlayStoreBadge className="h-12 w-auto" />
+              </a>
+            </div>
             <div className="flex items-center gap-3 text-[11px] text-muted-foreground font-display mt-1">
               <span className="flex items-center gap-1"><Check className="w-3 h-3 text-primary" /> Gratuit</span>
               <span className="flex items-center gap-1"><Check className="w-3 h-3 text-primary" /> Sans pub</span>
