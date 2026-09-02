@@ -186,10 +186,6 @@ const LandingPage = () => {
     navigate('/auth?mode=signup');
   };
 
-  const handleLogin = () => {
-    console.log('[landing-cta]', 'login');
-    navigate('/auth?mode=login');
-  };
 
   const formatRelativeTime = (iso: string) => {
     const then = new Date(iso).getTime();
