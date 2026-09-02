@@ -198,6 +198,9 @@ const ModerationPage = () => {
       const failure = enrichError
         ? await readFunctionError(enrichError)
         : { code: 'empty_response', message: "La fonction a répondu sans fiche exploitable." };
+      if (failure.code === 'duplicate') {
+        failure.message = duplicateMessage(nameOverride?.trim() || capture.animal_name);
+      }
       console.error('enrich-capture failed', failure);
       setFailures(prev => ({ ...prev, [capture.id]: failure }));
       toast.error(failure.message);
@@ -214,13 +217,26 @@ const ModerationPage = () => {
     const finalName = animal.animal_name || capture.animal_name;
     setConfirming(true);
 
+    /** Même traitement quelle que soit l'origine du conflit de doublon. */
+    const showDuplicate = (duplicate?: PrepareFailure['duplicate']) => {
+      const failure: PrepareFailure = {
+        code: 'duplicate',
+        message: duplicateMessage(finalName),
+        duplicate: duplicate ?? null,
+      };
+      setFailures(prev => ({ ...prev, [capture.id]: failure }));
+      setPreview(null);
+      toast.error(failure.message);
+    };
+
     // La prévisualisation n'écrit rien : on applique la fiche enrichie maintenant.
     const { error: applyError } = await supabase.functions.invoke('enrich-capture', {
       body: { capture_id: capture.id, apply: true, animal },
     });
     if (applyError) {
       const failure = await readFunctionError(applyError);
-      toast.error(failure.message);
+      if (failure.code === 'duplicate') showDuplicate(failure.duplicate);
+      else toast.error(failure.message);
       setConfirming(false);
       return;
     }
@@ -236,12 +252,10 @@ const ModerationPage = () => {
       const isDuplicate =
         (error as any).code === '23505' ||
         /captures_unique_species_per_user|duplicate key/i.test(error.message || '');
-      toast.error(
-        isDuplicate
-          ? `${finalName} : cet explorateur possède déjà cette espèce (1 capture par espèce). Renomme l'espèce ou rejette la capture.`
-          : `Erreur lors de l'approbation : ${error.message}`,
-      );
+      if (isDuplicate) showDuplicate(null);
+      else toast.error(`Erreur lors de l'approbation : ${error.message}`);
     } else {
+
 
 
       // Notify the user that their capture was approved
