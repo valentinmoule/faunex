@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Apple, BookOpen, FileText, Home, Lock, LogIn, Mail, Receipt, Sparkles, Tag, UserPlus } from 'lucide-react';
+import { BookOpen, FileText, Home, Lock, LogIn, Mail, Receipt, Sparkles, Tag, UserPlus } from 'lucide-react';
 import { AppStoreBadge, PlayStoreBadge } from './StoreBadges';
 
 const Footer = () => {
