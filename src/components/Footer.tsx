@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { BookOpen, FileText, Home, Lock, Mail, Receipt, Sparkles, Tag, UserPlus } from 'lucide-react';
+import { Apple, BookOpen, FileText, Home, Lock, LogIn, Mail, Receipt, Sparkles, Tag, UserPlus } from 'lucide-react';
+import { AppStoreBadge, PlayStoreBadge } from './StoreBadges';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
