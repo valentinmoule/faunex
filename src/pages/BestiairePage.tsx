@@ -9,7 +9,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import CardDetailSheet from '@/components/CardDetailSheet';
 import RarityBadge from '@/components/RarityBadge';
-import LevelBadge from '@/components/LevelBadge';
 import FindersBadge from '@/components/FindersBadge';
 import MyCapturesGrid from '@/components/MyCapturesGrid';
 
@@ -190,14 +189,6 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const [mineSort, setMineSort] = useState<MineSort>('recent');
   const [customOrder, setCustomOrder] = useState<string[]>([]);
   const [sortOpen, setSortOpen] = useState(false);
-  const [myLevel, setMyLevel] = useState<number | null>(null);
-
-  useEffect(() => {
-    const userId = session?.user?.id;
-    if (!userId) return;
-    supabase.from('profiles').select('level').eq('user_id', userId).single()
-      .then(({ data }) => setMyLevel(data?.level ?? null));
-  }, [session?.user?.id]);
 
 
   // Scroll to top when entering a category, zone or collection detail view
@@ -1155,11 +1146,6 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
             <div className="flex items-center justify-between">
               <h1 className="text-2xl font-display font-bold text-primary">mon faunex</h1>
               <div className="flex items-center gap-2">
-{myLevel != null && (
-                  <LevelBadge level={myLevel} />
-                )}
-                
-
                 <button
                   onClick={() => navigate('/notifications')}
                   className="relative p-2 rounded-full hover:bg-muted transition-colors"
