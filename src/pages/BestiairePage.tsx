@@ -1146,11 +1146,6 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
             <div className="flex items-center justify-between">
               <h1 className="text-2xl font-display font-bold text-primary">mon faunex</h1>
               <div className="flex items-center gap-2">
-{myLevel != null && (
-                  <LevelBadge level={myLevel} />
-                )}
-                
-
                 <button
                   onClick={() => navigate('/notifications')}
                   className="relative p-2 rounded-full hover:bg-muted transition-colors"
