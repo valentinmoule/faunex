@@ -1,0 +1,47 @@
+{
+  "nav": {
+    "faunex": "My Faunex",
+    "cards": "Cards",
+    "capture": "Capture",
+    "explorers": "Explorers",
+    "profile": "Profile"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "back": "Back",
+    "delete": "Delete",
+    "loading": "Loading…",
+    "search": "Search",
+    "filters": "Filters",
+    "retry": "Try again",
+    "share": "Share",
+    "confirm": "Confirm",
+    "species": "species",
+    "captures": "captures"
+  },
+  "language": {
+    "title": "Language",
+    "subtitle": "Choose the app language",
+    "auto": "Automatic (device)",
+    "fr": "Français",
+    "en": "English",
+    "updated": "Language updated"
+  },
+  "settings": {
+    "title": "Settings",
+    "editProfile": "Edit profile",
+    "changePassword": "Change password",
+    "deleteAccount": "Delete account",
+    "premium": "Faunex Premium",
+    "shareProfile": "Share my profile",
+    "discord": "Discord community",
+    "legal": "Legal notice",
+    "privacy": "Privacy policy",
+    "install": "Add to home screen",
+    "signOut": "Sign out",
+    "deleteMyAccount": "Delete my account",
+    "signedOut": "Signed out"
+  }
+}
