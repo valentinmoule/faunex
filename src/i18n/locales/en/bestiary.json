@@ -155,7 +155,17 @@
       "none": "Nobody has caught it yet — be the first!"
     },
     "rarity": {
-      "ariaLabel": "Rarity: {{label}}"
+      "ariaLabel": "Rarity: {{label}}",
+      "labels": {
+        "common": "Common",
+        "uncommon": "Uncommon",
+        "rare": "Fairly rare",
+        "very_rare": "Rare",
+        "ultra_rare": "Ultra rare",
+        "illustration_rare": "Epic",
+        "special_rare": "Mythic",
+        "hyper_rare": "Legendary"
+      }
     },
     "collectionPage": {
       "title": "my faunex",
@@ -176,6 +186,17 @@
       "emptyGoldTitle": "No gold-star species",
       "emptyGoldDesc": "Gold-star species are the most prestigious in the game. Extremely rare, catching one on Faunex is a real feat.",
       "emptyNoneFound": "No species found"
+    },
+    "categoryNames": {
+      "Insectes": "Insects",
+      "Mammifères": "Mammals",
+      "Oiseaux": "Birds",
+      "Poissons": "Fish",
+      "Arachnides": "Arachnids",
+      "Reptiles": "Reptiles",
+      "Mollusques": "Molluscs",
+      "Crustacés": "Crustaceans",
+      "Amphibiens": "Amphibians"
     }
   }
 }
