@@ -4,7 +4,7 @@ import { notifyCaptureInteraction } from '@/lib/notifyCaptureInteraction';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Search, Bell, Heart, MessageCircle, Send, UserPlus, UserCheck, X, Users, ChevronRight, Clock, Check as CheckIcon, XCircle, ArrowLeft } from 'lucide-react';
 import CardDetailSheet from '@/components/CardDetailSheet';
-import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
+import { type AnimalCard, type Rarity } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
 import { thumbUrl } from '@/lib/imageUrl';
 import { useAuth } from '@/contexts/AuthContext';
