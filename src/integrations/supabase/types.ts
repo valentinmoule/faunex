@@ -1240,6 +1240,7 @@ export type Database = {
           is_private: boolean
           last_login_at: string | null
           level: number
+          locale: string
           marketing_emails: boolean
           notify_email_comments: boolean
           notify_email_follows: boolean
@@ -1264,6 +1265,7 @@ export type Database = {
           is_private?: boolean
           last_login_at?: string | null
           level?: number
+          locale?: string
           marketing_emails?: boolean
           notify_email_comments?: boolean
           notify_email_follows?: boolean
@@ -1288,6 +1290,7 @@ export type Database = {
           is_private?: boolean
           last_login_at?: string | null
           level?: number
+          locale?: string
           marketing_emails?: boolean
           notify_email_comments?: boolean
           notify_email_follows?: boolean
@@ -2131,6 +2134,7 @@ export type Database = {
           is_private: boolean
           last_login_at: string | null
           level: number
+          locale: string
           marketing_emails: boolean
           notify_email_comments: boolean
           notify_email_follows: boolean
