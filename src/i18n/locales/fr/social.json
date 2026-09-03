@@ -48,17 +48,11 @@
       "caughtUp": "Tu es à jour ✨",
       "searchError": "Erreur de recherche",
       "milestone": {
-        "title_1": "Première capture !",
-        "subtitle_1": "Le début d'une belle collection",
-        "title_10": "10e capture !",
-        "subtitle_10": "L'œil du naturaliste s'aiguise",
-        "title_25": "25e capture !",
-        "subtitle_25": "Une collection qui prend forme",
-        "title_50": "50e capture !",
-        "subtitle_50": "Explorateur chevronné",
-        "title_100": "100e capture !",
-        "subtitle_100": "Légende du terrain",
-        "badge": "Jalon"
+        "message_1": "C'est la 1ère capture de {{name}} sur Faunex !",
+        "message_10": "C'est la 10ème capture de {{name}} sur Faunex !",
+        "message_25": "C'est la 25ème capture de {{name}} sur Faunex !",
+        "message_50": "C'est la 50ème capture de {{name}} sur Faunex !",
+        "message_100": "C'est la 100ème capture de {{name}} sur Faunex !"
       }
     },
     "feed": {
