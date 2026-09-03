@@ -658,6 +658,8 @@ serve(async (req) => {
         const parsed = JSON.parse(tc.function.arguments);
         if (parsed && typeof parsed === "object") {
           if (parsed.animal_name) parsed.animal_name = cleanCommonName(parsed.animal_name);
+          if (parsed.scientific_name) parsed.scientific_name = cleanScientificName(parsed.scientific_name);
+
           if (Array.isArray(parsed.alternatives)) {
             parsed.alternatives = parsed.alternatives.map((a: unknown) => cleanCommonName(a)).filter(Boolean);
           }
