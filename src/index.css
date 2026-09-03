@@ -2774,6 +2774,25 @@ html.is-native-android body {
   --tile-inner-glow-size: 26px;
 }
 
+/* Ombre colorée supplémentaire pour les cartes Rare+ en grille
+   (Mes captures, Explorateurs). L'intensité varie avec --tile-glow. */
+.game-tile--rare-shadow {
+  box-shadow:
+    0 3px 0 0 var(--tile-depth),
+    0 6px 0 -2px hsla(165, 25%, 11%, 0.1),
+    0 12px 20px -10px var(--tile-glow),
+    0 8px 28px -8px var(--tile-glow),
+    inset 0 1px 0 hsla(0, 0%, 100%, 0.5);
+}
+.game-tile--rare-shadow:active {
+  box-shadow:
+    0 1px 0 0 var(--tile-depth),
+    0 5px 10px -8px var(--tile-glow),
+    0 6px 18px -10px var(--tile-glow),
+    inset 0 1px 0 hsla(0, 0%, 100%, 0.35);
+}
+
+
 /* Rayon intérieur concentrique : la photo épouse la courbure du cadre
    (certains navigateurs perdent le clip overflow-hidden sur les tuiles
    transformées/will-change, d'où un rayon explicite sur le contenu) */
