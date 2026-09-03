@@ -1,0 +1,181 @@
+{
+  "bestiary": {
+    "common": {
+      "all": "Tous",
+      "loading": "Chargement…",
+      "captured": "capturés",
+      "capturedCount": "{{captured}}/{{total}} capturés",
+      "back": "Retour",
+      "clearSearch": "Effacer la recherche"
+    },
+    "mineSort": {
+      "recent": "Plus récentes",
+      "alpha": "Ordre alphabétique",
+      "rarity": "Plus rares",
+      "custom": "Personnalisé"
+    },
+    "popularity": {
+      "none": "Jamais capturée",
+      "rare": "Peu capturée",
+      "common": "Populaire",
+      "trending": "Très populaire",
+      "hot": "Incontournable"
+    },
+    "allSpecies": "Toutes les espèces",
+    "results": "Résultats",
+    "slotLimitToast": {
+      "title": "Limite de {{limit}} zones ou collections atteinte",
+      "description": "Passe en Premium pour en suivre autant que tu veux.",
+      "action": "Premium"
+    },
+    "picker": {
+      "titleHub": "Ajouter à ma collection",
+      "titleSpecies": "Collections d'espèces",
+      "titleUpsell": "Collections illimitées",
+      "titleExplore": "Explorer une zone",
+      "back": "Retour",
+      "hubIntro": "Ajoute une zone à suivre, ou une collection d'espèces à compléter (races de chien, papillons, rapaces…).",
+      "addZoneTitle": "Ajouter une zone",
+      "addZoneDesc": "Prépare un voyage, une rando ou une visite : ajoute n'importe quelle ville ou département.",
+      "addCollectionTitle": "Ajouter une collection",
+      "addCollectionDesc": "Races de chien, races de chat, papillons, rapaces, serpents… choisis ce que tu veux compléter.",
+      "premiumUnlimited": "Premium : tu peux suivre autant de zones et de collections que tu veux.",
+      "slotsUsed": "{{used}}/{{limit}} zones ou collections utilisées",
+      "slotsUsedCta": "Passe en Premium pour des zones et collections illimitées",
+      "upsellTitle": "Débloque toutes les collections",
+      "upsellDesc": "Avec <bold>Faunex Premium</bold>, crée autant de séries thématiques que tu veux : races de chien, races de chat, papillons, rapaces, serpents… et suis toutes les zones que tu veux.",
+      "benefit1": "Collections illimitées",
+      "benefit2": "Zones et territoires illimités",
+      "benefit3": "Classements détaillés par catégorie",
+      "goPremium": "Passer à Premium",
+      "later": "Plus tard",
+      "limitReachedTitle": "Limite atteinte",
+      "limitReachedDesc": "Tu peux suivre jusqu'à <bold>{{limit}}</bold> zones ou collections avec un compte gratuit. Passe à Premium pour ajouter autant de collections que tu veux.",
+      "searchCollectionPlaceholder": "Rechercher une collection…",
+      "noCollectionFound": "Aucune collection trouvée.",
+      "categoryPrefix": "Grande catégorie · ",
+      "added": "Ajoutée",
+      "departmentTab": "Département",
+      "cityTab": "Ville",
+      "searchDeptPlaceholder": "Rechercher (nom, n° ou région)",
+      "searchCityPlaceholder": "Rechercher une ville…",
+      "alreadyAdded": "Déjà ajouté",
+      "cityMinChars": "Tape au moins 2 lettres pour rechercher une commune française.",
+      "searching": "Recherche…",
+      "noCityFound": "Aucune commune trouvée",
+      "defaultCityName": "Ville"
+    },
+    "zone": {
+      "removeLabel": "Supprimer la rubrique",
+      "noSpecies": "Aucune espèce répertoriée pour cette zone pour le moment."
+    },
+    "collectionDetail": {
+      "removeLabel": "Retirer la collection"
+    },
+    "shelve": {
+      "newDiscovery": "Nouvelle découverte"
+    },
+    "tabs": {
+      "mine": "Mes captures",
+      "categories": "Bestiaire",
+      "collections": "Collections"
+    },
+    "mine": {
+      "searchPlaceholder": "Rechercher dans mes captures…",
+      "sort": "Tri",
+      "title": "Mes captures",
+      "count": "{{count}} capture",
+      "count_one": "{{count}} capture",
+      "count_other": "{{count}} captures",
+      "noMatchSearch": "Aucune capture ne correspond à « {{query}} ».",
+      "noneYet": "Tu n'as pas encore de capture. Pars en exploration !",
+      "noneForRarity": "Aucune capture ne correspond aux raretés sélectionnées.",
+      "sortModalTitle": "Trier mes captures",
+      "customHint": "Le tri personnalisé s'active automatiquement dès que tu déplaces une carte."
+    },
+    "categories": {
+      "searchPlaceholder": "Rechercher une espèce…",
+      "filters": "Filtres",
+      "clearAll": "Tout effacer",
+      "speciesCount": "{{captured}} / {{total}} espèces",
+      "noMatch": "Aucune espèce ne correspond à ta recherche ou à tes filtres."
+    },
+    "filterModal": {
+      "title": "Filtres",
+      "categoriesLabel": "Catégories",
+      "rarityLabel": "Rareté",
+      "popularityLabel": "Popularité",
+      "reset": "Réinitialiser",
+      "seeSpecies": "Voir {{count}} espèce",
+      "seeSpecies_one": "Voir {{count}} espèce",
+      "seeSpecies_other": "Voir {{count}} espèces"
+    },
+    "collections": {
+      "title": "Mes collections",
+      "add": "Ajouter",
+      "emptyTitle": "Ajoute une zone et/ou une collection",
+      "emptyDesc": "Suis la faune d'une ville ou d'un département, et complète des séries thématiques (races de chien, papillons, rapaces…)."
+    },
+    "seo": {
+      "title": "mon faunex — Toutes les espèces à découvrir · Faunex",
+      "description": "Explore le bestiaire Faunex : +1000 espèces sauvages françaises classées par catégorie et rareté. Découvre la faune autour de toi.",
+      "ogTitle": "Bestiaire Faunex — +1000 espèces à découvrir",
+      "ogDescription": "Catalogue complet de la faune sauvage : oiseaux, mammifères, insectes, reptiles, amphibiens…"
+    },
+    "categoryDetail": {
+      "searchPlaceholder": "Rechercher dans {{category}}…",
+      "allSpeciesChip": "Toutes les espèces",
+      "empty": "Aucune espèce dans cette catégorie",
+      "limitNotice": "{{limit}} premières espèces affichées · utilise la recherche pour en trouver une précise"
+    },
+    "header": {
+      "title": "mon faunex"
+    },
+    "collectionHero": {
+      "altIllustration": "Illustration de {{title}}",
+      "back": "Retour",
+      "remove": "Retirer"
+    },
+    "iucn": {
+      "LC": "Préoccupation mineure",
+      "NT": "Quasi menacée",
+      "VU": "Vulnérable",
+      "EN": "En danger",
+      "CR": "En danger critique",
+      "EW": "Éteinte à l'état sauvage",
+      "EX": "Éteinte",
+      "DD": "Données insuffisantes",
+      "NE": "Non évaluée",
+      "tooltip": "Liste rouge UICN : {{label}}"
+    },
+    "finders": {
+      "captured": "{{count}} naturaliste",
+      "captured_one": "{{count}} naturaliste a capturé cette espèce",
+      "captured_other": "{{count}} naturalistes ont capturé cette espèce",
+      "none": "Personne ne l'a encore capturée — sois le premier !"
+    },
+    "rarity": {
+      "ariaLabel": "Rareté : {{label}}"
+    },
+    "collectionPage": {
+      "title": "mon faunex",
+      "captureCount": "{{count}} capture",
+      "captureCount_one": "{{count}} capture",
+      "captureCount_other": "{{count}} captures",
+      "dailyQuests": "Quêtes du jour",
+      "dailyQuestsDesc": "Complète tes défis pour gagner de l'XP",
+      "loading": "Chargement…",
+      "emptyAllTitle": "Aucune capture encore",
+      "emptyAllDesc": "Pars en exploration et photographie les animaux que tu croises ! Chaque espèce capturée rejoint ton Faunex.",
+      "emptyCommonTitle": "Aucune espèce commune",
+      "emptyCommonDesc": "Les espèces communes sont celles que l'on croise facilement au quotidien : moineaux, pigeons, écureuils… Ouvre l'œil lors de tes prochaines sorties !",
+      "emptyRareTitle": "Aucune espèce rare",
+      "emptyRareDesc": "Les espèces rares sont des animaux dont les populations diminuent. Les observer dans la nature est un vrai privilège — leur conservation est importante.",
+      "emptyUltraRareTitle": "Aucune espèce ultra rare",
+      "emptyUltraRareDesc": "Les espèces ultra rares brillent d'un éclat argenté. Leur observation est un vrai privilège — chaque découverte compte.",
+      "emptyGoldTitle": "Aucune espèce à étoile dorée",
+      "emptyGoldDesc": "Les espèces à étoiles dorées sont les plus prestigieuses du jeu. Extrêmement rares, les capturer sur Faunex est un exploit.",
+      "emptyNoneFound": "Aucune espèce trouvée"
+    }
+  }
+}

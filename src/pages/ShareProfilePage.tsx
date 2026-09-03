@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { UserPlus, UserCheck, Loader2 } from 'lucide-react';
@@ -16,6 +17,7 @@ interface PublicProfile {
 }
 
 const ShareProfilePage = () => {
+  const { t } = useTranslation();
   const { username } = useParams<{ username: string }>();
   const { session } = useAuth();
   const navigate = useNavigate();
@@ -75,19 +77,19 @@ const ShareProfilePage = () => {
         .eq('follower_id', session.user.id)
         .eq('following_id', profile.user_id);
       setIsFollowing(false);
-      toast.info('Désabonné');
+      toast.info(t('social.common.unfollow'));
     } else {
       const { followUser: followUserUtil } = await import('@/lib/followUtils');
       const result = await followUserUtil(session.user.id, profile.user_id);
       if (result.error === 'already_following') {
-        toast.info('Déjà abonné');
+        toast.info(t('social.common.alreadyFollowing'));
       } else if (result.error) {
-        toast.error("Erreur");
+        toast.error(t('social.common.genericError'));
       } else if (result.status === 'pending') {
-        toast.success('Demande envoyée !');
+        toast.success(t('social.common.followRequestSent'));
       } else {
         setIsFollowing(true);
-        toast.success('Abonné !');
+        toast.success(t('social.common.followed'));
       }
     }
     setSending(false);
@@ -105,13 +107,13 @@ const ShareProfilePage = () => {
     return (
       <main className="min-h-screen bg-background flex flex-col items-center justify-center gap-4 px-4">
         <p className="text-4xl">🔍</p>
-        <p className="text-lg font-display font-bold text-foreground">Explorateur introuvable</p>
-        <p className="text-sm text-muted-foreground text-center">Ce profil n'existe pas ou le pseudo est incorrect.</p>
+        <p className="text-lg font-display font-bold text-foreground">{t('social.shareProfile.notFoundTitle')}</p>
+        <p className="text-sm text-muted-foreground text-center">{t('social.shareProfile.notFoundDesc')}</p>
         <button
           onClick={() => navigate('/')}
           className="mt-4 px-6 py-2.5 rounded-xl bg-primary text-primary-foreground font-display font-semibold text-sm"
         >
-          Retour à l'accueil
+          {t('social.shareProfile.backHome')}
         </button>
       </main>
     );
@@ -120,18 +122,18 @@ const ShareProfilePage = () => {
   return (
     <main className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
       <Helmet>
-        <title>{`${profile.display_name || 'Explorateur'} (${profile.username || '@inconnu'}) — Faunex`}</title>
-        <meta name="description" content={`Découvre le profil Faunex de ${profile.display_name || 'cet explorateur'} : niveau ${profile.level}, ${profile.total_captures} espèces collectionnées.`} />
+        <title>{t('social.shareProfile.metaTitle', { name: profile.display_name || t('social.shareProfile.defaultName'), username: profile.username || t('social.shareProfile.defaultUsername') })}</title>
+        <meta name="description" content={t('social.shareProfile.metaDescription', { name: profile.display_name || t('social.shareProfile.defaultName'), level: profile.level, count: profile.total_captures })} />
         <link rel="canonical" href={`https://faunex.fr/u/${(profile.username || '').replace(/^@/, '')}`} />
         <meta property="og:type" content="profile" />
         <meta property="og:url" content={`https://faunex.fr/u/${(profile.username || '').replace(/^@/, '')}`} />
-        <meta property="og:title" content={`${profile.display_name || 'Explorateur'} sur Faunex`} />
-        <meta property="og:description" content={`Niveau ${profile.level} · ${profile.total_captures} espèces collectionnées.`} />
+        <meta property="og:title" content={t('social.shareProfile.ogTitle', { name: profile.display_name || t('social.shareProfile.defaultName') })} />
+        <meta property="og:description" content={t('social.shareProfile.ogDescription', { level: profile.level, count: profile.total_captures })} />
         {profile.avatar_url && <meta property="og:image" content={profile.avatar_url} />}
       </Helmet>
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
-          <h1 className="text-2xl font-display font-bold text-primary">Profil de {profile.display_name || 'Explorateur'}</h1>
+          <h1 className="text-2xl font-display font-bold text-primary">{t('social.shareProfile.profileOf', { name: profile.display_name || t('social.shareProfile.defaultName') })}</h1>
         </div>
 
         <div className="bg-card rounded-2xl border border-border p-6 text-center shadow-card space-y-4">
@@ -147,19 +149,19 @@ const ShareProfilePage = () => {
 
           <div>
             <h2 className="text-xl font-display font-bold text-foreground">
-              {profile.display_name || 'Explorateur'}
+              {profile.display_name || t('social.shareProfile.defaultName')}
             </h2>
-            <p className="text-sm text-muted-foreground">{profile.username || '@inconnu'}</p>
+            <p className="text-sm text-muted-foreground">{profile.username || t('social.shareProfile.defaultUsername')}</p>
           </div>
 
           <div className="flex justify-center gap-6">
             <div className="text-center">
               <p className="text-lg font-display font-bold text-foreground">{profile.level}</p>
-              <p className="text-[10px] text-muted-foreground">Niveau</p>
+              <p className="text-[10px] text-muted-foreground">{t('social.shareProfile.level')}</p>
             </div>
             <div className="text-center">
               <p className="text-lg font-display font-bold text-foreground">{profile.total_captures}</p>
-              <p className="text-[10px] text-muted-foreground">Captures</p>
+              <p className="text-[10px] text-muted-foreground">{t('social.shareProfile.captures')}</p>
             </div>
           </div>
 
@@ -168,7 +170,7 @@ const ShareProfilePage = () => {
               onClick={() => navigate('/profile')}
               className="w-full py-3 rounded-xl bg-muted text-muted-foreground font-display font-semibold text-sm"
             >
-              C'est toi ! Voir mon profil
+              {t('social.shareProfile.selfCta')}
             </button>
           ) : (
             <button
@@ -183,9 +185,9 @@ const ShareProfilePage = () => {
               {sending ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : isFollowing ? (
-                <><UserCheck className="w-4 h-4" /> Abonné</>
+                <><UserCheck className="w-4 h-4" /> {t('social.common.following')}</>
               ) : (
-                <><UserPlus className="w-4 h-4" /> {session ? "S'abonner" : "Se connecter pour s'abonner"}</>
+                <><UserPlus className="w-4 h-4" /> {session ? t('social.shareProfile.followCta') : t('social.shareProfile.loginToFollow')}</>
               )}
             </button>
           )}
@@ -196,7 +198,7 @@ const ShareProfilePage = () => {
             onClick={() => navigate('/')}
             className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors font-display"
           >
-            Retour à l'accueil
+            {t('social.shareProfile.backHome')}
           </button>
         )}
       </div>

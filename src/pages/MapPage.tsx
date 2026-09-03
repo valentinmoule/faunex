@@ -15,6 +15,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import CardDetailSheet from '@/components/CardDetailSheet';
 import { type AnimalCard, type Rarity, RARITY_LABELS, RARITY_ORDER } from '@/data/mockData';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 
 interface CaptureMarker {
@@ -105,6 +106,7 @@ const CenterTracker = ({ onMove, onZoom }: { onMove: (center: L.LatLng) => void;
 
 
 const MapPage = () => {
+  const { t } = useTranslation();
   const { session } = useAuth();
   const [loading, setLoading] = useState(true);
   const [captures, setCaptures] = useState<CaptureMarker[]>([]);
@@ -157,7 +159,7 @@ const MapPage = () => {
 
   const locateMe = () => {
     if (!('geolocation' in navigator)) {
-      toast.error('Géolocalisation indisponible');
+      toast.error(t('map.errors.geoUnavailable'));
       return;
     }
     navigator.geolocation.getCurrentPosition(
@@ -166,7 +168,7 @@ const MapPage = () => {
         setUserPos(p);
         setCenter(p);
       },
-      () => toast.error("Impossible d'obtenir ta position"),
+      () => toast.error(t('map.errors.geoPositionError')),
     );
   };
 
@@ -288,9 +290,9 @@ const MapPage = () => {
                 <MapPin className="w-4.5 h-4.5 text-primary" />
               </div>
               <div>
-                <h1 className="text-base font-display font-bold text-foreground leading-none">Cartes</h1>
+                <h1 className="text-base font-display font-bold text-foreground leading-none">{t('map.header.title')}</h1>
                 <p className="text-[11px] text-muted-foreground mt-0.5">
-                  {localizedSpeciesCount} espèce{localizedSpeciesCount > 1 ? 's' : ''} localisée{localizedSpeciesCount > 1 ? 's' : ''}
+                  {t('map.header.speciesLocalized', { count: localizedSpeciesCount })}
                 </p>
 
               </div>
@@ -299,7 +301,7 @@ const MapPage = () => {
             <button
               onClick={locateMe}
               className="p-3 rounded-2xl bg-card/85 backdrop-blur-xl border border-border/60 shadow-card hover:bg-card transition-colors"
-              aria-label="Me localiser"
+              aria-label={t('map.header.locateMe')}
             >
               <Compass className="w-5 h-5 text-foreground" />
             </button>
@@ -342,9 +344,9 @@ const MapPage = () => {
         <div className="absolute inset-x-0 bottom-28 z-[1000] px-6 pointer-events-none">
           <div className="max-w-sm mx-auto rounded-2xl bg-card/90 backdrop-blur-xl border border-border/60 shadow-card p-4 text-center">
             <MapPin className="w-6 h-6 text-primary mx-auto mb-2" />
-            <p className="font-display font-bold text-sm text-foreground">Aucune capture géolocalisée</p>
+            <p className="font-display font-bold text-sm text-foreground">{t('map.emptyState.title')}</p>
             <p className="text-[12px] text-muted-foreground mt-1">
-              Tes captures apparaîtront ici si tu autorises la localisation au moment de la photo. Les photos importées sans données GPS ne peuvent pas être placées sur la carte.
+              {t('map.emptyState.description')}
             </p>
           </div>
         </div>
@@ -355,11 +357,11 @@ const MapPage = () => {
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2 font-display">
               <MapPin className="w-5 h-5 text-primary" />
-              {groupItems?.[0]?.location || 'Cette position'}
+              {groupItems?.[0]?.location || t('map.groupSheet.defaultTitle')}
             </SheetTitle>
           </SheetHeader>
           <p className="text-[12px] text-muted-foreground mt-1">
-            {groupItems?.length} capture{(groupItems?.length || 0) > 1 ? 's' : ''} à cet endroit
+            {t('map.groupSheet.count', { count: groupItems?.length || 0 })}
           </p>
           <div className="mt-4 space-y-2">
             {groupItems?.map((c) => (

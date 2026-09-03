@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PageHeader } from '@/components/PageHeader';
 import { Settings, MapPin, BookOpen, Download, Bell, Users, UserPlus, ShieldCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -29,6 +30,7 @@ interface Profile {
 
 
 const ProfilePage = () => {
+  const { t } = useTranslation();
   const { session } = useAuth();
   const { canInstall, isInstalled, isNative, promptInstall } = usePwaInstall();
   const { isPremium } = useSubscription(session?.user?.id);
@@ -113,7 +115,7 @@ const ProfilePage = () => {
   if (loading || !profile) {
     return (
       <main className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground font-display">Chargement…</p>
+        <p className="text-muted-foreground font-display">{t('profile.page.loading')}</p>
       </main>
     );
   }
@@ -127,7 +129,7 @@ const ProfilePage = () => {
     <main className="min-h-screen bg-background pb-24">
       <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="flex items-center justify-between max-w-lg mx-auto">
-          <h1 className="text-2xl font-display font-bold text-primary">Profil</h1>
+          <h1 className="text-2xl font-display font-bold text-primary">{t('profile.page.title')}</h1>
           <div className="flex items-center gap-2">
             <button onClick={() => navigate('/notifications')} className="relative p-2 rounded-full hover:bg-muted transition-colors">
               <Bell className="w-5 h-5 text-foreground" />
@@ -150,12 +152,12 @@ const ProfilePage = () => {
             className="border-2 border-primary/30 rounded-full"
           />
           <div className="flex-1">
-            <h2 className="text-xl font-display font-bold text-foreground">{profile.display_name || 'Sans nom'}</h2>
-            <p className="text-sm text-muted-foreground">{profile.username || '@inconnu'}</p>
+            <h2 className="text-xl font-display font-bold text-foreground">{profile.display_name || t('profile.page.noName')}</h2>
+            <p className="text-sm text-muted-foreground">{profile.username || t('profile.page.noUsername')}</p>
             <div className="mt-2">
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs font-display font-semibold text-primary">Niv. {profile.level}</span>
-                <span className="text-[10px] text-muted-foreground">{profile.xp}/{profile.xp_to_next} XP</span>
+                <span className="text-xs font-display font-semibold text-primary">{t('profile.page.level', { level: profile.level })}</span>
+                <span className="text-[10px] text-muted-foreground">{t('profile.page.xp', { xp: profile.xp, xpToNext: profile.xp_to_next })}</span>
               </div>
               <Progress value={xpPercent} className="h-2 bg-muted [&>div]:bg-primary" />
             </div>
@@ -165,10 +167,10 @@ const ProfilePage = () => {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 gap-3">
-          <StatCard icon={<BookOpen className="w-5 h-5 text-primary" />} value={profile.total_captures} label="Espèces" />
-          <StatCard icon={<MapPin className="w-5 h-5 text-sky" />} value={profile.regions_explored} label="Régions" />
-          <StatCard icon={<Users className="w-5 h-5 text-amber" />} value={followersCount} label="Abonnés" />
-          <StatCard icon={<UserPlus className="w-5 h-5 text-emerald" />} value={followingCount} label="Abonnements" />
+          <StatCard icon={<BookOpen className="w-5 h-5 text-primary" />} value={profile.total_captures} label={t('profile.page.stats.species')} />
+          <StatCard icon={<MapPin className="w-5 h-5 text-sky" />} value={profile.regions_explored} label={t('profile.page.stats.regions')} />
+          <StatCard icon={<Users className="w-5 h-5 text-amber" />} value={followersCount} label={t('profile.page.stats.followers')} />
+          <StatCard icon={<UserPlus className="w-5 h-5 text-emerald" />} value={followingCount} label={t('profile.page.stats.following')} />
         </div>
 
         {/* PWA Install Card */}
@@ -178,14 +180,14 @@ const ProfilePage = () => {
               <Download className="w-5 h-5 text-primary" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-display font-semibold text-foreground">Installer Faunex</p>
-              <p className="text-xs text-muted-foreground">Accède à l'app depuis ton écran d'accueil</p>
+              <p className="text-sm font-display font-semibold text-foreground">{t('profile.page.install.title')}</p>
+              <p className="text-xs text-muted-foreground">{t('profile.page.install.subtitle')}</p>
             </div>
             <button
               onClick={promptInstall}
               className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-display font-semibold shrink-0"
             >
-              Installer
+              {t('profile.page.install.cta')}
             </button>
           </div>
         )}
@@ -200,11 +202,11 @@ const ProfilePage = () => {
               <ShieldCheck className="w-5 h-5 text-amber" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-display font-semibold text-foreground">Modération</p>
+              <p className="text-sm font-display font-semibold text-foreground">{t('profile.page.moderation.title')}</p>
               <p className="text-xs text-muted-foreground">
                 {pendingCount > 0
-                  ? `${pendingCount} capture${pendingCount > 1 ? 's' : ''} en attente de validation`
-                  : 'Aucune capture en attente'}
+                  ? t('profile.page.moderation.pending', { count: pendingCount })
+                  : t('profile.page.moderation.none')}
               </p>
             </div>
             {pendingCount > 0 && (

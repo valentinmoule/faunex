@@ -1,5 +1,6 @@
 import { ChevronLeft, Trash2 } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface CollectionHeroProps {
   image: string;
@@ -24,15 +25,17 @@ export function CollectionHero({
   icon,
   onBack,
   onRemove,
-  removeLabel = 'Retirer',
+  removeLabel,
 }: CollectionHeroProps) {
+  const { t } = useTranslation();
   const pct = total > 0 ? Math.round((captured / total) * 100) : 0;
+  const resolvedRemoveLabel = removeLabel ?? t('bestiary.collectionHero.remove');
 
   return (
     <header className="relative h-64 sm:h-72 w-full overflow-hidden">
       <img
         src={image}
-        alt={`Illustration de ${title}`}
+        alt={t('bestiary.collectionHero.altIllustration', { title })}
         className="absolute inset-0 w-full h-full object-cover"
       />
 <div className="absolute inset-0" style={{ background: overlay }} />
@@ -42,7 +45,7 @@ export function CollectionHero({
         <div className="flex items-center justify-between">
           <button
             onClick={onBack}
-            aria-label="Retour"
+            aria-label={t('bestiary.collectionHero.back')}
             className="p-2 rounded-full bg-background/70 backdrop-blur-md border border-border/50 hover:bg-background transition-colors"
           >
             <ChevronLeft className="w-5 h-5 text-foreground" />
@@ -50,7 +53,7 @@ export function CollectionHero({
           {onRemove && (
             <button
               onClick={onRemove}
-              aria-label={removeLabel}
+              aria-label={resolvedRemoveLabel}
               className="p-2 rounded-full bg-background/70 backdrop-blur-md border border-border/50 text-destructive hover:bg-background transition-colors"
             >
               <Trash2 className="w-4 h-4" />

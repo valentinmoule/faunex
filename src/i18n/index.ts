@@ -1,7 +1,19 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import fr from './locales/fr.json';
-import en from './locales/en.json';
+
+// Chaque domaine fonctionnel possède son propre fichier de ressources
+// (src/i18n/locales/{fr,en}/<domaine>.json) ; ils sont fusionnés ici.
+const frModules = import.meta.glob('./locales/fr/*.json', { eager: true }) as Record<string, any>;
+const enModules = import.meta.glob('./locales/en/*.json', { eager: true }) as Record<string, any>;
+
+const merge = (modules: Record<string, any>) =>
+  Object.values(modules).reduce<Record<string, any>>(
+    (acc, mod) => ({ ...acc, ...(mod.default ?? mod) }),
+    {},
+  );
+
+const fr = merge(frModules);
+const en = merge(enModules);
 
 export type AppLocale = 'fr' | 'en';
 export const SUPPORTED_LOCALES: AppLocale[] = ['fr', 'en'];

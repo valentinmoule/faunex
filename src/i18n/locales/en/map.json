@@ -1,0 +1,98 @@
+{
+  "map": {
+    "header": {
+      "title": "Map",
+      "speciesLocalized_one": "{{count}} species located",
+      "speciesLocalized_other": "{{count}} species located",
+      "locateMe": "Locate me"
+    },
+    "errors": {
+      "geoUnavailable": "Geolocation unavailable",
+      "geoPositionError": "Couldn't get your position"
+    },
+    "emptyState": {
+      "title": "No geolocated captures",
+      "description": "Your captures will show up here if you allow location when taking the photo. Imported photos without GPS data can't be placed on the map."
+    },
+    "groupSheet": {
+      "defaultTitle": "This spot",
+      "count_one": "{{count}} capture at this spot",
+      "count_other": "{{count}} captures at this spot"
+    },
+    "nearby": {
+      "geoUnavailable": "Geolocation unavailable",
+      "title": "Around you",
+      "subtitle": "Tap to discover nearby species",
+      "loading": "Scanning your area…",
+      "loadError": "Couldn't load",
+      "retry": "Retry",
+      "loadErrorToast": "Couldn't load nearby animals",
+      "permissionToast": "Allow geolocation for this feature",
+      "genericError": "Error",
+      "captured": "✓ Captured",
+      "alert": {
+        "gold": "🔥 A very rare species is nearby!",
+        "silver": "⚡ Ultra rare species detected near you",
+        "rare": "🔹 Rare species spotted in your area",
+        "common": "🔹 Species spotted in your area"
+      }
+    },
+    "radar": {},
+    "pull": {
+      "geoUnavailable": "Geolocation unavailable",
+      "limitReachedTitle": "Daily limit of 4 explorations reached",
+      "limitReachedDescription": "Go Premium to explore without limits.",
+      "premiumAction": "Premium",
+      "searchErrorToast": "Couldn't search species here",
+      "geoPositionError": "Couldn't get your position",
+      "statusExploring": "Exploring…",
+      "statusLimitReached": "Daily limit reached",
+      "statusReady": "Release to explore",
+      "statusPull": "Pull to explore around you",
+      "remainingLimitReached": "Go Premium to explore without limits",
+      "remainingCount": "{{remaining}}/{{limit}} explorations left today",
+      "defaultLocation": "Around you",
+      "sheetTitle": "Species to discover",
+      "sheetSubtitle": "Species potentially observable here",
+      "tipLabel": "Tip",
+      "noAnimalsFound": "No species found for this area."
+    },
+    "pushPrompt": {
+      "successToast": "Notifications enabled 🦊",
+      "errorToast": "Couldn't enable notifications",
+      "title": "Enable notifications",
+      "description": "Get a little reminder when new species appear near you.",
+      "enable": "Enable",
+      "later": "Later",
+      "close": "Close"
+    },
+    "welcomeInstall": {
+      "title": "Welcome to Faunex! 🌿",
+      "description": "Install the app on your home screen for the best experience and quick access to your captures\u00a0!",
+      "install": "Install Faunex",
+      "howToInstall": "How to install",
+      "continueWithoutInstall": "Continue without installing",
+      "ios": {
+        "title": "On iPhone / iPad:",
+        "step1": "Open Faunex in <strong>Safari</strong> (not Chrome).",
+        "step2": "Tap the <strong>Share</strong> button at the bottom of the screen.",
+        "step3": "Scroll down and select <strong>Add to Home Screen</strong>.",
+        "step4": "Tap <strong>Add</strong>."
+      },
+      "android": {
+        "title": "On Android:",
+        "step1": "Open the <strong>⋮</strong> menu at the top right of Chrome.",
+        "step2": "Choose <strong>Install app</strong> or <strong>Add to Home screen</strong>.",
+        "step3": "Confirm with <strong>Install</strong>."
+      }
+    },
+    "loadingScreen": {
+      "logoAlt": "Faunex logo",
+      "loading": "Loading…"
+    },
+    "paymentTestMode": {
+      "banner": "Payments made in the preview are in test mode.",
+      "learnMore": "Learn more"
+    }
+  }
+}

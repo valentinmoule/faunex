@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { Target, X, Sparkles } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { isFirstLogin } from '@/components/WelcomeInstallPopup';
+import { useTranslation } from 'react-i18next';
 
 const DailyQuestPopup = () => {
+  const { t } = useTranslation();
   const { session } = useAuth();
   const hasShown = useRef(false);
   const navigate = useNavigate();
@@ -79,22 +81,22 @@ const DailyQuestPopup = () => {
           </div>
 
           <h3 className="text-lg font-display font-black text-foreground mb-1.5">
-            🎯 Quêtes de la semaine
+            {t('profile.quests.popup.title')}
           </h3>
           <p className="text-sm text-muted-foreground leading-relaxed mb-5">
-            De nouvelles quêtes t'attendent pour 7 jours !<br />
-            Complète-les pour gagner de l'XP et monter de niveau.
+            {t("profile.quests.popup.subtitleLine1", { defaultValue: "De nouvelles quêtes t'attendent pour 7 jours !" })}<br />
+            {t("profile.quests.popup.subtitleLine2", { defaultValue: "Complète-les pour gagner de l'XP et monter de niveau." })}
           </p>
 
           <button
             onClick={goToQuests}
             className="w-full py-3 rounded-xl bg-gradient-to-r from-amber to-amber-light text-white font-display font-bold text-sm shadow-[0_4px_15px_hsla(42,85%,55%,0.3)] hover:shadow-[0_6px_20px_hsla(42,85%,55%,0.4)] transition-all active:scale-[0.97] transform"
           >
-            Découvrir mes quêtes
+            {t('profile.quests.popup.cta')}
           </button>
 
           <button onClick={dismiss} className="mt-3 text-xs text-muted-foreground hover:text-foreground transition-colors font-display">
-            Plus tard
+            {t('profile.quests.popup.later')}
           </button>
         </div>
       </div>

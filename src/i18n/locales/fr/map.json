@@ -1,0 +1,98 @@
+{
+  "map": {
+    "header": {
+      "title": "Cartes",
+      "speciesLocalized_one": "{{count}} espèce localisée",
+      "speciesLocalized_other": "{{count}} espèces localisées",
+      "locateMe": "Me localiser"
+    },
+    "errors": {
+      "geoUnavailable": "Géolocalisation indisponible",
+      "geoPositionError": "Impossible d'obtenir ta position"
+    },
+    "emptyState": {
+      "title": "Aucune capture géolocalisée",
+      "description": "Tes captures apparaîtront ici si tu autorises la localisation au moment de la photo. Les photos importées sans données GPS ne peuvent pas être placées sur la carte."
+    },
+    "groupSheet": {
+      "defaultTitle": "Cette position",
+      "count_one": "{{count}} capture à cet endroit",
+      "count_other": "{{count}} captures à cet endroit"
+    },
+    "nearby": {
+      "geoUnavailable": "Géolocalisation non disponible",
+      "title": "Autour de toi",
+      "subtitle": "Appuie pour découvrir les espèces à proximité",
+      "loading": "Analyse de ta zone…",
+      "loadError": "Impossible de charger",
+      "retry": "Réessayer",
+      "loadErrorToast": "Impossible de charger les animaux à proximité",
+      "permissionToast": "Autorise la géolocalisation pour cette fonctionnalité",
+      "genericError": "Erreur",
+      "captured": "✓ Capturé",
+      "alert": {
+        "gold": "🔥 Une espèce très rare est proche !",
+        "silver": "⚡ Espèce ultra rare détectée près de toi",
+        "rare": "🔹 Espèce rare repérée dans ta zone",
+        "common": "🔹 Espèce repérée dans ta zone"
+      }
+    },
+    "radar": {},
+    "pull": {
+      "geoUnavailable": "Géolocalisation indisponible",
+      "limitReachedTitle": "Limite de 4 explorations par jour atteinte",
+      "limitReachedDescription": "Passe au Premium pour explorer sans limite.",
+      "premiumAction": "Premium",
+      "searchErrorToast": "Impossible de chercher les espèces ici",
+      "geoPositionError": "Impossible d'obtenir ta position",
+      "statusExploring": "Exploration en cours…",
+      "statusLimitReached": "Limite quotidienne atteinte",
+      "statusReady": "Relâche pour explorer",
+      "statusPull": "Tire pour explorer autour de toi",
+      "remainingLimitReached": "Passe au Premium pour explorer sans limite",
+      "remainingCount": "{{remaining}}/{{limit}} explorations restantes aujourd'hui",
+      "defaultLocation": "Autour de toi",
+      "sheetTitle": "Espèces à découvrir",
+      "sheetSubtitle": "Espèces potentiellement observables ici",
+      "tipLabel": "Astuce",
+      "noAnimalsFound": "Aucune espèce trouvée pour cette zone."
+    },
+    "pushPrompt": {
+      "successToast": "Notifications activées 🦊",
+      "errorToast": "Impossible d'activer les notifications",
+      "title": "Active les notifications",
+      "description": "Reçois un petit rappel quand de nouvelles espèces apparaissent près de toi.",
+      "enable": "Activer",
+      "later": "Plus tard",
+      "close": "Fermer"
+    },
+    "welcomeInstall": {
+      "title": "Bienvenue sur Faunex ! 🌿",
+      "description": "Installe l'application sur ton écran d'accueil pour une expérience optimale et un accès rapide à tes captures\u00a0!",
+      "install": "Installer Faunex",
+      "howToInstall": "Comment installer",
+      "continueWithoutInstall": "Continuer sans installer",
+      "ios": {
+        "title": "Sur iPhone / iPad :",
+        "step1": "Ouvre Faunex dans <strong>Safari</strong> (pas Chrome).",
+        "step2": "Appuie sur le bouton <strong>Partager</strong> en bas de l'écran.",
+        "step3": "Fais défiler et sélectionne <strong>Sur l'écran d'accueil</strong>.",
+        "step4": "Appuie sur <strong>Ajouter</strong>."
+      },
+      "android": {
+        "title": "Sur Android :",
+        "step1": "Ouvre le menu <strong>⋮</strong> en haut à droite de Chrome.",
+        "step2": "Choisis <strong>Installer l'application</strong> ou <strong>Ajouter à l'écran d'accueil</strong>.",
+        "step3": "Confirme avec <strong>Installer</strong>."
+      }
+    },
+    "loadingScreen": {
+      "logoAlt": "Logo Faunex",
+      "loading": "Chargement…"
+    },
+    "paymentTestMode": {
+      "banner": "Les paiements effectués dans l'aperçu sont en mode test.",
+      "learnMore": "En savoir plus"
+    }
+  }
+}

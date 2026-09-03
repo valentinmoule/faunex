@@ -1,4 +1,5 @@
 import { useId } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   type Rarity,
   RARITY_LABELS,
@@ -57,6 +58,7 @@ export const RarityBadge = ({
   className?: string;
   showLabel?: boolean;
 }) => {
+  const { t } = useTranslation();
   const r = normalizeRarity(rarity);
   const fx = RARITY_FX[r];
   const uid = useId();
@@ -69,7 +71,7 @@ export const RarityBadge = ({
     <span
       className={`rarity-badge rarity-badge--${r.replace(/_/g, '-')} ${fxVariant[fx]} ${r === 'hyper_rare' ? 'rarity-badge--hyper' : ''} ${showLabel ? 'rarity-badge--labeled' : ''} ${className ?? ''}`}
       title={RARITY_LABELS[r]}
-      aria-label={`Rareté : ${RARITY_LABELS[r]}`}
+      aria-label={t('bestiary.rarity.ariaLabel', { label: RARITY_LABELS[r] })}
     >
       <svg
         className="rarity-badge__symbols"

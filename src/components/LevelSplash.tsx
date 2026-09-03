@@ -3,8 +3,10 @@ import { Shield } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { isFirstLogin } from '@/components/WelcomeInstallPopup';
+import { useTranslation } from 'react-i18next';
 
 const LevelSplash = () => {
+  const { t } = useTranslation();
   const { session } = useAuth();
   const hasShown = useRef(false);
   const [visible, setVisible] = useState(false);
@@ -69,12 +71,12 @@ const LevelSplash = () => {
 
         {/* Name */}
         <p className="text-primary-foreground/90 text-sm font-display">
-          {displayName ? `Bienvenue, ${displayName}` : 'Bienvenue, explorateur'}
+          {displayName ? t('profile.levelSplash.welcomeName', { name: displayName }) : t('profile.levelSplash.welcomeGeneric')}
         </p>
 
         {/* Level label */}
         <h2 className="text-primary-foreground text-xl font-display font-bold">
-          Niveau {level}
+          {t('profile.levelSplash.level', { level })}
         </h2>
 
         {/* XP bar */}

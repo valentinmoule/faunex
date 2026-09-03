@@ -1,0 +1,276 @@
+{
+  "profile": {
+    "page": {
+      "title": "Profil",
+      "loading": "Chargement…",
+      "noName": "Sans nom",
+      "noUsername": "@inconnu",
+      "level": "Niv. {{level}}",
+      "xp": "{{xp}}/{{xpToNext}} XP",
+      "stats": {
+        "species": "Espèces",
+        "regions": "Régions",
+        "followers": "Abonnés",
+        "following": "Abonnements"
+      },
+      "install": {
+        "title": "Installer Faunex",
+        "subtitle": "Accède à l'app depuis ton écran d'accueil",
+        "cta": "Installer"
+      },
+      "moderation": {
+        "title": "Modération",
+        "pending_one": "{{count}} capture en attente de validation",
+        "pending_other": "{{count}} captures en attente de validation",
+        "none": "Aucune capture en attente"
+      }
+    },
+    "quests": {
+      "weekTitle": "Quêtes de la semaine",
+      "completedCount": "{{completed}}/{{total}} terminées",
+      "allClaimed": "✓ Toutes récoltées",
+      "emptyShort": "Aucune quête cette semaine.",
+      "emptyTitle": "Aucune quête cette semaine",
+      "emptySubtitle": "Les quêtes se renouvellent chaque lundi. Reviens vite !",
+      "share": "Partager",
+      "claim": "Récolter",
+      "xpEarned": "+{{xp}} XP récoltés ! 🎉",
+      "claimError": "Erreur lors de la réclamation",
+      "linkCopied": "Lien copié !",
+      "shareCompleted": "Quête complétée ! 🎉",
+      "shareTitle": "Faunex — Attrape-les vraiment tous.",
+      "shareText": "Rejoins-moi sur Faunex 🌿 Capture et collectionne les animaux autour de toi !",
+      "backAria": "Retour",
+      "popup": {
+        "title": "🎯 Quêtes de la semaine",
+        "subtitle": "De nouvelles quêtes t'attendent pour 7 jours !<br />Complète-les pour gagner de l'XP et monter de niveau.",
+        "cta": "Découvrir mes quêtes",
+        "later": "Plus tard"
+      }
+    },
+    "badges": {
+      "title": "Badges",
+      "loading": "Chargement des badges…",
+      "empty": "Aucun badge dans cette sélection.",
+      "all": "Tous · {{count}}",
+      "claimable": "À réclamer · {{count}}",
+      "unlocked": "Débloqués · {{count}}",
+      "unlockedTag": "Débloqué ✨",
+      "claimedToast": "Badge débloqué ! +{{xp}} XP 🎉",
+      "groups": {
+        "progression": "Progression",
+        "especes": "Espèces",
+        "rarete": "Rareté",
+        "collections": "Collections",
+        "classement": "Classement",
+        "social": "Communauté"
+      },
+      "items": {
+        "first_capture": { "name": "Première capture", "description": "Capturer ton premier animal" },
+        "explorer_10": { "name": "Explorateur", "description": "Réaliser 10 captures" },
+        "explorer_25": { "name": "Naturaliste", "description": "Réaliser 25 captures" },
+        "explorer_50": { "name": "Expert faune", "description": "Réaliser 50 captures" },
+        "explorer_100": { "name": "Grand collectionneur", "description": "Réaliser 100 captures" },
+        "level_5": { "name": "Niveau 5", "description": "Atteindre le niveau 5" },
+        "level_10": { "name": "Niveau 10", "description": "Atteindre le niveau 10" },
+        "regions_3": { "name": "Baroudeur", "description": "Explorer 3 régions" },
+        "regions_10": { "name": "Globe-trotteur", "description": "Explorer 10 régions" },
+        "geo_10": { "name": "Cartographe", "description": "Géolocaliser 10 captures" },
+        "night_owl": { "name": "Explorateur nocturne", "description": "Capturer un animal entre 21h et 5h" },
+        "early_bird": { "name": "Lève-tôt", "description": "Capturer un animal entre 5h et 8h" },
+        "birds_5": { "name": "Ornithologue", "description": "Capturer 5 oiseaux" },
+        "mammals_5": { "name": "Mammalogiste", "description": "Capturer 5 mammifères" },
+        "insects_5": { "name": "Entomologiste", "description": "Capturer 5 insectes" },
+        "reptiles_3": { "name": "Herpétologue", "description": "Capturer 3 reptiles" },
+        "amphibians_3": { "name": "Batracologue", "description": "Capturer 3 amphibiens" },
+        "fishes_3": { "name": "Ichtyologue", "description": "Capturer 3 poissons" },
+        "arachnids_3": { "name": "Arachnologue", "description": "Capturer 3 arachnides" },
+        "molluscs_3": { "name": "Malacologue", "description": "Capturer 3 mollusques" },
+        "crustaceans_3": { "name": "Carcinologue", "description": "Capturer 3 crustacés" },
+        "categories_all": { "name": "Touche-à-tout", "description": "Capturer au moins 1 espèce dans 9 catégories" },
+        "rare_1": { "name": "Chasseur rare", "description": "Trouver un animal rare ou mieux" },
+        "rare_10": { "name": "Traqueur de raretés", "description": "Trouver 10 animaux rares ou mieux" },
+        "legendary_1": { "name": "Éclat argenté", "description": "Trouver une espèce ultra rare" },
+        "legendary_5": { "name": "Collection argent", "description": "Trouver 5 espèces ultra rares" },
+        "mythic_1": { "name": "Étoile dorée !", "description": "Trouver une espèce de rareté or" },
+        "mythic_3": { "name": "Panthéon doré", "description": "Trouver 3 espèces de rareté or" },
+        "podium_any": { "name": "Sur le podium", "description": "Entrer dans le top 3 d’une catégorie" },
+        "top10_any": { "name": "Top 10", "description": "Entrer dans le top 10 d’une catégorie" },
+        "social_3": { "name": "Sociable", "description": "Suivre 3 explorateurs" },
+        "social_10": { "name": "Réseauteur", "description": "Suivre 10 explorateurs" },
+        "followers_5": { "name": "Inspirant", "description": "Être suivi par 5 explorateurs" },
+        "followers_25": { "name": "Star de Faunex", "description": "Être suivi par 25 explorateurs" }
+      },
+      "collectionDescription": "Compléter la collection {{label}}",
+      "rank1Name": "N°1 {{category}}",
+      "rank1Description": "Être 1er du classement {{category}}"
+    },
+    "levelUp": {
+      "title": "Niveau supérieur !",
+      "level": "Niveau {{level}}",
+      "reward1": "Première capture ! Tu es un vrai naturaliste.",
+      "reward3": "Continue d'explorer ! Chaque espèce compte.",
+      "reward5": "Explorateur confirmé ! Les espèces rares t'attendent.",
+      "reward10": "Maître naturaliste en devenir !",
+      "rewardMax": "Légende vivante de la faune !"
+    },
+    "levelSplash": {
+      "welcomeName": "Bienvenue, {{name}}",
+      "welcomeGeneric": "Bienvenue, explorateur",
+      "level": "Niveau {{level}}"
+    },
+    "levelBadge": {
+      "level": "Niveau {{level}}"
+    },
+    "settings": {
+      "displayName": "Nom d'affichage",
+      "username": "Pseudo",
+      "usernamePlaceholder": "@pseudo",
+      "avatarAlt": "Avatar",
+      "marketingEmails": {
+        "label": "Emails de relance",
+        "hint": "Conseils, rappels et astuces",
+        "enabled": "Emails de relance activés",
+        "disabled": "Emails de relance désactivés"
+      },
+      "push": {
+        "label": "Notifications push",
+        "hint": "Rappels si tu n'es pas revenu depuis quelque temps",
+        "disabled": "Notifications désactivées",
+        "enabled": "Notifications activées 🦊",
+        "denied": "Permission refusée",
+        "enableHint": "Active les notifications push plus haut pour recevoir les alertes push en temps réel."
+      },
+      "privateAccount": {
+        "label": "Compte privé",
+        "hint": "Les abonnements nécessitent ton approbation",
+        "enabled": "Compte passé en privé",
+        "disabled": "Compte passé en public"
+      },
+      "defaultShare": {
+        "label": "Partager mes captures par défaut",
+        "hint": "Tes nouvelles captures apparaissent dans le feed de tes abonnés",
+        "enabled": "Captures publiques par défaut",
+        "disabled": "Captures privées par défaut"
+      },
+      "notifications": {
+        "title": "Notifications",
+        "subtitle": "Choisis comment être prévenu pour chaque activité.",
+        "email": "Email",
+        "push": "Push",
+        "likes": "Likes",
+        "comments": "Commentaires",
+        "follows": "Nouveaux abonnés & demandes"
+      },
+      "save": "Sauvegarder",
+      "errors": {
+        "onlyImages": "Seules les images sont acceptées",
+        "imageTooLarge": "Image trop lourde (max 5 Mo)",
+        "imageUnreadable": "Cette image n'a pas pu être lue. Réessaie avec une autre photo.",
+        "uploadError": "Erreur lors de l'upload",
+        "emptyName": "Le nom ne peut pas être vide",
+        "saveError": "Erreur lors de la sauvegarde",
+        "emailNotFound": "Erreur: email introuvable",
+        "wrongOldPassword": "Ancien mot de passe incorrect",
+        "enterOldPassword": "Entre ton ancien mot de passe",
+        "passwordTooShort": "Le mot de passe doit faire au moins 6 caractères",
+        "passwordMismatch": "Les mots de passe ne correspondent pas",
+        "typeToConfirm": "Tape SUPPRIMER pour confirmer"
+      },
+      "success": {
+        "photoUpdated": "Photo mise à jour !",
+        "profileUpdated": "Profil mis à jour !",
+        "passwordChanged": "Mot de passe modifié !",
+        "accountDeleted": "Compte supprimé",
+        "linkCopied": "Lien copié !"
+      },
+      "share": {
+        "title": "Mon profil Faunex",
+        "text": "Rejoins-moi sur Faunex !"
+      },
+      "password": {
+        "intro": "Entre ton ancien mot de passe puis choisis-en un nouveau (6 caractères minimum).",
+        "old": "Ancien mot de passe",
+        "new": "Nouveau mot de passe",
+        "confirm": "Confirmer le nouveau mot de passe",
+        "submit": "Modifier le mot de passe"
+      },
+      "delete": {
+        "warningTitle": "⚠️ Action irréversible",
+        "warningText": "La suppression de ton compte effacera toutes tes captures, ton profil et tes relations d'amitié. Cette action ne peut pas être annulée.",
+        "confirmLabel": "Tape {{word}} pour confirmer",
+        "placeholder": "SUPPRIMER",
+        "submit": "Supprimer définitivement"
+      }
+    },
+    "premium": {
+      "badge": "Faunex Premium",
+      "title": "Soutenez Faunex et débloquez le meilleur de l'application.",
+      "description": "Faunex est un petit projet indépendant qui grandit grâce à vous. Votre abonnement aide directement à financer les serveurs, les modèles d'IA et le développement de nouvelles fonctionnalités.",
+      "discount": "-17%",
+      "compareFeatures": "Compare les fonctionnalités",
+      "feature": "Fonctionnalité",
+      "free": "Gratuit",
+      "activeSubscription": "Abonnement actif",
+      "accessUntil": "Accès jusqu'au ",
+      "nextRenewal": "Prochain renouvellement le ",
+      "manage": "Gérer mon abonnement",
+      "secure": "Paiement sécurisé. Sans engagement, résiliable en un clic.",
+      "checkoutSuccess": "Merci ! Ton abonnement est en cours d'activation.",
+      "checkoutError": "Impossible d'ouvrir le paiement pour le moment.",
+      "manageError": "Impossible d'ouvrir la gestion de l'abonnement.",
+      "backAria": "Retour",
+      "plans": {
+        "monthly": {
+          "label": "Mensuel",
+          "note": "Facturation mensuelle, annulez à tout moment.",
+          "cta": "S'abonner pour 2,40 €/mois"
+        },
+        "yearly": {
+          "label": "Annuel",
+          "note": "Soit 2 € par mois — 2 mois offerts par rapport au mensuel.",
+          "cta": "S'abonner pour 24 €/an"
+        }
+      },
+      "features": {
+        "identification": "Identification des animaux",
+        "unlimited": "Illimitée",
+        "zoneSearch": "Recherche de zones",
+        "collections": "Collections et territoires",
+        "unlimitedPlural": "Illimités",
+        "premiumBadge": "Badge Premium sur le profil",
+        "notesLocation": "Notes et localisation",
+        "quests": "Quêtes et objectifs",
+        "leaderboard": "Classement et badges"
+      }
+    },
+    "pricing": {
+      "title": "Tarifs",
+      "backAria": "Retour à la page précédente",
+      "editor": "Faunex est édité par <strong>Faunex</strong> (Valentin Moulay). Les abonnements sont vendus et facturés par notre revendeur Paddle.com, Merchant of Record de toutes nos commandes.",
+      "free": {
+        "title": "Gratuit",
+        "captures": "4 captures par jour",
+        "aiIdentification": "Identification par IA",
+        "bestiary": "Bestiaire et collection de cartes",
+        "social": "Fonctions sociales (abonnements, feed)"
+      },
+      "premiumBadge": "Faunex Premium",
+      "twoMonthsOffered": "2 mois offerts",
+      "billingNote": "Facturation récurrente mensuelle ou annuelle, TVA incluse le cas échéant. Sans engagement, annulable à tout moment.",
+      "features": {
+        "unlimitedCaptures": { "title": "Captures illimitées", "description": "Plus de limite de 4 captures par jour." },
+        "betterDetection": { "title": "Détection et modération plus performantes", "description": "Identifie et valide tes espèces plus vite et plus précisément." },
+        "location": { "title": "Localisation des animaux autour de toi", "description": "Repère les espèces présentes près de ta position." },
+        "notes": { "title": "Notes sur tes captures", "description": "Garde tes observations de terrain avec chaque carte." },
+        "moreToCome": { "title": "Plein d'autres choses à venir…", "description": "Les prochaines nouveautés arrivent en priorité chez les abonnés." }
+      },
+      "chooseSubscription": "Choisir mon abonnement",
+      "accountRequired": "Un compte Faunex est nécessaire pour finaliser l'abonnement.",
+      "seeAlso": "Voir aussi notre",
+      "refundPolicy": "politique de remboursement",
+      "and": "et nos",
+      "terms": "conditions générales"
+    }
+  }
+}

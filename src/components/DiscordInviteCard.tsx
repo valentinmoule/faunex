@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, MessageCircle, ExternalLink, Sparkles, Award } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -13,6 +14,7 @@ interface DiscordInviteCardProps {
 }
 
 const DiscordInviteCard = ({ onBadgeEarned }: DiscordInviteCardProps) => {
+  const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
   const [dismissed, setDismissed] = useState(false);
 
@@ -37,7 +39,7 @@ const DiscordInviteCard = ({ onBadgeEarned }: DiscordInviteCardProps) => {
         p_xp_reward: COMMUNITY_BADGE_XP,
       });
       if (claimed) {
-        toast.success(`Badge « Membre de la communauté » débloqué ! +${COMMUNITY_BADGE_XP} XP 🎉`);
+        toast.success(t('social.discordInvite.toastBadgeUnlocked', { xp: COMMUNITY_BADGE_XP }));
         onBadgeEarned?.();
       }
     } catch {
@@ -75,17 +77,17 @@ const DiscordInviteCard = ({ onBadgeEarned }: DiscordInviteCardProps) => {
                 </div>
                 <div>
                   <h3 className="text-base font-display font-black text-foreground leading-tight">
-                    Rejoins la communauté Faunex
+                    {t('social.discordInvite.title')}
                   </h3>
                   <p className="mt-0.5 text-[11px] font-display font-semibold text-muted-foreground uppercase tracking-wide">
-                    Discord officiel
+                    {t('social.discordInvite.subtitle')}
                   </p>
                 </div>
               </div>
               <button
                 onClick={handleDismiss}
                 className="shrink-0 p-1.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                aria-label="Fermer l'invitation Discord"
+                aria-label={t('social.discordInvite.closeAriaLabel')}
               >
                 <X className="w-4 h-4" />
               </button>
@@ -93,7 +95,7 @@ const DiscordInviteCard = ({ onBadgeEarned }: DiscordInviteCardProps) => {
 
             {/* Description */}
             <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-              Échange avec les autres explorateurs, partage tes meilleures captures, propose des idées pour améliorer Faunex et suis les dernières nouveautés du projet.
+              {t('social.discordInvite.description')}
             </p>
 
             {/* CTA principal */}
@@ -102,7 +104,7 @@ const DiscordInviteCard = ({ onBadgeEarned }: DiscordInviteCardProps) => {
               className="w-full group flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-primary text-primary-foreground font-display font-bold text-sm shadow-card hover:shadow-card-hover hover:bg-primary/90 active:scale-[0.98] transition-all"
             >
               <Sparkles className="w-4 h-4 opacity-80 group-hover:animate-pulse" />
-              Rejoindre le Discord
+              {t('social.discordInvite.cta')}
               <ExternalLink className="w-3.5 h-3.5 opacity-70" />
             </button>
 
@@ -110,7 +112,7 @@ const DiscordInviteCard = ({ onBadgeEarned }: DiscordInviteCardProps) => {
             <div className="mt-3 flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
               <Award className="w-3.5 h-3.5 text-amber" />
               <span>
-                Débloque le badge <span className="font-semibold text-foreground">Membre de la communauté</span> +{COMMUNITY_BADGE_XP} XP
+                {t('social.discordInvite.badgeMentionPrefix')}<span className="font-semibold text-foreground">{t('social.discordInvite.badgeName')}</span>{t('social.discordInvite.badgeMentionSuffix', { xp: COMMUNITY_BADGE_XP })}
               </span>
             </div>
           </div>

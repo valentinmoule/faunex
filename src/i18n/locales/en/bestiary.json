@@ -1,0 +1,181 @@
+{
+  "bestiary": {
+    "common": {
+      "all": "All",
+      "loading": "Loading…",
+      "captured": "caught",
+      "capturedCount": "{{captured}}/{{total}} caught",
+      "back": "Back",
+      "clearSearch": "Clear search"
+    },
+    "mineSort": {
+      "recent": "Most recent",
+      "alpha": "Alphabetical order",
+      "rarity": "Rarest first",
+      "custom": "Custom"
+    },
+    "popularity": {
+      "none": "Never caught",
+      "rare": "Rarely caught",
+      "common": "Popular",
+      "trending": "Very popular",
+      "hot": "Must-catch"
+    },
+    "allSpecies": "All species",
+    "results": "Results",
+    "slotLimitToast": {
+      "title": "Limit of {{limit}} zones or collections reached",
+      "description": "Go Premium to track as many as you like.",
+      "action": "Premium"
+    },
+    "picker": {
+      "titleHub": "Add to my collection",
+      "titleSpecies": "Species collections",
+      "titleUpsell": "Unlimited collections",
+      "titleExplore": "Explore a zone",
+      "back": "Back",
+      "hubIntro": "Add a zone to track, or a species collection to complete (dog breeds, butterflies, raptors…).",
+      "addZoneTitle": "Add a zone",
+      "addZoneDesc": "Planning a trip, a hike or a visit? Add any city or department.",
+      "addCollectionTitle": "Add a collection",
+      "addCollectionDesc": "Dog breeds, cat breeds, butterflies, raptors, snakes… pick what you want to complete.",
+      "premiumUnlimited": "Premium: track as many zones and collections as you like.",
+      "slotsUsed": "{{used}}/{{limit}} zones or collections used",
+      "slotsUsedCta": "Go Premium for unlimited zones and collections",
+      "upsellTitle": "Unlock every collection",
+      "upsellDesc": "With <bold>Faunex Premium</bold>, create as many themed series as you like: dog breeds, cat breeds, butterflies, raptors, snakes… and track every zone you want.",
+      "benefit1": "Unlimited collections",
+      "benefit2": "Unlimited zones and territories",
+      "benefit3": "Detailed leaderboards by category",
+      "goPremium": "Go Premium",
+      "later": "Later",
+      "limitReachedTitle": "Limit reached",
+      "limitReachedDesc": "You can track up to <bold>{{limit}}</bold> zones or collections with a free account. Go Premium to add as many collections as you like.",
+      "searchCollectionPlaceholder": "Search a collection…",
+      "noCollectionFound": "No collection found.",
+      "categoryPrefix": "Broad category · ",
+      "added": "Added",
+      "departmentTab": "Department",
+      "cityTab": "City",
+      "searchDeptPlaceholder": "Search (name, number or region)",
+      "searchCityPlaceholder": "Search a city…",
+      "alreadyAdded": "Already added",
+      "cityMinChars": "Type at least 2 letters to search a French town.",
+      "searching": "Searching…",
+      "noCityFound": "No town found",
+      "defaultCityName": "City"
+    },
+    "zone": {
+      "removeLabel": "Delete this entry",
+      "noSpecies": "No species listed for this zone yet."
+    },
+    "collectionDetail": {
+      "removeLabel": "Remove collection"
+    },
+    "shelve": {
+      "newDiscovery": "New discovery"
+    },
+    "tabs": {
+      "mine": "My catches",
+      "categories": "Bestiary",
+      "collections": "Collections"
+    },
+    "mine": {
+      "searchPlaceholder": "Search my catches…",
+      "sort": "Sort",
+      "title": "My catches",
+      "count": "{{count}} catch",
+      "count_one": "{{count}} catch",
+      "count_other": "{{count}} catches",
+      "noMatchSearch": "No catch matches “{{query}}”.",
+      "noneYet": "You have no catches yet. Go explore!",
+      "noneForRarity": "No catch matches the selected rarities.",
+      "sortModalTitle": "Sort my catches",
+      "customHint": "Custom sorting kicks in automatically as soon as you move a card."
+    },
+    "categories": {
+      "searchPlaceholder": "Search a species…",
+      "filters": "Filters",
+      "clearAll": "Clear all",
+      "speciesCount": "{{captured}} / {{total}} species",
+      "noMatch": "No species matches your search or filters."
+    },
+    "filterModal": {
+      "title": "Filters",
+      "categoriesLabel": "Categories",
+      "rarityLabel": "Rarity",
+      "popularityLabel": "Popularity",
+      "reset": "Reset",
+      "seeSpecies": "See {{count}} species",
+      "seeSpecies_one": "See {{count}} species",
+      "seeSpecies_other": "See {{count}} species"
+    },
+    "collections": {
+      "title": "My collections",
+      "add": "Add",
+      "emptyTitle": "Add a zone and/or a collection",
+      "emptyDesc": "Track the wildlife of a city or a department, and complete themed series (dog breeds, butterflies, raptors…)."
+    },
+    "seo": {
+      "title": "my faunex — Every species to discover · Faunex",
+      "description": "Explore the Faunex bestiary: +1000 French wildlife species sorted by category and rarity. Discover the wildlife around you.",
+      "ogTitle": "Faunex Bestiary — +1000 species to discover",
+      "ogDescription": "The complete wildlife catalog: birds, mammals, insects, reptiles, amphibians…"
+    },
+    "categoryDetail": {
+      "searchPlaceholder": "Search in {{category}}…",
+      "allSpeciesChip": "All species",
+      "empty": "No species in this category",
+      "limitNotice": "First {{limit}} species shown · use search to find a specific one"
+    },
+    "header": {
+      "title": "my faunex"
+    },
+    "collectionHero": {
+      "altIllustration": "Illustration of {{title}}",
+      "back": "Back",
+      "remove": "Remove"
+    },
+    "iucn": {
+      "LC": "Least concern",
+      "NT": "Near threatened",
+      "VU": "Vulnerable",
+      "EN": "Endangered",
+      "CR": "Critically endangered",
+      "EW": "Extinct in the wild",
+      "EX": "Extinct",
+      "DD": "Data deficient",
+      "NE": "Not evaluated",
+      "tooltip": "IUCN Red List: {{label}}"
+    },
+    "finders": {
+      "captured": "{{count}} naturalist",
+      "captured_one": "{{count}} naturalist caught this species",
+      "captured_other": "{{count}} naturalists caught this species",
+      "none": "Nobody has caught it yet — be the first!"
+    },
+    "rarity": {
+      "ariaLabel": "Rarity: {{label}}"
+    },
+    "collectionPage": {
+      "title": "my faunex",
+      "captureCount": "{{count}} catch",
+      "captureCount_one": "{{count}} catch",
+      "captureCount_other": "{{count}} catches",
+      "dailyQuests": "Daily quests",
+      "dailyQuestsDesc": "Complete your challenges to earn XP",
+      "loading": "Loading…",
+      "emptyAllTitle": "No catch yet",
+      "emptyAllDesc": "Go explore and photograph the animals you come across! Every species you catch joins your Faunex.",
+      "emptyCommonTitle": "No common species",
+      "emptyCommonDesc": "Common species are the ones you easily run into every day: sparrows, pigeons, squirrels… Keep an eye out on your next outings!",
+      "emptyRareTitle": "No rare species",
+      "emptyRareDesc": "Rare species are animals whose populations are declining. Spotting them in the wild is a real privilege — their conservation matters.",
+      "emptyUltraRareTitle": "No ultra rare species",
+      "emptyUltraRareDesc": "Ultra rare species shine with a silvery glow. Spotting one is a real privilege — every discovery counts.",
+      "emptyGoldTitle": "No gold-star species",
+      "emptyGoldDesc": "Gold-star species are the most prestigious in the game. Extremely rare, catching one on Faunex is a real feat.",
+      "emptyNoneFound": "No species found"
+    }
+  }
+}

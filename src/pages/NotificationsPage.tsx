@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PageHeader } from '@/components/PageHeader';
 import { ArrowLeft, Heart, MessageCircle, UserPlus, UserCheck, CheckCircle, XCircle, Award, CheckCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -25,6 +26,7 @@ interface Notification {
 }
 
 const NotificationsPage = () => {
+  const { t } = useTranslation();
   const { session } = useAuth();
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -124,12 +126,12 @@ const NotificationsPage = () => {
   const timeAgo = (date: string) => {
     const diff = Date.now() - new Date(date).getTime();
     const mins = Math.floor(diff / 60000);
-    if (mins < 1) return "À l'instant";
-    if (mins < 60) return `Il y a ${mins}min`;
+    if (mins < 1) return t('social.common.timeAgo_now');
+    if (mins < 60) return t('social.common.timeAgo_min', { count: mins });
     const hours = Math.floor(mins / 60);
-    if (hours < 24) return `Il y a ${hours}h`;
+    if (hours < 24) return t('social.common.timeAgo_hour', { count: hours });
     const days = Math.floor(hours / 24);
-    return `Il y a ${days}j`;
+    return t('social.common.timeAgo_day', { count: days });
   };
 
   return (
@@ -139,7 +141,7 @@ const NotificationsPage = () => {
           <button onClick={() => navigate(-1)} className="p-1.5 rounded-full hover:bg-muted transition-colors">
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
-          <h1 className="text-xl font-display font-bold text-foreground">Notifications</h1>
+          <h1 className="text-xl font-display font-bold text-foreground">{t('social.notifications.title')}</h1>
           {hasUnread && (
             <button
               onClick={markAllAsRead}
@@ -147,7 +149,7 @@ const NotificationsPage = () => {
               className="ml-auto flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-display font-semibold text-primary transition-colors hover:bg-primary/20 disabled:opacity-50"
             >
               <CheckCheck className="w-4 h-4" />
-              {markingAll ? '…' : 'Tout marquer comme lu'}
+              {markingAll ? t('social.notifications.marking') : t('social.notifications.markAllAsRead')}
             </button>
           )}
         </div>
@@ -157,20 +159,20 @@ const NotificationsPage = () => {
       <div className="max-w-lg mx-auto px-4 pt-2">
         {loading ? (
           <div className="text-center py-16">
-            <p className="text-muted-foreground font-display">Chargement…</p>
+            <p className="text-muted-foreground font-display">{t('social.common.loading')}</p>
           </div>
         ) : notifications.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-4xl mb-3">🔔</p>
-            <p className="text-muted-foreground font-display">Aucune notification</p>
-            <p className="text-muted-foreground text-xs mt-1">Tu seras notifié quand quelqu'un interagit avec tes captures</p>
+            <p className="text-muted-foreground font-display">{t('social.notifications.empty')}</p>
+            <p className="text-muted-foreground text-xs mt-1">{t('social.notifications.emptyDesc')}</p>
           </div>
         ) : (
           <div className="space-y-1">
             {notifications.map(notif => {
               const isModerationNotif = notif.type === 'capture_approved' || notif.type === 'capture_rejected';
               const isBadgeEarned = notif.type === 'badge_earned';
-              const actorName = isModerationNotif || isBadgeEarned ? 'Faunex' : (notif.actor?.display_name || notif.actor?.username || 'Quelqu\'un');
+              const actorName = isModerationNotif || isBadgeEarned ? t('social.notifications.systemActor') : (notif.actor?.display_name || notif.actor?.username || t('social.notifications.unknownActor'));
               const avatarUrl = isModerationNotif || isBadgeEarned ? null : notif.actor?.avatar_url;
               const isLike = notif.type === 'like';
               const isComment = notif.type === 'comment';
@@ -204,18 +206,22 @@ const NotificationsPage = () => {
                 : MessageCircle;
 
               const message = isBadgeEarned
-                ? ' 🏆 Tu as débloqué un nouveau badge ! Récupère ta récompense XP.'
+                ? t('social.notifications.messageBadgeEarned')
                 : isCaptureApproved
-                ? ` a approuvé ta capture${notif.capture?.animal_name ? ` de ${notif.capture.animal_name}` : ''} ! Elle est maintenant dans ton Faunex 🎉`
+                ? (notif.capture?.animal_name
+                    ? t('social.notifications.messageCaptureApprovedWithName', { name: notif.capture.animal_name })
+                    : t('social.notifications.messageCaptureApproved'))
                 : isCaptureRejected
-                ? ` a rejeté ta soumission${notif.comment_text ? ` "${notif.comment_text}"` : ''}. L'animal n'a pas pu être vérifié.`
+                ? (notif.comment_text
+                    ? t('social.notifications.messageCaptureRejectedWithReason', { reason: notif.comment_text })
+                    : t('social.notifications.messageCaptureRejected'))
                 : isFriendRequest
-                ? ' s\'est abonné(e) à ton profil'
+                ? t('social.notifications.messageFriendRequest')
                 : isFriendAccepted
-                ? ' a accepté ta demande d\'ami'
+                ? t('social.notifications.messageFriendAccepted')
                 : isLike
-                ? ' a aimé ta capture'
-                : ' a commenté ta capture';
+                ? t('social.notifications.messageLike')
+                : t('social.notifications.messageComment');
 
               return (
                 <button
@@ -262,7 +268,7 @@ const NotificationsPage = () => {
                     </p>
                     {isComment && notif.comment_text && (
                       <p className="text-xs text-muted-foreground mt-1 line-clamp-2 italic">
-                        « {notif.comment_text} »
+                        {t('social.notifications.commentQuote', { text: notif.comment_text })}
                       </p>
                     )}
                     <p className="text-[10px] text-muted-foreground mt-1">{timeAgo(notif.created_at)}</p>

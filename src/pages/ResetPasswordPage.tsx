@@ -6,11 +6,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Eye, EyeOff, AlertTriangle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { translateAuthError } from '@/lib/authErrors';
 
 type Status = 'checking' | 'ready' | 'invalid';
 
 const ResetPasswordPage = () => {
+  const { t } = useTranslation();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -69,21 +71,21 @@ const ResetPasswordPage = () => {
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      toast.error('Les mots de passe ne correspondent pas');
+      toast.error(t('auth.resetPassword.toasts.mismatch'));
       return;
     }
     if (password.length < 6) {
-      toast.error('Le mot de passe doit faire au moins 6 caractères');
+      toast.error(t('auth.resetPassword.toasts.tooShort'));
       return;
     }
     setLoading(true);
     try {
       const { error } = await supabase.auth.updateUser({ password });
       if (error) throw error;
-      toast.success('Mot de passe mis à jour !');
+      toast.success(t('auth.resetPassword.toasts.updated'));
       navigate('/home', { replace: true });
     } catch (error: any) {
-      toast.error(translateAuthError(error.message));
+      toast.error(translateAuthError(error.message, t));
     } finally {
       setLoading(false);
     }
@@ -93,17 +95,17 @@ const ResetPasswordPage = () => {
     <main className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center space-y-2">
-          <img src="/pwa-icon-512.png" alt="Logo Faunex" className="w-20 h-20 mx-auto" />
-          <h1 className="text-2xl font-display font-bold text-foreground">Nouveau mot de passe</h1>
+          <img src="/pwa-icon-512.png" alt={t('auth.logoAlt')} className="w-20 h-20 mx-auto" />
+          <h1 className="text-2xl font-display font-bold text-foreground">{t('auth.resetPassword.title')}</h1>
           <p className="text-sm text-muted-foreground">
             {status === 'invalid'
-              ? 'Ce lien de réinitialisation est invalide ou expiré'
-              : 'Choisis ton nouveau mot de passe'}
+              ? t('auth.resetPassword.subtitleInvalid')
+              : t('auth.resetPassword.subtitleReady')}
           </p>
         </div>
 
         {status === 'checking' && (
-          <p className="text-center text-sm text-muted-foreground animate-pulse">Vérification du lien...</p>
+          <p className="text-center text-sm text-muted-foreground animate-pulse">{t('auth.resetPassword.checking')}</p>
         )}
 
         {status === 'invalid' && (
@@ -112,11 +114,10 @@ const ResetPasswordPage = () => {
               <AlertTriangle className="w-7 h-7 text-destructive" />
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Les liens de réinitialisation expirent après un court moment ou ne sont utilisables qu'une seule fois.
-              Demande-en un nouveau pour continuer.
+              {t('auth.resetPassword.invalidText')}
             </p>
             <Button asChild className="w-full font-display font-semibold">
-              <Link to="/auth">Demander un nouveau lien</Link>
+              <Link to="/auth">{t('auth.resetPassword.requestNewLink')}</Link>
             </Button>
           </div>
         )}
@@ -124,12 +125,12 @@ const ResetPasswordPage = () => {
         {status === 'ready' && (
           <form onSubmit={handleReset} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="password">Nouveau mot de passe</Label>
+              <Label htmlFor="password">{t('auth.labels.newPassword')}</Label>
               <div className="relative">
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="••••••••"
+                  placeholder={t('auth.placeholders.password')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -146,11 +147,11 @@ const ResetPasswordPage = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
+              <Label htmlFor="confirmPassword">{t('auth.labels.confirmPassword')}</Label>
               <Input
                 id="confirmPassword"
                 type={showPassword ? 'text' : 'password'}
-                placeholder="••••••••"
+                placeholder={t('auth.placeholders.password')}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
@@ -159,7 +160,7 @@ const ResetPasswordPage = () => {
             </div>
 
             <Button type="submit" className="w-full font-display font-semibold" disabled={loading}>
-              {loading ? 'Chargement...' : 'Mettre à jour'}
+              {loading ? t('auth.buttons.loading') : t('auth.resetPassword.updateButton')}
             </Button>
           </form>
         )}

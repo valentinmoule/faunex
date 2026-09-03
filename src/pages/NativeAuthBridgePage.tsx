@@ -2,15 +2,17 @@ import { useEffect, useState } from 'react';
 import { lovable } from '@/integrations/lovable/index';
 import { NATIVE_CALLBACK_URL, WEB_ORIGIN } from '@/lib/authRedirect';
 import LoadingScreen from '@/components/LoadingScreen';
+import { useTranslation } from 'react-i18next';
 
 const NativeAuthBridgePage = () => {
+  const { t } = useTranslation();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const provider = new URLSearchParams(window.location.search).get('provider');
 
     if (provider !== 'google' && provider !== 'apple') {
-      setError("Fournisseur de connexion inconnu.");
+      setError(t('auth.nativeBridge.unknownProvider'));
       return;
     }
 
@@ -24,11 +26,11 @@ const NativeAuthBridgePage = () => {
       .signInWithOAuth(provider, { redirect_uri: NATIVE_CALLBACK_URL })
       .then((result) => {
         if (result.error) {
-          setError('La connexion a échoué. Reviens dans l\'app et réessaie.');
+          setError(t('auth.nativeBridge.connectionFailed'));
         }
       })
       .catch(() => {
-        setError('La connexion a échoué. Reviens dans l\'app et réessaie.');
+        setError(t('auth.nativeBridge.connectionFailed'));
       });
   }, []);
 
@@ -37,7 +39,7 @@ const NativeAuthBridgePage = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-3 px-6 text-center">
-      <h1 className="font-display text-2xl">Connexion impossible</h1>
+      <h1 className="font-display text-2xl">{t('auth.nativeBridge.errorTitle')}</h1>
       <p className="text-muted-foreground text-sm max-w-sm">
         {error}
       </p>
