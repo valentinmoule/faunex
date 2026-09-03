@@ -1249,9 +1249,9 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
               </div>
 
               <div className="flex items-center justify-between mb-3">
-                <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Mes captures</h2>
+                <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">{t('bestiary.mine.title')}</h2>
                 <span className="text-[11px] font-display text-muted-foreground tabular-nums">
-                  {myCapturedAnimals.length} capture{myCapturedAnimals.length > 1 ? 's' : ''}
+                  {t('bestiary.mine.count', { count: myCapturedAnimals.length })}
                 </span>
               </div>
 
