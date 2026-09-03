@@ -180,6 +180,16 @@ export const rarityBadge: Record<string, string> = byRarity({
 
 export const normalizeCategory = (cat: string) => cat.replace(/\s*\(monde\)$/i, '');
 
+/**
+ * Libellé localisé d'une catégorie d'espèces. Les catégories sont stockées en
+ * français en base ; la traduction se fait à l'affichage (fallback = valeur brute).
+ */
+export const categoryLabel = (cat: string): string => {
+  const base = normalizeCategory(cat).trim();
+  const label = i18n.t(`bestiary.categoryNames.${base}`, { defaultValue: base });
+  return cat === base ? label : `${label} (${i18n.t('bestiary.categoryNames.worldSuffix', { defaultValue: 'monde' })})`;
+};
+
 export const normalizeText = (value: string) =>
   value
     .toLowerCase()
