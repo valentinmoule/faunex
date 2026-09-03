@@ -5,6 +5,7 @@ import { notifyCaptureInteraction } from '@/lib/notifyCaptureInteraction';
 import { Drawer } from 'vaul';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { type AnimalCard, type Rarity, RARITY_LABELS, RARITY_FX, normalizeRarity } from '@/data/mockData';
+import { categoryLabel } from '@/lib/bestiary';
 import { MapPin, Leaf, UtensilsCrossed, Shield, Sparkles, Heart, MessageCircle, Send, PawPrint, Bird, Fish, Bug, Turtle, Shell, Snail, Waves, Lock, Camera, type LucideIcon } from 'lucide-react';
 import { FrogIcon } from '@/components/icons/FrogIcon';
 import { SpiderIcon } from '@/components/icons/SpiderIcon';
@@ -754,7 +755,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                 return (
                   <span className="px-3 py-1 rounded-full text-[11px] font-display font-semibold bg-muted text-muted-foreground inline-flex items-center gap-1">
                     <CatIcon className="w-3 h-3" />
-                    {card.category}
+                    {categoryLabel(card.category)}
                   </span>
                 );
               })()}

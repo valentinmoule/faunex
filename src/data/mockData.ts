@@ -1,3 +1,5 @@
+import i18n from '@/i18n';
+
 export type Rarity =
   | 'common'
   | 'uncommon'
@@ -66,7 +68,8 @@ export interface UserProfile {
   badges: Badge[];
 }
 
-export const RARITY_LABELS: Record<Rarity, string> = {
+/** Libellés français de secours (utilisés si la traduction manque). */
+const RARITY_LABELS_FR: Record<Rarity, string> = {
   common: 'Commune',
   uncommon: 'Peu commune',
   rare: 'Plutôt rare',
@@ -76,6 +79,24 @@ export const RARITY_LABELS: Record<Rarity, string> = {
   special_rare: 'Mythique',
   hyper_rare: 'Légendaire',
 };
+
+/**
+ * Libellés de rareté localisés : accès par clé (`RARITY_LABELS[rarity]`) mais
+ * résolus à la lecture via i18next, pour suivre la langue courante.
+ */
+export const RARITY_LABELS = Object.defineProperties(
+  {} as Record<Rarity, string>,
+  Object.fromEntries(
+    (Object.keys(RARITY_LABELS_FR) as Rarity[]).map((r) => [
+      r,
+      {
+        enumerable: true,
+        get: () => i18n.t(`bestiary.rarity.labels.${r}`, { defaultValue: RARITY_LABELS_FR[r] }),
+      },
+    ]),
+  ),
+) as Record<Rarity, string>;
+
 
 /** Ordre croissant de rareté (index = rang). */
 export const RARITY_ORDER: Rarity[] = [

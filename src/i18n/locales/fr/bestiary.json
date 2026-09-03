@@ -155,7 +155,17 @@
       "none": "Personne ne l'a encore capturée — sois le premier !"
     },
     "rarity": {
-      "ariaLabel": "Rareté : {{label}}"
+      "ariaLabel": "Rareté : {{label}}",
+      "labels": {
+        "common": "Commune",
+        "uncommon": "Peu commune",
+        "rare": "Plutôt rare",
+        "very_rare": "Rare",
+        "ultra_rare": "Ultra rare",
+        "illustration_rare": "Épique",
+        "special_rare": "Mythique",
+        "hyper_rare": "Légendaire"
+      }
     },
     "collectionPage": {
       "title": "mon faunex",
@@ -176,6 +186,18 @@
       "emptyGoldTitle": "Aucune espèce à étoile dorée",
       "emptyGoldDesc": "Les espèces à étoiles dorées sont les plus prestigieuses du jeu. Extrêmement rares, les capturer sur Faunex est un exploit.",
       "emptyNoneFound": "Aucune espèce trouvée"
+    },
+    "categoryNames": {
+      "Insectes": "Insectes",
+      "Mammifères": "Mammifères",
+      "Oiseaux": "Oiseaux",
+      "Poissons": "Poissons",
+      "Arachnides": "Arachnides",
+      "Reptiles": "Reptiles",
+      "Mollusques": "Mollusques",
+      "Crustacés": "Crustacés",
+      "Amphibiens": "Amphibiens",
+      "worldSuffix": "monde"
     }
   }
 }
