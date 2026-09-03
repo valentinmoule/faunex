@@ -140,6 +140,9 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
 
   /* Nombre de naturalistes ayant capturé l'espèce : fourni par le parent, sinon chargé ici. */
   const fetchedFinders = useSpeciesFinders(card?.name, open && communityFinders === undefined);
+  const finders = communityFinders ?? fetchedFinders;
+
+
 
 
 
