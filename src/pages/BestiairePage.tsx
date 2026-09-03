@@ -189,14 +189,6 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const [mineSort, setMineSort] = useState<MineSort>('recent');
   const [customOrder, setCustomOrder] = useState<string[]>([]);
   const [sortOpen, setSortOpen] = useState(false);
-  const [myLevel, setMyLevel] = useState<number | null>(null);
-
-  useEffect(() => {
-    const userId = session?.user?.id;
-    if (!userId) return;
-    supabase.from('profiles').select('level').eq('user_id', userId).single()
-      .then(({ data }) => setMyLevel(data?.level ?? null));
-  }, [session?.user?.id]);
 
 
   // Scroll to top when entering a category, zone or collection detail view
