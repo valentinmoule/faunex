@@ -112,30 +112,64 @@ export const prepareSourceImage = async (dataUrl: string): Promise<string | null
  *  valide. Le repli FileReader reste utilisé pour les HEIC/HEIF que le
  *  navigateur ne sait pas décoder nativement. */
 export const prepareSourceFile = async (file: File): Promise<string | null> => {
-  if (typeof createImageBitmap === 'function') {
-    try {
-      const bitmap = await createImageBitmap(file);
-      const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
-      const w = Math.round(bitmap.width * scale);
-      const h = Math.round(bitmap.height * scale);
-      const c = document.createElement('canvas');
-      c.width = w;
-      c.height = h;
-      c.getContext('2d')!.drawImage(bitmap, 0, 0, w, h);
-      bitmap.close();
-      return c.toDataURL('image/jpeg', 0.82);
-    } catch {
-      /* HEIC ou décodeur indisponible : on tente le chemin dataURL */
+  /** Dessine une source décodée dans un JPEG ≤1600px. */
+  const toJpeg = (img: ImageBitmap | HTMLImageElement) => {
+    const w0 = 'naturalWidth' in img ? img.naturalWidth : img.width;
+    const h0 = 'naturalHeight' in img ? img.naturalHeight : img.height;
+    if (!w0 || !h0) return null;
+    const scale = Math.min(1, 1600 / Math.max(w0, h0));
+    const c = document.createElement('canvas');
+    c.width = Math.round(w0 * scale);
+    c.height = Math.round(h0 * scale);
+    c.getContext('2d')!.drawImage(img as CanvasImageSource, 0, 0, c.width, c.height);
+    if ('close' in img) img.close();
+    return c.toDataURL('image/jpeg', 0.82);
+  };
+
+  /** Décodage d'un Blob : createImageBitmap puis <img> via objectURL (Safari iOS
+   *  refuse createImageBitmap sur certains JPEG/HEIC mais sait afficher l'image). */
+  const decodeBlob = async (blob: Blob): Promise<ImageBitmap | HTMLImageElement | null> => {
+    if (typeof createImageBitmap === 'function') {
+      try {
+        return await createImageBitmap(blob);
+      } catch {
+        /* repli <img> */
+      }
     }
-  }
+    const url = URL.createObjectURL(blob);
+    try {
+      return await new Promise<HTMLImageElement>((resolve, reject) => {
+        const img = new window.Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error('decode failed'));
+        img.src = url;
+      });
+    } catch {
+      return null;
+    } finally {
+      setTimeout(() => URL.revokeObjectURL(url), 0);
+    }
+  };
+
   try {
-    const dataUrl = await readFileAsDataUrl(file);
-    return await prepareSourceImage(dataUrl);
+    // 1) décodage natif du fichier (aucun base64 intermédiaire : évite les
+    //    échecs mémoire sur les photos de 10-40 Mo sur iOS/Android).
+    const direct = await decodeBlob(file);
+    if (direct) {
+      const out = toJpeg(direct);
+      if (out) return out;
+    }
+    // 2) HEIC/HEIF iPhone que le navigateur ne sait pas décoder.
+    const { heicTo } = await import('heic-to');
+    const jpeg = await heicTo({ blob: file, type: 'image/jpeg', quality: 0.9 });
+    const decoded = await decodeBlob(jpeg);
+    return decoded ? toJpeg(decoded) : null;
   } catch (err) {
     console.error('prepareSourceFile failed', err);
     return null;
   }
 };
+
 
 
 
