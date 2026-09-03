@@ -13,37 +13,49 @@ import {
   Preview,
   Text,
 } from 'npm:@react-email/components@0.0.22'
+import type { Locale } from '../i18n.ts'
+import { pick, resolveLocale } from '../i18n.ts'
 
 interface RecoveryEmailProps {
   siteName: string
   confirmationUrl: string
+  locale?: Locale | string
 }
 
 export const RecoveryEmail = ({
   siteName,
   confirmationUrl,
-}: RecoveryEmailProps) => (
-  <Html lang="fr" dir="ltr">
-    <Head />
-    <Preview>Réinitialise ton mot de passe Faunex</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Img src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png" width="48" height="48" alt="Faunex" style={logo} />
-        <Heading style={h1}>Mot de passe oublié ? 🔑</Heading>
-        <Text style={text}>
-          On a reçu une demande de réinitialisation de ton mot de passe Faunex.
-          Clique sur le bouton ci-dessous pour en choisir un nouveau.
-        </Text>
-        <Button style={button} href={confirmationUrl}>
-          Réinitialiser mon mot de passe
-        </Button>
-        <Text style={footer}>
-          Si tu n'as pas fait cette demande, tu peux ignorer cet email. Ton mot de passe ne sera pas modifié.
-        </Text>
-      </Container>
-    </Body>
-  </Html>
-)
+  locale,
+}: RecoveryEmailProps) => {
+  const l = resolveLocale(locale as string | undefined)
+  return (
+    <Html lang={l} dir="ltr">
+      <Head />
+      <Preview>{pick({ fr: 'Réinitialise ton mot de passe Faunex', en: 'Reset your Faunex password' }, l)}</Preview>
+      <Body style={main}>
+        <Container style={container}>
+          <Img src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png" width="48" height="48" alt="Faunex" style={logo} />
+          <Heading style={h1}>{pick({ fr: 'Mot de passe oublié ? 🔑', en: 'Forgot your password? 🔑' }, l)}</Heading>
+          <Text style={text}>
+            {pick({
+              fr: "On a reçu une demande de réinitialisation de ton mot de passe Faunex. Clique sur le bouton ci-dessous pour en choisir un nouveau.",
+              en: "We received a request to reset your Faunex password. Click the button below to choose a new one.",
+            }, l)}
+          </Text>
+          <Button style={button} href={confirmationUrl}>
+            {pick({ fr: 'Réinitialiser mon mot de passe', en: 'Reset my password' }, l)}
+          </Button>
+          <Text style={footer}>
+            {pick({
+              fr: "Si tu n'as pas fait cette demande, tu peux ignorer cet email. Ton mot de passe ne sera pas modifié.",
+              en: "If you didn't request this, you can ignore this email. Your password won't be changed.",
+            }, l)}
+          </Text>
+        </Container>
+      </Body>
+    </Html>
+  )
+}
 
 export default RecoveryEmail
 

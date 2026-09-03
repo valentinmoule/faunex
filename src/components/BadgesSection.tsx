@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
 import { Award, Gift, Lock } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
 import { useBadges, type BadgeProgress } from '@/hooks/useBadges';
-import { BADGE_GROUP_LABELS, BADGE_GROUP_ORDER, type BadgeGroup } from '@/lib/badges';
+import { BADGE_GROUP_ICONS, BADGE_GROUP_ORDER, getGroupLabel, type BadgeGroup } from '@/lib/badges';
 
 interface Props {
   userId: string;
@@ -16,6 +17,7 @@ interface Props {
 type Filter = 'all' | 'claimable' | 'unlocked' | BadgeGroup;
 
 const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaimed }: Props) => {
+  const { t } = useTranslation();
   const { badges, loading, markClaimed } = useBadges(userId, level, regionsExplored, refreshKey);
   const [claiming, setClaiming] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>('all');
@@ -47,19 +49,19 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
     });
     if (!error && claimed) {
       markClaimed(id);
-      toast.success(`Badge débloqué ! +${entry.badge.xp} XP 🎉`);
+      toast.success(t('profile.badges.claimedToast', { xp: entry.badge.xp }));
       onClaimed?.();
     }
     setClaiming(null);
   };
 
   const chips: { key: Filter; label: string }[] = [
-    { key: 'all', label: `Tous · ${badges.length}` },
-    ...(claimableCount > 0 ? [{ key: 'claimable' as Filter, label: `À réclamer · ${claimableCount}` }] : []),
-    { key: 'unlocked', label: `Débloqués · ${claimedCount}` },
+    { key: 'all', label: t('profile.badges.all', { count: badges.length }) },
+    ...(claimableCount > 0 ? [{ key: 'claimable' as Filter, label: t('profile.badges.claimable', { count: claimableCount }) }] : []),
+    { key: 'unlocked', label: t('profile.badges.unlocked', { count: claimedCount }) },
     ...BADGE_GROUP_ORDER.filter((g) => badges.some((b) => b.badge.group === g)).map((g) => ({
       key: g as Filter,
-      label: `${BADGE_GROUP_LABELS[g].icon} ${BADGE_GROUP_LABELS[g].label}`,
+      label: `${BADGE_GROUP_ICONS[g]} ${getGroupLabel(t, g)}`,
     })),
   ];
 
@@ -70,7 +72,7 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
           <div className="w-8 h-8 rounded-lg bg-amber/15 border border-amber/25 flex items-center justify-center">
             <Award className="w-4.5 h-4.5 text-amber" />
           </div>
-          <h3 className="text-lg font-display font-black text-foreground">Badges</h3>
+          <h3 className="text-lg font-display font-black text-foreground">{t('profile.badges.title')}</h3>
         </div>
         <span className="text-[11px] font-display font-semibold text-amber bg-amber/10 border border-amber/20 px-2.5 py-1 rounded-full">
           🏆 {claimedCount}/{badges.length}
@@ -95,17 +97,17 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
         </div>
       </div>
 
-      {loading && <p className="text-xs text-muted-foreground font-display">Chargement des badges…</p>}
+      {loading && <p className="text-xs text-muted-foreground font-display">{t('profile.badges.loading')}</p>}
 
       {!loading && sections.length === 0 && (
-        <p className="text-xs text-muted-foreground font-display">Aucun badge dans cette sélection.</p>
+        <p className="text-xs text-muted-foreground font-display">{t('profile.badges.empty')}</p>
       )}
 
       <div className="space-y-5">
         {sections.map(({ group, items }) => (
           <div key={group}>
             <p className="text-[11px] font-display font-bold uppercase tracking-wide text-muted-foreground mb-2">
-              {BADGE_GROUP_LABELS[group].icon} {BADGE_GROUP_LABELS[group].label}
+              {BADGE_GROUP_ICONS[group]} {getGroupLabel(t, group)}
             </p>
             <div className="grid grid-cols-3 gap-3">
               {items.map(({ badge, progress, earned, claimed }, i) => {
@@ -177,7 +179,7 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
                     )}
                     {claimed && (
                       <span className="inline-block text-[9px] font-display font-bold text-amber bg-amber/10 px-2 py-0.5 rounded-full">
-                        Débloqué ✨
+                        {t('profile.badges.unlockedTag')}
                       </span>
                     )}
                   </button>

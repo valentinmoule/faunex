@@ -12,28 +12,37 @@ import {
   Preview,
   Text,
 } from 'npm:@react-email/components@0.0.22'
+import type { Locale } from '../i18n.ts'
+import { pick, resolveLocale } from '../i18n.ts'
 
 interface ReauthenticationEmailProps {
   token: string
+  locale?: Locale | string
 }
 
-export const ReauthenticationEmail = ({ token }: ReauthenticationEmailProps) => (
-  <Html lang="fr" dir="ltr">
-    <Head />
-    <Preview>Ton code de vérification Faunex</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Img src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png" width="48" height="48" alt="Faunex" style={logo} />
-        <Heading style={h1}>Vérification d'identité 🔐</Heading>
-        <Text style={text}>Utilise le code ci-dessous pour confirmer ton identité :</Text>
-        <Text style={codeStyle}>{token}</Text>
-        <Text style={footer}>
-          Ce code expire rapidement. Si tu n'as pas fait cette demande, tu peux ignorer cet email.
-        </Text>
-      </Container>
-    </Body>
-  </Html>
-)
+export const ReauthenticationEmail = ({ token, locale }: ReauthenticationEmailProps) => {
+  const l = resolveLocale(locale as string | undefined)
+  return (
+    <Html lang={l} dir="ltr">
+      <Head />
+      <Preview>{pick({ fr: 'Ton code de vérification Faunex', en: 'Your Faunex verification code' }, l)}</Preview>
+      <Body style={main}>
+        <Container style={container}>
+          <Img src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png" width="48" height="48" alt="Faunex" style={logo} />
+          <Heading style={h1}>{pick({ fr: "Vérification d'identité 🔐", en: 'Identity verification 🔐' }, l)}</Heading>
+          <Text style={text}>{pick({ fr: 'Utilise le code ci-dessous pour confirmer ton identité :', en: 'Use the code below to confirm your identity:' }, l)}</Text>
+          <Text style={codeStyle}>{token}</Text>
+          <Text style={footer}>
+            {pick({
+              fr: "Ce code expire rapidement. Si tu n'as pas fait cette demande, tu peux ignorer cet email.",
+              en: "This code expires soon. If you didn't request this, you can ignore this email.",
+            }, l)}
+          </Text>
+        </Container>
+      </Body>
+    </Html>
+  )
+}
 
 export default ReauthenticationEmail
 

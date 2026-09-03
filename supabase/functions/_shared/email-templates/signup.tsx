@@ -14,12 +14,15 @@ import {
   Preview,
   Text,
 } from 'npm:@react-email/components@0.0.22'
+import type { Locale } from '../i18n.ts'
+import { pick, resolveLocale } from '../i18n.ts'
 
 interface SignupEmailProps {
   siteName: string
   siteUrl: string
   recipient: string
   confirmationUrl: string
+  locale?: Locale | string
 }
 
 export const SignupEmail = ({
@@ -27,38 +30,42 @@ export const SignupEmail = ({
   siteUrl,
   recipient,
   confirmationUrl,
-}: SignupEmailProps) => (
-  <Html lang="fr" dir="ltr">
-    <Head />
-    <Preview>Confirme ton email pour rejoindre Faunex 🌿</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Img src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png" width="48" height="48" alt="Faunex" style={logo} />
-        <Heading style={h1}>Bienvenue, explorateur ! 🦊</Heading>
-        <Text style={text}>
-          Merci de rejoindre{' '}
-          <Link href={siteUrl} style={link}>
-            <strong>Faunex</strong>
-          </Link>
-          , là où chaque sortie devient une aventure.
-        </Text>
-        <Text style={text}>
-          Confirme ton adresse email (
-          <Link href={`mailto:${recipient}`} style={link}>
-            {recipient}
-          </Link>
-          ) en cliquant sur le bouton ci-dessous :
-        </Text>
-        <Button style={button} href={confirmationUrl}>
-          Vérifier mon email
-        </Button>
-        <Text style={footer}>
-          Si tu n'as pas créé de compte, tu peux ignorer cet email.
-        </Text>
-      </Container>
-    </Body>
-  </Html>
-)
+  locale,
+}: SignupEmailProps) => {
+  const l = resolveLocale(locale as string | undefined)
+  return (
+    <Html lang={l} dir="ltr">
+      <Head />
+      <Preview>{pick({ fr: 'Confirme ton email pour rejoindre Faunex 🌿', en: 'Confirm your email to join Faunex 🌿' }, l)}</Preview>
+      <Body style={main}>
+        <Container style={container}>
+          <Img src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png" width="48" height="48" alt="Faunex" style={logo} />
+          <Heading style={h1}>{pick({ fr: 'Bienvenue, explorateur ! 🦊', en: 'Welcome, explorer! 🦊' }, l)}</Heading>
+          <Text style={text}>
+            {pick({ fr: 'Merci de rejoindre', en: 'Thanks for joining' }, l)}{' '}
+            <Link href={siteUrl} style={link}>
+              <strong>Faunex</strong>
+            </Link>
+            {pick({ fr: ', là où chaque sortie devient une aventure.', en: ", where every outing becomes an adventure." }, l)}
+          </Text>
+          <Text style={text}>
+            {pick({ fr: 'Confirme ton adresse email (', en: 'Confirm your email address (' }, l)}
+            <Link href={`mailto:${recipient}`} style={link}>
+              {recipient}
+            </Link>
+            {pick({ fr: ') en cliquant sur le bouton ci-dessous :', en: ') by clicking the button below:' }, l)}
+          </Text>
+          <Button style={button} href={confirmationUrl}>
+            {pick({ fr: 'Vérifier mon email', en: 'Verify my email' }, l)}
+          </Button>
+          <Text style={footer}>
+            {pick({ fr: "Si tu n'as pas créé de compte, tu peux ignorer cet email.", en: "If you didn't create an account, you can ignore this email." }, l)}
+          </Text>
+        </Container>
+      </Body>
+    </Html>
+  )
+}
 
 export default SignupEmail
 

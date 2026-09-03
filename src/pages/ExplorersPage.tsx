@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { followUser as followUserUtil } from '@/lib/followUtils';
 import { PremiumAvatar } from '@/components/PremiumAvatar';
 import { usePremiumUsers } from '@/hooks/usePremiumUsers';
+import { useTranslation } from 'react-i18next';
 
 // ── Feed types ──
 interface FeedCapture {
@@ -70,6 +71,7 @@ interface FollowProfile {
 const HIDDEN_USER_IDS = ['f7910e92-39a6-4703-b31d-bf1e245e2a4e', 'ac0df155-7422-4073-bfc1-14e2a71960bc'];
 
 const ExplorersPage = () => {
+  const { t } = useTranslation();
 
   const { session } = useAuth();
   const navigate = useNavigate();
@@ -385,11 +387,11 @@ const ExplorersPage = () => {
   const timeAgo = (date: string) => {
     const diff = Date.now() - new Date(date).getTime();
     const mins = Math.floor(diff / 60000);
-    if (mins < 60) return `Il y a ${mins}min`;
+    if (mins < 60) return t('social.common.timeAgo_min', { count: mins });
     const hours = Math.floor(mins / 60);
-    if (hours < 24) return `Il y a ${hours}h`;
+    if (hours < 24) return t('social.common.timeAgo_hour', { count: hours });
     const days = Math.floor(hours / 24);
-    return `Il y a ${days}j`;
+    return t('social.common.timeAgo_day', { count: days });
   };
 
   // ── UserRow component ──
@@ -403,8 +405,8 @@ const ExplorersPage = () => {
         isPremium={isPremium}
       />
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-display font-semibold text-foreground truncate">{user.display_name || 'Sans nom'}</p>
-        <p className="text-[11px] text-muted-foreground truncate">Niv. {user.level} · {user.total_captures} espèces</p>
+        <p className="text-sm font-display font-semibold text-foreground truncate">{user.display_name || t('social.common.noName')}</p>
+        <p className="text-[11px] text-muted-foreground truncate">{t('social.common.level', { level: user.level })} · {t('social.common.speciesCount', { count: user.total_captures })}</p>
       </div>
       <div onClick={e => e.stopPropagation()}>{action}</div>
     </div>
@@ -502,7 +504,7 @@ const ExplorersPage = () => {
 
           {/* Following */}
           {searchTab === 'following' && (
-            followsLoading ? <p className="text-center py-8 text-muted-foreground text-sm font-display">Chargement…</p> :
+            followsLoading ? <p className="text-center py-8 text-muted-foreground text-sm font-display">{t('social.common.loading')}</p> :
             following.length === 0 ? (
               <div className="text-center py-16 px-6">
                 <Users className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
@@ -518,7 +520,7 @@ const ExplorersPage = () => {
 
           {/* Followers */}
           {searchTab === 'followers' && (
-            followsLoading ? <p className="text-center py-8 text-muted-foreground text-sm font-display">Chargement…</p> :
+            followsLoading ? <p className="text-center py-8 text-muted-foreground text-sm font-display">{t('social.common.loading')}</p> :
             followers.length === 0 ? (
               <div className="text-center py-16 px-6">
                 <Users className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
@@ -542,7 +544,7 @@ const ExplorersPage = () => {
 
           {/* Pending requests */}
           {searchTab === 'requests' && (
-            followsLoading ? <p className="text-center py-8 text-muted-foreground text-sm font-display">Chargement…</p> :
+            followsLoading ? <p className="text-center py-8 text-muted-foreground text-sm font-display">{t('social.common.loading')}</p> :
             pendingRequests.length === 0 ? (
               <div className="text-center py-16 px-6">
                 <Clock className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
@@ -595,7 +597,7 @@ const ExplorersPage = () => {
 
       <div className="max-w-lg mx-auto">
         {feedLoading ? (
-          <div className="text-center py-16"><p className="text-muted-foreground font-display">Chargement…</p></div>
+          <div className="text-center py-16"><p className="text-muted-foreground font-display">{t('social.common.loading')}</p></div>
         ) : posts.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-4xl mb-3">🌿</p>
@@ -606,7 +608,7 @@ const ExplorersPage = () => {
           <div className="divide-y divide-border">
             {posts.map(post => {
               const profile = post.profiles;
-              const userName = profile?.display_name || profile?.username || 'Anonyme';
+              const userName = profile?.display_name || profile?.username || t('social.common.anonymous');
               const avatarUrl = profile?.avatar_url;
               const isLiked = likedPosts.has(post.id);
               const likeCount = likeCounts[post.id] || 0;
@@ -666,7 +668,7 @@ const ExplorersPage = () => {
 
                   {isCommentsOpen && (
                     <div className="px-4 mt-2 space-y-2">
-                      {loadingComments ? <p className="text-xs text-muted-foreground py-1">Chargement…</p> :
+                      {loadingComments ? <p className="text-xs text-muted-foreground py-1">{t('social.common.loading')}</p> :
                        comments.length === 0 ? <p className="text-xs text-muted-foreground py-1">Aucun commentaire — sois le premier !</p> : (
                         <div className="space-y-2 max-h-48 overflow-y-auto">
                           {comments.map(comment => (
@@ -676,7 +678,7 @@ const ExplorersPage = () => {
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-baseline gap-1.5">
-                                  <span className="text-[11px] font-display font-semibold text-foreground">{comment.profile?.display_name || comment.profile?.username || 'Anonyme'}</span>
+                                  <span className="text-[11px] font-display font-semibold text-foreground">{comment.profile?.display_name || comment.profile?.username || t('social.common.anonymous')}</span>
                                   <span className="text-[9px] text-muted-foreground">{timeAgo(comment.created_at)}</span>
                                 </div>
                                 <p className="text-xs text-foreground/80 leading-snug">{comment.content}</p>
@@ -686,7 +688,7 @@ const ExplorersPage = () => {
                         </div>
                       )}
                       <div className="flex items-center gap-2">
-                        <input type="text" value={newComment} onChange={e => setNewComment(e.target.value)} onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSubmitComment(post.id)} placeholder="Commenter…" className="flex-1 bg-muted rounded-full px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
+                        <input type="text" value={newComment} onChange={e => setNewComment(e.target.value)} onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSubmitComment(post.id)} placeholder={t('social.explorers.commentPlaceholder')} className="flex-1 bg-muted rounded-full px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
                         <button onClick={() => handleSubmitComment(post.id)} disabled={!newComment.trim() || submittingComment} className="p-1.5 rounded-full bg-primary text-primary-foreground disabled:opacity-40 transition-opacity"><Send className="w-3 h-3" /></button>
                       </div>
                     </div>
@@ -694,7 +696,7 @@ const ExplorersPage = () => {
                 </article>
               );
             })}
-            {feedLoadingMore && <p className="text-center py-6 text-muted-foreground text-sm font-display">Chargement…</p>}
+            {feedLoadingMore && <p className="text-center py-6 text-muted-foreground text-sm font-display">{t('social.common.loading')}</p>}
             {!feedHasMore && posts.length > 0 && <p className="text-center py-6 text-muted-foreground text-xs font-display">Tu es à jour ✨</p>}
             {feedHasMore && !feedLoadingMore && <div ref={feedSentinelRef} className="h-8" />}
           </div>

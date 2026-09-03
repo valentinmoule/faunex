@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PageHeader } from '@/components/PageHeader';
 import { useNavigate } from 'react-router-dom';
 import { Camera, Target, ChevronRight, Bell, Flame, Zap, Trophy, BookOpen, Users } from 'lucide-react';
@@ -93,6 +94,7 @@ async function checkBadgeNotifications(uid: string, captures: any[], profile: an
 }
 
 const Index = () => {
+  const { t } = useTranslation();
   const { session } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -239,11 +241,11 @@ const Index = () => {
               <div>
                 <h1 className="text-lg font-display font-black text-foreground leading-tight">{firstName}</h1>
                 <p className="text-[10px] text-muted-foreground font-display flex items-center gap-1">
-                  Explorateur
+                  {t('marketing.home.explorer')}
                   {streak > 0 && (
                     <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber/15 border border-amber/20 text-amber">
                       <Flame className="w-2.5 h-2.5" />
-                      <span className="font-bold">{streak}j</span>
+                      <span className="font-bold">{t('marketing.home.streakDays', { count: streak })}</span>
                     </span>
                   )}
                 </p>
@@ -262,7 +264,7 @@ const Index = () => {
           {/* XP Bar — light */}
           {!isFirstTime && (
             <div className="flex items-center gap-2.5">
-              <span className="text-[11px] font-display font-bold text-primary shrink-0">Niv. {profile.level}</span>
+              <span className="text-[11px] font-display font-bold text-primary shrink-0">{t('marketing.home.level', { level: profile.level })}</span>
               <div className="relative flex-1 h-2 rounded-full bg-muted/50 overflow-hidden">
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-primary to-amber transition-all duration-1000 ease-out game-xp-glow"
@@ -296,14 +298,14 @@ const Index = () => {
           
           <div className="relative flex-1 min-w-0">
             <div className="flex items-center justify-between mb-0.5">
-              <h3 className="text-sm font-display font-bold text-foreground">Quêtes de la semaine</h3>
+              <h3 className="text-sm font-display font-bold text-foreground">{t('marketing.home.weeklyQuests')}</h3>
               {questSummary.claimable > 0 && (
                 <span className="px-2.5 py-1 rounded-full bg-gradient-to-r from-amber to-amber-light text-white text-[10px] font-display font-bold quest-claim-pulse flex items-center gap-1 shadow-[0_0_12px_hsla(42,80%,55%,0.5)]">
-                  🎁 {questSummary.claimable} récompense{questSummary.claimable > 1 ? 's' : ''}
+                  {t('marketing.home.rewards', { count: questSummary.claimable, plural: questSummary.claimable > 1 ? 's' : '' })}
                 </span>
               )}
             </div>
-            <p className="text-[10px] text-muted-foreground mb-1.5">{questSummary.completed}/{questSummary.total} terminées</p>
+            <p className="text-[10px] text-muted-foreground mb-1.5">{t('marketing.home.questsCompleted', { completed: questSummary.completed, total: questSummary.total })}</p>
             <div className="flex gap-1">
               {Array.from({ length: questSummary.total }).map((_, i) => (
                 <div key={i} className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${
@@ -330,10 +332,10 @@ const Index = () => {
           const goldCount = (rarityCounts.illustration_rare || 0) + (rarityCounts.special_rare || 0)
             + (rarityCounts.hyper_rare || 0);
           const rarityTiles: { key: string; label: string; dot: string; ring: string; count: number }[] = [
-            { key: 'common', label: 'Communes', dot: 'bg-rarity-common', ring: 'border-rarity-common/30', count: (rarityCounts.common || 0) + (rarityCounts.uncommon || 0) },
-            { key: 'rare', label: 'Rares', dot: 'bg-rarity-rare', ring: 'border-rarity-rare/30', count: (rarityCounts.rare || 0) + (rarityCounts.very_rare || 0) },
-            { key: 'silver', label: 'Argent', dot: 'bg-rarity-silver', ring: 'border-rarity-silver/30', count: silverCount },
-            { key: 'gold', label: 'Or', dot: 'bg-rarity-gold', ring: 'border-rarity-gold/30', count: goldCount },
+            { key: 'common', label: t('marketing.home.rarityCommon'), dot: 'bg-rarity-common', ring: 'border-rarity-common/30', count: (rarityCounts.common || 0) + (rarityCounts.uncommon || 0) },
+            { key: 'rare', label: t('marketing.home.rarityRare'), dot: 'bg-rarity-rare', ring: 'border-rarity-rare/30', count: (rarityCounts.rare || 0) + (rarityCounts.very_rare || 0) },
+            { key: 'silver', label: t('marketing.home.raritySilver'), dot: 'bg-rarity-silver', ring: 'border-rarity-silver/30', count: silverCount },
+            { key: 'gold', label: t('marketing.home.rarityGold'), dot: 'bg-rarity-gold', ring: 'border-rarity-gold/30', count: goldCount },
           ];
           void inkCount;
 
@@ -359,10 +361,10 @@ const Index = () => {
             }
           };
           const BADGE_LABELS: Record<string, string> = {
-            first_capture: 'Première capture', explorer_10: 'Explorateur · 10', explorer_25: 'Explorateur · 25',
-            explorer_50: 'Explorateur · 50', birds_5: 'Ornithologue', mammals_5: 'Mammalogiste',
-            rare_1: 'Première rare', legendary_1: 'Première ultra rare', mythic_1: 'Première étoile dorée',
-            social_3: 'Sociable', level_5: 'Niveau 5',
+            first_capture: t('marketing.home.badges.first_capture'), explorer_10: t('marketing.home.badges.explorer_10'), explorer_25: t('marketing.home.badges.explorer_25'),
+            explorer_50: t('marketing.home.badges.explorer_50'), birds_5: t('marketing.home.badges.birds_5'), mammals_5: t('marketing.home.badges.mammals_5'),
+            rare_1: t('marketing.home.badges.rare_1'), legendary_1: t('marketing.home.badges.legendary_1'), mythic_1: t('marketing.home.badges.mythic_1'),
+            social_3: t('marketing.home.badges.social_3'), level_5: t('marketing.home.badges.level_5'),
           };
           const nextBadges = BADGE_DEFS
             .map(b => ({ ...b, current: progressOf(b), pct: progressOf(b) / b.total }))
@@ -374,7 +376,7 @@ const Index = () => {
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <Trophy className="w-4 h-4 text-amber" />
-                <h2 className="text-base font-display font-bold text-foreground">Ta progression</h2>
+                <h2 className="text-base font-display font-bold text-foreground">{t('marketing.home.progress')}</h2>
               </div>
 
               {/* Rarity tiles */}
@@ -397,7 +399,7 @@ const Index = () => {
                   <div className="flex items-center justify-between mb-2.5">
                     <div className="flex items-center gap-2">
                       <BookOpen className="w-4 h-4 text-primary" />
-                      <h3 className="text-sm font-display font-bold text-foreground">Catégories explorées</h3>
+                      <h3 className="text-sm font-display font-bold text-foreground">{t('marketing.home.exploredCategories')}</h3>
                     </div>
                     <ChevronRight className="w-4 h-4 text-muted-foreground" />
                   </div>
@@ -429,7 +431,7 @@ const Index = () => {
                   <div className="flex items-center justify-between mb-2.5">
                     <div className="flex items-center gap-2">
                       <Trophy className="w-4 h-4 text-amber" />
-                      <h3 className="text-sm font-display font-bold text-foreground">Prochains badges</h3>
+                      <h3 className="text-sm font-display font-bold text-foreground">{t('marketing.home.nextBadges')}</h3>
                     </div>
                     <ChevronRight className="w-4 h-4 text-muted-foreground" />
                   </div>
@@ -462,8 +464,8 @@ const Index = () => {
                     <BookOpen className="w-4 h-4 text-primary" />
                   </div>
                   <div className="text-left">
-                    <p className="text-sm font-display font-bold text-foreground">Voir ma collection</p>
-                    <p className="text-[10px] font-display text-muted-foreground">{allCaptures.length} capture{allCaptures.length > 1 ? 's' : ''} dans ton Faunex</p>
+                    <p className="text-sm font-display font-bold text-foreground">{t('marketing.home.viewCollection')}</p>
+                    <p className="text-[10px] font-display text-muted-foreground">{t('marketing.home.capturesInFaunex', { count: allCaptures.length, plural: allCaptures.length > 1 ? 's' : '' })}</p>
                   </div>
                 </div>
                 <ChevronRight className="w-4 h-4 text-muted-foreground" />
@@ -476,15 +478,15 @@ const Index = () => {
         {allCaptures.length === 0 && !loading && (
           <div className="text-center py-16 px-6">
             <div className="text-6xl mb-4 game-float">🌿</div>
-            <h3 className="text-foreground font-display font-bold text-lg mb-2">Commence ton aventure !</h3>
+            <h3 className="text-foreground font-display font-bold text-lg mb-2">{t('marketing.home.startAdventure')}</h3>
             <p className="text-muted-foreground text-sm leading-relaxed max-w-xs mx-auto mb-6">
-              Photographie les animaux autour de toi pour les identifier et les ajouter à ta collection.
+              {t('marketing.home.emptyStateDesc')}
             </p>
             <button
               onClick={() => navigate('/capture')}
               className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-display font-bold text-sm shadow-[0_4px_15px_hsla(var(--primary),0.3)] hover:shadow-[0_6px_20px_hsla(var(--primary),0.4)] transition-shadow active:scale-[0.97] transform"
             >
-              📸 Ma première capture
+              {t('marketing.home.firstCapture')}
             </button>
           </div>
         )}

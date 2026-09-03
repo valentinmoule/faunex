@@ -5,12 +5,14 @@ import { fetchAllRows } from '@/lib/fetchAll';
 import { getSpeciesGroup, BREED_GROUPS, MIN_BREEDS_PER_GROUP } from '@/lib/breedGroups';
 import { getCategoryEmoji, normalizeCategory } from '@/lib/bestiary';
 import {
-  STATIC_BADGES,
+  STATIC_BADGE_SEEDS,
+  translateBadge,
   collectionBadge,
   rank1Badge,
   type BadgeDef,
 } from '@/lib/badges';
 import { COMMUNITY_BADGE_ID, COMMUNITY_BADGE_XP } from '@/components/DiscordInviteCard';
+import { useTranslation } from 'react-i18next';
 
 export interface BadgeProgress {
   badge: BadgeDef;
@@ -19,15 +21,15 @@ export interface BadgeProgress {
   claimed: boolean;
 }
 
-const COMMUNITY_BADGE: BadgeDef = {
+const communityBadge = (t: (key: string) => string): BadgeDef => ({
   id: COMMUNITY_BADGE_ID,
-  name: 'Membre de la communauté',
+  name: t('profile.badges.communityBadge.name'),
   icon: '💬',
-  description: 'Rejoindre le Discord Faunex',
+  description: t('profile.badges.communityBadge.description'),
   total: 1,
   group: 'social',
   xp: COMMUNITY_BADGE_XP,
-};
+});
 
 const norm = (v: string) =>
   v.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -61,6 +63,7 @@ const fetchCatalogue = async () => {
 export const useBadges = (userId: string | undefined, level: number, regionsExplored: number, refreshKey = 0) => {
   const [badges, setBadges] = useState<BadgeProgress[]>([]);
   const [loading, setLoading] = useState(true);
+  const { t, i18n } = useTranslation();
 
   useEffect(() => {
     if (!userId) return;
@@ -131,7 +134,7 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
         // Only surface collections the user already started (or completed),
         // otherwise the list would be unreadable.
         if (stats.captured === 0 && !claimedSet.has(`collection_${group.key}`)) return [];
-        const def = collectionBadge(group.key, group.label, group.emoji, stats.total);
+        const def = collectionBadge(t, group.key, group.label, group.emoji, stats.total);
         return [{
           badge: def,
           progress: stats.captured,
@@ -159,7 +162,7 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
       const rankBadges: BadgeProgress[] = ranks
         .filter((r) => r.rank === 1 || claimedSet.has(`rank1_${r.cat.toLowerCase()}`))
         .map((r) => {
-          const def = rank1Badge(r.cat, getCategoryEmoji(r.cat));
+          const def = rank1Badge(t, r.cat, getCategoryEmoji(r.cat));
           return {
             badge: def,
             progress: r.rank === 1 ? 1 : claimedSet.has(def.id) ? 1 : 0,
@@ -206,7 +209,11 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
         [COMMUNITY_BADGE_ID]: claimedSet.has(COMMUNITY_BADGE_ID) ? 1 : 0,
       };
 
-      const staticBadges: BadgeProgress[] = [...STATIC_BADGES, COMMUNITY_BADGE].map((b) => ({
+      const allStaticBadges: BadgeDef[] = [
+        ...STATIC_BADGE_SEEDS.map((seed) => translateBadge(t, seed)),
+        communityBadge(t),
+      ];
+      const staticBadges: BadgeProgress[] = allStaticBadges.map((b) => ({
         badge: b,
         progress: progressMap[b.id] || 0,
         earned: (progressMap[b.id] || 0) >= b.total,
@@ -220,7 +227,7 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
     return () => {
       cancelled = true;
     };
-  }, [userId, level, regionsExplored, refreshKey]);
+  }, [userId, level, regionsExplored, refreshKey, i18n.language]);
 
   const markClaimed = useCallback((badgeId: string) => {
     setBadges((prev) => prev.map((b) => (b.badge.id === badgeId ? { ...b, claimed: true } : b)));

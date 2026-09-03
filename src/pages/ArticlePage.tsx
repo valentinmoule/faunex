@@ -5,15 +5,19 @@ import remarkGfm from 'remark-gfm';
 import { ArrowLeft, Calendar, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Footer from '@/components/Footer';
-import { getArticle, articles, type ArticleType } from '@/content/articles';
+import { useTranslation } from 'react-i18next';
+import { getArticle, articles, localizedArticle, type ArticleType } from '@/content/articles';
 
 const ArticlePage = ({ type }: { type: ArticleType }) => {
   const { slug } = useParams<{ slug: string }>();
-  const article = slug ? getArticle(slug) : undefined;
+  const { t, i18n } = useTranslation();
+  const found = slug ? getArticle(slug) : undefined;
 
-  if (!article || article.type !== type) {
+  if (!found || found.type !== type) {
     return <Navigate to="/404" replace />;
   }
+
+  const article = localizedArticle(found, i18n.language);
 
   const basePath = type === 'guide' ? '/guides' : '/fonctionnalites';
   const url = `https://faunex.fr${basePath}/${article.slug}`;
@@ -21,7 +25,8 @@ const ArticlePage = ({ type }: { type: ArticleType }) => {
   // 3 related articles, same type, excluding current
   const related = articles
     .filter((a) => a.type === type && a.slug !== article.slug)
-    .slice(0, 3);
+    .slice(0, 3)
+    .map((a) => localizedArticle(a, i18n.language));
 
   return (
     <main className="min-h-screen bg-background text-foreground pb-20">
@@ -52,11 +57,11 @@ const ArticlePage = ({ type }: { type: ArticleType }) => {
           '@context': 'https://schema.org',
           '@type': 'BreadcrumbList',
           itemListElement: [
-            { '@type': 'ListItem', position: 1, name: 'Accueil', item: 'https://faunex.fr/' },
+            { '@type': 'ListItem', position: 1, name: t('blog.home'), item: 'https://faunex.fr/' },
             {
               '@type': 'ListItem',
               position: 2,
-              name: type === 'guide' ? 'Guides' : 'Cas d\'usage',
+              name: type === 'guide' ? t('blog.guidesBreadcrumb') : t('blog.useCasesBreadcrumb'),
               item: `https://faunex.fr${basePath}`,
             },
             { '@type': 'ListItem', position: 3, name: article.title, item: url },
@@ -69,7 +74,7 @@ const ArticlePage = ({ type }: { type: ArticleType }) => {
           to={basePath}
           className="inline-flex items-center gap-1 text-xs text-muted-foreground font-display hover:text-primary mb-4"
         >
-          <ArrowLeft className="w-3 h-3" /> {type === 'guide' ? 'Tous les guides' : 'Tous les cas d\'usage'}
+          <ArrowLeft className="w-3 h-3" /> {type === 'guide' ? t('blog.backToGuides') : t('blog.backToUseCases')}
         </Link>
 
         <div className="flex items-center gap-2 mb-3 flex-wrap">
@@ -77,11 +82,11 @@ const ArticlePage = ({ type }: { type: ArticleType }) => {
             {article.category}
           </span>
           <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground font-display">
-            <Clock className="w-3 h-3" /> {article.readingMinutes} min
+            <Clock className="w-3 h-3" /> {t('blog.readingTime', { count: article.readingMinutes })}
           </span>
           <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground font-display">
             <Calendar className="w-3 h-3" />
-            {new Date(article.publishedAt).toLocaleDateString('fr-FR', {
+            {new Date(article.publishedAt).toLocaleDateString(i18n.language === 'en' ? 'en-GB' : 'fr-FR', {
               day: 'numeric',
               month: 'long',
               year: 'numeric',
@@ -103,13 +108,13 @@ const ArticlePage = ({ type }: { type: ArticleType }) => {
       <section className="px-5 mt-10 max-w-2xl mx-auto">
         <div className="rounded-3xl bg-gradient-to-br from-primary to-primary/80 p-6 text-center">
           <h2 className="text-xl font-display font-black text-primary-foreground mb-2">
-            Essaie Faunex gratuitement
+            {t('blog.ctaTitle')}
           </h2>
           <p className="text-sm text-primary-foreground/90 font-body mb-4">
-            Photographie un animal, l'IA l'identifie, tu collectionnes sa carte comme un vrai bestiaire.
+            {t('blog.ctaDescription')}
           </p>
           <Button asChild size="lg" variant="secondary" className="font-display font-bold rounded-2xl bg-background text-primary hover:bg-background/90">
-            <Link to="/auth?mode=signup">Créer mon compte gratuit</Link>
+            <Link to="/auth?mode=signup">{t('blog.ctaButton')}</Link>
           </Button>
         </div>
       </section>
@@ -117,7 +122,7 @@ const ArticlePage = ({ type }: { type: ArticleType }) => {
       {/* Related */}
       {related.length > 0 && (
         <section className="px-5 mt-12 max-w-2xl mx-auto">
-          <h3 className="text-lg font-display font-black mb-3">À lire aussi</h3>
+          <h3 className="text-lg font-display font-black mb-3">{t('blog.relatedTitle')}</h3>
           <div className="grid gap-3">
             {related.map((r) => (
               <Link

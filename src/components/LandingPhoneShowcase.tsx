@@ -1,4 +1,5 @@
 import { Camera, Sparkles, Search, Trophy, Zap, MapPin } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import PhoneMockup from './PhoneMockup';
 import HolographicCard from './HolographicCard';
 
@@ -6,15 +7,24 @@ import HolographicCard from './HolographicCard';
  * Three phone mockups showcasing the app: Capture flow, Bestiary grid, Card reveal.
  */
 const LandingPhoneShowcase = () => {
+  const { t } = useTranslation();
   return (
     <section className="px-5 py-16 bg-gradient-to-b from-background via-muted/30 to-background overflow-hidden">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-10">
           <h2 className="mt-1 text-3xl sm:text-4xl font-display font-black">
-            L'app dans ta <span className="font-editorial italic text-primary">poche</span>.
+            {(() => {
+              const highlight = t('marketing.phoneShowcase.titleHighlight');
+              const [before, after] = t('marketing.phoneShowcase.title', { highlight: '__HL__' }).split('__HL__');
+              return (
+                <>
+                  {before}<span className="font-editorial italic text-primary">{highlight}</span>{after}
+                </>
+              );
+            })()}
           </h2>
           <p className="mt-2 text-muted-foreground text-sm font-body max-w-md mx-auto">
-            De la photo à la carte holographique, en quelques secondes.
+            {t('marketing.phoneShowcase.subtitle')}
           </p>
         </div>
 
@@ -25,7 +35,7 @@ const LandingPhoneShowcase = () => {
               <div className="relative h-full w-full bg-black">
                 <img
                   src="/landing/bluetit.jpg"
-                  alt="Capture — Mésange bleue"
+                  alt={t('marketing.phoneShowcase.captureAlt')}
                   className="absolute inset-0 w-full h-full object-cover opacity-90"
                   loading="lazy"
                 />
@@ -43,7 +53,7 @@ const LandingPhoneShowcase = () => {
                 {/* Top label */}
                 <div className="absolute top-3 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-sm flex items-center gap-1.5">
                   <Sparkles className="w-3 h-3 text-primary" />
-                  <span className="text-[10px] font-display font-bold text-white">IA prête</span>
+                  <span className="text-[10px] font-display font-bold text-white">{t('marketing.phoneShowcase.aiReady')}</span>
                 </div>
                 {/* Shutter */}
                 <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full bg-white/95 flex items-center justify-center shadow-lg">
@@ -54,10 +64,10 @@ const LandingPhoneShowcase = () => {
             <div className="mt-5 text-center max-w-[200px]">
               <div className="inline-flex items-center gap-1.5 text-primary mb-1">
                 <Camera className="w-4 h-4" />
-                <span className="text-[11px] font-display font-bold uppercase tracking-wider">Étape 1</span>
+                <span className="text-[11px] font-display font-bold uppercase tracking-wider">{t('marketing.phoneShowcase.step1')}</span>
               </div>
-              <p className="text-sm font-display font-bold">Photographie</p>
-              <p className="text-xs text-muted-foreground font-body mt-1">Vise, capture. L'IA fait le reste.</p>
+              <p className="text-sm font-display font-bold">{t('marketing.phoneShowcase.photograph')}</p>
+              <p className="text-xs text-muted-foreground font-body mt-1">{t('marketing.phoneShowcase.photographDesc')}</p>
             </div>
           </div>
 
@@ -67,11 +77,11 @@ const LandingPhoneShowcase = () => {
               <div className="h-full w-full bg-background flex flex-col">
                 {/* Header */}
                 <div className="px-3 pt-3 pb-2">
-                  <p className="text-[10px] text-muted-foreground font-display uppercase tracking-wider">Mon Faunex</p>
-                  <p className="text-base font-display font-black leading-tight">Bestiaire</p>
+                  <p className="text-[10px] text-muted-foreground font-display uppercase tracking-wider">{t('marketing.phoneShowcase.myFaunex')}</p>
+                  <p className="text-base font-display font-black leading-tight">{t('marketing.phoneShowcase.bestiary')}</p>
                   <div className="mt-2 flex items-center gap-1 rounded-lg bg-muted px-2 py-1.5">
                     <Search className="w-3 h-3 text-muted-foreground" />
-                    <span className="text-[10px] text-muted-foreground font-body">Rechercher…</span>
+                    <span className="text-[10px] text-muted-foreground font-body">{t('marketing.phoneShowcase.search')}</span>
                   </div>
                 </div>
                 {/* Grid */}
@@ -97,8 +107,8 @@ const LandingPhoneShowcase = () => {
                 {/* Stat strip */}
                 <div className="px-3 pb-3">
                   <div className="rounded-lg bg-primary/10 border border-primary/20 px-2.5 py-1.5 flex items-center justify-between">
-                    <span className="text-[10px] font-display font-bold text-primary">Niveau 7</span>
-                    <span className="text-[10px] font-display text-primary/80">42 captures</span>
+                    <span className="text-[10px] font-display font-bold text-primary">{t('marketing.phoneShowcase.level7')}</span>
+                    <span className="text-[10px] font-display text-primary/80">{t('marketing.phoneShowcase.captures42')}</span>
                   </div>
                 </div>
               </div>
@@ -106,10 +116,10 @@ const LandingPhoneShowcase = () => {
             <div className="mt-5 text-center max-w-[200px]">
               <div className="inline-flex items-center gap-1.5 text-primary mb-1">
                 <Zap className="w-4 h-4" />
-                <span className="text-[11px] font-display font-bold uppercase tracking-wider">Étape 2</span>
+                <span className="text-[11px] font-display font-bold uppercase tracking-wider">{t('marketing.phoneShowcase.step2')}</span>
               </div>
-              <p className="text-sm font-display font-bold">Collectionne</p>
-              <p className="text-xs text-muted-foreground font-body mt-1">Remplis ton bestiaire, monte en niveau.</p>
+              <p className="text-sm font-display font-bold">{t('marketing.phoneShowcase.collect')}</p>
+              <p className="text-xs text-muted-foreground font-body mt-1">{t('marketing.phoneShowcase.collectDesc')}</p>
             </div>
           </div>
 
@@ -129,16 +139,16 @@ const LandingPhoneShowcase = () => {
                 </div>
 
                 <p className="text-[10px] font-display font-bold uppercase tracking-[0.2em] text-rarity-gold mb-2">
-                  Mythique
+                  {t('marketing.phoneShowcase.mythic')}
                 </p>
 
                 <div className="w-32">
                   <HolographicCard rarity="special_rare">
                     <div className="rounded-xl overflow-hidden bg-card border border-border">
-                      <img src="/landing/reddeer.jpg" alt="Cerf élaphe" className="w-full aspect-square object-cover" loading="lazy" />
+                      <img src="/landing/reddeer.jpg" alt={t('marketing.phoneShowcase.reddeerAlt')} className="w-full aspect-square object-cover" loading="lazy" />
                       <div className="p-1.5 bg-card">
-                        <p className="font-display font-bold text-[10px] truncate">Cerf élaphe</p>
-                        <p className="text-[8px] text-rarity-gold font-display font-bold uppercase tracking-wider">Mythique</p>
+                        <p className="font-display font-bold text-[10px] truncate">{t('marketing.phoneShowcase.reddeerName')}</p>
+                        <p className="text-[8px] text-rarity-gold font-display font-bold uppercase tracking-wider">{t('marketing.phoneShowcase.mythic')}</p>
                       </div>
                     </div>
                   </HolographicCard>
@@ -146,21 +156,21 @@ const LandingPhoneShowcase = () => {
 
                 <div className="mt-3 flex items-center gap-1 px-2 py-1 rounded-full bg-primary/15 border border-primary/30">
                   <Trophy className="w-3 h-3 text-primary" />
-                  <span className="text-[10px] font-display font-bold text-primary">+250 XP</span>
+                  <span className="text-[10px] font-display font-bold text-primary">{t('marketing.phoneShowcase.xpGain')}</span>
                 </div>
                 <div className="mt-1.5 flex items-center gap-1 text-[9px] text-muted-foreground font-body">
                   <MapPin className="w-2.5 h-2.5" />
-                  <span>Forêt de Fontainebleau</span>
+                  <span>{t('marketing.phoneShowcase.location')}</span>
                 </div>
               </div>
             </PhoneMockup>
             <div className="mt-5 text-center max-w-[200px]">
               <div className="inline-flex items-center gap-1.5 text-primary mb-1">
                 <Trophy className="w-4 h-4" />
-                <span className="text-[11px] font-display font-bold uppercase tracking-wider">Étape 3</span>
+                <span className="text-[11px] font-display font-bold uppercase tracking-wider">{t('marketing.phoneShowcase.step3')}</span>
               </div>
-              <p className="text-sm font-display font-bold">Révèle ta carte</p>
-              <p className="text-xs text-muted-foreground font-body mt-1">Animation holographique selon la rareté.</p>
+              <p className="text-sm font-display font-bold">{t('marketing.phoneShowcase.revealCard')}</p>
+              <p className="text-xs text-muted-foreground font-body mt-1">{t('marketing.phoneShowcase.revealCardDesc')}</p>
             </div>
           </div>
         </div>

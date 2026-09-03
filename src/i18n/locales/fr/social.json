@@ -45,7 +45,8 @@
       "captured": "a capturé",
       "commentPlaceholder": "Commenter…",
       "noCommentsYet": "Aucun commentaire — sois le premier !",
-      "caughtUp": "Tu es à jour ✨"
+      "caughtUp": "Tu es à jour ✨",
+      "searchError": "Erreur de recherche"
     },
     "feed": {
       "brandName": "Faunex",

@@ -13,36 +13,49 @@ import {
   Preview,
   Text,
 } from 'npm:@react-email/components@0.0.22'
+import type { Locale } from '../i18n.ts'
+import { pick, resolveLocale } from '../i18n.ts'
 
 interface MagicLinkEmailProps {
   siteName: string
   confirmationUrl: string
+  locale?: Locale | string
 }
 
 export const MagicLinkEmail = ({
   siteName,
   confirmationUrl,
-}: MagicLinkEmailProps) => (
-  <Html lang="fr" dir="ltr">
-    <Head />
-    <Preview>Ton lien de connexion Faunex</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Img src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png" width="48" height="48" alt="Faunex" style={logo} />
-        <Heading style={h1}>Connexion rapide 🌿</Heading>
-        <Text style={text}>
-          Clique sur le bouton ci-dessous pour te connecter à Faunex. Ce lien expire rapidement.
-        </Text>
-        <Button style={button} href={confirmationUrl}>
-          Se connecter
-        </Button>
-        <Text style={footer}>
-          Si tu n'as pas demandé ce lien, tu peux ignorer cet email.
-        </Text>
-      </Container>
-    </Body>
-  </Html>
-)
+  locale,
+}: MagicLinkEmailProps) => {
+  const l = resolveLocale(locale as string | undefined)
+  return (
+    <Html lang={l} dir="ltr">
+      <Head />
+      <Preview>{pick({ fr: 'Ton lien de connexion Faunex', en: 'Your Faunex sign-in link' }, l)}</Preview>
+      <Body style={main}>
+        <Container style={container}>
+          <Img src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png" width="48" height="48" alt="Faunex" style={logo} />
+          <Heading style={h1}>{pick({ fr: 'Connexion rapide 🌿', en: 'Quick sign-in 🌿' }, l)}</Heading>
+          <Text style={text}>
+            {pick({
+              fr: 'Clique sur le bouton ci-dessous pour te connecter à Faunex. Ce lien expire rapidement.',
+              en: 'Click the button below to sign in to Faunex. This link expires soon.',
+            }, l)}
+          </Text>
+          <Button style={button} href={confirmationUrl}>
+            {pick({ fr: 'Se connecter', en: 'Sign in' }, l)}
+          </Button>
+          <Text style={footer}>
+            {pick({
+              fr: "Si tu n'as pas demandé ce lien, tu peux ignorer cet email.",
+              en: "If you didn't request this link, you can ignore this email.",
+            }, l)}
+          </Text>
+        </Container>
+      </Body>
+    </Html>
+  )
+}
 
 export default MagicLinkEmail
 

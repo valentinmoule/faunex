@@ -4,47 +4,70 @@ import {
   Body, Container, Head, Heading, Html, Img, Preview, Text,
 } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
+import type { Locale } from '../i18n.ts'
+import { pick, resolveLocale } from '../i18n.ts'
 
-const AccountBlockedEmail = () => (
-  <Html lang="fr" dir="ltr">
-    <Head />
-    <Preview>Votre compte Faunex a été bloqué</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Img
-          src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png"
-          width="48" height="48" alt="Faunex" style={logo}
-        />
-        <Heading style={h1}>Compte bloqué</Heading>
-        <Text style={text}>Bonjour,</Text>
-        <Text style={text}>
-          Nous vous informons que votre compte Faunex a été bloqué pour non-respect de notre
-          règlement.
-        </Text>
-        <Text style={text}>
-          Cette décision fait suite à des comportements contraires à nos règles, notamment
-          l’utilisation ou la copie d’images appartenant à d’autres utilisateurs et/ou la saisie
-          volontaire d’informations fausses ou trompeuses.
-        </Text>
-        <Text style={text}>
-          Nous vous rappelons que ces pratiques sont interdites sur Faunex afin de garantir un
-          environnement fiable et respectueux pour l’ensemble de nos utilisateurs.
-        </Text>
-        <Text style={text}>En conséquence, votre compte n’est plus accessible.</Text>
-        <Text style={text}>
-          Cordialement,<br />
-          L’équipe Faunex
-        </Text>
-      </Container>
-    </Body>
-  </Html>
-)
+interface Props {
+  locale?: Locale | string
+}
+
+const AccountBlockedEmail = ({ locale }: Props) => {
+  const l = resolveLocale(locale as string | undefined)
+  return (
+    <Html lang={l} dir="ltr">
+      <Head />
+      <Preview>{pick({ fr: 'Votre compte Faunex a été bloqué', en: 'Your Faunex account has been blocked' }, l)}</Preview>
+      <Body style={main}>
+        <Container style={container}>
+          <Img
+            src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png"
+            width="48" height="48" alt="Faunex" style={logo}
+          />
+          <Heading style={h1}>{pick({ fr: 'Compte bloqué', en: 'Account blocked' }, l)}</Heading>
+          <Text style={text}>{pick({ fr: 'Bonjour,', en: 'Hello,' }, l)}</Text>
+          <Text style={text}>
+            {pick(
+              {
+                fr: 'Nous vous informons que votre compte Faunex a été bloqué pour non-respect de notre règlement.',
+                en: 'We are informing you that your Faunex account has been blocked for violating our rules.',
+              },
+              l,
+            )}
+          </Text>
+          <Text style={text}>
+            {pick(
+              {
+                fr: 'Cette décision fait suite à des comportements contraires à nos règles, notamment l’utilisation ou la copie d’images appartenant à d’autres utilisateurs et/ou la saisie volontaire d’informations fausses ou trompeuses.',
+                en: 'This decision follows behavior that violates our rules, in particular the use or copying of images belonging to other users and/or the deliberate entry of false or misleading information.',
+              },
+              l,
+            )}
+          </Text>
+          <Text style={text}>
+            {pick(
+              {
+                fr: 'Nous vous rappelons que ces pratiques sont interdites sur Faunex afin de garantir un environnement fiable et respectueux pour l’ensemble de nos utilisateurs.',
+                en: 'We remind you that such practices are prohibited on Faunex in order to guarantee a reliable and respectful environment for all our users.',
+              },
+              l,
+            )}
+          </Text>
+          <Text style={text}>{pick({ fr: 'En conséquence, votre compte n’est plus accessible.', en: 'As a result, your account is no longer accessible.' }, l)}</Text>
+          <Text style={text}>
+            {pick({ fr: 'Cordialement,', en: 'Best regards,' }, l)}<br />
+            {pick({ fr: 'L’équipe Faunex', en: 'The Faunex team' }, l)}
+          </Text>
+        </Container>
+      </Body>
+    </Html>
+  )
+}
 
 export const template = {
   component: AccountBlockedEmail,
-  subject: 'Votre compte Faunex a été bloqué',
+  subject: (d: Props) => pick({ fr: 'Votre compte Faunex a été bloqué', en: 'Your Faunex account has been blocked' }, d?.locale),
   displayName: 'Compte bloqué',
-  previewData: {},
+  previewData: { locale: 'fr' },
 } satisfies TemplateEntry
 
 const main = { backgroundColor: '#ffffff', fontFamily: "'Space Grotesk', 'DM Sans', Arial, sans-serif" }

@@ -1,6 +1,7 @@
 import { useNavigate, Link } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Camera, Brain, Trophy, ChevronRight, Check, Sparkles, MapPin, Users, BookOpen } from 'lucide-react';
 import Footer from '@/components/Footer';
@@ -37,6 +38,13 @@ const heroCards: { img: string; name: string; rarity: Rarity; label: string }[] 
   { img: '/landing/reddeer.jpg', name: 'Cerf élaphe', rarity: 'special_rare', label: 'Rareté or' },
 ];
 
+const heroCardLabelKeys: Record<string, string> = {
+  common: 'marketing.landing.holoCards.common',
+  rare: 'marketing.landing.holoCards.rare',
+  ultra_rare: 'marketing.landing.holoCards.ultraRare',
+  special_rare: 'marketing.landing.holoCards.goldRarity',
+};
+
 const rarityChip: Record<Rarity, string> = {
   common: 'bg-muted text-muted-foreground',
   uncommon: 'bg-rarity-uncommon/15 text-rarity-uncommon',
@@ -48,47 +56,6 @@ const rarityChip: Record<Rarity, string> = {
   hyper_rare: 'bg-rarity-gold/15 text-rarity-gold',
 };
 
-const benefits = [
-  {
-    icon: Brain,
-    title: "Plus jamais « c'est quoi cet oiseau ? »",
-    desc: "L'IA identifie l'espèce en 3 secondes : nom, habitat, anecdotes.",
-  },
-  {
-    icon: MapPin,
-    title: 'Découvre la faune cachée de ton quartier',
-    desc: 'Une carte des espèces actives autour de toi, en temps réel.',
-  },
-  {
-    icon: Trophy,
-    title: 'Collectionne comme dans Pokémon',
-    desc: 'Chaque animal devient une carte unique, avec rareté et effets.',
-  },
-  {
-    icon: Users,
-    title: 'Compare avec tes amis',
-    desc: 'Suis tes proches, partage tes trouvailles, monte au classement.',
-  },
-];
-
-const faq = [
-  {
-    q: 'Combien ça coûte ?',
-    a: "Faunex est gratuit avec 4 captures par jour, sans publicité. L'abonnement facultatif Faunex Premium coûte 2,40 €/mois ou 24 €/an (2 mois offerts) (captures illimitées, détection et modération plus performantes, localisation, notes), sans engagement et remboursable 30 jours. Détails sur la page Tarifs.",
-  },
-  {
-    q: 'Mes données sont-elles protégées ?',
-    a: 'Oui. Tes captures restent privées par défaut, et nous ne revendons jamais tes données.',
-  },
-  {
-    q: 'Ça fonctionne sur iPhone et Android ?',
-    a: "Oui. Faunex est une app web installable en 1 clic depuis ton navigateur, sans passer par les stores.",
-  },
-  {
-    q: "Et si l'IA se trompe ?",
-    a: 'Tu peux corriger ou soumettre l\'animal pour validation par notre équipe. Précision moyenne : >90%.',
-  },
-];
 
 // Count-up hook with intersection observer
 const useCountUp = (target: number, duration = 1500) => {
@@ -136,6 +103,7 @@ const Stat = ({ value, label, prefix }: { value: number; label: string; prefix?:
 };
 
 const LandingPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [stats, setStats] = useState<Stats>({
     totalUsers: 2000,
@@ -143,6 +111,20 @@ const LandingPage = () => {
   });
   const [showStickyCta, setShowStickyCta] = useState(false);
   const [recentCaptures, setRecentCaptures] = useState<RecentCapture[]>([]);
+
+  const benefits = [
+    { icon: Brain, title: t('marketing.landing.benefits.item1Title'), desc: t('marketing.landing.benefits.item1Desc') },
+    { icon: MapPin, title: t('marketing.landing.benefits.item2Title'), desc: t('marketing.landing.benefits.item2Desc') },
+    { icon: Trophy, title: t('marketing.landing.benefits.item3Title'), desc: t('marketing.landing.benefits.item3Desc') },
+    { icon: Users, title: t('marketing.landing.benefits.item4Title'), desc: t('marketing.landing.benefits.item4Desc') },
+  ];
+
+  const faq = [
+    { q: t('marketing.landing.faq.q1'), a: t('marketing.landing.faq.a1') },
+    { q: t('marketing.landing.faq.q2'), a: t('marketing.landing.faq.a2') },
+    { q: t('marketing.landing.faq.q3'), a: t('marketing.landing.faq.a3') },
+    { q: t('marketing.landing.faq.q4'), a: t('marketing.landing.faq.a4') },
+  ];
 
   // Per-route head is managed via <Helmet> below.
 
@@ -191,33 +173,33 @@ const LandingPage = () => {
     const then = new Date(iso).getTime();
     const now = Date.now();
     const diffSec = Math.max(0, Math.floor((now - then) / 1000));
-    if (diffSec < 60) return 'capturé à l\'instant';
+    if (diffSec < 60) return t('marketing.landing.liveTicker.justNow');
     const diffMin = Math.floor(diffSec / 60);
-    if (diffMin < 60) return `capturé il y a ${diffMin}min`;
+    if (diffMin < 60) return t('marketing.landing.liveTicker.minutesAgo', { count: diffMin });
     const diffH = Math.floor(diffMin / 60);
-    if (diffH < 24) return `capturé il y a ${diffH}h`;
+    if (diffH < 24) return t('marketing.landing.liveTicker.hoursAgo', { count: diffH });
     const diffD = Math.floor(diffH / 24);
-    if (diffD < 7) return `capturé il y a ${diffD}j`;
-    return 'capturé récemment';
+    if (diffD < 7) return t('marketing.landing.liveTicker.daysAgo', { count: diffD });
+    return t('marketing.landing.liveTicker.recently');
   };
 
   return (
     <main className="min-h-screen bg-background text-foreground overflow-x-hidden pb-20">
       <Helmet>
-        <title>Faunex — Identifie & collectionne la faune sauvage</title>
-        <meta name="description" content="Photographie un animal, l'IA l'identifie en 3s. Collectionne des cartes de faune autour de toi, du commun au mythique. Gratuit, sans pub." />
+        <title>{t('marketing.landing.meta.title')}</title>
+        <meta name="description" content={t('marketing.landing.meta.description')} />
         <link rel="canonical" href="https://faunex.fr/" />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://faunex.fr/" />
-        <meta property="og:title" content="Faunex — Transforme tes balades en chasse aux trésors" />
-        <meta property="og:description" content="Photographie un animal, l'IA l'identifie en 3s. Collectionne des cartes de faune autour de toi, du commun au mythique." />
+        <meta property="og:title" content={t('marketing.landing.meta.ogTitle')} />
+        <meta property="og:description" content={t('marketing.landing.meta.ogDescription')} />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'MobileApplication',
           name: 'Faunex',
           operatingSystem: 'Web, iOS, Android',
           applicationCategory: 'LifestyleApplication',
-          description: "Identifie et collectionne la faune sauvage autour de toi grâce à l'IA.",
+          description: t('marketing.landing.meta.jsonLdDescription'),
           offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
         })}</script>
       </Helmet>
@@ -239,15 +221,15 @@ const LandingPage = () => {
         <div className="relative z-10 max-w-lg mx-auto text-center">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[11px] font-display font-semibold mb-5">
             <Sparkles className="w-3 h-3" />
-            <span>Le jeu de cartes grandeur nature</span>
+            <span>{t('marketing.landing.hero.badge')}</span>
           </div>
 
-          <img src="/pwa-icon-512.png" alt="Logo Faunex" width="56" height="56" fetchPriority="high" className="w-14 h-14 mx-auto mb-3" />
+          <img src="/pwa-icon-512.png" alt={t('marketing.landing.hero.logoAlt')} width="56" height="56" fetchPriority="high" className="w-14 h-14 mx-auto mb-3" />
 
           <h1 className="font-display font-black tracking-tight leading-[1.02] text-4xl sm:text-6xl">
-            <span className="block">Attrape-les</span>
+            <span className="block">{t('marketing.landing.hero.titleLine1')}</span>
             <span className="relative inline-block">
-              <span className="font-editorial italic font-black text-primary">vraiment tous</span>
+              <span className="font-editorial italic font-black text-primary">{t('marketing.landing.hero.titleHighlight')}</span>
               {/* Hand-drawn underline */}
               <svg
                 aria-hidden="true"
@@ -267,7 +249,7 @@ const LandingPage = () => {
           </h1>
 
           <p className="mt-6 text-base sm:text-lg text-muted-foreground font-body max-w-md mx-auto">
-            Une coccinelle sur ton balcon, un cerf en forêt, un faucon en ville — chaque rencontre devient une carte dans ton bestiaire.
+            {t('marketing.landing.hero.subtitle')}
           </p>
 
 
@@ -278,7 +260,7 @@ const LandingPage = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-block hover:scale-[1.02] active:scale-[0.98] transition-transform"
-                aria-label="Télécharger Faunex sur l'App Store"
+                aria-label={t('marketing.landing.hero.downloadAppStore')}
               >
                  <AppStoreBadge className="block h-[60px] w-auto drop-shadow-sm" />
               </a>
@@ -287,18 +269,18 @@ const LandingPage = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-block hover:scale-[1.02] active:scale-[0.98] transition-transform"
-                aria-label="Télécharger Faunex sur Google Play"
+                aria-label={t('marketing.landing.hero.downloadPlayStore')}
               >
                  <PlayStoreBadge className="block h-[60px] w-auto drop-shadow-sm" />
               </a>
             </div>
             <div className="flex items-center gap-3 text-[11px] text-muted-foreground font-display mt-1">
-              <span className="flex items-center gap-1"><Check className="w-3 h-3 text-primary" /> Gratuit</span>
-              <span className="flex items-center gap-1"><Check className="w-3 h-3 text-primary" /> Sans pub</span>
-              <span className="flex items-center gap-1"><Check className="w-3 h-3 text-primary" /> En français</span>
+              <span className="flex items-center gap-1"><Check className="w-3 h-3 text-primary" /> {t('marketing.landing.hero.free')}</span>
+              <span className="flex items-center gap-1"><Check className="w-3 h-3 text-primary" /> {t('marketing.landing.hero.noAds')}</span>
+              <span className="flex items-center gap-1"><Check className="w-3 h-3 text-primary" /> {t('marketing.landing.hero.inFrench')}</span>
             </div>
             <p className="mt-3 text-sm text-muted-foreground font-display">
-              Disponible sur iPhone, Android et directement dans ton navigateur.
+              {t('marketing.landing.hero.available')}
             </p>
           </div>
 
@@ -314,14 +296,14 @@ const LandingPage = () => {
               <span className="relative inline-flex h-2 w-2 rounded-full bg-rarity-rare" />
             </span>
             <span className="text-[10px] font-display font-bold tracking-[0.2em] uppercase text-foreground/80">
-              En direct
+              {t('marketing.landing.liveTicker.live')}
             </span>
             <span className="text-[11px] font-body text-muted-foreground hidden sm:inline">
-              · dernières captures de la communauté
+              {t('marketing.landing.liveTicker.communitySuffix')}
             </span>
           </div>
           <span className="text-[10px] font-body text-muted-foreground/70 hidden sm:inline">
-            mis à jour chaque minute
+            {t('marketing.landing.liveTicker.updatedEachMinute')}
           </span>
         </div>
         <div
@@ -343,14 +325,14 @@ const LandingPage = () => {
                       r: c.rarity || 'common',
                     }))
                   : [
-                      { name: 'Renard roux', label: 'il y a 10min', r: 'rare' },
-                      { name: 'Cerf élaphe', label: 'il y a 25min', r: 'special_rare' },
-                      { name: 'Mésange bleue', label: 'il y a 1h', r: 'rare' },
-                      { name: 'Écureuil roux', label: 'il y a 2h', r: 'ultra_rare' },
-                      { name: 'Coccinelle', label: 'il y a 3h', r: 'common' },
-                      { name: 'Faucon pèlerin', label: 'il y a 5h', r: 'ultra_rare' },
-                      { name: 'Bouquetin', label: 'il y a 1j', r: 'special_rare' },
-                      { name: 'Hérisson', label: 'il y a 2j', r: 'rare' },
+                      { name: 'Renard roux', label: t('marketing.landing.liveTicker.minutesAgo', { count: 10 }), r: 'rare' },
+                      { name: 'Cerf élaphe', label: t('marketing.landing.liveTicker.minutesAgo', { count: 25 }), r: 'special_rare' },
+                      { name: 'Mésange bleue', label: t('marketing.landing.liveTicker.hoursAgo', { count: 1 }), r: 'rare' },
+                      { name: 'Écureuil roux', label: t('marketing.landing.liveTicker.hoursAgo', { count: 2 }), r: 'ultra_rare' },
+                      { name: 'Coccinelle', label: t('marketing.landing.liveTicker.hoursAgo', { count: 3 }), r: 'common' },
+                      { name: 'Faucon pèlerin', label: t('marketing.landing.liveTicker.hoursAgo', { count: 5 }), r: 'ultra_rare' },
+                      { name: 'Bouquetin', label: t('marketing.landing.liveTicker.daysAgo', { count: 1 }), r: 'special_rare' },
+                      { name: 'Hérisson', label: t('marketing.landing.liveTicker.daysAgo', { count: 2 }), r: 'rare' },
                     ];
               return Array.from({ length: 2 }).flatMap((_, dup) =>
                 items.map((s, i) => (
@@ -377,8 +359,8 @@ const LandingPage = () => {
       {/* SOCIAL PROOF */}
       <section className="px-5 py-8 border-b border-border/50 bg-muted/30">
         <div className="max-w-lg mx-auto grid grid-cols-2 gap-3">
-          <Stat value={stats.totalUsers} label="Explorateurs" prefix="+" />
-          <Stat value={stats.totalCaptures} label="Captures" prefix="+" />
+          <Stat value={stats.totalUsers} label={t('marketing.landing.stats.explorers')} prefix="+" />
+          <Stat value={stats.totalCaptures} label={t('marketing.landing.stats.captures')} prefix="+" />
         </div>
       </section>
 
@@ -401,9 +383,9 @@ const LandingPage = () => {
 
           <div className="flex sm:grid sm:grid-cols-3 gap-5 overflow-x-auto sm:overflow-visible snap-x snap-mandatory sm:snap-none pb-4 sm:pb-0">
             {[
-              { icon: Camera, num: '01', title: 'Photographie', desc: 'Prends en photo un animal que tu croises lors de tes balades.', rot: '-rotate-2', tint: 'from-primary/15 to-primary/5' },
-              { icon: Brain, num: '02', title: "L'IA identifie", desc: "Espèce, habitat, régime, anecdotes : tout en 3 secondes.", rot: 'rotate-1', tint: 'from-amber/20 to-amber/5' },
-              { icon: Trophy, num: '03', title: 'Collectionne', desc: "L'animal devient une carte unique avec sa rareté.", rot: '-rotate-1', tint: 'from-rarity-silver/15 to-rarity-silver/5' },
+              { icon: Camera, num: '01', title: t('marketing.landing.howItWorks.step1Title'), desc: t('marketing.landing.howItWorks.step1Desc'), rot: '-rotate-2', tint: 'from-primary/15 to-primary/5' },
+              { icon: Brain, num: '02', title: t('marketing.landing.howItWorks.step2Title'), desc: t('marketing.landing.howItWorks.step2Desc'), rot: 'rotate-1', tint: 'from-amber/20 to-amber/5' },
+              { icon: Trophy, num: '03', title: t('marketing.landing.howItWorks.step3Title'), desc: t('marketing.landing.howItWorks.step3Desc'), rot: '-rotate-1', tint: 'from-rarity-silver/15 to-rarity-silver/5' },
             ].map((step, i) => (
               <div
                 key={i}
@@ -425,8 +407,8 @@ const LandingPage = () => {
                     <h3 className="font-display font-black text-lg">{step.title}</h3>
                     <p className="text-sm text-muted-foreground mt-1.5 font-body leading-relaxed">{step.desc}</p>
                     <div className="mt-4 pt-3 border-t border-dashed border-foreground/15 flex items-center justify-between">
-                      <span className="font-handwritten text-xs text-muted-foreground">Étape {step.num.replace('0', '')}/3</span>
-                      <span className="text-[10px] font-display uppercase tracking-widest text-primary">Faunex · Terrain</span>
+                      <span className="font-handwritten text-xs text-muted-foreground">{t('marketing.landing.howItWorks.stepLabel', { num: step.num.replace('0', '') })}</span>
+                      <span className="text-[10px] font-display uppercase tracking-widest text-primary">{t('marketing.landing.howItWorks.brandTag')}</span>
                     </div>
                   </div>
                 </div>
@@ -442,10 +424,18 @@ const LandingPage = () => {
         <div className="max-w-lg mx-auto">
           <div className="text-center mb-8">
             <h2 className="mt-1 text-3xl sm:text-4xl font-display font-black">
-              Collectionne tes <span className="font-editorial italic text-primary">rencontres.</span>
+              {(() => {
+                const highlight = t('marketing.landing.holoCards.titleHighlight');
+                const [before, after] = t('marketing.landing.holoCards.title', { highlight: '__HL__' }).split('__HL__');
+                return (
+                  <>
+                    {before}<span className="font-editorial italic text-primary">{highlight}</span>
+                  </>
+                );
+              })()}
             </h2>
             <p className="text-center text-muted-foreground text-sm mt-2 font-body">
-              4 niveaux de rareté, du commun au mythique.
+              {t('marketing.landing.holoCards.subtitle')}
             </p>
           </div>
 
@@ -464,13 +454,13 @@ const LandingPage = () => {
                       <div className="relative aspect-[4/5] overflow-hidden">
                         <img
                           src={card.img}
-                          alt={`${card.name} — rareté ${card.label}`}
+                          alt={t('marketing.landing.holoCards.rarityAlt', { name: card.name, label: t(heroCardLabelKeys[card.rarity] || card.label) })}
                           className="w-full h-full object-cover"
                           loading="lazy"
                         />
                         <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/70 via-black/25 to-transparent pointer-events-none" />
                         <div className={`absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full text-[9px] font-display font-bold uppercase tracking-wider backdrop-blur-md ${badge}`}>
-                          {card.label}
+                          {t(heroCardLabelKeys[card.rarity] || card.label)}
                         </div>
                         <div className="absolute inset-x-0 bottom-0 p-3">
                           <p className="font-display font-bold text-sm text-white leading-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]">
@@ -488,24 +478,32 @@ const LandingPage = () => {
           {/* Rarity explanation */}
           <div className="mt-8 rounded-2xl bg-card border border-border p-5 space-y-3">
             <p className="text-xs text-muted-foreground font-body text-center mb-1">
-              La rareté d'une carte dépend du <strong className="text-foreground">statut de conservation</strong> de l'espèce dans la nature.
+              {(() => {
+                const bold = t('marketing.landing.holoCards.explanationBold');
+                const [before, after] = t('marketing.landing.holoCards.explanation', { bold: '__B__' }).split('__B__');
+                return (
+                  <>
+                    {before}<strong className="text-foreground">{bold}</strong>{after}
+                  </>
+                );
+              })()}
             </p>
             <div className="space-y-2.5">
               <div className="flex items-start gap-3">
-                <span className={`flex-shrink-0 mt-0.5 px-2 py-0.5 rounded text-[10px] font-display font-bold uppercase tracking-wider ${rarityChip.common}`}>Commun</span>
-                <p className="text-xs text-muted-foreground font-body flex-1">Espèces fréquentes, faciles à croiser (moineau, coccinelle…).</p>
+                <span className={`flex-shrink-0 mt-0.5 px-2 py-0.5 rounded text-[10px] font-display font-bold uppercase tracking-wider ${rarityChip.common}`}>{t('marketing.landing.holoCards.common')}</span>
+                <p className="text-xs text-muted-foreground font-body flex-1">{t('marketing.landing.holoCards.commonDesc')}</p>
               </div>
               <div className="flex items-start gap-3">
-                <span className={`flex-shrink-0 mt-0.5 px-2 py-0.5 rounded text-[10px] font-display font-bold uppercase tracking-wider ${rarityChip.rare}`}>Rare</span>
-                <p className="text-xs text-muted-foreground font-body flex-1">Espèces peu communes ou discrètes, demandent de la patience.</p>
+                <span className={`flex-shrink-0 mt-0.5 px-2 py-0.5 rounded text-[10px] font-display font-bold uppercase tracking-wider ${rarityChip.rare}`}>{t('marketing.landing.holoCards.rare')}</span>
+                <p className="text-xs text-muted-foreground font-body flex-1">{t('marketing.landing.holoCards.rareDesc')}</p>
               </div>
               <div className="flex items-start gap-3">
-                <span className={`flex-shrink-0 mt-0.5 px-2 py-0.5 rounded text-[10px] font-display font-bold uppercase tracking-wider ${rarityChip.ultra_rare}`}>Ultra rare</span>
-                <p className="text-xs text-muted-foreground font-body flex-1">Espèces vulnérables ou en déclin, observation marquante.</p>
+                <span className={`flex-shrink-0 mt-0.5 px-2 py-0.5 rounded text-[10px] font-display font-bold uppercase tracking-wider ${rarityChip.ultra_rare}`}>{t('marketing.landing.holoCards.ultraRare')}</span>
+                <p className="text-xs text-muted-foreground font-body flex-1">{t('marketing.landing.holoCards.ultraRareDesc')}</p>
               </div>
               <div className="flex items-start gap-3">
-                <span className={`flex-shrink-0 mt-0.5 px-2 py-0.5 rounded text-[10px] font-display font-bold uppercase tracking-wider ${rarityChip.special_rare}`}>Rareté or</span>
-                <p className="text-xs text-muted-foreground font-body flex-1">Espèces en danger critique, rencontre exceptionnelle.</p>
+                <span className={`flex-shrink-0 mt-0.5 px-2 py-0.5 rounded text-[10px] font-display font-bold uppercase tracking-wider ${rarityChip.special_rare}`}>{t('marketing.landing.holoCards.goldRarity')}</span>
+                <p className="text-xs text-muted-foreground font-body flex-1">{t('marketing.landing.holoCards.goldRarityDesc')}</p>
               </div>
             </div>
           </div>
@@ -518,7 +516,11 @@ const LandingPage = () => {
         <div className="relative max-w-lg sm:max-w-3xl mx-auto">
           <div className="text-center mb-10">
             <h2 className="mt-1 text-3xl sm:text-4xl font-display font-black">
-              Tu vas <span className="font-editorial italic text-primary">adorer</span>.
+              {(() => {
+                const highlight = t('marketing.landing.benefits.titleHighlight');
+                const [before, after] = t('marketing.landing.benefits.title', { highlight: '__HL__' }).split('__HL__');
+                return (<>{before}<span className="font-editorial italic text-primary">{highlight}</span>{after}</>);
+              })()}
             </h2>
           </div>
 
@@ -578,10 +580,14 @@ const LandingPage = () => {
           <div className="relative z-10">
             <Sparkles className="w-8 h-8 text-primary-foreground mx-auto mb-3" />
             <h2 className="text-3xl sm:text-4xl font-display font-black text-primary-foreground mb-2 leading-tight">
-              Rejoins <span className="font-editorial italic">l'aventure</span>.
+              {(() => {
+                const highlight = t('marketing.landing.finalCta.titleHighlight');
+                const [before, after] = t('marketing.landing.finalCta.title', { highlight: '__HL__' }).split('__HL__');
+                return (<>{before}<span className="font-editorial italic">{highlight}</span>{after}</>);
+              })()}
             </h2>
             <p className="text-sm text-primary-foreground/90 font-body mb-6">
-              Crée ton compte et commence à collectionner la faune près de chez toi.
+              {t('marketing.landing.finalCta.subtitle')}
             </p>
             <Button
               size="lg"
@@ -589,10 +595,10 @@ const LandingPage = () => {
               className="font-display font-bold gap-2 text-base px-7 py-6 rounded-2xl bg-background text-primary hover:bg-background/90 hover:scale-[1.02] transition-transform w-full"
               onClick={() => handleCta('final')}
             >
-              Créer mon compte gratuit <ChevronRight className="w-5 h-5" />
+              {t('marketing.landing.finalCta.cta')} <ChevronRight className="w-5 h-5" />
             </Button>
             <p className="text-[11px] text-primary-foreground/80 font-display mt-3">
-              Gratuit · Sans engagement · Sans pub
+              {t('marketing.landing.finalCta.note')}
             </p>
           </div>
         </div>
@@ -603,10 +609,10 @@ const LandingPage = () => {
         <div className="max-w-2xl mx-auto">
           <div className="flex items-center gap-2 mb-1">
             <BookOpen className="w-4 h-4 text-primary" />
-            <h2 className="text-xl font-display font-black">Apprends, explore</h2>
+            <h2 className="text-xl font-display font-black">{t('marketing.landing.contentHub.title')}</h2>
           </div>
           <p className="text-sm text-muted-foreground font-body mb-6">
-            Nos guides nature et cas d'usage pour bien démarrer.
+            {t('marketing.landing.contentHub.subtitle')}
           </p>
 
           <div className="grid sm:grid-cols-2 gap-3">
@@ -627,10 +633,10 @@ const LandingPage = () => {
 
           <div className="mt-5 flex flex-wrap gap-3 text-sm font-display font-semibold">
             <Link to="/guides" className="text-primary hover:underline inline-flex items-center gap-1">
-              Tous les guides <ChevronRight className="w-3 h-3" />
+              {t('marketing.landing.contentHub.allGuides')} <ChevronRight className="w-3 h-3" />
             </Link>
             <Link to="/fonctionnalites" className="text-primary hover:underline inline-flex items-center gap-1">
-              Tous les cas d'usage <ChevronRight className="w-3 h-3" />
+              {t('marketing.landing.contentHub.allUseCases')} <ChevronRight className="w-3 h-3" />
             </Link>
           </div>
         </div>
@@ -648,7 +654,7 @@ const LandingPage = () => {
           className="w-full font-display font-bold gap-2 text-base py-6 rounded-2xl shadow-[0_8px_24px_-8px_hsla(150,55%,30%,0.6)]"
           onClick={() => handleCta('sticky')}
         >
-          Créer mon compte gratuit <ChevronRight className="w-5 h-5" />
+          {t('marketing.landing.stickyCta')} <ChevronRight className="w-5 h-5" />
         </Button>
       </div>
     </main>

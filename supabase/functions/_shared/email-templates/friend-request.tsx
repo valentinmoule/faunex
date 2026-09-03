@@ -13,41 +13,60 @@ import {
   Preview,
   Text,
 } from 'npm:@react-email/components@0.0.22'
+import type { Locale } from '../i18n.ts'
+import { pick, resolveLocale } from '../i18n.ts'
 
 interface FriendRequestEmailProps {
   requesterName: string
   recipientName: string
   profileUrl: string
+  locale?: Locale | string
 }
 
 export const FriendRequestEmail = ({
   requesterName,
   recipientName,
   profileUrl,
-}: FriendRequestEmailProps) => (
-  <Html lang="fr" dir="ltr">
-    <Head />
-    <Preview>{requesterName} veut devenir ton ami sur Faunex 🦊</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Img src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png" width="48" height="48" alt="Faunex" style={logo} />
-        <Heading style={h1}>Nouvelle demande d'ami ! 🤝</Heading>
-        <Text style={text}>
-          Salut <strong>{recipientName}</strong>,
-        </Text>
-        <Text style={text}>
-          <strong>{requesterName}</strong> souhaite t'ajouter comme ami explorateur sur Faunex.
-        </Text>
-        <Button style={button} href={profileUrl}>
-          Voir la demande
-        </Button>
-        <Text style={footer}>
-          Tu peux accepter ou refuser cette demande depuis l'application.
-        </Text>
-      </Container>
-    </Body>
-  </Html>
-)
+  locale,
+}: FriendRequestEmailProps) => {
+  const l = resolveLocale(locale as string | undefined)
+  return (
+    <Html lang={l} dir="ltr">
+      <Head />
+      <Preview>
+        {pick(
+          { fr: `${requesterName} veut devenir ton ami sur Faunex 🦊`, en: `${requesterName} wants to be your friend on Faunex 🦊` },
+          l,
+        )}
+      </Preview>
+      <Body style={main}>
+        <Container style={container}>
+          <Img src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png" width="48" height="48" alt="Faunex" style={logo} />
+          <Heading style={h1}>{pick({ fr: "Nouvelle demande d'ami ! 🤝", en: 'New friend request! 🤝' }, l)}</Heading>
+          <Text style={text}>
+            {pick({ fr: 'Salut', en: 'Hey' }, l)} <strong>{recipientName}</strong>,
+          </Text>
+          <Text style={text}>
+            <strong>{requesterName}</strong>{' '}
+            {pick(
+              { fr: "souhaite t'ajouter comme ami explorateur sur Faunex.", en: 'wants to add you as a fellow explorer on Faunex.' },
+              l,
+            )}
+          </Text>
+          <Button style={button} href={profileUrl}>
+            {pick({ fr: 'Voir la demande', en: 'View the request' }, l)}
+          </Button>
+          <Text style={footer}>
+            {pick(
+              { fr: "Tu peux accepter ou refuser cette demande depuis l'application.", en: 'You can accept or decline this request from the app.' },
+              l,
+            )}
+          </Text>
+        </Container>
+      </Body>
+    </Html>
+  )
+}
 
 export default FriendRequestEmail
 

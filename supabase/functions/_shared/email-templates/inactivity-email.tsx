@@ -12,52 +12,73 @@ import {
   Preview,
   Text,
 } from 'npm:@react-email/components@0.0.22'
+import type { Locale } from '../i18n.ts'
+import { pick, resolveLocale } from '../i18n.ts'
 
 interface InactivityEmailProps {
   displayName: string
   siteUrl: string
+  locale?: Locale | string
 }
 
 export const InactivityEmail = ({
   displayName,
   siteUrl,
-}: InactivityEmailProps) => (
-  <Html lang="fr" dir="ltr">
-    <Head />
-    <Preview>On t'a préparé de nouvelles découvertes, {displayName} 🌿</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Img
-          src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png"
-          width="48"
-          height="48"
-          alt="Faunex"
-          style={logo}
-        />
-        <Heading style={h1}>Tu nous manques sur les sentiers 🦊</Heading>
-        <Text style={text}>
-          Ça fait un moment que tu n'as pas ouvert Faunex. Pourtant, la nature
-          continue de bouger autour de toi : de nouvelles espèces, de nouvelles
-          quêtes et peut-être même une carte rare à découvrir.
-        </Text>
-        <Text style={textHighlight}>
-          🌿 Reviens capturer une espèce aujourd'hui et reprends ta série.
-        </Text>
-        <Text style={text}>
-          Même une simple photo de balcon ou de jardin peut enrichir ton
-          bestiaire. Chaque observation compte pour la communauté.
-        </Text>
-        <Button style={button} href={`${siteUrl}/home`}>
-          Ouvrir Faunex
-        </Button>
-        <Text style={footer}>
-          À bientôt dans la nature !{'\n'}
-          L'équipe Faunex 🌿
-        </Text>
-      </Container>
-    </Body>
-  </Html>
-)
+  locale,
+}: InactivityEmailProps) => {
+  const l = resolveLocale(locale as string | undefined)
+  return (
+    <Html lang={l} dir="ltr">
+      <Head />
+      <Preview>{pick({ fr: `On t'a préparé de nouvelles découvertes, ${displayName} 🌿`, en: `We've got new discoveries ready for you, ${displayName} 🌿` }, l)}</Preview>
+      <Body style={main}>
+        <Container style={container}>
+          <Img
+            src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png"
+            width="48"
+            height="48"
+            alt="Faunex"
+            style={logo}
+          />
+          <Heading style={h1}>{pick({ fr: 'Tu nous manques sur les sentiers 🦊', en: 'We miss you on the trails 🦊' }, l)}</Heading>
+          <Text style={text}>
+            {pick(
+              {
+                fr: "Ça fait un moment que tu n'as pas ouvert Faunex. Pourtant, la nature continue de bouger autour de toi : de nouvelles espèces, de nouvelles quêtes et peut-être même une carte rare à découvrir.",
+                en: "It's been a while since you opened Faunex. Yet nature keeps moving around you: new species, new quests, and maybe even a rare card to discover.",
+              },
+              l,
+            )}
+          </Text>
+          <Text style={textHighlight}>
+            {pick(
+              { fr: '🌿 Reviens capturer une espèce aujourd\'hui et reprends ta série.', en: '🌿 Come back and capture a species today to restart your streak.' },
+              l,
+            )}
+          </Text>
+          <Text style={text}>
+            {pick(
+              {
+                fr: 'Même une simple photo de balcon ou de jardin peut enrichir ton bestiaire. Chaque observation compte pour la communauté.',
+                en: 'Even a simple photo from your balcony or garden can enrich your bestiary. Every sighting counts for the community.',
+              },
+              l,
+            )}
+          </Text>
+          <Button style={button} href={`${siteUrl}/home`}>
+            {pick({ fr: 'Ouvrir Faunex', en: 'Open Faunex' }, l)}
+          </Button>
+          <Text style={footer}>
+            {pick(
+              { fr: "À bientôt dans la nature !\nL'équipe Faunex 🌿", en: 'See you out in nature soon!\nThe Faunex team 🌿' },
+              l,
+            )}
+          </Text>
+        </Container>
+      </Body>
+    </Html>
+  )
+}
 
 export default InactivityEmail
 

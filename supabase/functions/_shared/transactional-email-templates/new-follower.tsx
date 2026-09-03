@@ -12,58 +12,75 @@ import {
   Text,
 } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
+import type { Locale } from '../i18n.ts'
+import { pick, resolveLocale } from '../i18n.ts'
 
 interface Props {
   followerName?: string
   recipientName?: string
   profileUrl?: string
+  locale?: Locale | string
 }
 
 const NewFollowerEmail = ({
   followerName = 'Un explorateur',
   recipientName = 'Explorateur',
   profileUrl = 'https://faunex.lovable.app/explorers',
-}: Props) => (
-  <Html lang="fr" dir="ltr">
-    <Head />
-    <Preview>{followerName} te suit désormais sur Faunex 🦊</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Img
-          src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png"
-          width="48"
-          height="48"
-          alt="Faunex"
-          style={logo}
-        />
-        <Heading style={h1}>Nouveau follower ! 🎉</Heading>
-        <Text style={text}>
-          Salut <strong>{recipientName}</strong>,
-        </Text>
-        <Text style={text}>
-          <strong>{followerName}</strong> s'est abonné à ton profil sur Faunex et suivra
-          tes prochaines captures.
-        </Text>
-        <Button style={button} href={profileUrl}>
-          Voir son profil
-        </Button>
-        <Text style={footer}>
-          Continue d'explorer la faune et de partager tes découvertes !
-        </Text>
-      </Container>
-    </Body>
-  </Html>
-)
+  locale,
+}: Props) => {
+  const l = resolveLocale(locale as string | undefined)
+  return (
+    <Html lang={l} dir="ltr">
+      <Head />
+      <Preview>{pick({ fr: `${followerName} te suit désormais sur Faunex 🦊`, en: `${followerName} is now following you on Faunex 🦊` }, l)}</Preview>
+      <Body style={main}>
+        <Container style={container}>
+          <Img
+            src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png"
+            width="48"
+            height="48"
+            alt="Faunex"
+            style={logo}
+          />
+          <Heading style={h1}>{pick({ fr: 'Nouveau follower ! 🎉', en: 'New follower! 🎉' }, l)}</Heading>
+          <Text style={text}>
+            {pick({ fr: 'Salut', en: 'Hey' }, l)} <strong>{recipientName}</strong>,
+          </Text>
+          <Text style={text}>
+            <strong>{followerName}</strong>{' '}
+            {pick(
+              { fr: "s'est abonné à ton profil sur Faunex et suivra tes prochaines captures.", en: 'is now following your profile on Faunex and will see your next captures.' },
+              l,
+            )}
+          </Text>
+          <Button style={button} href={profileUrl}>
+            {pick({ fr: 'Voir son profil', en: 'View their profile' }, l)}
+          </Button>
+          <Text style={footer}>
+            {pick(
+              { fr: "Continue d'explorer la faune et de partager tes découvertes !", en: 'Keep exploring the wildlife and sharing your discoveries!' },
+              l,
+            )}
+          </Text>
+        </Container>
+      </Body>
+    </Html>
+  )
+}
 
 export const template = {
   component: NewFollowerEmail,
   subject: (data: Props) =>
-    `${data?.followerName || 'Un explorateur'} te suit désormais sur Faunex 🦊`,
+    pick(
+      { fr: `${data?.followerName || 'Un explorateur'} te suit désormais sur Faunex 🦊`, en: `${data?.followerName || 'An explorer'} is now following you on Faunex 🦊` },
+      data?.locale,
+    ),
   displayName: 'New Follower',
   previewData: {
     followerName: 'Alex',
     recipientName: 'Sam',
     profileUrl: 'https://faunex.lovable.app/explorers',
+    locale: 'fr',
   },
 } satisfies TemplateEntry
 
