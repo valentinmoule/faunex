@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Camera, Zap, MapPin, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine, ZoomIn, Focus, Crosshair, ArrowLeft, Clock, Info, Sparkles, ShieldQuestion, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
@@ -29,31 +30,8 @@ const rarityColors: Record<string, string> = {
   hyper_rare: 'bg-rarity-gold/20 text-rarity-gold border-rarity-gold/40',
 };
 
-/** Accroches affichées à l'ouverture de la caméra : une seule, choisie au hasard. */
-const CAPTURE_MOTIVATION_MESSAGES = [
-  'Prêt à capturer quelque chose de rare ?',
-  'Quel animal vas-tu découvrir ?',
-  'Garde les yeux ouverts…',
-  'Une nouvelle découverte t’attend.',
-  'Regarde bien autour de toi…',
-  'Et si la prochaine capture était exceptionnelle ?',
-  'À toi de jouer !',
-  'Nouvelle capture, nouvelle chance.',
-  'Le prochain animal pourrait te surprendre.',
-  'Bonne chance pour ta prochaine capture !',
-  'Une capture rare est peut-être proche…',
-  'Explore. Observe. Capture.',
-  'C’est parti pour une nouvelle capture !',
-  'Quel sera ton prochain ajout à la collection ?',
-  'Ta collection peut encore s’agrandir.',
-  'La nature réserve toujours des surprises.',
-  'Prêt à ajouter une nouvelle découverte ?',
-  'Peut-être une capture mémorable aujourd’hui…',
-  'Et si celle-ci était légendaire ?',
-  'À la recherche de ta prochaine découverte…',
-];
-
 const CapturePage = () => {
+  const { t } = useTranslation();
   const { session } = useAuth();
   const navigate = useNavigate();
 
@@ -110,10 +88,10 @@ const [manualMode, setManualMode] = useState(false);
 const quota = useCaptureQuota(session?.user?.id);
 
   /** Accroche aléatoire, re-tirée à chaque ouverture de la caméra. */
-  const motivation = useMemo(
-    () => CAPTURE_MOTIVATION_MESSAGES[Math.floor(Math.random() * CAPTURE_MOTIVATION_MESSAGES.length)],
-    [],
-  );
+  const motivation = useMemo(() => {
+    const messages = t('capture.motivations', { returnObjects: true }) as string[];
+    return messages[Math.floor(Math.random() * messages.length)];
+  }, [t]);
 
   const { revealPhase, revealRarity, freezeFlash, triggerReveal, reset: resetReveal } =
     useCaptureReveal(setAnimalResult);
@@ -148,7 +126,7 @@ const quota = useCaptureQuota(session?.user?.id);
   ) => {
     // The daily slot is only consumed when the capture is added to the Faunex.
     if (quota.exhausted) {
-      toast.error(`Limite atteinte : ${DAILY_CAPTURE_LIMIT} captures par jour maximum. Reviens demain !`);
+      toast.error(t('capture.quota.limitReached', { limit: DAILY_CAPTURE_LIMIT }));
       return;
     }
     // Une analyse déjà en cours ne doit pas être écrasée par une seconde.
@@ -161,7 +139,7 @@ const quota = useCaptureQuota(session?.user?.id);
     const dataUrl = await prepareSourceImage(rawDataUrl);
     if (!dataUrl) {
       identifyingRef.current = false;
-      toast.error("Cette image n'a pas pu être lue. Réessaie avec une autre photo (JPEG ou PNG).");
+      toast.error(t('capture.errors.imageUnreadable'));
       return;
     }
     setCapturedPhoto(dataUrl);
@@ -203,7 +181,7 @@ setAnimalResult(null);
     } finally {
       identifyingRef.current = false;
     }
-  }, [geo, identify, triggerReveal, quota]);
+  }, [geo, identify, triggerReveal, quota, t]);
 
   /** Relance l'analyse IA sur la photo déjà prise (sans reprendre la photo). */
   const retryIdentify = useCallback(async () => {
@@ -239,7 +217,7 @@ const takePhoto = async () => {
     captureTimerRef.current = window.setTimeout(() => setCapturing(false), 700);
     const dataUrl = grabFrame();
     if (!dataUrl) {
-      toast.error('La caméra se réinitialise, réessaie dans un instant');
+      toast.error(t('capture.errors.cameraReset'));
       return;
     }
     await processPhoto(dataUrl);
@@ -264,17 +242,17 @@ const takePhoto = async () => {
 const exif = isHeicFile(file) ? null : await readExifCameraInfo(file);
       const suspicious = exif !== null && !exif.looksLikeCameraPhoto;
       const reason = suspicious
-        ? "Cette photo n'a pas de métadonnées d'appareil (EXIF) : impossible de confirmer qu'elle vient de ton appareil. Si l'IA ne reconnaît pas l'espèce, renseigne-la et un modérateur validera ton observation."
+        ? t('capture.exif.suspiciousReason')
         : undefined;
       const prepared = await prepareSourceFile(file);
       if (!prepared) {
-        toast.error("Impossible de lire cette photo. Réessaie avec une autre image.");
+        toast.error(t('capture.errors.galleryUnreadable'));
         return;
       }
       await processPhoto(prepared, reason, exif?.gps ?? null);
     } catch (err) {
       console.error(err);
-      toast.error("Impossible de lire cette photo. Réessaie avec une autre image.");
+      toast.error(t('capture.errors.galleryUnreadable'));
     }
 
   };
@@ -312,7 +290,7 @@ setManualMode(false);
   const consumeSlot = async () => {
     const allowed = await quota.consume();
     if (!allowed) {
-      toast.error(`Limite atteinte : ${DAILY_CAPTURE_LIMIT} captures par jour maximum. Reviens demain !`);
+      toast.error(t('capture.quota.limitReached', { limit: DAILY_CAPTURE_LIMIT }));
     }
     return allowed;
   };
@@ -334,7 +312,7 @@ setManualMode(false);
     const trimmedSpecies = manualSpecies.trim();
     const trimmedDesc = manualDescription.trim();
     if (!trimmedName || !trimmedDesc) {
-      toast.error('Remplis au moins le nom et la description');
+      toast.error(t('capture.errors.fillNameAndDescription'));
       return;
     }
     // Toute demande de modération (vérification d'une identification IA comme
@@ -345,9 +323,11 @@ setManualMode(false);
     try {
       // Le modérateur doit voir ce que l'IA proposait pour arbitrer.
       const aiNote = disputedResult
-        ? `\n\n[Vérification demandée] L'IA proposait : ${disputedResult.animal_name}${
-            disputedResult.scientific_name ? ` (${disputedResult.scientific_name})` : ''
-          }${typeof disputedResult.confidence === 'number' ? ` — ${disputedResult.confidence}% de confiance` : ''}.`
+        ? t('capture.manual.aiNote', {
+            name: disputedResult.animal_name,
+            scientific: disputedResult.scientific_name ? t('capture.manual.aiNoteScientific', { scientific: disputedResult.scientific_name }) : '',
+            confidence: typeof disputedResult.confidence === 'number' ? t('capture.manual.aiNoteConfidence', { confidence: disputedResult.confidence }) : '',
+          })
         : '';
       const ok = await submitManualEntry({
         name: trimmedName,
@@ -362,14 +342,14 @@ setManualMode(false);
       setSaved(true);
       toast.success(
         disputedResult
-          ? 'Vérification demandée ! Un modérateur va confirmer ou corriger l\'identification.'
-          : 'Soumis pour validation ! Tu seras notifié une fois approuvé.'
+          ? t('capture.toasts.verificationRequested')
+          : t('capture.toasts.submittedForValidation')
       );
       setTimeout(() => navigate('/home'), 1500);
     } catch (err) {
       console.error(err);
       if (consumed) await quota.refund();
-      toast.error(isDailyLimitError(err) ? "Limite atteinte : 4 captures par jour maximum. Reviens demain !" : "Erreur lors de la soumission");
+      toast.error(isDailyLimitError(err) ? t('capture.quota.limitReachedFixed') : t('capture.errors.submissionError'));
     }
   };
 
@@ -409,17 +389,17 @@ setManualMode(false);
         return;
       }
       consumed = false;
-      finishSave(animalResult, imageUrl, `${animalResult.animal_name} ajouté à ton Faunex !`);
+      finishSave(animalResult, imageUrl, t('capture.toasts.addedToFaunex', { name: animalResult.animal_name }));
     } catch (err) {
       console.error(err);
       if (consumed) await quota.refund();
       const msg = String((err as { message?: string })?.message ?? err);
       if (msg.includes('unique_species_per_user') || msg.includes('duplicate key')) {
         // Sécurité serveur : l'espèce existe déjà sous un autre nom commun.
-        toast.error(`Tu as déjà cette espèce dans ton Faunex (${animalResult.scientific_name ?? animalResult.animal_name}).`);
+        toast.error(t('capture.errors.alreadyHaveSpecies', { name: animalResult.scientific_name ?? animalResult.animal_name }));
         return;
       }
-      toast.error(isDailyLimitError(err) ? "Limite atteinte : 4 captures par jour maximum. Reviens demain !" : "Erreur lors de la sauvegarde");
+      toast.error(isDailyLimitError(err) ? t('capture.quota.limitReachedFixed') : t('capture.errors.saveError'));
     } finally {
       savingRef.current = false;
     }
@@ -442,11 +422,11 @@ setManualMode(false);
         return;
       }
       consumed = false;
-      finishSave(animalResult, imageUrl, `${animalResult.animal_name} mis à jour dans ton Faunex !`);
+      finishSave(animalResult, imageUrl, t('capture.toasts.updatedInFaunex', { name: animalResult.animal_name }));
     } catch (err) {
       console.error(err);
       if (consumed) await quota.refund();
-      toast.error("Erreur lors de la mise à jour");
+      toast.error(t('capture.errors.updateError'));
     } finally {
       savingRef.current = false;
     }
@@ -457,7 +437,7 @@ setManualMode(false);
 
   const keepExisting = () => {
     setDuplicateCapture(null);
-    toast.info("Photo existante conservée");
+    toast.info(t('capture.errors.existingPhotoKept'));
     resetCapture();
   };
 
@@ -503,7 +483,7 @@ setManualMode(false);
             <div className="absolute inset-0 bg-foreground flex items-center justify-center">
               <div className="text-center">
                 <Camera className="w-12 h-12 text-primary-foreground/70 mx-auto mb-3" />
-                <p className="text-primary-foreground/70 text-sm font-display">Activation de la caméra…</p>
+                <p className="text-primary-foreground/70 text-sm font-display">{t('capture.camera.activating')}</p>
               </div>
             </div>
           )}
@@ -603,7 +583,7 @@ setManualMode(false);
             )}
             <div className="flex items-center gap-1.5 bg-primary-foreground/10 rounded-full px-3 py-1.5">
               <MapPin className="w-3.5 h-3.5 text-primary" />
-              <span className="text-primary-foreground/70 text-xs font-display">{geoName || 'Localisation…'}</span>
+              <span className="text-primary-foreground/70 text-xs font-display">{geoName || t('capture.quota.locationPlaceholder')}</span>
             </div>
           </div>
 
@@ -618,15 +598,15 @@ setManualMode(false);
                   <Sparkles className="w-5 h-5 text-amber-light" />
                 </div>
                 <div>
-                  <p className="text-primary-foreground font-display font-bold text-sm">Pause nature 🌿</p>
+                  <p className="text-primary-foreground font-display font-bold text-sm">{t('capture.quota.bannerTitle')}</p>
                   <p className="text-primary-foreground/80 text-xs mt-1 leading-relaxed">
-                    Tu as bien exploré aujourd'hui ! Faunex est un projet indépendant, c'est pourquoi les captures sont limitées à 4 par jour.
+                    {t('capture.quota.bannerBody')}
                   </p>
                   <button
                     onClick={() => navigate('/premium')}
                     className="mt-2 rounded-full bg-primary-foreground/90 px-3 py-1.5 text-xs font-display font-semibold text-primary"
                   >
-                    Captures illimitées avec Premium ✨
+                    {t('capture.quota.premiumCta')}
                   </button>
                 </div>
               </div>
@@ -641,17 +621,17 @@ setManualMode(false);
               <Loader2 className="w-10 h-10 text-primary animate-spin mx-auto mb-3" />
               <p className="text-primary-foreground font-display text-sm">
                 {identifyStage === 'compressing'
-                  ? 'Préparation de la photo…'
+                  ? t('capture.identify.preparing')
                   : identifyStage === 'retrying'
-                    ? 'Nouvelle tentative d’identification…'
-                    : 'Identification en cours…'}
+                    ? t('capture.identify.retrying')
+                    : t('capture.identify.analyzing')}
               </p>
               <p className="text-primary-foreground/60 text-xs mt-2">
                 {elapsed < 6
-                  ? 'L’IA compare ta photo aux espèces connues.'
+                  ? t('capture.identify.hintShort')
                   : elapsed < 15
-                    ? `Analyse un peu plus longue que d’habitude… (${elapsed}s)`
-                    : `Toujours en cours, ne quitte pas l’écran (${elapsed}s)`}
+                    ? t('capture.identify.hintMedium', { elapsed })
+                    : t('capture.identify.hintLong', { elapsed })}
               </p>
             </div>
           </div>
@@ -670,7 +650,7 @@ setManualMode(false);
               }`}>
                 <div className="w-3 h-3 rounded-full bg-primary-foreground/80 animate-pulse" />
               </div>
-              <p className="text-primary-foreground/70 font-display text-xs tracking-widest uppercase">Analyse en cours</p>
+              <p className="text-primary-foreground/70 font-display text-xs tracking-widest uppercase">{t('capture.identify.analysisInProgress')}</p>
             </div>
           </div>
         )}
@@ -691,10 +671,10 @@ setManualMode(false);
                 </div>
               </div>
               <p className="text-primary-foreground/80 font-display text-sm mt-4 font-semibold">
-                {revealFx === 'gold' ? '✨ Quelque chose de légendaire…' :
-                 revealFx === 'silver' ? '💎 Découverte exceptionnelle…' :
-                 revealRank >= 2 ? '🔹 Ça brille…' :
-                 '🔍 Identification…'}
+                {revealFx === 'gold' ? t('capture.identify.legendary') :
+                 revealFx === 'silver' ? t('capture.identify.exceptional') :
+                 revealRank >= 2 ? t('capture.identify.shining') :
+                 t('capture.identify.identifying')}
               </p>
             </div>
           </div>
@@ -768,20 +748,20 @@ setManualMode(false);
                           ? 'bg-amber-400 text-black border-amber-100'
                           : 'bg-red-500 text-white border-red-200'
                       }`}
-                      title="Niveau de confiance de l'IA"
+                      title={t('capture.confidence.tooltip')}
                     >
                       <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                      {animalResult.confidence}% sûr
+                      {t('capture.confidence.sure', { confidence: animalResult.confidence })}
                     </span>
                   )}
                   {speciesFinders !== undefined && (
                     <span
                       className="inline-flex items-center gap-1.5 rounded-full bg-black/45 border border-white/20 px-2.5 py-1 backdrop-blur-sm"
-                      title={`${speciesFinders} naturaliste${speciesFinders > 1 ? 's' : ''} ont capturé cette espèce`}
+                      title={t(speciesFinders > 1 ? 'capture.finders.tooltip_other' : 'capture.finders.tooltip_one', { count: speciesFinders })}
                     >
                       <FindersBadge count={speciesFinders} />
                       <span className="text-[10px] font-display font-semibold uppercase tracking-wider text-primary-foreground/80">
-                        {speciesFinders > 1 ? 'captures' : 'capture'}
+                        {t(speciesFinders > 1 ? 'capture.finders.capture_other' : 'capture.finders.capture_one')}
                       </span>
                     </span>
                   )}
@@ -790,7 +770,7 @@ setManualMode(false);
                 <p className="text-primary-foreground/70 text-sm italic">{animalResult.scientific_name}</p>
                 {animalResult.alternatives && animalResult.alternatives.length > 0 && typeof animalResult.confidence === 'number' && animalResult.confidence < 80 && (
                   <p className="text-primary-foreground/70 text-[11px] font-display mt-1.5">
-                    Aussi possible : {animalResult.alternatives.slice(0, 3).join(' · ')}
+                    {t('capture.alsoPossible', { alternatives: animalResult.alternatives.slice(0, 3).join(' · ') })}
                   </p>
                 )}
               </div>
@@ -809,7 +789,7 @@ setManualMode(false);
                 className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-primary-foreground/25 bg-primary-foreground/5 text-primary-foreground/85 text-xs font-display font-semibold"
               >
                 <ShieldQuestion className="w-4 h-4" />
-                Ce n'est pas le bon animal — Demander une vérification
+                {t('capture.requestVerification')}
               </button>
 
             </div>
@@ -823,7 +803,7 @@ setManualMode(false);
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Info className="w-5 h-5 text-amber" />
-                <h2 className="text-lg font-display font-bold text-primary-foreground">Analyse interrompue</h2>
+                <h2 className="text-lg font-display font-bold text-primary-foreground">{t('capture.technicalFailure.title')}</h2>
               </div>
               <p className="text-primary-foreground/90 text-sm">{identifyError}</p>
               <div className="flex gap-3">
@@ -831,13 +811,13 @@ setManualMode(false);
                   onClick={retryIdentify}
                   className="flex-1 py-3 rounded-xl bg-primary text-primary-foreground font-display font-semibold text-sm flex items-center justify-center gap-2"
                 >
-                  <RefreshCw className="w-4 h-4" /> Relancer l'analyse
+                  <RefreshCw className="w-4 h-4" /> {t('capture.technicalFailure.retry')}
                 </button>
                 <button
                   onClick={() => { setIdentifyError(null); setManualMode(true); }}
                   className="flex-1 py-3 rounded-xl bg-primary-foreground/10 text-primary-foreground font-display font-semibold text-sm flex items-center justify-center gap-2"
                 >
-                  <PenLine className="w-4 h-4" /> Saisir à la main
+                  <PenLine className="w-4 h-4" /> {t('capture.technicalFailure.manualEntry')}
                 </button>
               </div>
             </div>
@@ -859,17 +839,17 @@ setManualMode(false);
                   onClick={resetCapture}
                   className="flex-1 py-3 rounded-xl bg-primary text-primary-foreground font-display font-semibold text-sm flex items-center justify-center gap-2"
                 >
-                  <RefreshCw className="w-4 h-4" /> Reprendre
+                  <RefreshCw className="w-4 h-4" /> {t('capture.rejected.resumeCapture')}
                 </button>
                 <button
                   onClick={() => setManualMode(true)}
                   className="flex-1 py-3 rounded-xl bg-primary-foreground/10 text-primary-foreground font-display font-semibold text-sm flex items-center justify-center gap-2"
                 >
-                  <ShieldQuestion className="w-4 h-4" /> Faire vérifier
+                  <ShieldQuestion className="w-4 h-4" /> {t('capture.rejected.requestCheck')}
                 </button>
               </div>
               <p className="text-primary-foreground/60 text-[11px] text-center">
-                Tu penses que l'IA se trompe ? Envoie ta capture à un modérateur.
+                {t('capture.rejected.hint')}
               </p>
             </div>
           </div>
@@ -892,27 +872,28 @@ setManualMode(false);
                 )}
                 <h2 className="text-lg font-display font-bold text-primary-foreground">
                   {exifFlagged
-                    ? 'Vérification humaine'
+                    ? t('capture.manual.humanVerification')
                     : disputedResult || rejectedImage
-                      ? 'Demander une vérification'
-                      : 'Animal non reconnu'}
+                      ? t('capture.manual.requestVerificationTitle')
+                      : t('capture.manual.unrecognizedAnimal')}
                 </h2>
               </div>
               {disputedResult && (
                 <div className="rounded-xl border border-primary-foreground/20 bg-primary-foreground/5 px-3 py-2">
                   <p className="text-[10px] font-display uppercase tracking-wide text-primary-foreground/60">
-                    Proposition de l'IA
+                    {t('capture.manual.aiProposal')}
                   </p>
                   <p className="text-sm text-primary-foreground/90 font-display">
-                    {disputedResult.animal_name}
-                    {typeof disputedResult.confidence === 'number' && ` · ${disputedResult.confidence}% sûr`}
+                    {typeof disputedResult.confidence === 'number'
+                      ? t('capture.manual.aiProposalConfidence', { name: disputedResult.animal_name, confidence: disputedResult.confidence })
+                      : disputedResult.animal_name}
                   </p>
                 </div>
               )}
               {!disputedResult && rejectedImage && (
                 <div className="rounded-xl border border-amber/30 bg-amber/10 px-3 py-2">
                   <p className="text-[10px] font-display uppercase tracking-wide text-primary-foreground/60">
-                    Refus de l'IA
+                    {t('capture.manual.aiRejection')}
                   </p>
                   <p className="text-sm text-primary-foreground/90">{rejectedImage.title}</p>
                 </div>
@@ -922,7 +903,7 @@ setManualMode(false);
                   {exifFlagged && (
                     <p className="mb-1 flex items-center gap-1.5 text-[10px] font-display font-semibold uppercase tracking-wide text-amber">
                       <Info className="w-3.5 h-3.5 shrink-0" />
-                      Pourquoi cette photo part en modération ?
+                      {t('capture.manual.whyModeration')}
                     </p>
                   )}
                   <p className="text-sm text-primary-foreground/90">{taxonHint}</p>
@@ -930,16 +911,16 @@ setManualMode(false);
               )}
               <p className="text-primary-foreground/90 text-sm">
                 {disputedResult
-                  ? "Indique l'animal que tu as observé. Un modérateur confirmera ou corrigera l'identification avant l'ajout à ton Faunex."
+                  ? t('capture.manual.descDisputed')
                   : rejectedImage
-                    ? "Explique ce que tu as observé : un modérateur regardera ta photo. Si l'image ne respecte pas les règles de Faunex, elle sera refusée."
-                    : "Décris l'animal que tu as observé. Ta capture sera vérifiée par un modérateur avant d'être ajoutée à ton Faunex."}
+                    ? t('capture.manual.descRejected')
+                    : t('capture.manual.descDefault')}
               </p>
 
 
               <input
                 type="text"
-                placeholder="Nom de l'animal (ex: Lynx boréal)"
+                placeholder={t('capture.manual.namePlaceholder')}
                 value={manualName}
                 onChange={e => setManualName(e.target.value)}
                 maxLength={100}
@@ -947,21 +928,21 @@ setManualMode(false);
               />
               <input
                 type="text"
-                placeholder="Nom scientifique (optionnel)"
+                placeholder={t('capture.manual.speciesPlaceholder')}
                 value={manualSpecies}
                 onChange={e => setManualSpecies(e.target.value)}
                 maxLength={100}
                 className="w-full px-4 py-2.5 bg-primary-foreground/10 rounded-xl text-sm text-primary-foreground placeholder:text-primary-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/30 font-body italic"
               />
               <textarea
-                placeholder="Décris l'animal : couleur, taille, comportement, lieu d'observation…"
+                placeholder={t('capture.manual.descriptionPlaceholder')}
                 value={manualDescription}
                 onChange={e => setManualDescription(e.target.value)}
                 maxLength={500}
                 rows={3}
                 className="w-full px-4 py-2.5 bg-primary-foreground/10 rounded-xl text-sm text-primary-foreground placeholder:text-primary-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/30 font-body resize-none"
               />
-              <p className="text-primary-foreground/70 text-[10px] text-right">{manualDescription.length}/500</p>
+              <p className="text-primary-foreground/70 text-[10px] text-right">{t('capture.manual.charCount', { count: manualDescription.length })}</p>
             </div>
           </div>
         )}
@@ -971,17 +952,17 @@ setManualMode(false);
       {duplicateCapture && (
         <div className="relative z-30 bg-foreground/95 backdrop-blur-sm px-5 py-4 space-y-3 border-t border-primary-foreground/10">
           <p className="text-primary-foreground font-display font-semibold text-sm text-center">
-            ⚠️ Tu as déjà cette espèce dans ton Faunex : {duplicateCapture.animal_name}
+            {t('capture.duplicate.warning', { name: duplicateCapture.animal_name })}
           </p>
 
           <div className="flex gap-3 items-center justify-center">
             <div className="text-center">
-              <p className="text-[10px] text-primary-foreground/70 font-display mb-1">Actuelle</p>
+              <p className="text-[10px] text-primary-foreground/70 font-display mb-1">{t('capture.duplicate.current')}</p>
               <img src={duplicateCapture.image_url} alt="" className="w-20 h-20 rounded-xl object-cover border border-primary-foreground/20" />
             </div>
             <div className="text-primary-foreground/70 text-lg">→</div>
             <div className="text-center">
-              <p className="text-[10px] text-primary-foreground/70 font-display mb-1">Nouvelle</p>
+              <p className="text-[10px] text-primary-foreground/70 font-display mb-1">{t('capture.duplicate.newPhoto')}</p>
               {capturedPhoto && <img src={capturedPhoto} alt="" className="w-20 h-20 rounded-xl object-cover border-2 border-primary" />}
             </div>
           </div>
@@ -990,7 +971,7 @@ setManualMode(false);
               onClick={keepExisting}
               className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary-foreground/10 text-primary-foreground/90 text-xs font-display font-semibold"
             >
-              <X className="w-3.5 h-3.5" /> Garder l'actuelle
+              <X className="w-3.5 h-3.5" /> {t('capture.duplicate.keepCurrent')}
             </button>
             <button
               onClick={doReplaceExisting}
@@ -998,7 +979,7 @@ setManualMode(false);
               className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-display font-semibold disabled:opacity-50"
             >
               {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
-              Remplacer la photo
+              {t('capture.duplicate.replacePhoto')}
             </button>
           </div>
         </div>
@@ -1009,7 +990,7 @@ setManualMode(false);
         {saved ? (
           <button onClick={resetCapture} className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-primary text-primary-foreground font-display text-sm">
             <Camera className="w-4 h-4" />
-            Nouvelle capture
+            {t('capture.actions.newCapture')}
           </button>
         ) : duplicateCapture ? null : (animalResult && revealPhase === 'done') ? (
           <div className="flex items-center gap-3 w-full max-w-sm">
@@ -1017,7 +998,7 @@ setManualMode(false);
               onClick={resetCapture}
               className="flex-1 flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl bg-primary-foreground/10 text-primary-foreground/80 font-display text-sm"
             >
-              Ne pas ajouter
+              {t('capture.actions.dontAdd')}
             </button>
             <button
               onClick={saveToCollection}
@@ -1025,7 +1006,7 @@ setManualMode(false);
               className="flex-1 flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl bg-primary text-primary-foreground font-display text-sm disabled:opacity-50"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-              {saving ? 'Sauvegarde…' : 'Ajouter'}
+              {saving ? t('capture.actions.saving') : t('capture.actions.add')}
             </button>
           </div>
         ) : manualMode ? (
@@ -1035,7 +1016,7 @@ setManualMode(false);
             className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-amber text-foreground font-display text-sm disabled:opacity-50"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : disputedResult ? <ShieldQuestion className="w-4 h-4" /> : <PenLine className="w-4 h-4" />}
-            {saving ? 'Envoi…' : disputedResult ? 'Demander une vérification' : 'Soumettre pour validation'}
+            {saving ? t('capture.actions.sending') : disputedResult ? t('capture.actions.requestVerificationBtn') : t('capture.actions.submitForValidation')}
           </button>
         ) : identifying ? null : capturedPhoto ? null : (
           <>
@@ -1043,7 +1024,7 @@ setManualMode(false);
             <button
               onClick={() => galleryInputRef.current?.click()}
               disabled={quota.exhausted}
-              aria-label="Importer une photo depuis la galerie"
+              aria-label={t('capture.camera.importFromGallery')}
               className="w-12 h-12 rounded-xl bg-primary-foreground/10 flex items-center justify-center disabled:opacity-40"
             >
               <ImageIcon className="w-5 h-5 text-primary-foreground/70" />
@@ -1054,7 +1035,7 @@ setManualMode(false);
 <button
                 onClick={takePhoto}
                 disabled={quota.exhausted}
-                aria-label={quota.exhausted ? 'Quota de captures atteint' : 'Prendre une photo'}
+                aria-label={quota.exhausted ? t('capture.quota.quotaLabel') : t('capture.camera.takePhoto')}
                 className={`shutter-holo w-20 h-20 rounded-full flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed ${capturing ? 'shutter-capturing' : ''}`}
               >
                 <span className="shutter-ripple" aria-hidden />
