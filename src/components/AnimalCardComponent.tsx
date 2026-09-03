@@ -1,6 +1,7 @@
 import { type AnimalCard, type Rarity } from '@/data/mockData';
 import { thumbUrl } from '@/lib/imageUrl';
 import RarityBadge from '@/components/RarityBadge';
+import { useSpeciesName } from '@/hooks/useSpeciesLocale';
 
 const rarityStyles: Record<Rarity, string> = {
   common: 'border-border bg-card',
@@ -20,6 +21,7 @@ interface Props {
 }
 
 const AnimalCardComponent = ({ card, onClick, compact }: Props) => {
+  const { speciesName } = useSpeciesName();
   return (
     <button
       onClick={onClick}
@@ -29,7 +31,7 @@ const AnimalCardComponent = ({ card, onClick, compact }: Props) => {
         <div className="relative aspect-[4/5] overflow-hidden">
           <img
             src={thumbUrl(card.image, 400)}
-            alt={card.name}
+            alt={speciesName(card.name)}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
             decoding="async"
@@ -41,7 +43,7 @@ const AnimalCardComponent = ({ card, onClick, compact }: Props) => {
           </div>
         </div>
         <div className={`px-3 py-2.5 bg-card ${compact ? '' : 'space-y-0.5'}`}>
-          <h3 className="font-display font-semibold text-[13px] text-foreground leading-tight tracking-[-0.01em] truncate">{card.name}</h3>
+          <h3 className="font-display font-semibold text-[13px] text-foreground leading-tight tracking-[-0.01em] truncate">{speciesName(card.name)}</h3>
           {!compact && card.scientificName && (
             <p className="text-[10px] text-muted-foreground italic truncate">{card.scientificName}</p>
           )}

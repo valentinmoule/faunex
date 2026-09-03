@@ -6,6 +6,7 @@ import { RarityBadge } from '@/components/RarityBadge';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import NearbyRadar from './NearbyRadar';
+import { useSpeciesName } from '@/hooks/useSpeciesLocale';
 
 interface NearbyAnimal {
   name: string;
@@ -74,6 +75,7 @@ const cleanName = (value: string) => {
 
 
 const NearbyAnimalsSection = ({ capturedNames }: Props) => {
+  const { speciesName } = useSpeciesName();
   const { t } = useTranslation();
   // Restore from sessionStorage on mount
   const cached = (() => {
@@ -200,7 +202,7 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
             <p className={`text-xs font-display font-bold ${alertConfig[alertKey].color}`}>
               {alertConfig[alertKey].label}
             </p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">{alertAnimal.name} — {alertAnimal.tip}</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">{speciesName(alertAnimal.name)} — {alertAnimal.tip}</p>
           </div>
         </button>
       )}
@@ -262,7 +264,7 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
                   <div className={`w-2.5 h-2.5 rounded-full mt-1.5 shrink-0 ${rarityDot[animal.rarity] || 'bg-muted-foreground'} ${isSpecial ? 'animate-pulse' : ''}`} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-sm font-display font-semibold text-foreground">{animal.name}</span>
+                      <span className="text-sm font-display font-semibold text-foreground">{speciesName(animal.name)}</span>
                       <RarityBadge rarity={animal.rarity} showLabel />
                       {alreadyCaptured && (
                         <span className="text-[9px] font-display font-bold text-primary uppercase">{t('map.nearby.captured')}</span>
