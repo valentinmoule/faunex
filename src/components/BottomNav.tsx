@@ -1,18 +1,21 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Camera, Users, PawPrint, Map, User } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { hapticTap } from '@/lib/haptics';
 
 const tabs = [
-  { path: '/home', label: 'Mon Faunex', icon: PawPrint },
-  { path: '/bestiaire', label: 'Cartes', icon: Map },
-  { path: '/capture', label: 'Capture', icon: Camera },
-  { path: '/explorers', label: 'Explorateurs', icon: Users },
-  { path: '/profile', label: 'Profil', icon: User },
+  { path: '/home', labelKey: 'nav.faunex', icon: PawPrint },
+  { path: '/bestiaire', labelKey: 'nav.cards', icon: Map },
+  { path: '/capture', labelKey: 'nav.capture', icon: Camera },
+  { path: '/explorers', labelKey: 'nav.explorers', icon: Users },
+  { path: '/profile', labelKey: 'nav.profile', icon: User },
 ];
 
 const BottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
 
   const go = (path: string) => {
     if (location.pathname !== path) hapticTap();
