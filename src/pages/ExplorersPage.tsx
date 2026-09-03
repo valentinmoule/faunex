@@ -13,6 +13,21 @@ import { followUser as followUserUtil } from '@/lib/followUtils';
 import { PremiumAvatar } from '@/components/PremiumAvatar';
 import { usePremiumUsers } from '@/hooks/usePremiumUsers';
 import { useTranslation } from 'react-i18next';
+import RarityBadge from '@/components/RarityBadge';
+import { rarityBorderColor } from '@/lib/bestiary';
+import { hapticTap } from '@/lib/haptics';
+import { useSpeciesName } from '@/hooks/useSpeciesLocale';
+
+/** Socle coloré (profondeur "carte à collectionner") selon la rareté. */
+const tileDepthClass: Record<string, string> = {
+  uncommon: 'game-tile--uncommon',
+  rare: 'game-tile--rare',
+  very_rare: 'game-tile--very-rare',
+  ultra_rare: 'game-tile--silver',
+  illustration_rare: 'game-tile--gold',
+  special_rare: 'game-tile--gold',
+  hyper_rare: 'game-tile--hyper',
+};
 
 // ── Feed types ──
 interface FeedCapture {
@@ -72,6 +87,7 @@ const HIDDEN_USER_IDS = ['f7910e92-39a6-4703-b31d-bf1e245e2a4e', 'ac0df155-7422-
 
 const ExplorersPage = () => {
   const { t } = useTranslation();
+  const { speciesName } = useSpeciesName();
 
   const { session } = useAuth();
   const navigate = useNavigate();
@@ -637,20 +653,34 @@ const ExplorersPage = () => {
                     </div>
                   </div>
 
-                  <button onClick={() => setSelectedCard(toAnimalCard(post))} className="block w-full mt-2">
-                    <div className="w-full aspect-[4/5] overflow-hidden">
-                      <img src={thumbUrl(post.image_url, 700)} alt={post.animal_name} className="w-full h-full object-cover" loading="lazy" decoding="async" />
-                    </div>
-                  </button>
-
-                  <div className="flex items-center justify-between px-4 mt-2">
-                    <div className="min-w-0">
-                      <p className="text-sm font-display font-bold text-foreground">{post.animal_name}</p>
-                      <p className="text-[11px] text-muted-foreground italic">{post.scientific_name}</p>
-                    </div>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-display font-bold uppercase tracking-wider bg-muted text-muted-foreground shrink-0">
-                      {RARITY_LABELS[post.rarity as Rarity] || post.rarity}
-                    </span>
+                  <div className="px-4 mt-2">
+                    <button
+                      onClick={() => { hapticTap(); setSelectedCard(toAnimalCard(post)); }}
+                      className={`game-tile relative block w-full aspect-[4/5] rounded-2xl border-2 overflow-hidden text-left active:scale-[0.99] transition-transform ${
+                        rarityBorderColor[post.rarity as Rarity] || 'border-border'
+                      } ${tileDepthClass[post.rarity] || ''} bg-card`}
+                    >
+                      <img
+                        src={thumbUrl(post.image_url, 700)}
+                        alt={speciesName(post.animal_name)}
+                        className="absolute inset-0 w-full h-full object-cover"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                      <div className="absolute top-2 right-2">
+                        <RarityBadge rarity={post.rarity as Rarity} showLabel />
+                      </div>
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 pt-10">
+                        <p className="text-sm font-display font-bold text-white truncate leading-tight">
+                          {speciesName(post.animal_name)}
+                        </p>
+                        {post.scientific_name && (
+                          <p className="text-[10px] font-body italic text-white/80 truncate">
+                            {post.scientific_name}
+                          </p>
+                        )}
+                      </div>
+                    </button>
                   </div>
 
                   {post.caption && <p className="text-xs text-foreground/70 mt-1.5 px-4 leading-relaxed">{post.caption}</p>}
