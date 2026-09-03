@@ -1197,7 +1197,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                     : 'text-muted-foreground'
                 }`}
               >
-Bestiaire
+                {t('bestiary.tabs.categories')}
               </button>
               <button
                 onClick={() => setViewMode('collections')}
