@@ -17,6 +17,8 @@ import RarityBadge from '@/components/RarityBadge';
 import { rarityBorderColor } from '@/lib/bestiary';
 import { hapticTap } from '@/lib/haptics';
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
+import CaptureMilestoneCard, { isMilestoneRank } from '@/components/CaptureMilestoneCard';
+
 
 /** Socle coloré + ombre rareté (effet "rare à légendaire" en grille). */
 const tileDepthClass: Record<string, string> = {
