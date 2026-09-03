@@ -676,8 +676,15 @@ const ExplorersPage = () => {
                     </div>
                   </div>
 
+                  {isMilestoneRank(milestone) && (
+                    <div className="px-4 mt-2">
+                      <CaptureMilestoneCard rank={milestone} />
+                    </div>
+                  )}
+
                   <div className="px-4 mt-2">
                     <button
+
                       onClick={() => { hapticTap(); setSelectedCard(toAnimalCard(post)); }}
                       className={`game-tile relative block w-full aspect-[4/5] rounded-2xl border-2 overflow-hidden text-left active:scale-[0.99] transition-transform ${
                         rarityBorderColor[post.rarity as Rarity] || 'border-border'
