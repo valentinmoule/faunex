@@ -623,11 +623,29 @@ serve(async (req) => {
 
     // Le nom commun doit rester lisible : « nom de l'animal » sans mention entre
     // parenthèses (famille, genre, sexe, nom scientifique répété…).
+    // Nettoyage : parenthèses, et surtout les marques d'incertitude ("?", "cf.",
+    // "sp?") que le modèle glisse parfois dans le libellé et qui finissent
+    // affichées telles quelles dans le bestiaire.
     const cleanCommonName = (value: unknown) => {
       const s = String(value ?? "");
-      const stripped = s.replace(/\s*\([^)]*\)/g, "").replace(/\s{2,}/g, " ").trim();
-      return stripped || s.trim();
+      const stripped = s
+        .replace(/\s*\([^)]*\)/g, "")
+        .replace(/[?¿]+/g, " ")
+        .replace(/\b(cf|aff)\.\s*/gi, "")
+        .replace(/\s{2,}/g, " ")
+        .replace(/^[\s,.;:-]+|[\s,.;:-]+$/g, "")
+        .trim();
+      return stripped || s.replace(/[?¿]+/g, " ").trim();
     };
+
+    const cleanScientificName = (value: unknown) => {
+      const s = String(value ?? "");
+      return s
+        .replace(/[?¿]+/g, " ")
+        .replace(/\s{2,}/g, " ")
+        .trim();
+    };
+
 
     const parseAnimal = async (r: Response, model: string) => {
       const d = await r.json();
