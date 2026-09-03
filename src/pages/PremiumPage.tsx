@@ -34,7 +34,7 @@ const useFeatures = (t: (key: string) => string): FeatureRow[] => [
   },
   {
     label: t('profile.premium.features.collections'),
-    free: <span className="text-sm font-medium">3</span>,
+    free: <span className="text-sm font-medium">4</span>,
     premium: <span className="text-sm font-semibold text-primary">{t('profile.premium.features.unlimitedPlural')}</span>,
   },
   {
