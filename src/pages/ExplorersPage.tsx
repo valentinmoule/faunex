@@ -651,6 +651,8 @@ const ExplorersPage = () => {
               const likeCount = likeCounts[post.id] || 0;
               const commentCount = commentCounts[post.id] || 0;
               const isCommentsOpen = openComments === post.id;
+              const milestone = milestoneRanks[post.id];
+
 
               return (
                 <article key={post.id} className="py-3">
