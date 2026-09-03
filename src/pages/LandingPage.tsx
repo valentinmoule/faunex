@@ -9,7 +9,7 @@ import { AppStoreBadge, PlayStoreBadge } from '@/components/StoreBadges';
 import HolographicCard from '@/components/HolographicCard';
 import LandingPhoneShowcase from '@/components/LandingPhoneShowcase';
 import { supabase } from '@/integrations/supabase/client';
-import { guides, useCases } from '@/content/articles';
+import { guides, useCases, localizedArticle } from '@/content/articles';
 import type { Rarity } from '@/data/mockData';
 
 interface Stats {
@@ -103,7 +103,7 @@ const Stat = ({ value, label, prefix }: { value: number; label: string; prefix?:
 };
 
 const LandingPage = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [stats, setStats] = useState<Stats>({
     totalUsers: 2000,
@@ -616,7 +616,7 @@ const LandingPage = () => {
           </p>
 
           <div className="grid sm:grid-cols-2 gap-3">
-            {[...guides.slice(0, 2), ...useCases.slice(0, 2)].map((a) => (
+            {[...guides.slice(0, 2), ...useCases.slice(0, 2)].map((raw) => localizedArticle(raw, i18n.language)).map((a) => (
               <Link
                 key={a.slug}
                 to={`/${a.type === 'guide' ? 'guides' : 'fonctionnalites'}/${a.slug}`}
