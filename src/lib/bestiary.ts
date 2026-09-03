@@ -1,4 +1,5 @@
 import type { ComponentType } from 'react';
+import i18n from '@/i18n';
 import { PawPrint, Bird, Fish, Bug, Turtle, Shell, Snail, Waves } from 'lucide-react';
 import { FrogIcon } from '@/components/icons/FrogIcon';
 import { SpiderIcon } from '@/components/icons/SpiderIcon';
