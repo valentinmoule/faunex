@@ -756,8 +756,6 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                 );
               })()}
 
-              <IucnBadge status={iucnStatus} />
-
               {!isUncaptured && finders !== undefined && (
                 <span
                   className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1"
