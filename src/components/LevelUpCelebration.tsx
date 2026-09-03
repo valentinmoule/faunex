@@ -2,8 +2,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { Trophy, Star } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 const LevelUpCelebration = () => {
+  const { t } = useTranslation();
   const { session } = useAuth();
   const [visible, setVisible] = useState(false);
   const [newLevel, setNewLevel] = useState(0);
@@ -79,11 +81,11 @@ const LevelUpCelebration = () => {
 
   // XP rewards per level
   const getLevelReward = (lvl: number): string => {
-    if (lvl === 1) return 'Première capture ! Tu es un vrai naturaliste.';
-    if (lvl <= 3) return 'Continue d\'explorer ! Chaque espèce compte.';
-    if (lvl <= 5) return 'Explorateur confirmé ! Les espèces rares t\'attendent.';
-    if (lvl <= 10) return 'Maître naturaliste en devenir !';
-    return 'Légende vivante de la faune !';
+    if (lvl === 1) return t('profile.levelUp.reward1');
+    if (lvl <= 3) return t('profile.levelUp.reward3');
+    if (lvl <= 5) return t('profile.levelUp.reward5');
+    if (lvl <= 10) return t('profile.levelUp.reward10');
+    return t('profile.levelUp.rewardMax');
   };
 
   return (
@@ -140,10 +142,10 @@ const LevelUpCelebration = () => {
         {/* Title */}
         <div className="text-center">
           <p className="text-amber text-sm font-display font-bold uppercase tracking-widest mb-1">
-            Niveau supérieur !
+            {t('profile.levelUp.title')}
           </p>
           <h2 className="text-3xl font-display font-bold text-primary-foreground">
-            Niveau {newLevel}
+            {t('profile.levelUp.level', { level: newLevel })}
           </h2>
         </div>
 
