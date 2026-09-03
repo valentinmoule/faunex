@@ -226,7 +226,24 @@ const ExplorersPage = () => {
       setPosts(prev => replace ? newPosts : [...prev, ...newPosts]);
       setFeedOffset(offset + data.length);
       if (data.length < FEED_PAGE_SIZE) setFeedHasMore(false);
+
+      // Jalons de collection (1re, 10e, 25e, 50e, 100e capture de l'explorateur)
+      if (captureIds.length > 0) {
+        supabase
+          .rpc('capture_milestones', { capture_ids: captureIds })
+          .then(({ data: ranks }) => {
+            if (!ranks) return;
+            setMilestoneRanks(prev => {
+              const next = replace ? {} : { ...prev };
+              (ranks as any[]).forEach(r => { next[r.capture_id] = r.capture_rank; });
+              return next;
+            });
+          });
+      } else if (replace) {
+        setMilestoneRanks({});
+      }
     }
+
     setFeedLoading(false);
     setFeedLoadingMore(false);
   }, [session]);
