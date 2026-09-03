@@ -4,6 +4,8 @@ import {
   Body, Button, Container, Head, Heading, Html, Img, Preview, Text,
 } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
+import type { Locale } from '../i18n.ts'
+import { pick, resolveLocale } from '../i18n.ts'
 
 interface Props {
   actorName?: string
@@ -11,6 +13,7 @@ interface Props {
   animalName?: string
   commentText?: string
   captureUrl?: string
+  locale?: Locale | string
 }
 
 const CaptureCommentEmail = ({
@@ -19,34 +22,42 @@ const CaptureCommentEmail = ({
   animalName = 'ta capture',
   commentText = '',
   captureUrl = 'https://faunex.lovable.app',
-}: Props) => (
-  <Html lang="fr" dir="ltr">
-    <Head />
-    <Preview>{actorName} a commenté ta capture de {animalName} 💬</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Img
-          src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png"
-          width="48" height="48" alt="Faunex" style={logo}
-        />
-        <Heading style={h1}>Nouveau commentaire ! 💬</Heading>
-        <Text style={text}>Salut <strong>{recipientName}</strong>,</Text>
-        <Text style={text}>
-          <strong>{actorName}</strong> a commenté ta capture de <strong>{animalName}</strong> :
-        </Text>
-        {commentText && <Text style={quote}>« {commentText} »</Text>}
-        <Button style={button} href={captureUrl}>Voir la conversation</Button>
-        <Text style={footer}>Réponds-lui depuis l'application.</Text>
-      </Container>
-    </Body>
-  </Html>
-)
+  locale,
+}: Props) => {
+  const l = resolveLocale(locale as string | undefined)
+  return (
+    <Html lang={l} dir="ltr">
+      <Head />
+      <Preview>{pick({ fr: `${actorName} a commenté ta capture de ${animalName} 💬`, en: `${actorName} commented on your capture of ${animalName} 💬` }, l)}</Preview>
+      <Body style={main}>
+        <Container style={container}>
+          <Img
+            src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png"
+            width="48" height="48" alt="Faunex" style={logo}
+          />
+          <Heading style={h1}>{pick({ fr: 'Nouveau commentaire ! 💬', en: 'New comment! 💬' }, l)}</Heading>
+          <Text style={text}>{pick({ fr: 'Salut', en: 'Hey' }, l)} <strong>{recipientName}</strong>,</Text>
+          <Text style={text}>
+            <strong>{actorName}</strong>{' '}
+            {pick({ fr: `a commenté ta capture de ${animalName} :`, en: `commented on your capture of ${animalName}:` }, l)}
+          </Text>
+          {commentText && <Text style={quote}>« {commentText} »</Text>}
+          <Button style={button} href={captureUrl}>{pick({ fr: 'Voir la conversation', en: 'View the conversation' }, l)}</Button>
+          <Text style={footer}>{pick({ fr: "Réponds-lui depuis l'application.", en: 'Reply from the app.' }, l)}</Text>
+        </Container>
+      </Body>
+    </Html>
+  )
+}
 
 export const template = {
   component: CaptureCommentEmail,
-  subject: (d: Props) => `${d?.actorName || 'Un explorateur'} a commenté ta capture de ${d?.animalName || 'faune'} 💬`,
+  subject: (d: Props) => pick(
+    { fr: `${d?.actorName || 'Un explorateur'} a commenté ta capture de ${d?.animalName || 'faune'} 💬`, en: `${d?.actorName || 'An explorer'} commented on your capture of ${d?.animalName || 'wildlife'} 💬` },
+    d?.locale,
+  ),
   displayName: 'Capture Comment',
-  previewData: { actorName: 'Alex', recipientName: 'Sam', animalName: 'Renard roux', commentText: 'Magnifique !', captureUrl: 'https://faunex.lovable.app' },
+  previewData: { actorName: 'Alex', recipientName: 'Sam', animalName: 'Renard roux', commentText: 'Magnifique !', captureUrl: 'https://faunex.lovable.app', locale: 'fr' },
 } satisfies TemplateEntry
 
 const main = { backgroundColor: '#ffffff', fontFamily: "'Space Grotesk', 'DM Sans', Arial, sans-serif" }
