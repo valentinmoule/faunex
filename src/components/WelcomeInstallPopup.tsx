@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Smartphone, X, Download, Sparkles } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePwaInstall } from '@/contexts/PwaInstallContext';
+import { Trans, useTranslation } from 'react-i18next';
 
 const FIRST_LOGIN_KEY = 'faunex_first_login_done';
 
@@ -14,6 +15,7 @@ export const markFirstLoginDone = (userId: string) => {
 };
 
 const WelcomeInstallPopup = () => {
+  const { t } = useTranslation();
   const { session } = useAuth();
   const { promptInstall, canInstall, isIos, isInstalled, guideOpen, closeInstallGuide } = usePwaInstall();
   const hasShown = useRef(false);
@@ -104,10 +106,10 @@ const WelcomeInstallPopup = () => {
           </div>
 
           <h3 className="text-lg font-display font-black text-foreground mb-1.5">
-            Bienvenue sur Faunex ! 🌿
+            {t('map.welcomeInstall.title')}
           </h3>
           <p className="text-sm text-muted-foreground leading-relaxed mb-5">
-            Installe l'application sur ton écran d'accueil pour une expérience optimale et un accès rapide à tes captures&nbsp;!
+            {t('map.welcomeInstall.description')}
           </p>
 
           <button
@@ -115,34 +117,34 @@ const WelcomeInstallPopup = () => {
             className="w-full py-3 rounded-xl bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-display font-bold text-sm shadow-[0_4px_15px_hsla(var(--primary),0.3)] hover:shadow-[0_6px_20px_hsla(var(--primary),0.4)] transition-all active:scale-[0.97] transform flex items-center justify-center gap-2"
           >
             <Download className="w-4 h-4" />
-            {isIos ? "Comment installer" : "Installer Faunex"}
+            {isIos ? t('map.welcomeInstall.howToInstall') : t('map.welcomeInstall.install')}
           </button>
 
           {showIosHelp && (
             <div className="mt-3 p-3 rounded-xl bg-primary-foreground/5 border border-primary/20 text-xs text-muted-foreground text-left">
-              <p className="font-semibold text-foreground mb-1">Sur iPhone / iPad :</p>
+              <p className="font-semibold text-foreground mb-1">{t('map.welcomeInstall.ios.title')}</p>
               <ol className="list-decimal list-inside space-y-1">
-                <li>Ouvre Faunex dans <strong>Safari</strong> (pas Chrome).</li>
-                <li>Appuie sur le bouton <strong>Partager</strong> en bas de l'écran.</li>
-                <li>Fais défiler et sélectionne <strong>Sur l'écran d'accueil</strong>.</li>
-                <li>Appuie sur <strong>Ajouter</strong>.</li>
+                <li><Trans i18nKey="map.welcomeInstall.ios.step1" components={{ strong: <strong /> }} /></li>
+                <li><Trans i18nKey="map.welcomeInstall.ios.step2" components={{ strong: <strong /> }} /></li>
+                <li><Trans i18nKey="map.welcomeInstall.ios.step3" components={{ strong: <strong /> }} /></li>
+                <li><Trans i18nKey="map.welcomeInstall.ios.step4" components={{ strong: <strong /> }} /></li>
               </ol>
             </div>
           )}
 
           {showAndroidHelp && (
             <div className="mt-3 p-3 rounded-xl bg-primary-foreground/5 border border-primary/20 text-xs text-muted-foreground text-left">
-              <p className="font-semibold text-foreground mb-1">Sur Android :</p>
+              <p className="font-semibold text-foreground mb-1">{t('map.welcomeInstall.android.title')}</p>
               <ol className="list-decimal list-inside space-y-1">
-                <li>Ouvre le menu <strong>⋮</strong> en haut à droite de Chrome.</li>
-                <li>Choisis <strong>Installer l'application</strong> ou <strong>Ajouter à l'écran d'accueil</strong>.</li>
-                <li>Confirme avec <strong>Installer</strong>.</li>
+                <li><Trans i18nKey="map.welcomeInstall.android.step1" components={{ strong: <strong /> }} /></li>
+                <li><Trans i18nKey="map.welcomeInstall.android.step2" components={{ strong: <strong /> }} /></li>
+                <li><Trans i18nKey="map.welcomeInstall.android.step3" components={{ strong: <strong /> }} /></li>
               </ol>
             </div>
           )}
 
           <button onClick={dismiss} className="mt-3 text-xs text-muted-foreground hover:text-foreground transition-colors font-display">
-            Continuer sans installer
+            {t('map.welcomeInstall.continueWithoutInstall')}
           </button>
         </div>
       </div>

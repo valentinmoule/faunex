@@ -9,11 +9,13 @@ import { type AnimalCard, type Rarity, RARITY_LABELS, RARITY_ORDER } from '@/dat
 import { supabase } from '@/integrations/supabase/client';
 import { fetchAllRows } from '@/lib/fetchAll';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 const rarityFilters: (Rarity | 'all')[] = ['all', ...RARITY_ORDER];
 
 const CollectionPage = () => {
   const { session } = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [filter, setFilter] = useState<Rarity | 'all'>('all');
@@ -150,9 +152,9 @@ const CollectionPage = () => {
       <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center justify-between mb-3">
-            <h1 className="text-2xl font-display font-bold text-primary">mon faunex</h1>
+            <h1 className="text-2xl font-display font-bold text-primary">{t('bestiary.collectionPage.title')}</h1>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground font-display">{captures.length} capture{captures.length > 1 ? 's' : ''}</span>
+              <span className="text-sm text-muted-foreground font-display">{t('bestiary.collectionPage.captureCount', { count: captures.length })}</span>
               <button onClick={() => navigate('/notifications')} className="relative p-2 rounded-full hover:bg-muted transition-colors">
                 <Bell className="w-5 h-5 text-foreground" />
                 {unreadCount > 0 && (
@@ -179,7 +181,7 @@ const CollectionPage = () => {
                   : 'bg-muted text-muted-foreground hover:bg-muted/80'
               }`}
             >
-              {r === 'all' ? 'Tous' : RARITY_LABELS[r]}
+              {r === 'all' ? t('bestiary.common.all') : RARITY_LABELS[r]}
             </button>
           ))}
         </div>
@@ -196,15 +198,15 @@ const CollectionPage = () => {
             <Target className="w-5 h-5 text-amber" />
           </div>
           <div className="flex-1 text-left">
-            <h3 className="text-sm font-display font-bold text-foreground">Quêtes du jour</h3>
-            <p className="text-[10px] text-muted-foreground">Complète tes défis pour gagner de l'XP</p>
+            <h3 className="text-sm font-display font-bold text-foreground">{t('bestiary.collectionPage.dailyQuests')}</h3>
+            <p className="text-[10px] text-muted-foreground">{t('bestiary.collectionPage.dailyQuestsDesc')}</p>
           </div>
           <ChevronRight className="w-4 h-4 text-muted-foreground" />
         </button>
         <NearbyAnimalsSection capturedNames={captures.map(c => c.name)} />
         {loading ? (
           <div className="text-center py-16">
-            <p className="text-muted-foreground font-display">Chargement…</p>
+            <p className="text-muted-foreground font-display">{t('bestiary.collectionPage.loading')}</p>
           </div>
         ) : (
           <>
@@ -221,7 +223,7 @@ const CollectionPage = () => {
             </div>
             {visibleCount < filtered.length && (
               <div ref={sentinelRef} className="py-6 text-center">
-                <p className="text-muted-foreground font-display text-xs">Chargement…</p>
+                <p className="text-muted-foreground font-display text-xs">{t('bestiary.collectionPage.loading')}</p>
               </div>
             )}
             {filtered.length === 0 && (
@@ -229,47 +231,47 @@ const CollectionPage = () => {
                 {captures.length === 0 ? (
                   <>
                     <p className="text-4xl mb-3">📷</p>
-                    <p className="text-foreground font-display font-semibold text-sm mb-2">Aucune capture encore</p>
+                    <p className="text-foreground font-display font-semibold text-sm mb-2">{t('bestiary.collectionPage.emptyAllTitle')}</p>
                     <p className="text-muted-foreground text-xs leading-relaxed max-w-xs mx-auto">
-                      Pars en exploration et photographie les animaux que tu croises ! Chaque espèce capturée rejoint ton Faunex.
+                      {t('bestiary.collectionPage.emptyAllDesc')}
                     </p>
                   </>
                 ) : filter === 'common' ? (
                   <>
                     <p className="text-4xl mb-3">🐦</p>
-                    <p className="text-foreground font-display font-semibold text-sm mb-2">Aucune espèce commune</p>
+                    <p className="text-foreground font-display font-semibold text-sm mb-2">{t('bestiary.collectionPage.emptyCommonTitle')}</p>
                     <p className="text-muted-foreground text-xs leading-relaxed max-w-xs mx-auto">
-                      Les espèces communes sont celles que l'on croise facilement au quotidien : moineaux, pigeons, écureuils… Ouvre l'œil lors de tes prochaines sorties !
+                      {t('bestiary.collectionPage.emptyCommonDesc')}
                     </p>
                   </>
                 ) : filter === 'rare' ? (
                   <>
                     <p className="text-4xl mb-3">🦊</p>
-                    <p className="text-foreground font-display font-semibold text-sm mb-2">Aucune espèce rare</p>
+                    <p className="text-foreground font-display font-semibold text-sm mb-2">{t('bestiary.collectionPage.emptyRareTitle')}</p>
                     <p className="text-muted-foreground text-xs leading-relaxed max-w-xs mx-auto">
-                      Les espèces rares sont des animaux dont les populations diminuent. Les observer dans la nature est un vrai privilège — leur conservation est importante.
+                      {t('bestiary.collectionPage.emptyRareDesc')}
                     </p>
                   </>
                 ) : filter === 'ultra_rare' ? (
                   <>
                     <p className="text-4xl mb-3">🦅</p>
-                    <p className="text-foreground font-display font-semibold text-sm mb-2">Aucune espèce ultra rare</p>
+                    <p className="text-foreground font-display font-semibold text-sm mb-2">{t('bestiary.collectionPage.emptyUltraRareTitle')}</p>
                     <p className="text-muted-foreground text-xs leading-relaxed max-w-xs mx-auto">
-                      Les espèces ultra rares brillent d'un éclat argenté. Leur observation est un vrai privilège — chaque découverte compte.
+                      {t('bestiary.collectionPage.emptyUltraRareDesc')}
                     </p>
                   </>
                 ) : filter === 'illustration_rare' || filter === 'special_rare' || filter === 'hyper_rare' ? (
                   <>
                     <p className="text-4xl mb-3">🐋</p>
-                    <p className="text-foreground font-display font-semibold text-sm mb-2">Aucune espèce à étoile dorée</p>
+                    <p className="text-foreground font-display font-semibold text-sm mb-2">{t('bestiary.collectionPage.emptyGoldTitle')}</p>
                     <p className="text-muted-foreground text-xs leading-relaxed max-w-xs mx-auto">
-                      Les espèces à étoiles dorées sont les plus prestigieuses du jeu. Extrêmement rares, les capturer sur Faunex est un exploit.
+                      {t('bestiary.collectionPage.emptyGoldDesc')}
                     </p>
                   </>
                 ) : (
                   <>
                     <p className="text-4xl mb-3">🔍</p>
-                    <p className="text-muted-foreground font-display text-sm">Aucune espèce trouvée</p>
+                    <p className="text-muted-foreground font-display text-sm">{t('bestiary.collectionPage.emptyNoneFound')}</p>
                   </>
                 )}
               </div>

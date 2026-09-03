@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { startOfWeekISO } from '@/lib/weekUtils';
+import { useTranslation } from 'react-i18next';
 
 interface Quest {
   id: string;
@@ -27,6 +28,7 @@ const questGlowClass: Record<string, string> = {
 };
 
 const DailyQuestsSection = () => {
+  const { t } = useTranslation();
   const { session } = useAuth();
   const [quests, setQuests] = useState<Quest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -101,11 +103,11 @@ const DailyQuestsSection = () => {
       if (data) {
         setQuests((prev) => prev.map((q) => (q.id === questId ? { ...q, claimed: true } : q)));
         const quest = quests.find((q) => q.id === questId);
-        toast.success(`+${quest?.xp_reward || 0} XP récoltés ! 🎉`);
+        toast.success(t('profile.quests.xpEarned', { xp: quest?.xp_reward || 0 }));
       }
     } catch (err) {
       console.error(err);
-      toast.error('Erreur lors de la réclamation');
+      toast.error(t('profile.quests.claimError'));
     } finally {
       setClaiming(null);
     }
@@ -118,7 +120,7 @@ const DailyQuestsSection = () => {
           <div className="w-7 h-7 rounded-lg bg-amber/10 flex items-center justify-center">
             <Target className="w-4 h-4 text-amber" />
           </div>
-          <h2 className="text-sm font-display font-bold text-foreground">Quêtes de la semaine</h2>
+          <h2 className="text-sm font-display font-bold text-foreground">{t('profile.quests.weekTitle')}</h2>
         </div>
         <div className="flex items-center justify-center py-6 bg-muted/50 rounded-2xl">
           <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
@@ -144,10 +146,10 @@ const DailyQuestsSection = () => {
             <span className="quest-sparkle" />
           </div>
           <div className="text-left">
-            <h2 className="text-sm font-display font-bold text-foreground">Quêtes de la semaine</h2>
+            <h2 className="text-sm font-display font-bold text-foreground">{t('profile.quests.weekTitle')}</h2>
             <p className="text-[10px] text-muted-foreground">
-              {completedCount}/{quests.length} terminées
-              {allClaimed && ' ✓ Toutes récoltées'}
+              {t('profile.quests.completedCount', { completed: completedCount, total: quests.length })}
+              {allClaimed && ` ${t('profile.quests.allClaimed')}`}
             </p>
           </div>
         </div>
@@ -213,7 +215,7 @@ const DailyQuestsSection = () => {
                       ) : (
                         <Gift className="w-3 h-3" />
                       )}
-                      Récolter
+                      {t('profile.quests.claim')}
                     </button>
                   )}
                   {quest.claimed && (

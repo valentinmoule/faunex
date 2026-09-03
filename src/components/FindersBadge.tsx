@@ -1,4 +1,6 @@
 import { Flame, TrendingUp, Users, Footprints, Ghost } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import i18n from '@/i18n';
 
 type Tier = {
   Icon: typeof Flame;
@@ -6,13 +8,13 @@ type Tier = {
   showCount: boolean;
 };
 
-const naturalistes = (n: number) => `${n} naturaliste${n > 1 ? 's' : ''} ont capturé cette espèce`;
+const naturalistes = (n: number) => i18n.t('bestiary.finders.captured', { count: n });
 
 const tierFor = (n: number): Tier => {
   if (n <= 0)
     return {
       Icon: Ghost,
-      title: () => 'Personne ne l’a encore capturée — sois le premier !',
+      title: () => i18n.t('bestiary.finders.none'),
       showCount: true,
     };
   if (n < 5)
@@ -45,6 +47,7 @@ const fmt = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1
 /** Jeton contextuel indiquant la popularité d'une espèce (du fantôme au feu).
  *  Style neutre : icône + nombre, sans couleur de palier. */
 export const FindersBadge = ({ count, className }: { count: number; className?: string }) => {
+  useTranslation();
   const tier = tierFor(count);
   const { Icon } = tier;
   return (

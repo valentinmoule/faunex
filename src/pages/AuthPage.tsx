@@ -8,12 +8,14 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Eye, EyeOff, MailCheck, ArrowLeft } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
+import { useTranslation } from 'react-i18next';
 import { translateAuthError, authRedirectUrl } from '@/lib/authErrors';
 import { oauthRedirectUri, nativeAuthBridgeUrl } from '@/lib/authRedirect';
 import { IS_NATIVE_APP, IS_IOS_NATIVE } from '@/lib/platform';
 import { signInWithNativeApple } from '@/lib/nativeAppleSignIn';
 
 const AuthPage = () => {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const [isLogin, setIsLogin] = useState(searchParams.get('mode') !== 'signup');
   const [isForgot, setIsForgot] = useState(false);
@@ -37,7 +39,7 @@ const AuthPage = () => {
       if (error) throw error;
       setResetSentTo(email);
     } catch (error: any) {
-      toast.error(translateAuthError(error.message));
+      toast.error(translateAuthError(error.message, t));
     } finally {
       setLoading(false);
     }
@@ -53,9 +55,9 @@ const AuthPage = () => {
         options: { emailRedirectTo: authRedirectUrl() },
       });
       if (error) throw error;
-      toast.success('Email renvoyé ! Pense à vérifier tes spams.');
+      toast.success(t('auth.toasts.emailResent'));
     } catch (error: any) {
-      toast.error(translateAuthError(error.message));
+      toast.error(translateAuthError(error.message, t));
     } finally {
       setResending(false);
     }
@@ -69,7 +71,7 @@ const AuthPage = () => {
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        toast.success('Connexion réussie !');
+        toast.success(t('auth.toasts.loginSuccess'));
         navigate('/home');
       } else {
         const { data, error } = await supabase.auth.signUp({
@@ -92,7 +94,7 @@ const AuthPage = () => {
         }
       }
     } catch (error: any) {
-      toast.error(translateAuthError(error.message));
+      toast.error(translateAuthError(error.message, t));
     } finally {
       setLoading(false);
     }
@@ -118,22 +120,22 @@ const AuthPage = () => {
           </div>
           <div className="space-y-2">
             <h1 className="text-2xl font-display font-bold text-foreground">
-              {sentTo ? 'Vérifie ta boîte mail' : 'Lien envoyé'}
+              {sentTo ? t('auth.confirmScreen.signupTitle') : t('auth.confirmScreen.resetTitle')}
             </h1>
             <p className="text-sm text-muted-foreground leading-relaxed">
               {sentTo
-                ? 'On vient de t’envoyer un lien de confirmation à'
-                : 'On vient de t’envoyer un lien de réinitialisation à'}{' '}
+                ? t('auth.confirmScreen.signupText')
+                : t('auth.confirmScreen.resetText')}{' '}
               <span className="font-semibold text-foreground">{target}</span>.
               <br />
-              Pense à regarder dans tes spams si tu ne le vois pas.
+              {t('auth.confirmScreen.spamHint')}
             </p>
           </div>
 
           {webmail && (
             <Button asChild className="w-full font-display font-semibold">
               <a href={webmail} target="_blank" rel="noopener noreferrer">
-                Ouvrir ma boîte mail
+                {t('auth.buttons.openMailbox')}
               </a>
             </Button>
           )}
@@ -145,7 +147,7 @@ const AuthPage = () => {
               onClick={handleResend}
               disabled={resending}
             >
-              {resending ? 'Envoi...' : "Renvoyer l'email"}
+              {resending ? t('auth.buttons.resending') : t('auth.buttons.resend')}
             </Button>
           )}
 
@@ -159,7 +161,7 @@ const AuthPage = () => {
             className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="w-4 h-4" />
-            Retour à la connexion
+            {t('auth.backToLogin')}
           </button>
         </div>
       </main>
@@ -170,11 +172,11 @@ const AuthPage = () => {
   return (
     <main className="min-h-screen bg-background flex items-center justify-center px-4">
       <Helmet>
-        <title>Connexion & inscription — Faunex</title>
-        <meta name="description" content="Connecte-toi ou crée ton compte Faunex pour identifier les animaux sauvages avec l'IA et bâtir ta collection naturaliste." />
+        <title>{t('auth.meta.title')}</title>
+        <meta name="description" content={t('auth.meta.description')} />
         <link rel="canonical" href="https://faunex.fr/auth" />
         <meta property="og:url" content="https://faunex.fr/auth" />
-        <meta property="og:title" content="Connexion & inscription — Faunex" />
+        <meta property="og:title" content={t('auth.meta.title')} />
         <script>
           {`function gtag_report_conversion(url) {
             var callback = function () {
@@ -195,13 +197,13 @@ const AuthPage = () => {
       <div className="w-full max-w-sm space-y-8">
         {/* Logo */}
         <div className="text-center space-y-2">
-          <img src="/pwa-icon-512.png" alt="Logo Faunex" className="w-24 h-24 mx-auto" />
+          <img src="/pwa-icon-512.png" alt={t('auth.logoAlt')} className="w-24 h-24 mx-auto" />
           <h1 className="text-3xl font-display font-bold text-foreground">
-            {isForgot ? 'Mot de passe oublié' : isLogin ? 'Se connecter' : 'Créer un compte'}
+            {isForgot ? t('auth.titles.forgot') : isLogin ? t('auth.titles.login') : t('auth.titles.signup')}
           </h1>
           {!isLogin && !isForgot && (
             <p className="text-xs text-muted-foreground max-w-[280px] mx-auto leading-relaxed mt-1">
-              Photographie, identifie et collectionne les animaux que tu croises au quotidien. Chaque sortie devient une aventure 🌿
+              {t('auth.signupIntro')}
             </p>
           )}
         </div>
@@ -209,25 +211,25 @@ const AuthPage = () => {
         {isForgot ? (
           <form onSubmit={handleForgotPassword} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('auth.labels.email')}</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="explorateur@nature.fr"
+                placeholder={t('auth.placeholders.email')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
             <Button type="submit" className="w-full font-display font-semibold" disabled={loading}>
-              {loading ? 'Envoi...' : 'Envoyer le lien'}
+              {loading ? t('auth.buttons.sending') : t('auth.buttons.sendLink')}
             </Button>
             <p className="text-center text-sm text-muted-foreground">
               <button
                 onClick={() => setIsForgot(false)}
                 className="text-primary font-display font-semibold hover:underline"
               >
-                Retour à la connexion
+                {t('auth.backToLogin')}
               </button>
             </p>
           </form>
@@ -235,10 +237,10 @@ const AuthPage = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && (
               <div className="space-y-2">
-                <Label htmlFor="displayName">Nom d'explorateur</Label>
+                <Label htmlFor="displayName">{t('auth.labels.displayName')}</Label>
                 <Input
                   id="displayName"
-                  placeholder="Alex Moreau"
+                  placeholder={t('auth.placeholders.displayName')}
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
                   required={!isLogin}
@@ -247,11 +249,11 @@ const AuthPage = () => {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('auth.labels.email')}</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="explorateur@nature.fr"
+                placeholder={t('auth.placeholders.email')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -260,14 +262,14 @@ const AuthPage = () => {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password">Mot de passe</Label>
+                <Label htmlFor="password">{t('auth.labels.password')}</Label>
                 {isLogin && (
                   <button
                     type="button"
                     onClick={() => setIsForgot(true)}
                     className="text-xs text-primary font-display font-semibold hover:underline"
                   >
-                    Mot de passe oublié ?
+                    {t('auth.forgotPasswordLink')}
                   </button>
                 )}
               </div>
@@ -275,7 +277,7 @@ const AuthPage = () => {
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="••••••••"
+                  placeholder={t('auth.placeholders.password')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -292,7 +294,7 @@ const AuthPage = () => {
             </div>
 
             <Button type="submit" className="w-full font-display font-semibold" disabled={loading}>
-              {loading ? 'Chargement...' : isLogin ? 'Se connecter' : 'Créer mon compte'}
+              {loading ? t('auth.buttons.loading') : isLogin ? t('auth.buttons.login') : t('auth.buttons.signup')}
             </Button>
 
             {/* SSO divider */}
@@ -301,7 +303,7 @@ const AuthPage = () => {
                 <span className="w-full border-t border-border" />
               </div>
               <div className="relative flex justify-center text-xs">
-                <span className="bg-background px-3 text-muted-foreground font-display">ou continuer avec</span>
+                <span className="bg-background px-3 text-muted-foreground font-display">{t('auth.ssoDivider')}</span>
               </div>
             </div>
 
@@ -324,7 +326,7 @@ const AuthPage = () => {
                   const { error } = await lovable.auth.signInWithOAuth('google', {
                     redirect_uri: oauthRedirectUri(),
                   });
-                  if (error) toast.error('Erreur de connexion Google');
+                  if (error) toast.error(t('auth.sso.googleError'));
                 }}
               >
                 <svg className="w-4 h-4" viewBox="0 0 24 24">
@@ -333,7 +335,7 @@ const AuthPage = () => {
                   <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
                   <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                 </svg>
-                Google
+                {t('auth.sso.google')}
               </Button>
               <Button
                 type="button"
@@ -349,7 +351,7 @@ const AuthPage = () => {
                     const { error } = await signInWithNativeApple();
                     setLoading(false);
                     if (error) {
-                      toast.error(error.message || 'Erreur de connexion Apple');
+                      toast.error(error.message || t('auth.sso.appleError'));
                       return;
                     }
                     navigate('/home');
@@ -364,13 +366,13 @@ const AuthPage = () => {
                   const { error } = await lovable.auth.signInWithOAuth('apple', {
                     redirect_uri: oauthRedirectUri(),
                   });
-                  if (error) toast.error('Erreur de connexion Apple');
+                  if (error) toast.error(t('auth.sso.appleError'));
                 }}
               >
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
                 </svg>
-                Apple
+                {t('auth.sso.apple')}
               </Button>
             </div>
           </form>
@@ -378,12 +380,12 @@ const AuthPage = () => {
 
         {!isForgot && (
           <p className="text-center text-sm text-muted-foreground">
-            {isLogin ? "Pas encore de compte ?" : 'Déjà un compte ?'}{' '}
+            {isLogin ? t('auth.toggle.noAccount') : t('auth.toggle.hasAccount')}{' '}
             <button
               onClick={() => setIsLogin(!isLogin)}
               className="text-primary font-display font-semibold hover:underline"
             >
-              {isLogin ? "S'inscrire" : 'Se connecter'}
+              {isLogin ? t('auth.toggle.signup') : t('auth.toggle.login')}
             </button>
           </p>
         )}

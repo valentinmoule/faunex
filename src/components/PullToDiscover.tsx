@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useSwipeDownClose } from '@/lib/useSwipeDownClose';
 import { RarityBadge } from '@/components/RarityBadge';
+import { useTranslation } from 'react-i18next';
 
 const ENABLED_ROUTES = ['/home', '/explorers', '/profile'];
 
@@ -48,6 +49,7 @@ const isAtTop = (target: EventTarget | null) => {
 };
 
 const PullToDiscover = () => {
+  const { t } = useTranslation();
   const { session } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -72,21 +74,21 @@ const PullToDiscover = () => {
 
   const runDiscovery = useCallback(async () => {
     if (!('geolocation' in navigator)) {
-      toast.error('Géolocalisation indisponible');
+      toast.error(t('map.pull.geoUnavailable'));
       return;
     }
     if (exhausted) {
-      toast.error('Limite de 4 explorations par jour atteinte', {
-        description: 'Passe au Premium pour explorer sans limite.',
-        action: { label: 'Premium', onClick: () => navigate('/premium') },
+      toast.error(t('map.pull.limitReachedTitle'), {
+        description: t('map.pull.limitReachedDescription'),
+        action: { label: t('map.pull.premiumAction'), onClick: () => navigate('/premium') },
       });
       return;
     }
     const allowed = await consume();
     if (!allowed) {
-      toast.error('Limite de 4 explorations par jour atteinte', {
-        description: 'Passe au Premium pour explorer sans limite.',
-        action: { label: 'Premium', onClick: () => navigate('/premium') },
+      toast.error(t('map.pull.limitReachedTitle'), {
+        description: t('map.pull.limitReachedDescription'),
+        action: { label: t('map.pull.premiumAction'), onClick: () => navigate('/premium') },
       });
       return;
     }
@@ -100,20 +102,20 @@ const PullToDiscover = () => {
           });
           if (error) throw error;
           setResult({
-            location: (data as any)?.location_name || 'Autour de toi',
+            location: (data as any)?.location_name || t('map.pull.defaultLocation'),
             animals: (data as any)?.animals || [],
           });
           setOpen(true);
         } catch (e) {
           console.error(e);
-          toast.error('Impossible de chercher les espèces ici');
+          toast.error(t('map.pull.searchErrorToast'));
         } finally {
           setLoading(false);
         }
       },
       () => {
         setLoading(false);
-        toast.error("Impossible d'obtenir ta position");
+        toast.error(t('map.pull.geoPositionError'));
       },
       { enableHighAccuracy: false, timeout: 10000 },
     );
@@ -225,18 +227,18 @@ const PullToDiscover = () => {
           <span className="flex flex-col gap-0.5">
             <span className="text-[12.5px] font-display font-bold text-foreground leading-none">
               {loading
-                ? 'Exploration en cours…'
+                ? t('map.pull.statusExploring')
                 : exhausted
-                  ? 'Limite quotidienne atteinte'
+                  ? t('map.pull.statusLimitReached')
                   : ready
-                    ? 'Relâche pour explorer'
-                    : 'Tire pour explorer autour de toi'}
+                    ? t('map.pull.statusReady')
+                    : t('map.pull.statusPull')}
             </span>
             {!loading && !unlimited && remaining !== null && (
               <span className="text-[10px] font-medium text-muted-foreground leading-none">
                 {exhausted
-                  ? 'Passe au Premium pour explorer sans limite'
-                  : `${remaining}/${DAILY_NEARBY_LIMIT} explorations restantes aujourd'hui`}
+                  ? t('map.pull.remainingLimitReached')
+                  : t('map.pull.remainingCount', { remaining, limit: DAILY_NEARBY_LIMIT })}
               </span>
             )}
           </span>
@@ -253,11 +255,11 @@ const PullToDiscover = () => {
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2 font-display">
               <Sparkles className="w-5 h-5 text-primary" />
-              {result?.location || 'Espèces à découvrir'}
+              {result?.location || t('map.pull.sheetTitle')}
             </SheetTitle>
           </SheetHeader>
           <p className="text-[12px] text-muted-foreground mt-1 flex items-center gap-1">
-            <MapPin className="w-3.5 h-3.5" /> Espèces potentiellement observables ici
+            <MapPin className="w-3.5 h-3.5" /> {t('map.pull.sheetSubtitle')}
           </p>
           <div className="mt-4 space-y-3">
             {result?.animals.map((a, i) => (
@@ -272,7 +274,7 @@ const PullToDiscover = () => {
                     <p className="text-xs italic text-muted-foreground">{a.scientific_name}</p>
                     <p className="text-xs mt-2 text-foreground/80">{a.description}</p>
                     <p className="text-[11px] mt-2 text-muted-foreground">
-                      <span className="font-semibold">Astuce&nbsp;:</span> {a.tip}
+                      <span className="font-semibold">{t('map.pull.tipLabel')}&nbsp;:</span> {a.tip}
                     </p>
                   </div>
                   <RarityBadge rarity={a.rarity} showLabel className="shrink-0" />
@@ -281,7 +283,7 @@ const PullToDiscover = () => {
             ))}
             {result && result.animals.length === 0 && (
               <p className="text-sm text-muted-foreground text-center py-6">
-                Aucune espèce trouvée pour cette zone.
+                {t('map.pull.noAnimalsFound')}
               </p>
             )}
           </div>

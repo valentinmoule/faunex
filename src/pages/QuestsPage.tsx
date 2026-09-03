@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { startOfWeekISO } from '@/lib/weekUtils';
+import { useTranslation } from 'react-i18next';
 
 interface Quest {
   id: string;
@@ -30,6 +31,7 @@ const questGlowClass: Record<string, string> = {
 };
 
 const QuestsPage = () => {
+  const { t } = useTranslation();
   const { session } = useAuth();
   const navigate = useNavigate();
   const [quests, setQuests] = useState<Quest[]>([]);
@@ -100,11 +102,11 @@ const QuestsPage = () => {
       if (data) {
         setQuests((prev) => prev.map((q) => (q.id === questId ? { ...q, claimed: true } : q)));
         const quest = quests.find((q) => q.id === questId);
-        toast.success(`+${quest?.xp_reward || 0} XP récoltés ! 🎉`);
+        toast.success(t('profile.quests.xpEarned', { xp: quest?.xp_reward || 0 }));
       }
     } catch (err) {
       console.error(err);
-      toast.error('Erreur lors de la réclamation');
+      toast.error(t('profile.quests.claimError'));
     } finally {
       setClaiming(null);
     }
@@ -112,8 +114,8 @@ const QuestsPage = () => {
 
   const handleShareApp = async (questId: string) => {
     const shareData = {
-      title: 'Faunex — Attrape-les vraiment tous.',
-      text: 'Rejoins-moi sur Faunex 🌿 Capture et collectionne les animaux autour de toi !',
+      title: t('profile.quests.shareTitle'),
+      text: t('profile.quests.shareText'),
       url: window.location.origin,
     };
 
@@ -122,14 +124,14 @@ const QuestsPage = () => {
         await navigator.share(shareData);
       } else {
         await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`);
-        toast.success('Lien copié !');
+        toast.success(t('profile.quests.linkCopied'));
       }
 
       // Mark quest as completed (server-side, validated)
       await supabase.rpc('complete_share_quest', { p_quest_id: questId });
 
       setQuests(prev => prev.map(q => q.id === questId ? { ...q, progress: 1, completed: true } : q));
-      toast.success('Quête complétée ! 🎉');
+      toast.success(t('profile.quests.shareCompleted'));
     } catch (err) {
       // User cancelled share dialog — don't mark as complete
     }
@@ -149,9 +151,9 @@ const QuestsPage = () => {
               <Target className="w-4.5 h-4.5 text-amber" />
             </div>
             <div>
-              <h1 className="text-lg font-display font-bold text-foreground">Quêtes de la semaine</h1>
+              <h1 className="text-lg font-display font-bold text-foreground">{t('profile.quests.weekTitle')}</h1>
               <p className="text-[11px] text-muted-foreground">
-                {completedCount}/{quests.length} terminées
+                {t('profile.quests.completedCount', { completed: completedCount, total: quests.length })}
               </p>
             </div>
           </div>
@@ -166,8 +168,8 @@ const QuestsPage = () => {
         ) : quests.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-4xl mb-3">🎯</p>
-            <p className="text-foreground font-display font-semibold text-sm mb-2">Aucune quête cette semaine</p>
-            <p className="text-muted-foreground text-xs">Les quêtes se renouvellent chaque lundi. Reviens vite !</p>
+            <p className="text-foreground font-display font-semibold text-sm mb-2">{t('profile.quests.emptyTitle')}</p>
+            <p className="text-muted-foreground text-xs">{t('profile.quests.emptySubtitle')}</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -220,7 +222,7 @@ const QuestsPage = () => {
                         className="shrink-0 mt-1 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-display font-bold flex items-center gap-1.5"
                       >
                         <Share2 className="w-3.5 h-3.5" />
-                        Partager
+                        {t('profile.quests.share')}
                       </button>
                     )}
 
@@ -235,7 +237,7 @@ const QuestsPage = () => {
                         ) : (
                           <Gift className="w-3.5 h-3.5" />
                         )}
-                        Récolter
+                        {t('profile.quests.claim')}
                       </button>
                     )}
                     {quest.claimed && (

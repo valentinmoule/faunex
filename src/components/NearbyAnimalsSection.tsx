@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { type Rarity, RARITY_LABELS, RARITY_FX, normalizeRarity } from '@/data/mockData';
 import { RarityBadge } from '@/components/RarityBadge';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import NearbyRadar from './NearbyRadar';
 
 interface NearbyAnimal {
@@ -73,6 +74,7 @@ const cleanName = (value: string) => {
 
 
 const NearbyAnimalsSection = ({ capturedNames }: Props) => {
+  const { t } = useTranslation();
   // Restore from sessionStorage on mount
   const cached = (() => {
     try {
@@ -92,7 +94,7 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
 
   const fetchNearby = () => {
     if (!navigator.geolocation) {
-      toast.error('Géolocalisation non disponible');
+      toast.error(t('map.nearby.geoUnavailable'));
       return;
     }
 
@@ -126,12 +128,12 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
               setTimeout(() => setAlertAnimal(null), 6000);
             }
           } else {
-            throw new Error(data?.error || 'Erreur');
+            throw new Error(data?.error || t('map.nearby.genericError'));
           }
         } catch (err: any) {
           console.error(err);
           setError(true);
-          toast.error("Impossible de charger les animaux à proximité");
+          toast.error(t('map.nearby.loadErrorToast'));
         } finally {
           setLoading(false);
         }
@@ -139,7 +141,7 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
       () => {
         setLoading(false);
         setError(true);
-        toast.error('Autorise la géolocalisation pour cette fonctionnalité');
+        toast.error(t('map.nearby.permissionToast'));
       },
       { enableHighAccuracy: true, timeout: 10000 }
     );
@@ -159,8 +161,8 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
             <MapPin className="w-4 h-4 text-primary" />
           </div>
           <div className="text-left">
-            <h2 className="text-sm font-display font-bold text-foreground">Autour de toi</h2>
-            <p className="text-[10px] text-muted-foreground">Appuie pour découvrir les espèces à proximité</p>
+            <h2 className="text-sm font-display font-bold text-foreground">{t('map.nearby.title')}</h2>
+            <p className="text-[10px] text-muted-foreground">{t('map.nearby.subtitle')}</p>
           </div>
         </button>
       </div>
@@ -168,10 +170,10 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
   }
 
   const alertConfig: Record<string, { icon: typeof Sparkles; label: string; color: string; glowClass: string }> = {
-    gold: { icon: Flame, label: '🔥 Une espèce très rare est proche !', color: 'text-rarity-gold', glowClass: 'nearby-alert-gold' },
-    silver: { icon: Zap, label: '⚡ Espèce ultra rare détectée près de toi', color: 'text-rarity-silver', glowClass: 'nearby-alert-silver' },
-    rare: { icon: Sparkles, label: '🔹 Espèce rare repérée dans ta zone', color: 'text-rarity-rare', glowClass: 'nearby-alert-rare' },
-    common: { icon: Sparkles, label: '🔹 Espèce repérée dans ta zone', color: 'text-muted-foreground', glowClass: '' },
+    gold: { icon: Flame, label: t('map.nearby.alert.gold'), color: 'text-rarity-gold', glowClass: 'nearby-alert-gold' },
+    silver: { icon: Zap, label: t('map.nearby.alert.silver'), color: 'text-rarity-silver', glowClass: 'nearby-alert-silver' },
+    rare: { icon: Sparkles, label: t('map.nearby.alert.rare'), color: 'text-rarity-rare', glowClass: 'nearby-alert-rare' },
+    common: { icon: Sparkles, label: t('map.nearby.alert.common'), color: 'text-muted-foreground', glowClass: '' },
   };
 
   const alertFx = alertAnimal ? RARITY_FX[normalizeRarity(alertAnimal.rarity)] : null;
@@ -209,7 +211,7 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
             <MapPin className="w-4 h-4 text-primary" />
           </div>
           <div className="text-left">
-            <h2 className="text-sm font-display font-bold text-foreground">Autour de toi</h2>
+            <h2 className="text-sm font-display font-bold text-foreground">{t('map.nearby.title')}</h2>
             {locationName && <p className="text-[10px] text-muted-foreground">{locationName}</p>}
           </div>
         </div>
@@ -227,14 +229,14 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
         {loading && !hasLoaded && (
           <div className="flex items-center justify-center py-8 bg-muted/50 rounded-2xl">
             <Loader2 className="w-5 h-5 text-primary animate-spin mr-2" />
-            <span className="text-sm text-muted-foreground font-display">Analyse de ta zone…</span>
+            <span className="text-sm text-muted-foreground font-display">{t('map.nearby.loading')}</span>
           </div>
         )}
 
         {error && !hasLoaded && (
           <button onClick={fetchNearby} className="w-full py-6 bg-muted/50 rounded-2xl text-center">
-            <p className="text-sm text-muted-foreground font-display">Impossible de charger</p>
-            <p className="text-xs text-primary font-display mt-1">Réessayer</p>
+            <p className="text-sm text-muted-foreground font-display">{t('map.nearby.loadError')}</p>
+            <p className="text-xs text-primary font-display mt-1">{t('map.nearby.retry')}</p>
           </button>
         )}
 
@@ -263,7 +265,7 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
                       <span className="text-sm font-display font-semibold text-foreground">{animal.name}</span>
                       <RarityBadge rarity={animal.rarity} showLabel />
                       {alreadyCaptured && (
-                        <span className="text-[9px] font-display font-bold text-primary uppercase">✓ Capturé</span>
+                        <span className="text-[9px] font-display font-bold text-primary uppercase">{t('map.nearby.captured')}</span>
                       )}
                     </div>
                     <p className="text-[11px] text-muted-foreground italic">{animal.scientific_name}</p>

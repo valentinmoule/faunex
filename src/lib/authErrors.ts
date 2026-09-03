@@ -1,38 +1,40 @@
-/** Traduit les messages d'erreur d'authentification en français lisible. */
-export const translateAuthError = (message?: string): string => {
+import type { TFunction } from 'i18next';
+
+/** Traduit les messages d'erreur d'authentification en texte lisible. */
+export const translateAuthError = (message: string | undefined, t: TFunction): string => {
   const m = (message || '').toLowerCase();
 
   if (m.includes('user already registered') || m.includes('already been registered')) {
-    return 'Un compte existe déjà avec cet email. Connecte-toi ou utilise « Mot de passe oublié ».';
+    return t('auth.errors.alreadyRegistered');
   }
   if (m.includes('invalid login credentials')) {
-    return 'Email ou mot de passe incorrect.';
+    return t('auth.errors.invalidCredentials');
   }
   if (m.includes('email not confirmed')) {
-    return "Ton email n'est pas encore confirmé. Vérifie ta boîte mail (et tes spams).";
+    return t('auth.errors.emailNotConfirmed');
   }
   if (m.includes('pwned') || m.includes('known to be weak') || m.includes('compromised')) {
-    return 'Ce mot de passe a déjà fuité sur internet. Choisis-en un autre, plus original.';
+    return t('auth.errors.pwnedPassword');
   }
   if (m.includes('password should be at least') || m.includes('password should contain')) {
-    return 'Mot de passe trop faible : 8 caractères minimum, avec des lettres et des chiffres.';
+    return t('auth.errors.weakPassword');
   }
   if (m.includes('unable to validate email') || m.includes('invalid email')) {
-    return "Cette adresse email n'est pas valide.";
+    return t('auth.errors.invalidEmail');
   }
   if (m.includes('rate limit') || m.includes('too many requests') || m.includes('over_email_send')) {
-    return 'Trop de tentatives. Patiente une minute avant de réessayer.';
+    return t('auth.errors.rateLimit');
   }
   if (m.includes('database error saving new user')) {
-    return "La création du compte a échoué. Réessaie dans un instant.";
+    return t('auth.errors.signupFailed');
   }
   if (m.includes('failed to fetch') || m.includes('network')) {
-    return 'Connexion impossible. Vérifie ta connexion internet.';
+    return t('auth.errors.network');
   }
   if (m.includes('user not found')) {
-    return "Aucun compte n'est associé à cet email.";
+    return t('auth.errors.userNotFound');
   }
-  return message || 'Une erreur est survenue';
+  return message || t('auth.errors.generic');
 };
 
 /** URL de retour pour les emails d'auth (domaine public sur mobile). */

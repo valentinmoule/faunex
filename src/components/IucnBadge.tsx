@@ -4,6 +4,8 @@
  * Volontairement distinct du jeton de rareté : la rareté Faunex mesure la
  * difficulté d'observation, l'UICN mesure le risque d'extinction.
  */
+import { useTranslation } from 'react-i18next';
+
 export type IucnStatus = 'LC' | 'NT' | 'VU' | 'EN' | 'CR' | 'EW' | 'EX' | 'DD' | 'NE';
 
 export const IUCN_LABELS: Record<IucnStatus, string> = {
@@ -16,6 +18,19 @@ export const IUCN_LABELS: Record<IucnStatus, string> = {
   EX: 'Éteinte',
   DD: 'Données insuffisantes',
   NE: 'Non évaluée',
+};
+
+/** Clés i18n correspondant à chaque statut, pour l'affichage traduit. */
+const IUCN_I18N_KEY: Record<IucnStatus, string> = {
+  LC: 'bestiary.iucn.LC',
+  NT: 'bestiary.iucn.NT',
+  VU: 'bestiary.iucn.VU',
+  EN: 'bestiary.iucn.EN',
+  CR: 'bestiary.iucn.CR',
+  EW: 'bestiary.iucn.EW',
+  EX: 'bestiary.iucn.EX',
+  DD: 'bestiary.iucn.DD',
+  NE: 'bestiary.iucn.NE',
 };
 
 const TONE: Record<IucnStatus, string> = {
@@ -34,15 +49,17 @@ export const isIucnStatus = (value?: string | null): value is IucnStatus =>
   !!value && value in IUCN_LABELS;
 
 const IucnBadge = ({ status, className }: { status?: string | null; className?: string }) => {
+  const { t } = useTranslation();
   // « Non évaluée » n'apporte rien à l'utilisateur : on masque le jeton.
   if (!isIucnStatus(status) || status === 'NE') return null;
+  const label = t(IUCN_I18N_KEY[status]);
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 ring-1 ${TONE[status]} ${className ?? ''}`}
-      title={`Liste rouge UICN : ${IUCN_LABELS[status]}`}
+      title={t('bestiary.iucn.tooltip', { label })}
     >
       <span className="font-display text-[10px] font-bold tracking-wide">{status}</span>
-      <span className="text-[10px] font-medium opacity-80">{IUCN_LABELS[status]}</span>
+      <span className="text-[10px] font-medium opacity-80">{label}</span>
     </span>
   );
 };

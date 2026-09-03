@@ -1,0 +1,230 @@
+{
+  "capture": {
+    "motivations": [
+      "Prêt à capturer quelque chose de rare ?",
+      "Quel animal vas-tu découvrir ?",
+      "Garde les yeux ouverts…",
+      "Une nouvelle découverte t’attend.",
+      "Regarde bien autour de toi…",
+      "Et si la prochaine capture était exceptionnelle ?",
+      "À toi de jouer !",
+      "Nouvelle capture, nouvelle chance.",
+      "Le prochain animal pourrait te surprendre.",
+      "Bonne chance pour ta prochaine capture !",
+      "Une capture rare est peut-être proche…",
+      "Explore. Observe. Capture.",
+      "C’est parti pour une nouvelle capture !",
+      "Quel sera ton prochain ajout à la collection ?",
+      "Ta collection peut encore s’agrandir.",
+      "La nature réserve toujours des surprises.",
+      "Prêt à ajouter une nouvelle découverte ?",
+      "Peut-être une capture mémorable aujourd’hui…",
+      "Et si celle-ci était légendaire ?",
+      "À la recherche de ta prochaine découverte…"
+    ],
+    "quota": {
+      "limitReached": "Limite atteinte : {{limit}} captures par jour maximum. Reviens demain !",
+      "limitReachedFixed": "Limite atteinte : 4 captures par jour maximum. Reviens demain !",
+      "bannerTitle": "Pause nature 🌿",
+      "bannerBody": "Tu as bien exploré aujourd'hui ! Faunex est un projet indépendant, c'est pourquoi les captures sont limitées à 4 par jour.",
+      "premiumCta": "Captures illimitées avec Premium ✨",
+      "quotaLabel": "Quota de captures atteint",
+      "remaining": "{{remaining}}/{{limit}}",
+      "locationPlaceholder": "Localisation…"
+    },
+    "errors": {
+      "cameraReset": "La caméra se réinitialise, réessaie dans un instant",
+      "imageUnreadable": "Cette image n'a pas pu être lue. Réessaie avec une autre photo (JPEG ou PNG).",
+      "galleryUnreadable": "Impossible de lire cette photo. Réessaie avec une autre image.",
+      "fillNameAndDescription": "Remplis au moins le nom et la description",
+      "submissionError": "Erreur lors de la soumission",
+      "saveError": "Erreur lors de la sauvegarde",
+      "updateError": "Erreur lors de la mise à jour",
+      "alreadyHaveSpecies": "Tu as déjà cette espèce dans ton Faunex ({{name}}).",
+      "existingPhotoKept": "Photo existante conservée"
+    },
+    "exif": {
+      "suspiciousReason": "Cette photo n'a pas de métadonnées d'appareil (EXIF) : impossible de confirmer qu'elle vient de ton appareil. Si l'IA ne reconnaît pas l'espèce, renseigne-la et un modérateur validera ton observation."
+    },
+    "toasts": {
+      "verificationRequested": "Vérification demandée ! Un modérateur va confirmer ou corriger l'identification.",
+      "submittedForValidation": "Soumis pour validation ! Tu seras notifié une fois approuvé.",
+      "addedToFaunex": "{{name}} ajouté à ton Faunex !",
+      "updatedInFaunex": "{{name}} mis à jour dans ton Faunex !"
+    },
+    "camera": {
+      "activating": "Activation de la caméra…",
+      "importFromGallery": "Importer une photo depuis la galerie",
+      "takePhoto": "Prendre une photo"
+    },
+    "identify": {
+      "preparing": "Préparation de la photo…",
+      "retrying": "Nouvelle tentative d’identification…",
+      "analyzing": "Identification en cours…",
+      "hintShort": "L’IA compare ta photo aux espèces connues.",
+      "hintMedium": "Analyse un peu plus longue que d’habitude… ({{elapsed}}s)",
+      "hintLong": "Toujours en cours, ne quitte pas l’écran ({{elapsed}}s)",
+      "analysisInProgress": "Analyse en cours",
+      "legendary": "✨ Quelque chose de légendaire…",
+      "exceptional": "💎 Découverte exceptionnelle…",
+      "shining": "🔹 Ça brille…",
+      "identifying": "🔍 Identification…"
+    },
+    "confidence": {
+      "sure": "{{confidence}}% sûr",
+      "tooltip": "Niveau de confiance de l'IA"
+    },
+    "finders": {
+      "capture_one": "capture",
+      "capture_other": "captures",
+      "tooltip_one": "{{count}} naturaliste a capturé cette espèce",
+      "tooltip_other": "{{count}} naturalistes ont capturé cette espèce",
+      "alreadyCaptured": "déjà capturée par la communauté",
+      "noneYet": "personne ne l’a encore capturée"
+    },
+    "alsoPossible": "Aussi possible : {{alternatives}}",
+    "requestVerification": "Ce n'est pas le bon animal — Demander une vérification",
+    "technicalFailure": {
+      "title": "Analyse interrompue",
+      "retry": "Relancer l'analyse",
+      "manualEntry": "Saisir à la main"
+    },
+    "rejected": {
+      "resumeCapture": "Reprendre",
+      "requestCheck": "Faire vérifier",
+      "hint": "Tu penses que l'IA se trompe ? Envoie ta capture à un modérateur.",
+      "dead": {
+        "title": "Pas au menu 🦀",
+        "message": "Faunex recense les animaux VIVANTS croisés sur le terrain. Un animal mort, servi dans une assiette, sur un étal ou en trophée ne compte pas comme une observation. Retente avec un animal bien vivant !"
+      },
+      "internet": {
+        "title": "Photo pas prise sur le terrain 👀",
+        "message": "On a repéré {{label}} : cette image ne vient visiblement pas de ton appareil. Faunex, c'est tes propres observations, pas les photos des autres. Reprends l'animal en photo toi-même !"
+      },
+      "representation": {
+        "title": "Bien tenté 😏",
+        "message": "Ce n'est pas un animal vivant, mais {{label}}. Faunex n'accepte que de vraies photographies d'animaux croisés sur le terrain — les statues, jouets et dessins ne comptent pas."
+      },
+      "human": {
+        "title": "Les humains ne se collectionnent pas 🙂",
+        "message": "Faunex recense la faune sauvage et domestique : les personnes (et les selfies) ne font pas partie du jeu. Vise un animal et retente ta chance !"
+      }
+    },
+    "imageTypes": {
+      "illustration": "une illustration",
+      "dessin": "un dessin",
+      "logo_icone": "un logo ou une icône",
+      "peinture": "une peinture",
+      "rendu_3d": "une image de synthèse",
+      "image_generee_ia": "une image générée par IA",
+      "capture_ecran": "une capture d'écran",
+      "photo_ecran_ou_papier": "la photo d'un écran ou d'une image imprimée",
+      "jouet_peluche_figurine": "un jouet, une peluche ou une figurine",
+      "objet_representation": "un objet représentant un animal (statue, décoration, souvenir…)",
+      "animal_mort_ou_plat": "un animal mort ou préparé (plat, étal, trophée…)",
+      "default": "une image graphique"
+    },
+    "manual": {
+      "humanVerification": "Vérification humaine",
+      "requestVerificationTitle": "Demander une vérification",
+      "unrecognizedAnimal": "Animal non reconnu",
+      "aiProposal": "Proposition de l'IA",
+      "aiProposalConfidence": "{{name}} · {{confidence}}% sûr",
+      "aiRejection": "Refus de l'IA",
+      "whyModeration": "Pourquoi cette photo part en modération ?",
+      "descDisputed": "Indique l'animal que tu as observé. Un modérateur confirmera ou corrigera l'identification avant l'ajout à ton Faunex.",
+      "descRejected": "Explique ce que tu as observé : un modérateur regardera ta photo. Si l'image ne respecte pas les règles de Faunex, elle sera refusée.",
+      "descDefault": "Décris l'animal que tu as observé. Ta capture sera vérifiée par un modérateur avant d'être ajoutée à ton Faunex.",
+      "namePlaceholder": "Nom de l'animal (ex: Lynx boréal)",
+      "speciesPlaceholder": "Nom scientifique (optionnel)",
+      "descriptionPlaceholder": "Décris l'animal : couleur, taille, comportement, lieu d'observation…",
+      "charCount": "{{count}}/500",
+      "aiNote": "\n\n[Vérification demandée] L'IA proposait : {{name}}{{scientific}}{{confidence}}.",
+      "aiNoteScientific": " ({{scientific}})",
+      "aiNoteConfidence": " — {{confidence}}% de confiance"
+    },
+    "duplicate": {
+      "warning": "⚠️ Tu as déjà cette espèce dans ton Faunex : {{name}}",
+      "current": "Actuelle",
+      "newPhoto": "Nouvelle",
+      "keepCurrent": "Garder l'actuelle",
+      "replacePhoto": "Remplacer la photo"
+    },
+    "actions": {
+      "newCapture": "Nouvelle capture",
+      "dontAdd": "Ne pas ajouter",
+      "add": "Ajouter",
+      "saving": "Sauvegarde…",
+      "sending": "Envoi…",
+      "requestVerificationBtn": "Demander une vérification",
+      "submitForValidation": "Soumettre pour validation"
+    },
+    "detail": {
+      "undiscoveredTitle": "Non découvert",
+      "undiscoveredBody": "Capture cet animal pour débloquer sa fiche.",
+      "closeImage": "Fermer l'image en plein écran",
+      "share": "Partager",
+      "noComments": "Aucun commentaire — sois le premier !",
+      "anonymous": "Anonyme",
+      "commentPlaceholder": "Ajouter un commentaire…",
+      "habitat": "Habitat",
+      "diet": "Alimentation",
+      "conservation": "Conservation",
+      "location": "Lieu",
+      "notProvided": "Non renseigné",
+      "locationLabel": "Localisation",
+      "modify": "Modifier",
+      "add": "Ajouter",
+      "searching": "Recherche…",
+      "removeLocation": "Retirer la localisation",
+      "cancel": "Annuler",
+      "notSet": "Non renseignée",
+      "locationSearchPlaceholder": "Ville, code postal ou pays…",
+      "didYouKnow": "Le saviez-vous ?",
+      "hiddenFact": "Anecdote cachée — à découvrir",
+      "myNote": "Ma note",
+      "notePlaceholder": "Où l'as-tu vu ? Que faisait-il ? Note tes observations…",
+      "saveNote": "Enregistrer",
+      "saving": "Enregistrement…",
+      "noNoteYet": "Aucune note pour l'instant.",
+      "deleteCapture": "Supprimer cette capture",
+      "deleteDialogTitle": "Supprimer cette capture ?",
+      "deleteDialogDesc": "{{name}} sera retiré de ton Faunex et de ton nombre d'espèces. Cette action est définitive.",
+      "cancelDialog": "Annuler",
+      "deleteBtn": "Supprimer",
+      "deleting": "Suppression…",
+      "toastLocationNotSaved": "Localisation non enregistrée",
+      "toastRetry": "Réessaie dans un instant.",
+      "toastLocationUpdated": "Localisation mise à jour",
+      "toastLocationRemoved": "Localisation retirée",
+      "toastNoteNotSaved": "Note non enregistrée",
+      "toastNoteSaved": "Note enregistrée",
+      "toastNoteDeleted": "Note supprimée",
+      "toastDeleteImpossible": "Suppression impossible",
+      "toastCaptureDeleted": "Capture supprimée",
+      "toastCaptureDeletedDesc": "Elle a été retirée de ton Faunex."
+    },
+    "share": {
+      "title": "Partager ta carte",
+      "previewAlt": "Aperçu de la carte {{name}}",
+      "previewUnavailable": "Aperçu indisponible",
+      "previewUnavailableDesc": "L'image n'a pas pu être générée.",
+      "targets": {
+        "stories": "Stories",
+        "instagram": "Instagram",
+        "facebook": "Facebook",
+        "whatsapp": "WhatsApp"
+      },
+      "imageSaved": "Image enregistrée",
+      "openInstagram": "Ouvre Instagram et importe l’image depuis ta galerie.",
+      "cardReady": "Ta carte est prête à être partagée.",
+      "shareImpossible": "Partage impossible",
+      "copyLink": "Copier le lien",
+      "linkCopied": "Lien copié",
+      "pasteAnywhere": "Colle-le où tu veux.",
+      "copyImpossible": "Copie impossible",
+      "saveImage": "Enregistrer l'image",
+      "moreOptions": "Plus d'options"
+    }
+  }
+}

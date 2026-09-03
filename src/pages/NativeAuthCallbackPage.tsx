@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { NATIVE_DEEP_LINK } from '@/lib/authRedirect';
 import { supabase } from '@/integrations/supabase/client';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Pont web -> app native (fin du flow SSO).
@@ -17,6 +18,7 @@ import { supabase } from '@/integrations/supabase/client';
  * un deep link vide et restait sur l'écran de connexion.
  */
 const NativeAuthCallbackPage = () => {
+  const { t } = useTranslation();
   const [autoTried, setAutoTried] = useState(false);
   const [target, setTarget] = useState<string | null>(null);
 
@@ -93,16 +95,16 @@ const NativeAuthCallbackPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-6 text-center">
-      <h1 className="font-display text-2xl">Retour vers Faunex</h1>
+      <h1 className="font-display text-2xl">{t('auth.nativeCallback.title')}</h1>
 
       <p className="text-muted-foreground text-sm max-w-sm">
         {!target
-          ? 'Finalisation de la connexion…'
+          ? t('auth.nativeCallback.finalizing')
           : hasPayload
-            ? 'Connexion validée. Appuie sur le bouton pour revenir dans l\'app.'
+            ? t('auth.nativeCallback.validated')
             : params.error
-              ? 'La connexion a été interrompue. Reviens dans l\'app et réessaie.'
-              : 'Appuie sur le bouton pour revenir dans l\'app.'}
+              ? t('auth.nativeCallback.interrupted')
+              : t('auth.nativeCallback.tapToReturn')}
       </p>
 
       {target && (
@@ -111,11 +113,11 @@ const NativeAuthCallbackPage = () => {
           href={target}
           // rel/target volontairement absents : navigation directe vers le scheme.
         >
-          Ouvrir Faunex
+          {t('auth.nativeCallback.openButton')}
         </a>
       )}
 
-      {!autoTried && <span className="sr-only">redirection en cours</span>}
+      {!autoTried && <span className="sr-only">{t('auth.nativeCallback.redirecting')}</span>}
     </div>
   );
 };

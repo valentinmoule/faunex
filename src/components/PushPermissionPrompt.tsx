@@ -4,11 +4,13 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { isPushSupported, subscribeToPush } from '@/lib/pushNotifications';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 const STORAGE_KEY = 'faunex_push_prompt_dismissed_at';
 const DISMISS_DAYS = 14;
 
 export function PushPermissionPrompt() {
+  const { t } = useTranslation();
   const { session } = useAuth();
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -34,10 +36,10 @@ export function PushPermissionPrompt() {
     const ok = await subscribeToPush();
     setLoading(false);
     if (ok) {
-      toast.success('Notifications activées 🦊');
+      toast.success(t('map.pushPrompt.successToast'));
       setShow(false);
     } else {
-      toast.error("Impossible d'activer les notifications");
+      toast.error(t('map.pushPrompt.errorToast'));
       handleDismiss();
     }
   };
@@ -58,10 +60,10 @@ export function PushPermissionPrompt() {
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="font-display font-bold text-foreground text-sm">
-              Active les notifications
+              {t('map.pushPrompt.title')}
             </h3>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Reçois un petit rappel quand de nouvelles espèces apparaissent près de toi.
+              {t('map.pushPrompt.description')}
             </p>
             <div className="flex gap-2 mt-3">
               <Button
@@ -70,17 +72,17 @@ export function PushPermissionPrompt() {
                 disabled={loading}
                 className="flex-1"
               >
-                {loading ? '…' : 'Activer'}
+                {loading ? '…' : t('map.pushPrompt.enable')}
               </Button>
               <Button size="sm" variant="ghost" onClick={handleDismiss}>
-                Plus tard
+                {t('map.pushPrompt.later')}
               </Button>
             </div>
           </div>
           <button
             onClick={handleDismiss}
             className="text-muted-foreground hover:text-foreground p-1"
-            aria-label="Fermer"
+            aria-label={t('map.pushPrompt.close')}
           >
             <X className="w-4 h-4" />
           </button>
