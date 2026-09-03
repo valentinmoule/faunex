@@ -44,7 +44,7 @@ import { useSpeciesName } from '@/hooks/useSpeciesLocale';
 import { localizedSpeciesName } from '@/lib/speciesI18n';
 
 /** Zones + collections combinées, limite gratuite. */
-const FREE_SLOT_LIMIT = 5;
+const FREE_SLOT_LIMIT = 4;
 
 /** Catégorie virtuelle regroupant toutes les espèces + classement général. */
 const ALL_SPECIES = 'Toutes les espèces';
