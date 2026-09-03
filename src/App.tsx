@@ -17,6 +17,7 @@ import PullToDiscover from "./components/PullToDiscover";
 import { PushPermissionPrompt } from "./components/PushPermissionPrompt";
 import PageTransition from "./components/PageTransition";
 import { SHOW_MARKETING_PAGES } from "./lib/platform";
+import { useSyncAccountLocale } from "./hooks/useAppLocale";
 
 
 // Lazy-loaded routes for smaller initial bundle
@@ -109,6 +110,7 @@ const LandingRoute = ({ children }: { children: React.ReactNode }) => {
 
 const AppRoutes = () => {
   const location = useLocation();
+  useSyncAccountLocale();
   const isCapturePage = location.pathname === '/capture';
   const isModerationPage = location.pathname === '/moderation';
   const isPremiumPage = location.pathname === '/premium';

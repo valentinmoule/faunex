@@ -8,6 +8,9 @@ import { toast } from 'sonner';
 import { usePwaInstall } from '@/contexts/PwaInstallContext';
 import { isPushSupported, subscribeToPush, unsubscribeFromPush, hasActivePushSubscription } from '@/lib/pushNotifications';
 import { prepareSourceImage, readFileAsDataUrl, dataUrlToBytes } from '@/lib/imageProcessing';
+import { useTranslation } from 'react-i18next';
+import { useAppLocale } from '@/hooks/useAppLocale';
+import { Languages } from 'lucide-react';
 
 interface SettingsProps {
   profile: {
@@ -22,7 +25,9 @@ const SettingsPage = () => {
   const { session, signOut } = useAuth();
   const navigate = useNavigate();
   const { isInstalled, isNative, resetDismiss, openInstallGuide } = usePwaInstall();
-  const [section, setSection] = useState<'menu' | 'edit' | 'password' | 'delete'>('menu');
+  const [section, setSection] = useState<'menu' | 'edit' | 'password' | 'delete' | 'language'>('menu');
+  const { t } = useTranslation();
+  const { locale, isAuto, changeLocale } = useAppLocale();
   const [profile, setProfile] = useState<{ display_name: string; username: string; avatar_url: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -217,10 +222,11 @@ const SettingsPage = () => {
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
           <h1 className="text-xl font-display font-bold text-foreground">
-            {section === 'menu' && 'Paramètres'}
-            {section === 'edit' && 'Modifier le profil'}
-            {section === 'password' && 'Changer le mot de passe'}
-            {section === 'delete' && 'Supprimer le compte'}
+            {section === 'menu' && t('settings.title')}
+            {section === 'edit' && t('settings.editProfile')}
+            {section === 'password' && t('settings.changePassword')}
+            {section === 'delete' && t('settings.deleteAccount')}
+            {section === 'language' && t('language.title')}
           </h1>
         </div>
       </PageHeader>
@@ -229,17 +235,18 @@ const SettingsPage = () => {
         {section === 'menu' && (
           <div className="space-y-1">
 
-            <MenuItem icon={<Crown className="w-5 h-5" />} label="Faunex Premium" onClick={() => navigate('/premium')} />
-            <MenuItem icon={<Pencil className="w-5 h-5" />} label="Modifier le profil" onClick={() => setSection('edit')} />
-            <MenuItem icon={<KeyRound className="w-5 h-5" />} label="Changer le mot de passe" onClick={() => setSection('password')} />
-            <MenuItem icon={<Share2 className="w-5 h-5" />} label="Partager mon profil" onClick={handleShare} />
-            <MenuItem icon={<MessageCircle className="w-5 h-5" />} label="Communauté Discord" onClick={() => window.open('https://discord.gg/YrAEV5EQa4', '_blank', 'noopener,noreferrer')} />
-            <MenuItem icon={<Scale className="w-5 h-5" />} label="Mentions légales" onClick={() => navigate('/legal')} />
-            <MenuItem icon={<Lock className="w-5 h-5" />} label="Politique de confidentialité" onClick={() => navigate('/confidentialite')} />
+            <MenuItem icon={<Crown className="w-5 h-5" />} label={t('settings.premium')} onClick={() => navigate('/premium')} />
+            <MenuItem icon={<Pencil className="w-5 h-5" />} label={t('settings.editProfile')} onClick={() => setSection('edit')} />
+            <MenuItem icon={<KeyRound className="w-5 h-5" />} label={t('settings.changePassword')} onClick={() => setSection('password')} />
+            <MenuItem icon={<Share2 className="w-5 h-5" />} label={t('settings.shareProfile')} onClick={handleShare} />
+            <MenuItem icon={<Languages className="w-5 h-5" />} label={t('language.title')} onClick={() => setSection('language')} />
+            <MenuItem icon={<MessageCircle className="w-5 h-5" />} label={t('settings.discord')} onClick={() => window.open('https://discord.gg/YrAEV5EQa4', '_blank', 'noopener,noreferrer')} />
+            <MenuItem icon={<Scale className="w-5 h-5" />} label={t('settings.legal')} onClick={() => navigate('/legal')} />
+            <MenuItem icon={<Lock className="w-5 h-5" />} label={t('settings.privacy')} onClick={() => navigate('/confidentialite')} />
             {!isNative && !isInstalled && (
               <MenuItem
                 icon={<Smartphone className="w-5 h-5" />}
-                label="Installer sur l'écran d'accueil"
+                label={t('settings.install')}
                 onClick={() => {
                   resetDismiss();
                   openInstallGuide();
@@ -247,9 +254,29 @@ const SettingsPage = () => {
               />
             )}
             <div className="pt-4 space-y-1">
-              <MenuItem icon={<LogOut className="w-5 h-5 text-destructive" />} label="Se déconnecter" onClick={async () => { await signOut(); toast.success('Déconnecté'); }} destructive />
-              <MenuItem icon={<Trash2 className="w-5 h-5 text-destructive" />} label="Supprimer mon compte" onClick={() => setSection('delete')} destructive />
+              <MenuItem icon={<LogOut className="w-5 h-5 text-destructive" />} label={t('settings.signOut')} onClick={async () => { await signOut(); toast.success(t('settings.signedOut')); }} destructive />
+              <MenuItem icon={<Trash2 className="w-5 h-5 text-destructive" />} label={t('settings.deleteMyAccount')} onClick={() => setSection('delete')} destructive />
             </div>
+          </div>
+        )}
+
+        {section === 'language' && (
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground font-body px-1 pb-2">{t('language.subtitle')}</p>
+            {([
+              { value: 'auto' as const, label: t('language.auto'), active: isAuto },
+              { value: 'fr' as const, label: t('language.fr'), active: !isAuto && locale === 'fr' },
+              { value: 'en' as const, label: t('language.en'), active: !isAuto && locale === 'en' },
+            ]).map(opt => (
+              <button
+                key={opt.value}
+                onClick={() => { changeLocale(opt.value); toast.success(t('language.updated')); }}
+                className={`w-full flex items-center justify-between px-4 py-3.5 rounded-2xl transition-colors ${opt.active ? 'bg-primary/10 ring-1 ring-primary/30' : 'bg-muted hover:bg-muted/70'}`}
+              >
+                <span className="text-sm font-display font-semibold text-foreground">{opt.label}</span>
+                {opt.active && <Check className="w-4 h-4 text-primary" />}
+              </button>
+            ))}
           </div>
         )}
 
