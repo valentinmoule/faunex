@@ -1244,7 +1244,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                   }`}
                 >
                   <ArrowDownUp className="w-4 h-4" />
-                  Tri
+                  {t('bestiary.mine.sort')}
                 </button>
               </div>
 
