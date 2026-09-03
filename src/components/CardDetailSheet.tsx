@@ -18,12 +18,8 @@ import { toast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Trash2, Share2 } from 'lucide-react';
 import ShareCaptureSheet from '@/components/ShareCaptureSheet';
-import IucnBadge from '@/components/IucnBadge';
 import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
 import { useSpeciesFacts, useSpeciesName } from '@/hooks/useSpeciesLocale';
-
-/** Cache mémoire du statut UICN par nom d'espèce (le référentiel bouge très peu). */
-const iucnCache = new Map<string, string | null>();
 
 interface Props {
   card: AnimalCard | null;
@@ -141,40 +137,12 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
   const [locQuery, setLocQuery] = useState('');
   const [locResults, setLocResults] = useState<{ label: string; sub: string; coords?: [number, number] }[]>([]);
   const [locLoading, setLocLoading] = useState(false);
-  const [iucnStatus, setIucnStatus] = useState<string | null>(null);
 
   /* Nombre de naturalistes ayant capturé l'espèce : fourni par le parent, sinon chargé ici. */
   const fetchedFinders = useSpeciesFinders(card?.name, open && communityFinders === undefined);
   const finders = communityFinders ?? fetchedFinders;
 
-  /* Statut de conservation UICN : lu à l'ouverture, mis en cache par espèce. */
-  useEffect(() => {
-    const name = card?.name?.trim();
-    if (!open || !name) return;
-    const key = name.toLowerCase();
-    const cached = iucnCache.get(key);
-    if (cached !== undefined) {
-      setIucnStatus(cached);
-      return;
-    }
-    setIucnStatus(null);
-    let alive = true;
-    supabase
-      .from('animals')
-      .select('iucn_status')
-      .ilike('name', name)
-      .not('iucn_status', 'is', null)
-      .limit(1)
-      .maybeSingle()
-      .then(({ data }) => {
-        const status = (data?.iucn_status as string | null) ?? null;
-        iucnCache.set(key, status);
-        if (alive) setIucnStatus(status);
-      });
-    return () => {
-      alive = false;
-    };
-  }, [open, card?.name]);
+
 
 
 
@@ -790,8 +758,6 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                   </span>
                 );
               })()}
-
-              <IucnBadge status={iucnStatus} />
 
               {!isUncaptured && finders !== undefined && (
                 <span
