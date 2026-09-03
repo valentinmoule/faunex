@@ -18,12 +18,8 @@ import { toast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Trash2, Share2 } from 'lucide-react';
 import ShareCaptureSheet from '@/components/ShareCaptureSheet';
-import IucnBadge from '@/components/IucnBadge';
 import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
 import { useSpeciesFacts, useSpeciesName } from '@/hooks/useSpeciesLocale';
-
-/** Cache mémoire du statut UICN par nom d'espèce (le référentiel bouge très peu). */
-const iucnCache = new Map<string, string | null>();
 
 interface Props {
   card: AnimalCard | null;
