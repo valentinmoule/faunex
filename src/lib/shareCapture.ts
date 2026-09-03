@@ -266,19 +266,38 @@ export const shareCaptureTo = async (card: AnimalCard, target: ShareTarget, blob
   }
 
   // ── App native ────────────────────────────────────────────────────
-  if (IS_NATIVE_APP) {
-    const { Share } = await import('@capacitor/share');
-    const uri = await writeNativeFile(image, fileName);
+  // Si le plugin natif est absent ou échoue (fichier illisible, feuille
+  // annulée par le système…), on retombe sur le partage web / le
+  // téléchargement plutôt que de laisser le bouton sans effet.
+  if (IS_NATIVE_APP && nativePluginAvailable('Share')) {
+    try {
+      const { Share } = await import('@capacitor/share');
+      const joinLink = target === 'facebook' || target === 'whatsapp';
+      const message = joinLink ? `${text} ${link}` : text;
 
-    if (target === 'facebook' || target === 'whatsapp') {
-      // Ces apps acceptent l'image via la feuille système ; le lien est joint au texte.
-      await Share.share({ title: 'Faunex', text: `${text} ${link}`, files: [uri], dialogTitle: 'Partager ta carte' });
+      let files: string[] | undefined;
+      if (nativePluginAvailable('Filesystem')) {
+        try {
+          files = [await writeNativeFile(image, fileName)];
+        } catch (err) {
+          console.warn('[share] écriture du fichier impossible', err);
+        }
+      }
+
+      await Share.share({
+        title: 'Faunex',
+        text: message,
+        url: files ? undefined : link,
+        files,
+        dialogTitle: 'Partager ta carte',
+      });
       return 'shared';
+    } catch (err) {
+      if (isShareCancelled(err)) return 'shared';
+      console.warn('[share] partage natif indisponible, repli web', err);
     }
-
-    await Share.share({ title: 'Faunex', text, files: [uri], dialogTitle: 'Partager ta carte' });
-    return 'shared';
   }
+
 
   // ── Web ───────────────────────────────────────────────────────────
   const file = new File([image], fileName, { type: 'image/jpeg' });
