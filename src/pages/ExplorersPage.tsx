@@ -684,14 +684,14 @@ const ExplorersPage = () => {
 
                   {post.caption && <p className="text-xs text-foreground/70 mt-1.5 px-4 leading-relaxed">{post.caption}</p>}
 
-                  <div className="flex items-center gap-4 px-4 mt-2">
-                    <button onClick={() => handleLike(post.id)} className="flex items-center gap-1 group">
-                      <Heart className={`w-4 h-4 transition-all ${isLiked ? 'fill-destructive text-destructive scale-110' : 'text-muted-foreground group-hover:text-destructive'}`} />
-                      {likeCount > 0 && <span className={`text-xs ${isLiked ? 'text-destructive font-semibold' : 'text-muted-foreground'}`}>{likeCount}</span>}
+                  <div className="flex items-center gap-5 px-4 mt-3.5">
+                    <button onClick={() => handleLike(post.id)} className="flex items-center gap-1.5 group">
+                      <Heart className={`w-5 h-5 transition-all ${isLiked ? 'fill-destructive text-destructive scale-110' : 'text-muted-foreground group-hover:text-destructive'}`} />
+                      {likeCount > 0 && <span className={`text-sm ${isLiked ? 'text-destructive font-semibold' : 'text-muted-foreground'}`}>{likeCount}</span>}
                     </button>
-                    <button onClick={() => handleOpenComments(post.id)} className="flex items-center gap-1 group">
-                      <MessageCircle className={`w-4 h-4 transition-colors ${isCommentsOpen ? 'text-primary fill-primary/20' : 'text-muted-foreground group-hover:text-primary'}`} />
-                      {commentCount > 0 && <span className={`text-xs ${isCommentsOpen ? 'text-primary font-semibold' : 'text-muted-foreground'}`}>{commentCount}</span>}
+                    <button onClick={() => handleOpenComments(post.id)} className="flex items-center gap-1.5 group">
+                      <MessageCircle className={`w-5 h-5 transition-colors ${isCommentsOpen ? 'text-primary fill-primary/20' : 'text-muted-foreground group-hover:text-primary'}`} />
+                      {commentCount > 0 && <span className={`text-sm ${isCommentsOpen ? 'text-primary font-semibold' : 'text-muted-foreground'}`}>{commentCount}</span>}
                     </button>
                   </div>
 
