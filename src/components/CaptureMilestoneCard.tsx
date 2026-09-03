@@ -16,7 +16,7 @@ const CONFIG: Record<MilestoneRank, { Icon: typeof Medal; from: string; to: stri
 };
 
 /** Petite carte "jalon" à la Strava affichée au-dessus d'une capture marquante. */
-const CaptureMilestoneCard = ({ rank }: { rank: MilestoneRank }) => {
+const CaptureMilestoneCard = ({ rank, userName }: { rank: MilestoneRank; userName: string }) => {
   const { t } = useTranslation();
   const { Icon, from, to, ring, text } = CONFIG[rank];
 
@@ -29,15 +29,9 @@ const CaptureMilestoneCard = ({ rank }: { rank: MilestoneRank }) => {
       </div>
       <div className="min-w-0 flex-1">
         <p className={`truncate font-display text-sm font-bold ${text}`}>
-          {t(`social.explorers.milestone.title_${rank}`)}
-        </p>
-        <p className="truncate font-body text-[11px] text-muted-foreground">
-          {t(`social.explorers.milestone.subtitle_${rank}`)}
+          {t(`social.explorers.milestone.message_${rank}`, { name: userName })}
         </p>
       </div>
-      <span className={`shrink-0 rounded-full bg-card/80 px-2 py-0.5 font-display text-[10px] font-bold uppercase tracking-wide ${text}`}>
-        {t('social.explorers.milestone.badge')}
-      </span>
     </div>
   );
 };

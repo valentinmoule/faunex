@@ -678,7 +678,7 @@ const ExplorersPage = () => {
 
                   {isMilestoneRank(milestone) && (
                     <div className="px-4 mt-2">
-                      <CaptureMilestoneCard rank={milestone} />
+                      <CaptureMilestoneCard rank={milestone} userName={userName} />
                     </div>
                   )}
 
