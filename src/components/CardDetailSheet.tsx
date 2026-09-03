@@ -754,7 +754,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                 return (
                   <span className="px-3 py-1 rounded-full text-[11px] font-display font-semibold bg-muted text-muted-foreground inline-flex items-center gap-1">
                     <CatIcon className="w-3 h-3" />
-                    {card.category}
+                    {categoryLabel(card.category)}
                   </span>
                 );
               })()}
