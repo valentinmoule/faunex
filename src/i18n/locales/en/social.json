@@ -46,7 +46,20 @@
       "commentPlaceholder": "Comment…",
       "noCommentsYet": "No comments yet — be the first!",
       "caughtUp": "You're all caught up ✨",
-      "searchError": "Search error"
+      "searchError": "Search error",
+      "milestone": {
+        "title_1": "First capture!",
+        "subtitle_1": "The start of a great collection",
+        "title_10": "10th capture!",
+        "subtitle_10": "A sharper naturalist eye",
+        "title_25": "25th capture!",
+        "subtitle_25": "The collection is taking shape",
+        "title_50": "50th capture!",
+        "subtitle_50": "Seasoned explorer",
+        "title_100": "100th capture!",
+        "subtitle_100": "Field legend",
+        "badge": "Milestone"
+      }
     },
     "feed": {
       "brandName": "Faunex",

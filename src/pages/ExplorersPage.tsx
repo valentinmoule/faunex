@@ -17,6 +17,8 @@ import RarityBadge from '@/components/RarityBadge';
 import { rarityBorderColor } from '@/lib/bestiary';
 import { hapticTap } from '@/lib/haptics';
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
+import CaptureMilestoneCard, { isMilestoneRank } from '@/components/CaptureMilestoneCard';
+
 
 /** Socle coloré + ombre rareté (effet "rare à légendaire" en grille). */
 const tileDepthClass: Record<string, string> = {
@@ -108,7 +110,10 @@ const ExplorersPage = () => {
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [likeCounts, setLikeCounts] = useState<Record<string, number>>({});
   const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
+  const [milestoneRanks, setMilestoneRanks] = useState<Record<string, number>>({});
   const [openComments, setOpenComments] = useState<string | null>(null);
+
+
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
   const [loadingComments, setLoadingComments] = useState(false);
@@ -221,7 +226,24 @@ const ExplorersPage = () => {
       setPosts(prev => replace ? newPosts : [...prev, ...newPosts]);
       setFeedOffset(offset + data.length);
       if (data.length < FEED_PAGE_SIZE) setFeedHasMore(false);
+
+      // Jalons de collection (1re, 10e, 25e, 50e, 100e capture de l'explorateur)
+      if (captureIds.length > 0) {
+        supabase
+          .rpc('capture_milestones', { capture_ids: captureIds })
+          .then(({ data: ranks }) => {
+            if (!ranks) return;
+            setMilestoneRanks(prev => {
+              const next = replace ? {} : { ...prev };
+              (ranks as any[]).forEach(r => { next[r.capture_id] = r.capture_rank; });
+              return next;
+            });
+          });
+      } else if (replace) {
+        setMilestoneRanks({});
+      }
     }
+
     setFeedLoading(false);
     setFeedLoadingMore(false);
   }, [session]);
@@ -629,6 +651,8 @@ const ExplorersPage = () => {
               const likeCount = likeCounts[post.id] || 0;
               const commentCount = commentCounts[post.id] || 0;
               const isCommentsOpen = openComments === post.id;
+              const milestone = milestoneRanks[post.id];
+
 
               return (
                 <article key={post.id} className="py-3">
@@ -652,8 +676,15 @@ const ExplorersPage = () => {
                     </div>
                   </div>
 
+                  {isMilestoneRank(milestone) && (
+                    <div className="px-4 mt-2">
+                      <CaptureMilestoneCard rank={milestone} />
+                    </div>
+                  )}
+
                   <div className="px-4 mt-2">
                     <button
+
                       onClick={() => { hapticTap(); setSelectedCard(toAnimalCard(post)); }}
                       className={`game-tile relative block w-full aspect-[4/5] rounded-2xl border-2 overflow-hidden text-left active:scale-[0.99] transition-transform ${
                         rarityBorderColor[post.rarity as Rarity] || 'border-border'
