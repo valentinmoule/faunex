@@ -1187,7 +1187,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                     : 'text-muted-foreground'
                 }`}
               >
-                Mes captures
+                {t('bestiary.tabs.mine')}
               </button>
               <button
                 onClick={() => setViewMode('categories')}
@@ -1197,7 +1197,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                     : 'text-muted-foreground'
                 }`}
               >
-Bestiaire
+                {t('bestiary.tabs.categories')}
               </button>
               <button
                 onClick={() => setViewMode('collections')}
@@ -1207,7 +1207,7 @@ Bestiaire
                     : 'text-muted-foreground'
                 }`}
               >
-                Collections
+                {t('bestiary.tabs.collections')}
               </button>
             </div>
 </section>
@@ -1222,7 +1222,7 @@ Bestiaire
                     type="text"
                     value={mineSearch}
                     onChange={(e) => setMineSearch(e.target.value)}
-                    placeholder="Rechercher dans mes captures…"
+                    placeholder={t('bestiary.mine.searchPlaceholder')}
                     className="w-full pl-9 pr-9 py-2.5 rounded-xl bg-card border border-border text-sm font-display placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
                   />
                   {mineSearch && (
@@ -1244,14 +1244,14 @@ Bestiaire
                   }`}
                 >
                   <ArrowDownUp className="w-4 h-4" />
-                  Tri
+                  {t('bestiary.mine.sort')}
                 </button>
               </div>
 
               <div className="flex items-center justify-between mb-3">
-                <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Mes captures</h2>
+                <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">{t('bestiary.mine.title')}</h2>
                 <span className="text-[11px] font-display text-muted-foreground tabular-nums">
-                  {myCapturedAnimals.length} capture{myCapturedAnimals.length > 1 ? 's' : ''}
+                  {t('bestiary.mine.count', { count: myCapturedAnimals.length })}
                 </span>
               </div>
 
