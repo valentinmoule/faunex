@@ -779,7 +779,7 @@ setManualMode(false);
                       className="inline-flex items-center gap-1.5 rounded-full bg-black/45 border border-white/20 px-2.5 py-1 backdrop-blur-sm"
                       title={`${speciesFinders} naturaliste${speciesFinders > 1 ? 's' : ''} ont capturé cette espèce`}
                     >
-                      <FindersBadge count={speciesFinders} className="finders-badge--on-dark" />
+                      <FindersBadge count={speciesFinders} />
                       <span className="text-[10px] font-display font-semibold uppercase tracking-wider text-primary-foreground/80">
                         {speciesFinders > 1 ? 'captures' : 'capture'}
                       </span>
