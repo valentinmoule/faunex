@@ -1187,7 +1187,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                     : 'text-muted-foreground'
                 }`}
               >
-                Mes captures
+                {t('bestiary.tabs.mine')}
               </button>
               <button
                 onClick={() => setViewMode('categories')}
