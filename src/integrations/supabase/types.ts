@@ -2108,6 +2108,13 @@ export type Database = {
         Returns: string
       }
       canonical_animal_name: { Args: { p_name: string }; Returns: string }
+      capture_milestones: {
+        Args: { capture_ids: string[] }
+        Returns: {
+          capture_id: string
+          capture_rank: number
+        }[]
+      }
       captures_remaining_today: { Args: never; Returns: number }
       category_leaderboard: {
         Args: { p_category: string; p_limit?: number; p_scope?: string }
