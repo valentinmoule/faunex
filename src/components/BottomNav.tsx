@@ -42,7 +42,7 @@ const BottomNav = () => {
                   <Icon className="w-6 h-6 text-primary-foreground" strokeWidth={2.2} />
                 </div>
                 <span className="text-[10px] font-display font-semibold mt-1 text-primary tracking-tight">
-                  {tab.label}
+                  {t(tab.labelKey)}
                 </span>
               </button>
             );
@@ -66,7 +66,7 @@ const BottomNav = () => {
                   isActive ? 'text-primary font-bold' : 'text-muted-foreground font-medium'
                 }`}
               >
-                {tab.label}
+                {t(tab.labelKey)}
               </span>
             </button>
           );
