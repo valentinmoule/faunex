@@ -670,7 +670,7 @@ const ExplorersPage = () => {
                         <button onClick={() => navigate(`/explorer/${post.user_id}/collection`)} className="text-sm font-display font-semibold text-foreground truncate hover:underline">
                           {userName}
                         </button>
-                        <span className="text-xs text-muted-foreground">a capturé</span>
+                        <span className="text-xs text-muted-foreground">{t('social.explorers.captured')}</span>
                         <span className="text-[11px] text-muted-foreground">· {timeAgo(post.created_at)}</span>
                       </div>
                     </div>
