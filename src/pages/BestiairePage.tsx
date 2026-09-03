@@ -37,6 +37,8 @@ import { useSpeciesCollections } from '@/hooks/useSpeciesCollections';
 import CategoryLeaderboard from '@/components/CategoryLeaderboard';
 import { useSubscription } from '@/hooks/useSubscription';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
+import i18n from '@/i18n';
 
 /** Zones + collections combinées, limite gratuite. */
 const FREE_SLOT_LIMIT = 5;
@@ -49,10 +51,10 @@ const ALL_GRID_LIMIT = 200;
 type MineSort = 'recent' | 'alpha' | 'rarity' | 'custom';
 
 const MINE_SORT_LABELS: Record<MineSort, string> = {
-  recent: 'Plus récentes',
-  alpha: 'Ordre alphabétique',
-  rarity: 'Plus rares',
-  custom: 'Personnalisé',
+  get recent() { return i18n.t('bestiary.mineSort.recent'); },
+  get alpha() { return i18n.t('bestiary.mineSort.alpha'); },
+  get rarity() { return i18n.t('bestiary.mineSort.rarity'); },
+  get custom() { return i18n.t('bestiary.mineSort.custom'); },
 };
 
 // Ordre de rareté décroissant : mythique en premier
@@ -66,11 +68,11 @@ const orderStorageKey = (uid: string) => `faunex:mine-order:${uid}`;
 type PopularityTier = 'none' | 'rare' | 'common' | 'trending' | 'hot';
 
 const POPULARITY_LABELS: Record<PopularityTier, { label: string; Icon: LucideIcon }> = {
-  none: { label: 'Jamais capturée', Icon: Ghost },
-  rare: { label: 'Peu capturée', Icon: Footprints },
-  common: { label: 'Populaire', Icon: Users },
-  trending: { label: 'Très populaire', Icon: TrendingUp },
-  hot: { label: 'Incontournable', Icon: Flame },
+  get none() { return { label: i18n.t('bestiary.popularity.none'), Icon: Ghost }; },
+  get rare() { return { label: i18n.t('bestiary.popularity.rare'), Icon: Footprints }; },
+  get common() { return { label: i18n.t('bestiary.popularity.common'), Icon: Users }; },
+  get trending() { return { label: i18n.t('bestiary.popularity.trending'), Icon: TrendingUp }; },
+  get hot() { return { label: i18n.t('bestiary.popularity.hot'), Icon: Flame }; },
 };
 
 const popularityTierOf = (n: number): PopularityTier =>
@@ -166,6 +168,7 @@ BrowseSpeciesCard.displayName = 'BrowseSpeciesCard';
 
 const BestiairePage = () => {
   const { session } = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -312,9 +315,9 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const guardSlot = useCallback(() => {
     if (isPremium) return true;
     if (subscribedZones.length + collectionKeys.length < FREE_SLOT_LIMIT) return true;
-    toast.error(`Limite de ${FREE_SLOT_LIMIT} zones ou collections atteinte`, {
-      description: 'Passe en Premium pour en suivre autant que tu veux.',
-      action: { label: 'Premium', onClick: () => navigate('/premium') },
+    toast.error(t('bestiary.slotLimitToast.title', { limit: FREE_SLOT_LIMIT }), {
+      description: t('bestiary.slotLimitToast.description'),
+      action: { label: t('bestiary.slotLimitToast.action'), onClick: () => navigate('/premium') },
     });
     return false;
   }, [isPremium, subscribedZones.length, collectionKeys.length, navigate]);
