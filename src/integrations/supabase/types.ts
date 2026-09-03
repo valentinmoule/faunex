@@ -110,6 +110,7 @@ export type Database = {
           id: string
           iucn_status: string | null
           name: string
+          name_en: string | null
           observation_rarity: string | null
           rarity: string
           scientific_name: string | null
@@ -121,6 +122,7 @@ export type Database = {
           id?: string
           iucn_status?: string | null
           name: string
+          name_en?: string | null
           observation_rarity?: string | null
           rarity?: string
           scientific_name?: string | null
@@ -132,6 +134,7 @@ export type Database = {
           id?: string
           iucn_status?: string | null
           name?: string
+          name_en?: string | null
           observation_rarity?: string | null
           rarity?: string
           scientific_name?: string | null
@@ -1443,14 +1446,19 @@ export type Database = {
           conservation: string | null
           created_at: string
           description: string | null
+          description_en: string | null
           diet: string | null
+          diet_en: string | null
           fun_fact: string | null
+          fun_fact_en: string | null
           habitat: string | null
+          habitat_en: string | null
           id: string
           normalized_name: string
           normalized_scientific: string | null
           scientific_name: string | null
           source: string
+          translated_en_at: string | null
           updated_at: string
         }
         Insert: {
@@ -1458,14 +1466,19 @@ export type Database = {
           conservation?: string | null
           created_at?: string
           description?: string | null
+          description_en?: string | null
           diet?: string | null
+          diet_en?: string | null
           fun_fact?: string | null
+          fun_fact_en?: string | null
           habitat?: string | null
+          habitat_en?: string | null
           id?: string
           normalized_name: string
           normalized_scientific?: string | null
           scientific_name?: string | null
           source?: string
+          translated_en_at?: string | null
           updated_at?: string
         }
         Update: {
@@ -1473,14 +1486,19 @@ export type Database = {
           conservation?: string | null
           created_at?: string
           description?: string | null
+          description_en?: string | null
           diet?: string | null
+          diet_en?: string | null
           fun_fact?: string | null
+          fun_fact_en?: string | null
           habitat?: string | null
+          habitat_en?: string | null
           id?: string
           normalized_name?: string
           normalized_scientific?: string | null
           scientific_name?: string | null
           source?: string
+          translated_en_at?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -1586,6 +1604,7 @@ export type Database = {
           status: Database["public"]["Enums"]["taxon_status"]
           updated_at: string
           vernacular_name: string
+          vernacular_name_en: string | null
         }
         Insert: {
           collectible?: boolean
@@ -1609,6 +1628,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["taxon_status"]
           updated_at?: string
           vernacular_name: string
+          vernacular_name_en?: string | null
         }
         Update: {
           collectible?: boolean
@@ -1632,6 +1652,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["taxon_status"]
           updated_at?: string
           vernacular_name?: string
+          vernacular_name_en?: string | null
         }
         Relationships: [
           {
@@ -2319,6 +2340,22 @@ export type Database = {
           finders: number
         }[]
       }
+      species_names_en: {
+        Args: never
+        Returns: {
+          name: string
+          name_en: string
+        }[]
+      }
+      species_profile_en: {
+        Args: { p_name: string; p_scientific?: string }
+        Returns: {
+          description_en: string
+          diet_en: string
+          fun_fact_en: string
+          habitat_en: string
+        }[]
+      }
       species_profile_for: {
         Args: { p_name: string; p_scientific?: string }
         Returns: {
@@ -2329,6 +2366,13 @@ export type Database = {
           fun_fact: string
           habitat: string
           scientific_name: string
+        }[]
+      }
+      species_translation_progress: {
+        Args: never
+        Returns: {
+          total: number
+          translated: number
         }[]
       }
       strip_label_parenthetical: { Args: { p_label: string }; Returns: string }

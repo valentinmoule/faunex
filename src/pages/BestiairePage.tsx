@@ -39,6 +39,8 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import i18n from '@/i18n';
+import { useSpeciesName } from '@/hooks/useSpeciesLocale';
+import { localizedSpeciesName } from '@/lib/speciesI18n';
 
 /** Zones + collections combinées, limite gratuite. */
 const FREE_SLOT_LIMIT = 5;
@@ -100,9 +102,13 @@ const SpeciesCategoryIcon = ({ category, className }: { category: string; classN
 /** Carte d'espèce de la grille Bestiaire, mémoïsée : les lots déjà affichés
  *  ne se re-rendent pas quand les 50 suivantes arrivent. */
 const BrowseSpeciesCard = memo(
-  ({ animal, onSelect }: { animal: BestiaryAnimal; onSelect: (a: BestiaryAnimal) => void }) => (
+  ({ animal, onSelect }: { animal: BestiaryAnimal; onSelect: (a: BestiaryAnimal) => void }) => {
+  const { speciesName } = useSpeciesName();
+  const displayName = speciesName(animal.name);
+  return (
     <div
       onClick={() => onSelect(animal)}
+
       className={`game-tile relative aspect-[3/4] rounded-xl border-2 overflow-hidden cursor-pointer ${
         animal.captured
           ? `${rarityBorderColor[animal.rarity] || 'border-border'} bg-card ${tileDepthClass[animal.rarity] || ''}`
@@ -114,7 +120,7 @@ const BrowseSpeciesCard = memo(
         <>
           <img
             src={animal.captureData.image}
-            alt={animal.name}
+            alt={displayName}
             className="absolute inset-0 w-full h-full object-cover"
             loading="lazy"
           />
@@ -126,7 +132,7 @@ const BrowseSpeciesCard = memo(
           </div>
           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5 pt-8">
             <p className="text-xs font-display font-bold text-white truncate leading-tight">
-              {animal.name}
+              {displayName}
             </p>
             {animal.scientific_name && (
               <p className="text-[9px] font-body italic text-white/80 truncate">
@@ -149,7 +155,7 @@ const BrowseSpeciesCard = memo(
 
           <div className="species-tile-locked__label px-2 pb-2 pt-1.5 text-center">
             <p className="text-[11px] font-display font-semibold text-foreground/80 truncate leading-tight">
-              {animal.name}
+              {displayName}
             </p>
             {animal.scientific_name && (
               <p className="text-[9px] font-body italic text-muted-foreground/70 truncate">
@@ -161,7 +167,8 @@ const BrowseSpeciesCard = memo(
       )}
 
     </div>
-  ),
+  );
+  },
 );
 BrowseSpeciesCard.displayName = 'BrowseSpeciesCard';
 
@@ -459,6 +466,7 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
       if (!speciesQuery) return true;
       return (
         normalizeSearch(a.name).includes(speciesQuery) ||
+        normalizeSearch(localizedSpeciesName(a.name, i18n.language)).includes(speciesQuery) ||
         normalizeSearch(a.scientific_name || '').includes(speciesQuery) ||
         normalizeSearch(a.category || '').includes(speciesQuery)
       );

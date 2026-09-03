@@ -20,6 +20,7 @@ import { Trash2, Share2 } from 'lucide-react';
 import ShareCaptureSheet from '@/components/ShareCaptureSheet';
 import IucnBadge from '@/components/IucnBadge';
 import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
+import { useSpeciesFacts, useSpeciesName } from '@/hooks/useSpeciesLocale';
 
 /** Cache mémoire du statut UICN par nom d'espèce (le référentiel bouge très peu). */
 const iucnCache = new Map<string, string | null>();
@@ -111,6 +112,22 @@ const LockedField = ({ icon, label }: { icon: React.ReactNode; label: string }) 
 const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: Props) => {
   const { t } = useTranslation();
   const { session } = useAuth();
+  // Nom commun localisé + fiche d'espèce localisée (traduite à la demande, puis cachée).
+  const { speciesName } = useSpeciesName();
+  const displayName = speciesName(card?.name);
+  const facts = useSpeciesFacts(
+    open && card
+      ? {
+          name: card.name,
+          scientificName: card.scientificName,
+          description: card.description,
+          habitat: card.habitat,
+          diet: card.diet,
+          funFact: card.funFact,
+        }
+      : null,
+  );
+
   const [isOwner, setIsOwner] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -644,7 +661,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                   <div className="relative w-full h-full rounded-[1.125rem] overflow-hidden">
 
                     {card.image ? (
-                      <img src={card.image} alt={card.name} loading="eager" decoding="async" fetchPriority="high" className="w-full h-full object-cover pointer-events-none select-none" draggable={false} />
+                      <img src={card.image} alt={displayName} loading="eager" decoding="async" fetchPriority="high" className="w-full h-full object-cover pointer-events-none select-none" draggable={false} />
                     ) : (
                       (() => {
                         const CatIcon = getCategoryIcon(card.category);
@@ -672,7 +689,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                     {card.image && isRare && <div className="detail-rare-glass" />}
                     {/* Name overlay bottom-left */}
                     <div className="absolute bottom-0 left-0 right-0 pointer-events-none p-3 pr-4 pt-10 bg-gradient-to-t from-black/75 via-black/35 to-transparent">
-                      <h3 className="text-white font-display font-bold text-base leading-tight drop-shadow-md">{card.name}</h3>
+                      <h3 className="text-white font-display font-bold text-base leading-tight drop-shadow-md">{displayName}</h3>
                       {card.scientificName && (
                         <p className="text-white/85 text-[11px] italic font-body leading-tight mt-0.5 drop-shadow">{card.scientificName}</p>
                       )}
@@ -816,7 +833,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
               </div>
 
             ) : (
-              <p className="text-sm text-foreground/80 leading-relaxed text-center max-w-sm mx-auto">{card.description}</p>
+              <p className="text-sm text-foreground/80 leading-relaxed text-center max-w-sm mx-auto">{facts.description}</p>
             )}
 
             {/* Stats Grid */}
@@ -830,8 +847,8 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                 </>
               ) : (
                 <>
-                  <StatCard icon={<MapPin className="w-4 h-4" />} label={t('capture.detail.habitat')} value={card.habitat} color="text-primary" bg="bg-primary/8" />
-                  <StatCard icon={<UtensilsCrossed className="w-4 h-4" />} label={t('capture.detail.diet')} value={card.diet} color="text-amber" bg="bg-amber/8" />
+                  <StatCard icon={<MapPin className="w-4 h-4" />} label={t('capture.detail.habitat')} value={facts.habitat} color="text-primary" bg="bg-primary/8" />
+                  <StatCard icon={<UtensilsCrossed className="w-4 h-4" />} label={t('capture.detail.diet')} value={facts.diet} color="text-amber" bg="bg-amber/8" />
                   <StatCard icon={<Shield className="w-4 h-4" />} label={t('capture.detail.conservation')} value={card.conservation} color="text-sky" bg="bg-sky/8" />
                   <StatCard icon={<Leaf className="w-4 h-4" />} label={t('capture.detail.location')} value={location || t('capture.detail.notProvided')} color="text-forest-light" bg="bg-forest-light/8"
                     link={card.latitude && card.longitude ? `https://www.google.com/maps?q=${card.latitude},${card.longitude}` : undefined}
@@ -922,7 +939,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                     <p className="text-sm italic">{t('capture.detail.hiddenFact')}</p>
                   </div>
                 ) : (
-                  <p className="text-sm text-foreground/80 leading-relaxed">{card.funFact}</p>
+                  <p className="text-sm text-foreground/80 leading-relaxed">{facts.funFact}</p>
                 )}
               </div>
             </div>
@@ -1047,7 +1064,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
 
                       <img
                         src={card.image}
-                        alt={card.name}
+                        alt={displayName}
                         loading="eager"
                         decoding="async"
                         fetchPriority="high"
@@ -1060,7 +1077,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                     </div>
                     {/* Name overlay bottom-left */}
                     <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none p-5 pr-6 pt-16 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
-                      <h3 className="text-white font-display font-bold text-2xl leading-tight drop-shadow-lg">{card.name}</h3>
+                      <h3 className="text-white font-display font-bold text-2xl leading-tight drop-shadow-lg">{displayName}</h3>
                       {card.scientificName && (
                         <p className="text-white/90 text-sm italic font-body leading-tight mt-1 drop-shadow">{card.scientificName}</p>
                       )}
@@ -1100,7 +1117,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
           <AlertDialogHeader>
             <AlertDialogTitle>{t('capture.detail.deleteDialogTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              {t('capture.detail.deleteDialogDesc', { name: card.name })}
+              {t('capture.detail.deleteDialogDesc', { name: displayName })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
