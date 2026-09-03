@@ -12,6 +12,8 @@ import { useGeoTag } from '@/hooks/useGeoTag';
 import { useAnimalIdentification, type RejectionKind } from '@/hooks/useAnimalIdentification';
 import { useCaptureSave } from '@/hooks/useCaptureSave';
 import { useCaptureReveal, REVEAL_TIMINGS } from '@/hooks/useCaptureReveal';
+import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
+import FindersBadge from '@/components/FindersBadge';
 import { useCaptureQuota, DAILY_CAPTURE_LIMIT } from '@/hooks/useCaptureQuota';
 
 import type { AnimalResult } from '@/types/capture';
@@ -116,6 +118,8 @@ const quota = useCaptureQuota(session?.user?.id);
   const { revealPhase, revealRarity, freezeFlash, triggerReveal, reset: resetReveal } =
     useCaptureReveal(setAnimalResult);
   const revealFx = RARITY_FX[revealRarity];
+  /* Popularité de l'espèce identifiée : combien de naturalistes l'ont déjà capturée. */
+  const speciesFinders = useSpeciesFinders(animalResult?.animal_name, !!animalResult);
   const revealRank = RARITY_RANK[revealRarity] ?? 0;
   const { saving, findDuplicate, insertCapture, replaceCapture, submitManualEntry } = useCaptureSave({
     userId: session?.user?.id,
@@ -768,6 +772,17 @@ setManualMode(false);
                     >
                       <span className="w-1.5 h-1.5 rounded-full bg-current" />
                       {animalResult.confidence}% sûr
+                    </span>
+                  )}
+                  {speciesFinders !== undefined && (
+                    <span
+                      className="inline-flex items-center gap-1.5 rounded-full bg-black/45 border border-white/20 px-2.5 py-1 backdrop-blur-sm"
+                      title={`${speciesFinders} naturaliste${speciesFinders > 1 ? 's' : ''} ont capturé cette espèce`}
+                    >
+                      <FindersBadge count={speciesFinders} />
+                      <span className="text-[10px] font-display font-semibold uppercase tracking-wider text-primary-foreground/80">
+                        {speciesFinders > 1 ? 'captures' : 'capture'}
+                      </span>
                     </span>
                   )}
                 </div>

@@ -18,6 +18,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Trash2, Share2 } from 'lucide-react';
 import ShareCaptureSheet from '@/components/ShareCaptureSheet';
 import IucnBadge from '@/components/IucnBadge';
+import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
 
 /** Cache mémoire du statut UICN par nom d'espèce (le référentiel bouge très peu). */
 const iucnCache = new Map<string, string | null>();
@@ -119,6 +120,10 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
   const [locResults, setLocResults] = useState<{ label: string; sub: string; coords?: [number, number] }[]>([]);
   const [locLoading, setLocLoading] = useState(false);
   const [iucnStatus, setIucnStatus] = useState<string | null>(null);
+
+  /* Nombre de naturalistes ayant capturé l'espèce : fourni par le parent, sinon chargé ici. */
+  const fetchedFinders = useSpeciesFinders(card?.name, open && communityFinders === undefined);
+  const finders = communityFinders ?? fetchedFinders;
 
   /* Statut de conservation UICN : lu à l'ouverture, mis en cache par espèce. */
   useEffect(() => {
@@ -765,6 +770,18 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
               })()}
 
               <IucnBadge status={iucnStatus} />
+
+              {!isUncaptured && finders !== undefined && (
+                <span
+                  className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1"
+                  title={`${finders} naturaliste${finders > 1 ? 's' : ''} ont capturé cette espèce`}
+                >
+                  <FindersBadge count={finders} />
+                  <span className="text-[11px] font-display font-semibold text-muted-foreground">
+                    {finders > 1 ? 'captures' : 'capture'}
+                  </span>
+                </span>
+              )}
             </div>
 
 
@@ -779,12 +796,12 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   Son habitat, son alimentation et ses secrets ne seront révélés qu'après votre découverte.
                 </p>
-                {communityFinders !== undefined && (
+                {finders !== undefined && (
                   <div className="mt-3 flex items-center justify-center">
                     <span className="inline-flex items-center gap-1.5 rounded-full bg-background/80 border border-border px-3 py-1.5">
-                      <FindersBadge count={communityFinders} />
+                      <FindersBadge count={finders} />
                       <span className="text-[11px] font-display font-medium text-muted-foreground">
-                        {communityFinders > 0
+                        {finders > 0
                           ? 'déjà capturée par la communauté'
                           : 'personne ne l’a encore capturée'}
                       </span>
@@ -792,6 +809,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                   </div>
                 )}
               </div>
+
             ) : (
               <p className="text-sm text-foreground/80 leading-relaxed text-center max-w-sm mx-auto">{card.description}</p>
             )}
