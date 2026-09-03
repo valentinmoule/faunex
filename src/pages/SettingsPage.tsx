@@ -8,6 +8,9 @@ import { toast } from 'sonner';
 import { usePwaInstall } from '@/contexts/PwaInstallContext';
 import { isPushSupported, subscribeToPush, unsubscribeFromPush, hasActivePushSubscription } from '@/lib/pushNotifications';
 import { prepareSourceImage, readFileAsDataUrl, dataUrlToBytes } from '@/lib/imageProcessing';
+import { useTranslation } from 'react-i18next';
+import { useAppLocale } from '@/hooks/useAppLocale';
+import { Languages } from 'lucide-react';
 
 interface SettingsProps {
   profile: {
@@ -22,7 +25,9 @@ const SettingsPage = () => {
   const { session, signOut } = useAuth();
   const navigate = useNavigate();
   const { isInstalled, isNative, resetDismiss, openInstallGuide } = usePwaInstall();
-  const [section, setSection] = useState<'menu' | 'edit' | 'password' | 'delete'>('menu');
+  const [section, setSection] = useState<'menu' | 'edit' | 'password' | 'delete' | 'language'>('menu');
+  const { t } = useTranslation();
+  const { locale, isAuto, changeLocale } = useAppLocale();
   const [profile, setProfile] = useState<{ display_name: string; username: string; avatar_url: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -221,6 +226,7 @@ const SettingsPage = () => {
             {section === 'edit' && 'Modifier le profil'}
             {section === 'password' && 'Changer le mot de passe'}
             {section === 'delete' && 'Supprimer le compte'}
+            {section === 'language' && t('language.title')}
           </h1>
         </div>
       </PageHeader>
@@ -233,6 +239,7 @@ const SettingsPage = () => {
             <MenuItem icon={<Pencil className="w-5 h-5" />} label="Modifier le profil" onClick={() => setSection('edit')} />
             <MenuItem icon={<KeyRound className="w-5 h-5" />} label="Changer le mot de passe" onClick={() => setSection('password')} />
             <MenuItem icon={<Share2 className="w-5 h-5" />} label="Partager mon profil" onClick={handleShare} />
+            <MenuItem icon={<Languages className="w-5 h-5" />} label={t('language.title')} onClick={() => setSection('language')} />
             <MenuItem icon={<MessageCircle className="w-5 h-5" />} label="Communauté Discord" onClick={() => window.open('https://discord.gg/YrAEV5EQa4', '_blank', 'noopener,noreferrer')} />
             <MenuItem icon={<Scale className="w-5 h-5" />} label="Mentions légales" onClick={() => navigate('/legal')} />
             <MenuItem icon={<Lock className="w-5 h-5" />} label="Politique de confidentialité" onClick={() => navigate('/confidentialite')} />
@@ -250,6 +257,26 @@ const SettingsPage = () => {
               <MenuItem icon={<LogOut className="w-5 h-5 text-destructive" />} label="Se déconnecter" onClick={async () => { await signOut(); toast.success('Déconnecté'); }} destructive />
               <MenuItem icon={<Trash2 className="w-5 h-5 text-destructive" />} label="Supprimer mon compte" onClick={() => setSection('delete')} destructive />
             </div>
+          </div>
+        )}
+
+        {section === 'language' && (
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground font-body px-1 pb-2">{t('language.subtitle')}</p>
+            {([
+              { value: 'auto' as const, label: t('language.auto'), active: isAuto },
+              { value: 'fr' as const, label: t('language.fr'), active: !isAuto && locale === 'fr' },
+              { value: 'en' as const, label: t('language.en'), active: !isAuto && locale === 'en' },
+            ]).map(opt => (
+              <button
+                key={opt.value}
+                onClick={() => { changeLocale(opt.value); toast.success(t('language.updated')); }}
+                className={`w-full flex items-center justify-between px-4 py-3.5 rounded-2xl transition-colors ${opt.active ? 'bg-primary/10 ring-1 ring-primary/30' : 'bg-muted hover:bg-muted/70'}`}
+              >
+                <span className="text-sm font-display font-semibold text-foreground">{opt.label}</span>
+                {opt.active && <Check className="w-4 h-4 text-primary" />}
+              </button>
+            ))}
           </div>
         )}
 
