@@ -48,17 +48,11 @@
       "caughtUp": "You're all caught up ✨",
       "searchError": "Search error",
       "milestone": {
-        "title_1": "First capture!",
-        "subtitle_1": "The start of a great collection",
-        "title_10": "10th capture!",
-        "subtitle_10": "A sharper naturalist eye",
-        "title_25": "25th capture!",
-        "subtitle_25": "The collection is taking shape",
-        "title_50": "50th capture!",
-        "subtitle_50": "Seasoned explorer",
-        "title_100": "100th capture!",
-        "subtitle_100": "Field legend",
-        "badge": "Milestone"
+        "message_1": "This is {{name}}'s 1st capture on Faunex!",
+        "message_10": "This is {{name}}'s 10th capture on Faunex!",
+        "message_25": "This is {{name}}'s 25th capture on Faunex!",
+        "message_50": "This is {{name}}'s 50th capture on Faunex!",
+        "message_100": "This is {{name}}'s 100th capture on Faunex!"
       }
     },
     "feed": {
