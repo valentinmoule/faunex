@@ -1125,7 +1125,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
           total={selectedCollection.total}
           onBack={() => setSelectedCollectionKey(null)}
           onRemove={() => { removeCollection(selectedCollection.group.key); setSelectedCollectionKey(null); }}
-          removeLabel="Retirer la collection"
+          removeLabel={t('bestiary.collectionHero.remove')}
         />
 
         <div className="relative z-10 max-w-lg mx-auto px-3 pt-3 space-y-4">
