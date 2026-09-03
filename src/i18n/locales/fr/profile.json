@@ -66,44 +66,150 @@
         "social": "Communauté"
       },
       "items": {
-        "first_capture": { "name": "Première capture", "description": "Capturer ton premier animal" },
-        "explorer_10": { "name": "Explorateur", "description": "Réaliser 10 captures" },
-        "explorer_25": { "name": "Naturaliste", "description": "Réaliser 25 captures" },
-        "explorer_50": { "name": "Expert faune", "description": "Réaliser 50 captures" },
-        "explorer_100": { "name": "Grand collectionneur", "description": "Réaliser 100 captures" },
-        "level_5": { "name": "Niveau 5", "description": "Atteindre le niveau 5" },
-        "level_10": { "name": "Niveau 10", "description": "Atteindre le niveau 10" },
-        "regions_3": { "name": "Baroudeur", "description": "Explorer 3 régions" },
-        "regions_10": { "name": "Globe-trotteur", "description": "Explorer 10 régions" },
-        "geo_10": { "name": "Cartographe", "description": "Géolocaliser 10 captures" },
-        "night_owl": { "name": "Explorateur nocturne", "description": "Capturer un animal entre 21h et 5h" },
-        "early_bird": { "name": "Lève-tôt", "description": "Capturer un animal entre 5h et 8h" },
-        "birds_5": { "name": "Ornithologue", "description": "Capturer 5 oiseaux" },
-        "mammals_5": { "name": "Mammalogiste", "description": "Capturer 5 mammifères" },
-        "insects_5": { "name": "Entomologiste", "description": "Capturer 5 insectes" },
-        "reptiles_3": { "name": "Herpétologue", "description": "Capturer 3 reptiles" },
-        "amphibians_3": { "name": "Batracologue", "description": "Capturer 3 amphibiens" },
-        "fishes_3": { "name": "Ichtyologue", "description": "Capturer 3 poissons" },
-        "arachnids_3": { "name": "Arachnologue", "description": "Capturer 3 arachnides" },
-        "molluscs_3": { "name": "Malacologue", "description": "Capturer 3 mollusques" },
-        "crustaceans_3": { "name": "Carcinologue", "description": "Capturer 3 crustacés" },
-        "categories_all": { "name": "Touche-à-tout", "description": "Capturer au moins 1 espèce dans 9 catégories" },
-        "rare_1": { "name": "Chasseur rare", "description": "Trouver un animal rare ou mieux" },
-        "rare_10": { "name": "Traqueur de raretés", "description": "Trouver 10 animaux rares ou mieux" },
-        "legendary_1": { "name": "Éclat argenté", "description": "Trouver une espèce ultra rare" },
-        "legendary_5": { "name": "Collection argent", "description": "Trouver 5 espèces ultra rares" },
-        "mythic_1": { "name": "Étoile dorée !", "description": "Trouver une espèce de rareté or" },
-        "mythic_3": { "name": "Panthéon doré", "description": "Trouver 3 espèces de rareté or" },
-        "podium_any": { "name": "Sur le podium", "description": "Entrer dans le top 3 d’une catégorie" },
-        "top10_any": { "name": "Top 10", "description": "Entrer dans le top 10 d’une catégorie" },
-        "social_3": { "name": "Sociable", "description": "Suivre 3 explorateurs" },
-        "social_10": { "name": "Réseauteur", "description": "Suivre 10 explorateurs" },
-        "followers_5": { "name": "Inspirant", "description": "Être suivi par 5 explorateurs" },
-        "followers_25": { "name": "Star de Faunex", "description": "Être suivi par 25 explorateurs" }
+        "first_capture": {
+          "name": "Première capture",
+          "description": "Capturer ton premier animal"
+        },
+        "explorer_10": {
+          "name": "Explorateur",
+          "description": "Réaliser 10 captures"
+        },
+        "explorer_25": {
+          "name": "Naturaliste",
+          "description": "Réaliser 25 captures"
+        },
+        "explorer_50": {
+          "name": "Expert faune",
+          "description": "Réaliser 50 captures"
+        },
+        "explorer_100": {
+          "name": "Grand collectionneur",
+          "description": "Réaliser 100 captures"
+        },
+        "level_5": {
+          "name": "Niveau 5",
+          "description": "Atteindre le niveau 5"
+        },
+        "level_10": {
+          "name": "Niveau 10",
+          "description": "Atteindre le niveau 10"
+        },
+        "regions_3": {
+          "name": "Baroudeur",
+          "description": "Explorer 3 régions"
+        },
+        "regions_10": {
+          "name": "Globe-trotteur",
+          "description": "Explorer 10 régions"
+        },
+        "geo_10": {
+          "name": "Cartographe",
+          "description": "Géolocaliser 10 captures"
+        },
+        "night_owl": {
+          "name": "Explorateur nocturne",
+          "description": "Capturer un animal entre 21h et 5h"
+        },
+        "early_bird": {
+          "name": "Lève-tôt",
+          "description": "Capturer un animal entre 5h et 8h"
+        },
+        "birds_5": {
+          "name": "Ornithologue",
+          "description": "Capturer 5 oiseaux"
+        },
+        "mammals_5": {
+          "name": "Mammalogiste",
+          "description": "Capturer 5 mammifères"
+        },
+        "insects_5": {
+          "name": "Entomologiste",
+          "description": "Capturer 5 insectes"
+        },
+        "reptiles_3": {
+          "name": "Herpétologue",
+          "description": "Capturer 3 reptiles"
+        },
+        "amphibians_3": {
+          "name": "Batracologue",
+          "description": "Capturer 3 amphibiens"
+        },
+        "fishes_3": {
+          "name": "Ichtyologue",
+          "description": "Capturer 3 poissons"
+        },
+        "arachnids_3": {
+          "name": "Arachnologue",
+          "description": "Capturer 3 arachnides"
+        },
+        "molluscs_3": {
+          "name": "Malacologue",
+          "description": "Capturer 3 mollusques"
+        },
+        "crustaceans_3": {
+          "name": "Carcinologue",
+          "description": "Capturer 3 crustacés"
+        },
+        "categories_all": {
+          "name": "Touche-à-tout",
+          "description": "Capturer au moins 1 espèce dans 9 catégories"
+        },
+        "rare_1": {
+          "name": "Chasseur rare",
+          "description": "Trouver un animal rare ou mieux"
+        },
+        "rare_10": {
+          "name": "Traqueur de raretés",
+          "description": "Trouver 10 animaux rares ou mieux"
+        },
+        "legendary_1": {
+          "name": "Éclat argenté",
+          "description": "Trouver une espèce ultra rare"
+        },
+        "legendary_5": {
+          "name": "Collection argent",
+          "description": "Trouver 5 espèces ultra rares"
+        },
+        "mythic_1": {
+          "name": "Étoile dorée !",
+          "description": "Trouver une espèce de rareté or"
+        },
+        "mythic_3": {
+          "name": "Panthéon doré",
+          "description": "Trouver 3 espèces de rareté or"
+        },
+        "podium_any": {
+          "name": "Sur le podium",
+          "description": "Entrer dans le top 3 d’une catégorie"
+        },
+        "top10_any": {
+          "name": "Top 10",
+          "description": "Entrer dans le top 10 d’une catégorie"
+        },
+        "social_3": {
+          "name": "Sociable",
+          "description": "Suivre 3 explorateurs"
+        },
+        "social_10": {
+          "name": "Réseauteur",
+          "description": "Suivre 10 explorateurs"
+        },
+        "followers_5": {
+          "name": "Inspirant",
+          "description": "Être suivi par 5 explorateurs"
+        },
+        "followers_25": {
+          "name": "Star de Faunex",
+          "description": "Être suivi par 25 explorateurs"
+        }
       },
       "collectionDescription": "Compléter la collection {{label}}",
       "rank1Name": "N°1 {{category}}",
-      "rank1Description": "Être 1er du classement {{category}}"
+      "rank1Description": "Être 1er du classement {{category}}",
+      "communityBadge": {
+        "name": "Membre de la communauté",
+        "description": "Rejoindre le Discord Faunex"
+      }
     },
     "levelUp": {
       "title": "Niveau supérieur !",
@@ -259,11 +365,26 @@
       "twoMonthsOffered": "2 mois offerts",
       "billingNote": "Facturation récurrente mensuelle ou annuelle, TVA incluse le cas échéant. Sans engagement, annulable à tout moment.",
       "features": {
-        "unlimitedCaptures": { "title": "Captures illimitées", "description": "Plus de limite de 4 captures par jour." },
-        "betterDetection": { "title": "Détection et modération plus performantes", "description": "Identifie et valide tes espèces plus vite et plus précisément." },
-        "location": { "title": "Localisation des animaux autour de toi", "description": "Repère les espèces présentes près de ta position." },
-        "notes": { "title": "Notes sur tes captures", "description": "Garde tes observations de terrain avec chaque carte." },
-        "moreToCome": { "title": "Plein d'autres choses à venir…", "description": "Les prochaines nouveautés arrivent en priorité chez les abonnés." }
+        "unlimitedCaptures": {
+          "title": "Captures illimitées",
+          "description": "Plus de limite de 4 captures par jour."
+        },
+        "betterDetection": {
+          "title": "Détection et modération plus performantes",
+          "description": "Identifie et valide tes espèces plus vite et plus précisément."
+        },
+        "location": {
+          "title": "Localisation des animaux autour de toi",
+          "description": "Repère les espèces présentes près de ta position."
+        },
+        "notes": {
+          "title": "Notes sur tes captures",
+          "description": "Garde tes observations de terrain avec chaque carte."
+        },
+        "moreToCome": {
+          "title": "Plein d'autres choses à venir…",
+          "description": "Les prochaines nouveautés arrivent en priorité chez les abonnés."
+        }
       },
       "chooseSubscription": "Choisir mon abonnement",
       "accountRequired": "Un compte Faunex est nécessaire pour finaliser l'abonnement.",

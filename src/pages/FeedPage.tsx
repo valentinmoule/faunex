@@ -7,6 +7,7 @@ import CardDetailSheet from '@/components/CardDetailSheet';
 import { type AnimalCard, type Rarity, RARITY_LABELS } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 interface FeedCapture {
   id: string;
@@ -46,6 +47,7 @@ interface Comment {
 }
 
 const FeedPage = () => {
+  const { t } = useTranslation();
   const { session } = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -312,11 +314,11 @@ const FeedPage = () => {
   const timeAgo = (date: string) => {
     const diff = Date.now() - new Date(date).getTime();
     const mins = Math.floor(diff / 60000);
-    if (mins < 60) return `Il y a ${mins}min`;
+    if (mins < 60) return t('social.common.timeAgo_min', { count: mins });
     const hours = Math.floor(mins / 60);
-    if (hours < 24) return `Il y a ${hours}h`;
+    if (hours < 24) return t('social.common.timeAgo_hour', { count: hours });
     const days = Math.floor(hours / 24);
-    return `Il y a ${days}j`;
+    return t('social.common.timeAgo_day', { count: days });
   };
 
   return (
@@ -349,7 +351,7 @@ const FeedPage = () => {
       <div className="max-w-lg mx-auto">
         {loading ? (
           <div className="text-center py-16">
-            <p className="text-muted-foreground font-display">Chargement…</p>
+            <p className="text-muted-foreground font-display">{t('social.common.loading')}</p>
           </div>
         ) : posts.length === 0 ? (
           <div className="text-center py-16">
@@ -361,7 +363,7 @@ const FeedPage = () => {
           <div className="divide-y divide-border">
             {posts.map(post => {
               const profile = post.profiles;
-              const userName = profile?.display_name || profile?.username || 'Anonyme';
+              const userName = profile?.display_name || profile?.username || t('social.common.anonymous');
               const avatarUrl = profile?.avatar_url;
               const isLiked = likedPosts.has(post.id);
               const likeCount = likeCounts[post.id] || 0;
@@ -429,7 +431,7 @@ const FeedPage = () => {
                   {isCommentsOpen && (
                     <div className="px-4 mt-2 space-y-2">
                       {loadingComments ? (
-                        <p className="text-xs text-muted-foreground py-1">Chargement…</p>
+                        <p className="text-xs text-muted-foreground py-1">{t('social.common.loading')}</p>
                       ) : comments.length === 0 ? (
                         <p className="text-xs text-muted-foreground py-1">Aucun commentaire — sois le premier !</p>
                       ) : (
@@ -446,7 +448,7 @@ const FeedPage = () => {
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-baseline gap-1.5">
                                   <span className="text-[11px] font-display font-semibold text-foreground">
-                                    {comment.profile?.display_name || comment.profile?.username || 'Anonyme'}
+                                    {comment.profile?.display_name || comment.profile?.username || t('social.common.anonymous')}
                                   </span>
                                   <span className="text-[9px] text-muted-foreground">{timeAgo(comment.created_at)}</span>
                                 </div>
@@ -462,7 +464,7 @@ const FeedPage = () => {
                           value={newComment}
                           onChange={(e) => setNewComment(e.target.value)}
                           onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSubmitComment(post.id)}
-                          placeholder="Commenter…"
+                          placeholder={t('social.feed.commentPlaceholder')}
                           className="flex-1 bg-muted rounded-full px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body"
                         />
                         <button

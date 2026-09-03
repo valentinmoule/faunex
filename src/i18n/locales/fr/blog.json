@@ -1,0 +1,14 @@
+{
+  "blog": {
+    "backToGuides": "Tous les guides",
+    "backToUseCases": "Tous les cas d'usage",
+    "readingTime": "{{count}} min",
+    "home": "Accueil",
+    "guidesBreadcrumb": "Guides",
+    "useCasesBreadcrumb": "Cas d'usage",
+    "ctaTitle": "Essaie Faunex gratuitement",
+    "ctaDescription": "Photographie un animal, l'IA l'identifie, tu collectionnes sa carte comme un vrai bestiaire.",
+    "ctaButton": "Créer mon compte gratuit",
+    "relatedTitle": "À lire aussi"
+  }
+}

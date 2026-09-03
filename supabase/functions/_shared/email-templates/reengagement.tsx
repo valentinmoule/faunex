@@ -13,42 +13,61 @@ import {
   Preview,
   Text,
 } from 'npm:@react-email/components@0.0.22'
+import type { Locale } from '../i18n.ts'
+import { pick, resolveLocale } from '../i18n.ts'
 
 interface ReengagementEmailProps {
   displayName: string
   siteUrl: string
+  locale?: Locale | string
 }
 
 export const ReengagementEmail = ({
   displayName,
   siteUrl,
-}: ReengagementEmailProps) => (
-  <Html lang="fr" dir="ltr">
-    <Head />
-    <Preview>La nature t'attend, {displayName} ! 🌿</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Img src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png" width="48" height="48" alt="Faunex" style={logo} />
-        <Heading style={h1}>Salut {displayName} ! 🦊</Heading>
-        <Text style={text}>
-          Ça fait déjà 2 jours que tu as rejoint Faunex — et il y a plein d'espèces qui n'attendent que toi !
-        </Text>
-        <Text style={text}>
-          🐦 Ouvre l'appareil photo et capture ton premier animal{'\n'}
-          🌍 Explore ta région et découvre la faune locale{'\n'}
-          🏆 Gagne de l'XP et monte en niveau
-        </Text>
-        <Button style={button} href={siteUrl}>
-          Partir en exploration
-        </Button>
-        <Text style={footer}>
-          À bientôt sur les sentiers !{'\n'}
-          L'équipe Faunex 🌿
-        </Text>
-      </Container>
-    </Body>
-  </Html>
-)
+  locale,
+}: ReengagementEmailProps) => {
+  const l = resolveLocale(locale as string | undefined)
+  return (
+    <Html lang={l} dir="ltr">
+      <Head />
+      <Preview>{pick({ fr: `La nature t'attend, ${displayName} ! 🌿`, en: `Nature is waiting for you, ${displayName}! 🌿` }, l)}</Preview>
+      <Body style={main}>
+        <Container style={container}>
+          <Img src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png" width="48" height="48" alt="Faunex" style={logo} />
+          <Heading style={h1}>{pick({ fr: `Salut ${displayName} ! 🦊`, en: `Hey ${displayName}! 🦊` }, l)}</Heading>
+          <Text style={text}>
+            {pick(
+              {
+                fr: "Ça fait déjà 2 jours que tu as rejoint Faunex — et il y a plein d'espèces qui n'attendent que toi !",
+                en: "It's already been 2 days since you joined Faunex — and plenty of species are just waiting for you!",
+              },
+              l,
+            )}
+          </Text>
+          <Text style={text}>
+            {pick(
+              {
+                fr: "🐦 Ouvre l'appareil photo et capture ton premier animal\n🌍 Explore ta région et découvre la faune locale\n🏆 Gagne de l'XP et monte en niveau",
+                en: '🐦 Open the camera and capture your first animal\n🌍 Explore your area and discover local wildlife\n🏆 Earn XP and level up',
+              },
+              l,
+            )}
+          </Text>
+          <Button style={button} href={siteUrl}>
+            {pick({ fr: "Partir en exploration", en: 'Start exploring' }, l)}
+          </Button>
+          <Text style={footer}>
+            {pick(
+              { fr: "À bientôt sur les sentiers !\nL'équipe Faunex 🌿", en: 'See you on the trails soon!\nThe Faunex team 🌿' },
+              l,
+            )}
+          </Text>
+        </Container>
+      </Body>
+    </Html>
+  )
+}
 
 export default ReengagementEmail
 

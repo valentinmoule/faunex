@@ -12,51 +12,73 @@ import {
   Preview,
   Text,
 } from 'npm:@react-email/components@0.0.22'
+import type { Locale } from '../i18n.ts'
+import { pick, resolveLocale } from '../i18n.ts'
 
 interface NoCaptureNudgeEmailProps {
   displayName: string
   siteUrl: string
+  locale?: Locale | string
 }
 
 export const NoCaptureNudgeEmail = ({
   displayName,
   siteUrl,
-}: NoCaptureNudgeEmailProps) => (
-  <Html lang="fr" dir="ltr">
-    <Head />
-    <Preview>Ta première carte t'attend, {displayName} 🦊</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Img
-          src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png"
-          width="48"
-          height="48"
-          alt="Faunex"
-          style={logo}
-        />
-        <Heading style={h1}>Hé {displayName}, prêt(e) pour la chasse ? 🌿</Heading>
-        <Text style={text}>
-          Une semaine que tu nous as rejoints, et ton bestiaire est encore tout vide…
-          quelque part près de chez toi, une carte attend que tu la débloques !
-        </Text>
-        <Text style={textHighlight}>
-          📸 Une photo, 3 secondes d'IA, et hop : ta première espèce capturée.
-        </Text>
-        <Text style={text}>
-          Pigeon de balcon, fourmi du trottoir, mésange du parc — même les espèces communes
-          comptent. Chaque capture rapporte de l'XP et fait grossir ta collection.
-        </Text>
-        <Button style={button} href={`${siteUrl}/capture`}>
-          Faire ma première capture
-        </Button>
-        <Text style={footer}>
-          On t'attend sur les sentiers !{'\n'}
-          L'équipe Faunex 🦊
-        </Text>
-      </Container>
-    </Body>
-  </Html>
-)
+  locale,
+}: NoCaptureNudgeEmailProps) => {
+  const l = resolveLocale(locale as string | undefined)
+  return (
+    <Html lang={l} dir="ltr">
+      <Head />
+      <Preview>{pick({ fr: `Ta première carte t'attend, ${displayName} 🦊`, en: `Your first card is waiting, ${displayName} 🦊` }, l)}</Preview>
+      <Body style={main}>
+        <Container style={container}>
+          <Img
+            src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png"
+            width="48"
+            height="48"
+            alt="Faunex"
+            style={logo}
+          />
+          <Heading style={h1}>{pick({ fr: `Hé ${displayName}, prêt(e) pour la chasse ? 🌿`, en: `Hey ${displayName}, ready for the hunt? 🌿` }, l)}</Heading>
+          <Text style={text}>
+            {pick(
+              {
+                fr: "Une semaine que tu nous as rejoints, et ton bestiaire est encore tout vide… quelque part près de chez toi, une carte attend que tu la débloques !",
+                en: "It's been a week since you joined, and your bestiary is still empty… somewhere near you, a card is waiting to be unlocked!",
+              },
+              l,
+            )}
+          </Text>
+          <Text style={textHighlight}>
+            {pick(
+              { fr: "📸 Une photo, 3 secondes d'IA, et hop : ta première espèce capturée.", en: '📸 One photo, 3 seconds of AI, and boom: your first species captured.' },
+              l,
+            )}
+          </Text>
+          <Text style={text}>
+            {pick(
+              {
+                fr: "Pigeon de balcon, fourmi du trottoir, mésange du parc — même les espèces communes comptent. Chaque capture rapporte de l'XP et fait grossir ta collection.",
+                en: 'Balcony pigeon, sidewalk ant, park tit — even common species count. Every capture earns XP and grows your collection.',
+              },
+              l,
+            )}
+          </Text>
+          <Button style={button} href={`${siteUrl}/capture`}>
+            {pick({ fr: 'Faire ma première capture', en: 'Make my first capture' }, l)}
+          </Button>
+          <Text style={footer}>
+            {pick(
+              { fr: "On t'attend sur les sentiers !\nL'équipe Faunex 🦊", en: "We'll see you on the trails!\nThe Faunex team 🦊" },
+              l,
+            )}
+          </Text>
+        </Container>
+      </Body>
+    </Html>
+  )
+}
 
 export default NoCaptureNudgeEmail
 

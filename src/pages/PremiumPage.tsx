@@ -12,6 +12,8 @@ import { PREMIUM_MONTHLY_PRICE_ID, PREMIUM_YEARLY_PRICE_ID } from '@/lib/paddle'
 import { supabase } from '@/integrations/supabase/client';
 import { IS_NATIVE_APP } from '@/lib/platform';
 import { Browser } from '@capacitor/browser';
+import { useTranslation } from 'react-i18next';
+import { useAppLocale } from '@/hooks/useAppLocale';
 
 interface FeatureRow {
   label: string;
@@ -19,76 +21,79 @@ interface FeatureRow {
   premium: ReactNode;
 }
 
-const FEATURES: FeatureRow[] = [
+const useFeatures = (t: (key: string) => string): FeatureRow[] => [
   {
-    label: 'Identification des animaux',
+    label: t('profile.premium.features.identification'),
     free: <span className="text-sm font-medium">4</span>,
-    premium: <span className="text-sm font-semibold text-primary">Illimitée</span>,
+    premium: <span className="text-sm font-semibold text-primary">{t('profile.premium.features.unlimited')}</span>,
   },
   {
-    label: 'Recherche de zones',
+    label: t('profile.premium.features.zoneSearch'),
     free: <span className="text-sm font-medium">4</span>,
-    premium: <span className="text-sm font-semibold text-primary">Illimitée</span>,
+    premium: <span className="text-sm font-semibold text-primary">{t('profile.premium.features.unlimited')}</span>,
   },
   {
-    label: 'Collections et territoires',
+    label: t('profile.premium.features.collections'),
     free: <span className="text-sm font-medium">3</span>,
-    premium: <span className="text-sm font-semibold text-primary">Illimités</span>,
+    premium: <span className="text-sm font-semibold text-primary">{t('profile.premium.features.unlimitedPlural')}</span>,
   },
   {
-    label: 'Badge Premium sur le profil',
+    label: t('profile.premium.features.premiumBadge'),
     free: <Minus className="h-4 w-4 text-muted-foreground" />,
     premium: <Check className="h-4 w-4 text-primary" />,
   },
   {
-    label: 'Notes et localisation',
+    label: t('profile.premium.features.notesLocation'),
     free: <Check className="h-4 w-4 text-foreground" />,
     premium: <Check className="h-4 w-4 text-primary" />,
   },
   {
-    label: 'Quêtes et objectifs',
+    label: t('profile.premium.features.quests'),
     free: <Check className="h-4 w-4 text-foreground" />,
     premium: <Check className="h-4 w-4 text-primary" />,
   },
   {
-    label: 'Classement et badges',
+    label: t('profile.premium.features.leaderboard'),
     free: <Check className="h-4 w-4 text-foreground" />,
     premium: <Check className="h-4 w-4 text-primary" />,
   },
 ];
 
-
-const PLANS = {
+const usePlans = (t: (key: string) => string) => ({
   monthly: {
     priceId: PREMIUM_MONTHLY_PRICE_ID,
-    label: 'Mensuel',
+    label: t('profile.premium.plans.monthly.label'),
     price: '2,40 €',
     period: '/ mois',
-    note: 'Facturation mensuelle, annulez à tout moment.',
-    cta: "S'abonner pour 2,40 €/mois",
+    note: t('profile.premium.plans.monthly.note'),
+    cta: t('profile.premium.plans.monthly.cta'),
   },
   yearly: {
     priceId: PREMIUM_YEARLY_PRICE_ID,
-    label: 'Annuel',
+    label: t('profile.premium.plans.yearly.label'),
     price: '24 €',
     period: '/ an',
-    note: 'Soit 2 € par mois — 2 mois offerts par rapport au mensuel.',
-    cta: "S'abonner pour 24 €/an",
+    note: t('profile.premium.plans.yearly.note'),
+    cta: t('profile.premium.plans.yearly.cta'),
   },
-} as const;
+} as const);
 
 const PremiumPage = () => {
   const navigate = useNavigate();
   const { session } = useAuth();
+  const { t } = useTranslation();
+  const { locale } = useAppLocale();
   const [params, setParams] = useSearchParams();
   const { isPremium, subscription, loading, refresh } = useSubscription(session?.user?.id);
   const { openCheckout, loading: checkoutLoading } = usePaddleCheckout();
   const [plan, setPlan] = useState<'monthly' | 'yearly'>('yearly');
+  const FEATURES = useFeatures(t);
+  const PLANS = usePlans(t);
   const selected = PLANS[plan];
 
   useEffect(() => {
     if (params.get('checkout') === 'success') {
-      toast.success('Merci ! Ton abonnement est en cours d\'activation.');
+      toast.success(t('profile.premium.checkoutSuccess'));
       params.delete('checkout');
       setParams(params, { replace: true });
       const timer = setTimeout(refresh, 2500);
@@ -122,7 +127,7 @@ const PremiumPage = () => {
       successUrl: `${window.location.origin}/premium?checkout=success`,
     }).catch((e) => {
       console.error(e);
-      toast.error("Impossible d'ouvrir le paiement pour le moment.");
+      toast.error(t('profile.premium.checkoutError'));
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoCheckout]);
@@ -142,7 +147,7 @@ const PremiumPage = () => {
       });
     } catch (e) {
       console.error(e);
-      toast.error("Impossible d'ouvrir le paiement pour le moment.");
+      toast.error(t('profile.premium.checkoutError'));
     }
   };
 
@@ -152,7 +157,7 @@ const PremiumPage = () => {
       // par le navigateur système.
       const { data, error } = await supabase.functions.invoke('paddle-portal');
       if (error || !data?.url) {
-        toast.error("Impossible d'ouvrir la gestion de l'abonnement.");
+        toast.error(t('profile.premium.manageError'));
         return;
       }
       await Browser.open({ url: data.url as string });
@@ -163,7 +168,7 @@ const PremiumPage = () => {
     const { data, error } = await supabase.functions.invoke('paddle-portal');
     if (error || !data?.url) {
       tab?.close();
-      toast.error("Impossible d'ouvrir la gestion de l'abonnement.");
+      toast.error(t('profile.premium.manageError'));
       return;
     }
     if (tab) {
@@ -180,7 +185,7 @@ const PremiumPage = () => {
       <PageHeader className="px-4 pb-2">
         <button
           onClick={() => navigate(-1)}
-          aria-label="Retour"
+          aria-label={t('profile.premium.backAria')}
           className="h-10 w-10 rounded-full bg-card border border-border flex items-center justify-center shadow-sm"
         >
           <ArrowLeft className="h-5 w-5" />
@@ -191,15 +196,13 @@ const PremiumPage = () => {
         <section className="relative overflow-hidden rounded-[2rem] border border-border bg-card p-6 shadow-sm">
           <div className="absolute -top-16 -right-10 h-40 w-40 rounded-full bg-primary/10 blur-2xl" aria-hidden />
           <span className="relative inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-            <Crown className="h-3.5 w-3.5" /> Faunex Premium
+            <Crown className="h-3.5 w-3.5" /> {t('profile.premium.badge')}
           </span>
           <h1 className="relative mt-4 font-display text-2xl font-bold leading-tight">
-            Soutenez Faunex et débloquez le meilleur de l'application.
+            {t('profile.premium.title')}
           </h1>
           <p className="relative mt-2 text-sm text-muted-foreground">
-            Faunex est un petit projet indépendant qui grandit grâce à vous. Votre abonnement aide
-            directement à financer les serveurs, les modèles d'IA et le développement de nouvelles
-            fonctionnalités.
+            {t('profile.premium.description')}
           </p>
 
 
@@ -216,7 +219,7 @@ const PremiumPage = () => {
                   {PLANS[key].label}
                   {key === 'yearly' && (
                     <span className="ml-1.5 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary">
-                      -17%
+                      {t('profile.premium.discount')}
                     </span>
                   )}
                 </button>
@@ -234,11 +237,11 @@ const PremiumPage = () => {
         </section>
 
         <div className="mt-5 rounded-[2rem] border border-border bg-card p-5 shadow-sm">
-          <h2 className="font-display text-lg font-semibold mb-4">Compare les fonctionnalités</h2>
+          <h2 className="font-display text-lg font-semibold mb-4">{t('profile.premium.compareFeatures')}</h2>
           <div className="overflow-hidden rounded-2xl border border-border">
             <div className="grid grid-cols-[1fr_80px_80px] bg-muted">
-              <div className="px-4 py-3 text-xs font-semibold text-muted-foreground">Fonctionnalité</div>
-              <div className="px-2 py-3 text-center text-xs font-semibold text-muted-foreground">Gratuit</div>
+              <div className="px-4 py-3 text-xs font-semibold text-muted-foreground">{t('profile.premium.feature')}</div>
+              <div className="px-2 py-3 text-center text-xs font-semibold text-muted-foreground">{t('profile.premium.free')}</div>
               <div className="px-2 py-3 text-center text-xs font-semibold text-primary">Premium</div>
             </div>
             {FEATURES.map((feature, index) => (
@@ -267,16 +270,16 @@ const PremiumPage = () => {
           ) : isPremium ? (
             <>
               <div className="flex items-center justify-center gap-2 rounded-2xl bg-primary/10 px-4 py-3 text-sm font-semibold text-primary">
-                <Check className="h-4 w-4" /> Abonnement actif
+                <Check className="h-4 w-4" /> {t('profile.premium.activeSubscription')}
               </div>
               {subscription?.current_period_end && (
                 <p className="text-center text-xs text-muted-foreground">
-                  {subscription.cancel_at_period_end ? 'Accès jusqu\'au ' : 'Prochain renouvellement le '}
-                  {new Date(subscription.current_period_end).toLocaleDateString('fr-FR')}
+                  {subscription.cancel_at_period_end ? t('profile.premium.accessUntil') : t('profile.premium.nextRenewal')}
+                  {new Date(subscription.current_period_end).toLocaleDateString(locale === 'en' ? 'en-US' : 'fr-FR')}
                 </p>
               )}
               <Button variant="outline" onClick={handleManage} className="h-12 w-full rounded-2xl">
-                Gérer mon abonnement
+                {t('profile.premium.manage')}
               </Button>
             </>
           ) : (
@@ -289,7 +292,7 @@ const PremiumPage = () => {
             </Button>
           )}
           <p className="text-center text-[11px] text-muted-foreground">
-            Paiement sécurisé. Sans engagement, résiliable en un clic.
+            {t('profile.premium.secure')}
           </p>
         </div>
       </div>

@@ -66,44 +66,150 @@
         "social": "Community"
       },
       "items": {
-        "first_capture": { "name": "First capture", "description": "Capture your first animal" },
-        "explorer_10": { "name": "Explorer", "description": "Make 10 captures" },
-        "explorer_25": { "name": "Naturalist", "description": "Make 25 captures" },
-        "explorer_50": { "name": "Wildlife expert", "description": "Make 50 captures" },
-        "explorer_100": { "name": "Grand collector", "description": "Make 100 captures" },
-        "level_5": { "name": "Level 5", "description": "Reach level 5" },
-        "level_10": { "name": "Level 10", "description": "Reach level 10" },
-        "regions_3": { "name": "Wanderer", "description": "Explore 3 regions" },
-        "regions_10": { "name": "Globetrotter", "description": "Explore 10 regions" },
-        "geo_10": { "name": "Cartographer", "description": "Geolocate 10 captures" },
-        "night_owl": { "name": "Night explorer", "description": "Capture an animal between 9pm and 5am" },
-        "early_bird": { "name": "Early bird", "description": "Capture an animal between 5am and 8am" },
-        "birds_5": { "name": "Ornithologist", "description": "Capture 5 birds" },
-        "mammals_5": { "name": "Mammalogist", "description": "Capture 5 mammals" },
-        "insects_5": { "name": "Entomologist", "description": "Capture 5 insects" },
-        "reptiles_3": { "name": "Herpetologist", "description": "Capture 3 reptiles" },
-        "amphibians_3": { "name": "Batrachologist", "description": "Capture 3 amphibians" },
-        "fishes_3": { "name": "Ichthyologist", "description": "Capture 3 fish" },
-        "arachnids_3": { "name": "Arachnologist", "description": "Capture 3 arachnids" },
-        "molluscs_3": { "name": "Malacologist", "description": "Capture 3 molluscs" },
-        "crustaceans_3": { "name": "Carcinologist", "description": "Capture 3 crustaceans" },
-        "categories_all": { "name": "Jack of all trades", "description": "Capture at least 1 species in 9 categories" },
-        "rare_1": { "name": "Rare hunter", "description": "Find a rare animal or better" },
-        "rare_10": { "name": "Rarity tracker", "description": "Find 10 rare animals or better" },
-        "legendary_1": { "name": "Silver shine", "description": "Find an ultra rare species" },
-        "legendary_5": { "name": "Silver collection", "description": "Find 5 ultra rare species" },
-        "mythic_1": { "name": "Golden star!", "description": "Find a gold rarity species" },
-        "mythic_3": { "name": "Golden pantheon", "description": "Find 3 gold rarity species" },
-        "podium_any": { "name": "On the podium", "description": "Reach the top 3 of a category" },
-        "top10_any": { "name": "Top 10", "description": "Reach the top 10 of a category" },
-        "social_3": { "name": "Sociable", "description": "Follow 3 explorers" },
-        "social_10": { "name": "Networker", "description": "Follow 10 explorers" },
-        "followers_5": { "name": "Inspiring", "description": "Be followed by 5 explorers" },
-        "followers_25": { "name": "Faunex star", "description": "Be followed by 25 explorers" }
+        "first_capture": {
+          "name": "First capture",
+          "description": "Capture your first animal"
+        },
+        "explorer_10": {
+          "name": "Explorer",
+          "description": "Make 10 captures"
+        },
+        "explorer_25": {
+          "name": "Naturalist",
+          "description": "Make 25 captures"
+        },
+        "explorer_50": {
+          "name": "Wildlife expert",
+          "description": "Make 50 captures"
+        },
+        "explorer_100": {
+          "name": "Grand collector",
+          "description": "Make 100 captures"
+        },
+        "level_5": {
+          "name": "Level 5",
+          "description": "Reach level 5"
+        },
+        "level_10": {
+          "name": "Level 10",
+          "description": "Reach level 10"
+        },
+        "regions_3": {
+          "name": "Wanderer",
+          "description": "Explore 3 regions"
+        },
+        "regions_10": {
+          "name": "Globetrotter",
+          "description": "Explore 10 regions"
+        },
+        "geo_10": {
+          "name": "Cartographer",
+          "description": "Geolocate 10 captures"
+        },
+        "night_owl": {
+          "name": "Night explorer",
+          "description": "Capture an animal between 9pm and 5am"
+        },
+        "early_bird": {
+          "name": "Early bird",
+          "description": "Capture an animal between 5am and 8am"
+        },
+        "birds_5": {
+          "name": "Ornithologist",
+          "description": "Capture 5 birds"
+        },
+        "mammals_5": {
+          "name": "Mammalogist",
+          "description": "Capture 5 mammals"
+        },
+        "insects_5": {
+          "name": "Entomologist",
+          "description": "Capture 5 insects"
+        },
+        "reptiles_3": {
+          "name": "Herpetologist",
+          "description": "Capture 3 reptiles"
+        },
+        "amphibians_3": {
+          "name": "Batrachologist",
+          "description": "Capture 3 amphibians"
+        },
+        "fishes_3": {
+          "name": "Ichthyologist",
+          "description": "Capture 3 fish"
+        },
+        "arachnids_3": {
+          "name": "Arachnologist",
+          "description": "Capture 3 arachnids"
+        },
+        "molluscs_3": {
+          "name": "Malacologist",
+          "description": "Capture 3 molluscs"
+        },
+        "crustaceans_3": {
+          "name": "Carcinologist",
+          "description": "Capture 3 crustaceans"
+        },
+        "categories_all": {
+          "name": "Jack of all trades",
+          "description": "Capture at least 1 species in 9 categories"
+        },
+        "rare_1": {
+          "name": "Rare hunter",
+          "description": "Find a rare animal or better"
+        },
+        "rare_10": {
+          "name": "Rarity tracker",
+          "description": "Find 10 rare animals or better"
+        },
+        "legendary_1": {
+          "name": "Silver shine",
+          "description": "Find an ultra rare species"
+        },
+        "legendary_5": {
+          "name": "Silver collection",
+          "description": "Find 5 ultra rare species"
+        },
+        "mythic_1": {
+          "name": "Golden star!",
+          "description": "Find a gold rarity species"
+        },
+        "mythic_3": {
+          "name": "Golden pantheon",
+          "description": "Find 3 gold rarity species"
+        },
+        "podium_any": {
+          "name": "On the podium",
+          "description": "Reach the top 3 of a category"
+        },
+        "top10_any": {
+          "name": "Top 10",
+          "description": "Reach the top 10 of a category"
+        },
+        "social_3": {
+          "name": "Sociable",
+          "description": "Follow 3 explorers"
+        },
+        "social_10": {
+          "name": "Networker",
+          "description": "Follow 10 explorers"
+        },
+        "followers_5": {
+          "name": "Inspiring",
+          "description": "Be followed by 5 explorers"
+        },
+        "followers_25": {
+          "name": "Faunex star",
+          "description": "Be followed by 25 explorers"
+        }
       },
       "collectionDescription": "Complete the {{label}} collection",
       "rank1Name": "#1 {{category}}",
-      "rank1Description": "Be #1 of the {{category}} leaderboard"
+      "rank1Description": "Be #1 of the {{category}} leaderboard",
+      "communityBadge": {
+        "name": "Community member",
+        "description": "Join the Faunex Discord"
+      }
     },
     "levelUp": {
       "title": "Level up!",
@@ -259,11 +365,26 @@
       "twoMonthsOffered": "2 months free",
       "billingNote": "Recurring monthly or yearly billing, VAT included where applicable. No commitment, cancel anytime.",
       "features": {
-        "unlimitedCaptures": { "title": "Unlimited captures", "description": "No more 4-capture daily limit." },
-        "betterDetection": { "title": "Better detection and moderation", "description": "Identify and validate your species faster and more accurately." },
-        "location": { "title": "Location of animals around you", "description": "Spot species present near your position." },
-        "notes": { "title": "Notes on your captures", "description": "Keep your field observations with each card." },
-        "moreToCome": { "title": "Lots more to come…", "description": "Upcoming features arrive first for subscribers." }
+        "unlimitedCaptures": {
+          "title": "Unlimited captures",
+          "description": "No more 4-capture daily limit."
+        },
+        "betterDetection": {
+          "title": "Better detection and moderation",
+          "description": "Identify and validate your species faster and more accurately."
+        },
+        "location": {
+          "title": "Location of animals around you",
+          "description": "Spot species present near your position."
+        },
+        "notes": {
+          "title": "Notes on your captures",
+          "description": "Keep your field observations with each card."
+        },
+        "moreToCome": {
+          "title": "Lots more to come…",
+          "description": "Upcoming features arrive first for subscribers."
+        }
       },
       "chooseSubscription": "Choose my subscription",
       "accountRequired": "A Faunex account is required to complete the subscription.",

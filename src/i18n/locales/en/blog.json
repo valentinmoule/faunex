@@ -1,0 +1,14 @@
+{
+  "blog": {
+    "backToGuides": "All guides",
+    "backToUseCases": "All use cases",
+    "readingTime": "{{count}} min",
+    "home": "Home",
+    "guidesBreadcrumb": "Guides",
+    "useCasesBreadcrumb": "Use cases",
+    "ctaTitle": "Try Faunex for free",
+    "ctaDescription": "Snap a photo of an animal, let the AI identify it, and collect its card like a real bestiary.",
+    "ctaButton": "Create my free account",
+    "relatedTitle": "You might also like"
+  }
+}

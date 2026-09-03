@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
+import i18n from '@/i18n';
 import { supabase } from '@/integrations/supabase/client';
 import { compressForAI, dataUrlBytes, hashDataUrl } from '@/lib/imageProcessing';
 import type { AnimalResult } from '@/types/capture';
@@ -14,19 +15,19 @@ type IdentifyOutcome =
   | { status: 'rejected'; kind: RejectionKind; title: string; message: string }
   | { status: 'error'; message: string };
 
-/** Libellés lisibles des types d'images non photographiques refusés. */
-const IMAGE_TYPE_LABELS: Record<string, string> = {
-  illustration: 'une illustration',
-  dessin: 'un dessin',
-  logo_icone: 'un logo ou une icône',
-  peinture: 'une peinture',
-  rendu_3d: 'une image de synthèse',
-  image_generee_ia: 'une image générée par IA',
-  capture_ecran: "une capture d'écran",
-  photo_ecran_ou_papier: "la photo d'un écran ou d'une image imprimée",
-  jouet_peluche_figurine: 'un jouet, une peluche ou une figurine',
-  objet_representation: 'un objet représentant un animal (statue, décoration, souvenir…)',
-  animal_mort_ou_plat: 'un animal mort ou préparé (plat, étal, trophée…)',
+/** Clés i18n des types d'images non photographiques refusés (capture.imageTypes.*). */
+const IMAGE_TYPE_LABEL_KEYS: Record<string, string> = {
+  illustration: 'illustration',
+  dessin: 'dessin',
+  logo_icone: 'logo_icone',
+  peinture: 'peinture',
+  rendu_3d: 'rendu_3d',
+  image_generee_ia: 'image_generee_ia',
+  capture_ecran: 'capture_ecran',
+  photo_ecran_ou_papier: 'photo_ecran_ou_papier',
+  jouet_peluche_figurine: 'jouet_peluche_figurine',
+  objet_representation: 'objet_representation',
+  animal_mort_ou_plat: 'animal_mort_ou_plat',
 };
 
 /** Types d'images qui trahissent une photo récupérée en ligne plutôt qu'une observation. */
@@ -125,7 +126,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 /** Empêche une analyse de rester bloquée indéfiniment (réseau mobile instable). */
 const withTimeout = <T,>(promise: PromiseLike<T>, ms: number): Promise<T> =>
   new Promise<T>((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error("TIMEOUT: l'analyse a pris trop de temps")), ms);
+    const timer = setTimeout(() => reject(new Error('TIMEOUT: ' + i18n.t('capture.errors.analysisTimeout'))), ms);
     Promise.resolve(promise).then(
       (v) => { clearTimeout(timer); resolve(v); },
       (e) => { clearTimeout(timer); reject(e); },
@@ -245,7 +246,7 @@ export const useAnimalIdentification = () => {
             message:
               typeof data?.message === 'string'
                 ? data.message
-                : "Tu as atteint ta limite d'analyses pour aujourd'hui.",
+                : i18n.t('capture.errors.dailyAnalysisLimit'),
           };
         }
 
@@ -253,28 +254,29 @@ export const useAnimalIdentification = () => {
         // garde la possibilité de demander une modération humaine.
         if (data?.reason === 'not_a_real_photo') {
           const imageType = String(data?.image_type ?? '');
-          const label = IMAGE_TYPE_LABELS[imageType] ?? 'une image graphique';
+          const labelKey = IMAGE_TYPE_LABEL_KEYS[imageType] ?? 'default';
+          const label = i18n.t(`capture.imageTypes.${labelKey}`);
           if (imageType === 'animal_mort_ou_plat') {
             return {
               status: 'rejected',
               kind: 'dead',
-              title: 'Pas au menu 🦀',
-              message: "Faunex recense les animaux VIVANTS croisés sur le terrain. Un animal mort, servi dans une assiette, sur un étal ou en trophée ne compte pas comme une observation. Retente avec un animal bien vivant !",
+              title: i18n.t('capture.rejected.dead.title'),
+              message: i18n.t('capture.rejected.dead.message'),
             };
           }
           if (INTERNET_IMAGE_TYPES.includes(imageType)) {
             return {
               status: 'rejected',
               kind: 'internet',
-              title: 'Photo pas prise sur le terrain 👀',
-              message: `On a repéré ${label} : cette image ne vient visiblement pas de ton appareil. Faunex, c'est tes propres observations, pas les photos des autres. Reprends l'animal en photo toi-même !`,
+              title: i18n.t('capture.rejected.internet.title'),
+              message: i18n.t('capture.rejected.internet.message', { label }),
             };
           }
           return {
             status: 'rejected',
             kind: 'representation',
-            title: 'Bien tenté 😏',
-            message: `Ce n'est pas un animal vivant, mais ${label}. Faunex n'accepte que de vraies photographies d'animaux croisés sur le terrain — les statues, jouets et dessins ne comptent pas.`,
+            title: i18n.t('capture.rejected.representation.title'),
+            message: i18n.t('capture.rejected.representation.message', { label }),
           };
         }
 
@@ -290,8 +292,8 @@ export const useAnimalIdentification = () => {
           return {
             status: 'rejected',
             kind: 'human',
-            title: 'Les humains ne se collectionnent pas 🙂',
-            message: "Faunex recense la faune sauvage et domestique : les personnes (et les selfies) ne font pas partie du jeu. Vise un animal et retente ta chance !",
+            title: i18n.t('capture.rejected.human.title'),
+            message: i18n.t('capture.rejected.human.message'),
           };
         }
         if (
@@ -372,12 +374,12 @@ export const useAnimalIdentification = () => {
 
         const raw = JSON.stringify((lastError as any)?.message ?? lastError ?? '');
         const message = raw.includes('TIMEOUT')
-          ? "L'analyse a été trop longue (connexion lente). Réessaie."
+          ? i18n.t('capture.errors.analysisTooSlow')
           : raw.includes('429')
-            ? "L'IA est surchargée, réessaie dans quelques secondes."
+            ? i18n.t('capture.errors.aiOverloaded')
             : raw.includes('402')
-              ? "Le service d'identification est momentanément indisponible."
-              : "L'analyse a échoué (connexion ou serveur). Réessaie.";
+              ? i18n.t('capture.errors.serviceUnavailable')
+              : i18n.t('capture.errors.analysisFailedGeneric');
 
         return { status: 'error', message };
       };
@@ -399,7 +401,7 @@ export const useAnimalIdentification = () => {
 
     } catch (err) {
       console.error('identify failed', err);
-      return { status: 'error', message: "L'analyse a échoué. Réessaie." };
+      return { status: 'error', message: i18n.t('capture.errors.analysisFailed') };
     } finally {
       setIdentifying(false);
       setStage('idle');

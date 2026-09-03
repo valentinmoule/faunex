@@ -41,7 +41,14 @@
       "saveError": "Error while saving",
       "updateError": "Error while updating",
       "alreadyHaveSpecies": "You already have this species in your Faunex ({{name}}).",
-      "existingPhotoKept": "Existing photo kept"
+      "existingPhotoKept": "Existing photo kept",
+      "analysisTimeout": "the analysis took too long",
+      "dailyAnalysisLimit": "You've reached your analysis limit for today.",
+      "analysisTooSlow": "The analysis took too long (slow connection). Try again.",
+      "aiOverloaded": "The AI is overloaded, try again in a few seconds.",
+      "serviceUnavailable": "The identification service is temporarily unavailable.",
+      "analysisFailedGeneric": "The analysis failed (connection or server). Try again.",
+      "analysisFailed": "The analysis failed. Try again."
     },
     "exif": {
       "suspiciousReason": "This photo has no device metadata (EXIF): we can't confirm it was taken with your device. If the AI doesn't recognize the species, describe it and a moderator will validate your observation."
@@ -202,7 +209,14 @@
       "toastNoteDeleted": "Note deleted",
       "toastDeleteImpossible": "Couldn't delete",
       "toastCaptureDeleted": "Capture deleted",
-      "toastCaptureDeletedDesc": "It has been removed from your Faunex."
+      "toastCaptureDeletedDesc": "It has been removed from your Faunex.",
+      "toDiscover": "To discover",
+      "timeAgoNow": "Just now",
+      "timeAgoMin": "{{count}}min",
+      "timeAgoHour": "{{count}}h",
+      "timeAgoDay": "{{count}}d",
+      "exploreTitle": "Explore nature and photograph this animal to unlock its full sheet.",
+      "exploreDesc": "Its habitat, diet and secrets will only be revealed once you've discovered it."
     },
     "share": {
       "title": "Share your card",

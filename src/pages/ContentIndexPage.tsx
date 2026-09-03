@@ -1,47 +1,53 @@
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { ArrowLeft, ChevronRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import Footer from '@/components/Footer';
-import { guides, useCases, type Article } from '@/content/articles';
+import { guides, useCases, localizedArticle, type Article } from '@/content/articles';
 
-const ArticleCard = ({ article }: { article: Article }) => (
-  <Link
-    to={`/${article.type === 'guide' ? 'guides' : 'fonctionnalites'}/${article.slug}`}
-    className="block group rounded-2xl bg-card border border-border p-5 hover:border-primary/50 transition-colors"
-  >
-    <div className="flex items-center gap-2 mb-2">
-      <span className="text-[10px] font-display font-semibold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-        {article.category}
-      </span>
-      <span className="text-[11px] text-muted-foreground font-display">
-        {article.readingMinutes} min de lecture
-      </span>
-    </div>
-    <h2 className="text-lg font-display font-bold leading-snug mb-2 group-hover:text-primary transition-colors">
-      {article.title}
-    </h2>
-    <p className="text-sm text-muted-foreground font-body line-clamp-2">{article.description}</p>
-    <div className="mt-3 inline-flex items-center gap-1 text-xs text-primary font-display font-semibold">
-      Lire <ChevronRight className="w-3 h-3" />
-    </div>
-  </Link>
-);
+const ArticleCard = ({ article }: { article: Article }) => {
+  const { t, i18n } = useTranslation();
+  const a = localizedArticle(article, i18n.language);
+  return (
+    <Link
+      to={`/${article.type === 'guide' ? 'guides' : 'fonctionnalites'}/${article.slug}`}
+      className="block group rounded-2xl bg-card border border-border p-5 hover:border-primary/50 transition-colors"
+    >
+      <div className="flex items-center gap-2 mb-2">
+        <span className="text-[10px] font-display font-semibold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+          {article.category}
+        </span>
+        <span className="text-[11px] text-muted-foreground font-display">
+          {t('marketing.contentIndex.readingMinutes', { count: article.readingMinutes })}
+        </span>
+      </div>
+      <h2 className="text-lg font-display font-bold leading-snug mb-2 group-hover:text-primary transition-colors">
+        {a.title}
+      </h2>
+      <p className="text-sm text-muted-foreground font-body line-clamp-2">{a.description}</p>
+      <div className="mt-3 inline-flex items-center gap-1 text-xs text-primary font-display font-semibold">
+        {t('marketing.contentIndex.read')} <ChevronRight className="w-3 h-3" />
+      </div>
+    </Link>
+  );
+};
 
 const ContentIndexPage = ({ type }: { type: 'guide' | 'usecase' }) => {
+  const { t } = useTranslation();
   const isGuides = type === 'guide';
   const items = isGuides ? guides : useCases;
   const path = isGuides ? '/guides' : '/fonctionnalites';
   const title = isGuides
-    ? 'Guides nature — Faunex'
-    : 'Cas d\'usage de l\'app Faunex';
+    ? t('marketing.contentIndex.guidesTitle')
+    : t('marketing.contentIndex.usecasesTitle');
   const description = isGuides
-    ? "Guides pour reconnaître les animaux, observer la faune et collectionner ses rencontres au quotidien."
-    : "Comment Faunex transforme tes balades : reconnaissance IA, collection, observations en famille.";
-  const heading = isGuides ? 'Guides nature' : 'Cas d\'usage';
+    ? t('marketing.contentIndex.guidesDescription')
+    : t('marketing.contentIndex.usecasesDescription');
+  const heading = isGuides ? t('marketing.contentIndex.guidesHeading') : t('marketing.contentIndex.usecasesHeading');
   const intro = isGuides
-    ? "Astuces et fiches pour mieux observer, identifier et comprendre la faune autour de toi."
-    : "Découvre comment Faunex t'aide à transformer chaque sortie en aventure naturaliste.";
+    ? t('marketing.contentIndex.guidesIntro')
+    : t('marketing.contentIndex.usecasesIntro');
 
   return (
     <main className="min-h-screen bg-background text-foreground pb-20">
@@ -67,7 +73,7 @@ const ContentIndexPage = ({ type }: { type: 'guide' | 'usecase' }) => {
           to="/"
           className="inline-flex items-center gap-1 text-xs text-muted-foreground font-display hover:text-primary mb-4"
         >
-          <ArrowLeft className="w-3 h-3" /> Retour à l'accueil
+          <ArrowLeft className="w-3 h-3" /> {t('marketing.contentIndex.backHome')}
         </Link>
         <h1 className="text-3xl sm:text-4xl font-display font-black tracking-tight">{heading}</h1>
         <p className="mt-2 text-muted-foreground font-body">{intro}</p>
@@ -82,13 +88,13 @@ const ContentIndexPage = ({ type }: { type: 'guide' | 'usecase' }) => {
       <section className="px-5 mt-12 max-w-2xl mx-auto">
         <div className="rounded-3xl bg-gradient-to-br from-primary to-primary/80 p-6 text-center">
           <h2 className="text-xl font-display font-black text-primary-foreground mb-2">
-            Prêt à collectionner la faune ?
+            {t('marketing.contentIndex.ctaTitle')}
           </h2>
           <p className="text-sm text-primary-foreground/90 font-body mb-4">
-            Faunex est gratuit, sans pub, et fonctionne directement dans ton navigateur.
+            {t('marketing.contentIndex.ctaDesc')}
           </p>
           <Button asChild size="lg" variant="secondary" className="font-display font-bold rounded-2xl bg-background text-primary hover:bg-background/90">
-            <Link to="/auth?mode=signup">Créer mon compte gratuit</Link>
+            <Link to="/auth?mode=signup">{t('marketing.contentIndex.ctaButton')}</Link>
           </Button>
         </div>
       </section>

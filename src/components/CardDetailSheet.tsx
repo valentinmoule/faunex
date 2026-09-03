@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef, type ComponentType } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { notifyCaptureInteraction } from '@/lib/notifyCaptureInteraction';
 import { Drawer } from 'vaul';
@@ -92,19 +93,23 @@ const getCategoryIcon = (category: string): ComponentType<{ className?: string; 
   return PawPrint;
 };
 
-const LockedField = ({ icon, label }: { icon: React.ReactNode; label: string }) => (
-  <div className="flex items-center gap-3 rounded-2xl border border-dashed border-border bg-muted/30 px-4 py-3.5">
-    <div className="text-muted-foreground/60">{icon}</div>
-    <div className="flex-1 min-w-0">
-      <p className="text-[10px] font-display font-bold uppercase tracking-wider text-muted-foreground/70">{label}</p>
-      <p className="text-sm text-muted-foreground/50 italic truncate">À découvrir</p>
+const LockedField = ({ icon, label }: { icon: React.ReactNode; label: string }) => {
+  const { t } = useTranslation();
+  return (
+    <div className="flex items-center gap-3 rounded-2xl border border-dashed border-border bg-muted/30 px-4 py-3.5">
+      <div className="text-muted-foreground/60">{icon}</div>
+      <div className="flex-1 min-w-0">
+        <p className="text-[10px] font-display font-bold uppercase tracking-wider text-muted-foreground/70">{label}</p>
+        <p className="text-sm text-muted-foreground/50 italic truncate">{t('capture.detail.toDiscover')}</p>
+      </div>
+      <Lock className="w-3.5 h-3.5 text-muted-foreground/40" />
     </div>
-    <Lock className="w-3.5 h-3.5 text-muted-foreground/40" />
-  </div>
-);
+  );
+};
 
 
 const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: Props) => {
+  const { t } = useTranslation();
   const { session } = useAuth();
   const [isOwner, setIsOwner] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -306,7 +311,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
     const { error } = await supabase.from('captures').update(payload).eq('id', card.id);
     setSavingLocation(false);
     if (error) {
-      toast({ title: 'Localisation non enregistrée', description: 'Réessaie dans un instant.', variant: 'destructive' });
+      toast({ title: t('capture.detail.toastLocationNotSaved'), description: t('capture.detail.toastRetry'), variant: 'destructive' });
       return;
     }
     setLocation(nom);
@@ -321,7 +326,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
     setEditingLocation(false);
     setLocQuery('');
     setLocResults([]);
-    toast({ title: nom ? 'Localisation mise à jour' : 'Localisation retirée' });
+    toast({ title: nom ? t('capture.detail.toastLocationUpdated') : t('capture.detail.toastLocationRemoved') });
   }, [card, savingLocation]);
 
   const saveNote = useCallback(async () => {
@@ -331,13 +336,13 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
     const { error } = await supabase.from('captures').update({ note: clean || null }).eq('id', card.id);
     setSavingNote(false);
     if (error) {
-      toast({ title: 'Note non enregistrée', description: 'Réessaie dans un instant.', variant: 'destructive' });
+      toast({ title: t('capture.detail.toastNoteNotSaved'), description: t('capture.detail.toastRetry'), variant: 'destructive' });
       return;
     }
     setNote(clean);
     setNoteDraft(clean);
     setEditingNote(false);
-    toast({ title: clean ? 'Note enregistrée' : 'Note supprimée' });
+    toast({ title: clean ? t('capture.detail.toastNoteSaved') : t('capture.detail.toastNoteDeleted') });
   }, [card, noteDraft, savingNote]);
 
   const handleDelete = useCallback(async () => {
@@ -346,12 +351,12 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
     const { error } = await supabase.from('captures').delete().eq('id', card.id);
     setDeleting(false);
     if (error) {
-      toast({ title: 'Suppression impossible', description: 'Réessaie dans un instant.', variant: 'destructive' });
+      toast({ title: t('capture.detail.toastDeleteImpossible'), description: t('capture.detail.toastRetry'), variant: 'destructive' });
       return;
     }
 
     setConfirmDelete(false);
-    toast({ title: 'Capture supprimée', description: 'Elle a été retirée de ton Faunex.' });
+    toast({ title: t('capture.detail.toastCaptureDeleted'), description: t('capture.detail.toastCaptureDeletedDesc') });
     onDeleted?.(card.id);
     onClose();
   }, [card, deleting, onDeleted, onClose]);
@@ -449,11 +454,11 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
   const timeAgo = (date: string) => {
     const diff = Date.now() - new Date(date).getTime();
     const mins = Math.floor(diff / 60000);
-    if (mins < 1) return "À l'instant";
-    if (mins < 60) return `${mins}min`;
+    if (mins < 1) return t('capture.detail.timeAgoNow');
+    if (mins < 60) return t('capture.detail.timeAgoMin', { count: mins });
     const hours = Math.floor(mins / 60);
-    if (hours < 24) return `${hours}h`;
-    return `${Math.floor(hours / 24)}j`;
+    if (hours < 24) return t('capture.detail.timeAgoHour', { count: hours });
+    return t('capture.detail.timeAgoDay', { count: Math.floor(hours / 24) });
   };
 
   // Pinch-to-zoom helpers for the fullscreen photo
@@ -651,10 +656,10 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                             </div>
                             <div className="relative z-10 space-y-1.5 max-w-[240px]">
                               <p className="text-xl font-display font-bold text-white tracking-tight drop-shadow-md">
-                                Non découvert
+                                {t('capture.detail.undiscoveredTitle')}
                               </p>
                               <p className="text-sm font-body text-white/85 leading-relaxed drop-shadow-sm">
-                                Capture cet animal pour débloquer sa fiche.
+                                {t('capture.detail.undiscoveredBody')}
                               </p>
                             </div>
                           </div>
@@ -699,7 +704,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                 {card.image && (
                   <button onClick={handleShare} className="flex items-center gap-2 group">
                     <Share2 className="w-6 h-6 text-muted-foreground transition-colors group-hover:text-primary" />
-                    <span className="text-sm font-display font-semibold text-muted-foreground">Partager</span>
+                    <span className="text-sm font-display font-semibold text-muted-foreground">{t('capture.detail.share')}</span>
                   </button>
                 )}
               </div>
@@ -709,7 +714,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
             {showComments && (
               <div className="bg-muted/50 rounded-2xl p-4 space-y-3">
                 {comments.length === 0 ? (
-                  <p className="text-xs text-muted-foreground text-center py-2">Aucun commentaire — sois le premier !</p>
+                  <p className="text-xs text-muted-foreground text-center py-2">{t('capture.detail.noComments')}</p>
                 ) : (
                   <div className="space-y-3 max-h-48 overflow-y-auto">
                     {comments.map(comment => (
@@ -724,7 +729,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                         <div className="flex-1 min-w-0">
                           <div className="flex items-baseline gap-2">
                             <span className="text-xs font-display font-semibold text-foreground">
-                              {comment.profile?.display_name || comment.profile?.username || 'Anonyme'}
+                              {comment.profile?.display_name || comment.profile?.username || t('capture.detail.anonymous')}
                             </span>
                             <span className="text-[10px] text-muted-foreground">{timeAgo(comment.created_at)}</span>
                           </div>
@@ -741,7 +746,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSubmitComment()}
-                    placeholder="Ajouter un commentaire…"
+                    placeholder={t('capture.detail.commentPlaceholder')}
                     className="flex-1 bg-background rounded-full px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body"
                   />
                   <button
@@ -774,11 +779,11 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
               {!isUncaptured && finders !== undefined && (
                 <span
                   className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1"
-                  title={`${finders} naturaliste${finders > 1 ? 's' : ''} ont capturé cette espèce`}
+                  title={t('capture.finders.tooltip_other', { count: finders })}
                 >
                   <FindersBadge count={finders} />
                   <span className="text-[11px] font-display font-semibold text-muted-foreground">
-                    {finders > 1 ? 'captures' : 'capture'}
+                    {t('capture.finders.capture', { count: finders })}
                   </span>
                 </span>
               )}
@@ -791,10 +796,10 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                   <Camera className="w-5 h-5 text-primary" />
                 </div>
                 <p className="text-sm font-display font-semibold text-foreground mb-1">
-                  Explorez la nature et photographiez cet animal pour débloquer sa fiche complète.
+                  {t('capture.detail.exploreTitle')}
                 </p>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Son habitat, son alimentation et ses secrets ne seront révélés qu'après votre découverte.
+                  {t('capture.detail.exploreDesc')}
                 </p>
                 {finders !== undefined && (
                   <div className="mt-3 flex items-center justify-center">
@@ -802,8 +807,8 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                       <FindersBadge count={finders} />
                       <span className="text-[11px] font-display font-medium text-muted-foreground">
                         {finders > 0
-                          ? 'déjà capturée par la communauté'
-                          : 'personne ne l’a encore capturée'}
+                          ? t('capture.finders.alreadyCaptured')
+                          : t('capture.finders.noneYet')}
                       </span>
                     </span>
                   </div>
@@ -818,17 +823,17 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
             <div className="grid grid-cols-2 gap-2.5">
               {isUncaptured ? (
                 <>
-                  <LockedField icon={<MapPin className="w-4 h-4" />} label="Habitat" />
-                  <LockedField icon={<UtensilsCrossed className="w-4 h-4" />} label="Alimentation" />
-                  <LockedField icon={<Shield className="w-4 h-4" />} label="Conservation" />
-                  <LockedField icon={<Leaf className="w-4 h-4" />} label="Lieu" />
+                  <LockedField icon={<MapPin className="w-4 h-4" />} label={t('capture.detail.habitat')} />
+                  <LockedField icon={<UtensilsCrossed className="w-4 h-4" />} label={t('capture.detail.diet')} />
+                  <LockedField icon={<Shield className="w-4 h-4" />} label={t('capture.detail.conservation')} />
+                  <LockedField icon={<Leaf className="w-4 h-4" />} label={t('capture.detail.location')} />
                 </>
               ) : (
                 <>
-                  <StatCard icon={<MapPin className="w-4 h-4" />} label="Habitat" value={card.habitat} color="text-primary" bg="bg-primary/8" />
-                  <StatCard icon={<UtensilsCrossed className="w-4 h-4" />} label="Alimentation" value={card.diet} color="text-amber" bg="bg-amber/8" />
-                  <StatCard icon={<Shield className="w-4 h-4" />} label="Conservation" value={card.conservation} color="text-sky" bg="bg-sky/8" />
-                  <StatCard icon={<Leaf className="w-4 h-4" />} label="Lieu" value={location || 'Non renseigné'} color="text-forest-light" bg="bg-forest-light/8"
+                  <StatCard icon={<MapPin className="w-4 h-4" />} label={t('capture.detail.habitat')} value={card.habitat} color="text-primary" bg="bg-primary/8" />
+                  <StatCard icon={<UtensilsCrossed className="w-4 h-4" />} label={t('capture.detail.diet')} value={card.diet} color="text-amber" bg="bg-amber/8" />
+                  <StatCard icon={<Shield className="w-4 h-4" />} label={t('capture.detail.conservation')} value={card.conservation} color="text-sky" bg="bg-sky/8" />
+                  <StatCard icon={<Leaf className="w-4 h-4" />} label={t('capture.detail.location')} value={location || t('capture.detail.notProvided')} color="text-forest-light" bg="bg-forest-light/8"
                     link={card.latitude && card.longitude ? `https://www.google.com/maps?q=${card.latitude},${card.longitude}` : undefined}
                   />
                 </>
@@ -839,13 +844,13 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
             {isOwner && (
               <div className="rounded-2xl border border-border bg-card p-4">
                 <div className="flex items-center justify-between">
-                  <p className="text-xs font-display font-bold uppercase tracking-wider text-muted-foreground">Localisation</p>
+                  <p className="text-xs font-display font-bold uppercase tracking-wider text-muted-foreground">{t('capture.detail.locationLabel')}</p>
                   {!editingLocation && (
                     <button
                       onClick={() => { setEditingLocation(true); setLocQuery(''); }}
                       className="text-xs font-display font-semibold text-primary"
                     >
-                      {location ? 'Modifier' : 'Ajouter'}
+                      {location ? t('capture.detail.modify') : t('capture.detail.add')}
                     </button>
                   )}
                 </div>
@@ -856,10 +861,10 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                       value={locQuery}
                       onChange={(e) => setLocQuery(e.target.value)}
                       autoFocus
-                      placeholder="Ville, code postal ou pays…"
+                      placeholder={t('capture.detail.locationSearchPlaceholder')}
                       className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
                     />
-                    {locLoading && <p className="text-[11px] text-muted-foreground">Recherche…</p>}
+                    {locLoading && <p className="text-[11px] text-muted-foreground">{t('capture.detail.searching')}</p>}
                     {locResults.length > 0 && (
                       <div className="max-h-48 overflow-y-auto rounded-xl border border-border divide-y divide-border">
                         {locResults.map((c, i) => (
@@ -882,19 +887,19 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                           disabled={savingLocation}
                           className="text-xs font-display font-semibold text-destructive disabled:opacity-60"
                         >
-                          Retirer la localisation
+                          {t('capture.detail.removeLocation')}
                         </button>
                       ) : <span />}
                       <button
                         onClick={() => { setEditingLocation(false); setLocQuery(''); setLocResults([]); }}
                         className="px-3 py-1.5 rounded-full text-xs font-display font-semibold bg-muted text-muted-foreground"
                       >
-                        Annuler
+                        {t('capture.detail.cancel')}
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <p className="mt-1 text-sm text-foreground/80">{location || 'Non renseignée'}</p>
+                  <p className="mt-1 text-sm text-foreground/80">{location || t('capture.detail.notSet')}</p>
                 )}
               </div>
             )}
@@ -908,13 +913,13 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                     <Sparkles className={`w-4 h-4 ${isGold ? 'text-rarity-gold' : 'text-primary'}`} />
                   </div>
                   <p className={`text-xs font-display font-bold uppercase tracking-wider ${isGold ? 'text-rarity-gold' : 'text-muted-foreground'}`}>
-                    Le saviez-vous ?
+                    {t('capture.detail.didYouKnow')}
                   </p>
                 </div>
                 {isUncaptured ? (
                   <div className="flex items-center gap-2 text-muted-foreground/50">
                     <Lock className="w-3.5 h-3.5" />
-                    <p className="text-sm italic">Anecdote cachée — à découvrir</p>
+                    <p className="text-sm italic">{t('capture.detail.hiddenFact')}</p>
                   </div>
                 ) : (
                   <p className="text-sm text-foreground/80 leading-relaxed">{card.funFact}</p>
@@ -926,13 +931,13 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
             {isOwner && (
               <div className="rounded-2xl border border-border bg-card p-4">
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-xs font-display font-bold uppercase tracking-wider text-muted-foreground">Ma note</p>
+                  <p className="text-xs font-display font-bold uppercase tracking-wider text-muted-foreground">{t('capture.detail.myNote')}</p>
                   {!editingNote && (
                     <button
                       onClick={() => { setNoteDraft(note); setEditingNote(true); }}
                       className="text-xs font-display font-semibold text-primary"
                     >
-                      {note ? 'Modifier' : 'Ajouter'}
+                      {note ? t('capture.detail.modify') : t('capture.detail.add')}
                     </button>
                   )}
                 </div>
@@ -944,24 +949,24 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                       maxLength={500}
                       rows={4}
                       autoFocus
-                      placeholder="Où l'as-tu vu ? Que faisait-il ? Note tes observations…"
+                      placeholder={t('capture.detail.notePlaceholder')}
                       className="w-full rounded-xl border border-border bg-background p-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 resize-none"
                     />
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] text-muted-foreground">{noteDraft.length}/500</span>
+                      <span className="text-[10px] text-muted-foreground">{t('capture.manual.charCount', { count: noteDraft.length })}</span>
                       <div className="flex gap-2">
                         <button
                           onClick={() => { setNoteDraft(note); setEditingNote(false); }}
                           className="px-3 py-1.5 rounded-full text-xs font-display font-semibold bg-muted text-muted-foreground"
                         >
-                          Annuler
+                          {t('capture.detail.cancel')}
                         </button>
                         <button
                           onClick={saveNote}
                           disabled={savingNote}
                           className="px-3 py-1.5 rounded-full text-xs font-display font-semibold bg-primary text-primary-foreground disabled:opacity-60"
                         >
-                          {savingNote ? 'Enregistrement…' : 'Enregistrer'}
+                          {savingNote ? t('capture.detail.saving') : t('capture.detail.saveNote')}
                         </button>
                       </div>
                     </div>
@@ -969,7 +974,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                 ) : note ? (
                   <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">{note}</p>
                 ) : (
-                  <p className="text-sm text-muted-foreground">Aucune note pour l'instant.</p>
+                  <p className="text-sm text-muted-foreground">{t('capture.detail.noNoteYet')}</p>
                 )}
               </div>
             )}
@@ -983,7 +988,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                 className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border border-destructive/30 bg-destructive/5 text-destructive font-display font-semibold text-sm hover:bg-destructive/10 transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
-                Supprimer cette capture
+                {t('capture.detail.deleteCapture')}
               </button>
             )}
           </div>
@@ -1082,7 +1087,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
             onClick={(e) => e.stopPropagation()}
             className="absolute top-3 right-3 z-[60] w-16 h-16 -m-1 p-1 rounded-full flex items-center justify-center text-white/90 active:text-white transition-colors"
             style={{ touchAction: 'manipulation' }}
-            aria-label="Fermer l'image en plein écran"
+            aria-label={t('capture.detail.closeImage')}
           >
             <span className="w-11 h-11 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center text-2xl font-light leading-none pointer-events-none">✕</span>
           </button>
@@ -1093,18 +1098,18 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
       <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
         <AlertDialogContent className="z-[10000]">
           <AlertDialogHeader>
-            <AlertDialogTitle>Supprimer cette capture ?</AlertDialogTitle>
+            <AlertDialogTitle>{t('capture.detail.deleteDialogTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              {card.name} sera retiré de ton Faunex et de ton nombre d'espèces. Cette action est définitive.
+              {t('capture.detail.deleteDialogDesc', { name: card.name })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogCancel>{t('capture.detail.cancelDialog')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => { e.preventDefault(); handleDelete(); }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleting ? 'Suppression…' : 'Supprimer'}
+              {deleting ? t('capture.detail.deleting') : t('capture.detail.deleteBtn')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -14,6 +14,8 @@ import {
   Preview,
   Text,
 } from 'npm:@react-email/components@0.0.22'
+import type { Locale } from '../i18n.ts'
+import { pick, resolveLocale } from '../i18n.ts'
 
 interface EmailChangeEmailProps {
   siteName: string
@@ -21,6 +23,7 @@ interface EmailChangeEmailProps {
   email: string
   newEmail: string
   confirmationUrl: string
+  locale?: Locale | string
 }
 
 export const EmailChangeEmail = ({
@@ -28,38 +31,42 @@ export const EmailChangeEmail = ({
   email,
   newEmail,
   confirmationUrl,
-}: EmailChangeEmailProps) => (
-  <Html lang="fr" dir="ltr">
-    <Head />
-    <Preview>Confirme ton changement d'email Faunex</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Img src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png" width="48" height="48" alt="Faunex" style={logo} />
-        <Heading style={h1}>Changement d'email 📧</Heading>
-        <Text style={text}>
-          Tu as demandé à changer ton adresse email Faunex de{' '}
-          <Link href={`mailto:${email}`} style={link}>
-            {email}
-          </Link>{' '}
-          vers{' '}
-          <Link href={`mailto:${newEmail}`} style={link}>
-            {newEmail}
-          </Link>
-          .
-        </Text>
-        <Text style={text}>
-          Clique sur le bouton ci-dessous pour confirmer ce changement :
-        </Text>
-        <Button style={button} href={confirmationUrl}>
-          Confirmer le changement
-        </Button>
-        <Text style={footer}>
-          Si tu n'as pas demandé ce changement, sécurise ton compte immédiatement.
-        </Text>
-      </Container>
-    </Body>
-  </Html>
-)
+  locale,
+}: EmailChangeEmailProps) => {
+  const l = resolveLocale(locale as string | undefined)
+  return (
+    <Html lang={l} dir="ltr">
+      <Head />
+      <Preview>{pick({ fr: "Confirme ton changement d'email Faunex", en: 'Confirm your Faunex email change' }, l)}</Preview>
+      <Body style={main}>
+        <Container style={container}>
+          <Img src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png" width="48" height="48" alt="Faunex" style={logo} />
+          <Heading style={h1}>{pick({ fr: "Changement d'email 📧", en: 'Email change 📧' }, l)}</Heading>
+          <Text style={text}>
+            {pick({ fr: 'Tu as demandé à changer ton adresse email Faunex de', en: 'You requested to change your Faunex email address from' }, l)}{' '}
+            <Link href={`mailto:${email}`} style={link}>
+              {email}
+            </Link>{' '}
+            {pick({ fr: 'vers', en: 'to' }, l)}{' '}
+            <Link href={`mailto:${newEmail}`} style={link}>
+              {newEmail}
+            </Link>
+            .
+          </Text>
+          <Text style={text}>
+            {pick({ fr: 'Clique sur le bouton ci-dessous pour confirmer ce changement :', en: 'Click the button below to confirm this change:' }, l)}
+          </Text>
+          <Button style={button} href={confirmationUrl}>
+            {pick({ fr: 'Confirmer le changement', en: 'Confirm the change' }, l)}
+          </Button>
+          <Text style={footer}>
+            {pick({ fr: "Si tu n'as pas demandé ce changement, sécurise ton compte immédiatement.", en: "If you didn't request this change, secure your account immediately." }, l)}
+          </Text>
+        </Container>
+      </Body>
+    </Html>
+  )
+}
 
 export default EmailChangeEmail
 

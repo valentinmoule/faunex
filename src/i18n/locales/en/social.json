@@ -45,7 +45,8 @@
       "captured": "caught",
       "commentPlaceholder": "Comment…",
       "noCommentsYet": "No comments yet — be the first!",
-      "caughtUp": "You're all caught up ✨"
+      "caughtUp": "You're all caught up ✨",
+      "searchError": "Search error"
     },
     "feed": {
       "brandName": "Faunex",

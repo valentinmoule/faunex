@@ -114,14 +114,14 @@ const SettingsPage = () => {
     const file = e.target.files?.[0];
     if (!file || !session?.user) return;
     const isHeicName = /\.(heic|heif)$/i.test(file.name);
-    if (!file.type.startsWith('image/') && !isHeicName) { toast.error('Seules les images sont acceptées'); return; }
-    if (file.size > 5 * 1024 * 1024) { toast.error('Image trop lourde (max 5 Mo)'); return; }
+    if (!file.type.startsWith('image/') && !isHeicName) { toast.error(t('profile.settings.errors.onlyImages')); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error(t('profile.settings.errors.imageTooLarge')); return; }
     setUploadingAvatar(true);
     try {
       // Toute image (y compris les HEIC d'iPhone) est normalisée en JPEG :
       // sinon l'avatar ne s'affiche pas dans les navigateurs sans support HEIC.
       const normalized = await prepareSourceImage(await readFileAsDataUrl(file));
-      if (!normalized) { toast.error("Cette image n'a pas pu être lue. Réessaie avec une autre photo."); return; }
+      if (!normalized) { toast.error(t('profile.settings.errors.imageUnreadable')); return; }
       const filePath = `${session.user.id}/avatar.jpg`;
       await supabase.storage.from('avatars').upload(filePath, dataUrlToBytes(normalized), {
         cacheControl: '3600',
@@ -132,44 +132,44 @@ const SettingsPage = () => {
       const avatarUrl = `${urlData.publicUrl}?t=${Date.now()}`;
       await supabase.from('profiles').update({ avatar_url: avatarUrl }).eq('user_id', session.user.id);
       setProfile(prev => prev ? { ...prev, avatar_url: avatarUrl } : prev);
-      toast.success('Photo mise à jour !');
-    } catch { toast.error("Erreur lors de l'upload"); }
+      toast.success(t('profile.settings.success.photoUpdated'));
+    } catch { toast.error(t('profile.settings.errors.uploadError')); }
     finally { setUploadingAvatar(false); }
   };
 
   const handleSaveProfile = async () => {
     if (!session?.user) return;
     const trimmedName = editName.trim();
-    if (!trimmedName) { toast.error('Le nom ne peut pas être vide'); return; }
+    if (!trimmedName) { toast.error(t('profile.settings.errors.emptyName')); return; }
     setSaving(true);
     const { error } = await supabase.from('profiles').update({ display_name: trimmedName, username: editUsername.trim() || null }).eq('user_id', session.user.id);
-    if (error) toast.error('Erreur lors de la sauvegarde');
+    if (error) toast.error(t('profile.settings.errors.saveError'));
     else {
       setProfile(prev => prev ? { ...prev, display_name: trimmedName, username: editUsername.trim() } : prev);
-      toast.success('Profil mis à jour !');
+      toast.success(t('profile.settings.success.profileUpdated'));
       setSection('menu');
     }
     setSaving(false);
   };
 
   const handleChangePassword = async () => {
-    if (!oldPassword) { toast.error('Entre ton ancien mot de passe'); return; }
-    if (newPassword.length < 6) { toast.error('Le mot de passe doit faire au moins 6 caractères'); return; }
-    if (newPassword !== confirmPassword) { toast.error('Les mots de passe ne correspondent pas'); return; }
+    if (!oldPassword) { toast.error(t('profile.settings.errors.enterOldPassword')); return; }
+    if (newPassword.length < 6) { toast.error(t('profile.settings.errors.passwordTooShort')); return; }
+    if (newPassword !== confirmPassword) { toast.error(t('profile.settings.errors.passwordMismatch')); return; }
     setChangingPassword(true);
     // Verify old password by re-signing in
     const email = session?.user?.email;
-    if (!email) { toast.error('Erreur: email introuvable'); setChangingPassword(false); return; }
+    if (!email) { toast.error(t('profile.settings.errors.emailNotFound')); setChangingPassword(false); return; }
     const { error: signInError } = await supabase.auth.signInWithPassword({ email, password: oldPassword });
     if (signInError) {
-      toast.error('Ancien mot de passe incorrect');
+      toast.error(t('profile.settings.errors.wrongOldPassword'));
       setChangingPassword(false);
       return;
     }
     const { error } = await supabase.auth.updateUser({ password: newPassword });
     if (error) toast.error(error.message);
     else {
-      toast.success('Mot de passe modifié !');
+      toast.success(t('profile.settings.success.passwordChanged'));
       setOldPassword('');
       setNewPassword('');
       setConfirmPassword('');
@@ -179,7 +179,7 @@ const SettingsPage = () => {
   };
 
   const handleDeleteAccount = async () => {
-    if (deleteConfirm !== 'SUPPRIMER') { toast.error('Tape SUPPRIMER pour confirmer'); return; }
+    if (deleteConfirm !== 'SUPPRIMER') { toast.error(t('profile.settings.errors.typeToConfirm')); return; }
     setDeleting(true);
     // Delete user data then sign out
     if (session?.user) {
@@ -188,7 +188,7 @@ const SettingsPage = () => {
       await supabase.from('explorer_follows').delete().eq('follower_id', session.user.id);
     }
     await signOut();
-    toast.success('Compte supprimé');
+    toast.success(t('profile.settings.success.accountDeleted'));
     navigate('/auth');
   };
 
@@ -196,10 +196,10 @@ const SettingsPage = () => {
     const username = profile?.username?.replace(/^@/, '') || session?.user?.id;
     const shareUrl = `${window.location.origin}/u/${username}`;
     if (navigator.share) {
-      navigator.share({ title: 'Mon profil Faunex', text: 'Rejoins-moi sur Faunex !', url: shareUrl });
+      navigator.share({ title: t('profile.settings.share.title'), text: t('profile.settings.share.text'), url: shareUrl });
     } else {
       navigator.clipboard.writeText(shareUrl);
-      toast.success('Lien copié !');
+      toast.success(t('profile.settings.success.linkCopied'));
     }
   };
 
@@ -291,7 +291,7 @@ const SettingsPage = () => {
                 className="relative w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center text-3xl font-display font-bold text-primary border-2 border-primary/30 overflow-hidden group"
               >
                 {profile.avatar_url ? (
-                  <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                  <img src={profile.avatar_url} alt={t('profile.settings.avatarAlt')} className="w-full h-full object-cover" />
                 ) : (
                   <span>{(profile.display_name || '?').charAt(0).toUpperCase()}</span>
                 )}
@@ -303,19 +303,19 @@ const SettingsPage = () => {
 
             <div className="space-y-3">
               <div>
-                <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">Nom d'affichage</label>
+                <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">{t('profile.settings.displayName')}</label>
                 <input type="text" value={editName} onChange={e => setEditName(e.target.value)} maxLength={50} className="w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
               </div>
               <div>
-                <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">Pseudo</label>
-                <input type="text" value={editUsername} onChange={e => setEditUsername(e.target.value)} maxLength={30} placeholder="@pseudo" className="w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
+                <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">{t('profile.settings.username')}</label>
+                <input type="text" value={editUsername} onChange={e => setEditUsername(e.target.value)} maxLength={30} placeholder={t('profile.settings.usernamePlaceholder')} className="w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
             </div>
 
             {/* Marketing emails toggle */}
             <div className="flex items-center justify-between px-4 py-3 bg-muted rounded-xl">
               <div>
-                <span className="text-sm font-display font-semibold text-foreground block">Emails de relance</span>
-                <span className="text-[11px] text-muted-foreground">Conseils, rappels et astuces</span>
+                <span className="text-sm font-display font-semibold text-foreground block">{t('profile.settings.marketingEmails.label')}</span>
+                <span className="text-[11px] text-muted-foreground">{t('profile.settings.marketingEmails.hint')}</span>
               </div>
               <button
                 onClick={async () => {
@@ -323,7 +323,7 @@ const SettingsPage = () => {
                   setMarketingEmails(newVal);
                   if (session?.user) {
                     await supabase.from('profiles').update({ marketing_emails: newVal } as any).eq('user_id', session.user.id);
-                    toast.success(newVal ? 'Emails de relance activés' : 'Emails de relance désactivés');
+                    toast.success(newVal ? t('profile.settings.marketingEmails.enabled') : t('profile.settings.marketingEmails.disabled'));
                   }
                 }}
                 className={`relative w-11 h-6 rounded-full transition-colors ${marketingEmails ? 'bg-primary' : 'bg-muted-foreground/30'}`}
@@ -337,9 +337,9 @@ const SettingsPage = () => {
               <div className="flex items-center justify-between px-4 py-3 bg-muted rounded-xl">
                 <div>
                   <span className="text-sm font-display font-semibold text-foreground flex items-center gap-1.5">
-                    <Bell className="w-3.5 h-3.5" /> Notifications push
+                    <Bell className="w-3.5 h-3.5" /> {t('profile.settings.push.label')}
                   </span>
-                  <span className="text-[11px] text-muted-foreground">Rappels si tu n'es pas revenu depuis quelque temps</span>
+                  <span className="text-[11px] text-muted-foreground">{t('profile.settings.push.hint')}</span>
                 </div>
                 <button
                   disabled={pushBusy}
@@ -348,11 +348,11 @@ const SettingsPage = () => {
                     if (pushEnabled) {
                       await unsubscribeFromPush();
                       setPushEnabled(false);
-                      toast.success('Notifications désactivées');
+                      toast.success(t('profile.settings.push.disabled'));
                     } else {
                       const ok = await subscribeToPush();
                       setPushEnabled(ok);
-                      toast[ok ? 'success' : 'error'](ok ? 'Notifications activées 🦊' : 'Permission refusée');
+                      toast[ok ? 'success' : 'error'](ok ? t('profile.settings.push.enabled') : t('profile.settings.push.denied'));
                     }
                     setPushBusy(false);
                   }}
@@ -367,9 +367,9 @@ const SettingsPage = () => {
             <div className="flex items-center justify-between px-4 py-3 bg-muted rounded-xl">
               <div>
                 <span className="text-sm font-display font-semibold text-foreground flex items-center gap-1.5">
-                  <Lock className="w-3.5 h-3.5" /> Compte privé
+                  <Lock className="w-3.5 h-3.5" /> {t('profile.settings.privateAccount.label')}
                 </span>
-                <span className="text-[11px] text-muted-foreground">Les abonnements nécessitent ton approbation</span>
+                <span className="text-[11px] text-muted-foreground">{t('profile.settings.privateAccount.hint')}</span>
               </div>
               <button
                 onClick={async () => {
@@ -377,7 +377,7 @@ const SettingsPage = () => {
                   setIsPrivate(newVal);
                   if (session?.user) {
                     await supabase.from('profiles').update({ is_private: newVal } as any).eq('user_id', session.user.id);
-                    toast.success(newVal ? 'Compte passé en privé' : 'Compte passé en public');
+                    toast.success(newVal ? t('profile.settings.privateAccount.enabled') : t('profile.settings.privateAccount.disabled'));
                   }
                 }}
                 className={`relative w-11 h-6 rounded-full transition-colors ${isPrivate ? 'bg-primary' : 'bg-muted-foreground/30'}`}
@@ -390,9 +390,9 @@ const SettingsPage = () => {
             <div className="flex items-center justify-between px-4 py-3 bg-muted rounded-xl">
               <div className="pr-3">
                 <span className="text-sm font-display font-semibold text-foreground flex items-center gap-1.5">
-                  <Share2 className="w-3.5 h-3.5" /> Partager mes captures par défaut
+                  <Share2 className="w-3.5 h-3.5" /> {t('profile.settings.defaultShare.label')}
                 </span>
-                <span className="text-[11px] text-muted-foreground">Tes nouvelles captures apparaissent dans le feed de tes abonnés</span>
+                <span className="text-[11px] text-muted-foreground">{t('profile.settings.defaultShare.hint')}</span>
               </div>
               <button
                 onClick={async () => {
@@ -400,7 +400,7 @@ const SettingsPage = () => {
                   setDefaultShare(newVal);
                   if (session?.user) {
                     await supabase.from('profiles').update({ default_share_captures: newVal } as any).eq('user_id', session.user.id);
-                    toast.success(newVal ? 'Captures publiques par défaut' : 'Captures privées par défaut');
+                    toast.success(newVal ? t('profile.settings.defaultShare.enabled') : t('profile.settings.defaultShare.disabled'));
                   }
                 }}
                 className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${defaultShare ? 'bg-primary' : 'bg-muted-foreground/30'}`}
@@ -413,19 +413,19 @@ const SettingsPage = () => {
             <div className="bg-muted rounded-xl p-4 space-y-3">
               <div className="flex items-center gap-1.5">
                 <Bell className="w-4 h-4 text-foreground" />
-                <span className="text-sm font-display font-semibold text-foreground">Notifications</span>
+                <span className="text-sm font-display font-semibold text-foreground">{t('profile.settings.notifications.title')}</span>
               </div>
-              <p className="text-[11px] text-muted-foreground -mt-1">Choisis comment être prévenu pour chaque activité.</p>
+              <p className="text-[11px] text-muted-foreground -mt-1">{t('profile.settings.notifications.subtitle')}</p>
 
               <div className="grid grid-cols-[1fr_auto_auto] gap-x-4 gap-y-3 items-center pt-1">
                 <span></span>
-                <span className="text-[11px] font-display font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1 justify-center"><Mail className="w-3 h-3" /> Email</span>
-                <span className="text-[11px] font-display font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1 justify-center"><Bell className="w-3 h-3" /> Push</span>
+                <span className="text-[11px] font-display font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1 justify-center"><Mail className="w-3 h-3" /> {t('profile.settings.notifications.email')}</span>
+                <span className="text-[11px] font-display font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1 justify-center"><Bell className="w-3 h-3" /> {t('profile.settings.notifications.push')}</span>
 
                 {([
-                  { label: 'Likes', emailKey: 'notify_email_likes', pushKey: 'notify_push_likes' },
-                  { label: 'Commentaires', emailKey: 'notify_email_comments', pushKey: 'notify_push_comments' },
-                  { label: 'Nouveaux abonnés & demandes', emailKey: 'notify_email_follows', pushKey: 'notify_push_follows' },
+                  { label: t('profile.settings.notifications.likes'), emailKey: 'notify_email_likes', pushKey: 'notify_push_likes' },
+                  { label: t('profile.settings.notifications.comments'), emailKey: 'notify_email_comments', pushKey: 'notify_push_comments' },
+                  { label: t('profile.settings.notifications.follows'), emailKey: 'notify_email_follows', pushKey: 'notify_push_follows' },
                 ] as const).map(({ label, emailKey, pushKey }) => (
                   <Fragment key={label}>
                     <span className="text-sm text-foreground font-body">{label}</span>
@@ -437,7 +437,7 @@ const SettingsPage = () => {
 
               {!pushEnabled && (
                 <p className="text-[11px] text-muted-foreground pt-1">
-                  Active les notifications push plus haut pour recevoir les alertes push en temps réel.
+                  {t('profile.settings.push.enableHint')}
                 </p>
               )}
             </div>
@@ -449,24 +449,24 @@ const SettingsPage = () => {
               className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-primary-foreground font-display text-sm font-semibold disabled:opacity-50"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-              Sauvegarder
+              {t('profile.settings.save')}
             </button>
           </div>
         )}
 
         {section === 'password' && (
           <div className="space-y-4">
-            <p className="text-sm text-muted-foreground font-body">Entre ton ancien mot de passe puis choisis-en un nouveau (6 caractères minimum).</p>
+            <p className="text-sm text-muted-foreground font-body">{t('profile.settings.password.intro')}</p>
             <div>
-              <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">Ancien mot de passe</label>
+              <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">{t('profile.settings.password.old')}</label>
               <input type="password" value={oldPassword} onChange={e => setOldPassword(e.target.value)} className="w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
             </div>
             <div>
-              <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">Nouveau mot de passe</label>
+              <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">{t('profile.settings.password.new')}</label>
               <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} className="w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
             </div>
             <div>
-              <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">Confirmer le nouveau mot de passe</label>
+              <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">{t('profile.settings.password.confirm')}</label>
               <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
             </div>
             <button
@@ -475,7 +475,7 @@ const SettingsPage = () => {
               className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-primary-foreground font-display text-sm font-semibold disabled:opacity-50"
             >
               {changingPassword ? <Loader2 className="w-4 h-4 animate-spin" /> : <KeyRound className="w-4 h-4" />}
-              Modifier le mot de passe
+              {t('profile.settings.password.submit')}
             </button>
           </div>
         )}
@@ -483,20 +483,20 @@ const SettingsPage = () => {
         {section === 'delete' && (
           <div className="space-y-4">
             <div className="bg-destructive/10 rounded-xl p-4 border border-destructive/20">
-              <p className="text-sm text-destructive font-display font-semibold mb-2">⚠️ Action irréversible</p>
+              <p className="text-sm text-destructive font-display font-semibold mb-2">{t('profile.settings.delete.warningTitle')}</p>
               <p className="text-xs text-muted-foreground font-body">
-                La suppression de ton compte effacera toutes tes captures, ton profil et tes relations d'amitié. Cette action ne peut pas être annulée.
+                {t('profile.settings.delete.warningText')}
               </p>
             </div>
             <div>
               <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">
-                Tape <span className="text-destructive">SUPPRIMER</span> pour confirmer
+                {t('profile.settings.delete.confirmLabel', { word: 'SUPPRIMER' })}
               </label>
               <input
                 type="text"
                 value={deleteConfirm}
                 onChange={e => setDeleteConfirm(e.target.value)}
-                placeholder="SUPPRIMER"
+                placeholder={t('profile.settings.delete.placeholder')}
                 className="w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-destructive/30 font-body"
               />
             </div>
@@ -506,7 +506,7 @@ const SettingsPage = () => {
               className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-destructive text-destructive-foreground font-display text-sm font-semibold disabled:opacity-50"
             >
               {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-              Supprimer définitivement
+              {t('profile.settings.delete.submit')}
             </button>
           </div>
         )}

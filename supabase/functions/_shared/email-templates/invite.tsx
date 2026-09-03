@@ -14,42 +14,52 @@ import {
   Preview,
   Text,
 } from 'npm:@react-email/components@0.0.22'
+import type { Locale } from '../i18n.ts'
+import { pick, resolveLocale } from '../i18n.ts'
 
 interface InviteEmailProps {
   siteName: string
   siteUrl: string
   confirmationUrl: string
+  locale?: Locale | string
 }
 
 export const InviteEmail = ({
   siteName,
   siteUrl,
   confirmationUrl,
-}: InviteEmailProps) => (
-  <Html lang="fr" dir="ltr">
-    <Head />
-    <Preview>Tu es invité à rejoindre Faunex ! 🌿</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Img src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png" width="48" height="48" alt="Faunex" style={logo} />
-        <Heading style={h1}>Tu es invité ! 🦉</Heading>
-        <Text style={text}>
-          Tu as été invité à rejoindre{' '}
-          <Link href={siteUrl} style={link}>
-            <strong>Faunex</strong>
-          </Link>
-          , la communauté des naturalistes. Clique ci-dessous pour accepter l'invitation et créer ton compte.
-        </Text>
-        <Button style={button} href={confirmationUrl}>
-          Accepter l'invitation
-        </Button>
-        <Text style={footer}>
-          Si tu n'attendais pas cette invitation, tu peux ignorer cet email.
-        </Text>
-      </Container>
-    </Body>
-  </Html>
-)
+  locale,
+}: InviteEmailProps) => {
+  const l = resolveLocale(locale as string | undefined)
+  return (
+    <Html lang={l} dir="ltr">
+      <Head />
+      <Preview>{pick({ fr: 'Tu es invité à rejoindre Faunex ! 🌿', en: "You're invited to join Faunex! 🌿" }, l)}</Preview>
+      <Body style={main}>
+        <Container style={container}>
+          <Img src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png" width="48" height="48" alt="Faunex" style={logo} />
+          <Heading style={h1}>{pick({ fr: 'Tu es invité ! 🦉', en: "You're invited! 🦉" }, l)}</Heading>
+          <Text style={text}>
+            {pick({ fr: 'Tu as été invité à rejoindre', en: "You've been invited to join" }, l)}{' '}
+            <Link href={siteUrl} style={link}>
+              <strong>Faunex</strong>
+            </Link>
+            {pick({
+              fr: ", la communauté des naturalistes. Clique ci-dessous pour accepter l'invitation et créer ton compte.",
+              en: ', the naturalist community. Click below to accept the invitation and create your account.',
+            }, l)}
+          </Text>
+          <Button style={button} href={confirmationUrl}>
+            {pick({ fr: "Accepter l'invitation", en: 'Accept the invitation' }, l)}
+          </Button>
+          <Text style={footer}>
+            {pick({ fr: "Si tu n'attendais pas cette invitation, tu peux ignorer cet email.", en: "If you weren't expecting this invitation, you can ignore this email." }, l)}
+          </Text>
+        </Container>
+      </Body>
+    </Html>
+  )
+}
 
 export default InviteEmail
 

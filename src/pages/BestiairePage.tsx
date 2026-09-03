@@ -695,19 +695,19 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
               <button
                 onClick={() => setPickerMode('hub')}
                 className="p-1 -ml-1 rounded-full hover:bg-muted transition"
-                aria-label="Retour"
+                aria-label={t('bestiary.picker.back')}
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
             )}
             <SheetTitle className="font-display">
               {pickerMode === 'hub'
-                ? 'Ajouter à ma collection'
+                ? t('bestiary.picker.titleHub')
                 : pickerMode === 'species'
-                ? "Collections d'espèces"
+                ? t('bestiary.picker.titleSpecies')
                 : pickerMode === 'upsell'
-                ? 'Collections illimitées'
-                : 'Explorer une zone'}
+                ? t('bestiary.picker.titleUpsell')
+                : t('bestiary.picker.titleExplore')}
             </SheetTitle>
           </div>
         </SheetHeader>
@@ -715,7 +715,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
         {pickerMode === 'hub' && (
           <div className="flex-1 overflow-y-auto px-5 py-5 space-y-3">
             <p className="text-xs text-muted-foreground font-display leading-relaxed">
-              Ajoute une zone à suivre, ou une collection d'espèces à compléter (races de chien, papillons, rapaces…).
+              {t('bestiary.picker.hubIntro')}
             </p>
 
 
@@ -728,9 +728,9 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                   <Compass className="w-6 h-6 text-foreground" strokeWidth={2} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-display font-bold text-base text-foreground">Ajouter une zone</h3>
+                  <h3 className="font-display font-bold text-base text-foreground">{t('bestiary.picker.addZoneTitle')}</h3>
                   <p className="text-[11px] text-muted-foreground font-display leading-relaxed mt-0.5">
-                    Prépare un voyage, une rando ou une visite : ajoute n'importe quelle ville ou département.
+                    {t('bestiary.picker.addZoneDesc')}
                   </p>
                 </div>
               </div>
@@ -745,9 +745,9 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                   <Layers className="w-6 h-6 text-foreground" strokeWidth={2} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-display font-bold text-base text-foreground">Ajouter une collection</h3>
+                  <h3 className="font-display font-bold text-base text-foreground">{t('bestiary.picker.addCollectionTitle')}</h3>
                   <p className="text-[11px] text-muted-foreground font-display leading-relaxed mt-0.5">
-                    Races de chien, races de chat, papillons, rapaces, serpents… choisis ce que tu veux compléter.
+                    {t('bestiary.picker.addCollectionDesc')}
                   </p>
                 </div>
               </div>
@@ -755,7 +755,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
 
             {isPremium ? (
               <p className="text-[10px] text-muted-foreground font-display text-center pt-2">
-                Premium : tu peux suivre autant de zones et de collections que tu veux.
+                {t('bestiary.picker.premiumUnlimited')}
               </p>
             ) : (
               <button
@@ -763,8 +763,8 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                 className="w-full pt-2 text-center"
               >
                 <p className="text-[10px] text-muted-foreground font-display">
-                  {slotsUsed}/{FREE_SLOT_LIMIT} zones ou collections utilisées ·{' '}
-                  <span className="text-primary font-semibold">Passe en Premium pour des zones et collections illimitées</span>
+                  {t('bestiary.picker.slotsUsed', { used: slotsUsed, limit: FREE_SLOT_LIMIT })} ·{' '}
+                  <span className="text-primary font-semibold">{t('bestiary.picker.slotsUsedCta')}</span>
                 </p>
               </button>
             )}
@@ -782,17 +782,17 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
             </div>
 
             <h3 className="font-display font-bold text-xl text-foreground mb-2">
-              Débloque toutes les collections
+              {t('bestiary.picker.upsellTitle')}
             </h3>
-            <p className="text-sm text-muted-foreground font-display leading-relaxed max-w-xs mb-6">
-              Avec <span className="text-foreground font-semibold">Faunex Premium</span>, crée autant de séries thématiques que tu veux : races de chien, races de chat, papillons, rapaces, serpents… et suis toutes les zones que tu veux.
-            </p>
+            <p className="text-sm text-muted-foreground font-display leading-relaxed max-w-xs mb-6"
+              dangerouslySetInnerHTML={{ __html: t('bestiary.picker.upsellDesc', { interpolation: { escapeValue: false } }).replace('<bold>', '<span class="text-foreground font-semibold">').replace('</bold>', '</span>') }}
+            />
 
             <div className="w-full max-w-xs space-y-2.5 mb-8 text-left">
               {[
-                'Collections illimitées',
-                'Zones et territoires illimités',
-                'Classements détaillés par catégorie',
+                t('bestiary.picker.benefit1'),
+                t('bestiary.picker.benefit2'),
+                t('bestiary.picker.benefit3'),
               ].map((benefit) => (
                 <div key={benefit} className="flex items-center gap-2.5 text-sm font-display text-foreground">
                   <div className="w-5 h-5 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
@@ -811,7 +811,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
               }}
               className="w-full max-w-xs rounded-2xl bg-primary text-primary-foreground py-3.5 font-display font-semibold text-sm active:scale-[0.98] transition shadow-lg shadow-primary/20"
             >
-              Passer à Premium
+              {t('bestiary.picker.goPremium')}
             </button>
             <button
               onClick={() => {
@@ -820,7 +820,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
               }}
               className="mt-3 text-xs font-display text-muted-foreground underline"
             >
-              Plus tard
+              {t('bestiary.picker.later')}
             </button>
           </div>
         )}
@@ -833,11 +833,10 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                   <Crown className="w-8 h-8 text-primary" strokeWidth={2} />
                 </div>
                 <div className="space-y-2">
-                  <h3 className="font-display font-bold text-lg text-foreground">Limite atteinte</h3>
-                  <p className="text-sm text-muted-foreground font-display leading-relaxed">
-                    Tu peux suivre jusqu’à <strong className="text-foreground">{FREE_SLOT_LIMIT}</strong> zones ou collections avec un compte gratuit.
-                    Passe à Premium pour ajouter autant de collections que tu veux.
-                  </p>
+                  <h3 className="font-display font-bold text-lg text-foreground">{t('bestiary.picker.limitReachedTitle')}</h3>
+                  <p className="text-sm text-muted-foreground font-display leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: t('bestiary.picker.limitReachedDesc', { limit: FREE_SLOT_LIMIT, interpolation: { escapeValue: false } }).replace('<bold>', '<strong class="text-foreground">').replace('</bold>', '</strong>') }}
+                  />
                 </div>
                 <button
                   onClick={() => {
@@ -846,13 +845,13 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                   }}
                   className="w-full max-w-xs rounded-2xl bg-primary text-primary-foreground py-3.5 font-display font-semibold text-sm active:scale-[0.98] transition"
                 >
-                  Passer à Premium
+                  {t('bestiary.picker.goPremium')}
                 </button>
                 <button
                   onClick={() => setShowDeptPicker(false)}
                   className="text-xs font-display text-muted-foreground underline"
                 >
-                  Plus tard
+                  {t('bestiary.picker.later')}
                 </button>
               </div>
             ) : (
@@ -864,14 +863,14 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                       type="text"
                       value={collectionSearch}
                       onChange={(e) => setCollectionSearch(e.target.value)}
-                      placeholder="Rechercher une collection…"
+                      placeholder={t('bestiary.picker.searchCollectionPlaceholder')}
                       className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-card border border-border text-sm font-display placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
                     />
                   </div>
                 </div>
                 <div className="flex-1 overflow-y-auto px-2 py-2">
                   {filteredCollectionOptions.length === 0 ? (
-                    <p className="text-center text-xs font-display text-muted-foreground py-8">Aucune collection trouvée.</p>
+                    <p className="text-center text-xs font-display text-muted-foreground py-8">{t('bestiary.picker.noCollectionFound')}</p>
                   ) : (
                     filteredCollectionOptions.map(({ group, total, captured }) => {
                       const already = collectionKeys.includes(group.key);
@@ -902,12 +901,12 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                               {group.label}
                             </p>
                             <p className="text-[11px] text-muted-foreground font-display">
-                              {group.key.startsWith('cat:') ? 'Grande catégorie · ' : ''}{captured}/{total} capturés
+                              {group.key.startsWith('cat:') ? t('bestiary.picker.categoryPrefix') : ''}{t('bestiary.common.capturedCount', { captured, total })}
 
                             </p>
                           </div>
                           {already ? (
-                            <span className="text-[10px] font-display text-muted-foreground">Ajoutée</span>
+                            <span className="text-[10px] font-display text-muted-foreground">{t('bestiary.picker.added')}</span>
                           ) : (
                             <Plus className="w-4 h-4 text-primary" />
                           )}
@@ -932,7 +931,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                 }`}
               >
                 <MapIcon className="w-3.5 h-3.5" strokeWidth={2} />
-                Département
+                {t('bestiary.picker.departmentTab')}
               </button>
               <button
                 onClick={() => setPickerTab('city')}
@@ -941,7 +940,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                 }`}
               >
                 <Building2 className="w-3.5 h-3.5" strokeWidth={2} />
-                Ville
+                {t('bestiary.picker.cityTab')}
               </button>
             </div>
             <div className="px-5 py-3 border-b border-border">
@@ -953,7 +952,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                   type="text"
                   value={pickerTab === 'department' ? deptSearch : citySearch}
                   onChange={(e) => pickerTab === 'department' ? setDeptSearch(e.target.value) : setCitySearch(e.target.value)}
-                  placeholder={pickerTab === 'department' ? 'Rechercher (nom, n° ou région)' : 'Rechercher une ville…'}
+                  placeholder={pickerTab === 'department' ? t('bestiary.picker.searchDeptPlaceholder') : t('bestiary.picker.searchCityPlaceholder')}
                   className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-muted border-0 text-sm font-display focus:outline-none focus:ring-2 focus:ring-primary/30"
                 />
               </div>
@@ -974,7 +973,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                       <p className="text-[11px] text-muted-foreground font-display truncate">{d.region}</p>
                     </div>
                     {already ? (
-                      <span className="text-[10px] font-display text-primary">Déjà ajouté</span>
+                      <span className="text-[10px] font-display text-primary">{t('bestiary.picker.alreadyAdded')}</span>
                     ) : (
                       <Plus className="w-4 h-4 text-primary" />
                     )}
@@ -985,14 +984,14 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                 <>
                   {citySearch.trim().length < 2 && (
                     <p className="text-center text-xs text-muted-foreground font-display py-8 px-4">
-                      Tape au moins 2 lettres pour rechercher une commune française.
+                      {t('bestiary.picker.cityMinChars')}
                     </p>
                   )}
                   {cityLoading && (
-                    <p className="text-center text-xs text-muted-foreground font-display py-4">Recherche…</p>
+                    <p className="text-center text-xs text-muted-foreground font-display py-4">{t('bestiary.picker.searching')}</p>
                   )}
                   {!cityLoading && citySearch.trim().length >= 2 && cityResults.length === 0 && (
-                    <p className="text-center text-xs text-muted-foreground font-display py-8">Aucune commune trouvée</p>
+                    <p className="text-center text-xs text-muted-foreground font-display py-8">{t('bestiary.picker.noCityFound')}</p>
                   )}
                   {cityResults.map((c) => {
                     const postcode = c.codesPostaux?.[0] || '';
@@ -1014,7 +1013,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                           </p>
                         </div>
                         {already ? (
-                          <span className="text-[10px] font-display text-primary">Déjà ajouté</span>
+                          <span className="text-[10px] font-display text-primary">{t('bestiary.picker.alreadyAdded')}</span>
                         ) : (
                           <Plus className="w-4 h-4 text-primary" />
                         )}
@@ -1041,7 +1040,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
       {pendingShelve.imageUrl && <img src={pendingShelve.imageUrl} alt={pendingShelve.animalName} />}
       <div className="shelve-card-shine" aria-hidden />
       <div className="shelve-card-label">
-        <span>Nouvelle découverte</span>
+        <span>{t('bestiary.shelve.newDiscovery')}</span>
         <strong>{pendingShelve.animalName}</strong>
       </div>
       <div className="shelve-card-sparkles" aria-hidden>
@@ -1057,10 +1056,10 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
     const dept = getDepartement(selectedZone.departmentCode);
     const prog = zoneProgress[selectedZone.id] || { total: 0, captured: 0 };
     const isCity = selectedZone.kind === 'city';
-    const title = isCity ? (selectedZone.cityName || 'Ville') : (dept ? `${dept.name} (${dept.code})` : selectedZone.departmentCode);
+    const title = isCity ? (selectedZone.cityName || t('bestiary.picker.defaultCityName')) : (dept ? `${dept.name} (${dept.code})` : selectedZone.departmentCode);
     const subtitle = isCity
-      ? `${selectedZone.cityPostcode || ''}${dept ? ` · ${dept.name}` : ''} · ${prog.captured}/${prog.total} capturés`
-      : `${prog.captured}/${prog.total} capturés`;
+      ? `${selectedZone.cityPostcode || ''}${dept ? ` · ${dept.name}` : ''} · ${t('bestiary.common.capturedCount', { captured: prog.captured, total: prog.total })}`
+      : t('bestiary.common.capturedCount', { captured: prog.captured, total: prog.total });
     
     return (
       <main className="min-h-screen bg-background pb-24">
@@ -1075,7 +1074,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
           
           onBack={() => setSelectedZoneId(null)}
           onRemove={() => handleRemoveZone(selectedZone.id)}
-          removeLabel="Supprimer la rubrique"
+          removeLabel={t('bestiary.zone.removeLabel')}
         />
 
         <div className="relative z-10 max-w-lg mx-auto px-3 pt-3 space-y-4">
@@ -1085,7 +1084,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
             <div className="text-center py-16">
               <p className="text-4xl mb-3">📭</p>
               <p className="text-muted-foreground font-display text-sm">
-                Aucune espèce répertoriée pour cette zone pour le moment.
+                {t('bestiary.zone.noSpecies')}
               </p>
             </div>
           ) : (
@@ -1220,7 +1219,7 @@ Bestiaire
                   {mineSearch && (
                     <button
                       onClick={() => setMineSearch('')}
-                      aria-label="Effacer la recherche"
+                      aria-label={t('bestiary.common.clearSearch')}
                       className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-muted transition"
                     >
                       <X className="w-3.5 h-3.5 text-muted-foreground" />
@@ -1252,10 +1251,10 @@ Bestiaire
                   <p className="text-3xl mb-2">🔍</p>
                   <p className="text-xs font-display text-muted-foreground px-6">
                     {mineSearch.trim()
-                      ? `Aucune capture ne correspond à « ${mineSearch.trim()} ».`
-: rarityFilter.length === 0
-                      ? "Tu n'as pas encore de capture. Pars en exploration !"
-                      : "Aucune capture ne correspond aux raretés sélectionnées."}
+                      ? t('bestiary.mine.noMatchSearch', { query: mineSearch.trim() })
+                      : rarityFilter.length === 0
+                      ? t('bestiary.mine.noneYet')
+                      : t('bestiary.mine.noneForRarity')}
 
                   </p>
                 </div>
@@ -1293,7 +1292,7 @@ Bestiaire
                       );
                     })}
                     <p className="pt-1 text-[11px] font-display text-muted-foreground">
-                      Le tri personnalisé s'active automatiquement dès que tu déplaces une carte.
+                      {t('bestiary.mine.customHint')}
                     </p>
                   </div>
                 </SheetContent>
@@ -1312,7 +1311,7 @@ Bestiaire
                     type="text"
                     value={speciesSearch}
                     onChange={(e) => setSpeciesSearch(e.target.value)}
-                    placeholder="Rechercher une espèce…"
+                    placeholder={t('bestiary.categories.searchPlaceholder')}
                     className="w-full pl-9 pr-9 py-2.5 rounded-xl bg-card border border-border text-sm font-display placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
                   />
                   {speciesSearch && (
@@ -1334,7 +1333,7 @@ Bestiaire
                   }`}
                 >
                   <SlidersHorizontal className="w-4 h-4" />
-                  Filtres
+                  {t('bestiary.categories.filters')}
                   {activeFilterCount > 0 && (
                     <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-amber text-amber-dark text-[10px] font-bold flex items-center justify-center shadow-sm">
                       {activeFilterCount}
@@ -1375,7 +1374,7 @@ Bestiaire
                     onClick={() => { setCategoryFilter([]); setPopularityFilter([]); }}
                     className="px-2 py-1 rounded-full text-[11px] font-display font-semibold text-muted-foreground hover:text-foreground transition"
                   >
-                    Tout effacer
+                    {t('bestiary.categories.clearAll')}
                   </button>
                 </div>
               )}
@@ -1385,10 +1384,10 @@ Bestiaire
 
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">
-                  {speciesQuery ? 'Résultats' : ALL_SPECIES}
+                  {speciesQuery ? t('bestiary.results') : t('bestiary.allSpecies')}
                 </h2>
                 <span className="text-[11px] font-display text-muted-foreground tabular-nums">
-                  {myCaptures.length} / {browseTotal} espèces
+                  {t('bestiary.categories.speciesCount', { captured: myCaptures.length, total: browseTotal })}
                 </span>
               </div>
 
@@ -1396,7 +1395,7 @@ Bestiaire
                 <div className="text-center py-12 rounded-2xl border border-dashed border-border">
                   <p className="text-3xl mb-2">🔍</p>
                   <p className="text-xs font-display text-muted-foreground px-6">
-                    Aucune espèce ne correspond à ta recherche ou à tes filtres.
+                    {t('bestiary.categories.noMatch')}
                   </p>
                 </div>
               ) : (
@@ -1425,11 +1424,11 @@ Bestiaire
                   <SheetHeader className="text-left">
                     <SheetTitle className="font-display text-base flex items-center gap-2">
                       <SlidersHorizontal className="w-4 h-4 text-primary" />
-                      Filtres
+                      {t('bestiary.filterModal.title')}
                     </SheetTitle>
                   </SheetHeader>
 
-                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-display font-bold mt-3 mb-2">Catégories</p>
+                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-display font-bold mt-3 mb-2">{t('bestiary.filterModal.categoriesLabel')}</p>
                   <div className="flex flex-wrap gap-2">
                     {categoryData.map(cat => {
                       const active = categoryFilter.includes(cat.name);
@@ -1455,7 +1454,7 @@ Bestiaire
                     })}
                   </div>
 
-<p className="text-[11px] uppercase tracking-wider text-muted-foreground font-display font-bold mt-5 mb-2">Rareté</p>
+<p className="text-[11px] uppercase tracking-wider text-muted-foreground font-display font-bold mt-5 mb-2">{t('bestiary.filterModal.rarityLabel')}</p>
                   <div className="flex flex-wrap gap-2">
                     {RARITY_ORDER.map((r) => {
                       const active = rarityFilter.includes(r);
@@ -1480,7 +1479,7 @@ Bestiaire
                     })}
                   </div>
 
-<p className="text-[11px] uppercase tracking-wider text-muted-foreground font-display font-bold mt-5 mb-2">Popularité</p>
+<p className="text-[11px] uppercase tracking-wider text-muted-foreground font-display font-bold mt-5 mb-2">{t('bestiary.filterModal.popularityLabel')}</p>
                   <div className="flex flex-wrap gap-2">
                     {(Object.keys(POPULARITY_LABELS) as PopularityTier[]).map((t) => {
                       const active = popularityFilter.includes(t);
@@ -1515,13 +1514,13 @@ Bestiaire
                       }}
                       className="px-4 py-2.5 rounded-xl border border-border bg-card text-sm font-display font-semibold text-foreground active:scale-[0.97] transition"
                     >
-                      Réinitialiser
+                      {t('bestiary.filterModal.reset')}
                     </button>
                     <button
                       onClick={() => setFilterOpen(false)}
                       className="flex-1 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-display font-bold active:scale-[0.97] transition"
                     >
-                      Voir {browseTotal} espèce{browseTotal > 1 ? 's' : ''}
+                      {t('bestiary.filterModal.seeSpecies', { count: browseTotal })}
                     </button>
                   </div>
                 </SheetContent>
@@ -1532,13 +1531,13 @@ Bestiaire
           {viewMode === 'collections' && (
             <section className="space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">Mes collections</h2>
+                <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">{t('bestiary.collections.title')}</h2>
                 <button
                   onClick={openAddSlotModal}
                   className="flex items-center gap-1 text-xs font-display font-semibold text-primary px-2 py-1 rounded-lg hover:bg-primary/10 transition"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  Ajouter
+                  {t('bestiary.collections.add')}
                 </button>
               </div>
 
@@ -1550,9 +1549,9 @@ Bestiaire
                   <div className="inline-flex w-12 h-12 rounded-2xl bg-primary/15 items-center justify-center mb-2">
                     <Layers className="w-6 h-6 text-primary" strokeWidth={2} />
                   </div>
-                  <h3 className="font-display font-bold text-sm text-foreground">Ajoute une zone et/ou une collection</h3>
+                  <h3 className="font-display font-bold text-sm text-foreground">{t('bestiary.collections.emptyTitle')}</h3>
                   <p className="text-[11px] text-muted-foreground font-display leading-relaxed mt-1 px-2">
-                    Suis la faune d'une ville ou d'un département, et complète des séries thématiques (races de chien, papillons, rapaces…).
+                    {t('bestiary.collections.emptyDesc')}
                   </p>
                 </button>
               ) : (
@@ -1562,7 +1561,7 @@ Bestiaire
                     const p = zoneProgress[zone.id] || { total: 0, captured: 0 };
                     const pct = p.total > 0 ? Math.round((p.captured / p.total) * 100) : 0;
 const isCity = zone.kind === 'city';
-                    const title = isCity ? (zone.cityName || 'Ville') : (d?.name || zone.departmentCode);
+                    const title = isCity ? (zone.cityName || t('bestiary.picker.defaultCityName')) : (d?.name || zone.departmentCode);
                     const art = getZoneArt(zone.kind);
                     return (
                       <button
@@ -1581,7 +1580,7 @@ const isCity = zone.kind === 'city';
 <div className="relative p-4 pt-16">
                           <h3 className="font-display font-bold text-sm text-primary-foreground leading-tight mb-0.5 truncate drop-shadow">{title}</h3>
                           <p className="text-[11px] text-primary-foreground/80 font-display mb-2.5">
-                            {p.captured}/{p.total} capturés
+                            {t('bestiary.common.capturedCount', { captured: p.captured, total: p.total })}
                           </p>
                           <div className="w-full h-1.5 rounded-full bg-primary-foreground/25 overflow-hidden">
                             <div className="h-full rounded-full bg-primary-foreground transition-all duration-500" style={{ width: `${pct}%` }} />
@@ -1611,7 +1610,7 @@ const isCity = zone.kind === 'city';
                         <div className="relative p-4 pt-16">
                           <h3 className="font-display font-bold text-sm text-primary-foreground leading-tight mb-0.5 truncate drop-shadow">{group.label}</h3>
                           <p className="text-[11px] text-primary-foreground/80 font-display mb-2.5">
-                            {captured}/{total} capturés
+                            {t('bestiary.common.capturedCount', { captured, total })}
                           </p>
                           <div className="w-full h-1.5 rounded-full bg-primary-foreground/25 overflow-hidden">
                             <div className="h-full rounded-full bg-primary-foreground transition-all duration-500" style={{ width: `${pct}%` }} />
@@ -1644,12 +1643,12 @@ const isCity = zone.kind === 'city';
   return (
     <main className="min-h-screen bg-background pb-24">
       <Helmet>
-        <title>mon faunex — Toutes les espèces à découvrir · Faunex</title>
-        <meta name="description" content="Explore le bestiaire Faunex : +1000 espèces sauvages françaises classées par catégorie et rareté. Découvre la faune autour de toi." />
+        <title>{t('bestiary.seo.title')}</title>
+        <meta name="description" content={t('bestiary.seo.description')} />
         <link rel="canonical" href="https://faunex.fr/bestiaire" />
-        <meta property="og:title" content="Bestiaire Faunex — +1000 espèces à découvrir" />
+        <meta property="og:title" content={t('bestiary.seo.ogTitle')} />
         <meta property="og:url" content="https://faunex.fr/bestiaire" />
-        <meta property="og:description" content="Catalogue complet de la faune sauvage : oiseaux, mammifères, insectes, reptiles, amphibiens…" />
+        <meta property="og:description" content={t('bestiary.seo.ogDescription')} />
       </Helmet>
       <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="max-w-lg mx-auto">
@@ -1675,8 +1674,8 @@ const isCity = zone.kind === 'city';
                 </h1>
                 <p className="text-[11px] text-muted-foreground font-display">
                   {activeBreedGroup
-                    ? `${activeBreedGroup.captured}/${activeBreedGroup.total} capturés · ${selectedCategory}`
-                    : `${catInfo?.captured || 0}/${catInfo?.total || 0} capturés`}
+                    ? `${t('bestiary.common.capturedCount', { captured: activeBreedGroup.captured, total: activeBreedGroup.total })} · ${selectedCategory}`
+                    : t('bestiary.common.capturedCount', { captured: catInfo?.captured || 0, total: catInfo?.total || 0 })}
                 </p>
               </div>
             </div>
@@ -1692,7 +1691,7 @@ const isCity = zone.kind === 'city';
             type="text"
             value={speciesSearch}
             onChange={(e) => setSpeciesSearch(e.target.value)}
-            placeholder={`Rechercher dans ${selectedCategory}…`}
+            placeholder={t('bestiary.categoryDetail.searchPlaceholder', { category: selectedCategory })}
             className="w-full pl-9 pr-9 py-2.5 rounded-xl bg-card border border-border text-sm font-display placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
           />
           {speciesSearch && (
@@ -1720,7 +1719,7 @@ const isCity = zone.kind === 'city';
                     : 'bg-muted text-muted-foreground font-semibold'
                 }`}
               >
-                Toutes les espèces
+                {t('bestiary.categoryDetail.allSpeciesChip')}
               </button>
               {breedGroupsInCategory.map(({ group, total, captured }) => {
                 const active = activeBreedGroup?.group.key === group.key;
@@ -1810,13 +1809,13 @@ onClick={() => {
         {gridAnimals.length === 0 && breedGroupsInCategory.length === 0 && !loading && (
           <div className="text-center py-16">
             <p className="text-4xl mb-3">📭</p>
-            <p className="text-muted-foreground font-display text-sm">Aucune espèce dans cette catégorie</p>
+            <p className="text-muted-foreground font-display text-sm">{t('bestiary.categoryDetail.empty')}</p>
           </div>
         )}
 
         {selectedCategory === ALL_SPECIES && !speciesQuery && categoryAnimals.length > ALL_GRID_LIMIT && (
           <p className="text-center text-[11px] text-muted-foreground font-display py-4">
-            {ALL_GRID_LIMIT} premières espèces affichées · utilise la recherche pour en trouver une précise
+            {t('bestiary.categoryDetail.limitNotice', { limit: ALL_GRID_LIMIT })}
           </p>
         )}
       </div>
