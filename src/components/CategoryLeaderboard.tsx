@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { ChevronRight, Clock, Crown, Lock, Trophy } from 'lucide-react';
@@ -32,14 +33,14 @@ const msUntilReset = () => {
   return Math.max(0, next.getTime() - now.getTime());
 };
 
-const formatTimeLeft = (ms: number) => {
+const formatTimeLeft = (ms: number, t: (key: string, opts?: any) => string) => {
   const totalMinutes = Math.floor(ms / 60000);
   const days = Math.floor(totalMinutes / 1440);
   const hours = Math.floor((totalMinutes % 1440) / 60);
   const minutes = totalMinutes % 60;
-  if (days > 0) return `${days} j ${hours} h`;
-  if (hours > 0) return `${hours} h ${minutes} min`;
-  return `${minutes} min`;
+  if (days > 0) return t('social.leaderboard.timeLeftDays', { days, hours });
+  if (hours > 0) return t('social.leaderboard.timeLeftHours', { hours, minutes });
+  return t('social.leaderboard.timeLeftMinutes', { minutes });
 };
 
 const Avatar = ({ row, isPremium, size = 'sm', className = '' }: { row: Row; isPremium?: boolean; size?: 'sm' | 'md' | 'lg'; className?: string }) => (
@@ -66,6 +67,7 @@ interface LeaderboardTarget {
 }
 
 const CategoryLeaderboard = ({ category, territory }: LeaderboardTarget) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { isPremium, loading: premiumLoading } = useSubscription(user?.id);
@@ -139,9 +141,9 @@ if (rows.length === 0 && scope === 'global' && !open) return null;
             {mine ? `${mine.rank}${mine.rank === 1 ? 'er' : 'e'}` : '—'}
           </div>
 <div className="min-w-0 text-left">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-bold">{!isTerritory && category === 'all' ? 'Classement général' : 'Classement'}</p>
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-bold">{!isTerritory && category === 'all' ? t('social.leaderboard.generalRanking') : t('social.leaderboard.ranking')}</p>
             <p className="text-[13px] font-display font-bold text-foreground truncate">
-              {mine ? `${mine.captures} capture${mine.captures > 1 ? 's' : ''} cette semaine` : 'Aucune capture cette semaine'}
+              {mine ? t('social.leaderboard.capturesThisWeek', { count: mine.captures }) : t('social.leaderboard.noCapturesThisWeek')}
             </p>
           </div>
         </div>
@@ -165,7 +167,7 @@ if (rows.length === 0 && scope === 'global' && !open) return null;
           <SheetHeader className="px-5 text-left">
 <SheetTitle className="font-display text-base flex items-center gap-2">
               <Trophy className="w-4 h-4 text-amber" />
-              {isTerritory ? `Top ${territory.label} cette semaine` : category === 'all' ? 'Classement cette semaine' : `Top ${category} cette semaine`}
+              {isTerritory ? t('social.leaderboard.sheetTitleTerritory', { label: territory.label }) : category === 'all' ? t('social.leaderboard.sheetTitleGeneral') : t('social.leaderboard.sheetTitleCategory', { category })}
             </SheetTitle>
           </SheetHeader>
 <div className="px-5 mt-1">
@@ -178,13 +180,13 @@ if (rows.length === 0 && scope === 'global' && !open) return null;
                 </span>
               </div>
               <p className="text-[12px] font-display text-muted-foreground tracking-tight leading-none">
-                Réinitialisation dans <span className="text-foreground font-bold">{formatTimeLeft(timeLeft)}</span>
+                {t('social.leaderboard.resetIn')}<span className="text-foreground font-bold">{formatTimeLeft(timeLeft, t)}</span>
               </p>
             </div>
           </div>
 
 <div className="mx-4 mt-3 grid grid-cols-2 gap-1 rounded-2xl bg-muted p-1">
-            {([['global', 'Global'], ['follows', 'Mes abonnements']] as const).map(([key, label]) => (
+            {([['global', t('social.leaderboard.tabGlobal')], ['follows', t('social.leaderboard.tabFollows')]] as const).map(([key, label]) => (
               <button
                 key={key}
                 onClick={() => {
@@ -210,9 +212,9 @@ if (rows.length === 0 && scope === 'global' && !open) return null;
               <div className="mx-auto w-14 h-14 rounded-full bg-gradient-to-b from-amber/25 to-amber/5 border border-amber/30 flex items-center justify-center mb-3">
                 <Crown className="w-6 h-6 text-amber" />
               </div>
-              <p className="text-[14px] font-display font-bold text-foreground">Classement de tes abonnements</p>
+              <p className="text-[14px] font-display font-bold text-foreground">{t('social.leaderboard.lockedTitle')}</p>
               <p className="mt-1 text-[12px] font-display text-muted-foreground leading-relaxed">
-                Suis la semaine de tes explorateurs préférés. Cette fonctionnalité est réservée aux membres Faunex Premium.
+                {t('social.leaderboard.lockedDesc')}
               </p>
               <button
                 onClick={() => {
@@ -221,16 +223,16 @@ if (rows.length === 0 && scope === 'global' && !open) return null;
                 }}
                 className="mt-4 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-[13px] font-display font-bold shadow-lg active:scale-[0.98] transition-transform"
               >
-                Découvrir Faunex Premium
+                {t('social.leaderboard.lockedCta')}
               </button>
             </div>
           ) : rows.length === 0 ? (
             <p className="px-5 py-10 text-center text-[13px] font-display text-muted-foreground">
               {ready
                 ? scope === 'follows'
-                  ? 'Aucune capture cette semaine parmi les explorateurs que tu suis.'
-                  : 'Aucune capture cette semaine.'
-                : 'Chargement…'}
+                  ? t('social.leaderboard.emptyFollows')
+                  : t('social.leaderboard.emptyGlobal')
+                : t('social.common.loading')}
             </p>
 ) : (
             <>
@@ -254,9 +256,9 @@ if (rows.length === 0 && scope === 'global' && !open) return null;
                       </span>
                     </div>
                     <p className={`text-[11px] font-display font-bold truncate max-w-full ${r.is_me ? 'text-primary' : 'text-foreground'}`}>
-                      {r.is_me ? 'Toi' : r.display_name || r.username || 'Explorateur'}
+                      {r.is_me ? t('social.leaderboard.you') : r.display_name || r.username || t('social.leaderboard.defaultName')}
                     </p>
-                    <p className="text-[10px] font-display text-muted-foreground">{r.captures} capt.</p>
+                    <p className="text-[10px] font-display text-muted-foreground">{t('social.leaderboard.capturesShort', { count: r.captures })}</p>
                     <div className={`w-full ${cfg.height} rounded-t-xl bg-gradient-to-t from-primary/15 to-primary/40 border-x border-t border-border`} />
                   </div>
                 );
@@ -273,7 +275,7 @@ if (rows.length === 0 && scope === 'global' && !open) return null;
                 </span>
                 <Avatar row={r} isPremium={premiumIds.has(r.user_id)} size="md" />
                 <p className={`flex-1 min-w-0 truncate text-[13px] font-display ${r.is_me ? 'font-bold text-primary' : 'text-foreground'}`}>
-                  {r.is_me ? 'Toi' : r.display_name || r.username || 'Explorateur'}
+                  {r.is_me ? t('social.leaderboard.you') : r.display_name || r.username || t('social.leaderboard.defaultName')}
                 </p>
                 <span className="text-[13px] font-display font-bold text-foreground shrink-0">{r.captures}</span>
               </li>
@@ -282,7 +284,7 @@ if (rows.length === 0 && scope === 'global' && !open) return null;
               <li className="flex items-center gap-3 px-5 py-2.5 bg-primary/5">
                 <span className="w-6 text-center text-[13px] font-display font-bold text-primary">{mine.rank}</span>
                 <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center text-[11px] font-display font-bold text-primary">T</div>
-                <p className="flex-1 min-w-0 truncate text-[13px] font-display font-bold text-primary">Toi</p>
+                <p className="flex-1 min-w-0 truncate text-[13px] font-display font-bold text-primary">{t('social.leaderboard.you')}</p>
                 <span className="text-[13px] font-display font-bold text-foreground shrink-0">{mine.captures}</span>
               </li>
             )}
