@@ -231,6 +231,20 @@ const downloadBlob = (blob: Blob, fileName: string) => {
   setTimeout(() => URL.revokeObjectURL(url), 2000);
 };
 
+/** true si le plugin Capacitor est réellement embarqué dans le build natif. */
+const nativePluginAvailable = (name: string): boolean => {
+  const cap = (window as any).Capacitor;
+  if (!cap) return false;
+  if (typeof cap.isPluginAvailable === 'function') return !!cap.isPluginAvailable(name);
+  return true;
+};
+
+/** Annulation utilisateur de la feuille de partage : on considère l'action comme faite. */
+const isShareCancelled = (err: unknown): boolean => {
+  const message = `${(err as Error)?.name ?? ''} ${(err as Error)?.message ?? ''}`.toLowerCase();
+  return message.includes('abort') || message.includes('cancel') || message.includes('annul');
+};
+
 /** Écrit l'image dans le cache natif et renvoie son URI (app Capacitor uniquement). */
 const writeNativeFile = async (blob: Blob, fileName: string): Promise<string> => {
   const [{ Filesystem, Directory }] = await Promise.all([import('@capacitor/filesystem')]);
@@ -238,6 +252,7 @@ const writeNativeFile = async (blob: Blob, fileName: string): Promise<string> =>
   const written = await Filesystem.writeFile({ path: fileName, data, directory: Directory.Cache });
   return written.uri;
 };
+
 
 const openExternal = async (url: string) => {
   if (IS_NATIVE_APP) {
