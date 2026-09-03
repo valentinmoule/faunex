@@ -196,7 +196,8 @@
       "Reptiles": "Reptiles",
       "Mollusques": "Molluscs",
       "Crustacés": "Crustaceans",
-      "Amphibiens": "Amphibians"
+      "Amphibiens": "Amphibians",
+      "worldSuffix": "world"
     }
   }
 }
