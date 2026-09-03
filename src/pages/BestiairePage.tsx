@@ -1207,7 +1207,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                     : 'text-muted-foreground'
                 }`}
               >
-                Collections
+                {t('bestiary.tabs.collections')}
               </button>
             </div>
 </section>
