@@ -1280,7 +1280,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
               <Sheet open={sortOpen} onOpenChange={setSortOpen}>
                 <SheetContent side="bottom" className="rounded-t-3xl">
                   <SheetHeader>
-                    <SheetTitle className="font-display">Trier mes captures</SheetTitle>
+                    <SheetTitle className="font-display">{t('bestiary.mine.sortModalTitle')}</SheetTitle>
                   </SheetHeader>
                   <div className="mt-4 space-y-2 pb-4">
                     {(['recent', 'alpha', 'rarity', 'custom'] as MineSort[]).map((mode) => {
@@ -1326,7 +1326,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                   {speciesSearch && (
                     <button
                       onClick={() => setSpeciesSearch('')}
-                      aria-label="Effacer la recherche"
+                      aria-label={t('bestiary.common.clearSearch')}
                       className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-muted transition"
                     >
                       <X className="w-3.5 h-3.5 text-muted-foreground" />
