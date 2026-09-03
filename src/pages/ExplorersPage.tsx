@@ -110,7 +110,8 @@ const ExplorersPage = () => {
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [likeCounts, setLikeCounts] = useState<Record<string, number>>({});
   const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
-  const [openComments, setOpenComments] = useState<string | null>(null);
+  const [milestoneRanks, setMilestoneRanks] = useState<Record<string, number>>({});
+
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
   const [loadingComments, setLoadingComments] = useState(false);
