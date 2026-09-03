@@ -17,6 +17,7 @@ import { DEPARTEMENTS, getDepartement } from '@/data/departements';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import {
   buildCityAnimalSet,
+categoryLabel,
 getCategoryEmoji,
   getCategoryIcon,
   type BestiaryAnimal,
