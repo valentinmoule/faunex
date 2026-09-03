@@ -1222,7 +1222,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                     type="text"
                     value={mineSearch}
                     onChange={(e) => setMineSearch(e.target.value)}
-                    placeholder="Rechercher dans mes captures…"
+                    placeholder={t('bestiary.mine.searchPlaceholder')}
                     className="w-full pl-9 pr-9 py-2.5 rounded-xl bg-card border border-border text-sm font-display placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
                   />
                   {mineSearch && (
