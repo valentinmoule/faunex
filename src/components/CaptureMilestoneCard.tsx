@@ -28,8 +28,11 @@ const CaptureMilestoneCard = ({ rank, userName }: { rank: MilestoneRank; userNam
         <Icon className="h-5 w-5" />
       </div>
       <div className="min-w-0 flex-1">
-        <p className={`truncate font-display text-sm font-bold ${text}`}>
+        <p className={`line-clamp-2 font-display text-xs font-bold leading-snug ${text}`}>
           {t(`social.explorers.milestone.message_${rank}`, { name: userName })}
+        </p>
+        <p className="truncate font-body text-[11px] text-muted-foreground">
+          {t('social.explorers.milestone.subtitle')}
         </p>
       </div>
     </div>

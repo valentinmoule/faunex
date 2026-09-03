@@ -52,7 +52,8 @@
         "message_10": "C'est la 10ème capture de {{name}} sur Faunex !",
         "message_25": "C'est la 25ème capture de {{name}} sur Faunex !",
         "message_50": "C'est la 50ème capture de {{name}} sur Faunex !",
-        "message_100": "C'est la 100ème capture de {{name}} sur Faunex !"
+        "message_100": "C'est la 100ème capture de {{name}} sur Faunex !",
+        "subtitle": "Envoyez-lui des likes pour fêter ça 🎉"
       }
     },
     "feed": {
