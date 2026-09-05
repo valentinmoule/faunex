@@ -702,10 +702,14 @@ serve(async (req) => {
       (CONFUSABLE.test(label) && confidence < 70);
 
     if (needsDeep) {
-      // Budget restant : 24 s (2× Lite) + 20 s = 44 s max, sous le timeout client.
+      // L'upstream se bloque parfois : sans résultat de la passe rapide, un
+      // abandon ici renvoie une erreur technique à l'utilisateur. On s'autorise
+      // donc UNE relance (requête neuve, qui répond en général en 2 s) dans ce
+      // seul cas — quand la passe rapide a déjà un résultat, on garde un unique
+      // appel pour ne pas payer deux fois. Budget max : 26 s + 20 s + 12 s.
       const deep = await tryModel(
         DEEP_MODEL,
-        [18_000],
+        animalData ? [20_000] : [20_000, 12_000],
         FAST_PROMPT + DEEP_ANNEX,
         "low",
         imageUrl,
