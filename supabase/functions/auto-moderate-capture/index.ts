@@ -103,15 +103,28 @@ Deno.serve(async (req) => {
       .order('created_at', { ascending: true })
 
     if (batch) {
-      query = query.limit(limit)
+      // Le lot tourne toutes les 10 min : sans filtre, il ré-analyse sans fin les
+      // mêmes captures déjà laissées à la modération manuelle (coût IA pur perte).
+      query = query.limit(limit * 5)
     } else {
       if (!captureId) return json({ error: 'capture_id is required' }, 400)
       query = query.eq('id', captureId).limit(1)
       if (!isAdmin) query = query.eq('user_id', callerId!)
     }
 
-    const { data: pending, error: pendErr } = await query
+    let { data: pending, error: pendErr } = await query
     if (pendErr) return json({ error: pendErr.message }, 500)
+
+    if (batch && pending && pending.length > 0) {
+      const { data: seen } = await supabase
+        .from('ml_dataset_events')
+        .select('capture_id')
+        .eq('source', 'auto-moderate-capture')
+        .in('capture_id', pending.map((c: any) => c.id))
+      const already = new Set((seen || []).map((r: any) => r.capture_id))
+      pending = pending.filter((c: any) => !already.has(c.id)).slice(0, limit)
+    }
+
     if (!pending || pending.length === 0) {
       if (holdsLock) {
         await supabase.rpc('release_background_job', { p_job_key: JOB_KEY, p_error: null, p_resume: false })
