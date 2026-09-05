@@ -13,9 +13,9 @@ export interface CatalogueEntry {
   category: string | null;
 }
 
-const KEY = 'faunex.catalogue.v9';
+const KEY = 'faunex.catalogue.v10';
 // Anciennes versions du cache : purgées pour éviter des noms d'espèces obsolètes.
-try { ['faunex.catalogue.v1', 'faunex.catalogue.v2', 'faunex.catalogue.v3', 'faunex.catalogue.v4', 'faunex.catalogue.v5', 'faunex.catalogue.v6', 'faunex.catalogue.v7', 'faunex.catalogue.v8'].forEach((k) => localStorage.removeItem(k)); } catch { /* noop */ }
+try { ['faunex.catalogue.v1', 'faunex.catalogue.v2', 'faunex.catalogue.v3', 'faunex.catalogue.v4', 'faunex.catalogue.v5', 'faunex.catalogue.v6', 'faunex.catalogue.v7', 'faunex.catalogue.v8', 'faunex.catalogue.v9'].forEach((k) => localStorage.removeItem(k)); } catch { /* noop */ }
 const TTL = 24 * 60 * 60 * 1000; // 24 h
 
 type Row = [string, string, string, string];
