@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { startOfWeekISO } from '@/lib/weekUtils';
 import { useTranslation } from 'react-i18next';
+import { shareOrigin } from '@/lib/authRedirect';
 
 interface Quest {
   id: string;
@@ -116,7 +117,7 @@ const QuestsPage = () => {
     const shareData = {
       title: t('profile.quests.shareTitle'),
       text: t('profile.quests.shareText'),
-      url: window.location.origin,
+      url: shareOrigin(),
     };
 
     try {

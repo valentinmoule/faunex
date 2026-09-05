@@ -48,3 +48,19 @@ export const oauthRedirectUri = (): string =>
 export const nativeAuthBridgeUrl = (provider: 'google' | 'apple'): string =>
   `${WEB_ORIGIN}/auth/native-bridge?provider=${provider}`;
 
+
+/**
+ * Origine à utiliser pour tout lien partagé (profil, app).
+ * Dans l'app native ou en local, on force le domaine public pour ne jamais
+ * partager une URL `localhost` inutilisable par les destinataires.
+ */
+export const shareOrigin = (): string => {
+  if (IS_NATIVE_APP) return WEB_ORIGIN;
+  const { origin, hostname } = window.location;
+  const isLocal =
+    hostname === 'localhost' ||
+    hostname === '127.0.0.1' ||
+    hostname.endsWith('.local') ||
+    !origin.startsWith('http');
+  return isLocal ? WEB_ORIGIN : origin;
+};

@@ -11,6 +11,7 @@ import { prepareSourceImage, readFileAsDataUrl, dataUrlToBytes } from '@/lib/ima
 import { useTranslation } from 'react-i18next';
 import { useAppLocale } from '@/hooks/useAppLocale';
 import { Languages } from 'lucide-react';
+import { shareOrigin } from '@/lib/authRedirect';
 
 interface SettingsProps {
   profile: {
@@ -194,7 +195,7 @@ const SettingsPage = () => {
 
   const handleShare = () => {
     const username = profile?.username?.replace(/^@/, '') || session?.user?.id;
-    const shareUrl = `${window.location.origin}/u/${username}`;
+    const shareUrl = `${shareOrigin()}/u/${username}`;
     if (navigator.share) {
       navigator.share({ title: t('profile.settings.share.title'), text: t('profile.settings.share.text'), url: shareUrl });
     } else {
