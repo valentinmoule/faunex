@@ -67,19 +67,12 @@ export const useSyncAccountLocale = () => {
         await supabase.from('profiles').update({ locale: stored } as any).eq('user_id', session.user.id);
         return;
       }
-      const { data } = await supabase
-        .from('profiles')
-        .select('locale')
-        .eq('user_id', session.user.id)
-        .maybeSingle();
-      if (cancelled) return;
-      const accountLocale = (data as any)?.locale as AppLocale | undefined;
+      // Sans préférence explicite, la langue de l'appareil fait foi : la valeur
+      // du compte n'est qu'une valeur par défaut ('fr') et ne doit jamais
+      // basculer l'interface, ni devenir une préférence collante.
       const device = detectDeviceLocale();
-      if (accountLocale && accountLocale !== device) {
-        setAppLocale(accountLocale);
-      } else if (!accountLocale || accountLocale !== device) {
-        await supabase.from('profiles').update({ locale: device } as any).eq('user_id', session.user.id);
-      }
+      if (cancelled) return;
+      await supabase.from('profiles').update({ locale: device } as any).eq('user_id', session.user.id);
     })();
 
     return () => {
