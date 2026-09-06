@@ -239,12 +239,27 @@ async function examine(
   }
 
 
-  // Doublon : l'explorateur possède déjà cette espèce → refus immédiat + notification.
+  // Doublon : l'explorateur possède peut-être déjà cette espèce. On NE refuse
+  // JAMAIS automatiquement : la capture part en modération humaine.
   const dup = await findUserDuplicate(supabase, capture.user_id, capture.id, name, capture.scientific_name)
   if (dup) {
-    await rejectCapture(supabase, capture, name, 'duplicate', adminActorId, 'duplicate_species')
-    return { capture_id: capture.id, approved: false, rejected: true, reason: 'duplicate' }
+    await releaseClaim(supabase, capture.id)
+    await logDatasetEvent(supabase, {
+      event_type: 'auto_moderation_deferred',
+      source: 'auto-moderate-capture',
+      capture_id: capture.id,
+      user_id: capture.user_id,
+      image_url: capture.image_url,
+      label_name: name,
+      label_scientific_name: capture.scientific_name || null,
+      user_description: capture.description || null,
+      location: capture.location || null,
+      decision_reason: 'duplicate_species',
+      is_ground_truth: false,
+    })
+    return { capture_id: capture.id, approved: false, reason: 'needs_human', detail: 'duplicate' }
   }
+
 
 
   const userText = [
@@ -357,9 +372,9 @@ async function examine(
         : (verdict.reason ?? (ruleBreach ? 'rule_breach' : 'needs_human'))
 
 
-    // Dataset : décision automatique de refus, ou renvoi vers la modération humaine.
+    // Dataset : renvoi systématique vers la modération humaine (aucun refus auto).
     await logDatasetEvent(supabase, {
-      event_type: ruleBreach ? 'moderation_rejected' : 'auto_moderation_deferred',
+      event_type: 'auto_moderation_deferred',
       source: 'auto-moderate-capture',
       model: usedModel,
       capture_id: capture.id,
@@ -378,22 +393,15 @@ async function examine(
       is_ground_truth: false,
     })
 
-    if (ruleBreach) {
-      await rejectCapture(supabase, capture, name, 'not_identifiable', adminActorId, decisionReason)
-      return {
-        capture_id: capture.id,
-        approved: false,
-        rejected: true,
-        reason: notRealPhoto ? 'not_a_real_photo' : 'rule_breach',
-        image_type: imageType,
-        confidence,
-      }
-    }
+    // La capture reste en attente : c'est l'humain qui tranche, y compris pour
+    // les images non photographiques ou hors règles.
+    await releaseClaim(supabase, capture.id)
 
     return {
       capture_id: capture.id,
       approved: false,
       reason: 'needs_human',
+      detail: ruleBreach ? (notRealPhoto ? 'not_a_real_photo' : 'rule_breach') : undefined,
       image_type: imageType,
       confidence,
       ai_note: verdict.reason ?? null,
@@ -406,9 +414,24 @@ async function examine(
     supabase, capture.user_id, capture.id, approvedName, approvedSci,
   )
   if (dup2) {
-    await rejectCapture(supabase, capture, approvedName, 'duplicate', adminActorId, 'duplicate_species')
-    return { capture_id: capture.id, approved: false, rejected: true, reason: 'duplicate' }
+    await releaseClaim(supabase, capture.id)
+    await logDatasetEvent(supabase, {
+      event_type: 'auto_moderation_deferred',
+      source: 'auto-moderate-capture',
+      model: usedModel,
+      capture_id: capture.id,
+      user_id: capture.user_id,
+      image_url: capture.image_url,
+      label_name: approvedName,
+      label_scientific_name: approvedSci,
+      user_description: capture.description || null,
+      location: capture.location || null,
+      decision_reason: 'duplicate_species',
+      is_ground_truth: false,
+    })
+    return { capture_id: capture.id, approved: false, reason: 'needs_human', detail: 'duplicate' }
   }
+
 
 
   const update: Record<string, unknown> = {
