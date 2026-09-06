@@ -973,7 +973,45 @@ serve(async (req) => {
         console.error("species profile lookup failed", e);
       }
 
-      // Génération unique (texte seul, pas d'image → coût minimal).
+      // 1 bis) Fiche absente du catalogue mais déjà rédigée sur une capture
+      // approuvée de la même espèce : on récupère ce texte au lieu de payer une
+      // nouvelle rédaction, et on le range dans le catalogue pour la suite.
+      try {
+        let q = admin
+          .from("captures")
+          .select("animal_name, scientific_name, description, habitat, diet, conservation, fun_fact")
+          .eq("status", "approved")
+          .not("description", "is", null)
+          .order("created_at", { ascending: false })
+          .limit(1);
+        q = animalData.scientific_name
+          ? q.ilike("scientific_name", animalData.scientific_name)
+          : q.ilike("animal_name", name);
+        const { data: rows } = await q;
+        const prev = rows?.[0];
+        if (prev?.description && String(prev.description).length > 40) {
+          animalData.description = prev.description;
+          animalData.habitat = prev.habitat;
+          animalData.diet = prev.diet;
+          animalData.conservation = prev.conservation;
+          animalData.fun_fact = prev.fun_fact;
+          animalData.profile_source = "capture";
+          await admin.rpc("upsert_species_profile", {
+            p_name: name,
+            p_scientific: animalData.scientific_name || null,
+            p_description: prev.description,
+            p_habitat: prev.habitat,
+            p_diet: prev.diet,
+            p_conservation: prev.conservation,
+            p_fun_fact: prev.fun_fact,
+          });
+          return;
+        }
+      } catch (e) {
+        console.error("species profile reuse failed", e);
+      }
+
+      // 2) Génération unique (texte seul, pas d'image → coût minimal).
       try {
         const r = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
           method: "POST",
