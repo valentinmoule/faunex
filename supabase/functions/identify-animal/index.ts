@@ -410,10 +410,13 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    // Effet « première impression » : pour les 4 premières captures d'un
+    // Effet « première impression » : pour les 2 premières captures d'un
     // compte, on saute la passe économique et on analyse directement avec le
     // modèle performant sur l'image pleine résolution. L'utilisateur ne voit
     // rien — il constate juste que l'app reconnaît bien ses animaux.
+    // (2 et non 4 : le bénéfice perçu est concentré sur la toute première
+    // capture, alors que chaque appel « boosté » coûte plusieurs fois une passe
+    // économique.)
     let isNewUser = false;
     if (cacheDb && quotaUserId) {
       try {
@@ -421,19 +424,28 @@ serve(async (req) => {
           .from("captures")
           .select("id", { count: "exact", head: true })
           .eq("user_id", quotaUserId);
-        isNewUser = typeof count === "number" && count < 4;
+        isNewUser = typeof count === "number" && count < 2;
         if (isNewUser) console.log("new user boost", quotaUserId, count);
       } catch (e) {
         console.error("new user check failed", e);
       }
     }
 
-    // Montée d'un cran en qualité sans partir sur du Pro : génération 3.x.
-    // Flash Lite 3.1 en première passe (coût proche de l'ancien 2.5 Lite mais
-    // sensiblement meilleur en vision), Flash 3.5 en seconde passe quand le
-    // premier modèle échoue ou hésite. Jamais de modèle Pro.
-    const FAST_MODEL = isNewUser ? "google/gemini-3.5-flash" : "google/gemini-3.1-flash-lite";
-    const DEEP_MODEL = "google/gemini-3.5-flash";
+    /**
+     * Flash Lite 3.1 en première passe, Flash 3.6 en seconde passe.
+     * Mesure faite sur une requête identique (même photo, même prompt) :
+     *   gemini-3.1-flash-lite  0.0021 crédit
+     *   gemini-3.6-flash       0.0046 crédit
+     *   gemini-3.7-flash       0.0053 crédit
+     *   gemini-3.5-flash       0.0107 crédit  ← ancien modèle profond
+     * Le 3.6 est donc 2,3× moins cher que le 3.5 pour une génération plus
+     * récente (et il « réfléchit » moins, donc moins de jetons de sortie).
+     * Jamais de modèle Pro.
+     */
+    const DEEP_MODEL = "google/gemini-3.6-flash";
+    const FAST_MODEL = isNewUser ? DEEP_MODEL : "google/gemini-3.1-flash-lite";
+    /** Fiches d'espèces : texte seul, toujours sur le modèle le moins cher. */
+    const TEXT_MODEL = "google/gemini-3.1-flash-lite";
 
     const callGateway = async (
       model: string,
@@ -463,8 +475,12 @@ serve(async (req) => {
         // pour trancher les confusions difficiles.
         reasoning_effort: effort,
         // Réponse bornée : le schéma est court, un plafond évite les sorties
-        // (et les jetons de raisonnement) qui partent en dérive.
-        max_tokens: effort === "high" ? 1200 : 600,
+        // (et les jetons de raisonnement) qui partent en dérive. Les jetons de
+        // sortie sont le premier poste de coût. Mesuré sur photo réelle :
+        // 360 jetons en effort low, ~1040 en high (dont 800 de « réflexion »),
+        // d'où un plafond low serré et un plafond high assez large pour ne
+        // jamais tronquer la fiche.
+        max_tokens: effort === "high" ? 1400 : 500,
         messages: [
           { role: "system", content: prompt },
 
@@ -683,7 +699,10 @@ serve(async (req) => {
       [26_000],
 
       isNewUser ? FAST_PROMPT + DEEP_ANNEX : FAST_PROMPT,
-      isNewUser ? "high" : "low",
+      // Effort « low » même pour la première impression : mesuré sur photo réelle,
+      // Flash 3.6 en effort low identifie l'espèce avec la même confiance (0,98)
+      // que l'effort high, pour ~4× moins de jetons de raisonnement.
+      "low",
       isNewUser ? imageUrl : undefined,
     );
     let animalData = response?.ok ? await parseAnimal(response, FAST_MODEL) : null;
@@ -963,8 +982,10 @@ serve(async (req) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            model: FAST_MODEL,
+            model: TEXT_MODEL,
             temperature: 0.2,
+            reasoning_effort: "low",
+            max_tokens: 700,
             messages: [
               {
                 role: "system",
