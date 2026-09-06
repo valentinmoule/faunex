@@ -239,12 +239,27 @@ async function examine(
   }
 
 
-  // Doublon : l'explorateur possède déjà cette espèce → refus immédiat + notification.
+  // Doublon : l'explorateur possède peut-être déjà cette espèce. On NE refuse
+  // JAMAIS automatiquement : la capture part en modération humaine.
   const dup = await findUserDuplicate(supabase, capture.user_id, capture.id, name, capture.scientific_name)
   if (dup) {
-    await rejectCapture(supabase, capture, name, 'duplicate', adminActorId, 'duplicate_species')
-    return { capture_id: capture.id, approved: false, rejected: true, reason: 'duplicate' }
+    await releaseClaim(supabase, capture.id)
+    await logDatasetEvent(supabase, {
+      event_type: 'auto_moderation_deferred',
+      source: 'auto-moderate-capture',
+      capture_id: capture.id,
+      user_id: capture.user_id,
+      image_url: capture.image_url,
+      label_name: name,
+      label_scientific_name: capture.scientific_name || null,
+      user_description: capture.description || null,
+      location: capture.location || null,
+      decision_reason: 'duplicate_species',
+      is_ground_truth: false,
+    })
+    return { capture_id: capture.id, approved: false, reason: 'needs_human', detail: 'duplicate' }
   }
+
 
 
   const userText = [
