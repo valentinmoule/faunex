@@ -18,6 +18,8 @@ import FindersBadge from '@/components/FindersBadge';
 import { useCaptureQuota, DAILY_CAPTURE_LIMIT } from '@/hooks/useCaptureQuota';
 
 import type { AnimalResult } from '@/types/capture';
+import { isPlaceholderName, cleanScientificName } from '@/lib/placeholderNames';
+
 
 const rarityColors: Record<string, string> = {
   common: 'bg-rarity-common/20 text-rarity-common border-rarity-common/40',
