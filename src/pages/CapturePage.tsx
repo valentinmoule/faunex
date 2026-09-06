@@ -309,12 +309,17 @@ setManualMode(false);
 
   const saveManualEntry = async () => {
     const trimmedName = manualName.trim();
-    const trimmedSpecies = manualSpecies.trim();
+    const trimmedSpecies = cleanScientificName(manualSpecies) || '';
     const trimmedDesc = manualDescription.trim();
     if (!trimmedName || !trimmedDesc) {
       toast.error(t('capture.errors.fillNameAndDescription'));
       return;
     }
+    if (isPlaceholderName(trimmedName)) {
+      toast.error(t('capture.errors.invalidName'));
+      return;
+    }
+
     // Toute demande de modération (vérification d'une identification IA comme
     // soumission d'un animal non reconnu) consomme un slot quotidien : elle
     // aboutit à une capture ajoutée au Faunex après validation.
