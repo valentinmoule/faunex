@@ -223,8 +223,10 @@ const ModerationPage = () => {
       }
       console.error('enrich-capture failed', failure);
       setFailures(prev => ({ ...prev, [capture.id]: failure }));
-      toast.error(failure.message);
+      // Doublon : pas de toast, l'encart d'avertissement suffit (et reste lisible).
+      if (failure.code !== 'duplicate') toast.error(failure.message);
       return;
+
     }
 
     setPreview({ capture, animal: enriched.animal as EnrichedAnimal });
@@ -250,8 +252,9 @@ const ModerationPage = () => {
       };
       setFailures(prev => ({ ...prev, [capture.id]: failure }));
       setPreview(null);
-      toast.error(failure.message);
+      // Aucun toast pour un doublon : seul l'encart d'avertissement détaillé s'affiche.
     };
+
 
     // La prévisualisation n'écrit rien : on applique la fiche enrichie maintenant.
     const { error: applyError } = await supabase.functions.invoke('enrich-capture', {
@@ -512,6 +515,15 @@ const ModerationPage = () => {
                               )}
                             </p>
                           )}
+                          {failures[capture.id].code === 'duplicate' && failures[capture.id].identifiedAs && (
+                            <p className="text-[11px] text-muted-foreground">
+                              Espèce détectée : <span className="font-semibold text-foreground">{failures[capture.id].identifiedAs!.animal_name}</span>
+                              {failures[capture.id].identifiedAs!.scientific_name && (
+                                <span className="italic"> ({failures[capture.id].identifiedAs!.scientific_name})</span>
+                              )}
+                            </p>
+                          )}
+
                           {failures[capture.id].detail && (
                             <p className="text-[10px] text-muted-foreground break-words">
                               Détail technique : {failures[capture.id].detail}

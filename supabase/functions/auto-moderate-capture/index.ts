@@ -31,7 +31,8 @@ Réponds UNIQUEMENT via l'appel de fonction verify_animal.`
 
 
 /** Seuil de confiance minimal pour valider sans modérateur humain. */
-const AUTO_APPROVE_THRESHOLD = 0.6
+const AUTO_APPROVE_THRESHOLD = 0.5
+
 
 
 /** Clé de la tâche de fond (verrou + état de pause en base). */
@@ -239,13 +240,14 @@ async function examine(
   }
 
 
-  // Doublon : l'explorateur possède peut-être déjà cette espèce. On NE refuse
-  // JAMAIS automatiquement : la capture part en modération humaine.
+  // Doublon : seul un VRAI doublon (même binôme scientifique) est refusé
+  // automatiquement. Une simple homonymie de nom commun part en modération.
   const dup = await findUserDuplicate(supabase, capture.user_id, capture.id, name, capture.scientific_name)
   if (dup) {
     await releaseClaim(supabase, capture.id)
+    const trueDuplicate = dup.match_via === 'scientific'
     await logDatasetEvent(supabase, {
-      event_type: 'auto_moderation_deferred',
+      event_type: trueDuplicate ? 'moderation_rejected' : 'auto_moderation_deferred',
       source: 'auto-moderate-capture',
       capture_id: capture.id,
       user_id: capture.user_id,
@@ -254,11 +256,18 @@ async function examine(
       label_scientific_name: capture.scientific_name || null,
       user_description: capture.description || null,
       location: capture.location || null,
-      decision_reason: 'duplicate_species',
+      decision_reason: trueDuplicate
+        ? `duplicate_species:${dup.scientific_name ?? dup.animal_name}`
+        : 'duplicate_common_name',
       is_ground_truth: false,
     })
+    if (trueDuplicate) {
+      await rejectCapture(supabase, capture, name, 'duplicate', adminActorId, 'duplicate_species')
+      return { capture_id: capture.id, approved: false, rejected: true, reason: 'duplicate' }
+    }
     return { capture_id: capture.id, approved: false, reason: 'needs_human', detail: 'duplicate' }
   }
+
 
 
 
@@ -358,8 +367,13 @@ async function examine(
   // Un désaccord d'espèce n'est jamais un refus ferme : c'est un arbitrage humain.
   const ruleBreach = notRealPhoto || (!disagreement && verdict.name_matches === false && confidence === 0)
 
-  const humanNeeded = notRealPhoto || unknown || disagreement || !matches
-    || confidence < AUTO_APPROVE_THRESHOLD
+  // CONFIANCE À L'OBSERVATEUR : son nom est réputé exact. L'IA ne sert qu'à
+  // écarter les cas manifestement invalides (photo non réelle, nom inconnu) ou
+  // une contradiction explicite. Un simple manque d'assurance ne bloque plus.
+  const explicitContradiction = verdict.name_matches === false
+  const humanNeeded = notRealPhoto || unknown || disagreement || explicitContradiction
+    || (!matches && confidence < AUTO_APPROVE_THRESHOLD)
+
 
 
   if (humanNeeded) {
@@ -415,8 +429,9 @@ async function examine(
   )
   if (dup2) {
     await releaseClaim(supabase, capture.id)
+    const trueDuplicate2 = dup2.match_via === 'scientific'
     await logDatasetEvent(supabase, {
-      event_type: 'auto_moderation_deferred',
+      event_type: trueDuplicate2 ? 'moderation_rejected' : 'auto_moderation_deferred',
       source: 'auto-moderate-capture',
       model: usedModel,
       capture_id: capture.id,
@@ -426,11 +441,18 @@ async function examine(
       label_scientific_name: approvedSci,
       user_description: capture.description || null,
       location: capture.location || null,
-      decision_reason: 'duplicate_species',
+      decision_reason: trueDuplicate2
+        ? `duplicate_species:${dup2.scientific_name ?? dup2.animal_name}`
+        : 'duplicate_common_name',
       is_ground_truth: false,
     })
+    if (trueDuplicate2) {
+      await rejectCapture(supabase, capture, approvedName, 'duplicate', adminActorId, 'duplicate_species')
+      return { capture_id: capture.id, approved: false, rejected: true, reason: 'duplicate' }
+    }
     return { capture_id: capture.id, approved: false, reason: 'needs_human', detail: 'duplicate' }
   }
+
 
 
 
@@ -732,13 +754,20 @@ const isSpeciesBinomial = (sci: string | null | undefined) => {
   return true
 }
 
+/**
+ * Doublon d'espèce dans le bestiaire de l'explorateur.
+ *
+ * `match_via: 'scientific'` = même binôme latin → VRAI doublon, refus possible
+ * sans humain. `match_via: 'name'` = simple homonymie de nom commun → jamais un
+ * refus automatique, la capture part en modération humaine.
+ */
 async function findUserDuplicate(
   supabase: any,
   userId: string,
   currentCaptureId: string,
   name: string,
   scientific: string | null,
-) {
+): Promise<{ id: string; animal_name: string; scientific_name: string | null; match_via: 'name' | 'scientific' } | null> {
   const { data, error } = await supabase
     .from('captures')
     .select('id, animal_name, scientific_name')
@@ -757,15 +786,16 @@ async function findUserDuplicate(
     // Si les deux identités scientifiques sont fiables, elles sont prioritaires :
     // deux binômes différents ne peuvent pas être signalés comme un doublon.
     if (s && existingSci) {
-      if (existingSci === s) return c
+      if (sameBinomial(existingSci, s)) return { ...c, match_via: 'scientific' }
       continue
     }
 
     // Repli sur le nom commun seulement si un binôme manque ou n'est pas précis.
-    if (n && norm(c.animal_name) === n) return c
+    if (n && norm(c.animal_name) === n) return { ...c, match_via: 'name' }
   }
   return null
 }
+
 
 function json(payload: unknown, status = 200) {
   return new Response(JSON.stringify(payload), {
