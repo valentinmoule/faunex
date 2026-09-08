@@ -3,7 +3,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { CollectionHero } from '@/components/CollectionHero';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, SlidersHorizontal, Users, ArrowDownUp, Check, Ghost, Footprints, TrendingUp, Flame, type LucideIcon } from 'lucide-react';
+import { Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, SlidersHorizontal, Users, ArrowDownUp, Check, Ghost, Footprints, TrendingUp, Flame, Images, Trophy, type LucideIcon } from 'lucide-react';
 import { type Rarity, type AnimalCard, RARITY_LABELS, RARITY_ORDER, RARITY_RANK, normalizeRarity } from '@/data/mockData';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -1176,41 +1176,32 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
         <div className="max-w-lg mx-auto px-4 pt-4 space-y-6">
 
 
-          {/* View toggle + rarity filter */}
-          <section className="space-y-3">
-            <div className="flex items-center gap-1 p-1 rounded-full bg-muted/60 border border-border w-full">
-              <button
-                onClick={() => setViewMode('mine')}
-                className={`flex-1 text-xs font-display font-semibold py-2 rounded-full transition-all ${
-                  viewMode === 'mine'
-                    ? 'bg-background text-foreground shadow-sm'
-                    : 'text-muted-foreground'
-                }`}
-              >
-                {t('bestiary.tabs.mine')}
-              </button>
-              <button
-                onClick={() => setViewMode('categories')}
-                className={`flex-1 text-xs font-display font-semibold py-2 rounded-full transition-all ${
-                  viewMode === 'categories'
-                    ? 'bg-background text-foreground shadow-sm'
-                    : 'text-muted-foreground'
-                }`}
-              >
-                {t('bestiary.tabs.categories')}
-              </button>
-              <button
-                onClick={() => setViewMode('collections')}
-                className={`flex-1 text-xs font-display font-semibold py-2 rounded-full transition-all ${
-                  viewMode === 'collections'
-                    ? 'bg-background text-foreground shadow-sm'
-                    : 'text-muted-foreground'
-                }`}
-              >
-                {t('bestiary.tabs.collections')}
-              </button>
+          {/* View toggle — floating gamified tab bar */}
+          <div className="sticky top-[70px] z-30 -mx-4 px-4 pt-1 pb-2 bg-gradient-to-b from-background via-background/95 to-transparent">
+            <div className="flex items-center gap-1 p-1 rounded-full bg-card/90 backdrop-blur-xl border border-border shadow-lg shadow-foreground/5 w-full">
+              {([
+                { key: 'mine', label: t('bestiary.tabs.mine'), icon: Images },
+                { key: 'categories', label: t('bestiary.tabs.categories'), icon: PawPrint },
+                { key: 'collections', label: t('bestiary.tabs.collections'), icon: Trophy },
+              ] as const).map(({ key, label, icon: Icon }) => {
+                const active = viewMode === key;
+                return (
+                  <button
+                    key={key}
+                    onClick={() => setViewMode(key)}
+                    className={`relative flex-1 flex items-center justify-center gap-1.5 text-xs font-display font-semibold py-2 rounded-full transition-all duration-200 active:scale-95 ${
+                      active
+                        ? 'bg-gradient-to-br from-primary to-primary/75 text-primary-foreground shadow-md shadow-primary/30 scale-[1.02]'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <Icon className={`w-3.5 h-3.5 transition-transform ${active ? 'scale-110' : ''}`} />
+                    <span className="truncate">{label}</span>
+                  </button>
+                );
+              })}
             </div>
-</section>
+          </div>
 
           {viewMode === 'mine' && (
             <section>
