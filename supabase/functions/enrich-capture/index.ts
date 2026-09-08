@@ -192,7 +192,7 @@ Deno.serve(async (req) => {
       const dup = await findUserDuplicate(supabase, capture.user_id, captureId, animalName, overrideScientific)
       if (dup) {
         return json({
-          error: `L'explorateur possède déjà « ${dup.animal_name} »${dup.scientific_name ? ` (${dup.scientific_name})` : ''} dans son bestiaire — même espèce que « ${animalName} ».`,
+          error: `L'explorateur possède déjà « ${dup.animal_name} »${dup.scientific_name ? ` (${dup.scientific_name})` : ''} dans son bestiaire — même espèce que « ${animalName} »${overrideScientific ? ` (${overrideScientific})` : ''}${dup.match_via === 'scientific' ? ' (détecté via le nom scientifique)' : ''}.`,
           code: 'duplicate',
           duplicate: dup,
         }, 409)
@@ -432,7 +432,7 @@ Deno.serve(async (req) => {
       )
       if (dup) {
         return json({
-          error: `L'explorateur possède déjà « ${dup.animal_name} »${dup.scientific_name ? ` (${dup.scientific_name})` : ''} dans son bestiaire — même espèce que « ${animal.animal_name || animalName} »${animal.scientific_name ? ` (${animal.scientific_name})` : ''}.`,
+          error: `L'explorateur possède déjà « ${dup.animal_name} »${dup.scientific_name ? ` (${dup.scientific_name})` : ''} dans son bestiaire — même espèce que « ${animal.animal_name || animalName} »${animal.scientific_name ? ` (${animal.scientific_name})` : ''}${dup.match_via === 'scientific' ? ' (détecté via le nom scientifique)' : ''}.`,
           code: 'duplicate',
           duplicate: dup,
         }, 409)
