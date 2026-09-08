@@ -31,7 +31,8 @@ Réponds UNIQUEMENT via l'appel de fonction verify_animal.`
 
 
 /** Seuil de confiance minimal pour valider sans modérateur humain. */
-const AUTO_APPROVE_THRESHOLD = 0.6
+const AUTO_APPROVE_THRESHOLD = 0.5
+
 
 
 /** Clé de la tâche de fond (verrou + état de pause en base). */
