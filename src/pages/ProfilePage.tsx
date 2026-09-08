@@ -13,6 +13,7 @@ import XpParticles from '@/components/XpParticles';
 import QuestsInline from '@/components/QuestsInline';
 import DiscordInviteCard from '@/components/DiscordInviteCard';
 import BadgesSection from '@/components/BadgesSection';
+import CategoryLeaderboard from '@/components/CategoryLeaderboard';
 
 
 interface Profile {
@@ -166,12 +167,15 @@ const ProfilePage = () => {
 
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 gap-3">
-          <StatCard icon={<BookOpen className="w-5 h-5 text-primary" />} value={profile.total_captures} label={t('profile.page.stats.species')} />
-          <StatCard icon={<MapPin className="w-5 h-5 text-sky" />} value={profile.regions_explored} label={t('profile.page.stats.regions')} />
-          <StatCard icon={<Users className="w-5 h-5 text-amber" />} value={followersCount} label={t('profile.page.stats.followers')} />
-          <StatCard icon={<UserPlus className="w-5 h-5 text-emerald" />} value={followingCount} label={t('profile.page.stats.following')} />
+        <div className="grid grid-cols-2 gap-2">
+          <StatCard icon={<BookOpen className="w-4 h-4 text-primary" />} iconClass="bg-primary/10" value={profile.total_captures} label={t('profile.page.stats.species')} />
+          <StatCard icon={<MapPin className="w-4 h-4 text-sky" />} iconClass="bg-sky/10" value={profile.regions_explored} label={t('profile.page.stats.regions')} />
+          <StatCard icon={<Users className="w-4 h-4 text-amber" />} iconClass="bg-amber/10" value={followersCount} label={t('profile.page.stats.followers')} />
+          <StatCard icon={<UserPlus className="w-4 h-4 text-emerald" />} iconClass="bg-emerald/10" value={followingCount} label={t('profile.page.stats.following')} />
         </div>
+
+        {/* Global leaderboard */}
+        <CategoryLeaderboard category="all" />
 
         {/* PWA Install Card */}
         {!isNative && canInstall && !isInstalled && (
@@ -239,11 +243,13 @@ const ProfilePage = () => {
   );
 };
 
-const StatCard = ({ icon, value, label }: { icon: React.ReactNode; value: number; label: string }) => (
-  <div className="bg-card rounded-xl border border-border p-3 text-center shadow-card">
-    <div className="flex justify-center mb-1.5">{icon}</div>
-    <p className="text-xl font-display font-bold text-foreground">{value}</p>
-    <p className="text-[10px] text-muted-foreground font-display">{label}</p>
+const StatCard = ({ icon, iconClass, value, label }: { icon: React.ReactNode; iconClass: string; value: number; label: string }) => (
+  <div className="bg-card rounded-xl border border-border px-3 py-2.5 shadow-card flex items-center gap-2.5">
+    <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${iconClass}`}>{icon}</div>
+    <div className="min-w-0 text-left">
+      <p className="text-base font-display font-bold text-foreground leading-tight">{value}</p>
+      <p className="text-[10px] text-muted-foreground font-display truncate">{label}</p>
+    </div>
   </div>
 );
 
