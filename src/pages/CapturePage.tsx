@@ -382,6 +382,22 @@ setManualMode(false);
   };
 
 
+  /**
+   * Sortie de l'écran capture. Si c'était la dernière identification du jour,
+   * on affiche d'abord l'invitation Premium (tous les parcours : IA validée,
+   * soumission manuelle, demande de vérification).
+   */
+  const leaveAfterCapture = (delay: number) => {
+    window.setTimeout(async () => {
+      const left = await quota.fetchRemaining();
+      if (left !== null && left <= 0) {
+        setPremiumPrompt(true);
+        return;
+      }
+      navigate('/home');
+    }, delay);
+  };
+
   const finishSave = (animal: AnimalResult, imageUrl: string, message: string) => {
     setSaved(true);
     setDuplicateCapture(null);
@@ -392,8 +408,9 @@ setManualMode(false);
       rarity: animal.rarity,
       imageUrl,
     });
-    setTimeout(() => navigate('/home'), 900);
+    leaveAfterCapture(900);
   };
+
 
   const saveToCollection = async () => {
     if (!animalResult) return;
