@@ -598,7 +598,7 @@ setManualMode(false);
             )}
           </div>
           <div className="flex items-center gap-2">
-            {quota.remaining !== null && (
+            {quota.remaining !== null && !quota.unlimited && (
               <div className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 ${quota.exhausted ? 'bg-destructive/25' : 'bg-primary-foreground/10'}`}>
                 <Camera className={`w-3.5 h-3.5 ${quota.exhausted ? 'text-destructive' : 'text-primary'}`} />
                 <span className="text-primary-foreground/80 text-xs font-display">
