@@ -760,18 +760,6 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                 </div>
               </div>
             </button>
-
-              <button
-                onClick={() => navigate('/premium')}
-                className="w-full pt-2 text-center"
-              >
-                <p className="text-[10px] text-muted-foreground font-display">
-                  {t('bestiary.picker.slotsUsed', { used: slotsUsed, limit: FREE_SLOT_LIMIT })} ·{' '}
-                  <span className="text-primary font-semibold">{t('bestiary.picker.slotsUsedCta')}</span>
-                </p>
-              </button>
-
-
           </div>
         )}
 
