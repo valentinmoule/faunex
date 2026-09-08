@@ -195,6 +195,10 @@ Deno.serve(async (req) => {
           error: `L'explorateur possède déjà « ${dup.animal_name} »${dup.scientific_name ? ` (${dup.scientific_name})` : ''} dans son bestiaire — même espèce que « ${animalName} »${overrideScientific ? ` (${overrideScientific})` : ''}${dup.match_via === 'scientific' ? ' (détecté via le nom scientifique)' : ''}.`,
           code: 'duplicate',
           duplicate: dup,
+          identified_as: {
+            animal_name: animalName,
+            scientific_name: overrideScientific,
+          },
         }, 409)
       }
     }
@@ -435,6 +439,10 @@ Deno.serve(async (req) => {
           error: `L'explorateur possède déjà « ${dup.animal_name} »${dup.scientific_name ? ` (${dup.scientific_name})` : ''} dans son bestiaire — même espèce que « ${animal.animal_name || animalName} »${animal.scientific_name ? ` (${animal.scientific_name})` : ''}${dup.match_via === 'scientific' ? ' (détecté via le nom scientifique)' : ''}.`,
           code: 'duplicate',
           duplicate: dup,
+          identified_as: {
+            animal_name: animal.animal_name || animalName,
+            scientific_name: animal.scientific_name || null,
+          },
         }, 409)
       }
     }
@@ -560,16 +568,19 @@ async function findUserDuplicate(
   const s = isSpeciesBinomial(scientific) ? norm(scientific) : ''
   for (const c of data || []) {
     if (c.id === currentCaptureId) continue
-    // Correspondance sur le nom commun : cas classique, sans ambiguïté.
-    if (n && norm(c.animal_name) === n) return { ...c, match_via: 'name' }
-    // Correspondance sur le seul binôme latin : risque de faux positif si
-    // l'ancienne capture porte un nom scientifique erroné (fusions passées).
-    // On n'accepte que si les noms communs ne désignent pas clairement deux
-    // espèces différentes (aucun mot significatif en commun → on signale
-    // quand même, mais marqué 'scientific' pour un message explicite).
-    if (s && isSpeciesBinomial(c.scientific_name) && norm(c.scientific_name) === s) {
-      return { ...c, match_via: 'scientific' }
+    const existingSci = isSpeciesBinomial(c.scientific_name) ? norm(c.scientific_name) : ''
+
+    // Deux binômes valides et différents prouvent qu'il s'agit de deux espèces
+    // distinctes. Un alias vernaculaire ou une ancienne fusion de catalogue ne
+    // doit jamais prendre le pas sur cette identité taxonomique.
+    if (s && existingSci) {
+      if (existingSci === s) return { ...c, match_via: 'scientific' }
+      continue
     }
+
+    // Le nom commun ne sert de repli que lorsqu'au moins une des deux captures
+    // n'a pas de binôme scientifique exploitable.
+    if (n && norm(c.animal_name) === n) return { ...c, match_via: 'name' }
   }
   return null
 }
