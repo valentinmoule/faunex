@@ -762,11 +762,6 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
               </div>
             </button>
 
-            {isPremium ? (
-              <p className="text-[10px] text-muted-foreground font-display text-center pt-2">
-                {t('bestiary.picker.premiumUnlimited')}
-              </p>
-            ) : (
               <button
                 onClick={() => navigate('/premium')}
                 className="w-full pt-2 text-center"
