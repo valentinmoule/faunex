@@ -750,11 +750,21 @@ async function findUserDuplicate(
   }
   const n = norm(name)
   const s = isSpeciesBinomial(scientific) ? norm(scientific) : ''
-  return (data || []).find((c: any) =>
-    c.id !== currentCaptureId &&
-    ((n && norm(c.animal_name) === n) ||
-      (s && isSpeciesBinomial(c.scientific_name) && norm(c.scientific_name) === s))
-  ) || null
+  for (const c of data || []) {
+    if (c.id === currentCaptureId) continue
+    const existingSci = isSpeciesBinomial(c.scientific_name) ? norm(c.scientific_name) : ''
+
+    // Si les deux identités scientifiques sont fiables, elles sont prioritaires :
+    // deux binômes différents ne peuvent pas être signalés comme un doublon.
+    if (s && existingSci) {
+      if (existingSci === s) return c
+      continue
+    }
+
+    // Repli sur le nom commun seulement si un binôme manque ou n'est pas précis.
+    if (n && norm(c.animal_name) === n) return c
+  }
+  return null
 }
 
 function json(payload: unknown, status = 200) {
