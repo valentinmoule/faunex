@@ -201,8 +201,8 @@ const App = () => (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
-        <Sonner />
         <BrowserRouter>
+          <Sonner />
           <ScrollToTop />
           <AuthProvider>
             <PwaInstallProvider>
