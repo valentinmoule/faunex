@@ -373,7 +373,7 @@ setManualMode(false);
           ? t('capture.toasts.verificationRequested')
           : t('capture.toasts.submittedForValidation')
       );
-      setTimeout(() => navigate('/home'), 1500);
+      leaveAfterCapture(1500);
     } catch (err) {
       console.error(err);
       if (consumed) await quota.refund();
