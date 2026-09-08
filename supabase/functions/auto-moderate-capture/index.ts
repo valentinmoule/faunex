@@ -428,8 +428,9 @@ async function examine(
   )
   if (dup2) {
     await releaseClaim(supabase, capture.id)
+    const trueDuplicate2 = dup2.match_via === 'scientific'
     await logDatasetEvent(supabase, {
-      event_type: 'auto_moderation_deferred',
+      event_type: trueDuplicate2 ? 'moderation_rejected' : 'auto_moderation_deferred',
       source: 'auto-moderate-capture',
       model: usedModel,
       capture_id: capture.id,
@@ -439,11 +440,18 @@ async function examine(
       label_scientific_name: approvedSci,
       user_description: capture.description || null,
       location: capture.location || null,
-      decision_reason: 'duplicate_species',
+      decision_reason: trueDuplicate2
+        ? `duplicate_species:${dup2.scientific_name ?? dup2.animal_name}`
+        : 'duplicate_common_name',
       is_ground_truth: false,
     })
+    if (trueDuplicate2) {
+      await rejectCapture(supabase, capture, approvedName, 'duplicate', adminActorId, 'duplicate_species')
+      return { capture_id: capture.id, approved: false, rejected: true, reason: 'duplicate' }
+    }
     return { capture_id: capture.id, approved: false, reason: 'needs_human', detail: 'duplicate' }
   }
+
 
 
 
