@@ -331,6 +331,14 @@ setManualMode(false);
       toast.error(t('capture.errors.invalidName'));
       return;
     }
+    // L'espèce est peut-être déjà dans le Faunex de l'utilisateur (ou déjà en
+    // attente de modération) : inutile d'envoyer un doublon aux modérateurs.
+    const alreadyOwned = await findDuplicate(trimmedName, trimmedSpecies || null);
+    if (alreadyOwned) {
+      toast.error(t('capture.errors.alreadyHaveSpecies', { name: alreadyOwned.animal_name }));
+      return;
+    }
+
 
     // Toute demande de modération (vérification d'une identification IA comme
     // soumission d'un animal non reconnu) consomme un slot quotidien : elle
