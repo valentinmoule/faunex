@@ -182,6 +182,8 @@ setAnimalResult(null);
       }
     } finally {
       identifyingRef.current = false;
+      // Le compteur affiché suit exactement les analyses réellement débitées.
+      void quota.refresh();
     }
   }, [geo, identify, triggerReveal, quota, t]);
 
@@ -206,8 +208,9 @@ setAnimalResult(null);
       }
     } finally {
       identifyingRef.current = false;
+      void quota.refresh();
     }
-  }, [capturedPhoto, identify, triggerReveal]);
+  }, [capturedPhoto, identify, triggerReveal, quota]);
 
 
 
