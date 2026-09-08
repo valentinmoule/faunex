@@ -3,7 +3,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { CollectionHero } from '@/components/CollectionHero';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, SlidersHorizontal, Users, ArrowDownUp, Check, Ghost, Footprints, TrendingUp, Flame, type LucideIcon } from 'lucide-react';
+import { Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, SlidersHorizontal, Users, ArrowDownUp, Check, Ghost, Footprints, TrendingUp, Flame, Images, Trophy, type LucideIcon } from 'lucide-react';
 import { type Rarity, type AnimalCard, RARITY_LABELS, RARITY_ORDER, RARITY_RANK, normalizeRarity } from '@/data/mockData';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -1191,7 +1191,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                     onClick={() => setViewMode(key)}
                     className={`relative flex-1 flex items-center justify-center gap-1.5 text-xs font-display font-semibold py-2 rounded-full transition-all duration-200 active:scale-95 ${
                       active
-                        ? 'bg-gradient-to-br from-primary to-emerald text-primary-foreground shadow-md shadow-primary/30 scale-[1.02]'
+                        ? 'bg-gradient-to-br from-primary to-primary/75 text-primary-foreground shadow-md shadow-primary/30 scale-[1.02]'
                         : 'text-muted-foreground hover:text-foreground'
                     }`}
                   >
