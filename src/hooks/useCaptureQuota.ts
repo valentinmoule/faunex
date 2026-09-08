@@ -27,16 +27,12 @@ export const useCaptureQuota = (userId?: string) => {
 
   /**
    * L'analyse IA a déjà débité le slot côté serveur : enregistrer la capture ne
-   * coûte donc plus rien. On resynchronise simplement l'affichage.
+   * coûte donc plus rien et ne doit jamais être refusée ici.
    */
   const consume = useCallback(async () => {
-    const { data, error } = await supabase.rpc('ai_analyses_remaining_today');
-    if (!error && typeof data === 'number') {
-      setRemaining(data);
-      return data > 0;
-    }
+    void refresh();
     return true;
-  }, []);
+  }, [refresh]);
 
   /** Rien à rendre : le remboursement éventuel est géré côté serveur. */
   const refund = useCallback(async () => {
@@ -45,11 +41,13 @@ export const useCaptureQuota = (userId?: string) => {
 
   return {
     remaining,
+    unlimited: remaining !== null && remaining > DAILY_CAPTURE_LIMIT,
     exhausted: remaining !== null && remaining <= 0,
     refresh,
     consume,
     refund,
   };
 };
+
 
 
