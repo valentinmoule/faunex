@@ -366,8 +366,13 @@ async function examine(
   // Un désaccord d'espèce n'est jamais un refus ferme : c'est un arbitrage humain.
   const ruleBreach = notRealPhoto || (!disagreement && verdict.name_matches === false && confidence === 0)
 
-  const humanNeeded = notRealPhoto || unknown || disagreement || !matches
-    || confidence < AUTO_APPROVE_THRESHOLD
+  // CONFIANCE À L'OBSERVATEUR : son nom est réputé exact. L'IA ne sert qu'à
+  // écarter les cas manifestement invalides (photo non réelle, nom inconnu) ou
+  // une contradiction explicite. Un simple manque d'assurance ne bloque plus.
+  const explicitContradiction = verdict.name_matches === false
+  const humanNeeded = notRealPhoto || unknown || disagreement || explicitContradiction
+    || (!matches && confidence < AUTO_APPROVE_THRESHOLD)
+
 
 
   if (humanNeeded) {
