@@ -47,6 +47,7 @@ interface PrepareFailure {
   detail?: string;
   canRetryHigh?: boolean;
   duplicate?: { id: string; animal_name: string; scientific_name?: string | null; created_at: string; match_via?: 'name' | 'scientific' } | null;
+  identifiedAs?: { animal_name: string; scientific_name?: string | null } | null;
 }
 
 /** Récupère le corps JSON d'une erreur d'edge function (statut non-2xx). */
@@ -61,6 +62,7 @@ const readFunctionError = async (error: any): Promise<PrepareFailure> => {
         detail: body?.detail,
         canRetryHigh: body?.can_retry_high,
         duplicate: body?.duplicate ?? null,
+        identifiedAs: body?.identified_as ?? null,
       };
     }
   } catch (e) {
@@ -74,11 +76,21 @@ const readFunctionError = async (error: any): Promise<PrepareFailure> => {
  * Toutes les origines (pré-vérification serveur, index unique en base, conflit
  * lors de l'application de la fiche) affichent exactement le même libellé.
  */
-const duplicateMessage = (animalName: string, duplicate?: PrepareFailure['duplicate']) => {
+const duplicateMessage = (
+  submittedName: string,
+  duplicate?: PrepareFailure['duplicate'],
+  identifiedAs?: PrepareFailure['identifiedAs'],
+) => {
+  const identifiedName = identifiedAs?.animal_name || submittedName;
+  const wasReidentified = identifiedName.localeCompare(submittedName, 'fr', { sensitivity: 'base' }) !== 0;
   const existing = duplicate
     ? ` Capture existante : « ${duplicate.animal_name} »${duplicate.scientific_name ? ` (${duplicate.scientific_name})` : ''}${duplicate.match_via === 'scientific' ? ` — doublon détecté via le nom scientifique, vérifie qu'il s'agit bien de la même espèce` : ''}.`
     : '';
-  return `${animalName} : l'explorateur possède déjà cette espèce dans son bestiaire (1 capture par espèce).${existing} Renomme l'espèce ou rejette la capture en doublon.`;
+  if (wasReidentified) {
+    const scientific = identifiedAs?.scientific_name ? ` (${identifiedAs.scientific_name})` : '';
+    return `La capture proposée comme « ${submittedName} » a été identifiée par l'IA comme « ${identifiedName} »${scientific}, une espèce déjà présente dans le bestiaire.${existing} Vérifie l'identification ou force le nom proposé ; ne la rejette comme doublon que si cette identification est correcte.`;
+  }
+  return `${submittedName} : l'explorateur possède déjà cette espèce dans son bestiaire (1 capture par espèce).${existing} Renomme l'espèce ou rejette la capture en doublon.`;
 };
 
 
@@ -203,7 +215,11 @@ const ModerationPage = () => {
         ? await readFunctionError(enrichError)
         : { code: 'empty_response', message: "La fonction a répondu sans fiche exploitable." };
       if (failure.code === 'duplicate') {
-        failure.message = duplicateMessage(nameOverride?.trim() || capture.animal_name, failure.duplicate);
+        failure.message = duplicateMessage(
+          nameOverride?.trim() || capture.animal_name,
+          failure.duplicate,
+          failure.identifiedAs,
+        );
       }
       console.error('enrich-capture failed', failure);
       setFailures(prev => ({ ...prev, [capture.id]: failure }));
@@ -222,11 +238,15 @@ const ModerationPage = () => {
     setConfirming(true);
 
     /** Même traitement quelle que soit l'origine du conflit de doublon. */
-    const showDuplicate = (duplicate?: PrepareFailure['duplicate']) => {
+    const showDuplicate = (
+      duplicate?: PrepareFailure['duplicate'],
+      identifiedAs?: PrepareFailure['identifiedAs'],
+    ) => {
       const failure: PrepareFailure = {
         code: 'duplicate',
-        message: duplicateMessage(finalName, duplicate ?? null),
+        message: duplicateMessage(finalName, duplicate ?? null, identifiedAs ?? animal),
         duplicate: duplicate ?? null,
+        identifiedAs: identifiedAs ?? animal,
       };
       setFailures(prev => ({ ...prev, [capture.id]: failure }));
       setPreview(null);
@@ -239,7 +259,7 @@ const ModerationPage = () => {
     });
     if (applyError) {
       const failure = await readFunctionError(applyError);
-      if (failure.code === 'duplicate') showDuplicate(failure.duplicate);
+      if (failure.code === 'duplicate') showDuplicate(failure.duplicate, failure.identifiedAs);
       else toast.error(failure.message);
       setConfirming(false);
       return;

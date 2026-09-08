@@ -195,6 +195,10 @@ Deno.serve(async (req) => {
           error: `L'explorateur possède déjà « ${dup.animal_name} »${dup.scientific_name ? ` (${dup.scientific_name})` : ''} dans son bestiaire — même espèce que « ${animalName} »${overrideScientific ? ` (${overrideScientific})` : ''}${dup.match_via === 'scientific' ? ' (détecté via le nom scientifique)' : ''}.`,
           code: 'duplicate',
           duplicate: dup,
+          identified_as: {
+            animal_name: animalName,
+            scientific_name: overrideScientific,
+          },
         }, 409)
       }
     }
@@ -435,6 +439,10 @@ Deno.serve(async (req) => {
           error: `L'explorateur possède déjà « ${dup.animal_name} »${dup.scientific_name ? ` (${dup.scientific_name})` : ''} dans son bestiaire — même espèce que « ${animal.animal_name || animalName} »${animal.scientific_name ? ` (${animal.scientific_name})` : ''}${dup.match_via === 'scientific' ? ' (détecté via le nom scientifique)' : ''}.`,
           code: 'duplicate',
           duplicate: dup,
+          identified_as: {
+            animal_name: animal.animal_name || animalName,
+            scientific_name: animal.scientific_name || null,
+          },
         }, 409)
       }
     }
