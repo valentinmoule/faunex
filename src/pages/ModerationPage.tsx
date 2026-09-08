@@ -252,8 +252,9 @@ const ModerationPage = () => {
       };
       setFailures(prev => ({ ...prev, [capture.id]: failure }));
       setPreview(null);
-      toast.error(failure.message);
+      // Aucun toast pour un doublon : seul l'encart d'avertissement détaillé s'affiche.
     };
+
 
     // La prévisualisation n'écrit rien : on applique la fiche enrichie maintenant.
     const { error: applyError } = await supabase.functions.invoke('enrich-capture', {
