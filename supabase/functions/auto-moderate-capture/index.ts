@@ -732,13 +732,20 @@ const isSpeciesBinomial = (sci: string | null | undefined) => {
   return true
 }
 
+/**
+ * Doublon d'espèce dans le bestiaire de l'explorateur.
+ *
+ * `match_via: 'scientific'` = même binôme latin → VRAI doublon, refus possible
+ * sans humain. `match_via: 'name'` = simple homonymie de nom commun → jamais un
+ * refus automatique, la capture part en modération humaine.
+ */
 async function findUserDuplicate(
   supabase: any,
   userId: string,
   currentCaptureId: string,
   name: string,
   scientific: string | null,
-) {
+): Promise<{ id: string; animal_name: string; scientific_name: string | null; match_via: 'name' | 'scientific' } | null> {
   const { data, error } = await supabase
     .from('captures')
     .select('id, animal_name, scientific_name')
@@ -757,15 +764,16 @@ async function findUserDuplicate(
     // Si les deux identités scientifiques sont fiables, elles sont prioritaires :
     // deux binômes différents ne peuvent pas être signalés comme un doublon.
     if (s && existingSci) {
-      if (existingSci === s) return c
+      if (sameBinomial(existingSci, s)) return { ...c, match_via: 'scientific' }
       continue
     }
 
     // Repli sur le nom commun seulement si un binôme manque ou n'est pas précis.
-    if (n && norm(c.animal_name) === n) return c
+    if (n && norm(c.animal_name) === n) return { ...c, match_via: 'name' }
   }
   return null
 }
+
 
 function json(payload: unknown, status = 200) {
   return new Response(JSON.stringify(payload), {
