@@ -558,11 +558,20 @@ async function findUserDuplicate(
   }
   const n = norm(name)
   const s = isSpeciesBinomial(scientific) ? norm(scientific) : ''
-  return (data || []).find((c: any) =>
-    c.id !== currentCaptureId &&
-    ((n && norm(c.animal_name) === n) ||
-      (s && isSpeciesBinomial(c.scientific_name) && norm(c.scientific_name) === s))
-  ) || null
+  for (const c of data || []) {
+    if (c.id === currentCaptureId) continue
+    // Correspondance sur le nom commun : cas classique, sans ambiguïté.
+    if (n && norm(c.animal_name) === n) return { ...c, match_via: 'name' }
+    // Correspondance sur le seul binôme latin : risque de faux positif si
+    // l'ancienne capture porte un nom scientifique erroné (fusions passées).
+    // On n'accepte que si les noms communs ne désignent pas clairement deux
+    // espèces différentes (aucun mot significatif en commun → on signale
+    // quand même, mais marqué 'scientific' pour un message explicite).
+    if (s && isSpeciesBinomial(c.scientific_name) && norm(c.scientific_name) === s) {
+      return { ...c, match_via: 'scientific' }
+    }
+  }
+  return null
 }
 
 
