@@ -4,15 +4,20 @@ import { supabase } from '@/integrations/supabase/client';
 export const DAILY_CAPTURE_LIMIT = 4;
 
 /**
- * Daily capture quota: every AI analysis consumes one slot, even when the
- * animal is not added to the Faunex.
+ * Quota quotidien d'identifications.
+ *
+ * Source de vérité UNIQUE : `ai_analysis_attempts`, la table réellement
+ * débitée par la fonction d'identification. Auparavant l'écran affichait un
+ * second compteur (`capture_attempts`, débité seulement à l'enregistrement) :
+ * un explorateur qui analysait 4 photos mais n'en gardait que 3 voyait
+ * « 1/4 » tout en étant bloqué par le serveur.
  */
 export const useCaptureQuota = (userId?: string) => {
   const [remaining, setRemaining] = useState<number | null>(null);
 
   const refresh = useCallback(async () => {
     if (!userId) return;
-    const { data, error } = await supabase.rpc('captures_remaining_today');
+    const { data, error } = await supabase.rpc('ai_analyses_remaining_today');
     if (!error && typeof data === 'number') setRemaining(data);
   }, [userId]);
 
@@ -20,38 +25,29 @@ export const useCaptureQuota = (userId?: string) => {
     refresh();
   }, [refresh]);
 
-  /** Consumes one slot. Returns false when the quota is already exhausted. */
-  const consume = useCallback(async () => {
-    const { data, error } = await supabase.rpc('record_capture_attempt');
-    if (error) {
-      if (JSON.stringify(error.message || '').includes('DAILY_CAPTURE_LIMIT_REACHED')) {
-        setRemaining(0);
-      }
-      return false;
-    }
-    if (typeof data === 'number') setRemaining(data);
-    return true;
-  }, []);
-
   /**
-   * Rend le slot débité juste avant : une erreur réseau, un refus serveur ou un
-   * doublon détecté après coup ne doit jamais coûter une capture à l'explorateur.
+   * L'analyse IA a déjà débité le slot côté serveur : enregistrer la capture ne
+   * coûte donc plus rien et ne doit jamais être refusée ici.
    */
+  const consume = useCallback(async () => {
+    void refresh();
+    return true;
+  }, [refresh]);
+
+  /** Rien à rendre : le remboursement éventuel est géré côté serveur. */
   const refund = useCallback(async () => {
-    const { data, error } = await supabase.rpc('refund_capture_attempt');
-    if (error) {
-      console.error('refund_capture_attempt failed', error.message);
-      return;
-    }
-    if (typeof data === 'number') setRemaining(data);
-  }, []);
+    await refresh();
+  }, [refresh]);
 
   return {
     remaining,
+    unlimited: remaining !== null && remaining > DAILY_CAPTURE_LIMIT,
     exhausted: remaining !== null && remaining <= 0,
     refresh,
     consume,
     refund,
   };
 };
+
+
 
