@@ -239,13 +239,14 @@ async function examine(
   }
 
 
-  // Doublon : l'explorateur possède peut-être déjà cette espèce. On NE refuse
-  // JAMAIS automatiquement : la capture part en modération humaine.
+  // Doublon : seul un VRAI doublon (même binôme scientifique) est refusé
+  // automatiquement. Une simple homonymie de nom commun part en modération.
   const dup = await findUserDuplicate(supabase, capture.user_id, capture.id, name, capture.scientific_name)
   if (dup) {
     await releaseClaim(supabase, capture.id)
+    const trueDuplicate = dup.match_via === 'scientific'
     await logDatasetEvent(supabase, {
-      event_type: 'auto_moderation_deferred',
+      event_type: trueDuplicate ? 'moderation_rejected' : 'auto_moderation_deferred',
       source: 'auto-moderate-capture',
       capture_id: capture.id,
       user_id: capture.user_id,
@@ -254,11 +255,18 @@ async function examine(
       label_scientific_name: capture.scientific_name || null,
       user_description: capture.description || null,
       location: capture.location || null,
-      decision_reason: 'duplicate_species',
+      decision_reason: trueDuplicate
+        ? `duplicate_species:${dup.scientific_name ?? dup.animal_name}`
+        : 'duplicate_common_name',
       is_ground_truth: false,
     })
+    if (trueDuplicate) {
+      await rejectCapture(supabase, capture, name, 'duplicate', adminActorId, 'duplicate_species')
+      return { capture_id: capture.id, approved: false, rejected: true, reason: 'duplicate' }
+    }
     return { capture_id: capture.id, approved: false, reason: 'needs_human', detail: 'duplicate' }
   }
+
 
 
 
