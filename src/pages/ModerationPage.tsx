@@ -76,7 +76,7 @@ const readFunctionError = async (error: any): Promise<PrepareFailure> => {
  */
 const duplicateMessage = (animalName: string, duplicate?: PrepareFailure['duplicate']) => {
   const existing = duplicate
-    ? ` Capture existante : « ${duplicate.animal_name} »${duplicate.scientific_name ? ` (${duplicate.scientific_name})` : ''}${duplicate.match_via === 'scientific' ? ' — doublon détecté via le nom scientifique, vérifie qu'il s'agit bien de la même espèce' : ''}.`
+    ? ` Capture existante : « ${duplicate.animal_name} »${duplicate.scientific_name ? ` (${duplicate.scientific_name})` : ''}${duplicate.match_via === 'scientific' ? ` — doublon détecté via le nom scientifique, vérifie qu'il s'agit bien de la même espèce` : ''}.`
     : '';
   return `${animalName} : l'explorateur possède déjà cette espèce dans son bestiaire (1 capture par espèce).${existing} Renomme l'espèce ou rejette la capture en doublon.`;
 };
