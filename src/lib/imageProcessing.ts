@@ -151,6 +151,34 @@ export const prepareSourceFile = async (file: File): Promise<string | null> => {
     }
   };
 
+  /** Extrait la plus grande image JPEG embarquée dans un fichier RAW
+   *  (Apple ProRAW/DNG, TIFF, ou HEIC avec aperçu JPEG). Les navigateurs ne
+   *  savent pas décoder le RAW, mais ces fichiers contiennent toujours un
+   *  aperçu JPEG pleine ou quasi-pleine résolution qu'on peut isoler en
+   *  cherchant les marqueurs de début (FFD8FF) et de fin (FFD9). */
+  const extractEmbeddedJpeg = async (blob: Blob): Promise<Blob | null> => {
+    try {
+      const bytes = new Uint8Array(await blob.arrayBuffer());
+      let best: { start: number; end: number } | null = null;
+      for (let i = 0; i + 3 < bytes.length; i++) {
+        if (bytes[i] !== 0xff || bytes[i + 1] !== 0xd8 || bytes[i + 2] !== 0xff) continue;
+        // Fin du flux JPEG correspondant.
+        for (let j = i + 3; j + 1 < bytes.length; j++) {
+          if (bytes[j] === 0xff && bytes[j + 1] === 0xd9) {
+            const size = j + 2 - i;
+            if (!best || size > best.end - best.start) best = { start: i, end: j + 2 };
+            i = j + 1;
+            break;
+          }
+        }
+      }
+      if (!best || best.end - best.start < 20_000) return null;
+      return new Blob([bytes.subarray(best.start, best.end)], { type: 'image/jpeg' });
+    } catch {
+      return null;
+    }
+  };
+
   try {
     // 1) décodage natif du fichier (aucun base64 intermédiaire : évite les
     //    échecs mémoire sur les photos de 10-40 Mo sur iOS/Android).
@@ -160,15 +188,32 @@ export const prepareSourceFile = async (file: File): Promise<string | null> => {
       if (out) return out;
     }
     // 2) HEIC/HEIF iPhone que le navigateur ne sait pas décoder.
-    const { heicTo } = await import('heic-to');
-    const jpeg = await heicTo({ blob: file, type: 'image/jpeg', quality: 0.9 });
-    const decoded = await decodeBlob(jpeg);
-    return decoded ? toJpeg(decoded) : null;
+    const isRaw = /\.(dng|tif|tiff|arw|cr2|cr3|nef|raf|rw2|orf)$/i.test(file.name);
+    if (!isRaw) {
+      try {
+        const { heicTo } = await import('heic-to');
+        const jpeg = await heicTo({ blob: file, type: 'image/jpeg', quality: 0.9 });
+        const decoded = await decodeBlob(jpeg);
+        const out = decoded ? toJpeg(decoded) : null;
+        if (out) return out;
+      } catch {
+        /* on tente l'aperçu embarqué ci-dessous */
+      }
+    }
+    // 3) RAW (Apple ProRAW/DNG, TIFF…) : on récupère l'aperçu JPEG embarqué.
+    const preview = await extractEmbeddedJpeg(file);
+    if (preview) {
+      const decoded = await decodeBlob(preview);
+      const out = decoded ? toJpeg(decoded) : null;
+      if (out) return out;
+    }
+    return null;
   } catch (err) {
     console.error('prepareSourceFile failed', err);
     return null;
   }
 };
+
 
 
 
