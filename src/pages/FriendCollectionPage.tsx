@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PageHeader } from '@/components/PageHeader';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Users, UserPlus, UserCheck, Award } from 'lucide-react';
+import { ArrowLeft, Users, UserPlus, UserCheck, Award, Search, X } from 'lucide-react';
+import { useSpeciesName } from '@/hooks/useSpeciesLocale';
 import { Progress } from '@/components/ui/progress';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { rarityBorderColor } from '@/lib/bestiary';
@@ -59,7 +60,9 @@ const FriendCollectionPage = () => {
   const { userId } = useParams<{ userId: string }>();
   const { session } = useAuth();
   const navigate = useNavigate();
+  const { speciesName } = useSpeciesName();
   const [filter, setFilter] = useState<Rarity | 'all'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
 
   const [captures, setCaptures] = useState<AnimalCard[]>([]);
@@ -204,8 +207,13 @@ const FriendCollectionPage = () => {
     setLoadingSheet(false);
   }, [userId, myId]);
 
+  const normalizedQuery = searchQuery.trim().toLowerCase();
   const filtered = captures.filter(c => {
     if (filter !== 'all' && c.rarity !== filter) return false;
+    if (normalizedQuery) {
+      const localized = speciesName(c.name).toLowerCase();
+      if (!localized.includes(normalizedQuery) && !(c.scientificName || '').toLowerCase().includes(normalizedQuery)) return false;
+    }
     return true;
   });
 
@@ -317,6 +325,27 @@ const FriendCollectionPage = () => {
 
       {/* Collection - always visible */}
       <div className="max-w-lg mx-auto px-4 pt-3">
+        {!loading && captures.length > 0 && (
+          <div className="relative mb-2">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t('social.friendCollection.searchPlaceholder')}
+              className="w-full h-10 pl-9 pr-9 rounded-xl bg-muted/60 border border-border text-sm font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition-shadow"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                aria-label={t('bestiary.common.clearSearch')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-full text-muted-foreground hover:bg-muted transition-colors"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+        )}
         <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-2">
           {rarityFilters.map((r) => {
             const isActive = filter === r;
@@ -405,7 +434,11 @@ const FriendCollectionPage = () => {
                   <>
                     <p className="text-4xl mb-3">🔍</p>
                     <p className="text-muted-foreground font-display">
-                      {captures.length === 0 ? t('social.friendCollection.noSharedCaptures') : t('social.friendCollection.noSpeciesFound')}
+                      {captures.length === 0
+                        ? t('social.friendCollection.noSharedCaptures')
+                        : normalizedQuery
+                          ? t('social.friendCollection.noMatchSearch', { query: searchQuery.trim() })
+                          : t('social.friendCollection.noSpeciesFound')}
                     </p>
                   </>
                 )}
