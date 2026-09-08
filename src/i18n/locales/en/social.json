@@ -95,6 +95,8 @@
       "statsFollowing": "Following",
       "statsFollowers": "Followers",
       "filterAll": "All",
+      "searchPlaceholder": "Search this collection…",
+      "noMatchSearch": "No capture matches “{{query}}”.",
       "noSpeciesRarity": "No {{rarity}} species caught",
       "descGold": "Gold-star species are the most prestigious in the game — the holy grail for any Faunex explorer.",
       "descSilver": "Ultra rare species shine with a silvery glow. Very few explorers manage to catch them!",

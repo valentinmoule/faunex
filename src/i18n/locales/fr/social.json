@@ -95,6 +95,8 @@
       "statsFollowing": "Abonnements",
       "statsFollowers": "Abonnés",
       "filterAll": "Tous",
+      "searchPlaceholder": "Rechercher dans cette collection…",
+      "noMatchSearch": "Aucune capture ne correspond à « {{query}} ».",
       "noSpeciesRarity": "Aucune espèce {{rarity}} capturée",
       "descGold": "Les espèces à étoiles dorées sont les plus prestigieuses du jeu — le graal de tout explorateur Faunex.",
       "descSilver": "Les espèces ultra rares brillent d'un éclat argenté. Très peu d'explorateurs parviennent à les capturer !",
