@@ -581,10 +581,6 @@ async function findUserDuplicate(
     // Le nom commun ne sert de repli que lorsqu'au moins une des deux captures
     // n'a pas de binôme scientifique exploitable.
     if (n && norm(c.animal_name) === n) return { ...c, match_via: 'name' }
-
-    if (s && existingSci === s) {
-      return { ...c, match_via: 'scientific' }
-    }
   }
   return null
 }
