@@ -2116,6 +2116,10 @@ export type Database = {
         }[]
       }
       captures_remaining_today: { Args: never; Returns: number }
+      catalogue_name_for_binomial: {
+        Args: { p_scientific: string }
+        Returns: string
+      }
       category_leaderboard: {
         Args: { p_category: string; p_limit?: number; p_scope?: string }
         Returns: {
@@ -2218,6 +2222,10 @@ export type Database = {
       }
       is_premium: { Args: { p_user_id: string }; Returns: boolean }
       is_profile_private: { Args: { _user_id: string }; Returns: boolean }
+      is_shared_domestic_binomial: {
+        Args: { p_scientific: string }
+        Returns: boolean
+      }
       league_add_points: {
         Args: { p_amount: number; p_user_id: string }
         Returns: undefined
