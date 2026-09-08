@@ -515,6 +515,15 @@ const ModerationPage = () => {
                               )}
                             </p>
                           )}
+                          {failures[capture.id].code === 'duplicate' && failures[capture.id].identifiedAs && (
+                            <p className="text-[11px] text-muted-foreground">
+                              Espèce détectée : <span className="font-semibold text-foreground">{failures[capture.id].identifiedAs!.animal_name}</span>
+                              {failures[capture.id].identifiedAs!.scientific_name && (
+                                <span className="italic"> ({failures[capture.id].identifiedAs!.scientific_name})</span>
+                              )}
+                            </p>
+                          )}
+
                           {failures[capture.id].detail && (
                             <p className="text-[10px] text-muted-foreground break-words">
                               Détail technique : {failures[capture.id].detail}
