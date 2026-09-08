@@ -771,7 +771,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                   <span className="text-primary font-semibold">{t('bestiary.picker.slotsUsedCta')}</span>
                 </p>
               </button>
-            )}
+
 
           </div>
         )}
