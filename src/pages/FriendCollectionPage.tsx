@@ -390,7 +390,7 @@ const FriendCollectionPage = () => {
                 >
                   <img
                     src={card.image}
-                    alt={card.name}
+                    alt={speciesName(card.name)}
                     className="absolute inset-0 w-full h-full object-cover"
                     loading="lazy"
                   />
@@ -399,7 +399,7 @@ const FriendCollectionPage = () => {
                   </div>
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5 pt-8">
                     <p className="text-xs font-display font-bold text-white truncate leading-tight">
-                      {card.name}
+                      {speciesName(card.name)}
                     </p>
                     {card.scientificName && (
                       <p className="text-[9px] font-body italic text-white/80 truncate">
