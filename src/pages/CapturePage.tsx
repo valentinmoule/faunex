@@ -40,6 +40,8 @@ const CapturePage = () => {
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
   const [animalResult, setAnimalResult] = useState<AnimalResult | null>(null);
   const [saved, setSaved] = useState(false);
+  /** Invitation Premium affichée après la dernière identification du jour. */
+  const [premiumPrompt, setPremiumPrompt] = useState(false);
   /** Verrou synchrone contre les doubles taps sur « Ajouter ». */
   const savingRef = useRef(false);
 /** Verrou synchrone contre deux analyses IA simultanées. */
@@ -373,7 +375,7 @@ setManualMode(false);
           ? t('capture.toasts.verificationRequested')
           : t('capture.toasts.submittedForValidation')
       );
-      setTimeout(() => navigate('/home'), 1500);
+      leaveAfterCapture(1500);
     } catch (err) {
       console.error(err);
       if (consumed) await quota.refund();
@@ -381,6 +383,22 @@ setManualMode(false);
     }
   };
 
+
+  /**
+   * Sortie de l'écran capture. Si c'était la dernière identification du jour,
+   * on affiche d'abord l'invitation Premium (tous les parcours : IA validée,
+   * soumission manuelle, demande de vérification).
+   */
+  const leaveAfterCapture = (delay: number) => {
+    window.setTimeout(async () => {
+      const left = await quota.fetchRemaining();
+      if (left !== null && left <= 0) {
+        setPremiumPrompt(true);
+        return;
+      }
+      navigate('/home');
+    }, delay);
+  };
 
   const finishSave = (animal: AnimalResult, imageUrl: string, message: string) => {
     setSaved(true);
@@ -392,8 +410,9 @@ setManualMode(false);
       rarity: animal.rarity,
       imageUrl,
     });
-    setTimeout(() => navigate('/home'), 900);
+    leaveAfterCapture(900);
   };
+
 
   const saveToCollection = async () => {
     if (!animalResult) return;
@@ -1086,8 +1105,41 @@ setManualMode(false);
           </>
         )}
       </div>
+
+      {/* Invitation Premium — dernière identification du jour consommée */}
+      {premiumPrompt && (
+        <div className="fixed inset-0 z-[60] flex items-end justify-center bg-foreground/50 backdrop-blur-sm p-4 animate-in fade-in">
+          <div className="w-full max-w-sm rounded-3xl bg-card p-6 shadow-2xl animate-in slide-in-from-bottom">
+            <div className="mx-auto mb-4 w-14 h-14 rounded-2xl bg-amber/20 flex items-center justify-center">
+              <Sparkles className="w-7 h-7 text-amber" />
+            </div>
+            <h2 className="text-center font-display text-lg font-bold text-foreground">
+              {t('capture.quota.bannerTitle')}
+            </h2>
+            <p className="mt-2 text-center text-sm text-muted-foreground leading-relaxed">
+              {t('capture.quota.bannerBody')}
+            </p>
+            <button
+              onClick={() => navigate('/premium')}
+              className="mt-5 w-full rounded-full bg-primary px-4 py-3 font-display text-sm font-semibold text-primary-foreground"
+            >
+              {t('capture.quota.premiumCta')}
+            </button>
+            <button
+              onClick={() => {
+                setPremiumPrompt(false);
+                navigate('/home');
+              }}
+              className="mt-2 w-full rounded-full px-4 py-3 font-display text-sm font-semibold text-muted-foreground"
+            >
+              {t('capture.quota.premiumLater')}
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   );
+
 };
 
 export default CapturePage;

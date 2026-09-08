@@ -15,11 +15,20 @@ export const DAILY_CAPTURE_LIMIT = 4;
 export const useCaptureQuota = (userId?: string) => {
   const [remaining, setRemaining] = useState<number | null>(null);
 
+  /** Relit le quota et renvoie la valeur fraîche (null si indisponible). */
+  const fetchRemaining = useCallback(async () => {
+    const { data, error } = await supabase.rpc('ai_analyses_remaining_today');
+    if (!error && typeof data === 'number') {
+      setRemaining(data);
+      return data;
+    }
+    return null;
+  }, []);
+
   const refresh = useCallback(async () => {
     if (!userId) return;
-    const { data, error } = await supabase.rpc('ai_analyses_remaining_today');
-    if (!error && typeof data === 'number') setRemaining(data);
-  }, [userId]);
+    await fetchRemaining();
+  }, [userId, fetchRemaining]);
 
   useEffect(() => {
     refresh();
@@ -44,10 +53,12 @@ export const useCaptureQuota = (userId?: string) => {
     unlimited: remaining !== null && remaining > DAILY_CAPTURE_LIMIT,
     exhausted: remaining !== null && remaining <= 0,
     refresh,
+    fetchRemaining,
     consume,
     refund,
   };
 };
+
 
 
 
