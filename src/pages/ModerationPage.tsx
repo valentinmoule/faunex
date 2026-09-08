@@ -46,7 +46,7 @@ interface PrepareFailure {
   message: string;
   detail?: string;
   canRetryHigh?: boolean;
-  duplicate?: { id: string; animal_name: string; created_at: string } | null;
+  duplicate?: { id: string; animal_name: string; scientific_name?: string | null; created_at: string; match_via?: 'name' | 'scientific' } | null;
 }
 
 /** Récupère le corps JSON d'une erreur d'edge function (statut non-2xx). */
@@ -74,8 +74,12 @@ const readFunctionError = async (error: any): Promise<PrepareFailure> => {
  * Toutes les origines (pré-vérification serveur, index unique en base, conflit
  * lors de l'application de la fiche) affichent exactement le même libellé.
  */
-const duplicateMessage = (animalName: string) =>
-  `${animalName} : l'explorateur possède déjà cette espèce dans son bestiaire (1 capture par espèce). Renomme l'espèce ou rejette la capture en doublon.`;
+const duplicateMessage = (animalName: string, duplicate?: PrepareFailure['duplicate']) => {
+  const existing = duplicate
+    ? ` Capture existante : « ${duplicate.animal_name} »${duplicate.scientific_name ? ` (${duplicate.scientific_name})` : ''}${duplicate.match_via === 'scientific' ? ` — doublon détecté via le nom scientifique, vérifie qu'il s'agit bien de la même espèce` : ''}.`
+    : '';
+  return `${animalName} : l'explorateur possède déjà cette espèce dans son bestiaire (1 capture par espèce).${existing} Renomme l'espèce ou rejette la capture en doublon.`;
+};
 
 
 /** État de la tâche planifiée d'auto-modération. */
@@ -199,7 +203,7 @@ const ModerationPage = () => {
         ? await readFunctionError(enrichError)
         : { code: 'empty_response', message: "La fonction a répondu sans fiche exploitable." };
       if (failure.code === 'duplicate') {
-        failure.message = duplicateMessage(nameOverride?.trim() || capture.animal_name);
+        failure.message = duplicateMessage(nameOverride?.trim() || capture.animal_name, failure.duplicate);
       }
       console.error('enrich-capture failed', failure);
       setFailures(prev => ({ ...prev, [capture.id]: failure }));
@@ -221,7 +225,7 @@ const ModerationPage = () => {
     const showDuplicate = (duplicate?: PrepareFailure['duplicate']) => {
       const failure: PrepareFailure = {
         code: 'duplicate',
-        message: duplicateMessage(finalName),
+        message: duplicateMessage(finalName, duplicate ?? null),
         duplicate: duplicate ?? null,
       };
       setFailures(prev => ({ ...prev, [capture.id]: failure }));
@@ -476,8 +480,16 @@ const ModerationPage = () => {
                           <p className="text-xs text-foreground">{failures[capture.id].message}</p>
                           {failures[capture.id].duplicate && (
                             <p className="text-[11px] text-muted-foreground">
-                              Capture existante : {failures[capture.id].duplicate!.animal_name} (
-                              {new Date(failures[capture.id].duplicate!.created_at).toLocaleDateString('fr-FR')})
+                              Capture existante : <span className="font-semibold text-foreground">{failures[capture.id].duplicate!.animal_name}</span>
+                              {failures[capture.id].duplicate!.scientific_name && (
+                                <span className="italic"> ({failures[capture.id].duplicate!.scientific_name})</span>
+                              )}
+                              {' '}— {new Date(failures[capture.id].duplicate!.created_at).toLocaleDateString('fr-FR')}
+                              {failures[capture.id].duplicate!.match_via === 'scientific' && (
+                                <span className="block mt-0.5 text-amber-600 dark:text-amber-400">
+                                  Doublon détecté via le nom scientifique uniquement — vérifie qu'il s'agit bien de la même espèce avant de rejeter.
+                                </span>
+                              )}
                             </p>
                           )}
                           {failures[capture.id].detail && (
