@@ -480,8 +480,16 @@ const ModerationPage = () => {
                           <p className="text-xs text-foreground">{failures[capture.id].message}</p>
                           {failures[capture.id].duplicate && (
                             <p className="text-[11px] text-muted-foreground">
-                              Capture existante : {failures[capture.id].duplicate!.animal_name} (
-                              {new Date(failures[capture.id].duplicate!.created_at).toLocaleDateString('fr-FR')})
+                              Capture existante : <span className="font-semibold text-foreground">{failures[capture.id].duplicate!.animal_name}</span>
+                              {failures[capture.id].duplicate!.scientific_name && (
+                                <span className="italic"> ({failures[capture.id].duplicate!.scientific_name})</span>
+                              )}
+                              {' '}— {new Date(failures[capture.id].duplicate!.created_at).toLocaleDateString('fr-FR')}
+                              {failures[capture.id].duplicate!.match_via === 'scientific' && (
+                                <span className="block mt-0.5 text-amber-600 dark:text-amber-400">
+                                  Doublon détecté via le nom scientifique uniquement — vérifie qu'il s'agit bien de la même espèce avant de rejeter.
+                                </span>
+                              )}
                             </p>
                           )}
                           {failures[capture.id].detail && (
