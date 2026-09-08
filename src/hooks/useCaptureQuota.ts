@@ -53,10 +53,12 @@ export const useCaptureQuota = (userId?: string) => {
     unlimited: remaining !== null && remaining > DAILY_CAPTURE_LIMIT,
     exhausted: remaining !== null && remaining <= 0,
     refresh,
+    fetchRemaining,
     consume,
     refund,
   };
 };
+
 
 
 
