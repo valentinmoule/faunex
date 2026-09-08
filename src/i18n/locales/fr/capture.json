@@ -30,7 +30,8 @@
       "premiumCta": "Captures illimitées avec Premium ✨",
       "quotaLabel": "Quota de captures atteint",
       "remaining": "{{remaining}}/{{limit}}",
-      "locationPlaceholder": "Localisation…"
+      "locationPlaceholder": "Localisation…",
+      "premiumLater": "Plus tard"
     },
     "errors": {
       "cameraReset": "La caméra se réinitialise, réessaie dans un instant",
