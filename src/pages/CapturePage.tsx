@@ -40,6 +40,8 @@ const CapturePage = () => {
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
   const [animalResult, setAnimalResult] = useState<AnimalResult | null>(null);
   const [saved, setSaved] = useState(false);
+  /** Invitation Premium affichée après la dernière identification du jour. */
+  const [premiumPrompt, setPremiumPrompt] = useState(false);
   /** Verrou synchrone contre les doubles taps sur « Ajouter ». */
   const savingRef = useRef(false);
 /** Verrou synchrone contre deux analyses IA simultanées. */
