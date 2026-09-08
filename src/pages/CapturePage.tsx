@@ -214,16 +214,26 @@ setAnimalResult(null);
 
 
 const takePhoto = async () => {
+    // Un appui pendant une analyse en cours ne doit rien déclencher.
+    if (identifyingRef.current) return;
     setCapturing(true);
     if (captureTimerRef.current) window.clearTimeout(captureTimerRef.current);
     captureTimerRef.current = window.setTimeout(() => setCapturing(false), 700);
-    const dataUrl = grabFrame();
+    // Le flux vidéo peut ne pas encore avoir décodé d'image (démarrage caméra,
+    // retour d'arrière-plan). On patiente au lieu d'obliger l'utilisateur à
+    // appuyer plusieurs fois sur le déclencheur.
+    let dataUrl: string | null = null;
+    for (let attempt = 0; attempt < 8 && !dataUrl; attempt++) {
+      dataUrl = grabFrame();
+      if (!dataUrl) await new Promise((resolve) => setTimeout(resolve, 250));
+    }
     if (!dataUrl) {
       toast.error(t('capture.errors.cameraReset'));
       return;
     }
     await processPhoto(dataUrl);
   };
+
 
   /** Import galerie : le même pipeline que la photo caméra (normalisation,
    *  conversion HEIC iPhone, analyse IA). Un simple <input type="file"> est
@@ -321,6 +331,14 @@ setManualMode(false);
       toast.error(t('capture.errors.invalidName'));
       return;
     }
+    // L'espèce est peut-être déjà dans le Faunex de l'utilisateur (ou déjà en
+    // attente de modération) : inutile d'envoyer un doublon aux modérateurs.
+    const alreadyOwned = await findDuplicate(trimmedName, trimmedSpecies || null);
+    if (alreadyOwned) {
+      toast.error(t('capture.errors.alreadyHaveSpecies', { name: alreadyOwned.animal_name }));
+      return;
+    }
+
 
     // Toute demande de modération (vérification d'une identification IA comme
     // soumission d'un animal non reconnu) consomme un slot quotidien : elle
