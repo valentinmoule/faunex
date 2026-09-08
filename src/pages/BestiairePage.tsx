@@ -723,9 +723,8 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
 
         {pickerMode === 'hub' && (
           <div className="flex-1 overflow-y-auto px-5 py-5 space-y-3">
-            <p className="text-xs text-muted-foreground font-display leading-relaxed">
-              {t('bestiary.picker.hubIntro')}
-            </p>
+
+
 
 
             <button
