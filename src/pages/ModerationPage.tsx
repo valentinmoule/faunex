@@ -223,8 +223,10 @@ const ModerationPage = () => {
       }
       console.error('enrich-capture failed', failure);
       setFailures(prev => ({ ...prev, [capture.id]: failure }));
-      toast.error(failure.message);
+      // Doublon : pas de toast, l'encart d'avertissement suffit (et reste lisible).
+      if (failure.code !== 'duplicate') toast.error(failure.message);
       return;
+
     }
 
     setPreview({ capture, animal: enriched.animal as EnrichedAnimal });
