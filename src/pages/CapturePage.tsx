@@ -475,7 +475,7 @@ setManualMode(false);
       <input
         ref={galleryInputRef}
         type="file"
-        accept="image/*,.heic,.heif"
+        accept="image/*,.heic,.heif,.dng,.tif,.tiff"
         className="hidden"
         onChange={importFromGallery}
       />
