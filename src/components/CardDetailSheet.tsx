@@ -817,24 +817,22 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                   <StatCard icon={<MapPin className="w-4 h-4" />} label={t('capture.detail.habitat')} value={facts.habitat} color="text-primary" bg="bg-primary/8" />
                   <StatCard icon={<UtensilsCrossed className="w-4 h-4" />} label={t('capture.detail.diet')} value={facts.diet} color="text-amber" bg="bg-amber/8" />
                   <StatCard icon={<Shield className="w-4 h-4" />} label={t('capture.detail.conservation')} value={card.conservation} color="text-sky" bg="bg-sky/8" />
-                  <StatCard icon={<Leaf className="w-4 h-4" />} label={t('capture.detail.location')} value={location || t('capture.detail.notProvided')} color="text-forest-light" bg="bg-forest-light/8"
-                    link={card.latitude && card.longitude ? `https://www.google.com/maps?q=${card.latitude},${card.longitude}` : undefined}
-                  />
                 </>
               )}
             </div>
 
-            {/* Location editor (owner only) */}
-            {isOwner && (
+            {/* Location card — address always shown on captured cards; edit via pen icon (owner only) */}
+            {!isUncaptured && (
               <div className="rounded-2xl border border-border bg-card p-4">
                 <div className="flex items-center justify-between">
                   <p className="text-xs font-display font-bold uppercase tracking-wider text-muted-foreground">{t('capture.detail.locationLabel')}</p>
-                  {!editingLocation && (
+                  {isOwner && !editingLocation && (
                     <button
                       onClick={() => { setEditingLocation(true); setLocQuery(''); }}
-                      className="text-xs font-display font-semibold text-primary"
+                      aria-label={location ? t('capture.detail.modify') : t('capture.detail.add')}
+                      className="p-1.5 rounded-full text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
                     >
-                      {location ? t('capture.detail.modify') : t('capture.detail.add')}
+                      <Pencil className="w-4 h-4" />
                     </button>
                   )}
                 </div>
