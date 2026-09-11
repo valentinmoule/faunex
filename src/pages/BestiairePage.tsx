@@ -603,11 +603,39 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
     [animals, categoryFilter, rarityFilter, matchesPopularity, matchesSearch],
   );
 
+  /** Nombre de naturalistes ayant capturé chaque espèce (pour le filtre popularité). */
+  const findersByName = useMemo(() => {
+    const map = new Map<string, number>();
+    animals.forEach((a) => map.set(a.name.toLowerCase(), a.finders ?? 0));
+    return map;
+  }, [animals]);
+
+  const mineActiveFilterCount =
+    mineRarityFilter.length + mineCategoryFilter.length + minePopularityFilter.length;
+
+  /** Catégories réellement présentes dans mes captures, avec compteur. */
+  const mineCategoryData = useMemo(() => {
+    const counts = new Map<string, number>();
+    myCaptures.forEach((c) => {
+      const cat = normalizeCategory(c.category || '');
+      if (!cat) return;
+      counts.set(cat, (counts.get(cat) ?? 0) + 1);
+    });
+    return Array.from(counts.entries())
+      .map(([name, total]) => ({ name, total }))
+      .sort((a, b) => b.total - a.total);
+  }, [myCaptures]);
+
   // Flat list of my own captures (one entry per capture), filtered + trié selon le mode choisi
   const myCapturedAnimals = useMemo(() => {
     const q = normalizeSearch(mineSearch);
     const list = myCaptures
-      .filter(c => rarityFilter.length === 0 || rarityFilter.includes(normalizeRarity(c.rarity)))
+      .filter(c => mineRarityFilter.length === 0 || mineRarityFilter.includes(normalizeRarity(c.rarity)))
+      .filter(c => mineCategoryFilter.length === 0 || mineCategoryFilter.includes(normalizeCategory(c.category || '')))
+      .filter(c =>
+        minePopularityFilter.length === 0 ||
+        minePopularityFilter.includes(popularityTierOf(findersByName.get(c.name.toLowerCase()) ?? 0)),
+      )
       .filter(c =>
         !q ||
         normalizeSearch(c.name).includes(q) ||
@@ -626,6 +654,14 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
         return +new Date(b.discoveredAt || 0) - +new Date(a.discoveredAt || 0);
       });
     }
+    if (mineSort === 'popularity') {
+      return list.sort((a, b) => {
+        const fa = findersByName.get(a.name.toLowerCase()) ?? 0;
+        const fb = findersByName.get(b.name.toLowerCase()) ?? 0;
+        if (fa !== fb) return fb - fa;
+        return +new Date(b.discoveredAt || 0) - +new Date(a.discoveredAt || 0);
+      });
+    }
     if (mineSort === 'custom' && customOrder.length > 0) {
       const rank = new Map(customOrder.map((id, i) => [id, i]));
       return list.sort((a, b) => {
@@ -640,7 +676,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
       });
     }
     return list.sort((a, b) => +new Date(b.discoveredAt || 0) - +new Date(a.discoveredAt || 0));
-  }, [myCaptures, rarityFilter, mineSearch, mineSort, customOrder]);
+  }, [myCaptures, mineRarityFilter, mineCategoryFilter, minePopularityFilter, findersByName, mineSearch, mineSort, customOrder]);
 
 
 
