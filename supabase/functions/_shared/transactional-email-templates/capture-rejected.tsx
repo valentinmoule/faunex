@@ -13,6 +13,9 @@ interface Props {
   captureUrl?: string
   /** 'duplicate' = espèce déjà présente dans le bestiaire de l'explorateur. */
   reason?: 'not_identifiable' | 'duplicate' | string
+  /** Espèce déjà présente dans le bestiaire, à l'origine du doublon. */
+  duplicateName?: string | null
+  duplicateScientific?: string | null
   locale?: Locale | string
 }
 
@@ -21,9 +24,17 @@ const CaptureRejectedEmail = ({
   animalName = 'ta capture',
   captureUrl = 'https://faunex.lovable.app',
   reason = 'not_identifiable',
+  duplicateName = null,
+  duplicateScientific = null,
   locale,
 }: Props) => {
   const l = resolveLocale(locale as string | undefined)
+  const existing = duplicateName
+    ? `« ${duplicateName} »${duplicateScientific ? ` (${duplicateScientific})` : ''}`
+    : null
+  const existingEn = duplicateName
+    ? `"${duplicateName}"${duplicateScientific ? ` (${duplicateScientific})` : ''}`
+    : null
   return (
     <Html lang={l} dir="ltr">
       <Head />
@@ -40,8 +51,8 @@ const CaptureRejectedEmail = ({
             <Text style={text}>
               {pick(
                 {
-                  fr: `Ta capture de ${animalName} n'a pas été ajoutée : cette espèce figure déjà dans ton bestiaire. Chaque espèce ne compte qu'une seule fois dans Faunex — part à la rencontre d'une nouvelle espèce pour agrandir ta collection !`,
-                  en: `Your capture of ${animalName} wasn't added: this species is already in your bestiary. Each species only counts once in Faunex — go find a new one to grow your collection!`,
+                  fr: `Ta capture de ${animalName} n'a pas été ajoutée : ${existing ? `elle correspond à ${existing}, déjà dans ton bestiaire` : 'cette espèce figure déjà dans ton bestiaire'}. Chaque espèce ne compte qu'une seule fois dans Faunex — part à la rencontre d'une nouvelle espèce pour agrandir ta collection !`,
+                  en: `Your capture of ${animalName} wasn't added: ${existingEn ? `it matches ${existingEn}, already in your bestiary` : 'this species is already in your bestiary'}. Each species only counts once in Faunex — go find a new one to grow your collection!`,
                 },
                 l,
               )}
