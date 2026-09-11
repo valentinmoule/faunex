@@ -785,8 +785,11 @@ async function findUserDuplicate(
 
     // Si les deux identités scientifiques sont fiables, elles sont prioritaires :
     // deux binômes différents ne peuvent pas être signalés comme un doublon.
+    // Comparaison STRICTE du nom scientifique complet : une sous-espèce
+    // (Giraffa camelopardalis antiquorum) est une carte distincte de l'espèce
+    // (Giraffa camelopardalis) et ne doit jamais être vue comme un doublon.
     if (s && existingSci) {
-      if (sameBinomial(existingSci, s)) return { ...c, match_via: 'scientific' }
+      if (existingSci === s) return { ...c, match_via: 'scientific' }
       continue
     }
 
