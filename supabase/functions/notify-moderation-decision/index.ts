@@ -121,7 +121,7 @@ Deno.serve(async (req) => {
       body: approved
         ? `${animalName} rejoint ton bestiaire !`
         : reason === 'duplicate'
-          ? `${animalName} est déjà dans ton bestiaire. Pars à la rencontre d'une nouvelle espèce !`
+          ? `${animalName} correspond à ${duplicateName ? `« ${duplicateName} »` : 'une espèce'}${duplicateScientific ? ` (${duplicateScientific})` : ''}, déjà dans ton bestiaire. Pars à la rencontre d'une nouvelle espèce !`
           : `${animalName} n'a pas pu être identifiée. Retente avec une photo plus nette.`,
       url: approved ? `/collection${captureId ? `?capture=${captureId}` : ''}` : '/capture',
       tag: `moderation-${captureId ?? userId}`,
