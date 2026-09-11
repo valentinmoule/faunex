@@ -54,6 +54,13 @@ Deno.serve(async (req) => {
     const captureId: string | undefined = body?.capture_id
     // 'duplicate' : rejet parce que l'espèce est déjà dans le bestiaire de l'explorateur.
     const reason: string = body?.reason === 'duplicate' ? 'duplicate' : 'not_identifiable'
+    // Espèce déjà présente dans le bestiaire, pour un message de rejet explicite.
+    const duplicateName: string | null = body?.duplicate_name
+      ? body.duplicate_name.toString().slice(0, 120)
+      : null
+    const duplicateScientific: string | null = body?.duplicate_scientific
+      ? body.duplicate_scientific.toString().slice(0, 120)
+      : null
 
     if (!userId || !decision || !['approved', 'rejected'].includes(decision)) {
       return json({ error: 'Missing or invalid params' }, 400)
@@ -94,6 +101,8 @@ Deno.serve(async (req) => {
             recipientName,
             animalName,
             reason,
+            duplicateName,
+            duplicateScientific,
             captureUrl: approved
               ? `${APP_URL}/collection${captureId ? `?capture=${captureId}` : ''}`
               : `${APP_URL}/capture`,
@@ -112,7 +121,7 @@ Deno.serve(async (req) => {
       body: approved
         ? `${animalName} rejoint ton bestiaire !`
         : reason === 'duplicate'
-          ? `${animalName} est déjà dans ton bestiaire. Pars à la rencontre d'une nouvelle espèce !`
+          ? `${animalName} correspond à ${duplicateName ? `« ${duplicateName} »` : 'une espèce'}${duplicateScientific ? ` (${duplicateScientific})` : ''}, déjà dans ton bestiaire. Pars à la rencontre d'une nouvelle espèce !`
           : `${animalName} n'a pas pu être identifiée. Retente avec une photo plus nette.`,
       url: approved ? `/collection${captureId ? `?capture=${captureId}` : ''}` : '/capture',
       tag: `moderation-${captureId ?? userId}`,

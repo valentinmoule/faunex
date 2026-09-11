@@ -262,7 +262,7 @@ async function examine(
       is_ground_truth: false,
     })
     if (trueDuplicate) {
-      await rejectCapture(supabase, capture, name, 'duplicate', adminActorId, 'duplicate_species')
+      await rejectCapture(supabase, capture, name, 'duplicate', adminActorId, 'duplicate_species', dup)
       return { capture_id: capture.id, approved: false, rejected: true, reason: 'duplicate' }
     }
     return { capture_id: capture.id, approved: false, reason: 'needs_human', detail: 'duplicate' }
@@ -447,7 +447,7 @@ async function examine(
       is_ground_truth: false,
     })
     if (trueDuplicate2) {
-      await rejectCapture(supabase, capture, approvedName, 'duplicate', adminActorId, 'duplicate_species')
+      await rejectCapture(supabase, capture, approvedName, 'duplicate', adminActorId, 'duplicate_species', dup2)
       return { capture_id: capture.id, approved: false, rejected: true, reason: 'duplicate' }
     }
     return { capture_id: capture.id, approved: false, reason: 'needs_human', detail: 'duplicate' }
@@ -542,6 +542,7 @@ async function rejectCapture(
   reason: 'duplicate' | 'not_identifiable',
   adminActorId: string | null,
   decisionReason: string,
+  duplicateOf?: { animal_name: string; scientific_name: string | null } | null,
 ) {
   if (adminActorId) {
     const { error } = await supabase.from('notifications').insert({
@@ -564,6 +565,8 @@ async function rejectCapture(
       animal_name: animalName,
       capture_id: capture.id,
       reason,
+      duplicate_name: duplicateOf?.animal_name ?? null,
+      duplicate_scientific: duplicateOf?.scientific_name ?? null,
     },
   })
   if (notifErr) console.error('notify-moderation-decision (reject) failed', notifErr)
@@ -785,8 +788,11 @@ async function findUserDuplicate(
 
     // Si les deux identités scientifiques sont fiables, elles sont prioritaires :
     // deux binômes différents ne peuvent pas être signalés comme un doublon.
+    // Comparaison STRICTE du nom scientifique complet : une sous-espèce
+    // (Giraffa camelopardalis antiquorum) est une carte distincte de l'espèce
+    // (Giraffa camelopardalis) et ne doit jamais être vue comme un doublon.
     if (s && existingSci) {
-      if (sameBinomial(existingSci, s)) return { ...c, match_via: 'scientific' }
+      if (existingSci === s) return { ...c, match_via: 'scientific' }
       continue
     }
 
