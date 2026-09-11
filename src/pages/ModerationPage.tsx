@@ -342,6 +342,9 @@ const ModerationPage = () => {
             animal_name: capture.animal_name,
             capture_id: capture.id,
             reason,
+            // Précise dans la notification quelle espèce déjà possédée fait doublon.
+            duplicate_name: failures[capture.id]?.duplicate?.animal_name ?? null,
+            duplicate_scientific: failures[capture.id]?.duplicate?.scientific_name ?? null,
           },
         })
         .then(({ error: fnError }) => {
