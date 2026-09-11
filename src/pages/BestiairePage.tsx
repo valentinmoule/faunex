@@ -249,7 +249,7 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const applySort = useCallback(
     (mode: MineSort) => {
       setMineSort(mode);
-      setSortOpen(false);
+      
       if (uid) {
         try {
           localStorage.setItem(sortStorageKey(uid), mode);
