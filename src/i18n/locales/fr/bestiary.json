@@ -12,7 +12,8 @@
       "recent": "Plus récentes",
       "alpha": "Ordre alphabétique",
       "rarity": "Plus rares",
-      "custom": "Personnalisé"
+      "custom": "Personnalisé",
+      "popularity": "Les plus populaires"
     },
     "popularity": {
       "none": "Jamais capturée",
@@ -87,7 +88,11 @@
       "noneYet": "Tu n'as pas encore de capture. Pars en exploration !",
       "noneForRarity": "Aucune capture ne correspond aux raretés sélectionnées.",
       "sortModalTitle": "Trier mes captures",
-      "customHint": "Le tri personnalisé s'active automatiquement dès que tu déplaces une carte."
+      "customHint": "Le tri personnalisé s'active automatiquement dès que tu déplaces une carte.",
+      "sortAndFilter": "Tri & filtres",
+      "sortFilterModalTitle": "Trier et filtrer",
+      "sortLabel": "Trier par",
+      "noneForFilters": "Aucune capture ne correspond aux filtres sélectionnés."
     },
     "categories": {
       "searchPlaceholder": "Rechercher une espèce…",

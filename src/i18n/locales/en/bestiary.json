@@ -12,7 +12,8 @@
       "recent": "Most recent",
       "alpha": "Alphabetical order",
       "rarity": "Rarest first",
-      "custom": "Custom"
+      "custom": "Custom",
+      "popularity": "Most popular"
     },
     "popularity": {
       "none": "Never caught",
@@ -87,7 +88,11 @@
       "noneYet": "You have no catches yet. Go explore!",
       "noneForRarity": "No catch matches the selected rarities.",
       "sortModalTitle": "Sort my catches",
-      "customHint": "Custom sorting kicks in automatically as soon as you move a card."
+      "customHint": "Custom sorting kicks in automatically as soon as you move a card.",
+      "sortAndFilter": "Sort & filters",
+      "sortFilterModalTitle": "Sort and filter",
+      "sortLabel": "Sort by",
+      "noneForFilters": "No catch matches the selected filters."
     },
     "categories": {
       "searchPlaceholder": "Search a species…",
