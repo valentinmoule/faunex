@@ -200,6 +200,10 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const [mineSort, setMineSort] = useState<MineSort>('recent');
   const [customOrder, setCustomOrder] = useState<string[]>([]);
   const [sortOpen, setSortOpen] = useState(false);
+  // Filtres propres à l'onglet « Captures »
+  const [mineRarityFilter, setMineRarityFilter] = useState<Rarity[]>([]);
+  const [mineCategoryFilter, setMineCategoryFilter] = useState<string[]>([]);
+  const [minePopularityFilter, setMinePopularityFilter] = useState<PopularityTier[]>([]);
 
 
   // Scroll to top when entering a category, zone or collection detail view
