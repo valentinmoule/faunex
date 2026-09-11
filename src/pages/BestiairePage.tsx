@@ -51,12 +51,13 @@ const ALL_SPECIES = 'Toutes les espèces';
 const ALL_GRID_LIMIT = 200;
 
 /** Tri de l'onglet « Mes captures ». */
-type MineSort = 'recent' | 'alpha' | 'rarity' | 'custom';
+type MineSort = 'recent' | 'alpha' | 'rarity' | 'popularity' | 'custom';
 
 const MINE_SORT_LABELS: Record<MineSort, string> = {
   get recent() { return i18n.t('bestiary.mineSort.recent'); },
   get alpha() { return i18n.t('bestiary.mineSort.alpha'); },
   get rarity() { return i18n.t('bestiary.mineSort.rarity'); },
+  get popularity() { return i18n.t('bestiary.mineSort.popularity'); },
   get custom() { return i18n.t('bestiary.mineSort.custom'); },
 };
 
