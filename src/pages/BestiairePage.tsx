@@ -1273,22 +1273,11 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                     </button>
                   )}
                 </div>
-                <button
+                <SpeciesFilterButton
                   onClick={() => setSortOpen(true)}
-                  className={`relative shrink-0 flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border text-sm font-display font-semibold transition-all active:scale-[0.97] ${
-                    mineSort !== 'recent' || mineActiveFilterCount > 0
-                      ? 'bg-primary text-primary-foreground border-primary'
-                      : 'bg-card text-foreground border-border hover:border-primary/40'
-                  }`}
-                >
-                  <SlidersHorizontal className="w-4 h-4" />
-                  {t('bestiary.mine.sortAndFilter')}
-                  {mineActiveFilterCount > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-amber text-amber-dark text-[10px] font-bold flex items-center justify-center shadow-sm">
-                      {mineActiveFilterCount}
-                    </span>
-                  )}
-                </button>
+                  active={mineSort !== 'recent' || mineActiveFilterCount > 0}
+                  count={mineActiveFilterCount}
+                />
               </div>
 
               {/* Chips des filtres actifs */}
