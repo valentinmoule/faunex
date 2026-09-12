@@ -3,7 +3,17 @@ import { PageHeader } from '@/components/PageHeader';
 import { CollectionHero } from '@/components/CollectionHero';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, SlidersHorizontal, Users, ArrowDownUp, Check, Ghost, Footprints, TrendingUp, Flame, Images, Trophy, type LucideIcon } from 'lucide-react';
+import { Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, Check, Images, Trophy } from 'lucide-react';
+import {
+  POPULARITY_LABELS,
+  SpeciesCategoryIcon,
+  SpeciesFilterButton,
+  SpeciesSortFilterSheet,
+  applySpeciesSortFilter,
+  popularityTierOf,
+  type PopularityTier,
+  type SpeciesSort,
+} from '@/components/SpeciesSortFilter';
 import { type Rarity, type AnimalCard, RARITY_LABELS, RARITY_ORDER, RARITY_RANK, normalizeRarity } from '@/data/mockData';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -69,18 +79,6 @@ const orderStorageKey = (uid: string) => `faunex:mine-order:${uid}`;
 
 /** Filtre de popularité communautaire : combien de naturalistes ont capturé l'espèce.
  *  Seuils alignés sur FindersBadge pour une cohérence badge ↔ filtre. */
-type PopularityTier = 'none' | 'rare' | 'common' | 'trending' | 'hot';
-
-const POPULARITY_LABELS: Record<PopularityTier, { label: string; Icon: LucideIcon }> = {
-  get none() { return { label: i18n.t('bestiary.popularity.none'), Icon: Ghost }; },
-  get rare() { return { label: i18n.t('bestiary.popularity.rare'), Icon: Footprints }; },
-  get common() { return { label: i18n.t('bestiary.popularity.common'), Icon: Users }; },
-  get trending() { return { label: i18n.t('bestiary.popularity.trending'), Icon: TrendingUp }; },
-  get hot() { return { label: i18n.t('bestiary.popularity.hot'), Icon: Flame }; },
-};
-
-const popularityTierOf = (n: number): PopularityTier =>
-  n <= 0 ? 'none' : n < 5 ? 'rare' : n < 25 ? 'common' : n < 100 ? 'trending' : 'hot';
 
 
 /** Socle coloré (profondeur "jeu mobile") selon la rareté. */
