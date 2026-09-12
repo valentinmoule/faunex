@@ -128,6 +128,7 @@ export const SpeciesSortFilterSheet = ({
   onCategoriesChange,
   resultCount,
   onReset,
+  confirmLabel,
 }: SpeciesSortFilterSheetProps) => {
   const { t } = useTranslation();
   return (
@@ -260,7 +261,7 @@ export const SpeciesSortFilterSheet = ({
             onClick={() => onOpenChange(false)}
             className="flex-1 py-3 rounded-xl bg-primary text-primary-foreground text-sm font-display font-bold active:scale-[0.98] transition"
           >
-            {t('bestiary.filterModal.seeSpecies', { count: resultCount })}
+            {confirmLabel ?? t('bestiary.filterModal.seeSpecies', { count: resultCount })}
           </button>
         </div>
       </SheetContent>
