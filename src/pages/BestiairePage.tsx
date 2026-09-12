@@ -1355,146 +1355,31 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
 
 
               {/* Drawer unifié tri + filtres */}
-              <Sheet open={sortOpen} onOpenChange={setSortOpen}>
-                <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-3xl px-5 pb-8">
-                  <SheetHeader className="text-left">
-                    <SheetTitle className="font-display text-base flex items-center gap-2">
-                      <SlidersHorizontal className="w-4 h-4 text-primary" />
-                      {t('bestiary.mine.sortFilterModalTitle')}
-                    </SheetTitle>
-                  </SheetHeader>
-
-                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-display font-bold mt-3 mb-2">
-                    {t('bestiary.mine.sortLabel')}
-                  </p>
-                  <div className="space-y-2">
-                    {(['recent', 'alpha', 'rarity', 'popularity', 'custom'] as MineSort[]).map((mode) => {
-                      const active = mineSort === mode;
-                      return (
-                        <button
-                          key={mode}
-                          onClick={() => applySort(mode)}
-                          className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border text-sm font-display font-semibold transition active:scale-[0.98] ${
-                            active
-                              ? 'bg-primary/10 border-primary text-primary'
-                              : 'bg-card border-border text-foreground'
-                          }`}
-                        >
-                          <span>{MINE_SORT_LABELS[mode]}</span>
-                          {active && <Check className="w-4 h-4" />}
-                        </button>
-                      );
-                    })}
-                    <p className="pt-1 text-[11px] font-display text-muted-foreground">
-                      {t('bestiary.mine.customHint')}
-                    </p>
-                  </div>
-
-                  {mineCategoryData.length > 0 && (
-                    <>
-                      <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-display font-bold mt-5 mb-2">
-                        {t('bestiary.filterModal.categoriesLabel')}
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {mineCategoryData.map((cat) => {
-                          const active = mineCategoryFilter.includes(cat.name);
-                          return (
-                            <button
-                              key={cat.name}
-                              onClick={() =>
-                                setMineCategoryFilter(prev =>
-                                  active ? prev.filter(c => c !== cat.name) : [...prev, cat.name],
-                                )
-                              }
-                              className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-[12px] font-display font-semibold border transition-all active:scale-95 ${
-                                active
-                                  ? 'bg-primary text-primary-foreground border-primary'
-                                  : 'bg-card text-foreground border-border hover:border-primary/40'
-                              }`}
-                            >
-                              <SpeciesCategoryIcon category={cat.name} className="w-4 h-4" />
-                              {categoryLabel(cat.name)}
-                              <span className={active ? 'opacity-80' : 'opacity-50'}>{cat.total}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </>
-                  )}
-
-                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-display font-bold mt-5 mb-2">
-                    {t('bestiary.filterModal.rarityLabel')}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {RARITY_ORDER.map((r) => {
-                      const active = mineRarityFilter.includes(r);
-                      return (
-                        <button
-                          key={r}
-                          onClick={() =>
-                            setMineRarityFilter(prev => (active ? prev.filter(x => x !== r) : [...prev, r]))
-                          }
-                          className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-[12px] font-display font-semibold border transition-all active:scale-95 ${
-                            active
-                              ? 'bg-primary text-primary-foreground border-primary'
-                              : 'bg-card text-foreground border-border hover:border-primary/40'
-                          }`}
-                        >
-                          <RarityBadge rarity={r} />
-                          {RARITY_LABELS[r]}
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-display font-bold mt-5 mb-2">
-                    {t('bestiary.filterModal.popularityLabel')}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {(Object.keys(POPULARITY_LABELS) as PopularityTier[]).map((tier) => {
-                      const active = minePopularityFilter.includes(tier);
-                      const { label, Icon } = POPULARITY_LABELS[tier];
-                      return (
-                        <button
-                          key={tier}
-                          onClick={() =>
-                            setMinePopularityFilter(prev =>
-                              active ? prev.filter(x => x !== tier) : [...prev, tier],
-                            )
-                          }
-                          className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-[12px] font-display font-semibold border transition-all active:scale-95 ${
-                            active
-                              ? 'bg-primary text-primary-foreground border-primary'
-                              : 'bg-card text-foreground border-border hover:border-primary/40'
-                          }`}
-                        >
-                          <Icon className="w-4 h-4" />
-                          {label}
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  <div className="flex items-center gap-2 mt-6">
-                    <button
-                      onClick={() => {
-                        setMineRarityFilter([]);
-                        setMineCategoryFilter([]);
-                        setMinePopularityFilter([]);
-                      }}
-                      className="flex-1 py-3 rounded-xl border border-border bg-card text-sm font-display font-semibold text-muted-foreground active:scale-[0.98] transition"
-                    >
-                      {t('bestiary.filterModal.reset')}
-                    </button>
-                    <button
-                      onClick={() => setSortOpen(false)}
-                      className="flex-1 py-3 rounded-xl bg-primary text-primary-foreground text-sm font-display font-bold active:scale-[0.98] transition"
-                    >
-                      {t('bestiary.mine.count', { count: myCapturedAnimals.length })}
-                    </button>
-                  </div>
-                </SheetContent>
-              </Sheet>
+              <SpeciesSortFilterSheet
+                open={sortOpen}
+                onOpenChange={setSortOpen}
+                sort={mineSort}
+                sortOptions={(Object.keys(MINE_SORT_LABELS) as MineSort[]).map((mode) => ({
+                  value: mode,
+                  label: MINE_SORT_LABELS[mode],
+                }))}
+                onSortChange={(s) => applySort(s as MineSort)}
+                sortHint={t('bestiary.mine.customHint')}
+                availableCategories={mineCategoryData}
+                categories={mineCategoryFilter}
+                onCategoriesChange={setMineCategoryFilter}
+                rarities={mineRarityFilter}
+                onRaritiesChange={setMineRarityFilter}
+                popularities={minePopularityFilter}
+                onPopularitiesChange={setMinePopularityFilter}
+                resultCount={myCapturedAnimals.length}
+                confirmLabel={t('bestiary.mine.count', { count: myCapturedAnimals.length })}
+                onReset={() => {
+                  setMineRarityFilter([]);
+                  setMineCategoryFilter([]);
+                  setMinePopularityFilter([]);
+                }}
+              />
             </section>
           )}
 
