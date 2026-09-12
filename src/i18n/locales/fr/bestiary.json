@@ -199,6 +199,9 @@
       "Crustacés": "Crustacés",
       "Amphibiens": "Amphibiens",
       "worldSuffix": "monde"
+    },
+    "speciesSort": {
+      "default": "Ordre du catalogue"
     }
   }
 }
