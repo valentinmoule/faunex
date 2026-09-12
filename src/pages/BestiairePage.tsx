@@ -185,6 +185,19 @@ const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
 const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const [popularityFilter, setPopularityFilter] = useState<PopularityTier[]>([]);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [browseSort, setBrowseSort] = useState<SpeciesSort>('default');
+  // Tri + filtres de la vue catégorie (détail)
+  const [detailSort, setDetailSort] = useState<SpeciesSort>('default');
+  const [detailFilterOpen, setDetailFilterOpen] = useState(false);
+  // Tri + filtres des vues territoire et collection
+  const [zoneSort, setZoneSort] = useState<SpeciesSort>('default');
+  const [zoneRarityFilter, setZoneRarityFilter] = useState<Rarity[]>([]);
+  const [zonePopularityFilter, setZonePopularityFilter] = useState<PopularityTier[]>([]);
+  const [zoneFilterOpen, setZoneFilterOpen] = useState(false);
+  const [collectionSort, setCollectionSort] = useState<SpeciesSort>('default');
+  const [collectionRarityFilter, setCollectionRarityFilter] = useState<Rarity[]>([]);
+  const [collectionPopularityFilter, setCollectionPopularityFilter] = useState<PopularityTier[]>([]);
+  const [collectionFilterOpen, setCollectionFilterOpen] = useState(false);
   const [mineSort, setMineSort] = useState<MineSort>('recent');
   const [customOrder, setCustomOrder] = useState<string[]>([]);
   const [sortOpen, setSortOpen] = useState(false);
