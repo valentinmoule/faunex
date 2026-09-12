@@ -489,12 +489,13 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   // Animals for selected category (with rarity filter + search)
   const categoryAnimals = useMemo(() => {
     if (!selectedCategory) return [];
-    return animals
+    const list = animals
       .filter(a => selectedCategory === ALL_SPECIES || normalizeCategory(a.category) === selectedCategory)
       .filter(a => rarityFilter.length === 0 || rarityFilter.includes(normalizeRarity(a.rarity)))
       .filter(a => matchesPopularity(a.finders ?? 0))
       .filter(matchesSearch);
-  }, [animals, selectedCategory, rarityFilter, matchesPopularity, matchesSearch]);
+    return applySpeciesSortFilter(list, { sort: detailSort, rarities: [], popularities: [] });
+  }, [animals, selectedCategory, rarityFilter, matchesPopularity, matchesSearch, detailSort]);
 
   // Sub-level inside a category: breed groups (races de chien…) + type groups (papillons, rapaces…)
   const breedGroupsInCategory = useMemo(() => {
@@ -549,13 +550,14 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
 
 // Browse view: all species, filtered by category chips + rarity + popularity + search
   const browseAnimals = useMemo(() => {
-    return animals
+    const list = animals
       .filter(a => categoryFilter.length === 0 || categoryFilter.includes(normalizeCategory(a.category)))
       .filter(a => rarityFilter.length === 0 || rarityFilter.includes(normalizeRarity(a.rarity)))
       .filter(a => matchesPopularity(a.finders ?? 0))
       .filter(matchesSearch);
-    // Pas de re-tri : `animals` est déjà trié alphabétiquement au chargement.
-  }, [animals, categoryFilter, rarityFilter, matchesPopularity, matchesSearch]);
+    // Par défaut `animals` est déjà trié alphabétiquement au chargement.
+    return applySpeciesSortFilter(list, { sort: browseSort, rarities: [], popularities: [] });
+  }, [animals, categoryFilter, rarityFilter, matchesPopularity, matchesSearch, browseSort]);
 
   /** Index de la carte à rejoindre pour l'animation de rangement. */
   const shelveTargetIndex = useMemo(() => {
@@ -694,6 +696,28 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
     const set = selectedZone.kind === 'city' ? buildCityAnimalSet(deptSet, animals) : deptSet;
     return animals.filter((a) => set.has(a.name.toLowerCase())); // déjà trié via `animals`
   }, [animals, animalsByDept, selectedZone]);
+
+  /** Espèces du territoire après tri + filtres (rareté, popularité). */
+  const visibleZoneAnimals = useMemo(
+    () =>
+      applySpeciesSortFilter(zoneAnimals, {
+        sort: zoneSort,
+        rarities: zoneRarityFilter,
+        popularities: zonePopularityFilter,
+      }),
+    [zoneAnimals, zoneSort, zoneRarityFilter, zonePopularityFilter],
+  );
+
+  /** Espèces de la collection après tri + filtres (rareté, popularité). */
+  const visibleCollectionAnimals = useMemo(
+    () =>
+      applySpeciesSortFilter(collectionAnimals, {
+        sort: collectionSort,
+        rarities: collectionRarityFilter,
+        popularities: collectionPopularityFilter,
+      }),
+    [collectionAnimals, collectionSort, collectionRarityFilter, collectionPopularityFilter],
+  );
 
   // Progress map keyed by zone id
   const zoneProgress = useMemo(() => {
