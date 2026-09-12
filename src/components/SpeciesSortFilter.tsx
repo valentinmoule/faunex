@@ -107,6 +107,8 @@ interface SpeciesSortFilterSheetProps {
   onCategoriesChange?: (cats: string[]) => void;
   resultCount: number;
   onReset: () => void;
+  /** Libellé du bouton de validation (par défaut « Voir X espèces »). */
+  confirmLabel?: string;
 }
 
 /** Drawer unifié tri + filtres, identique sur toutes les listes d'espèces. */
