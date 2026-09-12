@@ -31,10 +31,10 @@ export const SpeciesCategoryIcon = ({ category, className }: { category: string;
 export type SpeciesSort = 'default' | 'alpha' | 'rarity' | 'popularity';
 
 export const SPECIES_SORT_OPTIONS: { value: SpeciesSort; label: string }[] = [
-  { value: 'default', label: i18n.t('bestiary.speciesSort.default') },
-  { value: 'alpha', label: i18n.t('bestiary.mineSort.alpha') },
-  { value: 'rarity', label: i18n.t('bestiary.mineSort.rarity') },
-  { value: 'popularity', label: i18n.t('bestiary.mineSort.popularity') },
+  { value: 'default', get label() { return i18n.t('bestiary.speciesSort.default'); } },
+  { value: 'alpha', get label() { return i18n.t('bestiary.mineSort.alpha'); } },
+  { value: 'rarity', get label() { return i18n.t('bestiary.mineSort.rarity'); } },
+  { value: 'popularity', get label() { return i18n.t('bestiary.mineSort.popularity'); } },
 ];
 
 /** Applique filtres + tri sur une liste d'espèces du catalogue. */
