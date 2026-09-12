@@ -1407,22 +1407,11 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                     </button>
                   )}
                 </div>
-<button
+<SpeciesFilterButton
                   onClick={() => setFilterOpen(true)}
-                  className={`relative shrink-0 flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border text-sm font-display font-semibold transition-all active:scale-[0.97] ${
-                    activeFilterCount > 0
-                      ? 'bg-primary text-primary-foreground border-primary'
-                      : 'bg-card text-foreground border-border hover:border-primary/40'
-                  }`}
-                >
-                  <SlidersHorizontal className="w-4 h-4" />
-                  {t('bestiary.categories.filters')}
-                  {activeFilterCount > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-amber text-amber-dark text-[10px] font-bold flex items-center justify-center shadow-sm">
-                      {activeFilterCount}
-                    </span>
-                  )}
-                </button>
+                  active={activeFilterCount > 0 || browseSort !== 'default'}
+                  count={activeFilterCount}
+                />
               </div>
 
 {/* Chips des filtres actifs */}
@@ -1502,112 +1491,25 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
 
 
               {/* Modale de filtres */}
-              <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
-                <SheetContent side="bottom" className="max-h-[80vh] overflow-y-auto rounded-t-3xl px-5 pb-8">
-                  <SheetHeader className="text-left">
-                    <SheetTitle className="font-display text-base flex items-center gap-2">
-                      <SlidersHorizontal className="w-4 h-4 text-primary" />
-                      {t('bestiary.filterModal.title')}
-                    </SheetTitle>
-                  </SheetHeader>
-
-                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-display font-bold mt-3 mb-2">{t('bestiary.filterModal.categoriesLabel')}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {categoryData.map(cat => {
-                      const active = categoryFilter.includes(cat.name);
-                      return (
-                        <button
-                          key={cat.name}
-                          onClick={() =>
-                            setCategoryFilter(prev =>
-                              active ? prev.filter(c => c !== cat.name) : [...prev, cat.name]
-                            )
-                          }
-                          className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-[12px] font-display font-semibold border transition-all active:scale-95 ${
-                            active
-                              ? 'bg-primary text-primary-foreground border-primary'
-                              : 'bg-card text-foreground border-border hover:border-primary/40'
-                          }`}
-                        >
-<SpeciesCategoryIcon category={cat.name} className="w-4 h-4" />
-                          {categoryLabel(cat.name)}
-                          <span className={active ? 'opacity-80' : 'opacity-50'}>{cat.total}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-
-<p className="text-[11px] uppercase tracking-wider text-muted-foreground font-display font-bold mt-5 mb-2">{t('bestiary.filterModal.rarityLabel')}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {RARITY_ORDER.map((r) => {
-                      const active = rarityFilter.includes(r);
-                      return (
-                        <button
-                          key={r}
-                          onClick={() =>
-                            setRarityFilter(prev =>
-                              active ? prev.filter(x => x !== r) : [...prev, r]
-                            )
-                          }
-                          className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-[12px] font-display font-semibold border transition-all active:scale-95 ${
-                            active
-                              ? 'bg-primary text-primary-foreground border-primary'
-                              : 'bg-card text-foreground border-border hover:border-primary/40'
-                          }`}
-                        >
-<RarityBadge rarity={r} />
-                          {RARITY_LABELS[r]}
-                        </button>
-                      );
-                    })}
-                  </div>
-
-<p className="text-[11px] uppercase tracking-wider text-muted-foreground font-display font-bold mt-5 mb-2">{t('bestiary.filterModal.popularityLabel')}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {(Object.keys(POPULARITY_LABELS) as PopularityTier[]).map((t) => {
-                      const active = popularityFilter.includes(t);
-                      const { label, Icon } = POPULARITY_LABELS[t];
-                      return (
-                        <button
-                          key={t}
-                          onClick={() =>
-                            setPopularityFilter(prev =>
-                              active ? prev.filter(x => x !== t) : [...prev, t]
-                            )
-                          }
-                          className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-[12px] font-display font-semibold border transition-all active:scale-95 ${
-                            active
-                              ? 'bg-primary text-primary-foreground border-primary'
-                              : 'bg-card text-foreground border-border hover:border-primary/40'
-                          }`}
-                        >
-                          <Icon className={`w-4 h-4 ${active ? '' : 'opacity-60'}`} strokeWidth={2.2} />
-                          {label}
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  <div className="flex gap-2 mt-6">
-                    <button
-                      onClick={() => {
-                        setCategoryFilter([]);
-                        setRarityFilter([]);
-                        setPopularityFilter([]);
-                      }}
-                      className="px-4 py-2.5 rounded-xl border border-border bg-card text-sm font-display font-semibold text-foreground active:scale-[0.97] transition"
-                    >
-                      {t('bestiary.filterModal.reset')}
-                    </button>
-                    <button
-                      onClick={() => setFilterOpen(false)}
-                      className="flex-1 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-display font-bold active:scale-[0.97] transition"
-                    >
-                      {t('bestiary.filterModal.seeSpecies', { count: browseTotal })}
-                    </button>
-                  </div>
-                </SheetContent>
-              </Sheet>
+              <SpeciesSortFilterSheet
+                open={filterOpen}
+                onOpenChange={setFilterOpen}
+                sort={browseSort}
+                onSortChange={(s) => setBrowseSort(s as SpeciesSort)}
+                availableCategories={categoryData}
+                categories={categoryFilter}
+                onCategoriesChange={setCategoryFilter}
+                rarities={rarityFilter}
+                onRaritiesChange={setRarityFilter}
+                popularities={popularityFilter}
+                onPopularitiesChange={setPopularityFilter}
+                resultCount={browseTotal}
+                onReset={() => {
+                  setCategoryFilter([]);
+                  setRarityFilter([]);
+                  setPopularityFilter([]);
+                }}
+              />
             </section>
           )}
 
