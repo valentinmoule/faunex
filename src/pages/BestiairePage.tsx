@@ -1136,6 +1136,14 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
         <div className="relative z-10 max-w-lg mx-auto px-3 pt-3 space-y-4">
 <CategoryLeaderboard territory={{ code: selectedZone.departmentCode, label: title }} />
 
+          <div className="flex items-center justify-end">
+            <SpeciesFilterButton
+              onClick={() => setZoneFilterOpen(true)}
+              active={zoneSort !== 'default' || zoneRarityFilter.length > 0 || zonePopularityFilter.length > 0}
+              count={zoneRarityFilter.length + zonePopularityFilter.length}
+            />
+          </div>
+
           {zoneAnimals.length === 0 ? (
             <div className="text-center py-16">
               <p className="text-4xl mb-3">📭</p>
@@ -1145,12 +1153,25 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
             </div>
           ) : (
 <div className="grid grid-cols-3 gap-2">
-              {zoneAnimals.map((animal) => (
+              {visibleZoneAnimals.map((animal) => (
                 <BrowseSpeciesCard key={animal.name} animal={animal} onSelect={handleSelectBrowseAnimal} />
               ))}
             </div>
           )}
         </div>
+
+        <SpeciesSortFilterSheet
+          open={zoneFilterOpen}
+          onOpenChange={setZoneFilterOpen}
+          sort={zoneSort}
+          onSortChange={(s) => setZoneSort(s as SpeciesSort)}
+          rarities={zoneRarityFilter}
+          onRaritiesChange={setZoneRarityFilter}
+          popularities={zonePopularityFilter}
+          onPopularitiesChange={setZonePopularityFilter}
+          resultCount={visibleZoneAnimals.length}
+          onReset={() => { setZoneRarityFilter([]); setZonePopularityFilter([]); }}
+        />
 
         <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
         {deptPickerSheet}
@@ -1181,12 +1202,33 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
             <CategoryLeaderboard category={collectionLeaderboardCategory} />
           )}
 
+          <div className="flex items-center justify-end">
+            <SpeciesFilterButton
+              onClick={() => setCollectionFilterOpen(true)}
+              active={collectionSort !== 'default' || collectionRarityFilter.length > 0 || collectionPopularityFilter.length > 0}
+              count={collectionRarityFilter.length + collectionPopularityFilter.length}
+            />
+          </div>
+
 <div className="grid grid-cols-3 gap-2">
-            {collectionAnimals.map((animal) => (
+            {visibleCollectionAnimals.map((animal) => (
               <BrowseSpeciesCard key={animal.name} animal={animal} onSelect={handleSelectBrowseAnimal} />
             ))}
 </div>
         </div>
+
+        <SpeciesSortFilterSheet
+          open={collectionFilterOpen}
+          onOpenChange={setCollectionFilterOpen}
+          sort={collectionSort}
+          onSortChange={(s) => setCollectionSort(s as SpeciesSort)}
+          rarities={collectionRarityFilter}
+          onRaritiesChange={setCollectionRarityFilter}
+          popularities={collectionPopularityFilter}
+          onPopularitiesChange={setCollectionPopularityFilter}
+          resultCount={visibleCollectionAnimals.length}
+          onReset={() => { setCollectionRarityFilter([]); setCollectionPopularityFilter([]); }}
+        />
 
         <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
         {flyingCardOverlay}
