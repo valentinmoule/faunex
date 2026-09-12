@@ -77,10 +77,6 @@ const RARITY_SORT_ORDER: Record<string, number> = RARITY_RANK;
 const sortStorageKey = (uid: string) => `faunex:mine-sort:${uid}`;
 const orderStorageKey = (uid: string) => `faunex:mine-order:${uid}`;
 
-/** Filtre de popularité communautaire : combien de naturalistes ont capturé l'espèce.
- *  Seuils alignés sur FindersBadge pour une cohérence badge ↔ filtre. */
-
-
 /** Socle coloré (profondeur "jeu mobile") selon la rareté. */
 const tileDepthClass: Record<string, string> = {
   uncommon: 'game-tile--uncommon',
@@ -92,7 +88,8 @@ const tileDepthClass: Record<string, string> = {
   hyper_rare: 'game-tile--hyper',
 };
 
-/** Socle coloré (profondeur "jeu mobile") selon la rareté. */
+/** Carte d'espèce de la grille Bestiaire, mémoïsée : les lots déjà affichés
+ *  ne se re-rendent pas quand les 50 suivantes arrivent. */
 const BrowseSpeciesCard = memo(
   ({ animal, onSelect }: { animal: BestiaryAnimal; onSelect: (a: BestiaryAnimal) => void }) => {
   const { speciesName } = useSpeciesName();
