@@ -1712,23 +1712,30 @@ const isCity = zone.kind === 'city';
       </PageHeader>
 
       <div className="max-w-lg mx-auto px-3 pt-3">
-        <div className="relative mb-3">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <input
-            type="text"
-            value={speciesSearch}
-            onChange={(e) => setSpeciesSearch(e.target.value)}
-            placeholder={t('bestiary.categoryDetail.searchPlaceholder', { category: selectedCategory })}
-            className="w-full pl-9 pr-9 py-2.5 rounded-xl bg-card border border-border text-sm font-display placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
+        <div className="flex items-center gap-2 mb-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              type="text"
+              value={speciesSearch}
+              onChange={(e) => setSpeciesSearch(e.target.value)}
+              placeholder={t('bestiary.categoryDetail.searchPlaceholder', { category: selectedCategory })}
+              className="w-full pl-9 pr-9 py-2.5 rounded-xl bg-card border border-border text-sm font-display placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
+            />
+            {speciesSearch && (
+              <button
+                onClick={() => setSpeciesSearch('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-muted transition"
+              >
+                <X className="w-3.5 h-3.5 text-muted-foreground" />
+              </button>
+            )}
+          </div>
+          <SpeciesFilterButton
+            onClick={() => setDetailFilterOpen(true)}
+            active={detailSort !== 'default' || rarityFilter.length > 0 || popularityFilter.length > 0}
+            count={rarityFilter.length + popularityFilter.length}
           />
-          {speciesSearch && (
-            <button
-              onClick={() => setSpeciesSearch('')}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-muted transition"
-            >
-              <X className="w-3.5 h-3.5 text-muted-foreground" />
-            </button>
-          )}
         </div>
         {/* Classement des explorateurs de la catégorie */}
         {!activeBreedGroup && selectedCategory && (
@@ -1846,6 +1853,19 @@ onClick={() => {
           </p>
         )}
       </div>
+
+      <SpeciesSortFilterSheet
+        open={detailFilterOpen}
+        onOpenChange={setDetailFilterOpen}
+        sort={detailSort}
+        onSortChange={(s) => setDetailSort(s as SpeciesSort)}
+        rarities={rarityFilter}
+        onRaritiesChange={setRarityFilter}
+        popularities={popularityFilter}
+        onPopularitiesChange={setPopularityFilter}
+        resultCount={categoryAnimals.length}
+        onReset={() => { setRarityFilter([]); setPopularityFilter([]); }}
+      />
 
       <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
 
