@@ -199,6 +199,9 @@
       "Crustacés": "Crustaceans",
       "Amphibiens": "Amphibians",
       "worldSuffix": "world"
+    },
+    "speciesSort": {
+      "default": "Catalogue order"
     }
   }
 }
