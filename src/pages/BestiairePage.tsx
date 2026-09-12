@@ -92,15 +92,7 @@ const tileDepthClass: Record<string, string> = {
   hyper_rare: 'game-tile--hyper',
 };
 
-/** Icône vectorielle de la catégorie d'une espèce (remplace les emojis sur les cartes). */
-const SpeciesCategoryIcon = ({ category, className }: { category: string; className?: string }) => {
-  const Icon = getCategoryIcon(category);
-  return <Icon className={className} strokeWidth={1.5} />;
-};
-
-
-/** Carte d'espèce de la grille Bestiaire, mémoïsée : les lots déjà affichés
- *  ne se re-rendent pas quand les 50 suivantes arrivent. */
+/** Socle coloré (profondeur "jeu mobile") selon la rareté. */
 const BrowseSpeciesCard = memo(
   ({ animal, onSelect }: { animal: BestiaryAnimal; onSelect: (a: BestiaryAnimal) => void }) => {
   const { speciesName } = useSpeciesName();
