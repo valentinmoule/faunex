@@ -5,6 +5,7 @@
 const PLACEHOLDERS = new Set([
   'inconnu',
   'inconnue',
+  'je ne sais pas',
   'unknown',
   '??',
   '???',
