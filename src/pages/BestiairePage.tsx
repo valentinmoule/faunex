@@ -719,27 +719,28 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
     return animals.filter((a) => set.has(a.name.toLowerCase())); // déjà trié via `animals`
   }, [animals, animalsByDept, selectedZone]);
 
-  /** Espèces du territoire après tri + filtres (rareté, popularité). */
+  /** Espèces du territoire après recherche + tri + filtres (rareté, popularité). */
   const visibleZoneAnimals = useMemo(
     () =>
-      applySpeciesSortFilter(zoneAnimals, {
+      applySpeciesSortFilter(zoneAnimals.filter(makeSpeciesMatcher(zoneSearch)), {
         sort: zoneSort,
         rarities: zoneRarityFilter,
         popularities: zonePopularityFilter,
       }),
-    [zoneAnimals, zoneSort, zoneRarityFilter, zonePopularityFilter],
+    [zoneAnimals, zoneSearch, makeSpeciesMatcher, zoneSort, zoneRarityFilter, zonePopularityFilter],
   );
 
-  /** Espèces de la collection après tri + filtres (rareté, popularité). */
+  /** Espèces de la collection après recherche + tri + filtres (rareté, popularité). */
   const visibleCollectionAnimals = useMemo(
     () =>
-      applySpeciesSortFilter(collectionAnimals, {
+      applySpeciesSortFilter(collectionAnimals.filter(makeSpeciesMatcher(collectionDetailSearch)), {
         sort: collectionSort,
         rarities: collectionRarityFilter,
         popularities: collectionPopularityFilter,
       }),
-    [collectionAnimals, collectionSort, collectionRarityFilter, collectionPopularityFilter],
+    [collectionAnimals, collectionDetailSearch, makeSpeciesMatcher, collectionSort, collectionRarityFilter, collectionPopularityFilter],
   );
+
 
   // Progress map keyed by zone id
   const zoneProgress = useMemo(() => {
