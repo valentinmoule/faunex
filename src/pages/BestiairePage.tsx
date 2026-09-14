@@ -1406,7 +1406,6 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                   label: MINE_SORT_LABELS[mode],
                 }))}
                 onSortChange={(s) => applySort(s as MineSort)}
-                sortHint={t('bestiary.mine.customHint')}
                 availableCategories={mineCategoryData}
                 categories={mineCategoryFilter}
                 onCategoriesChange={setMineCategoryFilter}
