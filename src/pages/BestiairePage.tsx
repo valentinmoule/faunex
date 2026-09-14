@@ -182,6 +182,9 @@ const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [collectionSearch, setCollectionSearch] = useState('');
   const [speciesSearch, setSpeciesSearch] = useState('');
   const [mineSearch, setMineSearch] = useState('');
+  const [zoneSearch, setZoneSearch] = useState('');
+  const [collectionDetailSearch, setCollectionDetailSearch] = useState('');
+
 const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const [popularityFilter, setPopularityFilter] = useState<PopularityTier[]>([]);
   const [filterOpen, setFilterOpen] = useState(false);
@@ -480,6 +483,25 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
     [speciesQuery]
   );
 
+  /** Recherche générique sur une liste d'espèces (nom FR/EN, scientifique, catégorie). */
+  const makeSpeciesMatcher = useCallback(
+    (query: string) => {
+      const q = normalizeSearch(query);
+      return (a: { name: string; scientific_name?: string | null; category?: string | null }) => {
+        if (!q) return true;
+        return (
+          normalizeSearch(a.name).includes(q) ||
+          normalizeSearch(localizedSpeciesName(a.name, i18n.language)).includes(q) ||
+          normalizeSearch(a.scientific_name || '').includes(q) ||
+          normalizeSearch(a.category || '').includes(q)
+        );
+      };
+    },
+    [i18n.language],
+  );
+
+
+
 // Filtre de popularité communautaire (vide = toutes les popularités)
   const matchesPopularity = useCallback(
     (n: number) => popularityFilter.length === 0 || popularityFilter.includes(popularityTierOf(n)),
@@ -697,27 +719,28 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
     return animals.filter((a) => set.has(a.name.toLowerCase())); // déjà trié via `animals`
   }, [animals, animalsByDept, selectedZone]);
 
-  /** Espèces du territoire après tri + filtres (rareté, popularité). */
+  /** Espèces du territoire après recherche + tri + filtres (rareté, popularité). */
   const visibleZoneAnimals = useMemo(
     () =>
-      applySpeciesSortFilter(zoneAnimals, {
+      applySpeciesSortFilter(zoneAnimals.filter(makeSpeciesMatcher(zoneSearch)), {
         sort: zoneSort,
         rarities: zoneRarityFilter,
         popularities: zonePopularityFilter,
       }),
-    [zoneAnimals, zoneSort, zoneRarityFilter, zonePopularityFilter],
+    [zoneAnimals, zoneSearch, makeSpeciesMatcher, zoneSort, zoneRarityFilter, zonePopularityFilter],
   );
 
-  /** Espèces de la collection après tri + filtres (rareté, popularité). */
+  /** Espèces de la collection après recherche + tri + filtres (rareté, popularité). */
   const visibleCollectionAnimals = useMemo(
     () =>
-      applySpeciesSortFilter(collectionAnimals, {
+      applySpeciesSortFilter(collectionAnimals.filter(makeSpeciesMatcher(collectionDetailSearch)), {
         sort: collectionSort,
         rarities: collectionRarityFilter,
         popularities: collectionPopularityFilter,
       }),
-    [collectionAnimals, collectionSort, collectionRarityFilter, collectionPopularityFilter],
+    [collectionAnimals, collectionDetailSearch, makeSpeciesMatcher, collectionSort, collectionRarityFilter, collectionPopularityFilter],
   );
+
 
   // Progress map keyed by zone id
   const zoneProgress = useMemo(() => {
@@ -1136,7 +1159,26 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
         <div className="relative z-10 max-w-lg mx-auto px-3 pt-3 space-y-4">
 <CategoryLeaderboard territory={{ code: selectedZone.departmentCode, label: title }} />
 
-          <div className="flex items-center justify-end">
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input
+                type="text"
+                value={zoneSearch}
+                onChange={(e) => setZoneSearch(e.target.value)}
+                placeholder={t('bestiary.categories.searchPlaceholder')}
+                className="w-full pl-9 pr-9 py-2.5 rounded-xl bg-card border border-border text-sm font-display placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
+              />
+              {zoneSearch && (
+                <button
+                  onClick={() => setZoneSearch('')}
+                  aria-label={t('bestiary.common.clearSearch')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-muted transition"
+                >
+                  <X className="w-3.5 h-3.5 text-muted-foreground" />
+                </button>
+              )}
+            </div>
             <SpeciesFilterButton
               onClick={() => setZoneFilterOpen(true)}
               active={zoneSort !== 'default' || zoneRarityFilter.length > 0 || zonePopularityFilter.length > 0}
@@ -1151,6 +1193,13 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                 {t('bestiary.zone.noSpecies')}
               </p>
             </div>
+          ) : visibleZoneAnimals.length === 0 ? (
+            <div className="text-center py-16">
+              <p className="text-4xl mb-3">🔍</p>
+              <p className="text-muted-foreground font-display text-sm">
+                {t('bestiary.categories.noMatch')}
+              </p>
+            </div>
           ) : (
 <div className="grid grid-cols-3 gap-2">
               {visibleZoneAnimals.map((animal) => (
@@ -1158,6 +1207,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
               ))}
             </div>
           )}
+
         </div>
 
         <SpeciesSortFilterSheet
@@ -1202,7 +1252,26 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
             <CategoryLeaderboard category={collectionLeaderboardCategory} />
           )}
 
-          <div className="flex items-center justify-end">
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input
+                type="text"
+                value={collectionDetailSearch}
+                onChange={(e) => setCollectionDetailSearch(e.target.value)}
+                placeholder={t('bestiary.categories.searchPlaceholder')}
+                className="w-full pl-9 pr-9 py-2.5 rounded-xl bg-card border border-border text-sm font-display placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
+              />
+              {collectionDetailSearch && (
+                <button
+                  onClick={() => setCollectionDetailSearch('')}
+                  aria-label={t('bestiary.common.clearSearch')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-muted transition"
+                >
+                  <X className="w-3.5 h-3.5 text-muted-foreground" />
+                </button>
+              )}
+            </div>
             <SpeciesFilterButton
               onClick={() => setCollectionFilterOpen(true)}
               active={collectionSort !== 'default' || collectionRarityFilter.length > 0 || collectionPopularityFilter.length > 0}
@@ -1210,11 +1279,18 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
             />
           </div>
 
-<div className="grid grid-cols-3 gap-2">
+{visibleCollectionAnimals.length === 0 ? (
+            <div className="text-center py-16">
+              <p className="text-4xl mb-3">🔍</p>
+              <p className="text-muted-foreground font-display text-sm">{t('bestiary.categories.noMatch')}</p>
+            </div>
+          ) : (
+          <div className="grid grid-cols-3 gap-2">
             {visibleCollectionAnimals.map((animal) => (
               <BrowseSpeciesCard key={animal.name} animal={animal} onSelect={handleSelectBrowseAnimal} />
             ))}
-</div>
+          </div>
+          )}
         </div>
 
         <SpeciesSortFilterSheet
