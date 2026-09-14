@@ -96,7 +96,6 @@ interface SpeciesSortFilterSheetProps {
   sort?: string;
   sortOptions?: { value: string; label: string }[];
   onSortChange?: (sort: string) => void;
-  sortHint?: string;
   rarities: Rarity[];
   onRaritiesChange: (rarities: Rarity[]) => void;
   popularities: PopularityTier[];
@@ -118,7 +117,6 @@ export const SpeciesSortFilterSheet = ({
   sort,
   sortOptions,
   onSortChange,
-  sortHint,
   rarities,
   onRaritiesChange,
   popularities,
@@ -158,12 +156,11 @@ export const SpeciesSortFilterSheet = ({
                     }`}
                   >
                     <span>{opt.label}</span>
-                    {isActive && <Check className="w-4 h-4" />}
-                  </button>
-                );
-              })}
-              {sortHint && <p className="pt-1 text-[11px] font-display text-muted-foreground">{sortHint}</p>}
-            </div>
+                {isActive && <Check className="w-4 h-4" />}
+              </button>
+            );
+          })}
+        </div>
           </>
         )}
 
