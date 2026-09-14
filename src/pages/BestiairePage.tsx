@@ -1197,7 +1197,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
             <div className="text-center py-16">
               <p className="text-4xl mb-3">🔍</p>
               <p className="text-muted-foreground font-display text-sm">
-                {t('bestiary.categories.noResults')}
+                {t('bestiary.categories.noMatch')}
               </p>
             </div>
           ) : (
@@ -1252,7 +1252,26 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
             <CategoryLeaderboard category={collectionLeaderboardCategory} />
           )}
 
-          <div className="flex items-center justify-end">
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input
+                type="text"
+                value={collectionDetailSearch}
+                onChange={(e) => setCollectionDetailSearch(e.target.value)}
+                placeholder={t('bestiary.categories.searchPlaceholder')}
+                className="w-full pl-9 pr-9 py-2.5 rounded-xl bg-card border border-border text-sm font-display placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
+              />
+              {collectionDetailSearch && (
+                <button
+                  onClick={() => setCollectionDetailSearch('')}
+                  aria-label={t('bestiary.common.clearSearch')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-muted transition"
+                >
+                  <X className="w-3.5 h-3.5 text-muted-foreground" />
+                </button>
+              )}
+            </div>
             <SpeciesFilterButton
               onClick={() => setCollectionFilterOpen(true)}
               active={collectionSort !== 'default' || collectionRarityFilter.length > 0 || collectionPopularityFilter.length > 0}
@@ -1260,11 +1279,18 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
             />
           </div>
 
-<div className="grid grid-cols-3 gap-2">
+{visibleCollectionAnimals.length === 0 ? (
+            <div className="text-center py-16">
+              <p className="text-4xl mb-3">🔍</p>
+              <p className="text-muted-foreground font-display text-sm">{t('bestiary.categories.noMatch')}</p>
+            </div>
+          ) : (
+          <div className="grid grid-cols-3 gap-2">
             {visibleCollectionAnimals.map((animal) => (
               <BrowseSpeciesCard key={animal.name} animal={animal} onSelect={handleSelectBrowseAnimal} />
             ))}
-</div>
+          </div>
+          )}
         </div>
 
         <SpeciesSortFilterSheet
