@@ -483,6 +483,25 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
     [speciesQuery]
   );
 
+  /** Recherche générique sur une liste d'espèces (nom FR/EN, scientifique, catégorie). */
+  const makeSpeciesMatcher = useCallback(
+    (query: string) => {
+      const q = normalizeSearch(query);
+      return (a: { name: string; scientific_name?: string | null; category?: string | null }) => {
+        if (!q) return true;
+        return (
+          normalizeSearch(a.name).includes(q) ||
+          normalizeSearch(localizedSpeciesName(a.name, i18n.language)).includes(q) ||
+          normalizeSearch(a.scientific_name || '').includes(q) ||
+          normalizeSearch(a.category || '').includes(q)
+        );
+      };
+    },
+    [i18n.language],
+  );
+
+
+
 // Filtre de popularité communautaire (vide = toutes les popularités)
   const matchesPopularity = useCallback(
     (n: number) => popularityFilter.length === 0 || popularityFilter.includes(popularityTierOf(n)),
