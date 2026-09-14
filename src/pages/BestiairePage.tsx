@@ -182,6 +182,9 @@ const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [collectionSearch, setCollectionSearch] = useState('');
   const [speciesSearch, setSpeciesSearch] = useState('');
   const [mineSearch, setMineSearch] = useState('');
+  const [zoneSearch, setZoneSearch] = useState('');
+  const [collectionDetailSearch, setCollectionDetailSearch] = useState('');
+
 const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const [popularityFilter, setPopularityFilter] = useState<PopularityTier[]>([]);
   const [filterOpen, setFilterOpen] = useState(false);
