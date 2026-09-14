@@ -1159,7 +1159,26 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
         <div className="relative z-10 max-w-lg mx-auto px-3 pt-3 space-y-4">
 <CategoryLeaderboard territory={{ code: selectedZone.departmentCode, label: title }} />
 
-          <div className="flex items-center justify-end">
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input
+                type="text"
+                value={zoneSearch}
+                onChange={(e) => setZoneSearch(e.target.value)}
+                placeholder={t('bestiary.categories.searchPlaceholder')}
+                className="w-full pl-9 pr-9 py-2.5 rounded-xl bg-card border border-border text-sm font-display placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
+              />
+              {zoneSearch && (
+                <button
+                  onClick={() => setZoneSearch('')}
+                  aria-label={t('bestiary.common.clearSearch')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-muted transition"
+                >
+                  <X className="w-3.5 h-3.5 text-muted-foreground" />
+                </button>
+              )}
+            </div>
             <SpeciesFilterButton
               onClick={() => setZoneFilterOpen(true)}
               active={zoneSort !== 'default' || zoneRarityFilter.length > 0 || zonePopularityFilter.length > 0}
@@ -1174,6 +1193,13 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                 {t('bestiary.zone.noSpecies')}
               </p>
             </div>
+          ) : visibleZoneAnimals.length === 0 ? (
+            <div className="text-center py-16">
+              <p className="text-4xl mb-3">🔍</p>
+              <p className="text-muted-foreground font-display text-sm">
+                {t('bestiary.categories.noResults')}
+              </p>
+            </div>
           ) : (
 <div className="grid grid-cols-3 gap-2">
               {visibleZoneAnimals.map((animal) => (
@@ -1181,6 +1207,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
               ))}
             </div>
           )}
+
         </div>
 
         <SpeciesSortFilterSheet
