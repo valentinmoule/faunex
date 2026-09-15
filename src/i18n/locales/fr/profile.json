@@ -56,6 +56,7 @@
       "claimable": "À réclamer · {{count}}",
       "unlocked": "Débloqués · {{count}}",
       "unlockedTag": "Débloqué ✨",
+      "claimCta": "À réclamer",
       "claimedToast": "Badge débloqué ! +{{xp}} XP 🎉",
       "groups": {
         "progression": "Progression",
