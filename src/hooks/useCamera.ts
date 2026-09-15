@@ -40,14 +40,46 @@ export const useCamera = ({ paused }: UseCameraOptions) => {
   const startCamera = useCallback(async () => {
     try {
       stopCamera();
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode, width: { ideal: 1920 }, height: { ideal: 1080 } },
-        audio: false,
-      });
+
+      // On demande la meilleure résolution disponible, avec des paliers de repli :
+      // certains appareils refusent une contrainte trop haute et renvoient une
+      // erreur plutôt que de dégrader → preview très basse définition (flou).
+      const tiers: MediaTrackConstraints[] = [
+        { facingMode, width: { ideal: 3840 }, height: { ideal: 2160 }, frameRate: { ideal: 30 } },
+        { facingMode, width: { ideal: 2560 }, height: { ideal: 1440 } },
+        { facingMode, width: { ideal: 1920 }, height: { ideal: 1080 } },
+        { facingMode },
+      ];
+
+      let stream: MediaStream | null = null;
+      for (const video of tiers) {
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({ video, audio: false });
+          break;
+        } catch {
+          stream = null;
+        }
+      }
+      if (!stream) throw new Error('no-stream');
       streamRef.current = stream;
 
       const track = stream.getVideoTracks()[0];
       const capabilities = track.getCapabilities?.() as any;
+
+      // Si la piste obtenue est plus basse que ce que le capteur sait faire, on
+      // remonte à son maximum (cas fréquent sur Android/WebView).
+      const settings = track.getSettings?.() as any;
+      const maxW = capabilities?.width?.max;
+      const maxH = capabilities?.height?.max;
+      if (maxW && maxH && settings?.width && settings.width < Math.min(maxW, 3840)) {
+        try {
+          await track.applyConstraints({
+            width: { ideal: Math.min(maxW, 3840) },
+            height: { ideal: Math.min(maxH, 2160) },
+          });
+        } catch {}
+      }
+
       if (capabilities?.zoom) {
         setSupportsNativeZoom(true);
         setMaxZoom(Math.min(capabilities.zoom.max, 10));
@@ -57,11 +89,21 @@ export const useCamera = ({ paused }: UseCameraOptions) => {
       }
       setZoomLevel(1);
 
-      const hasFocusMode = !!capabilities?.focusMode;
-      setSupportsFocus(hasFocusMode);
-      if (hasFocusMode && capabilities.focusMode.includes('continuous')) {
+      const focusModes: string[] = capabilities?.focusMode ?? [];
+      setSupportsFocus(focusModes.length > 0);
+
+      // Autofocus continu + expo/balance des blancs automatiques : sans ça la
+      // mise au point reste bloquée sur l'arrière-plan et la photo sort floue.
+      const advanced: any[] = [];
+      if (focusModes.includes('continuous')) advanced.push({ focusMode: 'continuous' });
+      else if (focusModes.includes('single-shot')) advanced.push({ focusMode: 'single-shot' });
+      if ((capabilities?.exposureMode ?? []).includes('continuous'))
+        advanced.push({ exposureMode: 'continuous' });
+      if ((capabilities?.whiteBalanceMode ?? []).includes('continuous'))
+        advanced.push({ whiteBalanceMode: 'continuous' });
+      if (advanced.length) {
         try {
-          await (track as any).applyConstraints({ advanced: [{ focusMode: 'continuous' } as any] });
+          await track.applyConstraints({ advanced } as any);
         } catch {}
       }
 
