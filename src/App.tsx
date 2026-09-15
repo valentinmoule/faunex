@@ -30,7 +30,6 @@ const AuthPage = lazy(() => import("./pages/AuthPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const FriendCollectionPage = lazy(() => import("./pages/FriendCollectionPage"));
 const BestiairePage = lazy(() => import("./pages/BestiairePage"));
-const MapPage = lazy(() => import("./pages/MapPage"));
 const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
 const ModerationPage = lazy(() => import("./pages/ModerationPage"));
 const LegalPage = lazy(() => import("./pages/LegalPage"));
@@ -39,7 +38,6 @@ const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
 const NativeAuthCallbackPage = lazy(() => import("./pages/NativeAuthCallbackPage"));
 const NativeAuthBridgePage = lazy(() => import("./pages/NativeAuthBridgePage"));
-const QuestsPage = lazy(() => import("./pages/QuestsPage"));
 const PremiumPage = lazy(() => import("./pages/PremiumPage"));
 const PricingPage = lazy(() => import("./pages/PricingPage"));
 const RefundPolicyPage = lazy(() => import("./pages/RefundPolicyPage"));
@@ -158,10 +156,10 @@ const AppRoutes = () => {
           <Route path="/feed" element={<Navigate to="/explorers" replace />} />
           <Route path="/explorers" element={<ProtectedRoute><ExplorersPage /></ProtectedRoute>} />
           <Route path="/explorer/:userId/collection" element={<ProtectedRoute><FriendCollectionPage /></ProtectedRoute>} />
-          <Route path="/bestiaire" element={<ProtectedRoute><MapPage /></ProtectedRoute>} />
+          <Route path="/bestiaire" element={<ProtectedRoute><BestiairePage /></ProtectedRoute>} />
           <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
           <Route path="/moderation" element={<AdminRoute><ModerationPage /></AdminRoute>} />
-          <Route path="/quests" element={<ProtectedRoute><QuestsPage /></ProtectedRoute>} />
+          <Route path="/quests" element={<Navigate to="/home?tab=badges" replace />} />
           <Route path="/premium" element={<ProtectedRoute><PremiumPage /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
           <Route path="/legal" element={<LegalPage />} />

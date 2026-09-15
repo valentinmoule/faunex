@@ -6,3 +6,8 @@
 - [x] E-mails transactionnels selon profiles.locale
 - [x] Passe finale : corriger TOUTES les erreurs de typecheck (/tmp/observability/build-errors.log)
 - [x] Contenu espèces EN : noms communs en base (5 800) + fiches traduites à la demande
+
+## Refonte navigation
+- [x] Mon Faunex : Captures / Cartes / Badges + quêtes
+- [x] Bestiaire : Bestiaire / Collections / Classement
+- [x] Compatibilité des anciens liens et validation mobile

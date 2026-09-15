@@ -75,7 +75,10 @@
     "tabs": {
       "mine": "Captures",
       "categories": "Bestiaire",
-      "collections": "Collections"
+      "collections": "Collections",
+      "map": "Cartes",
+      "badges": "Badges",
+      "leaderboard": "Classement"
     },
     "mine": {
       "searchPlaceholder": "Rechercher dans mes captures…",
@@ -136,7 +139,8 @@
       "limitNotice": "{{limit}} premières espèces affichées · utilise la recherche pour en trouver une précise"
     },
     "header": {
-      "title": "mon faunex"
+      "title": "Mon Faunex",
+      "bestiaryTitle": "Bestiaire"
     },
     "collectionHero": {
       "altIllustration": "Illustration de {{title}}",

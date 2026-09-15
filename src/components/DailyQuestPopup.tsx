@@ -46,7 +46,7 @@ const DailyQuestPopup = () => {
 
   const goToQuests = () => {
     dismiss();
-    setTimeout(() => navigate('/quests'), 300);
+    setTimeout(() => navigate('/home?tab=badges'), 300);
   };
 
   if (!visible) return null;

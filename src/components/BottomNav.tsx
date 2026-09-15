@@ -5,7 +5,7 @@ import { hapticTap } from '@/lib/haptics';
 
 const tabs = [
   { path: '/home', labelKey: 'nav.faunex', icon: PawPrint },
-  { path: '/bestiaire', labelKey: 'nav.cards', icon: Map },
+  { path: '/bestiaire', labelKey: 'nav.bestiary', icon: Map },
   { path: '/capture', labelKey: 'nav.capture', icon: Camera },
   { path: '/explorers', labelKey: 'nav.explorers', icon: Users },
   { path: '/profile', labelKey: 'nav.profile', icon: User },
