@@ -396,7 +396,9 @@ setManualMode(false);
         setPremiumPrompt(true);
         return;
       }
-      navigate('/home');
+      // Le bestiaire (grille des cartes) vit désormais sur /bestiaire : on y va
+      // directement pour que l'animation de rangement de la carte s'y joue.
+      navigate('/bestiaire');
     }, delay);
   };
 
