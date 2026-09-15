@@ -1,5 +1,6 @@
-import { Check, Gift, Sparkles } from 'lucide-react';
+import { Check, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import XpPill from '@/components/XpPill';
 
 /**
  * Tuile de collection en forme d'écusson hexagonal (plus de cartes
@@ -97,20 +98,15 @@ const CollectionTile = ({
         <button
           onClick={onClaim}
           disabled={claiming}
-          className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-amber px-3 py-1 text-[11px] font-display font-bold text-background shadow-sm active:scale-95 transition disabled:opacity-60"
+          aria-label={t('bestiary.collections.claimReward', { xp })}
+          className="mt-1.5 active:scale-95 transition disabled:opacity-60"
         >
-          <Gift className="w-3 h-3" />
-          {t('bestiary.collections.claimReward', { xp })}
+          <XpPill xp={xp} state="ready" />
         </button>
       ) : claimed ? (
-        <span className="mt-1.5 inline-flex items-center gap-1 text-[11px] font-display font-semibold text-amber">
-          <Check className="w-3 h-3" />
-          {t('bestiary.collections.rewardClaimed', { xp })}
-        </span>
+        <XpPill xp={xp} state="claimed" className="mt-1.5" />
       ) : (
-        <span className="mt-1.5 text-[11px] font-display text-muted-foreground">
-          {t('bestiary.collections.rewardHint', { xp })}
-        </span>
+        <XpPill xp={xp} state="locked" className="mt-1.5" />
       )}
     </div>
   );
