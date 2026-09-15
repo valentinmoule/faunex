@@ -22,7 +22,8 @@
       "refund": "Remboursement",
       "copyright": "© {{year}} Faunex. Fait avec passion pour les amoureux de la nature.",
       "downloadAppStore": "Télécharger Faunex sur l'App Store",
-      "downloadPlayStore": "Télécharger Faunex sur Google Play"
+      "downloadPlayStore": "Télécharger Faunex sur Google Play",
+      "speciesGuides": "Fiches espèces"
     },
     "phoneShowcase": {
       "title": "L'app dans ta {{highlight}}.",

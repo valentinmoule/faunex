@@ -30,6 +30,7 @@ const Footer = () => {
               <li><Link to="/" className={linkClass}>{t('marketing.footer.home')}</Link></li>
               <li><Link to="/guides" className={linkClass}>{t('marketing.footer.allGuides')}</Link></li>
               <li><Link to="/fonctionnalites" className={linkClass}>{t('marketing.footer.useCases')}</Link></li>
+              <li><Link to="/especes" className={linkClass}>{t('marketing.footer.speciesGuides')}</Link></li>
               <li><Link to="/tarifs" className={linkClass}>{t('marketing.footer.pricing')}</Link></li>
             </ul>
           </div>

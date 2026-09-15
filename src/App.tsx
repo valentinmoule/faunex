@@ -48,6 +48,8 @@ const LandingPage = SHOW_MARKETING_PAGES ? lazy(() => import("./pages/LandingPag
 const CompleteProfilePage = lazy(() => import("./pages/CompleteProfilePage"));
 const ContentIndexPage = SHOW_MARKETING_PAGES ? lazy(() => import("./pages/ContentIndexPage")) : null;
 const ArticlePage = SHOW_MARKETING_PAGES ? lazy(() => import("./pages/ArticlePage")) : null;
+const SpeciesIndexPage = SHOW_MARKETING_PAGES ? lazy(() => import("./pages/SpeciesIndexPage")) : null;
+const SpeciesPage = SHOW_MARKETING_PAGES ? lazy(() => import("./pages/SpeciesPage")) : null;
 
 
 
@@ -172,6 +174,12 @@ const AppRoutes = () => {
               <Route path="/guides/:slug" element={<ArticlePage type="guide" />} />
               <Route path="/fonctionnalites" element={<ContentIndexPage type="usecase" />} />
               <Route path="/fonctionnalites/:slug" element={<ArticlePage type="usecase" />} />
+            </>
+          )}
+          {SHOW_MARKETING_PAGES && SpeciesIndexPage && SpeciesPage && (
+            <>
+              <Route path="/especes" element={<SpeciesIndexPage />} />
+              <Route path="/especes/:slug" element={<SpeciesPage />} />
             </>
           )}
 

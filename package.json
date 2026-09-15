@@ -12,7 +12,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "assets:generate": "capacitor-assets generate --iconBackgroundColor '#f9f5ec' --iconBackgroundColorDark '#f9f5ec' --splashBackgroundColor '#f9f5ec' --splashBackgroundColorDark '#f9f5ec'",
-    "build:app": "VITE_APP_TARGET=native vite build"
+    "build:app": "VITE_APP_TARGET=native vite build",
+    "predev": "bunx tsx scripts/generate-sitemap.ts",
+    "prebuild": "bunx tsx scripts/generate-sitemap.ts"
   },
   "dependencies": {
     "@capacitor-community/apple-sign-in": "7.1.0",

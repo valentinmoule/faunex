@@ -1,0 +1,44 @@
+{
+  "species": {
+    "backHome": "Back to home",
+    "backToIndex": "All species",
+    "breadcrumbHome": "Home",
+    "breadcrumbIndex": "Species",
+    "otherCategory": "Others",
+    "fallbackDescription": "{{name}} guide: how to identify it, where and when to watch it, what it eats and its conservation status.",
+    "rarityChip": "Rarity: {{label}}",
+    "captureCount_one": "{{count}} capture by the community",
+    "captureCount_other": "{{count}} captures by the community",
+    "ctaIdentify": "Identify a {{name}} from a photo",
+    "relatedTitle": "Similar species to discover",
+    "sections": {
+      "recognize": "📸 How to recognise the {{name}}",
+      "where": "🗺️ Where to watch it",
+      "when": "🌙 When to watch it",
+      "diet": "🍎 What does the {{name}} eat?",
+      "behaviour": "🐣 Behaviour and breeding",
+      "tracks": "🐾 Tracks and signs",
+      "similar": "⚠️ Similar species",
+      "conservation": "📊 Conservation status",
+      "rarity": "🎴 Faunex rarity",
+      "funFact": "✨ Did you know?"
+    },
+    "rarityBody": "On Faunex, the {{name}} is rated “{{label}}”. Its card has already been collected {{count}} times by the community — capture yours to add it to your bestiary.",
+    "cta": {
+      "title": "Seen a {{name}}?",
+      "body": "Photograph it with Faunex: the AI identifies it in seconds and the animal joins your collection.",
+      "button": "Start for free"
+    },
+    "index": {
+      "metaTitle": "Species guides: identify animals — Faunex",
+      "metaDescription": "Identification guides for the most observed animals: recognition, habitat, best season, diet, tracks and conservation status.",
+      "heading": "Species guides",
+      "intro": "{{count}} guides to identify the animals most photographed by the Faunex community.",
+      "searchPlaceholder": "Search for a species…",
+      "loading": "Loading guides…",
+      "empty": "No guide matches your search.",
+      "ctaTitle": "Identify any animal from a photo",
+      "ctaBody": "Take a photo, Faunex recognises the species and adds it to your collection."
+    }
+  }
+}

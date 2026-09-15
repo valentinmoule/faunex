@@ -1,0 +1,44 @@
+{
+  "species": {
+    "backHome": "Retour à l'accueil",
+    "backToIndex": "Toutes les espèces",
+    "breadcrumbHome": "Accueil",
+    "breadcrumbIndex": "Espèces",
+    "otherCategory": "Autres",
+    "fallbackDescription": "Fiche {{name}} : comment l'identifier, où et quand l'observer, ce qu'il mange et son statut de conservation.",
+    "rarityChip": "Rareté : {{label}}",
+    "captureCount_one": "{{count}} capture par la communauté",
+    "captureCount_other": "{{count}} captures par la communauté",
+    "ctaIdentify": "Identifier un {{name}} en photo",
+    "relatedTitle": "Espèces proches à découvrir",
+    "sections": {
+      "recognize": "📸 Comment reconnaître le {{name}}",
+      "where": "🗺️ Où l'observer",
+      "when": "🌙 Quand l'observer",
+      "diet": "🍎 Que mange le {{name}} ?",
+      "behaviour": "🐣 Comportement et reproduction",
+      "tracks": "🐾 Traces et indices",
+      "similar": "⚠️ Espèces similaires",
+      "conservation": "📊 Statut de conservation",
+      "rarity": "🎴 Rareté Faunex",
+      "funFact": "✨ Le sais-tu ?"
+    },
+    "rarityBody": "Sur Faunex, le {{name}} est une espèce classée « {{label}} ». La carte a déjà été collectionnée {{count}} fois par la communauté : capture-la à ton tour pour l'ajouter à ton bestiaire.",
+    "cta": {
+      "title": "Tu as vu un {{name}} ?",
+      "body": "Photographie-le avec Faunex : l'IA l'identifie en quelques secondes et l'animal rejoint ta collection.",
+      "button": "Commencer gratuitement"
+    },
+    "index": {
+      "metaTitle": "Fiches espèces : identifier les animaux — Faunex",
+      "metaDescription": "Fiches d'identification des animaux les plus observés : reconnaissance, habitat, période d'observation, alimentation, traces et statut de conservation.",
+      "heading": "Fiches espèces",
+      "intro": "{{count}} fiches pour identifier les animaux les plus photographiés par la communauté Faunex.",
+      "searchPlaceholder": "Rechercher une espèce…",
+      "loading": "Chargement des fiches…",
+      "empty": "Aucune fiche ne correspond à ta recherche.",
+      "ctaTitle": "Identifie n'importe quel animal en photo",
+      "ctaBody": "Prends une photo, Faunex reconnaît l'espèce et l'ajoute à ta collection."
+    }
+  }
+}

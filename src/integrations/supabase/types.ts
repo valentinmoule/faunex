@@ -1440,6 +1440,48 @@ export type Database = {
         }
         Relationships: []
       }
+      species_pages: {
+        Row: {
+          animal_name: string
+          capture_count: number
+          category: string | null
+          content: Json
+          created_at: string
+          iucn_status: string | null
+          published: boolean
+          rarity: string | null
+          scientific_name: string | null
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          animal_name: string
+          capture_count?: number
+          category?: string | null
+          content?: Json
+          created_at?: string
+          iucn_status?: string | null
+          published?: boolean
+          rarity?: string | null
+          scientific_name?: string | null
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          animal_name?: string
+          capture_count?: number
+          category?: string | null
+          content?: Json
+          created_at?: string
+          iucn_status?: string | null
+          published?: boolean
+          rarity?: string | null
+          scientific_name?: string | null
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       species_profiles: {
         Row: {
           animal_name: string
@@ -2402,6 +2444,17 @@ export type Database = {
           rank: number
           user_id: string
           username: string
+        }[]
+      }
+      top_captured_species: {
+        Args: { p_limit?: number }
+        Returns: {
+          animal_name: string
+          captures: number
+          category: string
+          iucn_status: string
+          rarity: string
+          scientific_name: string
         }[]
       }
       try_claim_notification: {
