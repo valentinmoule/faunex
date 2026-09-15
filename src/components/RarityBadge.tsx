@@ -13,7 +13,7 @@ const fxVariant = {
   gold: 'rarity-badge--gold',
 } as const;
 
-/** Nombre de symboles par rareté : ● ◆ ★ (encre), ★ argent, ★★ argent, ★ or. */
+/** Nombre de symboles par rareté : ★ plate (gris/vert/bleu), ★★ argent, ★ or. */
 const SYMBOL_COUNT: Record<Rarity, number> = {
   common: 1,
   uncommon: 1,
@@ -26,11 +26,10 @@ const SYMBOL_COUNT: Record<Rarity, number> = {
 };
 
 /*
- * Géométries SVG dans une boîte 12×12, conçues pour des extents optiques
- * identiques (le losange texte ◆ rendait plus petit selon la police de
- * repli de l'appareil — le SVG garantit un rendu identique partout).
+ * Géométrie SVG d'étoile dans une boîte 12×12, conçue pour un extent optique
+ * identique partout (le losange texte ◆ rendait plus petit selon la police de
+ * repli de l'appareil — le SVG garantit un rendu identique).
  */
-const DIAMOND_PATH = 'M6 0.4 L11.6 6 L6 11.6 L0.4 6 Z';
 const STAR_PATH =
   'M6 0 L7.41 4.06 L11.71 4.15 L8.28 6.74 L9.53 10.85 L6 8.4 L2.47 10.85 L3.72 6.74 L0.29 4.15 L4.59 4.06 Z';
 
@@ -47,6 +46,13 @@ const SILVER_STOPS = [
   ['70%', '#e2e8f0'],
   ['100%', '#64748b'],
 ] as const;
+
+/** Couleurs plates (sans dégradé) des trois premiers paliers : gris, vert, bleu. */
+const FLAT_FILL: Partial<Record<Rarity, string>> = {
+  common: 'hsl(215 16% 47%)',
+  uncommon: 'hsl(152 55% 32%)',
+  rare: 'hsl(212 78% 42%)',
+};
 
 /** Jeton de rareté façon carte Pokémon : ● ◆ ★ noirs, ★ argent holo, ★★ argent holo, ★ or holo. */
 export const RarityBadge = ({
