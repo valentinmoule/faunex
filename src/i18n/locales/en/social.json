@@ -27,6 +27,13 @@
       "toastRequestAccepted": "Request accepted!",
       "toastRequestRejected": "Request declined",
       "title": "Explorers",
+      "emptyFeed": {
+        "title": "Go meet other explorers",
+        "line1": "Your feed is still empty.",
+        "line2": "Follow other naturalists to see their best catches right here.",
+        "cta": "Find explorers",
+        "hint": "Search by username or name"
+      },
       "searchPlaceholder": "Search by name or username…",
       "tabFollowing": "Following ({{count}})",
       "tabFollowers": "Followers ({{count}})",
