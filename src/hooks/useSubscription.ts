@@ -50,6 +50,7 @@ export function useSubscription(userId?: string) {
       .limit(1)
       .maybeSingle();
 
+    subCache.set(userId, (data as SubscriptionRow | null) ?? null);
     setSubscription((data as SubscriptionRow | null) ?? null);
     setLoading(false);
   }, [userId]);
