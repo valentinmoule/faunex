@@ -127,24 +127,10 @@ const QuestsInline = () => {
 
   return (
     <section aria-labelledby="weekly-quests-title">
-      <div className="mb-4 flex items-end justify-between px-1">
-        <div>
-          <div className="mb-1 flex items-center gap-1.5 text-[10px] font-display font-bold uppercase tracking-wide text-primary">
-            <Sparkles className="h-3 w-3" />
-            {t('profile.quests.progressLabel', { defaultValue: 'Progression' })}
-          </div>
-          <h3 id="weekly-quests-title" className="text-xl font-display font-black text-foreground">
-            {t('profile.quests.weekTitle')}
-          </h3>
-        </div>
-        <div className="text-right">
-          <p className="mb-1 text-[9px] font-medium text-muted-foreground">
-            {t('profile.quests.completedLabel', { defaultValue: 'Terminées' })}
-          </p>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-amber/25 bg-amber/10 px-2.5 py-1 text-[11px] font-display font-black text-amber">
-            <Trophy className="h-3 w-3" /> {completedCount}/{quests.length}
-          </span>
-        </div>
+      <div className="mb-4 px-1">
+        <h3 id="weekly-quests-title" className="text-xl font-display font-black text-foreground">
+          {t('profile.quests.weekTitle')}
+        </h3>
       </div>
 
       {loading ? (
