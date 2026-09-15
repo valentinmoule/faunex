@@ -1333,6 +1333,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
 
   // Category grid view
   if (!selectedCategory) {
+    const showMineControls = myCapturedAnimals.length > 0 || mineSearch.trim().length > 0 || mineActiveFilterCount > 0;
     return (
       <main className="min-h-screen bg-background pb-24">
         <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
