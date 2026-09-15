@@ -42,6 +42,7 @@ export interface CollectionArt {
 
 const SCENES: Record<SceneKey, string> = {
   city, meadow, lake, forest, ocean, mountain, farm, night, rocks, coast,
+  marsh, river, reef, desert, savanna, jungle, cave, garden,
 };
 
 /** Teintes d'accent par scène, en HSL brut pour composer les dégradés. */
