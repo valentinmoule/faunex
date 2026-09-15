@@ -694,7 +694,7 @@ const ExplorersPage = () => {
                         loading="lazy"
                         decoding="async"
                       />
-                      <div className="absolute top-2 right-2">
+                      <div className="absolute top-2.5 right-2.5">
                         <RarityBadge rarity={post.rarity as Rarity} showLabel />
                       </div>
                       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 pt-10">
