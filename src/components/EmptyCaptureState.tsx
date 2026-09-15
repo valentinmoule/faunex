@@ -53,9 +53,9 @@ export const EmptyCaptureState = ({ userName, onCapture }: EmptyCaptureStateProp
   const { visible, done, activeLine } = useTypewriter(lines, 22, 240);
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-[78vh] px-4 text-center overflow-hidden">
+    <div className="relative flex flex-col items-center justify-center min-h-[80svh] px-4 text-center">
       <SwirlCardsBackdrop />
-      <div className="relative w-full max-w-sm px-2 py-4">
+      <div className="relative z-10 w-full max-w-sm px-2 py-4">
         <div className="space-y-2.5 mb-8 min-h-[6.5rem]" aria-live="polite" aria-atomic="false">
           <p className="text-[1.6rem] font-display font-bold text-foreground leading-tight tracking-tight">
             {visible[0]}
