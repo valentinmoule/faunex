@@ -13,16 +13,16 @@ const fxVariant = {
   gold: 'rarity-badge--gold',
 } as const;
 
-/** Nombre de symboles par rareté : ★ plate (gris/vert/bleu), ★★ argent, ★ or. */
+/** Nombre de symboles par rareté : 1–3 ★ plates grises, 1–3 ★ argent, 1–2 ★ or. */
 const SYMBOL_COUNT: Record<Rarity, number> = {
   common: 1,
-  uncommon: 1,
-  rare: 1,
+  uncommon: 2,
+  rare: 3,
   very_rare: 1,
   ultra_rare: 2,
-  illustration_rare: 1,
-  special_rare: 2,
-  hyper_rare: 3,
+  illustration_rare: 3,
+  special_rare: 1,
+  hyper_rare: 2,
 };
 
 /*
@@ -47,11 +47,11 @@ const SILVER_STOPS = [
   ['100%', '#64748b'],
 ] as const;
 
-/** Couleurs plates (sans dégradé) des trois premiers paliers : gris, vert, bleu. */
+/** Couleur plate (sans dégradé) des trois premiers paliers : gris simple. */
 const FLAT_FILL: Partial<Record<Rarity, string>> = {
   common: 'hsl(215 16% 47%)',
-  uncommon: 'hsl(152 55% 32%)',
-  rare: 'hsl(212 78% 42%)',
+  uncommon: 'hsl(215 16% 47%)',
+  rare: 'hsl(215 16% 47%)',
 };
 
 /** Jeton de rareté façon carte Pokémon : ★ plates (gris/vert/bleu), ★★ argent holo, ★ or holo. */
