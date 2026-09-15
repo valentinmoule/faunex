@@ -106,8 +106,8 @@ const LandingPage = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [stats, setStats] = useState<Stats>({
-    totalUsers: 2000,
-    totalCaptures: 15000,
+    totalUsers: 5000,
+    totalCaptures: 100000,
   });
   const [showStickyCta, setShowStickyCta] = useState(false);
   const [recentCaptures, setRecentCaptures] = useState<RecentCapture[]>([]);
