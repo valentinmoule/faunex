@@ -12,7 +12,6 @@ import {
   SpeciesFilterButton,
   SpeciesSortFilterSheet,
   applySpeciesSortFilter,
-  popularityTierOf,
   type SpeciesSort,
   type PopularityTier,
   SPECIES_SORT_OPTIONS,
