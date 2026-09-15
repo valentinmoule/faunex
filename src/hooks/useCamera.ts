@@ -40,14 +40,46 @@ export const useCamera = ({ paused }: UseCameraOptions) => {
   const startCamera = useCallback(async () => {
     try {
       stopCamera();
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode, width: { ideal: 1920 }, height: { ideal: 1080 } },
-        audio: false,
-      });
+
+      // On demande la meilleure résolution disponible, avec des paliers de repli :
+      // certains appareils refusent une contrainte trop haute et renvoient une
+      // erreur plutôt que de dégrader → preview très basse définition (flou).
+      const tiers: MediaTrackConstraints[] = [
+        { facingMode, width: { ideal: 3840 }, height: { ideal: 2160 }, frameRate: { ideal: 30 } },
+        { facingMode, width: { ideal: 2560 }, height: { ideal: 1440 } },
+        { facingMode, width: { ideal: 1920 }, height: { ideal: 1080 } },
+        { facingMode },
+      ];
+
+      let stream: MediaStream | null = null;
+      for (const video of tiers) {
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({ video, audio: false });
+          break;
+        } catch {
+          stream = null;
+        }
+      }
+      if (!stream) throw new Error('no-stream');
       streamRef.current = stream;
 
       const track = stream.getVideoTracks()[0];
       const capabilities = track.getCapabilities?.() as any;
+
+      // Si la piste obtenue est plus basse que ce que le capteur sait faire, on
+      // remonte à son maximum (cas fréquent sur Android/WebView).
+      const settings = track.getSettings?.() as any;
+      const maxW = capabilities?.width?.max;
+      const maxH = capabilities?.height?.max;
+      if (maxW && maxH && settings?.width && settings.width < Math.min(maxW, 3840)) {
+        try {
+          await track.applyConstraints({
+            width: { ideal: Math.min(maxW, 3840) },
+            height: { ideal: Math.min(maxH, 2160) },
+          });
+        } catch {}
+      }
+
       if (capabilities?.zoom) {
         setSupportsNativeZoom(true);
         setMaxZoom(Math.min(capabilities.zoom.max, 10));
@@ -57,11 +89,21 @@ export const useCamera = ({ paused }: UseCameraOptions) => {
       }
       setZoomLevel(1);
 
-      const hasFocusMode = !!capabilities?.focusMode;
-      setSupportsFocus(hasFocusMode);
-      if (hasFocusMode && capabilities.focusMode.includes('continuous')) {
+      const focusModes: string[] = capabilities?.focusMode ?? [];
+      setSupportsFocus(focusModes.length > 0);
+
+      // Autofocus continu + expo/balance des blancs automatiques : sans ça la
+      // mise au point reste bloquée sur l'arrière-plan et la photo sort floue.
+      const advanced: any[] = [];
+      if (focusModes.includes('continuous')) advanced.push({ focusMode: 'continuous' });
+      else if (focusModes.includes('single-shot')) advanced.push({ focusMode: 'single-shot' });
+      if ((capabilities?.exposureMode ?? []).includes('continuous'))
+        advanced.push({ exposureMode: 'continuous' });
+      if ((capabilities?.whiteBalanceMode ?? []).includes('continuous'))
+        advanced.push({ whiteBalanceMode: 'continuous' });
+      if (advanced.length) {
         try {
-          await (track as any).applyConstraints({ advanced: [{ focusMode: 'continuous' } as any] });
+          await track.applyConstraints({ advanced } as any);
         } catch {}
       }
 
@@ -190,11 +232,25 @@ export const useCamera = ({ paused }: UseCameraOptions) => {
 
       if (supportsFocus) {
         const track = streamRef.current.getVideoTracks()[0];
+        const modes: string[] = (track.getCapabilities?.() as any)?.focusMode ?? [];
+        // On vise le point touché puis on rend la main à l'autofocus continu :
+        // rester en 'manual' figeait la mise au point et rendait les photos floues.
+        const pointMode = modes.includes('single-shot')
+          ? 'single-shot'
+          : modes.includes('continuous')
+            ? 'continuous'
+            : 'manual';
         try {
           (track as any).applyConstraints({
-            advanced: [{ focusMode: 'manual', pointsOfInterest: [{ x, y }] }],
+            advanced: [{ focusMode: pointMode, pointsOfInterest: [{ x, y }] }],
           } as any);
-          setFocusMode('manual');
+          if (modes.includes('continuous') && pointMode === 'single-shot') {
+            setTimeout(() => {
+              try {
+                (track as any).applyConstraints({ advanced: [{ focusMode: 'continuous' }] } as any);
+              } catch {}
+            }, 1200);
+          }
         } catch {}
       }
     },
@@ -248,17 +304,20 @@ export const useCamera = ({ paused }: UseCameraOptions) => {
     const srcX = useDigitalCrop ? (video.videoWidth - srcW) / 2 : 0;
     const srcY = useDigitalCrop ? (video.videoHeight - srcH) / 2 : 0;
 
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    // En zoom numérique on garde la taille du crop (pas d'upscale flou).
+    canvas.width = Math.round(srcW);
+    canvas.height = Math.round(srcH);
     const ctx = canvas.getContext('2d');
     if (!ctx) return null;
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
 
     if (facingMode === 'user') {
       ctx.translate(canvas.width, 0);
       ctx.scale(-1, 1);
     }
     ctx.drawImage(video, srcX, srcY, srcW, srcH, 0, 0, canvas.width, canvas.height);
-    return canvas.toDataURL('image/jpeg', 0.85);
+    return canvas.toDataURL('image/jpeg', 0.94);
   }, [facingMode, supportsNativeZoom, zoomLevel, startCamera]);
 
   /** Restores camera state after a capture is discarded. */
