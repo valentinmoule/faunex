@@ -100,7 +100,7 @@ const CollectionTile = ({
                 className={`absolute left-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-background shadow-sm transition-[top] duration-500 ${
                   readyToClaim ? 'bg-amber' : claimed ? 'bg-amber' : 'bg-primary-foreground'
                 }`}
-                style={{ top: `${pct}%` }}
+                style={{ top: `${100 - pct}%` }}
               />
             </div>
 
