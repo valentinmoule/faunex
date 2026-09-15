@@ -136,6 +136,7 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
 
   const content = (
     <>
+      {period === 'week' && (
       <div className="px-5 mt-1">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber/5 border border-amber/15">
               <div className="relative flex items-center justify-center">
@@ -150,6 +151,7 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
               </p>
             </div>
           </div>
+      )}
 
 <div className="mx-4 mt-3 grid grid-cols-2 gap-1 rounded-2xl bg-muted p-1">
             {([['global', t('social.leaderboard.tabGlobal')], ['follows', t('social.leaderboard.tabFollows')]] as const).map(([key, label]) => (
