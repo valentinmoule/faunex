@@ -10,7 +10,7 @@ const tabs: NavTab[] = [
   { path: '/bestiaire', labelKey: 'nav.bestiary', icon: BookOpen },
   { path: '/capture', labelKey: 'nav.capture', icon: Camera },
   { path: '/explorers', labelKey: 'nav.explorers', icon: Users },
-  { path: '/bestiaire', labelKey: 'nav.leaderboard', icon: Trophy, tab: 'classement' },
+  { path: '/bestiaire', labelKey: 'nav.leaderboard', icon: Trophy, tab: 'leaderboard' },
 ];
 
 const BottomNav = () => {
