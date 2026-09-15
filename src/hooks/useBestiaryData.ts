@@ -6,8 +6,11 @@ import { buildRegionalAnimalSet, type BestiaryAnimal, type ZoneSub } from '@/lib
 import { readCatalogueCache, writeCatalogueCache, type CatalogueEntry } from '@/lib/bestiaryCache';
 import type { AnimalCard } from '@/data/mockData';
 
-/** Loads the bestiary catalogue, the user's captures, notifications count and zone subscriptions. */
-export const useBestiaryData = (userId: string | undefined) => {
+/** Loads the bestiary catalogue, the user's captures, notifications count and zone subscriptions.
+ *  Pass `light: true` (e.g. on the leaderboard tab) to only load the notification count —
+ *  the heavy catalogue/finders fetching is skipped. */
+export const useBestiaryData = (userId: string | undefined, opts?: { light?: boolean }) => {
+  const light = !!opts?.light;
   const [animals, setAnimals] = useState<BestiaryAnimal[]>([]);
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
