@@ -318,6 +318,7 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
       <MapContainer
         center={center}
         zoom={captures.length > 0 ? 8 : 6}
+        zoomControl={false}
         scrollWheelZoom
         className="h-full w-full z-0"
       >
