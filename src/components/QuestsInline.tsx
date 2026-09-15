@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   Target, Gift, Check, Loader2, Share2, Camera, Compass, MapPin,
-  Sparkles, Trophy, type LucideIcon,
+  Sparkles, type LucideIcon,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
