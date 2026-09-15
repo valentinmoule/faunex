@@ -178,7 +178,18 @@
       "emptyGlobal": "Aucune capture cette semaine.",
       "you": "Toi",
       "defaultName": "Explorateur",
-      "capturesShort": "{{count}} capt."
+      "capturesShort": "{{count}} capt.",
+      "tabWeek": "Cette semaine",
+      "tabAllTime": "Tout temps"
+    },
+    "league": {
+      "myLeague": "Ma ligue",
+      "myRank": "#{{rank}} sur {{total}}",
+      "myPoints": "{{count}} pts",
+      "myPoints_other": "{{count}} pts",
+      "emptyTitle": "Pas encore de ligue cette semaine",
+      "emptyDesc": "Fais des captures pour rejoindre une ligue et grimper les paliers !",
+      "emptyGroup": "Personne dans ta ligue pour l'instant."
     },
     "discordInvite": {
       "closeAriaLabel": "Fermer l'invitation Discord",
