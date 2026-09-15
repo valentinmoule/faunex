@@ -114,19 +114,19 @@ export const RARITY_RANK: Record<string, number> = Object.fromEntries(
   RARITY_ORDER.map((r, i) => [r, i]),
 );
 
-/** Symboles façon cartes Pokémon : ● ◆ ★ noirs, ★ argent, ★★ argent, ★ or. */
+/** Symboles : 1–3 ★ plates grises (paliers bas), 1–3 ★ argent, 1–2 ★ or. */
 export const RARITY_SYMBOLS: Record<Rarity, string[]> = {
   common: ['★'],
-  uncommon: ['★'],
-  rare: ['★'],
+  uncommon: ['★', '★'],
+  rare: ['★', '★', '★'],
   very_rare: ['★'],
   ultra_rare: ['★', '★'],
-  illustration_rare: ['★'],
-  special_rare: ['★', '★'],
-  hyper_rare: ['★', '★', '★'],
+  illustration_rare: ['★', '★', '★'],
+  special_rare: ['★'],
+  hyper_rare: ['★', '★'],
 };
 
-/** Famille d'effet visuel : neutre (encre), argent holo, or holo. */
+/** Famille d'effet visuel : neutre (gris plat), argent holo, or holo. */
 export type RarityFx = 'ink' | 'silver' | 'gold';
 export const RARITY_FX: Record<Rarity, RarityFx> = {
   common: 'ink',
@@ -134,7 +134,7 @@ export const RARITY_FX: Record<Rarity, RarityFx> = {
   rare: 'ink',
   very_rare: 'silver',
   ultra_rare: 'silver',
-  illustration_rare: 'gold',
+  illustration_rare: 'silver',
   special_rare: 'gold',
   hyper_rare: 'gold',
 };
