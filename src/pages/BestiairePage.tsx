@@ -1728,71 +1728,56 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                   </p>
                 </button>
               ) : (
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-x-4 gap-y-5">
                   {subscribedZones.map((zone) => {
                     const d = getDepartement(zone.departmentCode);
                     const p = zoneProgress[zone.id] || { total: 0, captured: 0 };
-                    const pct = p.total > 0 ? Math.round((p.captured / p.total) * 100) : 0;
-const isCity = zone.kind === 'city';
+                    const isCity = zone.kind === 'city';
                     const title = isCity ? (zone.cityName || t('bestiary.picker.defaultCityName')) : (d?.name || zone.departmentCode);
                     const art = getZoneArt(zone.kind);
+                    const rewardId = `${ZONE_REWARD_PREFIX}${zone.id}`;
+                    const xp = collectionRewardXp(p.total);
                     return (
-                      <button
+                      <CollectionTile
                         key={zone.id}
-                        onClick={() => setSelectedZoneId(zone.id)}
-                        className="group relative overflow-hidden rounded-2xl border border-border text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-lg"
-                      >
-                        <img
-                          src={art.image}
-                          alt=""
-                          aria-hidden="true"
-                          loading="lazy"
-                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                        <div className="absolute inset-0" style={{ background: art.overlay }} />
-<div className="relative p-4 pt-16">
-                          <h3 className="font-display font-bold text-sm text-primary-foreground leading-tight mb-0.5 truncate drop-shadow">{title}</h3>
-                          <p className="text-[11px] text-primary-foreground/80 font-display mb-2.5">
-                            {t('bestiary.common.capturedCount', { captured: p.captured, total: p.total })}
-                          </p>
-                          <div className="w-full h-1.5 rounded-full bg-primary-foreground/25 overflow-hidden">
-                            <div className="h-full rounded-full bg-primary-foreground transition-all duration-500" style={{ width: `${pct}%` }} />
-                          </div>
-                        </div>
-                      </button>
+                        title={title}
+                        image={art.image}
+                        overlay={art.overlay}
+                        captured={p.captured}
+                        total={p.total}
+                        xp={xp}
+                        complete={p.total > 0 && p.captured >= p.total}
+                        claimed={isClaimed(rewardId)}
+                        claiming={claimingReward === rewardId}
+                        onOpen={() => setSelectedZoneId(zone.id)}
+                        onClaim={() => handleClaimCollectionReward(rewardId, xp)}
+                      />
                     );
                   })}
 
                   {myCollections.map(({ group, total, captured }) => {
-                    const pct = total > 0 ? Math.round((captured / total) * 100) : 0;
                     const art = getCollectionArt(group.key, group.label);
+                    const rewardId = `${COLLECTION_REWARD_PREFIX}${group.key}`;
+                    const xp = collectionRewardXp(total);
                     return (
-                      <button
+                      <CollectionTile
                         key={group.key}
-                        onClick={() => setSelectedCollectionKey(group.key)}
-                        className="group relative overflow-hidden rounded-2xl border border-border text-left transition-all active:scale-[0.97] hover:border-primary/30 hover:shadow-lg"
-                      >
-                        <img
-                          src={art.image}
-                          alt=""
-                          aria-hidden="true"
-                          loading="lazy"
-                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                        <div className="absolute inset-0" style={{ background: art.overlay }} />
-                        <div className="relative p-4 pt-16">
-                          <h3 className="font-display font-bold text-sm text-primary-foreground leading-tight mb-0.5 truncate drop-shadow">{group.label}</h3>
-                          <p className="text-[11px] text-primary-foreground/80 font-display mb-2.5">
-                            {t('bestiary.common.capturedCount', { captured, total })}
-                          </p>
-                          <div className="w-full h-1.5 rounded-full bg-primary-foreground/25 overflow-hidden">
-                            <div className="h-full rounded-full bg-primary-foreground transition-all duration-500" style={{ width: `${pct}%` }} />
-                          </div>
-                        </div>
-                      </button>
+                        title={group.label}
+                        image={art.image}
+                        overlay={art.overlay}
+                        captured={captured}
+                        total={total}
+                        xp={xp}
+                        complete={total > 0 && captured >= total}
+                        claimed={isClaimed(rewardId)}
+                        claiming={claimingReward === rewardId}
+                        onOpen={() => setSelectedCollectionKey(group.key)}
+                        onClaim={() => handleClaimCollectionReward(rewardId, xp)}
+                      />
                     );
                   })}
                 </div>
+
 
               )}
             </section>
