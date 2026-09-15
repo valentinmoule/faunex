@@ -161,6 +161,7 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
           </div>
       )}
 
+{!forcedScope && (
 <div className="mx-4 mt-3 grid grid-cols-2 gap-1 rounded-2xl bg-muted p-1">
             {([['global', t('social.leaderboard.tabGlobal')], ['follows', t('social.leaderboard.tabFollows')]] as const).map(([key, label]) => (
               <button
@@ -182,6 +183,8 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
               </button>
             ))}
           </div>
+          )}
+
 
           {lockedTab ? (
             <div className="px-5 py-10 text-center">
