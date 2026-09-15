@@ -220,9 +220,14 @@ list = buildList(catalogue, capturesByName, findersMap);
       for (const c of uniqueDepts) loadDeptAnimals(c, sourceAnimals);
     };
 
+    if (light) {
+      setLoading(false);
+      fetchUnread();
+      return;
+    }
     fetchData().then((list) => fetchSubs(list || []));
     fetchUnread();
-  }, [userId, loadDeptAnimals]);
+  }, [userId, loadDeptAnimals, light]);
 
   // Backfill department fauna once the catalogue is available
   useEffect(() => {

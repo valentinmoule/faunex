@@ -282,7 +282,7 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
     setSubscribedZones,
     animalsByDept,
     loadDeptAnimals,
-  } = useBestiaryData(session?.user?.id);
+  } = useBestiaryData(session?.user?.id, { light: viewMode === 'leaderboard' });
 
   const uid = session?.user?.id;
 
