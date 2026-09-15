@@ -50,11 +50,12 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
     });
     if (!error && claimed) {
       markClaimed(id);
-      toast.success(t('profile.badges.claimedToast', { xp: entry.badge.xp }));
+      setCelebrated(entry);
       onClaimed?.();
     }
     setClaiming(null);
   };
+
 
   const chips: { key: Filter; label: string }[] = [
     { key: 'all', label: t('profile.badges.all', { count: badges.length }) },
