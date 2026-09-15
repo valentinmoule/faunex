@@ -232,11 +232,25 @@ export const useCamera = ({ paused }: UseCameraOptions) => {
 
       if (supportsFocus) {
         const track = streamRef.current.getVideoTracks()[0];
+        const modes: string[] = (track.getCapabilities?.() as any)?.focusMode ?? [];
+        // On vise le point touché puis on rend la main à l'autofocus continu :
+        // rester en 'manual' figeait la mise au point et rendait les photos floues.
+        const pointMode = modes.includes('single-shot')
+          ? 'single-shot'
+          : modes.includes('continuous')
+            ? 'continuous'
+            : 'manual';
         try {
           (track as any).applyConstraints({
-            advanced: [{ focusMode: 'manual', pointsOfInterest: [{ x, y }] }],
+            advanced: [{ focusMode: pointMode, pointsOfInterest: [{ x, y }] }],
           } as any);
-          setFocusMode('manual');
+          if (modes.includes('continuous') && pointMode === 'single-shot') {
+            setTimeout(() => {
+              try {
+                (track as any).applyConstraints({ advanced: [{ focusMode: 'continuous' }] } as any);
+              } catch {}
+            }, 1200);
+          }
         } catch {}
       }
     },
