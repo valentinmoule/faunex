@@ -6,8 +6,16 @@ import { ArrowLeft, Users, UserPlus, UserCheck, Award, Search, X } from 'lucide-
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
 import { Progress } from '@/components/ui/progress';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { rarityBorderColor } from '@/lib/bestiary';
+import { rarityBorderColor, normalizeCategory } from '@/lib/bestiary';
 import RarityBadge from '@/components/RarityBadge';
+import {
+  SpeciesFilterButton,
+  SpeciesSortFilterSheet,
+  applySpeciesSortFilter,
+  popularityTierOf,
+  type SpeciesSort,
+  type PopularityTier,
+} from '@/components/SpeciesSortFilter';
 import CardDetailSheet from '@/components/CardDetailSheet';
 import { type AnimalCard, type Rarity, RARITY_LABELS, RARITY_ORDER, RARITY_RANK, RARITY_FX, normalizeRarity } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
@@ -45,6 +53,7 @@ interface BadgeProgress {
 }
 
 const rarityFilters: (Rarity | 'all')[] = ['all', ...RARITY_ORDER];
+void rarityFilters;
 
 interface FollowProfile {
   user_id: string;
