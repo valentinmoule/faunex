@@ -18,6 +18,10 @@
         "pending_one": "{{count}} capture en attente de validation",
         "pending_other": "{{count}} captures en attente de validation",
         "none": "Aucune capture en attente"
+      },
+      "drawer": {
+        "open": "Ouvrir mon profil",
+        "accountSettings": "Paramètres du compte"
       }
     },
     "quests": {

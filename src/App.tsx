@@ -17,13 +17,13 @@ import { isFirstLogin, markFirstLoginDone } from "./lib/firstLogin";
 import PageTransition from "./components/PageTransition";
 import { SHOW_MARKETING_PAGES } from "./lib/platform";
 import { useSyncAccountLocale } from "./hooks/useAppLocale";
+import { ProfileDrawerProvider } from "./components/ProfileDrawer";
 
 
 // Lazy-loaded routes for smaller initial bundle
 
 const CapturePage = lazy(() => import("./pages/CapturePage"));
 const CollectionPage = lazy(() => import("./pages/CollectionPage"));
-const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const ExplorersPage = lazy(() => import("./pages/ExplorersPage"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -165,7 +165,7 @@ const AppRoutes = () => {
           <Route path="/home" element={<ProtectedRoute><BestiairePage /></ProtectedRoute>} />
           <Route path="/collection" element={<ProtectedRoute><CollectionPage /></ProtectedRoute>} />
           <Route path="/capture" element={<ProtectedRoute><CapturePage /></ProtectedRoute>} />
-          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+          <Route path="/profile" element={<Navigate to="/home?profile=1" replace />} />
           <Route path="/feed" element={<Navigate to="/explorers" replace />} />
           <Route path="/explorers" element={<ProtectedRoute><ExplorersPage /></ProtectedRoute>} />
           <Route path="/explorer/:userId/collection" element={<ProtectedRoute><FriendCollectionPage /></ProtectedRoute>} />
@@ -223,7 +223,9 @@ const App = () => (
           <Sonner />
           <ScrollToTop />
           <AuthProvider>
-            <AppRoutes />
+            <ProfileDrawerProvider>
+              <AppRoutes />
+            </ProfileDrawerProvider>
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>

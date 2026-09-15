@@ -58,6 +58,7 @@ import FaunexAchievements from '@/components/FaunexAchievements';
 import CollectionTile from '@/components/CollectionTile';
 import RewardCelebration from '@/components/RewardCelebration';
 import CaptureQuotaBadge from '@/components/CaptureQuotaBadge';
+import { ProfileButton } from '@/components/ProfileDrawer';
 import {
   COLLECTION_REWARD_PREFIX,
   ZONE_REWARD_PREFIX,
@@ -1404,6 +1405,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                     </span>
                   )}
                 </button>
+                <ProfileButton />
               </div>
             </div>
           </div>
@@ -1872,6 +1874,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                 </p>
               </div>
             </div>
+            <ProfileButton />
           </div>
         </div>
 

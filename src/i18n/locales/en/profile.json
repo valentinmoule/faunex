@@ -18,6 +18,10 @@
         "pending_one": "{{count}} capture awaiting review",
         "pending_other": "{{count}} captures awaiting review",
         "none": "No captures awaiting review"
+      },
+      "drawer": {
+        "open": "Open my profile",
+        "accountSettings": "Account settings"
       }
     },
     "quests": {

@@ -11,3 +11,4 @@
 - [x] Mon Faunex : Captures / Cartes / Badges + quêtes
 - [x] Bestiaire : Bestiaire / Collections / Classement
 - [x] Compatibilité des anciens liens et validation mobile
+- [x] Remplacer la page Profil par un tiroir partagé dans les trois en-têtes
