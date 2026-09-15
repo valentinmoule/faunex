@@ -45,7 +45,7 @@ export const ProfileButton = ({ className = '' }: { className?: string }) => {
       aria-label={t('profile.page.drawer.open')}
       className={`rounded-full ${className}`}
     >
-      <UserRound className="w-5 h-5" />
+      <UserRound className="!size-5" />
     </Button>
   );
 };
