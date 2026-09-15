@@ -47,7 +47,6 @@ import { VirtualSpeciesGrid } from '@/components/VirtualSpeciesGrid';
 import { useZoneSubscriptions } from '@/hooks/useZoneSubscriptions';
 import { useSpeciesCollections } from '@/hooks/useSpeciesCollections';
 import CategoryLeaderboard from '@/components/CategoryLeaderboard';
-import WeeklyLeague from '@/components/WeeklyLeague';
 import { useSubscription } from '@/hooks/useSubscription';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
@@ -1827,7 +1826,9 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                   </button>
                 ))}
               </div>
-              {leaderboardTab === 'week' ? <WeeklyLeague /> : <CategoryLeaderboard category="all" inline />}
+              {leaderboardTab === 'week'
+                ? <CategoryLeaderboard category="all" inline period="week" />
+                : <CategoryLeaderboard category="all" inline period="all" />}
             </section>
           )}
 

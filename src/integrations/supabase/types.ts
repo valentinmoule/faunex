@@ -2163,18 +2163,36 @@ export type Database = {
         Args: { p_scientific: string }
         Returns: string
       }
-      category_leaderboard: {
-        Args: { p_category: string; p_limit?: number; p_scope?: string }
-        Returns: {
-          avatar_url: string
-          captures: number
-          display_name: string
-          is_me: boolean
-          rank: number
-          user_id: string
-          username: string
-        }[]
-      }
+      category_leaderboard:
+        | {
+            Args: { p_category: string; p_limit?: number; p_scope?: string }
+            Returns: {
+              avatar_url: string
+              captures: number
+              display_name: string
+              is_me: boolean
+              rank: number
+              user_id: string
+              username: string
+            }[]
+          }
+        | {
+            Args: {
+              p_category: string
+              p_limit?: number
+              p_period?: string
+              p_scope?: string
+            }
+            Returns: {
+              avatar_url: string
+              captures: number
+              display_name: string
+              is_me: boolean
+              rank: number
+              user_id: string
+              username: string
+            }[]
+          }
       claim_badge: {
         Args: { p_badge_id: string; p_xp_reward: number }
         Returns: boolean
@@ -2308,14 +2326,23 @@ export type Database = {
           vernacular_name: string
         }[]
       }
-      my_category_rank: {
-        Args: { p_category: string; p_scope?: string }
-        Returns: {
-          captures: number
-          rank: number
-          total_players: number
-        }[]
-      }
+      my_category_rank:
+        | {
+            Args: { p_category: string; p_scope?: string }
+            Returns: {
+              captures: number
+              rank: number
+              total_players: number
+            }[]
+          }
+        | {
+            Args: { p_category: string; p_period?: string; p_scope?: string }
+            Returns: {
+              captures: number
+              rank: number
+              total_players: number
+            }[]
+          }
       my_league: {
         Args: never
         Returns: {
