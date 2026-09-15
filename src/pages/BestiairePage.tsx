@@ -3,7 +3,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { CollectionHero } from '@/components/CollectionHero';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Award, Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, Check, Images, Trophy } from 'lucide-react';
+import { Award, Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, Check, Images, Trophy, CalendarDays, Infinity as InfinityIcon } from 'lucide-react';
 import {
   POPULARITY_LABELS,
   SpeciesCategoryIcon,
@@ -1813,18 +1813,26 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
 
           {viewMode === 'leaderboard' && (
             <section>
-              <div className="mx-4 grid grid-cols-2 gap-1 rounded-2xl bg-muted p-1">
-                {([['week', t('social.leaderboard.tabWeek')], ['all', t('social.leaderboard.tabAllTime')]] as const).map(([key, label]) => (
-                  <button
-                    key={key}
-                    onClick={() => setLeaderboardTab(key)}
-                    className={`rounded-xl py-1.5 text-[12px] font-display font-bold transition-colors ${
-                      leaderboardTab === key ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
+              <div className="sticky top-[70px] z-30 -mx-4 px-4 pt-1 pb-2 bg-gradient-to-b from-background via-background/95 to-transparent">
+                <div className="flex items-center gap-1 p-1 rounded-full bg-card/90 backdrop-blur-xl border border-border w-full shadow-lg shadow-foreground/5">
+                  {([['week', t('social.leaderboard.tabWeek'), CalendarDays], ['all', t('social.leaderboard.tabAllTime'), InfinityIcon]] as const).map(([key, label, Icon]) => {
+                    const active = leaderboardTab === key;
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => setLeaderboardTab(key)}
+                        className={`relative flex-1 flex items-center justify-center gap-1.5 text-xs font-display font-semibold py-2 rounded-full transition-all duration-200 active:scale-95 ${
+                          active
+                            ? 'bg-gradient-to-br from-primary to-primary/75 text-primary-foreground shadow-md shadow-primary/30 scale-[1.02]'
+                            : 'text-muted-foreground hover:text-foreground'
+                        }`}
+                      >
+                        <Icon className={`w-3.5 h-3.5 transition-transform ${active ? 'scale-110' : ''}`} />
+                        <span className="truncate">{label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
               {leaderboardTab === 'week'
                 ? <CategoryLeaderboard category="all" inline period="week" />
