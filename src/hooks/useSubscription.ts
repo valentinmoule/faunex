@@ -21,15 +21,25 @@ function computeActive(sub: SubscriptionRow | null): boolean {
   return sub.status === "canceled" && end !== null && end > Date.now();
 }
 
+/** Cache mémoire partagé : évite un état "chargement" à chaque montage
+ *  (plusieurs composants utilisent ce hook sur une même page). */
+const subCache = new Map<string, SubscriptionRow | null>();
+
 export function useSubscription(userId?: string) {
-  const [subscription, setSubscription] = useState<SubscriptionRow | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [subscription, setSubscription] = useState<SubscriptionRow | null>(
+    () => (userId && subCache.has(userId) ? subCache.get(userId) ?? null : null),
+  );
+  const [loading, setLoading] = useState(() => !(userId && subCache.has(userId)));
 
   const fetchSubscription = useCallback(async () => {
     if (!userId) {
       setSubscription(null);
       setLoading(false);
       return;
+    }
+    if (subCache.has(userId)) {
+      setSubscription(subCache.get(userId) ?? null);
+      setLoading(false);
     }
     const { data } = await supabase
       .from("subscriptions")
