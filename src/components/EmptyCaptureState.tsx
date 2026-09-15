@@ -8,6 +8,13 @@ interface EmptyCaptureStateProps {
   onCapture: () => void;
 }
 
+const MOCK_CARDS = [
+  { key: 'a', tone: '--rarity-rare', symbol: '★', rot: '-14deg', delay: '0ms', offsetX: '-4.6rem', offsetY: '0.6rem', z: 1 },
+  { key: 'b', tone: '--rarity-illustration-rare', symbol: '★★', rot: '13deg', delay: '160ms', offsetX: '4.6rem', offsetY: '0.9rem', z: 2 },
+  { key: 'c', tone: '--primary', symbol: '◆', rot: '-2deg', delay: '320ms', offsetX: '0rem', offsetY: '-1rem', z: 3 },
+] as const;
+
+
 const useTypewriter = (lines: string[], speed = 22, pause = 240) => {
   const [lineIndex, setLineIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
