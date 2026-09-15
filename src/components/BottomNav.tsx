@@ -63,20 +63,20 @@ const BottomNav = () => {
 
           return (
             <button
-              key={tab.path}
-              onClick={() => go(tab.path)}
+              key={tab.labelKey}
+              onClick={() => go(tab)}
               className="relative flex flex-col items-center justify-center gap-1 py-2 px-3 press"
             >
               <Icon
-                key={`${tab.path}-${isActive ? 'on' : 'off'}`}
+                key={`${tab.labelKey}-${active ? 'on' : 'off'}`}
                 className={`w-[22px] h-[22px] transition-colors duration-200 ${
-                  isActive ? 'text-primary tab-pop' : 'text-muted-foreground'
+                  active ? 'text-primary tab-pop' : 'text-muted-foreground'
                 }`}
-                strokeWidth={isActive ? 2.4 : 1.9}
+                strokeWidth={active ? 2.4 : 1.9}
               />
               <span
                 className={`text-[10px] font-display tracking-tight transition-colors duration-200 ${
-                  isActive ? 'text-primary font-bold' : 'text-muted-foreground font-medium'
+                  active ? 'text-primary font-bold' : 'text-muted-foreground font-medium'
                 }`}
               >
                 {t(tab.labelKey)}
