@@ -1471,16 +1471,21 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
               </div>
 
               {myCapturedAnimals.length === 0 ? (
-                <div className="text-center py-12 rounded-2xl border border-dashed border-border">
-                  <p className="text-3xl mb-2">🔍</p>
-                  <p className="text-xs font-display text-muted-foreground px-6">
-                    {mineSearch.trim()
-                      ? t('bestiary.mine.noMatchSearch', { query: mineSearch.trim() })
-                      : mineActiveFilterCount === 0
-                      ? t('bestiary.mine.noneYet')
-                      : t('bestiary.mine.noneForFilters')}
-                  </p>
-                </div>
+                mineSearch.trim() || mineActiveFilterCount > 0 ? (
+                  <div className="text-center py-12 rounded-2xl border border-dashed border-border">
+                    <p className="text-3xl mb-2">🔍</p>
+                    <p className="text-xs font-display text-muted-foreground px-6">
+                      {mineSearch.trim()
+                        ? t('bestiary.mine.noMatchSearch', { query: mineSearch.trim() })
+                        : t('bestiary.mine.noneForFilters')}
+                    </p>
+                  </div>
+                ) : (
+                  <EmptyCaptureState
+                    userName={userDisplayName}
+                    onCapture={() => navigate('/capture')}
+                  />
+                )
               ) : (
                 <MyCapturesGrid
                   items={myCapturedAnimals}
