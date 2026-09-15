@@ -26,14 +26,14 @@
       "toastFollowError": "Erreur lors de l'abonnement",
       "toastRequestAccepted": "Demande acceptée !",
       "toastRequestRejected": "Demande refusée",
-      "title": "Explorateurs",,
+      "title": "Explorateurs",
       "emptyFeed": {
         "title": "Pars à la rencontre des explorateurs",
         "line1": "Ton fil est encore vide.",
-        "line2": "Abonne-toi à d"autres naturalistes pour voir leurs plus belles captures ici.",
+        "line2": "Abonne-toi à d'autres naturalistes pour voir leurs plus belles captures ici.",
         "cta": "Chercher des explorateurs",
         "hint": "Recherche par pseudo ou par nom"
-      }
+      },
       "searchPlaceholder": "Rechercher par nom ou pseudo…",
       "tabFollowing": "Abonnements ({{count}})",
       "tabFollowers": "Abonnés ({{count}})",
