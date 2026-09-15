@@ -19,6 +19,7 @@ import { hapticTap } from '@/lib/haptics';
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
 import CaptureMilestoneCard, { isMilestoneRank } from '@/components/CaptureMilestoneCard';
 import ExplorersEmptyState from '@/components/social/ExplorersEmptyState';
+import { ProfileButton } from '@/components/ProfileDrawer';
 
 
 /** Socle coloré + ombre rareté (effet "rare à légendaire" en grille). */
@@ -463,7 +464,8 @@ const ExplorersPage = () => {
               <button onClick={() => { setView('feed'); setSearchQuery(''); setSearchTab('following'); }} className="p-1.5 rounded-full hover:bg-muted transition-colors">
                 <ArrowLeft className="w-5 h-5 text-foreground" />
               </button>
-              <h1 className="text-xl font-display font-bold text-foreground">Explorateurs</h1>
+              <h1 className="flex-1 text-xl font-display font-bold text-foreground">Explorateurs</h1>
+              <ProfileButton />
             </div>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -629,6 +631,7 @@ const ExplorersPage = () => {
                 </span>
               )}
             </button>
+            <ProfileButton />
           </div>
         </div>
       </PageHeader>

@@ -220,7 +220,7 @@ const SettingsPage = () => {
       <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="flex items-center gap-3 max-w-lg mx-auto">
           <button
-            onClick={() => section === 'menu' ? navigate('/profile') : setSection('menu')}
+            onClick={() => section === 'menu' ? navigate('/home?profile=1') : setSection('menu')}
             className="p-2 -ml-2 rounded-full hover:bg-muted transition-colors"
           >
             <ArrowLeft className="w-5 h-5 text-foreground" />
