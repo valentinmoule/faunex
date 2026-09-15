@@ -3,7 +3,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { CollectionHero } from '@/components/CollectionHero';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Award, Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, Check, Images, Trophy, CalendarDays, Infinity as InfinityIcon } from 'lucide-react';
+import { Award, Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, Check, Images, Trophy, CalendarDays, Users, Infinity as InfinityIcon } from 'lucide-react';
 import {
   POPULARITY_LABELS,
   SpeciesCategoryIcon,
