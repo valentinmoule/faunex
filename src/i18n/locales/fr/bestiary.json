@@ -93,6 +93,13 @@
       "sortLabel": "Trier par",
       "noneForFilters": "Aucune capture ne correspond aux filtres sélectionnés."
     },
+    "emptyCapture": {
+      "greeting": "Bonjour {{name}}",
+      "line1": "Tu n'as pas encore de capture.",
+      "line2": "Pars à l'aventure et photographie le premier animal que tu croises.",
+      "cta": "Prendre ma première capture",
+      "explorer": "explorateur"
+    },
     "categories": {
       "searchPlaceholder": "Rechercher une espèce…",
       "filters": "Filtres",
