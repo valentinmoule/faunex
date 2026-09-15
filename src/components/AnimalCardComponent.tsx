@@ -38,7 +38,7 @@ const AnimalCardComponent = ({ card, onClick, compact }: Props) => {
             fetchPriority="low"
           />
           <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 via-black/10 to-transparent pointer-events-none" />
-<div className="absolute top-2 right-2">
+<div className="absolute top-2.5 right-2.5">
             <RarityBadge rarity={card.rarity} />
           </div>
         </div>

@@ -426,7 +426,7 @@ const FriendCollectionPage = () => {
                     className="absolute inset-0 w-full h-full object-cover"
                     loading="lazy"
                   />
-<div className="absolute top-1 right-1">
+<div className="absolute top-1.5 right-1.5">
                     <RarityBadge rarity={card.rarity} />
                   </div>
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5 pt-8">
