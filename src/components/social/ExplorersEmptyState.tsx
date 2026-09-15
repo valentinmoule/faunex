@@ -1,4 +1,4 @@
-import { Compass, Search, Users } from 'lucide-react';
+import { Search, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { hapticTap } from '@/lib/haptics';
 
@@ -11,24 +11,18 @@ export const ExplorersEmptyState = ({ onSearch }: ExplorersEmptyStateProps) => {
   const { t } = useTranslation();
 
   return (
-    <div className="px-4 py-10">
-      <div className="mx-auto w-full max-w-sm px-2 py-4 text-center">
-        <div className="relative w-20 h-20 mx-auto mb-6">
-          <span className="absolute -inset-2 rounded-full bg-primary/10 blur-xl" aria-hidden="true" />
-          <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/25">
-            <Compass className="w-9 h-9 text-primary-foreground" strokeWidth={1.75} aria-hidden="true" />
-          </div>
-        </div>
-
-        <h2 className="text-[1.35rem] font-display font-bold text-foreground leading-tight tracking-tight">
+    <div className="relative flex flex-col items-center justify-center min-h-[70svh] px-4 text-center">
+      <div className="relative z-10 w-full max-w-sm px-2 py-4">
+        <h2 className="text-[1.6rem] font-display font-bold text-foreground leading-tight tracking-tight">
           {t('social.explorers.emptyFeed.title')}
         </h2>
-        <p className="mt-2 text-[0.95rem] font-body text-foreground/80 leading-relaxed">
+        <p className="mt-2.5 text-[0.95rem] font-body text-foreground/80 leading-relaxed">
           {t('social.explorers.emptyFeed.line1')}
         </p>
         <p className="mt-1 text-sm font-body text-muted-foreground leading-relaxed">
           {t('social.explorers.emptyFeed.line2')}
         </p>
+
 
         <button
           onClick={() => {
