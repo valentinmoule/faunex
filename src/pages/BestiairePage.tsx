@@ -47,6 +47,7 @@ import { VirtualSpeciesGrid } from '@/components/VirtualSpeciesGrid';
 import { useZoneSubscriptions } from '@/hooks/useZoneSubscriptions';
 import { useSpeciesCollections } from '@/hooks/useSpeciesCollections';
 import CategoryLeaderboard from '@/components/CategoryLeaderboard';
+import WeeklyLeague from '@/components/WeeklyLeague';
 import { useSubscription } from '@/hooks/useSubscription';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
