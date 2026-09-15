@@ -115,11 +115,20 @@ const QuestsInline = () => {
 
   const completedCount = quests.filter((q) => q.completed).length;
 
+  // Motif répété (empreinte + feuille) utilisé en fond de carte
+  const patternSvg = encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 20c0-4 3-7 6-7s6 3 6 7-3 6-6 6-6-2-6-6z"/><circle cx="7" cy="12" r="2"/><circle cx="13" cy="8" r="2"/><circle cx="20" cy="9" r="2"/><path d="M40 28c-6 0-10 4-10 10 6 0 10-4 10-10z"/><path d="M30 38c4-4 6-6 10-10"/></svg>`,
+  );
+  const patternStyle = {
+    backgroundImage: `url("data:image/svg+xml,${patternSvg}")`,
+    backgroundSize: '48px 48px',
+  } as const;
+
   return (
     <section aria-labelledby="weekly-quests-title">
       <div className="mb-4 flex items-end justify-between px-1">
         <div>
-          <div className="mb-1 flex items-center gap-1.5 text-[10px] font-display font-bold uppercase text-primary">
+          <div className="mb-1 flex items-center gap-1.5 text-[10px] font-display font-bold uppercase tracking-wide text-primary">
             <Sparkles className="h-3 w-3" />
             {t('profile.quests.progressLabel', { defaultValue: 'Progression' })}
           </div>
@@ -148,62 +157,74 @@ const QuestsInline = () => {
           {quests.map((quest, index) => {
             const pct = Math.min((quest.progress / quest.target) * 100, 100);
             const QuestIcon = QUEST_ICONS[quest.quest_type] ?? Target;
-            const featured = index === 0;
+            const done = quest.completed;
             return (
               <div
                 key={quest.id}
-                className={`quest-card-enter group relative overflow-hidden border transition-all duration-300 ${
-                  featured ? 'rounded-3xl p-5' : 'rounded-2xl p-4'
-                } ${
+                className={`quest-card-enter relative overflow-hidden rounded-2xl border bg-card p-4 shadow-card transition-all duration-300 ${
                   quest.claimed
-                    ? 'bg-muted/40 border-border opacity-70'
-                    : quest.completed
-                    ? 'border-primary/40 bg-primary/10 quest-complete-glow'
-                    : featured
-                    ? 'border-primary/30 bg-foreground text-background shadow-elegant'
-                    : 'border-border bg-card shadow-card'
+                    ? 'border-border/70 opacity-70'
+                    : done
+                    ? 'border-primary/35'
+                    : 'border-border'
                 }`}
                 style={{ animationDelay: `${index * 80}ms` }}
               >
-                {!quest.claimed && (
-                  <div className={`pointer-events-none absolute -right-8 -top-10 rounded-full blur-2xl ${featured ? 'h-28 w-28 bg-primary/25' : 'h-20 w-20 bg-amber/15'}`} />
+                {/* motif de fond répété */}
+                <div
+                  aria-hidden
+                  className={`pointer-events-none absolute inset-0 ${done && !quest.claimed ? 'text-primary opacity-[0.09]' : 'text-muted-foreground opacity-[0.05]'}`}
+                  style={patternStyle}
+                />
+                {done && !quest.claimed && (
+                  <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent" />
                 )}
-                <div className="relative flex items-start gap-3.5">
-                  <div className={`flex shrink-0 items-center justify-center border ${featured ? 'h-12 w-12 rounded-2xl border-primary/30 bg-primary/20 text-primary' : 'h-10 w-10 rounded-xl border-amber/25 bg-amber/10 text-amber'}`}>
-                    <QuestIcon className={featured ? 'h-6 w-6' : 'h-5 w-5'} strokeWidth={2.2} />
+
+                <div className="relative">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border ${
+                        done ? 'border-primary/25 bg-primary/12 text-primary' : 'border-border bg-muted/60 text-foreground/70'
+                      }`}
+                    >
+                      <QuestIcon className="h-5 w-5" strokeWidth={2.1} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="truncate text-sm font-display font-black leading-tight text-foreground">
+                          {quest.title}
+                        </p>
+                        <span className="shrink-0 rounded-full border border-amber/25 bg-amber/10 px-2 py-0.5 text-[10px] font-display font-black text-amber">
+                          +{quest.xp_reward} XP
+                        </span>
+                      </div>
+                      <p className="mt-0.5 line-clamp-2 text-xs leading-snug text-muted-foreground">
+                        {quest.description}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="mb-1 flex items-start justify-between gap-2">
-                      <span className={`${featured ? 'text-base' : 'text-sm'} font-display font-black leading-tight ${featured && !quest.claimed ? 'text-background' : 'text-foreground'}`}>
-                        {quest.title}
-                      </span>
-                      <span className="shrink-0 rounded-full border border-amber/25 bg-amber/10 px-2 py-1 text-[10px] font-display font-black text-amber">
-                        +{quest.xp_reward} XP
-                      </span>
-                    </div>
-                    <p className={`mb-3 text-xs ${featured && !quest.claimed ? 'text-background/65' : 'text-muted-foreground'}`}>
-                      {quest.description}
-                    </p>
-                    <div className="mb-1.5 flex items-center justify-between text-[9px] font-display font-bold uppercase">
-                      <span className={featured && !quest.claimed ? 'text-background/55' : 'text-muted-foreground'}>
-                        {t('profile.quests.progressLabel', { defaultValue: 'Progression' })}
-                      </span>
-                      <span className={quest.completed ? 'text-primary' : 'text-amber'}>{quest.progress}/{quest.target}</span>
-                    </div>
-                    <div className={`h-2.5 overflow-hidden rounded-full border ${featured && !quest.claimed ? 'border-background/10 bg-background/10' : 'border-border/60 bg-muted'}`}>
+
+                  <div className="mt-3.5 flex items-center gap-3">
+                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
                       <div
-                        className={`quest-progress-fill h-full rounded-full ${quest.completed ? 'bg-primary' : 'bg-gradient-to-r from-amber to-amber-light'}`}
+                        className={`quest-progress-fill h-full rounded-full ${done ? 'bg-primary' : 'bg-amber'}`}
                         style={{ width: `${pct}%`, animationDelay: `${index * 80 + 150}ms` }}
                       />
                     </div>
+                    <span className={`shrink-0 text-[10px] font-display font-black tabular-nums ${done ? 'text-primary' : 'text-muted-foreground'}`}>
+                      {quest.progress}/{quest.target}
+                    </span>
+                  </div>
+
+                  {(quest.claimed || (done && !quest.claimed) || (quest.quest_type === 'share_app' && !done)) && (
                     <div className="mt-3 flex justify-end">
-                      {quest.quest_type === 'share_app' && !quest.completed && !quest.claimed && (
-                        <Button size="sm" onClick={() => handleShareApp(quest.id)} className="h-8 rounded-xl px-3 text-xs font-display font-bold">
+                      {quest.quest_type === 'share_app' && !done && !quest.claimed && (
+                        <Button size="sm" variant="outline" onClick={() => handleShareApp(quest.id)} className="h-8 rounded-xl px-3 text-xs font-display font-bold">
                           <Share2 className="h-3.5 w-3.5" />
                           {t('profile.quests.share')}
                         </Button>
                       )}
-                      {quest.completed && !quest.claimed && (
+                      {done && !quest.claimed && (
                         <Button size="sm" onClick={() => claimReward(quest.id)} disabled={claiming === quest.id} className="h-8 rounded-xl px-3 text-xs font-display font-bold">
                           {claiming === quest.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Gift className="h-3.5 w-3.5" />}
                           {t('profile.quests.claim')}
@@ -215,7 +236,7 @@ const QuestsInline = () => {
                         </span>
                       )}
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             );
