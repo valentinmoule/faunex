@@ -693,10 +693,11 @@ serve(async (req) => {
     //    jetons d'image.
     let response = await tryModel(
       FAST_MODEL,
-      // UN seul appel : une relance « au cas où » sur le même modèle est un
-      // second appel facturé pour rien. Si celui-ci échoue ou hésite, c'est la
-      // passe profonde (meilleure) qui prend le relais.
-      [26_000],
+      // Deux fenêtres courtes plutôt qu'un appel unique : quand l'upstream se
+      // bloque sans rien renvoyer, la requête relancée répond en général en
+      // 2 s. La relance ne part QUE sur blocage/erreur réseau (jamais sur une
+      // réponse reçue), donc pas de double facturation en temps normal.
+      [20_000, 10_000],
 
       isNewUser ? FAST_PROMPT + DEEP_ANNEX : FAST_PROMPT,
       // Effort « low » même pour la première impression : mesuré sur photo réelle,
@@ -725,10 +726,10 @@ serve(async (req) => {
       // abandon ici renvoie une erreur technique à l'utilisateur. On s'autorise
       // donc UNE relance (requête neuve, qui répond en général en 2 s) dans ce
       // seul cas — quand la passe rapide a déjà un résultat, on garde un unique
-      // appel pour ne pas payer deux fois. Budget max : 26 s + 20 s + 12 s.
+      // appel pour ne pas payer deux fois. Budget max : 20 s + 10 s + 15 s + 10 s.
       const deep = await tryModel(
         DEEP_MODEL,
-        animalData ? [20_000] : [20_000, 12_000],
+        animalData ? [20_000] : [15_000, 10_000],
         FAST_PROMPT + DEEP_ANNEX,
         "low",
         imageUrl,

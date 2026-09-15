@@ -281,9 +281,31 @@ async function examine(
     'Vérifie si le nom proposé correspond à la photo, puis rédige la fiche.',
   ].filter(Boolean).join('\n')
 
+  // L'image est téléchargée ici et envoyée en données intégrées (base64) :
+  // la passerelle IA échouait parfois à récupérer l'URL distante elle-même
+  // (timeout / limitation), ce qui bloquait la file de modération.
+  const toInlineImage = async (url: string): Promise<string> => {
+    try {
+      const res = await fetch(url)
+      if (!res.ok) return url
+      const buf = new Uint8Array(await res.arrayBuffer())
+      if (buf.byteLength > 4 * 1024 * 1024) return url
+      const mime = res.headers.get('content-type') || 'image/jpeg'
+      let bin = ''
+      const CHUNK = 0x8000
+      for (let i = 0; i < buf.length; i += CHUNK) {
+        bin += String.fromCharCode(...buf.subarray(i, i + CHUNK))
+      }
+      return `data:${mime};base64,${btoa(bin)}`
+    } catch {
+      return url
+    }
+  }
+  const inlineImage = await toInlineImage(capture.image_url)
+
   const askModel = async (model: string) => {
     try {
-      const res = await callGateway(apiKey, model, userText, capture.image_url, 55_000)
+      const res = await callGateway(apiKey, model, userText, inlineImage, 55_000)
       if (!res.ok) {
         console.error('auto-moderate gateway error', model, res.status, await res.text().catch(() => ''))
         // 402 (crédits épuisés) / 403 (bloqué) / 429 (quota) : inutile d'insister.

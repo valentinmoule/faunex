@@ -447,8 +447,20 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Un nom générique (« Inconnu », « je ne sais pas »…) n'est pas une
+    // identification : la base le refuse, donc on le bloque ici proprement
+    // pour que le modérateur reçoive un message clair au lieu d'une erreur.
+    const PLACEHOLDER = /^(inconnu|unknown|je ne sais pas|\?\?|\?|n\/a|na|none|null|-)$/i
+    const finalName = String(animal.animal_name || animalName || '').trim()
+    if (PLACEHOLDER.test(finalName)) {
+      return json({
+        error: `L'IA n'a pas identifié d'espèce précise (« ${finalName} »). Refuse la capture ou renseigne toi-même le nom de l'espèce.`,
+        code: 'not_identified',
+      }, 422)
+    }
+
     const update: Record<string, unknown> = {
-      animal_name: animal.animal_name || animalName,
+      animal_name: finalName,
       scientific_name: animal.scientific_name || null,
       category: animal.category || null,
       description: animal.description || capture.description || null,
