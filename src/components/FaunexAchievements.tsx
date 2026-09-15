@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import BadgesSection from '@/components/BadgesSection';
-import DiscordInviteCard from '@/components/DiscordInviteCard';
 import QuestsInline from '@/components/QuestsInline';
 import XpParticles from '@/components/XpParticles';
 
@@ -43,7 +42,6 @@ const FaunexAchievements = () => {
     <div className="space-y-7">
       <XpParticles active={showXpParticles} onComplete={() => setShowXpParticles(false)} />
       <QuestsInline />
-      <DiscordInviteCard onBadgeEarned={() => setRefreshKey((key) => key + 1)} />
       <BadgesSection
         userId={session.user.id}
         level={profile.level}
