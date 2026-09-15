@@ -1,4 +1,4 @@
-import { Camera, Search, Trophy, Zap, HelpCircle } from 'lucide-react';
+import { Camera, Search, Zap, HelpCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import PhoneMockup from './PhoneMockup';
 import HolographicCard from './HolographicCard';
@@ -64,7 +64,7 @@ const LandingPhoneShowcase = () => {
                 <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-transparent to-black/40" />
 
                 {/* Top controls */}
-                <div className="absolute top-9 left-4 flex items-center justify-between left-0 right-0 px-4">
+                <div className="absolute top-9 inset-x-4 flex items-center justify-between">
                   <div className="h-9 w-9 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center">
                     <Zap className="h-4 w-4 text-white" />
                   </div>
@@ -229,10 +229,6 @@ const LandingPhoneShowcase = () => {
               </p>
             </div>
           </div>
-        </div>
-
-        {/* Trophy accent hidden from layout but keeps the icon imported for the step pills */}
-        <span className="hidden"><Trophy /></span>
       </div>
     </section>
   );
