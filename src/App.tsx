@@ -209,6 +209,7 @@ const AppRoutes = () => {
           <LevelUpCelebration />
         </>
       )}
+      <FirstLoginMarker />
     </>
   );
 };
