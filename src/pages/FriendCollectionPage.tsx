@@ -6,10 +6,18 @@ import { ArrowLeft, Users, UserPlus, UserCheck, Award, Search, X } from 'lucide-
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
 import { Progress } from '@/components/ui/progress';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { rarityBorderColor } from '@/lib/bestiary';
+import { rarityBorderColor, normalizeCategory } from '@/lib/bestiary';
 import RarityBadge from '@/components/RarityBadge';
+import {
+  SpeciesFilterButton,
+  SpeciesSortFilterSheet,
+  applySpeciesSortFilter,
+  type SpeciesSort,
+  type PopularityTier,
+  SPECIES_SORT_OPTIONS,
+} from '@/components/SpeciesSortFilter';
 import CardDetailSheet from '@/components/CardDetailSheet';
-import { type AnimalCard, type Rarity, RARITY_LABELS, RARITY_ORDER, RARITY_RANK, RARITY_FX, normalizeRarity } from '@/data/mockData';
+import { type AnimalCard, type Rarity, RARITY_RANK, RARITY_FX, normalizeRarity } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
 import { fetchAllRows } from '@/lib/fetchAll';
 import { useAuth } from '@/contexts/AuthContext';
@@ -44,7 +52,6 @@ interface BadgeProgress {
   earned: boolean;
 }
 
-const rarityFilters: (Rarity | 'all')[] = ['all', ...RARITY_ORDER];
 
 interface FollowProfile {
   user_id: string;
@@ -61,7 +68,12 @@ const FriendCollectionPage = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
   const { speciesName } = useSpeciesName();
-  const [filter, setFilter] = useState<Rarity | 'all'>('all');
+  const [sort, setSort] = useState<SpeciesSort>('default');
+  const [rarityFilter, setRarityFilter] = useState<Rarity[]>([]);
+  const [popularityFilter, setPopularityFilter] = useState<PopularityTier[]>([]);
+  const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [findersMap, setFindersMap] = useState<Map<string, number>>(new Map());
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
 
@@ -93,6 +105,17 @@ const FriendCollectionPage = () => {
 
     const fetchData = async () => {
       setLoading(true);
+
+      // Compteurs communautaires d'espèces pour le filtre « popularité »
+      fetchAllRows<any>((from, to) =>
+        supabase.rpc('species_finder_counts').order('animal_key').range(from, to),
+      ).then((res) => {
+        const map = new Map<string, number>();
+        (res.data || []).forEach((r: any) => {
+          if (typeof r.finders === 'number') map.set(r.animal_key, r.finders);
+        });
+        setFindersMap(map);
+      });
 
       const [profileRes, capturesRes, followingCountRes, followersCountRes] = await Promise.all([
         supabase.from('profiles').select('display_name, username, level, xp, xp_to_next, avatar_url, total_captures').eq('user_id', userId).maybeSingle(),
@@ -208,14 +231,42 @@ const FriendCollectionPage = () => {
   }, [userId, myId]);
 
   const normalizedQuery = searchQuery.trim().toLowerCase();
-  const filtered = captures.filter(c => {
-    if (filter !== 'all' && c.rarity !== filter) return false;
-    if (normalizedQuery) {
+
+  /** Catégories réellement présentes dans la collection de l'explorateur. */
+  const categoryData = (() => {
+    const counts = new Map<string, number>();
+    captures.forEach((c) => {
+      const cat = normalizeCategory(c.category || '');
+      if (cat) counts.set(cat, (counts.get(cat) ?? 0) + 1);
+    });
+    return Array.from(counts.entries())
+      .map(([name, total]) => ({ name, total }))
+      .sort((a, b) => b.total - a.total);
+  })();
+
+  const activeFilterCount = rarityFilter.length + popularityFilter.length + categoryFilter.length;
+
+  const filtered = (() => {
+    const withFinders = captures.map((c) => ({ ...c, finders: findersMap.get(c.name.toLowerCase()) ?? 0 }));
+    const list = applySpeciesSortFilter(withFinders, {
+      sort,
+      rarities: rarityFilter,
+      popularities: popularityFilter,
+      categories: categoryFilter,
+    });
+    if (!normalizedQuery) return list;
+    return list.filter((c) => {
       const localized = speciesName(c.name).toLowerCase();
-      if (!localized.includes(normalizedQuery) && !(c.scientificName || '').toLowerCase().includes(normalizedQuery)) return false;
-    }
-    return true;
-  });
+      return localized.includes(normalizedQuery) || (c.scientificName || '').toLowerCase().includes(normalizedQuery);
+    });
+  })();
+
+  const resetFilters = () => {
+    setSort('default');
+    setRarityFilter([]);
+    setPopularityFilter([]);
+    setCategoryFilter([]);
+  };
 
   const toggleFollow = async () => {
     if (!myId || !userId) return;
@@ -325,53 +376,34 @@ const FriendCollectionPage = () => {
 
       {/* Collection - always visible */}
       <div className="max-w-lg mx-auto px-4 pt-3">
-        {!loading && captures.length > 0 && (
-          <div className="relative mb-2">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={t('social.friendCollection.searchPlaceholder')}
-              className="w-full h-10 pl-9 pr-9 rounded-xl bg-muted/60 border border-border text-sm font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition-shadow"
+        {!loading && (captures.length > 0 || activeFilterCount > 0) && (
+          <div className="flex items-center gap-2 mb-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t('social.friendCollection.searchPlaceholder')}
+                className="w-full h-10 pl-9 pr-9 rounded-xl bg-muted/60 border border-border text-sm font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition-shadow"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  aria-label={t('bestiary.common.clearSearch')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-full text-muted-foreground hover:bg-muted transition-colors"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+            <SpeciesFilterButton
+              onClick={() => setFilterOpen(true)}
+              active={sort !== 'default' || activeFilterCount > 0}
+              count={activeFilterCount}
             />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                aria-label={t('bestiary.common.clearSearch')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-full text-muted-foreground hover:bg-muted transition-colors"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
           </div>
         )}
-        <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-2">
-          {rarityFilters.map((r) => {
-            const isActive = filter === r;
-            const fx = r === 'all' ? null : RARITY_FX[r as Rarity];
-            const colorClasses = r === 'all'
-              ? isActive ? 'bg-foreground text-background border-foreground shadow-md' : 'bg-muted text-muted-foreground border-border hover:bg-muted/80'
-              : fx === 'gold'
-              ? isActive ? 'bg-rarity-gold/20 text-rarity-gold border-rarity-gold/50' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-gold/10 hover:text-rarity-gold hover:border-rarity-gold/30'
-              : fx === 'silver'
-              ? isActive ? 'bg-rarity-silver/20 text-rarity-silver border-rarity-silver/50' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-silver/10 hover:text-rarity-silver hover:border-rarity-silver/30'
-              : isActive ? 'bg-foreground/10 text-foreground border-foreground/30' : 'bg-muted text-muted-foreground border-border hover:bg-foreground/5 hover:text-foreground hover:border-foreground/20';
-
-            const dot = r === 'all' ? '' : fx === 'gold' ? 'bg-rarity-gold' : fx === 'silver' ? 'bg-rarity-silver' : 'bg-foreground/50';
-
-            return (
-              <button
-                key={r}
-                onClick={() => setFilter(r)}
-                className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-display font-bold border transition-all duration-300 flex items-center gap-1 active:scale-95 ${colorClasses} ${isActive && r !== 'all' ? 'bestiary-filter-glow' : ''} ${fx === 'gold' ? 'gold-filter-shimmer' : ''}`}
-              >
-                {r !== 'all' && <span className={`w-1.5 h-1.5 rounded-full ${dot} ${isActive ? 'animate-pulse' : ''}`} />}
-                {r === 'all' ? t('social.friendCollection.filterAll') : RARITY_LABELS[r]}
-              </button>
-            );
-          })}
-        </div>
       </div>
 
       <div className="max-w-lg mx-auto px-4 pt-3">
@@ -412,36 +444,14 @@ const FriendCollectionPage = () => {
             </div>
             {filtered.length === 0 && (
               <div className="text-center py-16 px-6">
-                {filter !== 'all' && captures.length > 0 ? (
-                  <>
-                    <p className="text-4xl mb-3">
-                      {RARITY_FX[filter as Rarity] === 'gold' ? '✨' : RARITY_FX[filter as Rarity] === 'silver' ? '⚡' : (RARITY_RANK[filter as Rarity] ?? 0) >= 2 ? '💎' : '🌿'}
-                    </p>
-                    <p className="text-foreground font-display font-semibold text-sm mb-2">
-                      {t('social.friendCollection.noSpeciesRarity', { rarity: RARITY_LABELS[filter].toLowerCase() })}
-                    </p>
-                    <p className="text-muted-foreground text-xs leading-relaxed">
-                      {RARITY_FX[filter as Rarity] === 'gold'
-                        ? t('social.friendCollection.descGold')
-                        : RARITY_FX[filter as Rarity] === 'silver'
-                        ? t('social.friendCollection.descSilver')
-                        : (RARITY_RANK[filter as Rarity] ?? 0) >= 2
-                        ? t('social.friendCollection.descRare')
-                        : t('social.friendCollection.descCommon')}
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <p className="text-4xl mb-3">🔍</p>
-                    <p className="text-muted-foreground font-display">
-                      {captures.length === 0
-                        ? t('social.friendCollection.noSharedCaptures')
-                        : normalizedQuery
-                          ? t('social.friendCollection.noMatchSearch', { query: searchQuery.trim() })
-                          : t('social.friendCollection.noSpeciesFound')}
-                    </p>
-                  </>
-                )}
+                <p className="text-4xl mb-3">🔍</p>
+                <p className="text-muted-foreground font-display">
+                  {captures.length === 0
+                    ? t('social.friendCollection.noSharedCaptures')
+                    : normalizedQuery
+                      ? t('social.friendCollection.noMatchSearch', { query: searchQuery.trim() })
+                      : t('social.friendCollection.noSpeciesFound')}
+                </p>
               </div>
             )}
 
@@ -476,6 +486,23 @@ const FriendCollectionPage = () => {
           </>
         )}
       </div>
+
+      <SpeciesSortFilterSheet
+        open={filterOpen}
+        onOpenChange={setFilterOpen}
+        sort={sort}
+        sortOptions={SPECIES_SORT_OPTIONS}
+        onSortChange={(s) => setSort(s as SpeciesSort)}
+        rarities={rarityFilter}
+        onRaritiesChange={setRarityFilter}
+        popularities={popularityFilter}
+        onPopularitiesChange={setPopularityFilter}
+        availableCategories={categoryData}
+        categories={categoryFilter}
+        onCategoriesChange={setCategoryFilter}
+        resultCount={filtered.length}
+        onReset={resetFilters}
+      />
 
       {/* Following / Followers Sheet */}
       <Sheet open={!!sheetOpen} onOpenChange={(open) => !open && setSheetOpen(null)}>
