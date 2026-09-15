@@ -64,9 +64,11 @@ interface LeaderboardTarget {
   category?: string;
   /** Classement par territoire (département). */
   territory?: { code: string; label: string };
+  /** Affiche le classement directement, sans carte résumé ni bottom sheet. */
+  inline?: boolean;
 }
 
-const CategoryLeaderboard = ({ category, territory }: LeaderboardTarget) => {
+const CategoryLeaderboard = ({ category, territory, inline }: LeaderboardTarget) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -124,53 +126,15 @@ useEffect(() => {
     return () => { cancelled = true; };
   }, [isTerritory, value, scope]);
 
-if (rows.length === 0 && scope === 'global' && !open) return null;
+if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
 
   const podium = rows.slice(0, 3);
   const podiumOrdered = [podium[1], podium[0], podium[2]].filter(Boolean);
   const rest = rows.slice(3);
 
-  return (
+  const content = (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        className="w-full mb-3 flex items-center justify-between gap-3 rounded-2xl bg-card border border-border px-3 py-2.5 shadow-sm active:scale-[0.99] transition-transform"
-      >
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="w-11 h-11 shrink-0 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-display font-bold ring-4 ring-primary/10">
-            {mine ? `${mine.rank}${mine.rank === 1 ? 'er' : 'e'}` : '—'}
-          </div>
-<div className="min-w-0 text-left">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-bold">{!isTerritory && category === 'all' ? t('social.leaderboard.generalRanking') : t('social.leaderboard.ranking')}</p>
-            <p className="text-[13px] font-display font-bold text-foreground truncate">
-              {mine ? t('social.leaderboard.capturesThisWeek', { count: mine.captures }) : t('social.leaderboard.noCapturesThisWeek')}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2.5 shrink-0">
-<div className="flex -space-x-2">
-            {podium.map((r) => (
-              <Avatar key={r.user_id} row={r} className="border-2 border-card" />
-            ))}
-          </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground" />
-        </div>
-      </button>
-
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent
-          ref={swipeClose.ref}
-          side="bottom"
-          className="max-h-[88vh] overflow-y-auto rounded-t-3xl px-0"
-          style={swipeClose.style}
-        >
-          <SheetHeader className="px-5 text-left">
-<SheetTitle className="font-display text-base flex items-center gap-2">
-              <Trophy className="w-4 h-4 text-amber" />
-              {isTerritory ? t('social.leaderboard.sheetTitleTerritory', { label: territory.label }) : category === 'all' ? t('social.leaderboard.sheetTitleGeneral') : t('social.leaderboard.sheetTitleCategory', { category })}
-            </SheetTitle>
-          </SheetHeader>
-<div className="px-5 mt-1">
+      <div className="px-5 mt-1">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber/5 border border-amber/15">
               <div className="relative flex items-center justify-center">
                 <Clock className="w-4 h-4 text-muted-foreground animate-[spin_4s_linear_infinite]" />
@@ -291,7 +255,54 @@ if (rows.length === 0 && scope === 'global' && !open) return null;
           </ul>
           </>
           )}
+    </>
+  );
 
+  if (inline) {
+    return <div className="pb-2">{content}</div>;
+  }
+
+  return (
+    <>
+      <button
+        onClick={() => setOpen(true)}
+        className="w-full mb-3 flex items-center justify-between gap-3 rounded-2xl bg-card border border-border px-3 py-2.5 shadow-sm active:scale-[0.99] transition-transform"
+      >
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-11 h-11 shrink-0 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-display font-bold ring-4 ring-primary/10">
+            {mine ? `${mine.rank}${mine.rank === 1 ? 'er' : 'e'}` : '—'}
+          </div>
+          <div className="min-w-0 text-left">
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-bold">{!isTerritory && category === 'all' ? t('social.leaderboard.generalRanking') : t('social.leaderboard.ranking')}</p>
+            <p className="text-[13px] font-display font-bold text-foreground truncate">
+              {mine ? t('social.leaderboard.capturesThisWeek', { count: mine.captures }) : t('social.leaderboard.noCapturesThisWeek')}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2.5 shrink-0">
+          <div className="flex -space-x-2">
+            {podium.map((r) => (
+              <Avatar key={r.user_id} row={r} className="border-2 border-card" />
+            ))}
+          </div>
+          <ChevronRight className="w-4 h-4 text-muted-foreground" />
+        </div>
+      </button>
+
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetContent
+          ref={swipeClose.ref}
+          side="bottom"
+          className="max-h-[88vh] overflow-y-auto rounded-t-3xl px-0"
+          style={swipeClose.style}
+        >
+          <SheetHeader className="px-5 text-left">
+            <SheetTitle className="font-display text-base flex items-center gap-2">
+              <Trophy className="w-4 h-4 text-amber" />
+              {isTerritory ? t('social.leaderboard.sheetTitleTerritory', { label: territory.label }) : category === 'all' ? t('social.leaderboard.sheetTitleGeneral') : t('social.leaderboard.sheetTitleCategory', { category })}
+            </SheetTitle>
+          </SheetHeader>
+          {content}
         </SheetContent>
       </Sheet>
     </>
