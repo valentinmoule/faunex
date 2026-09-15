@@ -106,6 +106,17 @@ const FriendCollectionPage = () => {
     const fetchData = async () => {
       setLoading(true);
 
+      // Compteurs communautaires d'espèces pour le filtre « popularité »
+      fetchAllRows<any>((from, to) =>
+        supabase.rpc('species_finder_counts').order('animal_key').range(from, to),
+      ).then((res) => {
+        const map = new Map<string, number>();
+        (res.data || []).forEach((r: any) => {
+          if (typeof r.finders === 'number') map.set(r.animal_key, r.finders);
+        });
+        setFindersMap(map);
+      });
+
       const [profileRes, capturesRes, followingCountRes, followersCountRes] = await Promise.all([
         supabase.from('profiles').select('display_name, username, level, xp, xp_to_next, avatar_url, total_captures').eq('user_id', userId).maybeSingle(),
         fetchAllRows<any>((from, to) => supabase.from('captures').select('*').eq('user_id', userId).eq('status', 'approved').order('created_at', { ascending: false }).range(from, to)),
@@ -220,14 +231,42 @@ const FriendCollectionPage = () => {
   }, [userId, myId]);
 
   const normalizedQuery = searchQuery.trim().toLowerCase();
-  const filtered = captures.filter(c => {
-    if (filter !== 'all' && c.rarity !== filter) return false;
-    if (normalizedQuery) {
+
+  /** Catégories réellement présentes dans la collection de l'explorateur. */
+  const categoryData = (() => {
+    const counts = new Map<string, number>();
+    captures.forEach((c) => {
+      const cat = normalizeCategory(c.category || '');
+      if (cat) counts.set(cat, (counts.get(cat) ?? 0) + 1);
+    });
+    return Array.from(counts.entries())
+      .map(([name, total]) => ({ name, total }))
+      .sort((a, b) => b.total - a.total);
+  })();
+
+  const activeFilterCount = rarityFilter.length + popularityFilter.length + categoryFilter.length;
+
+  const filtered = (() => {
+    const withFinders = captures.map((c) => ({ ...c, finders: findersMap.get(c.name.toLowerCase()) ?? 0 }));
+    const list = applySpeciesSortFilter(withFinders, {
+      sort,
+      rarities: rarityFilter,
+      popularities: popularityFilter,
+      categories: categoryFilter,
+    });
+    if (!normalizedQuery) return list;
+    return list.filter((c) => {
       const localized = speciesName(c.name).toLowerCase();
-      if (!localized.includes(normalizedQuery) && !(c.scientificName || '').toLowerCase().includes(normalizedQuery)) return false;
-    }
-    return true;
-  });
+      return localized.includes(normalizedQuery) || (c.scientificName || '').toLowerCase().includes(normalizedQuery);
+    });
+  })();
+
+  const resetFilters = () => {
+    setSort('default');
+    setRarityFilter([]);
+    setPopularityFilter([]);
+    setCategoryFilter([]);
+  };
 
   const toggleFollow = async () => {
     if (!myId || !userId) return;
