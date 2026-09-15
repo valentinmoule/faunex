@@ -84,7 +84,28 @@ const CollectionTile = ({
               className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
             <div className="absolute inset-0" style={{ background: overlay }} />
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 px-3 text-center">
+
+            {/* Curseur de progression : jauge verticale + repère de position */}
+            <div
+              className="absolute left-[13%] top-[24%] bottom-[26%] w-[5px] rounded-full bg-primary-foreground/25"
+              aria-hidden="true"
+            >
+              <div
+                className={`absolute bottom-0 left-0 w-full rounded-full transition-[height] duration-500 ${
+                  readyToClaim ? 'bg-amber' : 'bg-primary-foreground/90'
+                }`}
+                style={{ height: `${pct}%` }}
+              />
+              <div
+                className={`absolute left-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-background shadow-sm transition-[top] duration-500 ${
+                  readyToClaim ? 'bg-amber' : claimed ? 'bg-amber' : 'bg-primary-foreground'
+                }`}
+                style={{ top: `${pct}%` }}
+              />
+            </div>
+
+            {/* Progression au centre, légèrement au-dessus de la pastille XP */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5 pb-[14%] pl-5 pr-3 text-center">
               <span className="font-display font-black text-2xl text-primary-foreground tabular-nums drop-shadow">
                 {pct}%
               </span>
@@ -92,34 +113,40 @@ const CollectionTile = ({
                 {captured}/{total}
               </span>
             </div>
+
             {(claimed || readyToClaim) && (
-              <span className="absolute top-[22%] left-1/2 -translate-x-1/2 inline-flex items-center gap-1 rounded-full bg-amber px-2 py-0.5 text-[9px] font-display font-bold text-background">
+              <span className="absolute top-[20%] left-1/2 -translate-x-1/2 inline-flex items-center gap-1 rounded-full bg-amber px-2 py-0.5 text-[9px] font-display font-bold text-background">
                 {claimed ? <Check className="w-2.5 h-2.5" /> : <Sparkles className="w-2.5 h-2.5" />}
                 {t('bestiary.collections.completed')}
               </span>
             )}
           </button>
+
+          {/* Pastille XP intégrée dans l'écusson, en bas */}
+          <div className="absolute bottom-[7%] left-1/2 -translate-x-1/2">
+            {readyToClaim ? (
+              <button
+                onClick={onClaim}
+                disabled={claiming}
+                aria-label={t('bestiary.collections.claimReward', { xp })}
+                className="active:scale-95 transition disabled:opacity-60"
+              >
+                <XpPill xp={xp} state="ready" />
+              </button>
+            ) : (
+              <XpPill
+                xp={xp}
+                state={claimed ? 'claimed' : 'locked'}
+                className={claimed ? '' : 'pointer-events-none'}
+              />
+            )}
+          </div>
         </div>
       </div>
 
       <h3 className="mt-2 w-full text-center font-display font-bold text-[13px] text-foreground leading-tight truncate">
         {title}
       </h3>
-
-      {readyToClaim ? (
-        <button
-          onClick={onClaim}
-          disabled={claiming}
-          aria-label={t('bestiary.collections.claimReward', { xp })}
-          className="mt-1.5 active:scale-95 transition disabled:opacity-60"
-        >
-          <XpPill xp={xp} state="ready" />
-        </button>
-      ) : claimed ? (
-        <XpPill xp={xp} state="claimed" className="mt-1.5" />
-      ) : (
-        <XpPill xp={xp} state="locked" className="mt-1.5" />
-      )}
     </div>
   );
 };
