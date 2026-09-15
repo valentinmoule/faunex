@@ -3,7 +3,9 @@ import { Camera, Users, PawPrint, BookOpen, Trophy } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { hapticTap } from '@/lib/haptics';
 
-const tabs = [
+type NavTab = { path: string; labelKey: string; icon: typeof PawPrint; tab?: string };
+
+const tabs: NavTab[] = [
   { path: '/home', labelKey: 'nav.faunex', icon: PawPrint },
   { path: '/bestiaire', labelKey: 'nav.bestiary', icon: BookOpen },
   { path: '/capture', labelKey: 'nav.capture', icon: Camera },
