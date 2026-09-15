@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
 import { useBadges, type BadgeProgress } from '@/hooks/useBadges';
+import BadgeMedallion from '@/components/BadgeMedallion';
 import { BADGE_GROUP_ICONS, BADGE_GROUP_ORDER, getGroupLabel, type BadgeGroup } from '@/lib/badges';
 
 interface Props {
@@ -21,6 +22,8 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
   const { badges, loading, markClaimed } = useBadges(userId, level, regionsExplored, refreshKey);
   const [claiming, setClaiming] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>('all');
+  /** Badge tout juste réclamé : affiché en grand dans une popup de célébration. */
+  const [celebrated, setCelebrated] = useState<BadgeProgress | null>(null);
 
   const claimedCount = badges.filter((b) => b.claimed).length;
   const claimableCount = badges.filter((b) => b.earned && !b.claimed).length;
@@ -49,11 +52,12 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
     });
     if (!error && claimed) {
       markClaimed(id);
-      toast.success(t('profile.badges.claimedToast', { xp: entry.badge.xp }));
+      setCelebrated(entry);
       onClaimed?.();
     }
     setClaiming(null);
   };
+
 
   const chips: { key: Filter; label: string }[] = [
     { key: 'all', label: t('profile.badges.all', { count: badges.length }) },
@@ -109,87 +113,124 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
             <p className="text-[11px] font-display font-bold uppercase tracking-wide text-muted-foreground mb-2">
               {BADGE_GROUP_ICONS[group]} {getGroupLabel(t, group)}
             </p>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               {items.map(({ badge, progress, earned, claimed }, i) => {
-                const pct = Math.round((progress / badge.total) * 100);
+                const pct = Math.min(100, Math.round((progress / badge.total) * 100));
                 const readyToClaim = earned && !claimed;
                 return (
                   <button
                     key={badge.id}
                     disabled={!readyToClaim || claiming === badge.id}
                     onClick={() => readyToClaim && claimBadge({ badge, progress, earned, claimed })}
-                    className={`relative rounded-2xl p-3.5 text-center transition-all duration-500 game-card-appear ${
+                    className={`relative overflow-hidden rounded-3xl px-3 pt-5 pb-3.5 text-center transition-all duration-500 game-card-appear ${
                       claimed
-                        ? 'bg-gradient-to-b from-amber/10 via-amber/5 to-card border-2 border-amber/40 shadow-[0_0_20px_hsla(42,85%,55%,0.15)] badge-earned-glow'
+                        ? 'bg-card border border-amber/30 shadow-[0_10px_28px_-16px_hsla(38,92%,56%,0.45)] badge-earned-glow'
                         : readyToClaim
-                        ? 'bg-gradient-to-b from-primary/10 via-primary/5 to-card border-2 border-primary/50 shadow-[0_0_20px_hsla(var(--primary)/0.2)] animate-pulse cursor-pointer active:scale-95'
-                        : 'bg-card/80 border border-border/60 hover:border-border'
+                        ? 'bg-card border border-primary/40 shadow-[0_10px_28px_-16px_hsla(var(--primary)/0.5)] cursor-pointer active:scale-95'
+                        : 'bg-card/70 border border-border/50'
                     }`}
                     style={{ animationDelay: `${i * 40}ms` }}
                   >
-                    {claimed && (
-                      <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-amber flex items-center justify-center shadow-[0_0_8px_hsla(42,85%,55%,0.5)] badge-sparkle">
-                        <span className="text-[8px]">✓</span>
-                      </div>
-                    )}
-                    {readyToClaim && (
-                      <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-primary flex items-center justify-center shadow-[0_0_10px_hsla(var(--primary)/0.5)]">
-                        <Gift className="w-3 h-3 text-primary-foreground" />
-                      </div>
-                    )}
-                    {!earned && (
-                      <div className="absolute top-2 right-2">
-                        <Lock className="w-3 h-3 text-muted-foreground" />
-                      </div>
-                    )}
-                    <div
-                      className={`relative mx-auto w-12 h-12 rounded-xl flex items-center justify-center mb-2 transition-all ${
+                    {/* Pastille XP / état */}
+                    <span
+                      className={`absolute top-2 right-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-display font-bold ${
                         claimed
-                          ? 'bg-amber/15 border border-amber/30 shadow-[0_0_12px_hsla(42,85%,55%,0.2)]'
+                          ? 'bg-amber/12 text-amber'
                           : readyToClaim
-                          ? 'bg-primary/15 border border-primary/30 shadow-[0_0_12px_hsla(var(--primary)/0.2)]'
-                          : 'bg-muted/60 border border-border/40'
+                          ? 'bg-primary/12 text-primary'
+                          : 'bg-muted/70 text-muted-foreground'
                       }`}
                     >
-                      <span className={`text-2xl ${claimed ? 'badge-icon-float' : readyToClaim ? '' : 'grayscale opacity-40'}`}>
-                        {badge.icon}
-                      </span>
-                    </div>
-                    <p className={`text-[11px] font-display font-black leading-tight mb-0.5 ${claimed || readyToClaim ? 'text-foreground' : 'text-muted-foreground'}`}>
+                      {readyToClaim ? (
+                        <>
+                          <Gift className="w-2.5 h-2.5" /> +{badge.xp} XP
+                        </>
+                      ) : claimed ? (
+                        <>✓ +{badge.xp} XP</>
+                      ) : (
+                        <>
+                          <Lock className="w-2.5 h-2.5" /> {badge.xp} XP
+                        </>
+                      )}
+                    </span>
+
+                    <BadgeMedallion
+                      badgeId={badge.id}
+                      group={badge.group}
+                      fallbackEmoji={badge.icon}
+                      state={claimed ? 'claimed' : readyToClaim ? 'claimable' : 'locked'}
+                      size={64}
+                      className="mx-auto mb-2.5"
+                    />
+
+                    <p className={`text-[12px] font-display font-black leading-tight mb-1 ${claimed || readyToClaim ? 'text-foreground' : 'text-muted-foreground'}`}>
                       {badge.name}
                     </p>
-                    <p className="text-[9px] leading-tight mb-2 text-muted-foreground">{badge.description}</p>
-                    {!earned && (
-                      <div className="space-y-1">
-                        <div className="h-1.5 bg-muted/80 rounded-full overflow-hidden">
-                          <div
-                            className="h-full rounded-full bg-gradient-to-r from-primary/60 to-primary transition-all duration-700 ease-out"
-                            style={{ width: `${pct}%` }}
-                          />
-                        </div>
-                        <p className="text-[9px] font-display font-bold text-muted-foreground">
-                          {progress}/{badge.total}
-                        </p>
-                      </div>
-                    )}
-                    {readyToClaim && (
-                      <span className="inline-flex items-center gap-1 text-[9px] font-display font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                        <Gift className="w-2.5 h-2.5" /> +{badge.xp} XP
-                      </span>
-                    )}
-                    {claimed && (
-                      <span className="inline-block text-[9px] font-display font-bold text-amber bg-amber/10 px-2 py-0.5 rounded-full">
-                        {t('profile.badges.unlockedTag')}
-                      </span>
-                    )}
+                    <p className="text-[9px] leading-snug mb-2.5 text-muted-foreground line-clamp-2">
+                      {badge.description}
+                    </p>
+
+                    <div className="h-1 rounded-full bg-muted/80 overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all duration-700 ease-out ${
+                          claimed
+                            ? 'bg-gradient-to-r from-amber to-amber-light'
+                            : 'bg-gradient-to-r from-primary/60 to-primary'
+                        }`}
+                        style={{ width: `${claimed ? 100 : pct}%` }}
+                      />
+                    </div>
+                    <p
+                      className={`mt-1.5 text-[9px] font-display font-bold uppercase tracking-wide ${
+                        claimed ? 'text-amber' : readyToClaim ? 'text-primary' : 'text-muted-foreground'
+                      }`}
+                    >
+                      {claimed
+                        ? t('profile.badges.unlockedTag')
+                        : readyToClaim
+                        ? t('profile.badges.claimCta', { defaultValue: 'À réclamer' })
+                        : `${progress}/${badge.total}`}
+                    </p>
                   </button>
                 );
               })}
             </div>
+
           </div>
         ))}
       </div>
+
+      {/* Célébration plein écran du badge fraîchement débloqué */}
+      {celebrated && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/50 backdrop-blur-sm px-6 animate-in fade-in"
+          onClick={() => setCelebrated(null)}
+        >
+          <div className="w-full max-w-[300px] rounded-[28px] bg-card border border-amber/30 shadow-[0_30px_60px_-25px_hsla(38,92%,56%,0.55)] px-6 pt-8 pb-6 text-center relative game-card-appear">
+            <span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-amber/12 px-2.5 py-1 text-[11px] font-display font-bold text-amber">
+              <Gift className="w-3 h-3" /> +{celebrated.badge.xp} XP
+            </span>
+            <BadgeMedallion
+              badgeId={celebrated.badge.id}
+              group={celebrated.badge.group}
+              fallbackEmoji={celebrated.badge.icon}
+              state="claimed"
+              size={120}
+              className="mx-auto mb-4"
+            />
+            <h4 className="font-display text-lg font-black text-foreground">{celebrated.badge.name}</h4>
+            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{celebrated.badge.description}</p>
+            <button
+              onClick={() => setCelebrated(null)}
+              className="mt-5 w-full rounded-full bg-primary px-4 py-3 font-display text-sm font-bold text-primary-foreground active:scale-95 transition-transform"
+            >
+              {t('profile.badges.celebrateCta', { defaultValue: 'Super !' })}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
+
   );
 };
 
