@@ -57,7 +57,7 @@ function localeSchema(lang: 'français' | 'anglais') {
   return {
     type: 'object',
     properties: props,
-    required: ['title', 'metaTitle', 'metaDescription', ...SECTION_FIELDS.map(([k]) => k)],
+    required: ['name', 'title', 'metaTitle', 'metaDescription', ...SECTION_FIELDS.map(([k]) => k)],
     additionalProperties: false,
   }
 }
