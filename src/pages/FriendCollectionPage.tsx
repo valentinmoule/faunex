@@ -444,36 +444,14 @@ const FriendCollectionPage = () => {
             </div>
             {filtered.length === 0 && (
               <div className="text-center py-16 px-6">
-                {filter !== 'all' && captures.length > 0 ? (
-                  <>
-                    <p className="text-4xl mb-3">
-                      {RARITY_FX[filter as Rarity] === 'gold' ? '✨' : RARITY_FX[filter as Rarity] === 'silver' ? '⚡' : (RARITY_RANK[filter as Rarity] ?? 0) >= 2 ? '💎' : '🌿'}
-                    </p>
-                    <p className="text-foreground font-display font-semibold text-sm mb-2">
-                      {t('social.friendCollection.noSpeciesRarity', { rarity: RARITY_LABELS[filter].toLowerCase() })}
-                    </p>
-                    <p className="text-muted-foreground text-xs leading-relaxed">
-                      {RARITY_FX[filter as Rarity] === 'gold'
-                        ? t('social.friendCollection.descGold')
-                        : RARITY_FX[filter as Rarity] === 'silver'
-                        ? t('social.friendCollection.descSilver')
-                        : (RARITY_RANK[filter as Rarity] ?? 0) >= 2
-                        ? t('social.friendCollection.descRare')
-                        : t('social.friendCollection.descCommon')}
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <p className="text-4xl mb-3">🔍</p>
-                    <p className="text-muted-foreground font-display">
-                      {captures.length === 0
-                        ? t('social.friendCollection.noSharedCaptures')
-                        : normalizedQuery
-                          ? t('social.friendCollection.noMatchSearch', { query: searchQuery.trim() })
-                          : t('social.friendCollection.noSpeciesFound')}
-                    </p>
-                  </>
-                )}
+                <p className="text-4xl mb-3">🔍</p>
+                <p className="text-muted-foreground font-display">
+                  {captures.length === 0
+                    ? t('social.friendCollection.noSharedCaptures')
+                    : normalizedQuery
+                      ? t('social.friendCollection.noMatchSearch', { query: searchQuery.trim() })
+                      : t('social.friendCollection.noSpeciesFound')}
+                </p>
               </div>
             )}
 
