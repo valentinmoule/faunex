@@ -22,7 +22,11 @@ export interface CollectionTileProps {
   onClaim: () => void;
 }
 
-const HEX = 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)';
+/**
+ * Écusson hexagonal à coins arrondis (cohérent avec les rayons du reste de
+ * l'app), défini en objectBoundingBox pour rester net à toutes les tailles.
+ */
+const ROUNDED_HEX_CLIP = 'url(#faunex-rounded-hex)';
 
 const CollectionTile = ({
   title,
