@@ -20,7 +20,10 @@
     "share": "Partager",
     "confirm": "Confirmer",
     "species": "espèces",
-    "captures": "captures"
+    "captures": "captures",
+    "captureQuotaRemaining": "{{count}} captures restantes aujourd’hui",
+    "goPremium": "Passer à Faunex Premium",
+    "premiumActive": "Faunex Premium actif"
   },
   "language": {
     "title": "Langue",

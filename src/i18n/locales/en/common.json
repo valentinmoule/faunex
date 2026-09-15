@@ -20,7 +20,10 @@
     "share": "Share",
     "confirm": "Confirm",
     "species": "species",
-    "captures": "captures"
+    "captures": "captures",
+    "captureQuotaRemaining": "{{count}} captures remaining today",
+    "goPremium": "Upgrade to Faunex Premium",
+    "premiumActive": "Faunex Premium active"
   },
   "language": {
     "title": "Language",
