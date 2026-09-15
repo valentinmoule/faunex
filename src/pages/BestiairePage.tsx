@@ -1817,6 +1817,13 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
         <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
         {flyingCardOverlay}
         {deptPickerSheet}
+        {celebratedReward && (
+          <RewardCelebration
+            title={celebratedReward.title}
+            xp={celebratedReward.xp}
+            onClose={() => setCelebratedReward(null)}
+          />
+        )}
       </main>
     );
   }
