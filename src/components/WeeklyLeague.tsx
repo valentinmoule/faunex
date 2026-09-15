@@ -120,8 +120,97 @@ const WeeklyLeague = () => {
 
   const tier = tierInfo(mine.tier);
   const podium = rows.slice(0, 3);
-  const rest = rows.slice(3 ping];
-  return null;
+  const rest = rows.slice(3);
+
+  return (
+    <div className="pb-2">
+      {/* League header */}
+      <div className="mx-4 mt-1 rounded-3xl bg-gradient-to-b from-primary/10 via-card to-card border border-border p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-12 h-12 shrink-0 rounded-2xl bg-card border border-border flex items-center justify-center text-2xl shadow-sm">
+              {tier.emoji}
+            </div>
+            <div className="min-w-0">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-bold">
+                {t('social.league.myLeague')}
+              </p>
+              <p className="text-[15px] font-display font-bold text-foreground truncate">{tier.label}</p>
+              <p className="text-[11px] font-display text-muted-foreground">
+                {t('social.league.myRank', { rank: mine.rank, total: mine.group_size })} · {t('social.league.myPoints', { count: mine.points })}
+              </p>
+            </div>
+          </div>
+          <div className="shrink-0 flex flex-col items-center gap-1">
+            <Hourglass className="w-3.5 h-3.5 text-muted-foreground" />
+            <p className="text-[10px] font-display font-bold text-muted-foreground text-center leading-tight">
+              {formatTimeLeft(timeLeft, t)}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {rows.length === 0 ? (
+        <p className="px-5 py-10 text-center text-[13px] font-display text-muted-foreground">{t('social.league.emptyGroup')}</p>
+      ) : (
+        <>
+          {/* Podium */}
+          <div className="mx-4 mt-3 mb-4 rounded-3xl bg-gradient-to-b from-primary/10 via-card to-card border border-border p-4">
+            <div className="flex items-end justify-center gap-3">
+              {[podium[1], podium[0], podium[2]].filter(Boolean).map((r) => {
+                const isFirst = r === podium[0];
+                const cfg = isFirst
+                  ? { ring: 'ring-amber/50', badge: 'bg-amber text-amber-dark', avatar: 'lg' as const }
+                  : { ring: r.rank === 2 ? 'ring-muted-foreground/30' : 'ring-earth/40', badge: r.rank === 2 ? 'bg-muted text-foreground' : 'bg-earth text-primary-foreground', avatar: 'md' as const };
+                return (
+                  <div key={r.user_id} className="flex-1 flex flex-col items-center gap-1.5 max-w-[33%]">
+                    {isFirst && <Crown className="w-5 h-5 text-amber" />}
+                    <div className="relative">
+                      <PremiumAvatar
+                        avatarUrl={r.avatar_url}
+                        name={r.display_name || r.username || '?'}
+                        isPremium={premiumIds.has(r.user_id)}
+                        size={cfg.avatar}
+                        className={`ring-4 ${cfg.ring}`}
+                      />
+                      <span className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full ${cfg.badge} flex items-center justify-center text-[10px] font-display font-bold shadow-sm`}>
+                        {r.rank}
+                      </span>
+                    </div>
+                    <p className={`text-[11px] font-display font-bold truncate max-w-full ${r.is_me ? 'text-primary' : 'text-foreground'}`}>
+                      {r.is_me ? t('social.leaderboard.you') : r.display_name || r.username || t('social.leaderboard.defaultName')}
+                    </p>
+                    <p className="text-[10px] font-display text-muted-foreground">{t('social.league.myPoints', { count: r.points })}</p>
+                    <div className={`w-full ${isFirst ? 'h-16' : r.rank === 2 ? 'h-11' : 'h-8'} rounded-t-xl bg-gradient-to-t from-primary/15 to-primary/40 border-x border-t border-border`} />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <ul className="divide-y divide-border">
+            {rest.map((r) => (
+              <li key={r.user_id} className={`flex items-center gap-3 px-5 py-2.5 ${r.is_me ? 'bg-primary/5' : ''}`}>
+                <span className={`w-6 text-center text-[13px] font-display font-bold ${r.is_me ? 'text-primary' : 'text-muted-foreground'}`}>
+                  {r.rank}
+                </span>
+                <PremiumAvatar
+                  avatarUrl={r.avatar_url}
+                  name={r.display_name || r.username || '?'}
+                  isPremium={premiumIds.has(r.user_id)}
+                  size="md"
+                />
+                <p className={`flex-1 min-w-0 truncate text-[13px] font-display ${r.is_me ? 'font-bold text-primary' : 'text-foreground'}`}>
+                  {r.is_me ? t('social.leaderboard.you') : r.display_name || r.username || t('social.leaderboard.defaultName')}
+                </p>
+                <span className="text-[13px] font-display font-bold text-foreground shrink-0">{r.points}</span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </div>
+  );
 };
 
 export default WeeklyLeague;
