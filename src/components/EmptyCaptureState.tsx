@@ -8,7 +8,7 @@ interface EmptyCaptureStateProps {
   onCapture: () => void;
 }
 
-const useTypewriter = (lines: string[], speed = 22, pause = 220) => {
+const useTypewriter = (lines: string[], speed = 22, pause = 240) => {
   const [lineIndex, setLineIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
   const [done, setDone] = useState(false);
@@ -35,7 +35,9 @@ const useTypewriter = (lines: string[], speed = 22, pause = 220) => {
     return '';
   });
 
-  return { visible, done };
+  const activeLine = done ? -1 : lineIndex;
+
+  return { visible, done, activeLine };
 };
 
 export const EmptyCaptureState = ({ userName, onCapture }: EmptyCaptureStateProps) => {
@@ -46,7 +48,7 @@ export const EmptyCaptureState = ({ userName, onCapture }: EmptyCaptureStateProp
     t('bestiary.emptyCapture.line1'),
     t('bestiary.emptyCapture.line2'),
   ];
-  const { visible, done } = useTypewriter(lines, 22, 240);
+  const { visible, done, activeLine } = useTypewriter(lines, 22, 240);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] px-5 text-center">
@@ -60,13 +62,21 @@ export const EmptyCaptureState = ({ userName, onCapture }: EmptyCaptureStateProp
         <div className="space-y-1 mb-6 min-h-[5.5rem]" aria-live="polite" aria-atomic="false">
           <p className="text-xl font-display font-bold text-foreground leading-snug">
             {visible[0]}
-            <span className="inline-block w-0.5 h-5 ml-0.5 align-middle bg-primary animate-pulse" aria-hidden="true" />
+            {activeLine === 0 && (
+              <span className="inline-block w-0.5 h-5 ml-0.5 align-middle bg-primary animate-pulse" aria-hidden="true" />
+            )}
           </p>
           <p className="text-sm font-body text-muted-foreground leading-relaxed">
             {visible[1]}
+            {activeLine === 1 && (
+              <span className="inline-block w-0.5 h-4 ml-0.5 align-middle bg-primary/70 animate-pulse" aria-hidden="true" />
+            )}
           </p>
           <p className="text-sm font-body text-muted-foreground leading-relaxed">
             {visible[2]}
+            {activeLine === 2 && (
+              <span className="inline-block w-0.5 h-4 ml-0.5 align-middle bg-primary/70 animate-pulse" aria-hidden="true" />
+            )}
           </p>
         </div>
 
@@ -81,13 +91,10 @@ export const EmptyCaptureState = ({ userName, onCapture }: EmptyCaptureStateProp
             bg-primary text-primary-foreground
             font-display font-bold text-base
             shadow-lg shadow-primary/20
-            active:scale-[0.98] transition-all duration-200
-            ${done ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}
+            active:scale-[0.98] transition-all duration-300
+            ${done ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3 pointer-events-none'}
           `}
           aria-label={t('bestiary.emptyCapture.cta')}
-        {
-          /* stylelint-disable-next-line no-invalid-position-at-import-rule */
-        }
         >
           <Camera className="w-5 h-5" />
           {t('bestiary.emptyCapture.cta')}
