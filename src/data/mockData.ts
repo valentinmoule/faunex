@@ -116,8 +116,8 @@ export const RARITY_RANK: Record<string, number> = Object.fromEntries(
 
 /** Symboles façon cartes Pokémon : ● ◆ ★ noirs, ★ argent, ★★ argent, ★ or. */
 export const RARITY_SYMBOLS: Record<Rarity, string[]> = {
-  common: ['●'],
-  uncommon: ['◆'],
+  common: ['★'],
+  uncommon: ['★'],
   rare: ['★'],
   very_rare: ['★'],
   ultra_rare: ['★', '★'],

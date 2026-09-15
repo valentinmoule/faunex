@@ -13,7 +13,7 @@ const fxVariant = {
   gold: 'rarity-badge--gold',
 } as const;
 
-/** Nombre de symboles par rareté : ● ◆ ★ (encre), ★ argent, ★★ argent, ★ or. */
+/** Nombre de symboles par rareté : ★ plate (gris/vert/bleu), ★★ argent, ★ or. */
 const SYMBOL_COUNT: Record<Rarity, number> = {
   common: 1,
   uncommon: 1,
@@ -26,11 +26,10 @@ const SYMBOL_COUNT: Record<Rarity, number> = {
 };
 
 /*
- * Géométries SVG dans une boîte 12×12, conçues pour des extents optiques
- * identiques (le losange texte ◆ rendait plus petit selon la police de
- * repli de l'appareil — le SVG garantit un rendu identique partout).
+ * Géométrie SVG d'étoile dans une boîte 12×12, conçue pour un extent optique
+ * identique partout (le losange texte ◆ rendait plus petit selon la police de
+ * repli de l'appareil — le SVG garantit un rendu identique).
  */
-const DIAMOND_PATH = 'M6 0.4 L11.6 6 L6 11.6 L0.4 6 Z';
 const STAR_PATH =
   'M6 0 L7.41 4.06 L11.71 4.15 L8.28 6.74 L9.53 10.85 L6 8.4 L2.47 10.85 L3.72 6.74 L0.29 4.15 L4.59 4.06 Z';
 
@@ -48,7 +47,14 @@ const SILVER_STOPS = [
   ['100%', '#64748b'],
 ] as const;
 
-/** Jeton de rareté façon carte Pokémon : ● ◆ ★ noirs, ★ argent holo, ★★ argent holo, ★ or holo. */
+/** Couleurs plates (sans dégradé) des trois premiers paliers : gris, vert, bleu. */
+const FLAT_FILL: Partial<Record<Rarity, string>> = {
+  common: 'hsl(215 16% 47%)',
+  uncommon: 'hsl(152 55% 32%)',
+  rare: 'hsl(212 78% 42%)',
+};
+
+/** Jeton de rareté façon carte Pokémon : ★ plates (gris/vert/bleu), ★★ argent holo, ★ or holo. */
 export const RarityBadge = ({
   rarity,
   className,
@@ -65,7 +71,10 @@ export const RarityBadge = ({
   const count = SYMBOL_COUNT[r] ?? 1;
   const gap = 2;
   const width = count * 12 + (count - 1) * gap;
-  const fill = fx === 'ink' ? 'hsl(225 15% 18%)' : `url(#${uid}-${fx})`;
+  const fill =
+    fx === 'ink'
+      ? FLAT_FILL[r] ?? 'hsl(225 15% 18%)'
+      : `url(#${uid}-${fx})`;
 
   return (
     <span
@@ -89,26 +98,15 @@ export const RarityBadge = ({
             </linearGradient>
           </defs>
         )}
-        {Array.from({ length: count }).map((_, i) =>
-          r === 'common' ? (
-            <circle
-              key={i}
-              className="rarity-svg__sym"
-              cx={6 + i * (12 + gap)}
-              cy={6}
-              r={5.4}
-              fill={fill}
-            />
-          ) : (
-            <path
-              key={i}
-              className="rarity-svg__sym"
-              d={r === 'uncommon' ? DIAMOND_PATH : STAR_PATH}
-              transform={`translate(${i * (12 + gap)}, 0)`}
-              fill={fill}
-            />
-          ),
-        )}
+        {Array.from({ length: count }).map((_, i) => (
+          <path
+            key={i}
+            className="rarity-svg__sym"
+            d={STAR_PATH}
+            transform={`translate(${i * (12 + gap)}, 0)`}
+            fill={fill}
+          />
+        ))}
       </svg>
       {showLabel && <span className="rarity-badge__label">{RARITY_LABELS[r]}</span>}
     </span>
