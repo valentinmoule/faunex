@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Camera, Users, PawPrint, BookOpen } from 'lucide-react';
+import { Camera, Users, PawPrint, BookOpen, Trophy } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { hapticTap } from '@/lib/haptics';
 
@@ -8,6 +8,7 @@ const tabs = [
   { path: '/bestiaire', labelKey: 'nav.bestiary', icon: BookOpen },
   { path: '/capture', labelKey: 'nav.capture', icon: Camera },
   { path: '/explorers', labelKey: 'nav.explorers', icon: Users },
+  { path: '/bestiaire', labelKey: 'nav.leaderboard', icon: Trophy, tab: 'classement' },
 ];
 
 const BottomNav = () => {
