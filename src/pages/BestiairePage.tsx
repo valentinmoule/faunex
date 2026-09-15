@@ -1772,7 +1772,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                         claimed={isClaimed(rewardId)}
                         claiming={claimingReward === rewardId}
                         onOpen={() => setSelectedZoneId(zone.id)}
-                        onClaim={() => handleClaimCollectionReward(rewardId, xp)}
+                        onClaim={() => handleClaimCollectionReward(rewardId, xp, title)}
                       />
                     );
                   })}
@@ -1794,7 +1794,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                         claimed={isClaimed(rewardId)}
                         claiming={claimingReward === rewardId}
                         onOpen={() => setSelectedCollectionKey(group.key)}
-                        onClaim={() => handleClaimCollectionReward(rewardId, xp)}
+                        onClaim={() => handleClaimCollectionReward(rewardId, xp, group.label)}
                       />
                     );
                   })}
