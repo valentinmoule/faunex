@@ -1388,6 +1388,8 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
 
           {viewMode === 'mine' && (
             <section>
+              {(() => {
+                const showMineControls = myCapturedAnimals.length > 0 || mineSearch.trim().length > 0 || mineActiveFilterCount > 0;
               {showMineControls && (
                 <>
                   {/* Recherche + bouton tri */}
