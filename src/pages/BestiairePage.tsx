@@ -379,6 +379,18 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
 
   const { isPremium } = useSubscription(session?.user?.id);
   const { collectionKeys, addCollection, removeCollection } = useSpeciesCollections(session?.user?.id);
+  const { isClaimed, claimReward, claiming: claimingReward } = useCollectionRewards(session?.user?.id);
+
+  /** Récompense XP d'une collection/zone terminée (une seule fois). */
+  const handleClaimCollectionReward = useCallback(
+    async (rewardId: string, xp: number) => {
+      const gained = await claimReward(rewardId, xp);
+      if (gained > 0) {
+        toast.success(t('bestiary.collections.rewardClaimed', { xp: gained }));
+      }
+    },
+    [claimReward, t],
+  );
 
   const slotsUsed = subscribedZones.length + collectionKeys.length;
 
