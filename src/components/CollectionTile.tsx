@@ -122,28 +122,29 @@ const CollectionTile = ({
             )}
           </button>
 
-          {/* Pastille XP intégrée dans l'écusson, en bas (masquée une fois réclamée) */}
-          {readyToClaim && (
-            <div className="absolute bottom-[7%] left-1/2 -translate-x-1/2">
+        </div>
+
+        {/* Pastille XP posée en bas de l'écusson, hors de la zone détourée
+            pour ne jamais être rognée (masquée une fois réclamée) */}
+        {(readyToClaim || !claimed) && (
+          <div className="absolute bottom-0 left-1/2 z-10 -translate-x-1/2 translate-y-1/2">
+            {readyToClaim ? (
               <button
                 onClick={onClaim}
                 disabled={claiming}
                 aria-label={t('bestiary.collections.claimReward', { xp })}
-                className="active:scale-95 transition disabled:opacity-60"
+                className="block rounded-full shadow-md drop-shadow transition active:scale-95 disabled:opacity-60"
               >
                 <XpPill xp={xp} state="ready" />
               </button>
-            </div>
-          )}
-          {!readyToClaim && !claimed && (
-            <div className="absolute bottom-[7%] left-1/2 -translate-x-1/2">
-              <XpPill xp={xp} state="locked" className="pointer-events-none" />
-            </div>
-          )}
-        </div>
+            ) : (
+              <XpPill xp={xp} state="locked" className="pointer-events-none shadow-md drop-shadow" />
+            )}
+          </div>
+        )}
       </div>
 
-      <h3 className="mt-2 w-full text-center font-display font-bold text-[13px] text-foreground leading-tight truncate">
+      <h3 className="mt-4 w-full text-center font-display font-bold text-[13px] text-foreground leading-tight truncate">
         {title}
       </h3>
     </div>
