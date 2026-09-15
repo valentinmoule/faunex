@@ -54,7 +54,7 @@ const FLAT_FILL: Partial<Record<Rarity, string>> = {
   rare: 'hsl(212 78% 42%)',
 };
 
-/** Jeton de rareté façon carte Pokémon : ● ◆ ★ noirs, ★ argent holo, ★★ argent holo, ★ or holo. */
+/** Jeton de rareté façon carte Pokémon : ★ plates (gris/vert/bleu), ★★ argent holo, ★ or holo. */
 export const RarityBadge = ({
   rarity,
   className,
@@ -71,7 +71,10 @@ export const RarityBadge = ({
   const count = SYMBOL_COUNT[r] ?? 1;
   const gap = 2;
   const width = count * 12 + (count - 1) * gap;
-  const fill = fx === 'ink' ? 'hsl(225 15% 18%)' : `url(#${uid}-${fx})`;
+  const fill =
+    fx === 'ink'
+      ? FLAT_FILL[r] ?? 'hsl(225 15% 18%)'
+      : `url(#${uid}-${fx})`;
 
   return (
     <span
@@ -95,26 +98,15 @@ export const RarityBadge = ({
             </linearGradient>
           </defs>
         )}
-        {Array.from({ length: count }).map((_, i) =>
-          r === 'common' ? (
-            <circle
-              key={i}
-              className="rarity-svg__sym"
-              cx={6 + i * (12 + gap)}
-              cy={6}
-              r={5.4}
-              fill={fill}
-            />
-          ) : (
-            <path
-              key={i}
-              className="rarity-svg__sym"
-              d={r === 'uncommon' ? DIAMOND_PATH : STAR_PATH}
-              transform={`translate(${i * (12 + gap)}, 0)`}
-              fill={fill}
-            />
-          ),
-        )}
+        {Array.from({ length: count }).map((_, i) => (
+          <path
+            key={i}
+            className="rarity-svg__sym"
+            d={STAR_PATH}
+            transform={`translate(${i * (12 + gap)}, 0)`}
+            fill={fill}
+          />
+        ))}
       </svg>
       {showLabel && <span className="rarity-badge__label">{RARITY_LABELS[r]}</span>}
     </span>
