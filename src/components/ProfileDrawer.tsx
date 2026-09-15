@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Crown, MessageCircle, Settings, ShieldCheck, UserRound } from 'lucide-react';
+import { Crown, Settings, ShieldCheck, UserRound } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -188,14 +188,6 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
                 <Button className="w-full justify-start" onClick={() => go('/settings')}>
                   <Settings />
                   {t('profile.page.drawer.accountSettings')}
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start"
-                  onClick={() => window.open('https://discord.gg/YrAEV5EQa4', '_blank', 'noopener,noreferrer')}
-                >
-                  <MessageCircle />
-                  {t('settings.discord')}
                 </Button>
                 {isAdmin && (
                   <Button variant="outline" className="w-full justify-start" onClick={() => go('/moderation')}>
