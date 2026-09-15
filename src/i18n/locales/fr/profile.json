@@ -21,7 +21,10 @@
       },
       "drawer": {
         "open": "Ouvrir mon profil",
-        "accountSettings": "Paramètres du compte"
+        "accountSettings": "Paramètres du compte",
+        "premiumTitle": "Passe Premium",
+        "premiumSubtitle": "Captures et collections illimitées",
+        "premiumCta": "Découvrir Premium"
       }
     },
     "quests": {

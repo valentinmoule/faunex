@@ -21,7 +21,10 @@
       },
       "drawer": {
         "open": "Open my profile",
-        "accountSettings": "Account settings"
+        "accountSettings": "Account settings",
+        "premiumTitle": "Go Premium",
+        "premiumSubtitle": "Unlimited captures and collections",
+        "premiumCta": "Discover Premium"
       }
     },
     "quests": {
