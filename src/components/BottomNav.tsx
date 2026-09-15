@@ -16,10 +16,23 @@ const BottomNav = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
+  const currentTabParam = new URLSearchParams(location.search).get('tab');
 
-  const go = (path: string) => {
-    if (location.pathname !== path) hapticTap();
-    navigate(path);
+  const isActive = (tab: (typeof tabs)[number]) => {
+    if (tab.tab) {
+      return location.pathname === tab.path && currentTabParam === tab.tab;
+    }
+    // L'onglet Bestiaire est actif partout sur /bestiaire sauf sur la vue classement
+    if (tab.path === '/bestiaire') {
+      return location.pathname === '/bestiaire' && currentTabParam !== 'classement';
+    }
+    return location.pathname === tab.path;
+  };
+
+  const go = (tab: (typeof tabs)[number]) => {
+    const target = tab.tab ? `${tab.path}?tab=${tab.tab}` : tab.path;
+    if (location.pathname + location.search !== target) hapticTap();
+    navigate(target);
   };
 
   return (
