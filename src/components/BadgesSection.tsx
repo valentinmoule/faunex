@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
 import { useBadges, type BadgeProgress } from '@/hooks/useBadges';
+import BadgeMedallion from '@/components/BadgeMedallion';
 import { BADGE_GROUP_ICONS, BADGE_GROUP_ORDER, getGroupLabel, type BadgeGroup } from '@/lib/badges';
 
 interface Props {
