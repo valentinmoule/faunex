@@ -116,9 +116,18 @@ useEffect(() => {
     }
   }, [isPremium, premiumLoading, scope, forcedScope]);
 
+  const cacheKey = `${isTerritory ? 'terr' : 'cat'}:${value}:${scope}:${period}`;
+
   useEffect(() => {
     let cancelled = false;
-    setReady(false);
+    const cached = boardCache.get(cacheKey);
+    if (cached) {
+      setRows(cached.rows);
+      setMine(cached.mine);
+      setReady(true);
+    } else {
+      setReady(false);
+    }
     const load = async () => {
       const [top, me] = isTerritory
         ? await Promise.all([
