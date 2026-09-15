@@ -1800,7 +1800,7 @@ const isCity = zone.kind === 'city';
 
           {viewMode === 'leaderboard' && (
             <section>
-              <CategoryLeaderboard category="all" />
+              <CategoryLeaderboard category="all" inline />
             </section>
           )}
 
