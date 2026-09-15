@@ -32,7 +32,6 @@ Réponds UNIQUEMENT via l'appel de fonction verify_animal.`
 
 
 /** Seuil de confiance minimal pour valider sans modérateur humain. */
-const AUTO_APPROVE_THRESHOLD = 0.5
 
 
 
@@ -339,7 +338,6 @@ async function examine(
 
 
   const confidence = Number(verdict.confidence) || 0
-  const matches = verdict.name_matches === true
   const finalName = (verdict.animal_name || name).toString().trim()
   const unknown = norm(finalName) === 'inconnu' || !finalName
   // Authenticité : une illustration / logo / dessin / capture d'écran n'est jamais
