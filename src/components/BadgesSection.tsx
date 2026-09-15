@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Award, Gift } from 'lucide-react';
+import { Gift } from 'lucide-react';
 import XpPill from '@/components/XpPill';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
