@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next';
-import appMockups from '@/assets/landing/faunex-app-mockups.png.asset.json';
 
 const LandingPhoneShowcase = () => {
   const { t } = useTranslation();
@@ -28,7 +27,7 @@ const LandingPhoneShowcase = () => {
 
         <div className="mx-auto w-full max-w-[1080px]">
           <img
-            src={appMockups.url}
+            src="/landing/faunex-app-mockups.png"
             alt={t('marketing.phoneShowcase.captureAlt')}
             className="h-auto w-full object-contain"
             loading="lazy"
