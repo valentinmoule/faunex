@@ -18,10 +18,11 @@ const corsHeaders = {
  */
 const AUTO_PROMPT = `Expert naturaliste chargé du contrôle qualité. On te donne une PHOTO, le NOM proposé par l'observateur et sa description. Ta mission : VÉRIFIER le nom, pas deviner. Sois COOPÉRATIF : si la photo est compatible avec le nom proposé, valide-le.
 
-- name_matches = true dès que la photo est COMPATIBLE avec l'animal nommé (espèce, genre, groupe ou race), même si la photo n'est pas parfaite. Accepte les synonymes, variantes régionales, orthographes approximatives, singulier/pluriel, nom de genre ou de famille au lieu de l'espèce.
-- name_matches = false seulement si la photo montre clairement AUTRE CHOSE que ce que l'observateur a nommé (autre famille, autre catégorie), ou si aucun animal n'est visible.
-- L'OBSERVATEUR A GÉNÉRALEMENT RAISON, surtout s'il fournit aussi un nom scientifique : ne le contredis que si tu es CERTAIN (confiance > 0,95) qu'il s'agit d'une autre espèce. En cas de simple hésitation, valide son nom.
+- name_matches = true dès que la photo est COMPATIBLE avec l'animal nommé (espèce, genre, groupe ou race), même si la photo n'est pas parfaite. Accepte les synonymes, variantes régionales, orthographes approximatives, singulier/pluriel, nom de genre ou de famille au lieu de l'espèce, ainsi qu'une espèce voisine du même genre ou de la même famille.
+- name_matches = false UNIQUEMENT si aucun animal n'est visible, ou si l'animal photographié appartient manifestement à un tout autre groupe que le nom proposé (ex. « chat » pour un oiseau, « libellule » pour une araignée). Dans le doute, réponds true.
+- L'OBSERVATEUR A PRESQUE TOUJOURS RAISON (≈ 9 fois sur 10) : ne le contredis que si l'erreur est FLAGRANTE et visible sur la photo. Un simple désaccord de nom scientifique, de sous-espèce ou de race n'est PAS une contradiction : réponds true.
 - confidence = certitude que le nom proposé est acceptable (0-1). Une photo un peu floue ou lointaine mais clairement compatible reste > 0,8.
+
 - AUTHENTICITÉ : seule une VRAIE PHOTO d'animal VIVANT est valide. Invalide (is_real_photo false, name_matches false, confidence 0) : illustration, dessin, logo, mascotte, peinture, rendu 3D, image IA, capture/photo d'écran ou de papier, autocollant, tatouage, peluche, figurine, statue et tout OBJET en forme d'animal (déco, bibelot, déguisement, gonflable, gâteau, graffiti, panneau) → objet_representation ; animal MORT ou préparé (plat, poisson/fruits de mer servis ou en étal, viande, carcasse, trophée, taxidermie, écrasé, insecte épinglé, squelette, coquille vide) → animal_mort_ou_plat. Indices : matériau/couture/socle/yeux peints/posture rigide, aplats sans grain, fond uni, watermark, assiette/couverts/glace/découpe/sang.
 - Humain, plante, aucun animal, créature de fiction ou espèce éteinte → name_matches false, confidence 0.
 - animal_name : le nom de l'observateur normalisé (orthographe, casse, race si visible), jamais une autre espèce. Nom scientifique = binôme latin réel correspondant au nom de l'observateur.
@@ -31,7 +32,6 @@ Réponds UNIQUEMENT via l'appel de fonction verify_animal.`
 
 
 /** Seuil de confiance minimal pour valider sans modérateur humain. */
-const AUTO_APPROVE_THRESHOLD = 0.5
 
 
 
@@ -338,7 +338,6 @@ async function examine(
 
 
   const confidence = Number(verdict.confidence) || 0
-  const matches = verdict.name_matches === true
   const finalName = (verdict.animal_name || name).toString().trim()
   const unknown = norm(finalName) === 'inconnu' || !finalName
   // Authenticité : une illustration / logo / dessin / capture d'écran n'est jamais
@@ -367,12 +366,15 @@ async function examine(
   // Un désaccord d'espèce n'est jamais un refus ferme : c'est un arbitrage humain.
   const ruleBreach = notRealPhoto || (!disagreement && verdict.name_matches === false && confidence === 0)
 
-  // CONFIANCE À L'OBSERVATEUR : son nom est réputé exact. L'IA ne sert qu'à
-  // écarter les cas manifestement invalides (photo non réelle, nom inconnu) ou
-  // une contradiction explicite. Un simple manque d'assurance ne bloque plus.
+  // CONFIANCE MAXIMALE À L'OBSERVATEUR : dans ~90 % des cas son nom est bon.
+  // Un simple écart de nom scientifique ou de formulation ne déclenche plus de
+  // modération humaine : on conserve les noms de l'observateur et on approuve.
+  // Seuls garde-fous : photo non réelle / objet / animal mort, nom vide ou
+  // « inconnu », et contradiction EXPLICITE de l'IA (name_matches === false),
+  // c'est-à-dire quand ce n'est manifestement pas cet animal (ou pas un animal).
   const explicitContradiction = verdict.name_matches === false
-  const humanNeeded = notRealPhoto || unknown || disagreement || explicitContradiction
-    || (!matches && confidence < AUTO_APPROVE_THRESHOLD)
+  const humanNeeded = notRealPhoto || unknown || explicitContradiction
+
 
 
 
