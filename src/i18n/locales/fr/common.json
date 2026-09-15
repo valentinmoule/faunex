@@ -22,6 +22,7 @@
     "species": "espèces",
     "captures": "captures",
     "captureQuotaRemaining": "{{count}} captures restantes aujourd’hui",
+    "unlimitedCaptures": "Captures illimitées",
     "goPremium": "Passer à Faunex Premium",
     "premiumActive": "Faunex Premium actif"
   },

@@ -22,6 +22,7 @@
     "species": "species",
     "captures": "captures",
     "captureQuotaRemaining": "{{count}} captures remaining today",
+    "unlimitedCaptures": "Unlimited captures",
     "goPremium": "Upgrade to Faunex Premium",
     "premiumActive": "Faunex Premium active"
   },
