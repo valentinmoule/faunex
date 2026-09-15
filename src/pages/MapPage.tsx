@@ -15,6 +15,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import CardDetailSheet from '@/components/CardDetailSheet';
 import { type AnimalCard, type Rarity, RARITY_LABELS, RARITY_ORDER } from '@/data/mockData';
 import { toast } from 'sonner';
+import { getCurrentPosition, isGeolocationAvailable } from '@/lib/geo';
 import { useTranslation } from 'react-i18next';
 
 
@@ -145,8 +146,7 @@ const MapPage = () => {
   }, [session]);
 
   useEffect(() => {
-    if (!('geolocation' in navigator)) return;
-    navigator.geolocation.getCurrentPosition(
+    void getCurrentPosition(
       (pos) => {
         const p: [number, number] = [pos.coords.latitude, pos.coords.longitude];
         setUserPos(p);
@@ -158,11 +158,11 @@ const MapPage = () => {
   }, []);
 
   const locateMe = () => {
-    if (!('geolocation' in navigator)) {
+    if (!isGeolocationAvailable()) {
       toast.error(t('map.errors.geoUnavailable'));
       return;
     }
-    navigator.geolocation.getCurrentPosition(
+    void getCurrentPosition(
       (pos) => {
         const p: [number, number] = [pos.coords.latitude, pos.coords.longitude];
         setUserPos(p);

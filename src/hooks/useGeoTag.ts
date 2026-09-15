@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { getCurrentPosition } from '@/lib/geo';
 
 type Coords = { lat: number; lng: number };
 
@@ -30,8 +31,7 @@ export const useGeoTag = () => {
   }, []);
 
   const capture = useCallback(() => {
-    if (!navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition(
+    void getCurrentPosition(
       (pos) => {
         void apply({ lat: pos.coords.latitude, lng: pos.coords.longitude });
       },
