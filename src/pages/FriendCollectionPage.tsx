@@ -15,9 +15,10 @@ import {
   popularityTierOf,
   type SpeciesSort,
   type PopularityTier,
+  SPECIES_SORT_OPTIONS,
 } from '@/components/SpeciesSortFilter';
 import CardDetailSheet from '@/components/CardDetailSheet';
-import { type AnimalCard, type Rarity, RARITY_LABELS, RARITY_ORDER, RARITY_RANK, RARITY_FX, normalizeRarity } from '@/data/mockData';
+import { type AnimalCard, type Rarity, RARITY_RANK, RARITY_FX, normalizeRarity } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
 import { fetchAllRows } from '@/lib/fetchAll';
 import { useAuth } from '@/contexts/AuthContext';
@@ -486,6 +487,23 @@ const FriendCollectionPage = () => {
           </>
         )}
       </div>
+
+      <SpeciesSortFilterSheet
+        open={filterOpen}
+        onOpenChange={setFilterOpen}
+        sort={sort}
+        sortOptions={SPECIES_SORT_OPTIONS}
+        onSortChange={(s) => setSort(s as SpeciesSort)}
+        rarities={rarityFilter}
+        onRaritiesChange={setRarityFilter}
+        popularities={popularityFilter}
+        onPopularitiesChange={setPopularityFilter}
+        availableCategories={categoryData}
+        categories={categoryFilter}
+        onCategoriesChange={setCategoryFilter}
+        resultCount={filtered.length}
+        onReset={resetFilters}
+      />
 
       {/* Following / Followers Sheet */}
       <Sheet open={!!sheetOpen} onOpenChange={(open) => !open && setSheetOpen(null)}>
