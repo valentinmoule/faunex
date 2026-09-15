@@ -304,17 +304,20 @@ export const useCamera = ({ paused }: UseCameraOptions) => {
     const srcX = useDigitalCrop ? (video.videoWidth - srcW) / 2 : 0;
     const srcY = useDigitalCrop ? (video.videoHeight - srcH) / 2 : 0;
 
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    // En zoom numérique on garde la taille du crop (pas d'upscale flou).
+    canvas.width = Math.round(srcW);
+    canvas.height = Math.round(srcH);
     const ctx = canvas.getContext('2d');
     if (!ctx) return null;
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
 
     if (facingMode === 'user') {
       ctx.translate(canvas.width, 0);
       ctx.scale(-1, 1);
     }
     ctx.drawImage(video, srcX, srcY, srcW, srcH, 0, 0, canvas.width, canvas.height);
-    return canvas.toDataURL('image/jpeg', 0.85);
+    return canvas.toDataURL('image/jpeg', 0.94);
   }, [facingMode, supportsNativeZoom, zoomLevel, startCamera]);
 
   /** Restores camera state after a capture is discarded. */
