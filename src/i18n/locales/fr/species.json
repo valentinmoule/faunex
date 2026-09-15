@@ -9,7 +9,7 @@
     "rarityChip": "Rareté : {{label}}",
     "captureCount_one": "{{count}} capture par la communauté",
     "captureCount_other": "{{count}} captures par la communauté",
-    "ctaIdentify": "Identifier un {{name}} en photo",
+    "ctaIdentify": "Identifier avec une photo",
     "relatedTitle": "Espèces proches à découvrir",
     "sections": {
       "recognize": "Comment reconnaître le {{name}}",
