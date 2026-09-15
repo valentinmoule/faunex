@@ -47,7 +47,8 @@ const LandingPhoneShowcase = () => {
 
         <div className="relative mx-auto h-[410px] w-full max-w-[920px] sm:h-[650px]">
           {/* Collection — background left */}
-          <PhoneMockup className="absolute left-[-7%] top-10 z-0 w-[158px] -rotate-[7deg] sm:left-0 sm:top-16 sm:w-[270px]">
+          <div className="absolute left-[-7%] top-10 z-0 w-[158px] -rotate-[7deg] sm:left-0 sm:top-16 sm:w-[270px]">
+          <PhoneMockup className="w-full">
             <div className="absolute inset-0 bg-background px-3 pb-3 pt-9 sm:px-4 sm:pt-11">
               <div className="flex items-end justify-between">
                 <p className="text-[10px] font-black text-primary sm:text-base">mon faunex</p>
@@ -81,9 +82,11 @@ const LandingPhoneShowcase = () => {
               </div>
             </div>
           </PhoneMockup>
+          </div>
 
           {/* Capture — background right */}
-          <PhoneMockup className="absolute right-[-7%] top-10 z-0 w-[158px] rotate-[7deg] sm:right-0 sm:top-16 sm:w-[270px]" variant="dark">
+          <div className="absolute right-[-7%] top-10 z-0 w-[158px] rotate-[7deg] sm:right-0 sm:top-16 sm:w-[270px]">
+          <PhoneMockup className="w-full" variant="dark">
             <div className="absolute inset-0 bg-foreground">
               <img
                 src="/landing/ladybug.jpg"
@@ -108,9 +111,11 @@ const LandingPhoneShowcase = () => {
               </div>
             </div>
           </PhoneMockup>
+          </div>
 
           {/* Species detail — foreground */}
-          <PhoneMockup className="absolute left-1/2 top-0 z-20 w-[184px] -translate-x-1/2 sm:w-[310px]" variant="dark">
+          <div className="absolute left-1/2 top-0 z-20 w-[184px] -translate-x-1/2 sm:w-[310px]">
+          <PhoneMockup className="w-full" variant="dark">
             <div className="absolute inset-0 bg-foreground">
               <div className="absolute right-4 top-8 z-10 text-background/80 sm:right-5 sm:top-10">
                 <X className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
@@ -156,6 +161,7 @@ const LandingPhoneShowcase = () => {
               </div>
             </div>
           </PhoneMockup>
+          </div>
         </div>
       </div>
     </section>
