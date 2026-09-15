@@ -80,11 +80,6 @@ export async function fetchSpeciesPage(slug: string): Promise<SpeciesPage | null
   return (data as SpeciesPage | null) ?? null;
 }
 
-/** Nom commun affichable dans la langue courante (repli : nom français). */
-export const localizedSpeciesName = (
-  page: { animal_name: string; content?: Partial<Record<SpeciesLocale, Partial<SpeciesSections>>> },
-  locale: string | undefined,
-): string => page.content?.[speciesLocale(locale)]?.name || page.animal_name;
 
 export async function fetchSpeciesPages(): Promise<SpeciesPageSummary[]> {
   const { data, error } = await supabase
