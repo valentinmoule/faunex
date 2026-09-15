@@ -376,53 +376,34 @@ const FriendCollectionPage = () => {
 
       {/* Collection - always visible */}
       <div className="max-w-lg mx-auto px-4 pt-3">
-        {!loading && captures.length > 0 && (
-          <div className="relative mb-2">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={t('social.friendCollection.searchPlaceholder')}
-              className="w-full h-10 pl-9 pr-9 rounded-xl bg-muted/60 border border-border text-sm font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition-shadow"
+        {!loading && (captures.length > 0 || activeFilterCount > 0) && (
+          <div className="flex items-center gap-2 mb-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t('social.friendCollection.searchPlaceholder')}
+                className="w-full h-10 pl-9 pr-9 rounded-xl bg-muted/60 border border-border text-sm font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition-shadow"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  aria-label={t('bestiary.common.clearSearch')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-full text-muted-foreground hover:bg-muted transition-colors"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+            <SpeciesFilterButton
+              onClick={() => setFilterOpen(true)}
+              active={sort !== 'default' || activeFilterCount > 0}
+              count={activeFilterCount}
             />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                aria-label={t('bestiary.common.clearSearch')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-full text-muted-foreground hover:bg-muted transition-colors"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
           </div>
         )}
-        <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-2">
-          {rarityFilters.map((r) => {
-            const isActive = filter === r;
-            const fx = r === 'all' ? null : RARITY_FX[r as Rarity];
-            const colorClasses = r === 'all'
-              ? isActive ? 'bg-foreground text-background border-foreground shadow-md' : 'bg-muted text-muted-foreground border-border hover:bg-muted/80'
-              : fx === 'gold'
-              ? isActive ? 'bg-rarity-gold/20 text-rarity-gold border-rarity-gold/50' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-gold/10 hover:text-rarity-gold hover:border-rarity-gold/30'
-              : fx === 'silver'
-              ? isActive ? 'bg-rarity-silver/20 text-rarity-silver border-rarity-silver/50' : 'bg-muted text-muted-foreground border-border hover:bg-rarity-silver/10 hover:text-rarity-silver hover:border-rarity-silver/30'
-              : isActive ? 'bg-foreground/10 text-foreground border-foreground/30' : 'bg-muted text-muted-foreground border-border hover:bg-foreground/5 hover:text-foreground hover:border-foreground/20';
-
-            const dot = r === 'all' ? '' : fx === 'gold' ? 'bg-rarity-gold' : fx === 'silver' ? 'bg-rarity-silver' : 'bg-foreground/50';
-
-            return (
-              <button
-                key={r}
-                onClick={() => setFilter(r)}
-                className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-display font-bold border transition-all duration-300 flex items-center gap-1 active:scale-95 ${colorClasses} ${isActive && r !== 'all' ? 'bestiary-filter-glow' : ''} ${fx === 'gold' ? 'gold-filter-shimmer' : ''}`}
-              >
-                {r !== 'all' && <span className={`w-1.5 h-1.5 rounded-full ${dot} ${isActive ? 'animate-pulse' : ''}`} />}
-                {r === 'all' ? t('social.friendCollection.filterAll') : RARITY_LABELS[r]}
-              </button>
-            );
-          })}
-        </div>
       </div>
 
       <div className="max-w-lg mx-auto px-4 pt-3">
