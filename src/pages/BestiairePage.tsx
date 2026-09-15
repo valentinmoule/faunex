@@ -1424,7 +1424,6 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
               ] : [
                 { key: 'categories' as const, label: t('bestiary.tabs.categories'), icon: PawPrint },
                 { key: 'collections' as const, label: t('bestiary.tabs.collections'), icon: Layers },
-                { key: 'leaderboard' as const, label: t('bestiary.tabs.leaderboard'), icon: Trophy },
               ]).map(({ key, label, icon: Icon }) => {
                 const active = viewMode === key;
                 return (

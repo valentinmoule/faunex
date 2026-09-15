@@ -1,13 +1,16 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Camera, Users, PawPrint, BookOpen } from 'lucide-react';
+import { Camera, Users, PawPrint, BookOpen, Trophy } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { hapticTap } from '@/lib/haptics';
 
-const tabs = [
+type NavTab = { path: string; labelKey: string; icon: typeof PawPrint; tab?: string };
+
+const tabs: NavTab[] = [
   { path: '/home', labelKey: 'nav.faunex', icon: PawPrint },
   { path: '/bestiaire', labelKey: 'nav.bestiary', icon: BookOpen },
   { path: '/capture', labelKey: 'nav.capture', icon: Camera },
   { path: '/explorers', labelKey: 'nav.explorers', icon: Users },
+  { path: '/bestiaire', labelKey: 'nav.leaderboard', icon: Trophy, tab: 'leaderboard' },
 ];
 
 const BottomNav = () => {
@@ -15,10 +18,23 @@ const BottomNav = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
+  const currentTabParam = new URLSearchParams(location.search).get('tab');
 
-  const go = (path: string) => {
-    if (location.pathname !== path) hapticTap();
-    navigate(path);
+  const isActive = (tab: (typeof tabs)[number]) => {
+    if (tab.tab) {
+      return location.pathname === tab.path && currentTabParam === tab.tab;
+    }
+    // L'onglet Bestiaire est actif partout sur /bestiaire sauf sur la vue classement
+    if (tab.path === '/bestiaire') {
+      return location.pathname === '/bestiaire' && currentTabParam !== 'leaderboard';
+    }
+    return location.pathname === tab.path;
+  };
+
+  const go = (tab: (typeof tabs)[number]) => {
+    const target = tab.tab ? `${tab.path}?tab=${tab.tab}` : tab.path;
+    if (location.pathname + location.search !== target) hapticTap();
+    navigate(target);
   };
 
   return (
@@ -26,15 +42,15 @@ const BottomNav = () => {
       <div className="flex items-center justify-around h-[60px] max-w-lg mx-auto px-2">
 
         {tabs.map((tab) => {
-          const isActive = location.pathname === tab.path;
+          const active = isActive(tab);
           const Icon = tab.icon;
           const isCapture = tab.path === '/capture';
 
           if (isCapture) {
             return (
               <button
-                key={tab.path}
-                onClick={() => go(tab.path)}
+                key={tab.labelKey}
+                onClick={() => go(tab)}
                 className="flex flex-col items-center justify-center -mt-6 press"
               >
                 <div className="capture-halo w-[54px] h-[54px] rounded-[20px] bg-gradient-to-b from-forest-light to-primary flex items-center justify-center shadow-[0_2px_4px_hsla(165,25%,11%,0.08),0_12px_28px_-10px_hsl(var(--primary)/0.65)] ring-4 ring-card">
@@ -49,20 +65,20 @@ const BottomNav = () => {
 
           return (
             <button
-              key={tab.path}
-              onClick={() => go(tab.path)}
+              key={tab.labelKey}
+              onClick={() => go(tab)}
               className="relative flex flex-col items-center justify-center gap-1 py-2 px-3 press"
             >
               <Icon
-                key={`${tab.path}-${isActive ? 'on' : 'off'}`}
+                key={`${tab.labelKey}-${active ? 'on' : 'off'}`}
                 className={`w-[22px] h-[22px] transition-colors duration-200 ${
-                  isActive ? 'text-primary tab-pop' : 'text-muted-foreground'
+                  active ? 'text-primary tab-pop' : 'text-muted-foreground'
                 }`}
-                strokeWidth={isActive ? 2.4 : 1.9}
+                strokeWidth={active ? 2.4 : 1.9}
               />
               <span
                 className={`text-[10px] font-display tracking-tight transition-colors duration-200 ${
-                  isActive ? 'text-primary font-bold' : 'text-muted-foreground font-medium'
+                  active ? 'text-primary font-bold' : 'text-muted-foreground font-medium'
                 }`}
               >
                 {t(tab.labelKey)}
