@@ -114,7 +114,7 @@ const QuestsInline = () => {
     } catch { /* cancelled */ }
   };
 
-  const completedCount = quests.filter((q) => q.completed).length;
+  
 
   // Motif répété (empreinte + feuille) utilisé en fond de carte
   const patternSvg = encodeURIComponent(
