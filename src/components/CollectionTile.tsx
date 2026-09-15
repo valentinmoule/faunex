@@ -104,12 +104,12 @@ const CollectionTile = ({
               />
             </div>
 
-            {/* Progression au centre, légèrement au-dessus de la pastille XP */}
+            {/* Titre au centre, légèrement au-dessus de la pastille XP */}
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5 pb-[14%] pl-5 pr-3 text-center">
-              <span className="font-display font-black text-2xl text-primary-foreground tabular-nums drop-shadow">
-                {pct}%
+              <span className="font-display font-black text-base leading-tight text-primary-foreground drop-shadow [text-shadow:0_1px_3px_rgb(0_0_0/0.45)]">
+                {title}
               </span>
-              <span className="font-display text-[11px] text-primary-foreground/85 tabular-nums">
+              <span className="font-display text-[11px] text-primary-foreground/85 tabular-nums drop-shadow">
                 {captured}/{total}
               </span>
             </div>
@@ -144,9 +144,6 @@ const CollectionTile = ({
         )}
       </div>
 
-      <h3 className="mt-4 w-full text-center font-display font-bold text-[13px] text-foreground leading-tight truncate">
-        {title}
-      </h3>
     </div>
   );
 };
