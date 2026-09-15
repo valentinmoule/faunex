@@ -21,6 +21,7 @@ import CardDetailSheet from '@/components/CardDetailSheet';
 import RarityBadge from '@/components/RarityBadge';
 import FindersBadge from '@/components/FindersBadge';
 import MyCapturesGrid from '@/components/MyCapturesGrid';
+import EmptyCaptureState from '@/components/EmptyCaptureState';
 
 import LoadingScreen from '@/components/LoadingScreen';
 import { DEPARTEMENTS, getDepartement } from '@/data/departements';
