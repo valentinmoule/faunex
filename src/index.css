@@ -2929,7 +2929,7 @@ html.is-native-android body {
   color: hsl(225 15% 18%);
 }
 
-/* Code couleur des pastilles "encre" (● ◆ ★ ★★) */
+/* Code couleur des pastilles "encre" (★ plates gris / vert / bleu) */
 .rarity-badge--uncommon {
   background: hsl(152 55% 94%);
   border-color: hsl(var(--rarity-uncommon) / 0.35);
