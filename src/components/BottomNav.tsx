@@ -38,7 +38,7 @@ const BottomNav = () => {
                 onClick={() => go(tab.path)}
                 className="flex flex-col items-center justify-center -mt-6 press"
               >
-                <div className="w-[54px] h-[54px] rounded-[20px] bg-gradient-to-b from-forest-light to-primary flex items-center justify-center shadow-[0_2px_4px_hsla(165,25%,11%,0.08),0_12px_28px_-10px_hsl(var(--primary)/0.65)] ring-4 ring-card">
+                <div className="capture-halo w-[54px] h-[54px] rounded-[20px] bg-gradient-to-b from-forest-light to-primary flex items-center justify-center shadow-[0_2px_4px_hsla(165,25%,11%,0.08),0_12px_28px_-10px_hsl(var(--primary)/0.65)] ring-4 ring-card">
                   <Icon className="w-6 h-6 text-primary-foreground" strokeWidth={2.2} />
                 </div>
                 <span className="text-[10px] font-display font-semibold mt-1 text-primary tracking-tight">
