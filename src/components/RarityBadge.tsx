@@ -54,7 +54,7 @@ const FLAT_FILL: Partial<Record<Rarity, string>> = {
   rare: 'hsl(215 16% 47%)',
 };
 
-/** Jeton de rareté façon carte Pokémon : ★ plates (gris/vert/bleu), ★★ argent holo, ★ or holo. */
+/** Jeton de rareté : 1–3 ★ plates grises (paliers bas), 1–3 ★ argent holo, 1–2 ★ or holo. */
 export const RarityBadge = ({
   rarity,
   className,
