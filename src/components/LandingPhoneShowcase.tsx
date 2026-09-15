@@ -229,6 +229,7 @@ const LandingPhoneShowcase = () => {
               </p>
             </div>
           </div>
+        </div>
       </div>
     </section>
   );
