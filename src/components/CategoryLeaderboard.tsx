@@ -72,6 +72,10 @@ interface LeaderboardTarget {
   scope?: 'global' | 'follows';
 }
 
+/** Cache mémoire des classements déjà chargés : en revenant sur un onglet on
+ *  réaffiche instantanément la dernière liste connue, rafraîchie en arrière-plan. */
+const boardCache = new Map<string, { rows: Row[]; mine: MyRank | null }>();
+
 const CategoryLeaderboard = ({ category, territory, inline, period = 'week', scope: forcedScope }: LeaderboardTarget) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -112,9 +116,18 @@ useEffect(() => {
     }
   }, [isPremium, premiumLoading, scope, forcedScope]);
 
+  const cacheKey = `${isTerritory ? 'terr' : 'cat'}:${value}:${scope}:${period}`;
+
   useEffect(() => {
     let cancelled = false;
-    setReady(false);
+    const cached = boardCache.get(cacheKey);
+    if (cached) {
+      setRows(cached.rows);
+      setMine(cached.mine);
+      setReady(true);
+    } else {
+      setReady(false);
+    }
     const load = async () => {
       const [top, me] = isTerritory
         ? await Promise.all([
@@ -125,15 +138,18 @@ useEffect(() => {
             supabase.rpc('category_leaderboard', { p_category: value, p_limit: 20, p_scope: scope, p_period: period } as never),
             supabase.rpc('my_category_rank', { p_category: value, p_scope: scope, p_period: period } as never),
           ]);
-      if (cancelled) return;
-      setRows(((top.data as unknown as Row[] | null) || []).map(r => ({ ...r, rank: Number(r.rank), captures: Number(r.captures) })));
+      const nextRows = ((top.data as unknown as Row[] | null) || []).map(r => ({ ...r, rank: Number(r.rank), captures: Number(r.captures) }));
       const m = ((me.data as unknown as MyRank[] | null) || [])[0];
-      setMine(m ? { rank: Number(m.rank), captures: Number(m.captures), total_players: Number(m.total_players) } : null);
+      const nextMine = m ? { rank: Number(m.rank), captures: Number(m.captures), total_players: Number(m.total_players) } : null;
+      boardCache.set(cacheKey, { rows: nextRows, mine: nextMine });
+      if (cancelled) return;
+      setRows(nextRows);
+      setMine(nextMine);
       setReady(true);
     };
     load();
     return () => { cancelled = true; };
-  }, [isTerritory, value, scope, period]);
+  }, [isTerritory, value, scope, period, cacheKey]);
 
 if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
 
