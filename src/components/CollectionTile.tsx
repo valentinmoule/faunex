@@ -104,12 +104,12 @@ const CollectionTile = ({
               />
             </div>
 
-            {/* Titre au centre, légèrement au-dessus de la pastille XP */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5 pb-[14%] pl-5 pr-3 text-center">
-              <span className="font-display font-black text-base leading-tight text-primary-foreground drop-shadow [text-shadow:0_1px_3px_rgb(0_0_0/0.45)]">
+            {/* Titre centré dans l'écusson */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5 pl-5 pr-3 text-center">
+              <span className="font-display font-bold text-sm leading-tight text-primary-foreground drop-shadow [text-shadow:0_1px_3px_rgb(0_0_0/0.45)]">
                 {title}
               </span>
-              <span className="font-display text-[11px] text-primary-foreground/85 tabular-nums drop-shadow">
+              <span className="font-display text-[10px] text-primary-foreground/85 tabular-nums drop-shadow">
                 {captured}/{total}
               </span>
             </div>
