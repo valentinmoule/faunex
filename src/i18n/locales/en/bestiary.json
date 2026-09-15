@@ -124,7 +124,11 @@
       "title": "My collections",
       "add": "Add",
       "emptyTitle": "Add a zone and/or a collection",
-      "emptyDesc": "Track the wildlife of a city or a department, and complete themed series (dog breeds, butterflies, raptors…)."
+      "emptyDesc": "Track the wildlife of a city or a department, and complete themed series (dog breeds, butterflies, raptors…).",
+      "completed": "Complete",
+      "claimReward": "Claim +{{xp}} XP",
+      "rewardClaimed": "+{{xp}} XP earned",
+      "rewardHint": "+{{xp}} XP when complete"
     },
     "seo": {
       "title": "my faunex — Every species to discover · Faunex",

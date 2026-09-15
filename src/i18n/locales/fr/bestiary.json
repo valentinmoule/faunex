@@ -124,7 +124,11 @@
       "title": "Mes collections",
       "add": "Ajouter",
       "emptyTitle": "Ajoute une zone et/ou une collection",
-      "emptyDesc": "Suis la faune d'une ville ou d'un département, et complète des séries thématiques (races de chien, papillons, rapaces…)."
+      "emptyDesc": "Suis la faune d'une ville ou d'un département, et complète des séries thématiques (races de chien, papillons, rapaces…).",
+      "completed": "Terminée",
+      "claimReward": "Récupérer +{{xp}} XP",
+      "rewardClaimed": "+{{xp}} XP gagnés",
+      "rewardHint": "+{{xp}} XP à la fin"
     },
     "seo": {
       "title": "mon faunex — Toutes les espèces à découvrir · Faunex",
