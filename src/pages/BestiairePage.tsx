@@ -3,7 +3,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { CollectionHero } from '@/components/CollectionHero';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Award, Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, Check, Images, Trophy, CalendarDays, Users, Infinity as InfinityIcon } from 'lucide-react';
+import { Award, Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, Check, Images, Trophy, CalendarDays, Users, Lock, Infinity as InfinityIcon } from 'lucide-react';
 import {
   POPULARITY_LABELS,
   SpeciesCategoryIcon,
@@ -1817,6 +1817,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                 <div className="flex items-center gap-1 p-1 rounded-full bg-card/90 backdrop-blur-xl border border-border w-full shadow-lg shadow-foreground/5">
                   {([['week', t('social.leaderboard.tabWeek'), CalendarDays], ['all', t('social.leaderboard.tabAllTime'), InfinityIcon], ['explorers', t('social.leaderboard.tabExplorers'), Users]] as const).map(([key, label, Icon]) => {
                     const active = leaderboardTab === key;
+                    const locked = key === 'explorers' && !isPremium;
                     return (
                       <button
                         key={key}
@@ -1827,7 +1828,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                             : 'text-muted-foreground hover:text-foreground'
                         }`}
                       >
-                        <Icon className={`w-3.5 h-3.5 transition-transform ${active ? 'scale-110' : ''}`} />
+                        {locked ? <Lock className={`w-3.5 h-3.5 ${active ? 'scale-110' : ''}`} /> : <Icon className={`w-3.5 h-3.5 transition-transform ${active ? 'scale-110' : ''}`} />}
                         <span className="truncate">{label}</span>
                       </button>
                     );
@@ -1838,7 +1839,25 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                 ? <CategoryLeaderboard category="all" inline period="week" scope="global" />
                 : leaderboardTab === 'all'
                   ? <CategoryLeaderboard category="all" inline period="all" scope="global" />
-                  : <CategoryLeaderboard category="all" inline period="all" scope="follows" />}
+                  : isPremium
+                    ? <CategoryLeaderboard category="all" inline period="all" scope="follows" />
+                    : (
+                      <div className="px-5 py-10 text-center">
+                        <div className="mx-auto w-14 h-14 rounded-full bg-gradient-to-b from-amber/25 to-amber/5 border border-amber/30 flex items-center justify-center mb-3">
+                          <Crown className="w-6 h-6 text-amber" />
+                        </div>
+                        <p className="text-[14px] font-display font-bold text-foreground">{t('social.leaderboard.lockedTitle')}</p>
+                        <p className="mt-1 text-[12px] font-display text-muted-foreground leading-relaxed">
+                          {t('social.leaderboard.lockedDesc')}
+                        </p>
+                        <button
+                          onClick={() => navigate('/premium')}
+                          className="mt-4 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-[13px] font-display font-bold shadow-lg active:scale-[0.98] transition-transform"
+                        >
+                          {t('social.leaderboard.lockedCta')}
+                        </button>
+                      </div>
+                    )}
 
             </section>
           )}
