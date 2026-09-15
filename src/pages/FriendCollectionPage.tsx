@@ -52,8 +52,6 @@ interface BadgeProgress {
   earned: boolean;
 }
 
-const rarityFilters: (Rarity | 'all')[] = ['all', ...RARITY_ORDER];
-void rarityFilters;
 
 interface FollowProfile {
   user_id: string;
@@ -70,7 +68,12 @@ const FriendCollectionPage = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
   const { speciesName } = useSpeciesName();
-  const [filter, setFilter] = useState<Rarity | 'all'>('all');
+  const [sort, setSort] = useState<SpeciesSort>('default');
+  const [rarityFilter, setRarityFilter] = useState<Rarity[]>([]);
+  const [popularityFilter, setPopularityFilter] = useState<PopularityTier[]>([]);
+  const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [findersMap, setFindersMap] = useState<Map<string, number>>(new Map());
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
 
