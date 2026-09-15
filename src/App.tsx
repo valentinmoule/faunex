@@ -13,6 +13,7 @@ import BottomNav from "./components/BottomNav";
 import ScrollToTop from "./components/ScrollToTop";
 import PullToDiscover from "./components/PullToDiscover";
 import { PushPermissionPrompt } from "./components/PushPermissionPrompt";
+import { isFirstLogin, markFirstLoginDone } from "./lib/firstLogin";
 import PageTransition from "./components/PageTransition";
 import { SHOW_MARKETING_PAGES } from "./lib/platform";
 import { useSyncAccountLocale } from "./hooks/useAppLocale";
@@ -104,6 +105,20 @@ const LandingRoute = ({ children }: { children: React.ReactNode }) => {
   if (loading) return null;
   if (session) return <Navigate to="/home" replace />;
   return <>{children}</>;
+};
+
+// Marque la première connexion comme gérée après un court délai :
+// les popups (Splash de niveau, quêtes du jour) ne s'affichent qu'à partir
+// de la visite suivante — remplace l'ancienne popup d'installation PWA.
+const FirstLoginMarker = () => {
+  const { session } = useAuth();
+  React.useEffect(() => {
+    if (!session?.user) return;
+    if (!isFirstLogin(session.user.id)) return;
+    const timer = setTimeout(() => markFirstLoginDone(session.user.id), 5000);
+    return () => clearTimeout(timer);
+  }, [session]);
+  return null;
 };
 
 const AppRoutes = () => {
