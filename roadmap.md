@@ -8,6 +8,6 @@
 - [x] Contenu espèces EN : noms communs en base (5 800) + fiches traduites à la demande
 
 ## Refonte navigation
-- [ ] Mon Faunex : Captures / Cartes / Badges + quêtes
-- [ ] Bestiaire : Bestiaire / Collections / Classement
-- [ ] Compatibilité des anciens liens et validation mobile
+- [x] Mon Faunex : Captures / Cartes / Badges + quêtes
+- [x] Bestiaire : Bestiaire / Collections / Classement
+- [x] Compatibilité des anciens liens et validation mobile

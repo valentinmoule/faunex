@@ -191,7 +191,7 @@ const CollectionPage = () => {
       <div className="max-w-lg mx-auto px-4 pt-3">
         {/* Daily quests link card */}
         <button
-          onClick={() => navigate('/quests')}
+          onClick={() => navigate('/home?tab=badges')}
           className="w-full mb-4 flex items-center gap-3 p-3.5 rounded-2xl border border-amber/20 bg-amber/5 hover:bg-amber/10 transition-colors"
         >
           <div className="w-9 h-9 rounded-xl bg-amber/10 flex items-center justify-center">
