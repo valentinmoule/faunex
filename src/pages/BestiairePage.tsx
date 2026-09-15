@@ -1361,8 +1361,8 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
 
 
           {/* View toggle — floating gamified tab bar */}
-          <div className="sticky top-[70px] z-30 -mx-4 px-4 pt-1 pb-2 bg-gradient-to-b from-background via-background/95 to-transparent">
-            <div className="flex items-center gap-1 p-1 rounded-full bg-card/90 backdrop-blur-xl border border-border shadow-lg shadow-foreground/5 w-full">
+          <div className={`sticky top-[70px] z-30 -mx-4 px-4 pt-1 pb-2 ${viewMode === 'mine' && !showMineControls ? '' : 'bg-gradient-to-b from-background via-background/95 to-transparent'}`}>
+            <div className={`flex items-center gap-1 p-1 rounded-full bg-card/90 backdrop-blur-xl border border-border w-full ${viewMode === 'mine' && !showMineControls ? '' : 'shadow-lg shadow-foreground/5'}`}>
               {([
                 { key: 'mine', label: t('bestiary.tabs.mine'), icon: Images },
                 { key: 'categories', label: t('bestiary.tabs.categories'), icon: PawPrint },
