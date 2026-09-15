@@ -132,27 +132,11 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
                     style={{ animationDelay: `${i * 40}ms` }}
                   >
                     {/* Pastille XP / état */}
-                    <span
-                      className={`absolute top-2 right-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-display font-bold ${
-                        claimed
-                          ? 'bg-amber/12 text-amber'
-                          : readyToClaim
-                          ? 'bg-primary/12 text-primary'
-                          : 'bg-muted/70 text-muted-foreground'
-                      }`}
-                    >
-                      {readyToClaim ? (
-                        <>
-                          <Gift className="w-2.5 h-2.5" /> +{badge.xp} XP
-                        </>
-                      ) : claimed ? (
-                        <>✓ +{badge.xp} XP</>
-                      ) : (
-                        <>
-                          <Lock className="w-2.5 h-2.5" /> {badge.xp} XP
-                        </>
-                      )}
-                    </span>
+                    <XpPill
+                      xp={badge.xp}
+                      state={claimed ? 'claimed' : readyToClaim ? 'ready' : 'locked'}
+                      className="absolute top-2 right-2"
+                    />
 
                     <BadgeMedallion
                       badgeId={badge.id}

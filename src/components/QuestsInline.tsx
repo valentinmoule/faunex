@@ -194,9 +194,10 @@ const QuestsInline = () => {
                         <p className="truncate text-sm font-display font-black leading-tight text-foreground">
                           {quest.title}
                         </p>
-                        <span className="shrink-0 rounded-full border border-amber/25 bg-amber/10 px-2 py-0.5 text-[10px] font-display font-black text-amber">
-                          +{quest.xp_reward} XP
-                        </span>
+                        <XpPill
+                          xp={quest.xp_reward}
+                          state={quest.claimed ? 'claimed' : 'reward'}
+                        />
                       </div>
                       <p className="mt-0.5 line-clamp-2 text-xs leading-snug text-muted-foreground">
                         {quest.description}
