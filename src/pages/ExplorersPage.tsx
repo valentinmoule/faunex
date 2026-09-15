@@ -18,6 +18,7 @@ import { rarityBorderColor } from '@/lib/bestiary';
 import { hapticTap } from '@/lib/haptics';
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
 import CaptureMilestoneCard, { isMilestoneRank } from '@/components/CaptureMilestoneCard';
+import ExplorersEmptyState from '@/components/social/ExplorersEmptyState';
 
 
 /** Socle coloré + ombre rareté (effet "rare à légendaire" en grille). */
@@ -636,11 +637,7 @@ const ExplorersPage = () => {
         {feedLoading ? (
           <div className="text-center py-16"><p className="text-muted-foreground font-display">{t('social.common.loading')}</p></div>
         ) : posts.length === 0 ? (
-          <div className="text-center py-16">
-            <p className="text-4xl mb-3">🌿</p>
-            <p className="text-muted-foreground font-display">Aucune capture partagée</p>
-            <p className="text-muted-foreground text-xs mt-1">Ajoute des explorateurs ou partage tes captures !</p>
-          </div>
+          <ExplorersEmptyState onSearch={() => { setView('search'); setSearchTab('search'); }} />
         ) : (
           <div className="divide-y divide-border">
             {posts.map(post => {
