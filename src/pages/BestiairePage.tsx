@@ -55,6 +55,14 @@ import { useSpeciesName } from '@/hooks/useSpeciesLocale';
 import { localizedSpeciesName } from '@/lib/speciesI18n';
 import MapPage from '@/pages/MapPage';
 import FaunexAchievements from '@/components/FaunexAchievements';
+import CollectionTile from '@/components/CollectionTile';
+import {
+  COLLECTION_REWARD_PREFIX,
+  ZONE_REWARD_PREFIX,
+  collectionRewardXp,
+  useCollectionRewards,
+} from '@/hooks/useCollectionRewards';
+
 
 /** Zones + collections combinées, limite gratuite. */
 const FREE_SLOT_LIMIT = 4;
