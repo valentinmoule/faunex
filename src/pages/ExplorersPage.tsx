@@ -18,6 +18,7 @@ import { rarityBorderColor } from '@/lib/bestiary';
 import { hapticTap } from '@/lib/haptics';
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
 import CaptureMilestoneCard, { isMilestoneRank } from '@/components/CaptureMilestoneCard';
+import ExplorersEmptyState from '@/components/social/ExplorersEmptyState';
 
 
 /** Socle coloré + ombre rareté (effet "rare à légendaire" en grille). */
