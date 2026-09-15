@@ -22,7 +22,11 @@ export interface CollectionTileProps {
   onClaim: () => void;
 }
 
-const HEX = 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)';
+/**
+ * Écusson hexagonal à coins arrondis (cohérent avec les rayons du reste de
+ * l'app), défini en objectBoundingBox pour rester net à toutes les tailles.
+ */
+const ROUNDED_HEX_CLIP = 'url(#faunex-rounded-hex)';
 
 const CollectionTile = ({
   title,
@@ -43,12 +47,20 @@ const CollectionTile = ({
 
   return (
     <div className="flex flex-col items-center">
+      {/* Définition partagée de l'écusson arrondi */}
+      <svg width="0" height="0" className="absolute" aria-hidden="true" focusable="false">
+        <defs>
+          <clipPath id="faunex-rounded-hex" clipPathUnits="objectBoundingBox">
+            <path d="M .4284 .0358 Q .5 0 .5716 .0358 L .9284 .2142 Q 1 .25 1 .33 L 1 .67 Q 1 .75 .9284 .7858 L .5716 .9642 Q .5 1 .4284 .9642 L .0716 .7858 Q 0 .75 0 .67 L 0 .33 Q 0 .25 .0716 .2142 Z" />
+          </clipPath>
+        </defs>
+      </svg>
       <div className="relative w-full">
         {/* Halo doré quand la récompense attend le joueur */}
         {readyToClaim && (
           <div
             className="absolute -inset-1.5 animate-pulse"
-            style={{ clipPath: HEX, background: 'hsl(38 92% 56% / 0.45)' }}
+            style={{ clipPath: ROUNDED_HEX_CLIP, background: 'hsl(38 92% 56% / 0.45)' }}
             aria-hidden="true"
           />
         )}
@@ -57,12 +69,12 @@ const CollectionTile = ({
           className={`relative w-full aspect-[0.92] p-[2px] transition-transform active:scale-[0.96] ${
             claimed ? 'bg-amber/70' : readyToClaim ? 'bg-amber' : 'bg-border'
           }`}
-          style={{ clipPath: HEX }}
+          style={{ clipPath: ROUNDED_HEX_CLIP }}
         >
           <button
             onClick={onOpen}
             className="group relative block w-full h-full overflow-hidden text-left"
-            style={{ clipPath: HEX }}
+            style={{ clipPath: ROUNDED_HEX_CLIP }}
           >
             <img
               src={image}
