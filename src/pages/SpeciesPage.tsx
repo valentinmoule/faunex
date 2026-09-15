@@ -23,6 +23,7 @@ import {
   fetchSpeciesPage,
   fetchSpeciesPages,
   localizedSections,
+  localizedSpeciesName,
   type SpeciesSections,
 } from '@/content/speciesPages';
 import NotFound from './NotFound';
@@ -248,7 +249,7 @@ const SpeciesPage = () => {
                 to={`/especes/${o.slug}`}
                 className="rounded-2xl bg-card border border-border px-4 py-3 hover:border-primary/50 transition-colors"
               >
-                <span className="block text-sm font-display font-bold">{o.animal_name}</span>
+                <span className="block text-sm font-display font-bold">{localizedSpeciesName(o, i18n.language)}</span>
                 {o.scientific_name && (
                   <span className="block text-xs italic text-muted-foreground font-body">{o.scientific_name}</span>
                 )}

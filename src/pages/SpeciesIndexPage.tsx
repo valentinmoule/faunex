@@ -7,10 +7,10 @@ import { ArrowLeft, Search, Users } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import Footer from '@/components/Footer';
-import { fetchSpeciesPages } from '@/content/speciesPages';
+import { fetchSpeciesPages, localizedSpeciesName } from '@/content/speciesPages';
 
 const SpeciesIndexPage = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [query, setQuery] = useState('');
 
   const { data: pages = [], isLoading } = useQuery({
@@ -25,10 +25,11 @@ const SpeciesIndexPage = () => {
     return pages.filter(
       (p) =>
         p.animal_name.toLowerCase().includes(q) ||
+        localizedSpeciesName(p, i18n.language).toLowerCase().includes(q) ||
         (p.scientific_name || '').toLowerCase().includes(q) ||
         (p.category || '').toLowerCase().includes(q),
     );
-  }, [pages, query]);
+  }, [pages, query, i18n.language]);
 
   const grouped = useMemo(() => {
     const map = new Map<string, typeof filtered>();
@@ -104,7 +105,7 @@ const SpeciesIndexPage = () => {
                   to={`/especes/${p.slug}`}
                   className="rounded-2xl bg-card border border-border px-4 py-3 hover:border-primary/50 transition-colors"
                 >
-                  <span className="block text-sm font-display font-bold">{p.animal_name}</span>
+                  <span className="block text-sm font-display font-bold">{localizedSpeciesName(p, i18n.language)}</span>
                   {p.scientific_name && (
                     <span className="block text-xs italic text-muted-foreground font-body">{p.scientific_name}</span>
                   )}

@@ -42,6 +42,7 @@ export interface SpeciesPage {
 export interface SpeciesPageSummary {
   slug: string;
   animal_name: string;
+  content?: Partial<Record<SpeciesLocale, Partial<SpeciesSections>>>;
   scientific_name: string | null;
   category: string | null;
   rarity: string | null;
@@ -62,6 +63,12 @@ export const localizedSections = (
   return page.content?.fr ?? wanted ?? {};
 };
 
+/** Nom commun affichable dans la langue courante (repli : nom français). */
+export const localizedSpeciesName = (
+  page: { animal_name: string; content?: Partial<Record<SpeciesLocale, Partial<SpeciesSections>>> },
+  locale: string | undefined,
+): string => page.content?.[speciesLocale(locale)]?.name || page.animal_name;
+
 export async function fetchSpeciesPage(slug: string): Promise<SpeciesPage | null> {
   const { data, error } = await supabase
     .from('species_pages')
@@ -73,10 +80,16 @@ export async function fetchSpeciesPage(slug: string): Promise<SpeciesPage | null
   return (data as SpeciesPage | null) ?? null;
 }
 
+/** Nom commun affichable dans la langue courante (repli : nom français). */
+export const localizedSpeciesName = (
+  page: { animal_name: string; content?: Partial<Record<SpeciesLocale, Partial<SpeciesSections>>> },
+  locale: string | undefined,
+): string => page.content?.[speciesLocale(locale)]?.name || page.animal_name;
+
 export async function fetchSpeciesPages(): Promise<SpeciesPageSummary[]> {
   const { data, error } = await supabase
     .from('species_pages')
-    .select('slug, animal_name, scientific_name, category, rarity, capture_count')
+    .select('slug, animal_name, scientific_name, category, rarity, capture_count, content')
     .eq('published', true)
     .order('capture_count', { ascending: false });
   if (error) throw error;
