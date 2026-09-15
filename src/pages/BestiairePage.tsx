@@ -56,6 +56,7 @@ import { localizedSpeciesName } from '@/lib/speciesI18n';
 import MapPage from '@/pages/MapPage';
 import FaunexAchievements from '@/components/FaunexAchievements';
 import CollectionTile from '@/components/CollectionTile';
+import RewardCelebration from '@/components/RewardCelebration';
 import {
   COLLECTION_REWARD_PREFIX,
   ZONE_REWARD_PREFIX,
@@ -380,16 +381,17 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const { isPremium } = useSubscription(session?.user?.id);
   const { collectionKeys, addCollection, removeCollection } = useSpeciesCollections(session?.user?.id);
   const { isClaimed, claimReward, claiming: claimingReward } = useCollectionRewards(session?.user?.id);
+  const [celebratedReward, setCelebratedReward] = useState<{ title: string; xp: number } | null>(null);
 
   /** Récompense XP d'une collection/zone terminée (une seule fois). */
   const handleClaimCollectionReward = useCallback(
-    async (rewardId: string, xp: number) => {
+    async (rewardId: string, xp: number, title: string) => {
       const gained = await claimReward(rewardId, xp);
       if (gained > 0) {
-        toast.success(t('bestiary.collections.rewardClaimed', { xp: gained }));
+        setCelebratedReward({ title, xp: gained });
       }
     },
-    [claimReward, t],
+    [claimReward],
   );
 
   const slotsUsed = subscribedZones.length + collectionKeys.length;
@@ -1770,7 +1772,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                         claimed={isClaimed(rewardId)}
                         claiming={claimingReward === rewardId}
                         onOpen={() => setSelectedZoneId(zone.id)}
-                        onClaim={() => handleClaimCollectionReward(rewardId, xp)}
+                        onClaim={() => handleClaimCollectionReward(rewardId, xp, title)}
                       />
                     );
                   })}
@@ -1792,7 +1794,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                         claimed={isClaimed(rewardId)}
                         claiming={claimingReward === rewardId}
                         onOpen={() => setSelectedCollectionKey(group.key)}
-                        onClaim={() => handleClaimCollectionReward(rewardId, xp)}
+                        onClaim={() => handleClaimCollectionReward(rewardId, xp, group.label)}
                       />
                     );
                   })}
@@ -1815,6 +1817,13 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
         <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
         {flyingCardOverlay}
         {deptPickerSheet}
+        {celebratedReward && (
+          <RewardCelebration
+            title={celebratedReward.title}
+            xp={celebratedReward.xp}
+            onClose={() => setCelebratedReward(null)}
+          />
+        )}
       </main>
     );
   }

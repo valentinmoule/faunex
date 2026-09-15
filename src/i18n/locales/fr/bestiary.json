@@ -128,7 +128,9 @@
       "completed": "Terminée",
       "claimReward": "Récupérer +{{xp}} XP",
       "rewardClaimed": "+{{xp}} XP gagnés",
-      "rewardHint": "+{{xp}} XP à la fin"
+      "rewardHint": "+{{xp}} XP à la fin",
+      "celebrationTag": "Collection complète !",
+      "celebrationDesc": "Tu as récolté {{xp}} XP. Continue d'explorer pour compléter d'autres collections !"
     },
     "seo": {
       "title": "mon faunex — Toutes les espèces à découvrir · Faunex",

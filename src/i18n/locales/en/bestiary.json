@@ -128,7 +128,9 @@
       "completed": "Complete",
       "claimReward": "Claim +{{xp}} XP",
       "rewardClaimed": "+{{xp}} XP earned",
-      "rewardHint": "+{{xp}} XP when complete"
+      "rewardHint": "+{{xp}} XP when complete",
+      "celebrationTag": "Collection complete!",
+      "celebrationDesc": "You earned {{xp}} XP. Keep exploring to complete more collections!"
     },
     "seo": {
       "title": "my faunex — Every species to discover · Faunex",
