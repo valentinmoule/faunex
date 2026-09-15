@@ -66,9 +66,11 @@ interface LeaderboardTarget {
   territory?: { code: string; label: string };
   /** Affiche le classement directement, sans carte résumé ni bottom sheet. */
   inline?: boolean;
+  /** Période : semaine en cours (défaut) ou depuis toujours. */
+  period?: 'week' | 'all';
 }
 
-const CategoryLeaderboard = ({ category, territory, inline }: LeaderboardTarget) => {
+const CategoryLeaderboard = ({ category, territory, inline, period = 'week' }: LeaderboardTarget) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -113,8 +115,8 @@ useEffect(() => {
             supabase.rpc('my_territory_rank', { p_department: value, p_scope: scope } as never),
           ])
         : await Promise.all([
-            supabase.rpc('category_leaderboard', { p_category: value, p_limit: 20, p_scope: scope } as never),
-            supabase.rpc('my_category_rank', { p_category: value, p_scope: scope } as never),
+            supabase.rpc('category_leaderboard', { p_category: value, p_limit: 20, p_scope: scope, p_period: period } as never),
+            supabase.rpc('my_category_rank', { p_category: value, p_scope: scope, p_period: period } as never),
           ]);
       if (cancelled) return;
       setRows(((top.data as unknown as Row[] | null) || []).map(r => ({ ...r, rank: Number(r.rank), captures: Number(r.captures) })));
@@ -124,7 +126,7 @@ useEffect(() => {
     };
     load();
     return () => { cancelled = true; };
-  }, [isTerritory, value, scope]);
+  }, [isTerritory, value, scope, period]);
 
 if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
 
