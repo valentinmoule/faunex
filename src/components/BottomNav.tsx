@@ -1,11 +1,11 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Camera, Users, PawPrint, Map, User } from 'lucide-react';
+import { Camera, Users, PawPrint, BookOpen, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { hapticTap } from '@/lib/haptics';
 
 const tabs = [
   { path: '/home', labelKey: 'nav.faunex', icon: PawPrint },
-  { path: '/bestiaire', labelKey: 'nav.bestiary', icon: Map },
+  { path: '/bestiaire', labelKey: 'nav.bestiary', icon: BookOpen },
   { path: '/capture', labelKey: 'nav.capture', icon: Camera },
   { path: '/explorers', labelKey: 'nav.explorers', icon: Users },
   { path: '/profile', labelKey: 'nav.profile', icon: User },
