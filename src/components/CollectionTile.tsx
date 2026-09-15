@@ -47,12 +47,20 @@ const CollectionTile = ({
 
   return (
     <div className="flex flex-col items-center">
+      {/* Définition partagée de l'écusson arrondi */}
+      <svg width="0" height="0" className="absolute" aria-hidden="true" focusable="false">
+        <defs>
+          <clipPath id="faunex-rounded-hex" clipPathUnits="objectBoundingBox">
+            <path d="M 42.84 3.58 Q 50 0 57.16 3.58 L 92.84 21.42 Q 100 25 100 33 L 100 67 Q 100 75 92.84 78.58 L 57.16 96.42 Q 50 100 42.84 96.42 L 7.16 78.58 Q 0 75 0 67 L 0 33 Q 0 25 7.16 21.42 Z" />
+          </clipPath>
+        </defs>
+      </svg>
       <div className="relative w-full">
         {/* Halo doré quand la récompense attend le joueur */}
         {readyToClaim && (
           <div
             className="absolute -inset-1.5 animate-pulse"
-            style={{ clipPath: HEX, background: 'hsl(38 92% 56% / 0.45)' }}
+            style={{ clipPath: ROUNDED_HEX_CLIP, background: 'hsl(38 92% 56% / 0.45)' }}
             aria-hidden="true"
           />
         )}
@@ -61,12 +69,12 @@ const CollectionTile = ({
           className={`relative w-full aspect-[0.92] p-[2px] transition-transform active:scale-[0.96] ${
             claimed ? 'bg-amber/70' : readyToClaim ? 'bg-amber' : 'bg-border'
           }`}
-          style={{ clipPath: HEX }}
+          style={{ clipPath: ROUNDED_HEX_CLIP }}
         >
           <button
             onClick={onOpen}
             className="group relative block w-full h-full overflow-hidden text-left"
-            style={{ clipPath: HEX }}
+            style={{ clipPath: ROUNDED_HEX_CLIP }}
           >
             <img
               src={image}
