@@ -106,7 +106,11 @@ const CenterTracker = ({ onMove, onZoom }: { onMove: (center: L.LatLng) => void;
 };
 
 
-const MapPage = () => {
+interface MapPageProps {
+  embedded?: boolean;
+}
+
+const MapPage = ({ embedded = false }: MapPageProps) => {
   const { t } = useTranslation();
   const { session } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -280,7 +284,7 @@ const MapPage = () => {
   if (loading) return <LoadingScreen />;
 
   return (
-    <main className="relative h-[100dvh] w-full overflow-hidden bg-background">
+    <main className={`relative w-full overflow-hidden bg-background ${embedded ? 'h-[calc(100dvh-190px)] min-h-[520px] rounded-2xl border border-border' : 'h-[100dvh]'}`}>
       {/* Floating glass header */}
       <div className="absolute top-0 left-0 right-0 z-[1000] pt-[max(1rem,env(safe-area-inset-top))] px-4 pointer-events-none">
         <div className="max-w-lg mx-auto pointer-events-auto flex flex-col items-center gap-3">

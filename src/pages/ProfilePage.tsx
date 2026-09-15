@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PageHeader } from '@/components/PageHeader';
 import { Settings, MapPin, BookOpen, Download, Bell, Users, UserPlus, ShieldCheck } from 'lucide-react';
@@ -9,11 +9,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePwaInstall } from '@/contexts/PwaInstallContext';
 import { useSubscription } from '@/hooks/useSubscription';
 import { PremiumAvatar } from '@/components/PremiumAvatar';
-import XpParticles from '@/components/XpParticles';
-import QuestsInline from '@/components/QuestsInline';
-import DiscordInviteCard from '@/components/DiscordInviteCard';
-import BadgesSection from '@/components/BadgesSection';
-import CategoryLeaderboard from '@/components/CategoryLeaderboard';
 
 
 interface Profile {
@@ -42,7 +37,6 @@ const ProfilePage = () => {
   const [followingCount, setFollowingCount] = useState(0);
   const [isAdmin, setIsAdmin] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
-  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     if (!session?.user) return;
@@ -67,14 +61,6 @@ const ProfilePage = () => {
 
 
   useEffect(() => {
-    if (window.location.hash === '#badges') {
-      setTimeout(() => {
-        document.getElementById('badges')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 300);
-    }
-  }, [loading]);
-
-  useEffect(() => {
     if (!session?.user) return;
     const fetchAll = async () => {
       setLoading(true);
@@ -97,20 +83,6 @@ const ProfilePage = () => {
       setLoading(false);
     };
     fetchAll();
-  }, [session, refreshKey]);
-
-  const [showXpParticles, setShowXpParticles] = useState(false);
-
-  /** After a badge claim: play the XP particles and refresh the profile XP/level. */
-  const handleBadgeClaimed = useCallback(async () => {
-    if (!session?.user) return;
-    setShowXpParticles(true);
-    const { data: refreshed } = await supabase
-      .from('profiles')
-      .select('display_name, username, avatar_url, level, xp, xp_to_next, total_captures, regions_explored')
-      .eq('user_id', session.user.id)
-      .single();
-    if (refreshed) setProfile(refreshed as Profile);
   }, [session]);
 
   if (loading || !profile) {
@@ -125,8 +97,6 @@ const ProfilePage = () => {
 
 
   return (
-    <>
-    <XpParticles active={showXpParticles} onComplete={() => setShowXpParticles(false)} />
     <main className="min-h-screen bg-background pb-24">
       <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="flex items-center justify-between max-w-lg mx-auto">
@@ -174,9 +144,6 @@ const ProfilePage = () => {
           <StatCard icon={<UserPlus className="w-4 h-4 text-emerald" />} iconClass="bg-emerald/10" value={followingCount} label={t('profile.page.stats.following')} />
         </div>
 
-        {/* Global leaderboard */}
-        <CategoryLeaderboard category="all" />
-
         {/* PWA Install Card */}
         {!isNative && canInstall && !isInstalled && (
           <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-center gap-3">
@@ -221,25 +188,8 @@ const ProfilePage = () => {
           </button>
         )}
 
-        {/* Quests Section */}
-        <QuestsInline />
-
-        {/* Discord Community Invitation */}
-        <DiscordInviteCard onBadgeEarned={() => setRefreshKey(k => k + 1)} />
-
-        {/* Badges Section — Gaming Style */}
-        <BadgesSection
-          userId={session!.user.id}
-          level={profile.level}
-          regionsExplored={profile.regions_explored}
-          refreshKey={refreshKey}
-          onClaimed={handleBadgeClaimed}
-        />
-
-
       </div>
     </main>
-    </>
   );
 };
 

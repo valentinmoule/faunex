@@ -228,7 +228,7 @@ const NotificationsPage = () => {
                   key={notif.id}
                   onClick={() => {
                     if (isBadgeEarned) {
-                      navigate('/profile#badges');
+                      navigate('/home?tab=badges');
                     } else if ((isLike || isComment) && notif.capture_id) {
                       navigate(`/collection?capture=${notif.capture_id}`);
                     } else if (isModerationNotif && notif.capture_id) {
