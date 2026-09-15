@@ -1130,7 +1130,7 @@ setManualMode(false);
             <button
               onClick={() => {
                 setPremiumPrompt(false);
-                navigate('/home');
+                navigate('/bestiaire');
               }}
               className="mt-2 w-full rounded-full px-4 py-3 font-display text-sm font-semibold text-muted-foreground"
             >
