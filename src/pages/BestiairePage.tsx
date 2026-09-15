@@ -3,7 +3,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { CollectionHero } from '@/components/CollectionHero';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Award, Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, Check, Images, Trophy, CalendarDays, Infinity as InfinityIcon } from 'lucide-react';
+import { Award, Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, Check, Images, Trophy, CalendarDays, Users, Infinity as InfinityIcon } from 'lucide-react';
 import {
   POPULARITY_LABELS,
   SpeciesCategoryIcon,
@@ -190,7 +190,7 @@ const BestiairePage = () => {
     ? requestedTab === 'map' || requestedTab === 'badges' ? requestedTab : 'mine'
     : requestedTab === 'collections' || requestedTab === 'leaderboard' ? requestedTab : 'categories';
   const [viewMode, setViewMode] = useState<ViewMode>(initialView);
-  const [leaderboardTab, setLeaderboardTab] = useState<'week' | 'all'>('week');
+  const [leaderboardTab, setLeaderboardTab] = useState<'week' | 'all' | 'explorers'>('week');
   const [rarityFilter, setRarityFilter] = useState<Rarity[]>([]);
 const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [selectedFinders, setSelectedFinders] = useState<number | undefined>(undefined);
@@ -1815,7 +1815,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
             <section>
               <div className="sticky top-[70px] z-30 -mx-4 px-4 pt-1 pb-2 bg-gradient-to-b from-background via-background/95 to-transparent">
                 <div className="flex items-center gap-1 p-1 rounded-full bg-card/90 backdrop-blur-xl border border-border w-full shadow-lg shadow-foreground/5">
-                  {([['week', t('social.leaderboard.tabWeek'), CalendarDays], ['all', t('social.leaderboard.tabAllTime'), InfinityIcon]] as const).map(([key, label, Icon]) => {
+                  {([['week', t('social.leaderboard.tabWeek'), CalendarDays], ['all', t('social.leaderboard.tabAllTime'), InfinityIcon], ['explorers', t('social.leaderboard.tabExplorers'), Users]] as const).map(([key, label, Icon]) => {
                     const active = leaderboardTab === key;
                     return (
                       <button
@@ -1835,8 +1835,11 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                 </div>
               </div>
               {leaderboardTab === 'week'
-                ? <CategoryLeaderboard category="all" inline period="week" />
-                : <CategoryLeaderboard category="all" inline period="all" />}
+                ? <CategoryLeaderboard category="all" inline period="week" scope="global" />
+                : leaderboardTab === 'all'
+                  ? <CategoryLeaderboard category="all" inline period="all" scope="global" />
+                  : <CategoryLeaderboard category="all" inline period="all" scope="follows" />}
+
             </section>
           )}
 

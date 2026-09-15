@@ -68,9 +68,11 @@ interface LeaderboardTarget {
   inline?: boolean;
   /** Période : semaine en cours (défaut) ou depuis toujours. */
   period?: 'week' | 'all';
+  /** Force le périmètre (masque le sélecteur Global / Mes abonnements). */
+  scope?: 'global' | 'follows';
 }
 
-const CategoryLeaderboard = ({ category, territory, inline, period = 'week' }: LeaderboardTarget) => {
+const CategoryLeaderboard = ({ category, territory, inline, period = 'week', scope: forcedScope }: LeaderboardTarget) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -81,8 +83,10 @@ const CategoryLeaderboard = ({ category, territory, inline, period = 'week' }: L
   const [mine, setMine] = useState<MyRank | null>(null);
   const [ready, setReady] = useState(false);
   const [open, setOpen] = useState(false);
-  const [scope, setScope] = useState<'global' | 'follows'>('global');
+  const [innerScope, setInnerScope] = useState<'global' | 'follows'>('global');
   const [lockedTab, setLockedTab] = useState(false);
+  const scope = forcedScope ?? innerScope;
+  const setScope = setInnerScope;
 
   const closeSheet = useCallback(() => setOpen(false), []);
   const swipeClose = useSwipeDownClose(closeSheet);
@@ -97,13 +101,16 @@ useEffect(() => {
     return () => clearInterval(id);
   }, []);
 
-  // Le classement "Mes abonnements" est réservé aux Premium : on force le retour à "Global".
+  // Le classement "Mes abonnements" est réservé aux Premium.
   useEffect(() => {
-    if (!premiumLoading && scope === 'follows' && !isPremium) {
-      setScope('global');
+    if (premiumLoading) return;
+    if (scope === 'follows' && !isPremium) {
+      if (!forcedScope) setInnerScope('global');
       setLockedTab(true);
+    } else {
+      setLockedTab(false);
     }
-  }, [isPremium, premiumLoading, scope]);
+  }, [isPremium, premiumLoading, scope, forcedScope]);
 
   useEffect(() => {
     let cancelled = false;
@@ -130,6 +137,7 @@ useEffect(() => {
 
 if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
 
+
   const podium = rows.slice(0, 3);
   const podiumOrdered = [podium[1], podium[0], podium[2]].filter(Boolean);
   const rest = rows.slice(3);
@@ -153,6 +161,7 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
           </div>
       )}
 
+{!forcedScope && (
 <div className="mx-4 mt-3 grid grid-cols-2 gap-1 rounded-2xl bg-muted p-1">
             {([['global', t('social.leaderboard.tabGlobal')], ['follows', t('social.leaderboard.tabFollows')]] as const).map(([key, label]) => (
               <button
@@ -174,6 +183,8 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
               </button>
             ))}
           </div>
+          )}
+
 
           {lockedTab ? (
             <div className="px-5 py-10 text-center">

@@ -180,7 +180,8 @@
       "defaultName": "Explorateur",
       "capturesShort": "{{count}} capt.",
       "tabWeek": "Cette semaine",
-      "tabAllTime": "Tout temps"
+      "tabAllTime": "Tout temps",
+      "tabExplorers": "Explorateurs"
     },
     "discordInvite": {
       "closeAriaLabel": "Fermer l'invitation Discord",
