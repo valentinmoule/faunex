@@ -12,16 +12,16 @@
     "ctaIdentify": "Identify a {{name}} from a photo",
     "relatedTitle": "Similar species to discover",
     "sections": {
-      "recognize": "📸 How to recognise the {{name}}",
-      "where": "🗺️ Where to watch it",
-      "when": "🌙 When to watch it",
-      "diet": "🍎 What does the {{name}} eat?",
-      "behaviour": "🐣 Behaviour and breeding",
-      "tracks": "🐾 Tracks and signs",
-      "similar": "⚠️ Similar species",
-      "conservation": "📊 Conservation status",
-      "rarity": "🎴 Faunex rarity",
-      "funFact": "✨ Did you know?"
+      "recognize": "How to recognise the {{name}}",
+      "where": "Where to watch it",
+      "when": "When to watch it",
+      "diet": "What does the {{name}} eat?",
+      "behaviour": "Behaviour and breeding",
+      "tracks": "Tracks and signs",
+      "similar": "Similar species",
+      "conservation": "Conservation status",
+      "rarity": "Faunex rarity",
+      "funFact": "Did you know?"
     },
     "rarityBody": "On Faunex, the {{name}} is rated “{{label}}”. Its card has already been collected {{count}} times by the community — capture yours to add it to your bestiary.",
     "cta": {

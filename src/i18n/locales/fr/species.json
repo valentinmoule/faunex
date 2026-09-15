@@ -12,16 +12,16 @@
     "ctaIdentify": "Identifier un {{name}} en photo",
     "relatedTitle": "Espèces proches à découvrir",
     "sections": {
-      "recognize": "📸 Comment reconnaître le {{name}}",
-      "where": "🗺️ Où l'observer",
-      "when": "🌙 Quand l'observer",
-      "diet": "🍎 Que mange le {{name}} ?",
-      "behaviour": "🐣 Comportement et reproduction",
-      "tracks": "🐾 Traces et indices",
-      "similar": "⚠️ Espèces similaires",
-      "conservation": "📊 Statut de conservation",
-      "rarity": "🎴 Rareté Faunex",
-      "funFact": "✨ Le sais-tu ?"
+      "recognize": "Comment reconnaître le {{name}}",
+      "where": "Où l'observer",
+      "when": "Quand l'observer",
+      "diet": "Que mange le {{name}} ?",
+      "behaviour": "Comportement et reproduction",
+      "tracks": "Traces et indices",
+      "similar": "Espèces similaires",
+      "conservation": "Statut de conservation",
+      "rarity": "Rareté Faunex",
+      "funFact": "Le sais-tu ?"
     },
     "rarityBody": "Sur Faunex, le {{name}} est une espèce classée « {{label}} ». La carte a déjà été collectionnée {{count}} fois par la communauté : capture-la à ton tour pour l'ajouter à ton bestiaire.",
     "cta": {
