@@ -1,5 +1,10 @@
+import avatar1 from '@/assets/avatars/explorer-1.jpg';
+import avatar2 from '@/assets/avatars/explorer-2.jpg';
+import avatar3 from '@/assets/avatars/explorer-3.jpg';
+import avatar4 from '@/assets/avatars/explorer-4.jpg';
+
 interface SwirlAvatar {
-  initials: string;
+  photo: string;
   name: string;
   level: number;
   angle: number;
@@ -8,12 +13,12 @@ interface SwirlAvatar {
 }
 
 const EXPLORERS = [
-  { initials: 'LM', name: '@lucie', level: 12 },
-  { initials: 'TR', name: '@theo', level: 7 },
-  { initials: 'AB', name: '@amine', level: 21 },
-  { initials: 'SJ', name: '@sofia', level: 5 },
-  { initials: 'NK', name: '@noah', level: 16 },
-  { initials: 'EC', name: '@emma', level: 9 },
+  { photo: avatar1, name: '@lucie', level: 12 },
+  { photo: avatar2, name: '@theo', level: 7 },
+  { photo: avatar3, name: '@marc', level: 21 },
+  { photo: avatar4, name: '@sofia', level: 5 },
+  { photo: avatar2, name: '@noah', level: 16 },
+  { photo: avatar1, name: '@emma', level: 9 },
 ];
 
 const TONES = ['--rarity-rare', '--rarity-illustration-rare', '--primary', '--rarity-very-rare'];
@@ -72,12 +77,15 @@ const Avatar = ({
           background: `linear-gradient(150deg, hsl(var(${avatar.tone}) / 0.28), hsl(var(--card)) 62%)`,
         }}
       >
-        <span
-          className="font-display font-bold leading-none"
-          style={{ fontSize: `calc(${size} * 0.34)`, color: `hsl(var(${avatar.tone}))` }}
-        >
-          {avatar.initials}
-        </span>
+        <img
+          src={avatar.photo}
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+          width={816}
+          height={816}
+          className="absolute inset-[3px] w-[calc(100%-6px)] h-[calc(100%-6px)] rounded-full object-cover"
+        />
         {showName && (
           <span
             className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full px-1.5 py-[2px] font-display text-[0.5rem] font-bold leading-none text-white"
