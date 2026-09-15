@@ -72,6 +72,10 @@ interface LeaderboardTarget {
   scope?: 'global' | 'follows';
 }
 
+/** Cache mémoire des classements déjà chargés : en revenant sur un onglet on
+ *  réaffiche instantanément la dernière liste connue, rafraîchie en arrière-plan. */
+const boardCache = new Map<string, { rows: Row[]; mine: MyRank | null }>();
+
 const CategoryLeaderboard = ({ category, territory, inline, period = 'week', scope: forcedScope }: LeaderboardTarget) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
