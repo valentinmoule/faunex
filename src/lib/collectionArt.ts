@@ -16,10 +16,20 @@ import farm from '@/assets/collections/farm.jpg';
 import night from '@/assets/collections/night.jpg';
 import rocks from '@/assets/collections/rocks.jpg';
 import coast from '@/assets/collections/coast.jpg';
+import marsh from '@/assets/collections/marsh.jpg';
+import river from '@/assets/collections/river.jpg';
+import reef from '@/assets/collections/reef.jpg';
+import desert from '@/assets/collections/desert.jpg';
+import savanna from '@/assets/collections/savanna.jpg';
+import jungle from '@/assets/collections/jungle.jpg';
+import cave from '@/assets/collections/cave.jpg';
+import garden from '@/assets/collections/garden.jpg';
 
 export type SceneKey =
   | 'city' | 'meadow' | 'lake' | 'forest' | 'ocean'
-  | 'mountain' | 'farm' | 'night' | 'rocks' | 'coast';
+  | 'mountain' | 'farm' | 'night' | 'rocks' | 'coast'
+  | 'marsh' | 'river' | 'reef' | 'desert' | 'savanna'
+  | 'jungle' | 'cave' | 'garden';
 
 export interface CollectionArt {
   image: string;
@@ -32,6 +42,7 @@ export interface CollectionArt {
 
 const SCENES: Record<SceneKey, string> = {
   city, meadow, lake, forest, ocean, mountain, farm, night, rocks, coast,
+  marsh, river, reef, desert, savanna, jungle, cave, garden,
 };
 
 /** Teintes d'accent par scène, en HSL brut pour composer les dégradés. */
@@ -46,6 +57,14 @@ const TINTS: Record<SceneKey, string> = {
   night: '230 45% 14%',
   rocks: '25 40% 22%',
   coast: '200 45% 20%',
+  marsh: '170 40% 14%',
+  river: '195 50% 16%',
+  reef: '180 55% 15%',
+  desert: '28 60% 18%',
+  savanna: '35 65% 20%',
+  jungle: '160 55% 12%',
+  cave: '225 25% 12%',
+  garden: '330 30% 25%',
 };
 
 const overlayFor = (scene: SceneKey) =>
@@ -57,7 +76,7 @@ const CATEGORY_SCENES: Record<string, SceneKey> = {
   Oiseaux: 'coast',
   Poissons: 'ocean',
   Reptiles: 'rocks',
-  Amphibiens: 'lake',
+  Amphibiens: 'marsh',
   Mollusques: 'ocean',
   Crustacés: 'coast',
   Arachnides: 'forest',
@@ -69,33 +88,33 @@ const CATEGORY_SCENES: Record<string, SceneKey> = {
 
 /** Scène par groupe thématique (clé de BREED_GROUPS). */
 const GROUP_SCENES: Record<string, SceneKey> = {
-  // Races domestiques → la ferme
-  dog: 'farm', cat: 'farm', cattle: 'farm', horse: 'farm', chicken: 'farm',
-  sheep: 'farm', goat: 'farm', rabbit: 'farm', 'duck-breed': 'lake',
-  goose: 'lake', pig: 'farm', donkey: 'farm',
+  // Races domestiques → la ferme (et ses alentours)
+  dog: 'farm', cat: 'garden', cattle: 'farm', horse: 'meadow', chicken: 'farm',
+  sheep: 'meadow', goat: 'mountain', rabbit: 'garden', 'duck-breed': 'lake',
+  goose: 'marsh', pig: 'farm', donkey: 'meadow',
   // Insectes
-  butterflies: 'meadow', ladybugs: 'meadow', dragonflies: 'lake', bees: 'meadow',
+  butterflies: 'garden', ladybugs: 'garden', dragonflies: 'marsh', bees: 'garden',
   ants: 'forest', beetles: 'forest', grasshoppers: 'meadow', bugs: 'meadow',
-  cicadas: 'rocks', flies: 'meadow', 'stick-insects': 'rocks',
-  cockroaches: 'forest', lacewings: 'night',
+  cicadas: 'rocks', flies: 'meadow', 'stick-insects': 'jungle',
+  cockroaches: 'cave', lacewings: 'night',
   // Oiseaux
-  raptors: 'mountain', waterbirds: 'lake', seabirds: 'coast', passerines: 'meadow',
-  woodpeckers: 'forest', poultry: 'farm', pigeons: 'city', parrots: 'forest',
+  raptors: 'mountain', waterbirds: 'marsh', seabirds: 'coast', passerines: 'meadow',
+  woodpeckers: 'forest', poultry: 'farm', pigeons: 'city', parrots: 'jungle',
   // Poissons
-  sharks: 'ocean', 'freshwater-fish': 'lake', seafish: 'ocean',
-  'reef-fish': 'ocean', seahorses: 'ocean',
+  sharks: 'ocean', 'freshwater-fish': 'river', seafish: 'ocean',
+  'reef-fish': 'reef', seahorses: 'reef',
   // Reptiles / amphibiens
-  snakes: 'rocks', lizards: 'rocks', turtles: 'lake', crocodiles: 'lake',
-  frogs: 'lake', salamanders: 'forest',
+  snakes: 'rocks', lizards: 'desert', turtles: 'marsh', crocodiles: 'river',
+  frogs: 'marsh', salamanders: 'forest',
   // Mollusques & crustacés
-  snails: 'forest', slugs: 'forest', bivalves: 'coast', cephalopods: 'ocean',
-  jellyfish: 'ocean', echinoderms: 'ocean', worms: 'forest',
-  crabs: 'coast', shrimps: 'coast', lobsters: 'ocean', isopods: 'forest',
+  snails: 'garden', slugs: 'forest', bivalves: 'coast', cephalopods: 'ocean',
+  jellyfish: 'ocean', echinoderms: 'reef', worms: 'garden',
+  crabs: 'coast', shrimps: 'reef', lobsters: 'ocean', isopods: 'cave',
   // Arachnides
-  spiders: 'forest', scorpions: 'rocks', ticks: 'meadow', harvestmen: 'forest',
+  spiders: 'forest', scorpions: 'desert', ticks: 'meadow', harvestmen: 'forest',
   // Mammifères
-  bats: 'night', rodents: 'forest', carnivores: 'forest', ungulates: 'mountain',
-  'marine-mammals': 'ocean', insectivores: 'meadow', primates: 'forest', hares: 'meadow',
+  bats: 'cave', rodents: 'forest', carnivores: 'forest', ungulates: 'savanna',
+  'marine-mammals': 'ocean', insectivores: 'meadow', primates: 'jungle', hares: 'meadow',
 };
 
 const build = (scene: SceneKey): CollectionArt => ({
