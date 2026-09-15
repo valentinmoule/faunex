@@ -209,6 +209,23 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const [mineRarityFilter, setMineRarityFilter] = useState<Rarity[]>([]);
   const [mineCategoryFilter, setMineCategoryFilter] = useState<string[]>([]);
   const [minePopularityFilter, setMinePopularityFilter] = useState<PopularityTier[]>([]);
+  const [userDisplayName, setUserDisplayName] = useState('');
+
+  // Charge le prénom affiché dans l'empty state d'accueil
+  useEffect(() => {
+    if (!session?.user?.id) return;
+    const fetchName = async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('display_name, username')
+        .eq('user_id', session.user.id)
+        .maybeSingle();
+      if (data) {
+        setUserDisplayName(data.display_name || data.username?.replace(/^@/, '') || '');
+      }
+    };
+    fetchName();
+  }, [session?.user?.id]);
 
 
   // Scroll to top when entering a category, zone or collection detail view
