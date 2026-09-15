@@ -42,6 +42,10 @@ const SECTION_FIELDS = [
 
 function localeSchema(lang: 'français' | 'anglais') {
   const props: Record<string, unknown> = {
+    name: {
+      type: 'string',
+      description: `Nom commun de l’espèce en ${lang}, seul, sans nom scientifique ni ponctuation.`,
+    },
     title: {
       type: 'string',
       description: `Titre H1 en ${lang}, du type « Hérisson d'Europe : identifier, observer et protéger ». Max 70 caractères.`,
