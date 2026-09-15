@@ -76,11 +76,12 @@ const SpeciesPage = () => {
   if (!page) return <NotFound />;
 
   const url = `https://faunex.fr/especes/${page.slug}`;
-  const heading = sections.title || page.animal_name;
-  const metaTitle = sections.metaTitle || `${page.animal_name} — Faunex`;
+  const name = sections.name || page.animal_name;
+  const heading = sections.title || sections.name || page.animal_name;
+  const metaTitle = sections.metaTitle || `${name} — Faunex`;
   const metaDescription =
     sections.metaDescription ||
-    t('species.fallbackDescription', { name: page.animal_name });
+    t('species.fallbackDescription', { name });
   const rarityLabel = page.rarity ? t(`bestiary.rarity.labels.${page.rarity}`, { defaultValue: '' }) : '';
   const related = others.filter((o) => o.slug !== page.slug && o.category === page.category).slice(0, 6);
 
@@ -166,7 +167,7 @@ const SpeciesPage = () => {
           <Button asChild size="lg" className="rounded-2xl font-display font-bold">
             <Link to="/capture">
               <Camera className="w-4 h-4 mr-2" />
-              {t('species.ctaIdentify', { name: page.animal_name })}
+              {t('species.ctaIdentify', { name })}
             </Link>
           </Button>
         </div>
@@ -181,7 +182,7 @@ const SpeciesPage = () => {
             <section key={key} className="rounded-2xl bg-card border border-border p-5">
               <h2 className="flex items-center gap-2 text-lg font-display font-bold mb-2">
                 <Icon className="w-4 h-4 text-primary" />
-                {t(labelKey, { name: page.animal_name })}
+                {t(labelKey, { name })}
               </h2>
               <p className="text-sm text-muted-foreground font-body leading-relaxed whitespace-pre-line">{text}</p>
             </section>
@@ -197,7 +198,7 @@ const SpeciesPage = () => {
             </h2>
             <p className="text-sm text-muted-foreground font-body leading-relaxed">
               {t('species.rarityBody', {
-                name: page.animal_name,
+                name,
                 label: rarityLabel,
                 count: page.capture_count,
               })}
@@ -220,10 +221,10 @@ const SpeciesPage = () => {
       <section className="px-5 mt-8 max-w-2xl mx-auto">
         <div className="rounded-3xl bg-gradient-to-br from-primary to-primary/80 p-6 text-center">
           <h2 className="text-xl font-display font-black text-primary-foreground mb-2">
-            {t('species.cta.title', { name: page.animal_name })}
+            {t('species.cta.title', { name })}
           </h2>
           <p className="text-sm text-primary-foreground/90 font-body mb-4">
-            {t('species.cta.body', { name: page.animal_name })}
+            {t('species.cta.body', { name })}
           </p>
           <Button
             asChild

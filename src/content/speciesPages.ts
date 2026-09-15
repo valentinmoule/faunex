@@ -10,6 +10,8 @@ import { supabase } from '@/integrations/supabase/client';
 export type SpeciesLocale = 'fr' | 'en';
 
 export interface SpeciesSections {
+  /** Nom commun localisé (le nom de la table reste en français). */
+  name: string;
   title: string;
   metaTitle: string;
   metaDescription: string;
