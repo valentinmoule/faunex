@@ -2866,14 +2866,6 @@ html.is-native-android body {
   opacity: 0.6;
   pointer-events: none;
 }
-.species-tile-locked__disc {
-  width: 3rem;
-  height: 3rem;
-  background: hsl(var(--background) / 0.85);
-  box-shadow:
-    inset 0 0 0 1px hsl(var(--foreground) / 0.06),
-    0 1px 2px hsl(var(--foreground) / 0.06);
-}
 .species-tile-locked__label {
   position: relative;
   background: hsl(var(--background) / 0.72);
