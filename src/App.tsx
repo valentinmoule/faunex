@@ -127,6 +127,7 @@ const AppRoutes = () => {
     location.pathname === '/remboursement' ||
     location.pathname.startsWith('/guides') ||
     location.pathname.startsWith('/fonctionnalites') ||
+    location.pathname.startsWith('/especes') ||
     location.pathname.startsWith('/u/');
 
   return (
