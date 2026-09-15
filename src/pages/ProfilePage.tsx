@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePwaInstall } from '@/contexts/PwaInstallContext';
 import { useSubscription } from '@/hooks/useSubscription';
 import { PremiumAvatar } from '@/components/PremiumAvatar';
+import DiscordInviteCard from '@/components/DiscordInviteCard';
 
 
 interface Profile {
@@ -143,6 +144,9 @@ const ProfilePage = () => {
           <StatCard icon={<Users className="w-4 h-4 text-amber" />} iconClass="bg-amber/10" value={followersCount} label={t('profile.page.stats.followers')} />
           <StatCard icon={<UserPlus className="w-4 h-4 text-emerald" />} iconClass="bg-emerald/10" value={followingCount} label={t('profile.page.stats.following')} />
         </div>
+
+        {/* Discord invite card */}
+        <DiscordInviteCard />
 
         {/* PWA Install Card */}
         {!isNative && canInstall && !isInstalled && (
