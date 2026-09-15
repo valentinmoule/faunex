@@ -94,7 +94,7 @@
       "noneForFilters": "No catch matches the selected filters."
     },
     "emptyCapture": {
-      "greeting": "Hello {{name}}",
+      "greeting": "Hello {{name}}!",
       "line1": "You haven't caught anything yet.",
       "line2": "Go on an adventure and photograph the first animal you see.",
       "cta": "Take my first catch",
