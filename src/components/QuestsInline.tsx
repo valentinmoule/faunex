@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { shareOrigin } from '@/lib/authRedirect';
 import { Button } from '@/components/ui/button';
 import { shareContent } from '@/lib/share';
+import XpPill from '@/components/XpPill';
 
 interface Quest {
   id: string;
