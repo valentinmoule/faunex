@@ -42,7 +42,7 @@ export const ProfileButton = ({ className = '' }: { className?: string }) => {
       variant="ghost"
       size="icon"
       onClick={openProfile}
-      aria-label={t('profile.drawer.open')}
+      aria-label={t('profile.page.drawer.open')}
       className={`rounded-full ${className}`}
     >
       <UserRound className="w-5 h-5" />
@@ -165,7 +165,7 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
               <div className="mt-5 space-y-2">
                 <Button className="w-full justify-start" onClick={() => go('/settings')}>
                   <Settings />
-                  {t('profile.drawer.accountSettings')}
+                  {t('profile.page.drawer.accountSettings')}
                 </Button>
                 {!isPremium && (
                   <Button variant="outline" className="w-full justify-start" onClick={() => go('/premium')}>
