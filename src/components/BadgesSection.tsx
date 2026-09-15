@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Award, Gift } from 'lucide-react';
+import { Gift } from 'lucide-react';
 import XpPill from '@/components/XpPill';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
@@ -73,12 +73,7 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
   return (
     <div id="badges" className="scroll-mt-20">
       <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-amber/15 border border-amber/25 flex items-center justify-center">
-            <Award className="w-4.5 h-4.5 text-amber" />
-          </div>
-          <h3 className="text-lg font-display font-black text-foreground">{t('profile.badges.title')}</h3>
-        </div>
+        <h3 className="text-lg font-display font-black text-foreground">{t('profile.badges.title')}</h3>
         <span className="text-[11px] font-display font-semibold text-amber bg-amber/10 border border-amber/20 px-2.5 py-1 rounded-full">
           🏆 {claimedCount}/{badges.length}
         </span>
