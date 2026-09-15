@@ -26,7 +26,7 @@ const BottomNav = () => {
     }
     // L'onglet Bestiaire est actif partout sur /bestiaire sauf sur la vue classement
     if (tab.path === '/bestiaire') {
-      return location.pathname === '/bestiaire' && currentTabParam !== 'classement';
+      return location.pathname === '/bestiaire' && currentTabParam !== 'leaderboard';
     }
     return location.pathname === tab.path;
   };
