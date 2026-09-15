@@ -38,7 +38,6 @@ const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
 const NativeAuthCallbackPage = lazy(() => import("./pages/NativeAuthCallbackPage"));
 const NativeAuthBridgePage = lazy(() => import("./pages/NativeAuthBridgePage"));
-const QuestsPage = lazy(() => import("./pages/QuestsPage"));
 const PremiumPage = lazy(() => import("./pages/PremiumPage"));
 const PricingPage = lazy(() => import("./pages/PricingPage"));
 const RefundPolicyPage = lazy(() => import("./pages/RefundPolicyPage"));

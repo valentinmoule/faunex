@@ -1,9 +1,9 @@
 import { useState, useMemo, useCallback, useEffect, useRef, memo } from 'react';
 import { PageHeader } from '@/components/PageHeader';
 import { CollectionHero } from '@/components/CollectionHero';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, Check, Images, Trophy } from 'lucide-react';
+import { Award, Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, Check, Images, Trophy } from 'lucide-react';
 import {
   POPULARITY_LABELS,
   SpeciesCategoryIcon,
@@ -53,6 +53,8 @@ import { useTranslation } from 'react-i18next';
 import i18n from '@/i18n';
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
 import { localizedSpeciesName } from '@/lib/speciesI18n';
+import MapPage from '@/pages/MapPage';
+import FaunexAchievements from '@/components/FaunexAchievements';
 
 /** Zones + collections combinées, limite gratuite. */
 const FREE_SLOT_LIMIT = 4;
@@ -167,10 +169,18 @@ const BestiairePage = () => {
   const { session } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const isFaunexHub = location.pathname === '/home';
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedBreedGroup, setSelectedBreedGroup] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'mine' | 'categories' | 'collections'>('mine');
+  type ViewMode = 'mine' | 'map' | 'badges' | 'categories' | 'collections' | 'leaderboard';
+  const requestedTab = searchParams.get('tab');
+  const initialView: ViewMode = isFaunexHub
+    ? requestedTab === 'map' || requestedTab === 'badges' ? requestedTab : 'mine'
+    : requestedTab === 'collections' || requestedTab === 'leaderboard' ? requestedTab : 'categories';
+  const [viewMode, setViewMode] = useState<ViewMode>(initialView);
   const [rarityFilter, setRarityFilter] = useState<Rarity[]>([]);
 const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [selectedFinders, setSelectedFinders] = useState<number | undefined>(undefined);
@@ -210,6 +220,23 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const [mineCategoryFilter, setMineCategoryFilter] = useState<string[]>([]);
   const [minePopularityFilter, setMinePopularityFilter] = useState<PopularityTier[]>([]);
   const [userDisplayName, setUserDisplayName] = useState('');
+
+  useEffect(() => {
+    const allowed: ViewMode[] = isFaunexHub
+      ? ['mine', 'map', 'badges']
+      : ['categories', 'collections', 'leaderboard'];
+    const tab = searchParams.get('tab') as ViewMode | null;
+    setViewMode(tab && allowed.includes(tab) ? tab : allowed[0]);
+  }, [isFaunexHub, searchParams]);
+
+  const changeView = useCallback((next: ViewMode) => {
+    setViewMode(next);
+    setSelectedCategory(null);
+    setSelectedCollectionKey(null);
+    setSelectedZoneId(null);
+    const defaults = isFaunexHub ? 'mine' : 'categories';
+    setSearchParams(next === defaults ? {} : { tab: next }, { replace: true });
+  }, [isFaunexHub, setSearchParams]);
 
   // Charge le prénom affiché dans l'empty state d'accueil
   useEffect(() => {
@@ -314,6 +341,7 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
     resolveSlot: resolveShelveSlot,
     onPrepare: useCallback(() => {
       // Retour sur la vue « toutes les espèces », sans filtre, pour y voir la carte
+      if (location.pathname !== '/bestiaire') navigate('/bestiaire', { replace: true });
       setViewMode('categories');
       setSelectedCategory(null);
       setSelectedCollectionKey(null);
@@ -323,7 +351,7 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
       setRarityFilter([]);
       setPopularityFilter([]);
       setSpeciesSearch('');
-    }, []),
+    }, [location.pathname, navigate]),
   });
 
 
@@ -983,7 +1011,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                                   addCollection(group.key);
                                   setShowDeptPicker(false);
                                   setPickerMode('hub');
-                                  setViewMode('collections');
+                                  changeView('collections');
                                 }
                           }
                           className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-left transition ${
@@ -1339,7 +1367,9 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
         <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
           <div className="max-w-lg mx-auto">
             <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-display font-bold text-primary">mon faunex</h1>
+               <h1 className="text-2xl font-display font-bold text-primary">
+                 {isFaunexHub ? t('bestiary.header.title') : t('bestiary.header.bestiaryTitle')}
+               </h1>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => navigate('/notifications')}
@@ -1363,16 +1393,20 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
           {/* View toggle — floating gamified tab bar */}
           <div className={`sticky top-[70px] z-30 -mx-4 px-4 pt-1 pb-2 ${viewMode === 'mine' && !showMineControls ? '' : 'bg-gradient-to-b from-background via-background/95 to-transparent'}`}>
             <div className={`flex items-center gap-1 p-1 rounded-full bg-card/90 backdrop-blur-xl border border-border w-full ${viewMode === 'mine' && !showMineControls ? '' : 'shadow-lg shadow-foreground/5'}`}>
-              {([
-                { key: 'mine', label: t('bestiary.tabs.mine'), icon: Images },
-                { key: 'categories', label: t('bestiary.tabs.categories'), icon: PawPrint },
-                { key: 'collections', label: t('bestiary.tabs.collections'), icon: Trophy },
-              ] as const).map(({ key, label, icon: Icon }) => {
+              {(isFaunexHub ? [
+                { key: 'mine' as const, label: t('bestiary.tabs.mine'), icon: Images },
+                { key: 'map' as const, label: t('bestiary.tabs.map'), icon: MapIcon },
+                { key: 'badges' as const, label: t('bestiary.tabs.badges'), icon: Award },
+              ] : [
+                { key: 'categories' as const, label: t('bestiary.tabs.categories'), icon: PawPrint },
+                { key: 'collections' as const, label: t('bestiary.tabs.collections'), icon: Layers },
+                { key: 'leaderboard' as const, label: t('bestiary.tabs.leaderboard'), icon: Trophy },
+              ]).map(({ key, label, icon: Icon }) => {
                 const active = viewMode === key;
                 return (
                   <button
                     key={key}
-                    onClick={() => setViewMode(key)}
+                    onClick={() => changeView(key)}
                     className={`relative flex-1 flex items-center justify-center gap-1.5 text-xs font-display font-semibold py-2 rounded-full transition-all duration-200 active:scale-95 ${
                       active
                         ? 'bg-gradient-to-br from-primary to-primary/75 text-primary-foreground shadow-md shadow-primary/30 scale-[1.02]'
@@ -1528,6 +1562,18 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
             </section>
           )}
 
+          {viewMode === 'map' && (
+            <section className="-mx-1">
+              <MapPage embedded />
+            </section>
+          )}
+
+          {viewMode === 'badges' && (
+            <section>
+              <FaunexAchievements />
+            </section>
+          )}
+
 
           {viewMode === 'categories' && (
             <section>
@@ -1595,9 +1641,6 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                   </button>
                 </div>
               )}
-
-              {/* Classement général de la semaine */}
-              <CategoryLeaderboard category="all" />
 
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">
@@ -1752,6 +1795,12 @@ const isCity = zone.kind === 'city';
                 </div>
 
               )}
+            </section>
+          )}
+
+          {viewMode === 'leaderboard' && (
+            <section>
+              <CategoryLeaderboard category="all" />
             </section>
           )}
 
