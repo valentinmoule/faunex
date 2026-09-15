@@ -12,7 +12,7 @@ import AnimalCardComponent from '@/components/AnimalCardComponent';
 import CardDetailSheet from '@/components/CardDetailSheet';
 import NearbyAnimalsSection from '@/components/NearbyAnimalsSection';
 import DailyQuestPopup from '@/components/DailyQuestPopup';
-import WelcomeInstallPopup, { isFirstLogin } from '@/components/WelcomeInstallPopup';
+import { isFirstLogin } from '@/lib/firstLogin';
 import LoadingScreen from '@/components/LoadingScreen';
 import { startOfWeekISO } from '@/lib/weekUtils';
 import type { AnimalCard } from '@/data/mockData';
@@ -493,7 +493,6 @@ const Index = () => {
       </div>
 
       <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} onDeleted={(id) => setAllCaptures(prev => prev.filter(c => c.id !== id))} />
-      <WelcomeInstallPopup />
       <DailyQuestPopup />
     </main>
   );

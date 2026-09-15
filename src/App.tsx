@@ -187,11 +187,8 @@ const AppRoutes = () => {
       {!isCapturePage && !isModerationPage && !isPremiumPage && !isPublicPage && <BottomNav />}
 
       <PullToDiscover />
-      {/* Pas de pop-ups sur /premium : le checkout natif s'y ouvre dans le
-          navigateur système, les pop-ups y seraient parasites. */}
       {!isPremiumPage && (
         <>
-          <WelcomeInstallPopup />
           <PushPermissionPrompt />
           <LevelSplash />
           <LevelUpCelebration />
@@ -210,9 +207,7 @@ const App = () => (
           <Sonner />
           <ScrollToTop />
           <AuthProvider>
-            <PwaInstallProvider>
-              <AppRoutes />
-            </PwaInstallProvider>
+            <AppRoutes />
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
