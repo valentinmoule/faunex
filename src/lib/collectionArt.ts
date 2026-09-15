@@ -76,7 +76,7 @@ const CATEGORY_SCENES: Record<string, SceneKey> = {
   Oiseaux: 'coast',
   Poissons: 'ocean',
   Reptiles: 'rocks',
-  Amphibiens: 'lake',
+  Amphibiens: 'marsh',
   Mollusques: 'ocean',
   Crustacés: 'coast',
   Arachnides: 'forest',
