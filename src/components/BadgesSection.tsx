@@ -22,6 +22,8 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
   const { badges, loading, markClaimed } = useBadges(userId, level, regionsExplored, refreshKey);
   const [claiming, setClaiming] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>('all');
+  /** Badge tout juste réclamé : affiché en grand dans une popup de célébration. */
+  const [celebrated, setCelebrated] = useState<BadgeProgress | null>(null);
 
   const claimedCount = badges.filter((b) => b.claimed).length;
   const claimableCount = badges.filter((b) => b.earned && !b.claimed).length;
