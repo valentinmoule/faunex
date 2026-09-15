@@ -57,6 +57,14 @@ const TINTS: Record<SceneKey, string> = {
   night: '230 45% 14%',
   rocks: '25 40% 22%',
   coast: '200 45% 20%',
+  marsh: '170 40% 14%',
+  river: '195 50% 16%',
+  reef: '180 55% 15%',
+  desert: '28 60% 18%',
+  savanna: '35 65% 20%',
+  jungle: '160 55% 12%',
+  cave: '225 25% 12%',
+  garden: '330 30% 25%',
 };
 
 const overlayFor = (scene: SceneKey) =>
