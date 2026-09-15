@@ -199,7 +199,38 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
           </div>
         ))}
       </div>
+
+      {/* Célébration plein écran du badge fraîchement débloqué */}
+      {celebrated && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/50 backdrop-blur-sm px-6 animate-in fade-in"
+          onClick={() => setCelebrated(null)}
+        >
+          <div className="w-full max-w-[300px] rounded-[28px] bg-card border border-amber/30 shadow-[0_30px_60px_-25px_hsla(38,92%,56%,0.55)] px-6 pt-8 pb-6 text-center relative game-card-appear">
+            <span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-amber/12 px-2.5 py-1 text-[11px] font-display font-bold text-amber">
+              <Gift className="w-3 h-3" /> +{celebrated.badge.xp} XP
+            </span>
+            <BadgeMedallion
+              badgeId={celebrated.badge.id}
+              group={celebrated.badge.group}
+              fallbackEmoji={celebrated.badge.icon}
+              state="claimed"
+              size={120}
+              className="mx-auto mb-4"
+            />
+            <h4 className="font-display text-lg font-black text-foreground">{celebrated.badge.name}</h4>
+            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{celebrated.badge.description}</p>
+            <button
+              onClick={() => setCelebrated(null)}
+              className="mt-5 w-full rounded-full bg-primary px-4 py-3 font-display text-sm font-bold text-primary-foreground active:scale-95 transition-transform"
+            >
+              {t('profile.badges.celebrateCta', { defaultValue: 'Super !' })}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
+
   );
 };
 
