@@ -16,10 +16,20 @@ import farm from '@/assets/collections/farm.jpg';
 import night from '@/assets/collections/night.jpg';
 import rocks from '@/assets/collections/rocks.jpg';
 import coast from '@/assets/collections/coast.jpg';
+import marsh from '@/assets/collections/marsh.jpg';
+import river from '@/assets/collections/river.jpg';
+import reef from '@/assets/collections/reef.jpg';
+import desert from '@/assets/collections/desert.jpg';
+import savanna from '@/assets/collections/savanna.jpg';
+import jungle from '@/assets/collections/jungle.jpg';
+import cave from '@/assets/collections/cave.jpg';
+import garden from '@/assets/collections/garden.jpg';
 
 export type SceneKey =
   | 'city' | 'meadow' | 'lake' | 'forest' | 'ocean'
-  | 'mountain' | 'farm' | 'night' | 'rocks' | 'coast';
+  | 'mountain' | 'farm' | 'night' | 'rocks' | 'coast'
+  | 'marsh' | 'river' | 'reef' | 'desert' | 'savanna'
+  | 'jungle' | 'cave' | 'garden';
 
 export interface CollectionArt {
   image: string;
