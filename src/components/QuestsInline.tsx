@@ -181,10 +181,8 @@ const QuestsInline = () => {
                         <p className="truncate text-sm font-display font-black leading-tight text-foreground">
                           {quest.title}
                         </p>
-                        <XpPill
-                          xp={quest.xp_reward}
-                          state={quest.claimed ? 'claimed' : 'reward'}
-                        />
+                        {/* Pastille XP masquée une fois la quête réclamée */}
+                        {!quest.claimed && <XpPill xp={quest.xp_reward} state="reward" />}
                       </div>
                       <p className="mt-0.5 line-clamp-2 text-xs leading-snug text-muted-foreground">
                         {quest.description}

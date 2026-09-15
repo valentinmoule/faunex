@@ -122,9 +122,9 @@ const CollectionTile = ({
             )}
           </button>
 
-          {/* Pastille XP intégrée dans l'écusson, en bas */}
-          <div className="absolute bottom-[7%] left-1/2 -translate-x-1/2">
-            {readyToClaim ? (
+          {/* Pastille XP intégrée dans l'écusson, en bas (masquée une fois réclamée) */}
+          {readyToClaim && (
+            <div className="absolute bottom-[7%] left-1/2 -translate-x-1/2">
               <button
                 onClick={onClaim}
                 disabled={claiming}
@@ -133,14 +133,13 @@ const CollectionTile = ({
               >
                 <XpPill xp={xp} state="ready" />
               </button>
-            ) : (
-              <XpPill
-                xp={xp}
-                state={claimed ? 'claimed' : 'locked'}
-                className={claimed ? '' : 'pointer-events-none'}
-              />
-            )}
-          </div>
+            </div>
+          )}
+          {!readyToClaim && !claimed && (
+            <div className="absolute bottom-[7%] left-1/2 -translate-x-1/2">
+              <XpPill xp={xp} state="locked" className="pointer-events-none" />
+            </div>
+          )}
         </div>
       </div>
 
