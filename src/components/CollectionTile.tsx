@@ -51,7 +51,7 @@ const CollectionTile = ({
       <svg width="0" height="0" className="absolute" aria-hidden="true" focusable="false">
         <defs>
           <clipPath id="faunex-rounded-hex" clipPathUnits="objectBoundingBox">
-            <path d="M 42.84 3.58 Q 50 0 57.16 3.58 L 92.84 21.42 Q 100 25 100 33 L 100 67 Q 100 75 92.84 78.58 L 57.16 96.42 Q 50 100 42.84 96.42 L 7.16 78.58 Q 0 75 0 67 L 0 33 Q 0 25 7.16 21.42 Z" />
+            <path d="M .4284 .0358 Q .5 0 .5716 .0358 L .9284 .2142 Q 1 .25 1 .33 L 1 .67 Q 1 .75 .9284 .7858 L .5716 .9642 Q .5 1 .4284 .9642 L .0716 .7858 Q 0 .75 0 .67 L 0 .33 Q 0 .25 .0716 .2142 Z" />
           </clipPath>
         </defs>
       </svg>
