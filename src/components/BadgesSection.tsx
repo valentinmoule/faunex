@@ -127,12 +127,14 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
                     }`}
                     style={{ animationDelay: `${i * 40}ms` }}
                   >
-                    {/* Pastille XP / état */}
-                    <XpPill
-                      xp={badge.xp}
-                      state={claimed ? 'claimed' : readyToClaim ? 'ready' : 'locked'}
-                      className="absolute top-2 right-2"
-                    />
+                    {/* Pastille XP / état (masquée une fois réclamé) */}
+                    {!claimed && (
+                      <XpPill
+                        xp={badge.xp}
+                        state={readyToClaim ? 'ready' : 'locked'}
+                        className="absolute top-2 right-2"
+                      />
+                    )}
 
                     <BadgeMedallion
                       badgeId={badge.id}
