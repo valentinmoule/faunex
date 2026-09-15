@@ -237,6 +237,11 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
       : ['categories', 'collections', 'leaderboard'];
     const tab = searchParams.get('tab') as ViewMode | null;
     setViewMode(tab && allowed.includes(tab) ? tab : allowed[0]);
+    // Ferme les vues détail (catégorie, territoire, collection) quand on
+    // change d'onglet depuis la barre de navigation.
+    setSelectedCategory(null);
+    setSelectedCollectionKey(null);
+    setSelectedZoneId(null);
   }, [isFaunexHub, searchParams]);
 
   const changeView = useCallback((next: ViewMode) => {
