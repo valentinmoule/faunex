@@ -1812,7 +1812,20 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
 
           {viewMode === 'leaderboard' && (
             <section>
-              <CategoryLeaderboard category="all" inline />
+              <div className="mx-4 grid grid-cols-2 gap-1 rounded-2xl bg-muted p-1">
+                {([['week', t('social.leaderboard.tabWeek')], ['all', t('social.leaderboard.tabAllTime')]] as const).map(([key, label]) => (
+                  <button
+                    key={key}
+                    onClick={() => setLeaderboardTab(key)}
+                    className={`rounded-xl py-1.5 text-[12px] font-display font-bold transition-colors ${
+                      leaderboardTab === key ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              {leaderboardTab === 'week' ? <WeeklyLeague /> : <CategoryLeaderboard category="all" inline />}
             </section>
           )}
 
