@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { useAppLocale } from '@/hooks/useAppLocale';
 import { Languages } from 'lucide-react';
 import { shareOrigin } from '@/lib/authRedirect';
+import { shareContent } from '@/lib/share';
 
 interface SettingsProps {
   profile: {
@@ -193,13 +194,15 @@ const SettingsPage = () => {
     navigate('/auth');
   };
 
-  const handleShare = () => {
+  const handleShare = async () => {
     const username = profile?.username?.replace(/^@/, '') || session?.user?.id;
     const shareUrl = `${shareOrigin()}/u/${username}`;
-    if (navigator.share) {
-      navigator.share({ title: t('profile.settings.share.title'), text: t('profile.settings.share.text'), url: shareUrl });
-    } else {
-      navigator.clipboard.writeText(shareUrl);
+    const result = await shareContent({
+      title: t('profile.settings.share.title'),
+      text: t('profile.settings.share.text'),
+      url: shareUrl,
+    });
+    if (result === 'copied') {
       toast.success(t('profile.settings.success.linkCopied'));
     }
   };

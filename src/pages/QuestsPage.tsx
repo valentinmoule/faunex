@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { startOfWeekISO } from '@/lib/weekUtils';
 import { useTranslation } from 'react-i18next';
 import { shareOrigin } from '@/lib/authRedirect';
+import { shareContent } from '@/lib/share';
 
 interface Quest {
   id: string;
@@ -121,10 +122,9 @@ const QuestsPage = () => {
     };
 
     try {
-      if (navigator.share) {
-        await navigator.share(shareData);
-      } else {
-        await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`);
+      const result = await shareContent(shareData);
+      if (result === 'cancelled') return;
+      if (result === 'copied') {
         toast.success(t('profile.quests.linkCopied'));
       }
 
