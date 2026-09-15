@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Target, X, Sparkles } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { isFirstLogin } from '@/components/WelcomeInstallPopup';
+import { isFirstLogin } from '@/lib/firstLogin';
 import { useTranslation } from 'react-i18next';
 
 const DailyQuestPopup = () => {

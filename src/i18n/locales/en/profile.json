@@ -13,11 +13,6 @@
         "followers": "Followers",
         "following": "Following"
       },
-      "install": {
-        "title": "Install Faunex",
-        "subtitle": "Access the app from your home screen",
-        "cta": "Install"
-      },
       "moderation": {
         "title": "Moderation",
         "pending_one": "{{count}} capture awaiting review",

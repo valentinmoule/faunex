@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect, Fragment } from 'react';
 import { PageHeader } from '@/components/PageHeader';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Pencil, KeyRound, Share2, Scale, LogOut, Trash2, Loader2, Camera, Check, X, ChevronRight, Mail, Lock, Smartphone, Bell, Crown, MessageCircle } from 'lucide-react';
+import { ArrowLeft, Pencil, KeyRound, Share2, Scale, LogOut, Trash2, Loader2, Camera, Check, X, ChevronRight, Mail, Lock, Bell, Crown, MessageCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { usePwaInstall } from '@/contexts/PwaInstallContext';
+
 import { isPushSupported, subscribeToPush, unsubscribeFromPush, hasActivePushSubscription } from '@/lib/pushNotifications';
 import { prepareSourceImage, readFileAsDataUrl, dataUrlToBytes } from '@/lib/imageProcessing';
 import { useTranslation } from 'react-i18next';
@@ -26,7 +26,7 @@ interface SettingsProps {
 const SettingsPage = () => {
   const { session, signOut } = useAuth();
   const navigate = useNavigate();
-  const { isInstalled, isNative, resetDismiss, openInstallGuide } = usePwaInstall();
+  
   const [section, setSection] = useState<'menu' | 'edit' | 'password' | 'delete' | 'language'>('menu');
   const { t } = useTranslation();
   const { locale, isAuto, changeLocale } = useAppLocale();
@@ -247,16 +247,6 @@ const SettingsPage = () => {
             <MenuItem icon={<MessageCircle className="w-5 h-5" />} label={t('settings.discord')} onClick={() => window.open('https://discord.gg/YrAEV5EQa4', '_blank', 'noopener,noreferrer')} />
             <MenuItem icon={<Scale className="w-5 h-5" />} label={t('settings.legal')} onClick={() => navigate('/legal')} />
             <MenuItem icon={<Lock className="w-5 h-5" />} label={t('settings.privacy')} onClick={() => navigate('/confidentialite')} />
-            {!isNative && !isInstalled && (
-              <MenuItem
-                icon={<Smartphone className="w-5 h-5" />}
-                label={t('settings.install')}
-                onClick={() => {
-                  resetDismiss();
-                  openInstallGuide();
-                }}
-              />
-            )}
             <div className="pt-4 space-y-1">
               <MenuItem icon={<LogOut className="w-5 h-5 text-destructive" />} label={t('settings.signOut')} onClick={async () => { await signOut(); toast.success(t('settings.signedOut')); }} destructive />
               <MenuItem icon={<Trash2 className="w-5 h-5 text-destructive" />} label={t('settings.deleteMyAccount')} onClick={() => setSection('delete')} destructive />

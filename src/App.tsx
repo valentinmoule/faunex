@@ -6,8 +6,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import { PwaInstallProvider } from "./contexts/PwaInstallContext";
-import WelcomeInstallPopup from "./components/WelcomeInstallPopup";
 import LevelSplash from "./components/LevelSplash";
 import LevelUpCelebration from "./components/LevelUpCelebration";
 import LoadingScreen from "./components/LoadingScreen";
@@ -15,6 +13,7 @@ import BottomNav from "./components/BottomNav";
 import ScrollToTop from "./components/ScrollToTop";
 import PullToDiscover from "./components/PullToDiscover";
 import { PushPermissionPrompt } from "./components/PushPermissionPrompt";
+import { isFirstLogin, markFirstLoginDone } from "./lib/firstLogin";
 import PageTransition from "./components/PageTransition";
 import { SHOW_MARKETING_PAGES } from "./lib/platform";
 import { useSyncAccountLocale } from "./hooks/useAppLocale";
@@ -108,6 +107,20 @@ const LandingRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+// Marque la première connexion comme gérée après un court délai :
+// les popups (Splash de niveau, quêtes du jour) ne s'affichent qu'à partir
+// de la visite suivante — remplace l'ancienne popup d'installation PWA.
+const FirstLoginMarker = () => {
+  const { session } = useAuth();
+  React.useEffect(() => {
+    if (!session?.user) return;
+    if (!isFirstLogin(session.user.id)) return;
+    const timer = setTimeout(() => markFirstLoginDone(session.user.id), 5000);
+    return () => clearTimeout(timer);
+  }, [session]);
+  return null;
+};
+
 const AppRoutes = () => {
   const location = useLocation();
   useSyncAccountLocale();
@@ -189,16 +202,14 @@ const AppRoutes = () => {
       {!isCapturePage && !isModerationPage && !isPremiumPage && !isPublicPage && <BottomNav />}
 
       <PullToDiscover />
-      {/* Pas de pop-ups sur /premium : le checkout natif s'y ouvre dans le
-          navigateur système, les pop-ups y seraient parasites. */}
       {!isPremiumPage && (
         <>
-          <WelcomeInstallPopup />
           <PushPermissionPrompt />
           <LevelSplash />
           <LevelUpCelebration />
         </>
       )}
+      <FirstLoginMarker />
     </>
   );
 };
@@ -212,9 +223,7 @@ const App = () => (
           <Sonner />
           <ScrollToTop />
           <AuthProvider>
-            <PwaInstallProvider>
-              <AppRoutes />
-            </PwaInstallProvider>
+            <AppRoutes />
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Shield } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { isFirstLogin } from '@/components/WelcomeInstallPopup';
+import { isFirstLogin } from '@/lib/firstLogin';
 import { useTranslation } from 'react-i18next';
 
 const LevelSplash = () => {

@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PageHeader } from '@/components/PageHeader';
-import { Settings, MapPin, BookOpen, Download, Bell, Users, UserPlus, ShieldCheck } from 'lucide-react';
+import { Settings, MapPin, BookOpen, Bell, Users, UserPlus, ShieldCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { usePwaInstall } from '@/contexts/PwaInstallContext';
+
 import { useSubscription } from '@/hooks/useSubscription';
 import { PremiumAvatar } from '@/components/PremiumAvatar';
 import DiscordInviteCard from '@/components/DiscordInviteCard';
@@ -29,7 +29,7 @@ interface Profile {
 const ProfilePage = () => {
   const { t } = useTranslation();
   const { session } = useAuth();
-  const { canInstall, isInstalled, isNative, promptInstall } = usePwaInstall();
+  
   const { isPremium } = useSubscription(session?.user?.id);
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -147,25 +147,6 @@ const ProfilePage = () => {
 
         {/* Discord invite card */}
         <DiscordInviteCard />
-
-        {/* PWA Install Card */}
-        {!isNative && canInstall && !isInstalled && (
-          <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-              <Download className="w-5 h-5 text-primary" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-display font-semibold text-foreground">{t('profile.page.install.title')}</p>
-              <p className="text-xs text-muted-foreground">{t('profile.page.install.subtitle')}</p>
-            </div>
-            <button
-              onClick={promptInstall}
-              className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-display font-semibold shrink-0"
-            >
-              {t('profile.page.install.cta')}
-            </button>
-          </div>
-        )}
 
         {/* Admin moderation access */}
         {isAdmin && (
