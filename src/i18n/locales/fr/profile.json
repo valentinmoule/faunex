@@ -13,11 +13,6 @@
         "followers": "Abonnés",
         "following": "Abonnements"
       },
-      "install": {
-        "title": "Installer Faunex",
-        "subtitle": "Accède à l'app depuis ton écran d'accueil",
-        "cta": "Installer"
-      },
       "moderation": {
         "title": "Modération",
         "pending_one": "{{count}} capture en attente de validation",

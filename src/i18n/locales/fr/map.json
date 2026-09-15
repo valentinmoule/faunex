@@ -66,26 +66,6 @@
       "later": "Plus tard",
       "close": "Fermer"
     },
-    "welcomeInstall": {
-      "title": "Bienvenue sur Faunex ! 🌿",
-      "description": "Installe l'application sur ton écran d'accueil pour une expérience optimale et un accès rapide à tes captures\u00a0!",
-      "install": "Installer Faunex",
-      "howToInstall": "Comment installer",
-      "continueWithoutInstall": "Continuer sans installer",
-      "ios": {
-        "title": "Sur iPhone / iPad :",
-        "step1": "Ouvre Faunex dans <strong>Safari</strong> (pas Chrome).",
-        "step2": "Appuie sur le bouton <strong>Partager</strong> en bas de l'écran.",
-        "step3": "Fais défiler et sélectionne <strong>Sur l'écran d'accueil</strong>.",
-        "step4": "Appuie sur <strong>Ajouter</strong>."
-      },
-      "android": {
-        "title": "Sur Android :",
-        "step1": "Ouvre le menu <strong>⋮</strong> en haut à droite de Chrome.",
-        "step2": "Choisis <strong>Installer l'application</strong> ou <strong>Ajouter à l'écran d'accueil</strong>.",
-        "step3": "Confirme avec <strong>Installer</strong>."
-      }
-    },
     "loadingScreen": {
       "logoAlt": "Logo Faunex",
       "loading": "Chargement…"
