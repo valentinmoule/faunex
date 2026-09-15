@@ -191,6 +191,7 @@ const BestiairePage = () => {
     ? requestedTab === 'map' || requestedTab === 'badges' ? requestedTab : 'mine'
     : requestedTab === 'collections' || requestedTab === 'leaderboard' ? requestedTab : 'categories';
   const [viewMode, setViewMode] = useState<ViewMode>(initialView);
+  const [leaderboardTab, setLeaderboardTab] = useState<'week' | 'all'>('week');
   const [rarityFilter, setRarityFilter] = useState<Rarity[]>([]);
 const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [selectedFinders, setSelectedFinders] = useState<number | undefined>(undefined);
