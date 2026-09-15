@@ -163,16 +163,32 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
               </div>
 
               <div className="mt-5 space-y-2">
+                {!isPremium && (
+                  <button
+                    type="button"
+                    onClick={() => go('/premium')}
+                    className="group flex w-full items-center gap-3 rounded-2xl border border-amber/30 bg-gradient-to-r from-amber/15 via-amber/10 to-transparent p-3 text-left transition-transform active:scale-[0.98]"
+                  >
+                    <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber to-amber-dark shadow-sm">
+                      <Crown className="size-5 text-white" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm font-display font-bold text-foreground">
+                        {t('profile.page.drawer.premiumTitle')}
+                      </span>
+                      <span className="block truncate text-xs text-muted-foreground">
+                        {t('profile.page.drawer.premiumSubtitle')}
+                      </span>
+                    </span>
+                    <span className="shrink-0 rounded-full bg-amber px-3 py-1.5 text-xs font-semibold text-amber-foreground">
+                      {t('profile.page.drawer.premiumCta')}
+                    </span>
+                  </button>
+                )}
                 <Button className="w-full justify-start" onClick={() => go('/settings')}>
                   <Settings />
                   {t('profile.page.drawer.accountSettings')}
                 </Button>
-                {!isPremium && (
-                  <Button variant="outline" className="w-full justify-start" onClick={() => go('/premium')}>
-                    <Crown className="text-amber" />
-                    {t('settings.premium')}
-                  </Button>
-                )}
                 <Button
                   variant="outline"
                   className="w-full justify-start"
