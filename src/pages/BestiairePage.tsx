@@ -379,7 +379,7 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
     [setCitySearch, setCityResults]
   );
 
-  const { isPremium } = useSubscription(session?.user?.id);
+  const { isPremium, loading: premiumLoading } = useSubscription(session?.user?.id);
   const { collectionKeys, addCollection, removeCollection } = useSpeciesCollections(session?.user?.id);
   const { isClaimed, claimReward, claiming: claimingReward } = useCollectionRewards(session?.user?.id);
   const [celebratedReward, setCelebratedReward] = useState<{ title: string; xp: number } | null>(null);
@@ -1839,9 +1839,11 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                 ? <CategoryLeaderboard category="all" inline period="week" scope="global" />
                 : leaderboardTab === 'all'
                   ? <CategoryLeaderboard category="all" inline period="all" scope="global" />
-                  : isPremium
-                    ? <CategoryLeaderboard category="all" inline period="all" scope="follows" />
-                    : (
+                  : premiumLoading
+                    ? <p className="px-5 py-10 text-center text-[13px] font-display text-muted-foreground">{t('social.common.loading')}</p>
+                    : isPremium
+                      ? <CategoryLeaderboard category="all" inline period="all" scope="follows" />
+                      : (
                       <div className="px-5 py-10 text-center">
                         <div className="mx-auto w-14 h-14 rounded-full bg-gradient-to-b from-amber/25 to-amber/5 border border-amber/30 flex items-center justify-center mb-3">
                           <Crown className="w-6 h-6 text-amber" />
