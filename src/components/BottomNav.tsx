@@ -40,15 +40,15 @@ const BottomNav = () => {
       <div className="flex items-center justify-around h-[60px] max-w-lg mx-auto px-2">
 
         {tabs.map((tab) => {
-          const isActive = location.pathname === tab.path;
+          const active = isActive(tab);
           const Icon = tab.icon;
           const isCapture = tab.path === '/capture';
 
           if (isCapture) {
             return (
               <button
-                key={tab.path}
-                onClick={() => go(tab.path)}
+                key={tab.labelKey}
+                onClick={() => go(tab)}
                 className="flex flex-col items-center justify-center -mt-6 press"
               >
                 <div className="capture-halo w-[54px] h-[54px] rounded-[20px] bg-gradient-to-b from-forest-light to-primary flex items-center justify-center shadow-[0_2px_4px_hsla(165,25%,11%,0.08),0_12px_28px_-10px_hsl(var(--primary)/0.65)] ring-4 ring-card">
