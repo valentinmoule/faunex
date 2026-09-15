@@ -12,7 +12,7 @@ export const ExplorersEmptyState = ({ onSearch }: ExplorersEmptyStateProps) => {
 
   return (
     <div className="px-4 py-10">
-      <div className="mx-auto w-full max-w-sm rounded-[2rem] bg-card border border-border/60 px-6 py-8 text-center shadow-[0_18px_50px_-24px_hsl(var(--primary)/0.35)]">
+      <div className="mx-auto w-full max-w-sm px-2 py-4 text-center">
         <div className="relative w-20 h-20 mx-auto mb-6">
           <span className="absolute -inset-2 rounded-full bg-primary/10 blur-xl" aria-hidden="true" />
           <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/25">
