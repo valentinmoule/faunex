@@ -182,15 +182,6 @@
       "tabWeek": "This week",
       "tabAllTime": "All time"
     },
-    "league": {
-      "myLeague": "My league",
-      "myRank": "#{{rank}} of {{total}}",
-      "myPoints": "{{count}} pts",
-      "myPoints_other": "{{count}} pts",
-      "emptyTitle": "No league this week yet",
-      "emptyDesc": "Make captures to join a league and climb the tiers!",
-      "emptyGroup": "Nobody in your league yet."
-    },
     "discordInvite": {
       "closeAriaLabel": "Close Discord invite",
       "title": "Join the Faunex community",
