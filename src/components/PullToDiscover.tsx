@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNearbyQuota, DAILY_NEARBY_LIMIT } from '@/hooks/useNearbyQuota';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { toast } from 'sonner';
+import { getCurrentPosition } from '@/lib/geo';
 import { cn } from '@/lib/utils';
 import { useSwipeDownClose } from '@/lib/useSwipeDownClose';
 import { RarityBadge } from '@/components/RarityBadge';
@@ -94,7 +95,7 @@ const PullToDiscover = () => {
     }
     setLoading(true);
     if ('vibrate' in navigator) navigator.vibrate?.(18);
-    navigator.geolocation.getCurrentPosition(
+    void getCurrentPosition(
       async (pos) => {
         try {
           const { data, error } = await supabase.functions.invoke('nearby-animals', {

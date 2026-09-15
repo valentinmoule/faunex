@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { type Rarity, RARITY_LABELS, RARITY_FX, normalizeRarity } from '@/data/mockData';
 import { RarityBadge } from '@/components/RarityBadge';
 import { toast } from 'sonner';
+import { getCurrentPosition, isGeolocationAvailable } from '@/lib/geo';
 import { useTranslation } from 'react-i18next';
 import NearbyRadar from './NearbyRadar';
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
@@ -95,7 +96,7 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
   const [collapsed, setCollapsed] = useState(false);
 
   const fetchNearby = () => {
-    if (!navigator.geolocation) {
+    if (!isGeolocationAvailable()) {
       toast.error(t('map.nearby.geoUnavailable'));
       return;
     }
@@ -104,7 +105,7 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
     setError(false);
     setAlertAnimal(null);
 
-    navigator.geolocation.getCurrentPosition(
+    void getCurrentPosition(
       async (pos) => {
         try {
           const { data, error: fnError } = await supabase.functions.invoke('nearby-animals', {
