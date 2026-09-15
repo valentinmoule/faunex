@@ -626,6 +626,10 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                 <div
                   className={`relative w-full h-full rounded-[1.75rem] overflow-hidden holo-frame holo-frame--${normalizeRarity(card.rarity).replace(/_/g, '-')}`}
                 >
+                  {/* Pastille de rareté sur la carte */}
+                  <div className="absolute top-3 right-3 z-20 pointer-events-none">
+                    <RarityBadge rarity={card.rarity} />
+                  </div>
 
                   <div className="relative w-full h-full rounded-[1.125rem] overflow-hidden">
 
