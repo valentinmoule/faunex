@@ -57,6 +57,7 @@ import MapPage from '@/pages/MapPage';
 import FaunexAchievements from '@/components/FaunexAchievements';
 import CollectionTile from '@/components/CollectionTile';
 import RewardCelebration from '@/components/RewardCelebration';
+import CaptureQuotaBadge from '@/components/CaptureQuotaBadge';
 import {
   COLLECTION_REWARD_PREFIX,
   ZONE_REWARD_PREFIX,
@@ -1391,6 +1392,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                  {isFaunexHub ? t('bestiary.header.title') : t('bestiary.header.bestiaryTitle')}
                </h1>
               <div className="flex items-center gap-2">
+                <CaptureQuotaBadge userId={session?.user?.id} isPremium={isPremium} />
                 <button
                   onClick={() => navigate('/notifications')}
                   className="relative p-2 rounded-full hover:bg-muted transition-colors"
