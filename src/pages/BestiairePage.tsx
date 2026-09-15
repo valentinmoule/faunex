@@ -1442,8 +1442,9 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                   </button>
                 );
               })}
-            </div>
           </div>
+          )}
+
 
           {viewMode === 'mine' && (
             <section>
