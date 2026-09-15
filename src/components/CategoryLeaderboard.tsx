@@ -64,9 +64,11 @@ interface LeaderboardTarget {
   category?: string;
   /** Classement par territoire (département). */
   territory?: { code: string; label: string };
+  /** Affiche le classement directement, sans carte résumé ni bottom sheet. */
+  inline?: boolean;
 }
 
-const CategoryLeaderboard = ({ category, territory }: LeaderboardTarget) => {
+const CategoryLeaderboard = ({ category, territory, inline }: LeaderboardTarget) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -124,7 +126,7 @@ useEffect(() => {
     return () => { cancelled = true; };
   }, [isTerritory, value, scope]);
 
-if (rows.length === 0 && scope === 'global' && !open) return null;
+if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
 
   const podium = rows.slice(0, 3);
   const podiumOrdered = [podium[1], podium[0], podium[2]].filter(Boolean);
