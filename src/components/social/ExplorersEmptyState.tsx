@@ -1,6 +1,7 @@
 import { Search, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { hapticTap } from '@/lib/haptics';
+import { SwirlAvatarsBackdrop } from '@/components/SwirlAvatarsBackdrop';
 
 interface ExplorersEmptyStateProps {
   onSearch: () => void;
@@ -12,6 +13,7 @@ export const ExplorersEmptyState = ({ onSearch }: ExplorersEmptyStateProps) => {
 
   return (
     <div className="relative flex flex-col items-center justify-center min-h-[70svh] px-4 text-center">
+      <SwirlAvatarsBackdrop />
       <div className="relative z-10 w-full max-w-sm px-2 py-4">
         <h2 className="text-[1.6rem] font-display font-bold text-foreground leading-tight tracking-tight">
           {t('social.explorers.emptyFeed.title')}
