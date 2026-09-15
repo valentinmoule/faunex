@@ -367,12 +367,15 @@ async function examine(
   // Un désaccord d'espèce n'est jamais un refus ferme : c'est un arbitrage humain.
   const ruleBreach = notRealPhoto || (!disagreement && verdict.name_matches === false && confidence === 0)
 
-  // CONFIANCE À L'OBSERVATEUR : son nom est réputé exact. L'IA ne sert qu'à
-  // écarter les cas manifestement invalides (photo non réelle, nom inconnu) ou
-  // une contradiction explicite. Un simple manque d'assurance ne bloque plus.
+  // CONFIANCE MAXIMALE À L'OBSERVATEUR : dans ~90 % des cas son nom est bon.
+  // Un simple écart de nom scientifique ou de formulation ne déclenche plus de
+  // modération humaine : on conserve les noms de l'observateur et on approuve.
+  // Seuls garde-fous : photo non réelle / objet / animal mort, nom vide ou
+  // « inconnu », et contradiction EXPLICITE de l'IA (name_matches === false),
+  // c'est-à-dire quand ce n'est manifestement pas cet animal (ou pas un animal).
   const explicitContradiction = verdict.name_matches === false
-  const humanNeeded = notRealPhoto || unknown || disagreement || explicitContradiction
-    || (!matches && confidence < AUTO_APPROVE_THRESHOLD)
+  const humanNeeded = notRealPhoto || unknown || explicitContradiction
+
 
 
 
