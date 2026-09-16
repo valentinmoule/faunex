@@ -268,7 +268,7 @@ const PremiumPage = () => {
       </main>
 
       {createPortal(
-        <div className="fixed inset-x-0 bottom-[calc(60px+env(safe-area-inset-bottom))] z-[60] border-t border-border bg-background/90 backdrop-blur-xl px-5 pt-3 pb-3">
+        <div className="fixed inset-x-0 bottom-0 z-[60] border-t border-border bg-background/90 backdrop-blur-xl px-5 pt-3 pb-[calc(12px+env(safe-area-inset-bottom))]">
           <div className="mx-auto max-w-2xl space-y-2">
             {loading ? (
               <Button disabled className="h-12 w-full rounded-2xl">
