@@ -216,22 +216,24 @@ const AppRoutes = () => {
 };
 
 const App = () => (
-  <ThemeProvider attribute="class" defaultTheme="light" forcedTheme="light" enableSystem={false}>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <BrowserRouter>
-          <Sonner />
-          <ScrollToTop />
-          <AuthProvider>
-            <ProfileDrawerProvider>
-              <AppRoutes />
-            </ProfileDrawerProvider>
-          </AuthProvider>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </ThemeProvider>
+  <AppErrorBoundary>
+    <ThemeProvider attribute="class" defaultTheme="light" forcedTheme="light" enableSystem={false}>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <BrowserRouter>
+            <Sonner />
+            <ScrollToTop />
+            <AuthProvider>
+              <ProfileDrawerProvider>
+                <AppRoutes />
+              </ProfileDrawerProvider>
+            </AuthProvider>
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
+  </AppErrorBoundary>
 );
 
 export default App;
