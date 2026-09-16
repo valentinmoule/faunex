@@ -6,6 +6,9 @@ import "./i18n";
 import { registerAppSW } from "./lib/registerSW";
 import { setupNativeStatusBar } from "./lib/nativeUI";
 import { setupAuthDeepLinks } from "./lib/authDeepLinks";
+import { setupStaleBuildRecovery } from "./lib/appRecovery";
+
+setupStaleBuildRecovery();
 
 createRoot(document.getElementById("root")!).render(
   <HelmetProvider>
