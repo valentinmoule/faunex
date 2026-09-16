@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from "react";
+import React, { Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,35 +19,36 @@ import { SHOW_MARKETING_PAGES } from "./lib/platform";
 import { useSyncAccountLocale } from "./hooks/useAppLocale";
 import { ProfileDrawerProvider } from "./components/ProfileDrawer";
 import AppErrorBoundary from "./components/AppErrorBoundary";
+import { lazyWithRetry } from "./lib/lazyWithRetry";
 
 
 // Lazy-loaded routes for smaller initial bundle
 
-const CapturePage = lazy(() => import("./pages/CapturePage"));
-const CollectionPage = lazy(() => import("./pages/CollectionPage"));
-const ExplorersPage = lazy(() => import("./pages/ExplorersPage"));
-const AuthPage = lazy(() => import("./pages/AuthPage"));
-const NotFound = lazy(() => import("./pages/NotFound"));
-const FriendCollectionPage = lazy(() => import("./pages/FriendCollectionPage"));
-const BestiairePage = lazy(() => import("./pages/BestiairePage"));
-const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
-const ModerationPage = lazy(() => import("./pages/ModerationPage"));
-const LegalPage = lazy(() => import("./pages/LegalPage"));
-const ShareProfilePage = lazy(() => import("./pages/ShareProfilePage"));
-const SettingsPage = lazy(() => import("./pages/SettingsPage"));
-const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
-const NativeAuthCallbackPage = lazy(() => import("./pages/NativeAuthCallbackPage"));
-const NativeAuthBridgePage = lazy(() => import("./pages/NativeAuthBridgePage"));
-const PremiumPage = lazy(() => import("./pages/PremiumPage"));
-const PricingPage = lazy(() => import("./pages/PricingPage"));
-const RefundPolicyPage = lazy(() => import("./pages/RefundPolicyPage"));
-const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
-const LandingPage = SHOW_MARKETING_PAGES ? lazy(() => import("./pages/LandingPage")) : null;
-const CompleteProfilePage = lazy(() => import("./pages/CompleteProfilePage"));
-const ContentIndexPage = SHOW_MARKETING_PAGES ? lazy(() => import("./pages/ContentIndexPage")) : null;
-const ArticlePage = SHOW_MARKETING_PAGES ? lazy(() => import("./pages/ArticlePage")) : null;
-const SpeciesIndexPage = SHOW_MARKETING_PAGES ? lazy(() => import("./pages/SpeciesIndexPage")) : null;
-const SpeciesPage = SHOW_MARKETING_PAGES ? lazy(() => import("./pages/SpeciesPage")) : null;
+const CapturePage = lazyWithRetry(() => import("./pages/CapturePage"));
+const CollectionPage = lazyWithRetry(() => import("./pages/CollectionPage"));
+const ExplorersPage = lazyWithRetry(() => import("./pages/ExplorersPage"));
+const AuthPage = lazyWithRetry(() => import("./pages/AuthPage"));
+const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
+const FriendCollectionPage = lazyWithRetry(() => import("./pages/FriendCollectionPage"));
+const BestiairePage = lazyWithRetry(() => import("./pages/BestiairePage"));
+const NotificationsPage = lazyWithRetry(() => import("./pages/NotificationsPage"));
+const ModerationPage = lazyWithRetry(() => import("./pages/ModerationPage"));
+const LegalPage = lazyWithRetry(() => import("./pages/LegalPage"));
+const ShareProfilePage = lazyWithRetry(() => import("./pages/ShareProfilePage"));
+const SettingsPage = lazyWithRetry(() => import("./pages/SettingsPage"));
+const ResetPasswordPage = lazyWithRetry(() => import("./pages/ResetPasswordPage"));
+const NativeAuthCallbackPage = lazyWithRetry(() => import("./pages/NativeAuthCallbackPage"));
+const NativeAuthBridgePage = lazyWithRetry(() => import("./pages/NativeAuthBridgePage"));
+const PremiumPage = lazyWithRetry(() => import("./pages/PremiumPage"));
+const PricingPage = lazyWithRetry(() => import("./pages/PricingPage"));
+const RefundPolicyPage = lazyWithRetry(() => import("./pages/RefundPolicyPage"));
+const PrivacyPage = lazyWithRetry(() => import("./pages/PrivacyPage"));
+const LandingPage = SHOW_MARKETING_PAGES ? lazyWithRetry(() => import("./pages/LandingPage")) : null;
+const CompleteProfilePage = lazyWithRetry(() => import("./pages/CompleteProfilePage"));
+const ContentIndexPage = SHOW_MARKETING_PAGES ? lazyWithRetry(() => import("./pages/ContentIndexPage")) : null;
+const ArticlePage = SHOW_MARKETING_PAGES ? lazyWithRetry(() => import("./pages/ArticlePage")) : null;
+const SpeciesIndexPage = SHOW_MARKETING_PAGES ? lazyWithRetry(() => import("./pages/SpeciesIndexPage")) : null;
+const SpeciesPage = SHOW_MARKETING_PAGES ? lazyWithRetry(() => import("./pages/SpeciesPage")) : null;
 
 
 
