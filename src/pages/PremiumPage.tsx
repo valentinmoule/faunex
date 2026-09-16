@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Check, Loader2, Crown, Minus } from 'lucide-react';
 import { toast } from 'sonner';
