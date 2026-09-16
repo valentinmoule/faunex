@@ -18,6 +18,7 @@ import PageTransition from "./components/PageTransition";
 import { SHOW_MARKETING_PAGES } from "./lib/platform";
 import { useSyncAccountLocale } from "./hooks/useAppLocale";
 import { ProfileDrawerProvider } from "./components/ProfileDrawer";
+import AppErrorBoundary from "./components/AppErrorBoundary";
 
 
 // Lazy-loaded routes for smaller initial bundle
