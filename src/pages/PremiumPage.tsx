@@ -57,6 +57,11 @@ const useFeatures = (t: (key: string) => string): FeatureRow[] => [
     free: <Check className="h-4 w-4 text-foreground" />,
     premium: <Check className="h-4 w-4 text-primary" />,
   },
+  {
+    label: t('profile.premium.features.explorersRanking'),
+    free: <Minus className="h-4 w-4 text-muted-foreground" />,
+    premium: <Check className="h-4 w-4 text-primary" />,
+  },
 ];
 
 const usePlans = (t: (key: string) => string) => ({
@@ -261,7 +266,7 @@ const PremiumPage = () => {
 
       </main>
 
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/90 backdrop-blur-xl px-5 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+      <div className="fixed inset-x-0 bottom-[calc(60px+env(safe-area-inset-bottom))] z-[60] border-t border-border bg-background/90 backdrop-blur-xl px-5 pt-3 pb-3">
         <div className="mx-auto max-w-2xl space-y-2">
           {loading ? (
             <Button disabled className="h-12 w-full rounded-2xl">
