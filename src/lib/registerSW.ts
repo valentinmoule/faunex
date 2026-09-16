@@ -51,9 +51,20 @@ export async function registerAppSW() {
     const reg = await navigator.serviceWorker.register(SW_PATH, { scope: "/" });
 
     // When a new SW takes control (autoUpdate + skipWaiting), reload once to pick up new assets.
+    // Garde-fous contre la boucle de rechargement (écran blanc au démarrage sur
+    // iOS) : on ne recharge que si un SW contrôlait déjà la page, une seule fois
+    // par onglet, et jamais deux fois de suite dans la même session.
+    const RELOAD_KEY = "faunex_sw_reloaded";
     let reloaded = false;
     navigator.serviceWorker.addEventListener("controllerchange", () => {
       if (reloaded) return;
+      if (!navigator.serviceWorker.controller) return;
+      try {
+        if (sessionStorage.getItem(RELOAD_KEY) === "1") return;
+        sessionStorage.setItem(RELOAD_KEY, "1");
+      } catch {
+        return;
+      }
       reloaded = true;
       window.location.reload();
     });
