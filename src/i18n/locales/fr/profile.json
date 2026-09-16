@@ -351,7 +351,8 @@
         "premiumBadge": "Badge Premium sur le profil",
         "notesLocation": "Notes et localisation",
         "quests": "Quêtes et objectifs",
-        "leaderboard": "Classement et badges"
+        "leaderboard": "Classement et badges",
+        "explorersRanking": "Classement des explorateurs"
       }
     },
     "pricing": {

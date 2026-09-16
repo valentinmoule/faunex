@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Check, Loader2, Crown, Minus } from 'lucide-react';
 import { toast } from 'sonner';
@@ -55,6 +56,11 @@ const useFeatures = (t: (key: string) => string): FeatureRow[] => [
   {
     label: t('profile.premium.features.leaderboard'),
     free: <Check className="h-4 w-4 text-foreground" />,
+    premium: <Check className="h-4 w-4 text-primary" />,
+  },
+  {
+    label: t('profile.premium.features.explorersRanking'),
+    free: <Minus className="h-4 w-4 text-muted-foreground" />,
     premium: <Check className="h-4 w-4 text-primary" />,
   },
 ];
@@ -261,41 +267,44 @@ const PremiumPage = () => {
 
       </main>
 
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/90 backdrop-blur-xl px-5 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
-        <div className="mx-auto max-w-2xl space-y-2">
-          {loading ? (
-            <Button disabled className="h-12 w-full rounded-2xl">
-              <Loader2 className="h-4 w-4 animate-spin" />
-            </Button>
-          ) : isPremium ? (
-            <>
-              <div className="flex items-center justify-center gap-2 rounded-2xl bg-primary/10 px-4 py-3 text-sm font-semibold text-primary">
-                <Check className="h-4 w-4" /> {t('profile.premium.activeSubscription')}
-              </div>
-              {subscription?.current_period_end && (
-                <p className="text-center text-xs text-muted-foreground">
-                  {subscription.cancel_at_period_end ? t('profile.premium.accessUntil') : t('profile.premium.nextRenewal')}
-                  {new Date(subscription.current_period_end).toLocaleDateString(locale === 'en' ? 'en-US' : 'fr-FR')}
-                </p>
-              )}
-              <Button variant="outline" onClick={handleManage} className="h-12 w-full rounded-2xl">
-                {t('profile.premium.manage')}
+      {createPortal(
+        <div className="fixed inset-x-0 bottom-[calc(60px+env(safe-area-inset-bottom))] z-[60] border-t border-border bg-background/90 backdrop-blur-xl px-5 pt-3 pb-3">
+          <div className="mx-auto max-w-2xl space-y-2">
+            {loading ? (
+              <Button disabled className="h-12 w-full rounded-2xl">
+                <Loader2 className="h-4 w-4 animate-spin" />
               </Button>
-            </>
-          ) : (
-            <Button
-              onClick={handleSubscribe}
-              disabled={checkoutLoading}
-              className="h-12 w-full rounded-2xl text-base font-semibold"
-            >
-              {checkoutLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : selected.cta}
-            </Button>
-          )}
-          <p className="text-center text-[11px] text-muted-foreground">
-            {t('profile.premium.secure')}
-          </p>
-        </div>
-      </div>
+            ) : isPremium ? (
+              <>
+                <div className="flex items-center justify-center gap-2 rounded-2xl bg-primary/10 px-4 py-3 text-sm font-semibold text-primary">
+                  <Check className="h-4 w-4" /> {t('profile.premium.activeSubscription')}
+                </div>
+                {subscription?.current_period_end && (
+                  <p className="text-center text-xs text-muted-foreground">
+                    {subscription.cancel_at_period_end ? t('profile.premium.accessUntil') : t('profile.premium.nextRenewal')}
+                    {new Date(subscription.current_period_end).toLocaleDateString(locale === 'en' ? 'en-US' : 'fr-FR')}
+                  </p>
+                )}
+                <Button variant="outline" onClick={handleManage} className="h-12 w-full rounded-2xl">
+                  {t('profile.premium.manage')}
+                </Button>
+              </>
+            ) : (
+              <Button
+                onClick={handleSubscribe}
+                disabled={checkoutLoading}
+                className="h-12 w-full rounded-2xl text-base font-semibold"
+              >
+                {checkoutLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : selected.cta}
+              </Button>
+            )}
+            <p className="text-center text-[11px] text-muted-foreground">
+              {t('profile.premium.secure')}
+            </p>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 };
