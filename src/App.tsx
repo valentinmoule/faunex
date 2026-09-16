@@ -18,6 +18,7 @@ import PageTransition from "./components/PageTransition";
 import { SHOW_MARKETING_PAGES } from "./lib/platform";
 import { useSyncAccountLocale } from "./hooks/useAppLocale";
 import { ProfileDrawerProvider } from "./components/ProfileDrawer";
+import AppErrorBoundary from "./components/AppErrorBoundary";
 
 
 // Lazy-loaded routes for smaller initial bundle
@@ -215,22 +216,24 @@ const AppRoutes = () => {
 };
 
 const App = () => (
-  <ThemeProvider attribute="class" defaultTheme="light" forcedTheme="light" enableSystem={false}>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <BrowserRouter>
-          <Sonner />
-          <ScrollToTop />
-          <AuthProvider>
-            <ProfileDrawerProvider>
-              <AppRoutes />
-            </ProfileDrawerProvider>
-          </AuthProvider>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </ThemeProvider>
+  <AppErrorBoundary>
+    <ThemeProvider attribute="class" defaultTheme="light" forcedTheme="light" enableSystem={false}>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <BrowserRouter>
+            <Sonner />
+            <ScrollToTop />
+            <AuthProvider>
+              <ProfileDrawerProvider>
+                <AppRoutes />
+              </ProfileDrawerProvider>
+            </AuthProvider>
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
+  </AppErrorBoundary>
 );
 
 export default App;
