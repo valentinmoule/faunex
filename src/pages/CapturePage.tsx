@@ -16,6 +16,7 @@ import { useCaptureReveal, REVEAL_TIMINGS } from '@/hooks/useCaptureReveal';
 import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
 import FindersBadge from '@/components/FindersBadge';
 import { useCaptureQuota, DAILY_CAPTURE_LIMIT } from '@/hooks/useCaptureQuota';
+import { useSubscription } from '@/hooks/useSubscription';
 
 import type { AnimalResult } from '@/types/capture';
 import { isPlaceholderName, cleanScientificName } from '@/lib/placeholderNames';
@@ -109,6 +110,13 @@ const quota = useCaptureQuota(session?.user?.id);
     geo: { coords: geo.coords, name: geo.name },
   });
 
+  /** Premium : plafond de sécurité (200 analyses / jour) et non la limite gratuite de 4. */
+  const { isPremium } = useSubscription(session?.user?.id);
+  const quotaMessage = isPremium
+    ? t('capture.quota.premiumCapToast')
+    : t('capture.quota.limitReached', { limit: DAILY_CAPTURE_LIMIT });
+
+
   const {
     videoRef, canvasRef, cameraActive, facingMode, switchCamera,
     flash, setFlash, zoomLevel, maxZoom, supportsNativeZoom, applyZoom,
@@ -130,7 +138,7 @@ const quota = useCaptureQuota(session?.user?.id);
   ) => {
     // The daily slot is only consumed when the capture is added to the Faunex.
     if (quota.exhausted) {
-      toast.error(t('capture.quota.limitReached', { limit: DAILY_CAPTURE_LIMIT }));
+      toast.error(quotaMessage);
       return;
     }
     // Une analyse déjà en cours ne doit pas être écrasée par une seconde.
@@ -307,7 +315,7 @@ setManualMode(false);
   const consumeSlot = async () => {
     const allowed = await quota.consume();
     if (!allowed) {
-      toast.error(t('capture.quota.limitReached', { limit: DAILY_CAPTURE_LIMIT }));
+      toast.error(quotaMessage);
     }
     return allowed;
   };
@@ -379,7 +387,7 @@ setManualMode(false);
     } catch (err) {
       console.error(err);
       if (consumed) await quota.refund();
-      toast.error(isDailyLimitError(err) ? t('capture.quota.limitReachedFixed') : t('capture.errors.submissionError'));
+      toast.error(isDailyLimitError(err) ? quotaMessage : t('capture.errors.submissionError'));
     }
   };
 
@@ -392,7 +400,7 @@ setManualMode(false);
   const leaveAfterCapture = (delay: number) => {
     window.setTimeout(async () => {
       const left = await quota.fetchRemaining();
-      if (left !== null && left <= 0) {
+      if (!isPremium && left !== null && left <= 0) {
         setPremiumPrompt(true);
         return;
       }
@@ -448,7 +456,7 @@ setManualMode(false);
         toast.error(t('capture.errors.alreadyHaveSpecies', { name: animalResult.scientific_name ?? animalResult.animal_name }));
         return;
       }
-      toast.error(isDailyLimitError(err) ? t('capture.quota.limitReachedFixed') : t('capture.errors.saveError'));
+      toast.error(isDailyLimitError(err) ? quotaMessage : t('capture.errors.saveError'));
     } finally {
       savingRef.current = false;
     }
@@ -647,16 +655,20 @@ setManualMode(false);
                   <Sparkles className="w-5 h-5 text-amber-light" />
                 </div>
                 <div>
-                  <p className="text-primary-foreground font-display font-bold text-sm">{t('capture.quota.bannerTitle')}</p>
-                  <p className="text-primary-foreground/80 text-xs mt-1 leading-relaxed">
-                    {t('capture.quota.bannerBody')}
+                  <p className="text-primary-foreground font-display font-bold text-sm">
+                    {isPremium ? t('capture.quota.premiumCapTitle') : t('capture.quota.bannerTitle')}
                   </p>
-                  <button
-                    onClick={() => navigate('/premium')}
-                    className="mt-2 rounded-full bg-primary-foreground/90 px-3 py-1.5 text-xs font-display font-semibold text-primary"
-                  >
-                    {t('capture.quota.premiumCta')}
-                  </button>
+                  <p className="text-primary-foreground/80 text-xs mt-1 leading-relaxed">
+                    {isPremium ? t('capture.quota.premiumCapBody') : t('capture.quota.bannerBody')}
+                  </p>
+                  {!isPremium && (
+                    <button
+                      onClick={() => navigate('/premium')}
+                      className="mt-2 rounded-full bg-primary-foreground/90 px-3 py-1.5 text-xs font-display font-semibold text-primary"
+                    >
+                      {t('capture.quota.premiumCta')}
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
