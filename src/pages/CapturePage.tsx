@@ -110,6 +110,13 @@ const quota = useCaptureQuota(session?.user?.id);
     geo: { coords: geo.coords, name: geo.name },
   });
 
+  /** Premium : plafond de sécurité (200 analyses / jour) et non la limite gratuite de 4. */
+  const { isPremium } = useSubscription(session?.user?.id);
+  const quotaMessage = isPremium
+    ? t('capture.quota.premiumCapToast')
+    : t('capture.quota.limitReached', { limit: DAILY_CAPTURE_LIMIT });
+
+
   const {
     videoRef, canvasRef, cameraActive, facingMode, switchCamera,
     flash, setFlash, zoomLevel, maxZoom, supportsNativeZoom, applyZoom,
@@ -648,16 +655,20 @@ setManualMode(false);
                   <Sparkles className="w-5 h-5 text-amber-light" />
                 </div>
                 <div>
-                  <p className="text-primary-foreground font-display font-bold text-sm">{t('capture.quota.bannerTitle')}</p>
-                  <p className="text-primary-foreground/80 text-xs mt-1 leading-relaxed">
-                    {t('capture.quota.bannerBody')}
+                  <p className="text-primary-foreground font-display font-bold text-sm">
+                    {isPremium ? t('capture.quota.premiumCapTitle') : t('capture.quota.bannerTitle')}
                   </p>
-                  <button
-                    onClick={() => navigate('/premium')}
-                    className="mt-2 rounded-full bg-primary-foreground/90 px-3 py-1.5 text-xs font-display font-semibold text-primary"
-                  >
-                    {t('capture.quota.premiumCta')}
-                  </button>
+                  <p className="text-primary-foreground/80 text-xs mt-1 leading-relaxed">
+                    {isPremium ? t('capture.quota.premiumCapBody') : t('capture.quota.bannerBody')}
+                  </p>
+                  {!isPremium && (
+                    <button
+                      onClick={() => navigate('/premium')}
+                      className="mt-2 rounded-full bg-primary-foreground/90 px-3 py-1.5 text-xs font-display font-semibold text-primary"
+                    >
+                      {t('capture.quota.premiumCta')}
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
