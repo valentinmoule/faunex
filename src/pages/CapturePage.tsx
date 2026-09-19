@@ -400,7 +400,7 @@ setManualMode(false);
   const leaveAfterCapture = (delay: number) => {
     window.setTimeout(async () => {
       const left = await quota.fetchRemaining();
-      if (left !== null && left <= 0) {
+      if (!isPremium && left !== null && left <= 0) {
         setPremiumPrompt(true);
         return;
       }
