@@ -16,6 +16,7 @@ import { useCaptureReveal, REVEAL_TIMINGS } from '@/hooks/useCaptureReveal';
 import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
 import FindersBadge from '@/components/FindersBadge';
 import { useCaptureQuota, DAILY_CAPTURE_LIMIT } from '@/hooks/useCaptureQuota';
+import { useSubscription } from '@/hooks/useSubscription';
 
 import type { AnimalResult } from '@/types/capture';
 import { isPlaceholderName, cleanScientificName } from '@/lib/placeholderNames';
@@ -130,7 +131,7 @@ const quota = useCaptureQuota(session?.user?.id);
   ) => {
     // The daily slot is only consumed when the capture is added to the Faunex.
     if (quota.exhausted) {
-      toast.error(t('capture.quota.limitReached', { limit: DAILY_CAPTURE_LIMIT }));
+      toast.error(quotaMessage);
       return;
     }
     // Une analyse déjà en cours ne doit pas être écrasée par une seconde.
@@ -307,7 +308,7 @@ setManualMode(false);
   const consumeSlot = async () => {
     const allowed = await quota.consume();
     if (!allowed) {
-      toast.error(t('capture.quota.limitReached', { limit: DAILY_CAPTURE_LIMIT }));
+      toast.error(quotaMessage);
     }
     return allowed;
   };
@@ -379,7 +380,7 @@ setManualMode(false);
     } catch (err) {
       console.error(err);
       if (consumed) await quota.refund();
-      toast.error(isDailyLimitError(err) ? t('capture.quota.limitReachedFixed') : t('capture.errors.submissionError'));
+      toast.error(isDailyLimitError(err) ? quotaMessage : t('capture.errors.submissionError'));
     }
   };
 
@@ -448,7 +449,7 @@ setManualMode(false);
         toast.error(t('capture.errors.alreadyHaveSpecies', { name: animalResult.scientific_name ?? animalResult.animal_name }));
         return;
       }
-      toast.error(isDailyLimitError(err) ? t('capture.quota.limitReachedFixed') : t('capture.errors.saveError'));
+      toast.error(isDailyLimitError(err) ? quotaMessage : t('capture.errors.saveError'));
     } finally {
       savingRef.current = false;
     }
