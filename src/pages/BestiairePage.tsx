@@ -1840,6 +1840,13 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                   })}
                 </div>
               </div>
+              <h2 className="px-1 pt-1 text-[15px] font-display font-bold text-foreground">
+                {leaderboardTab === 'week'
+                  ? t('social.leaderboard.titleWeek')
+                  : leaderboardTab === 'all'
+                    ? t('social.leaderboard.titleAllTime')
+                    : t('social.leaderboard.titleExplorers')}
+              </h2>
               {leaderboardTab === 'week'
                 ? <CategoryLeaderboard category="all" inline period="week" scope="global" />
                 : leaderboardTab === 'all'
