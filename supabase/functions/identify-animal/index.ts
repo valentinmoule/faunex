@@ -374,6 +374,8 @@ serve(async (req) => {
         const token = req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "") ?? "";
         const { data: userData } = await cacheDb.auth.getUser(token);
         const userId = userData?.user?.id;
+        const email = (userData?.user?.email || "").toLowerCase();
+        if (email && BOOSTED_EMAILS.includes(email)) boostedAccount = true;
         if (userId) {
           const stableRequestId = typeof requestId === "string" &&
               /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(requestId)
