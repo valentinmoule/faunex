@@ -208,6 +208,9 @@ serve(async (req) => {
 
   let quotaDb: ReturnType<typeof createClient> | null = null;
   let quotaUserId: string | null = null;
+  /** Comptes internes (admin) : analyse toujours sur le modèle le plus performant. */
+  const BOOSTED_EMAILS = ["valentinmoulay@gmail.com"];
+  let boostedAccount = false;
   let quotaRequestId: string | null = null;
   let quotaConsumed = false;
 
@@ -371,6 +374,8 @@ serve(async (req) => {
         const token = req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "") ?? "";
         const { data: userData } = await cacheDb.auth.getUser(token);
         const userId = userData?.user?.id;
+        const email = (userData?.user?.email || "").toLowerCase();
+        if (email && BOOSTED_EMAILS.includes(email)) boostedAccount = true;
         if (userId) {
           const stableRequestId = typeof requestId === "string" &&
               /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(requestId)
@@ -442,8 +447,10 @@ serve(async (req) => {
      * récente (et il « réfléchit » moins, donc moins de jetons de sortie).
      * Jamais de modèle Pro.
      */
-    const DEEP_MODEL = "google/gemini-3.6-flash";
-    const FAST_MODEL = isNewUser ? DEEP_MODEL : "google/gemini-3.1-flash-lite";
+    // Compte interne : dernière génération Flash en une seule passe (plus
+    // rapide, pas de seconde passe) — volume négligeable côté coût.
+    const DEEP_MODEL = boostedAccount ? "google/gemini-3.7-flash" : "google/gemini-3.6-flash";
+    const FAST_MODEL = boostedAccount || isNewUser ? DEEP_MODEL : "google/gemini-3.1-flash-lite";
     /** Fiches d'espèces : texte seul, toujours sur le modèle le moins cher. */
     const TEXT_MODEL = "google/gemini-3.1-flash-lite";
 
