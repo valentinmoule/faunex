@@ -208,6 +208,9 @@ serve(async (req) => {
 
   let quotaDb: ReturnType<typeof createClient> | null = null;
   let quotaUserId: string | null = null;
+  /** Comptes internes (admin) : analyse toujours sur le modèle le plus performant. */
+  const BOOSTED_EMAILS = ["valentinmoulay@gmail.com"];
+  let boostedAccount = false;
   let quotaRequestId: string | null = null;
   let quotaConsumed = false;
 
