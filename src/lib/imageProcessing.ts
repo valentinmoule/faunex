@@ -143,21 +143,37 @@ export const prepareSourceFile = async (file: File): Promise<string | null> => {
 
 
   /** Décodage d'un Blob : createImageBitmap puis <img> via objectURL (Safari iOS
-   *  refuse createImageBitmap sur certains JPEG/HEIC mais sait afficher l'image). */
+   *  refuse createImageBitmap sur certains JPEG/HEIC mais sait afficher l'image).
+   *  Certaines photos arrivent sans type MIME (iOS, gestionnaires de fichiers) :
+   *  on re-type alors le blob, sinon les deux décodeurs la refusent. */
   const decodeBlob = async (blob: Blob): Promise<ImageBitmap | HTMLImageElement | null> => {
+    const source =
+      blob.type && blob.type.startsWith('image/')
+        ? blob
+        : new Blob([blob], { type: 'image/jpeg' });
     if (typeof createImageBitmap === 'function') {
       try {
-        return await createImageBitmap(blob);
+        const bmp = await createImageBitmap(source);
+        if (bmp.width > 0) return bmp;
       } catch {
         /* repli <img> */
       }
     }
-    const url = URL.createObjectURL(blob);
+    const url = URL.createObjectURL(source);
     try {
       return await new Promise<HTMLImageElement>((resolve, reject) => {
         const img = new window.Image();
-        img.onload = () => resolve(img);
-        img.onerror = () => reject(new Error('decode failed'));
+        // Un décodage qui ne répond jamais (photo iCloud non téléchargée)
+        // bloquerait l'import : on abandonne au bout de 20 s.
+        const timer = setTimeout(() => reject(new Error('decode timeout')), 20_000);
+        img.onload = () => {
+          clearTimeout(timer);
+          resolve(img);
+        };
+        img.onerror = () => {
+          clearTimeout(timer);
+          reject(new Error('decode failed'));
+        };
         img.src = url;
       });
     } catch {
@@ -166,6 +182,7 @@ export const prepareSourceFile = async (file: File): Promise<string | null> => {
       setTimeout(() => URL.revokeObjectURL(url), 0);
     }
   };
+
 
   /** Extrait la plus grande image JPEG embarquée dans un fichier RAW
    *  (Apple ProRAW/DNG, TIFF, ou HEIC avec aperçu JPEG). Les navigateurs ne
