@@ -707,11 +707,13 @@ serve(async (req) => {
     //    jetons d'image.
     let response = await tryModel(
       FAST_MODEL,
-      // Deux fenêtres courtes plutôt qu'un appel unique : quand l'upstream se
-      // bloque sans rien renvoyer, la requête relancée répond en général en
-      // 2 s. La relance ne part QUE sur blocage/erreur réseau (jamais sur une
-      // réponse reçue), donc pas de double facturation en temps normal.
-      [20_000, 10_000],
+      // Deux fenêtres plutôt qu'un appel unique : quand l'upstream se bloque
+      // sans rien renvoyer, la requête relancée répond en général en 2 s. La
+      // relance ne part QUE sur blocage/erreur réseau (jamais sur une réponse
+      // reçue), donc pas de double facturation en temps normal. La seconde
+      // fenêtre reste large (13 s) car un blocage upstream se reproduit
+      // souvent sur le même modèle : la relance change donc de modèle.
+      [18_000, 13_000],
 
       isNewUser ? FAST_PROMPT + DEEP_ANNEX : FAST_PROMPT,
       // Effort « low » même pour la première impression : mesuré sur photo réelle,
@@ -719,7 +721,10 @@ serve(async (req) => {
       // que l'effort high, pour ~4× moins de jetons de raisonnement.
       "low",
       isNewUser ? imageUrl : undefined,
+      // Repli sur le modèle plus robuste dès la seconde tentative.
+      FAST_MODEL === DEEP_MODEL ? undefined : DEEP_MODEL,
     );
+
     let animalData = response?.ok ? await parseAnimal(response, FAST_MODEL) : null;
 
 
