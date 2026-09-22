@@ -175,7 +175,7 @@ export const MyCapturesGrid = ({ items, onSelect, onReorder }: Props) => {
                   }
                 : undefined
             }
-            className={`game-tile relative aspect-[3/4] rounded-xl border-8 overflow-hidden cursor-pointer ${
+            className={`game-tile relative aspect-[3/4] rounded-xl border-4 overflow-hidden cursor-pointer ${
               rarityTileBorder[animal.rarity] || 'tile-border-plain border-border'
             } bg-card ${
               isDragging
