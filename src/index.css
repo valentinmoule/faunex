@@ -2810,21 +2810,38 @@ html.is-native-android body {
   --tile-inner-glow-size: 26px;
 }
 
-/* Ombre colorée supplémentaire pour les cartes Rare+ en grille
-   (Mes captures, Explorateurs). L'intensité varie avec --tile-glow. */
-.game-tile--rare-shadow {
+/* Bordures épaisses par groupe de rareté (Mes captures, feed Explorateurs).
+   Gris = Commun / Peu commun / Plutôt rare
+   Argenté brillant = Rare / Ultra rare / Épique
+   Doré brillant = Mythique / Légendaire
+   Le "brillant" est un liseré blanc interne statique (métal poli),
+   sans ombre colorée ni animation. */
+.game-tile.tile-border-gray {
+  border-color: hsl(var(--foreground) / 0.32);
   box-shadow:
-    0 3px 0 0 var(--tile-depth),
-    0 6px 0 -2px hsla(165, 25%, 11%, 0.1),
-    0 12px 20px -10px var(--tile-glow),
-    0 8px 28px -8px var(--tile-glow),
+    0 2px 8px -4px hsla(165, 25%, 11%, 0.3),
     inset 0 1px 0 hsla(0, 0%, 100%, 0.5);
 }
-.game-tile--rare-shadow:active {
+.game-tile.tile-border-silver {
+  border-color: hsl(var(--rarity-silver));
   box-shadow:
-    0 1px 0 0 var(--tile-depth),
-    0 5px 10px -8px var(--tile-glow),
-    0 6px 18px -10px var(--tile-glow),
+    0 2px 8px -4px hsla(165, 25%, 11%, 0.3),
+    inset 0 0 0 1px hsl(0, 0%, 100% / 0.65),
+    inset 0 1px 0 hsla(0, 0%, 100%, 0.55);
+}
+.game-tile.tile-border-gold {
+  border-color: hsl(var(--rarity-gold));
+  box-shadow:
+    0 2px 8px -4px hsla(165, 25%, 11%, 0.3),
+    inset 0 0 0 1px hsl(45, 90%, 92% / 0.7),
+    inset 0 1px 0 hsla(0, 0%, 100%, 0.55);
+}
+.game-tile.tile-border-gray:active,
+.game-tile.tile-border-silver:active,
+.game-tile.tile-border-gold:active {
+  transform: translate3d(0, 2px, 0) scale(0.985);
+  box-shadow:
+    0 1px 4px -2px hsla(165, 25%, 11%, 0.3),
     inset 0 1px 0 hsla(0, 0%, 100%, 0.35);
 }
 
