@@ -2810,30 +2810,52 @@ html.is-native-android body {
   --tile-inner-glow-size: 26px;
 }
 
-/* Bordures épaisses par groupe de rareté (Mes captures, feed Explorateurs).
-   Neutre (sans couleur) = Commun / Peu commun / Plutôt rare
-   Argenté brillant = Rare / Ultra rare / Épique
-   Doré brillant = Mythique / Légendaire
-   Le "brillant" est un liseré blanc interne statique (métal poli).
-   Profondeur identique sur tous les niveaux, sans ombre colorée ni animation. */
-.game-tile.tile-border-plain {
+/* Cadre identique pour les huit raretés : même épaisseur, même biseau et
+   même profondeur. Seules la teinte du métal et sa lumière changent. */
+.game-tile.tile-border-plain,
+.game-tile.tile-border-silver,
+.game-tile.tile-border-gold {
+  --tile-frame: hsl(var(--muted-foreground));
+  --tile-frame-light: hsl(var(--background) / 0.9);
+  --tile-frame-depth: hsl(var(--foreground) / 0.48);
+  --tile-depth: var(--tile-frame-depth);
+  --tile-glow: hsl(var(--foreground) / 0.22);
+  --tile-ring: var(--tile-frame-light);
+  --tile-ring-width: 2px;
+  --tile-inner-glow-size: 12px;
+  border-color: var(--tile-frame);
   box-shadow:
-    0 2px 8px -4px hsla(165, 25%, 11%, 0.3),
-    inset 0 1px 0 hsla(0, 0%, 100%, 0.5);
+    0 5px 0 0 var(--tile-frame-depth),
+    0 9px 14px -8px hsl(var(--foreground) / 0.38),
+    inset 0 0 0 2px var(--tile-frame-light),
+    inset 0 2px 0 hsl(var(--background) / 0.7);
 }
 .game-tile.tile-border-silver {
-  border-color: hsl(var(--rarity-silver));
-  box-shadow:
-    0 2px 8px -4px hsla(165, 25%, 11%, 0.3),
-    inset 0 0 0 1px hsl(0, 0%, 100% / 0.65),
-    inset 0 1px 0 hsla(0, 0%, 100%, 0.55);
+  --tile-frame: hsl(var(--rarity-silver));
+  --tile-frame-light: hsl(var(--background) / 0.95);
+  --tile-frame-depth: hsl(var(--rarity-silver) / 0.72);
 }
 .game-tile.tile-border-gold {
-  border-color: hsl(var(--rarity-gold));
-  box-shadow:
-    0 2px 8px -4px hsla(165, 25%, 11%, 0.3),
-    inset 0 0 0 1px hsl(45, 90%, 92% / 0.7),
-    inset 0 1px 0 hsla(0, 0%, 100%, 0.55);
+  --tile-frame: hsl(var(--rarity-gold));
+  --tile-frame-light: hsl(var(--amber) / 0.28);
+  --tile-frame-depth: hsl(var(--amber-dark) / 0.78);
+}
+.game-tile.tile-border-plain::after,
+.game-tile.tile-border-silver::after,
+.game-tile.tile-border-gold::after {
+  padding: 8px;
+  background: linear-gradient(
+    125deg,
+    transparent 12%,
+    var(--tile-frame-light) 30%,
+    transparent 47%,
+    var(--tile-frame-light) 68%,
+    transparent 86%
+  );
+  -webkit-mask: linear-gradient(hsl(0 0% 0%) 0 0) content-box, linear-gradient(hsl(0 0% 0%) 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.8;
 }
 .game-tile.tile-border-plain:active,
 .game-tile.tile-border-silver:active,
@@ -2954,17 +2976,20 @@ html.is-native-android body {
   box-shadow: 0 2px 8px hsl(var(--foreground) / 0.2);
 }
 
-/* Code couleur des pastilles "encre" (★ plates gris / vert / bleu) */
-.rarity-badge--uncommon {
-  background: hsl(152 55% 94%);
-  border-color: hsl(var(--rarity-uncommon) / 0.35);
-}
-.rarity-badge--uncommon .rarity-badge__label { color: hsl(152 60% 24%); }
+/* Les trois premiers paliers restent strictement neutres : seul le nombre
+   d’étoiles permet de les distinguer. */
+.rarity-badge--common,
+.rarity-badge--uncommon,
 .rarity-badge--rare {
-  background: hsl(210 80% 95%);
-  border-color: hsl(var(--rarity-rare) / 0.35);
+  background: hsl(var(--background) / 0.92);
+  border-color: hsl(var(--foreground) / 0.12);
+  box-shadow: 0 1px 3px hsl(var(--foreground) / 0.12);
 }
-.rarity-badge--rare .rarity-badge__label { color: hsl(212 80% 32%); }
+.rarity-badge--common .rarity-badge__label,
+.rarity-badge--uncommon .rarity-badge__label,
+.rarity-badge--rare .rarity-badge__label {
+  color: hsl(var(--foreground));
+}
 .rarity-badge--very-rare {
   background: hsl(265 70% 96%);
   border-color: hsl(var(--rarity-very-rare) / 0.35);
