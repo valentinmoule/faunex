@@ -594,7 +594,12 @@ serve(async (req) => {
       prompt: string,
       effort: "low" | "high" = "low",
       image: string = fastImageUrl,
+      // Quand l'upstream se bloque, relancer le MÊME modèle échoue souvent
+      // de nouveau : les tentatives suivantes partent alors sur ce modèle
+      // de repli (plus robuste) quand il est fourni.
+      fallbackModel?: string,
     ) => {
+
       const attempts = timeouts.length;
       for (let i = 0; i < attempts; i++) {
         const startedAt = Date.now();
