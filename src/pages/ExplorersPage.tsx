@@ -15,6 +15,12 @@ import { usePremiumUsers } from '@/hooks/usePremiumUsers';
 import { useTranslation } from 'react-i18next';
 import RarityBadge from '@/components/RarityBadge';
 import { rarityTileBorder } from '@/lib/bestiary';
+import { hapticTap } from '@/lib/haptics';
+import { useSpeciesName } from '@/hooks/useSpeciesLocale';
+import CaptureMilestoneCard, { isMilestoneRank } from '@/components/CaptureMilestoneCard';
+import ExplorersEmptyState from '@/components/social/ExplorersEmptyState';
+import { ProfileButton } from '@/components/ProfileDrawer';
+
 
 // ── Feed types ──
 interface FeedCapture {
