@@ -1,19 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { AnimalCard } from '@/data/mockData';
 import RarityBadge from '@/components/RarityBadge';
-import { rarityBorderColor } from '@/lib/bestiary';
+import { rarityTileBorder } from '@/lib/bestiary';
 import { hapticTap } from '@/lib/haptics';
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
-
-/** Socle coloré + ombre rareté (effet "rare à légendaire" en grille). */
-const tileDepthClass: Record<string, string> = {
-  rare: 'game-tile--rare game-tile--rare-shadow',
-  very_rare: 'game-tile--very-rare game-tile--rare-shadow',
-  ultra_rare: 'game-tile--silver game-tile--rare-shadow',
-  illustration_rare: 'game-tile--gold game-tile--rare-shadow',
-  special_rare: 'game-tile--gold game-tile--rare-shadow',
-  hyper_rare: 'game-tile--hyper game-tile--rare-shadow',
-};
 
 const LONG_PRESS_MS = 400;
 const MOVE_TOLERANCE = 10;
