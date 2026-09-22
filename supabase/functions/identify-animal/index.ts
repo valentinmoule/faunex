@@ -603,14 +603,15 @@ serve(async (req) => {
       const attempts = timeouts.length;
       for (let i = 0; i < attempts; i++) {
         const startedAt = Date.now();
+        const attemptModel = i === 0 ? model : (fallbackModel ?? model);
         try {
-          let r = await callGateway(model, timeouts[i], prompt, effort, image);
+          let r = await callGateway(attemptModel, timeouts[i], prompt, effort, image);
           if (!r.ok && r.status >= 500 && i < attempts - 1) continue;
           return r;
         } catch (netErr) {
           console.error(
             "AI gateway stalled/failed",
-            model,
+            attemptModel,
             `attempt ${i + 1}/${attempts}`,
             `${Date.now() - startedAt}ms`,
             netErr,
@@ -618,6 +619,7 @@ serve(async (req) => {
           if (i === attempts - 1) return null;
         }
       }
+
       return null;
     };
 
