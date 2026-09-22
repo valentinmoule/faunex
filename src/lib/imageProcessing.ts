@@ -114,17 +114,33 @@ export const prepareSourceImage = async (dataUrl: string): Promise<string | null
 export const prepareSourceFile = async (file: File): Promise<string | null> => {
   /** Dessine une source décodée dans un JPEG ≤1600px. */
   const toJpeg = (img: ImageBitmap | HTMLImageElement) => {
-    const w0 = 'naturalWidth' in img ? img.naturalWidth : img.width;
-    const h0 = 'naturalHeight' in img ? img.naturalHeight : img.height;
-    if (!w0 || !h0) return null;
-    const scale = Math.min(1, 1600 / Math.max(w0, h0));
-    const c = document.createElement('canvas');
-    c.width = Math.round(w0 * scale);
-    c.height = Math.round(h0 * scale);
-    c.getContext('2d')!.drawImage(img as CanvasImageSource, 0, 0, c.width, c.height);
-    if ('close' in img) img.close();
-    return c.toDataURL('image/jpeg', 0.82);
+    try {
+      const w0 = 'naturalWidth' in img ? img.naturalWidth || img.width : img.width;
+      const h0 = 'naturalHeight' in img ? img.naturalHeight || img.height : img.height;
+      if (!w0 || !h0) return null;
+      // Safari iOS refuse les canvas de plus de ~16,7 Mpx : on borne aussi l'aire.
+      const scale = Math.min(1, 1600 / Math.max(w0, h0), Math.sqrt(16_000_000 / (w0 * h0)));
+      const c = document.createElement('canvas');
+      c.width = Math.max(1, Math.round(w0 * scale));
+      c.height = Math.max(1, Math.round(h0 * scale));
+      const ctx = c.getContext('2d');
+      if (!ctx) return null;
+      ctx.drawImage(img as CanvasImageSource, 0, 0, c.width, c.height);
+      const out = c.toDataURL('image/jpeg', 0.82);
+      return out && out.length > 'data:image/jpeg;base64,'.length + 100 ? out : null;
+    } catch {
+      return null;
+    } finally {
+      if ('close' in img) {
+        try {
+          img.close();
+        } catch {
+          /* ignore */
+        }
+      }
+    }
   };
+
 
   /** Décodage d'un Blob : createImageBitmap puis <img> via objectURL (Safari iOS
    *  refuse createImageBitmap sur certains JPEG/HEIC mais sait afficher l'image). */
