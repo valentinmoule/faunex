@@ -14,23 +14,13 @@ import { PremiumAvatar } from '@/components/PremiumAvatar';
 import { usePremiumUsers } from '@/hooks/usePremiumUsers';
 import { useTranslation } from 'react-i18next';
 import RarityBadge from '@/components/RarityBadge';
-import { rarityBorderColor } from '@/lib/bestiary';
+import { rarityTileBorder } from '@/lib/bestiary';
 import { hapticTap } from '@/lib/haptics';
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
 import CaptureMilestoneCard, { isMilestoneRank } from '@/components/CaptureMilestoneCard';
 import ExplorersEmptyState from '@/components/social/ExplorersEmptyState';
 import { ProfileButton } from '@/components/ProfileDrawer';
 
-
-/** Socle coloré + ombre rareté (effet "rare à légendaire" en grille). */
-const tileDepthClass: Record<string, string> = {
-  rare: 'game-tile--rare game-tile--rare-shadow',
-  very_rare: 'game-tile--very-rare game-tile--rare-shadow',
-  ultra_rare: 'game-tile--silver game-tile--rare-shadow',
-  illustration_rare: 'game-tile--gold game-tile--rare-shadow',
-  special_rare: 'game-tile--gold game-tile--rare-shadow',
-  hyper_rare: 'game-tile--hyper game-tile--rare-shadow',
-};
 
 // ── Feed types ──
 interface FeedCapture {
@@ -686,9 +676,9 @@ const ExplorersPage = () => {
                     <button
 
                       onClick={() => { hapticTap(); setSelectedCard(toAnimalCard(post)); }}
-                      className={`game-tile relative block w-full aspect-[4/5] rounded-2xl border-2 overflow-hidden text-left active:scale-[0.99] transition-transform ${
-                        rarityBorderColor[post.rarity as Rarity] || 'border-border'
-                      } ${tileDepthClass[post.rarity] || ''} bg-card`}
+                      className={`game-tile relative block w-full aspect-[4/5] rounded-2xl border-[3px] overflow-hidden text-left active:scale-[0.99] transition-transform ${
+                        rarityTileBorder[post.rarity as Rarity] || 'tile-border-gray border-border'
+                      } bg-card`}
                     >
                       <img
                         src={thumbUrl(post.image_url, 700)}
