@@ -2929,6 +2929,15 @@ html.is-native-android body {
   color: hsl(225 15% 18%);
 }
 
+/* Identification : la rareté reste le signal principal face au niveau de confiance. */
+.rarity-badge.capture-result-rarity {
+  min-height: 28px;
+  padding: 5px 12px 5px 9px;
+  font-size: 11px;
+  border-width: 2px;
+  box-shadow: 0 2px 8px hsl(var(--foreground) / 0.2);
+}
+
 /* Code couleur des pastilles "encre" (★ plates gris / vert / bleu) */
 .rarity-badge--uncommon {
   background: hsl(152 55% 94%);
