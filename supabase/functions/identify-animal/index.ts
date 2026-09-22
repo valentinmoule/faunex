@@ -745,10 +745,12 @@ serve(async (req) => {
       // abandon ici renvoie une erreur technique à l'utilisateur. On s'autorise
       // donc UNE relance (requête neuve, qui répond en général en 2 s) dans ce
       // seul cas — quand la passe rapide a déjà un résultat, on garde un unique
-      // appel pour ne pas payer deux fois. Budget max : 20 s + 10 s + 15 s + 10 s.
+      // appel pour ne pas payer deux fois. Budget max : 18 s + 13 s + 15 s + 12 s
+      // = 58 s, sous le délai client (65 s).
       const deep = await tryModel(
         DEEP_MODEL,
-        animalData ? [20_000] : [15_000, 10_000],
+        animalData ? [20_000] : [15_000, 12_000],
+
         FAST_PROMPT + DEEP_ANNEX,
         "low",
         imageUrl,
