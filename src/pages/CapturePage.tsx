@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Camera, Zap, MapPin, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine, ZoomIn, Focus, Crosshair, ArrowLeft, Clock, Info, Sparkles, ShieldQuestion, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
-import { type Rarity, RARITY_LABELS, RARITY_FX, RARITY_RANK } from '@/data/mockData';
+import { RARITY_FX, RARITY_RANK } from '@/data/mockData';
 import { setPendingShelve } from '@/lib/shelveAnimation';
 import { prepareSourceImage, prepareSourceFile } from '@/lib/imageProcessing';
 import { isHeicFile, readExifCameraInfo } from '@/lib/exif';
@@ -22,17 +22,6 @@ import { useSubscription } from '@/hooks/useSubscription';
 import type { AnimalResult } from '@/types/capture';
 import { isPlaceholderName, cleanScientificName } from '@/lib/placeholderNames';
 
-
-const rarityColors: Record<string, string> = {
-  common: 'bg-rarity-common/20 text-rarity-common border-rarity-common/40',
-  rare: 'bg-rarity-rare/20 text-rarity-rare border-rarity-rare/40',
-  uncommon: 'bg-rarity-uncommon/20 text-rarity-uncommon border-rarity-uncommon/40',
-  very_rare: 'bg-rarity-very-rare/20 text-rarity-very-rare border-rarity-very-rare/40',
-  ultra_rare: 'bg-rarity-silver/20 text-rarity-silver border-rarity-silver/40',
-  illustration_rare: 'bg-rarity-gold/20 text-rarity-gold border-rarity-gold/40',
-  special_rare: 'bg-rarity-gold/20 text-rarity-gold border-rarity-gold/40',
-  hyper_rare: 'bg-rarity-gold/20 text-rarity-gold border-rarity-gold/40',
-};
 
 const CapturePage = () => {
   const { t } = useTranslation();
