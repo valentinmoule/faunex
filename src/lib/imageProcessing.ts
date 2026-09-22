@@ -114,34 +114,66 @@ export const prepareSourceImage = async (dataUrl: string): Promise<string | null
 export const prepareSourceFile = async (file: File): Promise<string | null> => {
   /** Dessine une source décodée dans un JPEG ≤1600px. */
   const toJpeg = (img: ImageBitmap | HTMLImageElement) => {
-    const w0 = 'naturalWidth' in img ? img.naturalWidth : img.width;
-    const h0 = 'naturalHeight' in img ? img.naturalHeight : img.height;
-    if (!w0 || !h0) return null;
-    const scale = Math.min(1, 1600 / Math.max(w0, h0));
-    const c = document.createElement('canvas');
-    c.width = Math.round(w0 * scale);
-    c.height = Math.round(h0 * scale);
-    c.getContext('2d')!.drawImage(img as CanvasImageSource, 0, 0, c.width, c.height);
-    if ('close' in img) img.close();
-    return c.toDataURL('image/jpeg', 0.82);
+    try {
+      const w0 = 'naturalWidth' in img ? img.naturalWidth || img.width : img.width;
+      const h0 = 'naturalHeight' in img ? img.naturalHeight || img.height : img.height;
+      if (!w0 || !h0) return null;
+      // Safari iOS refuse les canvas de plus de ~16,7 Mpx : on borne aussi l'aire.
+      const scale = Math.min(1, 1600 / Math.max(w0, h0), Math.sqrt(16_000_000 / (w0 * h0)));
+      const c = document.createElement('canvas');
+      c.width = Math.max(1, Math.round(w0 * scale));
+      c.height = Math.max(1, Math.round(h0 * scale));
+      const ctx = c.getContext('2d');
+      if (!ctx) return null;
+      ctx.drawImage(img as CanvasImageSource, 0, 0, c.width, c.height);
+      const out = c.toDataURL('image/jpeg', 0.82);
+      return out && out.length > 'data:image/jpeg;base64,'.length + 100 ? out : null;
+    } catch {
+      return null;
+    } finally {
+      if ('close' in img) {
+        try {
+          img.close();
+        } catch {
+          /* ignore */
+        }
+      }
+    }
   };
 
+
   /** Décodage d'un Blob : createImageBitmap puis <img> via objectURL (Safari iOS
-   *  refuse createImageBitmap sur certains JPEG/HEIC mais sait afficher l'image). */
+   *  refuse createImageBitmap sur certains JPEG/HEIC mais sait afficher l'image).
+   *  Certaines photos arrivent sans type MIME (iOS, gestionnaires de fichiers) :
+   *  on re-type alors le blob, sinon les deux décodeurs la refusent. */
   const decodeBlob = async (blob: Blob): Promise<ImageBitmap | HTMLImageElement | null> => {
+    const source =
+      blob.type && blob.type.startsWith('image/')
+        ? blob
+        : new Blob([blob], { type: 'image/jpeg' });
     if (typeof createImageBitmap === 'function') {
       try {
-        return await createImageBitmap(blob);
+        const bmp = await createImageBitmap(source);
+        if (bmp.width > 0) return bmp;
       } catch {
         /* repli <img> */
       }
     }
-    const url = URL.createObjectURL(blob);
+    const url = URL.createObjectURL(source);
     try {
       return await new Promise<HTMLImageElement>((resolve, reject) => {
         const img = new window.Image();
-        img.onload = () => resolve(img);
-        img.onerror = () => reject(new Error('decode failed'));
+        // Un décodage qui ne répond jamais (photo iCloud non téléchargée)
+        // bloquerait l'import : on abandonne au bout de 20 s.
+        const timer = setTimeout(() => reject(new Error('decode timeout')), 20_000);
+        img.onload = () => {
+          clearTimeout(timer);
+          resolve(img);
+        };
+        img.onerror = () => {
+          clearTimeout(timer);
+          reject(new Error('decode failed'));
+        };
         img.src = url;
       });
     } catch {
@@ -150,6 +182,7 @@ export const prepareSourceFile = async (file: File): Promise<string | null> => {
       setTimeout(() => URL.revokeObjectURL(url), 0);
     }
   };
+
 
   /** Extrait la plus grande image JPEG embarquée dans un fichier RAW
    *  (Apple ProRAW/DNG, TIFF, ou HEIC avec aperçu JPEG). Les navigateurs ne
@@ -207,11 +240,27 @@ export const prepareSourceFile = async (file: File): Promise<string | null> => {
       const out = decoded ? toJpeg(decoded) : null;
       if (out) return out;
     }
+    // 4) Dernier repli : lecture base64 (certaines WebViews ne savent décoder
+    //    l'image que par ce chemin) puis, si le redimensionnement échoue encore
+    //    alors que les octets sont bien une image, on envoie la photo telle quelle.
+    try {
+      const raw = await readFileAsDataUrl(file);
+      const viaDataUrl = await resizeDataUrl(raw, 1600, 0.82);
+      if (viaDataUrl && viaDataUrl !== raw) return viaDataUrl;
+      const head = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+      const isJpeg = head[0] === 0xff && head[1] === 0xd8;
+      const isPng = head[0] === 0x89 && head[1] === 0x50 && head[2] === 0x4e;
+      const isWebp = head[8] === 0x57 && head[9] === 0x45 && head[10] === 0x42;
+      if (isJpeg || isPng || isWebp) return raw;
+    } catch {
+      /* rien de lisible */
+    }
     return null;
   } catch (err) {
     console.error('prepareSourceFile failed', err);
     return null;
   }
+
 };
 
 
