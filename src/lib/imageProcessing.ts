@@ -240,11 +240,27 @@ export const prepareSourceFile = async (file: File): Promise<string | null> => {
       const out = decoded ? toJpeg(decoded) : null;
       if (out) return out;
     }
+    // 4) Dernier repli : lecture base64 (certaines WebViews ne savent décoder
+    //    l'image que par ce chemin) puis, si le redimensionnement échoue encore
+    //    alors que les octets sont bien une image, on envoie la photo telle quelle.
+    try {
+      const raw = await readFileAsDataUrl(file);
+      const viaDataUrl = await resizeDataUrl(raw, 1600, 0.82);
+      if (viaDataUrl && viaDataUrl !== raw) return viaDataUrl;
+      const head = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+      const isJpeg = head[0] === 0xff && head[1] === 0xd8;
+      const isPng = head[0] === 0x89 && head[1] === 0x50 && head[2] === 0x4e;
+      const isWebp = head[8] === 0x57 && head[9] === 0x45 && head[10] === 0x42;
+      if (isJpeg || isPng || isWebp) return raw;
+    } catch {
+      /* rien de lisible */
+    }
     return null;
   } catch (err) {
     console.error('prepareSourceFile failed', err);
     return null;
   }
+
 };
 
 
