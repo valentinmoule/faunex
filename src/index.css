@@ -2811,13 +2811,12 @@ html.is-native-android body {
 }
 
 /* Bordures épaisses par groupe de rareté (Mes captures, feed Explorateurs).
-   Gris = Commun / Peu commun / Plutôt rare
+   Neutre (sans couleur) = Commun / Peu commun / Plutôt rare
    Argenté brillant = Rare / Ultra rare / Épique
    Doré brillant = Mythique / Légendaire
-   Le "brillant" est un liseré blanc interne statique (métal poli),
-   sans ombre colorée ni animation. */
-.game-tile.tile-border-gray {
-  border-color: hsl(var(--foreground) / 0.32);
+   Le "brillant" est un liseré blanc interne statique (métal poli).
+   Profondeur identique sur tous les niveaux, sans ombre colorée ni animation. */
+.game-tile.tile-border-plain {
   box-shadow:
     0 2px 8px -4px hsla(165, 25%, 11%, 0.3),
     inset 0 1px 0 hsla(0, 0%, 100%, 0.5);
@@ -2836,7 +2835,7 @@ html.is-native-android body {
     inset 0 0 0 1px hsl(45, 90%, 92% / 0.7),
     inset 0 1px 0 hsla(0, 0%, 100%, 0.55);
 }
-.game-tile.tile-border-gray:active,
+.game-tile.tile-border-plain:active,
 .game-tile.tile-border-silver:active,
 .game-tile.tile-border-gold:active {
   transform: translate3d(0, 2px, 0) scale(0.985);
