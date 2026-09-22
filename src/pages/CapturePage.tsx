@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Camera, Zap, MapPin, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine, ZoomIn, Focus, Crosshair, ArrowLeft, Clock, Info, Sparkles, ShieldQuestion, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
-import { type Rarity, RARITY_LABELS, RARITY_FX, RARITY_RANK } from '@/data/mockData';
+import { RARITY_FX, RARITY_RANK } from '@/data/mockData';
 import { setPendingShelve } from '@/lib/shelveAnimation';
 import { prepareSourceImage, prepareSourceFile } from '@/lib/imageProcessing';
 import { isHeicFile, readExifCameraInfo } from '@/lib/exif';
@@ -15,23 +15,13 @@ import { useCaptureSave } from '@/hooks/useCaptureSave';
 import { useCaptureReveal, REVEAL_TIMINGS } from '@/hooks/useCaptureReveal';
 import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
 import FindersBadge from '@/components/FindersBadge';
+import RarityBadge from '@/components/RarityBadge';
 import { useCaptureQuota, DAILY_CAPTURE_LIMIT } from '@/hooks/useCaptureQuota';
 import { useSubscription } from '@/hooks/useSubscription';
 
 import type { AnimalResult } from '@/types/capture';
 import { isPlaceholderName, cleanScientificName } from '@/lib/placeholderNames';
 
-
-const rarityColors: Record<string, string> = {
-  common: 'bg-rarity-common/20 text-rarity-common border-rarity-common/40',
-  rare: 'bg-rarity-rare/20 text-rarity-rare border-rarity-rare/40',
-  uncommon: 'bg-rarity-uncommon/20 text-rarity-uncommon border-rarity-uncommon/40',
-  very_rare: 'bg-rarity-very-rare/20 text-rarity-very-rare border-rarity-very-rare/40',
-  ultra_rare: 'bg-rarity-silver/20 text-rarity-silver border-rarity-silver/40',
-  illustration_rare: 'bg-rarity-gold/20 text-rarity-gold border-rarity-gold/40',
-  special_rare: 'bg-rarity-gold/20 text-rarity-gold border-rarity-gold/40',
-  hyper_rare: 'bg-rarity-gold/20 text-rarity-gold border-rarity-gold/40',
-};
 
 const CapturePage = () => {
   const { t } = useTranslation();
@@ -782,9 +772,7 @@ setManualMode(false);
                 {revealFx === 'silver' && <div className="silver-image-overlay" />}
                 {revealFx === 'gold' && <div className="gold-image-overlay" />}
               </div>
-              <span className={`inline-block mt-4 px-3 py-1 rounded-full text-xs font-display font-bold uppercase tracking-wider border ${rarityColors[revealRarity]}`}>
-                {RARITY_LABELS[revealRarity]}
-              </span>
+              <RarityBadge rarity={revealRarity} showLabel className="capture-result-rarity mt-4" />
               <h2 className="text-2xl font-display font-bold text-primary-foreground mt-2">{animalResult.animal_name}</h2>
               <p className="text-primary-foreground/70 text-sm italic">{animalResult.scientific_name}</p>
             </div>
@@ -797,21 +785,14 @@ setManualMode(false);
               {/* Rarity badge + name */}
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className={`inline-block px-2.5 py-1 rounded-full text-[10px] font-display font-bold uppercase tracking-wider border ${rarityColors[animalResult.rarity]}`}>
-                    {RARITY_LABELS[animalResult.rarity as Rarity]}
-                  </span>
+                  <RarityBadge rarity={animalResult.rarity} showLabel className="capture-result-rarity" />
                   {typeof animalResult.confidence === 'number' && (
                     <span
-                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-display font-bold uppercase tracking-wider border shadow-[0_2px_8px_rgba(0,0,0,0.5)] ring-1 ring-black/40 ${
-                        animalResult.confidence >= 80
-                          ? 'bg-emerald-500 text-white border-emerald-200'
-                          : animalResult.confidence >= 50
-                          ? 'bg-amber-400 text-black border-amber-100'
-                          : 'bg-red-500 text-white border-red-200'
-                      }`}
+                      className="inline-flex min-h-6 items-center gap-1.5 rounded-full border border-border bg-background/90 px-2.5 py-1 text-[11px] font-body font-medium text-foreground shadow-sm backdrop-blur-sm"
                       title={t('capture.confidence.tooltip')}
+                      aria-label={t('capture.confidence.sure', { confidence: animalResult.confidence })}
                     >
-                      <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                      <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground" aria-hidden="true" />
                       {t('capture.confidence.sure', { confidence: animalResult.confidence })}
                     </span>
                   )}
