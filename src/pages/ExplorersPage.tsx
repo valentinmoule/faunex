@@ -676,9 +676,9 @@ const ExplorersPage = () => {
                     <button
 
                       onClick={() => { hapticTap(); setSelectedCard(toAnimalCard(post)); }}
-                      className={`game-tile relative block w-full aspect-[4/5] rounded-2xl border-2 overflow-hidden text-left active:scale-[0.99] transition-transform ${
-                        rarityBorderColor[post.rarity as Rarity] || 'border-border'
-                      } ${tileDepthClass[post.rarity] || ''} bg-card`}
+                      className={`game-tile relative block w-full aspect-[4/5] rounded-2xl border-[3px] overflow-hidden text-left active:scale-[0.99] transition-transform ${
+                        rarityTileBorder[post.rarity as Rarity] || 'tile-border-gray border-border'
+                      } bg-card`}
                     >
                       <img
                         src={thumbUrl(post.image_url, 700)}
