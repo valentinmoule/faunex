@@ -1,4 +1,7 @@
+import { EmailAPIError } from 'npm:@lovable.dev/email-js@0.1.0'
 import { sendTemplateEmail } from './send-email.ts'
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
 /**
  * Sends a registered app email and mirrors the outcome into email_send_log
@@ -44,11 +47,32 @@ export async function sendAppEmail(
     }
   }
 
+  /** Envoi avec reprise sur 429 (« ralentis ») : une salve de likes dépasse
+   *  l'allocation horaire de l'espace de travail et perdait la notification.
+   *  La clé d'idempotence garantit qu'aucun doublon n'est envoyé. */
+  const sendWithRetry = async () => {
+    const maxAttempts = 3
+    for (let attempt = 1; ; attempt++) {
+      try {
+        return await sendTemplateEmail(templateName, recipientEmail, {
+          templateData: options.templateData as Record<string, any> | undefined,
+          idempotencyKey: options.idempotencyKey,
+        })
+      } catch (error) {
+        const rateLimited = error instanceof EmailAPIError && error.status === 429
+        if (!rateLimited || attempt >= maxAttempts) throw error
+        const waitSeconds = Math.min(
+          (error as EmailAPIError).retryAfterSeconds ?? attempt * 5,
+          15,
+        )
+        console.warn('Email rate limited, retrying', { templateName, attempt, waitSeconds })
+        await sleep(waitSeconds * 1000)
+      }
+    }
+  }
+
   try {
-    const result = await sendTemplateEmail(templateName, recipientEmail, {
-      templateData: options.templateData as Record<string, any> | undefined,
-      idempotencyKey: options.idempotencyKey,
-    })
+    const result = await sendWithRetry()
 
     if (!result.sent) {
       await log('suppressed')

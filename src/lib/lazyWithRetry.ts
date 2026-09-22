@@ -12,12 +12,16 @@ import { isChunkLoadError } from './appRecovery';
  */
 const PURGE_KEY = 'faunex_chunk_purge';
 
-const purgeAndReload = async (): Promise<void> => {
+/** Purge caches + service worker puis recharge. Renvoie false quand aucun
+ *  rechargement n'a pu être déclenché (purge déjà tentée dans la session,
+ *  stockage bloqué en navigation privée…) : l'appelant doit alors laisser
+ *  remonter l'erreur pour afficher un écran d'erreur, et non attendre. */
+const purgeAndReload = async (): Promise<boolean> => {
   try {
-    if (sessionStorage.getItem(PURGE_KEY) === '1') return;
+    if (sessionStorage.getItem(PURGE_KEY) === '1') return false;
     sessionStorage.setItem(PURGE_KEY, '1');
   } catch {
-    /* noop */
+    /* stockage indisponible : on tente quand même un rechargement unique */
   }
 
   try {
@@ -42,8 +46,14 @@ const purgeAndReload = async (): Promise<void> => {
     const url = new URL(window.location.href);
     url.searchParams.set('_r', Date.now().toString(36));
     window.location.replace(url.toString());
+    return true;
   } catch {
-    window.location.reload();
+    try {
+      window.location.reload();
+      return true;
+    } catch {
+      return false;
+    }
   }
 };
 
@@ -60,12 +70,16 @@ export const lazyWithRetry = <T extends ComponentType<any>>(
       try {
         await new Promise((r) => setTimeout(r, 400));
         return await factory();
-      } catch {
-        await purgeAndReload();
-        // On garde la promesse en attente : la page se recharge.
-        return await new Promise<{ default: T }>(() => {});
+      } catch (retryError) {
+        const reloading = await purgeAndReload();
+        // Rechargement en cours : on garde la promesse en attente.
+        if (reloading) return await new Promise<{ default: T }>(() => {});
+        // Sinon on remonte l'erreur pour que l'écran d'erreur s'affiche
+        // (avec son bouton de rechargement) au lieu d'un chargement infini.
+        throw retryError;
       }
     }
   });
+
 
 export default lazyWithRetry;

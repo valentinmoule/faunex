@@ -392,6 +392,10 @@ setManualMode(false);
     } catch (err) {
       console.error(err);
       if (consumed) await quota.refund();
+      if (String((err as { message?: string })?.message ?? err).includes('SESSION_EXPIRED')) {
+        toast.error(t('capture.errors.sessionExpired'));
+        return;
+      }
       toast.error(isDailyLimitError(err) ? quotaMessage : t('capture.errors.submissionError'));
     }
   };
@@ -456,6 +460,10 @@ setManualMode(false);
       console.error(err);
       if (consumed) await quota.refund();
       const msg = String((err as { message?: string })?.message ?? err);
+      if (msg.includes('SESSION_EXPIRED')) {
+        toast.error(t('capture.errors.sessionExpired'));
+        return;
+      }
       if (msg.includes('unique_species_per_user') || msg.includes('duplicate key')) {
         // Sécurité serveur : l'espèce existe déjà sous un autre nom commun.
         toast.error(t('capture.errors.alreadyHaveSpecies', { name: animalResult.scientific_name ?? animalResult.animal_name }));

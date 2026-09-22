@@ -28,9 +28,25 @@ export const useCaptureSave = ({ userId, photo, geo }: SaveContext) => {
       });
   }, [userId]);
 
-  const uploadImage = useCallback(async () => {
+  /** Identifiant réellement porté par la session au moment de l'écriture.
+   *  Une session expirée (ou rafraîchie sur un autre compte) faisait échouer
+   *  l'insertion APRÈS le téléversement de la photo : l'explorateur perdait sa
+   *  capture. On rafraîchit donc la session avant d'écrire. */
+  const resolveSessionUserId = useCallback(async () => {
+    const { data } = await supabase.auth.getSession();
+    let id = data.session?.user?.id ?? null;
+    if (!id) {
+      const { data: refreshed } = await supabase.auth.refreshSession();
+      id = refreshed.session?.user?.id ?? null;
+    }
+    if (!id) throw new Error('SESSION_EXPIRED');
+    return id;
+  }, []);
+
+  const uploadImage = useCallback(async (uid?: string) => {
     if (!photo || !userId) return null;
-    const fileName = `${userId}/${Date.now()}.jpg`;
+    const ownerId = uid ?? userId;
+    const fileName = `${ownerId}/${Date.now()}.jpg`;
     const { error: uploadError } = await supabase.storage
       .from('captures')
       .upload(fileName, dataUrlToBytes(photo), { contentType: 'image/jpeg' });
@@ -73,10 +89,11 @@ export const useCaptureSave = ({ userId, photo, geo }: SaveContext) => {
       if (!photo || !userId) return null;
       setSaving(true);
       try {
-        const imageUrl = await uploadImage();
+        const ownerId = await resolveSessionUserId();
+        const imageUrl = await uploadImage(ownerId);
         if (!imageUrl) return null;
         const { error } = await supabase.from('captures').insert({
-          user_id: userId,
+          user_id: ownerId,
           image_url: imageUrl,
           animal_name: animal.animal_name,
           scientific_name: animal.scientific_name,
@@ -119,7 +136,7 @@ export const useCaptureSave = ({ userId, photo, geo }: SaveContext) => {
         setSaving(false);
       }
     },
-    [photo, userId, uploadImage, defaultShare, geo]
+    [photo, userId, uploadImage, resolveSessionUserId, defaultShare, geo]
   );
 
   const replaceCapture = useCallback(
@@ -127,7 +144,8 @@ export const useCaptureSave = ({ userId, photo, geo }: SaveContext) => {
       if (!photo || !userId) return null;
       setSaving(true);
       try {
-        const imageUrl = await uploadImage();
+        const ownerId = await resolveSessionUserId();
+        const imageUrl = await uploadImage(ownerId);
         if (!imageUrl) return null;
         const { error } = await supabase
           .from('captures')
@@ -155,7 +173,7 @@ export const useCaptureSave = ({ userId, photo, geo }: SaveContext) => {
         setSaving(false);
       }
     },
-    [photo, userId, uploadImage, defaultShare, geo]
+    [photo, userId, uploadImage, resolveSessionUserId, defaultShare, geo]
   );
 
   const submitManualEntry = useCallback(
@@ -163,12 +181,13 @@ export const useCaptureSave = ({ userId, photo, geo }: SaveContext) => {
       if (!photo || !userId) return false;
       setSaving(true);
       try {
-        const imageUrl = await uploadImage();
+        const ownerId = await resolveSessionUserId();
+        const imageUrl = await uploadImage(ownerId);
         if (!imageUrl) return false;
         const { data: inserted, error } = await supabase
           .from('captures')
           .insert({
-            user_id: userId,
+            user_id: ownerId,
             image_url: imageUrl,
             animal_name: entry.name,
             scientific_name: entry.species || null,
@@ -218,7 +237,7 @@ export const useCaptureSave = ({ userId, photo, geo }: SaveContext) => {
         setSaving(false);
       }
     },
-    [photo, userId, uploadImage, defaultShare, geo]
+    [photo, userId, uploadImage, resolveSessionUserId, defaultShare, geo]
   );
 
   return { saving, defaultShare, findDuplicate, insertCapture, replaceCapture, submitManualEntry };
