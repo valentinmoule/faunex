@@ -253,8 +253,22 @@ const takePhoto = async () => {
     // Permet de réimporter deux fois de suite le même fichier.
     e.target.value = '';
     if (!file) return;
+    // Photo iCloud pas encore téléchargée sur l'appareil : le fichier arrive vide.
+    if (file.size === 0) {
+      toast.error(t('capture.errors.galleryNotDownloaded'));
+      return;
+    }
     try {
-const exif = isHeicFile(file) ? null : await readExifCameraInfo(file);
+      // La lecture EXIF est un simple indice : elle ne doit jamais faire
+      // échouer l'import (fichiers volumineux, métadonnées exotiques…).
+      let exif: Awaited<ReturnType<typeof readExifCameraInfo>> | null = null;
+      if (!isHeicFile(file)) {
+        try {
+          exif = await readExifCameraInfo(file);
+        } catch {
+          exif = null;
+        }
+      }
       const suspicious = exif !== null && !exif.looksLikeCameraPhoto;
       const reason = suspicious
         ? t('capture.exif.suspiciousReason')
@@ -269,6 +283,7 @@ const exif = isHeicFile(file) ? null : await readExifCameraInfo(file);
       console.error(err);
       toast.error(t('capture.errors.galleryUnreadable'));
     }
+
 
   };
 
