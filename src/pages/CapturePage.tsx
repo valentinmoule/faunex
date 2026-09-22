@@ -8,6 +8,8 @@ import { RARITY_FX, RARITY_RANK } from '@/data/mockData';
 import { setPendingShelve } from '@/lib/shelveAnimation';
 import { prepareSourceImage, prepareSourceFile } from '@/lib/imageProcessing';
 import { isHeicFile, readExifCameraInfo } from '@/lib/exif';
+import { IS_NATIVE_APP } from '@/lib/platform';
+import { pickNativeGalleryPhoto } from '@/lib/nativeGallery';
 import { useCamera } from '@/hooks/useCamera';
 import { useGeoTag } from '@/hooks/useGeoTag';
 import { useAnimalIdentification, type RejectionKind } from '@/hooks/useAnimalIdentification';
@@ -248,6 +250,25 @@ const takePhoto = async () => {
    *  quand même identifiée par l'IA, le message d'explication ne sert qu'en
    *  repli si l'espèce n'est pas reconnue. */
   const galleryInputRef = useRef<HTMLInputElement | null>(null);
+
+  /** Ouvre le sélecteur natif dans l'app installée (photos iCloud téléchargées
+   *  automatiquement), et le sélecteur de fichiers du navigateur sinon. */
+  const openGalleryPicker = async () => {
+    if (IS_NATIVE_APP) {
+      try {
+        const dataUrl = await pickNativeGalleryPhoto();
+        if (!dataUrl) return;
+        await processPhoto(dataUrl);
+        return;
+      } catch (err) {
+        console.error(err);
+        toast.error(t('capture.errors.galleryUnreadable'));
+        return;
+      }
+    }
+    galleryInputRef.current?.click();
+  };
+
   const importFromGallery = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     // Permet de réimporter deux fois de suite le même fichier.
@@ -1087,7 +1108,7 @@ setManualMode(false);
           <>
             {/* Import depuis la bibliothèque photo (web app + apps natives). */}
             <button
-              onClick={() => galleryInputRef.current?.click()}
+              onClick={openGalleryPicker}
               disabled={quota.exhausted}
               aria-label={t('capture.camera.importFromGallery')}
               className="w-12 h-12 rounded-xl bg-primary-foreground/10 flex items-center justify-center disabled:opacity-40"
