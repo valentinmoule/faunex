@@ -8,6 +8,13 @@
       "when": 1790100329051,
       "tag": "0000_speed_up_leaderboard_rpcs",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790145518007,
+      "tag": "0001_fix_shared_domestic_profile_fallback",
+      "breakpoints": true
     }
   ]
 }
