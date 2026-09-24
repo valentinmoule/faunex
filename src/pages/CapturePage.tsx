@@ -256,9 +256,12 @@ const takePhoto = async () => {
   const openGalleryPicker = async () => {
     if (IS_NATIVE_APP) {
       try {
-        const dataUrl = await pickNativeGalleryPhoto();
-        if (!dataUrl) return;
-        await processPhoto(dataUrl);
+        const picked = await pickNativeGalleryPhoto();
+        if (!picked) return;
+        const reason = picked.looksLikeCameraPhoto === false
+          ? t('capture.exif.suspiciousReason')
+          : undefined;
+        await processPhoto(picked.dataUrl, reason, picked.gps);
         return;
       } catch (err) {
         console.error(err);
