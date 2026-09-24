@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Loader2, Radar, Sparkles, MapPin } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -54,7 +54,13 @@ const PullToDiscover = () => {
   const { session } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const enabled = ENABLED_ROUTES.includes(location.pathname) && !!session?.user;
+  const searchParams = useSearchParams()[0];
+  // Sur l'onglet Cartes (/home?tab=map), le geste capture les touchers et
+  // empêche de déplacer la carte : on le désactive complètement.
+  const enabled =
+    ENABLED_ROUTES.includes(location.pathname) &&
+    !!session?.user &&
+    !(location.pathname === '/home' && searchParams.get('tab') === 'map');
   const { remaining, unlimited, exhausted, consume } = useNearbyQuota(session?.user?.id);
 
   const [pull, setPull] = useState(0);
