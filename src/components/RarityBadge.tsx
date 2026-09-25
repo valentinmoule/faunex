@@ -29,9 +29,11 @@ const SYMBOL_COUNT: Record<Rarity, number> = {
  * Géométrie SVG d'étoile dans une boîte 12×12, conçue pour un extent optique
  * identique partout (le losange texte ◆ rendait plus petit selon la police de
  * repli de l'appareil — le SVG garantit un rendu identique).
+ * Bras épais : rayon interne remonté (2,3 → 3,2) pour une étoile pleine,
+ * lisible en petit, sans trait filiforme.
  */
 const STAR_PATH =
-  'M6 0 L7.41 4.06 L11.71 4.15 L8.28 6.74 L9.53 10.85 L6 8.4 L2.47 10.85 L3.72 6.74 L0.29 4.15 L4.59 4.06 Z';
+  'M6 0 L7.88 3.41 L11.71 4.15 L9.05 6.99 L9.53 10.85 L6 9.2 L2.47 10.85 L2.95 6.99 L0.29 4.15 L4.12 3.41 Z';
 
 const GOLD_STOPS = [
   ['0%', '#ffe98a'],
