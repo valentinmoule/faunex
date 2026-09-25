@@ -2713,7 +2713,7 @@ html.is-native-android body {
   border: 4px solid transparent;
   border-radius: 0.875rem;
   background-image:
-    linear-gradient(hsla(215, 25%, 10%, 0.55), hsla(215, 25%, 10%, 0.55)),
+    linear-gradient(hsla(215, 25%, 10%, 0.9), hsla(215, 25%, 10%, 0.9)),
     var(--tile-frame);
   background-origin: border-box;
   background-clip: padding-box, border-box;
