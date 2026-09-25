@@ -76,6 +76,13 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
   const [isAdmin, setIsAdmin] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
 
+  // Valeurs légères pour le calcul des badges à réclamer (avant ouverture du profil).
+  const [progressLevel, setProgressLevel] = useState(1);
+  const [progressRegions, setProgressRegions] = useState(0);
+  const [claimKey, setClaimKey] = useState(0);
+  const pathname = useLocation().pathname;
+  const lastPathRef = useRef(pathname);
+
   const loadProfile = useCallback(async () => {
     if (!userId) return;
     setLoading(true);
@@ -99,6 +106,30 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
     }
     setLoading(false);
   }, [userId]);
+
+  useEffect(() => {
+    if (!userId) return;
+    let cancelled = false;
+    supabase
+      .from('profiles')
+      .select('level, regions_explored')
+      .eq('user_id', userId)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (cancelled || !data) return;
+        setProgressLevel(data.level ?? 1);
+        setProgressRegions(data.regions_explored ?? 0);
+      });
+    return () => { cancelled = true; };
+  }, [userId]);
+
+  // La pastille se recalcule en changeant d'écran (ex. retour depuis la page badges).
+  useEffect(() => {
+    if (lastPathRef.current !== pathname) {
+      lastPathRef.current = pathname;
+      setClaimKey((k) => k + 1);
+    }
+  }, [pathname]);
 
   const openProfile = useCallback(() => {
     setOpen(true);
