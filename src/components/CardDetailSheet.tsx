@@ -138,6 +138,9 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
   const [savingNote, setSavingNote] = useState(false);
   const [location, setLocation] = useState<string | null>(null);
   const [editingLocation, setEditingLocation] = useState(false);
+  const [takenAt, setTakenAt] = useState<string | null>(null);
+  const [savingDate, setSavingDate] = useState(false);
+  const dateInputRef = useRef<HTMLInputElement | null>(null);
   const [savingLocation, setSavingLocation] = useState(false);
   const [locQuery, setLocQuery] = useState('');
   const [locResults, setLocResults] = useState<{ label: string; sub: string; coords?: [number, number] }[]>([]);
@@ -210,13 +213,14 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
     setLocQuery('');
     setLocResults([]);
     setLocation(card?.location ?? null);
+    setTakenAt(null);
     if (!card || !open || !session?.user) return;
     if (!card.image || card.id.startsWith('uncaptured-')) return;
     let cancelled = false;
     (async () => {
       const { data } = await supabase
         .from('captures')
-        .select('user_id, note, location')
+        .select('user_id, note, location, taken_at')
         .eq('id', card.id)
         .maybeSingle();
       if (!cancelled && data) {
@@ -224,6 +228,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
         setNote((data as any).note || '');
         setNoteDraft((data as any).note || '');
         setLocation((data as any).location || null);
+        setTakenAt((data as any).taken_at || null);
       }
     })();
     return () => { cancelled = true; };
@@ -318,6 +323,23 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
     setLocResults([]);
     toast({ title: nom ? t('capture.detail.toastLocationUpdated') : t('capture.detail.toastLocationRemoved') });
   }, [card, savingLocation]);
+
+  const saveDate = useCallback(async (value: string) => {
+    if (!card || savingDate || !value) return;
+    const [y, m, d] = value.split('-').map(Number);
+    const date = new Date(y, m - 1, d, 12, 0, 0);
+    if (Number.isNaN(date.getTime()) || date.getTime() > Date.now() + 86400000) return;
+    setSavingDate(true);
+    const iso = date.toISOString();
+    const { error } = await supabase.from('captures').update({ taken_at: iso }).eq('id', card.id);
+    setSavingDate(false);
+    if (error) {
+      toast({ title: t('capture.detail.toastDateNotSaved'), description: t('capture.detail.toastRetry'), variant: 'destructive' });
+      return;
+    }
+    setTakenAt(iso);
+    toast({ title: t('capture.detail.toastDateUpdated') });
+  }, [card, savingDate]);
 
   const saveNote = useCallback(async () => {
     if (!card || savingNote) return;
@@ -551,8 +573,11 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
   const cardFx = RARITY_FX[normalizedRarity];
   const isGold = !isUncaptured && cardFx === 'gold';
   const isSilver = !isUncaptured && cardFx === 'silver';
-  const captureDate = card?.discoveredAt
-    ? new Intl.DateTimeFormat(i18n.language, { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(card.discoveredAt))
+  const effectiveDate = takenAt || card?.discoveredAt || null;
+  const dateInputValue = effectiveDate ? (() => { const d = new Date(effectiveDate); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })() : '';
+  const todayInput = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })();
+  const captureDate = effectiveDate
+    ? new Intl.DateTimeFormat(i18n.language, { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(effectiveDate))
     : null;
   const isRare = !isUncaptured && cardFx === 'ink' && (normalizedRarity === 'rare' || normalizedRarity === 'very_rare');
   const heroFamily = normalizedRarity.replace(/_/g, '-');
@@ -827,7 +852,34 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                 <DetailRow icon={<UtensilsCrossed className="w-4 h-4" />} label={t('capture.detail.diet')} value={facts.diet} />
                 <DetailRow icon={<Shield className="w-4 h-4" />} label={t('capture.detail.conservation')} value={card.conservation} />
                 {captureDate && (
-                  <DetailRow icon={<Calendar className="w-4 h-4" />} label={t('capture.detail.capturedOnLabel')} value={captureDate} />
+                  <DetailRow
+                    icon={<Calendar className="w-4 h-4" />}
+                    label={t('capture.detail.capturedOnLabel')}
+                    value={captureDate}
+                    action={isOwner && !editingLocation && !editingNote ? (
+                      <span className="relative inline-flex">
+                        <button
+                          type="button"
+                          onClick={() => { const el = dateInputRef.current; if (!el) return; try { el.showPicker(); } catch { el.focus(); el.click(); } }}
+                          disabled={savingDate}
+                          aria-label={t('capture.detail.editDate')}
+                          className="p-1.5 rounded-full text-muted-foreground hover:text-primary hover:bg-muted transition-colors disabled:opacity-60"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <input
+                          ref={dateInputRef}
+                          type="date"
+                          tabIndex={-1}
+                          aria-hidden="true"
+                          value={dateInputValue}
+                          max={todayInput}
+                          onChange={(e) => { if (e.target.value && e.target.value !== dateInputValue) void saveDate(e.target.value); }}
+                          className="absolute inset-0 h-full w-full opacity-0 pointer-events-none"
+                        />
+                      </span>
+                    ) : undefined}
+                  />
                 )}
                 <DetailRow
                   icon={<Leaf className="w-4 h-4" />}
