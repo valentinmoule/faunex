@@ -63,6 +63,16 @@
     --rarity-frame-neutral: linear-gradient(135deg, hsl(220 8% 51%) 0%, hsl(215 13% 91%) 13%, hsl(220 8% 62%) 24%, hsl(215 12% 97%) 33%, hsl(220 9% 55%) 48%, hsl(215 11% 85%) 63%, hsl(220 8% 47%) 78%, hsl(215 15% 96%) 89%, hsl(220 9% 57%) 100%);
     --rarity-frame-gold: linear-gradient(135deg, hsl(38 75% 37%) 0%, hsl(49 95% 85%) 13%, hsl(40 92% 51%) 25%, hsl(52 100% 94%) 34%, hsl(37 82% 40%) 48%, hsl(46 97% 72%) 64%, hsl(34 81% 36%) 78%, hsl(50 100% 90%) 89%, hsl(40 92% 53%) 100%);
     --rarity-frame-iridescent: linear-gradient(135deg, hsl(218 14% 57%) 0%, hsl(326 66% 85%) 12%, hsl(198 82% 77%) 24%, hsl(220 15% 95%) 34%, hsl(292 52% 67%) 47%, hsl(184 82% 76%) 61%, hsl(222 17% 61%) 75%, hsl(45 96% 87%) 85%, hsl(332 66% 73%) 93%, hsl(208 79% 84%) 100%);
+    --rarity-icon-gray-dark: 220 12% 36%;
+    --rarity-icon-gray-mid: 220 9% 58%;
+    --rarity-icon-gray-light: 215 13% 91%;
+    --rarity-icon-gold-dark: 38 75% 33%;
+    --rarity-icon-gold-mid: 40 92% 51%;
+    --rarity-icon-gold-light: 49 95% 86%;
+    --rarity-icon-pearl-gray: 218 17% 48%;
+    --rarity-icon-pearl-pink: 326 66% 76%;
+    --rarity-icon-pearl-blue: 198 82% 72%;
+    --rarity-icon-pearl-light: 220 15% 95%;
 
     /* Gradients */
     --gradient-forest: linear-gradient(135deg, hsl(150 62% 44%), hsl(160 66% 28%));
@@ -2820,7 +2830,7 @@ html.is-native-android body {
   box-shadow: 0 2px 8px hsl(var(--foreground) / 0.2);
 }
 
-/* Les trois premiers paliers restent strictement neutres : seul le nombre
+/* Les trois premiers paliers restent gris : seul le nombre
    d’étoiles permet de les distinguer. */
 .rarity-badge--common,
 .rarity-badge--uncommon,
@@ -2900,7 +2910,7 @@ html.is-native-android body {
 }
 
 /* Variante « brute » : étoiles seules, sans tag ni bulle (filtres, cartes).
-   Le contraste sur photo est assuré par une ombre portée sombre, pas par un fond. */
+   Le contraste sur photo vient du contour sombre dessiné sur chaque étoile. */
 .rarity-badge.rarity-badge--plain {
   position: relative;
   min-width: 0;
