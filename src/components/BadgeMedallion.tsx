@@ -1,9 +1,9 @@
 /**
- * Médaillon de badge : écusson hexagonal avec dégradé + icône vectorielle.
+ * Médaillon de badge : pin émaillé 3D façon badge de ligue.
  *
- * Remplace les emojis par des icônes singulières (lucide) et un blason
- * coloré selon la famille du badge. Les couleurs viennent uniquement des
- * tokens du design system (`--primary`, `--amber`, `--rarity-*`…).
+ * Écusson hexagonal avec bord métallique épais, corps en émail dégradé,
+ * reflet brillant et ombre portée — inspiré des pins Pokémon / Duolingo.
+ * Les couleurs viennent uniquement des tokens du design system.
  */
 
 import {
@@ -103,60 +103,88 @@ const BadgeMedallion = ({ badgeId, group, fallbackEmoji, state, size = 62, class
 
   const hue = GROUP_HUE[group];
   const locked = state === 'locked';
+  const claimable = state === 'claimable';
+  const rim = Math.max(4, size * 0.09);
 
   return (
     <div
       className={`relative shrink-0 ${className} ${state === 'claimed' ? 'badge-icon-float' : ''}`}
-      style={{ width: size, height: size }}
+      style={{
+        width: size,
+        height: size,
+        filter: locked
+          ? 'none'
+          : `drop-shadow(0 ${Math.max(3, size * 0.08)}px ${Math.max(5, size * 0.14)}px hsl(var(${hue.to}) / 0.35))`,
+      }}
     >
-      {/* Halo */}
-      {!locked && (
+      {/* Halo pulsant derrière le pin quand il est à réclamer */}
+      {claimable && (
         <div
-          className="absolute inset-0 rounded-full blur-md opacity-50"
-          style={{ background: `hsl(var(${hue.from}) / 0.55)` }}
+          className="absolute -inset-2 animate-pulse blur-lg"
+          style={{
+            clipPath: HEX,
+            background: `hsl(var(${hue.from}) / 0.45)`,
+          }}
         />
       )}
 
-      {/* Contour hexagonal */}
+      {/* Bord extérieur 3D (métal sombre) */}
       <div
         className="absolute inset-0"
         style={{
           clipPath: HEX,
           background: locked
-            ? 'hsl(var(--muted-foreground) / 0.28)'
-            : `linear-gradient(155deg, hsl(var(${hue.from}) / 0.95), hsl(var(${hue.to}) / 0.95))`,
+            ? 'hsl(var(--muted-foreground) / 0.35)'
+            : `linear-gradient(160deg, hsl(var(${hue.to}) / 0.55) 0%, hsl(var(${hue.from})) 45%, hsl(var(${hue.to})) 100%)`,
         }}
       />
 
-      {/* Cœur du blason */}
+      {/* Corps émaillé */}
       <div
-        className="absolute"
+        className="absolute overflow-hidden"
         style={{
-          inset: Math.max(3, size * 0.075),
+          inset: rim,
           clipPath: HEX,
           background: locked
-            ? 'linear-gradient(160deg, hsl(var(--muted)), hsl(var(--muted) / 0.7))'
-            : `linear-gradient(160deg, hsl(var(${hue.from})), hsl(var(${hue.to})))`,
+            ? 'linear-gradient(160deg, hsl(var(--muted)), hsl(var(--muted) / 0.75))'
+            : `linear-gradient(150deg, hsl(var(${hue.from}) / 0.85) 0%, hsl(var(${hue.from})) 40%, hsl(var(${hue.to})) 100%)`,
+          boxShadow: locked
+            ? 'none'
+            : `inset 0 ${Math.max(1, size * 0.03)}px ${Math.max(3, size * 0.08)}px hsl(0 0% 100% / 0.35), inset 0 -${Math.max(2, size * 0.04)}px ${Math.max(4, size * 0.1)}px hsl(var(${hue.to}) / 0.6)`,
         }}
-      />
-
-      {/* Reflet supérieur */}
-      <div
-        className="absolute opacity-40"
-        style={{
-          inset: Math.max(3, size * 0.075),
-          clipPath: HEX,
-          background: 'linear-gradient(180deg, hsl(0 0% 100% / 0.55), transparent 55%)',
-        }}
-      />
+      >
+        {/* Reflet brillant diagonal (gloss) */}
+        {!locked && (
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                'linear-gradient(135deg, hsl(0 0% 100% / 0.5) 0%, hsl(0 0% 100% / 0.12) 28%, transparent 45%)',
+            }}
+          />
+        )}
+        {/* Voile de profondeur en bas */}
+        {!locked && (
+          <div
+            className="absolute inset-0"
+            style={{
+              background: 'linear-gradient(0deg, hsl(0 0% 0% / 0.18) 0%, transparent 40%)',
+            }}
+          />
+        )}
+      </div>
 
       {/* Icône */}
       <div className="absolute inset-0 flex items-center justify-center">
         {BADGE_ICONS[badgeId] || !fallbackEmoji ? (
           <Icon
-            strokeWidth={2.2}
-            style={{ width: size * 0.4, height: size * 0.4 }}
-            className={locked ? 'text-muted-foreground' : 'text-primary-foreground drop-shadow'}
+            strokeWidth={2.4}
+            style={{
+              width: size * 0.42,
+              height: size * 0.42,
+              filter: locked ? 'none' : 'drop-shadow(0 1px 2px hsl(0 0% 0% / 0.35))',
+            }}
+            className={locked ? 'text-muted-foreground/70' : 'text-primary-foreground'}
           />
         ) : (
           <span
