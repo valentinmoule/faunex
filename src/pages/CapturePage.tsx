@@ -18,6 +18,7 @@ import { useCaptureReveal, REVEAL_TIMINGS } from '@/hooks/useCaptureReveal';
 import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
 import FindersBadge from '@/components/FindersBadge';
 import RarityBadge from '@/components/RarityBadge';
+import { rarityTileBorder } from '@/lib/bestiary';
 import { useCaptureQuota, DAILY_CAPTURE_LIMIT } from '@/hooks/useCaptureQuota';
 import { useSubscription } from '@/hooks/useSubscription';
 
@@ -870,20 +871,17 @@ setManualMode(false);
                 )}
               </div>
 
-              {/* Description */}
-              <p className="text-primary-foreground/80 text-sm leading-relaxed">{animalResult.description}</p>
-
-              {/* Fun fact */}
-              <div className="bg-primary-foreground/10 rounded-xl px-4 py-3">
-                <p className="text-primary-foreground/90 text-xs font-display">💡 {animalResult.fun_fact}</p>
+              {/* Description dans le cadre de la carte (même design que la collection) */}
+              <div className={`capture-desc-card finish-${(rarityTileBorder[animalResult.rarity] || 'tile-border-plain').replace('tile-border-', '')} px-4 py-3`}>
+                <p className="text-primary-foreground/90 text-sm leading-relaxed">{animalResult.description}</p>
               </div>
 
               {/* L'utilisateur peut contester l'identification et demander un arbitrage humain */}
               <button
                 onClick={requestVerification}
-                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-primary-foreground/25 bg-primary-foreground/5 text-primary-foreground/85 text-xs font-display font-semibold"
+                className="mx-auto flex items-center gap-1.5 px-4 py-2 rounded-full border border-primary-foreground/20 bg-primary-foreground/5 text-primary-foreground/70 text-xs font-display font-medium hover:bg-primary-foreground/10 transition-colors"
               >
-                <ShieldQuestion className="w-4 h-4" />
+                <ShieldQuestion className="w-3.5 h-3.5" />
                 {t('capture.requestVerification')}
               </button>
 
