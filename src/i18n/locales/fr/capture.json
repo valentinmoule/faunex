@@ -177,6 +177,8 @@
     },
     "detail": {
       "undiscoveredTitle": "Non découvert",
+      "favorite": "Favori",
+      "favoritePremium": "Les favoris sont réservés aux membres Premium",
       "undiscoveredBody": "Capture cet animal pour débloquer sa fiche.",
       "closeImage": "Fermer l'image en plein écran",
       "share": "Partager",

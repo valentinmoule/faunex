@@ -177,6 +177,8 @@
     },
     "detail": {
       "undiscoveredTitle": "Undiscovered",
+      "favorite": "Favorite",
+      "favoritePremium": "Favorites are a Premium feature",
       "undiscoveredBody": "Capture this animal to unlock its sheet.",
       "closeImage": "Close fullscreen image",
       "share": "Share",

@@ -17,7 +17,10 @@ import FindersBadge from '@/components/FindersBadge';
 import { hapticTap } from '@/lib/haptics';
 import { toast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Trash2, Share2 } from 'lucide-react';
+import { Trash2, Share2, Bookmark } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useFavorites } from '@/hooks/useFavorites';
+import { useSubscription } from '@/hooks/useSubscription';
 import ShareCaptureSheet from '@/components/ShareCaptureSheet';
 import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
 import { useSpeciesFacts, useSpeciesName } from '@/hooks/useSpeciesLocale';
@@ -125,6 +128,9 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
       : null,
   );
 
+  const navigate = useNavigate();
+  const { isPremium } = useSubscription(session?.user?.id);
+  const { isFavorite, toggleFavorite } = useFavorites(session?.user?.id);
   const [isOwner, setIsOwner] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -658,6 +664,25 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                   <MessageCircle className={`w-6 h-6 transition-colors ${showComments ? 'text-primary fill-primary/20' : 'text-muted-foreground group-hover:text-primary'}`} />
                   <span className={`text-sm font-display font-semibold ${showComments ? 'text-primary' : 'text-muted-foreground'}`}>{commentCount}</span>
                 </button>
+                {isOwner && (
+                  <button
+                    onClick={() => {
+                      hapticTap();
+                      if (!isPremium) {
+                        toast({ title: t('capture.detail.favoritePremium') });
+                        onClose();
+                        navigate('/premium');
+                        return;
+                      }
+                      void toggleFavorite(card.id);
+                    }}
+                    aria-pressed={isFavorite(card.id)}
+                    className="flex items-center gap-2 group"
+                  >
+                    <Bookmark className={`w-6 h-6 transition-all ${isFavorite(card.id) ? 'fill-primary text-primary scale-110' : 'text-muted-foreground group-hover:text-primary'}`} />
+                    <span className={`text-sm font-display font-semibold ${isFavorite(card.id) ? 'text-primary' : 'text-muted-foreground'}`}>{t('capture.detail.favorite')}</span>
+                  </button>
+                )}
                 {card.image && (
                   <button onClick={handleShare} className="flex items-center gap-2 group">
                     <Share2 className="w-6 h-6 text-muted-foreground transition-colors group-hover:text-primary" />

@@ -22,6 +22,13 @@
       "when": 1790345151886,
       "tag": "0002_exclude_all_rarities_qa_account_from_rankings",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790354190709,
+      "tag": "0003_capture_favorites",
+      "breakpoints": true
     }
   ]
 }

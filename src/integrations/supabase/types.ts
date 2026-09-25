@@ -261,6 +261,42 @@ export type Database = {
         }
         Relationships: []
       }
+      capture_favorites: {
+        Row: {
+          capture_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          capture_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          capture_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "capture_favorites_capture_id_fkey"
+            columns: ["capture_id"]
+            isOneToOne: false
+            referencedRelation: "captures"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "capture_favorites_capture_id_fkey"
+            columns: ["capture_id"]
+            isOneToOne: false
+            referencedRelation: "ml_dataset_captures"
+            referencedColumns: ["capture_id"]
+          },
+        ]
+      }
       captures: {
         Row: {
           animal_name: string
