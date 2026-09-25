@@ -1602,6 +1602,8 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                 }))}
                 onSortChange={(s) => applySort(s as MineSort)}
                 availableCategories={mineCategoryData}
+                availableRarities={mineRarityCountData}
+                availablePopularities={minePopularityCountData}
                 categories={mineCategoryFilter}
                 onCategoriesChange={setMineCategoryFilter}
                 rarities={mineRarityFilter}
@@ -1752,6 +1754,8 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                 sort={browseSort}
                 onSortChange={(s) => setBrowseSort(s as SpeciesSort)}
                 availableCategories={categoryData}
+                availableRarities={rarityCountData}
+                availablePopularities={popularityCountData}
                 categories={categoryFilter}
                 onCategoriesChange={setCategoryFilter}
                 rarities={rarityFilter}
