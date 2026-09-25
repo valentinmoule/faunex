@@ -1,5 +1,6 @@
 import { memo, useMemo, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
+import { createPortal } from 'react-dom';
 import { type Rarity, RARITY_RANK } from '@/data/mockData';
 import { rarityTileBorder } from '@/lib/bestiary';
 import { RarityBadge } from '@/components/RarityBadge';
@@ -93,7 +94,7 @@ const RevealStage = ({ phase, rarity, animal, photo, onSkip }: Props) => {
     '--rv-frame': `var(--rarity-frame-${finish === 'plain' ? 'neutral' : finish})`,
   } as CSSProperties;
 
-  return (
+  return createPortal(
     <div
       className={`reveal-stage rv-${finish} ${phase === 'burst' && rank >= 5 ? 'rv-quake' : ''}`}
       style={vars}
@@ -183,7 +184,8 @@ const RevealStage = ({ phase, rarity, animal, photo, onSkip }: Props) => {
           )
         )}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };
 
