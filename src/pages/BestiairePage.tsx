@@ -58,6 +58,7 @@ import { localizedSpeciesName } from '@/lib/speciesI18n';
 import MapPage from '@/pages/MapPage';
 import FaunexAchievements from '@/components/FaunexAchievements';
 import CollectionTile from '@/components/CollectionTile';
+import BinderGrid from '@/components/BinderGrid';
 import { useFavorites } from '@/hooks/useFavorites';
 import { FAVORITES_FILTER } from '@/components/SpeciesSortFilter';
 import RewardCelebration from '@/components/RewardCelebration';
