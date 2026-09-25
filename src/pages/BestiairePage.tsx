@@ -1683,7 +1683,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                   {speciesQuery ? t('bestiary.results') : t('bestiary.allSpecies')}
                 </h2>
                 <span className="text-[11px] font-display text-muted-foreground tabular-nums">
-                  {t('bestiary.categories.speciesCount', { captured: myCaptures.length, total: browseTotal })}
+                  {t('bestiary.categories.speciesCount', { captured: browseCounts.captured, total: browseCounts.total })}
                 </span>
               </div>
 
