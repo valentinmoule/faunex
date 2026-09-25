@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useBadges, type BadgeProgress } from '@/hooks/useBadges';
 import BadgeMedallion from '@/components/BadgeMedallion';
+import BadgeRewardSheet from '@/components/BadgeRewardSheet';
 
 interface Props {
   userId: string;
@@ -19,7 +19,8 @@ const ProfileBadgesRow = ({ userId, level, regionsExplored, onOpenAll, onClaimed
   const { t } = useTranslation();
   const { badges, markClaimed } = useBadges(userId, level, regionsExplored);
   const [recentIds, setRecentIds] = useState<string[]>([]);
-  const [claiming, setClaiming] = useState<string | null>(null);
+  /** Badge dont l'écran de récompense est ouvert. */
+  const [reward, setReward] = useState<BadgeProgress | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -43,17 +44,11 @@ const ProfileBadgesRow = ({ userId, level, regionsExplored, onOpenAll, onClaimed
     return [...claimable, ...recent].filter((b) => !seen.has(b.badge.id) && seen.add(b.badge.id)).slice(0, 4);
   }, [badges, recentIds]);
 
-  const claim = async (entry: BadgeProgress) => {
-    if (claiming) return;
-    setClaiming(entry.badge.id);
-    const { data, error } = await supabase.rpc('claim_badge', { p_badge_id: entry.badge.id, p_xp_reward: entry.badge.xp });
-    if (!error && data) {
-      markClaimed(entry.badge.id);
-      setRecentIds((ids) => [entry.badge.id, ...ids.filter((id) => id !== entry.badge.id)].slice(0, 4));
-      toast.success(t('profile.page.drawer.badgeClaimed', { xp: entry.badge.xp }));
-      onClaimed?.();
-    }
-    setClaiming(null);
+  /** Réclamation effectuée depuis l'écran de récompense : on rafraîchit la ligne. */
+  const handleClaimed = (entry: BadgeProgress) => {
+    markClaimed(entry.badge.id);
+    setRecentIds((ids) => [entry.badge.id, ...ids.filter((id) => id !== entry.badge.id)].slice(0, 4));
+    onClaimed?.();
   };
 
   return (
@@ -82,8 +77,7 @@ const ProfileBadgesRow = ({ userId, level, regionsExplored, onOpenAll, onClaimed
               <button
                 key={entry.badge.id}
                 type="button"
-                onClick={() => (ready ? void claim(entry) : onOpenAll())}
-                disabled={claiming === entry.badge.id}
+                onClick={() => (ready ? setReward(entry) : onOpenAll())}
                 aria-label={ready ? t('profile.page.drawer.badgeClaim', { name: entry.badge.name }) : entry.badge.name}
                 className="flex min-w-0 flex-1 flex-col items-center gap-1 transition-transform active:scale-95"
               >
@@ -110,6 +104,10 @@ const ProfileBadgesRow = ({ userId, level, regionsExplored, onOpenAll, onClaimed
           })
         )}
       </div>
+
+      {reward && (
+        <BadgeRewardSheet entry={reward} onClose={() => setReward(null)} onClaimed={handleClaimed} />
+      )}
     </div>
   );
 };

@@ -35,6 +35,15 @@
         "newTag": "Nouveau"
       }
     },
+    "reward": {
+      "close": "Fermer",
+      "newTag": "Nouveau",
+      "claimCta": "Récupérer",
+      "claiming": "Récupération…",
+      "claimed": "Badge récupéré",
+      "toast": "Badge récupéré : +{{xp}} XP 🎉",
+      "error": "Erreur lors de la réclamation"
+    },
     "quests": {
       "weekTitle": "Quêtes de la semaine",
       "completedCount": "{{completed}}/{{total}} terminées",
