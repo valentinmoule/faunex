@@ -231,7 +231,10 @@
       "communityBadge": {
         "name": "Membre de la communauté",
         "description": "Rejoindre le Discord Faunex"
-      }
+      },
+      "earnedText": "Tu as gagné {{xp}} XP et décroché le badge {{name}} !",
+      "shareText": "J'ai débloqué le badge « {{name}} » sur Faunex 🌿",
+      "shareAria": "Partager ce badge"
     },
     "levelUp": {
       "title": "Niveau supérieur !",

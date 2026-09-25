@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useBadges, type BadgeProgress } from '@/hooks/useBadges';
 import BadgeMedallion from '@/components/BadgeMedallion';
 import BadgeRewardSheet from '@/components/BadgeRewardSheet';
+import BadgeDetailSheet from '@/components/BadgeDetailSheet';
 import { BADGE_GROUP_ICONS, BADGE_GROUP_ORDER, getGroupLabel } from '@/lib/badges';
 
 interface Props {
@@ -21,6 +22,8 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
   const { badges, loading, markClaimed } = useBadges(userId, level, regionsExplored, refreshKey);
   /** Badge dont l'écran de récompense est ouvert : la récupération s'y fait. */
   const [reward, setReward] = useState<BadgeProgress | null>(null);
+  /** Badge débloqué consulté en plein écran. */
+  const [detail, setDetail] = useState<BadgeProgress | null>(null);
 
   /** Tous les badges, sans filtre ni compteur : ceux à réclamer en tête. */
   const ordered = useMemo(() => {
@@ -48,10 +51,13 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
           return (
             <button
               key={badge.id}
-              disabled={!readyToClaim}
-              onClick={() => readyToClaim && setReward({ badge, progress, earned, claimed })}
+              disabled={!readyToClaim && !claimed}
+              onClick={() => {
+                if (readyToClaim) setReward({ badge, progress, earned, claimed, claimedAt });
+                else if (claimed) setDetail({ badge, progress, earned, claimed, claimedAt });
+              }}
               className={`relative flex flex-col text-center transition-transform duration-500 game-card-appear ${
-                readyToClaim ? 'cursor-pointer active:scale-95' : ''
+                readyToClaim || claimed ? 'cursor-pointer active:scale-95' : ''
               }`}
               style={{ animationDelay: `${Math.min(i, 17) * 40}ms` }}
             >
@@ -107,6 +113,9 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
           }}
         />
       )}
+
+      {/* Fiche plein écran d'un badge déjà débloqué */}
+      {detail && <BadgeDetailSheet entry={detail} onClose={() => setDetail(null)} />}
     </div>
   );
 };
