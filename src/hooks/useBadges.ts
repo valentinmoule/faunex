@@ -37,24 +37,35 @@ const norm = (v: string) =>
 const catCount = (captures: { category?: string | null }[], needle: string) =>
   captures.filter((c) => norm(c.category || '').includes(needle)).length;
 
-/** Loads every animal of the catalogue (paginated) — needed for collection progress. */
-const fetchCatalogue = async () => {
-  let all: { name: string; scientific_name: string | null; category: string }[] = [];
-  let page = 0;
+type CatalogueRow = { name: string; scientific_name: string | null; category: string };
+
+/** Catalogue shared for the whole session (it barely changes) — pages fetched in parallel. */
+let cataloguePromise: Promise<CatalogueRow[]> | null = null;
+const fetchCatalogue = (): Promise<CatalogueRow[]> => {
+  if (cataloguePromise) return cataloguePromise;
   const pageSize = 1000;
-  while (true) {
-    const { data } = await supabase
-      .from('animals')
-      .select('name, scientific_name, category')
-      .order('name')
-      .range(page * pageSize, (page + 1) * pageSize - 1);
-    if (!data || data.length === 0) break;
-    all = all.concat(data as any);
-    if (data.length < pageSize) break;
-    page++;
-  }
-  return all;
+  cataloguePromise = (async () => {
+    const { count } = await supabase.from('animals').select('*', { count: 'exact', head: true });
+    const pages = Math.max(1, Math.ceil((count || 0) / pageSize));
+    const results = await Promise.all(
+      Array.from({ length: pages }, (_, page) =>
+        supabase
+          .from('animals')
+          .select('name, scientific_name, category')
+          .order('name')
+          .range(page * pageSize, (page + 1) * pageSize - 1),
+      ),
+    );
+    return results.flatMap((r) => (r.data || []) as CatalogueRow[]);
+  })().catch((e) => {
+    cataloguePromise = null;
+    throw e;
+  });
+  return cataloguePromise;
 };
+
+/** Last computed list per user: shown instantly on revisit while refreshing in background. */
+const badgesCache = new Map<string, BadgeProgress[]>();
 
 /**
  * Computes the full badge list of a user: static badges, one badge per
