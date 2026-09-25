@@ -6,7 +6,7 @@ import { Drawer } from 'vaul';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { type AnimalCard, type Rarity, RARITY_LABELS, RARITY_FX, normalizeRarity } from '@/data/mockData';
 import { categoryLabel } from '@/lib/bestiary';
-import { MapPin, Leaf, UtensilsCrossed, Shield, Sparkles, Heart, MessageCircle, Send, PawPrint, Bird, Fish, Bug, Turtle, Shell, Snail, Waves, Lock, Camera, Pencil, Calendar, StickyNote, type LucideIcon } from 'lucide-react';
+import { MapPin, Leaf, UtensilsCrossed, Shield, Sparkles, Heart, MessageCircle, Send, PawPrint, Bird, Fish, Bug, Turtle, Shell, Snail, Waves, Lock, Camera, Pencil, Calendar, StickyNote, Users, type LucideIcon } from 'lucide-react';
 import { FrogIcon } from '@/components/icons/FrogIcon';
 import { SpiderIcon } from '@/components/icons/SpiderIcon';
 import { supabase } from '@/integrations/supabase/client';
@@ -739,25 +739,6 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
               </div>
             )}
 
-            {/* Rarity + Category chips */}
-            <div className="flex flex-wrap items-center justify-center gap-2">
-              {(() => {
-                const CatIcon = getCategoryIcon(card.category);
-                return (
-                  <span className="px-3 py-1 rounded-full text-[11px] font-display font-semibold bg-muted text-muted-foreground inline-flex items-center gap-1">
-                    <CatIcon className="w-3 h-3" />
-                    {categoryLabel(card.category)}
-                  </span>
-                );
-              })()}
-
-            </div>
-
-            {!isUncaptured && finders !== undefined && finders > 0 && (
-              <p className="text-xs text-muted-foreground text-center">
-                {t('capture.finders.sentence', { count: finders })}
-              </p>
-            )}
 
 
 {isUncaptured ? (
@@ -792,13 +773,24 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
             {/* Infos — liste épurée façon iOS */}
             {isUncaptured ? (
               <div className="space-y-2.5">
-                <div className="rounded-2xl border border-border bg-card">
+                <div className="rounded-2xl border border-border bg-card divide-y divide-border/60">
                   <DetailRow
                     icon={<Sparkles className="w-4 h-4" />}
                     label={t('capture.detail.rarityLabel')}
                     value={<RarityBadge rarity={card.rarity} plain showLabel className="detail-rarity-line" />}
                   />
+                  {(() => {
+                    const CatIcon = getCategoryIcon(card.category);
+                    return (
+                      <DetailRow
+                        icon={<CatIcon className="w-4 h-4" />}
+                        label={t('capture.detail.categoryLabel')}
+                        value={categoryLabel(card.category)}
+                      />
+                    );
+                  })()}
                 </div>
+
                 <div className="grid grid-cols-2 gap-2.5">
                   <LockedField icon={<MapPin className="w-4 h-4" />} label={t('capture.detail.habitat')} />
                   <LockedField icon={<UtensilsCrossed className="w-4 h-4" />} label={t('capture.detail.diet')} />
