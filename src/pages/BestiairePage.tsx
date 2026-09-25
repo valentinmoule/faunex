@@ -872,7 +872,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
       <SheetContent side="bottom" className="h-[85vh] p-0 flex flex-col">
         <SheetHeader className="px-5 py-4 border-b border-border">
           <div className="flex items-center gap-2">
-            {pickerMode !== 'hub' && (
+            {pickerMode !== 'hub' && pickerMode !== 'upsell' && !(pickerMode === 'species' && !isPremium && slotsUsed >= FREE_SLOT_LIMIT) && (
               <button
                 onClick={() => setPickerMode('hub')}
                 className="p-1 -ml-1 rounded-full hover:bg-muted transition"
