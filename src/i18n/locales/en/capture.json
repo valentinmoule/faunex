@@ -187,6 +187,9 @@
       "anonymous": "Anonymous",
       "commentPlaceholder": "Add a comment…",
       "rarityLabel": "Rarity",
+      "categoryLabel": "Category",
+      "capturedByLabel": "Captured by",
+
       "habitat": "Habitat",
       "diet": "Diet",
       "conservation": "Conservation",
