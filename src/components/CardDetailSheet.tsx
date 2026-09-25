@@ -6,7 +6,7 @@ import { Drawer } from 'vaul';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { type AnimalCard, type Rarity, RARITY_LABELS, RARITY_FX, normalizeRarity } from '@/data/mockData';
 import { categoryLabel } from '@/lib/bestiary';
-import { MapPin, Leaf, UtensilsCrossed, Shield, Sparkles, Heart, MessageCircle, Send, PawPrint, Bird, Fish, Bug, Turtle, Shell, Snail, Waves, Lock, Camera, Pencil, type LucideIcon } from 'lucide-react';
+import { MapPin, Leaf, UtensilsCrossed, Shield, Sparkles, Heart, MessageCircle, Send, PawPrint, Bird, Fish, Bug, Turtle, Shell, Snail, Waves, Lock, Camera, Pencil, Calendar, type LucideIcon } from 'lucide-react';
 import { FrogIcon } from '@/components/icons/FrogIcon';
 import { SpiderIcon } from '@/components/icons/SpiderIcon';
 import { supabase } from '@/integrations/supabase/client';
@@ -107,7 +107,7 @@ const LockedField = ({ icon, label }: { icon: React.ReactNode; label: string }) 
 
 
 const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: Props) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { session } = useAuth();
   // Nom commun localisé + fiche d'espèce localisée (traduite à la demande, puis cachée).
   const { speciesName } = useSpeciesName();
@@ -547,6 +547,9 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
   const cardFx = RARITY_FX[normalizedRarity];
   const isGold = !isUncaptured && cardFx === 'gold';
   const isSilver = !isUncaptured && cardFx === 'silver';
+  const captureDate = card?.discoveredAt
+    ? new Intl.DateTimeFormat(i18n.language, { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(card.discoveredAt))
+    : null;
   const isRare = !isUncaptured && cardFx === 'ink' && (normalizedRarity === 'rare' || normalizedRarity === 'very_rare');
   const heroFamily = normalizedRarity.replace(/_/g, '-');
   const isShiny = isSilver || isGold;
@@ -766,30 +769,27 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
               <p className="text-sm text-foreground/80 leading-relaxed text-center max-w-sm mx-auto">{facts.description}</p>
             )}
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-2 gap-2.5">
-              {isUncaptured ? (
-                <>
-                  <LockedField icon={<MapPin className="w-4 h-4" />} label={t('capture.detail.habitat')} />
-                  <LockedField icon={<UtensilsCrossed className="w-4 h-4" />} label={t('capture.detail.diet')} />
-                  <LockedField icon={<Shield className="w-4 h-4" />} label={t('capture.detail.conservation')} />
-                  <LockedField icon={<Leaf className="w-4 h-4" />} label={t('capture.detail.location')} />
-                </>
-              ) : (
-                <>
-                  <StatCard icon={<MapPin className="w-4 h-4" />} label={t('capture.detail.habitat')} value={facts.habitat} color="text-primary" bg="bg-primary/8" />
-                  <StatCard icon={<UtensilsCrossed className="w-4 h-4" />} label={t('capture.detail.diet')} value={facts.diet} color="text-amber" bg="bg-amber/8" />
-                  <StatCard icon={<Shield className="w-4 h-4" />} label={t('capture.detail.conservation')} value={card.conservation} color="text-sky" bg="bg-sky/8" />
-                </>
-              )}
-            </div>
-
-            {/* Location card — address always shown on captured cards; edit via pen icon (owner only) */}
-            {!isUncaptured && (
-              <div className="rounded-2xl border border-border bg-card p-4">
-                <div className="flex items-center justify-between">
-                  <p className="text-xs font-display font-bold uppercase tracking-wider text-muted-foreground">{t('capture.detail.locationLabel')}</p>
-                  {isOwner && !editingLocation && (
+            {/* Infos — liste épurée façon iOS */}
+            {isUncaptured ? (
+              <div className="grid grid-cols-2 gap-2.5">
+                <LockedField icon={<MapPin className="w-4 h-4" />} label={t('capture.detail.habitat')} />
+                <LockedField icon={<UtensilsCrossed className="w-4 h-4" />} label={t('capture.detail.diet')} />
+                <LockedField icon={<Shield className="w-4 h-4" />} label={t('capture.detail.conservation')} />
+                <LockedField icon={<Leaf className="w-4 h-4" />} label={t('capture.detail.location')} />
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-border bg-card divide-y divide-border/60">
+                <DetailRow icon={<MapPin className="w-4 h-4" />} label={t('capture.detail.habitat')} value={facts.habitat} />
+                <DetailRow icon={<UtensilsCrossed className="w-4 h-4" />} label={t('capture.detail.diet')} value={facts.diet} />
+                <DetailRow icon={<Shield className="w-4 h-4" />} label={t('capture.detail.conservation')} value={card.conservation} />
+                {captureDate && (
+                  <DetailRow icon={<Calendar className="w-4 h-4" />} label={t('capture.detail.capturedOnLabel')} value={captureDate} />
+                )}
+                <DetailRow
+                  icon={<Leaf className="w-4 h-4" />}
+                  label={t('capture.detail.locationLabel')}
+                  value={location || t('capture.detail.notSet')}
+                  action={isOwner && !editingLocation ? (
                     <button
                       onClick={() => { setEditingLocation(true); setLocQuery(''); }}
                       aria-label={location ? t('capture.detail.modify') : t('capture.detail.add')}
@@ -797,80 +797,76 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                     >
                       <Pencil className="w-4 h-4" />
                     </button>
-                  )}
-                </div>
-                {editingLocation ? (
-                  <div className="mt-2 space-y-2">
-                    <input
-                      type="text"
-                      value={locQuery}
-                      onChange={(e) => setLocQuery(e.target.value)}
-                      autoFocus
-                      placeholder={t('capture.detail.locationSearchPlaceholder')}
-                      className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
-                    />
-                    {locLoading && <p className="text-[11px] text-muted-foreground">{t('capture.detail.searching')}</p>}
-                    {locResults.length > 0 && (
-                      <div className="max-h-48 overflow-y-auto rounded-xl border border-border divide-y divide-border">
-                        {locResults.map((c, i) => (
-                          <button
-                            key={`${c.label}-${c.sub}-${i}`}
-                            onClick={() => saveLocation(c.sub ? `${c.label}, ${c.sub}` : c.label, c.coords)}
-                            disabled={savingLocation}
-                            className="w-full text-left px-3 py-2 hover:bg-muted disabled:opacity-60"
-                          >
-                            <span className="block text-sm text-foreground">{c.label}</span>
-                            {c.sub && <span className="block text-[11px] text-muted-foreground">{c.sub}</span>}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                    <div className="flex items-center justify-between pt-1">
-                      {location ? (
-                        <button
-                          onClick={() => saveLocation(null)}
-                          disabled={savingLocation}
-                          className="text-xs font-display font-semibold text-destructive disabled:opacity-60"
-                        >
-                          {t('capture.detail.removeLocation')}
-                        </button>
-                      ) : <span />}
+                  ) : undefined}
+                />
+              </div>
+            )}
+
+            {/* Location editing (owner only) */}
+            {!isUncaptured && editingLocation && (
+              <div className="rounded-2xl border border-border bg-card p-4 space-y-2">
+                <input
+                  type="text"
+                  value={locQuery}
+                  onChange={(e) => setLocQuery(e.target.value)}
+                  autoFocus
+                  placeholder={t('capture.detail.locationSearchPlaceholder')}
+                  className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+                />
+                {locLoading && <p className="text-[11px] text-muted-foreground">{t('capture.detail.searching')}</p>}
+                {locResults.length > 0 && (
+                  <div className="max-h-48 overflow-y-auto rounded-xl border border-border divide-y divide-border">
+                    {locResults.map((c, i) => (
                       <button
-                        onClick={() => { setEditingLocation(false); setLocQuery(''); setLocResults([]); }}
-                        className="px-3 py-1.5 rounded-full text-xs font-display font-semibold bg-muted text-muted-foreground"
+                        key={`${c.label}-${c.sub}-${i}`}
+                        onClick={() => saveLocation(c.sub ? `${c.label}, ${c.sub}` : c.label, c.coords)}
+                        disabled={savingLocation}
+                        className="w-full text-left px-3 py-2 hover:bg-muted disabled:opacity-60"
                       >
-                        {t('capture.detail.cancel')}
+                        <span className="block text-sm text-foreground">{c.label}</span>
+                        {c.sub && <span className="block text-[11px] text-muted-foreground">{c.sub}</span>}
                       </button>
-                    </div>
+                    ))}
                   </div>
-                ) : (
-                  <p className="mt-1 text-sm text-foreground/80">{location || t('capture.detail.notSet')}</p>
                 )}
+                <div className="flex items-center justify-between pt-1">
+                  {location ? (
+                    <button
+                      onClick={() => saveLocation(null)}
+                      disabled={savingLocation}
+                      className="text-xs font-display font-semibold text-destructive disabled:opacity-60"
+                    >
+                      {t('capture.detail.removeLocation')}
+                    </button>
+                  ) : <span />}
+                  <button
+                    onClick={() => { setEditingLocation(false); setLocQuery(''); setLocResults([]); }}
+                    className="px-3 py-1.5 rounded-full text-xs font-display font-semibold bg-muted text-muted-foreground"
+                  >
+                    {t('capture.detail.cancel')}
+                  </button>
+                </div>
               </div>
             )}
 
 
-            {/* Fun Fact */}
-            <div className={`relative overflow-hidden rounded-2xl border ${isGold ? 'border-rarity-gold/30 bg-rarity-gold/5' : isSilver ? 'border-rarity-silver/30 bg-rarity-silver/5' : 'border-border bg-muted/30'} ${isUncaptured ? 'opacity-70' : ''}`}>
-              <div className="px-4 py-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${isGold ? 'bg-rarity-gold/15' : 'bg-primary/15'}`}>
-                    <Sparkles className={`w-4 h-4 ${isGold ? 'text-rarity-gold' : 'text-primary'}`} />
-                  </div>
-                  <p className={`text-xs font-display font-bold uppercase tracking-wider ${isGold ? 'text-rarity-gold' : 'text-muted-foreground'}`}>
+            {/* Fun Fact — léger, sans encadré */}
+            {isUncaptured ? (
+              <div className="flex items-center justify-center gap-2 text-muted-foreground/50">
+                <Lock className="w-3.5 h-3.5" />
+                <p className="text-sm italic">{t('capture.detail.hiddenFact')}</p>
+              </div>
+            ) : (
+              <div className="px-1">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <Sparkles className="w-4 h-4 text-primary" />
+                  <p className="text-xs font-display font-bold uppercase tracking-wider text-muted-foreground">
                     {t('capture.detail.didYouKnow')}
                   </p>
                 </div>
-                {isUncaptured ? (
-                  <div className="flex items-center gap-2 text-muted-foreground/50">
-                    <Lock className="w-3.5 h-3.5" />
-                    <p className="text-sm italic">{t('capture.detail.hiddenFact')}</p>
-                  </div>
-                ) : (
-                  <p className="text-sm text-foreground/80 leading-relaxed">{facts.funFact}</p>
-                )}
+                <p className="text-sm text-foreground/80 leading-relaxed">{facts.funFact}</p>
               </div>
-            </div>
+            )}
 
             {/* Personal note (owner only) */}
             {isOwner && (
@@ -1062,20 +1058,17 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
   );
 };
 
-const StatCard = ({ icon, label, value, color, bg, link }: {
-  icon: React.ReactNode; label: string; value: string; color: string; bg: string; link?: string;
-}) => {
-  const content = (
-    <div className={`${bg} rounded-xl p-3 space-y-1.5`}>
-      <div className="flex items-center gap-1.5">
-        <span className={color}>{icon}</span>
-        <p className="text-[10px] font-display font-bold uppercase tracking-wider text-muted-foreground">{label}</p>
-      </div>
-      <p className={`text-xs leading-snug ${link ? 'text-primary underline' : 'text-foreground'}`}>{value}</p>
+const DetailRow = ({ icon, label, value, action }: {
+  icon: React.ReactNode; label: string; value: string; action?: React.ReactNode;
+}) => (
+  <div className="flex items-start gap-3 px-4 py-3">
+    <span className="mt-0.5 text-muted-foreground">{icon}</span>
+    <div className="flex-1 min-w-0">
+      <p className="text-[10px] font-display font-bold uppercase tracking-wider text-muted-foreground">{label}</p>
+      <p className="text-sm text-foreground/85 leading-snug mt-0.5">{value}</p>
     </div>
-  );
-  if (link) return <a href={link} target="_blank" rel="noopener noreferrer">{content}</a>;
-  return content;
-};
+    {action}
+  </div>
+);
 
 export default CardDetailSheet;

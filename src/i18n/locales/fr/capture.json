@@ -189,6 +189,7 @@
       "location": "Lieu",
       "notProvided": "Non renseigné",
       "locationLabel": "Localisation",
+      "capturedOnLabel": "Date de capture",
       "modify": "Modifier",
       "add": "Ajouter",
       "searching": "Recherche…",
