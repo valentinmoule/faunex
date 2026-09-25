@@ -653,12 +653,12 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
 
             {/* Like & Comment bar — hidden for undiscovered animals */}
             {!isUncaptured && (
-              <div className="flex items-center justify-center gap-6">
-                <button onClick={handleLike} className="flex items-center gap-2 group">
+              <div className="flex items-center justify-center gap-4">
+                <button onClick={handleLike} className="flex w-11 h-11 items-center justify-center gap-2 group">
                   <Heart className={`w-6 h-6 transition-all ${liked ? 'fill-destructive text-destructive scale-110' : 'text-muted-foreground group-hover:text-destructive'}`} />
                   <span className={`text-sm font-display font-semibold ${liked ? 'text-destructive' : 'text-muted-foreground'}`}>{likeCount}</span>
                 </button>
-                <button onClick={() => setShowComments(!showComments)} className="flex items-center gap-2 group">
+                <button onClick={() => setShowComments(!showComments)} className="flex w-11 h-11 items-center justify-center gap-2 group">
                   <MessageCircle className={`w-6 h-6 transition-colors ${showComments ? 'text-primary fill-primary/20' : 'text-muted-foreground group-hover:text-primary'}`} />
                   <span className={`text-sm font-display font-semibold ${showComments ? 'text-primary' : 'text-muted-foreground'}`}>{commentCount}</span>
                 </button>
