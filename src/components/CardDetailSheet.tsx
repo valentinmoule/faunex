@@ -1013,7 +1013,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
               </div>
             ) : (
               <div className="detail-funfact">
-                <div className="relative mb-2 flex items-center gap-2">
+                <div className="relative mb-2.5 flex items-center justify-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary">
                     <Sparkles className="h-3.5 w-3.5" />
                   </span>
@@ -1021,7 +1021,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                     {t('capture.detail.didYouKnow')}
                   </p>
                 </div>
-                <p className="relative text-[15px] leading-relaxed text-foreground/85">{facts.funFact}</p>
+                <p className="relative text-sm text-foreground/80 leading-relaxed text-center max-w-sm mx-auto">{facts.funFact}</p>
               </div>
             )}
 
