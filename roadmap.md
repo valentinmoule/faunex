@@ -12,3 +12,7 @@
 - [x] Bestiaire : Bestiaire / Collections / Classement
 - [x] Compatibilité des anciens liens et validation mobile
 - [x] Remplacer la page Profil par un tiroir partagé dans les trois en-têtes
+
+## Compte de test toutes raretés
+- [ ] Créer valentinmoulay+all@gmail.com et huit captures de raretés distinctes
+- [ ] Masquer ce compte des explorateurs, classements et statistiques d'activité
