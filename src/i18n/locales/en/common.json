@@ -37,7 +37,7 @@
   },
   "settings": {
     "title": "Settings",
-    "editProfile": "Edit profile",
+    "editProfile": "Profile",
     "changePassword": "Change password",
     "deleteAccount": "Delete account",
     "premium": "Faunex Premium",
@@ -47,6 +47,7 @@
     "privacy": "Privacy policy",
     "signOut": "Sign out",
     "deleteMyAccount": "Delete my account",
-    "signedOut": "Signed out"
+    "signedOut": "Signed out",
+    "notifications": "Notifications"
   }
 }
