@@ -95,8 +95,9 @@ const ProfileBadgesRow = ({ userId, level, regionsExplored, onOpenAll, onClaimed
                   size={48}
                 />
                 <span className={`w-full truncate text-center text-[9px] ${ready ? 'font-bold text-primary' : 'text-muted-foreground'}`}>
-                  {ready ? `+${entry.badge.xp} XP` : entry.badge.name}
+                  {entry.badge.name}
                 </span>
+
               </button>
             );
           })
