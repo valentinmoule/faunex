@@ -547,6 +547,9 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
   const cardFx = RARITY_FX[normalizedRarity];
   const isGold = !isUncaptured && cardFx === 'gold';
   const isSilver = !isUncaptured && cardFx === 'silver';
+  const captureDate = card?.created_at
+    ? new Intl.DateTimeFormat(i18n.language, { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(card.created_at))
+    : null;
   const isRare = !isUncaptured && cardFx === 'ink' && (normalizedRarity === 'rare' || normalizedRarity === 'very_rare');
   const heroFamily = normalizedRarity.replace(/_/g, '-');
   const isShiny = isSilver || isGold;
@@ -1055,20 +1058,17 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
   );
 };
 
-const StatCard = ({ icon, label, value, color, bg, link }: {
-  icon: React.ReactNode; label: string; value: string; color: string; bg: string; link?: string;
-}) => {
-  const content = (
-    <div className={`${bg} rounded-xl p-3 space-y-1.5`}>
-      <div className="flex items-center gap-1.5">
-        <span className={color}>{icon}</span>
-        <p className="text-[10px] font-display font-bold uppercase tracking-wider text-muted-foreground">{label}</p>
-      </div>
-      <p className={`text-xs leading-snug ${link ? 'text-primary underline' : 'text-foreground'}`}>{value}</p>
+const DetailRow = ({ icon, label, value, action }: {
+  icon: React.ReactNode; label: string; value: string; action?: React.ReactNode;
+}) => (
+  <div className="flex items-start gap-3 px-4 py-3">
+    <span className="mt-0.5 text-muted-foreground">{icon}</span>
+    <div className="flex-1 min-w-0">
+      <p className="text-[10px] font-display font-bold uppercase tracking-wider text-muted-foreground">{label}</p>
+      <p className="text-sm text-foreground/85 leading-snug mt-0.5">{value}</p>
     </div>
-  );
-  if (link) return <a href={link} target="_blank" rel="noopener noreferrer">{content}</a>;
-  return content;
-};
+    {action}
+  </div>
+);
 
 export default CardDetailSheet;
