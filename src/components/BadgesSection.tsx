@@ -46,7 +46,7 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
       )}
 
       <div className="grid grid-cols-2 gap-x-3 gap-y-6">
-        {ordered.map(({ badge, progress, earned, claimed }, i) => {
+        {ordered.map(({ badge, progress, earned, claimed, claimedAt }, i) => {
           const readyToClaim = earned && !claimed;
           return (
             <button
