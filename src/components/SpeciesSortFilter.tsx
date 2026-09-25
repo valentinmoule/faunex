@@ -37,7 +37,11 @@ export const popularityTierOf = (n: number): PopularityTier =>
   n <= 0 ? 'none' : n < 5 ? 'rare' : n < 25 ? 'common' : n < 100 ? 'trending' : 'hot';
 
 /** Icône vectorielle de la catégorie d'une espèce (remplace les emojis sur les cartes). */
+/** Pseudo-catégorie « Favoris » (Premium) dans le filtre de mes captures. */
+export const FAVORITES_FILTER = '__favorites';
+
 export const SpeciesCategoryIcon = ({ category, className }: { category: string; className?: string }) => {
+  if (category === FAVORITES_FILTER) return <Bookmark className={className} />;
   const Icon = getCategoryIcon(category);
   return <Icon className={className} strokeWidth={1.5} />;
 };
@@ -265,7 +269,7 @@ export const SpeciesSortFilterSheet = ({
                       )
                     }
                     leading={<SpeciesCategoryIcon category={cat.name} className="w-[18px] h-[18px]" />}
-                    label={categoryLabel(cat.name)}
+                    label={cat.name === FAVORITES_FILTER ? t('bestiary.collections.favorites') : categoryLabel(cat.name)}
                     trailing={cat.total}
                   />
                 );
