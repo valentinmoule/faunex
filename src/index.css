@@ -3091,25 +3091,20 @@ html.is-native-android body {
   isolation: auto;
   overflow: visible;
 }
-/* Halo sombre flouté derrière les étoiles pour le contraste sur photo,
-   sans former de pastille ni de tag visible. */
-.rarity-badge.rarity-badge--plain::before {
-  content: "";
-  position: absolute;
-  inset: -5px -8px;
-  border-radius: 999px;
-  background: hsl(0 0% 0% / 0.38);
-  filter: blur(6px);
-  -webkit-filter: blur(6px);
-  z-index: -1;
-  pointer-events: none;
-}
+/* Aucun voile ni reflet : le contraste vient du contour des étoiles. */
+.rarity-badge.rarity-badge--plain::before,
 .rarity-badge.rarity-badge--plain::after {
   content: none;
 }
 .rarity-badge.rarity-badge--plain .rarity-svg__sym {
   /* Aucune ombre : la brillance vient uniquement du dégradé métallique. */
   filter: none;
+  /* Contour sombre peint sous le remplissage : les étoiles restent
+     pleines et se détachent sur les photos claires comme sombres. */
+  stroke: hsl(222 22% 8% / 0.9);
+  stroke-width: 1.8px;
+  stroke-linejoin: round;
+  paint-order: stroke fill markers;
 }
 .rarity-badge.rarity-badge--plain .rarity-badge__label {
   color: hsl(0 0% 100%);

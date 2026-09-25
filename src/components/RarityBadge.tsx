@@ -75,7 +75,11 @@ export const RarityBadge = ({
   const uid = useId();
   const count = SYMBOL_COUNT[r] ?? 1;
   const gap = 2;
-  const width = count * 12 + (count - 1) * gap;
+  /* Marge de sécurité pour que le contour sombre des étoiles ne soit pas
+     rogné par la boîte SVG (les branches touchent les bords du motif). */
+  const pad = plain ? 1.2 : 0;
+  const width = count * 12 + (count - 1) * gap + pad * 2;
+  const height = 12 + pad * 2;
   const fill =
     fx === 'ink'
       ? FLAT_FILL[r] ?? 'hsl(225 15% 18%)'
@@ -90,8 +94,8 @@ export const RarityBadge = ({
       <svg
         className="rarity-badge__symbols"
         width={width}
-        height={12}
-        viewBox={`0 0 ${width} 12`}
+        height={height}
+        viewBox={`0 0 ${width} ${height}`}
         aria-hidden="true"
       >
         {fx !== 'ink' && (
@@ -108,7 +112,7 @@ export const RarityBadge = ({
             key={i}
             className="rarity-svg__sym"
             d={STAR_PATH}
-            transform={`translate(${i * (12 + gap)}, 0)`}
+            transform={`translate(${pad + i * (12 + gap)}, ${pad})`}
             fill={fill}
           />
         ))}
