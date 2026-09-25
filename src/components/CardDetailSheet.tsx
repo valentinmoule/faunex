@@ -548,12 +548,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
   const isGold = !isUncaptured && cardFx === 'gold';
   const isSilver = !isUncaptured && cardFx === 'silver';
   const isRare = !isUncaptured && cardFx === 'ink' && (normalizedRarity === 'rare' || normalizedRarity === 'very_rare');
-  /** Famille de fond du hero : chaque rareté a toujours un background. */
-  const heroFamily = isGold ? 'gold'
-    : isSilver ? 'silver'
-    : isRare ? (normalizedRarity === 'very_rare' ? 'very-rare' : 'rare')
-    : normalizedRarity === 'uncommon' ? 'uncommon'
-    : 'common';
+  const heroFamily = normalizedRarity.replace(/_/g, '-');
   const isShiny = isSilver || isGold;
 
   const detailAppearClass = isGold
@@ -581,37 +576,6 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
             <div className="h-full overflow-y-auto">
           <div className={`relative overflow-hidden detail-hero-${heroFamily}`} style={{ zIndex: 0 }}>
             
-            {/* Mythic: blurred aurora orbs + light leak */}
-            {isGold && (
-              <>
-                <div className="detail-gold-orb-1 pointer-events-none" />
-                <div className="detail-gold-orb-2 pointer-events-none" />
-                <div className="detail-gold-orb-3 pointer-events-none" />
-                <div className="detail-gold-vignette pointer-events-none" />
-                <div className="detail-gold-leak" />
-                <div className="detail-gold-geo" />
-              </>
-            )}
-            {isSilver && (
-              <>
-                <div className="detail-silver-orb-1 pointer-events-none" />
-                <div className="detail-silver-orb-2 pointer-events-none" />
-                <div className="detail-silver-orb-3 pointer-events-none" />
-                <div className="detail-silver-vignette pointer-events-none" />
-                <div className="detail-silver-leak" />
-                <div className="detail-silver-geo" />
-              </>
-            )}
-            {isRare && (
-              <>
-                <div className="detail-rare-orb-1 pointer-events-none" />
-                <div className="detail-rare-orb-2 pointer-events-none" />
-                <div className="detail-rare-vignette pointer-events-none" />
-                <div className="detail-rare-leak" />
-                <div className="detail-rare-geo" />
-              </>
-            )}
-
             <div className="relative z-10 pt-14 px-6 pb-0">
               <HolographicCard
                 rarity={card.rarity}
@@ -1000,9 +964,6 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
           onTouchMove={handleFullscreenTouchMove}
           onTouchEnd={handleFullscreenTouchEnd}
         >
-          {/* Stable fullscreen backdrop: the holo effect itself stays on the card only. */}
-          <div className="absolute inset-0 bg-black/90 pointer-events-none" />
-
           <div
             className="relative w-full h-full max-w-[min(100vw,100vh)] max-h-screen z-10 flex items-center justify-center p-4 pointer-events-none"
           >
