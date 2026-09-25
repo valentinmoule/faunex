@@ -22,6 +22,7 @@
       },
       "drawer": {
         "open": "Ouvrir mon profil",
+        "changePhoto": "Changer ma photo de profil",
         "accountSettings": "Paramètres du compte",
         "premiumTitle": "Passe Premium",
         "premiumSubtitle": "Captures et collections illimitées",

@@ -22,6 +22,7 @@
       },
       "drawer": {
         "open": "Open my profile",
+        "changePhoto": "Change my profile photo",
         "accountSettings": "Account settings",
         "premiumTitle": "Go Premium",
         "premiumSubtitle": "Unlimited captures and collections",
