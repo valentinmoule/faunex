@@ -20,8 +20,6 @@ export interface CollectionTileProps {
   claiming?: boolean;
   onOpen: () => void;
   onClaim: () => void;
-  /** Masque la pastille XP (ex. Favoris, sans récompense). */
-  hideReward?: boolean;
 }
 
 /**
@@ -42,7 +40,6 @@ const CollectionTile = ({
   claiming,
   onOpen,
   onClaim,
-  hideReward,
 }: CollectionTileProps) => {
   const { t } = useTranslation();
   const pct = total > 0 ? Math.round((captured / total) * 100) : 0;
@@ -129,7 +126,7 @@ const CollectionTile = ({
 
         {/* Pastille XP posée en bas de l'écusson, hors de la zone détourée
             pour ne jamais être rognée (masquée une fois réclamée) */}
-        {!hideReward && (readyToClaim || !claimed) && (
+        {(readyToClaim || !claimed) && (
           <div className="absolute bottom-0 left-1/2 z-10 -translate-x-1/2 translate-y-1/2">
             {readyToClaim ? (
               <button
