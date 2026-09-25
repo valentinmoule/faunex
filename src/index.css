@@ -2696,7 +2696,7 @@ html.is-native-android body {
   content: none;
 }
 .game-tile.tile-grid-2 {
-  --tile-border-width: 4px;
+  --tile-border-width: 5px;
   --tile-radius: 0.75rem;
 }
 .game-tile.tile-grid-3 {
