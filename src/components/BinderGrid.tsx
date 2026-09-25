@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useLayoutEffect, useState } from 'react';
 
 /**
  * 3-column grid that plays a "cards slid into binder sleeves" intro
@@ -6,14 +6,29 @@ import { ReactNode, useEffect, useState } from 'react';
  * changes don't replay it.
  */
 export function BinderGrid({ introKey, children }: { introKey: string; children: ReactNode }) {
-  const [intro, setIntro] = useState(true);
-  useEffect(() => {
-    setIntro(true);
-    const t = window.setTimeout(() => setIntro(false), 1400);
-    return () => window.clearTimeout(t);
+  const [phase, setPhase] = useState<'preparing' | 'playing' | 'settled'>('preparing');
+
+  useLayoutEffect(() => {
+    setPhase('preparing');
+    let secondFrame = 0;
+    const firstFrame = window.requestAnimationFrame(() => {
+      secondFrame = window.requestAnimationFrame(() => setPhase('playing'));
+    });
+    const settleTimer = window.setTimeout(() => setPhase('settled'), 1450);
+
+    return () => {
+      window.cancelAnimationFrame(firstFrame);
+      window.cancelAnimationFrame(secondFrame);
+      window.clearTimeout(settleTimer);
+    };
   }, [introKey]);
+
   return (
-    <div key={introKey} className={`grid grid-cols-3 gap-2 ${intro ? 'binder-intro' : ''}`}>
+    <div
+      key={introKey}
+      className={`grid grid-cols-3 gap-2 binder-grid binder-grid--${phase}`}
+      aria-live="polite"
+    >
       {children}
     </div>
   );
