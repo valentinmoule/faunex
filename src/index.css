@@ -2173,10 +2173,11 @@
 .holo-very-rare .holo-glare {
   background-image: radial-gradient(
     farthest-corner circle at var(--pointer-x) var(--pointer-y),
-    hsla(0, 0%, 100%, 0.8) 10%,
-    hsla(0, 0%, 100%, 0.5) 20%,
-    hsla(0, 0%, 0%, 0.75) 90%);
-  filter: brightness(0.75) contrast(1.5);
+    hsla(0, 0%, 100%, 0.45) 10%,
+    hsla(0, 0%, 100%, 0.25) 20%,
+    hsla(0, 0%, 0%, 0.5) 90%);
+  filter: brightness(0.9) contrast(1.3);
+  opacity: 0.75;
 }
 
 /* ───────────── EPIC → Cosmos / Galaxy Holo ───────────── */
