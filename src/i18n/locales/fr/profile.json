@@ -25,7 +25,12 @@
         "accountSettings": "Paramètres du compte",
         "premiumTitle": "Passe Premium",
         "premiumSubtitle": "Captures et collections illimitées",
-        "premiumCta": "Découvrir Premium"
+        "premiumCta": "Découvrir Premium",
+        "badgesTitle": "Badges",
+        "badgesSeeAll": "Voir tous les badges",
+        "badgesEmpty": "Aucun badge pour l'instant",
+        "badgeClaim": "Récupérer {{name}}",
+        "badgeClaimed": "Badge récupéré : +{{xp}} XP"
       }
     },
     "quests": {
