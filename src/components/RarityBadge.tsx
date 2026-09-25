@@ -13,7 +13,7 @@ const fxVariant = {
   gold: 'rarity-badge--gold',
 } as const;
 
-/** Nombre de symboles par rareté : 1–3 ★ plates grises, 1–3 ★ argent, 1–2 ★ or. */
+/** Nombre de symboles par rareté : 1–3 ★ grises, 1–3 ★ dorées, 1–2 ★ irisées. */
 const SYMBOL_COUNT: Record<Rarity, number> = {
   common: 1,
   uncommon: 2,
@@ -35,28 +35,47 @@ const SYMBOL_COUNT: Record<Rarity, number> = {
 const STAR_PATH =
   'M6 0 L7.88 3.41 L11.71 4.15 L9.05 6.99 L9.53 10.85 L6 9.2 L2.47 10.85 L2.95 6.99 L0.29 4.15 L4.12 3.41 Z';
 
-const GOLD_STOPS = [
-  ['0%', '#ffe98a'],
-  ['45%', '#f5b301'],
-  ['70%', '#ffd23e'],
-  ['100%', '#c47f0a'],
-] as const;
+/** Reflets métalliques identiques aux trois finitions des contours de carte. */
+const METAL_STOPS = {
+  gray: [
+    ['0%', '--rarity-icon-gray-dark'],
+    ['20%', '--rarity-icon-gray-light'],
+    ['37%', '--rarity-icon-gray-mid'],
+    ['55%', '--rarity-icon-gray-light'],
+    ['76%', '--rarity-icon-gray-dark'],
+    ['100%', '--rarity-icon-gray-mid'],
+  ],
+  gold: [
+    ['0%', '--rarity-icon-gold-dark'],
+    ['20%', '--rarity-icon-gold-light'],
+    ['38%', '--rarity-icon-gold-mid'],
+    ['55%', '--rarity-icon-gold-light'],
+    ['78%', '--rarity-icon-gold-dark'],
+    ['100%', '--rarity-icon-gold-mid'],
+  ],
+  iridescent: [
+    ['0%', '--rarity-icon-pearl-gray'],
+    ['18%', '--rarity-icon-pearl-pink'],
+    ['36%', '--rarity-icon-pearl-blue'],
+    ['52%', '--rarity-icon-pearl-light'],
+    ['72%', '--rarity-icon-pearl-pink'],
+    ['88%', '--rarity-icon-pearl-blue'],
+    ['100%', '--rarity-icon-pearl-gray'],
+  ],
+} as const;
 
-const SILVER_STOPS = [
-  ['0%', '#f8fafc'],
-  ['45%', '#94a3b8'],
-  ['70%', '#e2e8f0'],
-  ['100%', '#64748b'],
-] as const;
-
-/** Couleur plate (sans dégradé) des trois premiers paliers : gris simple. */
-const FLAT_FILL: Partial<Record<Rarity, string>> = {
-  common: 'hsl(215 16% 47%)',
-  uncommon: 'hsl(215 16% 47%)',
-  rare: 'hsl(215 16% 47%)',
+const METAL_BY_RARITY: Record<Rarity, keyof typeof METAL_STOPS> = {
+  common: 'gray',
+  uncommon: 'gray',
+  rare: 'gray',
+  very_rare: 'gold',
+  ultra_rare: 'gold',
+  illustration_rare: 'gold',
+  special_rare: 'iridescent',
+  hyper_rare: 'iridescent',
 };
 
-/** Jeton de rareté : 1–3 ★ plates grises (paliers bas), 1–3 ★ argent holo, 1–2 ★ or holo. */
+/** Jeton de rareté : les étoiles reprennent les trois finitions des cartes. */
 export const RarityBadge = ({
   rarity,
   className,
@@ -73,6 +92,7 @@ export const RarityBadge = ({
   const r = normalizeRarity(rarity);
   const fx = RARITY_FX[r];
   const uid = useId();
+  const metal = METAL_BY_RARITY[r];
   const count = SYMBOL_COUNT[r] ?? 1;
   const gap = 2;
   /* Marge de sécurité pour que le contour sombre des étoiles ne soit pas
@@ -80,10 +100,7 @@ export const RarityBadge = ({
   const pad = plain ? 1.2 : 0;
   const width = count * 12 + (count - 1) * gap + pad * 2;
   const height = 12 + pad * 2;
-  const fill =
-    fx === 'ink'
-      ? FLAT_FILL[r] ?? 'hsl(225 15% 18%)'
-      : `url(#${uid}-${fx})`;
+  const fill = `url(#${uid}-${metal})`;
 
   return (
     <span
@@ -98,15 +115,13 @@ export const RarityBadge = ({
         viewBox={`0 0 ${width} ${height}`}
         aria-hidden="true"
       >
-        {fx !== 'ink' && (
-          <defs>
-            <linearGradient id={`${uid}-${fx}`} x1="0" y1="0" x2="1" y2="1">
-              {(fx === 'silver' ? SILVER_STOPS : GOLD_STOPS).map(([off, col]) => (
-                <stop key={off} offset={off} stopColor={col} />
-              ))}
-            </linearGradient>
-          </defs>
-        )}
+        <defs>
+          <linearGradient id={`${uid}-${metal}`} x1="0" y1="0" x2="1" y2="1">
+            {METAL_STOPS[metal].map(([off, token]) => (
+              <stop key={off} offset={off} stopColor={`hsl(var(${token}))`} />
+            ))}
+          </linearGradient>
+        </defs>
         {Array.from({ length: count }).map((_, i) => (
           <path
             key={i}
