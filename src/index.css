@@ -2976,8 +2976,19 @@ html.is-native-android body {
   stroke-linejoin: round;
   paint-order: stroke fill markers;
 }
-.holo-frame--fullscreen .rarity-badge--plain {
-  transform: scale(1.6);
+.holo-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+.holo-fullscreen-rarity {
+  position: absolute;
+  top: 22px;
+  right: 22px;
+}
+.holo-fullscreen-rarity .rarity-badge--plain {
+  transform: scale(2);
   transform-origin: top right;
 }
 .rarity-badge.rarity-badge--plain .rarity-badge__label {
