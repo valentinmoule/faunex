@@ -726,12 +726,9 @@ serve(async (req) => {
       (CONFUSABLE.test(label) && confidence < 70);
 
     if (needsDeep) {
-      // L'upstream se bloque parfois : sans résultat de la passe rapide, un
-      // abandon ici renvoie une erreur technique à l'utilisateur. On s'autorise
-      // donc UNE relance (requête neuve, qui répond en général en 2 s) dans ce
-      // seul cas — quand la passe rapide a déjà un résultat, on garde un unique
-      // appel pour ne pas payer deux fois. Budget max : 18 s + 13 s + 15 s + 12 s
-      // = 58 s, sous le délai client (65 s).
+      // Quand la passe rapide n'a aucun résultat, une seule reprise est permise
+      // après un retour explicitement temporaire du service. Une réponse rapide
+      // déjà exploitable ne déclenche jamais de seconde tentative profonde.
       const deep = await tryModel(
         DEEP_MODEL,
         animalData ? 1 : 2,
