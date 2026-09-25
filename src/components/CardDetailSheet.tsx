@@ -850,21 +850,24 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
             )}
 
 
-            {/* Fun Fact — léger, sans encadré */}
+            {/* Fun Fact — anecdote mise en avant */}
             {isUncaptured ? (
-              <div className="flex items-center justify-center gap-2 text-muted-foreground/50">
+              <div className="flex items-center justify-center gap-2 rounded-2xl border border-dashed border-border bg-muted/30 px-4 py-3.5 text-muted-foreground/60">
                 <Lock className="w-3.5 h-3.5" />
                 <p className="text-sm italic">{t('capture.detail.hiddenFact')}</p>
               </div>
             ) : (
-              <div className="px-1">
-                <div className="flex items-center gap-2 mb-1.5">
-                  <Sparkles className="w-4 h-4 text-primary" />
-                  <p className="text-xs font-display font-bold uppercase tracking-wider text-muted-foreground">
+              <div className="detail-funfact">
+                <Leaf className="pointer-events-none absolute -bottom-4 -right-3 h-24 w-24 text-primary/10" aria-hidden="true" />
+                <div className="relative mb-2 flex items-center gap-2">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <Sparkles className="h-3.5 w-3.5" />
+                  </span>
+                  <p className="text-[11px] font-display font-bold uppercase tracking-[0.14em] text-primary">
                     {t('capture.detail.didYouKnow')}
                   </p>
                 </div>
-                <p className="text-sm text-foreground/80 leading-relaxed">{facts.funFact}</p>
+                <p className="relative text-[15px] leading-relaxed text-foreground/85">{facts.funFact}</p>
               </div>
             )}
 
