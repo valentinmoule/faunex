@@ -64,14 +64,15 @@ const METALS: Record<Metal, Array<[number, string]>> = {
 };
 
 const RARITY: Record<Rarity, { frame: FrameKind; stars: number; metal: Metal; holo: number }> = {
-  common: { frame: 'neutral', stars: 1, metal: 'gray', holo: 0.1 },
-  uncommon: { frame: 'neutral', stars: 2, metal: 'gray', holo: 0.1 },
-  rare: { frame: 'neutral', stars: 3, metal: 'gray', holo: 0.22 },
-  very_rare: { frame: 'gold', stars: 1, metal: 'gold', holo: 0.2 },
-  ultra_rare: { frame: 'gold', stars: 2, metal: 'gold', holo: 0.34 },
-  illustration_rare: { frame: 'gold', stars: 3, metal: 'gold', holo: 0.4 },
-  special_rare: { frame: 'mythic', stars: 1, metal: 'iridescent', holo: 0.44 },
-  hyper_rare: { frame: 'legendary', stars: 2, metal: 'iridescent', holo: 0.5 },
+  common: { frame: 'neutral', stars: 1, metal: 'gray', holo: 0.06 },
+  uncommon: { frame: 'neutral', stars: 2, metal: 'gray', holo: 0.06 },
+  rare: { frame: 'neutral', stars: 3, metal: 'gray', holo: 0.12 },
+  very_rare: { frame: 'gold', stars: 1, metal: 'gold', holo: 0.1 },
+  ultra_rare: { frame: 'gold', stars: 2, metal: 'gold', holo: 0.18 },
+  illustration_rare: { frame: 'gold', stars: 3, metal: 'gold', holo: 0.22 },
+  // Mythique et Légendaire : alignées sur le voile allégé des fiches de l'app
+  special_rare: { frame: 'mythic', stars: 1, metal: 'iridescent', holo: 0.16 },
+  hyper_rare: { frame: 'legendary', stars: 2, metal: 'iridescent', holo: 0.22 },
 };
 
 /* Étoile identique au SVG de RarityBadge (boîte 12×12, bras épais).
