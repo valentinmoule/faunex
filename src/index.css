@@ -2394,7 +2394,8 @@
   background-size: 160% 160%;
   background-position: var(--background-x) var(--background-y);
   background-blend-mode: normal;
-  filter: brightness(0.9) contrast(1.2) saturate(2.2);
+  filter: brightness(1) contrast(1.05) saturate(1.5);
+  opacity: 0.35;
 }
 .holo-hyper-rare .holo-shine::before,
 .holo-hyper-rare .holo-shine::after {
