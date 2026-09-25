@@ -1399,30 +1399,35 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
     const showMineControls = myCapturedAnimals.length > 0 || mineSearch.trim().length > 0 || mineActiveFilterCount > 0;
     return (
       <main className="min-h-screen bg-background pb-24">
-        <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
-          <div className="max-w-lg mx-auto">
-            <div className="flex items-center justify-between">
-               <h1 className="text-2xl font-display font-bold text-primary">
-                 {viewMode === 'leaderboard' ? t('social.leaderboard.ranking') : isFaunexHub ? t('bestiary.header.title') : t('bestiary.header.bestiaryTitle')}
-               </h1>
-              <div className="flex items-center gap-2">
-                <CaptureQuotaBadge userId={session?.user?.id} isPremium={isPremium} />
-                <button
-                  onClick={() => navigate('/notifications')}
-                  className="relative p-2 rounded-full hover:bg-muted transition-colors"
-                >
-                  <Bell className="w-5 h-5 text-foreground" />
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center">
-                      {unreadCount > 9 ? '9+' : unreadCount}
-                    </span>
-                  )}
-                </button>
-                <ProfileButton />
+        {/* La page des badges se passe d'en-tête : un simple espace pour la barre d'état */}
+        {viewMode === 'badges' ? (
+          <div aria-hidden className="h-[max(env(safe-area-inset-top),1rem)]" />
+        ) : (
+          <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
+            <div className="max-w-lg mx-auto">
+              <div className="flex items-center justify-between">
+                <h1 className="text-2xl font-display font-bold text-primary">
+                  {viewMode === 'leaderboard' ? t('social.leaderboard.ranking') : isFaunexHub ? t('bestiary.header.title') : t('bestiary.header.bestiaryTitle')}
+                </h1>
+                <div className="flex items-center gap-2">
+                  <CaptureQuotaBadge userId={session?.user?.id} isPremium={isPremium} />
+                  <button
+                    onClick={() => navigate('/notifications')}
+                    className="relative p-2 rounded-full hover:bg-muted transition-colors"
+                  >
+                    <Bell className="w-5 h-5 text-foreground" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-0.5 -right-0.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    )}
+                  </button>
+                  <ProfileButton />
+                </div>
               </div>
             </div>
-          </div>
-        </PageHeader>
+          </PageHeader>
+        )}
 
         <div className="max-w-lg mx-auto px-4 pt-4 space-y-6">
 
