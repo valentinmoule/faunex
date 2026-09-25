@@ -163,6 +163,7 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
           progress: stats.captured,
           earned: stats.captured >= stats.total,
           claimed: claimedSet.has(def.id),
+          claimedAt: claimedSet.has(def.id) ? claimedAtMap.get(def.id) ?? null : null,
         }];
       }).sort((a, b) => a.badge.name.localeCompare(b.badge.name, 'fr'));
 
@@ -191,6 +192,7 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
             progress: r.rank === 1 ? 1 : claimedSet.has(def.id) ? 1 : 0,
             earned: r.rank === 1 || claimedSet.has(def.id),
             claimed: claimedSet.has(def.id),
+            claimedAt: claimedSet.has(def.id) ? claimedAtMap.get(def.id) ?? null : null,
           };
         });
 
@@ -241,6 +243,7 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
         progress: progressMap[b.id] || 0,
         earned: (progressMap[b.id] || 0) >= b.total,
         claimed: claimedSet.has(b.id),
+        claimedAt: claimedSet.has(b.id) ? claimedAtMap.get(b.id) ?? null : null,
       }));
 
       const next = [...staticBadges, ...collectionBadges, ...rankBadges];
