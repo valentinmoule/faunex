@@ -16,7 +16,6 @@ import RarityBadge from '@/components/RarityBadge';
 import FindersBadge from '@/components/FindersBadge';
 import { hapticTap } from '@/lib/haptics';
 import { toast } from '@/hooks/use-toast';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Trash2, Share2, Bookmark } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useFavorites } from '@/hooks/useFavorites';
