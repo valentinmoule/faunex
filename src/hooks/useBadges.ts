@@ -91,7 +91,7 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
         setLoading(true);
       }
 
-      const [capturesRes, claimedRes, followersRes, followingRes, catalogue] = await Promise.all([
+      const [capturesRes, claimedRes, followersRes, followingRes, catalogue, premiumRes] = await Promise.all([
         fetchAllRows<any>((from, to) =>
           supabase
             .from('captures')
@@ -105,6 +105,7 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
         supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('following_id', userId),
         supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('follower_id', userId),
         fetchCatalogue(),
+        supabase.rpc('is_premium', { p_user_id: userId }),
       ]);
 
       if (cancelled) return;
@@ -232,6 +233,7 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
         followers_5: Math.min(followers, 5),
         followers_25: Math.min(followers, 25),
         [COMMUNITY_BADGE_ID]: claimedSet.has(COMMUNITY_BADGE_ID) ? 1 : 0,
+        premium_member: premiumRes.data || claimedSet.has('premium_member') ? 1 : 0,
       };
 
       const allStaticBadges: BadgeDef[] = [
