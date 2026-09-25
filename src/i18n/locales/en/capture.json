@@ -100,7 +100,7 @@
 
     },
     "alsoPossible": "Also possible: {{alternatives}}",
-    "requestVerification": "This isn't the right animal — Request verification",
+    "requestVerification": "This isn't the right animal",
     "technicalFailure": {
       "title": "Analysis interrupted",
       "retry": "Retry analysis",

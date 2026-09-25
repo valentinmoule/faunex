@@ -100,7 +100,7 @@
 
     },
     "alsoPossible": "Aussi possible : {{alternatives}}",
-    "requestVerification": "Ce n'est pas le bon animal — Demander une vérification",
+    "requestVerification": "Ce n'est pas le bon animal",
     "technicalFailure": {
       "title": "Analyse interrompue",
       "retry": "Relancer l'analyse",
