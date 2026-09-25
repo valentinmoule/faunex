@@ -2667,7 +2667,13 @@ html.is-native-android body {
 }
 .game-tile.tile-border-iridescent {
   --tile-frame: var(--rarity-frame-iridescent);
-  --tile-frame-depth: hsl(var(--rarity-silver) / 0.5);
+  --tile-frame-depth: hsl(280 85% 45% / 0.55);
+  box-shadow:
+    0 2px 0 0 var(--tile-frame-depth),
+    0 0 14px -2px hsl(290 95% 60% / 0.55),
+    0 0 26px -6px hsl(190 100% 55% / 0.4),
+    0 6px 10px -7px hsl(var(--foreground) / 0.28),
+    inset 0 1px 0 hsl(var(--background) / 0.55);
 }
 .game-tile.tile-border-plain::before,
 .game-tile.tile-border-silver::before,
