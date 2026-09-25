@@ -3421,8 +3421,7 @@ html.is-native-android body {
 
 /* Binder: discovered cards are dealt into their sleeves by BinderGrid (Web Animations). */
 .binder-slot {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 160px;
+  position: relative;
 }
 
 /* Delete confirmation popup, shown above the card sheet */
