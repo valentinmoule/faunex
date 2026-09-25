@@ -405,6 +405,7 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const { isPremium, loading: premiumLoading } = useSubscription(session?.user?.id);
   const { favoriteIds } = useFavorites(session?.user?.id);
   const { collectionKeys, addCollection, removeCollection } = useSpeciesCollections(session?.user?.id);
+  const customCollections = useCustomCollections(session?.user?.id);
   const { isClaimed, claimReward, claiming: claimingReward } = useCollectionRewards(session?.user?.id);
   const [celebratedReward, setCelebratedReward] = useState<{ title: string; xp: number } | null>(null);
 
