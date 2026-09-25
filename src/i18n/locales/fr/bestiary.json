@@ -128,6 +128,7 @@
       "emptyTitle": "Ajoute une zone et/ou une collection",
       "emptyDesc": "Suis la faune d'une ville ou d'un département, et complète des séries thématiques (races de chien, papillons, rapaces…).",
       "completed": "Terminée",
+      "claim": "Récupérer",
       "claimReward": "Récupérer +{{xp}} XP",
       "rewardClaimed": "+{{xp}} XP gagnés",
       "rewardHint": "+{{xp}} XP à la fin",

@@ -1815,7 +1815,6 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                         overlay={art.overlay}
                         captured={p.captured}
                         total={p.total}
-                        xp={xp}
                         complete={p.total > 0 && p.captured >= p.total}
                         claimed={isClaimed(rewardId)}
                         claiming={claimingReward === rewardId}
@@ -1837,7 +1836,6 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                         overlay={art.overlay}
                         captured={captured}
                         total={total}
-                        xp={xp}
                         complete={total > 0 && captured >= total}
                         claimed={isClaimed(rewardId)}
                         claiming={claimingReward === rewardId}

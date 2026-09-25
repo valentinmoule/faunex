@@ -128,6 +128,7 @@
       "emptyTitle": "Add a zone and/or a collection",
       "emptyDesc": "Track the wildlife of a city or a department, and complete themed series (dog breeds, butterflies, raptors…).",
       "completed": "Complete",
+      "claim": "Claim",
       "claimReward": "Claim +{{xp}} XP",
       "rewardClaimed": "+{{xp}} XP earned",
       "rewardHint": "+{{xp}} XP when complete",
