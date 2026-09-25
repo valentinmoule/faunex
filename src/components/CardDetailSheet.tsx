@@ -671,7 +671,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                     aria-pressed={isFavorite(card.id)}
                     aria-label={t('capture.detail.favorite')}
                     title={t('capture.detail.favorite')}
-                    className="flex items-center justify-center w-9 h-9 group"
+                    className="flex w-11 h-11 items-center justify-center group"
                   >
                     <Bookmark className={`w-6 h-6 transition-all ${isFavorite(card.id) ? 'fill-primary text-primary scale-110' : 'text-muted-foreground group-hover:text-primary'}`} />
                   </button>
@@ -681,7 +681,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                     onClick={handleShare}
                     aria-label={t('capture.detail.share')}
                     title={t('capture.detail.share')}
-                    className="flex items-center justify-center w-9 h-9 group"
+                    className="flex w-11 h-11 items-center justify-center group"
                   >
                     <Share2 className="w-6 h-6 text-muted-foreground transition-colors group-hover:text-primary" />
                   </button>
