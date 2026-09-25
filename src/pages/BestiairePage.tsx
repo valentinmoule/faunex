@@ -693,14 +693,17 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
 
 const activeFilterCount = categoryFilter.length + rarityFilter.length + popularityFilter.length;
 
-  const browseTotal = useMemo(
-    () => animals
+  /** Total + capturées dans le périmètre filtré (le compteur suit les filtres actifs). */
+  const browseCounts = useMemo(() => {
+    const list = animals
       .filter(a => categoryFilter.length === 0 || categoryFilter.includes(normalizeCategory(a.category)))
       .filter(a => rarityFilter.length === 0 || rarityFilter.includes(normalizeRarity(a.rarity)))
       .filter(a => matchesPopularity(a.finders ?? 0))
-      .filter(matchesSearch).length,
-    [animals, categoryFilter, rarityFilter, matchesPopularity, matchesSearch],
-  );
+      .filter(matchesSearch);
+    return { total: list.length, captured: list.filter(a => a.captured).length };
+  }, [animals, categoryFilter, rarityFilter, matchesPopularity, matchesSearch]);
+
+  const browseTotal = browseCounts.total;
 
   /** Nombre de naturalistes ayant capturé chaque espèce (pour le filtre popularité). */
   const findersByName = useMemo(() => {
@@ -1680,7 +1683,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                   {speciesQuery ? t('bestiary.results') : t('bestiary.allSpecies')}
                 </h2>
                 <span className="text-[11px] font-display text-muted-foreground tabular-nums">
-                  {t('bestiary.categories.speciesCount', { captured: myCaptures.length, total: browseTotal })}
+                  {t('bestiary.categories.speciesCount', { captured: browseCounts.captured, total: browseCounts.total })}
                 </span>
               </div>
 
