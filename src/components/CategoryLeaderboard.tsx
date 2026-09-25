@@ -161,7 +161,7 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
   const content = (
     <>
       {period === 'week' && (
-      <div className="px-5 mt-1">
+      <div className={`mt-1 ${inline ? 'px-1' : 'px-5'}`}>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber/5 border border-amber/15">
               <div className="relative flex items-center justify-center">
                 <Clock className="w-4 h-4 text-muted-foreground animate-[spin_4s_linear_infinite]" />
