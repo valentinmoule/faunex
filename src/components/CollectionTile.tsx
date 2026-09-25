@@ -1,11 +1,11 @@
-import { Check, Sparkles } from 'lucide-react';
+import { Check, Gift, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import XpPill from '@/components/XpPill';
 
 /**
  * Tuile de collection en forme d'écusson hexagonal (plus de cartes
  * rectangulaires) : illustration du biome, anneau de progression et
- * récompense XP à récupérer quand la collection est complète.
+ * bouton de réclamation quand la collection est complète (l'XP gagné
+ * n'est jamais affiché ici — il est révélé à la réclamation).
  */
 export interface CollectionTileProps {
   title: string;
@@ -13,8 +13,6 @@ export interface CollectionTileProps {
   overlay: string;
   captured: number;
   total: number;
-  /** XP offerts à la complétion. */
-  xp: number;
   complete: boolean;
   claimed: boolean;
   claiming?: boolean;
@@ -34,7 +32,6 @@ const CollectionTile = ({
   overlay,
   captured,
   total,
-  xp,
   complete,
   claimed,
   claiming,
@@ -124,22 +121,19 @@ const CollectionTile = ({
 
         </div>
 
-        {/* Pastille XP posée en bas de l'écusson, hors de la zone détourée
-            pour ne jamais être rognée (masquée une fois réclamée) */}
-        {(readyToClaim || !claimed) && (
+        {/* Bouton « Récupérer » posé en bas de l'écusson, hors de la zone
+            détourée pour ne jamais être rogné — sans montant d'XP */}
+        {readyToClaim && (
           <div className="absolute bottom-0 left-1/2 z-10 -translate-x-1/2 translate-y-1/2">
-            {readyToClaim ? (
-              <button
-                onClick={onClaim}
-                disabled={claiming}
-                aria-label={t('bestiary.collections.claimReward', { xp })}
-                className="block rounded-full shadow-md drop-shadow transition active:scale-95 disabled:opacity-60"
-              >
-                <XpPill xp={xp} state="ready" />
-              </button>
-            ) : (
-              <XpPill xp={xp} state="locked" className="pointer-events-none shadow-md drop-shadow" />
-            )}
+            <button
+              onClick={onClaim}
+              disabled={claiming}
+              aria-label={t('bestiary.collections.claim')}
+              className="inline-flex items-center gap-1 rounded-full border border-amber/40 bg-amber px-2.5 py-1 text-[10px] font-display font-bold text-background shadow-md drop-shadow transition active:scale-95 disabled:opacity-60"
+            >
+              <Gift className="h-3 w-3" />
+              {t('bestiary.collections.claim')}
+            </button>
           </div>
         )}
       </div>
