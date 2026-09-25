@@ -418,7 +418,7 @@ const FriendCollectionPage = () => {
                 <div
                   key={card.id}
                   onClick={() => setSelectedCard(card)}
-                  className={`game-tile tile-grid-2 relative aspect-[3/4] rounded-xl border-4 overflow-hidden cursor-pointer ${rarityTileBorder[card.rarity] || 'tile-border-plain'} bg-card`}
+                  className={`game-tile tile-grid-2 relative aspect-[3/4] rounded-xl border-[5px] overflow-hidden cursor-pointer ${rarityTileBorder[card.rarity] || 'tile-border-plain'} bg-card`}
                 >
                   <img
                     src={card.image}
