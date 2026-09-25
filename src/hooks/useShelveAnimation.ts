@@ -8,123 +8,196 @@ interface Options {
   /** Prépare la vue (ferme collections/territoires, vide les filtres) avant l'animation. */
   onPrepare?: () => void;
   /** Retourne l'élément DOM de la carte cible s'il est monté dans la grille. */
-  resolveSlot: (animalName: string) => HTMLElement | null;
+  resolveSlot: (shelve: PendingShelve) => HTMLElement | null;
 }
 
-/** Plays the "card glides into its shelf slot" animation after a new capture. */
+export interface ShelveFlight {
+  /** Carte dessinée à sa taille de départ (net), centrée sur l'emplacement cible. */
+  style: React.CSSProperties;
+  dx: number;
+  dy: number;
+  endScale: number;
+}
+
+const prefersReducedMotion = () =>
+  typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
+/**
+ * Animation « la carte se range dans le bestiaire » après une capture.
+ * Uniquement des transform/opacity (GPU) via Web Animations : aucun reflow
+ * pendant le vol, donc fluide même sur des téléphones modestes.
+ */
 export const useShelveAnimation = ({ loading, onPrepare, resolveSlot }: Options) => {
   const [pendingShelve, setPendingShelve] = useState<PendingShelve | null>(null);
-  const [flyingCardStyle, setFlyingCardStyle] = useState<React.CSSProperties | null>(null);
-  const [flashSlotName, setFlashSlotName] = useState<string | null>(null);
-  const shelveAnimationRan = useRef(false);
-  const preparedRef = useRef(false);
+  const [flight, setFlight] = useState<ShelveFlight | null>(null);
+  const [hiddenSlot, setHiddenSlot] = useState(false);
+  const [flashing, setFlashing] = useState(false);
+  const cardRef = useRef<HTMLDivElement | null>(null);
+  const backdropRef = useRef<HTMLDivElement | null>(null);
+  const labelRef = useRef<HTMLDivElement | null>(null);
+  const ran = useRef(false);
+  const prepared = useRef(false);
 
-  // Detect pending shelve animation request on mount
   useEffect(() => {
     const peeked = peekPendingShelve();
-    if (peeked && !shelveAnimationRan.current) {
-      setPendingShelve(peeked);
-    }
+    if (peeked) setPendingShelve(peeked);
   }, []);
 
-  // Reset the bestiary view so the target card is part of the full species grid
   useEffect(() => {
-    if (!pendingShelve || preparedRef.current) return;
-    preparedRef.current = true;
+    if (!pendingShelve || prepared.current) return;
+    prepared.current = true;
     onPrepare?.();
   }, [pendingShelve, onPrepare]);
 
-  // Play the glide-into-slot animation once the slot is mounted
+  // 1. Attendre que la carte cible soit montée, la centrer, mesurer.
   useEffect(() => {
-    if (!pendingShelve || shelveAnimationRan.current || loading) return;
-
-    const slotKey = pendingShelve.animalName.toLowerCase();
-    const timers: number[] = [];
+    if (!pendingShelve || ran.current || loading) return;
     let cancelled = false;
     let attempts = 0;
+    const timers: number[] = [];
 
-    const runWhenMounted = () => {
-      if (cancelled) return;
-      const slotEl = resolveSlot(pendingShelve.animalName);
-      if (!slotEl) {
-        attempts += 1;
-        if (attempts < 60) timers.push(window.setTimeout(runWhenMounted, 100));
-        return;
-      }
-      shelveAnimationRan.current = true;
-      consumePendingShelve(); // clear storage so it doesn't replay
-
-      // Position the page on the card first (instant, so the measure below is stable)
-      slotEl.scrollIntoView({ behavior: 'auto', block: 'center' });
-
-      timers.push(window.setTimeout(() => {
-        if (cancelled) return;
-        const live = resolveSlot(pendingShelve.animalName) || slotEl;
-        // Re-check position after any layout shift, then measure
-        live.scrollIntoView({ behavior: 'auto', block: 'center' });
-        const rect = live.getBoundingClientRect();
-
-        const vw = window.innerWidth;
-        const vh = window.innerHeight;
-        const startWidth = Math.min(230, vw * 0.56);
-        const startHeight = startWidth * (rect.height / Math.max(rect.width, 1));
-        const startLeft = (vw - startWidth) / 2;
-        const startTop = (vh - startHeight) / 2;
-
-        setFlyingCardStyle({
-          left: `${startLeft}px`,
-          top: `${startTop}px`,
-          width: `${startWidth}px`,
-          height: `${startHeight}px`,
-          transform: 'rotate(-7deg) scale(1)',
-          opacity: 1,
-        });
-
-        timers.push(window.setTimeout(() => {
-          requestAnimationFrame(() => {
-            const target = resolveSlot(pendingShelve.animalName) || live;
-            const to = target.getBoundingClientRect();
-            setFlyingCardStyle({
-              left: `${to.left}px`,
-              top: `${to.top}px`,
-              width: `${to.width}px`,
-              height: `${to.height}px`,
-              transform: 'rotate(0deg) scale(1)',
-              opacity: 1,
-            });
-          });
-        }, 520));
-
-        timers.push(window.setTimeout(() => {
-          if (cancelled) return;
-          setFlashSlotName(slotKey);
-          setFlyingCardStyle((prev) => (prev ? { ...prev, opacity: 0 } : null));
-          hapticDiscovery();
-
-          timers.push(window.setTimeout(() => setFlyingCardStyle(null), 300));
-          // Le flash dure 1100ms : on nettoie tout à la fin (couper `pendingShelve`
-          // plus tôt annulerait ce timer via le cleanup de l'effet).
-          timers.push(window.setTimeout(() => {
-            setFlashSlotName(null);
-            setPendingShelve(null);
-          }, 1600));
-        }, 1450));
-      }, 650));
+    const finish = () => {
+      consumePendingShelve();
+      setPendingShelve(null);
     };
 
-    const raf = requestAnimationFrame(runWhenMounted);
+    const tryStart = () => {
+      if (cancelled) return;
+      const slot = resolveSlot(pendingShelve);
+      if (!slot) {
+        attempts += 1;
+        if (attempts < 40) timers.push(window.setTimeout(tryStart, 80));
+        else { ran.current = true; finish(); }
+        return;
+      }
+      ran.current = true;
+      consumePendingShelve();
+      slot.scrollIntoView({ behavior: 'auto', block: 'center' });
 
+      // Deux frames : la virtualisation et le scroll sont stabilisés.
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        if (cancelled) return;
+        const live = resolveSlot(pendingShelve) || slot;
+        const to = live.getBoundingClientRect();
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const sw = Math.min(240, vw * 0.6);
+        const sh = sw * (to.height / Math.max(to.width, 1));
+        const cx = to.left + to.width / 2;
+        const cy = to.top + to.height / 2;
+        setHiddenSlot(true);
+        setFlight({
+          style: { left: cx - sw / 2, top: cy - sh / 2, width: sw, height: sh },
+          dx: vw / 2 - cx,
+          dy: vh / 2 - cy,
+          endScale: to.width / sw,
+        });
+      }));
+    };
+
+    timers.push(window.setTimeout(tryStart, 60));
     return () => {
       cancelled = true;
-      cancelAnimationFrame(raf);
       timers.forEach(window.clearTimeout);
     };
   }, [pendingShelve, loading, resolveSlot]);
 
-  const isFlashing = useCallback(
-    (animalName: string) => flashSlotName === animalName.toLowerCase(),
-    [flashSlotName],
+  // 2. Jouer l'animation une fois la carte volante montée.
+  useEffect(() => {
+    if (!flight) return;
+    const card = cardRef.current;
+    if (!card) return;
+    const backdrop = backdropRef.current;
+    const label = labelRef.current;
+    const { dx, dy, endScale } = flight;
+    const reduced = prefersReducedMotion();
+    const anims: Animation[] = [];
+    let cancelled = false;
+
+    const at = (x: number, y: number, s: number, r: number) =>
+      `translate3d(${x}px, ${y}px, 0) scale(${s}) rotate(${r}deg)`;
+
+    const run = async () => {
+      try {
+        if (backdrop) {
+          anims.push(backdrop.animate([{ opacity: 0 }, { opacity: 1 }], { duration: reduced ? 1 : 320, fill: 'forwards', easing: 'ease-out' }));
+        }
+        // Apparition : la carte « éclot » au centre avec un léger rebond.
+        const reveal = card.animate(
+          [
+            { transform: at(dx, dy, 0.55, -10), opacity: 0 },
+            { transform: at(dx, dy, 1.04, -5), opacity: 1, offset: 0.7 },
+            { transform: at(dx, dy, 1, -6), opacity: 1 },
+          ],
+          { duration: reduced ? 1 : 560, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', fill: 'forwards' },
+        );
+        anims.push(reveal);
+        await reveal.finished;
+        if (cancelled) return;
+        await new Promise((r) => setTimeout(r, reduced ? 0 : 650));
+        if (cancelled) return;
+
+        // Vol : trajectoire courbe vers l'emplacement, la carte se redresse.
+        const midX = dx * 0.45;
+        const midY = dy * 0.45 - 36;
+        const midS = 1 - (1 - endScale) * 0.55;
+        const fly = card.animate(
+          [
+            { transform: at(dx, dy, 1, -6) },
+            { transform: at(midX, midY, midS, 3), offset: 0.5 },
+            { transform: at(0, 0, endScale, 0) },
+          ],
+          { duration: reduced ? 1 : 820, easing: 'cubic-bezier(0.6, 0, 0.2, 1)', fill: 'forwards' },
+        );
+        anims.push(fly);
+        if (label) anims.push(label.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 260, fill: 'forwards', easing: 'ease-in' }));
+        if (backdrop) anims.push(backdrop.animate([{ opacity: 1 }, { opacity: 0 }], { duration: reduced ? 1 : 700, delay: 200, fill: 'forwards' }));
+        await fly.finished;
+        if (cancelled) return;
+
+        // Atterrissage : la vraie carte réapparaît sous la volante, puis flash.
+        hapticDiscovery();
+        setHiddenSlot(false);
+        setFlashing(true);
+        const out = card.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 180, fill: 'forwards' });
+        anims.push(out);
+        await out.finished;
+        if (cancelled) return;
+        setFlight(null);
+        setTimeout(() => {
+          setFlashing(false);
+          setPendingShelve(null);
+        }, 900);
+      } catch {
+        // Animation annulée (démontage) : on nettoie.
+        setHiddenSlot(false);
+        setFlight(null);
+      }
+    };
+    run();
+    return () => {
+      cancelled = true;
+      anims.forEach((a) => a.cancel());
+    };
+  }, [flight]);
+
+  const isTarget = useCallback(
+    (name: string, scientific?: string | null) => {
+      if (!pendingShelve) return false;
+      const sci = pendingShelve.scientificName?.trim().toLowerCase();
+      if (sci && scientific && scientific.trim().toLowerCase() === sci) return true;
+      return name.toLowerCase() === pendingShelve.animalName.toLowerCase();
+    },
+    [pendingShelve],
   );
 
-  return { pendingShelve, flyingCardStyle, flashSlotName, isFlashing };
+  return {
+    pendingShelve,
+    flight,
+    cardRef,
+    backdropRef,
+    labelRef,
+    isHidden: (name: string, sci?: string | null) => hiddenSlot && isTarget(name, sci),
+    isFlashing: (name: string, sci?: string | null) => flashing && isTarget(name, sci),
+  };
 };

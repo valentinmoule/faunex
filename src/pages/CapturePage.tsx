@@ -449,6 +449,7 @@ setManualMode(false);
     toast.success(message);
     setPendingShelve({
       animalName: animal.animal_name,
+      scientificName: animal.scientific_name ?? null,
       category: animal.category,
       rarity: animal.rarity,
       imageUrl,
