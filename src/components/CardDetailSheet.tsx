@@ -1168,7 +1168,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
           aria-describedby="delete-capture-desc"
         >
           <div className="delete-confirm-scrim" onClick={() => !deleting && setConfirmDelete(false)} />
-          <div className="delete-confirm-card">
+          <div className="delete-confirm-card bg-background">
             <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 text-destructive">
               <Trash2 className="h-5 w-5" />
             </div>
