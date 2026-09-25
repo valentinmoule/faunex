@@ -2503,7 +2503,7 @@
    forces a repaint/recomposite of the holographic layers underneath.
    ───────────────────────────────────── */
 .holo-frame {
-  --frame-w: 10px;
+  --frame-w: 8px;
   --frame-grad: linear-gradient(120deg,
     hsl(var(--rarity-common) / 0.6),
     hsl(0 0% 100% / 0.55),
@@ -2865,11 +2865,22 @@ html.is-native-android body {
    (certains navigateurs perdent le clip overflow-hidden sur les tuiles
    transformées/will-change, d'où un rayon explicite sur le contenu) */
 .game-tile > img {
-  border-radius: calc(0.5rem - 3px);
+  border-radius: calc(var(--tile-radius, 0.5rem) - var(--tile-border-width, 3px));
 }
 .game-tile > div.absolute.inset-x-0.bottom-0 {
-  border-bottom-left-radius: calc(0.5rem - 3px);
-  border-bottom-right-radius: calc(0.5rem - 3px);
+  border-bottom-left-radius: calc(var(--tile-radius, 0.5rem) - var(--tile-border-width, 3px));
+  border-bottom-right-radius: calc(var(--tile-radius, 0.5rem) - var(--tile-border-width, 3px));
+}
+.game-tile.tile-grid-1 {
+  --tile-border-width: 8px;
+  --tile-radius: 0.75rem;
+}
+.game-tile.tile-grid-2 {
+  --tile-border-width: 4px;
+}
+.game-tile.tile-grid-3 {
+  --tile-border-width: 3px;
+  --tile-radius: 0.75rem;
 }
 
 /* Emplacement non découvert : creusé plutôt que bombé */
