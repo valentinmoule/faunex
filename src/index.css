@@ -3350,24 +3350,29 @@ html.is-native-android body {
 
 /* Fiche espèce — encadré « Le saviez-vous ? » */
 .detail-funfact {
+  /* Motif végétal répété (feuilles nervurées + graines), teinté à la couleur primaire */
+  --funfact-motif: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 36 36'><g fill='%23000' fill-opacity='0.9' fill-rule='evenodd'><path d='M0 -8C4.2 -5 4.2 5 0 8C-4.2 5 -4.2 -5 0 -8ZM0 -6C0.7 -3 0.7 3 0 6C-0.7 3 -0.7 -3 0 -6Z' transform='translate(9 10) rotate(-30)'/><path d='M0 -8C4.2 -5 4.2 5 0 8C-4.2 5 -4.2 -5 0 -8ZM0 -6C0.7 -3 0.7 3 0 6C-0.7 3 -0.7 -3 0 -6Z' transform='translate(26 27) rotate(150)'/></g><g fill='%23000' fill-opacity='0.55'><circle cx='27' cy='9' r='1.5'/><circle cx='9' cy='27' r='1.5'/><circle cx='18' cy='18' r='1.1'/></g></svg>");
   position: relative;
   overflow: hidden;
   border-radius: 20px;
   border: 1px solid hsl(var(--primary) / 0.16);
   background:
-    radial-gradient(115% 145% at 100% 0%, hsl(var(--primary) / 0.13) 0%, hsl(var(--primary) / 0) 55%),
-    radial-gradient(90% 120% at 0% 100%, hsl(var(--primary) / 0.07) 0%, hsl(var(--primary) / 0) 60%),
+    radial-gradient(120% 150% at 100% 0%, hsl(var(--primary) / 0.08) 0%, hsl(var(--primary) / 0) 58%),
     hsl(var(--card));
-  padding: 16px 18px 18px 20px;
+  padding: 16px 18px 18px;
 }
 
 .detail-funfact::before {
   content: '';
   position: absolute;
-  top: 10px;
-  bottom: 10px;
-  left: 0;
-  width: 3px;
-  border-radius: 0 3px 3px 0;
-  background: linear-gradient(180deg, hsl(var(--primary) / 0.9), hsl(var(--primary) / 0.12));
+  inset: 0;
+  pointer-events: none;
+  background-color: hsl(var(--primary));
+  opacity: 0.18;
+  -webkit-mask-image: var(--funfact-motif);
+  mask-image: var(--funfact-motif);
+  -webkit-mask-repeat: repeat;
+  mask-repeat: repeat;
+  -webkit-mask-size: 36px 36px;
+  mask-size: 36px 36px;
 }

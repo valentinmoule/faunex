@@ -858,7 +858,6 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
               </div>
             ) : (
               <div className="detail-funfact">
-                <Leaf className="pointer-events-none absolute -bottom-4 -right-3 h-24 w-24 text-primary/10" aria-hidden="true" />
                 <div className="relative mb-2 flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary">
                     <Sparkles className="h-3.5 w-3.5" />
