@@ -43,6 +43,7 @@ import { MIN_BREEDS_PER_GROUP, BREED_GROUPS, getBreedGroup, getSpeciesGroup, typ
 import { useBestiaryData } from '@/hooks/useBestiaryData';
 import { useCitySearch } from '@/hooks/useCitySearch';
 import { useShelveAnimation } from '@/hooks/useShelveAnimation';
+import type { PendingShelve } from '@/lib/shelveAnimation';
 import { VirtualSpeciesGrid } from '@/components/VirtualSpeciesGrid';
 import { useZoneSubscriptions } from '@/hooks/useZoneSubscriptions';
 import { useSpeciesCollections } from '@/hooks/useSpeciesCollections';
@@ -344,14 +345,16 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const { citySearch, setCitySearch, cityResults, setCityResults, cityLoading } =
     useCitySearch(pickerTab === 'city');
 
-  const resolveShelveSlot = useCallback((animalName: string) => {
-    const key = animalName.toLowerCase();
-    return document.querySelector<HTMLElement>(
-      `[data-shelve-slot="${key.replace(/["\\]/g, '\\$&')}"]`,
+  const resolveShelveSlot = useCallback((shelve: PendingShelve) => {
+    const esc = (v: string) => v.toLowerCase().replace(/["\\]/g, '\\$&');
+    const sci = shelve.scientificName?.trim();
+    return (
+      (sci ? document.querySelector<HTMLElement>(`[data-shelve-sci="${esc(sci)}"]`) : null) ||
+      document.querySelector<HTMLElement>(`[data-shelve-slot="${esc(shelve.animalName)}"]`)
     );
   }, []);
 
-  const { pendingShelve, flyingCardStyle, isFlashing } = useShelveAnimation({
+  const { pendingShelve, flight, cardRef: shelveCardRef, backdropRef: shelveBackdropRef, labelRef: shelveLabelRef, isFlashing, isHidden } = useShelveAnimation({
     loading,
     resolveSlot: resolveShelveSlot,
     onPrepare: useCallback(() => {
@@ -658,8 +661,10 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   /** Index de la carte à rejoindre pour l'animation de rangement. */
   const shelveTargetIndex = useMemo(() => {
     if (!pendingShelve) return null;
+    const sci = pendingShelve.scientificName?.trim().toLowerCase();
     const target = pendingShelve.animalName.toLocaleLowerCase('fr');
-    const idx = browseAnimals.findIndex(a => a.name.toLocaleLowerCase('fr') === target);
+    let idx = sci ? browseAnimals.findIndex(a => a.scientific_name?.trim().toLowerCase() === sci) : -1;
+    if (idx < 0) idx = browseAnimals.findIndex(a => a.name.toLocaleLowerCase('fr') === target);
     return idx >= 0 ? idx : null;
   }, [pendingShelve, browseAnimals]);
 
@@ -1186,23 +1191,23 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
   );
 
   /** Carte volante de l'animation de rangement (rendue dans toutes les vues). */
-  const flyingCardOverlay = flyingCardStyle && pendingShelve ? (
-    <div
-      className="shelve-flying-card"
-      data-rarity={pendingShelve.rarity}
-      style={flyingCardStyle}
-    >
-      <div className="shelve-card-aura" aria-hidden />
-      {pendingShelve.imageUrl && <img src={pendingShelve.imageUrl} alt={pendingShelve.animalName} />}
-      <div className="shelve-card-shine" aria-hidden />
-      <div className="shelve-card-label">
-        <span>{t('bestiary.shelve.newDiscovery')}</span>
-        <strong>{pendingShelve.animalName}</strong>
+  const flyingCardOverlay = flight && pendingShelve ? (
+    <>
+      <div ref={shelveBackdropRef} className="shelve-backdrop" aria-hidden />
+      <div
+        ref={shelveCardRef}
+        className="shelve-flying-card"
+        data-rarity={pendingShelve.rarity}
+        style={flight.style}
+      >
+        {pendingShelve.imageUrl && <img src={pendingShelve.imageUrl} alt={pendingShelve.animalName} decoding="async" />}
+        <div className="shelve-card-shine" aria-hidden />
+        <div ref={shelveLabelRef} className="shelve-card-label">
+          <span>{t('bestiary.shelve.newDiscovery')}</span>
+          <strong>{pendingShelve.animalName}</strong>
+        </div>
       </div>
-      <div className="shelve-card-sparkles" aria-hidden>
-        {Array.from({ length: 10 }, (_, index) => <i key={index} />)}
-      </div>
-    </div>
+    </>
   ) : null;
 
   if (loading) return <LoadingScreen />;
@@ -1705,7 +1710,9 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                   renderItem={(animal) => (
                     <div
                       data-shelve-slot={animal.name.toLowerCase()}
-                      className={isFlashing(animal.name) ? 'shelve-slot-flash rounded-xl' : undefined}
+                      data-shelve-sci={animal.scientific_name?.trim().toLowerCase() || undefined}
+                      className={isFlashing(animal.name, animal.scientific_name) ? 'shelve-slot-flash rounded-xl' : undefined}
+                      style={isHidden(animal.name, animal.scientific_name) ? { visibility: 'hidden' } : undefined}
                     >
                       <BrowseSpeciesCard animal={animal} onSelect={handleSelectBrowseAnimal} />
                     </div>

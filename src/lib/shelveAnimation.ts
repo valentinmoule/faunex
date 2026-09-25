@@ -12,6 +12,7 @@ const STORAGE_KEY = 'faunex:pending-shelve';
 
 export interface PendingShelve {
   animalName: string;
+  scientificName?: string | null;
   category: string;
   rarity: Rarity;
   imageUrl: string;
