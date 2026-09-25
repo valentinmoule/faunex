@@ -1,66 +1,93 @@
-import { useCallback, useState } from 'react';
-import { type Rarity, RARITY_FX, RARITY_RANK, normalizeRarity } from '@/data/mockData';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { type Rarity, RARITY_RANK, normalizeRarity } from '@/data/mockData';
 import type { AnimalResult } from '@/types/capture';
 
-export type RevealPhase = 'idle' | 'freeze' | 'shaking' | 'burst' | 'done';
+export type RevealPhase = 'idle' | 'charging' | 'burst' | 'done';
 
-export const REVEAL_TIMINGS: Record<Rarity, { freeze: number; shake: number; burst: number }> = {
-  common: { freeze: 500, shake: 400, burst: 500 },
-  uncommon: { freeze: 550, shake: 450, burst: 550 },
-  rare: { freeze: 650, shake: 550, burst: 650 },
-  very_rare: { freeze: 750, shake: 700, burst: 750 },
-  ultra_rare: { freeze: 900, shake: 900, burst: 900 },
-  illustration_rare: { freeze: 1000, shake: 1000, burst: 950 },
-  special_rare: { freeze: 1100, shake: 1100, burst: 1000 },
-  hyper_rare: { freeze: 1200, shake: 1200, burst: 1100 },
+/** Durées (ms) : plus l'espèce est rare, plus la montée et l'explosion durent. */
+export const revealTimings = (rarity: Rarity) => {
+  const rank = RARITY_RANK[rarity] ?? 0;
+  const reduced =
+    typeof window !== 'undefined' &&
+    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  if (reduced) return { charge: 0, burst: 700 };
+  return { charge: 700 + rank * 180, burst: 1600 + rank * 230 };
 };
 
-/** Orchestrates the lootbox-style reveal sequence (freeze → shake → burst → done). */
+const vibrate = (p: number | number[]) => {
+  try {
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) navigator.vibrate(p);
+  } catch {
+    /* unsupported */
+  }
+};
+
+const nativeImpact = (heavy: boolean) => {
+  void import('@capacitor/haptics')
+    .then(({ Haptics, ImpactStyle }) =>
+      Haptics.impact({ style: heavy ? ImpactStyle.Heavy : ImpactStyle.Medium }),
+    )
+    .catch(() => {});
+};
+
+/** Orchestration de la révélation : montée (charging) → explosion (burst) → fiche (done). */
 export const useCaptureReveal = (onReveal: (animal: AnimalResult) => void) => {
   const [revealPhase, setRevealPhase] = useState<RevealPhase>('idle');
   const [revealRarity, setRevealRarity] = useState<Rarity>('common');
-  const [freezeFlash, setFreezeFlash] = useState(false);
+  const [revealAnimal, setRevealAnimal] = useState<AnimalResult | null>(null);
+  const timers = useRef<number[]>([]);
+  const animalRef = useRef<AnimalResult | null>(null);
 
-  const reset = useCallback(() => setRevealPhase('idle'), []);
+  const clear = () => {
+    timers.current.forEach((id) => window.clearTimeout(id));
+    timers.current = [];
+  };
+  useEffect(() => clear, []);
+
+  const reset = useCallback(() => {
+    clear();
+    setRevealPhase('idle');
+  }, []);
+
+  const burstNow = useCallback(
+    (animal: AnimalResult, rarity: Rarity) => {
+      const rank = RARITY_RANK[rarity] ?? 0;
+      setRevealPhase('burst');
+      onReveal(animal);
+      vibrate(rank >= 6 ? [120, 60, 160, 60, 260] : rank >= 3 ? [90, 50, 140] : [45]);
+      nativeImpact(rank >= 3);
+      if (rank >= 6) timers.current.push(window.setTimeout(() => nativeImpact(true), 380));
+    },
+    [onReveal],
+  );
 
   const triggerReveal = useCallback(
     (animal: AnimalResult) => {
+      clear();
       const rarity = normalizeRarity(animal.rarity);
+      const rank = RARITY_RANK[rarity] ?? 0;
+      const t = revealTimings(rarity);
+      animalRef.current = animal;
+      setRevealAnimal(animal);
       setRevealRarity(rarity);
-      const fx = RARITY_FX[rarity];
-      const t = REVEAL_TIMINGS[rarity];
-
-      setFreezeFlash(true);
-      setRevealPhase('freeze');
-      if (navigator.vibrate) {
-        navigator.vibrate(
-          fx === 'gold' ? [50, 30, 50, 30, 80] : fx === 'silver' ? [40, 20, 60] : [30]
-        );
-      }
-      setTimeout(() => setFreezeFlash(false), 150);
-
-      setTimeout(() => {
-        setRevealPhase('shaking');
-        setTimeout(() => {
-          setRevealPhase('burst');
-          onReveal(animal);
-          if (navigator.vibrate) {
-            navigator.vibrate(
-              fx === 'gold'
-                ? [100, 50, 100, 50, 200]
-                : fx === 'silver'
-                ? [80, 40, 120]
-                : RARITY_RANK[rarity] >= 2
-                ? [60, 30, 80]
-                : [40]
-            );
-          }
-          setTimeout(() => setRevealPhase('done'), t.burst);
-        }, t.shake);
-      }, t.freeze);
+      setRevealPhase('charging');
+      // Battements qui accélèrent pendant la montée.
+      const ticks = Math.min(2 + rank, 8);
+      vibrate(Array.from({ length: ticks * 2 - 1 }, (_, i) => (i % 2 ? Math.max(60 - i * 5, 20) : 18 + i * 2)));
+      timers.current.push(window.setTimeout(() => burstNow(animal, rarity), t.charge));
+      timers.current.push(window.setTimeout(() => setRevealPhase('done'), t.charge + t.burst));
     },
-    [onReveal]
+    [burstNow],
   );
 
-  return { revealPhase, revealRarity, freezeFlash, triggerReveal, reset };
+  /** Tap pour passer : on saute directement à la fiche. */
+  const skip = useCallback(() => {
+    const animal = animalRef.current;
+    if (!animal) return;
+    clear();
+    if (revealPhase === 'charging') onReveal(animal);
+    setRevealPhase('done');
+  }, [onReveal, revealPhase]);
+
+  return { revealPhase, revealRarity, revealAnimal, triggerReveal, reset, skip };
 };
