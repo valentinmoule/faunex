@@ -122,6 +122,8 @@
     },
     "collections": {
       "title": "My collections",
+      "favorites": "Favorites",
+      "favoritesEmpty": "Tap the bookmark on one of your captures to add it here.",
       "add": "Add",
       "emptyTitle": "Add a zone and/or a collection",
       "emptyDesc": "Track the wildlife of a city or a department, and complete themed series (dog breeds, butterflies, raptors…).",

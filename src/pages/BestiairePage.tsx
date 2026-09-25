@@ -58,6 +58,8 @@ import { localizedSpeciesName } from '@/lib/speciesI18n';
 import MapPage from '@/pages/MapPage';
 import FaunexAchievements from '@/components/FaunexAchievements';
 import CollectionTile from '@/components/CollectionTile';
+import { useFavorites } from '@/hooks/useFavorites';
+import MyCapturesGrid from '@/components/MyCapturesGrid';
 import RewardCelebration from '@/components/RewardCelebration';
 import CaptureQuotaBadge from '@/components/CaptureQuotaBadge';
 import { ProfileButton } from '@/components/ProfileDrawer';
@@ -389,6 +391,8 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   );
 
   const { isPremium, loading: premiumLoading } = useSubscription(session?.user?.id);
+  const { favoriteIds } = useFavorites(session?.user?.id);
+  const [showFavorites, setShowFavorites] = useState(false);
   const { collectionKeys, addCollection, removeCollection } = useSpeciesCollections(session?.user?.id);
   const { isClaimed, claimReward, claiming: claimingReward } = useCollectionRewards(session?.user?.id);
   const [celebratedReward, setCelebratedReward] = useState<{ title: string; xp: number } | null>(null);
@@ -1314,6 +1318,32 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
     );
   }
 
+  // Favoris (Premium) : captures marquées par l'utilisateur
+  if (showFavorites) {
+    const favArt = getCollectionArt('favorites');
+    const favCards = myCaptures.filter((c) => favoriteIds.has(c.id));
+    return (
+      <main className="min-h-screen bg-background pb-24">
+        <CollectionHero
+          image={favArt.image}
+          overlay={favArt.overlay}
+          title={t('bestiary.collections.favorites')}
+          captured={favCards.length}
+          total={favCards.length}
+          onBack={() => setShowFavorites(false)}
+        />
+        <div className="relative z-10 max-w-lg mx-auto px-3 pt-3">
+          {favCards.length === 0 ? (
+            <p className="text-center text-sm text-muted-foreground font-display py-16 px-6">{t('bestiary.collections.favoritesEmpty')}</p>
+          ) : (
+            <MyCapturesGrid items={favCards} onSelect={setSelectedCard} onReorder={() => {}} />
+          )}
+        </div>
+        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
+      </main>
+    );
+  }
+
   // Species collection detail view (races de chien, papillons…)
   if (selectedCollection) {
     return (
@@ -1757,6 +1787,28 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                   <Plus className="w-3.5 h-3.5" />
                   {t('bestiary.collections.add')}
                 </button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-x-4 gap-y-5">
+                <div className="relative">
+                  <CollectionTile
+                    title={t('bestiary.collections.favorites')}
+                    image={getCollectionArt('favorites').image}
+                    overlay={getCollectionArt('favorites').overlay}
+                    captured={isPremium ? favoriteIds.size : 0}
+                    total={isPremium ? favoriteIds.size : 0}
+                    xp={0}
+                    complete={false}
+                    claimed
+                    onOpen={() => (isPremium ? setShowFavorites(true) : navigate('/premium'))}
+                    onClaim={() => {}}
+                  />
+                  {!isPremium && (
+                    <span className="pointer-events-none absolute bottom-[18%] left-1/2 -translate-x-1/2 inline-flex items-center gap-1 rounded-full bg-amber px-2 py-0.5 text-[9px] font-display font-bold text-background">
+                      <Crown className="w-2.5 h-2.5" /> Premium
+                    </span>
+                  )}
+                </div>
               </div>
 
               {subscribedZones.length === 0 && myCollections.length === 0 ? (

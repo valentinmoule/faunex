@@ -122,6 +122,8 @@
     },
     "collections": {
       "title": "Mes collections",
+      "favorites": "Favoris",
+      "favoritesEmpty": "Touche le marque-page d'une de tes captures pour l'ajouter ici.",
       "add": "Ajouter",
       "emptyTitle": "Ajoute une zone et/ou une collection",
       "emptyDesc": "Suis la faune d'une ville ou d'un département, et complète des séries thématiques (races de chien, papillons, rapaces…).",
