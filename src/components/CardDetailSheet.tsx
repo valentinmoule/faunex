@@ -129,7 +129,6 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
   );
 
   const navigate = useNavigate();
-  const { isPremium } = useSubscription(session?.user?.id);
   const { isFavorite, toggleFavorite } = useFavorites(session?.user?.id);
   const [isOwner, setIsOwner] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
