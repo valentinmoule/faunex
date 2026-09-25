@@ -11,7 +11,8 @@
         "species": "Species",
         "regions": "Regions",
         "followers": "Followers",
-        "following": "Following"
+        "following": "Following",
+        "badges": "Badges"
       },
       "moderation": {
         "title": "Moderation",
