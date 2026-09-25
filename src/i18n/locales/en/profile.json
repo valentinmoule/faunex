@@ -32,7 +32,10 @@
         "badgesEmpty": "No badges yet",
         "badgeClaim": "Claim {{name}}",
         "badgeClaimed": "Badge claimed: +{{xp}} XP",
-        "newTag": "New"
+        "newTag": "New",
+        "myProfile": "My profile",
+        "findExplorers": "Find explorers",
+        "settings": "Settings"
       }
     },
     "reward": {
