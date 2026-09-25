@@ -112,7 +112,7 @@ const BrowseSpeciesCard = memo(
     <div
       onClick={() => onSelect(animal)}
 
-      className={`game-tile relative aspect-[3/4] rounded-xl border-2 overflow-hidden cursor-pointer ${
+      className={`game-tile tile-grid-3 relative aspect-[3/4] rounded-xl border-[3px] overflow-hidden cursor-pointer ${
         animal.captured
           ? `${rarityBorderColor[animal.rarity] || 'border-border'} bg-card ${tileDepthClass[animal.rarity] || ''}`
           : 'game-tile--empty border-border/40 bg-muted/30'
@@ -2041,7 +2041,7 @@ onClick={() => {
                     });
                   }
                 }}
-                className={`game-tile relative aspect-[3/4] rounded-xl border-2 overflow-hidden cursor-pointer ${
+                className={`game-tile tile-grid-3 relative aspect-[3/4] rounded-xl border-[3px] overflow-hidden cursor-pointer ${
                   animal.captured
                     ? `${rarityBorderColor[animal.rarity] || 'border-border'} bg-card ${tileDepthClass[animal.rarity] || ''}`
                     : 'game-tile--empty border-border/40 bg-muted/30'
