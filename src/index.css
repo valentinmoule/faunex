@@ -3470,11 +3470,11 @@ html.is-native-android body {
   position: relative;
   overflow: hidden;
   border-radius: 20px;
-  border: 1px solid hsl(var(--primary) / 0.16);
   background:
-    radial-gradient(120% 150% at 100% 0%, hsl(var(--primary) / 0.08) 0%, hsl(var(--primary) / 0) 58%),
+    radial-gradient(120% 130% at 50% 0%, hsl(var(--primary) / 0.10) 0%, hsl(var(--primary) / 0.03) 55%, hsl(var(--primary) / 0) 100%),
     hsl(var(--card));
-  padding: 16px 18px 18px;
+  padding: 20px 18px;
+  text-align: center;
 }
 
 .detail-funfact::before {
@@ -3483,7 +3483,7 @@ html.is-native-android body {
   inset: 0;
   pointer-events: none;
   background-color: hsl(var(--primary));
-  opacity: 0.18;
+  opacity: 0.1;
   -webkit-mask-image: var(--funfact-motif);
   mask-image: var(--funfact-motif);
   -webkit-mask-repeat: repeat;
