@@ -823,7 +823,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                   icon={<Leaf className="w-4 h-4" />}
                   label={t('capture.detail.locationLabel')}
                   value={location || t('capture.detail.notSet')}
-                  action={isOwner && !editingLocation ? (
+                  action={isOwner && !editingLocation && !editingNote ? (
                     <button
                       onClick={() => { setEditingLocation(true); setLocQuery(''); }}
                       aria-label={location ? t('capture.detail.modify') : t('capture.detail.add')}
@@ -833,6 +833,26 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                     </button>
                   ) : undefined}
                 />
+                {isOwner && (
+                  <DetailRow
+                    icon={<StickyNote className="w-4 h-4" />}
+                    label={t('capture.detail.myNote')}
+                    value={note ? (
+                      <span className="whitespace-pre-wrap">{note}</span>
+                    ) : (
+                      <span className="text-muted-foreground">{t('capture.detail.noNoteYet')}</span>
+                    )}
+                    action={!editingNote && !editingLocation ? (
+                      <button
+                        onClick={() => { setNoteDraft(note); setEditingNote(true); }}
+                        aria-label={note ? t('capture.detail.modify') : t('capture.detail.add')}
+                        className="p-1.5 rounded-full text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                    ) : undefined}
+                  />
+                )}
               </div>
             )}
 
@@ -904,58 +924,35 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
               </div>
             )}
 
-            {/* Personal note (owner only) — même style que les lignes d'infos */}
-            {isOwner && (
-              <div className="rounded-2xl border border-border bg-card">
-                <div className="flex items-start gap-3 px-4 py-3">
-                  <span className="mt-0.5 text-muted-foreground"><StickyNote className="w-4 h-4" /></span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[10px] font-display font-bold uppercase tracking-wider text-muted-foreground">{t('capture.detail.myNote')}</p>
-                    {editingNote ? (
-                      <div className="space-y-2 mt-1.5">
-                        <textarea
-                          value={noteDraft}
-                          onChange={(e) => setNoteDraft(e.target.value.slice(0, 500))}
-                          maxLength={500}
-                          rows={4}
-                          autoFocus
-                          placeholder={t('capture.detail.notePlaceholder')}
-                          className="w-full rounded-xl border border-border bg-background p-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 resize-none"
-                        />
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] text-muted-foreground">{t('capture.manual.charCount', { count: noteDraft.length })}</span>
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => { setNoteDraft(note); setEditingNote(false); }}
-                              className="px-3 py-1.5 rounded-full text-xs font-display font-semibold bg-muted text-muted-foreground"
-                            >
-                              {t('capture.detail.cancel')}
-                            </button>
-                            <button
-                              onClick={saveNote}
-                              disabled={savingNote}
-                              className="px-3 py-1.5 rounded-full text-xs font-display font-semibold bg-primary text-primary-foreground disabled:opacity-60"
-                            >
-                              {savingNote ? t('capture.detail.saving') : t('capture.detail.saveNote')}
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ) : note ? (
-                      <p className="text-sm text-foreground/85 leading-snug mt-0.5 whitespace-pre-wrap">{note}</p>
-                    ) : (
-                      <p className="text-sm text-muted-foreground leading-snug mt-0.5">{t('capture.detail.noNoteYet')}</p>
-                    )}
-                  </div>
-                  {!editingNote && (
+            {/* Note editing (owner only) — même style que l'édition de localisation */}
+            {!isUncaptured && isOwner && editingNote && (
+              <div className="rounded-2xl border border-border bg-card p-4 space-y-2">
+                <textarea
+                  value={noteDraft}
+                  onChange={(e) => setNoteDraft(e.target.value.slice(0, 500))}
+                  maxLength={500}
+                  rows={4}
+                  autoFocus
+                  placeholder={t('capture.detail.notePlaceholder')}
+                  className="w-full rounded-xl border border-border bg-background p-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 resize-none"
+                />
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-[10px] text-muted-foreground">{t('capture.manual.charCount', { count: noteDraft.length })}</span>
+                  <div className="flex gap-2">
                     <button
-                      onClick={() => { setNoteDraft(note); setEditingNote(true); }}
-                      aria-label={note ? t('capture.detail.modify') : t('capture.detail.add')}
-                      className="p-1.5 rounded-full text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
+                      onClick={() => { setNoteDraft(note); setEditingNote(false); }}
+                      className="px-3 py-1.5 rounded-full text-xs font-display font-semibold bg-muted text-muted-foreground"
                     >
-                      <Pencil className="w-4 h-4" />
+                      {t('capture.detail.cancel')}
                     </button>
-                  )}
+                    <button
+                      onClick={saveNote}
+                      disabled={savingNote}
+                      className="px-3 py-1.5 rounded-full text-xs font-display font-semibold bg-primary text-primary-foreground disabled:opacity-60"
+                    >
+                      {savingNote ? t('capture.detail.saving') : t('capture.detail.saveNote')}
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
