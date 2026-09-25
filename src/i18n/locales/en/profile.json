@@ -41,7 +41,7 @@
       "claimCta": "Claim reward",
       "claiming": "Claiming…",
       "claimed": "Badge claimed",
-      "toast": "Badge claimed: +{{xp}} XP 🎉",
+      "toast": "Badge claimed: +{{xp}} XP",
       "error": "Couldn't claim this badge"
     },
     "quests": {
