@@ -18,4 +18,4 @@
 - [x] Masquer ce compte des explorateurs, classements et statistiques d'activité
 
 ## Retraits demandés
-- [ ] Enlever le classement affiché dans les collections et dans les terroirs
+- [x] Enlever le classement affiché dans les collections et dans les terroirs
