@@ -26,6 +26,7 @@ interface DrawerProfile {
 
 interface ProfileDrawerContextValue {
   openProfile: () => void;
+  claimableBadges: number;
 }
 
 const ProfileDrawerContext = createContext<ProfileDrawerContextValue | null>(null);
@@ -38,7 +39,7 @@ export const useProfileDrawer = () => {
 
 export const ProfileButton = ({ className = '' }: { className?: string }) => {
   const { t } = useTranslation();
-  const { openProfile } = useProfileDrawer();
+  const { openProfile, claimableBadges } = useProfileDrawer();
   return (
     <Button
       type="button"
@@ -46,9 +47,15 @@ export const ProfileButton = ({ className = '' }: { className?: string }) => {
       size="icon"
       onClick={openProfile}
       aria-label={t('profile.page.drawer.open')}
-      className={`rounded-full ${className}`}
+      className={`relative rounded-full ${className}`}
     >
       <UserRound className="!size-5" />
+      {claimableBadges > 0 && (
+        <span
+          aria-hidden
+          className="absolute right-0.5 top-0.5 size-2 rounded-full bg-primary ring-2 ring-background"
+        />
+      )}
     </Button>
   );
 };
