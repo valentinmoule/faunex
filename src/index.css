@@ -1998,6 +1998,9 @@
   left: 0;
   width: 50%;
   height: 50%;
+  /* These layers are rendered at half size then scaled ×2. Their radius must
+     therefore also be halved so the visible mask stays flush with the card. */
+  border-radius: calc(var(--holo-radius, 1.5rem) / 2);
   transform: scale(2);
   transform-origin: top left;
   will-change: opacity;
