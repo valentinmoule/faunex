@@ -547,8 +547,8 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
   const cardFx = RARITY_FX[normalizedRarity];
   const isGold = !isUncaptured && cardFx === 'gold';
   const isSilver = !isUncaptured && cardFx === 'silver';
-  const captureDate = card?.created_at
-    ? new Intl.DateTimeFormat(i18n.language, { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(card.created_at))
+  const captureDate = card?.discoveredAt
+    ? new Intl.DateTimeFormat(i18n.language, { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(card.discoveredAt))
     : null;
   const isRare = !isUncaptured && cardFx === 'ink' && (normalizedRarity === 'rare' || normalizedRarity === 'very_rare');
   const heroFamily = normalizedRarity.replace(/_/g, '-');
