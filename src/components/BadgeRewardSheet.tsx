@@ -5,6 +5,7 @@
  * Affiché par la ligne Badges de la fenêtre profil et par la page Badges.
  */
 import { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Check, Gift, Loader2, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
