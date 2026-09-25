@@ -27,7 +27,7 @@ const SettingsPage = () => {
   const { session, signOut } = useAuth();
   const navigate = useNavigate();
   
-  const [section, setSection] = useState<'menu' | 'edit' | 'password' | 'delete' | 'language'>('menu');
+  const [section, setSection] = useState<'menu' | 'edit' | 'notifications' | 'delete' | 'language'>('menu');
   const { t } = useTranslation();
   const { locale, isAuto, changeLocale } = useAppLocale();
   const [profile, setProfile] = useState<{ display_name: string; username: string; avatar_url: string | null } | null>(null);
@@ -228,7 +228,7 @@ const SettingsPage = () => {
           <h1 className="text-xl font-display font-bold text-foreground">
             {section === 'menu' && t('settings.title')}
             {section === 'edit' && t('settings.editProfile')}
-            {section === 'password' && t('settings.changePassword')}
+            {section === 'notifications' && t('settings.notifications')}
             {section === 'delete' && t('settings.deleteAccount')}
             {section === 'language' && t('language.title')}
           </h1>
@@ -241,7 +241,7 @@ const SettingsPage = () => {
 
             <MenuItem icon={<Crown className="w-5 h-5" />} label={t('settings.premium')} onClick={() => navigate('/premium')} />
             <MenuItem icon={<Pencil className="w-5 h-5" />} label={t('settings.editProfile')} onClick={() => setSection('edit')} />
-            <MenuItem icon={<KeyRound className="w-5 h-5" />} label={t('settings.changePassword')} onClick={() => setSection('password')} />
+            <MenuItem icon={<Bell className="w-5 h-5" />} label={t('settings.notifications')} onClick={() => setSection('notifications')} />
             <MenuItem icon={<Share2 className="w-5 h-5" />} label={t('settings.shareProfile')} onClick={handleShare} />
             <MenuItem icon={<Languages className="w-5 h-5" />} label={t('language.title')} onClick={() => setSection('language')} />
             <MenuItem icon={<MessageCircle className="w-5 h-5" />} label={t('settings.discord')} onClick={() => window.open('https://discord.gg/YrAEV5EQa4', '_blank', 'noopener,noreferrer')} />
