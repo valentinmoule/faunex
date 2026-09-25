@@ -4,7 +4,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { CollectionHero } from '@/components/CollectionHero';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Award, Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, Check, Images, Trophy, CalendarDays, Users, Lock, Infinity as InfinityIcon } from 'lucide-react';
+import { Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, Check, Images, Trophy, CalendarDays, Users, Lock, Infinity as InfinityIcon } from 'lucide-react';
 import {
   POPULARITY_LABELS,
   SpeciesCategoryIcon,
@@ -1428,13 +1428,12 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
 
 
           {/* View toggle — floating gamified tab bar */}
-          {viewMode !== 'leaderboard' && (
+          {viewMode !== 'leaderboard' && viewMode !== 'badges' && (
           <div className={`sticky top-[70px] z-30 -mx-4 px-4 pt-1 pb-2 ${viewMode === 'mine' && !showMineControls ? '' : 'bg-gradient-to-b from-background via-background/95 to-transparent'}`}>
             <div className={`flex items-center gap-1 p-1 rounded-full bg-card/90 backdrop-blur-xl border border-border w-full ${viewMode === 'mine' && !showMineControls ? '' : 'shadow-lg shadow-foreground/5'}`}>
               {(isFaunexHub ? [
                 { key: 'mine' as const, label: t('bestiary.tabs.mine'), icon: Images },
                 { key: 'map' as const, label: t('bestiary.tabs.map'), icon: MapIcon },
-                { key: 'badges' as const, label: t('bestiary.tabs.badges'), icon: Award },
               ] : [
                 { key: 'categories' as const, label: t('bestiary.tabs.categories'), icon: PawPrint },
                 { key: 'collections' as const, label: t('bestiary.tabs.collections'), icon: Layers },
@@ -1610,6 +1609,14 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
 
           {viewMode === 'badges' && (
             <section>
+              <button
+                type="button"
+                onClick={() => changeView('mine')}
+                className="mb-4 inline-flex items-center gap-1 text-sm font-display font-semibold text-muted-foreground active:scale-95 transition-transform"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                {t('bestiary.tabs.mine')}
+              </button>
               <FaunexAchievements />
             </section>
           )}

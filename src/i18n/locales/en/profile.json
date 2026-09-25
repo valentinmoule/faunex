@@ -25,7 +25,12 @@
         "accountSettings": "Account settings",
         "premiumTitle": "Go Premium",
         "premiumSubtitle": "Unlimited captures and collections",
-        "premiumCta": "Discover Premium"
+        "premiumCta": "Discover Premium",
+        "badgesTitle": "Badges",
+        "badgesSeeAll": "See all badges",
+        "badgesEmpty": "No badges yet",
+        "badgeClaim": "Claim {{name}}",
+        "badgeClaimed": "Badge claimed: +{{xp}} XP"
       }
     },
     "quests": {
