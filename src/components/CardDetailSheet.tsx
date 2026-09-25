@@ -741,8 +741,6 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
 
             {/* Rarity + Category chips */}
             <div className="flex flex-wrap items-center justify-center gap-2">
-              <RarityBadge rarity={card.rarity} showLabel className="detail-rarity-tag" />
-
               {(() => {
                 const CatIcon = getCategoryIcon(card.category);
                 return (
@@ -793,14 +791,28 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
 
             {/* Infos — liste épurée façon iOS */}
             {isUncaptured ? (
-              <div className="grid grid-cols-2 gap-2.5">
-                <LockedField icon={<MapPin className="w-4 h-4" />} label={t('capture.detail.habitat')} />
-                <LockedField icon={<UtensilsCrossed className="w-4 h-4" />} label={t('capture.detail.diet')} />
-                <LockedField icon={<Shield className="w-4 h-4" />} label={t('capture.detail.conservation')} />
-                <LockedField icon={<Leaf className="w-4 h-4" />} label={t('capture.detail.location')} />
+              <div className="space-y-2.5">
+                <div className="rounded-2xl border border-border bg-card">
+                  <DetailRow
+                    icon={<Sparkles className="w-4 h-4" />}
+                    label={t('capture.detail.rarityLabel')}
+                    value={<RarityBadge rarity={card.rarity} plain showLabel className="detail-rarity-line" />}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2.5">
+                  <LockedField icon={<MapPin className="w-4 h-4" />} label={t('capture.detail.habitat')} />
+                  <LockedField icon={<UtensilsCrossed className="w-4 h-4" />} label={t('capture.detail.diet')} />
+                  <LockedField icon={<Shield className="w-4 h-4" />} label={t('capture.detail.conservation')} />
+                  <LockedField icon={<Leaf className="w-4 h-4" />} label={t('capture.detail.location')} />
+                </div>
               </div>
             ) : (
               <div className="rounded-2xl border border-border bg-card divide-y divide-border/60">
+                <DetailRow
+                  icon={<Sparkles className="w-4 h-4" />}
+                  label={t('capture.detail.rarityLabel')}
+                  value={<RarityBadge rarity={card.rarity} plain showLabel className="detail-rarity-line" />}
+                />
                 <DetailRow icon={<MapPin className="w-4 h-4" />} label={t('capture.detail.habitat')} value={facts.habitat} />
                 <DetailRow icon={<UtensilsCrossed className="w-4 h-4" />} label={t('capture.detail.diet')} value={facts.diet} />
                 <DetailRow icon={<Shield className="w-4 h-4" />} label={t('capture.detail.conservation')} value={card.conservation} />
@@ -1087,7 +1099,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
 };
 
 const DetailRow = ({ icon, label, value, action }: {
-  icon: React.ReactNode; label: string; value: string; action?: React.ReactNode;
+  icon: React.ReactNode; label: string; value: React.ReactNode; action?: React.ReactNode;
 }) => (
   <div className="flex items-start gap-3 px-4 py-3">
     <span className="mt-0.5 text-muted-foreground">{icon}</span>
