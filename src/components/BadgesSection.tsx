@@ -57,7 +57,7 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
               }`}
               style={{ animationDelay: `${Math.min(i, 17) * 40}ms` }}
             >
-              <div className="relative w-fit mx-auto mb-2.5">
+              <div className="relative w-fit mx-auto mt-2 mb-2.5">
                 {/* Tag « Nouveau » sur les badges à réclamer */}
                 {readyToClaim && (
                   <span className="absolute -top-2 -left-3.5 z-10 rounded-[6px] bg-destructive px-2 py-1 text-[9px] font-display font-black uppercase tracking-wide text-destructive-foreground shadow-sm">
@@ -69,7 +69,7 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
                   <XpPill
                     xp={badge.xp}
                     state={readyToClaim ? 'ready' : 'locked'}
-                    className="absolute -top-1 -right-2"
+                    className="absolute -top-2 -right-3.5"
                   />
                 )}
 
