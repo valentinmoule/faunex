@@ -112,7 +112,7 @@ export const RarityBadge = ({
             key={i}
             className="rarity-svg__sym"
             d={STAR_PATH}
-            transform={`translate(${i * (12 + gap)}, 0)`}
+            transform={`translate(${pad + i * (12 + gap)}, ${pad})`}
             fill={fill}
           />
         ))}
