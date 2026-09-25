@@ -1799,7 +1799,8 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                     total={isPremium ? favoriteIds.size : 0}
                     xp={0}
                     complete={false}
-                    claimed
+                    claimed={false}
+                    hideReward
                     onOpen={() => (isPremium ? setShowFavorites(true) : navigate('/premium'))}
                     onClaim={() => {}}
                   />
