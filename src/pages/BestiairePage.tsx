@@ -4,7 +4,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { CollectionHero } from '@/components/CollectionHero';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, Check, Images, Trophy, CalendarDays, Users, Lock, Infinity as InfinityIcon } from 'lucide-react';
+import { Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, Check, Images, Trophy, CalendarDays, Users, Lock, Infinity as InfinityIcon, FolderPlus } from 'lucide-react';
 import {
   POPULARITY_LABELS,
   SpeciesCategoryIcon,
@@ -1000,6 +1000,30 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                 </div>
               </div>
             </button>
+
+            <button
+              onClick={() => {
+                setShowDeptPicker(false);
+                setPickerMode('hub');
+                if (!isPremium) { navigate('/premium'); return; }
+                setCreatingCustom(true);
+              }}
+              className="w-full rounded-2xl border border-border bg-card p-5 text-left transition active:scale-[0.98] hover:border-primary/30"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center shrink-0">
+                  {isPremium
+                    ? <FolderPlus className="w-6 h-6 text-foreground" strokeWidth={2} />
+                    : <Crown className="w-6 h-6 text-amber-500" strokeWidth={2} />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-display font-bold text-base text-foreground">{t('bestiary.picker.addCustomTitle')}</h3>
+                  <p className="text-[11px] text-muted-foreground font-display leading-relaxed mt-0.5">
+                    {t('bestiary.picker.addCustomDesc')}
+                  </p>
+                </div>
+              </div>
+            </button>
           </div>
         )}
 
@@ -1915,18 +1939,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                   {t('bestiary.customCollections.sectionTitle')}
                 </h2>
                 {customCollections.collections.length === 0 && !creatingCustom ? (
-                  <button
-                    onClick={() => {
-                      if (!isPremium) { navigate('/premium'); return; }
-                      setCreatingCustom(true);
-                    }}
-                    className="w-full rounded-2xl border border-dashed border-border p-4 text-center transition active:scale-[0.98] hover:border-primary/40"
-                  >
-                    <div className="flex items-center justify-center gap-2 text-sm font-display font-semibold text-muted-foreground">
-                      {isPremium ? <Plus className="w-4 h-4" /> : <Crown className="w-4 h-4 text-amber-500" />}
-                      {t('bestiary.customCollections.createNew')}
-                    </div>
-                  </button>
+                  <p className="text-xs text-muted-foreground font-display">{t('bestiary.customCollections.empty')}</p>
                 ) : (
                   <div className="grid grid-cols-2 gap-3">
                     {customCollections.collections.map((c) => {
@@ -1949,16 +1962,6 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                         </button>
                       );
                     })}
-                    <button
-                      onClick={() => {
-                        if (!isPremium) { navigate('/premium'); return; }
-                        setCreatingCustom(true);
-                      }}
-                      className="rounded-2xl border border-dashed border-border aspect-[4/3] flex flex-col items-center justify-center gap-1 text-muted-foreground transition active:scale-[0.98] hover:border-primary/40"
-                    >
-                      {isPremium ? <Plus className="w-5 h-5" /> : <Crown className="w-5 h-5 text-amber-500" />}
-                      <span className="text-xs font-display font-semibold">{t('bestiary.customCollections.createNew')}</span>
-                    </button>
                   </div>
                 )}
                 {creatingCustom && (
