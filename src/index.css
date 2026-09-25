@@ -2991,6 +2991,7 @@ html.is-native-android body {
 .rarity-badge.detail-rarity-line .rarity-badge__label {
   /* Reflet balayant le métal du label — teintes assez sombres pour rester lisibles. */
   color: transparent;
+  text-shadow: none;
   background-image: var(--rarity-text-neutral);
   background-size: 260% 100%;
   background-position: 0% 0;
