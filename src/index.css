@@ -75,6 +75,10 @@
     --rarity-frame-neutral: linear-gradient(135deg, hsl(220 8% 51%) 0%, hsl(215 13% 91%) 13%, hsl(220 8% 62%) 24%, hsl(215 12% 97%) 33%, hsl(220 9% 55%) 48%, hsl(215 11% 85%) 63%, hsl(220 8% 47%) 78%, hsl(215 15% 96%) 89%, hsl(220 9% 57%) 100%);
     --rarity-frame-gold: linear-gradient(135deg, hsl(38 75% 37%) 0%, hsl(49 95% 85%) 13%, hsl(40 92% 51%) 25%, hsl(52 100% 94%) 34%, hsl(37 82% 40%) 48%, hsl(46 97% 72%) 64%, hsl(34 81% 36%) 78%, hsl(50 100% 90%) 89%, hsl(40 92% 53%) 100%);
     --rarity-frame-iridescent: linear-gradient(135deg, hsl(265 90% 55%) 0%, hsl(320 95% 62%) 12%, hsl(190 100% 55%) 24%, hsl(255 95% 70%) 34%, hsl(300 95% 60%) 47%, hsl(170 95% 48%) 61%, hsl(275 90% 58%) 75%, hsl(45 100% 60%) 85%, hsl(330 95% 60%) 93%, hsl(200 100% 60%) 100%);
+    --rarity-frame-mythic: linear-gradient(135deg, hsl(285 84% 48%) 0%, hsl(315 95% 66%) 18%, hsl(190 94% 72%) 37%, hsl(265 90% 60%) 54%, hsl(320 92% 65%) 72%, hsl(185 95% 65%) 88%, hsl(285 84% 48%) 100%);
+    --rarity-frame-legendary: linear-gradient(135deg, hsl(42 100% 47%) 0%, hsl(52 100% 82%) 13%, hsl(185 100% 56%) 27%, hsl(222 97% 52%) 42%, hsl(305 95% 57%) 59%, hsl(47 100% 70%) 74%, hsl(175 100% 52%) 88%, hsl(42 100% 47%) 100%);
+    --rarity-mythic-glow: 305 90% 63%;
+    --rarity-legendary-glow: 43 100% 59%;
     /* Métal des labels de rareté : mêmes reflets que les cadres, teintes
        resserrées vers le sombre pour rester lisibles sur fond clair. */
     --rarity-text-neutral: linear-gradient(100deg, hsl(220 9% 30%) 0%, hsl(215 10% 46%) 18%, hsl(220 9% 33%) 36%, hsl(215 10% 48%) 55%, hsl(220 9% 30%) 73%, hsl(215 10% 44%) 88%, hsl(220 9% 32%) 100%);
@@ -2348,13 +2352,45 @@
 /* ★★ Mythique — or ambré, plus saturé */
 .holo-special-rare { --holo-accent: var(--rarity-special-rare); --holo-tint: 0.26; }
 .holo-special-rare .holo-shine {
-  filter: brightness(calc(0.45 + (var(--pointer-from-center) * 0.22))) contrast(1.1) saturate(3.1);
+  background-image:
+    url("/holo/glitter.png"),
+    linear-gradient(125deg, transparent 14%, hsl(312 90% 75% / 0.8) 28%, hsl(188 100% 79% / 0.85) 41%, transparent 55%, hsl(276 88% 75% / 0.8) 69%, transparent 84%),
+    radial-gradient(circle at var(--pointer-x) var(--pointer-y), hsl(314 100% 83% / 0.5), transparent 62%);
+  background-size: 25% 25%, 220% 220%, cover;
+  background-position: 45% 45%, var(--background-x) var(--background-y), center;
+  background-blend-mode: soft-light, screen;
+  filter: brightness(0.85) contrast(1.1) saturate(1.5);
+}
+.holo-special-rare .holo-shine::before {
+  background-image: linear-gradient(135deg, hsl(190 100% 82% / 0.55), transparent 40%, hsl(310 90% 78% / 0.65) 72%, transparent);
+  background-size: 180% 180%;
+  background-position: var(--background-x) var(--background-y);
+  background-blend-mode: normal;
+  mix-blend-mode: screen;
+  filter: none;
+  opacity: 0.55;
 }
 
-/* ★★★ Légendaire — or intense, glitter animé */
+/* ★★★ Légendaire — prisme solaire et éclats d'or, distinct de la nacre mythique */
 .holo-hyper-rare { --holo-accent: var(--rarity-hyper-rare); --holo-tint: 0.32; }
 .holo-hyper-rare .holo-shine {
-  filter: brightness(calc(0.5 + (var(--pointer-from-center) * 0.25))) contrast(1.15) saturate(3.4);
+  background-image:
+    url("/holo/glitter.png"),
+    conic-gradient(from 25deg at var(--pointer-x) var(--pointer-y), hsl(47 100% 73%), hsl(184 100% 71%), hsl(218 95% 68%), hsl(305 95% 75%), hsl(47 100% 73%)),
+    radial-gradient(circle at var(--pointer-x) var(--pointer-y), hsl(49 100% 85% / 0.65), transparent 58%);
+  background-size: 20% 20%, 160% 160%, cover;
+  background-position: 45% 45%, var(--background-x) var(--background-y), center;
+  background-blend-mode: soft-light, overlay;
+  filter: brightness(0.9) contrast(1.2) saturate(2.2);
+}
+.holo-hyper-rare .holo-shine::before {
+  background-image: url("/holo/geometric.png"), linear-gradient(45deg, hsl(47 100% 70%), hsl(186 100% 74%), hsl(310 100% 76%));
+  background-size: 33%, 180% 180%;
+  background-position: center, var(--background-x) var(--background-y);
+  background-blend-mode: hard-light;
+  mix-blend-mode: screen;
+  filter: none;
+  opacity: 0.7;
 }
 .holo-hyper-rare .holo-shine::after {
   animation: holo-glitter-drift 6s linear infinite;
@@ -2515,6 +2551,8 @@
 .holo-frame:is(.holo-frame--special-rare, .holo-frame--hyper-rare) {
   --frame-grad: var(--rarity-frame-iridescent);
 }
+.holo-frame.holo-frame--special-rare { --frame-grad: var(--rarity-frame-mythic); }
+.holo-frame.holo-frame--hyper-rare { --frame-grad: var(--rarity-frame-legendary); }
 
 /* Cadres irisés (mythique/légendaire) : les teintes glissent en boucle sur une
    amplitude modérée (aller-retour de 12 s) — le reflet reste discret mais reste
@@ -2685,6 +2723,16 @@ html.is-native-android body {
     0 0 26px -6px hsl(190 100% 55% / 0.4),
     0 6px 10px -7px hsl(var(--foreground) / 0.28),
     inset 0 1px 0 hsl(var(--background) / 0.55);
+}
+.game-tile.tile-finish-mythic {
+  --tile-frame: var(--rarity-frame-mythic);
+  --tile-frame-depth: hsl(var(--rarity-mythic-glow) / 0.55);
+  box-shadow: 0 2px 0 0 var(--tile-frame-depth), 0 0 14px -2px hsl(var(--rarity-mythic-glow) / 0.45), 0 6px 10px -7px hsl(var(--foreground) / 0.28);
+}
+.game-tile.tile-finish-legendary {
+  --tile-frame: var(--rarity-frame-legendary);
+  --tile-frame-depth: hsl(var(--rarity-legendary-glow) / 0.7);
+  box-shadow: 0 2px 0 0 var(--tile-frame-depth), 0 0 16px -2px hsl(var(--rarity-legendary-glow) / 0.55), 0 0 25px -7px hsl(190 100% 55% / 0.4), 0 6px 10px -7px hsl(var(--foreground) / 0.28);
 }
 .game-tile.tile-border-plain::before,
 .game-tile.tile-border-silver::before,

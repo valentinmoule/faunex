@@ -165,8 +165,8 @@ export const rarityTileBorder: Record<string, string> = byRarity({
   very_rare: 'tile-border-gold',
   ultra_rare: 'tile-border-gold',
   illustration_rare: 'tile-border-gold',
-  special_rare: 'tile-border-iridescent',
-  hyper_rare: 'tile-border-iridescent',
+  special_rare: 'tile-border-iridescent tile-finish-mythic',
+  hyper_rare: 'tile-border-iridescent tile-finish-legendary',
 });
 
 export const rarityDot: Record<string, string> = byRarity({
