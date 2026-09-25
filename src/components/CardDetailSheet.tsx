@@ -669,16 +669,21 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                       void toggleFavorite(card.id);
                     }}
                     aria-pressed={isFavorite(card.id)}
-                    className="flex items-center gap-2 group"
+                    aria-label={t('capture.detail.favorite')}
+                    title={t('capture.detail.favorite')}
+                    className="flex items-center justify-center w-9 h-9 group"
                   >
                     <Bookmark className={`w-6 h-6 transition-all ${isFavorite(card.id) ? 'fill-primary text-primary scale-110' : 'text-muted-foreground group-hover:text-primary'}`} />
-                    <span className={`text-sm font-display font-semibold ${isFavorite(card.id) ? 'text-primary' : 'text-muted-foreground'}`}>{t('capture.detail.favorite')}</span>
                   </button>
                 )}
                 {card.image && (
-                  <button onClick={handleShare} className="flex items-center gap-2 group">
+                  <button
+                    onClick={handleShare}
+                    aria-label={t('capture.detail.share')}
+                    title={t('capture.detail.share')}
+                    className="flex items-center justify-center w-9 h-9 group"
+                  >
                     <Share2 className="w-6 h-6 text-muted-foreground transition-colors group-hover:text-primary" />
-                    <span className="text-sm font-display font-semibold text-muted-foreground">{t('capture.detail.share')}</span>
                   </button>
                 )}
               </div>
