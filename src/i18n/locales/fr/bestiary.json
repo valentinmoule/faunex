@@ -221,6 +221,22 @@
     },
     "speciesSort": {
       "default": "Ordre du catalogue"
+    },
+    "customCollections": {
+      "addTitle": "Ajouter",
+      "favorites": "Favoris",
+      "myCollections": "Mes collections",
+      "createNew": "Créer une collection",
+      "namePlaceholder": "Nom de la collection",
+      "create": "Créer",
+      "sectionTitle": "Mes collections",
+      "empty": "Aucune espèce pour le moment",
+      "rename": "Renommer",
+      "delete": "Supprimer la collection",
+      "deleteConfirm": "Supprimer cette collection ? Les espèces qu’elle contient seront retirées.",
+      "cancel": "Annuler",
+      "confirm": "Supprimer",
+      "removeSpecies": "Retirer de la collection"
     }
   }
 }

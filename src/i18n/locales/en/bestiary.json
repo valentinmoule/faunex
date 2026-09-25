@@ -221,6 +221,22 @@
     },
     "speciesSort": {
       "default": "Catalogue order"
+    },
+    "customCollections": {
+      "addTitle": "Add",
+      "favorites": "Favorites",
+      "myCollections": "My collections",
+      "createNew": "Create a collection",
+      "namePlaceholder": "Collection name",
+      "create": "Create",
+      "sectionTitle": "My collections",
+      "empty": "No species yet",
+      "rename": "Rename",
+      "delete": "Delete collection",
+      "deleteConfirm": "Delete this collection? Its species will be removed.",
+      "cancel": "Cancel",
+      "confirm": "Delete",
+      "removeSpecies": "Remove from collection"
     }
   }
 }
