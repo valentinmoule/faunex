@@ -92,8 +92,12 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
 
   const openProfile = useCallback(() => {
     setOpen(true);
-    void loadProfile();
-  }, [loadProfile]);
+  }, []);
+
+  // Charge les stats à chaque ouverture, y compris quand la session arrive après.
+  useEffect(() => {
+    if (open && userId) void loadProfile();
+  }, [open, userId, loadProfile]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
