@@ -120,7 +120,8 @@ export const useShelveAnimation = ({ loading, onPrepare, resolveSlot }: Options)
     const run = async () => {
       try {
         if (backdrop) {
-          anims.push(backdrop.animate([{ opacity: 0 }, { opacity: 1 }], { duration: reduced ? 1 : 320, fill: 'forwards', easing: 'ease-out' }));
+          // Le voile est déjà visible (posé dès l'arrivée) : on le maintient.
+          anims.push(backdrop.animate([{ opacity: 1 }, { opacity: 1 }], { duration: 1, fill: 'forwards' }));
         }
         // Apparition : la carte « éclot » au centre avec un léger rebond.
         const reveal = card.animate(

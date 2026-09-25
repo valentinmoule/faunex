@@ -182,6 +182,7 @@ BrowseSpeciesCard.displayName = 'BrowseSpeciesCard';
 const BestiairePage = () => {
   const { session } = useAuth();
   const { t } = useTranslation();
+  const { speciesName: shelveSpeciesName } = useSpeciesName();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -1192,22 +1193,23 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
   );
 
   /** Carte volante de l'animation de rangement (rendue dans toutes les vues). */
-  const flyingCardOverlay = flight && pendingShelve ? createPortal(
+  const flyingCardOverlay = pendingShelve ? createPortal(
     <>
-      <div ref={shelveBackdropRef} className="shelve-backdrop" aria-hidden />
-      <div
+      {/* Voile posé dès l'arrivée : masque le saut de défilement vers l'emplacement. */}
+      <div ref={shelveBackdropRef} className="shelve-backdrop" style={{ opacity: 1 }} aria-hidden />
+      {flight && <div
         ref={shelveCardRef}
         className="shelve-flying-card"
         data-rarity={pendingShelve.rarity}
-        style={flight.style}
+        style={flight?.style}
       >
         {pendingShelve.imageUrl && <img src={pendingShelve.imageUrl} alt={pendingShelve.animalName} decoding="async" />}
         <div className="shelve-card-shine" aria-hidden />
         <div ref={shelveLabelRef} className="shelve-card-label">
           <span>{t('bestiary.shelve.newDiscovery')}</span>
-          <strong>{pendingShelve.animalName}</strong>
+          <strong>{shelveSpeciesName(pendingShelve.animalName)}</strong>
         </div>
-      </div>
+      </div>}
     </>,
     document.body,
   ) : null;
