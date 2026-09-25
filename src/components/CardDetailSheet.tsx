@@ -728,18 +728,13 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                 );
               })()}
 
-              {!isUncaptured && finders !== undefined && (
-                <span
-                  className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1"
-                  title={t('capture.finders.tooltip_other', { count: finders })}
-                >
-                  <FindersBadge count={finders} />
-                  <span className="text-[11px] font-display font-semibold text-muted-foreground">
-                    {t('capture.finders.capture', { count: finders })}
-                  </span>
-                </span>
-              )}
             </div>
+
+            {!isUncaptured && finders !== undefined && finders > 0 && (
+              <p className="text-xs text-muted-foreground text-center">
+                {t('capture.finders.sentence', { count: finders })}
+              </p>
+            )}
 
 
 {isUncaptured ? (

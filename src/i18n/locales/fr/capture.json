@@ -94,7 +94,9 @@
       "tooltip_one": "{{count}} naturaliste a capturé cette espèce",
       "tooltip_other": "{{count}} naturalistes ont capturé cette espèce",
       "alreadyCaptured": "déjà capturée par la communauté",
-      "noneYet": "personne ne l’a encore capturée"
+      "noneYet": "personne ne l’a encore capturée",
+      "sentence_one": "Capturé par {{count}} personne",
+      "sentence_other": "Capturé par {{count}} personnes"
     },
     "alsoPossible": "Aussi possible : {{alternatives}}",
     "requestVerification": "Ce n'est pas le bon animal — Demander une vérification",
