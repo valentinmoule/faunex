@@ -668,12 +668,6 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                   <button
                     onClick={() => {
                       hapticTap();
-                      if (!isPremium) {
-                        toast({ title: t('capture.detail.favoritePremium') });
-                        onClose();
-                        navigate('/premium');
-                        return;
-                      }
                       void toggleFavorite(card.id);
                     }}
                     aria-pressed={isFavorite(card.id)}

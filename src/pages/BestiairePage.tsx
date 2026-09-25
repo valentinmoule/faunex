@@ -735,9 +735,9 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
     const list = Array.from(counts.entries())
       .map(([name, total]) => ({ name, total }))
       .sort((a, b) => b.total - a.total);
-    const favCount = isPremium ? myCaptures.filter((c) => favoriteIds.has(c.id)).length : 0;
+    const favCount = myCaptures.filter((c) => favoriteIds.has(c.id)).length;
     return [{ name: FAVORITES_FILTER, total: favCount }, ...list];
-  }, [myCaptures, favoriteIds, isPremium]);
+  }, [myCaptures, favoriteIds]);
 
   // Flat list of my own captures (one entry per capture), filtered + trié selon le mode choisi
   const myCapturedAnimals = useMemo(() => {
