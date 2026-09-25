@@ -6,24 +6,88 @@
  * aucune dépendance, et le résultat peut être partagé via l'API Web Share.
  */
 import type { AnimalCard, Rarity } from '@/data/mockData';
+import { normalizeRarity } from '@/data/mockData';
 import { IS_NATIVE_APP } from '@/lib/platform';
 
 const W = 1080;
 const H = 1350;
 
-const RARITY: Record<Rarity, { border: [string, string, string]; label: string; holo: number }> = {
-  common: { border: ['#9aa2a8', '#c9d1d6', '#7d858b'], label: 'Commune', holo: 0.1 },
-  rare: { border: ['#3b82f6', '#93c5fd', '#1d4ed8'], label: 'Plutôt rare', holo: 0.22 },
-  uncommon: { border: ['#3f4a5c', '#c7cfdb', '#232b3a'], label: 'Peu commune', holo: 0.1 },
-  very_rare: { border: ['#1c2333', '#4a5568', '#0b0f19'], label: 'Rare', holo: 0.2 },
-  ultra_rare: { border: ['#94a3b8', '#f1f5f9', '#475569'], label: 'Ultra rare', holo: 0.34 },
-  illustration_rare: { border: ['#eab308', '#fef3c7', '#a16207'], label: 'Épique', holo: 0.4 },
-  special_rare: { border: ['#f59e0b', '#fff0c0', '#b45309'], label: 'Mythique', holo: 0.44 },
-  hyper_rare: { border: ['#d97706', '#ffe9b0', '#92400e'], label: 'Légendaire', holo: 0.5 },
-  // @ts-expect-error alias legacy
-  epic: { border: ['#94a3b8', '#f1f5f9', '#475569'], label: 'Ultra rare', holo: 0.34 },
-  legendary: { border: ['#eab308', '#fef3c7', '#a16207'], label: 'Épique', holo: 0.4 },
-  mythic: { border: ['#f59e0b', '#fff0c0', '#b45309'], label: 'Mythique', holo: 0.44 },
+/* ── Cadres de rareté : mêmes dégradés que les tuiles de l'app
+      (--rarity-frame-neutral / gold / mythic / legendary / iridescent) ── */
+type FrameKind = 'neutral' | 'gold' | 'iridescent' | 'mythic' | 'legendary';
+type Metal = 'gray' | 'gold' | 'iridescent';
+
+const FRAMES: Record<FrameKind, Array<[number, string]>> = {
+  neutral: [
+    [0, 'hsl(220, 8%, 51%)'], [13, 'hsl(215, 13%, 91%)'], [24, 'hsl(220, 8%, 62%)'],
+    [33, 'hsl(215, 12%, 97%)'], [48, 'hsl(220, 9%, 55%)'], [63, 'hsl(215, 11%, 85%)'],
+    [78, 'hsl(220, 8%, 47%)'], [89, 'hsl(215, 15%, 96%)'], [100, 'hsl(220, 9%, 57%)'],
+  ],
+  gold: [
+    [0, 'hsl(38, 75%, 37%)'], [13, 'hsl(49, 95%, 85%)'], [25, 'hsl(40, 92%, 51%)'],
+    [34, 'hsl(52, 100%, 94%)'], [48, 'hsl(37, 82%, 40%)'], [64, 'hsl(46, 97%, 72%)'],
+    [78, 'hsl(34, 81%, 36%)'], [89, 'hsl(50, 100%, 90%)'], [100, 'hsl(40, 92%, 53%)'],
+  ],
+  iridescent: [
+    [0, 'hsl(265, 90%, 55%)'], [12, 'hsl(320, 95%, 62%)'], [24, 'hsl(190, 100%, 55%)'],
+    [34, 'hsl(255, 95%, 70%)'], [47, 'hsl(300, 95%, 60%)'], [61, 'hsl(170, 95%, 48%)'],
+    [75, 'hsl(275, 90%, 58%)'], [85, 'hsl(45, 100%, 60%)'], [93, 'hsl(330, 95%, 60%)'],
+    [100, 'hsl(200, 100%, 60%)'],
+  ],
+  mythic: [
+    [0, 'hsl(285, 84%, 48%)'], [18, 'hsl(315, 95%, 66%)'], [37, 'hsl(190, 94%, 72%)'],
+    [54, 'hsl(265, 90%, 60%)'], [72, 'hsl(320, 92%, 65%)'], [88, 'hsl(185, 95%, 65%)'],
+    [100, 'hsl(285, 84%, 48%)'],
+  ],
+  legendary: [
+    [0, 'hsl(42, 100%, 47%)'], [13, 'hsl(52, 100%, 82%)'], [27, 'hsl(185, 100%, 56%)'],
+    [42, 'hsl(222, 97%, 52%)'], [59, 'hsl(305, 95%, 57%)'], [74, 'hsl(47, 100%, 70%)'],
+    [88, 'hsl(175, 100%, 52%)'], [100, 'hsl(42, 100%, 47%)'],
+  ],
+};
+
+/* Métal des étoiles : mêmes teintes que RarityBadge (tokens --rarity-icon-*) */
+const METALS: Record<Metal, Array<[number, string]>> = {
+  gray: [
+    [0, 'hsl(220, 12%, 36%)'], [20, 'hsl(215, 13%, 91%)'], [37, 'hsl(220, 9%, 58%)'],
+    [55, 'hsl(215, 13%, 91%)'], [76, 'hsl(220, 12%, 36%)'], [100, 'hsl(220, 9%, 58%)'],
+  ],
+  gold: [
+    [0, 'hsl(38, 75%, 33%)'], [20, 'hsl(49, 95%, 86%)'], [38, 'hsl(40, 92%, 51%)'],
+    [55, 'hsl(49, 95%, 86%)'], [78, 'hsl(38, 75%, 33%)'], [100, 'hsl(40, 92%, 51%)'],
+  ],
+  iridescent: [
+    [0, 'hsl(218, 17%, 48%)'], [18, 'hsl(326, 66%, 76%)'], [36, 'hsl(198, 82%, 72%)'],
+    [52, 'hsl(220, 15%, 95%)'], [72, 'hsl(326, 66%, 76%)'], [88, 'hsl(198, 82%, 72%)'],
+    [100, 'hsl(218, 17%, 48%)'],
+  ],
+};
+
+const RARITY: Record<Rarity, { frame: FrameKind; stars: number; metal: Metal; holo: number }> = {
+  common: { frame: 'neutral', stars: 1, metal: 'gray', holo: 0.1 },
+  uncommon: { frame: 'neutral', stars: 2, metal: 'gray', holo: 0.1 },
+  rare: { frame: 'neutral', stars: 3, metal: 'gray', holo: 0.22 },
+  very_rare: { frame: 'gold', stars: 1, metal: 'gold', holo: 0.2 },
+  ultra_rare: { frame: 'gold', stars: 2, metal: 'gold', holo: 0.34 },
+  illustration_rare: { frame: 'gold', stars: 3, metal: 'gold', holo: 0.4 },
+  special_rare: { frame: 'mythic', stars: 1, metal: 'iridescent', holo: 0.44 },
+  hyper_rare: { frame: 'legendary', stars: 2, metal: 'iridescent', holo: 0.5 },
+};
+
+/* Étoile identique au SVG de RarityBadge (boîte 12×12, bras épais). */
+const STAR_PATH = 'M6 0 L7.88 3.41 L11.71 4.15 L9.05 6.99 L9.53 10.85 L6 9.2 L2.47 10.85 L2.95 6.99 L0.29 4.15 L4.12 3.41 Z';
+
+const traceStar = (ctx: CanvasRenderingContext2D, d: string, sx: number, sy: number, k: number) => {
+  const path = new Path2D(d);
+  ctx.save();
+  ctx.translate(sx, sy);
+  ctx.scale(k, k);
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = 1.8;
+  ctx.strokeStyle = 'rgba(15, 19, 30, 0.9)';
+  ctx.stroke(path); // contour sombre sous le remplissage (paint-order: stroke fill)
+  ctx.fill(path);
+  ctx.restore();
 };
 
 const roundRect = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) => {
