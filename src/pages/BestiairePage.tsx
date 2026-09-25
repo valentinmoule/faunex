@@ -735,6 +735,13 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
     return [{ name: FAVORITES_FILTER, total: favCount }, ...list];
   }, [myCaptures, favoriteIds]);
 
+  // Compteurs par rareté et popularité pour la modale « mes captures »
+  const mineRarityCountData = useMemo(() => countByRarity(myCaptures), [myCaptures]);
+  const minePopularityCountData = useMemo(
+    () => countByPopularity(myCaptures.map((c) => ({ finders: findersByName.get(c.name.toLowerCase()) ?? 0 }))),
+    [myCaptures, findersByName],
+  );
+
   // Flat list of my own captures (one entry per capture), filtered + trié selon le mode choisi
   const myCapturedAnimals = useMemo(() => {
     const q = normalizeSearch(mineSearch);
