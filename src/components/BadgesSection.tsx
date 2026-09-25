@@ -1,11 +1,9 @@
 import { useMemo, useState } from 'react';
-import { Gift } from 'lucide-react';
 import XpPill from '@/components/XpPill';
-import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
-import { supabase } from '@/integrations/supabase/client';
 import { useBadges, type BadgeProgress } from '@/hooks/useBadges';
 import BadgeMedallion from '@/components/BadgeMedallion';
+import BadgeRewardSheet from '@/components/BadgeRewardSheet';
 import { BADGE_GROUP_ICONS, BADGE_GROUP_ORDER, getGroupLabel, type BadgeGroup } from '@/lib/badges';
 
 interface Props {
@@ -21,10 +19,9 @@ type Filter = 'all' | 'claimable' | 'unlocked' | BadgeGroup;
 const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaimed }: Props) => {
   const { t } = useTranslation();
   const { badges, loading, markClaimed } = useBadges(userId, level, regionsExplored, refreshKey);
-  const [claiming, setClaiming] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>('all');
-  /** Badge tout juste réclamé : affiché en grand dans une popup de célébration. */
-  const [celebrated, setCelebrated] = useState<BadgeProgress | null>(null);
+  /** Badge dont l'écran de récompense est ouvert : la récupération s'y fait. */
+  const [reward, setReward] = useState<BadgeProgress | null>(null);
 
   const claimedCount = badges.filter((b) => b.claimed).length;
   const claimableCount = badges.filter((b) => b.earned && !b.claimed).length;
@@ -42,22 +39,6 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
       items: filtered.filter((b) => b.badge.group === group),
     })).filter((s) => s.items.length > 0);
   }, [filtered]);
-
-  const claimBadge = async (entry: BadgeProgress) => {
-    if (claiming) return;
-    const { id } = entry.badge;
-    setClaiming(id);
-    const { data: claimed, error } = await supabase.rpc('claim_badge', {
-      p_badge_id: id,
-      p_xp_reward: entry.badge.xp,
-    });
-    if (!error && claimed) {
-      markClaimed(id);
-      setCelebrated(entry);
-      onClaimed?.();
-    }
-    setClaiming(null);
-  };
 
 
   const chips: { key: Filter; label: string }[] = [
@@ -116,8 +97,8 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
                 return (
                   <button
                     key={badge.id}
-                    disabled={!readyToClaim || claiming === badge.id}
-                    onClick={() => readyToClaim && claimBadge({ badge, progress, earned, claimed })}
+                    disabled={!readyToClaim}
+                    onClick={() => readyToClaim && setReward({ badge, progress, earned, claimed })}
                     className={`relative overflow-hidden rounded-3xl px-3 pt-5 pb-3.5 text-center transition-all duration-500 game-card-appear ${
                       claimed
                         ? 'bg-card border border-amber/30 shadow-[0_10px_28px_-16px_hsla(38,92%,56%,0.45)] badge-earned-glow'
@@ -189,34 +170,16 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
         ))}
       </div>
 
-      {/* Célébration plein écran du badge fraîchement débloqué */}
-      {celebrated && (
-        <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/50 backdrop-blur-sm px-6 animate-in fade-in"
-          onClick={() => setCelebrated(null)}
-        >
-          <div className="w-full max-w-[300px] rounded-[28px] bg-card border border-amber/30 shadow-[0_30px_60px_-25px_hsla(38,92%,56%,0.55)] px-6 pt-8 pb-6 text-center relative game-card-appear">
-            <span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-amber/12 px-2.5 py-1 text-[11px] font-display font-bold text-amber">
-              <Gift className="w-3 h-3" /> +{celebrated.badge.xp} XP
-            </span>
-            <BadgeMedallion
-              badgeId={celebrated.badge.id}
-              group={celebrated.badge.group}
-              fallbackEmoji={celebrated.badge.icon}
-              state="claimed"
-              size={120}
-              className="mx-auto mb-4"
-            />
-            <h4 className="font-display text-lg font-black text-foreground">{celebrated.badge.name}</h4>
-            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{celebrated.badge.description}</p>
-            <button
-              onClick={() => setCelebrated(null)}
-              className="mt-5 w-full rounded-full bg-primary px-4 py-3 font-display text-sm font-bold text-primary-foreground active:scale-95 transition-transform"
-            >
-              {t('profile.badges.celebrateCta', { defaultValue: 'Super !' })}
-            </button>
-          </div>
-        </div>
+      {/* Écran de récompense : illustration en grand + récupération */}
+      {reward && (
+        <BadgeRewardSheet
+          entry={reward}
+          onClose={() => setReward(null)}
+          onClaimed={(entry) => {
+            markClaimed(entry.badge.id);
+            onClaimed?.();
+          }}
+        />
       )}
     </div>
 

@@ -70,7 +70,7 @@ const GROUP_FALLBACK: Record<BadgeGroup, LucideIcon> = {
 };
 
 /** Teinte du blason par famille (token HSL du design system). */
-const GROUP_HUE: Record<BadgeGroup, { from: string; to: string }> = {
+export const GROUP_HUE: Record<BadgeGroup, { from: string; to: string }> = {
   progression: { from: '--primary', to: '--rarity-uncommon' },
   especes: { from: '--accent', to: '--primary' },
   rarete: { from: '--rarity-rare', to: '--rarity-very-rare' },

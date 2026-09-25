@@ -35,6 +35,15 @@
         "newTag": "New"
       }
     },
+    "reward": {
+      "close": "Close",
+      "newTag": "New",
+      "claimCta": "Claim reward",
+      "claiming": "Claiming…",
+      "claimed": "Badge claimed",
+      "toast": "Badge claimed: +{{xp}} XP",
+      "error": "Couldn't claim this badge"
+    },
     "quests": {
       "weekTitle": "Weekly quests",
       "completedCount": "{{completed}}/{{total}} completed",
