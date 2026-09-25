@@ -76,7 +76,7 @@ interface FollowProfile {
 }
 
 // Comptes techniques masqués de la liste des explorateurs (review App Store)
-const HIDDEN_USER_IDS = ['f7910e92-39a6-4703-b31d-bf1e245e2a4e', 'ac0df155-7422-4073-bfc1-14e2a71960bc'];
+const HIDDEN_USER_IDS = ['f7910e92-39a6-4703-b31d-bf1e245e2a4e', 'ac0df155-7422-4073-bfc1-14e2a71960bc', 'c62717cb-255a-4491-a5a0-132880e703be'];
 
 const ExplorersPage = () => {
   const { t } = useTranslation();

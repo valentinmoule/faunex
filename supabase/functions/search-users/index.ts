@@ -64,6 +64,7 @@ serve(async (req) => {
       .from("profiles")
       .select("user_id, display_name, username, avatar_url, level, total_captures")
       .neq("user_id", user.id)
+       .not("user_id", "in", "(f7910e92-39a6-4703-b31d-bf1e245e2a4e,ac0df155-7422-4073-bfc1-14e2a71960bc,c62717cb-255a-4491-a5a0-132880e703be)")
       .or(`display_name.ilike.%${searchTerm}%,username.ilike.%${searchTerm}%`)
       .limit(20);
 

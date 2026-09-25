@@ -45,7 +45,7 @@ as $function$
         p_category is null or p_category in ('all', '*')
         or lower(btrim(regexp_replace(coalesce(c.category, ''), '\s*\(monde\)$', '', 'i'))) = lower(btrim(p_category))
       )
-      and c.user_id <> all (array['f7910e92-39a6-4703-b31d-bf1e245e2a4e','ac0df155-7422-4073-bfc1-14e2a71960bc']::uuid[])
+      and c.user_id <> all (array['f7910e92-39a6-4703-b31d-bf1e245e2a4e','ac0df155-7422-4073-bfc1-14e2a71960bc','c62717cb-255a-4491-a5a0-132880e703be']::uuid[])
       and (
         not m.follows_only
         or ((select ok from premium) and c.user_id in (select uid from allowed))
@@ -89,7 +89,7 @@ as $function$
         p_category is null or p_category in ('all', '*')
         or lower(btrim(regexp_replace(coalesce(c.category, ''), '\s*\(monde\)$', '', 'i'))) = lower(btrim(p_category))
       )
-      and c.user_id <> all (array['f7910e92-39a6-4703-b31d-bf1e245e2a4e','ac0df155-7422-4073-bfc1-14e2a71960bc']::uuid[])
+      and c.user_id <> all (array['f7910e92-39a6-4703-b31d-bf1e245e2a4e','ac0df155-7422-4073-bfc1-14e2a71960bc','c62717cb-255a-4491-a5a0-132880e703be']::uuid[])
       and (
         not m.follows_only
         or ((select ok from premium) and c.user_id in (select uid from allowed))
@@ -132,7 +132,7 @@ as $function$
         where ad.department_code = p_department
           and lower(ad.animal_name) = lower(c.animal_name)
       )
-      and c.user_id <> all (array['f7910e92-39a6-4703-b31d-bf1e245e2a4e','ac0df155-7422-4073-bfc1-14e2a71960bc']::uuid[])
+      and c.user_id <> all (array['f7910e92-39a6-4703-b31d-bf1e245e2a4e','ac0df155-7422-4073-bfc1-14e2a71960bc','c62717cb-255a-4491-a5a0-132880e703be']::uuid[])
       and (
         not m.follows_only
         or ((select ok from premium) and c.user_id in (select uid from allowed))
@@ -177,7 +177,7 @@ as $function$
         where ad.department_code = p_department
           and lower(ad.animal_name) = lower(c.animal_name)
       )
-      and c.user_id <> all (array['f7910e92-39a6-4703-b31d-bf1e245e2a4e','ac0df155-7422-4073-bfc1-14e2a71960bc']::uuid[])
+      and c.user_id <> all (array['f7910e92-39a6-4703-b31d-bf1e245e2a4e','ac0df155-7422-4073-bfc1-14e2a71960bc','c62717cb-255a-4491-a5a0-132880e703be']::uuid[])
       and (
         not m.follows_only
         or ((select ok from premium) and c.user_id in (select uid from allowed))
