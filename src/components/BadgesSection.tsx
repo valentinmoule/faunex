@@ -76,14 +76,13 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
               }`}
               style={{ animationDelay: `${Math.min(i, 17) * 40}ms` }}
             >
-              {/* Tag « Nouveau » sur les badges à réclamer (style Duolingo) */}
+              {/* Tag « Nouveau » sur les badges à réclamer */}
               {readyToClaim && (
                 <span className="absolute top-2 left-2 z-10 rounded-[6px] bg-destructive px-2 py-1 text-[9px] font-display font-black uppercase tracking-wide text-destructive-foreground shadow-sm">
                   {t('profile.badges.newTag')}
                 </span>
               )}
 
-              {/* Pastille XP / état (masquée une fois réclamé) */}
               {!claimed && (
                 <XpPill
                   xp={badge.xp}
@@ -97,7 +96,7 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
                 group={badge.group}
                 fallbackEmoji={badge.icon}
                 state={claimed ? 'claimed' : readyToClaim ? 'claimable' : 'locked'}
-                size={64}
+                size={96}
                 className="mx-auto mb-2"
               />
 
