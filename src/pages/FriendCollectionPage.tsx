@@ -13,6 +13,8 @@ import {
   SpeciesFilterButton,
   SpeciesSortFilterSheet,
   applySpeciesSortFilter,
+  countByPopularity,
+  countByRarity,
   type SpeciesSort,
   type PopularityTier,
   SPECIES_SORT_OPTIONS,
@@ -244,6 +246,12 @@ const FriendCollectionPage = () => {
       .map(([name, total]) => ({ name, total }))
       .sort((a, b) => b.total - a.total);
   })();
+
+  /** Compteurs par rareté et popularité pour la modale de filtres. */
+  const rarityCountData = countByRarity(captures);
+  const popularityCountData = countByPopularity(
+    captures.map((c) => ({ finders: findersMap.get(c.name.toLowerCase()) ?? 0 })),
+  );
 
   const activeFilterCount = rarityFilter.length + popularityFilter.length + categoryFilter.length;
 
