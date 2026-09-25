@@ -1149,25 +1149,47 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
         </div>
       ), document.body)}
 
-      <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
-        <AlertDialogContent className="z-[10000]">
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t('capture.detail.deleteDialogTitle')}</AlertDialogTitle>
-            <AlertDialogDescription>
+      {/* Delete confirmation — portalled so it floats above the drawer */}
+      {confirmDelete && createPortal((
+        <div
+          className="fixed inset-0 z-[10001] flex items-center justify-center px-6"
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="delete-capture-title"
+          aria-describedby="delete-capture-desc"
+        >
+          <div className="delete-confirm-scrim" onClick={() => !deleting && setConfirmDelete(false)} />
+          <div className="delete-confirm-card">
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 text-destructive">
+              <Trash2 className="h-5 w-5" />
+            </div>
+            <h4 id="delete-capture-title" className="font-display font-bold text-base leading-tight text-foreground">
+              {t('capture.detail.deleteDialogTitle')}
+            </h4>
+            <p id="delete-capture-desc" className="mt-1.5 text-sm leading-snug text-muted-foreground">
               {t('capture.detail.deleteDialogDesc', { name: displayName })}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t('capture.detail.cancelDialog')}</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={(e) => { e.preventDefault(); handleDelete(); }}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {deleting ? t('capture.detail.deleting') : t('capture.detail.deleteBtn')}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </p>
+            <div className="mt-5 grid grid-cols-2 gap-2.5">
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(false)}
+                disabled={deleting}
+                className="py-3 rounded-2xl bg-muted text-foreground font-display font-semibold text-sm transition-colors hover:bg-muted/70 disabled:opacity-50"
+              >
+                {t('capture.detail.cancelDialog')}
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={deleting}
+                className="py-3 rounded-2xl bg-destructive text-destructive-foreground font-display font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-60"
+              >
+                {deleting ? t('capture.detail.deleting') : t('capture.detail.deleteBtn')}
+              </button>
+            </div>
+          </div>
+        </div>
+      ), document.body)}
     </>
 
   );
