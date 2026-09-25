@@ -1,6 +1,6 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Crown, Settings, ShieldCheck, UserRound } from 'lucide-react';
+import { Camera, Crown, Loader2, Settings, ShieldCheck, UserRound } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,8 @@ import { PremiumAvatar } from '@/components/PremiumAvatar';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/hooks/useSubscription';
 import { supabase } from '@/integrations/supabase/client';
+import { prepareSourceImage, readFileAsDataUrl, dataUrlToBytes } from '@/lib/imageProcessing';
+import { toast } from 'sonner';
 import ProfileBadgesRow from '@/components/ProfileBadgesRow';
 
 interface DrawerProfile {
@@ -95,6 +97,36 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
     setOpen(true);
   }, []);
 
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file || !userId) return;
+    const isHeicName = /\.(heic|heif)$/i.test(file.name);
+    if (!file.type.startsWith('image/') && !isHeicName) { toast.error(t('profile.settings.errors.onlyImages')); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error(t('profile.settings.errors.imageTooLarge')); return; }
+    setUploadingAvatar(true);
+    try {
+      const normalized = await prepareSourceImage(await readFileAsDataUrl(file));
+      if (!normalized) { toast.error(t('profile.settings.errors.imageUnreadable')); return; }
+      const filePath = `${userId}/avatar.jpg`;
+      await supabase.storage.from('avatars').upload(filePath, dataUrlToBytes(normalized), {
+        cacheControl: '3600',
+        upsert: true,
+        contentType: 'image/jpeg',
+      });
+      const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
+      const avatarUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+      const { error } = await supabase.from('profiles').update({ avatar_url: avatarUrl }).eq('user_id', userId);
+      if (error) throw error;
+      setProfile(prev => prev ? { ...prev, avatar_url: avatarUrl } : prev);
+      toast.success(t('profile.settings.success.photoUpdated'));
+    } catch { toast.error(t('profile.settings.errors.uploadError')); }
+    finally { setUploadingAvatar(false); }
+  };
+
   // Charge les stats à chaque ouverture, y compris quand la session arrive après.
   useEffect(() => {
     if (open && userId) void loadProfile();
@@ -140,13 +172,27 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
           ) : (
             <div className="mx-auto max-w-lg">
               <header className="flex flex-col items-center text-center">
-                <PremiumAvatar
-                  avatarUrl={profile?.avatar_url}
-                  name={profile?.display_name}
-                  size="xl"
-                  isPremium={isPremium}
-                  className="ring-4 ring-primary/10"
-                />
+                <button
+                  type="button"
+                  onClick={() => avatarInputRef.current?.click()}
+                  disabled={uploadingAvatar}
+                  aria-label={t('profile.page.drawer.changePhoto')}
+                  className="group relative rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <PremiumAvatar
+                    avatarUrl={profile?.avatar_url}
+                    name={profile?.display_name}
+                    size="xl"
+                    isPremium={isPremium}
+                    className="ring-4 ring-primary/10 transition-transform active:scale-95"
+                  />
+                  <span className="absolute inset-x-0 -bottom-0.5 flex justify-center">
+                    <span className="flex size-7 items-center justify-center rounded-full border-2 border-card bg-primary text-primary-foreground shadow-sm">
+                      {uploadingAvatar ? <Loader2 className="size-3.5 animate-spin" /> : <Camera className="size-3.5" />}
+                    </span>
+                  </span>
+                </button>
+                <input ref={avatarInputRef} type="file" accept="image/*,.heic,.heif" className="hidden" onChange={handleAvatarUpload} />
                 <h2 className="mt-3 text-xl font-display font-bold text-foreground">
                   {profile?.display_name || t('profile.page.noName')}
                 </h2>
