@@ -679,13 +679,29 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
             {/* Like & Comment bar — hidden for undiscovered animals */}
             {!isUncaptured && (
               <div className="flex items-center justify-center gap-6">
-                <button onClick={handleLike} className="flex items-center gap-2 py-2.5 group">
+                <button
+                  onClick={handleLike}
+                  aria-pressed={liked}
+                  aria-label={t('capture.detail.like')}
+                  title={t('capture.detail.like')}
+                  className="relative flex items-center gap-2 py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
+                >
                   <Heart className={`w-6 h-6 transition-all ${liked ? 'fill-destructive text-destructive scale-110' : 'text-muted-foreground group-hover:text-destructive'}`} />
-                  <span className={`text-sm font-display font-semibold ${liked ? 'text-destructive' : 'text-muted-foreground'}`}>{likeCount}</span>
+                  {likeCount > 0 && (
+                    <span className={`text-sm font-display font-semibold ${liked ? 'text-destructive' : 'text-muted-foreground'}`}>{likeCount}</span>
+                  )}
                 </button>
-                <button onClick={() => setShowComments(!showComments)} className="flex items-center gap-2 py-2.5 group">
+                <button
+                  onClick={() => setShowComments(!showComments)}
+                  aria-expanded={showComments}
+                  aria-label={t('capture.detail.comments')}
+                  title={t('capture.detail.comments')}
+                  className="relative flex items-center gap-2 py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
+                >
                   <MessageCircle className={`w-6 h-6 transition-colors ${showComments ? 'text-primary fill-primary/20' : 'text-muted-foreground group-hover:text-primary'}`} />
-                  <span className={`text-sm font-display font-semibold ${showComments ? 'text-primary' : 'text-muted-foreground'}`}>{commentCount}</span>
+                  {commentCount > 0 && (
+                    <span className={`text-sm font-display font-semibold ${showComments ? 'text-primary' : 'text-muted-foreground'}`}>{commentCount}</span>
+                  )}
                 </button>
                 {isOwner && (
                   <button
