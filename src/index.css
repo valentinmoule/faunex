@@ -3368,7 +3368,7 @@ html.is-native-android body {
   inset: 0;
   pointer-events: none;
   background-color: hsl(var(--primary));
-  opacity: 0.2;
+  opacity: 0.26;
   -webkit-mask-image: var(--funfact-motif);
   mask-image: var(--funfact-motif);
   -webkit-mask-repeat: repeat;
