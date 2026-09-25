@@ -189,6 +189,7 @@
       "location": "Location",
       "notProvided": "Not provided",
       "locationLabel": "Location",
+      "capturedOnLabel": "Captured on",
       "modify": "Edit",
       "add": "Add",
       "searching": "Searching…",
