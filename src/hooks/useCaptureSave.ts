@@ -9,10 +9,12 @@ interface SaveContext {
   userId: string | undefined;
   photo: string | null;
   geo: GeoTag;
+  /** Date de prise de vue (EXIF) d'une photo importée. */
+  takenAt?: string | null;
 }
 
 /** Persistence layer for captures: storage upload, insert, duplicate replace, manual submission. */
-export const useCaptureSave = ({ userId, photo, geo }: SaveContext) => {
+export const useCaptureSave = ({ userId, photo, geo, takenAt = null }: SaveContext) => {
   const [saving, setSaving] = useState(false);
   const [defaultShare, setDefaultShare] = useState(true);
 
@@ -107,6 +109,7 @@ export const useCaptureSave = ({ userId, photo, geo }: SaveContext) => {
           shared: defaultShare,
           caption: null,
           location: geo.name || null,
+          taken_at: takenAt,
           latitude: geo.coords?.lat || null,
           longitude: geo.coords?.lng || null,
           subject_bbox: animal.subject_bbox ?? null,
@@ -128,6 +131,7 @@ export const useCaptureSave = ({ userId, photo, geo }: SaveContext) => {
           label_category: animal.category ?? null,
           label_rarity: animal.rarity ?? null,
           location: geo.name || null,
+          taken_at: takenAt,
           latitude: geo.coords?.lat ?? null,
           longitude: geo.coords?.lng ?? null,
         });
@@ -162,6 +166,7 @@ export const useCaptureSave = ({ userId, photo, geo }: SaveContext) => {
             shared: defaultShare,
             caption: null,
             location: geo.name || null,
+            taken_at: takenAt,
             latitude: geo.coords?.lat || null,
             longitude: geo.coords?.lng || null,
             subject_bbox: animal.subject_bbox ?? null,
@@ -201,6 +206,7 @@ export const useCaptureSave = ({ userId, photo, geo }: SaveContext) => {
             shared: defaultShare,
             caption: null,
             location: geo.name || null,
+            taken_at: takenAt,
             latitude: geo.coords?.lat || null,
             longitude: geo.coords?.lng || null,
             status: 'pending_review',
@@ -219,6 +225,7 @@ export const useCaptureSave = ({ userId, photo, geo }: SaveContext) => {
           label_scientific_name: entry.species || null,
           user_description: entry.description || null,
           location: geo.name || null,
+          taken_at: takenAt,
           latitude: geo.coords?.lat ?? null,
           longitude: geo.coords?.lng ?? null,
         });

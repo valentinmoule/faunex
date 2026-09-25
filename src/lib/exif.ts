@@ -246,3 +246,13 @@ export const readExifCameraInfo = async (file: File): Promise<ExifCameraInfo> =>
 /** HEIC/HEIF (iPhone) : conteneur ISO-BMFF, jamais un JPEG téléchargé du web. */
 export const isHeicFile = (file: File): boolean =>
   /heic|heif/i.test(file.type) || /\.(heic|heif)$/i.test(file.name);
+
+/** Convertit une date EXIF ("YYYY:MM:DD HH:MM:SS", heure locale) en ISO. */
+export const exifDateToIso = (raw: unknown): string | null => {
+  if (typeof raw !== 'string') return null;
+  const m = raw.trim().match(/^(\d{4})[:-](\d{2})[:-](\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?/);
+  if (!m) return null;
+  const d = new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +(m[6] ?? 0));
+  if (Number.isNaN(d.getTime()) || d.getFullYear() < 1990 || d.getTime() > Date.now() + 86400000) return null;
+  return d.toISOString();
+};
