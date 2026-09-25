@@ -71,17 +71,10 @@ export function CollectionHero({
           {subtitle && (
 <p className="text-xs text-white/75 font-display mb-2">{subtitle}</p>
           )}
-          <div className="flex items-center gap-3">
-<div className="flex-1 h-1.5 rounded-full bg-white/25 overflow-hidden">
-              <div
-                className="h-full rounded-full bg-white transition-all duration-500"
-                style={{ width: `${pct}%` }}
-              />
-            </div>
-            <span className="text-xs font-display font-semibold text-white/90 shrink-0">
-              {captured}/{total} · {pct}%
-            </span>
-          </div>
+          {/* Compteur seul — sans barre de progression */}
+          <span className="text-xs font-display font-semibold text-white/90">
+            {captured}/{total} · {pct}%
+          </span>
         </div>
       </div>
     </header>

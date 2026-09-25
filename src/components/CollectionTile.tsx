@@ -39,7 +39,6 @@ const CollectionTile = ({
   onClaim,
 }: CollectionTileProps) => {
   const { t } = useTranslation();
-  const pct = total > 0 ? Math.round((captured / total) * 100) : 0;
   const readyToClaim = complete && !claimed;
 
   return (
