@@ -3094,7 +3094,8 @@ html.is-native-android body {
   content: none;
 }
 .rarity-badge.rarity-badge--plain .rarity-svg__sym {
-  filter: drop-shadow(0 0 1px hsl(0 0% 0% / 0.6)) drop-shadow(0 1px 1.5px hsl(0 0% 0% / 0.45));
+  /* Halo clair + ombre sombre : l'étoile reste lisible sur fond clair comme sur photo sombre. */
+  filter: drop-shadow(0 0 1px hsl(0 0% 100% / 0.85)) drop-shadow(0 1px 1.5px hsl(0 0% 0% / 0.55));
 }
 .rarity-badge.rarity-badge--plain .rarity-badge__label {
   color: hsl(0 0% 100%);
