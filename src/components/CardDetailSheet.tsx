@@ -723,7 +723,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                   <button
                     onClick={() => {
                       hapticTap();
-                      void toggleFavorite(card.id);
+                      setAddToOpen(true);
                     }}
                     aria-pressed={isFavorite(card.id)}
                     aria-label={t('capture.detail.favorite')}
@@ -1073,6 +1073,34 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
         </Drawer.Portal>
       </Drawer.Root>
       <ShareCaptureSheet card={card} open={shareOpen} onClose={() => setShareOpen(false)} />
+      {card && (
+        <AddToCollectionSheet
+          open={addToOpen}
+          onClose={() => setAddToOpen(false)}
+          isFavorite={isFavorite(card.id)}
+          onToggleFavorite={() => void toggleFavorite(card.id)}
+          collections={customCollections.collections}
+          memberOf={customCollections.collectionsForSpecies(card.name)}
+          onToggleCollection={(collectionId) => {
+            if (customCollections.collectionsForSpecies(card.name).has(collectionId)) {
+              void customCollections.removeItem(collectionId, card.name);
+            } else {
+              void customCollections.addItem(collectionId, card.name, card.scientificName);
+            }
+          }}
+          onCreateCollection={async (name) => {
+            const created = await customCollections.createCollection(name);
+            if (!created) return false;
+            void customCollections.addItem(created.id, card.name, card.scientificName);
+            return true;
+          }}
+          isPremium={isPremium}
+          onGoPremium={() => {
+            setAddToOpen(false);
+            navigate('/premium');
+          }}
+        />
+      )}
 
       {/* Fullscreen image - portalled to body so it stacks above the drawer */}
       {imageFullscreen && card.image && createPortal((
