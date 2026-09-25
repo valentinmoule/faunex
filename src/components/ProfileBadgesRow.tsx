@@ -57,7 +57,7 @@ const ProfileBadgesRow = ({ userId, level, regionsExplored, onOpenAll, onClaimed
         type="button"
         onClick={onOpenAll}
         aria-label={t('profile.page.drawer.badgesSeeAll')}
-        className="flex w-full items-center justify-between px-3 pt-2.5 text-left"
+        className="flex w-full items-center justify-between pt-1 text-left"
       >
         <span className="text-xs font-display font-bold text-foreground">{t('profile.page.drawer.badgesTitle')}</span>
         <span className="flex items-center gap-0.5 text-[11px] text-muted-foreground">
@@ -65,7 +65,7 @@ const ProfileBadgesRow = ({ userId, level, regionsExplored, onOpenAll, onClaimed
           <ChevronRight className="size-3.5" />
         </span>
       </button>
-      <div className="flex items-center gap-3 px-3 pb-3 pt-2">
+      <div className="flex items-center gap-3 pb-1 pt-3">
         {items.length === 0 ? (
           <button type="button" onClick={onOpenAll} className="w-full py-2 text-left text-xs text-muted-foreground">
             {t('profile.page.drawer.badgesEmpty')}
