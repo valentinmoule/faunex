@@ -1383,6 +1383,87 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
   }
 
   // Species collection detail view (races de chien, papillons…)
+  // Vue détaillée d'une collection personnalisée (Premium)
+  if (selectedCustom) {
+    const items = customCollections.itemsFor(selectedCustom.id);
+    const capturedCount = customCollectionAnimals.filter((a) => a.captured).length;
+    const cover = customCover(selectedCustom.id);
+    const art = getCollectionArt(`custom:${selectedCustom.id}`, selectedCustom.name);
+    return (
+      <div className="min-h-screen bg-background pb-8">
+        <CollectionHero
+          image={cover || art.image}
+          overlay={art.overlay}
+          title={selectedCustom.name}
+          subtitle={t('bestiary.customCollections.sectionTitle')}
+          captured={capturedCount}
+          total={items.length}
+          onBack={() => { setSelectedCustomId(null); setRenamingCustom(false); }}
+          onRemove={() => {
+            if (window.confirm(t('bestiary.customCollections.deleteConfirm'))) {
+              customCollections.deleteCollection(selectedCustom.id);
+              setSelectedCustomId(null);
+            }
+          }}
+          removeLabel={t('bestiary.customCollections.delete')}
+        />
+        <div className="max-w-lg mx-auto px-4 pt-4">
+          {renamingCustom ? (
+            <form
+              className="flex items-center gap-2 mb-4"
+              onSubmit={(e) => {
+                e.preventDefault();
+                customCollections.renameCollection(selectedCustom.id, customNameDraft);
+                setRenamingCustom(false);
+              }}
+            >
+              <input
+                autoFocus
+                value={customNameDraft}
+                onChange={(e) => setCustomNameDraft(e.target.value)}
+                maxLength={40}
+                className="flex-1 min-w-0 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+              />
+              <button type="submit" className="p-2 rounded-full bg-primary text-primary-foreground" aria-label={t('bestiary.customCollections.rename')}>
+                <Check className="w-4 h-4" />
+              </button>
+              <button type="button" onClick={() => setRenamingCustom(false)} className="p-2 rounded-full border border-border" aria-label={t('bestiary.customCollections.cancel')}>
+                <X className="w-4 h-4" />
+              </button>
+            </form>
+          ) : (
+            <button
+              onClick={() => { setCustomNameDraft(selectedCustom.name); setRenamingCustom(true); }}
+              className="mb-4 text-xs font-display font-semibold text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {t('bestiary.customCollections.rename')}
+            </button>
+          )}
+          {items.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-10">
+              {t('bestiary.customCollections.empty')}
+            </p>
+          ) : (
+            <div className="grid grid-cols-3 gap-2">
+              {customCollectionAnimals.map((animal) => (
+                <div key={animal.name} className="relative">
+                  <BrowseSpeciesCard animal={animal} onSelect={handleSelectBrowseAnimal} />
+                  <button
+                    onClick={() => customCollections.removeItem(selectedCustom.id, animal.name)}
+                    aria-label={t('bestiary.customCollections.removeSpecies')}
+                    className="absolute -top-1.5 -right-1.5 z-10 p-1 rounded-full bg-background border border-border text-muted-foreground hover:text-destructive transition-colors"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   if (selectedCollection) {
     return (
       <main className="min-h-screen bg-background pb-24">
