@@ -195,8 +195,16 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
     { value: badgeCount, label: t('profile.page.stats.badges') },
   ], [followers, following, badgeCount, profile, t]);
 
+  const level = profile?.level ?? progressLevel;
+  const regions = profile?.regions_explored ?? progressRegions;
+  const { badges: badgeProgress } = useBadges(userId, level, regions, claimKey);
+  const claimableBadges = useMemo(
+    () => badgeProgress.filter((b) => b.earned && !b.claimed).length,
+    [badgeProgress],
+  );
+
   return (
-    <ProfileDrawerContext.Provider value={{ openProfile }}>
+    <ProfileDrawerContext.Provider value={{ openProfile, claimableBadges }}>
       {children}
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent side="bottom" className="max-h-[88vh] overflow-y-auto rounded-t-[28px] border-border px-5 pb-8 pt-3">
@@ -261,7 +269,7 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
                   level={profile.level}
                   regionsExplored={profile.regions_explored}
                   onOpenAll={() => go('/home?tab=badges')}
-                  onClaimed={() => void loadProfile()}
+                  onClaimed={() => { void loadProfile(); setClaimKey((k) => k + 1); }}
                 />
               )}
 
