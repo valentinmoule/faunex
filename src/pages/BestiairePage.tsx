@@ -1840,7 +1840,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                   })}
                 </div>
               </div>
-              <div className="flex min-h-8 items-center justify-between gap-3 px-1 pt-1">
+              <div className="flex h-[34px] items-center justify-between gap-3 px-1 pt-1">
                 <h2 className="min-w-0 truncate text-[15px] font-display font-bold text-foreground">
                   {leaderboardTab === 'week'
                     ? t('social.leaderboard.titleWeek')
