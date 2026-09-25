@@ -228,7 +228,7 @@
 
 /* Rare card entrance — slide up with blue flash */
 @keyframes card-appear-rare {
-  0% { opacity: 0; transform: scale(0.85) translateY(20px); filter: brightness(1); }
+  0% { opacity: 0; transform: scale(0.7) translateY(20px); filter: brightness(1); }
   50% { opacity: 1; transform: scale(1.05) translateY(-4px); filter: brightness(1.3); }
   70% { transform: scale(0.98) translateY(1px); filter: brightness(1.1); }
   100% { opacity: 1; transform: scale(1) translateY(0); filter: brightness(1); }
@@ -1159,7 +1159,7 @@
 @keyframes quest-icon-sparkle-2 {
   0%, 100% { opacity: 0; transform: scale(0) translate(0, 0); }
   25% { opacity: 1; transform: scale(1) translate(5px, -5px); }
-  55% { opacity: 0.7; transform: scale(0.85) translate(8px, -9px); }
+  55% { opacity: 0.7; transform: scale(0.7) translate(8px, -9px); }
   85% { opacity: 0; transform: scale(0.2) translate(6px, -13px); }
 }
 
