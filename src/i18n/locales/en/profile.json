@@ -31,7 +31,8 @@
         "badgesSeeAll": "See all badges",
         "badgesEmpty": "No badges yet",
         "badgeClaim": "Claim {{name}}",
-        "badgeClaimed": "Badge claimed: +{{xp}} XP"
+        "badgeClaimed": "Badge claimed: +{{xp}} XP",
+        "newTag": "New"
       }
     },
     "quests": {
@@ -66,6 +67,7 @@
       "unlocked": "Unlocked · {{count}}",
       "unlockedTag": "Unlocked ✨",
       "claimCta": "Claim now",
+      "newTag": "New",
       "celebrateCta": "Awesome!",
       "claimedToast": "Badge unlocked! +{{xp}} XP 🎉",
       "groups": {

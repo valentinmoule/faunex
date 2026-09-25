@@ -31,7 +31,8 @@
         "badgesSeeAll": "Voir tous les badges",
         "badgesEmpty": "Aucun badge pour l'instant",
         "badgeClaim": "Récupérer {{name}}",
-        "badgeClaimed": "Badge récupéré : +{{xp}} XP"
+        "badgeClaimed": "Badge récupéré : +{{xp}} XP",
+        "newTag": "Nouveau"
       }
     },
     "quests": {
@@ -66,6 +67,7 @@
       "unlocked": "Débloqués · {{count}}",
       "unlockedTag": "Débloqué ✨",
       "claimCta": "À réclamer",
+      "newTag": "Nouveau",
       "celebrateCta": "Super !",
       "claimedToast": "Badge débloqué ! +{{xp}} XP 🎉",
       "groups": {
