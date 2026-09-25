@@ -22,3 +22,4 @@
 
 ## Fiche espèce
 - [x] Catégorie et nombre de captures dans la même carte d’infos que Rareté, Date, Localisation
+- [x] Compteurs de likes et de commentaires affichés seulement lorsqu’ils sont non nuls
