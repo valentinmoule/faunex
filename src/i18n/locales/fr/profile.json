@@ -76,6 +76,7 @@
       "empty": "Aucun badge pour le moment.",
       "unlockedTag": "Débloqué ✨",
       "newTag": "Nouveau",
+      "counter": "{{current}} sur {{total}}",
       "celebrateCta": "Super !",
       "claimedToast": "Badge débloqué ! +{{xp}} XP 🎉",
       "groups": {
