@@ -247,7 +247,7 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
                     name={profile?.display_name || profile?.username}
                     size="xl"
                     isPremium={isPremium}
-                    className="ring-4 ring-primary/10 transition-transform active:scale-95"
+                    className="ring-4 ring-border transition-transform active:scale-95"
                   />
                   <span className="absolute inset-x-0 -bottom-0.5 flex justify-center">
                     <span className="flex size-7 items-center justify-center rounded-full border-2 border-card bg-primary text-primary-foreground shadow-sm">
