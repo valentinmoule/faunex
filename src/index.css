@@ -3445,7 +3445,7 @@ html.is-native-android body {
 }
 
 /* ===== Révélation d'espèce (RevealStage) — transform/opacity uniquement ===== */
-.reveal-stage { position: absolute; inset: 0; z-index: 40; overflow: hidden; display: flex; align-items: center; justify-content: center; --rv-glow: 145 63% 49%; }
+.reveal-stage { position: fixed; inset: 0; z-index: 60; overflow: hidden; display: flex; align-items: center; justify-content: center; --rv-glow: 145 63% 49%; }
 .reveal-stage.rv-gold { --rv-glow: 42 95% 55%; }
 .reveal-stage.rv-iridescent { --rv-glow: 300 70% 70%; }
 .rv-backdrop { position: absolute; inset: 0; background: radial-gradient(circle at 50% 42%, hsl(var(--rv-glow) / 0.35) 0%, hsl(215 30% 6% / 0.92) 55%, hsl(215 30% 4% / 0.97) 100%); animation: rv-fade-in 300ms ease-out both; }
