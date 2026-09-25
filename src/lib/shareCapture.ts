@@ -130,7 +130,8 @@ const drawCover = (
 export const buildShareImage = async (card: AnimalCard): Promise<Blob> => {
   if (!card.image) throw new Error('no image');
   const img = await loadImage(card.image);
-  const theme = RARITY[card.rarity] ?? RARITY.common;
+  const r = normalizeRarity(card.rarity);
+  const theme = RARITY[r] ?? RARITY.common;
 
   const canvas = document.createElement('canvas');
   canvas.width = W;
@@ -145,11 +146,9 @@ export const buildShareImage = async (card: AnimalCard): Promise<Blob> => {
   const pad = 26;
   const outerR = 64;
 
-  // Cadre de rareté (dégradé continu)
+  // Cadre de rareté : dégradé métallique identique aux tuiles de l'app
   const frame = ctx.createLinearGradient(0, 0, W, H);
-  frame.addColorStop(0, theme.border[0]);
-  frame.addColorStop(0.45, theme.border[1]);
-  frame.addColorStop(1, theme.border[2]);
+  FRAMES[theme.frame].forEach(([pos, color]) => frame.addColorStop(pos / 100, color));
   ctx.fillStyle = frame;
   roundRect(ctx, 0, 0, W, H, outerR);
   ctx.fill();
