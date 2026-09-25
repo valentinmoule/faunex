@@ -283,13 +283,13 @@ const SettingsPage = () => {
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadingAvatar}
-                style={avatarFallbackStyle(profile.display_name, { border: true })}
+                style={avatarFallbackStyle(profile.display_name || profile.username, { border: true })}
                 className="relative w-24 h-24 rounded-full flex items-center justify-center text-3xl font-display font-bold border-2 border-primary/30 overflow-hidden group"
               >
                 {profile.avatar_url ? (
                   <img src={profile.avatar_url} alt={t('profile.settings.avatarAlt')} className="w-full h-full object-cover" />
                 ) : (
-                  <span>{(profile.display_name || '?').charAt(0).toUpperCase()}</span>
+                  <span>{(profile.display_name || profile.username || '?').charAt(0).toUpperCase()}</span>
                 )}
                 <div className="absolute inset-0 bg-foreground/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                   {uploadingAvatar ? <Loader2 className="w-5 h-5 text-primary-foreground animate-spin" /> : <Camera className="w-5 h-5 text-primary-foreground" />}

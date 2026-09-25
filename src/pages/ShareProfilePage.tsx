@@ -140,13 +140,13 @@ const ShareProfilePage = () => {
         <div className="bg-card rounded-2xl border border-border p-6 text-center shadow-card space-y-4">
           <div className="flex justify-center">
             <div
-              style={avatarFallbackStyle(profile.display_name, { border: true })}
+              style={avatarFallbackStyle(profile.display_name || profile.username, { border: true })}
               className="w-20 h-20 rounded-full flex items-center justify-center text-3xl font-display font-bold border-2 border-primary/30 overflow-hidden"
             >
               {profile.avatar_url ? (
                 <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
               ) : (
-                <span>{(profile.display_name || '?').charAt(0).toUpperCase()}</span>
+                <span>{(profile.display_name || profile.username || '?').charAt(0).toUpperCase()}</span>
               )}
             </div>
           </div>
