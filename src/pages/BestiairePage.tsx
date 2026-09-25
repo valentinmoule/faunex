@@ -1939,18 +1939,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                   {t('bestiary.customCollections.sectionTitle')}
                 </h2>
                 {customCollections.collections.length === 0 && !creatingCustom ? (
-                  <button
-                    onClick={() => {
-                      if (!isPremium) { navigate('/premium'); return; }
-                      setCreatingCustom(true);
-                    }}
-                    className="w-full rounded-2xl border border-dashed border-border p-4 text-center transition active:scale-[0.98] hover:border-primary/40"
-                  >
-                    <div className="flex items-center justify-center gap-2 text-sm font-display font-semibold text-muted-foreground">
-                      {isPremium ? <Plus className="w-4 h-4" /> : <Crown className="w-4 h-4 text-amber-500" />}
-                      {t('bestiary.customCollections.createNew')}
-                    </div>
-                  </button>
+                  <p className="text-xs text-muted-foreground font-display">{t('bestiary.customCollections.empty')}</p>
                 ) : (
                   <div className="grid grid-cols-2 gap-3">
                     {customCollections.collections.map((c) => {
@@ -1973,16 +1962,6 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                         </button>
                       );
                     })}
-                    <button
-                      onClick={() => {
-                        if (!isPremium) { navigate('/premium'); return; }
-                        setCreatingCustom(true);
-                      }}
-                      className="rounded-2xl border border-dashed border-border aspect-[4/3] flex flex-col items-center justify-center gap-1 text-muted-foreground transition active:scale-[0.98] hover:border-primary/40"
-                    >
-                      {isPremium ? <Plus className="w-5 h-5" /> : <Crown className="w-5 h-5 text-amber-500" />}
-                      <span className="text-xs font-display font-semibold">{t('bestiary.customCollections.createNew')}</span>
-                    </button>
                   </div>
                 )}
                 {creatingCustom && (
