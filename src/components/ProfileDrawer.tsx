@@ -12,6 +12,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { prepareSourceImage, readFileAsDataUrl, dataUrlToBytes } from '@/lib/imageProcessing';
 import { toast } from 'sonner';
 import ProfileBadgesRow from '@/components/ProfileBadgesRow';
+import { useBadges } from '@/hooks/useBadges';
 
 interface DrawerProfile {
   display_name: string | null;
@@ -26,6 +27,7 @@ interface DrawerProfile {
 
 interface ProfileDrawerContextValue {
   openProfile: () => void;
+  claimableBadges: number;
 }
 
 const ProfileDrawerContext = createContext<ProfileDrawerContextValue | null>(null);
@@ -38,7 +40,7 @@ export const useProfileDrawer = () => {
 
 export const ProfileButton = ({ className = '' }: { className?: string }) => {
   const { t } = useTranslation();
-  const { openProfile } = useProfileDrawer();
+  const { openProfile, claimableBadges } = useProfileDrawer();
   return (
     <Button
       type="button"
@@ -46,9 +48,15 @@ export const ProfileButton = ({ className = '' }: { className?: string }) => {
       size="icon"
       onClick={openProfile}
       aria-label={t('profile.page.drawer.open')}
-      className={`rounded-full ${className}`}
+      className={`relative rounded-full ${className}`}
     >
       <UserRound className="!size-5" />
+      {claimableBadges > 0 && (
+        <span
+          aria-hidden
+          className="absolute right-0.5 top-0.5 size-2 rounded-full bg-primary ring-2 ring-background"
+        />
+      )}
     </Button>
   );
 };
@@ -68,6 +76,13 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
   const [badgeCount, setBadgeCount] = useState(0);
   const [isAdmin, setIsAdmin] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
+
+  // Valeurs légères pour le calcul des badges à réclamer (avant ouverture du profil).
+  const [progressLevel, setProgressLevel] = useState(1);
+  const [progressRegions, setProgressRegions] = useState(0);
+  const [claimKey, setClaimKey] = useState(0);
+  const pathname = useLocation().pathname;
+  const lastPathRef = useRef(pathname);
 
   const loadProfile = useCallback(async () => {
     if (!userId) return;
@@ -92,6 +107,30 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
     }
     setLoading(false);
   }, [userId]);
+
+  useEffect(() => {
+    if (!userId) return;
+    let cancelled = false;
+    supabase
+      .from('profiles')
+      .select('level, regions_explored')
+      .eq('user_id', userId)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (cancelled || !data) return;
+        setProgressLevel(data.level ?? 1);
+        setProgressRegions(data.regions_explored ?? 0);
+      });
+    return () => { cancelled = true; };
+  }, [userId]);
+
+  // La pastille se recalcule en changeant d'écran (ex. retour depuis la page badges).
+  useEffect(() => {
+    if (lastPathRef.current !== pathname) {
+      lastPathRef.current = pathname;
+      setClaimKey((k) => k + 1);
+    }
+  }, [pathname]);
 
   const openProfile = useCallback(() => {
     setOpen(true);
@@ -157,8 +196,16 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
     { value: badgeCount, label: t('profile.page.stats.badges') },
   ], [followers, following, badgeCount, profile, t]);
 
+  const level = profile?.level ?? progressLevel;
+  const regions = profile?.regions_explored ?? progressRegions;
+  const { badges: badgeProgress } = useBadges(userId, level, regions, claimKey);
+  const claimableBadges = useMemo(
+    () => badgeProgress.filter((b) => b.earned && !b.claimed).length,
+    [badgeProgress],
+  );
+
   return (
-    <ProfileDrawerContext.Provider value={{ openProfile }}>
+    <ProfileDrawerContext.Provider value={{ openProfile, claimableBadges }}>
       {children}
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent side="bottom" className="max-h-[88vh] overflow-y-auto rounded-t-[28px] border-border px-5 pb-8 pt-3">
@@ -223,7 +270,7 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
                   level={profile.level}
                   regionsExplored={profile.regions_explored}
                   onOpenAll={() => go('/home?tab=badges')}
-                  onClaimed={() => void loadProfile()}
+                  onClaimed={() => { void loadProfile(); setClaimKey((k) => k + 1); }}
                 />
               )}
 
