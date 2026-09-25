@@ -33,7 +33,7 @@ getCategoryEmoji,
   getCategoryIcon,
   type BestiaryAnimal,
   normalizeCategory,
-rarityBorderColor,
+rarityTileBorder,
   rarityDot,
   type ZoneSub,
 } from '@/lib/bestiary';
@@ -114,7 +114,7 @@ const BrowseSpeciesCard = memo(
 
       className={`game-tile tile-grid-3 relative aspect-[3/4] rounded-xl border-[3px] overflow-hidden cursor-pointer ${
         animal.captured
-          ? `${rarityBorderColor[animal.rarity] || 'border-border'} bg-card ${tileDepthClass[animal.rarity] || ''}`
+          ? `${rarityTileBorder[animal.rarity] || 'tile-border-plain'} bg-card ${tileDepthClass[animal.rarity] || ''}`
           : 'game-tile--empty border-border/40 bg-muted/30'
       }`}
     >
@@ -2043,7 +2043,7 @@ onClick={() => {
                 }}
                 className={`game-tile tile-grid-3 relative aspect-[3/4] rounded-xl border-[3px] overflow-hidden cursor-pointer ${
                   animal.captured
-                    ? `${rarityBorderColor[animal.rarity] || 'border-border'} bg-card ${tileDepthClass[animal.rarity] || ''}`
+                    ? `${rarityTileBorder[animal.rarity] || 'tile-border-plain'} bg-card ${tileDepthClass[animal.rarity] || ''}`
                     : 'game-tile--empty border-border/40 bg-muted/30'
                 }`}
 

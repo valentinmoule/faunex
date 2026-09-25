@@ -60,9 +60,9 @@
     /* Familles d'effets holo */
     --rarity-silver: 220 18% 62%;
     --rarity-gold: 40 95% 50%;
-    --rarity-frame-neutral: linear-gradient(145deg, hsl(220 10% 78%), hsl(220 8% 52%) 48%, hsl(220 10% 72%));
-    --rarity-frame-silver: linear-gradient(145deg, hsl(205 35% 96%), hsl(220 18% 58%) 32%, hsl(185 35% 88%) 52%, hsl(245 22% 72%) 72%, hsl(215 24% 92%));
-    --rarity-frame-gold: linear-gradient(145deg, hsl(48 100% 82%), hsl(40 95% 50%) 30%, hsl(54 100% 88%) 52%, hsl(32 82% 45%) 72%, hsl(46 96% 72%));
+    --rarity-frame-neutral: linear-gradient(135deg, hsl(220 8% 51%) 0%, hsl(215 13% 91%) 13%, hsl(220 8% 62%) 24%, hsl(215 12% 97%) 33%, hsl(220 9% 55%) 48%, hsl(215 11% 85%) 63%, hsl(220 8% 47%) 78%, hsl(215 15% 96%) 89%, hsl(220 9% 57%) 100%);
+    --rarity-frame-gold: linear-gradient(135deg, hsl(38 75% 37%) 0%, hsl(49 95% 85%) 13%, hsl(40 92% 51%) 25%, hsl(52 100% 94%) 34%, hsl(37 82% 40%) 48%, hsl(46 97% 72%) 64%, hsl(34 81% 36%) 78%, hsl(50 100% 90%) 89%, hsl(40 92% 53%) 100%);
+    --rarity-frame-iridescent: linear-gradient(135deg, hsl(218 14% 57%) 0%, hsl(326 66% 85%) 12%, hsl(198 82% 77%) 24%, hsl(220 15% 95%) 34%, hsl(292 52% 67%) 47%, hsl(184 82% 76%) 61%, hsl(222 17% 61%) 75%, hsl(45 96% 87%) 85%, hsl(332 66% 73%) 93%, hsl(208 79% 84%) 100%);
 
     /* Gradients */
     --gradient-forest: linear-gradient(135deg, hsl(150 62% 44%), hsl(160 66% 28%));
@@ -2500,209 +2500,26 @@
   }
 }
 
-/* ─────────────────────────────────────
-   Holo frame — rarity-tinted shiny borders
-   The animated ring lives in an isolated ::after overlay so it never
-   forces a repaint/recomposite of the holographic layers underneath.
-   ───────────────────────────────────── */
+/* Cadre unique du détail : même finition métallique que les grilles.
+   La vue photo agrandie garde volontairement son contour transparent. */
 .holo-frame {
   --frame-w: 8px;
-  --frame-grad: linear-gradient(120deg,
-    hsl(var(--rarity-common) / 0.6),
-    hsl(0 0% 100% / 0.55),
-    hsl(var(--rarity-common) / 0.6));
+  --frame-grad: var(--rarity-frame-neutral);
   border: var(--frame-w) solid transparent;
-  background-clip: padding-box;
+  background-image: linear-gradient(hsl(var(--card)), hsl(var(--card))), var(--frame-grad);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
   position: relative;
   isolation: isolate;
 }
-
-.holo-frame::after {
-  content: "";
-  position: absolute;
-  inset: calc(var(--frame-w) * -1);
-  border-radius: inherit;
-  border: var(--frame-w) solid transparent;
-  background: var(--frame-grad) border-box;
-  background-size: 300% 300%;
-  -webkit-mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0);
-          mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-          mask-composite: exclude;
-  pointer-events: none;
-  z-index: 6;
-  will-change: background-position;
+.holo-frame:is(.holo-frame--very-rare, .holo-frame--ultra-rare, .holo-frame--illustration-rare) {
+  --frame-grad: var(--rarity-frame-gold);
 }
-
-.holo-frame--common {
-  --frame-grad: linear-gradient(140deg,
-    hsl(var(--rarity-common) / 0.75),
-    hsl(0 0% 100% / 0.7),
-    hsl(var(--rarity-common) / 0.75));
-  box-shadow:
-    inset 0 0 0 1px hsl(var(--rarity-common) / 0.35),
-    0 8px 32px rgba(0,0,0,0.35);
+.holo-frame:is(.holo-frame--special-rare, .holo-frame--hyper-rare) {
+  --frame-grad: var(--rarity-frame-iridescent);
 }
-
-/* ◆ Peu commune — vert émeraude */
-.holo-frame--uncommon {
-  --frame-grad: linear-gradient(120deg,
-    hsl(152 62% 32%),
-    hsl(152 70% 85%),
-    hsl(152 62% 36%),
-    hsl(160 65% 50%),
-    hsl(152 62% 32%));
-  box-shadow:
-    inset 0 0 0 1px hsl(var(--rarity-uncommon) / 0.5),
-    0 0 18px hsl(var(--rarity-uncommon) / 0.3),
-    0 8px 32px rgba(0,0,0,0.4);
-}
-
-/* ★ Plutôt rare — bleu */
-.holo-frame--rare {
-  --frame-grad: linear-gradient(120deg,
-    hsl(210 85% 42%),
-    hsl(195 100% 88%),
-    hsl(210 90% 50%),
-    hsl(220 85% 62%),
-    hsl(210 85% 42%));
-  box-shadow:
-    inset 0 0 0 1px hsl(var(--rarity-rare) / 0.5),
-    0 0 22px hsl(var(--rarity-rare) / 0.35),
-    0 8px 32px rgba(0,0,0,0.4);
-}
-
-/* ★★ Rare — violet */
-.holo-frame--very-rare {
-  --frame-grad: linear-gradient(120deg,
-    hsl(265 70% 45%),
-    hsl(280 90% 88%),
-    hsl(265 72% 55%),
-    hsl(290 80% 68%),
-    hsl(265 70% 45%));
-  box-shadow:
-    inset 0 0 0 1px hsl(var(--rarity-very-rare) / 0.55),
-    0 0 24px hsl(var(--rarity-very-rare) / 0.4),
-    0 8px 32px rgba(0,0,0,0.4);
-}
-
-/* ★★ Ultra rare — argent métallique */
-.holo-frame--ultra-rare {
-  --frame-grad: linear-gradient(120deg,
-    hsl(220 16% 55%),
-    hsl(220 30% 96%),
-    hsl(220 18% 62%),
-    hsl(210 25% 85%),
-    hsl(220 16% 55%));
-  box-shadow:
-    inset 0 0 0 1px hsl(var(--rarity-silver) / 0.6),
-    0 0 28px hsl(var(--rarity-silver) / 0.45),
-    0 8px 32px rgba(0,0,0,0.4);
-  animation: holo-frame-glow-silver 3.5s ease-in-out infinite;
-}
-
-/* ★ Épique — or */
-.holo-frame--illustration-rare {
-  --frame-grad: linear-gradient(120deg,
-    hsl(40 90% 45%),
-    hsl(50 100% 92%),
-    hsl(43 95% 55%),
-    hsl(52 100% 88%),
-    hsl(40 90% 45%));
-  box-shadow:
-    inset 0 0 0 1px hsl(42 100% 75% / 0.85),
-    0 0 30px hsl(var(--rarity-gold) / 0.5),
-    0 8px 32px rgba(0,0,0,0.45);
-  animation: holo-frame-glow-gold 2.8s ease-in-out infinite;
-}
-
-/* ★★ Mythique — or ambré */
-.holo-frame--special-rare {
-  --frame-grad: linear-gradient(120deg,
-    hsl(33 95% 42%),
-    hsl(46 100% 90%),
-    hsl(33 96% 50%),
-    hsl(48 100% 82%),
-    hsl(30 92% 46%),
-    hsl(44 100% 76%),
-    hsl(33 95% 42%));
-  box-shadow:
-    inset 0 0 0 1px hsl(38 100% 72% / 0.9),
-    0 0 34px hsl(var(--rarity-special-rare) / 0.55),
-    0 0 60px hsl(36 100% 58% / 0.35),
-    0 8px 32px rgba(0,0,0,0.45);
-  animation: holo-frame-glow-gold 2.4s ease-in-out infinite;
-}
-
-/* ★★★ Légendaire — or intense, halo maximal */
-.holo-frame--hyper-rare {
-  --frame-grad: linear-gradient(120deg,
-    hsl(24 98% 42%),
-    hsl(45 100% 88%),
-    hsl(24 98% 50%),
-    hsl(50 100% 80%),
-    hsl(18 95% 46%),
-    hsl(42 100% 72%),
-    hsl(24 98% 42%));
-  box-shadow:
-    inset 0 0 0 1px hsl(36 100% 70% / 0.95),
-    0 0 38px hsl(var(--rarity-hyper-rare) / 0.6),
-    0 0 70px hsl(30 100% 55% / 0.4),
-    0 8px 32px rgba(0,0,0,0.5);
-  animation: holo-frame-glow-gold 2s ease-in-out infinite;
-}
-
-.holo-frame--uncommon::after          { animation: holo-frame-shift 7s linear infinite; }
-.holo-frame--rare::after              { animation: holo-frame-shift 6s linear infinite; }
-.holo-frame--very-rare::after         { animation: holo-frame-shift 5.5s linear infinite; }
-.holo-frame--ultra-rare::after        { animation: holo-frame-shift 5s linear infinite; }
-.holo-frame--illustration-rare::after { animation: holo-frame-shift 4s linear infinite; }
-.holo-frame--special-rare::after      { animation: holo-frame-shift 3.4s linear infinite; }
-.holo-frame--hyper-rare::after        { animation: holo-frame-shift 2.8s linear infinite; }
-
-@keyframes holo-frame-shift {
-  0%   { background-position: 0% 50%; }
-  100% { background-position: 300% 50%; }
-}
-
-@keyframes holo-frame-glow-silver {
-  0%, 100% {
-    box-shadow:
-      inset 0 0 0 1px hsl(var(--rarity-silver) / 0.6),
-      0 0 22px hsl(var(--rarity-silver) / 0.4),
-      0 8px 32px rgba(0,0,0,0.4);
-  }
-  50% {
-    box-shadow:
-      inset 0 0 0 1px hsl(var(--rarity-silver) / 0.75),
-      0 0 34px hsl(var(--rarity-silver) / 0.6),
-      0 8px 32px rgba(0,0,0,0.4);
-  }
-}
-
-@keyframes holo-frame-glow-gold {
-  0%, 100% {
-    box-shadow:
-      inset 0 0 0 1px hsl(42 100% 75% / 0.85),
-      0 0 30px hsl(var(--rarity-gold) / 0.5),
-      0 0 55px hsl(42 100% 60% / 0.3),
-      0 8px 32px rgba(0,0,0,0.45);
-  }
-  50% {
-    box-shadow:
-      inset 0 0 0 1px hsl(42 100% 80% / 0.95),
-      0 0 42px hsl(var(--rarity-gold) / 0.7),
-      0 0 75px hsl(42 100% 60% / 0.45),
-      0 8px 32px rgba(0,0,0,0.45);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .holo-frame--ultra-rare,
-  .holo-frame--illustration-rare,
-  .holo-frame--special-rare,
-  .holo-frame--hyper-rare,
-  .holo-frame::after { animation: none; }
+.holo-frame--fullscreen {
+  --frame-grad: linear-gradient(transparent, transparent);
 }
 
 
@@ -2816,11 +2633,11 @@ html.is-native-android body {
   --tile-inner-glow-size: 26px;
 }
 
-/* Cadre de carte unique et lisible : même épaisseur et même profondeur.
-   Seule la finition neutre, argent ou or change avec la rareté. */
+/* Cadre unique, même épaisseur et profondeur pour chaque rareté. */
 .game-tile.tile-border-plain,
 .game-tile.tile-border-silver,
-.game-tile.tile-border-gold {
+.game-tile.tile-border-gold,
+.game-tile.tile-border-iridescent {
   --tile-frame: var(--rarity-frame-neutral);
   --tile-frame-depth: hsl(var(--foreground) / 0.28);
   --tile-depth: var(--tile-frame-depth);
@@ -2837,26 +2654,33 @@ html.is-native-android body {
     inset 0 1px 0 hsl(var(--background) / 0.55);
 }
 .game-tile.tile-border-silver {
-  --tile-frame: var(--rarity-frame-silver);
-  --tile-frame-depth: hsl(var(--rarity-silver) / 0.5);
+  --tile-frame: var(--rarity-frame-gold);
+  --tile-frame-depth: hsl(var(--amber-dark) / 0.58);
 }
 .game-tile.tile-border-gold {
   --tile-frame: var(--rarity-frame-gold);
   --tile-frame-depth: hsl(var(--amber-dark) / 0.58);
 }
+.game-tile.tile-border-iridescent {
+  --tile-frame: var(--rarity-frame-iridescent);
+  --tile-frame-depth: hsl(var(--rarity-silver) / 0.5);
+}
 .game-tile.tile-border-plain::before,
 .game-tile.tile-border-silver::before,
-.game-tile.tile-border-gold::before {
+.game-tile.tile-border-gold::before,
+.game-tile.tile-border-iridescent::before {
   box-shadow: inset 0 1px 0 hsl(var(--background) / 0.35);
 }
 .game-tile.tile-border-plain::after,
 .game-tile.tile-border-silver::after,
-.game-tile.tile-border-gold::after {
+.game-tile.tile-border-gold::after,
+.game-tile.tile-border-iridescent::after {
   content: none;
 }
 .game-tile.tile-border-plain:active,
 .game-tile.tile-border-silver:active,
-.game-tile.tile-border-gold:active {
+.game-tile.tile-border-gold:active,
+.game-tile.tile-border-iridescent:active {
   transform: translate3d(0, 2px, 0) scale(0.985);
   box-shadow:
     0 1px 4px -2px hsla(165, 25%, 11%, 0.3),
@@ -2880,7 +2704,8 @@ html.is-native-android body {
 }
 .game-tile:is(.tile-grid-1, .tile-grid-2).tile-border-plain,
 .game-tile:is(.tile-grid-1, .tile-grid-2).tile-border-silver,
-.game-tile:is(.tile-grid-1, .tile-grid-2).tile-border-gold {
+.game-tile:is(.tile-grid-1, .tile-grid-2).tile-border-gold,
+.game-tile:is(.tile-grid-1, .tile-grid-2).tile-border-iridescent {
   box-shadow:
     0 2px 0 0 var(--tile-frame-depth),
     0 6px 10px -7px hsl(var(--foreground) / 0.28);
