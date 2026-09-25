@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useSyncExternalStore } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-/** Favoris de captures (Premium) — store partagé entre la fiche et le Bestiaire. */
+/** Favoris de captures — store partagé entre la fiche et le Bestiaire. */
 let favIds = new Set<string>();
 let loadedFor: string | null = null;
 const listeners = new Set<() => void>();
