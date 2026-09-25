@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { useState, useMemo, useCallback, useEffect, useRef, memo } from 'react';
 import { PageHeader } from '@/components/PageHeader';
 import { CollectionHero } from '@/components/CollectionHero';
@@ -1191,7 +1192,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
   );
 
   /** Carte volante de l'animation de rangement (rendue dans toutes les vues). */
-  const flyingCardOverlay = flight && pendingShelve ? (
+  const flyingCardOverlay = flight && pendingShelve ? createPortal(
     <>
       <div ref={shelveBackdropRef} className="shelve-backdrop" aria-hidden />
       <div
@@ -1207,7 +1208,8 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
           <strong>{pendingShelve.animalName}</strong>
         </div>
       </div>
-    </>
+    </>,
+    document.body,
   ) : null;
 
   if (loading) return <LoadingScreen />;
