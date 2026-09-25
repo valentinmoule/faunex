@@ -52,7 +52,7 @@ const ProfileBadgesRow = ({ userId, level, regionsExplored, onOpenAll, onClaimed
   };
 
   return (
-    <div className="mt-3 rounded-xl border border-border bg-card">
+    <div className="mt-4">
       <button
         type="button"
         onClick={onOpenAll}

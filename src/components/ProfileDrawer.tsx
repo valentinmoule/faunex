@@ -257,7 +257,7 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
                 </div>
               </header>
 
-              <div className="mt-5 grid grid-cols-5 divide-x divide-border rounded-xl border border-border bg-card py-2.5">
+              <div className="mt-5 grid grid-cols-5 py-1">
                 {stats.map((stat) => (
                   <div key={stat.label} className="min-w-0 px-1 text-center">
                     <p className="text-sm font-display font-bold text-foreground">{stat.value}</p>
