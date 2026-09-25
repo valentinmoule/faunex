@@ -2551,8 +2551,8 @@
 .holo-frame:is(.holo-frame--special-rare, .holo-frame--hyper-rare) {
   --frame-grad: var(--rarity-frame-iridescent);
 }
-.holo-frame--special-rare { --frame-grad: var(--rarity-frame-mythic) !important; }
-.holo-frame--hyper-rare { --frame-grad: var(--rarity-frame-legendary) !important; }
+.holo-frame.holo-frame--special-rare { --frame-grad: var(--rarity-frame-mythic); }
+.holo-frame.holo-frame--hyper-rare { --frame-grad: var(--rarity-frame-legendary); }
 
 /* Cadres irisés (mythique/légendaire) : les teintes glissent en boucle sur une
    amplitude modérée (aller-retour de 12 s) — le reflet reste discret mais reste
