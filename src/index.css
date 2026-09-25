@@ -2937,6 +2937,10 @@ html.is-native-android body {
   stroke-linejoin: round;
   paint-order: stroke fill markers;
 }
+.holo-frame--fullscreen .rarity-badge--plain {
+  transform: scale(1.6);
+  transform-origin: top right;
+}
 .rarity-badge.rarity-badge--plain .rarity-badge__label {
   color: hsl(0 0% 100%);
   text-shadow: 0 0 3px hsl(0 0% 0% / 0.75), 0 1px 2px hsl(0 0% 0% / 0.85);
