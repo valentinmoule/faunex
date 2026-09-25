@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next';
 
 /**
  * Tuile de collection en forme d'écusson hexagonal (plus de cartes
- * rectangulaires) : illustration du biome, anneau de progression et
- * bouton de réclamation quand la collection est complète (l'XP gagné
- * n'est jamais affiché ici — il est révélé à la réclamation).
+ * rectangulaires) : illustration du biome, compteur seul (sans barre de
+ * progression) et bouton de réclamation quand la collection est complète
+ * (l'XP gagné n'est jamais affiché ici — il est révélé à la réclamation).
  */
 export interface CollectionTileProps {
   title: string;
@@ -39,7 +39,6 @@ const CollectionTile = ({
   onClaim,
 }: CollectionTileProps) => {
   const { t } = useTranslation();
-  const pct = total > 0 ? Math.round((captured / total) * 100) : 0;
   const readyToClaim = complete && !claimed;
 
   return (
@@ -82,26 +81,7 @@ const CollectionTile = ({
             />
             <div className="absolute inset-0" style={{ background: overlay }} />
 
-            {/* Curseur de progression : jauge verticale + repère de position */}
-            <div
-              className="absolute left-[13%] top-[24%] bottom-[26%] w-[5px] rounded-full bg-primary-foreground/25"
-              aria-hidden="true"
-            >
-              <div
-                className={`absolute bottom-0 left-0 w-full rounded-full transition-[height] duration-500 ${
-                  readyToClaim ? 'bg-amber' : 'bg-primary-foreground/90'
-                }`}
-                style={{ height: `${pct}%` }}
-              />
-              <div
-                className={`absolute left-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-background shadow-sm transition-[top] duration-500 ${
-                  readyToClaim ? 'bg-amber' : claimed ? 'bg-amber' : 'bg-primary-foreground'
-                }`}
-                style={{ top: `${100 - pct}%` }}
-              />
-            </div>
-
-            {/* Titre centré dans l'écusson */}
+            {/* Compteur centré dans l'écusson — sans barre de progression */}
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5 pl-5 pr-3 text-center">
               <span className="font-display font-bold text-sm leading-tight text-primary-foreground drop-shadow [text-shadow:0_1px_3px_rgb(0_0_0/0.45)]">
                 {title}
