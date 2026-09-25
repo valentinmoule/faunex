@@ -165,7 +165,7 @@ const ListRow = ({
     aria-checked={multi ? undefined : checked}
     className="w-full flex items-center gap-3 px-4 py-3 min-h-[52px] text-left transition-colors active:bg-muted"
   >
-    <span className="shrink-0 flex w-5 h-5 items-center justify-center text-muted-foreground" aria-hidden="true">
+    <span className="shrink-0 flex w-10 h-5 items-center justify-start text-muted-foreground" aria-hidden="true">
       {leading}
     </span>
     <span className="flex-1 min-w-0 truncate text-[15px] font-display font-semibold text-foreground">{label}</span>
@@ -285,7 +285,7 @@ export const SpeciesSortFilterSheet = ({
                   multi
                   checked={isActive}
                   onToggle={() => onRaritiesChange(isActive ? rarities.filter((x) => x !== r) : [...rarities, r])}
-                  leading={<RarityBadge rarity={r} />}
+                  leading={<RarityBadge rarity={r} plain />}
                   label={RARITY_LABELS[r]}
                 />
               );
