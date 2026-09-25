@@ -214,22 +214,27 @@ export const buildShareImage = async (card: AnimalCard): Promise<Blob> => {
   ctx.fillStyle = veil;
   ctx.fillRect(px, py + ph - 420, pw, 420);
 
-  // Badge rareté (haut droite)
-  ctx.font = '700 30px Sora, system-ui, sans-serif';
-  const badge = theme.label.toUpperCase();
-  const bw = ctx.measureText(badge).width + 52;
-  const bx = px + pw - bw - 34;
-  const by = py + 34;
-  ctx.fillStyle = 'rgba(0,0,0,0.42)';
-  roundRect(ctx, bx, by, bw, 62, 31);
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(255,255,255,0.35)';
-  ctx.lineWidth = 2;
-  roundRect(ctx, bx, by, bw, 62, 31);
-  ctx.stroke();
-  ctx.fillStyle = '#ffffff';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(badge, bx + 26, by + 33);
+  // Étoiles de rareté (haut droite) : mêmes symboles, métal et contour
+  // sombre que les étoiles des cartes de l'app (RarityBadge, variante plain).
+  {
+    const k = 4; // 1 unité SVG = 4 px sur l'image finale
+    const gap = 2;
+    const pad = 1.2;
+    const count = theme.stars;
+    const rowW = (count * 12 + (count - 1) * gap + pad * 2) * k;
+    const startX = px + pw - 34 - rowW;
+    const startY = py + 34;
+    for (let i = 0; i < count; i++) {
+      const sx = startX + (pad + i * (12 + gap)) * k;
+      const sy = startY + pad * k;
+      const grad = ctx.createLinearGradient(sx, sy, sx + 12 * k, sy + 12 * k);
+      METALS[theme.metal].forEach(([pos, color]) => grad.addColorStop(pos / 100, color));
+      ctx.save();
+      ctx.fillStyle = grad;
+      traceStar(ctx, STAR_PATH, sx, sy, k);
+      ctx.restore();
+    }
+  }
 
   // Nom + nom scientifique
   ctx.textBaseline = 'alphabetic';
