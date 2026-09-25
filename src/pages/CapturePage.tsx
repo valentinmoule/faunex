@@ -14,7 +14,8 @@ import { useCamera } from '@/hooks/useCamera';
 import { useGeoTag } from '@/hooks/useGeoTag';
 import { useAnimalIdentification, type RejectionKind } from '@/hooks/useAnimalIdentification';
 import { useCaptureSave } from '@/hooks/useCaptureSave';
-import { useCaptureReveal, REVEAL_TIMINGS } from '@/hooks/useCaptureReveal';
+import { useCaptureReveal } from '@/hooks/useCaptureReveal';
+import RevealStage from '@/components/capture/RevealStage';
 import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
 import FindersBadge from '@/components/FindersBadge';
 import RarityBadge from '@/components/RarityBadge';
@@ -93,7 +94,7 @@ const quota = useCaptureQuota(session?.user?.id);
     return messages[Math.floor(Math.random() * messages.length)];
   }, [t]);
 
-  const { revealPhase, revealRarity, freezeFlash, triggerReveal, reset: resetReveal } =
+  const { revealPhase, revealRarity, revealAnimal, triggerReveal, reset: resetReveal, skip: skipReveal } =
     useCaptureReveal(setAnimalResult);
   const revealFx = RARITY_FX[revealRarity];
   /* Popularité de l'espèce identifiée : combien de naturalistes l'ont déjà capturée. */
@@ -602,16 +603,10 @@ setManualMode(false);
           )}
         </div>
 
-        {/* Freeze flash overlay */}
-        {freezeFlash && (
-          <div className="absolute inset-0 z-30 bg-white pointer-events-none animate-capture-flash" />
-        )}
-
         {/* Overlay gradient for readability */}
-        {(animalResult || identifying || manualMode || identifyError || rejectedImage || revealPhase === 'freeze' || revealPhase === 'shaking') && (
+        {(animalResult || identifying || manualMode || identifyError || rejectedImage || revealPhase === 'charging') && (
           <div className={`absolute inset-0 transition-opacity duration-300 ${
-            revealPhase === 'freeze' ? 'bg-black/60' :
-            revealPhase === 'shaking' ? 'bg-gradient-to-t from-black/90 via-black/60 to-black/40' :
+            revealPhase === 'charging' ? 'bg-black/60' :
             'bg-gradient-to-t from-foreground via-foreground/70 to-transparent'
           }`} />
         )}
@@ -743,98 +738,16 @@ setManualMode(false);
         )}
 
 
-        {/* Freeze phase — suspense */}
-        {revealPhase === 'freeze' && (
-          <div className="relative z-20 flex-1 flex items-center justify-center">
-            <div className="text-center capture-freeze-pulse">
-              <div className={`w-20 h-20 mx-auto rounded-full border-2 flex items-center justify-center mb-4 ${
-                revealFx === 'gold' ? 'border-rarity-gold/60 bg-rarity-gold/10' :
-                revealFx === 'silver' ? 'border-rarity-silver/60 bg-rarity-silver/10' :
-                revealRank >= 2 ? 'border-foreground/50 bg-foreground/10' :
-                'border-muted-foreground/30 bg-muted/10'
-              }`}>
-                <div className="w-3 h-3 rounded-full bg-primary-foreground/80 animate-pulse" />
-              </div>
-              <p className="text-primary-foreground/70 font-display text-xs tracking-widest uppercase">{t('capture.identify.analysisInProgress')}</p>
-            </div>
-          </div>
-        )}
-
-        {/* Reveal animation — shaking phase */}
-        {revealPhase === 'shaking' && (
-          <div className="relative z-20 flex-1 flex items-center justify-center">
-            <div className="text-center reveal-shake" style={{ animationDuration: `${REVEAL_TIMINGS[revealRarity].shake}ms`, animationIterationCount: revealFx === 'gold' ? 3 : revealFx === 'silver' ? 2 : 1 }}>
-              <div className={`w-28 h-28 mx-auto rounded-2xl border-4 flex items-center justify-center relative overflow-hidden
-                ${revealFx === 'gold' ? 'border-rarity-gold bg-rarity-gold/20 shadow-glow-amber capture-suspense-gold' :
-                  revealFx === 'silver' ? 'border-rarity-silver bg-rarity-silver/20 capture-suspense-silver' :
-                  revealRank >= 2 ? 'border-foreground/60 bg-foreground/10 capture-suspense-rare' :
-                  'border-muted-foreground/40 bg-muted/20'}`}
-              >
-                {capturedPhoto && <img src={capturedPhoto} alt="" className="w-full h-full object-cover blur-sm brightness-75" />}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-5xl">❓</span>
-                </div>
-              </div>
-              <p className="text-primary-foreground/80 font-display text-sm mt-4 font-semibold">
-                {revealFx === 'gold' ? t('capture.identify.legendary') :
-                 revealFx === 'silver' ? t('capture.identify.exceptional') :
-                 revealRank >= 2 ? t('capture.identify.shining') :
-                 t('capture.identify.identifying')}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Reveal animation — burst phase */}
-        {revealPhase === 'burst' && animalResult && (
-          <div className="relative z-20 flex-1 flex items-center justify-center">
-            {/* Particle explosion pour les raretés argent & or */}
-            {revealFx !== 'ink' && (
-              <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
-                {Array.from({ length: revealFx === 'gold' ? 20 : 10 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="capture-burst-particle"
-                    style={{
-                      left: '50%',
-                      top: '50%',
-                      '--angle': `${(360 / (revealFx === 'gold' ? 20 : 10)) * i}deg`,
-                      '--distance': `${80 + Math.random() * 120}px`,
-                      '--delay': `${Math.random() * 0.3}s`,
-                      '--size': `${4 + Math.random() * 6}px`,
-                      '--color': revealFx === 'gold'
-                        ? `hsla(${42 + Math.random() * 20}, 85%, ${55 + Math.random() * 20}%, 0.9)`
-                        : `hsla(${210 + Math.random() * 20}, 30%, ${70 + Math.random() * 20}%, 0.85)`,
-                    } as React.CSSProperties}
-                  />
-                ))}
-              </div>
-            )}
-            <div className={`reveal-${revealFx === 'ink' ? (revealRank >= 2 ? 'rare' : 'common') : revealFx} text-center px-6 z-20`}>
-              <div className={`w-32 h-32 mx-auto rounded-2xl border-4 flex items-center justify-center relative overflow-hidden
-                ${revealFx === 'gold' ? 'border-rarity-gold gold-shiny' :
-                  revealFx === 'silver' ? 'border-rarity-silver rarity-silver-glow' :
-                  revealRank >= 2 ? 'border-foreground/60 rarity-rare-glow' :
-                  'border-muted-foreground/40'}`}
-              >
-                {capturedPhoto && <img src={capturedPhoto} alt="" className="w-full h-full object-cover" />}
-                {revealFx === 'gold' && (
-                  <div className="gold-sparkles">
-                    <span /><span /><span /><span /><span /><span />
-                  </div>
-                )}
-                {revealFx === 'silver' && <div className="silver-image-overlay" />}
-                {revealFx === 'gold' && <div className="gold-image-overlay" />}
-              </div>
-              <RarityBadge rarity={revealRarity} showLabel className="capture-result-rarity mt-4" />
-              <h2 className="text-2xl font-display font-bold text-primary-foreground mt-2">{animalResult.animal_name}</h2>
-              <p className="text-primary-foreground/70 text-sm italic">{animalResult.scientific_name}</p>
-            </div>
-          </div>
-        )}
+        <RevealStage
+          phase={revealPhase}
+          rarity={revealRarity}
+          animal={revealAnimal}
+          photo={capturedPhoto}
+          onSkip={skipReveal}
+        />
 
         {animalResult && !identifying && revealPhase === 'done' && (
-          <div className="relative z-20 flex-1 flex flex-col justify-end px-5 pb-4">
+          <div className="relative z-20 flex-1 flex flex-col justify-end px-5 pb-4 animate-fade-in">
             <div className="space-y-3">
               {/* Rarity badge + name */}
               <div>
