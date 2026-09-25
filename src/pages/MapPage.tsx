@@ -92,7 +92,7 @@ const buildIcon = (rarity: string, category: string, count = 1) => {
 const RecenterOnUser = ({ position }: { position: [number, number] | null }) => {
   const map = useMap();
   useEffect(() => {
-    if (position) map.setView(position, 11, { animate: true });
+    if (position) map.setView(position, 8, { animate: true });
   }, [position, map]);
   return null;
 };
