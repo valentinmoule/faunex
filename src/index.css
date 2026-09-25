@@ -2017,7 +2017,7 @@
   backface-visibility: hidden;
 }
 
-/* The frame ring must not repaint with the holo layers underneath. */
+/* The fullscreen frame stays static while the holographic photo moves. */
 .holo-frame--fullscreen {
   animation: none !important;
 }
@@ -2510,8 +2510,7 @@
   }
 }
 
-/* Cadre unique du détail : même finition métallique que les grilles.
-   La vue photo agrandie garde volontairement son contour transparent. */
+/* Cadre unique du détail et de la vue agrandie : même finition métallique que les grilles. */
 .holo-frame {
   --frame-w: 8px;
   --frame-grad: var(--rarity-frame-neutral);
@@ -2527,9 +2526,6 @@
 }
 .holo-frame:is(.holo-frame--special-rare, .holo-frame--hyper-rare) {
   --frame-grad: var(--rarity-frame-iridescent);
-}
-.holo-frame--fullscreen {
-  --frame-grad: linear-gradient(transparent, transparent);
 }
 
 
@@ -2940,6 +2936,10 @@ html.is-native-android body {
   stroke-width: 1.8px;
   stroke-linejoin: round;
   paint-order: stroke fill markers;
+}
+.holo-frame--fullscreen .rarity-badge--plain {
+  transform: scale(1.6);
+  transform-origin: top right;
 }
 .rarity-badge.rarity-badge--plain .rarity-badge__label {
   color: hsl(0 0% 100%);
