@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Camera, Crown, Loader2, Settings, ShieldCheck, UserRound } from 'lucide-react';
+import { Camera, ChevronRight, Crown, Loader2, Search, Settings, ShieldCheck, UserRound } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -299,21 +299,31 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
                     </span>
                   </button>
                 )}
-                <Button className="w-full justify-start" onClick={() => go('/settings')}>
-                  <Settings />
-                  {t('profile.page.drawer.accountSettings')}
-                </Button>
-                {isAdmin && (
-                  <Button variant="outline" className="w-full justify-start" onClick={() => go('/moderation')}>
-                    <ShieldCheck className="text-amber" />
-                    <span className="flex-1 text-left">{t('profile.page.moderation.title')}</span>
-                    {pendingCount > 0 && (
-                      <span className="rounded-full bg-amber px-2 py-0.5 text-[10px] font-bold text-amber-foreground">
-                        {pendingCount}
-                      </span>
-                    )}
-                  </Button>
-                )}
+                <div className="overflow-hidden rounded-2xl bg-muted divide-y divide-border/60">
+                  <DrawerRow
+                    icon={<UserRound className="size-4" />}
+                    label={t('profile.page.drawer.myProfile')}
+                    onClick={() => go(`/u/${profile?.username?.replace(/^@/, '') || userId}`)}
+                  />
+                  <DrawerRow
+                    icon={<Search className="size-4" />}
+                    label={t('profile.page.drawer.findExplorers')}
+                    onClick={() => go('/explorers?view=search')}
+                  />
+                  <DrawerRow
+                    icon={<Settings className="size-4" />}
+                    label={t('profile.page.drawer.settings')}
+                    onClick={() => go('/settings')}
+                  />
+                  {isAdmin && (
+                    <DrawerRow
+                      icon={<ShieldCheck className="size-4 text-amber" />}
+                      label={t('profile.page.moderation.title')}
+                      onClick={() => go('/moderation')}
+                      badge={pendingCount}
+                    />
+                  )}
+                </div>
               </div>
             </div>
           )}
@@ -322,3 +332,20 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
     </ProfileDrawerContext.Provider>
   );
 };
+
+const DrawerRow = ({ icon, label, onClick, badge }: { icon: ReactNode; label: string; onClick: () => void; badge?: number }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-muted/70 active:bg-muted/50"
+  >
+    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-card text-foreground shadow-sm">
+      {icon}
+    </span>
+    <span className="flex-1 text-sm font-display font-semibold text-foreground">{label}</span>
+    {badge != null && badge > 0 && (
+      <span className="rounded-full bg-amber px-2 py-0.5 text-[10px] font-bold text-amber-foreground">{badge}</span>
+    )}
+    <ChevronRight className="size-4 text-muted-foreground" />
+  </button>
+);

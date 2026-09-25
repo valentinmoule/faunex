@@ -32,7 +32,10 @@
         "badgesEmpty": "Aucun badge pour l'instant",
         "badgeClaim": "Récupérer {{name}}",
         "badgeClaimed": "Badge récupéré : +{{xp}} XP",
-        "newTag": "Nouveau"
+        "newTag": "Nouveau",
+        "myProfile": "Mon profil",
+        "findExplorers": "Rechercher des explorateurs",
+        "settings": "Paramètres"
       }
     },
     "reward": {

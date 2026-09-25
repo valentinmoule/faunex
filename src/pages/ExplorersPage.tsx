@@ -405,6 +405,14 @@ const ExplorersPage = () => {
     }
   }, [posts, searchParams]);
 
+  // Ouverture directe sur la recherche d'explorateurs (ex. depuis la fenêtre profil).
+  useEffect(() => {
+    if (searchParams.get('view') === 'search') {
+      setView('search');
+      setSearchTab('search');
+    }
+  }, [searchParams]);
+
   const toAnimalCard = (post: FeedCapture): AnimalCard => ({
     id: post.id, name: post.animal_name, scientificName: post.scientific_name || '', image: post.image_url,
     subjectBox: post.subject_bbox,
