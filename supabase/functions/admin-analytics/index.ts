@@ -1,7 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
 const TEST_USER_IDS = ['c62717cb-255a-4491-a5a0-132880e703be']
-const withoutTestUsers = (rows: any[] | null) => (rows || []).filter(row => !TEST_USER_IDS.includes(row.user_id))
+const excludeTestUsers = `(${TEST_USER_IDS.join(',')})`
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -71,11 +71,11 @@ Deno.serve(async (req) => {
       { data: lastLogin7 },
       { data: lastLogin30 },
     ] = await Promise.all([
-      admin.from('profiles').select('*', { count: 'exact', head: true }).not('user_id', 'in', `(${TEST_USER_IDS.join(',')})`),
-      admin.from('captures').select('*', { count: 'exact', head: true }).not('user_id', 'in', `(${TEST_USER_IDS.join(',')})`),
-      admin.from('login_events').select('user_id').gte('created_at', day1).not('user_id', 'in', `(${TEST_USER_IDS.join(',')})`),
-      admin.from('login_events').select('user_id').gte('created_at', day7).not('user_id', 'in', `(${TEST_USER_IDS.join(',')})`),
-      admin.from('login_events').select('user_id').gte('created_at', day30).not('user_id', 'in', `(${TEST_USER_IDS.join(',')})`),
+      admin.from('profiles').select('*', { count: 'exact', head: true }).not('user_id', 'in', excludeTestUsers),
+      admin.from('captures').select('*', { count: 'exact', head: true }).not('user_id', 'in', excludeTestUsers),
+      admin.from('login_events').select('user_id').gte('created_at', day1).not('user_id', 'in', excludeTestUsers),
+      admin.from('login_events').select('user_id').gte('created_at', day7).not('user_id', 'in', excludeTestUsers),
+      admin.from('login_events').select('user_id').gte('created_at', day30).not('user_id', 'in', excludeTestUsers),
     ])
 
     const dau = new Set((lastLogin1 || []).map((r: any) => r.user_id)).size
@@ -90,11 +90,11 @@ Deno.serve(async (req) => {
       { data: loginsPeriod },
       { data: authUsers },
     ] = await Promise.all([
-      admin.from('profiles').select('user_id, created_at, display_name, username').gte('created_at', startISO).lte('created_at', endISO).not('user_id', 'in', `(${TEST_USER_IDS.join(',')})`),
-      admin.from('captures').select('user_id, created_at').not('user_id', 'in', `(${TEST_USER_IDS.join(',')})`),
-      admin.from('captures').select('user_id, created_at').gte('created_at', startISO).lte('created_at', endISO).not('user_id', 'in', `(${TEST_USER_IDS.join(',')})`),
-      admin.from('login_events').select('user_id, created_at').gte('created_at', startISO).lte('created_at', endISO).not('user_id', 'in', `(${TEST_USER_IDS.join(',')})`),
-      admin.from('profiles').select('user_id, created_at, display_name, username, total_captures').not('user_id', 'in', `(${TEST_USER_IDS.join(',')})`),
+      admin.from('profiles').select('user_id, created_at, display_name, username').gte('created_at', startISO).lte('created_at', endISO).not('user_id', 'in', excludeTestUsers),
+      admin.from('captures').select('user_id, created_at').not('user_id', 'in', excludeTestUsers),
+      admin.from('captures').select('user_id, created_at').gte('created_at', startISO).lte('created_at', endISO).not('user_id', 'in', excludeTestUsers),
+      admin.from('login_events').select('user_id, created_at').gte('created_at', startISO).lte('created_at', endISO).not('user_id', 'in', excludeTestUsers),
+      admin.from('profiles').select('user_id, created_at, display_name, username, total_captures').not('user_id', 'in', excludeTestUsers),
     ])
 
     // New users / week (period)
