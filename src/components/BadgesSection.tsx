@@ -45,7 +45,6 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
 
       <div className="grid grid-cols-2 gap-x-3 gap-y-6">
         {ordered.map(({ badge, progress, earned, claimed }, i) => {
-          const pct = Math.min(100, Math.round((progress / badge.total) * 100));
           const readyToClaim = earned && !claimed;
           return (
             <button
@@ -93,22 +92,14 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
                 {badge.description}
               </p>
 
-              <div className="mt-auto h-1 rounded-full bg-muted/80 overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all duration-700 ease-out ${
-                    claimed
-                      ? 'bg-gradient-to-r from-amber to-amber-light'
-                      : 'bg-gradient-to-r from-primary/60 to-primary'
-                  }`}
-                  style={{ width: `${claimed ? 100 : pct}%` }}
-                />
-              </div>
               <p
                 className={`mt-1.5 text-[9px] font-display font-bold uppercase tracking-wide ${
                   claimed ? 'text-amber' : 'text-muted-foreground'
                 }`}
               >
-                {claimed ? t('profile.badges.unlockedTag') : `${progress}/${badge.total}`}
+                {claimed
+                  ? t('profile.badges.unlockedTag')
+                  : t('profile.badges.counter', { current: progress, total: badge.total })}
               </p>
             </button>
           );
