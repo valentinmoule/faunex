@@ -654,11 +654,11 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
             {/* Like & Comment bar — hidden for undiscovered animals */}
             {!isUncaptured && (
               <div className="flex items-center justify-center gap-6">
-                <button onClick={handleLike} className="flex items-center gap-2 group">
+                <button onClick={handleLike} className="flex items-center gap-2 py-2.5 group">
                   <Heart className={`w-6 h-6 transition-all ${liked ? 'fill-destructive text-destructive scale-110' : 'text-muted-foreground group-hover:text-destructive'}`} />
                   <span className={`text-sm font-display font-semibold ${liked ? 'text-destructive' : 'text-muted-foreground'}`}>{likeCount}</span>
                 </button>
-                <button onClick={() => setShowComments(!showComments)} className="flex items-center gap-2 group">
+                <button onClick={() => setShowComments(!showComments)} className="flex items-center gap-2 py-2.5 group">
                   <MessageCircle className={`w-6 h-6 transition-colors ${showComments ? 'text-primary fill-primary/20' : 'text-muted-foreground group-hover:text-primary'}`} />
                   <span className={`text-sm font-display font-semibold ${showComments ? 'text-primary' : 'text-muted-foreground'}`}>{commentCount}</span>
                 </button>
@@ -669,16 +669,21 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                       void toggleFavorite(card.id);
                     }}
                     aria-pressed={isFavorite(card.id)}
-                    className="flex items-center gap-2 group"
+                    aria-label={t('capture.detail.favorite')}
+                    title={t('capture.detail.favorite')}
+                    className="relative flex items-center py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
                   >
                     <Bookmark className={`w-6 h-6 transition-all ${isFavorite(card.id) ? 'fill-primary text-primary scale-110' : 'text-muted-foreground group-hover:text-primary'}`} />
-                    <span className={`text-sm font-display font-semibold ${isFavorite(card.id) ? 'text-primary' : 'text-muted-foreground'}`}>{t('capture.detail.favorite')}</span>
                   </button>
                 )}
                 {card.image && (
-                  <button onClick={handleShare} className="flex items-center gap-2 group">
+                  <button
+                    onClick={handleShare}
+                    aria-label={t('capture.detail.share')}
+                    title={t('capture.detail.share')}
+                    className="relative flex items-center py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
+                  >
                     <Share2 className="w-6 h-6 text-muted-foreground transition-colors group-hover:text-primary" />
-                    <span className="text-sm font-display font-semibold text-muted-foreground">{t('capture.detail.share')}</span>
                   </button>
                 )}
               </div>
