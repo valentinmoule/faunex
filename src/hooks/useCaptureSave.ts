@@ -131,7 +131,6 @@ export const useCaptureSave = ({ userId, photo, geo, takenAt = null }: SaveConte
           label_category: animal.category ?? null,
           label_rarity: animal.rarity ?? null,
           location: geo.name || null,
-          taken_at: takenAt,
           latitude: geo.coords?.lat ?? null,
           longitude: geo.coords?.lng ?? null,
         });
@@ -140,7 +139,7 @@ export const useCaptureSave = ({ userId, photo, geo, takenAt = null }: SaveConte
         setSaving(false);
       }
     },
-    [photo, userId, uploadImage, resolveSessionUserId, defaultShare, geo]
+    [photo, userId, uploadImage, resolveSessionUserId, defaultShare, geo, takenAt]
   );
 
   const replaceCapture = useCallback(
@@ -178,7 +177,7 @@ export const useCaptureSave = ({ userId, photo, geo, takenAt = null }: SaveConte
         setSaving(false);
       }
     },
-    [photo, userId, uploadImage, resolveSessionUserId, defaultShare, geo]
+    [photo, userId, uploadImage, resolveSessionUserId, defaultShare, geo, takenAt]
   );
 
   const submitManualEntry = useCallback(
@@ -225,7 +224,6 @@ export const useCaptureSave = ({ userId, photo, geo, takenAt = null }: SaveConte
           label_scientific_name: entry.species || null,
           user_description: entry.description || null,
           location: geo.name || null,
-          taken_at: takenAt,
           latitude: geo.coords?.lat ?? null,
           longitude: geo.coords?.lng ?? null,
         });
@@ -244,7 +242,7 @@ export const useCaptureSave = ({ userId, photo, geo, takenAt = null }: SaveConte
         setSaving(false);
       }
     },
-    [photo, userId, uploadImage, resolveSessionUserId, defaultShare, geo]
+    [photo, userId, uploadImage, resolveSessionUserId, defaultShare, geo, takenAt]
   );
 
   return { saving, defaultShare, findDuplicate, insertCapture, replaceCapture, submitManualEntry };
