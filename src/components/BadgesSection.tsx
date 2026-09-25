@@ -65,10 +65,11 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
                   </span>
                 )}
 
-                {!claimed && (
+                {/* XP visible uniquement sur les badges débloqués — affiché à la réclamation sinon */}
+                {claimed && (
                   <XpPill
                     xp={badge.xp}
-                    state={readyToClaim ? 'ready' : 'locked'}
+                    state="claimed"
                     className="absolute -top-2 -right-3.5"
                   />
                 )}
