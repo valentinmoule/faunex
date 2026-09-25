@@ -3099,7 +3099,7 @@ html.is-native-android body {
 }
 .rarity-badge.rarity-badge--plain .rarity-badge__label {
   color: hsl(0 0% 100%);
-  text-shadow: 0 1px 2px hsl(0 0% 0% / 0.7);
+  text-shadow: 0 0 3px hsl(0 0% 0% / 0.75), 0 1px 2px hsl(0 0% 0% / 0.85);
 }
 
 @media (prefers-reduced-motion: reduce) {
