@@ -1,4 +1,19 @@
-import { SlidersHorizontal, Check, Ghost, Footprints, Users, TrendingUp, Flame, type LucideIcon } from 'lucide-react';
+import { type ReactNode } from 'react';
+import {
+  SlidersHorizontal,
+  Check,
+  Ghost,
+  Footprints,
+  Users,
+  TrendingUp,
+  Flame,
+  Sparkles,
+  Clock,
+  ArrowDownAZ,
+  Star,
+  GripVertical,
+  type LucideIcon,
+} from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import RarityBadge from '@/components/RarityBadge';
 import { type Rarity, RARITY_LABELS, RARITY_ORDER, RARITY_RANK, normalizeRarity } from '@/data/mockData';
@@ -89,6 +104,79 @@ export const SpeciesFilterButton = ({
   );
 };
 
+/** Icône de chaque mode de tri (une ligne par option dans le drawer). */
+const SORT_ICONS: Record<string, LucideIcon> = {
+  default: Sparkles,
+  recent: Clock,
+  alpha: ArrowDownAZ,
+  rarity: Star,
+  popularity: Flame,
+  custom: GripVertical,
+};
+
+/** Titre de section, au-dessus d'un groupe de lignes. */
+const SectionLabel = ({ children }: { children: ReactNode }) => (
+  <p className="px-1 pb-2 text-[11px] uppercase tracking-wider text-muted-foreground font-display font-bold">
+    {children}
+  </p>
+);
+
+/** Groupe de lignes : conteneur arrondi, séparateurs fins (style liste iOS). */
+const ListGroup = ({
+  children,
+  role,
+  label,
+}: {
+  children: ReactNode;
+  role?: 'group' | 'radiogroup';
+  label?: string;
+}) => (
+  <div
+    role={role}
+    aria-label={role === 'radiogroup' ? label : undefined}
+    className="overflow-hidden rounded-2xl border border-border bg-card divide-y divide-border"
+  >
+    {children}
+  </div>
+);
+
+/** Ligne de sélection : icône à gauche, libellé, coche à droite (toujours réservée pour l'alignement). */
+const ListRow = ({
+  checked,
+  onToggle,
+  leading,
+  label,
+  trailing,
+  multi,
+}: {
+  checked: boolean;
+  onToggle: () => void;
+  leading: ReactNode;
+  label: string;
+  trailing?: ReactNode;
+  /** true = sélection multiple (aria-pressed), false = choix unique (aria-checked). */
+  multi: boolean;
+}) => (
+  <button
+    type="button"
+    onClick={onToggle}
+    role={multi ? undefined : 'radio'}
+    aria-pressed={multi ? checked : undefined}
+    aria-checked={multi ? undefined : checked}
+    className="w-full flex items-center gap-3 px-4 py-3 min-h-[52px] text-left transition-colors active:bg-muted"
+  >
+    <span className="shrink-0 flex w-5 h-5 items-center justify-center text-muted-foreground" aria-hidden="true">
+      {leading}
+    </span>
+    <span className="flex-1 min-w-0 truncate text-[15px] font-display font-semibold text-foreground">{label}</span>
+    {trailing !== undefined && <span className="shrink-0 text-[13px] font-semibold text-muted-foreground">{trailing}</span>}
+    <Check
+      className={`w-[18px] h-[18px] shrink-0 text-primary transition-opacity ${checked ? 'opacity-100' : 'opacity-0'}`}
+      aria-hidden="true"
+    />
+  </button>
+);
+
 interface SpeciesSortFilterSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -110,7 +198,7 @@ interface SpeciesSortFilterSheetProps {
   confirmLabel?: string;
 }
 
-/** Drawer unifié tri + filtres, identique sur toutes les listes d'espèces. */
+/** Drawer unifié tri + filtres, identique sur toutes les listes d'espèces : listes de lignes, une option par ligne. */
 export const SpeciesSortFilterSheet = ({
   open,
   onOpenChange,
@@ -140,112 +228,92 @@ export const SpeciesSortFilterSheet = ({
         </SheetHeader>
 
         {sort !== undefined && sortOptions && onSortChange && (
-          <>
-            <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-display font-bold mt-3 mb-2">
-              {t('bestiary.mine.sortLabel')}
-            </p>
-            <div className="space-y-2">
+          <section className="mt-3">
+            <SectionLabel>{t('bestiary.mine.sortLabel')}</SectionLabel>
+            <ListGroup role="radiogroup" label={t('bestiary.mine.sortLabel')}>
               {sortOptions.map((opt) => {
-                const isActive = sort === opt.value;
+                const Icon = SORT_ICONS[opt.value] ?? Sparkles;
                 return (
-                  <button
+                  <ListRow
                     key={opt.value}
-                    onClick={() => onSortChange(opt.value)}
-                    className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border text-sm font-display font-semibold transition active:scale-[0.98] ${
-                      isActive ? 'bg-primary/10 border-primary text-primary' : 'bg-card border-border text-foreground'
-                    }`}
-                  >
-                    <span>{opt.label}</span>
-                {isActive && <Check className="w-4 h-4" />}
-              </button>
-            );
-          })}
-        </div>
-          </>
+                    multi={false}
+                    checked={sort === opt.value}
+                    onToggle={() => onSortChange(opt.value)}
+                    leading={<Icon className="w-[18px] h-[18px]" strokeWidth={1.75} />}
+                    label={opt.label}
+                  />
+                );
+              })}
+            </ListGroup>
+          </section>
         )}
 
         {availableCategories && categories !== undefined && onCategoriesChange && availableCategories.length > 0 && (
-          <>
-            <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-display font-bold mt-5 mb-2">
-              {t('bestiary.filterModal.categoriesLabel')}
-            </p>
-            <div className="flex flex-wrap gap-2">
+          <section className="mt-5">
+            <SectionLabel>{t('bestiary.filterModal.categoriesLabel')}</SectionLabel>
+            <ListGroup role="group">
               {availableCategories.map((cat) => {
                 const isActive = categories.includes(cat.name);
                 return (
-                  <button
+                  <ListRow
                     key={cat.name}
-                    onClick={() =>
+                    multi
+                    checked={isActive}
+                    onToggle={() =>
                       onCategoriesChange(
                         isActive ? categories.filter((c) => c !== cat.name) : [...categories, cat.name],
                       )
                     }
-                    className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-[12px] font-display font-semibold border transition-all active:scale-95 ${
-                      isActive
-                        ? 'bg-primary text-primary-foreground border-primary'
-                        : 'bg-card text-foreground border-border hover:border-primary/40'
-                    }`}
-                  >
-                    <SpeciesCategoryIcon category={cat.name} className="w-4 h-4" />
-                    {categoryLabel(cat.name)}
-                    <span className={isActive ? 'opacity-80' : 'opacity-50'}>{cat.total}</span>
-                  </button>
+                    leading={<SpeciesCategoryIcon category={cat.name} className="w-[18px] h-[18px]" />}
+                    label={categoryLabel(cat.name)}
+                    trailing={cat.total}
+                  />
                 );
               })}
-            </div>
-          </>
+            </ListGroup>
+          </section>
         )}
 
-        <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-display font-bold mt-5 mb-2">
-          {t('bestiary.filterModal.rarityLabel')}
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {RARITY_ORDER.map((r) => {
-            const isActive = rarities.includes(r);
-            return (
-              <button
-                key={r}
-                onClick={() =>
-                  onRaritiesChange(isActive ? rarities.filter((x) => x !== r) : [...rarities, r])
-                }
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-[12px] font-display font-semibold border transition-all active:scale-95 ${
-                  isActive
-                    ? 'bg-primary text-primary-foreground border-primary'
-                    : 'bg-card text-foreground border-border hover:border-primary/40'
-                }`}
-              >
-                <RarityBadge rarity={r} />
-                {RARITY_LABELS[r]}
-              </button>
-            );
-          })}
-        </div>
+        <section className="mt-5">
+          <SectionLabel>{t('bestiary.filterModal.rarityLabel')}</SectionLabel>
+          <ListGroup role="group">
+            {RARITY_ORDER.map((r) => {
+              const isActive = rarities.includes(r);
+              return (
+                <ListRow
+                  key={r}
+                  multi
+                  checked={isActive}
+                  onToggle={() => onRaritiesChange(isActive ? rarities.filter((x) => x !== r) : [...rarities, r])}
+                  leading={<RarityBadge rarity={r} />}
+                  label={RARITY_LABELS[r]}
+                />
+              );
+            })}
+          </ListGroup>
+        </section>
 
-        <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-display font-bold mt-5 mb-2">
-          {t('bestiary.filterModal.popularityLabel')}
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {(Object.keys(POPULARITY_LABELS) as PopularityTier[]).map((tier) => {
-            const isActive = popularities.includes(tier);
-            const { label, Icon } = POPULARITY_LABELS[tier];
-            return (
-              <button
-                key={tier}
-                onClick={() =>
-                  onPopularitiesChange(isActive ? popularities.filter((x) => x !== tier) : [...popularities, tier])
-                }
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-[12px] font-display font-semibold border transition-all active:scale-95 ${
-                  isActive
-                    ? 'bg-primary text-primary-foreground border-primary'
-                    : 'bg-card text-foreground border-border hover:border-primary/40'
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                {label}
-              </button>
-            );
-          })}
-        </div>
+        <section className="mt-5">
+          <SectionLabel>{t('bestiary.filterModal.popularityLabel')}</SectionLabel>
+          <ListGroup role="group">
+            {(Object.keys(POPULARITY_LABELS) as PopularityTier[]).map((tier) => {
+              const isActive = popularities.includes(tier);
+              const { label, Icon } = POPULARITY_LABELS[tier];
+              return (
+                <ListRow
+                  key={tier}
+                  multi
+                  checked={isActive}
+                  onToggle={() =>
+                    onPopularitiesChange(isActive ? popularities.filter((x) => x !== tier) : [...popularities, tier])
+                  }
+                  leading={<Icon className="w-[18px] h-[18px]" strokeWidth={1.75} />}
+                  label={label}
+                />
+              );
+            })}
+          </ListGroup>
+        </section>
 
         <div className="flex items-center gap-2 mt-6">
           <button
