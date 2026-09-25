@@ -11,6 +11,8 @@ import {
   SpeciesFilterButton,
   SpeciesSortFilterSheet,
   applySpeciesSortFilter,
+  countByPopularity,
+  countByRarity,
   popularityTierOf,
   type PopularityTier,
   type SpeciesSort,
@@ -535,6 +537,10 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
       .sort(([a], [b]) => a.localeCompare(b, 'fr'))
       .map(([name, data]) => ({ name, ...data }));
   }, [animals]);
+
+  // Compteurs par rareté et popularité (affichés à droite dans la modale de filtres)
+  const rarityCountData = useMemo(() => countByRarity(animals), [animals]);
+  const popularityCountData = useMemo(() => countByPopularity(animals), [animals]);
 
   // Normalized search query (accents & case insensitive)
   const normalizeSearch = (v: string) =>
