@@ -12,6 +12,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { prepareSourceImage, readFileAsDataUrl, dataUrlToBytes } from '@/lib/imageProcessing';
 import { toast } from 'sonner';
 import ProfileBadgesRow from '@/components/ProfileBadgesRow';
+import { useBadges } from '@/hooks/useBadges';
 
 interface DrawerProfile {
   display_name: string | null;
