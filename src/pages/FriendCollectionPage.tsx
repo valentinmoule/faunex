@@ -510,6 +510,8 @@ const FriendCollectionPage = () => {
         popularities={popularityFilter}
         onPopularitiesChange={setPopularityFilter}
         availableCategories={categoryData}
+        availableRarities={rarityCountData}
+        availablePopularities={popularityCountData}
         categories={categoryFilter}
         onCategoriesChange={setCategoryFilter}
         resultCount={filtered.length}
