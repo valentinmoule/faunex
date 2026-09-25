@@ -2159,24 +2159,25 @@
 .holo-very-rare .holo-shine {
   background-image:
     radial-gradient(circle at var(--pointer-x) var(--pointer-y),
-      #fff 5%, #000 50%, #fff 80%),
+      hsla(0, 0%, 78%, 0.7) 5%, #000 55%, hsla(0, 0%, 78%, 0.45) 80%),
     linear-gradient(-45deg, #000 15%, #fff, #000 85%);
   background-blend-mode: soft-light, difference;
   background-size: 120% 120%, 200% 200%;
   background-position:
     center center,
     calc(100% * var(--pointer-from-left)) calc(100% * var(--pointer-from-top));
-  filter: brightness(0.55) contrast(1.5) saturate(1);
-  opacity: calc((1.5 * var(--card-opacity)) - var(--pointer-from-center));
+  filter: brightness(0.85) contrast(1.3) saturate(1);
+  opacity: calc((0.75 * var(--card-opacity)) - (var(--pointer-from-center) * 0.3));
 }
 .holo-rare .holo-glare,
 .holo-very-rare .holo-glare {
   background-image: radial-gradient(
     farthest-corner circle at var(--pointer-x) var(--pointer-y),
-    hsla(0, 0%, 100%, 0.8) 10%,
-    hsla(0, 0%, 100%, 0.5) 20%,
-    hsla(0, 0%, 0%, 0.75) 90%);
-  filter: brightness(0.75) contrast(1.5);
+    hsla(0, 0%, 100%, 0.45) 10%,
+    hsla(0, 0%, 100%, 0.25) 20%,
+    hsla(0, 0%, 0%, 0.5) 90%);
+  filter: brightness(0.9) contrast(1.3);
+  opacity: 0.75;
 }
 
 /* ───────────── EPIC → Cosmos / Galaxy Holo ───────────── */
@@ -2341,13 +2342,28 @@
 
 /* ★★ Rare — reverse holo violet, plus marqué */
 .holo-very-rare { --holo-accent: var(--rarity-very-rare); --holo-tint: 0.38; }
-.holo-very-rare .holo-shine { filter: brightness(0.6) contrast(1.6) saturate(1.3); }
+.holo-very-rare .holo-shine { filter: brightness(0.78) contrast(1.45) saturate(1.2); }
 
 /* ★★ Ultra rare — cosmos argenté */
 .holo-ultra-rare { --holo-accent: var(--rarity-ultra-rare); --holo-tint: 0.22; }
 
-/* ★ Épique — or holo */
+/* ★ Épique — or holo, reflet allégé pour laisser voir la photo */
 .holo-illustration-rare { --holo-accent: var(--rarity-illustration-rare); --holo-tint: 0.18; }
+.holo-illustration-rare .holo-shine {
+  filter: brightness(0.68) contrast(1) saturate(2.2);
+}
+.holo-illustration-rare .holo-shine::before {
+  opacity: 0.45;
+  filter: brightness(1.1) contrast(1.15) saturate(0.35);
+}
+.holo-illustration-rare .holo-shine::after {
+  filter: brightness(0.8) contrast(1.3);
+  opacity: 0.8;
+}
+.holo-illustration-rare .holo-glare {
+  opacity: 0.55;
+  filter: brightness(1.1) contrast(1.3);
+}
 
 /* ★★ Mythique — or ambré, plus saturé */
 .holo-special-rare { --holo-accent: var(--rarity-special-rare); --holo-tint: 0.26; }
