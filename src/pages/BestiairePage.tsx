@@ -255,6 +255,7 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
     // change d'onglet depuis la barre de navigation.
     setSelectedCategory(null);
     setSelectedCollectionKey(null);
+    setSelectedCustomId(null);
     setSelectedZoneId(null);
   }, [isFaunexHub, searchParams]);
 
@@ -262,6 +263,7 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
     setViewMode(next);
     setSelectedCategory(null);
     setSelectedCollectionKey(null);
+    setSelectedCustomId(null);
     setSelectedZoneId(null);
     const defaults = isFaunexHub ? 'mine' : 'categories';
     setSearchParams(next === defaults ? {} : { tab: next }, { replace: true });
@@ -286,10 +288,10 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
 
   // Scroll to top when entering a category, zone or collection detail view
   useEffect(() => {
-    if (selectedCategory || selectedZoneId || selectedCollectionKey) {
+    if (selectedCategory || selectedZoneId || selectedCollectionKey || selectedCustomId) {
       window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     }
-  }, [selectedCategory, selectedZoneId, selectedCollectionKey]);
+  }, [selectedCategory, selectedZoneId, selectedCollectionKey, selectedCustomId]);
 
   const {
     animals,
