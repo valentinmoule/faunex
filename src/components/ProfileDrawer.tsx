@@ -57,8 +57,10 @@ export const ProfileButton = ({ className = '' }: { className?: string }) => {
         {claimableBadges > 0 && (
           <span
             aria-hidden
-            className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-destructive ring-2 ring-background"
-          />
+            className="absolute -top-0.5 -right-0.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center"
+          >
+            {claimableBadges > 9 ? '9+' : claimableBadges}
+          </span>
         )}
       </span>
     </Button>
