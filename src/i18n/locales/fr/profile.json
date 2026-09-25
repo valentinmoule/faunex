@@ -33,7 +33,7 @@
         "badgeClaim": "Récupérer {{name}}",
         "badgeClaimed": "Badge récupéré : +{{xp}} XP",
         "newTag": "Nouveau",
-        "myProfile": "Mon profil",
+        "shareProfile": "Partager mon profil",
         "findExplorers": "Rechercher des explorateurs",
         "settings": "Paramètres"
       }

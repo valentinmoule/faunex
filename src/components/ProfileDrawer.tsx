@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Camera, ChevronRight, Crown, Loader2, Search, Settings, ShieldCheck, UserRound } from 'lucide-react';
+import { Camera, ChevronRight, Crown, Loader2, Search, Settings, Share2, ShieldCheck, UserRound } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,8 @@ import { prepareSourceImage, readFileAsDataUrl, dataUrlToBytes } from '@/lib/ima
 import { toast } from 'sonner';
 import ProfileBadgesRow from '@/components/ProfileBadgesRow';
 import { useBadges } from '@/hooks/useBadges';
+import { shareContent } from '@/lib/share';
+import { shareOrigin } from '@/lib/authRedirect';
 
 interface DrawerProfile {
   display_name: string | null;
@@ -186,6 +188,18 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
     navigate(path);
   };
 
+  const shareMyProfile = async () => {
+    const username = profile?.username?.replace(/^@/, '') || userId;
+    if (!username) return;
+    setOpen(false);
+    const result = await shareContent({
+      title: t('profile.settings.share.title'),
+      text: t('profile.settings.share.text'),
+      url: `${shareOrigin()}/u/${username}`,
+    });
+    if (result === 'copied') toast.success(t('profile.settings.success.linkCopied'));
+  };
+
   const xpPercent = profile?.xp_to_next
     ? Math.min(100, Math.round((profile.xp / profile.xp_to_next) * 100))
     : 0;
@@ -301,9 +315,9 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
                 )}
                 <div className="overflow-hidden rounded-2xl bg-muted divide-y divide-border/60">
                   <DrawerRow
-                    icon={<UserRound className="size-4" />}
-                    label={t('profile.page.drawer.myProfile')}
-                    onClick={() => go(`/u/${profile?.username?.replace(/^@/, '') || userId}`)}
+                    icon={<Share2 className="size-4" />}
+                    label={t('profile.page.drawer.shareProfile')}
+                    onClick={() => { void shareMyProfile(); }}
                   />
                   <DrawerRow
                     icon={<Search className="size-4" />}

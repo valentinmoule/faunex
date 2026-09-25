@@ -33,7 +33,7 @@
         "badgeClaim": "Claim {{name}}",
         "badgeClaimed": "Badge claimed: +{{xp}} XP",
         "newTag": "New",
-        "myProfile": "My profile",
+        "shareProfile": "Share my profile",
         "findExplorers": "Find explorers",
         "settings": "Settings"
       }
