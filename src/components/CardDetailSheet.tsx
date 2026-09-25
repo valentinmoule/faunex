@@ -813,6 +813,24 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                   label={t('capture.detail.rarityLabel')}
                   value={<RarityBadge rarity={card.rarity} plain showLabel className="detail-rarity-line" />}
                 />
+                {(() => {
+                  const CatIcon = getCategoryIcon(card.category);
+                  return (
+                    <DetailRow
+                      icon={<CatIcon className="w-4 h-4" />}
+                      label={t('capture.detail.categoryLabel')}
+                      value={categoryLabel(card.category)}
+                    />
+                  );
+                })()}
+                {finders !== undefined && finders > 0 && (
+                  <DetailRow
+                    icon={<Users className="w-4 h-4" />}
+                    label={t('capture.detail.capturedByLabel')}
+                    value={t('capture.finders.people', { count: finders })}
+                  />
+                )}
+
                 <DetailRow icon={<MapPin className="w-4 h-4" />} label={t('capture.detail.habitat')} value={facts.habitat} />
                 <DetailRow icon={<UtensilsCrossed className="w-4 h-4" />} label={t('capture.detail.diet')} value={facts.diet} />
                 <DetailRow icon={<Shield className="w-4 h-4" />} label={t('capture.detail.conservation')} value={card.conservation} />
