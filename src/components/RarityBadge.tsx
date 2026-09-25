@@ -59,10 +59,13 @@ export const RarityBadge = ({
   rarity,
   className,
   showLabel = false,
+  plain = false,
 }: {
   rarity: string;
   className?: string;
   showLabel?: boolean;
+  /** Sans pastille : étoiles seules, posées directement sur le fond (filtres, cartes). */
+  plain?: boolean;
 }) => {
   const { t } = useTranslation();
   const r = normalizeRarity(rarity);
@@ -78,7 +81,7 @@ export const RarityBadge = ({
 
   return (
     <span
-      className={`rarity-badge rarity-badge--${r.replace(/_/g, '-')} ${fxVariant[fx]} ${r === 'hyper_rare' ? 'rarity-badge--hyper' : ''} ${showLabel ? 'rarity-badge--labeled' : ''} ${className ?? ''}`}
+      className={`rarity-badge rarity-badge--${r.replace(/_/g, '-')} ${fxVariant[fx]} ${r === 'hyper_rare' ? 'rarity-badge--hyper' : ''} ${showLabel ? 'rarity-badge--labeled' : ''} ${plain ? 'rarity-badge--plain' : ''} ${className ?? ''}`}
       title={RARITY_LABELS[r]}
       aria-label={t('bestiary.rarity.ariaLabel', { label: RARITY_LABELS[r] })}
     >
