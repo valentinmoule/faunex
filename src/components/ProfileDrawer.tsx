@@ -332,3 +332,20 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
     </ProfileDrawerContext.Provider>
   );
 };
+
+const DrawerRow = ({ icon, label, onClick, badge }: { icon: ReactNode; label: string; onClick: () => void; badge?: number }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-muted/70 active:bg-muted/50"
+  >
+    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-card text-foreground shadow-sm">
+      {icon}
+    </span>
+    <span className="flex-1 text-sm font-display font-semibold text-foreground">{label}</span>
+    {badge != null && badge > 0 && (
+      <span className="rounded-full bg-amber px-2 py-0.5 text-[10px] font-bold text-amber-foreground">{badge}</span>
+    )}
+    <ChevronRight className="size-4 text-muted-foreground" />
+  </button>
+);
