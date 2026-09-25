@@ -57,6 +57,13 @@
       "when": 1790375919200,
       "tag": "0007_fix_premium_badge_reward",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1790378131847,
+      "tag": "0008_create_custom_collections",
+      "breakpoints": true
     }
   ]
 }
