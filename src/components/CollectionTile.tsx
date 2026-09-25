@@ -1,4 +1,4 @@
-import { Gift } from 'lucide-react';
+import { Check, Gift, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 /**
