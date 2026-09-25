@@ -62,22 +62,25 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
   const [profile, setProfile] = useState<DrawerProfile | null>(null);
   const [followers, setFollowers] = useState(0);
   const [following, setFollowing] = useState(0);
+  const [badgeCount, setBadgeCount] = useState(0);
   const [isAdmin, setIsAdmin] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
 
   const loadProfile = useCallback(async () => {
     if (!userId) return;
     setLoading(true);
-    const [profileResult, followersResult, followingResult, roleResult] = await Promise.all([
+    const [profileResult, followersResult, followingResult, roleResult, badgesResult] = await Promise.all([
       supabase.from('profiles').select('display_name, username, avatar_url, level, xp, xp_to_next, total_captures, regions_explored').eq('user_id', userId).maybeSingle(),
       supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('following_id', userId).eq('status', 'accepted'),
       supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('follower_id', userId).eq('status', 'accepted'),
       supabase.from('user_roles').select('role').eq('user_id', userId).eq('role', 'admin').maybeSingle(),
+      supabase.from('user_badges').select('*', { count: 'exact', head: true }).eq('user_id', userId),
     ]);
 
     setProfile(profileResult.data as DrawerProfile | null);
     setFollowers(followersResult.count ?? 0);
     setFollowing(followingResult.count ?? 0);
+    setBadgeCount(badgesResult.count ?? 0);
     const admin = Boolean(roleResult.data);
     setIsAdmin(admin);
     if (admin) {
@@ -114,7 +117,8 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
     { value: profile?.regions_explored ?? 0, label: t('profile.page.stats.regions') },
     { value: followers, label: t('profile.page.stats.followers') },
     { value: following, label: t('profile.page.stats.following') },
-  ], [followers, following, profile, t]);
+    { value: badgeCount, label: t('profile.page.stats.badges') },
+  ], [followers, following, badgeCount, profile, t]);
 
   return (
     <ProfileDrawerContext.Provider value={{ openProfile }}>
@@ -153,7 +157,7 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
                 </div>
               </header>
 
-              <div className="mt-5 grid grid-cols-4 divide-x divide-border rounded-xl border border-border bg-card py-2.5">
+              <div className="mt-5 grid grid-cols-5 divide-x divide-border rounded-xl border border-border bg-card py-2.5">
                 {stats.map((stat) => (
                   <div key={stat.label} className="min-w-0 px-1 text-center">
                     <p className="text-sm font-display font-bold text-foreground">{stat.value}</p>
