@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next';
 
 /**
  * Tuile de collection en forme d'écusson hexagonal (plus de cartes
- * rectangulaires) : illustration du biome, anneau de progression et
- * bouton de réclamation quand la collection est complète (l'XP gagné
- * n'est jamais affiché ici — il est révélé à la réclamation).
+ * rectangulaires) : illustration du biome, compteur seul (sans barre de
+ * progression) et bouton de réclamation quand la collection est complète
+ * (l'XP gagné n'est jamais affiché ici — il est révélé à la réclamation).
  */
 export interface CollectionTileProps {
   title: string;
