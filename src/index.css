@@ -3350,8 +3350,8 @@ html.is-native-android body {
 
 /* Fiche espèce — encadré « Le saviez-vous ? » */
 .detail-funfact {
-  /* Motif végétal répété (feuilles + graines), teinté à la couleur primaire */
-  --funfact-motif: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'><g fill='none' stroke='%23000' stroke-width='1.2'><path d='M0 -7C3.6 -4.4 3.6 4.4 0 7C-3.6 4.4 -3.6 -4.4 0 -7Z' transform='translate(11 12) rotate(-32)'/><path d='M0 -7C3.6 -4.4 3.6 4.4 0 7C-3.6 4.4 -3.6 -4.4 0 -7Z' transform='translate(33 34) rotate(148)'/></g><g fill='%23000' fill-opacity='0.5'><path d='M0 -5C2.6 -3.1 2.6 3.1 0 5C-2.6 3.1 -2.6 -3.1 0 -5Z' transform='translate(33 11) rotate(28) scale(0.85)'/><path d='M0 -5C2.6 -3.1 2.6 3.1 0 5C-2.6 3.1 -2.6 -3.1 0 -5Z' transform='translate(11 33) rotate(-152) scale(0.85)'/><circle cx='22' cy='22' r='1.2'/></g></svg>");
+  /* Motif végétal répété (feuilles nervurées + graines), teinté à la couleur primaire */
+  --funfact-motif: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 36 36'><g fill='%23000' fill-opacity='0.9' fill-rule='evenodd'><path d='M0 -8C4.2 -5 4.2 5 0 8C-4.2 5 -4.2 -5 0 -8ZM0 -6C0.7 -3 0.7 3 0 6C-0.7 3 -0.7 -3 0 -6Z' transform='translate(9 10) rotate(-30)'/><path d='M0 -8C4.2 -5 4.2 5 0 8C-4.2 5 -4.2 -5 0 -8ZM0 -6C0.7 -3 0.7 3 0 6C-0.7 3 -0.7 -3 0 -6Z' transform='translate(26 27) rotate(150)'/></g><g fill='%23000' fill-opacity='0.55'><circle cx='27' cy='9' r='1.5'/><circle cx='9' cy='27' r='1.5'/><circle cx='18' cy='18' r='1.1'/></g></svg>");
   position: relative;
   overflow: hidden;
   border-radius: 20px;
@@ -3368,11 +3368,11 @@ html.is-native-android body {
   inset: 0;
   pointer-events: none;
   background-color: hsl(var(--primary));
-  opacity: 0.26;
+  opacity: 0.18;
   -webkit-mask-image: var(--funfact-motif);
   mask-image: var(--funfact-motif);
   -webkit-mask-repeat: repeat;
   mask-repeat: repeat;
-  -webkit-mask-size: 44px 44px;
-  mask-size: 44px 44px;
+  -webkit-mask-size: 36px 36px;
+  mask-size: 36px 36px;
 }
