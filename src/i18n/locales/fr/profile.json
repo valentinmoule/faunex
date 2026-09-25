@@ -223,6 +223,10 @@
         "followers_25": {
           "name": "Star de Faunex",
           "description": "Être suivi par 25 explorateurs"
+        },
+        "premium_member": {
+          "name": "Explorateur Premium",
+          "description": "Devenir membre Premium de Faunex"
         }
       },
       "collectionDescription": "Compléter la collection {{label}}",

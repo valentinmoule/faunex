@@ -1,8 +1,10 @@
 import communityMemberArt from '@/assets/badges/community_member.png';
+import premiumMemberArt from '@/assets/badges/premium_member.png';
 
 /** Generated badge artwork URL registry. */
 export const BADGE_ART: Record<string, string> = {
   'community_member': communityMemberArt,
+  'premium_member': premiumMemberArt,
   'amphibians_3': '/__l5e/assets-v1/1b184d33-9b17-4b14-a247-3bbb45cce6f0/amphibians_3.png',
   'arachnids_3': '/__l5e/assets-v1/7e34c982-21ba-487c-b105-a4ab9e91e9a0/arachnids_3.png',
   'birds_5': '/__l5e/assets-v1/b5a66f29-a8b5-4c7c-aed4-dfc3d92311ff/birds_5.png',
