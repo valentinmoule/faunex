@@ -1161,7 +1161,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
       {/* Delete confirmation — portalled so it floats above the drawer */}
       {confirmDelete && createPortal((
         <div
-          className="fixed inset-0 z-[10001] flex items-center justify-center px-6"
+          className="pointer-events-auto fixed inset-0 z-[10001] flex items-center justify-center px-6"
           role="alertdialog"
           aria-modal="true"
           aria-labelledby="delete-capture-title"
