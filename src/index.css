@@ -2371,36 +2371,22 @@
   opacity: 0.55;
 }
 
-/* ★★★ Légendaire — prisme solaire et éclats d'or, distinct de la nacre mythique */
+/* ★★★ Légendaire — un seul reflet prismatique multicolore, sans surcouche dorée. */
 .holo-hyper-rare { --holo-accent: var(--rarity-hyper-rare); --holo-tint: 0.32; }
 .holo-hyper-rare .holo-shine {
-  background-image:
-    url("/holo/glitter.png"),
-    conic-gradient(from 25deg at var(--pointer-x) var(--pointer-y), hsl(47 100% 73%), hsl(184 100% 71%), hsl(218 95% 68%), hsl(305 95% 75%), hsl(47 100% 73%)),
-    radial-gradient(circle at var(--pointer-x) var(--pointer-y), hsl(49 100% 85% / 0.65), transparent 58%);
-  background-size: 20% 20%, 160% 160%, cover;
-  background-position: 45% 45%, var(--background-x) var(--background-y), center;
-  background-blend-mode: soft-light, overlay;
+  background-image: conic-gradient(from 25deg at var(--pointer-x) var(--pointer-y), hsl(47 100% 73%), hsl(184 100% 71%), hsl(218 95% 68%), hsl(305 95% 75%), hsl(47 100% 73%));
+  background-size: 160% 160%;
+  background-position: var(--background-x) var(--background-y);
+  background-blend-mode: normal;
   filter: brightness(0.9) contrast(1.2) saturate(2.2);
 }
-.holo-hyper-rare .holo-shine::before {
-  background-image: url("/holo/geometric.png"), linear-gradient(45deg, hsl(47 100% 70%), hsl(186 100% 74%), hsl(310 100% 76%));
-  background-size: 33%, 180% 180%;
-  background-position: center, var(--background-x) var(--background-y);
-  background-blend-mode: hard-light;
-  mix-blend-mode: screen;
-  filter: none;
-  opacity: 0.7;
-}
+.holo-hyper-rare .holo-shine::before,
 .holo-hyper-rare .holo-shine::after {
-  animation: holo-glitter-drift 6s linear infinite;
+  content: none;
 }
-@keyframes holo-glitter-drift {
-  0%   { background-position: 0% 0%; }
-  100% { background-position: 200% 200%; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .holo-hyper-rare .holo-shine::after { animation: none; }
+.holo-hyper-rare .holo-glare,
+.holo-hyper-rare .detail-gold-glass {
+  display: none;
 }
 
 
