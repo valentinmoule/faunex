@@ -231,7 +231,10 @@
       "communityBadge": {
         "name": "Community member",
         "description": "Join the Faunex Discord"
-      }
+      },
+      "earnedText": "You earned {{xp}} XP and unlocked the {{name}} badge!",
+      "shareText": "I unlocked the {{{name}}} badge on Faunex 🌿",
+      "shareAria": "Share this badge"
     },
     "levelUp": {
       "title": "Level up!",
