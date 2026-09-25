@@ -303,8 +303,97 @@ const SettingsPage = () => {
               <div>
                 <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">{t('profile.settings.username')}</label>
                 <input type="text" value={editUsername} onChange={e => setEditUsername(e.target.value)} maxLength={30} placeholder={t('profile.settings.usernamePlaceholder')} className="w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
+              </div>
+
+              {/* Private account toggle */}
+              <div className="flex items-center justify-between px-4 py-3 bg-muted rounded-xl">
+                <div>
+                  <span className="text-sm font-display font-semibold text-foreground flex items-center gap-1.5">
+                    <Lock className="w-3.5 h-3.5" /> {t('profile.settings.privateAccount.label')}
+                  </span>
+                  <span className="text-[11px] text-muted-foreground">{t('profile.settings.privateAccount.hint')}</span>
+                </div>
+                <button
+                  onClick={async () => {
+                    const newVal = !isPrivate;
+                    setIsPrivate(newVal);
+                    if (session?.user) {
+                      await supabase.from('profiles').update({ is_private: newVal } as any).eq('user_id', session.user.id);
+                      toast.success(newVal ? t('profile.settings.privateAccount.enabled') : t('profile.settings.privateAccount.disabled'));
+                    }
+                  }}
+                  className={`relative w-11 h-6 rounded-full transition-colors ${isPrivate ? 'bg-primary' : 'bg-muted-foreground/30'}`}
+                >
+                  <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card shadow transition-transform ${isPrivate ? 'translate-x-5' : 'translate-x-0'}`} />
+                </button>
+              </div>
+
+              {/* Default share captures toggle */}
+              <div className="flex items-center justify-between px-4 py-3 bg-muted rounded-xl">
+                <div className="pr-3">
+                  <span className="text-sm font-display font-semibold text-foreground flex items-center gap-1.5">
+                    <Share2 className="w-3.5 h-3.5" /> {t('profile.settings.defaultShare.label')}
+                  </span>
+                  <span className="text-[11px] text-muted-foreground">{t('profile.settings.defaultShare.hint')}</span>
+                </div>
+                <button
+                  onClick={async () => {
+                    const newVal = !defaultShare;
+                    setDefaultShare(newVal);
+                    if (session?.user) {
+                      await supabase.from('profiles').update({ default_share_captures: newVal } as any).eq('user_id', session.user.id);
+                      toast.success(newVal ? t('profile.settings.defaultShare.enabled') : t('profile.settings.defaultShare.disabled'));
+                    }
+                  }}
+                  className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${defaultShare ? 'bg-primary' : 'bg-muted-foreground/30'}`}
+                >
+                  <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card shadow transition-transform ${defaultShare ? 'translate-x-5' : 'translate-x-0'}`} />
+                </button>
+              </div>
             </div>
 
+            <button
+              onClick={handleSaveProfile}
+              disabled={saving}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-primary-foreground font-display text-sm font-semibold disabled:opacity-50"
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+              {t('profile.settings.save')}
+            </button>
+
+            {/* Password */}
+            <div className="pt-2 space-y-3 border-t border-border">
+              <div className="flex items-center gap-1.5 pt-4">
+                <KeyRound className="w-4 h-4 text-foreground" />
+                <span className="text-sm font-display font-semibold text-foreground">{t('settings.changePassword')}</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground -mt-1">{t('profile.settings.password.intro')}</p>
+              <div>
+                <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">{t('profile.settings.password.old')}</label>
+                <input type="password" value={oldPassword} onChange={e => setOldPassword(e.target.value)} className="w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
+              </div>
+              <div>
+                <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">{t('profile.settings.password.new')}</label>
+                <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} className="w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
+              </div>
+              <div>
+                <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">{t('profile.settings.password.confirm')}</label>
+                <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
+              </div>
+              <button
+                onClick={handleChangePassword}
+                disabled={changingPassword}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-muted text-foreground font-display text-sm font-semibold disabled:opacity-50"
+              >
+                {changingPassword ? <Loader2 className="w-4 h-4 animate-spin" /> : <KeyRound className="w-4 h-4" />}
+                {t('profile.settings.password.submit')}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {section === 'notifications' && (
+          <div className="space-y-3">
             {/* Marketing emails toggle */}
             <div className="flex items-center justify-between px-4 py-3 bg-muted rounded-xl">
               <div>
@@ -357,52 +446,6 @@ const SettingsPage = () => {
               </div>
             )}
 
-            {/* Private account toggle */}
-            <div className="flex items-center justify-between px-4 py-3 bg-muted rounded-xl">
-              <div>
-                <span className="text-sm font-display font-semibold text-foreground flex items-center gap-1.5">
-                  <Lock className="w-3.5 h-3.5" /> {t('profile.settings.privateAccount.label')}
-                </span>
-                <span className="text-[11px] text-muted-foreground">{t('profile.settings.privateAccount.hint')}</span>
-              </div>
-              <button
-                onClick={async () => {
-                  const newVal = !isPrivate;
-                  setIsPrivate(newVal);
-                  if (session?.user) {
-                    await supabase.from('profiles').update({ is_private: newVal } as any).eq('user_id', session.user.id);
-                    toast.success(newVal ? t('profile.settings.privateAccount.enabled') : t('profile.settings.privateAccount.disabled'));
-                  }
-                }}
-                className={`relative w-11 h-6 rounded-full transition-colors ${isPrivate ? 'bg-primary' : 'bg-muted-foreground/30'}`}
-              >
-                <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card shadow transition-transform ${isPrivate ? 'translate-x-5' : 'translate-x-0'}`} />
-              </button>
-            </div>
-
-            {/* Default share captures toggle */}
-            <div className="flex items-center justify-between px-4 py-3 bg-muted rounded-xl">
-              <div className="pr-3">
-                <span className="text-sm font-display font-semibold text-foreground flex items-center gap-1.5">
-                  <Share2 className="w-3.5 h-3.5" /> {t('profile.settings.defaultShare.label')}
-                </span>
-                <span className="text-[11px] text-muted-foreground">{t('profile.settings.defaultShare.hint')}</span>
-              </div>
-              <button
-                onClick={async () => {
-                  const newVal = !defaultShare;
-                  setDefaultShare(newVal);
-                  if (session?.user) {
-                    await supabase.from('profiles').update({ default_share_captures: newVal } as any).eq('user_id', session.user.id);
-                    toast.success(newVal ? t('profile.settings.defaultShare.enabled') : t('profile.settings.defaultShare.disabled'));
-                  }
-                }}
-                className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${defaultShare ? 'bg-primary' : 'bg-muted-foreground/30'}`}
-              >
-                <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card shadow transition-transform ${defaultShare ? 'translate-x-5' : 'translate-x-0'}`} />
-              </button>
-            </div>
-
             {/* Granular notification preferences */}
             <div className="bg-muted rounded-xl p-4 space-y-3">
               <div className="flex items-center gap-1.5">
@@ -435,44 +478,9 @@ const SettingsPage = () => {
                 </p>
               )}
             </div>
-            </div>
-
-            <button
-              onClick={handleSaveProfile}
-              disabled={saving}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-primary-foreground font-display text-sm font-semibold disabled:opacity-50"
-            >
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-              {t('profile.settings.save')}
-            </button>
           </div>
         )}
 
-        {section === 'password' && (
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground font-body">{t('profile.settings.password.intro')}</p>
-            <div>
-              <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">{t('profile.settings.password.old')}</label>
-              <input type="password" value={oldPassword} onChange={e => setOldPassword(e.target.value)} className="w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
-            </div>
-            <div>
-              <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">{t('profile.settings.password.new')}</label>
-              <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} className="w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
-            </div>
-            <div>
-              <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">{t('profile.settings.password.confirm')}</label>
-              <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
-            </div>
-            <button
-              onClick={handleChangePassword}
-              disabled={changingPassword}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-primary-foreground font-display text-sm font-semibold disabled:opacity-50"
-            >
-              {changingPassword ? <Loader2 className="w-4 h-4 animate-spin" /> : <KeyRound className="w-4 h-4" />}
-              {t('profile.settings.password.submit')}
-            </button>
-          </div>
-        )}
 
         {section === 'delete' && (
           <div className="space-y-4">
