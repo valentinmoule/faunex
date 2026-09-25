@@ -27,7 +27,7 @@ const LandingPhoneShowcase = () => {
 
         <div className="mx-auto w-full max-w-[1080px]">
           <img
-            src="/landing/faunex-app-mockups.png"
+            src="/landing/faunex-app-mockups.webp"
             alt={t('marketing.phoneShowcase.captureAlt')}
             className="h-auto w-full object-contain"
             loading="lazy"
