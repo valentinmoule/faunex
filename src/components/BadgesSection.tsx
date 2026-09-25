@@ -23,34 +23,19 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
   /** Badge dont l'écran de récompense est ouvert : la récupération s'y fait. */
   const [reward, setReward] = useState<BadgeProgress | null>(null);
 
-  const claimedCount = badges.filter((b) => b.claimed).length;
-  const claimableCount = badges.filter((b) => b.earned && !b.claimed).length;
-
-  /** Tous les badges, sans filtre : ceux à réclamer en tête. */
+  /** Tous les badges, sans filtre ni compteur : ceux à réclamer en tête. */
   const ordered = useMemo(() => {
     return [...badges].sort((a, b) => {
       if (rank(a) !== rank(b)) return rank(a) - rank(b);
       const byGroup = BADGE_GROUP_ORDER.indexOf(a.badge.group) - BADGE_GROUP_ORDER.indexOf(b.badge.group);
       if (byGroup !== 0) return byGroup;
-      return b.progress / b.badge.total - a.progress / a.badge.total;
+      return b.progress / b.badge.total - a.progress / b.badge.total;
     });
   }, [badges]);
 
   return (
     <div id="badges" className="scroll-mt-20">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-display font-black text-foreground">{t('profile.badges.title')}</h3>
-        <div className="flex items-center gap-2">
-          {claimableCount > 0 && (
-            <span className="text-[11px] font-display font-semibold text-primary-foreground bg-primary px-2.5 py-1 rounded-full">
-              {t('profile.badges.claimable', { count: claimableCount })}
-            </span>
-          )}
-          <span className="text-[11px] font-display font-semibold text-amber bg-amber/10 border border-amber/20 px-2.5 py-1 rounded-full">
-            🏆 {claimedCount}/{badges.length}
-          </span>
-        </div>
-      </div>
+      <h3 className="text-lg font-display font-black text-foreground mb-5">{t('profile.badges.title')}</h3>
 
       {loading && <p className="text-xs text-muted-foreground font-display">{t('profile.badges.loading')}</p>}
 
@@ -58,7 +43,7 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
         <p className="text-xs text-muted-foreground font-display">{t('profile.badges.empty')}</p>
       )}
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-x-3 gap-y-6">
         {ordered.map(({ badge, progress, earned, claimed }, i) => {
           const pct = Math.min(100, Math.round((progress / badge.total) * 100));
           const readyToClaim = earned && !claimed;
@@ -67,38 +52,35 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
               key={badge.id}
               disabled={!readyToClaim}
               onClick={() => readyToClaim && setReward({ badge, progress, earned, claimed })}
-              className={`relative overflow-hidden rounded-3xl px-3 pt-5 pb-3.5 text-center transition-all duration-500 game-card-appear ${
-                claimed
-                  ? 'bg-card border border-amber/30 shadow-[0_10px_28px_-16px_hsla(38,92%,56%,0.45)] badge-earned-glow'
-                  : readyToClaim
-                  ? 'bg-card border border-primary/40 shadow-[0_10px_28px_-16px_hsla(var(--primary)/0.5)] cursor-pointer active:scale-95'
-                  : 'bg-card/70 border border-border/50'
+              className={`relative flex flex-col text-center transition-transform duration-500 game-card-appear ${
+                readyToClaim ? 'cursor-pointer active:scale-95' : ''
               }`}
               style={{ animationDelay: `${Math.min(i, 17) * 40}ms` }}
             >
-              {/* Tag « Nouveau » sur les badges à réclamer */}
-              {readyToClaim && (
-                <span className="absolute top-2 left-2 z-10 rounded-[6px] bg-destructive px-2 py-1 text-[9px] font-display font-black uppercase tracking-wide text-destructive-foreground shadow-sm">
-                  {t('profile.badges.newTag')}
-                </span>
-              )}
+              <div className="relative w-fit mx-auto mb-2.5">
+                {/* Tag « Nouveau » sur les badges à réclamer */}
+                {readyToClaim && (
+                  <span className="absolute -top-1 -left-2 z-10 rounded-[6px] bg-destructive px-2 py-1 text-[9px] font-display font-black uppercase tracking-wide text-destructive-foreground shadow-sm">
+                    {t('profile.badges.newTag')}
+                  </span>
+                )}
 
-              {!claimed && (
-                <XpPill
-                  xp={badge.xp}
-                  state={readyToClaim ? 'ready' : 'locked'}
-                  className="absolute top-2 right-2"
+                {!claimed && (
+                  <XpPill
+                    xp={badge.xp}
+                    state={readyToClaim ? 'ready' : 'locked'}
+                    className="absolute -top-1 -right-2"
+                  />
+                )}
+
+                <BadgeMedallion
+                  badgeId={badge.id}
+                  group={badge.group}
+                  fallbackEmoji={badge.icon}
+                  state={claimed ? 'claimed' : readyToClaim ? 'claimable' : 'locked'}
+                  size={96}
                 />
-              )}
-
-              <BadgeMedallion
-                badgeId={badge.id}
-                group={badge.group}
-                fallbackEmoji={badge.icon}
-                state={claimed ? 'claimed' : readyToClaim ? 'claimable' : 'locked'}
-                size={96}
-                className="mx-auto mb-2"
-              />
+              </div>
 
               <p className="text-[9px] font-display font-bold uppercase tracking-wide text-muted-foreground/70 mb-0.5">
                 {BADGE_GROUP_ICONS[badge.group]} {getGroupLabel(t, badge.group)}
@@ -110,7 +92,7 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
                 {badge.description}
               </p>
 
-              <div className="h-1 rounded-full bg-muted/80 overflow-hidden">
+              <div className="mt-auto h-1 rounded-full bg-muted/80 overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all duration-700 ease-out ${
                     claimed
@@ -122,14 +104,10 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
               </div>
               <p
                 className={`mt-1.5 text-[9px] font-display font-bold uppercase tracking-wide ${
-                  claimed ? 'text-amber' : readyToClaim ? 'text-primary' : 'text-muted-foreground'
+                  claimed ? 'text-amber' : 'text-muted-foreground'
                 }`}
               >
-                {claimed
-                  ? t('profile.badges.unlockedTag')
-                  : readyToClaim
-                  ? t('profile.badges.claimCta', { defaultValue: 'À réclamer' })
-                  : `${progress}/${badge.total}`}
+                {claimed ? t('profile.badges.unlockedTag') : `${progress}/${badge.total}`}
               </p>
             </button>
           );
@@ -148,7 +126,6 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
         />
       )}
     </div>
-
   );
 };
 
