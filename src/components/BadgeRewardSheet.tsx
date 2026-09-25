@@ -34,6 +34,13 @@ const BadgeRewardSheet = ({ entry, onClose, onClaimed }: Props) => {
     () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false,
     [],
   );
+  // Calque posé sur toute la fenêtre : accroché à la fenêtre profil si elle est
+  // ouverte, sinon au document. Un ancêtre animé (page-transition) décalerait
+  // sinon un élément en position fixed.
+  const host = useMemo(
+    () => [...document.querySelectorAll('[role="dialog"]')].pop() ?? document.body,
+    [],
+  );
 
   const pieces = useMemo(
     () =>
@@ -83,7 +90,7 @@ const BadgeRewardSheet = ({ entry, onClose, onClaimed }: Props) => {
     window.setTimeout(onClose, reduced ? 200 : 1200);
   };
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[70] flex flex-col overflow-hidden bg-background animate-in fade-in duration-200">
       {/* Teinte pastel de la famille du badge */}
       <div
@@ -198,7 +205,7 @@ const BadgeRewardSheet = ({ entry, onClose, onClaimed }: Props) => {
         </button>
       </div>
     </div>
-  );
+  , host);
 };
 
 export default BadgeRewardSheet;
