@@ -1028,6 +1028,9 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                 style={{ ['--holo-radius' as any]: '1.5rem' }}
               >
                 <div className={`relative w-full h-full rounded-[1.5rem] overflow-hidden shadow-2xl holo-frame holo-frame--fullscreen holo-frame--${normalizeRarity(card.rarity).replace(/_/g, '-')}`}>
+                  <div className="absolute top-[14px] right-[14px] z-20 pointer-events-none">
+                    <RarityBadge rarity={card.rarity} plain />
+                  </div>
                   <div className="relative w-full h-full rounded-2xl overflow-hidden bg-black/30">
                     <div className="absolute inset-0">
 
