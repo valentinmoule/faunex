@@ -2375,7 +2375,7 @@
   background-position: var(--background-x) var(--background-y), center;
   background-blend-mode: screen;
   mix-blend-mode: screen;
-  opacity: calc(var(--card-opacity) * 0.6);
+  opacity: calc(0.35 + (var(--card-opacity) * 0.55));
   filter: brightness(0.85) contrast(1.02) saturate(1.15);
 }
 .holo-special-rare .holo-shine::before {
@@ -2385,7 +2385,7 @@
   background-blend-mode: normal;
   mix-blend-mode: screen;
   filter: none;
-  opacity: 0.14;
+  opacity: 0.28;
 }
 /* Pluie d'éclats : le grain file en diagonale en boucle (transform GPU). */
 .holo-special-rare .holo-shine::after {
@@ -2393,9 +2393,9 @@
   background-image: url("/holo/glitter.png");
   background-size: 48px 48px;
   background-position: 0 0;
-  mix-blend-mode: soft-light;
-  opacity: 0.22;
-  filter: brightness(1) contrast(1.1);
+  mix-blend-mode: overlay;
+  opacity: 0.4;
+  filter: brightness(1.05) contrast(1.2);
   transform: translate3d(0, 0, 0);
   animation: holo-rain 1.6s linear infinite;
 }
