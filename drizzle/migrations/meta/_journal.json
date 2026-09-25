@@ -29,6 +29,13 @@
       "when": 1790354190709,
       "tag": "0003_capture_favorites",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790354601083,
+      "tag": "0004_favorites_for_all_users",
+      "breakpoints": true
     }
   ]
 }

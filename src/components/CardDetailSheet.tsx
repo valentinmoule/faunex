@@ -20,7 +20,6 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Trash2, Share2, Bookmark } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useFavorites } from '@/hooks/useFavorites';
-import { useSubscription } from '@/hooks/useSubscription';
 import ShareCaptureSheet from '@/components/ShareCaptureSheet';
 import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
 import { useSpeciesFacts, useSpeciesName } from '@/hooks/useSpeciesLocale';
@@ -129,7 +128,6 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
   );
 
   const navigate = useNavigate();
-  const { isPremium } = useSubscription(session?.user?.id);
   const { isFavorite, toggleFavorite } = useFavorites(session?.user?.id);
   const [isOwner, setIsOwner] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -668,12 +666,6 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                   <button
                     onClick={() => {
                       hapticTap();
-                      if (!isPremium) {
-                        toast({ title: t('capture.detail.favoritePremium') });
-                        onClose();
-                        navigate('/premium');
-                        return;
-                      }
                       void toggleFavorite(card.id);
                     }}
                     aria-pressed={isFavorite(card.id)}
