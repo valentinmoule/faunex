@@ -19,3 +19,6 @@
 
 ## Retraits demandés
 - [x] Enlever le classement affiché dans les collections et dans les terroirs
+
+## Fiche espèce
+- [x] Catégorie et nombre de captures dans la même carte d\u2019infos que Rareté, Date, Localisation
