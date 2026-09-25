@@ -3483,13 +3483,13 @@ html.is-native-android body {
   inset: 0;
   pointer-events: none;
   background-color: hsl(var(--primary));
-  opacity: 0.1;
+  opacity: 0.05;
   -webkit-mask-image: var(--funfact-motif);
   mask-image: var(--funfact-motif);
   -webkit-mask-repeat: repeat;
   mask-repeat: repeat;
-  -webkit-mask-size: 36px 36px;
-  mask-size: 36px 36px;
+  -webkit-mask-size: 30px 30px;
+  mask-size: 30px 30px;
 }
 
 /* Binder: discovered cards are dealt into their sleeves by BinderGrid (Web Animations). */
