@@ -6,7 +6,7 @@ import { ArrowLeft, Users, UserPlus, UserCheck, Award, Search, X } from 'lucide-
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
 import { Progress } from '@/components/ui/progress';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { rarityBorderColor, normalizeCategory } from '@/lib/bestiary';
+import { rarityTileBorder, normalizeCategory } from '@/lib/bestiary';
 import RarityBadge from '@/components/RarityBadge';
 import {
   SpeciesFilterButton,
@@ -418,7 +418,7 @@ const FriendCollectionPage = () => {
                 <div
                   key={card.id}
                   onClick={() => setSelectedCard(card)}
-                  className={`relative aspect-[3/4] rounded-xl border-2 overflow-hidden transition-all cursor-pointer active:scale-[0.96] ${rarityBorderColor[card.rarity] || 'border-border'} bg-card`}
+                  className={`game-tile tile-grid-2 relative aspect-[3/4] rounded-xl border-4 overflow-hidden cursor-pointer ${rarityTileBorder[card.rarity] || 'tile-border-plain'} bg-card`}
                 >
                   <img
                     src={card.image}

@@ -157,17 +157,16 @@ export const rarityBorderColor: Record<string, string> = byRarity({
   hyper_rare: 'border-rarity-hyper-rare/60',
 });
 
-/** Bordures épaisses par groupe de rareté (Mes captures, feed Explorateurs) :
-    neutre (sans couleur) / argenté brillant / doré brillant, sans ombre colorée. */
+/** Finitions du cadre : gris réfléchissant (3), or réfléchissant (3), nacre multicolore (2). */
 export const rarityTileBorder: Record<string, string> = byRarity({
   common: 'tile-border-plain',
   uncommon: 'tile-border-plain',
   rare: 'tile-border-plain',
-  very_rare: 'tile-border-silver',
-  ultra_rare: 'tile-border-silver',
-  illustration_rare: 'tile-border-silver',
-  special_rare: 'tile-border-gold',
-  hyper_rare: 'tile-border-gold',
+  very_rare: 'tile-border-gold',
+  ultra_rare: 'tile-border-gold',
+  illustration_rare: 'tile-border-gold',
+  special_rare: 'tile-border-iridescent',
+  hyper_rare: 'tile-border-iridescent',
 });
 
 export const rarityDot: Record<string, string> = byRarity({
