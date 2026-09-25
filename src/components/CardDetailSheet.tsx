@@ -716,7 +716,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
 
             {/* Rarity + Category chips */}
             <div className="flex flex-wrap items-center justify-center gap-2">
-              <RarityBadge rarity={card.rarity} showLabel />
+              <RarityBadge rarity={card.rarity} showLabel className="detail-rarity-tag" />
 
               {(() => {
                 const CatIcon = getCategoryIcon(card.category);
