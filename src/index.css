@@ -1732,11 +1732,11 @@
   backface-visibility: hidden;
   contain: layout paint;
 }
-.shelve-flying-card[data-rarity="rare"],
+.shelve-flying-card[data-rarity="very_rare"],
 .shelve-flying-card[data-rarity="ultra_rare"],
-.shelve-flying-card[data-rarity="epic"] { border-color: hsl(43 70% 58%); }
-.shelve-flying-card[data-rarity="mythic"],
-.shelve-flying-card[data-rarity="legendary"] { border-color: hsl(300 30% 82%); }
+.shelve-flying-card[data-rarity="illustration_rare"] { border-color: hsl(43 70% 58%); }
+.shelve-flying-card[data-rarity="special_rare"],
+.shelve-flying-card[data-rarity="hyper_rare"] { border-color: hsl(300 30% 82%); }
 
 .shelve-flying-card img {
   width: 100%;
