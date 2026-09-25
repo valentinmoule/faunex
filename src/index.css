@@ -2159,15 +2159,15 @@
 .holo-very-rare .holo-shine {
   background-image:
     radial-gradient(circle at var(--pointer-x) var(--pointer-y),
-      #fff 5%, #000 50%, #fff 80%),
+      hsla(0, 0%, 78%, 0.7) 5%, #000 55%, hsla(0, 0%, 78%, 0.45) 80%),
     linear-gradient(-45deg, #000 15%, #fff, #000 85%);
   background-blend-mode: soft-light, difference;
   background-size: 120% 120%, 200% 200%;
   background-position:
     center center,
     calc(100% * var(--pointer-from-left)) calc(100% * var(--pointer-from-top));
-  filter: brightness(0.75) contrast(1.4) saturate(1);
-  opacity: calc((1.1 * var(--card-opacity)) - var(--pointer-from-center));
+  filter: brightness(0.85) contrast(1.3) saturate(1);
+  opacity: calc((0.75 * var(--card-opacity)) - (var(--pointer-from-center) * 0.3));
 }
 .holo-rare .holo-glare,
 .holo-very-rare .holo-glare {
