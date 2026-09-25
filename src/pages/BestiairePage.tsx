@@ -46,7 +46,7 @@ import { useShelveAnimation } from '@/hooks/useShelveAnimation';
 import { VirtualSpeciesGrid } from '@/components/VirtualSpeciesGrid';
 import { useZoneSubscriptions } from '@/hooks/useZoneSubscriptions';
 import { useSpeciesCollections } from '@/hooks/useSpeciesCollections';
-import CategoryLeaderboard from '@/components/CategoryLeaderboard';
+import CategoryLeaderboard, { LeaderboardResetBadge } from '@/components/CategoryLeaderboard';
 import { useSubscription } from '@/hooks/useSubscription';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
@@ -1840,16 +1840,20 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                   })}
                 </div>
               </div>
-              <h2 className="px-1 pt-1 text-[15px] font-display font-bold text-foreground">
-                {leaderboardTab === 'week'
-                  ? t('social.leaderboard.titleWeek')
-                  : leaderboardTab === 'all'
-                    ? t('social.leaderboard.titleAllTime')
-                    : t('social.leaderboard.titleExplorers')}
-              </h2>
+              <div className="flex items-center justify-between gap-3 px-1 pt-1">
+                <h2 className="min-w-0 truncate text-[15px] font-display font-bold text-foreground">
+                  {leaderboardTab === 'week'
+                    ? t('social.leaderboard.titleWeek')
+                    : leaderboardTab === 'all'
+                      ? t('social.leaderboard.titleAllTime')
+                      : t('social.leaderboard.titleExplorers')}
+                </h2>
+                {leaderboardTab === 'week' && <LeaderboardResetBadge className="shrink-0" />}
+              </div>
               {leaderboardTab === 'week'
-                ? <CategoryLeaderboard category="all" inline period="week" scope="global" />
+                ? <CategoryLeaderboard category="all" inline period="week" scope="global" showResetBadge={false} />
                 : leaderboardTab === 'all'
+
                   ? <CategoryLeaderboard category="all" inline period="all" scope="global" />
                   : premiumLoading
                     ? <p className="px-5 py-10 text-center text-[13px] font-display text-muted-foreground">{t('social.common.loading')}</p>

@@ -43,7 +43,35 @@ const formatTimeLeft = (ms: number, t: (key: string, opts?: any) => string) => {
   return t('social.leaderboard.timeLeftMinutes', { minutes });
 };
 
+/** Pastille « Réinitialisation dans … » du classement hebdomadaire. Utilisable
+ *  seule (dans l'en-tête d'une page) ou au-dessus d'un classement. */
+export const LeaderboardResetBadge = ({ className = '' }: { className?: string }) => {
+  const { t } = useTranslation();
+  const [timeLeft, setTimeLeft] = useState(msUntilReset);
+
+  useEffect(() => {
+    const id = setInterval(() => setTimeLeft(msUntilReset()), 60_000);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber/5 border border-amber/15 ${className}`}>
+      <div className="relative flex items-center justify-center">
+        <Clock className="w-4 h-4 text-muted-foreground animate-[spin_4s_linear_infinite]" />
+        <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber/60" />
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-amber" />
+        </span>
+      </div>
+      <p className="text-[12px] font-display text-muted-foreground tracking-tight leading-none">
+        {t('social.leaderboard.resetIn')}<span className="text-foreground font-bold">{formatTimeLeft(timeLeft, t)}</span>
+      </p>
+    </div>
+  );
+};
+
 const Avatar = ({ row, isPremium, size = 'sm', className = '' }: { row: Row; isPremium?: boolean; size?: 'sm' | 'md' | 'lg'; className?: string }) => (
+
   <PremiumAvatar
     avatarUrl={row.avatar_url}
     name={row.display_name || row.username || '?'}
@@ -70,13 +98,16 @@ interface LeaderboardTarget {
   period?: 'week' | 'all';
   /** Force le périmètre (masque le sélecteur Global / Mes abonnements). */
   scope?: 'global' | 'follows';
+  /** Masque la pastille « Réinitialisation » quand l'appelant l'affiche déjà dans son en-tête. */
+  showResetBadge?: boolean;
 }
+
 
 /** Cache mémoire des classements déjà chargés : en revenant sur un onglet on
  *  réaffiche instantanément la dernière liste connue, rafraîchie en arrière-plan. */
 const boardCache = new Map<string, { rows: Row[]; mine: MyRank | null }>();
 
-const CategoryLeaderboard = ({ category, territory, inline, period = 'week', scope: forcedScope }: LeaderboardTarget) => {
+const CategoryLeaderboard = ({ category, territory, inline, period = 'week', scope: forcedScope, showResetBadge = true }: LeaderboardTarget) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -95,15 +126,9 @@ const CategoryLeaderboard = ({ category, territory, inline, period = 'week', sco
   const closeSheet = useCallback(() => setOpen(false), []);
   const swipeClose = useSwipeDownClose(closeSheet);
 
-  const [timeLeft, setTimeLeft] = useState(msUntilReset);
-
   const userIds = useMemo(() => rows.map(r => r.user_id), [rows]);
   const premiumIds = usePremiumUsers(userIds);
 
-useEffect(() => {
-    const id = setInterval(() => setTimeLeft(msUntilReset()), 60_000);
-    return () => clearInterval(id);
-  }, []);
 
   // Le classement "Mes abonnements" est réservé aux Premium.
   useEffect(() => {
@@ -160,22 +185,12 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
 
   const content = (
     <>
-      {period === 'week' && (
-      <div className={`mt-1 ${inline ? 'px-1' : 'px-5'}`}>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber/5 border border-amber/15">
-              <div className="relative flex items-center justify-center">
-                <Clock className="w-4 h-4 text-muted-foreground animate-[spin_4s_linear_infinite]" />
-                <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber/60" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-amber" />
-                </span>
-              </div>
-              <p className="text-[12px] font-display text-muted-foreground tracking-tight leading-none">
-                {t('social.leaderboard.resetIn')}<span className="text-foreground font-bold">{formatTimeLeft(timeLeft, t)}</span>
-              </p>
-            </div>
-          </div>
+      {period === 'week' && showResetBadge && (
+        <div className={`mt-1 ${inline ? 'px-1' : 'px-5'}`}>
+          <LeaderboardResetBadge />
+        </div>
       )}
+
 
 {!forcedScope && (
 <div className="mx-4 mt-3 grid grid-cols-2 gap-1 rounded-2xl bg-muted p-1">
