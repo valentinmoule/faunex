@@ -3340,3 +3340,20 @@ html.is-native-android body {
   -webkit-mask-size: 36px 36px;
   mask-size: 36px 36px;
 }
+
+/* Binder intro: cards slide down into their sleeves on collection open */
+.binder-intro { perspective: 900px; }
+.binder-intro .binder-slot {
+  animation: binder-slide-in 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--i, 0) * 45ms + 80ms);
+  transform-origin: 50% 100%;
+  will-change: transform, opacity;
+}
+@keyframes binder-slide-in {
+  0%   { opacity: 0; transform: translate3d(0, -28px, 0) rotateX(-18deg) scale(1.04); }
+  60%  { opacity: 1; transform: translate3d(0, 3px, 0) rotateX(2deg) scale(0.99); }
+  100% { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .binder-intro .binder-slot { animation: none; }
+}

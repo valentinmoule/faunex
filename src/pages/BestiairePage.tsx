@@ -58,6 +58,7 @@ import { localizedSpeciesName } from '@/lib/speciesI18n';
 import MapPage from '@/pages/MapPage';
 import FaunexAchievements from '@/components/FaunexAchievements';
 import CollectionTile from '@/components/CollectionTile';
+import BinderGrid from '@/components/BinderGrid';
 import { useFavorites } from '@/hooks/useFavorites';
 import { FAVORITES_FILTER } from '@/components/SpeciesSortFilter';
 import RewardCelebration from '@/components/RewardCelebration';
@@ -1380,11 +1381,13 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
               <p className="text-muted-foreground font-display text-sm">{t('bestiary.categories.noMatch')}</p>
             </div>
           ) : (
-          <div className="grid grid-cols-3 gap-2">
-            {visibleCollectionAnimals.map((animal) => (
-              <BrowseSpeciesCard key={animal.name} animal={animal} onSelect={handleSelectBrowseAnimal} />
+          <BinderGrid introKey={selectedCollection.group.key}>
+            {visibleCollectionAnimals.map((animal, i) => (
+              <div key={animal.name} className="binder-slot" style={{ '--i': Math.min(i, 17) } as React.CSSProperties}>
+                <BrowseSpeciesCard animal={animal} onSelect={handleSelectBrowseAnimal} />
+              </div>
             ))}
-          </div>
+          </BinderGrid>
           )}
         </div>
 
