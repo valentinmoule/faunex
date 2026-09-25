@@ -88,6 +88,9 @@
       "sure": "{{confidence}}% confident",
       "tooltip": "AI confidence level"
     },
+    "result": {
+      "confidenceLabel": "Confidence"
+    },
     "finders": {
       "capture_one": "capture",
       "capture_other": "captures",
