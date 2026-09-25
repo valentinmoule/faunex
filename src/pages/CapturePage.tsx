@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Camera, Zap, MapPin, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine, ZoomIn, Focus, Crosshair, ArrowLeft, Clock, Info, Sparkles, ShieldQuestion, Image as ImageIcon } from 'lucide-react';
+import { Camera, Zap, MapPin, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine, ZoomIn, Focus, Crosshair, ArrowLeft, Clock, Info, Sparkles, ShieldQuestion, Users, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { setPendingShelve } from '@/lib/shelveAnimation';
@@ -16,14 +16,23 @@ import { useCaptureSave } from '@/hooks/useCaptureSave';
 import { useCaptureReveal } from '@/hooks/useCaptureReveal';
 import RevealStage from '@/components/capture/RevealStage';
 import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
-import FindersBadge from '@/components/FindersBadge';
 import RarityBadge from '@/components/RarityBadge';
-import { rarityTileBorder } from '@/lib/bestiary';
 import { useCaptureQuota, DAILY_CAPTURE_LIMIT } from '@/hooks/useCaptureQuota';
 import { useSubscription } from '@/hooks/useSubscription';
 
 import type { AnimalResult } from '@/types/capture';
 import { isPlaceholderName, cleanScientificName } from '@/lib/placeholderNames';
+
+/** Rangée d'information de l'écran de résultat — même design que la fiche espèce (DetailRow). */
+const ResultInfoRow = ({ icon, label, value }: { icon: ReactNode; label: string; value: ReactNode }) => (
+  <div className="flex items-start gap-3 px-4 py-3">
+    <span className="mt-0.5 text-muted-foreground">{icon}</span>
+    <div className="flex-1 min-w-0">
+      <p className="text-[10px] font-display font-bold uppercase tracking-wider text-muted-foreground">{label}</p>
+      <p className="text-sm text-foreground/85 leading-snug mt-0.5">{value}</p>
+    </div>
+  </div>
+);
 
 
 const CapturePage = () => {
@@ -744,59 +753,72 @@ setManualMode(false);
         />
 
         {animalResult && !identifying && revealPhase === 'done' && (
-          <div className="relative z-20 flex-1 flex flex-col justify-end px-5 pb-4 animate-fade-in">
-            <div className="space-y-3">
-              {/* Rarity badge + name */}
-              <div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <RarityBadge rarity={animalResult.rarity} showLabel className="capture-result-rarity" />
-                  {typeof animalResult.confidence === 'number' && (
-                    <span
-                      className="inline-flex min-h-6 items-center gap-1.5 rounded-full border border-border bg-background/90 px-2.5 py-1 text-[11px] font-body font-medium text-foreground shadow-sm backdrop-blur-sm"
-                      title={t('capture.confidence.tooltip')}
-                      aria-label={t('capture.confidence.sure', { confidence: animalResult.confidence })}
-                    >
-                      <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground" aria-hidden="true" />
-                      {t('capture.confidence.sure', { confidence: animalResult.confidence })}
-                    </span>
-                  )}
-                  {speciesFinders !== undefined && (
-                    <span
-                      className="inline-flex items-center gap-1.5 rounded-full bg-black/45 border border-white/20 px-2.5 py-1 backdrop-blur-sm"
-                      title={t(speciesFinders > 1 ? 'capture.finders.tooltip_other' : 'capture.finders.tooltip_one', { count: speciesFinders })}
-                    >
-                      <FindersBadge count={speciesFinders} />
-                      <span className="text-[10px] font-display font-semibold uppercase tracking-wider text-primary-foreground/80">
-                        {t(speciesFinders > 1 ? 'capture.finders.capture_other' : 'capture.finders.capture_one')}
-                      </span>
-                    </span>
-                  )}
-                </div>
-                <h2 className="text-2xl font-display font-bold text-primary-foreground mt-2">{animalResult.animal_name}</h2>
-                <p className="text-primary-foreground/70 text-sm italic">{animalResult.scientific_name}</p>
+          <div className="relative z-20 flex-1 flex flex-col justify-end min-h-0">
+            {/* Feuille claire — même design que le corps de la fiche espèce */}
+            <div className="bg-background rounded-t-3xl px-5 pt-5 pb-5 space-y-4 animate-fade-in max-h-[88%] overflow-y-auto shadow-[0_-10px_30px_hsl(var(--foreground)/0.3)]">
+              {/* Nom + nom scientifique */}
+              <div className="text-center">
+                <h2 className="text-2xl font-display font-bold text-foreground">{animalResult.animal_name}</h2>
+                <p className="text-muted-foreground text-sm italic">{animalResult.scientific_name}</p>
                 {animalResult.alternatives && animalResult.alternatives.length > 0 && typeof animalResult.confidence === 'number' && animalResult.confidence < 80 && (
-                  <p className="text-primary-foreground/70 text-[11px] font-display mt-1.5">
+                  <p className="text-muted-foreground text-[11px] font-display mt-1.5">
                     {t('capture.alsoPossible', { alternatives: animalResult.alternatives.slice(0, 3).join(' · ') })}
                   </p>
                 )}
               </div>
 
-              {/* Description dans le cadre de la carte (même design que la collection) */}
-              <div className={`capture-desc-card finish-${(rarityTileBorder[animalResult.rarity] || 'tile-border-plain').replace('tile-border-', '')} px-4 py-3`}>
-                <p className="text-primary-foreground/90 text-sm leading-relaxed">{animalResult.description}</p>
+              {/* Description — texte simple centré, comme la fiche espèce (sans boîte) */}
+              <p className="text-sm text-foreground/80 leading-relaxed text-center max-w-sm mx-auto">{animalResult.description}</p>
+
+              {/* Infos — liste épurée façon iOS, lignes séparées comme la fiche espèce */}
+              <div className="rounded-2xl border border-border bg-card divide-y divide-border/60">
+                <ResultInfoRow
+                  icon={<Sparkles className="w-4 h-4" />}
+                  label={t('capture.detail.rarityLabel')}
+                  value={<RarityBadge rarity={animalResult.rarity} plain showLabel className="detail-rarity-line" />}
+                />
+                {typeof animalResult.confidence === 'number' && (
+                  <ResultInfoRow
+                    icon={<Info className="w-4 h-4" />}
+                    label={t('capture.result.confidenceLabel')}
+                    value={t('capture.confidence.sure', { confidence: animalResult.confidence })}
+                  />
+                )}
+                {speciesFinders !== undefined && (
+                  <ResultInfoRow
+                    icon={<Users className="w-4 h-4" />}
+                    label={t('capture.detail.capturedByLabel')}
+                    value={t('capture.finders.people', { count: speciesFinders })}
+                  />
+                )}
               </div>
 
-              {/* L'utilisateur peut contester l'identification et demander un arbitrage humain */}
+              {/* Actions empilées : « Ajouter » en premier */}
+              <div className="space-y-2.5 pt-1">
+                <button
+                  onClick={saveToCollection}
+                  disabled={saving}
+                  className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full bg-primary text-primary-foreground font-display text-sm font-semibold disabled:opacity-50"
+                >
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                  {saving ? t('capture.actions.saving') : t('capture.actions.add')}
+                </button>
+                <button
+                  onClick={resetCapture}
+                  className="w-full py-3.5 rounded-full font-display text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {t('capture.actions.dontAdd')}
+                </button>
+              </div>
+
+              {/* Contester l'identification — simple lien souligné */}
               <button
                 onClick={requestVerification}
-                className="mx-auto flex items-center gap-1.5 px-4 py-2 rounded-full border border-primary-foreground/20 bg-primary-foreground/5 text-primary-foreground/70 text-xs font-display font-medium hover:bg-primary-foreground/10 transition-colors"
+                className="mx-auto flex items-center gap-1 text-xs font-medium text-muted-foreground underline underline-offset-2 hover:text-foreground transition-colors"
               >
-                <ShieldQuestion className="w-3.5 h-3.5" />
                 {t('capture.requestVerification')}
               </button>
-
             </div>
-
           </div>
         )}
 
@@ -995,24 +1017,7 @@ setManualMode(false);
             <Camera className="w-4 h-4" />
             {t('capture.actions.newCapture')}
           </button>
-        ) : duplicateCapture ? null : (animalResult && revealPhase === 'done') ? (
-          <div className="flex items-center gap-3 w-full max-w-sm">
-            <button
-              onClick={resetCapture}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl bg-primary-foreground/10 text-primary-foreground/80 font-display text-sm"
-            >
-              {t('capture.actions.dontAdd')}
-            </button>
-            <button
-              onClick={saveToCollection}
-              disabled={saving}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl bg-primary text-primary-foreground font-display text-sm disabled:opacity-50"
-            >
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-              {saving ? t('capture.actions.saving') : t('capture.actions.add')}
-            </button>
-          </div>
-        ) : manualMode ? (
+        ) : duplicateCapture ? null : manualMode ? (
           <button
             onClick={saveManualEntry}
             disabled={saving || !manualName.trim() || !manualDescription.trim()}
