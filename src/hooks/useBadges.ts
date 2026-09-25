@@ -19,6 +19,8 @@ export interface BadgeProgress {
   progress: number;
   earned: boolean;
   claimed: boolean;
+  /** Date à laquelle le badge a été réclamé (null tant qu'il n'est pas réclamé). */
+  claimedAt?: string | null;
 }
 
 const communityBadge = (t: (key: string) => string): BadgeDef => ({
@@ -99,7 +101,7 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
             .order('created_at', { ascending: false })
             .range(from, to),
         ),
-        supabase.from('user_badges').select('badge_id').eq('user_id', userId),
+        supabase.from('user_badges').select('badge_id, claimed_at').eq('user_id', userId),
         supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('following_id', userId),
         supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('follower_id', userId),
         fetchCatalogue(),
@@ -108,6 +110,10 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
       if (cancelled) return;
 
       const claimedSet = new Set((claimedRes.data || []).map((b: any) => b.badge_id));
+      /** Date de réclamation de chaque badge, pour la fiche plein écran. */
+      const claimedAtMap = new Map<string, string | null>(
+        (claimedRes.data || []).map((b: any) => [b.badge_id, b.claimed_at ?? null]),
+      );
       const followers = followersRes.count || 0;
       const following = followingRes.count || 0;
 
