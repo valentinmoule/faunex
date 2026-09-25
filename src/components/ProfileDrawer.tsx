@@ -9,6 +9,7 @@ import { PremiumAvatar } from '@/components/PremiumAvatar';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/hooks/useSubscription';
 import { supabase } from '@/integrations/supabase/client';
+import ProfileBadgesRow from '@/components/ProfileBadgesRow';
 
 interface DrawerProfile {
   display_name: string | null;
@@ -169,6 +170,16 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
                   </div>
                 ))}
               </div>
+
+              {userId && profile && (
+                <ProfileBadgesRow
+                  userId={userId}
+                  level={profile.level}
+                  regionsExplored={profile.regions_explored}
+                  onOpenAll={() => go('/home?tab=badges')}
+                  onClaimed={() => void loadProfile()}
+                />
+              )}
 
               <div className="mt-5 space-y-2">
                 {!isPremium && (
