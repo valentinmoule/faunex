@@ -50,13 +50,15 @@ export const ProfileButton = ({ className = '' }: { className?: string }) => {
       aria-label={t('profile.page.drawer.open')}
       className={`relative rounded-full ${className}`}
     >
-      <UserRound className="!size-5" />
-      {claimableBadges > 0 && (
-        <span
-          aria-hidden
-          className="absolute right-0.5 top-0.5 size-2 rounded-full bg-primary ring-2 ring-background"
-        />
-      )}
+      <span className="relative inline-flex">
+        <UserRound className="!size-5" />
+        {claimableBadges > 0 && (
+          <span
+            aria-hidden
+            className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-destructive ring-2 ring-background"
+          />
+        )}
+      </span>
     </Button>
   );
 };
