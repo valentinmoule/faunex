@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { avatarFallbackStyle } from '@/lib/avatarPalette';
 import { useTranslation } from 'react-i18next';
 import { PageHeader } from '@/components/PageHeader';
 import { ArrowLeft, Heart, MessageCircle, UserPlus, UserCheck, CheckCircle, XCircle, Award, CheckCheck } from 'lucide-react';
@@ -243,7 +244,10 @@ const NotificationsPage = () => {
                 >
                   {/* Avatar */}
                   <div className="relative shrink-0">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-display font-bold text-primary overflow-hidden">
+                    <div
+                      style={!isModerationNotif && !isBadgeEarned ? avatarFallbackStyle(actorName) : undefined}
+                      className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-display font-bold text-primary overflow-hidden"
+                    >
                       {isModerationNotif || isBadgeEarned ? (
                         <span className="text-lg">{isBadgeEarned ? '🏆' : '🌿'}</span>
                       ) : avatarUrl ? (

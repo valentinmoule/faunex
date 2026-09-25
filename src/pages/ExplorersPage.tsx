@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { avatarFallbackStyle } from '@/lib/avatarPalette';
 import { PageHeader } from '@/components/PageHeader';
 import { notifyCaptureInteraction } from '@/lib/notifyCaptureInteraction';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -731,7 +732,10 @@ const ExplorersPage = () => {
                         <div className="space-y-2 max-h-48 overflow-y-auto">
                           {comments.map(comment => (
                             <div key={comment.id} className="flex gap-2">
-                              <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[9px] font-display font-bold text-primary shrink-0 overflow-hidden">
+                              <div
+                                style={avatarFallbackStyle(comment.profile?.display_name || comment.profile?.username)}
+                                className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-display font-bold shrink-0 overflow-hidden"
+                              >
                                 {comment.profile?.avatar_url ? <img src={comment.profile.avatar_url} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" /> : (comment.profile?.display_name || comment.profile?.username || '?').charAt(0).toUpperCase()}
                               </div>
                               <div className="flex-1 min-w-0">

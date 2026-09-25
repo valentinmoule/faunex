@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, Fragment } from 'react';
+import { avatarFallbackStyle } from '@/lib/avatarPalette';
 import { PageHeader } from '@/components/PageHeader';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Pencil, KeyRound, Share2, Scale, LogOut, Trash2, Loader2, Camera, Check, X, ChevronRight, Mail, Lock, Bell, Crown, MessageCircle } from 'lucide-react';
@@ -282,7 +283,8 @@ const SettingsPage = () => {
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadingAvatar}
-                className="relative w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center text-3xl font-display font-bold text-primary border-2 border-primary/30 overflow-hidden group"
+                style={avatarFallbackStyle(profile.display_name, { border: true })}
+                className="relative w-24 h-24 rounded-full flex items-center justify-center text-3xl font-display font-bold border-2 border-primary/30 overflow-hidden group"
               >
                 {profile.avatar_url ? (
                   <img src={profile.avatar_url} alt={t('profile.settings.avatarAlt')} className="w-full h-full object-cover" />

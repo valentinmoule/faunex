@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Crown } from "lucide-react";
+import { avatarFallbackStyle } from "@/lib/avatarPalette";
 
 interface PremiumAvatarProps {
   avatarUrl?: string | null;
@@ -41,7 +42,8 @@ export function PremiumAvatar({
         />
       ) : (
         <div
-          className={`${s.wrapper} rounded-full bg-primary/20 flex items-center justify-center font-display font-bold text-primary`}
+          style={avatarFallbackStyle(name)}
+          className={`${s.wrapper} rounded-full flex items-center justify-center font-display font-bold`}
         >
           {initial}
         </div>

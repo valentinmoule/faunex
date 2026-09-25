@@ -48,6 +48,18 @@
     --earth: 25 24% 40%;
     --sky: 205 88% 55%;
 
+    /* Nuancier des avatars par défaut (sans photo) — une teinte stable par
+       explorateur, voir lib/avatarPalette. */
+    --avatar-1: 155 68% 32%;  /* forêt */
+    --avatar-2: 88 62% 32%;   /* lichen */
+    --avatar-3: 188 78% 30%;  /* lagon */
+    --avatar-4: 215 72% 45%;  /* ardoise */
+    --avatar-5: 268 58% 50%;  /* prune */
+    --avatar-6: 330 68% 45%;  /* fleur */
+    --avatar-7: 8 74% 46%;    /* brique */
+    --avatar-8: 32 88% 40%;   /* ocre */
+    --avatar-9: 48 82% 30%;   /* moutarde */
+
     /* Rarity colors — 8 tiers, un code couleur par niveau */
     --rarity-common: 220 9% 46%;            /* ● gris ardoise */
     --rarity-uncommon: 152 62% 36%;         /* ◆ vert émeraude */

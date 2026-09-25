@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef, type ComponentType } from 'react';
+import { avatarFallbackStyle } from '@/lib/avatarPalette';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { notifyCaptureInteraction } from '@/lib/notifyCaptureInteraction';
@@ -758,7 +759,10 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                   <div className="space-y-3 max-h-48 overflow-y-auto">
                     {comments.map(comment => (
                       <div key={comment.id} className="flex gap-2.5">
-                        <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-display font-bold text-primary shrink-0 overflow-hidden">
+                        <div
+                          style={avatarFallbackStyle(comment.profile?.display_name || comment.profile?.username)}
+                          className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-display font-bold shrink-0 overflow-hidden"
+                        >
                           {comment.profile?.avatar_url ? (
                             <img src={comment.profile.avatar_url} alt="" className="w-full h-full object-cover" />
                           ) : (
