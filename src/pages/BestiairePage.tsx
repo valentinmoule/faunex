@@ -1600,15 +1600,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                 onSortChange={(s) => applySort(s as MineSort)}
                 availableCategories={mineCategoryData}
                 categories={mineCategoryFilter}
-                onCategoriesChange={(next) => {
-                  if (!isPremium && next.includes(FAVORITES_FILTER)) {
-                    toast(t('capture.detail.favoritePremium'));
-                    setSortOpen(false);
-                    navigate('/premium');
-                    return;
-                  }
-                  setMineCategoryFilter(next);
-                }}
+                onCategoriesChange={setMineCategoryFilter}
                 rarities={mineRarityFilter}
                 onRaritiesChange={setMineRarityFilter}
                 popularities={minePopularityFilter}
