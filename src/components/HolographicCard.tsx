@@ -130,12 +130,16 @@ const HolographicCard = ({
     s.setProperty('--card-opacity', `${round(opacity.value, 3)}`);
   }, []);
 
+  // Wakes the render loop only when something changed (idle cards cost 0 frames).
+  const kickRef = useRef<() => void>(() => {});
+
   const setTarget = useCallback((px: number, py: number, opacity: number) => {
     const sp = springsRef.current;
     sp.x.target = clamp(px, 0, 100);
     sp.y.target = clamp(py, 0, 100);
     sp.opacity.target = opacity;
     dirtyRef.current = true;
+    kickRef.current();
   }, []);
 
   const snapTo = useCallback((px: number, py: number, opacity: number) => {
@@ -146,6 +150,7 @@ const HolographicCard = ({
     sp.opacity.target = opacity;
     sp.opacity.velocity = 0;
     dirtyRef.current = true;
+    kickRef.current();
   }, []);
 
   const resetCalibration = useCallback(() => {
@@ -238,10 +243,8 @@ const HolographicCard = ({
     }
 
     const tick = (now: number) => {
-      loopRef.current = requestAnimationFrame(tick);
-      const dt = lastFrameRef.current ? (now - lastFrameRef.current) / 1000 : 1 / 60;
+      const dt = lastFrameRef.current ? Math.min((now - lastFrameRef.current) / 1000, 0.05) : 1 / 60;
       lastFrameRef.current = now;
-      if (!dirtyRef.current) return;
       const sp = springsRef.current;
       stepSpring(sp.x, dt);
       stepSpring(sp.y, dt);
@@ -249,10 +252,20 @@ const HolographicCard = ({
       writeVars();
       dirtyRef.current =
         sp.x.value !== sp.x.target || sp.y.value !== sp.y.target || sp.opacity.value !== sp.opacity.target;
+      if (dirtyRef.current) {
+        loopRef.current = requestAnimationFrame(tick);
+      } else {
+        loopRef.current = null;
+        lastFrameRef.current = 0;
+      }
     };
-    loopRef.current = requestAnimationFrame(tick);
+    kickRef.current = () => {
+      if (loopRef.current == null) loopRef.current = requestAnimationFrame(tick);
+    };
+    kickRef.current();
 
     return () => {
+      kickRef.current = () => {};
       window.removeEventListener('deviceorientation', orientationHandler);
       if (askOnce) {
         window.removeEventListener('touchend', askOnce);
