@@ -3419,36 +3419,9 @@ html.is-native-android body {
   mask-size: 36px 36px;
 }
 
-/* Binder intro: wait until the collection is painted, then slide cards into sleeves. */
-.binder-grid {
-  perspective: 900px;
-}
-
-.binder-grid--preparing .binder-slot {
-  opacity: 0;
-  transform: translate3d(0, -64px, 0) rotateZ(-3deg) rotateX(-10deg) scale(1.025);
-}
-
-.binder-grid--playing .binder-slot {
-  animation: binder-slide-in 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  animation-delay: calc(var(--i, 0) * 45ms + 80ms);
-  transform-origin: 50% 100%;
-  will-change: transform, opacity;
-}
-
-@keyframes binder-slide-in {
-  0%   { opacity: 0; transform: translate3d(0, -64px, 0) rotateZ(-3deg) rotateX(-10deg) scale(1.025); }
-  68%  { opacity: 1; transform: translate3d(0, 5px, 0) rotateZ(0.4deg) rotateX(1deg) scale(0.99); }
-  84%  { opacity: 1; transform: translate3d(0, -2px, 0) rotateZ(0) rotateX(0) scale(1.005); }
-  100% { opacity: 1; transform: none; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .binder-grid--preparing .binder-slot,
-  .binder-grid--playing .binder-slot {
-    opacity: 1;
-    transform: none;
-    animation: none;
-  }
+/* Binder: discovered cards are dealt into their sleeves by BinderGrid (Web Animations). */
+.binder-slot {
+  position: relative;
 }
 
 /* Delete confirmation popup, shown above the card sheet */

@@ -1366,7 +1366,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
           ) : (
           <BinderGrid introKey={selectedCollection.group.key}>
             {visibleCollectionAnimals.map((animal, i) => (
-              <div key={animal.name} className="binder-slot" style={{ '--i': Math.min(i, 17) } as React.CSSProperties}>
+              <div key={animal.name} className="binder-slot relative" data-captured={animal.captured ? 'true' : undefined}>
                 <BrowseSpeciesCard animal={animal} onSelect={handleSelectBrowseAnimal} />
               </div>
             ))}
