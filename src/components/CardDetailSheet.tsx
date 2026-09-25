@@ -631,7 +631,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                     <RarityBadge rarity={card.rarity} />
                   </div>
 
-                  <div className="relative w-full h-full rounded-[1.125rem] overflow-hidden">
+                  <div className="relative w-full h-full rounded-[1.25rem] overflow-hidden">
 
                     {card.image ? (
                       <img src={card.image} alt={displayName} loading="eager" decoding="async" fetchPriority="high" className="w-full h-full object-cover pointer-events-none select-none" draggable={false} />
