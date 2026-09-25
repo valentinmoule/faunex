@@ -241,6 +241,8 @@ export const SpeciesSortFilterSheet = ({
   availableCategories,
   categories,
   onCategoriesChange,
+  availableRarities,
+  availablePopularities,
   resultCount,
   onReset,
   confirmLabel,
@@ -307,6 +309,8 @@ export const SpeciesSortFilterSheet = ({
           <SectionLabel>{t('bestiary.filterModal.rarityLabel')}</SectionLabel>
           <ListGroup role="group">
             {RARITY_ORDER.map((r) => {
+              const total = availableRarities?.[r];
+              if (availableRarities && !total) return null;
               const isActive = rarities.includes(r);
               return (
                 <ListRow
@@ -316,6 +320,7 @@ export const SpeciesSortFilterSheet = ({
                   onToggle={() => onRaritiesChange(isActive ? rarities.filter((x) => x !== r) : [...rarities, r])}
                   leading={<RarityBadge rarity={r} plain />}
                   label={RARITY_LABELS[r]}
+                  trailing={total}
                 />
               );
             })}
