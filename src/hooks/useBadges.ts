@@ -81,7 +81,13 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
     let cancelled = false;
 
     (async () => {
-      setLoading(true);
+      const cached = badgesCache.get(`${userId}:${i18n.language}`);
+      if (cached) {
+        setBadges(cached);
+        setLoading(false);
+      } else {
+        setLoading(true);
+      }
 
       const [capturesRes, claimedRes, followersRes, followingRes, catalogue] = await Promise.all([
         fetchAllRows<any>((from, to) =>
@@ -231,7 +237,9 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
         claimed: claimedSet.has(b.id),
       }));
 
-      setBadges([...staticBadges, ...collectionBadges, ...rankBadges]);
+      const next = [...staticBadges, ...collectionBadges, ...rankBadges];
+      badgesCache.set(`${userId}:${i18n.language}`, next);
+      setBadges(next);
       setLoading(false);
     })();
 
@@ -242,6 +250,7 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
 
   const markClaimed = useCallback((badgeId: string) => {
     setBadges((prev) => prev.map((b) => (b.badge.id === badgeId ? { ...b, claimed: true } : b)));
+    badgesCache.clear();
   }, []);
 
   return { badges, loading, markClaimed };
