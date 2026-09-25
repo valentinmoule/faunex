@@ -121,8 +121,6 @@ const isFictionalOrExtinct = (animal: { animal_name?: string; scientific_name?: 
 };
 
 
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
 /** Empêche une analyse de rester bloquée indéfiniment (réseau mobile instable). */
 const withTimeout = <T,>(promise: PromiseLike<T>, ms: number): Promise<T> =>
   new Promise<T>((resolve, reject) => {
@@ -342,34 +340,21 @@ export const useAnimalIdentification = () => {
           console.warn('identify probe skipped', err);
         }
 
-        // Conservé entre les deux appels : le backend traite un retry réseau
-        // comme la même analyse et ne débite donc jamais deux fois le quota.
+        // Identifiant stable côté serveur pour le verrou anti-doublon et le
+        // suivi de quota. Une analyse déjà partie n'est jamais dupliquée côté
+        // client : le service renvoie lui-même les erreurs temporaires utiles.
         const requestId = crypto.randomUUID();
+        setStage('analyzing');
         let lastError: unknown = null;
-        for (let attempt = 0; attempt < 2; attempt++) {
-          setStage(attempt === 0 ? 'analyzing' : 'retrying');
-          try {
-            const { data, error } = await withTimeout(
-              supabase.functions.invoke('identify-animal', {
-                body: { imageBase64: compressedUrl, requestId, imageHash },
-              }),
-              // Le serveur est borné à ~58 s (passe rapide + passe profonde avec
-              // une relance) : au-delà la requête est perdue, on relance.
-              65_000,
-            );
-            if (error) throw error;
-            return interpret(data);
-          } catch (err) {
-            lastError = err;
-            console.error('identify-animal attempt failed', attempt, err);
-            // Une erreur définitive (surcharge, crédits, refus) ne doit JAMAIS
-            // être relancée : la seconde tentative serait refusée à l'identique
-            // tout en risquant un appel IA facturé de plus.
-            const raw = JSON.stringify((err as any)?.message ?? err ?? '');
-            const terminal = /40[023]|429/.test(raw);
-            if (terminal || attempt === 1) break;
-            await sleep(1200);
-          }
+        try {
+          const { data, error } = await supabase.functions.invoke('identify-animal', {
+            body: { imageBase64: compressedUrl, requestId, imageHash },
+          });
+          if (error) throw error;
+          return interpret(data);
+        } catch (err) {
+          lastError = err;
+          console.error('identify-animal failed', err);
         }
 
         const raw = JSON.stringify((lastError as any)?.message ?? lastError ?? '');

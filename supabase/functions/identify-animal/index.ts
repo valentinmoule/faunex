@@ -456,16 +456,11 @@ serve(async (req) => {
 
     const callGateway = async (
       model: string,
-      timeoutMs: number,
       prompt: string,
       effort: "low" | "high" = "low",
       image: string = fastImageUrl,
     ) => {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), timeoutMs);
-      try {
-        return await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-          signal: controller.signal,
+      return await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
 
       method: "POST",
       headers: {
@@ -572,51 +567,47 @@ serve(async (req) => {
 
         tool_choice: { type: "function", function: { name: "identify_animal" } },
       }),
-        });
-      } finally {
-        clearTimeout(timer);
-      }
+      });
     };
 
     /**
-     * L'upstream Flash Lite se bloque parfois (~90 s sans le moindre octet) :
-     * c'est la cause des "il faut scanner deux fois". On borne donc chaque appel
-     * à un délai court et on relance immédiatement une requête neuve, qui
-     * répond en général en 2 s. Budget total borné (< 50 s) pour rester sous le
-     * timeout client.
+     * Une requête en cours ne doit pas être interrompue artificiellement : elle
+     * peut encore aboutir et être facturée après l'abandon côté fonction. Seuls
+     * les retours explicitement temporaires (429/5xx) sont retentés, avec une
+     * courte attente bornée avant le modèle de repli éventuel.
      */
     const tryModel = async (
       model: string,
-      // Un timeout par tentative : le premier essai doit être assez long
-      // pour laisser le modèle finir (sinon on abandonne un appel déjà
-      // facturé et on en relance un second pour rien).
-      timeouts: number[],
+      attempts: number,
       prompt: string,
       effort: "low" | "high" = "low",
       image: string = fastImageUrl,
-      // Quand l'upstream se bloque, relancer le MÊME modèle échoue souvent
-      // de nouveau : les tentatives suivantes partent alors sur ce modèle
-      // de repli (plus robuste) quand il est fourni.
       fallbackModel?: string,
     ) => {
-
-      const attempts = timeouts.length;
       for (let i = 0; i < attempts; i++) {
         const startedAt = Date.now();
         const attemptModel = i === 0 ? model : (fallbackModel ?? model);
         try {
-          let r = await callGateway(attemptModel, timeouts[i], prompt, effort, image);
-          if (!r.ok && r.status >= 500 && i < attempts - 1) continue;
+          const r = await callGateway(attemptModel, prompt, effort, image);
+          const retryable = r.status === 429 || r.status >= 500;
+          if (retryable && i < attempts - 1) {
+            const retryAfter = Number(r.headers.get("Retry-After"));
+            const delayMs = Number.isFinite(retryAfter) && retryAfter > 0
+              ? Math.min(retryAfter * 1_000, 8_000)
+              : 1_200 + Math.floor(Math.random() * 400);
+            await new Promise((resolve) => setTimeout(resolve, delayMs));
+            continue;
+          }
           return r;
         } catch (netErr) {
           console.error(
-            "AI gateway stalled/failed",
+            "AI gateway network failure",
             attemptModel,
             `attempt ${i + 1}/${attempts}`,
             `${Date.now() - startedAt}ms`,
             netErr,
           );
-          if (i === attempts - 1) return null;
+          return null;
         }
       }
 
@@ -707,13 +698,7 @@ serve(async (req) => {
     //    jetons d'image.
     let response = await tryModel(
       FAST_MODEL,
-      // Deux fenêtres plutôt qu'un appel unique : quand l'upstream se bloque
-      // sans rien renvoyer, la requête relancée répond en général en 2 s. La
-      // relance ne part QUE sur blocage/erreur réseau (jamais sur une réponse
-      // reçue), donc pas de double facturation en temps normal. La seconde
-      // fenêtre reste large (13 s) car un blocage upstream se reproduit
-      // souvent sur le même modèle : la relance change donc de modèle.
-      [18_000, 13_000],
+      2,
 
       isNewUser ? FAST_PROMPT + DEEP_ANNEX : FAST_PROMPT,
       // Effort « low » même pour la première impression : mesuré sur photo réelle,
@@ -741,15 +726,12 @@ serve(async (req) => {
       (CONFUSABLE.test(label) && confidence < 70);
 
     if (needsDeep) {
-      // L'upstream se bloque parfois : sans résultat de la passe rapide, un
-      // abandon ici renvoie une erreur technique à l'utilisateur. On s'autorise
-      // donc UNE relance (requête neuve, qui répond en général en 2 s) dans ce
-      // seul cas — quand la passe rapide a déjà un résultat, on garde un unique
-      // appel pour ne pas payer deux fois. Budget max : 18 s + 13 s + 15 s + 12 s
-      // = 58 s, sous le délai client (65 s).
+      // Quand la passe rapide n'a aucun résultat, une seule reprise est permise
+      // après un retour explicitement temporaire du service. Une réponse rapide
+      // déjà exploitable ne déclenche jamais de seconde tentative profonde.
       const deep = await tryModel(
         DEEP_MODEL,
-        animalData ? [20_000] : [15_000, 12_000],
+        animalData ? 1 : 2,
 
         FAST_PROMPT + DEEP_ANNEX,
         "low",
