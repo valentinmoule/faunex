@@ -4,6 +4,8 @@ import { type Rarity, normalizeRarity } from '@/data/mockData';
 interface Props {
   rarity: Rarity;
   children: ReactNode;
+  /** Content kept above the holographic shine (e.g. fullscreen rarity icon). */
+  overlay?: ReactNode;
   className?: string;
   /** Styles supplémentaires (ex. --holo-radius pour aligner les couches sur le cadre). */
   style?: React.CSSProperties;
@@ -78,6 +80,7 @@ const stepSpring = (spring: Spring, dtSeconds: number) => {
 const HolographicCard = ({
   rarity,
   children,
+  overlay,
   className = '',
   style,
   onTap,
@@ -305,6 +308,7 @@ const HolographicCard = ({
         <div className="holo-rotator">
           <div className="holo-card">
             <div className="holo-content">{children}</div>
+            {overlay && <div className="holo-overlay">{overlay}</div>}
           </div>
         </div>
       </div>
@@ -346,6 +350,7 @@ return (
           <div className="holo-content">{children}</div>
           <div className="holo-shine" aria-hidden />
           <div className="holo-glare" aria-hidden />
+          {overlay && <div className="holo-overlay">{overlay}</div>}
         </div>
       </div>
     </div>
