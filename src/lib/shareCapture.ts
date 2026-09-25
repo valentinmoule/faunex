@@ -74,17 +74,22 @@ const RARITY: Record<Rarity, { frame: FrameKind; stars: number; metal: Metal; ho
   hyper_rare: { frame: 'legendary', stars: 2, metal: 'iridescent', holo: 0.5 },
 };
 
-/* Étoile identique au SVG de RarityBadge (boîte 12×12, bras épais). */
+/* Étoile identique au SVG de RarityBadge (boîte 12×12, bras épais).
+   Le remplissage est créé dans l'espace transformé de l'étoile (boîte 12×12)
+   pour que le dégradé métallique suive exactement l'angle du SVG. */
 const STAR_PATH = 'M6 0 L7.88 3.41 L11.71 4.15 L9.05 6.99 L9.53 10.85 L6 9.2 L2.47 10.85 L2.95 6.99 L0.29 4.15 L4.12 3.41 Z';
 
-const traceStar = (ctx: CanvasRenderingContext2D, d: string, sx: number, sy: number, k: number) => {
-  const path = new Path2D(d);
+const traceStar = (ctx: CanvasRenderingContext2D, sx: number, sy: number, k: number, metal: Metal) => {
   ctx.save();
   ctx.translate(sx, sy);
   ctx.scale(k, k);
+  const grad = ctx.createLinearGradient(0, 0, 12, 12);
+  METALS[metal].forEach(([pos, color]) => grad.addColorStop(pos / 100, color));
   ctx.lineJoin = 'round';
   ctx.lineWidth = 1.8;
   ctx.strokeStyle = 'rgba(15, 19, 30, 0.9)';
+  ctx.fillStyle = grad;
+  const path = new Path2D(STAR_PATH);
   ctx.stroke(path); // contour sombre sous le remplissage (paint-order: stroke fill)
   ctx.fill(path);
   ctx.restore();
@@ -227,12 +232,7 @@ export const buildShareImage = async (card: AnimalCard): Promise<Blob> => {
     for (let i = 0; i < count; i++) {
       const sx = startX + (pad + i * (12 + gap)) * k;
       const sy = startY + pad * k;
-      const grad = ctx.createLinearGradient(sx, sy, sx + 12 * k, sy + 12 * k);
-      METALS[theme.metal].forEach(([pos, color]) => grad.addColorStop(pos / 100, color));
-      ctx.save();
-      ctx.fillStyle = grad;
-      traceStar(ctx, STAR_PATH, sx, sy, k);
-      ctx.restore();
+      traceStar(ctx, sx, sy, k, theme.metal);
     }
   }
 
