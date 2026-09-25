@@ -73,10 +73,8 @@
     "badges": {
       "title": "Badges",
       "loading": "Chargement des badges…",
-      "empty": "Aucun badge dans cette sélection.",
-      "all": "Tous · {{count}}",
+      "empty": "Aucun badge pour le moment.",
       "claimable": "À réclamer · {{count}}",
-      "unlocked": "Débloqués · {{count}}",
       "unlockedTag": "Débloqué ✨",
       "claimCta": "À réclamer",
       "newTag": "Nouveau",
