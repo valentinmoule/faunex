@@ -2875,14 +2875,14 @@ html.is-native-android body {
   --tile-border-width: 8px;
   --tile-radius: 1rem;
 }
-.game-tile.tile-grid-1.tile-border-plain,
-.game-tile.tile-grid-1.tile-border-silver,
-.game-tile.tile-grid-1.tile-border-gold {
+.game-tile:is(.tile-grid-1, .tile-grid-2).tile-border-plain,
+.game-tile:is(.tile-grid-1, .tile-grid-2).tile-border-silver,
+.game-tile:is(.tile-grid-1, .tile-grid-2).tile-border-gold {
   box-shadow:
     0 2px 0 0 var(--tile-frame-depth),
     0 6px 10px -7px hsl(var(--foreground) / 0.28);
 }
-.game-tile.tile-grid-1::before {
+.game-tile:is(.tile-grid-1, .tile-grid-2)::before {
   content: none;
 }
 .game-tile.tile-grid-2 {
