@@ -1602,7 +1602,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                 categories={mineCategoryFilter}
                 onCategoriesChange={(next) => {
                   if (!isPremium && next.includes(FAVORITES_FILTER)) {
-                    toast({ title: t('capture.detail.favoritePremium') });
+                    toast(t('capture.detail.favoritePremium'));
                     setSortOpen(false);
                     navigate('/premium');
                     return;

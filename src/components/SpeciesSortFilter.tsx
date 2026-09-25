@@ -13,6 +13,7 @@ import {
   Star,
   GripVertical,
   type LucideIcon,
+  Bookmark,
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import RarityBadge from '@/components/RarityBadge';
