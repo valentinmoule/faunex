@@ -2516,20 +2516,19 @@
   --frame-grad: var(--rarity-frame-iridescent);
 }
 
-/* Cadres irisés (mythique/légendaire) : les teintes glissent très lentement et
-   sur une faible amplitude (un cycle complet de 38 s, le cadre ne parcourt
-   qu'environ un quart de sa largeur), pour un reflet discret et régulier.
-   Le repos est la position initiale, ce qui garde le même rendu quand
-   l'animation est coupée (réduction de mouvement). */
+/* Cadres irisés (mythique/légendaire) : les teintes glissent en boucle sur une
+   amplitude modérée (aller-retour de 12 s) — le reflet reste discret mais reste
+   nettement perceptible à l'œil. Le repos est la position initiale, ce qui
+   garde le même rendu quand l'animation est coupée (réduction de mouvement). */
 @keyframes iridescent-flow {
   0% { background-position: 0% 0%, 0% 0%; }
-  50% { background-position: 0% 0%, 12% 22%; }
+  50% { background-position: 0% 0%, 32% 54%; }
   100% { background-position: 0% 0%, 0% 0%; }
 }
 .game-tile.tile-grid-2.tile-border-iridescent,
 .holo-frame:is(.holo-frame--special-rare, .holo-frame--hyper-rare) {
   background-size: 100% 100%, 300% 300%;
-  animation: iridescent-flow 38s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+  animation: iridescent-flow 12s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
 }
 @media (prefers-reduced-motion: reduce) {
   .game-tile.tile-grid-2.tile-border-iridescent,
