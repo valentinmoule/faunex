@@ -50,6 +50,13 @@
       "when": 1790375844856,
       "tag": "0006_guard_premium_badge_claim",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1790375919200,
+      "tag": "0007_fix_premium_badge_reward",
+      "breakpoints": true
     }
   ]
 }
