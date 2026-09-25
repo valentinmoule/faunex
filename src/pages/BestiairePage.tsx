@@ -59,7 +59,6 @@ import MapPage from '@/pages/MapPage';
 import FaunexAchievements from '@/components/FaunexAchievements';
 import CollectionTile from '@/components/CollectionTile';
 import { useFavorites } from '@/hooks/useFavorites';
-import MyCapturesGrid from '@/components/MyCapturesGrid';
 import RewardCelebration from '@/components/RewardCelebration';
 import CaptureQuotaBadge from '@/components/CaptureQuotaBadge';
 import { ProfileButton } from '@/components/ProfileDrawer';
