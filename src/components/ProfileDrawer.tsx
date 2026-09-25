@@ -244,7 +244,7 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
                 >
                   <PremiumAvatar
                     avatarUrl={profile?.avatar_url}
-                    name={profile?.display_name}
+                    name={profile?.display_name || profile?.username}
                     size="xl"
                     isPremium={isPremium}
                     className="ring-4 ring-primary/10 transition-transform active:scale-95"
