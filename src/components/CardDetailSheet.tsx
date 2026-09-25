@@ -20,7 +20,10 @@ import { toast } from '@/hooks/use-toast';
 import { Trash2, Share2, Bookmark } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useFavorites } from '@/hooks/useFavorites';
+import { useCustomCollections } from '@/hooks/useCustomCollections';
+import { useSubscription } from '@/hooks/useSubscription';
 import ShareCaptureSheet from '@/components/ShareCaptureSheet';
+import AddToCollectionSheet from '@/components/AddToCollectionSheet';
 import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
 import { useSpeciesFacts, useSpeciesName } from '@/hooks/useSpeciesLocale';
 
@@ -129,6 +132,9 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
 
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavorites(session?.user?.id);
+  const { isPremium } = useSubscription(session?.user?.id);
+  const customCollections = useCustomCollections(session?.user?.id);
+  const [addToOpen, setAddToOpen] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
