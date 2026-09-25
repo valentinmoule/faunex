@@ -727,6 +727,16 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                     <Share2 className="w-6 h-6 text-muted-foreground transition-colors group-hover:text-primary" />
                   </button>
                 )}
+                {isOwner && (
+                  <button
+                    onClick={() => { hapticTap(); setConfirmDelete(true); }}
+                    aria-label={t('capture.detail.deleteCapture')}
+                    title={t('capture.detail.deleteCapture')}
+                    className="relative flex items-center py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
+                  >
+                    <Trash2 className="w-6 h-6 text-muted-foreground transition-colors group-hover:text-destructive" />
+                  </button>
+                )}
               </div>
             )}
 
