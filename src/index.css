@@ -2010,7 +2010,7 @@
 }
 
 .holo-frame--fullscreen::after {
-  will-change: auto;
+  content: none;
 }
 
 
@@ -2517,9 +2517,7 @@
 .holo-frame::after {
   content: "";
   position: absolute;
-  /* Keep the mask on the card's own box. Extending it by the frame width made
-     its corner arc wider than the card, especially visible while tilted. */
-  inset: 0;
+  inset: calc(var(--frame-w) * -1);
   border-radius: inherit;
   border: var(--frame-w) solid transparent;
   background: var(--frame-grad) border-box;
