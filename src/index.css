@@ -60,6 +60,9 @@
     /* Familles d'effets holo */
     --rarity-silver: 220 18% 62%;
     --rarity-gold: 40 95% 50%;
+    --rarity-frame-neutral: linear-gradient(145deg, hsl(220 10% 78%), hsl(220 8% 52%) 48%, hsl(220 10% 72%));
+    --rarity-frame-silver: linear-gradient(145deg, hsl(205 35% 96%), hsl(220 18% 58%) 32%, hsl(185 35% 88%) 52%, hsl(245 22% 72%) 72%, hsl(215 24% 92%));
+    --rarity-frame-gold: linear-gradient(145deg, hsl(48 100% 82%), hsl(40 95% 50%) 30%, hsl(54 100% 88%) 52%, hsl(32 82% 45%) 72%, hsl(46 96% 72%));
 
     /* Gradients */
     --gradient-forest: linear-gradient(135deg, hsl(150 62% 44%), hsl(160 66% 28%));
@@ -2815,24 +2818,28 @@ html.is-native-android body {
 .game-tile.tile-border-plain,
 .game-tile.tile-border-silver,
 .game-tile.tile-border-gold {
-  --tile-frame: hsl(var(--muted-foreground));
-  --tile-frame-depth: hsl(var(--foreground) / 0.48);
+  --tile-frame: var(--rarity-frame-neutral);
+  --tile-frame-depth: hsl(var(--foreground) / 0.28);
   --tile-depth: var(--tile-frame-depth);
-  --tile-glow: hsl(var(--foreground) / 0.16);
+  --tile-glow: hsl(var(--foreground) / 0.12);
   --tile-ring-width: 0px;
   --tile-inner-glow-size: 0px;
-  border-color: var(--tile-frame);
+  border-color: transparent;
+  background-image: linear-gradient(hsl(var(--card)), hsl(var(--card))), var(--tile-frame);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
   box-shadow:
-    0 3px 0 0 var(--tile-frame-depth),
-    0 7px 12px -8px hsl(var(--foreground) / 0.32);
+    0 2px 0 0 var(--tile-frame-depth),
+    0 6px 10px -7px hsl(var(--foreground) / 0.28),
+    inset 0 1px 0 hsl(var(--background) / 0.55);
 }
 .game-tile.tile-border-silver {
-  --tile-frame: hsl(var(--rarity-silver));
-  --tile-frame-depth: hsl(var(--rarity-silver) / 0.72);
+  --tile-frame: var(--rarity-frame-silver);
+  --tile-frame-depth: hsl(var(--rarity-silver) / 0.5);
 }
 .game-tile.tile-border-gold {
-  --tile-frame: hsl(var(--rarity-gold));
-  --tile-frame-depth: hsl(var(--amber-dark) / 0.78);
+  --tile-frame: var(--rarity-frame-gold);
+  --tile-frame-depth: hsl(var(--amber-dark) / 0.58);
 }
 .game-tile.tile-border-plain::before,
 .game-tile.tile-border-silver::before,
@@ -2858,11 +2865,11 @@ html.is-native-android body {
    (certains navigateurs perdent le clip overflow-hidden sur les tuiles
    transformées/will-change, d'où un rayon explicite sur le contenu) */
 .game-tile > img {
-  border-radius: calc(0.75rem - 4px);
+  border-radius: calc(0.5rem - 3px);
 }
 .game-tile > div.absolute.inset-x-0.bottom-0 {
-  border-bottom-left-radius: calc(0.75rem - 4px);
-  border-bottom-right-radius: calc(0.75rem - 4px);
+  border-bottom-left-radius: calc(0.5rem - 3px);
+  border-bottom-right-radius: calc(0.5rem - 3px);
 }
 
 /* Emplacement non découvert : creusé plutôt que bombé */
