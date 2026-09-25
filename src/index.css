@@ -2881,41 +2881,6 @@ html.is-native-android body {
     0 0 0 1px hsl(42 95% 60% / 0.25);
 }
 
-/* Fiche espèce : même métal que le cadre, étoile claire comme évidée du tag. */
-.rarity-badge.detail-rarity-tag {
-  background: var(--rarity-frame-neutral);
-  border-color: hsl(var(--rarity-icon-gray-dark) / 0.4);
-  box-shadow: none;
-}
-.rarity-badge.detail-rarity-tag:is(.rarity-badge--very-rare, .rarity-badge--ultra-rare, .rarity-badge--illustration-rare) {
-  background: var(--rarity-frame-gold);
-  border-color: hsl(var(--rarity-icon-gold-dark) / 0.4);
-}
-.rarity-badge.detail-rarity-tag:is(.rarity-badge--special-rare, .rarity-badge--hyper-rare) {
-  background: var(--rarity-frame-iridescent);
-  border-color: hsl(var(--rarity-icon-pearl-gray) / 0.4);
-}
-.rarity-badge.detail-rarity-tag::after { content: none; }
-.rarity-badge.detail-rarity-tag .rarity-svg__sym {
-  fill: hsl(var(--background));
-  stroke: hsl(var(--foreground) / 0.5);
-  stroke-width: 0.65px;
-  stroke-linejoin: round;
-  filter: none;
-}
-/* Le label reprend la teinte du métal : gris, or, nacre — jamais noir plat. */
-.rarity-badge.detail-rarity-tag .rarity-badge__label {
-  color: hsl(var(--rarity-icon-gray-dark));
-  font-weight: 700;
-  letter-spacing: 0.06em;
-}
-.rarity-badge.detail-rarity-tag:is(.rarity-badge--very-rare, .rarity-badge--ultra-rare, .rarity-badge--illustration-rare) .rarity-badge__label {
-  color: hsl(var(--rarity-icon-gold-dark));
-}
-.rarity-badge.detail-rarity-tag:is(.rarity-badge--special-rare, .rarity-badge--hyper-rare) .rarity-badge__label {
-  color: hsl(288 32% 34%);
-}
-
 /* Variante « brute » : étoiles seules, sans tag ni bulle (filtres, cartes).
    Le contraste sur photo vient du contour sombre dessiné sur chaque étoile. */
 .rarity-badge.rarity-badge--plain {
