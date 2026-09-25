@@ -39,7 +39,7 @@ const AnimalCardComponent = ({ card, onClick, compact }: Props) => {
           />
           <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 via-black/10 to-transparent pointer-events-none" />
 <div className="absolute top-2.5 right-2.5">
-            <RarityBadge rarity={card.rarity} />
+            <RarityBadge rarity={card.rarity} plain />
           </div>
         </div>
         <div className={`px-3 py-2.5 bg-card ${compact ? '' : 'space-y-0.5'}`}>
