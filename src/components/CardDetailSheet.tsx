@@ -373,6 +373,16 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
     onClose();
   }, [card, deleting, onDeleted, onClose]);
 
+  // Escape closes the delete confirmation
+  useEffect(() => {
+    if (!confirmDelete) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !deleting) setConfirmDelete(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [confirmDelete, deleting]);
+
 
 
 
