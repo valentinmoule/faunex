@@ -2961,7 +2961,7 @@ html.is-native-android body {
 /* Feed Explorateurs : la carte occupe toute la largeur, les étoiles
    suivent son échelle pour rester lisibles d'un coup d'œil. */
 .feed-card-rarity.rarity-badge--plain {
-  transform: scale(1.6);
+  transform: scale(1.8);
   transform-origin: top right;
 }
 .rarity-badge.rarity-badge--plain .rarity-badge__label {
