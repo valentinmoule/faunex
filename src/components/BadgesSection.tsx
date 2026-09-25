@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react';
-import XpPill from '@/components/XpPill';
 import { useTranslation } from 'react-i18next';
 import { useBadges, type BadgeProgress } from '@/hooks/useBadges';
 import BadgeMedallion from '@/components/BadgeMedallion';
@@ -62,15 +61,6 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
                   <span className="absolute -top-2 -left-3.5 z-10 rounded-[6px] bg-destructive px-2 py-1 text-[9px] font-display font-black uppercase tracking-wide text-destructive-foreground shadow-sm">
                     {t('profile.badges.newTag')}
                   </span>
-                )}
-
-                {/* XP visible uniquement sur les badges débloqués — affiché à la réclamation sinon */}
-                {claimed && (
-                  <XpPill
-                    xp={badge.xp}
-                    state="claimed"
-                    className="absolute -top-2 -right-3.5"
-                  />
                 )}
 
                 <BadgeMedallion
