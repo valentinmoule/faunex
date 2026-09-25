@@ -2504,18 +2504,19 @@
   --frame-grad: var(--rarity-frame-iridescent);
 }
 
-/* Cadres irisés (mythique/légendaire) : les couleurs du dégradé glissent
-   en boucle. Le dégradé est agrandi à 300 % et sa position oscille, ce qui
-   donne un flux de teintes continu sans surcharger le GPU (paint only). */
+/* Cadres irisés (mythique/légendaire) : les teintes glissent très lentement et
+   sur une faible amplitude (environ un quart du cadre en aller simple, ~10 s),
+   pour un reflets discret et régulier. Le repos est la position initiale, ce qui
+   garde le même rendu quand l'animation est coupée (réduction de mouvement). */
 @keyframes iridescent-flow {
   0% { background-position: 0% 0%, 0% 0%; }
-  50% { background-position: 0% 0%, 100% 100%; }
+  50% { background-position: 0% 0%, 22% 55%; }
   100% { background-position: 0% 0%, 0% 0%; }
 }
 .game-tile.tile-grid-2.tile-border-iridescent,
 .holo-frame:is(.holo-frame--special-rare, .holo-frame--hyper-rare) {
   background-size: 100% 100%, 300% 300%;
-  animation: iridescent-flow 5.5s ease-in-out infinite;
+  animation: iridescent-flow 20s cubic-bezier(0.37, 0, 0.63, 1) infinite;
 }
 @media (prefers-reduced-motion: reduce) {
   .game-tile.tile-grid-2.tile-border-iridescent,
