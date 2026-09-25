@@ -57,9 +57,9 @@ const fetchCatalogue = (): Promise<CatalogueRow[]> => {
       ),
     );
     return results.flatMap((r) => (r.data || []) as CatalogueRow[]);
-  })().catch((e) => {
+  })().catch(() => {
     cataloguePromise = null;
-    throw e;
+    return [] as CatalogueRow[];
   });
   return cataloguePromise;
 };
