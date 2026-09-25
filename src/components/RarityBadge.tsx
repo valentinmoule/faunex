@@ -94,8 +94,8 @@ export const RarityBadge = ({
       <svg
         className="rarity-badge__symbols"
         width={width}
-        height={12}
-        viewBox={`0 0 ${width} 12`}
+        height={height}
+        viewBox={`0 0 ${width} ${height}`}
         aria-hidden="true"
       >
         {fx !== 'ink' && (
