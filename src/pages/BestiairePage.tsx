@@ -11,6 +11,8 @@ import {
   SpeciesFilterButton,
   SpeciesSortFilterSheet,
   applySpeciesSortFilter,
+  countByPopularity,
+  countByRarity,
   popularityTierOf,
   type PopularityTier,
   type SpeciesSort,
@@ -536,6 +538,10 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
       .map(([name, data]) => ({ name, ...data }));
   }, [animals]);
 
+  // Compteurs par rareté et popularité (affichés à droite dans la modale de filtres)
+  const rarityCountData = useMemo(() => countByRarity(animals), [animals]);
+  const popularityCountData = useMemo(() => countByPopularity(animals), [animals]);
+
   // Normalized search query (accents & case insensitive)
   const normalizeSearch = (v: string) =>
     v.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
@@ -728,6 +734,13 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
     const favCount = myCaptures.filter((c) => favoriteIds.has(c.id)).length;
     return [{ name: FAVORITES_FILTER, total: favCount }, ...list];
   }, [myCaptures, favoriteIds]);
+
+  // Compteurs par rareté et popularité pour la modale « mes captures »
+  const mineRarityCountData = useMemo(() => countByRarity(myCaptures), [myCaptures]);
+  const minePopularityCountData = useMemo(
+    () => countByPopularity(myCaptures.map((c) => ({ finders: findersByName.get(c.name.toLowerCase()) ?? 0 }))),
+    [myCaptures, findersByName],
+  );
 
   // Flat list of my own captures (one entry per capture), filtered + trié selon le mode choisi
   const myCapturedAnimals = useMemo(() => {
@@ -1589,6 +1602,8 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                 }))}
                 onSortChange={(s) => applySort(s as MineSort)}
                 availableCategories={mineCategoryData}
+                availableRarities={mineRarityCountData}
+                availablePopularities={minePopularityCountData}
                 categories={mineCategoryFilter}
                 onCategoriesChange={setMineCategoryFilter}
                 rarities={mineRarityFilter}
@@ -1739,6 +1754,8 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                 sort={browseSort}
                 onSortChange={(s) => setBrowseSort(s as SpeciesSort)}
                 availableCategories={categoryData}
+                availableRarities={rarityCountData}
+                availablePopularities={popularityCountData}
                 categories={categoryFilter}
                 onCategoriesChange={setCategoryFilter}
                 rarities={rarityFilter}

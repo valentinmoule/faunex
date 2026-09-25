@@ -37,6 +37,26 @@ export const POPULARITY_LABELS: Record<PopularityTier, { label: string; Icon: Lu
 export const popularityTierOf = (n: number): PopularityTier =>
   n <= 0 ? 'none' : n < 5 ? 'rare' : n < 25 ? 'common' : n < 100 ? 'trending' : 'hot';
 
+/** Compteur d'espèces par rareté (affiché à droite de chaque rareté dans la modale de filtres). */
+export const countByRarity = <T extends { rarity: string }>(list: T[]): Partial<Record<Rarity, number>> => {
+  const counts: Partial<Record<Rarity, number>> = {};
+  for (const a of list) {
+    const r = normalizeRarity(a.rarity);
+    counts[r] = (counts[r] ?? 0) + 1;
+  }
+  return counts;
+};
+
+/** Compteur d'espèces par palier de popularité, à partir du nombre de naturalistes. */
+export const countByPopularity = <T extends { finders?: number }>(list: T[]): Partial<Record<PopularityTier, number>> => {
+  const counts: Partial<Record<PopularityTier, number>> = {};
+  for (const a of list) {
+    const tier = popularityTierOf(a.finders ?? 0);
+    counts[tier] = (counts[tier] ?? 0) + 1;
+  }
+  return counts;
+};
+
 /** Icône vectorielle de la catégorie d'une espèce (remplace les emojis sur les cartes). */
 /** Pseudo-catégorie « Favoris » dans le filtre de mes captures. */
 export const FAVORITES_FILTER = '__favorites';
@@ -197,6 +217,10 @@ interface SpeciesSortFilterSheetProps {
   availableCategories?: { name: string; total: number }[];
   categories?: string[];
   onCategoriesChange?: (cats: string[]) => void;
+  /** Compteurs par rareté : le total s'affiche à droite, les raretés absentes sont masquées. */
+  availableRarities?: Partial<Record<Rarity, number>>;
+  /** Compteurs par palier de popularité (même règle d'affichage). */
+  availablePopularities?: Partial<Record<PopularityTier, number>>;
   resultCount: number;
   onReset: () => void;
   /** Libellé du bouton de validation (par défaut « Voir X espèces »). */
@@ -217,6 +241,8 @@ export const SpeciesSortFilterSheet = ({
   availableCategories,
   categories,
   onCategoriesChange,
+  availableRarities,
+  availablePopularities,
   resultCount,
   onReset,
   confirmLabel,
@@ -283,6 +309,8 @@ export const SpeciesSortFilterSheet = ({
           <SectionLabel>{t('bestiary.filterModal.rarityLabel')}</SectionLabel>
           <ListGroup role="group">
             {RARITY_ORDER.map((r) => {
+              const total = availableRarities?.[r];
+              if (availableRarities && !total) return null;
               const isActive = rarities.includes(r);
               return (
                 <ListRow
@@ -292,6 +320,7 @@ export const SpeciesSortFilterSheet = ({
                   onToggle={() => onRaritiesChange(isActive ? rarities.filter((x) => x !== r) : [...rarities, r])}
                   leading={<RarityBadge rarity={r} plain />}
                   label={RARITY_LABELS[r]}
+                  trailing={total}
                 />
               );
             })}
@@ -302,6 +331,8 @@ export const SpeciesSortFilterSheet = ({
           <SectionLabel>{t('bestiary.filterModal.popularityLabel')}</SectionLabel>
           <ListGroup role="group">
             {(Object.keys(POPULARITY_LABELS) as PopularityTier[]).map((tier) => {
+              const total = availablePopularities?.[tier];
+              if (availablePopularities && !total) return null;
               const isActive = popularities.includes(tier);
               const { label, Icon } = POPULARITY_LABELS[tier];
               return (
@@ -314,6 +345,7 @@ export const SpeciesSortFilterSheet = ({
                   }
                   leading={<Icon className="w-[18px] h-[18px]" strokeWidth={1.75} />}
                   label={label}
+                  trailing={total}
                 />
               );
             })}
