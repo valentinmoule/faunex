@@ -15,6 +15,13 @@
       "when": 1790145518007,
       "tag": "0001_fix_shared_domestic_profile_fallback",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790345151886,
+      "tag": "0002_exclude_all_rarities_qa_account_from_rankings",
+      "breakpoints": true
     }
   ]
 }
