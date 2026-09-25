@@ -16,3 +16,6 @@
 ## Compte de test toutes raretés
 - [x] Créer valentinmoulay+all@gmail.com et huit captures de raretés distinctes (confirmation e-mail requise)
 - [x] Masquer ce compte des explorateurs, classements et statistiques d'activité
+
+## Retraits demandés
+- [x] Enlever le classement affiché dans les collections et dans les terroirs

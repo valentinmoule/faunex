@@ -516,18 +516,6 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
     return list; // déjà trié alphabétiquement via `animals`
   }, [animals, selectedCollection]);
 
-  /** Catégorie utilisée pour le classement affiché dans une collection. */
-  const collectionLeaderboardCategory = useMemo(() => {
-    if (!selectedCollection) return null;
-    if (selectedCollection.group.key.startsWith('cat:')) return selectedCollection.group.label;
-    const counts = new Map<string, number>();
-    collectionAnimals.forEach((a) => {
-      const norm = normalizeCategory(a.category);
-      counts.set(norm, (counts.get(norm) || 0) + 1);
-    });
-    const top = Array.from(counts.entries()).sort((a, b) => b[1] - a[1])[0];
-    return top ? top[0] : 'all';
-  }, [selectedCollection, collectionAnimals]);
 
 
 
@@ -1253,8 +1241,6 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
         />
 
         <div className="relative z-10 max-w-lg mx-auto px-3 pt-3 space-y-4">
-<CategoryLeaderboard territory={{ code: selectedZone.departmentCode, label: title }} />
-
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -1343,11 +1329,6 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
         />
 
         <div className="relative z-10 max-w-lg mx-auto px-3 pt-3 space-y-4">
-
-          {collectionLeaderboardCategory && (
-            <CategoryLeaderboard category={collectionLeaderboardCategory} />
-          )}
-
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />

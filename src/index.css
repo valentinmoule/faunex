@@ -2925,13 +2925,13 @@ html.is-native-android body {
   right: 22px;
 }
 .holo-fullscreen-rarity .rarity-badge--plain {
-  transform: scale(2);
+  transform: scale(1.4);
   transform-origin: top right;
 }
 /* Feed Explorateurs : la carte occupe toute la largeur, les étoiles
    suivent son échelle pour rester lisibles d'un coup d'œil. */
 .feed-card-rarity.rarity-badge--plain {
-  transform: scale(1.8);
+  transform: scale(1.4);
   transform-origin: top right;
 }
 .rarity-badge.rarity-badge--plain .rarity-badge__label {
