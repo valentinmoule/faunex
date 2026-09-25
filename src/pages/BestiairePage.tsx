@@ -1380,11 +1380,13 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
               <p className="text-muted-foreground font-display text-sm">{t('bestiary.categories.noMatch')}</p>
             </div>
           ) : (
-          <div className="grid grid-cols-3 gap-2">
-            {visibleCollectionAnimals.map((animal) => (
-              <BrowseSpeciesCard key={animal.name} animal={animal} onSelect={handleSelectBrowseAnimal} />
+          <BinderGrid introKey={selectedCollection.group.key}>
+            {visibleCollectionAnimals.map((animal, i) => (
+              <div key={animal.name} className="binder-slot" style={{ '--i': Math.min(i, 17) } as React.CSSProperties}>
+                <BrowseSpeciesCard animal={animal} onSelect={handleSelectBrowseAnimal} />
+              </div>
             ))}
-          </div>
+          </BinderGrid>
           )}
         </div>
 
