@@ -87,13 +87,20 @@ const ProfileBadgesRow = ({ userId, level, regionsExplored, onOpenAll, onClaimed
                 aria-label={ready ? t('profile.page.drawer.badgeClaim', { name: entry.badge.name }) : entry.badge.name}
                 className="flex min-w-0 flex-1 flex-col items-center gap-1 transition-transform active:scale-95"
               >
-                <BadgeMedallion
-                  badgeId={entry.badge.id}
-                  group={entry.badge.group}
-                  fallbackEmoji={entry.badge.icon}
-                  state={ready ? 'claimable' : 'claimed'}
-                  size={48}
-                />
+                <span className="relative">
+                  <BadgeMedallion
+                    badgeId={entry.badge.id}
+                    group={entry.badge.group}
+                    fallbackEmoji={entry.badge.icon}
+                    state={ready ? 'claimable' : 'claimed'}
+                    size={48}
+                  />
+                  {ready && (
+                    <span className="absolute -top-1.5 -left-2 z-10 rounded-[5px] bg-destructive px-1.5 py-0.5 text-[8px] font-display font-black uppercase tracking-wide text-destructive-foreground shadow-sm">
+                      {t('profile.page.drawer.newTag')}
+                    </span>
+                  )}
+                </span>
                 <span className={`w-full truncate text-center text-[9px] ${ready ? 'font-bold text-primary' : 'text-muted-foreground'}`}>
                   {entry.badge.name}
                 </span>
