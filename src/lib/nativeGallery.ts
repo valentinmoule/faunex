@@ -1,4 +1,5 @@
 import { IS_NATIVE_APP } from '@/lib/platform';
+import { exifDateToIso } from '@/lib/exif';
 
 /**
  * Sélecteur de photos natif (app installée iOS/Android).
@@ -16,6 +17,8 @@ export interface NativeGalleryPhoto {
   gps: { lat: number; lng: number } | null;
   /** null quand le système ne fournit aucune métadonnée (on ne signale rien). */
   looksLikeCameraPhoto: boolean | null;
+  /** Date de prise de vue (ISO) lue dans les métadonnées. */
+  takenAt?: string | null;
 }
 
 type AnyRec = Record<string, unknown>;
@@ -57,7 +60,8 @@ export const parseNativeExif = (exif: unknown): Omit<NativeGalleryPhoto, 'dataUr
   const looks = Boolean(
     gps || tiff.Make || tiff.Model || exifBlock.DateTimeOriginal || root.DateTime || root.DateTimeOriginal,
   );
-  return { gps, looksLikeCameraPhoto: hasAny ? looks : null };
+  const takenAt = exifDateToIso(exifBlock.DateTimeOriginal ?? root.DateTimeOriginal ?? tiff.DateTime ?? root.DateTime);
+  return { gps, looksLikeCameraPhoto: hasAny ? looks : null, takenAt };
 };
 
 export const pickNativeGalleryPhoto = async (): Promise<NativeGalleryPhoto | null> => {

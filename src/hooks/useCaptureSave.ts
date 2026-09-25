@@ -9,10 +9,12 @@ interface SaveContext {
   userId: string | undefined;
   photo: string | null;
   geo: GeoTag;
+  /** Date de prise de vue (EXIF) d'une photo importée. */
+  takenAt?: string | null;
 }
 
 /** Persistence layer for captures: storage upload, insert, duplicate replace, manual submission. */
-export const useCaptureSave = ({ userId, photo, geo }: SaveContext) => {
+export const useCaptureSave = ({ userId, photo, geo, takenAt = null }: SaveContext) => {
   const [saving, setSaving] = useState(false);
   const [defaultShare, setDefaultShare] = useState(true);
 
@@ -107,6 +109,7 @@ export const useCaptureSave = ({ userId, photo, geo }: SaveContext) => {
           shared: defaultShare,
           caption: null,
           location: geo.name || null,
+          taken_at: takenAt,
           latitude: geo.coords?.lat || null,
           longitude: geo.coords?.lng || null,
           subject_bbox: animal.subject_bbox ?? null,
@@ -136,7 +139,7 @@ export const useCaptureSave = ({ userId, photo, geo }: SaveContext) => {
         setSaving(false);
       }
     },
-    [photo, userId, uploadImage, resolveSessionUserId, defaultShare, geo]
+    [photo, userId, uploadImage, resolveSessionUserId, defaultShare, geo, takenAt]
   );
 
   const replaceCapture = useCallback(
@@ -162,6 +165,7 @@ export const useCaptureSave = ({ userId, photo, geo }: SaveContext) => {
             shared: defaultShare,
             caption: null,
             location: geo.name || null,
+            taken_at: takenAt,
             latitude: geo.coords?.lat || null,
             longitude: geo.coords?.lng || null,
             subject_bbox: animal.subject_bbox ?? null,
@@ -173,7 +177,7 @@ export const useCaptureSave = ({ userId, photo, geo }: SaveContext) => {
         setSaving(false);
       }
     },
-    [photo, userId, uploadImage, resolveSessionUserId, defaultShare, geo]
+    [photo, userId, uploadImage, resolveSessionUserId, defaultShare, geo, takenAt]
   );
 
   const submitManualEntry = useCallback(
@@ -201,6 +205,7 @@ export const useCaptureSave = ({ userId, photo, geo }: SaveContext) => {
             shared: defaultShare,
             caption: null,
             location: geo.name || null,
+            taken_at: takenAt,
             latitude: geo.coords?.lat || null,
             longitude: geo.coords?.lng || null,
             status: 'pending_review',
@@ -237,7 +242,7 @@ export const useCaptureSave = ({ userId, photo, geo }: SaveContext) => {
         setSaving(false);
       }
     },
-    [photo, userId, uploadImage, resolveSessionUserId, defaultShare, geo]
+    [photo, userId, uploadImage, resolveSessionUserId, defaultShare, geo, takenAt]
   );
 
   return { saving, defaultShare, findDuplicate, insertCapture, replaceCapture, submitManualEntry };

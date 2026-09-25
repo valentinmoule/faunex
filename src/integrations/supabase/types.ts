@@ -321,6 +321,7 @@ export type Database = {
           shared: boolean
           status: string
           subject_bbox: Json | null
+          taken_at: string | null
           taxon_id: string | null
           user_id: string
         }
@@ -347,6 +348,7 @@ export type Database = {
           shared?: boolean
           status?: string
           subject_bbox?: Json | null
+          taken_at?: string | null
           taxon_id?: string | null
           user_id: string
         }
@@ -373,6 +375,7 @@ export type Database = {
           shared?: boolean
           status?: string
           subject_bbox?: Json | null
+          taken_at?: string | null
           taxon_id?: string | null
           user_id?: string
         }

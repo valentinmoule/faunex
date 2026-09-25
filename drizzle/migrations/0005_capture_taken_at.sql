@@ -1,0 +1,1 @@
+ALTER TABLE public.captures ADD COLUMN IF NOT EXISTS taken_at timestamptz;

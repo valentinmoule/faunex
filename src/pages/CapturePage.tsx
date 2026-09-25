@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { RARITY_FX, RARITY_RANK } from '@/data/mockData';
 import { setPendingShelve } from '@/lib/shelveAnimation';
 import { prepareSourceImage, prepareSourceFile } from '@/lib/imageProcessing';
-import { isHeicFile, readExifCameraInfo } from '@/lib/exif';
+import { isHeicFile, readExifCameraInfo, exifDateToIso } from '@/lib/exif';
 import { IS_NATIVE_APP } from '@/lib/platform';
 import { pickNativeGalleryPhoto } from '@/lib/nativeGallery';
 import { useCamera } from '@/hooks/useCamera';
@@ -54,6 +54,8 @@ const [manualMode, setManualMode] = useState(false);
   /** true quand l'import galerie n'a pas de signature d'appareil (EXIF) :
    *  la photo part en vérification humaine, sans analyse IA. */
   const [exifFlagged, setExifFlagged] = useState(false);
+  /** Date de prise de vue lue dans les EXIF d'une photo importée. */
+  const [photoTakenAt, setPhotoTakenAt] = useState<string | null>(null);
   /** Non-null quand l'utilisateur contexte l'identification IA et demande une vérification humaine. */
   const [disputedResult, setDisputedResult] = useState<AnimalResult | null>(null);
   const [identifyError, setIdentifyError] = useState<string | null>(null);
@@ -100,6 +102,7 @@ const quota = useCaptureQuota(session?.user?.id);
     userId: session?.user?.id,
     photo: capturedPhoto,
     geo: { coords: geo.coords, name: geo.name },
+    takenAt: photoTakenAt,
   });
 
   /** Premium : plafond de sécurité (200 analyses / jour) et non la limite gratuite de 4. */
@@ -127,6 +130,7 @@ const quota = useCaptureQuota(session?.user?.id);
     rawDataUrl: string,
     exifWarning?: string,
     exifCoords?: { lat: number; lng: number } | null,
+    exifTakenAt?: string | null,
   ) => {
     // The daily slot is only consumed when the capture is added to the Faunex.
     if (quota.exhausted) {
@@ -147,6 +151,7 @@ const quota = useCaptureQuota(session?.user?.id);
       return;
     }
     setCapturedPhoto(dataUrl);
+    setPhotoTakenAt(exifTakenAt ?? null);
 
 setAnimalResult(null);
     setSaved(false);
@@ -261,7 +266,7 @@ const takePhoto = async () => {
         const reason = picked.looksLikeCameraPhoto === false
           ? t('capture.exif.suspiciousReason')
           : undefined;
-        await processPhoto(picked.dataUrl, reason, picked.gps);
+        await processPhoto(picked.dataUrl, reason, picked.gps, picked.takenAt ?? null);
         return;
       } catch (err) {
         console.error(err);
@@ -302,7 +307,7 @@ const takePhoto = async () => {
         toast.error(t('capture.errors.galleryUnreadable'));
         return;
       }
-      await processPhoto(prepared, reason, exif?.gps ?? null);
+      await processPhoto(prepared, reason, exif?.gps ?? null, exifDateToIso(exif?.dateTimeOriginal));
     } catch (err) {
       console.error(err);
       toast.error(t('capture.errors.galleryUnreadable'));
