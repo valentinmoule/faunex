@@ -570,6 +570,65 @@ export type Database = {
         }
         Relationships: []
       }
+      custom_collection_items: {
+        Row: {
+          animal_name: string
+          collection_id: string
+          created_at: string
+          id: string
+          scientific_name: string | null
+          user_id: string
+        }
+        Insert: {
+          animal_name: string
+          collection_id: string
+          created_at?: string
+          id?: string
+          scientific_name?: string | null
+          user_id: string
+        }
+        Update: {
+          animal_name?: string
+          collection_id?: string
+          created_at?: string
+          id?: string
+          scientific_name?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_collection_items_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "custom_collections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      custom_collections: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       daily_quests: {
         Row: {
           claimed: boolean

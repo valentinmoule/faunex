@@ -50,6 +50,7 @@ import type { PendingShelve } from '@/lib/shelveAnimation';
 import { VirtualSpeciesGrid } from '@/components/VirtualSpeciesGrid';
 import { useZoneSubscriptions } from '@/hooks/useZoneSubscriptions';
 import { useSpeciesCollections } from '@/hooks/useSpeciesCollections';
+import { useCustomCollections } from '@/hooks/useCustomCollections';
 import CategoryLeaderboard, { LeaderboardResetBadge } from '@/components/CategoryLeaderboard';
 import { useSubscription } from '@/hooks/useSubscription';
 import { toast } from 'sonner';
@@ -204,6 +205,11 @@ const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [selectedFinders, setSelectedFinders] = useState<number | undefined>(undefined);
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
   const [selectedCollectionKey, setSelectedCollectionKey] = useState<string | null>(null);
+  const [selectedCustomId, setSelectedCustomId] = useState<string | null>(null);
+  const [renamingCustom, setRenamingCustom] = useState(false);
+  const [customNameDraft, setCustomNameDraft] = useState('');
+  const [creatingCustom, setCreatingCustom] = useState(false);
+  const [newCustomName, setNewCustomName] = useState('');
   const [showDeptPicker, setShowDeptPicker] = useState(false);
   const [pickerMode, setPickerMode] = useState<'hub' | 'explore' | 'species' | 'upsell'>('hub');
   const [pickerTab, setPickerTab] = useState<'department' | 'city'>('department');
@@ -249,6 +255,7 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
     // change d'onglet depuis la barre de navigation.
     setSelectedCategory(null);
     setSelectedCollectionKey(null);
+    setSelectedCustomId(null);
     setSelectedZoneId(null);
   }, [isFaunexHub, searchParams]);
 
@@ -256,6 +263,7 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
     setViewMode(next);
     setSelectedCategory(null);
     setSelectedCollectionKey(null);
+    setSelectedCustomId(null);
     setSelectedZoneId(null);
     const defaults = isFaunexHub ? 'mine' : 'categories';
     setSearchParams(next === defaults ? {} : { tab: next }, { replace: true });
@@ -280,10 +288,10 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
 
   // Scroll to top when entering a category, zone or collection detail view
   useEffect(() => {
-    if (selectedCategory || selectedZoneId || selectedCollectionKey) {
+    if (selectedCategory || selectedZoneId || selectedCollectionKey || selectedCustomId) {
       window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     }
-  }, [selectedCategory, selectedZoneId, selectedCollectionKey]);
+  }, [selectedCategory, selectedZoneId, selectedCollectionKey, selectedCustomId]);
 
   const {
     animals,
@@ -397,6 +405,7 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const { isPremium, loading: premiumLoading } = useSubscription(session?.user?.id);
   const { favoriteIds } = useFavorites(session?.user?.id);
   const { collectionKeys, addCollection, removeCollection } = useSpeciesCollections(session?.user?.id);
+  const customCollections = useCustomCollections(session?.user?.id);
   const { isClaimed, claimReward, claiming: claimingReward } = useCollectionRewards(session?.user?.id);
   const [celebratedReward, setCelebratedReward] = useState<{ title: string; xp: number } | null>(null);
 
@@ -657,6 +666,52 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
     // Par défaut `animals` est déjà trié alphabétiquement au chargement.
     return applySpeciesSortFilter(list, { sort: browseSort, rarities: [], popularities: [] });
   }, [animals, categoryFilter, rarityFilter, matchesPopularity, matchesSearch, browseSort]);
+
+  /** Collection personnalisée ouverte (Premium). */
+  const selectedCustom = useMemo(
+    () => customCollections.collections.find((c) => c.id === selectedCustomId) || null,
+    [customCollections.collections, selectedCustomId],
+  );
+
+  /** Espèces d'une collection perso résolues sur le bestiaire (photo, rareté…). */
+  const customCollectionAnimals = useMemo(() => {
+    if (!selectedCustom) return [] as BestiaryAnimal[];
+    const items = customCollections.itemsFor(selectedCustom.id);
+    const resolved: BestiaryAnimal[] = [];
+    for (const item of items) {
+      const sci = item.scientific_name?.trim().toLowerCase();
+      const target = item.animal_name.toLocaleLowerCase('fr');
+      const match =
+        (sci ? browseAnimals.find((a) => a.scientific_name?.trim().toLowerCase() === sci) : undefined) ||
+        browseAnimals.find((a) => a.name.toLocaleLowerCase('fr') === target);
+      resolved.push(
+        match || {
+          name: item.animal_name,
+          scientific_name: item.scientific_name,
+          rarity: 'common',
+          category: '',
+          captured: false,
+        },
+      );
+    }
+    return resolved;
+  }, [selectedCustom, customCollections, browseAnimals]);
+
+  /** Image de couverture d'une collection perso : première espèce capturée. */
+  const customCover = useCallback(
+    (collectionId: string): string | null => {
+      for (const item of customCollections.itemsFor(collectionId)) {
+        const target = item.animal_name.toLocaleLowerCase('fr');
+        const sci = item.scientific_name?.trim().toLowerCase();
+        const match =
+          (sci ? browseAnimals.find((a) => a.scientific_name?.trim().toLowerCase() === sci) : undefined) ||
+          browseAnimals.find((a) => a.name.toLocaleLowerCase('fr') === target);
+        if (match?.captured && match.captureData?.image) return match.captureData.image;
+      }
+      return null;
+    },
+    [customCollections, browseAnimals],
+  );
 
   /** Index de la carte à rejoindre pour l'animation de rangement. */
   const shelveTargetIndex = useMemo(() => {
@@ -1328,6 +1383,87 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
   }
 
   // Species collection detail view (races de chien, papillons…)
+  // Vue détaillée d'une collection personnalisée (Premium)
+  if (selectedCustom) {
+    const items = customCollections.itemsFor(selectedCustom.id);
+    const capturedCount = customCollectionAnimals.filter((a) => a.captured).length;
+    const cover = customCover(selectedCustom.id);
+    const art = getCollectionArt(`custom:${selectedCustom.id}`, selectedCustom.name);
+    return (
+      <div className="min-h-screen bg-background pb-8">
+        <CollectionHero
+          image={cover || art.image}
+          overlay={art.overlay}
+          title={selectedCustom.name}
+          subtitle={t('bestiary.customCollections.sectionTitle')}
+          captured={capturedCount}
+          total={items.length}
+          onBack={() => { setSelectedCustomId(null); setRenamingCustom(false); }}
+          onRemove={() => {
+            if (window.confirm(t('bestiary.customCollections.deleteConfirm'))) {
+              customCollections.deleteCollection(selectedCustom.id);
+              setSelectedCustomId(null);
+            }
+          }}
+          removeLabel={t('bestiary.customCollections.delete')}
+        />
+        <div className="max-w-lg mx-auto px-4 pt-4">
+          {renamingCustom ? (
+            <form
+              className="flex items-center gap-2 mb-4"
+              onSubmit={(e) => {
+                e.preventDefault();
+                customCollections.renameCollection(selectedCustom.id, customNameDraft);
+                setRenamingCustom(false);
+              }}
+            >
+              <input
+                autoFocus
+                value={customNameDraft}
+                onChange={(e) => setCustomNameDraft(e.target.value)}
+                maxLength={40}
+                className="flex-1 min-w-0 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+              />
+              <button type="submit" className="p-2 rounded-full bg-primary text-primary-foreground" aria-label={t('bestiary.customCollections.rename')}>
+                <Check className="w-4 h-4" />
+              </button>
+              <button type="button" onClick={() => setRenamingCustom(false)} className="p-2 rounded-full border border-border" aria-label={t('bestiary.customCollections.cancel')}>
+                <X className="w-4 h-4" />
+              </button>
+            </form>
+          ) : (
+            <button
+              onClick={() => { setCustomNameDraft(selectedCustom.name); setRenamingCustom(true); }}
+              className="mb-4 text-xs font-display font-semibold text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {t('bestiary.customCollections.rename')}
+            </button>
+          )}
+          {items.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-10">
+              {t('bestiary.customCollections.empty')}
+            </p>
+          ) : (
+            <div className="grid grid-cols-3 gap-2">
+              {customCollectionAnimals.map((animal) => (
+                <div key={animal.name} className="relative">
+                  <BrowseSpeciesCard animal={animal} onSelect={handleSelectBrowseAnimal} />
+                  <button
+                    onClick={() => customCollections.removeItem(selectedCustom.id, animal.name)}
+                    aria-label={t('bestiary.customCollections.removeSpecies')}
+                    className="absolute -top-1.5 -right-1.5 z-10 p-1 rounded-full bg-background border border-border text-muted-foreground hover:text-destructive transition-colors"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   if (selectedCollection) {
     return (
       <main className="min-h-screen bg-background pb-24">
@@ -1773,6 +1909,85 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
 
           {viewMode === 'collections' && (
             <section className="space-y-4">
+              {/* Collections personnalisées (Premium) */}
+              <div className="space-y-2">
+                <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">
+                  {t('bestiary.customCollections.sectionTitle')}
+                </h2>
+                {customCollections.collections.length === 0 && !creatingCustom ? (
+                  <button
+                    onClick={() => {
+                      if (!isPremium) { navigate('/premium'); return; }
+                      setCreatingCustom(true);
+                    }}
+                    className="w-full rounded-2xl border border-dashed border-border p-4 text-center transition active:scale-[0.98] hover:border-primary/40"
+                  >
+                    <div className="flex items-center justify-center gap-2 text-sm font-display font-semibold text-muted-foreground">
+                      {isPremium ? <Plus className="w-4 h-4" /> : <Crown className="w-4 h-4 text-amber-500" />}
+                      {t('bestiary.customCollections.createNew')}
+                    </div>
+                  </button>
+                ) : (
+                  <div className="grid grid-cols-2 gap-3">
+                    {customCollections.collections.map((c) => {
+                      const count = customCollections.itemsFor(c.id).length;
+                      const cover = customCover(c.id);
+                      const art = getCollectionArt(`custom:${c.id}`, c.name);
+                      return (
+                        <button
+                          key={c.id}
+                          onClick={() => setSelectedCustomId(c.id)}
+                          className="relative rounded-2xl overflow-hidden aspect-[4/3] text-left transition active:scale-[0.98]"
+                        >
+                          <img src={cover || art.image} alt="" className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+                          <div className="absolute inset-0" style={{ background: art.overlay }} />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+                          <div className="absolute bottom-0 inset-x-0 p-2.5">
+                            <p className="font-display font-bold text-sm text-white leading-tight truncate drop-shadow-sm">{c.name}</p>
+                            <p className="text-[11px] font-display text-white/80">{count}</p>
+                          </div>
+                        </button>
+                      );
+                    })}
+                    <button
+                      onClick={() => {
+                        if (!isPremium) { navigate('/premium'); return; }
+                        setCreatingCustom(true);
+                      }}
+                      className="rounded-2xl border border-dashed border-border aspect-[4/3] flex flex-col items-center justify-center gap-1 text-muted-foreground transition active:scale-[0.98] hover:border-primary/40"
+                    >
+                      {isPremium ? <Plus className="w-5 h-5" /> : <Crown className="w-5 h-5 text-amber-500" />}
+                      <span className="text-xs font-display font-semibold">{t('bestiary.customCollections.createNew')}</span>
+                    </button>
+                  </div>
+                )}
+                {creatingCustom && (
+                  <form
+                    className="flex items-center gap-2"
+                    onSubmit={async (e) => {
+                      e.preventDefault();
+                      const created = await customCollections.createCollection(newCustomName);
+                      if (created) { setNewCustomName(''); setCreatingCustom(false); setSelectedCustomId(created.id); }
+                    }}
+                  >
+                    <input
+                      autoFocus
+                      value={newCustomName}
+                      onChange={(e) => setNewCustomName(e.target.value)}
+                      maxLength={40}
+                      placeholder={t('bestiary.customCollections.namePlaceholder')}
+                      className="flex-1 min-w-0 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+                    />
+                    <button type="submit" className="p-2 rounded-full bg-primary text-primary-foreground" aria-label={t('bestiary.customCollections.create')}>
+                      <Check className="w-4 h-4" />
+                    </button>
+                    <button type="button" onClick={() => setCreatingCustom(false)} className="p-2 rounded-full border border-border" aria-label={t('bestiary.customCollections.cancel')}>
+                      <X className="w-4 h-4" />
+                    </button>
+                  </form>
+                )}
+              </div>
+
               <div className="flex items-center justify-between">
                 <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">{t('bestiary.collections.title')}</h2>
                 <button
