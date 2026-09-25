@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ChevronRight, Clock, Crown, Lock, Trophy } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { PremiumAvatar } from '@/components/PremiumAvatar';
+import { avatarFallbackStyle } from '@/lib/avatarPalette';
 import { usePremiumUsers } from '@/hooks/usePremiumUsers';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useAuth } from '@/contexts/AuthContext';
@@ -293,7 +294,12 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
             {mine && !rows.some(r => r.is_me) && (
               <li className="flex items-center gap-3 px-5 py-2.5 bg-primary/5">
                 <span className="w-6 text-center text-[13px] font-display font-bold text-primary">{mine.rank}</span>
-                <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center text-[11px] font-display font-bold text-primary">T</div>
+                <div
+                  style={avatarFallbackStyle(user?.email)}
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-display font-bold"
+                >
+                  {(user?.email || '?').charAt(0).toUpperCase()}
+                </div>
                 <p className="flex-1 min-w-0 truncate text-[13px] font-display font-bold text-primary">{t('social.leaderboard.you')}</p>
                 <span className="text-[13px] font-display font-bold text-foreground shrink-0">{mine.captures}</span>
               </li>

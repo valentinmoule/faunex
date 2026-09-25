@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { avatarFallbackStyle } from '@/lib/avatarPalette';
 import { useTranslation } from 'react-i18next';
 import { PageHeader } from '@/components/PageHeader';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -322,11 +323,14 @@ const FriendCollectionPage = () => {
             <button onClick={() => navigate(-1)} className="p-1.5 rounded-lg hover:bg-muted transition-colors">
               <ArrowLeft className="w-5 h-5 text-foreground" />
             </button>
-            <div className="relative w-11 h-11 rounded-full border-2 border-primary/30 overflow-hidden shrink-0">
+            <div
+              style={avatarFallbackStyle(profileName, { border: true })}
+              className="relative w-11 h-11 rounded-full border-2 border-primary/30 overflow-hidden shrink-0"
+            >
               {profileAvatar ? (
                 <img src={profileAvatar} alt="" className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full bg-primary/20 flex items-center justify-center text-sm font-display font-bold text-primary">
+                <div className="w-full h-full flex items-center justify-center text-sm font-display font-bold">
                   {profileName.charAt(0).toUpperCase()}
                 </div>
               )}
@@ -542,7 +546,10 @@ const FriendCollectionPage = () => {
                       onClick={() => { setSheetOpen(null); navigate(`/explorer/${friend.user_id}/collection`); }}
                       className="flex items-center gap-3 flex-1 min-w-0 active:opacity-70 transition-opacity"
                     >
-                      <div className="w-11 h-11 rounded-full bg-primary/20 flex items-center justify-center text-sm font-display font-bold text-primary shrink-0 overflow-hidden">
+                      <div
+                        style={avatarFallbackStyle(friend.display_name || friend.username)}
+                        className="w-11 h-11 rounded-full flex items-center justify-center text-sm font-display font-bold shrink-0 overflow-hidden"
+                      >
                         {friend.avatar_url ? (
                           <img src={friend.avatar_url} alt="" className="w-full h-full object-cover" />
                         ) : (
