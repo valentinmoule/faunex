@@ -688,7 +688,7 @@ const ExplorersPage = () => {
                         decoding="async"
                       />
                       <div className="absolute top-2.5 right-2.5">
-                        <RarityBadge rarity={post.rarity as Rarity} showLabel plain />
+                        <RarityBadge rarity={post.rarity as Rarity} plain />
                       </div>
                       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 pt-10">
                         <p className="text-sm font-display font-bold text-white truncate leading-tight">

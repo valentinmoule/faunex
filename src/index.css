@@ -3077,6 +3077,7 @@ html.is-native-android body {
 /* Variante « brute » : étoiles seules, sans tag ni bulle (filtres, cartes).
    Le contraste sur photo est assuré par une ombre portée sombre, pas par un fond. */
 .rarity-badge.rarity-badge--plain {
+  position: relative;
   min-width: 0;
   height: auto;
   padding: 0;
@@ -3089,6 +3090,19 @@ html.is-native-android body {
   -webkit-backdrop-filter: none;
   isolation: auto;
   overflow: visible;
+}
+/* Halo sombre flouté derrière les étoiles pour le contraste sur photo,
+   sans former de pastille ni de tag visible. */
+.rarity-badge.rarity-badge--plain::before {
+  content: "";
+  position: absolute;
+  inset: -5px -8px;
+  border-radius: 999px;
+  background: hsl(0 0% 0% / 0.38);
+  filter: blur(6px);
+  -webkit-filter: blur(6px);
+  z-index: -1;
+  pointer-events: none;
 }
 .rarity-badge.rarity-badge--plain::after {
   content: none;
