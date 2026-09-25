@@ -2969,6 +2969,46 @@ html.is-native-android body {
   text-shadow: 0 0 3px hsl(0 0% 0% / 0.75), 0 1px 2px hsl(0 0% 0% / 0.85);
 }
 
+/* Fiche espèce : la rareté devient une simple ligne d'information —
+   étoiles brillantes + label coulé dans le même métal, sans pastille. */
+.rarity-badge.detail-rarity-line {
+  gap: 7px;
+  align-items: center;
+}
+.rarity-badge.detail-rarity-line .rarity-badge__symbols {
+  transform: scale(1.2);
+  transform-origin: left center;
+  margin-right: 3px;
+}
+.rarity-badge.detail-rarity-line .rarity-svg__sym {
+  stroke-width: 1.5px;
+}
+.rarity-badge.detail-rarity-line .rarity-badge__label {
+  /* Reflet balayant le métal du label — teintes assez sombres pour rester lisibles. */
+  color: transparent;
+  background-image: var(--rarity-text-neutral);
+  background-size: 260% 100%;
+  background-position: 0% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: none;
+  animation: rarity-badge-shine 4.5s linear infinite;
+}
+.rarity-badge.detail-rarity-line:is(.rarity-badge--very-rare, .rarity-badge--ultra-rare, .rarity-badge--illustration-rare) .rarity-badge__label {
+  background-image: var(--rarity-text-gold);
+}
+.rarity-badge.detail-rarity-line:is(.rarity-badge--special-rare, .rarity-badge--hyper-rare) .rarity-badge__label {
+  background-image: var(--rarity-text-iridescent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .rarity-badge.detail-rarity-line .rarity-badge__label {
+    animation: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .rarity-badge--silver::after,
   .rarity-badge--gold::after {
