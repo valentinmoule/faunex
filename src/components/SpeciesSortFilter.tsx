@@ -331,6 +331,8 @@ export const SpeciesSortFilterSheet = ({
           <SectionLabel>{t('bestiary.filterModal.popularityLabel')}</SectionLabel>
           <ListGroup role="group">
             {(Object.keys(POPULARITY_LABELS) as PopularityTier[]).map((tier) => {
+              const total = availablePopularities?.[tier];
+              if (availablePopularities && !total) return null;
               const isActive = popularities.includes(tier);
               const { label, Icon } = POPULARITY_LABELS[tier];
               return (
@@ -343,6 +345,7 @@ export const SpeciesSortFilterSheet = ({
                   }
                   leading={<Icon className="w-[18px] h-[18px]" strokeWidth={1.75} />}
                   label={label}
+                  trailing={total}
                 />
               );
             })}
