@@ -823,7 +823,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                   icon={<Leaf className="w-4 h-4" />}
                   label={t('capture.detail.locationLabel')}
                   value={location || t('capture.detail.notSet')}
-                  action={isOwner && !editingLocation ? (
+                  action={isOwner && !editingLocation && !editingNote ? (
                     <button
                       onClick={() => { setEditingLocation(true); setLocQuery(''); }}
                       aria-label={location ? t('capture.detail.modify') : t('capture.detail.add')}
@@ -833,6 +833,26 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                     </button>
                   ) : undefined}
                 />
+                {isOwner && (
+                  <DetailRow
+                    icon={<StickyNote className="w-4 h-4" />}
+                    label={t('capture.detail.myNote')}
+                    value={note ? (
+                      <span className="whitespace-pre-wrap">{note}</span>
+                    ) : (
+                      <span className="text-muted-foreground">{t('capture.detail.noNoteYet')}</span>
+                    )}
+                    action={!editingNote && !editingLocation ? (
+                      <button
+                        onClick={() => { setNoteDraft(note); setEditingNote(true); }}
+                        aria-label={note ? t('capture.detail.modify') : t('capture.detail.add')}
+                        className="p-1.5 rounded-full text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                    ) : undefined}
+                  />
+                )}
               </div>
             )}
 
