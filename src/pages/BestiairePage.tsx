@@ -667,6 +667,52 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
     return applySpeciesSortFilter(list, { sort: browseSort, rarities: [], popularities: [] });
   }, [animals, categoryFilter, rarityFilter, matchesPopularity, matchesSearch, browseSort]);
 
+  /** Collection personnalisée ouverte (Premium). */
+  const selectedCustom = useMemo(
+    () => customCollections.collections.find((c) => c.id === selectedCustomId) || null,
+    [customCollections.collections, selectedCustomId],
+  );
+
+  /** Espèces d'une collection perso résolues sur le bestiaire (photo, rareté…). */
+  const customCollectionAnimals = useMemo(() => {
+    if (!selectedCustom) return [] as BestiaryAnimal[];
+    const items = customCollections.itemsFor(selectedCustom.id);
+    const resolved: BestiaryAnimal[] = [];
+    for (const item of items) {
+      const sci = item.scientific_name?.trim().toLowerCase();
+      const target = item.animal_name.toLocaleLowerCase('fr');
+      const match =
+        (sci ? browseAnimals.find((a) => a.scientific_name?.trim().toLowerCase() === sci) : undefined) ||
+        browseAnimals.find((a) => a.name.toLocaleLowerCase('fr') === target);
+      resolved.push(
+        match || {
+          name: item.animal_name,
+          scientific_name: item.scientific_name,
+          rarity: 'common',
+          category: '',
+          captured: false,
+        },
+      );
+    }
+    return resolved;
+  }, [selectedCustom, customCollections, browseAnimals]);
+
+  /** Image de couverture d'une collection perso : première espèce capturée. */
+  const customCover = useCallback(
+    (collectionId: string): string | null => {
+      for (const item of customCollections.itemsFor(collectionId)) {
+        const target = item.animal_name.toLocaleLowerCase('fr');
+        const sci = item.scientific_name?.trim().toLowerCase();
+        const match =
+          (sci ? browseAnimals.find((a) => a.scientific_name?.trim().toLowerCase() === sci) : undefined) ||
+          browseAnimals.find((a) => a.name.toLocaleLowerCase('fr') === target);
+        if (match?.captured && match.captureData?.image) return match.captureData.image;
+      }
+      return null;
+    },
+    [customCollections, browseAnimals],
+  );
+
   /** Index de la carte à rejoindre pour l'animation de rangement. */
   const shelveTargetIndex = useMemo(() => {
     if (!pendingShelve) return null;
