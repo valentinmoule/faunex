@@ -12,6 +12,9 @@ export interface SimilarSpecies {
   fromExplorer: boolean;
 }
 
+/** Comptes de test exclus des photos suggérées (+test, +all, App Store review). */
+const TEST_ACCOUNT_IDS = ['ac0df155-7422-4073-bfc1-14e2a71960bc', 'c62717cb-255a-4491-a5a0-132880e703be', 'f7910e92-39a6-4703-b31d-bf1e245e2a4e'];
+
 const cache = new Map<string, SimilarSpecies>();
 
 async function loadSpecies(name: string): Promise<SimilarSpecies> {
@@ -20,17 +23,19 @@ async function loadSpecies(name: string): Promise<SimilarSpecies> {
   if (hit) return hit;
   const [{ data: animal }, { data: cap }] = await Promise.all([
     supabase.from('animals').select('name, scientific_name, rarity').ilike('name', name.trim()).limit(1).maybeSingle(),
-    supabase.from('captures').select('image_url').ilike('animal_name', name.trim()).eq('status', 'approved')
+    supabase.from('captures').select('image_url').ilike('animal_name', name.trim()).eq('status', 'approved').not('user_id', 'in', `(${TEST_ACCOUNT_IDS.join(',')})`)
       .order('created_at', { ascending: false }).limit(1).maybeSingle(),
   ]);
   let image: string | null = cap?.image_url ?? null;
   const fromExplorer = Boolean(image);
   if (!image) {
     try {
-      const q = animal?.scientific_name || name;
-      const res = await fetch(`https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(q)}&per_page=1&locale=fr`);
-      const json = await res.json();
-      image = json?.results?.[0]?.default_photo?.medium_url ?? null;
+      for (const q of [animal?.scientific_name, name].filter(Boolean) as string[]) {
+        const res = await fetch(`https://api.inaturalist.org/v1/taxa/autocomplete?q=${encodeURIComponent(q)}&per_page=3&locale=fr`);
+        const json = await res.json();
+        const hit = (json?.results ?? []).find((r: any) => r?.default_photo?.medium_url);
+        if (hit) { image = hit.default_photo.medium_url; break; }
+      }
     } catch { /* pas de photo */ }
   }
   const out: SimilarSpecies = {
@@ -91,7 +96,7 @@ const SimilarSpeciesStrip = ({ names, isPremium, onPick, onGoPremium }: Props) =
             className={`snap-start shrink-0 w-32 text-left rounded-2xl overflow-hidden bg-card border ${picked === s?.name ? 'border-primary ring-2 ring-primary/40' : 'border-border'} active:scale-95 transition-transform`}
           >
             <div className="relative w-full aspect-square bg-muted">
-              {s?.image ? <img src={s.image} alt={s.name} loading="lazy" className="w-full h-full object-cover" /> : <div className="w-full h-full animate-pulse bg-muted" />}
+              {s?.image ? <img src={s.image} alt={s.name} loading="lazy" className="w-full h-full object-cover" /> : <div className={`w-full h-full bg-muted ${s ? '' : 'animate-pulse'}`} />}
               {picked === s?.name && (
                 <span className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center"><Check className="w-3 h-3" /></span>
               )}
