@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Camera, Zap, MapPin, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine, ZoomIn, Focus, Crosshair, ArrowLeft, Clock, Info, Sparkles, ShieldQuestion, Users, Image as ImageIcon } from 'lucide-react';
@@ -60,6 +61,7 @@ const CapturePage = () => {
 
 
   const [duplicateCapture, setDuplicateCapture] = useState<{ id: string; image_url: string; animal_name: string } | null>(null);
+  const [fullscreenPhoto, setFullscreenPhoto] = useState<string | null>(null);
 const [manualMode, setManualMode] = useState(false);
   /** Repli taxonomique honnête renvoyé par le serveur (genre / famille). */
   const [taxonHint, setTaxonHint] = useState<string | null>(null);
@@ -813,7 +815,43 @@ setManualMode(false);
                 )}
               </div>
 
-              {/* Actions empilées : « Ajouter » en premier */}
+              {/* Doublon : l'espèce est déjà dans le Faunex — proposer le remplacement
+                  directement dans la feuille (photos cliquables pour les voir en grand). */}
+              {duplicateCapture ? (
+                <div className="space-y-3 pt-1">
+                  <p className="text-foreground font-display font-semibold text-sm text-center">
+                    {t('capture.duplicate.warning', { name: duplicateCapture.animal_name })}
+                  </p>
+                  <div className="flex gap-3 items-center justify-center">
+                    <button type="button" onClick={() => setFullscreenPhoto(duplicateCapture.image_url)} className="text-center">
+                      <p className="text-[10px] text-muted-foreground font-display mb-1">{t('capture.duplicate.current')}</p>
+                      <img src={duplicateCapture.image_url} alt="" className="w-24 h-24 rounded-xl object-cover border border-border" />
+                    </button>
+                    <div className="text-muted-foreground text-lg">→</div>
+                    <button type="button" onClick={() => capturedPhoto && setFullscreenPhoto(capturedPhoto)} className="text-center">
+                      <p className="text-[10px] text-muted-foreground font-display mb-1">{t('capture.duplicate.newPhoto')}</p>
+                      {capturedPhoto && <img src={capturedPhoto} alt="" className="w-24 h-24 rounded-xl object-cover border-2 border-primary" />}
+                    </button>
+                  </div>
+                  <div className="space-y-2.5">
+                    <button
+                      onClick={doReplaceExisting}
+                      disabled={saving}
+                      className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full bg-primary text-primary-foreground font-display text-sm font-semibold disabled:opacity-50"
+                    >
+                      {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                      {t('capture.duplicate.replacePhoto')}
+                    </button>
+                    <button
+                      onClick={keepExisting}
+                      className="w-full py-3.5 rounded-full font-display text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {t('capture.duplicate.keepCurrent')}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+              /* Actions empilées : « Ajouter » en premier */
               <div className="space-y-2.5 pt-1">
                 <button
                   onClick={saveToCollection}
@@ -830,6 +868,7 @@ setManualMode(false);
                   {t('capture.actions.dontAdd')}
                 </button>
               </div>
+              )}
 
               {/* Contester l'identification — simple lien souligné */}
               <button
@@ -993,41 +1032,23 @@ setManualMode(false);
         )}
       </div>
 
-      {/* Duplicate detection dialog */}
-      {duplicateCapture && (
-        <div className="relative z-30 bg-foreground/95 backdrop-blur-sm px-5 py-4 space-y-3 border-t border-primary-foreground/10">
-          <p className="text-primary-foreground font-display font-semibold text-sm text-center">
-            {t('capture.duplicate.warning', { name: duplicateCapture.animal_name })}
-          </p>
-
-          <div className="flex gap-3 items-center justify-center">
-            <div className="text-center">
-              <p className="text-[10px] text-primary-foreground/70 font-display mb-1">{t('capture.duplicate.current')}</p>
-              <img src={duplicateCapture.image_url} alt="" className="w-20 h-20 rounded-xl object-cover border border-primary-foreground/20" />
-            </div>
-            <div className="text-primary-foreground/70 text-lg">→</div>
-            <div className="text-center">
-              <p className="text-[10px] text-primary-foreground/70 font-display mb-1">{t('capture.duplicate.newPhoto')}</p>
-              {capturedPhoto && <img src={capturedPhoto} alt="" className="w-20 h-20 rounded-xl object-cover border-2 border-primary" />}
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={keepExisting}
-              className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary-foreground/10 text-primary-foreground/90 text-xs font-display font-semibold"
-            >
-              <X className="w-3.5 h-3.5" /> {t('capture.duplicate.keepCurrent')}
-            </button>
-            <button
-              onClick={doReplaceExisting}
-              disabled={saving}
-              className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-display font-semibold disabled:opacity-50"
-            >
-              {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
-              {t('capture.duplicate.replacePhoto')}
-            </button>
-          </div>
-        </div>
+      {/* Visionneuse plein écran pour comparer l'ancienne et la nouvelle photo */}
+      {fullscreenPhoto && createPortal(
+        <div
+          className="fixed inset-0 z-[9999] bg-foreground/95 flex items-center justify-center p-4"
+          onClick={() => setFullscreenPhoto(null)}
+        >
+          <button
+            type="button"
+            aria-label={t('common.close', { defaultValue: 'Fermer' })}
+            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center"
+            onClick={() => setFullscreenPhoto(null)}
+          >
+            <X className="w-5 h-5 text-primary-foreground" />
+          </button>
+          <img src={fullscreenPhoto} alt="" className="max-w-full max-h-full object-contain rounded-2xl" />
+        </div>,
+        document.body,
       )}
 
       {/* Bottom controls — masqués quand la feuille de résultat est affichée */}
