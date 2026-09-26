@@ -964,7 +964,7 @@
   background-position: center;
   background-repeat: no-repeat;
   filter: blur(var(--photo-blur, 42px)) saturate(1.12) brightness(1.02);
-  transform: scale(var(--photo-scale, 1.25));
+  transform: scale(var(--photo-scale, 1.9));
   pointer-events: none;
 }
 

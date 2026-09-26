@@ -1118,9 +1118,9 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
       {/* Fullscreen image - portalled to body so it stacks above the drawer */}
       {imageFullscreen && card.image && createPortal((
         <div
-          className={`detail-fullscreen fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden ${photoBackdrop ? '' : heroClass}`}
+          className={`detail-fullscreen fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden ${heroClass}`}
           style={photoBackdrop
-            ? ({ ['--photo-blur' as any]: '58px', ['--photo-scale' as any]: '1.35', ['--photo-veil' as any]: '0.7' } as React.CSSProperties)
+            ? ({ ['--photo-blur' as any]: '50px', ['--photo-scale' as any]: '2.25', ['--photo-veil' as any]: '0.68' } as React.CSSProperties)
             : undefined}
           onClick={() => {
             if (zoom.scale > 1.05) {
