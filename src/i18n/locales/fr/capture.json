@@ -63,7 +63,6 @@
     "toasts": {
       "verificationRequested": "Vérification demandée ! Un modérateur va confirmer ou corriger l'identification.",
       "submittedForValidation": "Soumis pour validation ! Tu seras notifié une fois approuvé.",
-      "addedToFaunex": "{{name}} ajouté à ton Faunex !",
       "updatedInFaunex": "{{name}} mis à jour dans ton Faunex !"
     },
     "camera": {

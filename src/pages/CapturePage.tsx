@@ -458,10 +458,10 @@ setManualMode(false);
     }, delay);
   };
 
-  const finishSave = (animal: AnimalResult, imageUrl: string, message: string) => {
+  const finishSave = (animal: AnimalResult, imageUrl: string, message?: string) => {
     setSaved(true);
     setDuplicateCapture(null);
-    toast.success(message);
+    if (message) toast.success(message);
     setPendingShelve({
       animalName: animal.animal_name,
       scientificName: animal.scientific_name ?? null,
@@ -495,7 +495,7 @@ setManualMode(false);
         return;
       }
       consumed = false;
-      finishSave(animalResult, imageUrl, t('capture.toasts.addedToFaunex', { name: animalResult.animal_name }));
+      finishSave(animalResult, imageUrl);
     } catch (err) {
       console.error(err);
       if (consumed) await quota.refund();
