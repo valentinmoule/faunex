@@ -712,30 +712,27 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
           {/* Card Body */}
           <div className="relative -mt-8 bg-background rounded-t-3xl px-5 pb-10 pt-5 space-y-5">
 
-            {/* En-tête auteur (mode feed) : avatar + nom, comme dans le feed */}
-            {feedView && author && (
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => { onClose(); navigate(`/explorer/${author.id}/collection`); }}
-                  aria-label={t('capture.detail.viewProfile', { defaultValue: author.name })}
-                >
-                  <PremiumAvatar avatarUrl={author.avatarUrl ?? undefined} name={author.name} size="md" />
-                </button>
-                <div className="flex items-baseline gap-1.5 min-w-0">
-                  <button
-                    onClick={() => { onClose(); navigate(`/explorer/${author.id}/collection`); }}
-                    className="text-sm font-display font-semibold text-foreground truncate hover:underline"
-                  >
-                    {author.name}
-                  </button>
-                  <span className="text-xs text-muted-foreground shrink-0">{t('social.explorers.captured')}</span>
-                </div>
-              </div>
-            )}
-
-            {/* Like & Comment bar — hidden for undiscovered animals */}
+            {/* Ligne auteur + actions : auteur à gauche, boutons à droite */}
             {!isUncaptured && (
-              <div className="flex items-center justify-center gap-6">
+              <div className={`flex items-center gap-3 ${feedView && author ? 'justify-between' : 'justify-center'}`}>
+                {feedView && author && (
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <button
+                      onClick={() => { onClose(); navigate(`/explorer/${author.id}/collection`); }}
+                      aria-label={t('capture.detail.viewProfile', { defaultValue: author.name })}
+                    >
+                      <PremiumAvatar avatarUrl={author.avatarUrl ?? undefined} name={author.name} size="md" />
+                    </button>
+                    <button
+                      onClick={() => { onClose(); navigate(`/explorer/${author.id}/collection`); }}
+                      className="text-sm font-display font-semibold text-foreground truncate hover:underline"
+                    >
+                      {author.name}
+                    </button>
+                  </div>
+                )}
+                <div className="flex items-center gap-5 shrink-0">
+
                 <button
                   onClick={handleLike}
                   aria-pressed={liked}
