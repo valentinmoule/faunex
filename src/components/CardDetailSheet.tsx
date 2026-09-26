@@ -1028,6 +1028,8 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
             {!isUncaptured && (
               <ExplorerPhotosStrip
                 animalName={card.name}
+                scientificName={card.scientificName}
+                rarity={card.rarity}
                 excludeUserId={session?.user?.id}
                 isPremium={isPremium}
               />
