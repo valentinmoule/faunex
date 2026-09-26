@@ -141,7 +141,7 @@ const ExplorerPhotosStrip = ({ animalName, scientificName, rarity, excludeUserId
         )}
       </div>
       <Dialog open={premiumOpen} onOpenChange={setPremiumOpen}>
-        <DialogContent className="w-[calc(100%-2rem)] max-w-sm rounded-3xl border-0 px-6 pb-6 pt-8 text-center">
+        <DialogContent overlayClassName="z-[10000]" className="z-[10001] w-[calc(100%-2rem)] max-w-sm rounded-3xl border-0 px-6 pb-6 pt-8 text-center">
           <DialogHeader className="items-center text-center">
             <span className="mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
               <Crown className="h-6 w-6 text-primary" />
