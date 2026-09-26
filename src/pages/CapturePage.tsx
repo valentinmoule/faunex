@@ -758,6 +758,24 @@ setManualMode(false);
           <div className="relative z-20 flex-1 flex flex-col justify-end min-h-0">
             {/* Feuille claire — même design que le corps de la fiche espèce */}
             <div className="bg-background rounded-t-3xl px-5 pt-5 pb-5 space-y-4 animate-fade-in max-h-[88%] overflow-y-auto shadow-[0_-10px_30px_hsl(var(--foreground)/0.3)]">
+              {/* Carte holographique — même rendu que la fiche espèce */}
+              {capturedPhoto && (
+                <HolographicCard
+                  rarity={normalizeRarity(animalResult.rarity)}
+                  containInteraction
+                  className="relative mx-auto max-w-[220px] aspect-[4/5] rounded-[1.75rem]"
+                  style={{ ['--holo-radius' as any]: '1.75rem' }}
+                >
+                  <div className={`relative w-full h-full rounded-[1.75rem] overflow-hidden holo-frame holo-frame--${normalizeRarity(animalResult.rarity).replace(/_/g, '-')}`}>
+                    <div className="absolute top-[14px] right-[14px] z-20 pointer-events-none">
+                      <RarityBadge rarity={animalResult.rarity} plain />
+                    </div>
+                    <div className="relative w-full h-full rounded-[1.25rem] overflow-hidden">
+                      <img src={capturedPhoto} alt={animalResult.animal_name} className="w-full h-full object-cover pointer-events-none select-none" draggable={false} />
+                    </div>
+                  </div>
+                </HolographicCard>
+              )}
               {/* Nom + nom scientifique */}
               <div className="text-center">
                 <h2 className="text-2xl font-display font-bold text-foreground">{animalResult.animal_name}</h2>
