@@ -36,6 +36,10 @@ async function loadSpecies(name: string): Promise<SimilarSpecies> {
         const hit = (json?.results ?? []).find((r: any) => r?.default_photo?.medium_url);
         if (hit) { image = hit.default_photo.medium_url; break; }
       }
+      if (!image) {
+        const res = await fetch(`https://fr.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(name.trim())}?redirect=true`);
+        if (res.ok) image = (await res.json())?.thumbnail?.source ?? null;
+      }
     } catch { /* pas de photo */ }
   }
   const out: SimilarSpecies = {
