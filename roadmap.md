@@ -24,6 +24,7 @@
 - [x] Premier niveau Global / Explorateurs
 - [x] Second niveau Semaine / Tout temps / catégories d'animaux
 - [x] Vérifier la navigation mobile et le verrou Premium
+- [ ] Afficher les montées et descentes depuis la veille
 
 ## Fiche espèce
 - [x] Catégorie et nombre de captures dans la même carte d’infos que Rareté, Date, Localisation

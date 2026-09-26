@@ -21,3 +21,7 @@ Any full-bleed `filter: blur()` photo backdrop (`background-size: cover` on a vi
 ## Shelving targets the exact displayed species tile
 
 Match both common and scientific names before falling back to either, measure the live tile during flight, and keep the landing flash geometry unchanged, because shared binomials and flash scaling make a correctly placed card appear to miss its slot.
+
+## Leaderboard movement compares with the same board 24 hours earlier
+
+Compute rank movement server-side from captures before `now() - 24 hours`, preserving the active scope, period, and animal category so arrows always compare like with like.
