@@ -1087,6 +1087,7 @@ setManualMode(false);
           </>
         )}
       </div>
+      )}
 
       {/* Invitation Premium — dernière identification du jour consommée */}
       {premiumPrompt && (
