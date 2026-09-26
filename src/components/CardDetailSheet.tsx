@@ -1118,7 +1118,10 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
       {/* Fullscreen image - portalled to body so it stacks above the drawer */}
       {imageFullscreen && card.image && createPortal((
         <div
-          className={`detail-fullscreen fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden detail-hero-${heroFamily}`}
+          className={`detail-fullscreen fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden ${photoBackdrop ? '' : heroClass}`}
+          style={photoBackdrop
+            ? ({ ['--photo-blur' as any]: '58px', ['--photo-scale' as any]: '1.35', ['--photo-veil' as any]: '0.7' } as React.CSSProperties)
+            : undefined}
           onClick={() => {
             if (zoom.scale > 1.05) {
               resetZoom();
@@ -1130,6 +1133,16 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
           onTouchMove={handleFullscreenTouchMove}
           onTouchEnd={handleFullscreenTouchEnd}
         >
+          {photoBackdrop && (
+            <>
+              <div
+                aria-hidden
+                className="detail-photo-backdrop"
+                style={{ backgroundImage: `url("${card.image}")` }}
+              />
+              <div aria-hidden className={`detail-photo-veil ${heroClass}`} />
+            </>
+          )}
           <div
             className="relative w-full h-full max-w-[min(100vw,100vh)] max-h-screen z-10 flex items-center justify-center p-4 pointer-events-none"
           >
