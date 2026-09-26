@@ -228,9 +228,9 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
   const isTarget = useCallback(
     (name: string, scientific?: string | null) => {
       if (!pendingShelve) return false;
-      const sci = pendingShelve.scientificName?.trim().toLowerCase();
-      if (sci && scientific && scientific.trim().toLowerCase() === sci) return true;
-      return name.toLowerCase() === pendingShelve.animalName.toLowerCase();
+      // Plusieurs espèces/races peuvent partager le même binôme : ne pas
+      // masquer ni illuminer leurs cases voisines pendant le rangement.
+      return name.trim().toLocaleLowerCase('fr') === pendingShelve.animalName.trim().toLocaleLowerCase('fr');
     },
     [pendingShelve],
   );
