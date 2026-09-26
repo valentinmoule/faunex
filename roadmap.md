@@ -23,7 +23,7 @@
 ## Navigation des classements
 - [x] Premier niveau Global / Explorateurs
 - [x] Second niveau Semaine / Tout temps / catégories d'animaux
-- [ ] Vérifier la navigation mobile et le verrou Premium
+- [x] Vérifier la navigation mobile et le verrou Premium
 
 ## Fiche espèce
 - [x] Catégorie et nombre de captures dans la même carte d’infos que Rareté, Date, Localisation
