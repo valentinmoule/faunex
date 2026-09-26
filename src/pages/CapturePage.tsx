@@ -16,6 +16,7 @@ import { useAnimalIdentification, type RejectionKind } from '@/hooks/useAnimalId
 import { useCaptureSave } from '@/hooks/useCaptureSave';
 import { useCaptureReveal } from '@/hooks/useCaptureReveal';
 import RevealStage from '@/components/capture/RevealStage';
+import SimilarSpeciesStrip from '@/components/capture/SimilarSpeciesStrip';
 import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
 import RarityBadge from '@/components/RarityBadge';
 import HolographicCard from '@/components/HolographicCard';
@@ -782,15 +783,27 @@ setManualMode(false);
               <div className="text-center">
                 <h2 className="text-2xl font-display font-bold text-foreground">{animalResult.animal_name}</h2>
                 <p className="text-muted-foreground text-sm italic">{animalResult.scientific_name}</p>
-                {animalResult.alternatives && animalResult.alternatives.length > 0 && typeof animalResult.confidence === 'number' && animalResult.confidence < 80 && (
-                  <p className="text-muted-foreground text-[11px] font-display mt-1.5">
-                    {t('capture.alsoPossible', { alternatives: animalResult.alternatives.slice(0, 3).join(' · ') })}
-                  </p>
-                )}
               </div>
 
+              {/* Suggestions d'espèces semblables (Premium) quand la confiance < 90 % */}
+              {!duplicateCapture && typeof animalResult.confidence === 'number' && animalResult.confidence < 90 && (animalResult.alternatives?.length ?? 0) > 0 && (
+                <SimilarSpeciesStrip
+                  names={animalResult.alternatives ?? []}
+                  isPremium={isPremium}
+                  onGoPremium={() => navigate('/premium')}
+                  onPick={(s) => setAnimalResult((prev) => prev ? {
+                    ...prev,
+                    animal_name: s.name,
+                    scientific_name: s.scientific_name ?? prev.scientific_name,
+                    rarity: (s.rarity as typeof prev.rarity) ?? prev.rarity,
+                    description: '',
+                    alternatives: Array.from(new Set([prev.animal_name, ...(prev.alternatives ?? [])])).filter((n) => n !== s.name),
+                  } : prev)}
+                />
+              )}
+
               {/* Description — texte simple centré, comme la fiche espèce (sans boîte) */}
-              <p className="text-sm text-foreground/80 leading-relaxed text-center max-w-sm mx-auto">{animalResult.description}</p>
+              {animalResult.description && <p className="text-sm text-foreground/80 leading-relaxed text-center max-w-sm mx-auto">{animalResult.description}</p>}
 
               {/* Infos — liste épurée façon iOS, lignes séparées comme la fiche espèce */}
               <div className="rounded-2xl border border-border bg-card divide-y divide-border/60">
