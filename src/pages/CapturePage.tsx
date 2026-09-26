@@ -815,7 +815,43 @@ setManualMode(false);
                 )}
               </div>
 
-              {/* Actions empilées : « Ajouter » en premier */}
+              {/* Doublon : l'espèce est déjà dans le Faunex — proposer le remplacement
+                  directement dans la feuille (photos cliquables pour les voir en grand). */}
+              {duplicateCapture ? (
+                <div className="space-y-3 pt-1">
+                  <p className="text-foreground font-display font-semibold text-sm text-center">
+                    {t('capture.duplicate.warning', { name: duplicateCapture.animal_name })}
+                  </p>
+                  <div className="flex gap-3 items-center justify-center">
+                    <button type="button" onClick={() => setFullscreenPhoto(duplicateCapture.image_url)} className="text-center">
+                      <p className="text-[10px] text-muted-foreground font-display mb-1">{t('capture.duplicate.current')}</p>
+                      <img src={duplicateCapture.image_url} alt="" className="w-24 h-24 rounded-xl object-cover border border-border" />
+                    </button>
+                    <div className="text-muted-foreground text-lg">→</div>
+                    <button type="button" onClick={() => capturedPhoto && setFullscreenPhoto(capturedPhoto)} className="text-center">
+                      <p className="text-[10px] text-muted-foreground font-display mb-1">{t('capture.duplicate.newPhoto')}</p>
+                      {capturedPhoto && <img src={capturedPhoto} alt="" className="w-24 h-24 rounded-xl object-cover border-2 border-primary" />}
+                    </button>
+                  </div>
+                  <div className="space-y-2.5">
+                    <button
+                      onClick={doReplaceExisting}
+                      disabled={saving}
+                      className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full bg-primary text-primary-foreground font-display text-sm font-semibold disabled:opacity-50"
+                    >
+                      {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                      {t('capture.duplicate.replacePhoto')}
+                    </button>
+                    <button
+                      onClick={keepExisting}
+                      className="w-full py-3.5 rounded-full font-display text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {t('capture.duplicate.keepCurrent')}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+              /* Actions empilées : « Ajouter » en premier */
               <div className="space-y-2.5 pt-1">
                 <button
                   onClick={saveToCollection}
@@ -832,6 +868,7 @@ setManualMode(false);
                   {t('capture.actions.dontAdd')}
                 </button>
               </div>
+              )}
 
               {/* Contester l'identification — simple lien souligné */}
               <button
