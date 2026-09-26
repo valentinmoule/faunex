@@ -5,6 +5,7 @@ import { Crown, Lock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import CardDetailSheet from '@/components/CardDetailSheet';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { type Rarity } from '@/data/mockData';
 
 /** Comptes de test exclus (+test, +all, App Store review). */
@@ -42,6 +43,7 @@ const ExplorerPhotosStrip = ({ animalName, scientificName, rarity, excludeUserId
   const navigate = useNavigate();
   const [photos, setPhotos] = useState<Photo[] | null>(null);
   const [selected, setSelected] = useState<Photo | null>(null);
+  const [premiumOpen, setPremiumOpen] = useState(false);
 
   useEffect(() => {
     if (!excludeUserId) { setPhotos([]); return; }
@@ -115,25 +117,44 @@ const ExplorerPhotosStrip = ({ animalName, scientificName, rarity, excludeUserId
           </button>
         ))}
         {lockedPhotos.length > 0 && (
-          <div className="relative h-40 w-[min(82vw,22rem)] shrink-0 snap-start overflow-hidden rounded-2xl">
-            <div className="grid h-full grid-cols-3 gap-2">
-              {lockedPhotos.map((p) => (
-                <img key={p.id} src={p.image_url} alt="" loading="lazy" aria-hidden="true" className="h-full w-full scale-[1.04] object-cover blur-[4px]" />
-              ))}
-            </div>
-            <div className="absolute inset-0 flex items-center justify-center bg-background/10 px-3 text-center">
-              <div className="flex max-w-[260px] flex-col items-center gap-1.5 rounded-2xl bg-background/85 px-4 py-2.5 shadow-sm backdrop-blur-sm">
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-card shadow-sm"><Lock className="h-3.5 w-3.5 text-primary" /></span>
-                <p className="text-xs font-display font-bold text-foreground">{t('capture.explorerPhotos.lockedTitle')}</p>
-                <Button type="button" size="sm" onClick={() => navigate('/premium')} className="h-8 gap-1.5">
-                  <Crown className="h-3.5 w-3.5" />
-                  {t('capture.explorerPhotos.premiumCta')}
-                </Button>
-              </div>
-            </div>
-          </div>
+          lockedPhotos.map((p) => (
+            <Button
+              key={p.id}
+              type="button"
+              variant="ghost"
+              onClick={() => setPremiumOpen(true)}
+              className="h-auto w-32 shrink-0 snap-start flex-col items-stretch justify-start overflow-hidden p-0 text-left active:scale-95"
+            >
+              <span className="relative block h-32 w-32 overflow-hidden rounded-2xl bg-muted">
+                <img src={p.image_url} alt="" loading="lazy" aria-hidden="true" className="h-full w-full scale-[1.04] object-cover blur-[5px]" />
+                <span className="absolute inset-0 flex items-center justify-center bg-background/10">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-background/85 shadow-sm backdrop-blur-sm">
+                    <Lock className="h-4 w-4 text-primary" />
+                  </span>
+                </span>
+              </span>
+              <span className="mt-1 block max-w-full truncate px-1 text-[11px] font-normal text-muted-foreground blur-[3px] select-none">
+                {p.author || t('social.common.anonymous')}
+              </span>
+            </Button>
+          ))
         )}
       </div>
+      <Dialog open={premiumOpen} onOpenChange={setPremiumOpen}>
+        <DialogContent className="w-[calc(100%-2rem)] max-w-sm rounded-3xl border-0 px-6 pb-6 pt-8 text-center">
+          <DialogHeader className="items-center text-center">
+            <span className="mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+              <Crown className="h-6 w-6 text-primary" />
+            </span>
+            <DialogTitle className="font-display text-xl">{t('capture.explorerPhotos.unlockTitle')}</DialogTitle>
+            <DialogDescription className="pt-1 leading-relaxed">{t('capture.explorerPhotos.unlockDesc')}</DialogDescription>
+          </DialogHeader>
+          <Button type="button" onClick={() => navigate('/premium')} className="mt-2 w-full gap-2">
+            <Crown className="h-4 w-4" />
+            {t('capture.explorerPhotos.premiumCta')}
+          </Button>
+        </DialogContent>
+      </Dialog>
       {selected && (
         <CardDetailSheet
           open

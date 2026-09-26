@@ -272,6 +272,8 @@
       "title": "Photos des explorateurs",
       "lockedTitle": "Découvre les photos des explorateurs",
       "lockedDesc": "Passe à Premium pour voir toutes leurs photos de cette espèce.",
+      "unlockTitle": "Débloque les photos similaires",
+      "unlockDesc": "Avec Premium, découvre les photos de cette espèce prises par tous les autres explorateurs.",
       "premiumCta": "Découvrir Premium"
     }
   }
