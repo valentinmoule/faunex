@@ -20,6 +20,11 @@
 ## Retraits demandés
 - [x] Enlever le classement affiché dans les collections et dans les terroirs
 
+## Navigation des classements
+- [x] Premier niveau Global / Explorateurs
+- [x] Second niveau Semaine / Tout temps / catégories d'animaux
+- [ ] Vérifier la navigation mobile et le verrou Premium
+
 ## Fiche espèce
 - [x] Catégorie et nombre de captures dans la même carte d’infos que Rareté, Date, Localisation
 - [x] Compteurs de likes et de commentaires affichés seulement lorsqu’ils sont non nuls
