@@ -59,3 +59,28 @@ export const peekPendingShelve = (): PendingShelve | null => {
     return null;
   }
 };
+
+/* ── Coordination avec les autres célébrations (montée de niveau…) ── */
+let shelveRunning = false;
+
+export const setShelveRunning = (running: boolean) => {
+  shelveRunning = running;
+};
+
+/** Un rangement est prévu ou en cours. */
+export const isShelveBusy = () => shelveRunning || peekPendingShelve() !== null;
+
+/**
+ * Résout quand aucun rangement de carte n'est prévu ni en cours.
+ * Petit délai initial : l'XP peut arriver avant que la capture ne programme
+ * son rangement. Plafond de sécurité à 35 s.
+ */
+export const waitForShelveIdle = (initialDelay = 1500): Promise<void> =>
+  new Promise((resolve) => {
+    const start = Date.now();
+    const tick = () => {
+      if (!isShelveBusy() || Date.now() - start > 35_000) resolve();
+      else window.setTimeout(tick, 250);
+    };
+    window.setTimeout(tick, initialDelay);
+  });

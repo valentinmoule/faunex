@@ -3,6 +3,7 @@ import { Trophy, Star } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
+import { waitForShelveIdle } from '@/lib/shelveAnimation';
 
 const LevelUpCelebration = () => {
   const { t } = useTranslation();
@@ -40,16 +41,19 @@ const LevelUpCelebration = () => {
           const storedLevel = parseInt(sessionStorage.getItem(key) || '0', 10);
           if (updatedLevel > storedLevel) {
             sessionStorage.setItem(key, String(updatedLevel));
-            setNewLevel(updatedLevel);
-            setPhase('burst');
-            setVisible(true);
-            triggerHaptic();
+            // Attendre la fin du rangement de la carte dans le bestiaire.
+            void waitForShelveIdle().then(() => {
+              setNewLevel(updatedLevel);
+              setPhase('burst');
+              setVisible(true);
+              triggerHaptic();
 
-            // Phase transitions
-            setTimeout(() => setPhase('show'), 800);
-            // Auto-dismiss after 5s
-            setTimeout(() => setPhase('out'), 5000);
-            setTimeout(() => setVisible(false), 5600);
+              // Phase transitions
+              setTimeout(() => setPhase('show'), 800);
+              // Auto-dismiss after 5s
+              setTimeout(() => setPhase('out'), 5000);
+              setTimeout(() => setVisible(false), 5600);
+            });
           } else {
             sessionStorage.setItem(key, String(updatedLevel));
           }
