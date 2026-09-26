@@ -1030,7 +1030,6 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                 animalName={card.name}
                 excludeUserId={session?.user?.id}
                 isPremium={isPremium}
-                onGoPremium={() => { onClose(); navigate('/premium'); }}
               />
             )}
 
