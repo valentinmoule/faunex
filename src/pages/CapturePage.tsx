@@ -17,6 +17,8 @@ import { useCaptureReveal } from '@/hooks/useCaptureReveal';
 import RevealStage from '@/components/capture/RevealStage';
 import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
 import RarityBadge from '@/components/RarityBadge';
+import HolographicCard from '@/components/HolographicCard';
+import { normalizeRarity } from '@/data/mockData';
 import { useCaptureQuota, DAILY_CAPTURE_LIMIT } from '@/hooks/useCaptureQuota';
 import { useSubscription } from '@/hooks/useSubscription';
 
@@ -553,7 +555,7 @@ setManualMode(false);
 
 
   return (
-    <main className="min-h-screen bg-foreground flex flex-col pb-24">
+    <main className={`min-h-screen bg-foreground flex flex-col ${animalResult && revealPhase === 'done' ? '' : 'pb-24'}`}>
       <canvas ref={canvasRef} className="hidden" />
       <input
         ref={galleryInputRef}
@@ -755,7 +757,25 @@ setManualMode(false);
         {animalResult && !identifying && revealPhase === 'done' && (
           <div className="relative z-20 flex-1 flex flex-col justify-end min-h-0">
             {/* Feuille claire — même design que le corps de la fiche espèce */}
-            <div className="bg-background rounded-t-3xl px-5 pt-5 pb-5 space-y-4 animate-fade-in max-h-[88%] overflow-y-auto shadow-[0_-10px_30px_hsl(var(--foreground)/0.3)]">
+            <div className="bg-background rounded-t-3xl px-5 pt-5 pb-5 space-y-4 animate-fade-in max-h-[88dvh] overflow-y-auto shadow-[0_-10px_30px_hsl(var(--foreground)/0.3)]">
+              {/* Carte holographique — même rendu que la fiche espèce */}
+              {capturedPhoto && (
+                <HolographicCard
+                  rarity={normalizeRarity(animalResult.rarity)}
+                  containInteraction
+                  className="relative mx-auto max-w-[220px] aspect-[4/5] rounded-[1.75rem]"
+                  style={{ ['--holo-radius' as any]: '1.75rem' }}
+                >
+                  <div className={`relative w-full h-full rounded-[1.75rem] overflow-hidden holo-frame holo-frame--${normalizeRarity(animalResult.rarity).replace(/_/g, '-')}`}>
+                    <div className="absolute top-[14px] right-[14px] z-20 pointer-events-none">
+                      <RarityBadge rarity={animalResult.rarity} plain />
+                    </div>
+                    <div className="relative w-full h-full rounded-[1.25rem] overflow-hidden">
+                      <img src={capturedPhoto} alt={animalResult.animal_name} className="w-full h-full object-cover pointer-events-none select-none" draggable={false} />
+                    </div>
+                  </div>
+                </HolographicCard>
+              )}
               {/* Nom + nom scientifique */}
               <div className="text-center">
                 <h2 className="text-2xl font-display font-bold text-foreground">{animalResult.animal_name}</h2>
@@ -1010,7 +1030,8 @@ setManualMode(false);
         </div>
       )}
 
-      {/* Bottom controls */}
+      {/* Bottom controls — masqués quand la feuille de résultat est affichée */}
+      {!(animalResult && !identifying && revealPhase === 'done') && (
       <div className="relative z-10 flex items-center justify-center gap-6 py-6 px-6">
         {saved ? (
           <button onClick={resetCapture} className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-primary text-primary-foreground font-display text-sm">
@@ -1066,6 +1087,7 @@ setManualMode(false);
           </>
         )}
       </div>
+      )}
 
       {/* Invitation Premium — dernière identification du jour consommée */}
       {premiumPrompt && (
