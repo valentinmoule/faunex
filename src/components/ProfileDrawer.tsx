@@ -129,11 +129,16 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
     return () => { cancelled = true; };
   }, [userId]);
 
-  // La pastille se recalcule en changeant d'écran (ex. retour depuis la page badges).
+  // La pastille se recalcule en changeant d'écran, au plus une fois toutes les
+  // 2 minutes, pour ne pas retélécharger tout l'historique à chaque navigation.
+  const lastRefreshRef = useRef(Date.now());
   useEffect(() => {
     if (lastPathRef.current !== pathname) {
       lastPathRef.current = pathname;
-      setClaimKey((k) => k + 1);
+      if (Date.now() - lastRefreshRef.current > 120_000) {
+        lastRefreshRef.current = Date.now();
+        setClaimKey((k) => k + 1);
+      }
     }
   }, [pathname]);
 
