@@ -314,7 +314,13 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
 
           <ul className="divide-y divide-border">
             {rest.map((r) => (
-              <li key={r.user_id} className={`flex items-center gap-3 px-5 py-2.5 ${r.is_me ? 'bg-primary/5' : ''}`}>
+              <li key={r.user_id} className={r.is_me ? 'bg-primary/5' : ''}>
+                <button
+                  type="button"
+                  onClick={() => { if (!r.is_me) navigate(`/explorer/${r.user_id}/collection`); }}
+                  aria-disabled={r.is_me}
+                  className={`flex w-full items-center gap-3 px-5 py-2.5 text-left ${r.is_me ? 'bg-primary/5 cursor-default' : 'active:opacity-60 transition-opacity'}`}
+                >
                 <span className={`w-6 text-center text-[13px] font-display font-bold ${r.is_me ? 'text-primary' : 'text-muted-foreground'}`}>
                   {r.rank}
                 </span>
@@ -324,6 +330,7 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
                 </p>
                 <RankMovement change={r.rank_change} />
                 <span className="text-[13px] font-display font-bold text-foreground shrink-0">{r.captures}</span>
+                </button>
               </li>
             ))}
             {mine && !rows.some(r => r.is_me) && (
