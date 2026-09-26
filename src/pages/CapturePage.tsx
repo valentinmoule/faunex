@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Camera, Zap, MapPin, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine, ZoomIn, Focus, Crosshair, ArrowLeft, Clock, Info, Sparkles, ShieldQuestion, Users, Image as ImageIcon } from 'lucide-react';
@@ -60,6 +61,7 @@ const CapturePage = () => {
 
 
   const [duplicateCapture, setDuplicateCapture] = useState<{ id: string; image_url: string; animal_name: string } | null>(null);
+  const [fullscreenPhoto, setFullscreenPhoto] = useState<string | null>(null);
 const [manualMode, setManualMode] = useState(false);
   /** Repli taxonomique honnête renvoyé par le serveur (genre / famille). */
   const [taxonHint, setTaxonHint] = useState<string | null>(null);
