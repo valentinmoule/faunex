@@ -597,6 +597,8 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
     : null;
   const isRare = !isUncaptured && cardFx === 'ink' && (normalizedRarity === 'rare' || normalizedRarity === 'very_rare');
   const heroFamily = normalizedRarity.replace(/_/g, '-');
+  const heroClass = `detail-hero-${heroFamily}`;
+  const photoBackdrop = !isUncaptured && Boolean(card.image);
   const isShiny = isSilver || isGold;
 
   const detailAppearClass = isGold
