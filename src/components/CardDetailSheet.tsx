@@ -621,7 +621,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
       <Drawer.Root open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 z-[1300] bg-black/80" />
-          <Drawer.Content className="fixed inset-x-0 bottom-0 z-[1300] h-[92vh] rounded-t-3xl border-0 outline-none overflow-hidden bg-background">
+          <Drawer.Content className={`fixed inset-x-0 bottom-0 z-[1300] rounded-t-3xl border-0 outline-none overflow-hidden bg-background ${feedView ? 'max-h-[92dvh] flex flex-col' : 'h-[92vh]'}`}>
             {/* Handle + close: absolute over content */}
             <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[1301] w-12 h-1.5 rounded-full bg-white/40" />
             <button
@@ -630,7 +630,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
             >
               <span className="text-white text-lg font-light leading-none">✕</span>
             </button>
-            <div className="h-full overflow-y-auto">
+            <div className={feedView ? 'flex-1 min-h-0 overflow-y-auto' : 'h-full overflow-y-auto'}>
           <div className={`relative overflow-hidden ${photoBackdrop ? '' : heroClass}`} style={{ zIndex: 0 }}>
             {photoBackdrop && (
               <>
