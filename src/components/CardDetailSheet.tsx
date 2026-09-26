@@ -22,6 +22,7 @@ import { useNavigate } from 'react-router-dom';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useCustomCollections } from '@/hooks/useCustomCollections';
 import { useSubscription } from '@/hooks/useSubscription';
+import ExplorerPhotosStrip from '@/components/ExplorerPhotosStrip';
 import ShareCaptureSheet from '@/components/ShareCaptureSheet';
 import AddToCollectionSheet from '@/components/AddToCollectionSheet';
 import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
@@ -1023,6 +1024,15 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
               </div>
             )}
 
+
+            {!isUncaptured && (
+              <ExplorerPhotosStrip
+                animalName={card.name}
+                excludeUserId={session?.user?.id}
+                isPremium={isPremium}
+                onGoPremium={() => { onClose(); navigate('/premium'); }}
+              />
+            )}
 
             {/* Fun Fact — anecdote mise en avant */}
             {isUncaptured ? (

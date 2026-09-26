@@ -21,13 +21,9 @@ async function loadSpecies(name: string, sciHint?: string | null): Promise<Simil
   const key = name.trim().toLowerCase();
   const hit = cache.get(key);
   if (hit) return hit;
-  const [{ data: animal }, { data: cap }] = await Promise.all([
-    supabase.from('animals').select('name, scientific_name, rarity').ilike('name', name.trim()).limit(1).maybeSingle(),
-    supabase.from('captures').select('image_url').ilike('animal_name', name.trim()).eq('status', 'approved').not('user_id', 'in', `(${TEST_ACCOUNT_IDS.join(',')})`)
-      .order('created_at', { ascending: false }).limit(1).maybeSingle(),
-  ]);
-  let image: string | null = cap?.image_url ?? null;
-  const fromExplorer = Boolean(image);
+  const { data: animal } = await supabase.from('animals').select('name, scientific_name, rarity').ilike('name', name.trim()).limit(1).maybeSingle();
+  let image: string | null = null;
+  const fromExplorer = false;
   if (!image) {
     try {
       for (const q of [animal?.scientific_name, sciHint, name].filter(Boolean) as string[]) {
