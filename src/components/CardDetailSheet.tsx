@@ -1120,7 +1120,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
         <div
           className={`detail-fullscreen fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden ${heroClass}`}
           style={photoBackdrop
-            ? ({ ['--photo-blur' as any]: '50px', ['--photo-scale' as any]: '2.25', ['--photo-veil' as any]: '0.68' } as React.CSSProperties)
+            ? ({ ['--photo-blur' as any]: '50px', ['--photo-scale' as any]: '2.25', ['--photo-veil' as any]: '0.38' } as React.CSSProperties)
             : undefined}
           onClick={() => {
             if (zoom.scale > 1.05) {
