@@ -270,8 +270,9 @@
     },
     "explorerPhotos": {
       "title": "Photos des explorateurs",
-      "lockedTitle": "Vois cette espèce par d'autres explorateurs",
-      "lockedDesc": "Leurs photos de la même espèce, réservé aux explorateurs Premium."
+      "lockedTitle": "Découvre les photos des explorateurs",
+      "lockedDesc": "Passe à Premium pour voir toutes leurs photos de cette espèce.",
+      "premiumCta": "Découvrir Premium"
     }
   }
 }

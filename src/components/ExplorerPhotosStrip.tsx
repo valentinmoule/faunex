@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { Crown, Lock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import CardDetailSheet from '@/components/CardDetailSheet';
+import { Button } from '@/components/ui/button';
 import { type Rarity } from '@/data/mockData';
 
 /** Comptes de test exclus (+test, +all, App Store review). */
@@ -29,11 +32,12 @@ interface Props {
 
 /**
  * Photos de la même espèce prises par d'autres explorateurs.
- * Gratuit : uniquement les explorateurs suivis. Premium : tout le monde.
+ * Gratuit : aperçu flouté. Premium : photos de tous les explorateurs.
  * Un clic ouvre la même modale que le feed (fiche allégée, auteur inclus).
  */
 const ExplorerPhotosStrip = ({ animalName, scientificName, rarity, excludeUserId, isPremium }: Props) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [photos, setPhotos] = useState<Photo[] | null>(null);
   const [selected, setSelected] = useState<Photo | null>(null);
 
@@ -42,26 +46,13 @@ const ExplorerPhotosStrip = ({ animalName, scientificName, rarity, excludeUserId
     let alive = true;
     (async () => {
       let rows: { id: string; image_url: string; user_id: string; created_at: string }[] = [];
-      if (isPremium) {
-        // Premium : captures de tout le monde (sauf comptes test et soi-même).
-        const excluded = [...TEST_ACCOUNT_IDS, excludeUserId];
-        const { data } = await supabase.from('captures').select('id, image_url, user_id, created_at')
-          .eq('animal_name', animalName).eq('status', 'approved')
-          .not('user_id', 'in', `(${excluded.join(',')})`)
-          .order('created_at', { ascending: false }).limit(MAX_PHOTOS);
-        rows = data ?? [];
-      } else {
-        // Gratuit : uniquement les explorateurs suivis.
-        const { data: follows } = await supabase.from('explorer_follows').select('following_id')
-          .eq('follower_id', excludeUserId).eq('status', 'accepted');
-        const followedIds = (follows ?? []).map((f) => f.following_id).filter((id) => !TEST_ACCOUNT_IDS.includes(id));
-        if (followedIds.length === 0) { if (alive) setPhotos([]); return; }
-        const { data } = await supabase.from('captures').select('id, image_url, user_id, created_at')
-          .eq('animal_name', animalName).eq('status', 'approved')
-          .in('user_id', followedIds)
-          .order('created_at', { ascending: false }).limit(MAX_PHOTOS);
-        rows = data ?? [];
-      }
+      // Les comptes gratuits reçoivent seulement quelques aperçus, toujours floutés.
+      const excluded = [...TEST_ACCOUNT_IDS, excludeUserId];
+      const { data } = await supabase.from('captures').select('id, image_url, user_id, created_at')
+        .eq('animal_name', animalName).eq('status', 'approved')
+        .not('user_id', 'in', `(${excluded.join(',')})`)
+        .order('created_at', { ascending: false }).limit(isPremium ? MAX_PHOTOS : 6);
+      rows = data ?? [];
       const ids = Array.from(new Set(rows.map((r) => r.user_id)));
       const { data: profiles } = ids.length
         ? await supabase.from('profiles').select('user_id, display_name, username, avatar_url').in('user_id', ids)
@@ -84,13 +75,32 @@ const ExplorerPhotosStrip = ({ animalName, scientificName, rarity, excludeUserId
   return (
     <div>
       <p className="px-1 mb-2 text-[10px] font-display font-bold uppercase tracking-wider text-muted-foreground">{t('capture.explorerPhotos.title')}</p>
+      <div className={`relative ${isPremium ? '' : 'overflow-hidden rounded-2xl'}`}>
       <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-1" style={{ scrollbarWidth: 'none' }}>
         {photos.map((p) => (
-          <button key={p.id} type="button" onClick={() => setSelected(p)} className="snap-start shrink-0 w-32 text-left active:scale-95 transition-transform">
-            <img src={p.image_url} alt="" loading="lazy" className="w-32 h-32 rounded-2xl object-cover bg-muted" />
-            {p.author && <p className="mt-1 px-1 text-[11px] text-muted-foreground truncate">{p.author}</p>}
-          </button>
+          isPremium ? (
+            <button key={p.id} type="button" onClick={() => setSelected(p)} className="snap-start shrink-0 w-32 text-left active:scale-95 transition-transform">
+              <img src={p.image_url} alt="" loading="lazy" className="w-32 h-32 rounded-2xl object-cover bg-muted" />
+              {p.author && <p className="mt-1 px-1 text-[11px] text-muted-foreground truncate">{p.author}</p>}
+            </button>
+          ) : (
+            <div key={p.id} aria-hidden="true" className="snap-start shrink-0 w-32">
+              <img src={p.image_url} alt="" loading="lazy" className="w-32 h-32 rounded-2xl object-cover bg-muted blur-md scale-110" />
+            </div>
+          )
         ))}
+      </div>
+      {!isPremium && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-background/55 px-5 text-center backdrop-blur-[2px]">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-card shadow-sm"><Lock className="h-4 w-4 text-primary" /></span>
+          <p className="text-sm font-display font-bold text-foreground">{t('capture.explorerPhotos.lockedTitle')}</p>
+          <p className="text-xs text-muted-foreground">{t('capture.explorerPhotos.lockedDesc')}</p>
+          <Button type="button" size="sm" onClick={() => navigate('/premium')} className="mt-1 gap-1.5">
+            <Crown className="h-4 w-4" />
+            {t('capture.explorerPhotos.premiumCta')}
+          </Button>
+        </div>
+      )}
       </div>
       {selected && (
         <CardDetailSheet
