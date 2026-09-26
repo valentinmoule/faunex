@@ -194,6 +194,9 @@ const BestiairePage = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedBreedGroup, setSelectedBreedGroup] = useState<string | null>(null);
   type ViewMode = 'mine' | 'map' | 'badges' | 'categories' | 'collections' | 'leaderboard';
+
+  /** Catégories d'animaux proposées dans l'onglet Classement. */
+  const LEADERBOARD_CATEGORIES = ['Mammifères', 'Oiseaux', 'Insectes', 'Poissons', 'Reptiles', 'Amphibiens', 'Arachnides', 'Mollusques', 'Crustacés'];
   const requestedTab = searchParams.get('tab');
   const initialView: ViewMode = isFaunexHub
     ? requestedTab === 'map' || requestedTab === 'badges' ? requestedTab : 'mine'
@@ -2134,6 +2137,24 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                         </button>
                       </div>
                     )}
+
+              {/* Classements par catégorie d'animaux */}
+              {(leaderboardTab !== 'explorers' || isPremium) && (
+                <div className="mt-6">
+                  <h2 className="px-1 mb-3 text-[15px] font-display font-bold text-foreground">
+                    {t('social.leaderboard.byCategory')}
+                  </h2>
+                  {LEADERBOARD_CATEGORIES.map((cat) => (
+                    <CategoryLeaderboard
+                      key={`${cat}-${leaderboardTab}`}
+                      category={cat}
+                      period={leaderboardTab === 'week' ? 'week' : 'all'}
+                      scope={leaderboardTab === 'explorers' ? 'follows' : 'global'}
+                      showResetBadge={false}
+                    />
+                  ))}
+                </div>
+              )}
 
             </section>
           )}

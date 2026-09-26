@@ -325,9 +325,11 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
             {mine ? `${mine.rank}${mine.rank === 1 ? 'er' : 'e'}` : '—'}
           </div>
           <div className="min-w-0 text-left">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-bold">{!isTerritory && category === 'all' ? t('social.leaderboard.generalRanking') : t('social.leaderboard.ranking')}</p>
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-bold">{!isTerritory && category === 'all' ? t('social.leaderboard.generalRanking') : isTerritory ? t('social.leaderboard.ranking') : t(`bestiary.categoryNames.${category}`, { defaultValue: category })}</p>
             <p className="text-[13px] font-display font-bold text-foreground truncate">
-              {mine ? t('social.leaderboard.capturesThisWeek', { count: mine.captures }) : t('social.leaderboard.noCapturesThisWeek')}
+              {mine
+                ? t(period === 'all' ? 'social.leaderboard.capturesAllTime' : 'social.leaderboard.capturesThisWeek', { count: mine.captures })
+                : t(period === 'all' ? 'social.leaderboard.noCapturesAllTime' : 'social.leaderboard.noCapturesThisWeek')}
             </p>
           </div>
         </div>
@@ -351,7 +353,7 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
           <SheetHeader className="px-5 text-left">
             <SheetTitle className="font-display text-base flex items-center gap-2">
               <Trophy className="w-4 h-4 text-amber" />
-              {isTerritory ? t('social.leaderboard.sheetTitleTerritory', { label: territory.label }) : category === 'all' ? t('social.leaderboard.sheetTitleGeneral') : t('social.leaderboard.sheetTitleCategory', { category })}
+              {isTerritory ? t('social.leaderboard.sheetTitleTerritory', { label: territory.label }) : category === 'all' ? t('social.leaderboard.sheetTitleGeneral') : t(period === 'all' ? 'social.leaderboard.sheetTitleCategoryAll' : 'social.leaderboard.sheetTitleCategory', { category: t(`bestiary.categoryNames.${category}`, { defaultValue: category }) })}
             </SheetTitle>
           </SheetHeader>
           {content}
