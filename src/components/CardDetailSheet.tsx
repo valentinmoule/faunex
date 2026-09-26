@@ -791,8 +791,10 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                     <Trash2 className="w-6 h-6 text-muted-foreground transition-colors group-hover:text-destructive" />
                   </button>
                 )}
+                </div>
               </div>
             )}
+
 
             {/* Comments section */}
             {showComments && (
