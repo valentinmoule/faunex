@@ -27,6 +27,7 @@ import ShareCaptureSheet from '@/components/ShareCaptureSheet';
 import AddToCollectionSheet from '@/components/AddToCollectionSheet';
 import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
 import { useSpeciesFacts, useSpeciesName } from '@/hooks/useSpeciesLocale';
+import { PremiumAvatar } from '@/components/PremiumAvatar';
 
 interface Props {
   card: AnimalCard | null;
@@ -36,6 +37,10 @@ interface Props {
   communityFinders?: number;
   /** Called after the user deleted their own capture, so the parent list can drop it. */
   onDeleted?: (captureId: string) => void;
+  /** Mode feed : fiche allégée d'une capture d'explorateur — pas de description, ni d'infos. */
+  feedView?: boolean;
+  /** Auteur de la capture (mode feed) — en-tête avatar + nom. */
+  author?: { id: string; name: string; avatarUrl?: string | null } | null;
 }
 
 interface Comment {
@@ -112,14 +117,15 @@ const LockedField = ({ icon, label }: { icon: React.ReactNode; label: string }) 
 };
 
 
-const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: Props) => {
+const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, feedView = false, author }: Props) => {
   const { t, i18n } = useTranslation();
   const { session } = useAuth();
   // Nom commun localisé + fiche d'espèce localisée (traduite à la demande, puis cachée).
   const { speciesName } = useSpeciesName();
   const displayName = speciesName(card?.name);
+  // En mode feed, la fiche est allégée : pas besoin de charger les infos d'espèce.
   const facts = useSpeciesFacts(
-    open && card
+    open && card && !feedView
       ? {
           name: card.name,
           scientificName: card.scientificName,
@@ -154,7 +160,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
   const [locLoading, setLocLoading] = useState(false);
 
   /* Nombre de naturalistes ayant capturé l'espèce : fourni par le parent, sinon chargé ici. */
-  const fetchedFinders = useSpeciesFinders(card?.name, open && communityFinders === undefined);
+  const fetchedFinders = useSpeciesFinders(card?.name, open && !feedView && communityFinders === undefined);
   const finders = communityFinders ?? fetchedFinders;
 
 
@@ -615,7 +621,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
       <Drawer.Root open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 z-[1300] bg-black/80" />
-          <Drawer.Content className="fixed inset-x-0 bottom-0 z-[1300] h-[92vh] rounded-t-3xl border-0 outline-none overflow-hidden bg-background">
+          <Drawer.Content className={`fixed inset-x-0 bottom-0 z-[1300] rounded-t-3xl border-0 outline-none overflow-hidden bg-background ${feedView ? 'max-h-[92dvh] flex flex-col' : 'h-[92vh]'}`}>
             {/* Handle + close: absolute over content */}
             <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[1301] w-12 h-1.5 rounded-full bg-white/40" />
             <button
@@ -624,7 +630,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
             >
               <span className="text-white text-lg font-light leading-none">✕</span>
             </button>
-            <div className="h-full overflow-y-auto">
+            <div className={feedView ? 'flex-1 min-h-0 overflow-y-auto' : 'h-full overflow-y-auto'}>
           <div className={`relative overflow-hidden ${photoBackdrop ? '' : heroClass}`} style={{ zIndex: 0 }}>
             {photoBackdrop && (
               <>
@@ -705,6 +711,27 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
 
           {/* Card Body */}
           <div className="relative -mt-8 bg-background rounded-t-3xl px-5 pb-10 pt-5 space-y-5">
+
+            {/* En-tête auteur (mode feed) : avatar + nom, comme dans le feed */}
+            {feedView && author && (
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => { onClose(); navigate(`/explorer/${author.id}/collection`); }}
+                  aria-label={t('capture.detail.viewProfile', { defaultValue: author.name })}
+                >
+                  <PremiumAvatar avatarUrl={author.avatarUrl ?? undefined} name={author.name} size="md" />
+                </button>
+                <div className="flex items-baseline gap-1.5 min-w-0">
+                  <button
+                    onClick={() => { onClose(); navigate(`/explorer/${author.id}/collection`); }}
+                    className="text-sm font-display font-semibold text-foreground truncate hover:underline"
+                  >
+                    {author.name}
+                  </button>
+                  <span className="text-xs text-muted-foreground shrink-0">{t('social.explorers.captured')}</span>
+                </div>
+              </div>
+            )}
 
             {/* Like & Comment bar — hidden for undiscovered animals */}
             {!isUncaptured && (
@@ -850,12 +877,12 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
                 )}
               </div>
 
-            ) : (
+            ) : !feedView ? (
               <p className="text-sm text-foreground/80 leading-relaxed text-center max-w-sm mx-auto">{facts.description}</p>
-            )}
+            ) : null}
 
             {/* Infos — liste épurée façon iOS */}
-            {isUncaptured ? (
+            {feedView ? null : isUncaptured ? (
               <div className="space-y-2.5">
                 <div className="rounded-2xl border border-border bg-card divide-y divide-border/60">
                   <DetailRow
@@ -978,7 +1005,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
             )}
 
             {/* Location editing (owner only) */}
-            {!isUncaptured && editingLocation && (
+            {!feedView && !isUncaptured && editingLocation && (
               <div className="rounded-2xl border border-border bg-card p-4 space-y-2">
                 <input
                   type="text"
@@ -1025,7 +1052,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
             )}
 
 
-            {!isUncaptured && (
+            {!feedView && !isUncaptured && (
               <ExplorerPhotosStrip
                 animalName={card.name}
                 scientificName={card.scientificName}
@@ -1036,7 +1063,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
             )}
 
             {/* Fun Fact — anecdote mise en avant */}
-            {isUncaptured ? (
+            {feedView ? null : isUncaptured ? (
               <div className="flex items-center justify-center gap-2 rounded-2xl border border-dashed border-border bg-muted/30 px-4 py-3.5 text-muted-foreground/60">
                 <Lock className="w-3.5 h-3.5" />
                 <p className="text-sm italic">{t('capture.detail.hiddenFact')}</p>
