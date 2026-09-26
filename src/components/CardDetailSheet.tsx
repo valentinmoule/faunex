@@ -27,6 +27,7 @@ import ShareCaptureSheet from '@/components/ShareCaptureSheet';
 import AddToCollectionSheet from '@/components/AddToCollectionSheet';
 import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
 import { useSpeciesFacts, useSpeciesName } from '@/hooks/useSpeciesLocale';
+import PremiumAvatar from '@/components/PremiumAvatar';
 
 interface Props {
   card: AnimalCard | null;
