@@ -261,12 +261,12 @@
       "copyImpossible": "Couldn't copy",
       "saveImage": "Save image",
       "moreOptions": "More options"
+    },
+    "similar": {
+      "title": "Similar species — tap the right one",
+      "byExplorer": "Explorer's photo",
+      "lockedTitle": "Not sure? Compare with similar species",
+      "lockedDesc": "Photo suggestions, for Premium explorers only."
     }
-  },
-  "similar": {
-    "title": "Similar species — tap the right one",
-    "byExplorer": "Explorer's photo",
-    "lockedTitle": "Not sure? Compare with similar species",
-    "lockedDesc": "Photo suggestions, for Premium explorers only."
   }
 }
