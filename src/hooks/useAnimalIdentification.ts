@@ -347,9 +347,13 @@ export const useAnimalIdentification = () => {
         setStage('analyzing');
         let lastError: unknown = null;
         try {
-          const { data, error } = await supabase.functions.invoke('identify-animal', {
-            body: { imageBase64: compressedUrl, requestId, imageHash },
-          });
+          // Filet de sécurité : l'analyse ne doit jamais tourner indéfiniment.
+          const { data, error } = await withTimeout(
+            supabase.functions.invoke('identify-animal', {
+              body: { imageBase64: compressedUrl, requestId, imageHash },
+            }),
+            90_000,
+          );
           if (error) throw error;
           return interpret(data);
         } catch (err) {
