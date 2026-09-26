@@ -325,7 +325,7 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
             {mine ? `${mine.rank}${mine.rank === 1 ? 'er' : 'e'}` : '—'}
           </div>
           <div className="min-w-0 text-left">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-bold">{!isTerritory && category === 'all' ? t('social.leaderboard.generalRanking') : t('social.leaderboard.ranking')}</p>
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-bold">{!isTerritory && category === 'all' ? t('social.leaderboard.generalRanking') : isTerritory ? t('social.leaderboard.ranking') : t(`bestiary.categoryNames.${category}`, { defaultValue: category })}</p>
             <p className="text-[13px] font-display font-bold text-foreground truncate">
               {mine
                 ? t(period === 'all' ? 'social.leaderboard.capturesAllTime' : 'social.leaderboard.capturesThisWeek', { count: mine.captures })
