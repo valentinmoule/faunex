@@ -123,10 +123,10 @@ const ExplorerPhotosStrip = ({ animalName, scientificName, rarity, excludeUserId
               type="button"
               variant="ghost"
               onClick={() => setPremiumOpen(true)}
-              className="h-auto w-32 shrink-0 snap-start flex-col items-stretch justify-start overflow-hidden p-0 text-left active:scale-95"
+              className="h-auto w-32 shrink-0 snap-start flex-col items-stretch justify-start overflow-hidden rounded-2xl p-0 text-left active:scale-95"
             >
               <span className="relative block h-32 w-32 overflow-hidden rounded-2xl bg-muted">
-                <img src={p.image_url} alt="" loading="lazy" aria-hidden="true" className="h-full w-full scale-[1.04] object-cover blur-[5px]" />
+                <img src={p.image_url} alt="" loading="lazy" aria-hidden="true" className="h-full w-full scale-[1.35] object-cover blur-[5px]" />
                 <span className="absolute inset-0 flex items-center justify-center bg-background/10">
                   <span className="flex h-8 w-8 items-center justify-center rounded-full bg-background/85 shadow-sm backdrop-blur-sm">
                     <Lock className="h-4 w-4 text-primary" />
