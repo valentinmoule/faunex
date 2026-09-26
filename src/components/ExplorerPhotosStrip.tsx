@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { Crown, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 /** Comptes de test exclus (+test, +all, App Store review). */
@@ -13,30 +13,42 @@ interface Props {
   animalName: string;
   excludeUserId?: string;
   isPremium: boolean;
-  onGoPremium: () => void;
 }
 
-/** Photos de la même espèce prises par d'autres explorateurs (Premium). */
-const ExplorerPhotosStrip = ({ animalName, excludeUserId, isPremium, onGoPremium }: Props) => {
+/**
+ * Photos de la même espèce prises par d'autres explorateurs.
+ * Gratuit : uniquement les explorateurs suivis. Premium : tout le monde.
+ */
+const ExplorerPhotosStrip = ({ animalName, excludeUserId, isPremium }: Props) => {
   const { t } = useTranslation();
   const [photos, setPhotos] = useState<Photo[] | null>(null);
   const [zoom, setZoom] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isPremium) return;
+    if (!excludeUserId) { setPhotos([]); return; }
     let alive = true;
     (async () => {
-      // Uniquement les explorateurs suivis par l'utilisateur.
-      if (!excludeUserId) { if (alive) setPhotos([]); return; }
-      const { data: follows } = await supabase.from('explorer_follows').select('following_id')
-        .eq('follower_id', excludeUserId).eq('status', 'accepted');
-      const followedIds = (follows ?? []).map((f) => f.following_id).filter((id) => !TEST_ACCOUNT_IDS.includes(id));
-      if (followedIds.length === 0) { if (alive) setPhotos([]); return; }
-      const { data } = await supabase.from('captures').select('id, image_url, user_id')
-        .eq('animal_name', animalName).eq('status', 'approved')
-        .in('user_id', followedIds)
-        .order('created_at', { ascending: false }).limit(12);
-      const rows = data ?? [];
+      let rows: { id: string; image_url: string; user_id: string }[] = [];
+      if (isPremium) {
+        // Premium : captures de tout le monde (sauf comptes test et soi-même).
+        const excluded = [...TEST_ACCOUNT_IDS, excludeUserId];
+        const { data } = await supabase.from('captures').select('id, image_url, user_id')
+          .eq('animal_name', animalName).eq('status', 'approved')
+          .not('user_id', 'in', `(${excluded.join(',')})`)
+          .order('created_at', { ascending: false }).limit(12);
+        rows = data ?? [];
+      } else {
+        // Gratuit : uniquement les explorateurs suivis.
+        const { data: follows } = await supabase.from('explorer_follows').select('following_id')
+          .eq('follower_id', excludeUserId).eq('status', 'accepted');
+        const followedIds = (follows ?? []).map((f) => f.following_id).filter((id) => !TEST_ACCOUNT_IDS.includes(id));
+        if (followedIds.length === 0) { if (alive) setPhotos([]); return; }
+        const { data } = await supabase.from('captures').select('id, image_url, user_id')
+          .eq('animal_name', animalName).eq('status', 'approved')
+          .in('user_id', followedIds)
+          .order('created_at', { ascending: false }).limit(12);
+        rows = data ?? [];
+      }
       const ids = Array.from(new Set(rows.map((r) => r.user_id)));
       const { data: profiles } = ids.length
         ? await supabase.from('profiles').select('user_id, display_name, username').in('user_id', ids)
@@ -46,18 +58,6 @@ const ExplorerPhotosStrip = ({ animalName, excludeUserId, isPremium, onGoPremium
     })();
     return () => { alive = false; };
   }, [animalName, excludeUserId, isPremium]);
-
-  if (!isPremium) {
-    return (
-      <button type="button" onClick={onGoPremium} className="w-full flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3 text-left active:opacity-70">
-        <Crown className="w-5 h-5 text-amber-500 shrink-0" />
-        <div className="min-w-0">
-          <p className="text-sm font-display font-semibold text-foreground">{t('capture.explorerPhotos.lockedTitle')}</p>
-          <p className="text-xs text-muted-foreground">{t('capture.explorerPhotos.lockedDesc')}</p>
-        </div>
-      </button>
-    );
-  }
 
   if (!photos || photos.length === 0) return null;
 
