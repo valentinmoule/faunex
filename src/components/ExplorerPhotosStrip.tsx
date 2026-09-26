@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
 import HolographicCard from '@/components/HolographicCard';
 import RarityBadge from '@/components/RarityBadge';
-import { normalizeRarity } from '@/data/mockData';
+import { normalizeRarity, type Rarity } from '@/data/mockData';
 
 /** Comptes de test exclus (+test, +all, App Store review). */
 const TEST_ACCOUNT_IDS = ['ac0df155-7422-4073-bfc1-14e2a71960bc', 'c62717cb-255a-4491-a5a0-132880e703be', 'f7910e92-39a6-4703-b31d-bf1e245e2a4e'];
@@ -14,7 +14,7 @@ interface Photo { id: string; image_url: string; author: string | null }
 interface Props {
   animalName: string;
   scientificName?: string | null;
-  rarity: string;
+  rarity: Rarity;
   excludeUserId?: string;
   isPremium: boolean;
 }
