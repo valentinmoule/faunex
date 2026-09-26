@@ -789,6 +789,7 @@ setManualMode(false);
               {!duplicateCapture && typeof animalResult.confidence === 'number' && animalResult.confidence < 90 && (animalResult.alternatives?.length ?? 0) > 0 && (
                 <SimilarSpeciesStrip
                   names={animalResult.alternatives ?? []}
+                  scientificNames={animalResult.alternatives_scientific}
                   isPremium={isPremium}
                   onGoPremium={() => navigate('/premium')}
                   onPick={(s) => setAnimalResult((prev) => prev ? {

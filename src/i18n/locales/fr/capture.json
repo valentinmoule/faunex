@@ -261,12 +261,12 @@
       "copyImpossible": "Copie impossible",
       "saveImage": "Enregistrer l'image",
       "moreOptions": "Plus d'options"
+    },
+    "similar": {
+      "title": "Espèces semblables — touche la bonne",
+      "byExplorer": "Photo d'un explorateur",
+      "lockedTitle": "Pas sûr ? Compare avec des espèces semblables",
+      "lockedDesc": "Suggestions avec photos, réservé aux explorateurs Premium."
     }
-  },
-  "similar": {
-    "title": "Espèces semblables — touche la bonne",
-    "byExplorer": "Photo d'un explorateur",
-    "lockedTitle": "Pas sûr ? Compare avec des espèces semblables",
-    "lockedDesc": "Suggestions avec photos, réservé aux explorateurs Premium."
   }
 }

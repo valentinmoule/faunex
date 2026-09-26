@@ -12,6 +12,7 @@ export interface AnimalResult {
   rarity: Rarity;
   confidence?: number;
   alternatives?: string[];
+  alternatives_scientific?: string[] | null;
   /** Rang taxonomique réellement atteint (species, genus, family…). */
   scientific_rank?: string;
   /** true uniquement si le taxon a été confirmé dans un référentiel fiable. */
