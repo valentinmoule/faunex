@@ -194,6 +194,9 @@ const BestiairePage = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedBreedGroup, setSelectedBreedGroup] = useState<string | null>(null);
   type ViewMode = 'mine' | 'map' | 'badges' | 'categories' | 'collections' | 'leaderboard';
+
+  /** Catégories d'animaux proposées dans l'onglet Classement. */
+  const LEADERBOARD_CATEGORIES = ['Mammifères', 'Oiseaux', 'Insectes', 'Poissons', 'Reptiles', 'Amphibiens', 'Arachnides', 'Mollusques', 'Crustacés'];
   const requestedTab = searchParams.get('tab');
   const initialView: ViewMode = isFaunexHub
     ? requestedTab === 'map' || requestedTab === 'badges' ? requestedTab : 'mine'
