@@ -654,25 +654,7 @@ const ExplorersPage = () => {
 
               return (
                 <article key={post.id} className="py-3">
-                  <div className="flex items-center gap-3 px-4">
-                    <button onClick={() => navigate(`/explorer/${post.user_id}/collection`)}>
-                      <PremiumAvatar
-                        avatarUrl={avatarUrl}
-                        name={userName}
-                        size="md"
-                        isPremium={feedPremiumIds.has(post.user_id)}
-                      />
-                    </button>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-baseline gap-1.5">
-                        <button onClick={() => navigate(`/explorer/${post.user_id}/collection`)} className="text-sm font-display font-semibold text-foreground truncate hover:underline">
-                          {userName}
-                        </button>
-                        <span className="text-xs text-muted-foreground">{t('social.explorers.captured')}</span>
-                        <span className="text-[11px] text-muted-foreground">· {timeAgo(post.created_at)}</span>
-                      </div>
-                    </div>
-                  </div>
+
 
                   {isMilestoneRank(milestone) && (
                     <div className="px-4 mt-2">
