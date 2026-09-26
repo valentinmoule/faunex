@@ -1993,6 +1993,35 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                 </button>
               ) : (
                 <div className="grid grid-cols-2 gap-x-4 gap-y-5">
+                  {/* Collections personnalisées (Premium) — même écusson, en tête de la grille */}
+                  {customCollections.collections.map((c) => {
+                    const items = customCollections.itemsFor(c.id);
+                    const total = items.length;
+                    const captured = items.reduce((acc, item) => {
+                      const sci = item.scientific_name?.trim().toLowerCase();
+                      const target = item.animal_name.toLocaleLowerCase('fr');
+                      const match =
+                        (sci ? browseAnimals.find((a) => a.scientific_name?.trim().toLowerCase() === sci) : undefined) ||
+                        browseAnimals.find((a) => a.name.toLocaleLowerCase('fr') === target);
+                      return acc + (match?.captured ? 1 : 0);
+                    }, 0);
+                    const art = getCollectionArt(`custom:${c.id}`, c.name);
+                    return (
+                      <CollectionTile
+                        key={c.id}
+                        title={c.name}
+                        image={customCover(c.id) || art.image}
+                        overlay={art.overlay}
+                        captured={captured}
+                        total={total}
+                        complete={false}
+                        claimed={false}
+                        onOpen={() => setSelectedCustomId(c.id)}
+                        onClaim={() => {}}
+                      />
+                    );
+                  })}
+
                   {subscribedZones.map((zone) => {
                     const d = getDepartement(zone.departmentCode);
                     const p = zoneProgress[zone.id] || { total: 0, captured: 0 };
