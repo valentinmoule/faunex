@@ -614,7 +614,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
       <Drawer.Root open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 z-[1300] bg-black/80" />
-          <Drawer.Content className="fixed inset-x-0 bottom-0 z-[1300] h-[92vh] rounded-t-3xl border-0 outline-none overflow-hidden">
+          <Drawer.Content className="fixed inset-x-0 bottom-0 z-[1300] h-[92vh] rounded-t-3xl border-0 outline-none overflow-hidden bg-background">
             {/* Handle + close: absolute over content */}
             <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[1301] w-12 h-1.5 rounded-full bg-white/40" />
             <button
@@ -624,7 +624,18 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
               <span className="text-white text-lg font-light leading-none">✕</span>
             </button>
             <div className="h-full overflow-y-auto">
-          <div className={`relative overflow-hidden detail-hero-${heroFamily}`} style={{ zIndex: 0 }}>
+          <div className={`relative overflow-hidden ${photoBackdrop ? '' : heroClass}`} style={{ zIndex: 0 }}>
+            {photoBackdrop && (
+              <>
+                <div
+                  aria-hidden
+                  className="detail-photo-backdrop"
+                  style={{ backgroundImage: `url("${card.image}")` }}
+                />
+                <div aria-hidden className={`detail-photo-veil ${heroClass}`} />
+              </>
+            )}
+            
             
             <div className="relative z-10 pt-14 px-6 pb-0">
               <HolographicCard
