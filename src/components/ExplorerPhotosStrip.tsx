@@ -85,20 +85,22 @@ const ExplorerPhotosStrip = ({ animalName, scientificName, rarity, excludeUserId
             </button>
           ) : (
             <div key={p.id} aria-hidden="true" className="snap-start shrink-0 w-32">
-              <img src={p.image_url} alt="" loading="lazy" className="w-32 h-32 rounded-2xl object-cover bg-muted blur-md scale-110" />
+              <img src={p.image_url} alt="" loading="lazy" className="w-32 h-32 rounded-2xl object-cover bg-muted blur-[4px] scale-[1.03]" />
             </div>
           )
         ))}
       </div>
       {!isPremium && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-background/55 px-5 text-center backdrop-blur-[2px]">
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-card shadow-sm"><Lock className="h-4 w-4 text-primary" /></span>
-          <p className="text-sm font-display font-bold text-foreground">{t('capture.explorerPhotos.lockedTitle')}</p>
-          <p className="text-xs text-muted-foreground">{t('capture.explorerPhotos.lockedDesc')}</p>
-          <Button type="button" size="sm" onClick={() => navigate('/premium')} className="mt-1 gap-1.5">
-            <Crown className="h-4 w-4" />
-            {t('capture.explorerPhotos.premiumCta')}
-          </Button>
+        <div className="absolute inset-0 flex items-center justify-center px-4 text-center">
+          <div className="flex max-w-[290px] flex-col items-center gap-1.5 rounded-2xl bg-background/90 px-4 py-3 shadow-sm backdrop-blur-sm">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-card shadow-sm"><Lock className="h-4 w-4 text-primary" /></span>
+            <p className="text-sm font-display font-bold text-foreground">{t('capture.explorerPhotos.lockedTitle')}</p>
+            <p className="text-xs text-muted-foreground">{t('capture.explorerPhotos.lockedDesc')}</p>
+            <Button type="button" size="sm" onClick={() => navigate('/premium')} className="mt-1 gap-1.5">
+              <Crown className="h-4 w-4" />
+              {t('capture.explorerPhotos.premiumCta')}
+            </Button>
+          </div>
         </div>
       )}
       </div>
