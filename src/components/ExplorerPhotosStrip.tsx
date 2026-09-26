@@ -26,10 +26,15 @@ const ExplorerPhotosStrip = ({ animalName, excludeUserId, isPremium, onGoPremium
     if (!isPremium) return;
     let alive = true;
     (async () => {
-      const excluded = [...TEST_ACCOUNT_IDS, ...(excludeUserId ? [excludeUserId] : [])];
+      // Uniquement les explorateurs suivis par l'utilisateur.
+      if (!excludeUserId) { if (alive) setPhotos([]); return; }
+      const { data: follows } = await supabase.from('explorer_follows').select('following_id')
+        .eq('follower_id', excludeUserId).eq('status', 'accepted');
+      const followedIds = (follows ?? []).map((f) => f.following_id).filter((id) => !TEST_ACCOUNT_IDS.includes(id));
+      if (followedIds.length === 0) { if (alive) setPhotos([]); return; }
       const { data } = await supabase.from('captures').select('id, image_url, user_id')
         .eq('animal_name', animalName).eq('status', 'approved')
-        .not('user_id', 'in', `(${excluded.join(',')})`)
+        .in('user_id', followedIds)
         .order('created_at', { ascending: false }).limit(12);
       const rows = data ?? [];
       const ids = Array.from(new Set(rows.map((r) => r.user_id)));
