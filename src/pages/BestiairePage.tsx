@@ -2135,6 +2135,24 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                       </div>
                     )}
 
+              {/* Classements par catégorie d'animaux */}
+              {(leaderboardTab !== 'explorers' || isPremium) && (
+                <div className="mt-6">
+                  <h2 className="px-1 mb-3 text-[15px] font-display font-bold text-foreground">
+                    {t('social.leaderboard.byCategory')}
+                  </h2>
+                  {LEADERBOARD_CATEGORIES.map((cat) => (
+                    <CategoryLeaderboard
+                      key={`${cat}-${leaderboardTab}`}
+                      category={t(`bestiary.categoryNames.${cat}`)}
+                      period={leaderboardTab === 'week' ? 'week' : 'all'}
+                      scope={leaderboardTab === 'explorers' ? 'follows' : 'global'}
+                      showResetBadge={false}
+                    />
+                  ))}
+                </div>
+              )}
+
             </section>
           )}
 
