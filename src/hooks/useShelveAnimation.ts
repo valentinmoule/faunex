@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { consumePendingShelve, peekPendingShelve, type PendingShelve } from '@/lib/shelveAnimation';
+import { consumePendingShelve, peekPendingShelve, setShelveRunning, type PendingShelve } from '@/lib/shelveAnimation';
 import { hapticDiscovery } from '@/lib/haptics';
 
 interface Options {
   /** Le catalogue est encore en chargement : on attend avant de jouer l'animation. */
   loading: boolean;
+  /** La grille a fini de défiler jusqu'à l'emplacement (défaut : true). */
+  ready?: boolean;
   /** Prépare la vue (ferme collections/territoires, vide les filtres) avant l'animation. */
   onPrepare?: () => void;
   /** Retourne l'élément DOM de la carte cible s'il est monté dans la grille. */
@@ -27,7 +29,7 @@ const prefersReducedMotion = () =>
  * Uniquement des transform/opacity (GPU) via Web Animations : aucun reflow
  * pendant le vol, donc fluide même sur des téléphones modestes.
  */
-export const useShelveAnimation = ({ loading, onPrepare, resolveSlot }: Options) => {
+export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSlot }: Options) => {
   const [pendingShelve, setPendingShelve] = useState<PendingShelve | null>(null);
   const [flight, setFlight] = useState<ShelveFlight | null>(null);
   const [hiddenSlot, setHiddenSlot] = useState(false);
@@ -40,7 +42,8 @@ export const useShelveAnimation = ({ loading, onPrepare, resolveSlot }: Options)
 
   useEffect(() => {
     const peeked = peekPendingShelve();
-    if (peeked) setPendingShelve(peeked);
+    if (peeked) { setShelveRunning(true); setPendingShelve(peeked); }
+    return () => setShelveRunning(false);
   }, []);
 
   useEffect(() => {
@@ -51,13 +54,14 @@ export const useShelveAnimation = ({ loading, onPrepare, resolveSlot }: Options)
 
   // 1. Attendre que la carte cible soit montée, la centrer, mesurer.
   useEffect(() => {
-    if (!pendingShelve || ran.current || loading) return;
+    if (!pendingShelve || ran.current || loading || !ready) return;
     let cancelled = false;
     let attempts = 0;
     const timers: number[] = [];
 
     const finish = () => {
       consumePendingShelve();
+      setShelveRunning(false);
       setPendingShelve(null);
     };
 
@@ -72,7 +76,8 @@ export const useShelveAnimation = ({ loading, onPrepare, resolveSlot }: Options)
       }
       ran.current = true;
       consumePendingShelve();
-      slot.scrollIntoView({ behavior: 'auto', block: 'center' });
+      const r0 = slot.getBoundingClientRect();
+      if (r0.top < 0 || r0.bottom > window.innerHeight) slot.scrollIntoView({ behavior: 'auto', block: 'center' });
 
       // Deux frames : la virtualisation et le scroll sont stabilisés.
       requestAnimationFrame(() => requestAnimationFrame(() => {
@@ -100,7 +105,7 @@ export const useShelveAnimation = ({ loading, onPrepare, resolveSlot }: Options)
       cancelled = true;
       timers.forEach(window.clearTimeout);
     };
-  }, [pendingShelve, loading, resolveSlot]);
+  }, [pendingShelve, loading, ready, resolveSlot]);
 
   // 2. Jouer l'animation une fois la carte volante montée.
   useEffect(() => {
@@ -135,7 +140,7 @@ export const useShelveAnimation = ({ loading, onPrepare, resolveSlot }: Options)
         anims.push(reveal);
         await reveal.finished;
         if (cancelled) return;
-        await new Promise((r) => setTimeout(r, reduced ? 0 : 650));
+        await new Promise((r) => setTimeout(r, reduced ? 0 : 450));
         if (cancelled) return;
 
         // Vol : trajectoire courbe vers l'emplacement, la carte se redresse.
@@ -167,12 +172,14 @@ export const useShelveAnimation = ({ loading, onPrepare, resolveSlot }: Options)
         setFlight(null);
         setTimeout(() => {
           setFlashing(false);
+          setShelveRunning(false);
           setPendingShelve(null);
         }, 900);
       } catch {
         // Animation annulée (démontage) : on nettoie.
         setHiddenSlot(false);
         setFlight(null);
+        setShelveRunning(false);
       }
     };
     run();

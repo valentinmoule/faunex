@@ -360,6 +360,8 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const { citySearch, setCitySearch, cityResults, setCityResults, cityLoading } =
     useCitySearch(pickerTab === 'city');
 
+  const [shelveScrollDone, setShelveScrollDone] = useState(false);
+  const shelveTargetIndexRef = useRef<number | null>(null);
   const resolveShelveSlot = useCallback((shelve: PendingShelve) => {
     const esc = (v: string) => v.toLowerCase().replace(/["\\]/g, '\\$&');
     const sci = shelve.scientificName?.trim();
@@ -371,6 +373,7 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
 
   const { pendingShelve, flight, cardRef: shelveCardRef, backdropRef: shelveBackdropRef, labelRef: shelveLabelRef, isFlashing, isHidden } = useShelveAnimation({
     loading,
+    ready: shelveScrollDone || shelveTargetIndexRef.current == null,
     resolveSlot: resolveShelveSlot,
     onPrepare: useCallback(() => {
       // Retour sur la vue « toutes les espèces », sans filtre, pour y voir la carte
@@ -722,6 +725,7 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
     if (idx < 0) idx = browseAnimals.findIndex(a => a.name.toLocaleLowerCase('fr') === target);
     return idx >= 0 ? idx : null;
   }, [pendingShelve, browseAnimals]);
+  shelveTargetIndexRef.current = shelveTargetIndex;
 
   // Virtualisation : seules les lignes visibles sont montées (mémoire constante).
 
@@ -1892,6 +1896,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                   aspectRatio={3 / 4}
                   getKey={(animal) => animal.name}
                   scrollToIndex={shelveTargetIndex}
+                  onScrollComplete={() => setShelveScrollDone(true)}
                   renderItem={(animal) => (
                     <div
                       data-shelve-slot={animal.name.toLowerCase()}

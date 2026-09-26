@@ -14,6 +14,8 @@ interface VirtualSpeciesGridProps<T> {
   renderItem: (item: T, index: number) => ReactNode;
   /** Index à amener au centre du viewport (ex. animation de rangement). */
   scrollToIndex?: number | null;
+  /** Appelé quand le défilement vers scrollToIndex est terminé. */
+  onScrollComplete?: () => void;
 }
 
 /**
@@ -30,6 +32,7 @@ export function VirtualSpeciesGrid<T>({
   getKey,
   renderItem,
   scrollToIndex = null,
+  onScrollComplete,
 }: VirtualSpeciesGridProps<T>) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [width, setWidth] = useState(0);
@@ -83,8 +86,11 @@ export function VirtualSpeciesGrid<T>({
     };
   }, [rowHeight, rowCount, columns, items.length, overscanRows]);
 
-  // Scroll programmé vers une carte précise (la virtualisation la montera ensuite)
+  // Scroll programmé vers une carte précise, façon classeur qu'on feuillette :
+  // on part d'un peu avant, puis on défile en douceur jusqu'à l'emplacement.
   const scrolledToRef = useRef<number | null>(null);
+  const completeRef = useRef(onScrollComplete);
+  completeRef.current = onScrollComplete;
   useEffect(() => {
     if (scrollToIndex == null || scrollToIndex < 0 || rowHeight <= 0) return;
     if (scrolledToRef.current === scrollToIndex) return;
@@ -93,8 +99,29 @@ export function VirtualSpeciesGrid<T>({
     scrolledToRef.current = scrollToIndex;
     const rect = el.getBoundingClientRect();
     const rowTop = Math.floor(scrollToIndex / columns) * rowHeight;
-    const target = window.scrollY + rect.top + rowTop - (window.innerHeight - rowHeight) / 2;
-    window.scrollTo({ top: Math.max(0, target), behavior: 'auto' });
+    const target = Math.max(0, window.scrollY + rect.top + rowTop - (window.innerHeight - rowHeight) / 2);
+    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const current = window.scrollY;
+    const maxRun = window.innerHeight * 1.6;
+    const from = Math.abs(target - current) > maxRun ? target - Math.sign(target - current) * maxRun : current;
+    if (reduced || Math.abs(target - from) < 4) {
+      window.scrollTo({ top: target, behavior: 'auto' });
+      requestAnimationFrame(() => completeRef.current?.());
+      return;
+    }
+    window.scrollTo({ top: from, behavior: 'auto' });
+    const duration = Math.min(1100, 450 + Math.abs(target - from) * 0.45);
+    const t0 = performance.now();
+    let frame = 0;
+    const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    const step = (now: number) => {
+      const p = Math.min(1, (now - t0) / duration);
+      window.scrollTo({ top: from + (target - from) * ease(p), behavior: 'auto' });
+      if (p < 1) frame = requestAnimationFrame(step);
+      else completeRef.current?.();
+    };
+    frame = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frame);
   }, [scrollToIndex, rowHeight, columns]);
 
   const slice = useMemo(
