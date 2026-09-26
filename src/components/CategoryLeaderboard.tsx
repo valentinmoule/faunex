@@ -281,6 +281,12 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
                   const isFirst = r === podium[0];
                   return (
                     <div key={r.user_id} className="flex-1 flex flex-col items-center gap-1.5 max-w-[33%]">
+                      <button
+                        type="button"
+                        onClick={() => { if (!r.is_me) navigate(`/explorer/${r.user_id}/collection`); }}
+                        aria-disabled={r.is_me}
+                        className={`flex flex-col items-center gap-1.5 w-full ${r.is_me ? 'cursor-default' : 'active:scale-95 transition-transform'}`}
+                      >
                       {isFirst && <Crown className="w-5 h-5 text-amber" />}
                       <div className="relative">
                         <Avatar
@@ -297,6 +303,7 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
                     </p>
                     <RankMovement change={r.rank_change} compact />
                     <p className="text-[10px] font-display text-muted-foreground">{t('social.leaderboard.capturesShort', { count: r.captures })}</p>
+                      </button>
                     <div className={`w-full ${cfg.height} rounded-t-xl bg-gradient-to-t from-primary/15 to-primary/40 border-x border-t border-border`} />
                   </div>
                 );
