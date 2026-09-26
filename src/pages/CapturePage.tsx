@@ -1030,7 +1030,8 @@ setManualMode(false);
         </div>
       )}
 
-      {/* Bottom controls */}
+      {/* Bottom controls — masqués quand la feuille de résultat est affichée */}
+      {!(animalResult && !identifying && revealPhase === 'done') && (
       <div className="relative z-10 flex items-center justify-center gap-6 py-6 px-6">
         {saved ? (
           <button onClick={resetCapture} className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-primary text-primary-foreground font-display text-sm">
