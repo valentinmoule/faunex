@@ -99,7 +99,6 @@
       "noneYet": "no one has captured it yet",
       "people_one": "{{count}} person",
       "people_other": "{{count}} people"
-
     },
     "alsoPossible": "Also possible: {{alternatives}}",
     "requestVerification": "This isn't the right animal",
@@ -193,7 +192,6 @@
       "rarityLabel": "Rarity",
       "categoryLabel": "Category",
       "capturedByLabel": "Captured by",
-
       "habitat": "Habitat",
       "diet": "Diet",
       "conservation": "Conservation",
@@ -264,5 +262,11 @@
       "saveImage": "Save image",
       "moreOptions": "More options"
     }
+  },
+  "similar": {
+    "title": "Similar species — tap the right one",
+    "byExplorer": "Explorer's photo",
+    "lockedTitle": "Not sure? Compare with similar species",
+    "lockedDesc": "Photo suggestions, for Premium explorers only."
   }
 }

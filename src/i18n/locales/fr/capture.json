@@ -99,7 +99,6 @@
       "noneYet": "personne ne l’a encore capturée",
       "people_one": "{{count}} personne",
       "people_other": "{{count}} personnes"
-
     },
     "alsoPossible": "Aussi possible : {{alternatives}}",
     "requestVerification": "Ce n'est pas le bon animal",
@@ -193,7 +192,6 @@
       "rarityLabel": "Rareté",
       "categoryLabel": "Catégorie",
       "capturedByLabel": "Capturé par",
-
       "habitat": "Habitat",
       "diet": "Alimentation",
       "conservation": "Conservation",
@@ -264,5 +262,11 @@
       "saveImage": "Enregistrer l'image",
       "moreOptions": "Plus d'options"
     }
+  },
+  "similar": {
+    "title": "Espèces semblables — touche la bonne",
+    "byExplorer": "Photo d'un explorateur",
+    "lockedTitle": "Pas sûr ? Compare avec des espèces semblables",
+    "lockedDesc": "Suggestions avec photos, réservé aux explorateurs Premium."
   }
 }
