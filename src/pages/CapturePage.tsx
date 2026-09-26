@@ -757,7 +757,7 @@ setManualMode(false);
         {animalResult && !identifying && revealPhase === 'done' && (
           <div className="relative z-20 flex-1 flex flex-col justify-end min-h-0">
             {/* Feuille claire — même design que le corps de la fiche espèce */}
-            <div className="bg-background rounded-t-3xl px-5 pt-5 pb-5 space-y-4 animate-fade-in max-h-[88%] overflow-y-auto shadow-[0_-10px_30px_hsl(var(--foreground)/0.3)]">
+            <div className="bg-background rounded-t-3xl px-5 pt-5 pb-5 space-y-4 animate-fade-in max-h-[88dvh] overflow-y-auto shadow-[0_-10px_30px_hsl(var(--foreground)/0.3)]">
               {/* Carte holographique — même rendu que la fiche espèce */}
               {capturedPhoto && (
                 <HolographicCard
