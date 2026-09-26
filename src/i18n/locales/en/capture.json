@@ -267,6 +267,11 @@
       "byExplorer": "Explorer's photo",
       "lockedTitle": "Not sure? Compare with similar species",
       "lockedDesc": "Photo suggestions, for Premium explorers only."
+    },
+    "explorerPhotos": {
+      "title": "Explorers' photos",
+      "lockedTitle": "See this species by other explorers",
+      "lockedDesc": "Their photos of the same species, for Premium explorers only."
     }
   }
 }
