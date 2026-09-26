@@ -202,7 +202,8 @@ const BestiairePage = () => {
     ? requestedTab === 'map' || requestedTab === 'badges' ? requestedTab : 'mine'
     : requestedTab === 'collections' || requestedTab === 'leaderboard' ? requestedTab : 'categories';
   const [viewMode, setViewMode] = useState<ViewMode>(initialView);
-  const [leaderboardTab, setLeaderboardTab] = useState<'week' | 'all' | 'explorers'>('week');
+  const [leaderboardScope, setLeaderboardScope] = useState<'global' | 'explorers'>('global');
+  const [leaderboardFilter, setLeaderboardFilter] = useState<'week' | 'all' | string>('week');
   const [rarityFilter, setRarityFilter] = useState<Rarity[]>([]);
 const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [selectedFinders, setSelectedFinders] = useState<number | undefined>(undefined);
@@ -2080,14 +2081,14 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
           {viewMode === 'leaderboard' && (
             <section>
               <div className="sticky top-[70px] z-30 -mx-4 px-4 pt-1 pb-2 bg-gradient-to-b from-background via-background/95 to-transparent">
-                <div className="flex items-center gap-1 p-1 rounded-full bg-card/90 backdrop-blur-xl border border-border w-full shadow-lg shadow-foreground/5">
-                  {([['week', t('social.leaderboard.tabWeek'), CalendarDays], ['all', t('social.leaderboard.tabAllTime'), InfinityIcon], ['explorers', t('social.leaderboard.tabExplorers'), Users]] as const).map(([key, label, Icon]) => {
-                    const active = leaderboardTab === key;
+                <div className="grid grid-cols-2 gap-1 p-1 rounded-full bg-card/90 backdrop-blur-xl border border-border w-full shadow-lg shadow-foreground/5">
+                  {([['global', t('social.leaderboard.tabGlobal'), Globe], ['explorers', t('social.leaderboard.tabExplorers'), Users]] as const).map(([key, label, Icon]) => {
+                    const active = leaderboardScope === key;
                     const locked = key === 'explorers' && !isPremium;
                     return (
                       <button
                         key={key}
-                        onClick={() => setLeaderboardTab(key)}
+                        onClick={() => setLeaderboardScope(key)}
                         className={`relative flex-1 flex items-center justify-center gap-1.5 text-xs font-display font-semibold py-2 rounded-full transition-all duration-200 active:scale-95 ${
                           active
                             ? 'bg-gradient-to-br from-primary to-primary/75 text-primary-foreground shadow-md shadow-primary/30 scale-[1.02]'
@@ -2100,60 +2101,71 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                     );
                   })}
                 </div>
-              </div>
-              <div className="flex h-[34px] items-center justify-between gap-3 px-1 pt-1">
-                <h2 className="min-w-0 truncate text-[15px] font-display font-bold text-foreground">
-                  {leaderboardTab === 'week'
-                    ? t('social.leaderboard.titleWeek')
-                    : leaderboardTab === 'all'
-                      ? t('social.leaderboard.titleAllTime')
-                      : t('social.leaderboard.titleExplorers')}
-                </h2>
-                {leaderboardTab === 'week' && <LeaderboardResetBadge className="shrink-0" />}
-              </div>
-              {leaderboardTab === 'week'
-                ? <CategoryLeaderboard category="all" inline period="week" scope="global" showResetBadge={false} />
-                : leaderboardTab === 'all'
-
-                  ? <CategoryLeaderboard category="all" inline period="all" scope="global" />
-                  : premiumLoading
-                    ? <p className="px-5 py-10 text-center text-[13px] font-display text-muted-foreground">{t('social.common.loading')}</p>
-                    : isPremium
-                      ? <CategoryLeaderboard category="all" inline period="all" scope="follows" />
-                      : (
-                      <div className="px-5 py-10 text-center">
-                        <div className="mx-auto w-14 h-14 rounded-full bg-gradient-to-b from-amber/25 to-amber/5 border border-amber/30 flex items-center justify-center mb-3">
-                          <Crown className="w-6 h-6 text-amber" />
-                        </div>
-                        <p className="text-[14px] font-display font-bold text-foreground">{t('social.leaderboard.lockedTitle')}</p>
-                        <p className="mt-1 text-[12px] font-display text-muted-foreground leading-relaxed">
-                          {t('social.leaderboard.lockedDesc')}
-                        </p>
-                        <button
-                          onClick={() => navigate('/premium')}
-                          className="mt-4 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-[13px] font-display font-bold shadow-lg active:scale-[0.98] transition-transform"
-                        >
-                          {t('social.leaderboard.lockedCta')}
-                        </button>
-                      </div>
-                    )}
-
-              {/* Classements par catégorie d'animaux */}
-              {(leaderboardTab !== 'explorers' || isPremium) && (
-                <div className="mt-6">
-                  <h2 className="px-1 mb-3 text-[15px] font-display font-bold text-foreground">
-                    {t('social.leaderboard.byCategory')}
-                  </h2>
-                  {LEADERBOARD_CATEGORIES.map((cat) => (
-                    <CategoryLeaderboard
-                      key={`${cat}-${leaderboardTab}`}
-                      category={cat}
-                      period={leaderboardTab === 'week' ? 'week' : 'all'}
-                      scope={leaderboardTab === 'explorers' ? 'follows' : 'global'}
-                      showResetBadge={false}
-                    />
-                  ))}
+                <div className="mt-2 flex gap-2 overflow-x-auto pb-1 scrollbar-none" role="tablist" aria-label={t('social.leaderboard.ranking')}>
+                  {([
+                    ['week', t('social.leaderboard.tabWeek')],
+                    ['all', t('social.leaderboard.tabAllTime')],
+                    ...LEADERBOARD_CATEGORIES.map((category) => [category, t(`bestiary.categoryNames.${category}`, { defaultValue: category })]),
+                  ] as [string, string][]).map(([key, label]) => {
+                    const active = leaderboardFilter === key;
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        role="tab"
+                        aria-selected={active}
+                        onClick={() => setLeaderboardFilter(key)}
+                        className={`shrink-0 rounded-full px-3.5 py-2 text-[12px] font-display font-semibold transition-colors ${
+                          active ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground'
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
                 </div>
+              </div>
+              {leaderboardScope === 'explorers' && (premiumLoading || !isPremium) ? (
+                premiumLoading ? (
+                  <p className="px-5 py-10 text-center text-[13px] font-display text-muted-foreground">{t('social.common.loading')}</p>
+                ) : (
+                  <div className="px-5 py-10 text-center">
+                    <div className="mx-auto w-14 h-14 rounded-full bg-gradient-to-b from-amber/25 to-amber/5 border border-amber/30 flex items-center justify-center mb-3">
+                      <Crown className="w-6 h-6 text-amber" />
+                    </div>
+                    <p className="text-[14px] font-display font-bold text-foreground">{t('social.leaderboard.lockedTitle')}</p>
+                    <p className="mt-1 text-[12px] font-display text-muted-foreground leading-relaxed">
+                      {t('social.leaderboard.lockedDesc')}
+                    </p>
+                    <button
+                      onClick={() => navigate('/premium')}
+                      className="mt-4 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-[13px] font-display font-bold shadow-lg active:scale-[0.98] transition-transform"
+                    >
+                      {t('social.leaderboard.lockedCta')}
+                    </button>
+                  </div>
+                )
+              ) : (
+                <>
+                  <div className="flex h-[34px] items-center justify-between gap-3 px-1 pt-1">
+                    <h2 className="min-w-0 truncate text-[15px] font-display font-bold text-foreground">
+                      {leaderboardFilter === 'week'
+                        ? t('social.leaderboard.titleWeek')
+                        : leaderboardFilter === 'all'
+                          ? t('social.leaderboard.titleAllTime')
+                          : t(`bestiary.categoryNames.${leaderboardFilter}`, { defaultValue: leaderboardFilter })}
+                    </h2>
+                    {leaderboardFilter === 'week' && <LeaderboardResetBadge className="shrink-0" />}
+                  </div>
+                  <CategoryLeaderboard
+                    key={`${leaderboardScope}-${leaderboardFilter}`}
+                    category={leaderboardFilter === 'week' || leaderboardFilter === 'all' ? 'all' : leaderboardFilter}
+                    inline
+                    period={leaderboardFilter === 'week' ? 'week' : 'all'}
+                    scope={leaderboardScope === 'explorers' ? 'follows' : 'global'}
+                    showResetBadge={false}
+                  />
+                </>
               )}
 
             </section>
