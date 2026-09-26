@@ -17,3 +17,7 @@ Check Premium eligibility in the badge claim function, not only in the badge UI,
 Any full-bleed `filter: blur()` photo backdrop (`background-size: cover` on a viewport-sized element) must be scaled well past the blur radius — `scale(1.9)` for a 42px blur, `scale(2.25)` for 50px — and the layer behind it must stay opaque.
 
 **Why:** blurring fades the element's alpha inward by roughly 3σ, so an under-scaled backdrop lets the screen behind it bleed through as ghosted text.
+
+## Shelving targets the exact displayed species tile
+
+Match both common and scientific names before falling back to either, measure the live tile during flight, and keep the landing flash geometry unchanged, because shared binomials and flash scaling make a correctly placed card appear to miss its slot.

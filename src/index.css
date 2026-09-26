@@ -1832,23 +1832,19 @@
 @keyframes shelve-slot-flash {
   0% {
     box-shadow: 0 0 0 0 hsla(42, 85%, 60%, 0);
-    transform: scale(1);
   }
   20% {
     box-shadow:
       0 0 0 4px hsla(42, 85%, 60%, 0.6),
       0 0 30px 12px hsla(42, 85%, 55%, 0.55);
-    transform: scale(1.08);
   }
   60% {
     box-shadow:
       0 0 0 2px hsla(42, 85%, 60%, 0.3),
       0 0 20px 6px hsla(42, 85%, 55%, 0.25);
-    transform: scale(1.02);
   }
   100% {
     box-shadow: 0 0 0 0 hsla(42, 85%, 60%, 0);
-    transform: scale(1);
   }
 }
 

@@ -363,12 +363,13 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const [shelveScrollDone, setShelveScrollDone] = useState(false);
   const shelveTargetIndexRef = useRef<number | null>(null);
   const resolveShelveSlot = useCallback((shelve: PendingShelve) => {
-    const esc = (v: string) => v.toLowerCase().replace(/["\\]/g, '\\$&');
-    const sci = shelve.scientificName?.trim();
-    return (
-      (sci ? document.querySelector<HTMLElement>(`[data-shelve-sci="${esc(sci)}"]`) : null) ||
-      document.querySelector<HTMLElement>(`[data-shelve-slot="${esc(shelve.animalName)}"]`)
-    );
+    const name = shelve.animalName.trim().toLocaleLowerCase('fr');
+    const sci = shelve.scientificName?.trim().toLowerCase();
+    const slots = Array.from(document.querySelectorAll<HTMLElement>('[data-shelve-slot]'));
+    return slots.find(el => el.dataset.shelveSlot === name && (!sci || el.dataset.shelveSci === sci))
+      ?? slots.find(el => el.dataset.shelveSlot === name)
+      ?? slots.find(el => sci && el.dataset.shelveSci === sci)
+      ?? null;
   }, []);
 
   const { pendingShelve, flight, cardRef: shelveCardRef, backdropRef: shelveBackdropRef, labelRef: shelveLabelRef, isFlashing, isHidden } = useShelveAnimation({
@@ -720,9 +721,10 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const shelveTargetIndex = useMemo(() => {
     if (!pendingShelve) return null;
     const sci = pendingShelve.scientificName?.trim().toLowerCase();
-    const target = pendingShelve.animalName.toLocaleLowerCase('fr');
-    let idx = sci ? browseAnimals.findIndex(a => a.scientific_name?.trim().toLowerCase() === sci) : -1;
-    if (idx < 0) idx = browseAnimals.findIndex(a => a.name.toLocaleLowerCase('fr') === target);
+    const target = pendingShelve.animalName.trim().toLocaleLowerCase('fr');
+    let idx = browseAnimals.findIndex(a => a.name.trim().toLocaleLowerCase('fr') === target && (!sci || a.scientific_name?.trim().toLowerCase() === sci));
+    if (idx < 0) idx = browseAnimals.findIndex(a => a.name.trim().toLocaleLowerCase('fr') === target);
+    if (idx < 0 && sci) idx = browseAnimals.findIndex(a => a.scientific_name?.trim().toLowerCase() === sci);
     return idx >= 0 ? idx : null;
   }, [pendingShelve, browseAnimals]);
   shelveTargetIndexRef.current = shelveTargetIndex;
