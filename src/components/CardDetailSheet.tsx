@@ -1004,7 +1004,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
             )}
 
             {/* Location editing (owner only) */}
-            {!isUncaptured && editingLocation && (
+            {!feedView && !isUncaptured && editingLocation && (
               <div className="rounded-2xl border border-border bg-card p-4 space-y-2">
                 <input
                   type="text"
@@ -1051,7 +1051,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
             )}
 
 
-            {!isUncaptured && (
+            {!feedView && !isUncaptured && (
               <ExplorerPhotosStrip
                 animalName={card.name}
                 scientificName={card.scientificName}
@@ -1062,7 +1062,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
             )}
 
             {/* Fun Fact — anecdote mise en avant */}
-            {isUncaptured ? (
+            {feedView ? null : isUncaptured ? (
               <div className="flex items-center justify-center gap-2 rounded-2xl border border-dashed border-border bg-muted/30 px-4 py-3.5 text-muted-foreground/60">
                 <Lock className="w-3.5 h-3.5" />
                 <p className="text-sm italic">{t('capture.detail.hiddenFact')}</p>
