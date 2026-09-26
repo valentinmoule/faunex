@@ -17,7 +17,7 @@ const TEST_ACCOUNT_IDS = ['ac0df155-7422-4073-bfc1-14e2a71960bc', 'c62717cb-255a
 
 const cache = new Map<string, SimilarSpecies>();
 
-async function loadSpecies(name: string): Promise<SimilarSpecies> {
+async function loadSpecies(name: string, sciHint?: string | null): Promise<SimilarSpecies> {
   const key = name.trim().toLowerCase();
   const hit = cache.get(key);
   if (hit) return hit;
@@ -30,7 +30,7 @@ async function loadSpecies(name: string): Promise<SimilarSpecies> {
   const fromExplorer = Boolean(image);
   if (!image) {
     try {
-      for (const q of [animal?.scientific_name, name].filter(Boolean) as string[]) {
+      for (const q of [animal?.scientific_name, sciHint, name].filter(Boolean) as string[]) {
         const res = await fetch(`https://api.inaturalist.org/v1/taxa/autocomplete?q=${encodeURIComponent(q)}&per_page=3&locale=fr`);
         const json = await res.json();
         const hit = (json?.results ?? []).find((r: any) => r?.default_photo?.medium_url);
@@ -44,7 +44,7 @@ async function loadSpecies(name: string): Promise<SimilarSpecies> {
   }
   const out: SimilarSpecies = {
     name: animal?.name ?? name.trim(),
-    scientific_name: animal?.scientific_name ?? null,
+    scientific_name: animal?.scientific_name ?? sciHint ?? null,
     rarity: animal?.rarity ?? null,
     image,
     fromExplorer,
@@ -55,13 +55,14 @@ async function loadSpecies(name: string): Promise<SimilarSpecies> {
 
 interface Props {
   names: string[];
+  scientificNames?: string[] | null;
   isPremium: boolean;
   onPick: (s: SimilarSpecies) => void;
   onGoPremium: () => void;
 }
 
 /** Suggestions d'espèces semblables avec photo, défilement horizontal (Premium). */
-const SimilarSpeciesStrip = ({ names, isPremium, onPick, onGoPremium }: Props) => {
+const SimilarSpeciesStrip = ({ names, scientificNames, isPremium, onPick, onGoPremium }: Props) => {
   const { t } = useTranslation();
   const [items, setItems] = useState<SimilarSpecies[] | null>(null);
   const [picked, setPicked] = useState<string | null>(null);
@@ -69,7 +70,7 @@ const SimilarSpeciesStrip = ({ names, isPremium, onPick, onGoPremium }: Props) =
   useEffect(() => {
     if (!isPremium || names.length === 0) return;
     let alive = true;
-    Promise.all(names.slice(0, 6).map(loadSpecies)).then((r) => { if (alive) setItems(r); });
+    Promise.all(names.slice(0, 6).map((n, i) => loadSpecies(n, scientificNames?.[i]))).then((r) => { if (alive) setItems(r); });
     return () => { alive = false; };
   }, [isPremium, names.join('|')]);
 

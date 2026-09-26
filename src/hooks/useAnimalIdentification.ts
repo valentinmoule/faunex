@@ -314,6 +314,7 @@ export const useAnimalIdentification = () => {
             predicted_rarity: animal.rarity ?? null,
             confidence: animal.confidence ?? null,
             alternatives: animal.alternatives ?? null,
+            alternatives_scientific: animal.alternatives_scientific ?? null,
             subject_bbox: animal.subject_bbox ?? null,
           });
         }
