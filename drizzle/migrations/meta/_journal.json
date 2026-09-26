@@ -64,6 +64,13 @@
       "when": 1790378131847,
       "tag": "0008_create_custom_collections",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1790415865735,
+      "tag": "0009_leaderboard_daily_movement",
+      "breakpoints": true
     }
   ]
 }

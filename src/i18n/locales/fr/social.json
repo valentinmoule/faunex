@@ -187,6 +187,11 @@
       "you": "Toi",
       "defaultName": "Explorateur",
       "capturesShort": "{{count}} capt.",
+      "movedUp": "Monté de {{count}} place depuis hier",
+      "movedUp_other": "Monté de {{count}} places depuis hier",
+      "movedDown": "Descendu de {{count}} place depuis hier",
+      "movedDown_other": "Descendu de {{count}} places depuis hier",
+      "noMovement": "Position inchangée depuis hier",
       "tabWeek": "Semaine",
       "tabAllTime": "Tout temps",
       "tabExplorers": "Explorateurs"

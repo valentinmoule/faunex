@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { ChevronRight, Clock, Crown, Lock, Trophy } from 'lucide-react';
+import { ArrowDown, ArrowUp, ChevronRight, Clock, Crown, Lock, Minus, Trophy } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { PremiumAvatar } from '@/components/PremiumAvatar';
 import { avatarFallbackStyle } from '@/lib/avatarPalette';
@@ -19,12 +19,14 @@ interface Row {
   avatar_url: string | null;
   captures: number;
   is_me: boolean;
+  rank_change?: number | null;
 }
 
 interface MyRank {
   rank: number;
   captures: number;
   total_players: number;
+  rank_change?: number | null;
 }
 
 /** Milliseconds until next Sunday 00:00 (week runs Sunday → Sunday). */
@@ -81,6 +83,30 @@ const Avatar = ({ row, isPremium, size = 'sm', className = '' }: { row: Row; isP
     className={className}
   />
 );
+
+const RankMovement = ({ change, compact = false }: { change?: number | null; compact?: boolean }) => {
+  const { t } = useTranslation();
+  if (change === null || change === undefined) return null;
+  const amount = Math.abs(change);
+  const label = change > 0
+    ? t('social.leaderboard.movedUp', { count: amount })
+    : change < 0
+      ? t('social.leaderboard.movedDown', { count: amount })
+      : t('social.leaderboard.noMovement');
+  const Icon = change > 0 ? ArrowUp : change < 0 ? ArrowDown : Minus;
+  return (
+    <span
+      aria-label={label}
+      title={label}
+      className={`inline-flex shrink-0 items-center justify-center gap-0.5 font-display font-bold ${compact ? 'text-[9px]' : 'text-[10px]'} ${
+        change > 0 ? 'text-primary' : change < 0 ? 'text-destructive' : 'text-muted-foreground'
+      }`}
+    >
+      <Icon className={compact ? 'h-2.5 w-2.5' : 'h-3 w-3'} strokeWidth={2.6} />
+      {amount > 0 && <span>{amount}</span>}
+    </span>
+  );
+};
 
 const PODIUM = [
   { height: 'h-16', ring: 'ring-amber/50', badge: 'bg-amber text-amber-dark', label: '1', avatar: 'lg' as const, order: 'order-2' },
@@ -161,12 +187,12 @@ const CategoryLeaderboard = ({ category, territory, inline, period = 'week', sco
             supabase.rpc('my_territory_rank', { p_department: value, p_scope: scope } as never),
           ])
         : await Promise.all([
-            supabase.rpc('category_leaderboard', { p_category: value, p_limit: 20, p_scope: scope, p_period: period } as never),
-            supabase.rpc('my_category_rank', { p_category: value, p_scope: scope, p_period: period } as never),
+            supabase.rpc('category_leaderboard_with_movement', { p_category: value, p_limit: 20, p_scope: scope, p_period: period }),
+            supabase.rpc('my_category_rank_with_movement', { p_category: value, p_scope: scope, p_period: period }),
           ]);
-      const nextRows = ((top.data as unknown as Row[] | null) || []).map(r => ({ ...r, rank: Number(r.rank), captures: Number(r.captures) }));
+      const nextRows = ((top.data as unknown as Row[] | null) || []).map(r => ({ ...r, rank: Number(r.rank), captures: Number(r.captures), rank_change: r.rank_change === null || r.rank_change === undefined ? null : Number(r.rank_change) }));
       const m = ((me.data as unknown as MyRank[] | null) || [])[0];
-      const nextMine = m ? { rank: Number(m.rank), captures: Number(m.captures), total_players: Number(m.total_players) } : null;
+      const nextMine = m ? { rank: Number(m.rank), captures: Number(m.captures), total_players: Number(m.total_players), rank_change: m.rank_change === null || m.rank_change === undefined ? null : Number(m.rank_change) } : null;
       boardCache.set(cacheKey, { rows: nextRows, mine: nextMine });
       if (cancelled) return;
       setRows(nextRows);
@@ -269,6 +295,7 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
                     <p className={`text-[11px] font-display font-bold truncate max-w-full ${r.is_me ? 'text-primary' : 'text-foreground'}`}>
                       {r.is_me ? t('social.leaderboard.you') : r.display_name || r.username || t('social.leaderboard.defaultName')}
                     </p>
+                    <RankMovement change={r.rank_change} compact />
                     <p className="text-[10px] font-display text-muted-foreground">{t('social.leaderboard.capturesShort', { count: r.captures })}</p>
                     <div className={`w-full ${cfg.height} rounded-t-xl bg-gradient-to-t from-primary/15 to-primary/40 border-x border-t border-border`} />
                   </div>
@@ -288,6 +315,7 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
                 <p className={`flex-1 min-w-0 truncate text-[13px] font-display ${r.is_me ? 'font-bold text-primary' : 'text-foreground'}`}>
                   {r.is_me ? t('social.leaderboard.you') : r.display_name || r.username || t('social.leaderboard.defaultName')}
                 </p>
+                <RankMovement change={r.rank_change} />
                 <span className="text-[13px] font-display font-bold text-foreground shrink-0">{r.captures}</span>
               </li>
             ))}
@@ -301,6 +329,7 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
                   {(user?.email || '?').charAt(0).toUpperCase()}
                 </div>
                 <p className="flex-1 min-w-0 truncate text-[13px] font-display font-bold text-primary">{t('social.leaderboard.you')}</p>
+                <RankMovement change={mine.rank_change} />
                 <span className="text-[13px] font-display font-bold text-foreground shrink-0">{mine.captures}</span>
               </li>
             )}
