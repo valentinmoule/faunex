@@ -36,6 +36,10 @@ interface Props {
   communityFinders?: number;
   /** Called after the user deleted their own capture, so the parent list can drop it. */
   onDeleted?: (captureId: string) => void;
+  /** Mode feed : fiche allégée d'une capture d'explorateur — pas de description, ni d'infos. */
+  feedView?: boolean;
+  /** Auteur de la capture (mode feed) — en-tête avatar + nom. */
+  author?: { id: string; name: string; avatarUrl?: string | null } | null;
 }
 
 interface Comment {
@@ -112,14 +116,15 @@ const LockedField = ({ icon, label }: { icon: React.ReactNode; label: string }) 
 };
 
 
-const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: Props) => {
+const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, feedView = false, author }: Props) => {
   const { t, i18n } = useTranslation();
   const { session } = useAuth();
   // Nom commun localisé + fiche d'espèce localisée (traduite à la demande, puis cachée).
   const { speciesName } = useSpeciesName();
   const displayName = speciesName(card?.name);
+  // En mode feed, la fiche est allégée : pas besoin de charger les infos d'espèce.
   const facts = useSpeciesFacts(
-    open && card
+    open && card && !feedView
       ? {
           name: card.name,
           scientificName: card.scientificName,
@@ -154,7 +159,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted }: P
   const [locLoading, setLocLoading] = useState(false);
 
   /* Nombre de naturalistes ayant capturé l'espèce : fourni par le parent, sinon chargé ici. */
-  const fetchedFinders = useSpeciesFinders(card?.name, open && communityFinders === undefined);
+  const fetchedFinders = useSpeciesFinders(card?.name, open && !feedView && communityFinders === undefined);
   const finders = communityFinders ?? fetchedFinders;
 
 
