@@ -17,6 +17,8 @@ import { useCaptureReveal } from '@/hooks/useCaptureReveal';
 import RevealStage from '@/components/capture/RevealStage';
 import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
 import RarityBadge from '@/components/RarityBadge';
+import HolographicCard from '@/components/HolographicCard';
+import { normalizeRarity } from '@/data/mockData';
 import { useCaptureQuota, DAILY_CAPTURE_LIMIT } from '@/hooks/useCaptureQuota';
 import { useSubscription } from '@/hooks/useSubscription';
 
@@ -553,7 +555,7 @@ setManualMode(false);
 
 
   return (
-    <main className="min-h-screen bg-foreground flex flex-col pb-24">
+    <main className={`min-h-screen bg-foreground flex flex-col ${animalResult && revealPhase === 'done' ? '' : 'pb-24'}`}>
       <canvas ref={canvasRef} className="hidden" />
       <input
         ref={galleryInputRef}
