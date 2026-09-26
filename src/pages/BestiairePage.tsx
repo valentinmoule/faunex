@@ -2144,7 +2144,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                   {LEADERBOARD_CATEGORIES.map((cat) => (
                     <CategoryLeaderboard
                       key={`${cat}-${leaderboardTab}`}
-                      category={t(`bestiary.categoryNames.${cat}`)}
+                      category={cat}
                       period={leaderboardTab === 'week' ? 'week' : 'all'}
                       scope={leaderboardTab === 'explorers' ? 'follows' : 'global'}
                       showResetBadge={false}

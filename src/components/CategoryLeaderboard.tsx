@@ -353,7 +353,7 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
           <SheetHeader className="px-5 text-left">
             <SheetTitle className="font-display text-base flex items-center gap-2">
               <Trophy className="w-4 h-4 text-amber" />
-              {isTerritory ? t('social.leaderboard.sheetTitleTerritory', { label: territory.label }) : category === 'all' ? t('social.leaderboard.sheetTitleGeneral') : t(period === 'all' ? 'social.leaderboard.sheetTitleCategoryAll' : 'social.leaderboard.sheetTitleCategory', { category })}
+              {isTerritory ? t('social.leaderboard.sheetTitleTerritory', { label: territory.label }) : category === 'all' ? t('social.leaderboard.sheetTitleGeneral') : t(period === 'all' ? 'social.leaderboard.sheetTitleCategoryAll' : 'social.leaderboard.sheetTitleCategory', { category: t(`bestiary.categoryNames.${category}`, { defaultValue: category }) })}
             </SheetTitle>
           </SheetHeader>
           {content}
