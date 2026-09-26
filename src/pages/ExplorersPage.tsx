@@ -695,16 +695,35 @@ const ExplorersPage = () => {
 
                   {post.caption && <p className="text-xs text-foreground/70 mt-1.5 px-4 leading-relaxed">{post.caption}</p>}
 
-                  <div className="flex items-center gap-5 px-4 mt-3.5">
-                    <button onClick={() => handleLike(post.id)} className="flex items-center gap-1.5 group">
-                      <Heart className={`w-5 h-5 transition-all ${isLiked ? 'fill-destructive text-destructive scale-110' : 'text-muted-foreground group-hover:text-destructive'}`} />
-                      {likeCount > 0 && <span className={`text-sm ${isLiked ? 'text-destructive font-semibold' : 'text-muted-foreground'}`}>{likeCount}</span>}
-                    </button>
-                    <button onClick={() => handleOpenComments(post.id)} className="flex items-center gap-1.5 group">
-                      <MessageCircle className={`w-5 h-5 transition-colors ${isCommentsOpen ? 'text-primary fill-primary/20' : 'text-muted-foreground group-hover:text-primary'}`} />
-                      {commentCount > 0 && <span className={`text-sm ${isCommentsOpen ? 'text-primary font-semibold' : 'text-muted-foreground'}`}>{commentCount}</span>}
-                    </button>
+                  <div className="flex items-center justify-between gap-3 px-4 mt-3.5">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <button onClick={() => navigate(`/explorer/${post.user_id}/collection`)}>
+                        <PremiumAvatar
+                          avatarUrl={avatarUrl}
+                          name={userName}
+                          size="md"
+                          isPremium={feedPremiumIds.has(post.user_id)}
+                        />
+                      </button>
+                      <div className="min-w-0">
+                        <button onClick={() => navigate(`/explorer/${post.user_id}/collection`)} className="block text-sm font-display font-semibold text-foreground truncate hover:underline">
+                          {userName}
+                        </button>
+                        <span className="block text-[11px] text-muted-foreground">{timeAgo(post.created_at)}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-5 shrink-0">
+                      <button onClick={() => handleLike(post.id)} className="flex items-center gap-1.5 group">
+                        <Heart className={`w-5 h-5 transition-all ${isLiked ? 'fill-destructive text-destructive scale-110' : 'text-muted-foreground group-hover:text-destructive'}`} />
+                        {likeCount > 0 && <span className={`text-sm ${isLiked ? 'text-destructive font-semibold' : 'text-muted-foreground'}`}>{likeCount}</span>}
+                      </button>
+                      <button onClick={() => handleOpenComments(post.id)} className="flex items-center gap-1.5 group">
+                        <MessageCircle className={`w-5 h-5 transition-colors ${isCommentsOpen ? 'text-primary fill-primary/20' : 'text-muted-foreground group-hover:text-primary'}`} />
+                        {commentCount > 0 && <span className={`text-sm ${isCommentsOpen ? 'text-primary font-semibold' : 'text-muted-foreground'}`}>{commentCount}</span>}
+                      </button>
+                    </div>
                   </div>
+
 
                   {isCommentsOpen && (
                     <div className="px-4 mt-2 space-y-2">
