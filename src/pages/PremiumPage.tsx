@@ -39,6 +39,20 @@ const useFeatures = (t: (key: string) => string): FeatureRow[] => [
     premium: <span className="text-sm font-semibold text-primary">{t('profile.premium.features.unlimitedPlural')}</span>,
   },
   {
+    label: t('profile.premium.features.customCollections'),
+    free: <Minus className="h-4 w-4 text-muted-foreground" />,
+    premium: <Check className="h-4 w-4 text-primary" />,
+  },
+  {
+    label: t('profile.premium.features.explorerPhotos'),
+    free: <span className="text-center text-[11px] font-medium leading-tight text-muted-foreground">
+      {t('profile.premium.features.followedOnly')}
+    </span>,
+    premium: <span className="text-center text-[11px] font-semibold leading-tight text-primary">
+      {t('profile.premium.features.allExplorers')}
+    </span>,
+  },
+  {
     label: t('profile.premium.features.premiumBadge'),
     free: <Minus className="h-4 w-4 text-muted-foreground" />,
     premium: <Check className="h-4 w-4 text-primary" />,
