@@ -369,7 +369,9 @@
       },
       "features": {
         "identification": "Identification des animaux",
+        "fourPerDay": "4 / jour",
         "unlimited": "Illimitée",
+        "similarSpecies": "Suggestions d'espèces semblables",
         "zoneSearch": "Recherche de zones",
         "collections": "Collections et territoires",
         "unlimitedPlural": "Illimités",
@@ -377,11 +379,14 @@
         "explorerPhotos": "Photos des explorateurs",
         "followedOnly": "Suivis",
         "allExplorers": "Tous",
+        "explorersRanking": "Classement des explorateurs",
         "premiumBadge": "Badge Premium sur le profil",
+        "includedSection": "Aussi inclus, pour tout le monde",
         "notesLocation": "Notes et localisation",
         "quests": "Quêtes et objectifs",
-        "leaderboard": "Classement et badges",
-        "explorersRanking": "Classement des explorateurs"
+        "leaderboard": "Classements (semaine et tout temps)",
+        "categoryRankings": "Classements par catégorie",
+        "badges": "Badges et récompenses"
       }
     },
     "pricing": {

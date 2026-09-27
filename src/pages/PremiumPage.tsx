@@ -20,13 +20,19 @@ interface FeatureRow {
   label: string;
   free: ReactNode;
   premium: ReactNode;
+  section?: string;
 }
 
 const useFeatures = (t: (key: string) => string): FeatureRow[] => [
   {
     label: t('profile.premium.features.identification'),
-    free: <span className="text-sm font-medium">4</span>,
+    free: <span className="text-sm font-medium">{t('profile.premium.features.fourPerDay')}</span>,
     premium: <span className="text-sm font-semibold text-primary">{t('profile.premium.features.unlimited')}</span>,
+  },
+  {
+    label: t('profile.premium.features.similarSpecies'),
+    free: <Minus className="h-4 w-4 text-muted-foreground" />,
+    premium: <Check className="h-4 w-4 text-primary" />,
   },
   {
     label: t('profile.premium.features.zoneSearch'),
@@ -53,6 +59,11 @@ const useFeatures = (t: (key: string) => string): FeatureRow[] => [
     </span>,
   },
   {
+    label: t('profile.premium.features.explorersRanking'),
+    free: <Minus className="h-4 w-4 text-muted-foreground" />,
+    premium: <Check className="h-4 w-4 text-primary" />,
+  },
+  {
     label: t('profile.premium.features.premiumBadge'),
     free: <Minus className="h-4 w-4 text-muted-foreground" />,
     premium: <Check className="h-4 w-4 text-primary" />,
@@ -61,6 +72,7 @@ const useFeatures = (t: (key: string) => string): FeatureRow[] => [
     label: t('profile.premium.features.notesLocation'),
     free: <Check className="h-4 w-4 text-foreground" />,
     premium: <Check className="h-4 w-4 text-primary" />,
+    section: t('profile.premium.features.includedSection'),
   },
   {
     label: t('profile.premium.features.quests'),
@@ -73,8 +85,13 @@ const useFeatures = (t: (key: string) => string): FeatureRow[] => [
     premium: <Check className="h-4 w-4 text-primary" />,
   },
   {
-    label: t('profile.premium.features.explorersRanking'),
-    free: <Minus className="h-4 w-4 text-muted-foreground" />,
+    label: t('profile.premium.features.categoryRankings'),
+    free: <Check className="h-4 w-4 text-foreground" />,
+    premium: <Check className="h-4 w-4 text-primary" />,
+  },
+  {
+    label: t('profile.premium.features.badges'),
+    free: <Check className="h-4 w-4 text-foreground" />,
     premium: <Check className="h-4 w-4 text-primary" />,
   },
 ];
