@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { Fragment, useEffect, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Check, Loader2, Crown, Minus } from 'lucide-react';
@@ -20,13 +20,19 @@ interface FeatureRow {
   label: string;
   free: ReactNode;
   premium: ReactNode;
+  section?: string;
 }
 
 const useFeatures = (t: (key: string) => string): FeatureRow[] => [
   {
     label: t('profile.premium.features.identification'),
-    free: <span className="text-sm font-medium">4</span>,
+    free: <span className="text-sm font-medium">{t('profile.premium.features.fourPerDay')}</span>,
     premium: <span className="text-sm font-semibold text-primary">{t('profile.premium.features.unlimited')}</span>,
+  },
+  {
+    label: t('profile.premium.features.similarSpecies'),
+    free: <Minus className="h-4 w-4 text-muted-foreground" />,
+    premium: <Check className="h-4 w-4 text-primary" />,
   },
   {
     label: t('profile.premium.features.zoneSearch'),
@@ -53,6 +59,11 @@ const useFeatures = (t: (key: string) => string): FeatureRow[] => [
     </span>,
   },
   {
+    label: t('profile.premium.features.explorersRanking'),
+    free: <Minus className="h-4 w-4 text-muted-foreground" />,
+    premium: <Check className="h-4 w-4 text-primary" />,
+  },
+  {
     label: t('profile.premium.features.premiumBadge'),
     free: <Minus className="h-4 w-4 text-muted-foreground" />,
     premium: <Check className="h-4 w-4 text-primary" />,
@@ -61,6 +72,7 @@ const useFeatures = (t: (key: string) => string): FeatureRow[] => [
     label: t('profile.premium.features.notesLocation'),
     free: <Check className="h-4 w-4 text-foreground" />,
     premium: <Check className="h-4 w-4 text-primary" />,
+    section: t('profile.premium.features.includedSection'),
   },
   {
     label: t('profile.premium.features.quests'),
@@ -73,8 +85,13 @@ const useFeatures = (t: (key: string) => string): FeatureRow[] => [
     premium: <Check className="h-4 w-4 text-primary" />,
   },
   {
-    label: t('profile.premium.features.explorersRanking'),
-    free: <Minus className="h-4 w-4 text-muted-foreground" />,
+    label: t('profile.premium.features.categoryRankings'),
+    free: <Check className="h-4 w-4 text-foreground" />,
+    premium: <Check className="h-4 w-4 text-primary" />,
+  },
+  {
+    label: t('profile.premium.features.badges'),
+    free: <Check className="h-4 w-4 text-foreground" />,
     premium: <Check className="h-4 w-4 text-primary" />,
   },
 ];
@@ -265,16 +282,22 @@ const PremiumPage = () => {
               <div className="px-2 py-3 text-center text-xs font-semibold text-primary">Premium</div>
             </div>
             {FEATURES.map((feature, index) => (
-              <div
-                key={feature.label}
-                className={`grid grid-cols-[1fr_80px_80px] items-center ${
-                  index !== FEATURES.length - 1 ? 'border-b border-border' : ''
-                }`}
-              >
-                <div className="px-4 py-3.5 text-sm font-medium">{feature.label}</div>
-                <div className="flex justify-center px-2 py-3.5">{feature.free}</div>
-                <div className="flex justify-center px-2 py-3.5">{feature.premium}</div>
-              </div>
+              <Fragment key={feature.label}>
+                {feature.section && (
+                  <div className="bg-muted/70 px-4 pb-2 pt-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    {feature.section}
+                  </div>
+                )}
+                <div
+                  className={`grid grid-cols-[1fr_80px_80px] items-center ${
+                    index !== FEATURES.length - 1 ? 'border-b border-border' : ''
+                  }`}
+                >
+                  <div className="px-4 py-3.5 text-sm font-medium">{feature.label}</div>
+                  <div className="flex justify-center px-2 py-3.5">{feature.free}</div>
+                  <div className="flex justify-center px-2 py-3.5">{feature.premium}</div>
+                </div>
+              </Fragment>
             ))}
           </div>
         </div>

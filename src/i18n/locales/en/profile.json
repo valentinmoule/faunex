@@ -369,7 +369,9 @@
       },
       "features": {
         "identification": "Animal identification",
+        "fourPerDay": "4 / day",
         "unlimited": "Unlimited",
+        "similarSpecies": "Similar species suggestions",
         "zoneSearch": "Zone search",
         "collections": "Collections and territories",
         "unlimitedPlural": "Unlimited",
@@ -377,11 +379,14 @@
         "explorerPhotos": "Explorers' photos",
         "followedOnly": "Followed",
         "allExplorers": "Everyone",
+        "explorersRanking": "Explorers leaderboard",
         "premiumBadge": "Premium badge on profile",
+        "includedSection": "Also included, for everyone",
         "notesLocation": "Notes and location",
         "quests": "Quests and objectives",
-        "leaderboard": "Leaderboard and badges",
-        "explorersRanking": "Explorers leaderboard"
+        "leaderboard": "Leaderboards (weekly and all-time)",
+        "categoryRankings": "Category leaderboards",
+        "badges": "Badges and rewards"
       }
     },
     "pricing": {
