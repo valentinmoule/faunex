@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { Fragment, useEffect, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Check, Loader2, Crown, Minus } from 'lucide-react';
@@ -282,16 +282,22 @@ const PremiumPage = () => {
               <div className="px-2 py-3 text-center text-xs font-semibold text-primary">Premium</div>
             </div>
             {FEATURES.map((feature, index) => (
-              <div
-                key={feature.label}
-                className={`grid grid-cols-[1fr_80px_80px] items-center ${
-                  index !== FEATURES.length - 1 ? 'border-b border-border' : ''
-                }`}
-              >
-                <div className="px-4 py-3.5 text-sm font-medium">{feature.label}</div>
-                <div className="flex justify-center px-2 py-3.5">{feature.free}</div>
-                <div className="flex justify-center px-2 py-3.5">{feature.premium}</div>
-              </div>
+              <Fragment key={feature.label}>
+                {feature.section && (
+                  <div className="bg-muted/70 px-4 pb-2 pt-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    {feature.section}
+                  </div>
+                )}
+                <div
+                  className={`grid grid-cols-[1fr_80px_80px] items-center ${
+                    index !== FEATURES.length - 1 ? 'border-b border-border' : ''
+                  }`}
+                >
+                  <div className="px-4 py-3.5 text-sm font-medium">{feature.label}</div>
+                  <div className="flex justify-center px-2 py-3.5">{feature.free}</div>
+                  <div className="flex justify-center px-2 py-3.5">{feature.premium}</div>
+                </div>
+              </Fragment>
             ))}
           </div>
         </div>
