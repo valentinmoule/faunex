@@ -381,11 +381,9 @@
         "allExplorers": "Tous",
         "explorersRanking": "Classement des explorateurs",
         "premiumBadge": "Badge Premium sur le profil",
-        "includedSection": "Aussi inclus, pour tout le monde",
         "notesLocation": "Notes et localisation",
         "quests": "Quêtes et objectifs",
-        "leaderboard": "Classements (semaine et tout temps)",
-        "categoryRankings": "Classements par catégorie",
+        "globalLeaderboards": "Classement global",
         "badges": "Badges et récompenses"
       }
     },
