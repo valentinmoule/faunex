@@ -396,26 +396,34 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
     deleteInProgressRef.current = true;
     setDeleting(true);
     setConfirmDelete(false);
-    setDeleteAnimating(true);
     hapticTap();
 
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (!reduceMotion) {
-      await new Promise<void>((resolve) => window.setTimeout(resolve, 920));
-    }
-
+    const snapshot = { id: card.id, image: card.image, rarity: card.rarity, name: displayName };
     const { error } = await supabase.from('captures').delete().eq('id', card.id);
     setDeleting(false);
     if (error) {
       deleteInProgressRef.current = false;
-      setDeleteAnimating(false);
       toast({ title: t('capture.detail.toastDeleteImpossible'), description: t('capture.detail.toastRetry'), variant: 'destructive' });
       return;
     }
 
-    onDeleted?.(card.id);
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // La fiche se ferme d'abord, puis la carte disparaît avec des scintillements.
     onClose();
-  }, [card, deleting, onDeleted, onClose]);
+    if (reduceMotion) {
+      onDeleted?.(snapshot.id);
+      deleteInProgressRef.current = false;
+      return;
+    }
+    setVanishCard(snapshot);
+    setDeleteAnimating(true);
+    window.setTimeout(() => {
+      onDeleted?.(snapshot.id);
+      setDeleteAnimating(false);
+      setVanishCard(null);
+      deleteInProgressRef.current = false;
+    }, 780);
+  }, [card, displayName, onDeleted, onClose]);
 
   // Escape closes the delete confirmation
   useEffect(() => {
