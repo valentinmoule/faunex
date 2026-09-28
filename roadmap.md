@@ -36,6 +36,7 @@
 - [x] Retirer la capture dès la fin visible de l'animation de suppression
 - [x] Tester automatiquement le fond continu, le placement et la disparition dès la fin de l'effet
 - [x] Supprimer la grande photo d'attente et le noir final du rangement ; ne montrer que le trajet vers la case
+- [x] Remplacer l'écran blanc après le bouton par la petite carte au point de départ du rangement
 
 ## Nettoyage des noms d’espèces
 - [x] Corriger les noms, capitales et parenthèses signalés

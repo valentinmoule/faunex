@@ -28,4 +28,4 @@ Compute rank movement server-side from captures before `now() - 24 hours`, prese
 
 ## Shelving transition stays on the Bestiary surface
 
-Show only the short flight into the actual tile once the Bestiary is ready; avoid a fullscreen dark veil or enlarged waiting photo, since they obscure the destination and flash black after landing.
+Keep the small card visible at its flight-start size while the Bestiary becomes ready, then hand it directly to the short flight into the actual tile; avoid a blank veil or enlarged waiting photo.
