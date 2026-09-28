@@ -526,7 +526,17 @@ setManualMode(false);
       rarity: animal.rarity,
       imageUrl,
     });
-    leaveAfterCapture(900);
+    // Préchargement de la page et décodage de la photo pendant que le bouton
+    // tourne : l'animation démarre ensuite sans aucun écran intermédiaire.
+    const decode = new Promise<void>((resolve) => {
+      const img = new Image();
+      const done = () => resolve();
+      window.setTimeout(done, 800);
+      img.onload = () => { (img.decode ? img.decode() : Promise.resolve()).catch(() => undefined).finally(done); };
+      img.onerror = done;
+      img.src = imageUrl;
+    });
+    void Promise.all([import('./BestiairePage').catch(() => undefined), decode]).then(() => leaveAfterCapture(0));
   };
 
 
@@ -636,17 +646,7 @@ setManualMode(false);
         onChange={importFromGallery}
       />
 
-      {preparingBestiary && createPortal(
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-background" role="status" aria-live="polite">
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="font-display text-sm font-semibold text-foreground">
-              {t('capture.actions.preparingBestiary')}
-            </p>
-          </div>
-        </div>,
-        document.body,
-      )}
+
       
 
       
@@ -923,10 +923,10 @@ setManualMode(false);
                   <div className="space-y-2.5">
                     <button
                       onClick={doReplaceExisting}
-                      disabled={saving}
+                      disabled={saving || preparingBestiary}
                       className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full bg-primary text-primary-foreground font-display text-sm font-semibold disabled:opacity-50"
                     >
-                      {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                      {saving || preparingBestiary ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
                       {t('capture.duplicate.replacePhoto')}
                     </button>
                     <button
@@ -942,11 +942,11 @@ setManualMode(false);
               <div className="space-y-2.5 pt-1">
                 <button
                   onClick={saveToCollection}
-                  disabled={saving}
+                  disabled={saving || preparingBestiary}
                   className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full bg-primary text-primary-foreground font-display text-sm font-semibold disabled:opacity-50"
                 >
-                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-                  {saving ? t('capture.actions.saving') : t('capture.actions.add')}
+                  {saving || preparingBestiary ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                  {saving || preparingBestiary ? t('capture.actions.saving') : t('capture.actions.add')}
                 </button>
                 <button
                   onClick={resetCapture}
