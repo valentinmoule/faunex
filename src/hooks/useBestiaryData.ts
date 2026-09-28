@@ -19,6 +19,14 @@ export const useBestiaryData = (userId: string | undefined, opts?: { light?: boo
   /** Raw approved captures of the user — the single source of truth for "how many captures". */
   const [myCaptures, setMyCaptures] = useState<AnimalCard[]>([]);
 
+  const removeCaptureLocally = useCallback((captureId: string) => {
+    setMyCaptures((current) => current.filter((capture) => capture.id !== captureId));
+    setAnimals((current) => current.map((animal) => {
+      if (animal.captureData?.id !== captureId) return animal;
+      return { ...animal, captured: false, captureData: undefined };
+    }));
+  }, []);
+
   const animalsRef = useRef<BestiaryAnimal[]>([]);
   animalsRef.current = animals;
 
@@ -245,6 +253,7 @@ list = buildList(catalogue, capturesByName, findersMap);
     animals,
     myCaptures,
     setMyCaptures,
+    removeCaptureLocally,
     loading,
     unreadCount,
     subscribedZones,

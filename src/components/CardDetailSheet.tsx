@@ -145,6 +145,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
   const [isOwner, setIsOwner] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [deleteAnimating, setDeleteAnimating] = useState(false);
   const [note, setNote] = useState('');
   const [noteDraft, setNoteDraft] = useState('');
   const [editingNote, setEditingNote] = useState(false);
@@ -219,6 +220,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
   useEffect(() => {
     setIsOwner(false);
     setConfirmDelete(false);
+    setDeleteAnimating(false);
     setNote('');
     setNoteDraft('');
     setEditingNote(false);
@@ -381,9 +383,13 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
     }
 
     setConfirmDelete(false);
-    toast({ title: t('capture.detail.toastCaptureDeleted'), description: t('capture.detail.toastCaptureDeletedDesc') });
-    onDeleted?.(card.id);
-    onClose();
+    setDeleteAnimating(true);
+    hapticTap();
+    const delay = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 420;
+    window.setTimeout(() => {
+      onDeleted?.(card.id);
+      onClose();
+    }, delay);
   }, [card, deleting, onDeleted, onClose]);
 
   // Escape closes the delete confirmation
@@ -651,7 +657,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                 onTap={card.image ? openFullscreenImage : undefined}
                 subjectBox={card.subjectBox}
                 noHolo={isUncaptured}
-                className={`relative mx-auto max-w-[280px] aspect-[4/5] rounded-[1.75rem] ${card.image ? 'cursor-pointer' : ''}`}
+                className={`relative mx-auto max-w-[280px] aspect-[4/5] rounded-[1.75rem] transition-[transform,opacity,filter] duration-400 ease-in ${card.image ? 'cursor-pointer' : ''} ${deleteAnimating ? 'scale-[0.82] opacity-0 blur-sm translate-y-5' : ''}`}
                 style={{ ['--holo-radius' as any]: '1.75rem' }}
 
               >
