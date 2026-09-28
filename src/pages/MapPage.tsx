@@ -50,6 +50,19 @@ const RARITY_COLORS: Record<string, string> = {
   hyper_rare: 'hsl(24 98% 50%)',
 };
 
+// Cadre de la vignette = cadre de la carte (même dégradé, même famille de rareté)
+const RARITY_FRAMES: Record<string, string> = {
+  common: 'var(--rarity-frame-neutral)',
+  uncommon: 'var(--rarity-frame-neutral)',
+  rare: 'var(--rarity-frame-neutral)',
+  very_rare: 'var(--rarity-frame-gold)',
+  ultra_rare: 'var(--rarity-frame-gold)',
+  illustration_rare: 'var(--rarity-frame-gold)',
+  special_rare: 'var(--rarity-frame-mythic)',
+  hyper_rare: 'var(--rarity-frame-legendary)',
+};
+
+
 
 const getCategoryIcon = (category: string): ComponentType<{ className?: string; strokeWidth?: string | number; color?: string }> => {
   const cat = category.toLowerCase();
