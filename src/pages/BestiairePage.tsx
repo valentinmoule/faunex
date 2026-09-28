@@ -1310,7 +1310,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
   /** Carte volante de l'animation de rangement (rendue dans toutes les vues). */
   const flyingCardOverlay = pendingShelve ? createPortal(
     <>
-      {/* Voile posé dès l'arrivée : masque le saut de défilement vers l'emplacement. */}
+      {/* Fond clair pendant le positionnement, retiré dès que la case est prête. */}
       <div ref={shelveBackdropRef} className="shelve-backdrop" style={{ opacity: 1 }} aria-hidden />
       {flight && <div
         ref={shelveCardRef}

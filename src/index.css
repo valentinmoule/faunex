@@ -1887,22 +1887,14 @@
   z-index: 9998;
   pointer-events: none;
   opacity: 0;
-  background: hsl(var(--foreground));
+  background: hsl(var(--background));
 }
 .shelve-holding-backdrop {
   position: fixed;
   inset: 0;
   z-index: 9998;
   pointer-events: none;
-  background: hsl(var(--foreground));
-}
-.shelve-flying-card.shelve-holding-card {
-  opacity: 1;
-  left: 50%;
-  top: 50%;
-  width: min(240px, 60vw);
-  height: calc(min(240px, 60vw) * 1.25);
-  transform: translate(-50%, -50%);
+  background: hsl(var(--background));
 }
 
 .shelve-flying-card {
