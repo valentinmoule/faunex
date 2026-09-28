@@ -227,6 +227,10 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
     [badgeProgress],
   );
 
+  const closeDrawer = useCallback(() => setOpen(false), []);
+  const swipeClose = useSwipeDownClose(closeDrawer);
+
+
   return (
     <ProfileDrawerContext.Provider value={{ openProfile, claimableBadges }}>
       {children}
