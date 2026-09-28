@@ -26,7 +26,6 @@ export const setPendingShelve = (data: Omit<PendingShelve, 'ts'>) => {
       STORAGE_KEY,
       JSON.stringify({ ...data, ts: Date.now() }),
     );
-    window.dispatchEvent(new Event('faunex:shelve-pending'));
   } catch {
     // ignore (private mode etc.)
   }

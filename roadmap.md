@@ -32,8 +32,8 @@
 - [x] Suppression : icône poubelle à côté de Partager + pop-up de confirmation au-dessus de la fiche
 
 ## Transitions des cartes
-- [ ] Garder la carte visible sans écran blanc entre Ajouter et son rangement
-- [ ] Retirer la capture dès la fin visible de l'animation de suppression
+- [x] Garder la carte visible sans écran blanc entre Ajouter et son rangement
+- [x] Retirer la capture dès la fin visible de l'animation de suppression
 
 ## Nettoyage des noms d’espèces
 - [x] Corriger les noms, capitales et parenthèses signalés
