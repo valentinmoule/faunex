@@ -151,7 +151,8 @@
     },
     "header": {
       "title": "Mon Faunex",
-      "bestiaryTitle": "Bestiaire"
+      "bestiaryTitle": "Bestiaire",
+      "achievementsTitle": "Badges et quêtes"
     },
     "collectionHero": {
       "altIllustration": "Illustration de {{title}}",
