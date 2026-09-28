@@ -1021,13 +1021,13 @@
   100% { opacity: 0; transform: translate(-50%, -50%) scale(0.05) rotate(130deg); }
 }
 @keyframes delete-card-vanish {
-  0%, 30% { opacity: 1; transform: scale(1) translateY(0); filter: brightness(1); }
-  62% { opacity: 0.86; transform: scale(0.9) translateY(2px); filter: brightness(1.28); }
-  100% { opacity: 0; transform: scale(0.42) translateY(22px); filter: brightness(1.55) blur(3px); }
+  0%, 30% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+  62% { opacity: 0.9; transform: translate3d(0, 2px, 0) scale(0.9); }
+  100% { opacity: 0; transform: translate3d(0, 22px, 0) scale(0.42); }
 }
 @keyframes delete-stage-in {
-  from { background-color: hsl(var(--foreground) / 0); }
-  to { background-color: hsl(var(--foreground) / 0.12); }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 .delete-vanish-stage {
   position: fixed;
@@ -1036,7 +1036,14 @@
   display: grid;
   place-items: center;
   pointer-events: none;
+}
+.delete-vanish-stage::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: hsl(var(--foreground) / 0.12);
   animation: delete-stage-in 0.16s ease-out both;
+  will-change: opacity;
 }
 .delete-vanish-card {
   position: relative;
@@ -1045,7 +1052,9 @@
   overflow: hidden;
   border-radius: 1.4rem;
   animation: delete-card-vanish 0.92s cubic-bezier(0.32, 0, 0.2, 1) forwards;
-  will-change: transform, opacity, filter;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 .delete-vanish-shade {
   position: absolute;
@@ -1081,8 +1090,10 @@
   width: var(--s, 16px);
   height: var(--s, 16px);
   /* Cœur blanc + halo doré : visible sur la photo comme sur le fond clair */
-  background: radial-gradient(circle, #ffffff 0%, hsl(45 100% 62% / 0.95) 32%, hsl(45 100% 55% / 0.35) 55%, transparent 72%);
-  filter: drop-shadow(0 0 7px hsl(45 100% 55% / 0.95)) drop-shadow(0 0 2px #ffffff);
+  /* Halo peint dans le dégradé (pas de filter) : composité GPU uniquement */
+  background: radial-gradient(circle, #ffffff 0%, hsl(45 100% 62% / 0.95) 26%, hsl(45 100% 55% / 0.45) 48%, hsl(45 100% 55% / 0.12) 64%, transparent 74%);
+  will-change: transform, opacity;
+  opacity: 0;
   animation: delete-sparkle-pop 0.58s ease-out forwards;
   animation-delay: var(--d, 0ms);
 }
@@ -1929,30 +1940,29 @@
 .shelve-card-label strong { font: 700 15px/1.15 'Sora', sans-serif; }
 
 @keyframes shelve-slot-flash {
-  0% {
-    box-shadow: 0 0 0 0 hsla(42, 85%, 60%, 0);
-  }
-  20% {
-    box-shadow:
-      0 0 0 4px hsla(42, 85%, 60%, 0.6),
-      0 0 30px 12px hsla(42, 85%, 55%, 0.55);
-  }
-  60% {
-    box-shadow:
-      0 0 0 2px hsla(42, 85%, 60%, 0.3),
-      0 0 20px 6px hsla(42, 85%, 55%, 0.25);
-  }
-  100% {
-    box-shadow: 0 0 0 0 hsla(42, 85%, 60%, 0);
-  }
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  100% { opacity: 0; }
 }
 
-.shelve-slot-flash {
+/* Halo pré-peint sur une couche dédiée : seule son opacité s'anime (pas de repaint). */
+.shelve-slot-flash { position: relative; }
+.shelve-slot-flash::after {
+  content: '';
+  position: absolute;
+  inset: -10px;
+  border-radius: 1.6rem;
+  pointer-events: none;
+  z-index: 5;
+  box-shadow: 0 0 0 4px hsla(42, 85%, 60%, 0.6), 0 0 26px 10px hsla(42, 85%, 55%, 0.5);
+  margin: 10px;
+  opacity: 0;
+  will-change: opacity;
   animation: shelve-slot-flash 760ms ease-out forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .shelve-slot-flash {
+  .shelve-slot-flash::after {
     animation-duration: 1ms !important;
     transition-duration: 1ms !important;
   }
