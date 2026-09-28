@@ -71,6 +71,13 @@
       "when": 1790415865735,
       "tag": "0009_leaderboard_daily_movement",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1790600887724,
+      "tag": "0010_species_finder_count_scientific_fallback",
+      "breakpoints": true
     }
   ]
 }

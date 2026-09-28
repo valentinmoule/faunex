@@ -163,7 +163,7 @@ const quota = useCaptureQuota(session?.user?.id);
   const { revealPhase, revealRarity, revealAnimal, triggerReveal, reset: resetReveal, skip: skipReveal } =
     useCaptureReveal(setAnimalResult);
   /* Popularité de l'espèce identifiée : combien de naturalistes l'ont déjà capturée. */
-  const speciesFinders = useSpeciesFinders(animalResult?.animal_name, !!animalResult);
+  const speciesFinders = useSpeciesFinders(animalResult?.animal_name, !!animalResult, animalResult?.scientific_name);
   const { saving, findDuplicate, insertCapture, replaceCapture, submitManualEntry } = useCaptureSave({
     userId: session?.user?.id,
     photo: capturedPhoto,
