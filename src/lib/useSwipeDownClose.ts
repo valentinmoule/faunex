@@ -103,7 +103,7 @@ export function useSwipeDownClose(onClose: () => void, threshold = 90) {
       el.removeEventListener('touchend', onEnd);
       el.removeEventListener('touchcancel', onEnd);
     };
-  }, [el, onClose, threshold]);
+  }, [el, onClose, threshold, anyScrolled]);
 
   const style: React.CSSProperties = {
     transform: dragY > 0 ? `translate3d(0, ${dragY}px, 0)` : undefined,
