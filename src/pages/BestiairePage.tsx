@@ -313,7 +313,12 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   } = useBestiaryData(session?.user?.id, { light: viewMode === 'leaderboard' });
   // Mon Faunex dépend des captures : on garde le loader logo tant qu'elles ne
   // sont pas chargées, pour ne jamais afficher l'état vide à tort.
-  const loading = catalogueLoading || (isFaunexHub && viewMode !== 'leaderboard' && !capturesLoaded);
+  // Le Bestiaire aussi garde le loader logo jusqu'aux captures (images prêtes),
+  // sauf pendant un rangement où le Bestiaire doit rester visible.
+  const shelvingAtMount = useRef(
+    typeof window !== 'undefined' && !!sessionStorage.getItem('faunex:pending-shelve'),
+  );
+  const loading = catalogueLoading || (viewMode !== 'leaderboard' && !capturesLoaded && (isFaunexHub || !shelvingAtMount.current));
 
   const uid = session?.user?.id;
 
