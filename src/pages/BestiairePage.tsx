@@ -29,6 +29,7 @@ import EmptyCaptureState from '@/components/EmptyCaptureState';
 import LoadingScreen from '@/components/LoadingScreen';
 import { DEPARTEMENTS, getDepartement } from '@/data/departements';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { useSwipeDownClose } from '@/lib/useSwipeDownClose';
 import {
   buildCityAnimalSet,
 categoryLabel,
@@ -939,6 +940,12 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
   // Single source of truth for "how many captures": the raw approved captures list.
 
   // Zone picker sheet — hub with presets + explore mode
+  const closeDeptPicker = useCallback(() => {
+    setShowDeptPicker(false);
+    setPickerMode('hub');
+  }, []);
+  const swipeClosePicker = useSwipeDownClose(closeDeptPicker);
+
   const deptPickerSheet = (
     <Sheet
       open={showDeptPicker}
@@ -947,7 +954,12 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
         if (!o) setPickerMode('hub');
       }}
     >
-      <SheetContent side="bottom" className="h-[85vh] p-0 flex flex-col">
+      <SheetContent
+        ref={swipeClosePicker.ref}
+        style={swipeClosePicker.style}
+        side="bottom"
+        className="h-[85vh] p-0 flex flex-col rounded-t-3xl"
+      >
         <SheetHeader className="px-5 py-4 border-b border-border">
           <div className="flex items-center gap-2">
             {pickerMode !== 'hub' && pickerMode !== 'upsell' && !(pickerMode === 'species' && !isPremium && slotsUsed >= FREE_SLOT_LIMIT) && (

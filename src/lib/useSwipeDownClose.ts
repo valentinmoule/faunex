@@ -20,6 +20,26 @@ export function useSwipeDownClose(onClose: () => void, threshold = 90) {
     setEl(node);
   }, []);
 
+  /**
+   * Un conteneur scrollable (la feuille elle-même ou une liste interne)
+   * a-t-il déjà défilé ? Si oui, le geste doit céder la place au scroll natif.
+   */
+  const anyScrolled = useCallback(
+    (e: TouchEvent) => {
+      if (!el) return true;
+      let n = e.target as HTMLElement | null;
+      while (n) {
+        if (n === el) return n.scrollTop > 4;
+        if (/(auto|scroll|overlay)/.test(window.getComputedStyle(n).overflowY)) {
+          if (n.scrollHeight > n.clientHeight + 2 && n.scrollTop > 4) return true;
+        }
+        n = n.parentElement;
+      }
+      return false;
+    },
+    [el],
+  );
+
   useEffect(() => {
     if (!el) return;
 
@@ -29,7 +49,7 @@ export function useSwipeDownClose(onClose: () => void, threshold = 90) {
 
     const onStart = (e: TouchEvent) => {
       if (e.touches.length !== 1) return;
-      if (el.scrollTop > 4) return;
+      if (anyScrolled(e)) return;
       startY = e.touches[0].clientY;
       dragging = false;
       current = 0;
@@ -47,8 +67,8 @@ export function useSwipeDownClose(onClose: () => void, threshold = 90) {
         if (dy < -8) startY = null;
         return;
       }
-      // Geste vers le bas mais la liste a scrollé entre-temps : abandon
-      if (el.scrollTop > 4) {
+      // Un conteneur scrollable a défilé entre-temps : abandon du geste.
+      if (anyScrolled(e)) {
         startY = null;
         dragging = false;
         current = 0;
@@ -83,7 +103,7 @@ export function useSwipeDownClose(onClose: () => void, threshold = 90) {
       el.removeEventListener('touchend', onEnd);
       el.removeEventListener('touchcancel', onEnd);
     };
-  }, [el, onClose, threshold]);
+  }, [el, onClose, threshold, anyScrolled]);
 
   const style: React.CSSProperties = {
     transform: dragY > 0 ? `translate3d(0, ${dragY}px, 0)` : undefined,
