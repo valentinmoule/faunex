@@ -401,7 +401,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
     setConfirmDelete(false);
     setDeleteAnimating(true);
     hapticTap();
-    const delay = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 420;
+    const delay = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 680;
     window.setTimeout(() => {
       onDeleted?.(card.id);
       onClose();
@@ -673,12 +673,12 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                 onTap={card.image ? openFullscreenImage : undefined}
                 subjectBox={card.subjectBox}
                 noHolo={isUncaptured}
-                className={`relative mx-auto max-w-[280px] aspect-[4/5] rounded-[1.75rem] transition-[transform,opacity,filter] duration-[400ms] ease-in ${card.image ? 'cursor-pointer' : ''} ${deleteAnimating ? 'scale-[0.82] opacity-0 blur-sm translate-y-5' : ''}`}
+                className={`relative mx-auto max-w-[280px] aspect-[4/5] rounded-[1.75rem] ${card.image ? 'cursor-pointer' : ''}`}
                 style={{ ['--holo-radius' as any]: '1.75rem' }}
 
               >
                 <div
-                  className={`relative w-full h-full rounded-[1.75rem] overflow-hidden holo-frame holo-frame--${normalizeRarity(card.rarity).replace(/_/g, '-')}`}
+                  className={`relative w-full h-full rounded-[1.75rem] overflow-hidden holo-frame holo-frame--${normalizeRarity(card.rarity).replace(/_/g, '-')} transition-[transform,opacity,filter] duration-[560ms] ease-in ${deleteAnimating ? 'scale-[0.72] opacity-0 blur-sm translate-y-5' : ''}`}
                 >
                   {/* Pastille de rareté sur la carte */}
                   <div className="absolute top-[14px] right-[14px] z-20 pointer-events-none">
@@ -686,19 +686,6 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                   </div>
 
                   <div className="relative w-full h-full rounded-[1.25rem] overflow-hidden">
-
-                    {deleteAnimating && (
-                      <div aria-hidden className="delete-sparkles">
-                        {DELETE_SPARKLES.map((s, i) => (
-                          <span
-                            key={i}
-                            className="delete-sparkle"
-                            style={{ left: s.x, top: s.y, ['--s' as any]: `${s.size}px`, ['--d' as any]: `${s.delay}ms` }}
-                          />
-                        ))}
-                      </div>
-                    )}
-
 
                     {card.image ? (
                       <img src={card.image} alt={displayName} loading="eager" decoding="async" fetchPriority="high" className="w-full h-full object-cover pointer-events-none select-none" draggable={false} />
@@ -736,6 +723,17 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                     </div>
                   </div>
                 </div>
+                {deleteAnimating && (
+                  <div aria-hidden className="delete-sparkles">
+                    {DELETE_SPARKLES.map((s, i) => (
+                      <span
+                        key={i}
+                        className="delete-sparkle"
+                        style={{ left: s.x, top: s.y, ['--s' as any]: `${s.size}px`, ['--d' as any]: `${s.delay}ms` }}
+                      />
+                    ))}
+                  </div>
+                )}
               </HolographicCard>
             </div>
 
