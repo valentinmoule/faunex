@@ -38,15 +38,16 @@ interface CaptureMarker {
 }
 
 
+// Mêmes teintes que les cadres de rareté des cartes (--rarity-* dans index.css)
 const RARITY_COLORS: Record<string, string> = {
-  common: '#94a3b8',
-  rare: '#3b82f6',
-  uncommon: '#3f4a5c',
-  very_rare: '#1c2333',
-  ultra_rare: '#94a3b8',
-  illustration_rare: '#eab308',
-  special_rare: '#f59e0b',
-  hyper_rare: '#d97706',
+  common: 'hsl(220 9% 46%)',
+  uncommon: 'hsl(152 62% 36%)',
+  rare: 'hsl(210 92% 50%)',
+  very_rare: 'hsl(265 72% 55%)',
+  ultra_rare: 'hsl(220 18% 62%)',
+  illustration_rare: 'hsl(43 95% 52%)',
+  special_rare: 'hsl(33 96% 50%)',
+  hyper_rare: 'hsl(24 98% 50%)',
 };
 
 
