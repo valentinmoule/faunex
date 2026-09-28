@@ -1881,31 +1881,6 @@
    (card glides from start → slot, then slot flashes gold)
    ═══════════════════════════════════════════════════ */
 
-.shelve-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 9998;
-  pointer-events: none;
-  opacity: 0;
-  background: hsl(var(--background));
-}
-.shelve-holding-stage {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  pointer-events: none;
-}
-.shelve-flying-card.shelve-holding-card {
-  left: 50%;
-  top: auto;
-  bottom: 0;
-  width: min(112px, 28vw);
-  aspect-ratio: 4 / 5;
-  height: auto;
-  opacity: 1;
-  transform: translate3d(-50%, 0, 0);
-}
-
 .shelve-flying-card {
   position: fixed;
   z-index: 9999;

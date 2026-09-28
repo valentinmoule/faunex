@@ -37,6 +37,7 @@
 - [x] Tester automatiquement le fond continu, le placement et la disparition dès la fin de l'effet
 - [x] Supprimer la grande photo d'attente et le noir final du rangement ; ne montrer que le trajet vers la case
 - [x] Remplacer l'écran blanc après le bouton par la petite carte au point de départ du rangement
+- [x] Supprimer toute vue intermédiaire : afficher directement le Bestiaire derrière la carte qui se range
 
 ## Nettoyage des noms d’espèces
 - [x] Corriger les noms, capitales et parenthèses signalés

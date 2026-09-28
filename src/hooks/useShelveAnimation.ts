@@ -152,7 +152,6 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
     if (!flight) return;
     const card = cardRef.current;
     if (!card) return;
-    const backdrop = backdropRef.current;
     const label = labelRef.current;
     const { dx, dy } = flight;
     const reduced = prefersReducedMotion();
@@ -196,7 +195,6 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
         );
         anims.push(fly);
         if (label) anims.push(label.animate([{ opacity: 0 }, { opacity: 0 }], { duration: reduced ? 1 : 480, fill: 'forwards' }));
-        if (backdrop) anims.push(backdrop.animate([{ opacity: 1 }, { opacity: 1 }], { duration: reduced ? 1 : 480, fill: 'forwards' }));
         await fly.finished;
         if (cancelled) return;
 

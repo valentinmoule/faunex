@@ -11,8 +11,20 @@ import type { AnimalCard } from '@/data/mockData';
  *  the heavy catalogue/finders fetching is skipped. */
 export const useBestiaryData = (userId: string | undefined, opts?: { light?: boolean }) => {
   const light = !!opts?.light;
-  const [animals, setAnimals] = useState<BestiaryAnimal[]>([]);
-  const [loading, setLoading] = useState(true);
+  const cachedAtMount = useRef(readCatalogueCache());
+  const [animals, setAnimals] = useState<BestiaryAnimal[]>(() =>
+    (cachedAtMount.current?.entries || [])
+      .map((entry) => ({
+        name: entry.name,
+        scientific_name: entry.scientific_name || '',
+        rarity: entry.rarity,
+        category: entry.category || '',
+        captured: false,
+        finders: 0,
+      } as BestiaryAnimal))
+      .sort((a, b) => a.name.localeCompare(b.name, 'fr')),
+  );
+  const [loading, setLoading] = useState(() => !cachedAtMount.current);
   const [unreadCount, setUnreadCount] = useState(0);
   const [subscribedZones, setSubscribedZones] = useState<ZoneSub[]>([]);
   const [animalsByDept, setAnimalsByDept] = useState<Record<string, Set<string>>>({});
@@ -98,8 +110,8 @@ const buildList = (
     };
 
     const fetchData = async () => {
-      const cached = readCatalogueCache();
-      setLoading(true);
+      const cached = cachedAtMount.current || readCatalogueCache();
+      if (!cached) setLoading(true);
 
 // 1) Les captures de l'utilisateur (petit volume) : indispensables pour l'état "capturé".
       //    En parallèle : le nombre d'utilisateurs distincts ayant trouvé chaque espèce.
