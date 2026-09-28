@@ -390,21 +390,25 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
   const handleDelete = useCallback(async () => {
     if (!card || deleting) return;
     setDeleting(true);
+    setConfirmDelete(false);
+    setDeleteAnimating(true);
+    hapticTap();
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!reduceMotion) {
+      await new Promise<void>((resolve) => window.setTimeout(resolve, 920));
+    }
+
     const { error } = await supabase.from('captures').delete().eq('id', card.id);
     setDeleting(false);
     if (error) {
+      setDeleteAnimating(false);
       toast({ title: t('capture.detail.toastDeleteImpossible'), description: t('capture.detail.toastRetry'), variant: 'destructive' });
       return;
     }
 
-    setConfirmDelete(false);
-    setDeleteAnimating(true);
-    hapticTap();
-    const delay = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 920;
-    window.setTimeout(() => {
-      onDeleted?.(card.id);
-      onClose();
-    }, delay);
+    onDeleted?.(card.id);
+    onClose();
   }, [card, deleting, onDeleted, onClose]);
 
   // Escape closes the delete confirmation
