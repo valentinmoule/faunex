@@ -39,6 +39,21 @@ export default defineConfig(({ mode }) => ({
               expiration: { maxEntries: 20 },
             },
           },
+          {
+            // Capture photos, thumbnails, avatars: instant from cache, refreshed in background
+            urlPattern: ({ url }) => url.pathname.includes("/storage/v1/object/public/"),
+            handler: "StaleWhileRevalidate",
+            options: {
+              cacheName: "storage-images",
+              expiration: { maxEntries: 400, maxAgeSeconds: 30 * 24 * 60 * 60 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
+            urlPattern: ({ url }) => url.origin === "https://fonts.gstatic.com" || url.origin === "https://fonts.googleapis.com",
+            handler: "StaleWhileRevalidate",
+            options: { cacheName: "google-fonts", expiration: { maxEntries: 30 } },
+          },
         ],
       },
       manifest: {
