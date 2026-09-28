@@ -38,6 +38,15 @@ Réponds UNIQUEMENT via l'appel de fonction verify_animal.`
 /** Clé de la tâche de fond (verrou + état de pause en base). */
 const JOB_KEY = 'auto_moderate_captures'
 
+const isUncertainName = (value: unknown) => {
+  const name = String(value ?? '').trim().toLowerCase()
+  return !name ||
+    /inconnu|unknown/.test(name) ||
+    /\bje\s*(?:ne\s*)?(?:sais|qais)\s*(?:pas|as)\b/.test(name) ||
+    /\bje\s+pense\b/.test(name) ||
+    /^[?\-–—.\s]+$/.test(name)
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
 
@@ -223,6 +232,10 @@ async function examine(
   const name = (capture.animal_name || '').toString().trim()
   if (!name || !capture.image_url) {
     return { capture_id: capture.id, approved: false, reason: 'missing_data' }
+  }
+  if (isUncertainName(name)) {
+    await rejectCapture(supabase, capture, name, 'not_identifiable', adminActorId, 'uncertain_name')
+    return { capture_id: capture.id, approved: false, rejected: true, reason: 'uncertain_name' }
   }
 
 

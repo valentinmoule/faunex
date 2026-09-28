@@ -186,6 +186,14 @@ Deno.serve(async (req) => {
 
     const animalName = (overrideName || capture.animal_name || '').toString().trim()
     if (!animalName) return json({ error: 'Nom d\'animal manquant' }, 400)
+    const uncertainName =
+      /inconnu|unknown/i.test(animalName) ||
+      /\bje\s*(?:ne\s*)?(?:sais|qais)\s*(?:pas|as)\b/i.test(animalName) ||
+      /\bje\s+pense\b/i.test(animalName) ||
+      /^[?\-–—.\s]+$/.test(animalName)
+    if (uncertainName) {
+      return json({ error: 'Le nom proposé est trop incertain pour créer une espèce', code: 'invalid_name' }, 400)
+    }
 
     // Doublon : l'utilisateur possède déjà cette espèce (une capture par espèce).
     if (!skipDuplicateCheck) {
