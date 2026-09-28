@@ -16,9 +16,25 @@ export interface PendingShelve {
   category: string;
   rarity: Rarity;
   imageUrl: string;
+  /** XP réellement accordés pour cette nouvelle capture (0 lors d'un remplacement). */
+  xpGained?: number;
   /** epoch ms — used to expire stale entries */
   ts: number;
 }
+
+/** Même barème que le déclencheur serveur `xp_on_capture`. */
+export const captureXpForRarity = (rarity: Rarity): number => {
+  switch (rarity) {
+    case 'uncommon': return 75;
+    case 'rare': return 120;
+    case 'very_rare': return 160;
+    case 'ultra_rare': return 220;
+    case 'illustration_rare': return 300;
+    case 'special_rare': return 400;
+    case 'hyper_rare': return 550;
+    default: return 50;
+  }
+};
 
 export const setPendingShelve = (data: Omit<PendingShelve, 'ts'>) => {
   try {
