@@ -950,16 +950,14 @@ setManualMode(false);
                 </button>
               </>
             ) : (
-              <>
-                <button
-                  onClick={saveToCollection}
-                  disabled={saving || preparingBestiary}
-                  className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full bg-primary text-primary-foreground font-display text-sm font-semibold disabled:opacity-50"
-                >
-                  {saving || preparingBestiary ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-                  {saving || preparingBestiary ? t('capture.actions.saving') : t('capture.actions.add')}
-                </button>
-              </>
+              <button
+                onClick={saveToCollection}
+                disabled={saving || preparingBestiary}
+                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full bg-primary text-primary-foreground font-display text-sm font-semibold disabled:opacity-50"
+              >
+                {saving || preparingBestiary ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                {saving || preparingBestiary ? t('capture.actions.saving') : t('capture.actions.add')}
+              </button>
             )}
             <button
               onClick={requestVerification}
