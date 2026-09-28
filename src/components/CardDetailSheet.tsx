@@ -16,7 +16,7 @@ import HolographicCard from '@/components/HolographicCard';
 import RarityBadge from '@/components/RarityBadge';
 import { hapticTap } from '@/lib/haptics';
 import { toast } from '@/hooks/use-toast';
-import { Share2, Bookmark } from 'lucide-react';
+import { Trash2, Share2, Bookmark } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useCustomCollections } from '@/hooks/useCustomCollections';
@@ -882,7 +882,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                     title={t('capture.detail.deleteCapture')}
                     className="relative flex items-center py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
                   >
-                    <Bird className="w-6 h-6 text-muted-foreground transition-colors group-hover:text-primary" />
+                    <Trash2 className="w-6 h-6 text-muted-foreground transition-colors group-hover:text-primary" />
                   </button>
                 )}
                 </div>
@@ -1361,7 +1361,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
           <div className="delete-confirm-scrim" onClick={() => !deleting && setConfirmDelete(false)} />
           <div className="delete-confirm-card bg-background">
             <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-              <Bird className="h-5 w-5" />
+              <Trash2 className="h-5 w-5" />
             </div>
             <h4 id="delete-capture-title" className="font-display font-bold text-base leading-tight text-foreground">
               {t('capture.detail.deleteDialogTitle', { name: displayName })}
