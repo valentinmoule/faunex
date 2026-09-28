@@ -180,7 +180,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
   const [locLoading, setLocLoading] = useState(false);
 
   /* Nombre de naturalistes ayant capturé l'espèce : fourni par le parent, sinon chargé ici. */
-  const fetchedFinders = useSpeciesFinders(card?.name, open && !feedView && communityFinders === undefined, (card as any)?.scientificName ?? (card as any)?.scientific_name);
+  const fetchedFinders = useSpeciesFinders(card?.name, open && !feedView && communityFinders === undefined, card?.scientificName);
   const finders = communityFinders ?? fetchedFinders;
 
 
