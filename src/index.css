@@ -1889,12 +1889,20 @@
   opacity: 0;
   background: hsl(var(--background));
 }
-.shelve-holding-backdrop {
+.shelve-holding-stage {
   position: fixed;
   inset: 0;
-  z-index: 9998;
+  z-index: 9999;
   pointer-events: none;
-  background: hsl(var(--background));
+}
+.shelve-holding-card {
+  left: 50%;
+  top: 50%;
+  width: min(112px, 28vw);
+  aspect-ratio: 4 / 5;
+  height: auto;
+  opacity: 1;
+  transform: translate3d(-50%, -50%, 0);
 }
 
 .shelve-flying-card {

@@ -217,7 +217,11 @@ const AppRoutes = () => {
         </PageTransition>
       </Suspense>
       {holding && createPortal(
-        <div className="shelve-holding-backdrop" aria-hidden />, document.body,
+        <div className="shelve-holding-stage" aria-hidden>
+          <div className="shelve-flying-card shelve-holding-card" data-rarity={holding.rarity}>
+            {holding.imageUrl && <img src={holding.imageUrl} alt="" decoding="sync" />}
+          </div>
+        </div>, document.body,
       )}
       {!isCapturePage && !isModerationPage && !isPremiumPage && !isPublicPage && <BottomNav />}
 
