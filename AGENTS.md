@@ -25,3 +25,7 @@ Match both common and scientific names before falling back to either, measure th
 ## Leaderboard movement compares with the same board 24 hours earlier
 
 Compute rank movement server-side from captures before `now() - 24 hours`, preserving the active scope, period, and animal category so arrows always compare like with like.
+
+## Keep the shelving card above route changes
+
+Render the waiting card from the shared app shell and switch to the Bestiary flight only when its destination is ready, because route loading and entrance transitions otherwise expose a blank frame.

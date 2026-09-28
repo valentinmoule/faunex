@@ -118,18 +118,18 @@ const LockedField = ({ icon, label }: { icon: React.ReactNode; label: string }) 
 
 // Game-style sparkle burst positions for the delete animation (percent of card area)
 const DELETE_SPARKLES = [
-  { x: '18%', y: '22%', size: 14, delay: 250 },
-  { x: '62%', y: '14%', size: 10, delay: 290 },
-  { x: '82%', y: '38%', size: 16, delay: 270 },
-  { x: '40%', y: '34%', size: 12, delay: 320 },
-  { x: '10%', y: '55%', size: 12, delay: 300 },
-  { x: '55%', y: '52%', size: 18, delay: 250 },
-  { x: '78%', y: '70%', size: 12, delay: 330 },
-  { x: '30%', y: '68%', size: 16, delay: 280 },
-  { x: '66%', y: '86%', size: 14, delay: 310 },
-  { x: '14%', y: '84%', size: 10, delay: 340 },
-  { x: '48%', y: '78%', size: 10, delay: 350 },
-  { x: '88%', y: '58%', size: 10, delay: 320 },
+  { x: '18%', y: '22%', size: 14, delay: 100 },
+  { x: '62%', y: '14%', size: 10, delay: 125 },
+  { x: '82%', y: '38%', size: 16, delay: 115 },
+  { x: '40%', y: '34%', size: 12, delay: 145 },
+  { x: '10%', y: '55%', size: 12, delay: 130 },
+  { x: '55%', y: '52%', size: 18, delay: 100 },
+  { x: '78%', y: '70%', size: 12, delay: 150 },
+  { x: '30%', y: '68%', size: 16, delay: 120 },
+  { x: '66%', y: '86%', size: 14, delay: 135 },
+  { x: '14%', y: '84%', size: 10, delay: 155 },
+  { x: '48%', y: '78%', size: 10, delay: 165 },
+  { x: '88%', y: '58%', size: 10, delay: 140 },
 ];
 
 const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, feedView = false, author }: Props) => {
@@ -165,6 +165,11 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
   // (card devient null) avant que l'effet ne soit terminé.
   const [vanishCard, setVanishCard] = useState<{ id: string; image: string | null; rarity: string; name: string } | null>(null);
   const deleteInProgressRef = useRef(false);
+  const deleteTimerRef = useRef<number | null>(null);
+  const finishDeleteRef = useRef<(() => void) | null>(null);
+  useEffect(() => () => {
+    if (deleteTimerRef.current !== null) window.clearTimeout(deleteTimerRef.current);
+  }, []);
   const [note, setNote] = useState('');
   const [noteDraft, setNoteDraft] = useState('');
   const [editingNote, setEditingNote] = useState(false);
@@ -418,12 +423,19 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
     }
     setVanishCard(snapshot);
     setDeleteAnimating(true);
-    window.setTimeout(() => {
+    const finish = () => {
+      if (!deleteInProgressRef.current) return;
+      if (deleteTimerRef.current !== null) window.clearTimeout(deleteTimerRef.current);
+      deleteTimerRef.current = null;
+      finishDeleteRef.current = null;
       onDeleted?.(snapshot.id);
       setDeleteAnimating(false);
       setVanishCard(null);
       deleteInProgressRef.current = false;
-    }, 980);
+    };
+    finishDeleteRef.current = finish;
+    // Fallback if animationend is unavailable (background tab or interrupted animation).
+    deleteTimerRef.current = window.setTimeout(finish, 700);
   }, [card, displayName, onDeleted, onClose]);
 
   // Escape closes the delete confirmation
@@ -632,7 +644,12 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
   // pour que la carte scintille au-dessus de la grille avant de disparaître.
   const vanishOverlay = deleteAnimating && vanishCard ? createPortal((
     <div aria-hidden className="delete-vanish-stage">
-      <div className={`delete-vanish-card holo-frame holo-frame--${normalizeRarity(vanishCard.rarity).replace(/_/g, '-')}`}>
+      <div
+        className={`delete-vanish-card holo-frame holo-frame--${normalizeRarity(vanishCard.rarity).replace(/_/g, '-')}`}
+        onAnimationEnd={(event) => {
+          if (event.target === event.currentTarget && event.animationName === 'delete-card-vanish') finishDeleteRef.current?.();
+        }}
+      >
         {vanishCard.image ? (
           <img src={vanishCard.image} alt="" className="h-full w-full object-cover" />
         ) : (

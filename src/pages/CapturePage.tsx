@@ -510,6 +510,7 @@ setManualMode(false);
       }
       // Le bestiaire (grille des cartes) vit désormais sur /bestiaire : on y va
       // directement pour que l'animation de rangement de la carte s'y joue.
+      if (window.sessionStorage.getItem('faunex:pending-shelve')) window.dispatchEvent(new Event('faunex:shelve-pending'));
       navigate('/bestiaire');
     }, delay);
   };
@@ -1219,6 +1220,7 @@ setManualMode(false);
             <button
               onClick={() => {
                 setPremiumPrompt(false);
+                window.dispatchEvent(new Event('faunex:shelve-pending'));
                 navigate('/bestiaire');
               }}
               className="mt-2 w-full rounded-full px-4 py-3 font-display text-sm font-semibold text-muted-foreground"

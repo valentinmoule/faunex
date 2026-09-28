@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { consumePendingShelve, peekPendingShelve, setShelveRunning, type PendingShelve } from '@/lib/shelveAnimation';
 import { hapticDiscovery } from '@/lib/haptics';
 
@@ -67,6 +67,10 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
   const ran = useRef(false);
   const slotEl = useRef<HTMLElement | null>(null);
   const prepared = useRef(false);
+
+  useLayoutEffect(() => {
+    if (flight && cardRef.current) window.dispatchEvent(new Event('faunex:shelve-flight'));
+  }, [flight]);
 
   useEffect(() => {
     const peeked = peekPendingShelve();
@@ -143,7 +147,7 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
   }, [pendingShelve, loading, ready, resolveSlot]);
 
   // 2. Jouer l'animation une fois la carte volante montée.
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!flight) return;
     const card = cardRef.current;
     if (!card) return;
@@ -204,7 +208,7 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
         );
         anims.push(fly);
         if (label) anims.push(label.animate([{ opacity: 1 }, { opacity: 1, offset: 0.45 }, { opacity: 0, offset: 0.62 }, { opacity: 0 }], { duration: reduced ? 1 : 900, fill: 'forwards' }));
-        if (backdrop) anims.push(backdrop.animate([{ opacity: 1 }, { opacity: 0 }], { duration: reduced ? 1 : 560, delay: reduced ? 0 : 420, fill: 'forwards', easing: 'ease-out' }));
+        if (backdrop) anims.push(backdrop.animate([{ opacity: 1 }, { opacity: 0 }], { duration: reduced ? 1 : 500, fill: 'forwards', easing: 'ease-out' }));
         await fly.finished;
         if (cancelled) return;
 

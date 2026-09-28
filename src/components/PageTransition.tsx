@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
+import { peekPendingShelve } from '@/lib/shelveAnimation';
 
 /**
  * Enveloppe les routes pour rejouer une animation d'entrée douce
@@ -8,7 +9,7 @@ import { useLocation } from 'react-router-dom';
 const PageTransition = ({ children }: { children: ReactNode }) => {
   const location = useLocation();
   return (
-    <div key={location.pathname} className="page-transition">
+    <div key={location.pathname} className={location.pathname === '/bestiaire' && peekPendingShelve() ? '' : 'page-transition'}>
       {children}
     </div>
   );

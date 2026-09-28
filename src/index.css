@@ -1021,8 +1021,8 @@
   100% { opacity: 0; transform: translate(-50%, -50%) scale(0.05) rotate(130deg); }
 }
 @keyframes delete-card-vanish {
-  0%, 30% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
-  62% { opacity: 0.9; transform: translate3d(0, 2px, 0) scale(0.9); }
+  0%, 15% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+  55% { opacity: 0.9; transform: translate3d(0, 2px, 0) scale(0.9); }
   100% { opacity: 0; transform: translate3d(0, 22px, 0) scale(0.42); }
 }
 @keyframes delete-stage-in {
@@ -1051,7 +1051,7 @@
   aspect-ratio: 4 / 5;
   overflow: hidden;
   border-radius: 1.4rem;
-  animation: delete-card-vanish 0.92s cubic-bezier(0.32, 0, 0.2, 1) forwards;
+  animation: delete-card-vanish 0.55s cubic-bezier(0.32, 0, 0.2, 1) forwards;
   will-change: transform, opacity;
   backface-visibility: hidden;
   transform: translateZ(0);
@@ -1094,7 +1094,7 @@
   background: radial-gradient(circle, #ffffff 0%, hsl(45 100% 62% / 0.95) 26%, hsl(45 100% 55% / 0.45) 48%, hsl(45 100% 55% / 0.12) 64%, transparent 74%);
   will-change: transform, opacity;
   opacity: 0;
-  animation: delete-sparkle-pop 0.58s ease-out forwards;
+  animation: delete-sparkle-pop 0.38s ease-out forwards;
   animation-delay: var(--d, 0ms);
 }
 .delete-sparkle::before,
@@ -1887,9 +1887,16 @@
   z-index: 9998;
   pointer-events: none;
   opacity: 0;
-  background: hsl(var(--background) / 0.5);
+  background: hsl(var(--foreground));
 }
-.shelve-holding-card {
+.shelve-holding-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+  background: hsl(var(--foreground));
+}
+.shelve-flying-card.shelve-holding-card {
   opacity: 1;
   left: 50%;
   top: 50%;
