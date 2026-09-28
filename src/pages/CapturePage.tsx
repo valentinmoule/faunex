@@ -841,7 +841,7 @@ setManualMode(false);
         {animalResult && !identifying && revealPhase === 'done' && (
           <div className="relative z-20 flex-1 flex flex-col justify-end min-h-0">
             {/* Feuille claire — même design que le corps de la fiche espèce */}
-            <div className="bg-background rounded-t-3xl px-5 pt-5 pb-5 space-y-4 animate-fade-in max-h-[88dvh] overflow-y-auto shadow-[0_-10px_30px_hsl(var(--foreground)/0.3)]">
+            <div className="bg-background rounded-t-3xl px-5 pt-5 pb-52 space-y-4 animate-fade-in max-h-[88dvh] overflow-y-auto shadow-[0_-10px_30px_hsl(var(--foreground)/0.3)]">
               {/* Carte holographique — même rendu que la fiche espèce */}
               {capturedPhoto && (
                 <HolographicCard
@@ -925,55 +925,56 @@ setManualMode(false);
                 />
               )}
 
-              {/* Actions fixes en bas de la feuille — toujours visibles pendant le défilement */}
-              <div className="sticky bottom-0 -mx-5 -mb-5 px-5 pt-3 pb-5 bg-background space-y-2.5">
-                {duplicateCapture ? (
-                  <>
-                    <button
-                      onClick={doReplaceExisting}
-                      disabled={saving || preparingBestiary}
-                      className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full bg-primary text-primary-foreground font-display text-sm font-semibold disabled:opacity-50"
-                    >
-                      {saving || preparingBestiary ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-                      {t('capture.duplicate.replacePhoto')}
-                    </button>
-                    <button
-                      onClick={keepExisting}
-                      className="w-full py-3.5 rounded-full font-display text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      {t('capture.duplicate.keepCurrent')}
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    {/* Actions empilées : « Ajouter » en premier */}
-                    <button
-                      onClick={saveToCollection}
-                      disabled={saving || preparingBestiary}
-                      className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full bg-primary text-primary-foreground font-display text-sm font-semibold disabled:opacity-50"
-                    >
-                      {saving || preparingBestiary ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-                      {saving || preparingBestiary ? t('capture.actions.saving') : t('capture.actions.add')}
-                    </button>
-                    <button
-                      onClick={resetCapture}
-                      className="w-full py-3.5 rounded-full font-display text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      {t('capture.actions.dontAdd')}
-                    </button>
-                  </>
-                )}
-
-                {/* Contester l'identification — simple lien souligné */}
-                <button
-                  onClick={requestVerification}
-                  className="mx-auto flex items-center gap-1 text-xs font-medium text-muted-foreground underline underline-offset-2 hover:text-foreground transition-colors"
-                >
-                  {t('capture.requestVerification')}
-                </button>
-              </div>
             </div>
           </div>
+        )}
+
+        {/* Portail hors de la page animée : l'ancrage est réellement celui du viewport. */}
+        {animalResult && !identifying && revealPhase === 'done' && createPortal(
+          <div className="fixed inset-x-0 bottom-0 z-[100] border-t border-border/60 bg-background px-5 pt-3 pb-[max(8px,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_hsl(var(--foreground)/0.12)] space-y-2.5">
+            {duplicateCapture ? (
+              <>
+                <button
+                  onClick={doReplaceExisting}
+                  disabled={saving || preparingBestiary}
+                  className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full bg-primary text-primary-foreground font-display text-sm font-semibold disabled:opacity-50"
+                >
+                  {saving || preparingBestiary ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                  {t('capture.duplicate.replacePhoto')}
+                </button>
+                <button
+                  onClick={keepExisting}
+                  className="w-full py-3.5 rounded-full font-display text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {t('capture.duplicate.keepCurrent')}
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={saveToCollection}
+                  disabled={saving || preparingBestiary}
+                  className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full bg-primary text-primary-foreground font-display text-sm font-semibold disabled:opacity-50"
+                >
+                  {saving || preparingBestiary ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                  {saving || preparingBestiary ? t('capture.actions.saving') : t('capture.actions.add')}
+                </button>
+                <button
+                  onClick={resetCapture}
+                  className="w-full py-3.5 rounded-full font-display text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {t('capture.actions.dontAdd')}
+                </button>
+              </>
+            )}
+            <button
+              onClick={requestVerification}
+              className="mx-auto flex items-center gap-1 text-xs font-medium text-muted-foreground underline underline-offset-2 hover:text-foreground transition-colors"
+            >
+              {t('capture.requestVerification')}
+            </button>
+          </div>,
+          document.querySelector<HTMLElement>('[role="dialog"]') ?? document.body,
         )}
 
         {/* Technical failure (network / AI) — not a real "unknown animal" */}
