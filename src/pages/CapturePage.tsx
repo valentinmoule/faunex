@@ -79,6 +79,47 @@ const [manualMode, setManualMode] = useState(false);
    *  peut malgré tout demander une vérification humaine. */
   const [rejectedImage, setRejectedImage] = useState<{ kind: RejectionKind; title: string; message: string } | null>(null);
 
+  /** Choix d'une espèce semblable : on remplace le nom, puis on recharge la
+   *  vraie fiche de l'espèce choisie (catégorie + infos) pour ne pas
+   *  enregistrer une carte vide ni les infos de l'animal deviné initialement. */
+  const handlePickSimilar = useCallback((s: SimilarSpecies) => {
+    setAnimalResult((prev) => prev ? {
+      ...prev,
+      animal_name: s.name,
+      scientific_name: s.scientific_name ?? prev.scientific_name,
+      rarity: (s.rarity as typeof prev.rarity) ?? prev.rarity,
+      category: '',
+      description: '',
+      habitat: '',
+      diet: '',
+      conservation: '',
+      fun_fact: '',
+      alternatives: Array.from(new Set([prev.animal_name, ...(prev.alternatives ?? [])])).filter((n) => n !== s.name),
+    } : prev);
+    void (async () => {
+      const [animalRes, profileRes] = await Promise.all([
+        supabase.from('animals').select('category, rarity, scientific_name').ilike('name', s.name).limit(1).maybeSingle(),
+        supabase.from('species_profiles').select('description, habitat, diet, conservation, fun_fact').eq('normalized_name', s.name.trim().toLowerCase()).limit(1).maybeSingle(),
+      ]);
+      setAnimalResult((prev) => {
+        if (!prev || prev.animal_name !== s.name) return prev; // autre choix entre-temps
+        const a = animalRes.data;
+        const p = profileRes.data;
+        return {
+          ...prev,
+          category: a?.category ?? prev.category,
+          rarity: (a?.rarity as typeof prev.rarity) ?? prev.rarity,
+          scientific_name: prev.scientific_name || a?.scientific_name || prev.scientific_name,
+          description: p?.description ?? prev.description,
+          habitat: p?.habitat ?? prev.habitat,
+          diet: p?.diet ?? prev.diet,
+          conservation: p?.conservation ?? prev.conservation,
+          fun_fact: p?.fun_fact ?? prev.fun_fact,
+        };
+      });
+    })();
+  }, []);
+
 
   const [manualName, setManualName] = useState('');
   const [manualSpecies, setManualSpecies] = useState('');
