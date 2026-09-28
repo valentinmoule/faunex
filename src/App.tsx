@@ -1,5 +1,4 @@
 import React, { Suspense } from "react";
-import { createPortal } from "react-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,7 +20,6 @@ import { useSyncAccountLocale } from "./hooks/useAppLocale";
 import { ProfileDrawerProvider } from "./components/ProfileDrawer";
 import AppErrorBoundary from "./components/AppErrorBoundary";
 import { lazyWithRetry } from "./lib/lazyWithRetry";
-import { peekPendingShelve, type PendingShelve } from "./lib/shelveAnimation";
 
 
 // Lazy-loaded routes for smaller initial bundle
@@ -127,19 +125,6 @@ const FirstLoginMarker = () => {
 
 const AppRoutes = () => {
   const location = useLocation();
-  const [holding, setHolding] = React.useState<PendingShelve | null>(() => peekPendingShelve());
-  React.useEffect(() => {
-    const onPending = () => setHolding(peekPendingShelve());
-    const onFlight = () => setHolding(null);
-    window.addEventListener('faunex:shelve-pending', onPending);
-    window.addEventListener('faunex:shelve-flight', onFlight);
-    window.addEventListener('faunex:shelve-idle', onFlight);
-    return () => {
-      window.removeEventListener('faunex:shelve-pending', onPending);
-      window.removeEventListener('faunex:shelve-flight', onFlight);
-      window.removeEventListener('faunex:shelve-idle', onFlight);
-    };
-  }, []);
   useSyncAccountLocale();
   const isCapturePage = location.pathname === '/capture';
   const isModerationPage = location.pathname === '/moderation';
@@ -160,7 +145,7 @@ const AppRoutes = () => {
 
   return (
     <>
-      <Suspense fallback={holding ? <div className="min-h-screen bg-background" /> : <LoadingScreen />}>
+      <Suspense fallback={<LoadingScreen />}>
         <PageTransition>
         <Routes>
           <Route
@@ -216,13 +201,6 @@ const AppRoutes = () => {
         </Routes>
         </PageTransition>
       </Suspense>
-      {holding && createPortal(
-        <div className="shelve-holding-stage" aria-hidden>
-          <div className="shelve-flying-card shelve-holding-card" data-rarity={holding.rarity}>
-            {holding.imageUrl && <img src={holding.imageUrl} alt="" decoding="sync" />}
-          </div>
-        </div>, document.body,
-      )}
       {!isCapturePage && !isModerationPage && !isPremiumPage && !isPublicPage && <BottomNav />}
 
       <PullToDiscover />

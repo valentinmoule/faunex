@@ -114,27 +114,22 @@ vi.mock('@/components/ui/tooltip', () => ({ TooltipProvider: ({ children }: { ch
 import App from '@/App';
 
 describe('Rangement dans le Bestiaire', () => {
-  it('garde la petite carte visible pendant la navigation puis la transmet directement au vol', async () => {
+  it('n’affiche aucun écran intermédiaire avec la carte avant le vrai Bestiaire', async () => {
     history.replaceState(null, '', '/capture');
     const view = render(<App />);
     let release: (() => void) | undefined;
     bestiaryGate.pending = new Promise<void>((resolve) => { release = resolve; });
     setPendingShelve({ animalName: 'Renard roux', scientificName: 'Vulpes vulpes', category: 'Mammifère', rarity: 'common', imageUrl: '/renard.jpg' });
     act(() => window.dispatchEvent(new Event('faunex:shelve-pending')));
-    expect(document.querySelector('.shelve-holding-card')).toBeInTheDocument();
-    expect(document.querySelector('.shelve-holding-stage')).toBeInTheDocument();
+    expect(document.querySelector('.shelve-holding-card')).not.toBeInTheDocument();
+    expect(document.querySelector('.shelve-holding-stage')).not.toBeInTheDocument();
     history.pushState(null, '', '/bestiaire');
     act(() => window.dispatchEvent(new PopStateEvent('popstate')));
-    expect(document.querySelector('.shelve-holding-card')).toBeInTheDocument();
-    expect(document.querySelector('.shelve-holding-stage')).toBeInTheDocument();
-    expect(screen.queryByText('Loading logo')).not.toBeInTheDocument();
+    expect(document.querySelector('.shelve-holding-card')).not.toBeInTheDocument();
     bestiaryGate.pending = null;
     await act(async () => { release?.(); });
     await screen.findByText('Bestiaire ready');
-    expect(document.querySelector('.shelve-holding-card')).toBeInTheDocument();
     expect(document.querySelector('.page-transition')).toBeNull();
-    act(() => window.dispatchEvent(new Event('faunex:shelve-flight')));
-    expect(document.querySelector('.shelve-holding-stage')).not.toBeInTheDocument();
     view.unmount();
     bestiaryGate.pending = null;
     history.replaceState(null, '', '/');
