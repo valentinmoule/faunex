@@ -14,7 +14,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import HolographicCard from '@/components/HolographicCard';
 import RarityBadge from '@/components/RarityBadge';
-import FindersBadge from '@/components/FindersBadge';
 import { hapticTap } from '@/lib/haptics';
 import { toast } from '@/hooks/use-toast';
 import { Trash2, Share2, Bookmark } from 'lucide-react';
@@ -896,18 +895,6 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   {t('capture.detail.exploreDesc')}
                 </p>
-                {finders !== undefined && (
-                  <div className="mt-3 flex items-center justify-center">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-background/80 border border-border px-3 py-1.5">
-                      <FindersBadge count={finders} />
-                      <span className="text-[11px] font-display font-medium text-muted-foreground">
-                        {finders > 0
-                          ? t('capture.finders.alreadyCaptured')
-                          : t('capture.finders.noneYet')}
-                      </span>
-                    </span>
-                  </div>
-                )}
               </div>
 
             ) : !feedView ? (
@@ -933,7 +920,15 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                       />
                     );
                   })()}
+                  {finders !== undefined && finders > 0 && (
+                    <DetailRow
+                      icon={<Users className="w-4 h-4" />}
+                      label={t('capture.detail.capturedByLabel')}
+                      value={t('capture.finders.people', { count: finders })}
+                    />
+                  )}
                 </div>
+
 
                 <div className="grid grid-cols-2 gap-2.5">
                   <LockedField icon={<MapPin className="w-4 h-4" />} label={t('capture.detail.habitat')} />
