@@ -1016,13 +1016,61 @@
    ═══════════════════════════════════════════════════ */
 @keyframes delete-sparkle-pop {
   0% { opacity: 0; transform: translate(-50%, -50%) scale(0.15) rotate(0deg); }
-  24% { opacity: 1; transform: translate(-50%, -50%) scale(1.25) rotate(30deg); }
-  68% { opacity: 0.95; transform: translate(-50%, -50%) scale(0.82) rotate(65deg); }
-  100% { opacity: 0; transform: translate(-50%, -50%) scale(0.05) rotate(120deg); }
+  22% { opacity: 1; transform: translate(-50%, -50%) scale(1.35) rotate(30deg); }
+  62% { opacity: 1; transform: translate(-50%, -50%) scale(0.9) rotate(70deg); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(0.05) rotate(130deg); }
+}
+@keyframes delete-card-vanish {
+  0%, 24% { opacity: 1; transform: scale(1) translateY(0); filter: brightness(1); }
+  58% { opacity: 0.92; transform: scale(0.92) translateY(2px); filter: brightness(1.25); }
+  100% { opacity: 0; transform: scale(0.42) translateY(22px); filter: brightness(1.55) blur(3px); }
+}
+@keyframes delete-stage-in {
+  from { background-color: hsl(var(--foreground) / 0); }
+  to { background-color: hsl(var(--foreground) / 0.12); }
+}
+.delete-vanish-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 10002;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  animation: delete-stage-in 0.16s ease-out both;
+}
+.delete-vanish-card {
+  position: relative;
+  width: min(48vw, 190px);
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 1.4rem;
+  animation: delete-card-vanish 0.88s cubic-bezier(0.32, 0, 0.2, 1) forwards;
+  will-change: transform, opacity, filter;
+}
+.delete-vanish-shade {
+  position: absolute;
+  inset: auto 0 0;
+  height: 38%;
+  background: linear-gradient(to top, hsl(var(--foreground) / 0.7), transparent);
+}
+.delete-vanish-name {
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: 0.7rem;
+  color: hsl(var(--background));
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.15;
 }
 .delete-sparkles {
   position: absolute;
-  inset: 0;
+  width: min(64vw, 260px);
+  aspect-ratio: 4 / 5;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   z-index: 40;
   pointer-events: none;
   overflow: visible;
@@ -1035,7 +1083,7 @@
   /* Cœur blanc + halo doré : visible sur la photo comme sur le fond clair */
   background: radial-gradient(circle, #ffffff 0%, hsl(45 100% 62% / 0.95) 32%, hsl(45 100% 55% / 0.35) 55%, transparent 72%);
   filter: drop-shadow(0 0 7px hsl(45 100% 55% / 0.95)) drop-shadow(0 0 2px #ffffff);
-  animation: delete-sparkle-pop 0.62s ease-out forwards;
+  animation: delete-sparkle-pop 0.78s ease-out forwards;
   animation-delay: var(--d, 0ms);
 }
 .delete-sparkle::before,
@@ -1058,7 +1106,7 @@
   transform: translate(-50%, -50%);
 }
 @media (prefers-reduced-motion: reduce) {
-  .delete-sparkles { display: none; }
+  .delete-vanish-stage { display: none; }
 }
 
 /* ═══════════════════════════════════════════════════

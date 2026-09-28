@@ -400,7 +400,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
     setConfirmDelete(false);
     setDeleteAnimating(true);
     hapticTap();
-    const delay = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 680;
+    const delay = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 920;
     window.setTimeout(() => {
       onDeleted?.(card.id);
       onClose();
@@ -723,17 +723,6 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                     </div>
                   </div>
                 </div>
-                {deleteAnimating && (
-                  <div aria-hidden className="delete-sparkles">
-                    {DELETE_SPARKLES.map((s, i) => (
-                      <span
-                        key={i}
-                        className="delete-sparkle"
-                        style={{ left: s.x, top: s.y, ['--s' as any]: `${s.size}px`, ['--d' as any]: `${s.delay}ms` }}
-                      />
-                    ))}
-                  </div>
-                )}
               </HolographicCard>
             </div>
 
@@ -1326,6 +1315,31 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                 {deleting ? t('capture.detail.deleting') : t('capture.detail.deleteBtn')}
               </button>
             </div>
+          </div>
+        </div>
+      ), document.body)}
+
+      {/* The delete action sits below the photo, so the effect must be viewport-fixed:
+          attaching it to the card would leave it above the user's current scroll. */}
+      {deleteAnimating && createPortal((
+        <div aria-hidden className="delete-vanish-stage">
+          <div className={`delete-vanish-card holo-frame holo-frame--${normalizeRarity(card.rarity).replace(/_/g, '-')}`}>
+            {card.image ? (
+              <img src={card.image} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <div className="h-full w-full bg-muted" />
+            )}
+            <div className="delete-vanish-shade" />
+            <span className="delete-vanish-name">{displayName}</span>
+          </div>
+          <div className="delete-sparkles">
+            {DELETE_SPARKLES.map((s, i) => (
+              <span
+                key={i}
+                className="delete-sparkle"
+                style={{ left: s.x, top: s.y, ['--s' as any]: `${s.size}px`, ['--d' as any]: `${s.delay}ms` }}
+              />
+            ))}
           </div>
         </div>
       ), document.body)}
