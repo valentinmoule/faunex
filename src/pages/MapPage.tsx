@@ -238,7 +238,7 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
           // mètres par pixel à ce zoom, puis conversion en degrés
           const mPerPx = (156543.03392 * Math.cos(latRad)) / Math.pow(2, zoom);
           const degPerPx = mPerPx / 111320;
-          const PIN = 44; // taille du pin + marge, en px
+          const PIN = 52; // taille du pin + marge, en px
 
           // répartition en anneaux : 8 pins max sur le 1er, puis de plus en plus
           const rings: CaptureMarker[][] = [];
