@@ -535,25 +535,34 @@ setManualMode(false);
     // Verrou synchrone : plusieurs taps rapides déclenchaient autant d'insertions.
     if (savingRef.current) return;
     savingRef.current = true;
+    // Un seul chargement plein écran dès le clic (plus de spinner sur le bouton
+    // puis écran intermédiaire) + préchargement du Bestiaire pour éviter
+    // l'écran logo à la navigation.
+    setPreparingBestiary(true);
+    void import('./BestiairePage');
+    const cancelPrepare = () => setPreparingBestiary(false);
     let consumed = false;
     try {
       const existing = await findDuplicate(animalResult.animal_name, animalResult.scientific_name);
       if (existing) {
+        cancelPrepare();
         setDuplicateCapture(existing);
         return;
       }
-      if (!(await consumeSlot())) return;
+      if (!(await consumeSlot())) { cancelPrepare(); return; }
       consumed = true;
       const imageUrl = await insertCapture(animalResult);
       if (!imageUrl) {
         // Upload ou insertion refusée : on rend le slot.
         await quota.refund();
         consumed = false;
+        cancelPrepare();
         return;
       }
       consumed = false;
       finishSave(animalResult, imageUrl);
     } catch (err) {
+      cancelPrepare();
       console.error(err);
       if (consumed) await quota.refund();
       const msg = String((err as { message?: string })?.message ?? err);
