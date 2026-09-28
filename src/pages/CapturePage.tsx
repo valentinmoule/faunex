@@ -695,6 +695,14 @@ setManualMode(false);
           )}
         </div>
 
+        {/* Slight dark veil over the photo so the top controls (back) stay visible on light photos */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-black/15" />
+        {/* Top scrim behind the back button / quota pills */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/50 via-black/12 to-transparent"
+        />
+
         {/* Overlay gradient for readability */}
         {(animalResult || identifying || manualMode || identifyError || rejectedImage || revealPhase === 'charging') && (
           <div className={`absolute inset-0 transition-opacity duration-300 ${
