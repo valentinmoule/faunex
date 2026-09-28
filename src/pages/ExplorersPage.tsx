@@ -614,7 +614,7 @@ const ExplorersPage = () => {
         <div className="flex items-center justify-between max-w-lg mx-auto">
           <h1 className="text-2xl font-display font-bold text-primary">Explorateurs</h1>
           <div className="flex items-center gap-2">
-            <button onClick={() => setView('search')} className="p-2 rounded-full hover:bg-muted transition-colors relative">
+            <button onClick={() => setView('search')} className="relative h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted transition-colors">
               <Search className="w-5 h-5 text-foreground" />
               {pendingRequests.length > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-destructive text-destructive-foreground text-[9px] font-bold flex items-center justify-center">
@@ -622,7 +622,7 @@ const ExplorersPage = () => {
                 </span>
               )}
             </button>
-            <button onClick={() => navigate('/notifications')} className="relative p-2 rounded-full hover:bg-muted transition-colors">
+            <button onClick={() => navigate('/notifications')} className="relative h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted transition-colors">
               <span className="relative inline-flex">
                 <Bell className="w-5 h-5 text-foreground" />
                 {unreadCount > 0 && (
