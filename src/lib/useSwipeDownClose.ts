@@ -79,7 +79,7 @@ export function useSwipeDownClose(onClose: () => void, threshold = 56) {
       dragging = true;
       // Non-passif : on bloque le scroll natif pour garder la main sur le geste
       if (e.cancelable) e.preventDefault();
-      current = Math.min(dy * 0.7, 260);
+      current = Math.min(dy * 0.9, 320);
       setDragY(current);
     };
 
