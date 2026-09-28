@@ -132,8 +132,9 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
         slotEl.current = live;
         setFlight({
           style: { left: cx - sw / 2, top: cy - sh / 2, width: sw, height: sh },
+          // Départ en bas au centre (là où était l'écran de capture).
           dx: vw / 2 - cx,
-          dy: vh / 2 - cy,
+          dy: vh - sh / 2 - cy,
           slot: pendingShelve,
         });
       }));
