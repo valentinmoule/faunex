@@ -161,6 +161,9 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteAnimating, setDeleteAnimating] = useState(false);
+  // Snapshot de la carte pour l'animation de disparition : la fiche se ferme
+  // (card devient null) avant que l'effet ne soit terminé.
+  const [vanishCard, setVanishCard] = useState<{ id: string; image: string | null; rarity: string; name: string } | null>(null);
   const deleteInProgressRef = useRef(false);
   const [note, setNote] = useState('');
   const [noteDraft, setNoteDraft] = useState('');
@@ -393,26 +396,34 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
     deleteInProgressRef.current = true;
     setDeleting(true);
     setConfirmDelete(false);
-    setDeleteAnimating(true);
     hapticTap();
 
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (!reduceMotion) {
-      await new Promise<void>((resolve) => window.setTimeout(resolve, 920));
-    }
-
+    const snapshot = { id: card.id, image: card.image, rarity: card.rarity, name: displayName };
     const { error } = await supabase.from('captures').delete().eq('id', card.id);
     setDeleting(false);
     if (error) {
       deleteInProgressRef.current = false;
-      setDeleteAnimating(false);
       toast({ title: t('capture.detail.toastDeleteImpossible'), description: t('capture.detail.toastRetry'), variant: 'destructive' });
       return;
     }
 
-    onDeleted?.(card.id);
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // La fiche se ferme d'abord, puis la carte disparaît avec des scintillements.
     onClose();
-  }, [card, deleting, onDeleted, onClose]);
+    if (reduceMotion) {
+      onDeleted?.(snapshot.id);
+      deleteInProgressRef.current = false;
+      return;
+    }
+    setVanishCard(snapshot);
+    setDeleteAnimating(true);
+    window.setTimeout(() => {
+      onDeleted?.(snapshot.id);
+      setDeleteAnimating(false);
+      setVanishCard(null);
+      deleteInProgressRef.current = false;
+    }, 780);
+  }, [card, displayName, onDeleted, onClose]);
 
   // Escape closes the delete confirmation
   useEffect(() => {
@@ -616,7 +627,32 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
     setShareOpen(true);
   }, [card]);
 
-  if (!card) return null;
+  // Effet de disparition : rendu même quand la fiche est fermée (card null),
+  // pour que la carte scintille au-dessus de la grille avant de disparaître.
+  const vanishOverlay = deleteAnimating && vanishCard ? createPortal((
+    <div aria-hidden className="delete-vanish-stage">
+      <div className={`delete-vanish-card holo-frame holo-frame--${normalizeRarity(vanishCard.rarity).replace(/_/g, '-')}`}>
+        {vanishCard.image ? (
+          <img src={vanishCard.image} alt="" className="h-full w-full object-cover" />
+        ) : (
+          <div className="h-full w-full bg-muted" />
+        )}
+        <div className="delete-vanish-shade" />
+        <span className="delete-vanish-name">{vanishCard.name}</span>
+      </div>
+      <div className="delete-sparkles">
+        {DELETE_SPARKLES.map((s, i) => (
+          <span
+            key={i}
+            className="delete-sparkle"
+            style={{ left: s.x, top: s.y, ['--s' as any]: `${s.size}px`, ['--d' as any]: `${s.delay}ms` }}
+          />
+        ))}
+      </div>
+    </div>
+  ), document.body) : null;
+
+  if (!card) return vanishOverlay;
 
 
   const isUncaptured = !card.image || card.id.startsWith('uncaptured-');
@@ -1334,30 +1370,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
         </div>
       ), document.body)}
 
-      {/* The delete action sits below the photo, so the effect must be viewport-fixed:
-          attaching it to the card would leave it above the user's current scroll. */}
-      {deleteAnimating && createPortal((
-        <div aria-hidden className="delete-vanish-stage">
-          <div className={`delete-vanish-card holo-frame holo-frame--${normalizeRarity(card.rarity).replace(/_/g, '-')}`}>
-            {card.image ? (
-              <img src={card.image} alt="" className="h-full w-full object-cover" />
-            ) : (
-              <div className="h-full w-full bg-muted" />
-            )}
-            <div className="delete-vanish-shade" />
-            <span className="delete-vanish-name">{displayName}</span>
-          </div>
-          <div className="delete-sparkles">
-            {DELETE_SPARKLES.map((s, i) => (
-              <span
-                key={i}
-                className="delete-sparkle"
-                style={{ left: s.x, top: s.y, ['--s' as any]: `${s.size}px`, ['--d' as any]: `${s.delay}ms` }}
-              />
-            ))}
-          </div>
-        </div>
-      ), document.body)}
+      {vanishOverlay}
     </>
 
   );
