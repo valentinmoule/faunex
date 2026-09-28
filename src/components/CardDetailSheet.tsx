@@ -921,7 +921,15 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                       />
                     );
                   })()}
+                  {finders !== undefined && finders > 0 && (
+                    <DetailRow
+                      icon={<Users className="w-4 h-4" />}
+                      label={t('capture.detail.capturedByLabel')}
+                      value={t('capture.finders.people', { count: finders })}
+                    />
+                  )}
                 </div>
+
 
                 <div className="grid grid-cols-2 gap-2.5">
                   <LockedField icon={<MapPin className="w-4 h-4" />} label={t('capture.detail.habitat')} />
