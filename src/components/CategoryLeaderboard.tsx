@@ -341,7 +341,7 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
 
   // Barre « ma position » épinglée en bas quand l'utilisateur n'est pas dans le top visible.
   const myPositionBar = mine && !rows.some(r => r.is_me) && !lockedTab && rows.length > 0 ? (
-    <div className="sticky bottom-0 z-10 border-t border-border bg-card/95 backdrop-blur-sm">
+    <div className={`sticky z-10 border-t border-border bg-card/95 backdrop-blur-sm ${inline ? 'bottom-[calc(4.25rem+env(safe-area-inset-bottom))]' : 'bottom-0'}`}>
       <div className="flex items-center gap-3 px-5 py-2.5">
         <span className="w-6 text-center text-[13px] font-display font-bold text-primary">{mine.rank}</span>
         <div
