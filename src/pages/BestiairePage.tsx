@@ -301,7 +301,7 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const {
     animals,
     myCaptures,
-    setMyCaptures,
+    removeCaptureLocally,
     loading,
     unreadCount,
     subscribedZones,
@@ -1421,7 +1421,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
           onReset={() => { setZoneRarityFilter([]); setZonePopularityFilter([]); }}
         />
 
-        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
+        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={removeCaptureLocally} />
         {deptPickerSheet}
         {flyingCardOverlay}
       </main>
@@ -1582,7 +1582,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
           onReset={() => { setCollectionRarityFilter([]); setCollectionPopularityFilter([]); }}
         />
 
-        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
+        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={removeCaptureLocally} />
         {flyingCardOverlay}
         {deptPickerSheet}
       </main>
@@ -2190,7 +2190,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
 
 
         </div>
-        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
+        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={removeCaptureLocally} />
         {flyingCardOverlay}
         {deptPickerSheet}
         {celebratedReward && (
@@ -2410,7 +2410,7 @@ onClick={() => {
         onReset={() => { setRarityFilter([]); setPopularityFilter([]); }}
       />
 
-      <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={(id) => setMyCaptures(prev => prev.filter(c => c.id !== id))} />
+      <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={removeCaptureLocally} />
 
       {flyingCardOverlay}
     </main>
