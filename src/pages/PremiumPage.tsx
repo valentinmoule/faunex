@@ -208,25 +208,26 @@ const PremiumPage = () => {
   return (
     <div className="min-h-screen bg-background pb-40">
       <PaymentTestModeBanner />
-      <PageHeader className="px-4 pb-2">
-        <button
-          onClick={() => navigate(-1)}
-          aria-label={t('profile.premium.backAria')}
-          className="h-10 w-10 rounded-full bg-card border border-border flex items-center justify-center shadow-sm"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </button>
+      <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
+        <div className="flex items-center gap-3 max-w-lg mx-auto">
+          <button
+            onClick={() => navigate(-1)}
+            aria-label={t('profile.premium.backAria')}
+            className="p-1.5 rounded-full hover:bg-muted transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5 text-foreground" />
+          </button>
+          <h1 className="text-xl font-display font-bold text-foreground">{t('profile.premium.badge')}</h1>
+        </div>
       </PageHeader>
 
       <main className="px-5 pt-2">
         <section className="relative overflow-hidden rounded-[2rem] border border-border bg-card p-6 shadow-sm">
           <div className="absolute -top-16 -right-10 h-40 w-40 rounded-full bg-primary/10 blur-2xl" aria-hidden />
-          <span className="relative inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-            <Crown className="h-3.5 w-3.5" /> {t('profile.premium.badge')}
-          </span>
-          <h1 className="relative mt-4 font-display text-2xl font-bold leading-tight">
+          <Crown className="relative h-6 w-6 text-primary" aria-hidden />
+          <h2 className="relative mt-3 font-display text-2xl font-bold leading-tight">
             {t('profile.premium.title')}
-          </h1>
+          </h2>
           <p className="relative mt-2 text-sm text-muted-foreground">
             {t('profile.premium.description')}
           </p>

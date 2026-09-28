@@ -4,7 +4,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { CollectionHero } from '@/components/CollectionHero';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, Check, Images, Trophy, Users, Lock, FolderPlus } from 'lucide-react';
+import { ArrowLeft, Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, Check, Images, Trophy, Users, Lock, FolderPlus } from 'lucide-react';
 import {
   POPULARITY_LABELS,
   SpeciesCategoryIcon,
@@ -1594,9 +1594,20 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
     const showMineControls = myCapturedAnimals.length > 0 || mineSearch.trim().length > 0 || mineActiveFilterCount > 0;
     return (
       <main className="min-h-screen bg-background pb-24">
-        {/* La page des badges se passe d'en-tête : un simple espace pour la barre d'état */}
+        {/* Badges & quêtes : en-tête titre + retour, comme la page Notifications */}
         {viewMode === 'badges' ? (
-          <div aria-hidden className="h-[max(env(safe-area-inset-top),1rem)]" />
+          <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
+            <div className="flex items-center gap-3 max-w-lg mx-auto">
+              <button
+                onClick={() => changeView('mine')}
+                aria-label={t('bestiary.collectionHero.back')}
+                className="p-1.5 rounded-full hover:bg-muted transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5 text-foreground" />
+              </button>
+              <h1 className="text-xl font-display font-bold text-foreground">{t('bestiary.header.achievementsTitle')}</h1>
+            </div>
+          </PageHeader>
         ) : (
           <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
             <div className="max-w-lg mx-auto">
@@ -1811,14 +1822,6 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
 
           {viewMode === 'badges' && (
             <section>
-              <button
-                type="button"
-                onClick={() => changeView('mine')}
-                className="mb-4 inline-flex items-center gap-1 text-sm font-display font-semibold text-muted-foreground active:scale-95 transition-transform"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                {t('bestiary.tabs.mine')}
-              </button>
               <FaunexAchievements />
             </section>
           )}
