@@ -6,7 +6,7 @@ Rules for working on this codebase.
 
 Wrap any `position: fixed` overlay (reward sheets, modals, lightboxes) in `createPortal`, targeting the open `[role="dialog"]` when one exists, otherwise `document.body`.
 
-**Why:** `div.page-transition` carries `transform` + `will-change`, which makes it the containing block for `fixed` descendants — an overlay rendered inside a page would be sized to the whole scrollable document and pushed off-screen.
+**Why:** transformed page wrappers otherwise contain and misplace fixed descendants.
 
 ## Subscription-gated badges must be validated on the server
 
@@ -16,7 +16,7 @@ Check Premium eligibility in the badge claim function, not only in the badge UI,
 
 Any full-bleed `filter: blur()` photo backdrop (`background-size: cover` on a viewport-sized element) must be scaled well past the blur radius — `scale(1.9)` for a 42px blur, `scale(2.25)` for 50px — and the layer behind it must stay opaque.
 
-**Why:** blurring fades the element's alpha inward by roughly 3σ, so an under-scaled backdrop lets the screen behind it bleed through as ghosted text.
+**Why:** blur fades alpha inward and exposes the screen behind an under-scaled layer.
 
 ## Shelving targets the exact displayed species tile
 
@@ -33,3 +33,7 @@ Keep the capture view visible until the Bestiary is ready, then show the real Be
 ## A capture fills exactly one Bestiary tile
 
 Match captures (including pending shelves) to tiles by exact common name first; use the scientific name only when it points to a single tile, because domestic breeds share one binomial and would all get the same photo.
+
+## Bundle badge artwork
+
+Import badge art locally; hosted `/__l5e/assets-v1/` routes are absent from native bundles.
