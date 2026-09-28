@@ -64,6 +64,15 @@ const CapturePage = () => {
 
 
   const [duplicateCapture, setDuplicateCapture] = useState<{ id: string; image_url: string; animal_name: string } | null>(null);
+  const duplicateRef = useRef<HTMLDivElement | null>(null);
+  // Doublon détecté : amener le comparatif à l'écran sans attendre un scroll manuel.
+  useEffect(() => {
+    if (!duplicateCapture) return;
+    const id = window.setTimeout(() => {
+      duplicateRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 150);
+    return () => window.clearTimeout(id);
+  }, [duplicateCapture]);
   const [fullscreenPhoto, setFullscreenPhoto] = useState<string | null>(null);
 const [manualMode, setManualMode] = useState(false);
   /** Repli taxonomique honnête renvoyé par le serveur (genre / famille). */
@@ -903,7 +912,7 @@ setManualMode(false);
               {/* Doublon : l'espèce est déjà dans le Faunex — comparatif des photos
                   (cliquables pour les voir en grand). Les boutons sont dans le pied fixe. */}
               {duplicateCapture && (
-                <div className="space-y-3 pt-1">
+                <div ref={duplicateRef} className="space-y-3 pt-1 scroll-mt-6">
                   <p className="text-foreground font-display font-semibold text-sm text-center">
                     {t('capture.duplicate.warning', { name: duplicateCapture.animal_name })}
                   </p>
