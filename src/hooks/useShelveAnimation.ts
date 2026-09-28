@@ -119,7 +119,7 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
         const vw = window.innerWidth;
         const vh = window.innerHeight;
         const sw = Math.min(240, vw * 0.6);
-        const sh = sw * (to.height / Math.max(to.width, 1));
+        const sh = sw * 1.25; // même format que la carte d'attente (4/5)
         const cx = to.left + to.width / 2;
         const cy = to.top + to.height / 2;
         setHiddenSlot(true);
@@ -191,16 +191,16 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
         const soft = 'cubic-bezier(0.22, 1, 0.36, 1)';
         const fly = card.animate(
           [
-            { transform: at(dx, dy + 24, 0.72, 0.72, -5), opacity: 0, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' },
-            { transform: at(dx, dy, 1, 1, -2), opacity: 1, offset: 0.24, easing: 'ease-in-out' },
-            { transform: at(dx, dy - 4, 1.01, 1.01, 0), opacity: 1, offset: 0.4, easing: soft },
+            // Départ exactement où la carte d'attente était affichée : aucun saut.
+            { transform: at(dx, dy, 1, 1, 0), opacity: 1, easing: 'ease-in-out' },
+            { transform: at(dx, dy - 4, 1.01, 1.01, 0), opacity: 1, offset: 0.2, easing: soft },
             { transform: at(preX, preY, end.sx * 1.06, end.sy * 1.06, 2), opacity: 1, offset: 0.86, easing: 'cubic-bezier(0.5, 0, 0.75, 0)' },
             { transform: at(end.x, end.y, end.sx, end.sy, 0), opacity: 1 },
           ],
-          { duration: reduced ? 1 : 1050, easing: 'linear', fill: 'forwards' },
+          { duration: reduced ? 1 : 900, easing: 'linear', fill: 'forwards' },
         );
         anims.push(fly);
-        if (label) anims.push(label.animate([{ opacity: 1 }, { opacity: 1, offset: 0.45 }, { opacity: 0, offset: 0.62 }, { opacity: 0 }], { duration: reduced ? 1 : 1050, fill: 'forwards' }));
+        if (label) anims.push(label.animate([{ opacity: 1 }, { opacity: 1, offset: 0.45 }, { opacity: 0, offset: 0.62 }, { opacity: 0 }], { duration: reduced ? 1 : 900, fill: 'forwards' }));
         if (backdrop) anims.push(backdrop.animate([{ opacity: 1 }, { opacity: 0 }], { duration: reduced ? 1 : 560, delay: reduced ? 0 : 420, fill: 'forwards', easing: 'ease-out' }));
         await fly.finished;
         if (cancelled) return;
