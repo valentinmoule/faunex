@@ -141,13 +141,15 @@ Deno.serve(async (req) => {
       if (applyErr) {
         console.error('apply update failed', applyErr)
         const isUnique = /duplicate key|unique/i.test(applyErr.message || '')
+        // Doublon = cas métier attendu : 200 avec code 'duplicate' (un 409 est
+        // remonté comme erreur fatale par l'aperçu et masque l'écran).
         return json({
           error: isUnique
             ? "Conflit d'unicité : cette espèce existe déjà pour cet explorateur."
             : `Mise à jour impossible : ${applyErr.message}`,
           code: isUnique ? 'duplicate' : 'db_error',
           detail: applyErr.message,
-        }, isUnique ? 409 : 500)
+        }, isUnique ? 200 : 500)
       }
       // Dataset : fiche confirmée par un modérateur humain → vérité terrain.
       const { data: applied } = await supabase
@@ -199,6 +201,7 @@ Deno.serve(async (req) => {
     if (!skipDuplicateCheck) {
       const dup = await findUserDuplicate(supabase, capture.user_id, captureId, animalName, overrideScientific)
       if (dup) {
+        // 200 volontaire : le doublon est un cas métier attendu, pas une panne.
         return json({
           error: `L'explorateur possède déjà « ${dup.animal_name} »${dup.scientific_name ? ` (${dup.scientific_name})` : ''} dans son bestiaire — même espèce que « ${animalName} »${overrideScientific ? ` (${overrideScientific})` : ''}${dup.match_via === 'scientific' ? ' (détecté via le nom scientifique)' : ''}.`,
           code: 'duplicate',
@@ -207,7 +210,7 @@ Deno.serve(async (req) => {
             animal_name: animalName,
             scientific_name: overrideScientific,
           },
-        }, 409)
+        })
       }
     }
 
@@ -443,6 +446,7 @@ Deno.serve(async (req) => {
         animal.animal_name || animalName, animal.scientific_name || null,
       )
       if (dup) {
+        // 200 volontaire : le doublon est un cas métier attendu, pas une panne.
         return json({
           error: `L'explorateur possède déjà « ${dup.animal_name} »${dup.scientific_name ? ` (${dup.scientific_name})` : ''} dans son bestiaire — même espèce que « ${animal.animal_name || animalName} »${animal.scientific_name ? ` (${animal.scientific_name})` : ''}${dup.match_via === 'scientific' ? ' (détecté via le nom scientifique)' : ''}.`,
           code: 'duplicate',
@@ -451,7 +455,7 @@ Deno.serve(async (req) => {
             animal_name: animal.animal_name || animalName,
             scientific_name: animal.scientific_name || null,
           },
-        }, 409)
+        })
       }
     }
 
