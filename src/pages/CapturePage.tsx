@@ -866,17 +866,6 @@ setManualMode(false);
                 <p className="text-muted-foreground text-sm italic">{animalResult.scientific_name}</p>
               </div>
 
-              {/* Suggestions d'espèces semblables (Premium) quand la confiance < 90 % */}
-              {!duplicateCapture && typeof animalResult.confidence === 'number' && animalResult.confidence < 90 && (animalResult.alternatives?.length ?? 0) > 0 && (
-                <SimilarSpeciesStrip
-                  names={animalResult.alternatives ?? []}
-                  scientificNames={animalResult.alternatives_scientific}
-                  isPremium={isPremium}
-                  onGoPremium={() => navigate('/premium')}
-                  onPick={handlePickSimilar}
-                />
-              )}
-
               {/* Description — texte simple centré, comme la fiche espèce (sans boîte) */}
               {animalResult.description && <p className="text-sm text-foreground/80 leading-relaxed text-center max-w-sm mx-auto">{animalResult.description}</p>}
 
@@ -903,9 +892,9 @@ setManualMode(false);
                 )}
               </div>
 
-              {/* Doublon : l'espèce est déjà dans le Faunex — proposer le remplacement
-                  directement dans la feuille (photos cliquables pour les voir en grand). */}
-              {duplicateCapture ? (
+              {/* Doublon : l'espèce est déjà dans le Faunex — comparatif des photos
+                  (cliquables pour les voir en grand). Les boutons sont dans le pied fixe. */}
+              {duplicateCapture && (
                 <div className="space-y-3 pt-1">
                   <p className="text-foreground font-display font-semibold text-sm text-center">
                     {t('capture.duplicate.warning', { name: duplicateCapture.animal_name })}
@@ -921,7 +910,25 @@ setManualMode(false);
                       {capturedPhoto && <img src={capturedPhoto} alt="" className="w-24 h-24 rounded-xl object-cover border-2 border-primary" />}
                     </button>
                   </div>
-                  <div className="space-y-2.5">
+                </div>
+              )}
+
+              {/* Suggestions d'espèces semblables (Premium) quand la confiance < 90 % —
+                  placées en fin de fiche, juste au-dessus des actions fixes. */}
+              {!duplicateCapture && typeof animalResult.confidence === 'number' && animalResult.confidence < 90 && (animalResult.alternatives?.length ?? 0) > 0 && (
+                <SimilarSpeciesStrip
+                  names={animalResult.alternatives ?? []}
+                  scientificNames={animalResult.alternatives_scientific}
+                  isPremium={isPremium}
+                  onGoPremium={() => navigate('/premium')}
+                  onPick={handlePickSimilar}
+                />
+              )}
+
+              {/* Actions fixes en bas de la feuille — toujours visibles pendant le défilement */}
+              <div className="sticky bottom-0 -mx-5 -mb-5 px-5 pt-3 pb-5 bg-background space-y-2.5">
+                {duplicateCapture ? (
+                  <>
                     <button
                       onClick={doReplaceExisting}
                       disabled={saving || preparingBestiary}
@@ -936,35 +943,35 @@ setManualMode(false);
                     >
                       {t('capture.duplicate.keepCurrent')}
                     </button>
-                  </div>
-                </div>
-              ) : (
-              /* Actions empilées : « Ajouter » en premier */
-              <div className="space-y-2.5 pt-1">
+                  </>
+                ) : (
+                  <>
+                    {/* Actions empilées : « Ajouter » en premier */}
+                    <button
+                      onClick={saveToCollection}
+                      disabled={saving || preparingBestiary}
+                      className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full bg-primary text-primary-foreground font-display text-sm font-semibold disabled:opacity-50"
+                    >
+                      {saving || preparingBestiary ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                      {saving || preparingBestiary ? t('capture.actions.saving') : t('capture.actions.add')}
+                    </button>
+                    <button
+                      onClick={resetCapture}
+                      className="w-full py-3.5 rounded-full font-display text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {t('capture.actions.dontAdd')}
+                    </button>
+                  </>
+                )}
+
+                {/* Contester l'identification — simple lien souligné */}
                 <button
-                  onClick={saveToCollection}
-                  disabled={saving || preparingBestiary}
-                  className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full bg-primary text-primary-foreground font-display text-sm font-semibold disabled:opacity-50"
+                  onClick={requestVerification}
+                  className="mx-auto flex items-center gap-1 text-xs font-medium text-muted-foreground underline underline-offset-2 hover:text-foreground transition-colors"
                 >
-                  {saving || preparingBestiary ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-                  {saving || preparingBestiary ? t('capture.actions.saving') : t('capture.actions.add')}
-                </button>
-                <button
-                  onClick={resetCapture}
-                  className="w-full py-3.5 rounded-full font-display text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {t('capture.actions.dontAdd')}
+                  {t('capture.requestVerification')}
                 </button>
               </div>
-              )}
-
-              {/* Contester l'identification — simple lien souligné */}
-              <button
-                onClick={requestVerification}
-                className="mx-auto flex items-center gap-1 text-xs font-medium text-muted-foreground underline underline-offset-2 hover:text-foreground transition-colors"
-              >
-                {t('capture.requestVerification')}
-              </button>
             </div>
           </div>
         )}
