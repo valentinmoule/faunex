@@ -56,7 +56,7 @@ const prefersReducedMotion = () =>
  * `shelve-xp-reveal` dans index.css, sinon le compteur est coupé avant la fin
  * de son fondu.
  */
-const XP_REWARD_MS = 1200;
+const XP_REWARD_MS = 1800;
 
 /**
  * Animation « la carte se range dans le bestiaire » après une capture.

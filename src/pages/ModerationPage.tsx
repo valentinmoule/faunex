@@ -217,9 +217,17 @@ const ModerationPage = () => {
     setProcessing(null);
 
     if (enrichError || !enriched?.animal) {
-      const failure = enrichError
+      // Le doublon arrive en 200 avec code 'duplicate' (cas métier, pas une panne).
+      const failure: PrepareFailure = enrichError
         ? await readFunctionError(enrichError)
-        : { code: 'empty_response', message: "La fonction a répondu sans fiche exploitable." };
+        : enriched?.code === 'duplicate'
+          ? {
+              code: 'duplicate',
+              message: enriched.error || 'Doublon',
+              duplicate: enriched.duplicate ?? null,
+              identifiedAs: enriched.identified_as ?? null,
+            }
+          : { code: 'empty_response', message: "La fonction a répondu sans fiche exploitable." };
       if (failure.code === 'duplicate') {
         failure.message = duplicateMessage(
           nameOverride?.trim() || capture.animal_name,
@@ -263,9 +271,15 @@ const ModerationPage = () => {
 
 
     // La prévisualisation n'écrit rien : on applique la fiche enrichie maintenant.
-    const { error: applyError } = await supabase.functions.invoke('enrich-capture', {
+    const { data: applyData, error: applyError } = await supabase.functions.invoke('enrich-capture', {
       body: { capture_id: capture.id, apply: true, animal },
     });
+    // Doublon renvoyé en 200 (cas métier) : même traitement que l'ancien 409.
+    if (applyData?.code === 'duplicate') {
+      showDuplicate(applyData.duplicate ?? null, applyData.identified_as ?? null);
+      setConfirming(false);
+      return;
+    }
     if (applyError) {
       const failure = await readFunctionError(applyError);
       if (failure.code === 'duplicate') showDuplicate(failure.duplicate, failure.identifiedAs);
