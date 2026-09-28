@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Bookmark, Check, Crown, FolderPlus, Plus, X } from 'lucide-react';
 import { hapticTap } from '@/lib/haptics';
+import { useSwipeDownClose } from '@/lib/useSwipeDownClose';
 import type { CustomCollection } from '@/hooks/useCustomCollections';
 
 interface Props {
