@@ -1327,7 +1327,23 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
     document.body,
   ) : null;
 
-  if (loading) return <LoadingScreen />;
+  // Après un ajout de capture, on garde le même chargement plein écran que
+  // l'écran de résultat (pas d'écran logo intermédiaire) pour une transition fluide.
+  if (loading) {
+    if (peekPendingShelve()) {
+      return (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-background" role="status" aria-live="polite">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="font-display text-sm font-semibold text-foreground">
+              {t('capture.actions.preparingBestiary')}
+            </p>
+          </div>
+        </div>
+      );
+    }
+    return <LoadingScreen />;
+  }
 
   // Zone detail view
   if (selectedZone) {
