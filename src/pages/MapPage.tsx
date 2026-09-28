@@ -67,24 +67,27 @@ const getCategoryIcon = (category: string): ComponentType<{ className?: string; 
 
 const RARITY_ORDER_LOCAL = RARITY_ORDER;
 
-const buildIcon = (rarity: string, category: string, count = 1) => {
+const buildIcon = (rarity: string, category: string, count = 1, imageUrl?: string | null) => {
   const color = RARITY_COLORS[rarity] || RARITY_COLORS.common;
   const CatIcon = getCategoryIcon(category);
   const iconSvg = renderToStaticMarkup(
     <CatIcon color={color} strokeWidth={2.2} />
   );
+  const photo = imageUrl
+    ? `<img class="faunex-pin-photo" src="${thumbUrl(imageUrl, 128, 70)}" alt="" loading="lazy" draggable="false" />`
+    : `<span class="faunex-pin-icon">${iconSvg}</span>`;
   return L.divIcon({
     className: 'faunex-pin',
     html: `
       <div class="faunex-pin-outer" style="--pin-color:${color}">
         <div class="faunex-pin-inner">
-          <span class="faunex-pin-icon">${iconSvg}</span>
+          ${photo}
         </div>
         ${count > 1 ? `<span class="faunex-pin-count">${count > 99 ? '99+' : count}</span>` : ''}
       </div>
     `,
-    iconSize: [40, 40],
-    iconAnchor: [20, 20],
+    iconSize: [46, 46],
+    iconAnchor: [23, 23],
   });
 };
 
