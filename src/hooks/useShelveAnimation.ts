@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { consumePendingShelve, peekPendingShelve, setShelveRunning, type PendingShelve } from '@/lib/shelveAnimation';
 import { hapticDiscovery } from '@/lib/haptics';
 
@@ -67,6 +67,10 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
   const ran = useRef(false);
   const slotEl = useRef<HTMLElement | null>(null);
   const prepared = useRef(false);
+
+  useLayoutEffect(() => {
+    if (flight && cardRef.current) window.dispatchEvent(new Event('faunex:shelve-flight'));
+  }, [flight]);
 
   useEffect(() => {
     const peeked = peekPendingShelve();

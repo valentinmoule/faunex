@@ -26,6 +26,7 @@ export const setPendingShelve = (data: Omit<PendingShelve, 'ts'>) => {
       STORAGE_KEY,
       JSON.stringify({ ...data, ts: Date.now() }),
     );
+    window.dispatchEvent(new Event('faunex:shelve-pending'));
   } catch {
     // ignore (private mode etc.)
   }
@@ -65,6 +66,7 @@ let shelveRunning = false;
 
 export const setShelveRunning = (running: boolean) => {
   shelveRunning = running;
+  if (!running && typeof window !== 'undefined') window.dispatchEvent(new Event('faunex:shelve-idle'));
 };
 
 /** Un rangement est prévu ou en cours. */

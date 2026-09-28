@@ -1,4 +1,5 @@
 import React, { Suspense } from "react";
+import { createPortal } from "react-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -20,6 +21,9 @@ import { useSyncAccountLocale } from "./hooks/useAppLocale";
 import { ProfileDrawerProvider } from "./components/ProfileDrawer";
 import AppErrorBoundary from "./components/AppErrorBoundary";
 import { lazyWithRetry } from "./lib/lazyWithRetry";
+import { peekPendingShelve, type PendingShelve } from "./lib/shelveAnimation";
+import { useSpeciesName } from "./hooks/useSpeciesLocale";
+import { useTranslation } from "react-i18next";
 
 
 // Lazy-loaded routes for smaller initial bundle
@@ -125,6 +129,21 @@ const FirstLoginMarker = () => {
 
 const AppRoutes = () => {
   const location = useLocation();
+  const { t } = useTranslation();
+  const { speciesName } = useSpeciesName();
+  const [holding, setHolding] = React.useState<PendingShelve | null>(() => peekPendingShelve());
+  React.useEffect(() => {
+    const onPending = () => setHolding(peekPendingShelve());
+    const onFlight = () => setHolding(null);
+    window.addEventListener('faunex:shelve-pending', onPending);
+    window.addEventListener('faunex:shelve-flight', onFlight);
+    window.addEventListener('faunex:shelve-idle', onFlight);
+    return () => {
+      window.removeEventListener('faunex:shelve-pending', onPending);
+      window.removeEventListener('faunex:shelve-flight', onFlight);
+      window.removeEventListener('faunex:shelve-idle', onFlight);
+    };
+  }, []);
   useSyncAccountLocale();
   const isCapturePage = location.pathname === '/capture';
   const isModerationPage = location.pathname === '/moderation';
@@ -145,7 +164,7 @@ const AppRoutes = () => {
 
   return (
     <>
-      <Suspense fallback={<LoadingScreen />}>
+      <Suspense fallback={holding ? <div className="min-h-screen bg-background" /> : <LoadingScreen />}>
         <PageTransition>
         <Routes>
           <Route
@@ -201,6 +220,15 @@ const AppRoutes = () => {
         </Routes>
         </PageTransition>
       </Suspense>
+      {holding && createPortal(
+        <div className="shelve-flying-card shelve-holding-card" data-rarity={holding.rarity} aria-hidden>
+          {holding.imageUrl && <img src={holding.imageUrl} alt="" decoding="sync" />}
+          <div className="shelve-card-label">
+            <span>{t('bestiary.shelve.newDiscovery')}</span>
+            <strong>{speciesName(holding.animalName)}</strong>
+          </div>
+        </div>, document.body,
+      )}
       {!isCapturePage && !isModerationPage && !isPremiumPage && !isPublicPage && <BottomNav />}
 
       <PullToDiscover />
