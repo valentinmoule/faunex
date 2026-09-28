@@ -231,7 +231,12 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
     <ProfileDrawerContext.Provider value={{ openProfile, claimableBadges }}>
       {children}
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="bottom" className="max-h-[88vh] overflow-y-auto rounded-t-[28px] border-border px-5 pb-8 pt-3">
+        <SheetContent
+          ref={swipeClose.ref}
+          style={swipeClose.style}
+          side="bottom"
+          className="max-h-[88vh] overflow-y-auto rounded-t-[28px] border-border px-5 pb-8 pt-3"
+        >
           <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-border" />
           <SheetTitle className="sr-only">{t('profile.page.title')}</SheetTitle>
 
