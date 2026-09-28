@@ -1312,6 +1312,15 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
     <>
       {/* Voile posé dès l'arrivée : masque le saut de défilement vers l'emplacement. */}
       <div ref={shelveBackdropRef} className="shelve-backdrop" style={{ opacity: 1 }} aria-hidden />
+      {!flight && (
+        <div className="shelve-flying-card shelve-holding-card" data-rarity={pendingShelve.rarity} aria-hidden>
+          {pendingShelve.imageUrl && <img src={pendingShelve.imageUrl} alt="" decoding="sync" />}
+          <div className="shelve-card-label">
+            <span>{t('bestiary.shelve.newDiscovery')}</span>
+            <strong>{shelveSpeciesName(pendingShelve.animalName)}</strong>
+          </div>
+        </div>
+      )}
       {flight && <div
         ref={shelveCardRef}
         className="shelve-flying-card"
@@ -1332,7 +1341,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
   // l'écran de résultat (pas d'écran logo intermédiaire) pour une transition fluide.
   if (loading) {
     // Rangement en cours : fond uni sans second chargeur (le spinner était sur le bouton).
-    if (peekPendingShelve()) return <div className="fixed inset-0 bg-background" aria-hidden />;
+    if (peekPendingShelve()) return <>{flyingCardOverlay}</>;
     return <LoadingScreen />;
   }
 
