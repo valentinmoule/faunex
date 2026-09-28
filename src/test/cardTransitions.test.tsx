@@ -65,14 +65,14 @@ beforeEach(() => {
 afterEach(() => { vi.useRealTimers(); vi.clearAllMocks(); });
 
 describe('Suppression de capture', () => {
-  it('ferme la fiche, garde la carte scintillante, puis retire la capture dès la fin de son animation', async () => {
+  it('retire la vraie tuile sous le snapshot animé pour éviter toute réapparition à la fin', async () => {
     const onDeleted = vi.fn();
     const onClose = vi.fn();
     const { container, rerender } = render(<MemoryRouter><CardDetailSheet card={card} open onClose={onClose} onDeleted={onDeleted} /></MemoryRouter>);
     fireEvent.click(await screen.findByRole('button', { name: 'capture.detail.deleteCapture' }));
     fireEvent.click(screen.getByRole('button', { name: 'capture.detail.deleteBtn' }));
     await waitFor(() => expect(onClose).toHaveBeenCalledOnce());
-    expect(onDeleted).not.toHaveBeenCalled();
+    expect(onDeleted).toHaveBeenCalledExactlyOnceWith(card.id);
     rerender(<MemoryRouter><CardDetailSheet card={null} open={false} onClose={onClose} onDeleted={onDeleted} /></MemoryRouter>);
     const ghost = document.querySelector('.delete-vanish-card');
     expect(ghost).toBeInTheDocument();
@@ -81,11 +81,11 @@ describe('Suppression de capture', () => {
     const sparkleEnd = new Event('animationend', { bubbles: true });
     Object.defineProperty(sparkleEnd, 'animationName', { value: 'delete-sparkle-pop' });
     fireEvent(ghost as Element, sparkleEnd);
-    expect(onDeleted).not.toHaveBeenCalled();
+    expect(onDeleted).toHaveBeenCalledOnce();
     const cardEnd = new Event('animationend', { bubbles: true });
     Object.defineProperty(cardEnd, 'animationName', { value: 'delete-card-vanish' });
     fireEvent(ghost as Element, cardEnd);
-    expect(onDeleted).toHaveBeenCalledExactlyOnceWith(card.id);
+    expect(onDeleted).toHaveBeenCalledOnce();
     expect(document.querySelector('.delete-vanish-stage')).not.toBeInTheDocument();
   });
 });

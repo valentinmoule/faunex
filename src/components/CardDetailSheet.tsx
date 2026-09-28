@@ -423,12 +423,15 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
     }
     setVanishCard(snapshot);
     setDeleteAnimating(true);
+    // Retire immédiatement la vraie tuile sous l'overlay. L'animation garde son
+    // snapshot visible, donc la grille est déjà dans son état final lorsqu'il
+    // disparaît et ne peut pas réafficher la carte pendant une frame.
+    onDeleted?.(snapshot.id);
     const finish = () => {
       if (!deleteInProgressRef.current) return;
       if (deleteTimerRef.current !== null) window.clearTimeout(deleteTimerRef.current);
       deleteTimerRef.current = null;
       finishDeleteRef.current = null;
-      onDeleted?.(snapshot.id);
       setDeleteAnimating(false);
       setVanishCard(null);
       deleteInProgressRef.current = false;
