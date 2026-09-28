@@ -62,7 +62,6 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
   const hiddenSlot = false;
   const flashing = false;
   const cardRef = useRef<HTMLDivElement | null>(null);
-  const backdropRef = useRef<HTMLDivElement | null>(null);
   const labelRef = useRef<HTMLDivElement | null>(null);
   const ran = useRef(false);
   const slotEl = useRef<HTMLElement | null>(null);
@@ -247,7 +246,6 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
     pendingShelve,
     flight,
     cardRef,
-    backdropRef,
     labelRef,
     isHidden: (name: string, sci?: string | null) => hiddenSlot && isTarget(name, sci),
     isFlashing: (name: string, sci?: string | null) => flashing && isTarget(name, sci),

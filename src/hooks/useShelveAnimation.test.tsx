@@ -31,9 +31,8 @@ describe('Placement de la carte rangée', () => {
 
     const resolveSlot = vi.fn(() => slot);
     const Stage = () => {
-      const { pendingShelve, flight, cardRef, backdropRef, labelRef } = useShelveAnimation({ loading: false, resolveSlot });
+      const { pendingShelve, flight, cardRef, labelRef } = useShelveAnimation({ loading: false, resolveSlot });
       return pendingShelve && <>
-        <div ref={backdropRef} />
         {flight && <div ref={cardRef} className="shelve-flying-card"><div ref={labelRef} /></div>}
       </>;
     };
