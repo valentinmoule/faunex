@@ -161,6 +161,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteAnimating, setDeleteAnimating] = useState(false);
+  const deleteInProgressRef = useRef(false);
   const [note, setNote] = useState('');
   const [noteDraft, setNoteDraft] = useState('');
   const [editingNote, setEditingNote] = useState(false);
@@ -388,7 +389,8 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
   }, [card, noteDraft, savingNote]);
 
   const handleDelete = useCallback(async () => {
-    if (!card || deleting) return;
+    if (!card || deleteInProgressRef.current) return;
+    deleteInProgressRef.current = true;
     setDeleting(true);
     setConfirmDelete(false);
     setDeleteAnimating(true);
@@ -402,6 +404,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
     const { error } = await supabase.from('captures').delete().eq('id', card.id);
     setDeleting(false);
     if (error) {
+      deleteInProgressRef.current = false;
       setDeleteAnimating(false);
       toast({ title: t('capture.detail.toastDeleteImpossible'), description: t('capture.detail.toastRetry'), variant: 'destructive' });
       return;
@@ -643,7 +646,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
 
   return (
     <>
-      <Drawer.Root open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <Drawer.Root open={open} onOpenChange={(isOpen) => !isOpen && !deleteInProgressRef.current && onClose()}>
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 z-[1300] bg-black/80" />
           <Drawer.Content className={`fixed inset-x-0 bottom-0 z-[1300] rounded-t-3xl border-0 outline-none overflow-hidden bg-background ${feedView ? 'max-h-[92dvh] flex flex-col' : 'h-[92vh]'}`}>
