@@ -7,14 +7,16 @@ import { setPendingShelve } from '@/lib/shelveAnimation';
 
 const mocks = vi.hoisted(() => {
   const deleteCapture = vi.fn();
+  const feedQuery = { eq: vi.fn(), limit: vi.fn(async () => ({ data: [] })) };
+  feedQuery.eq.mockImplementation(() => feedQuery);
   const captureQuery = {
     select: vi.fn(() => ({ eq: vi.fn(() => ({ maybeSingle: vi.fn(async () => ({ data: { user_id: 'owner' } })) })) })),
     delete: vi.fn(() => ({ eq: deleteCapture })),
   };
-  return { deleteCapture, captureQuery };
+  return { deleteCapture, captureQuery, feedQuery };
 });
 
-vi.mock('@/integrations/supabase/client', () => ({ supabase: { from: () => mocks.captureQuery } }));
+vi.mock('@/integrations/supabase/client', () => ({ supabase: { from: (table: string) => table === 'captures' ? mocks.captureQuery : { select: () => mocks.feedQuery } } }));
 vi.mock('@/contexts/AuthContext', () => ({
   useAuth: () => authState,
   AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
@@ -75,9 +77,13 @@ describe('Suppression de capture', () => {
     expect(ghost).toBeInTheDocument();
     expect(document.querySelectorAll('.delete-sparkle')).toHaveLength(12);
     expect(container.querySelector('.delete-vanish-card')).toBeNull(); // portal above the closed sheet
-    fireEvent.animationEnd(ghost as Element, { animationName: 'delete-sparkle-pop' });
+    const sparkleEnd = new Event('animationend', { bubbles: true });
+    Object.defineProperty(sparkleEnd, 'animationName', { value: 'delete-sparkle-pop' });
+    fireEvent(ghost as Element, sparkleEnd);
     expect(onDeleted).not.toHaveBeenCalled();
-    fireEvent.animationEnd(ghost as Element, { animationName: 'delete-card-vanish' });
+    const cardEnd = new Event('animationend', { bubbles: true });
+    Object.defineProperty(cardEnd, 'animationName', { value: 'delete-card-vanish' });
+    fireEvent(ghost as Element, cardEnd);
     expect(onDeleted).toHaveBeenCalledExactlyOnceWith(card.id);
     expect(document.querySelector('.delete-vanish-stage')).not.toBeInTheDocument();
   });
