@@ -109,6 +109,9 @@ const buildList = (
       capturesByName: Map<string, any>,
       findersMap?: Map<string, number>,
     ): BestiaryAnimal[] => {
+      const pending = shelveAtMount.current;
+      const pendingName = pending?.animalName.trim().toLocaleLowerCase('fr');
+      const pendingScientific = pending?.scientificName?.trim().toLowerCase();
       // Déduplication défensive : la pagination du catalogue peut renvoyer
       // deux fois la même espèce si l'ordre n'est pas strictement stable.
       const seen = new Set<string>();
@@ -121,13 +124,31 @@ const buildList = (
         })
         .map((a) => {
         const capture = capturesByName.get(a.name.toLowerCase());
+        const isPending = !capture && !!pending && (
+          a.name.trim().toLocaleLowerCase('fr') === pendingName
+          || (!!pendingScientific && a.scientific_name?.trim().toLowerCase() === pendingScientific)
+        );
         return {
           name: a.name,
           scientific_name: a.scientific_name || '',
           rarity: a.rarity,
           category: a.category || '',
-          captured: !!capture,
-          captureData: capture ? toCard(capture) : undefined,
+          captured: !!capture || isPending,
+          captureData: capture ? toCard(capture) : isPending ? {
+            id: `pending-${pending.ts}`,
+            name: pending.animalName,
+            scientificName: pending.scientificName || '',
+            image: pending.imageUrl,
+            rarity: pending.rarity,
+            category: pending.category,
+            description: '',
+            habitat: '',
+            diet: '',
+            conservation: '',
+            funFact: '',
+            discoveredAt: new Date(pending.ts).toISOString(),
+            location: '',
+          } : undefined,
           finders: findersMap?.get(a.name.toLowerCase()) || 0,
         } as BestiaryAnimal;
       });
