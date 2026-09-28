@@ -15,9 +15,14 @@ import { useCallback, useEffect, useState } from 'react';
 export function useSwipeDownClose(onClose: () => void, threshold = 56) {
   const [el, setEl] = useState<HTMLElement | null>(null);
   const [dragY, setDragY] = useState(0);
+  const [closing, setClosing] = useState(false);
 
   const ref = useCallback((node: HTMLElement | null) => {
     setEl(node);
+    if (node) {
+      setClosing(false);
+      setDragY(0);
+    }
   }, []);
 
   /**
@@ -89,8 +94,14 @@ export function useSwipeDownClose(onClose: () => void, threshold = 56) {
       const shouldClose = dragging && current >= threshold;
       dragging = false;
       current = 0;
-      setDragY(0);
-      if (shouldClose) onClose();
+      if (shouldClose) {
+        // Continue la course depuis la position du doigt jusqu'en bas,
+        // puis ferme sans rejouer l'animation de sortie (évite le « rebond »).
+        setClosing(true);
+        window.setTimeout(onClose, 220);
+      } else {
+        setDragY(0);
+      }
     };
 
     el.addEventListener('touchstart', onStart, { passive: true });
@@ -105,10 +116,18 @@ export function useSwipeDownClose(onClose: () => void, threshold = 56) {
     };
   }, [el, onClose, threshold, anyScrolled]);
 
-  const style: React.CSSProperties = {
-    transform: dragY > 0 ? `translate3d(0, ${dragY}px, 0)` : undefined,
-    transition: dragY === 0 ? 'transform 280ms cubic-bezier(0.22,1,0.36,1)' : 'none',
-  };
+  const style: React.CSSProperties = closing
+    ? {
+        transform: 'translate3d(0, 110%, 0)',
+        transition: 'transform 220ms cubic-bezier(0.32,0.72,0,1)',
+        animation: 'none',
+        willChange: 'transform',
+      }
+    : {
+        transform: dragY > 0 ? `translate3d(0, ${dragY}px, 0)` : undefined,
+        transition: dragY === 0 ? 'transform 280ms cubic-bezier(0.22,1,0.36,1)' : 'none',
+        willChange: dragY > 0 ? 'transform' : undefined,
+      };
 
-  return { ref, style, isDragging: dragY > 0 };
+  return { ref, style, isDragging: dragY > 0 || closing };
 }
