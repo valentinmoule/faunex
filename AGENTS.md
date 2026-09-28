@@ -29,3 +29,7 @@ Compute rank movement server-side from captures before `now() - 24 hours`, prese
 ## Shelving transition stays on the Bestiary surface
 
 Keep the capture view visible until the Bestiary is ready, then show the real Bestiary and glide the small card directly into its actual tile; never cover the Bestiary with an intermediate blank veil or waiting card.
+
+## A capture fills exactly one Bestiary tile
+
+Match captures (including pending shelves) to tiles by exact common name first; use the scientific name only when it points to a single tile, because domestic breeds share one binomial and would all get the same photo.
