@@ -1889,7 +1889,7 @@
   opacity: 0;
   background: hsl(var(--background) / 0.5);
 }
-.shelve-holding-card {
+.shelve-flying-card.shelve-holding-card {
   opacity: 1;
   left: 50%;
   top: 50%;
