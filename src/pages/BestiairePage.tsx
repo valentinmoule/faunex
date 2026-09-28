@@ -1317,8 +1317,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
         data-rarity={pendingShelve.rarity}
         style={flight?.style}
       >
-        {pendingShelve.imageUrl && <img src={pendingShelve.imageUrl} alt={pendingShelve.animalName} decoding="async" />}
-        <div className="shelve-card-shine" aria-hidden />
+        {pendingShelve.imageUrl && <img src={pendingShelve.imageUrl} alt={pendingShelve.animalName} decoding="sync" />}
         <div ref={shelveLabelRef} className="shelve-card-label">
           <span>{t('bestiary.shelve.newDiscovery')}</span>
           <strong>{shelveSpeciesName(pendingShelve.animalName)}</strong>

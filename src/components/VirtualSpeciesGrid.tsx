@@ -86,8 +86,8 @@ export function VirtualSpeciesGrid<T>({
     };
   }, [rowHeight, rowCount, columns, items.length, overscanRows]);
 
-  // Scroll programmé vers une carte précise, façon classeur qu'on feuillette :
-  // on part d'un peu avant, puis on défile en douceur jusqu'à l'emplacement.
+  // Pour le rangement, rejoindre directement la ligne cible. Un défilement
+  // animé déclenche trop de recalculs de virtualisation juste avant le vol.
   const scrolledToRef = useRef<number | null>(null);
   const completeRef = useRef(onScrollComplete);
   completeRef.current = onScrollComplete;
@@ -100,28 +100,15 @@ export function VirtualSpeciesGrid<T>({
     const rect = el.getBoundingClientRect();
     const rowTop = Math.floor(scrollToIndex / columns) * rowHeight;
     const target = Math.max(0, window.scrollY + rect.top + rowTop - (window.innerHeight - rowHeight) / 2);
-    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    const current = window.scrollY;
-    const maxRun = window.innerHeight * 1.6;
-    const from = Math.abs(target - current) > maxRun ? target - Math.sign(target - current) * maxRun : current;
-    if (reduced || Math.abs(target - from) < 4) {
-      window.scrollTo({ top: target, behavior: 'auto' });
-      requestAnimationFrame(() => completeRef.current?.());
-      return;
-    }
-    window.scrollTo({ top: from, behavior: 'auto' });
-    const duration = Math.min(1100, 450 + Math.abs(target - from) * 0.45);
-    const t0 = performance.now();
-    let frame = 0;
-    const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-    const step = (now: number) => {
-      const p = Math.min(1, (now - t0) / duration);
-      window.scrollTo({ top: from + (target - from) * ease(p), behavior: 'auto' });
-      if (p < 1) frame = requestAnimationFrame(step);
-      else completeRef.current?.();
+    window.scrollTo({ top: target, behavior: 'auto' });
+    let secondFrame = 0;
+    const firstFrame = requestAnimationFrame(() => {
+      secondFrame = requestAnimationFrame(() => completeRef.current?.());
+    });
+    return () => {
+      cancelAnimationFrame(firstFrame);
+      if (secondFrame) cancelAnimationFrame(secondFrame);
     };
-    frame = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(frame);
   }, [scrollToIndex, rowHeight, columns]);
 
   const slice = useMemo(

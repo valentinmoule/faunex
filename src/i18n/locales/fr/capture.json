@@ -169,6 +169,7 @@
       "replacePhoto": "Remplacer la photo"
     },
     "actions": {
+      "preparingBestiary": "Préparation du Bestiaire…",
       "newCapture": "Nouvelle capture",
       "dontAdd": "Ne pas ajouter",
       "add": "Ajouter",
