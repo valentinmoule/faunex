@@ -224,12 +224,10 @@ const PremiumPage = () => {
       <main className="px-5 pt-2">
         <section className="relative overflow-hidden rounded-[2rem] border border-border bg-card p-6 shadow-sm">
           <div className="absolute -top-16 -right-10 h-40 w-40 rounded-full bg-primary/10 blur-2xl" aria-hidden />
-          <span className="relative inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-            <Crown className="h-3.5 w-3.5" /> {t('profile.premium.badge')}
-          </span>
-          <h1 className="relative mt-4 font-display text-2xl font-bold leading-tight">
+          <Crown className="relative h-6 w-6 text-primary" aria-hidden />
+          <h2 className="relative mt-3 font-display text-2xl font-bold leading-tight">
             {t('profile.premium.title')}
-          </h1>
+          </h2>
           <p className="relative mt-2 text-sm text-muted-foreground">
             {t('profile.premium.description')}
           </p>
