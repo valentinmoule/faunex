@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import HolographicCard from '@/components/HolographicCard';
 import { type Rarity } from '@/data/mockData';
 import RarityBadge from '@/components/RarityBadge';
+import { isPlaceholderName } from '@/lib/placeholderNames';
 
 import AnalyticsDashboard from '@/components/AnalyticsDashboard';
 
@@ -166,6 +167,11 @@ const ModerationPage = () => {
     /** Nom scientifique saisi par le modérateur. */
     scientificOverride?: string,
   ) => {
+    const candidateName = nameOverride?.trim() || capture.animal_name;
+    if (isPlaceholderName(candidateName)) {
+      toast.error('Ce nom est trop incertain pour créer une espèce.');
+      return;
+    }
 
     setProcessing(capture.id);
     setFailures(prev => {
@@ -188,7 +194,7 @@ const ModerationPage = () => {
         supabase.functions.invoke('enrich-capture', {
           body: {
             capture_id: capture.id,
-            animal_name: (nameOverride?.trim() || capture.animal_name),
+            animal_name: candidateName,
             scientific_name: (scientificOverride?.trim() || undefined),
             quality,
             force_name: forceName,

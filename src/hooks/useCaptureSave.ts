@@ -4,6 +4,7 @@ import { dataUrlToBytes } from '@/lib/imageProcessing';
 import type { AnimalResult, GeoTag } from '@/types/capture';
 import { logDatasetEvent } from '@/lib/dataset';
 import { isSpeciesBinomial } from '@/lib/sharedBinomials';
+import { isPlaceholderName } from '@/lib/placeholderNames';
 
 interface SaveContext {
   userId: string | undefined;
@@ -183,6 +184,7 @@ export const useCaptureSave = ({ userId, photo, geo, takenAt = null }: SaveConte
   const submitManualEntry = useCallback(
     async (entry: { name: string; species: string; description: string }) => {
       if (!photo || !userId) return false;
+      if (isPlaceholderName(entry.name)) return false;
       setSaving(true);
       try {
         const ownerId = await resolveSessionUserId();

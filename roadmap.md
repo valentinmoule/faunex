@@ -30,3 +30,8 @@
 - [x] Catégorie et nombre de captures dans la même carte d’infos que Rareté, Date, Localisation
 - [x] Compteurs de likes et de commentaires affichés seulement lorsqu’ils sont non nuls
 - [x] Suppression : icône poubelle à côté de Partager + pop-up de confirmation au-dessus de la fiche
+
+## Nettoyage des noms d’espèces
+- [ ] Corriger les noms, capitales et parenthèses signalés
+- [ ] Fusionner Âne et les variantes génériques d’Araignée
+- [x] Bloquer les formulations incertaines avant la modération

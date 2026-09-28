@@ -6,6 +6,8 @@ const PLACEHOLDERS = new Set([
   'inconnu',
   'inconnue',
   'je ne sais pas',
+  'je sais pas',
+  'je ne qais as',
   'unknown',
   '??',
   '???',
@@ -24,7 +26,12 @@ export const isPlaceholderName = (value: string | null | undefined): boolean => 
   const v = (value || '').trim().toLowerCase();
   if (!v) return true;
   if (PLACEHOLDERS.has(v)) return true;
-  return /inconnu|unknown/.test(v) || /^[?\-–—.\s]+$/.test(v);
+  return (
+    /inconnu|unknown/.test(v) ||
+    /\bje\s*(?:ne\s*)?(?:sais|qais)\s*(?:pas|as)\b/.test(v) ||
+    /\bje\s+pense\b/.test(v) ||
+    /^[?\-–—.\s]+$/.test(v)
+  );
 };
 
 /** Renvoie le nom scientifique s'il est exploitable, sinon null. */
