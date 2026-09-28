@@ -32,6 +32,6 @@
 - [x] Suppression : icône poubelle à côté de Partager + pop-up de confirmation au-dessus de la fiche
 
 ## Nettoyage des noms d’espèces
-- [ ] Corriger les noms, capitales et parenthèses signalés
+- [x] Corriger les noms, capitales et parenthèses signalés
 - [ ] Fusionner Âne et les variantes génériques d’Araignée
 - [x] Bloquer les formulations incertaines avant la modération
