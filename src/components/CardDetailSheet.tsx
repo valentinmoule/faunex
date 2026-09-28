@@ -671,6 +671,19 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
 
                   <div className="relative w-full h-full rounded-[1.25rem] overflow-hidden">
 
+                    {deleteAnimating && (
+                      <div aria-hidden className="delete-sparkles">
+                        {DELETE_SPARKLES.map((s, i) => (
+                          <span
+                            key={i}
+                            className="delete-sparkle"
+                            style={{ left: s.x, top: s.y, ['--s' as any]: `${s.size}px`, ['--d' as any]: `${s.delay}ms` }}
+                          />
+                        ))}
+                      </div>
+                    )}
+
+
                     {card.image ? (
                       <img src={card.image} alt={displayName} loading="eager" decoding="async" fetchPriority="high" className="w-full h-full object-cover pointer-events-none select-none" draggable={false} />
                     ) : (
