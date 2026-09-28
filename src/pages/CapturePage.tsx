@@ -64,6 +64,7 @@ const CapturePage = () => {
 
 
   const [duplicateCapture, setDuplicateCapture] = useState<{ id: string; image_url: string; animal_name: string } | null>(null);
+  const duplicateRef = useRef<HTMLDivElement | null>(null);
   const [fullscreenPhoto, setFullscreenPhoto] = useState<string | null>(null);
 const [manualMode, setManualMode] = useState(false);
   /** Repli taxonomique honnête renvoyé par le serveur (genre / famille). */
