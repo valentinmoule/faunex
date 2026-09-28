@@ -627,7 +627,32 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
     setShareOpen(true);
   }, [card]);
 
-  if (!card) return null;
+  // Effet de disparition : rendu même quand la fiche est fermée (card null),
+  // pour que la carte scintille au-dessus de la grille avant de disparaître.
+  const vanishOverlay = deleteAnimating && vanishCard ? createPortal((
+    <div aria-hidden className="delete-vanish-stage">
+      <div className={`delete-vanish-card holo-frame holo-frame--${normalizeRarity(vanishCard.rarity).replace(/_/g, '-')}`}>
+        {vanishCard.image ? (
+          <img src={vanishCard.image} alt="" className="h-full w-full object-cover" />
+        ) : (
+          <div className="h-full w-full bg-muted" />
+        )}
+        <div className="delete-vanish-shade" />
+        <span className="delete-vanish-name">{vanishCard.name}</span>
+      </div>
+      <div className="delete-sparkles">
+        {DELETE_SPARKLES.map((s, i) => (
+          <span
+            key={i}
+            className="delete-sparkle"
+            style={{ left: s.x, top: s.y, ['--s' as any]: `${s.size}px`, ['--d' as any]: `${s.delay}ms` }}
+          />
+        ))}
+      </div>
+    </div>
+  ), document.body) : null;
+
+  if (!card) return vanishOverlay;
 
 
   const isUncaptured = !card.image || card.id.startsWith('uncaptured-');
