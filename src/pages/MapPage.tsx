@@ -67,24 +67,27 @@ const getCategoryIcon = (category: string): ComponentType<{ className?: string; 
 
 const RARITY_ORDER_LOCAL = RARITY_ORDER;
 
-const buildIcon = (rarity: string, category: string, count = 1) => {
+const buildIcon = (rarity: string, category: string, count = 1, imageUrl?: string | null) => {
   const color = RARITY_COLORS[rarity] || RARITY_COLORS.common;
   const CatIcon = getCategoryIcon(category);
   const iconSvg = renderToStaticMarkup(
     <CatIcon color={color} strokeWidth={2.2} />
   );
+  const photo = imageUrl
+    ? `<img class="faunex-pin-photo" src="${thumbUrl(imageUrl, 128, 70)}" alt="" width="36" height="36" draggable="false" />`
+    : `<span class="faunex-pin-icon">${iconSvg}</span>`;
   return L.divIcon({
     className: 'faunex-pin',
     html: `
       <div class="faunex-pin-outer" style="--pin-color:${color}">
         <div class="faunex-pin-inner">
-          <span class="faunex-pin-icon">${iconSvg}</span>
+          ${photo}
         </div>
         ${count > 1 ? `<span class="faunex-pin-count">${count > 99 ? '99+' : count}</span>` : ''}
       </div>
     `,
-    iconSize: [40, 40],
-    iconAnchor: [20, 20],
+    iconSize: [46, 46],
+    iconAnchor: [23, 23],
   });
 };
 
@@ -248,7 +251,7 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
                 <Marker
                   key={c.id}
                   position={[lat, lng]}
-                  icon={buildIcon(c.rarity, c.category, 1)}
+                  icon={buildIcon(c.rarity, c.category, 1, c.image_url)}
                   eventHandlers={{ click: () => openCapture(c) }}
                 />
               );
@@ -260,7 +263,7 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
           <Marker
             key={g.key}
             position={[g.lead.latitude, g.lead.longitude]}
-            icon={buildIcon(g.lead.rarity, g.lead.category, g.items.length)}
+            icon={buildIcon(g.lead.rarity, g.lead.category, g.items.length, g.lead.image_url)}
             eventHandlers={{
               click: () => (g.items.length === 1 ? openCapture(g.lead) : setGroupItems(g.items)),
             }}
