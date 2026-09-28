@@ -35,6 +35,7 @@
 - [x] Garder la carte visible sans écran blanc entre Ajouter et son rangement
 - [x] Retirer la capture dès la fin visible de l'animation de suppression
 - [x] Tester automatiquement le fond continu, le placement et la disparition dès la fin de l'effet
+- [ ] Supprimer la grande photo d'attente et le noir final du rangement ; ne montrer que le trajet vers la case
 
 ## Nettoyage des noms d’espèces
 - [x] Corriger les noms, capitales et parenthèses signalés
