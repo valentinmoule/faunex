@@ -137,18 +137,27 @@ const buildList = (
       // Déduplication défensive : la pagination du catalogue peut renvoyer
       // deux fois la même espèce si l'ordre n'est pas strictement stable.
       const seen = new Set<string>();
-      const list = catalogue
-        .filter((a) => {
-          const key = (a.name || '').toLowerCase();
-          if (!key || seen.has(key)) return false;
-          seen.add(key);
-          return true;
-        })
+      const unique = catalogue.filter((a) => {
+        const key = (a.name || '').toLowerCase();
+        if (!key || seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+      // Une capture en attente ne doit marquer qu'UNE seule case : le nom exact
+      // d'abord ; le nom scientifique seulement s'il désigne une case unique
+      // (sinon toutes les races partageant un binôme recevaient la même photo).
+      const nameHit = !!pendingName && unique.some((a) => a.name.trim().toLocaleLowerCase('fr') === pendingName);
+      const sciHits = !nameHit && pendingScientific
+        ? unique.filter((a) => a.scientific_name?.trim().toLowerCase() === pendingScientific)
+        : [];
+      const pendingTarget = nameHit ? null : sciHits.length === 1 ? sciHits[0].name : null;
+      const list = unique
         .map((a) => {
         const capture = capturesByName.get(a.name.toLowerCase());
         const isPending = !capture && !!pending && (
-          a.name.trim().toLocaleLowerCase('fr') === pendingName
-          || (!!pendingScientific && a.scientific_name?.trim().toLowerCase() === pendingScientific)
+          nameHit
+            ? a.name.trim().toLocaleLowerCase('fr') === pendingName
+            : a.name === pendingTarget
         );
         return {
           name: a.name,
