@@ -184,22 +184,24 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
         // l'apparition et le rangement, pour rester fluide sur mobile.
         const end = destination();
         if (!end) throw new Error('Shelve slot disappeared');
-        const midX = dx + (end.x - dx) * 0.42;
-        const midY = dy + (end.y - dy) * 0.42 - 18;
-        const midSx = 1 + (end.sx - 1) * 0.42;
-        const midSy = 1 + (end.sy - 1) * 0.42;
+        // Geste « classeur » : la carte apparaît au centre, se présente, puis
+        // glisse dans sa pochette en arrivant légèrement par le haut.
+        const preX = end.x;
+        const preY = end.y - Math.max(14, 22 * end.sy);
+        const soft = 'cubic-bezier(0.22, 1, 0.36, 1)';
         const fly = card.animate(
           [
-            { transform: at(dx, dy, 0.9, 0.9, -4), opacity: 0 },
-            { transform: at(dx, dy, 1, 1, -4), opacity: 1, offset: 0.16 },
-            { transform: at(midX, midY, midSx, midSy, 1.5), opacity: 1, offset: 0.52 },
+            { transform: at(dx, dy + 24, 0.72, 0.72, -5), opacity: 0, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' },
+            { transform: at(dx, dy, 1, 1, -2), opacity: 1, offset: 0.24, easing: 'ease-in-out' },
+            { transform: at(dx, dy - 4, 1.01, 1.01, 0), opacity: 1, offset: 0.4, easing: soft },
+            { transform: at(preX, preY, end.sx * 1.06, end.sy * 1.06, 2), opacity: 1, offset: 0.86, easing: 'cubic-bezier(0.5, 0, 0.75, 0)' },
             { transform: at(end.x, end.y, end.sx, end.sy, 0), opacity: 1 },
           ],
-          { duration: reduced ? 1 : 720, easing: 'cubic-bezier(0.32, 0.72, 0, 1)', fill: 'forwards' },
+          { duration: reduced ? 1 : 1050, easing: 'linear', fill: 'forwards' },
         );
         anims.push(fly);
-        if (label) anims.push(label.animate([{ opacity: 1 }, { opacity: 1, offset: 0.42 }, { opacity: 0 }], { duration: reduced ? 1 : 560, fill: 'forwards', easing: 'ease-in' }));
-        if (backdrop) anims.push(backdrop.animate([{ opacity: 1 }, { opacity: 0 }], { duration: reduced ? 1 : 520, delay: reduced ? 0 : 120, fill: 'forwards' }));
+        if (label) anims.push(label.animate([{ opacity: 1 }, { opacity: 1, offset: 0.45 }, { opacity: 0, offset: 0.62 }, { opacity: 0 }], { duration: reduced ? 1 : 1050, fill: 'forwards' }));
+        if (backdrop) anims.push(backdrop.animate([{ opacity: 1 }, { opacity: 0 }], { duration: reduced ? 1 : 560, delay: reduced ? 0 : 420, fill: 'forwards', easing: 'ease-out' }));
         await fly.finished;
         if (cancelled) return;
 
