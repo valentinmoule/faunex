@@ -44,11 +44,6 @@ const useFeatures = (t: (key: string) => string): FeatureRow[] => [
     premium: <span className="text-sm font-semibold text-primary">{t('profile.premium.features.allExplorers')}</span>,
   },
   {
-    label: t('profile.premium.features.similarSpecies'),
-    free: <Minus className="h-4 w-4 text-muted-foreground" />,
-    premium: <Check className="h-4 w-4 text-primary" />,
-  },
-  {
     label: t('profile.premium.features.customCollections'),
     free: <Minus className="h-4 w-4 text-muted-foreground" />,
     premium: <Check className="h-4 w-4 text-primary" />,

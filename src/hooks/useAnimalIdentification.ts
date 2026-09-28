@@ -313,7 +313,6 @@ export const useAnimalIdentification = () => {
             predicted_category: animal.category ?? null,
             predicted_rarity: animal.rarity ?? null,
             confidence: animal.confidence ?? null,
-            alternatives: animal.alternatives ?? null,
             subject_bbox: animal.subject_bbox ?? null,
           });
         }

@@ -16,7 +16,6 @@ import { useAnimalIdentification, type RejectionKind } from '@/hooks/useAnimalId
 import { useCaptureSave } from '@/hooks/useCaptureSave';
 import { useCaptureReveal } from '@/hooks/useCaptureReveal';
 import RevealStage from '@/components/capture/RevealStage';
-import SimilarSpeciesStrip, { type SimilarSpecies } from '@/components/capture/SimilarSpeciesStrip';
 import { supabase } from '@/integrations/supabase/client';
 import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
 import RarityBadge from '@/components/RarityBadge';
@@ -89,56 +88,6 @@ const [manualMode, setManualMode] = useState(false);
    *  peut malgré tout demander une vérification humaine. */
   const [rejectedImage, setRejectedImage] = useState<{ kind: RejectionKind; title: string; message: string } | null>(null);
 
-  /** Choix d'une espèce semblable : on remplace le nom, puis on recharge la
-   *  vraie fiche de l'espèce choisie (catégorie + infos) pour ne pas
-   *  enregistrer une carte vide ni les infos de l'animal deviné initialement. */
-  const handlePickSimilar = useCallback((s: SimilarSpecies) => {
-    setAnimalResult((prev) => prev ? {
-      ...prev,
-      animal_name: s.name,
-      scientific_name: s.scientific_name ?? prev.scientific_name,
-      rarity: (s.rarity as typeof prev.rarity) ?? prev.rarity,
-      category: '',
-      description: '',
-      habitat: '',
-      diet: '',
-      conservation: '',
-      fun_fact: '',
-      alternatives: Array.from(new Set([prev.animal_name, ...(prev.alternatives ?? [])])).filter((n) => n !== s.name),
-    } : prev);
-    void (async () => {
-      const [animalRes, profileRes] = await Promise.all([
-        supabase.from('animals').select('category, rarity, scientific_name').ilike('name', s.name).limit(1).maybeSingle(),
-        (supabase.rpc as any)('species_profile_for', { p_name: s.name, p_scientific: s.scientific_name ?? null }),
-      ]);
-      let p: { description?: string | null; habitat?: string | null; diet?: string | null; conservation?: string | null; fun_fact?: string | null } | null =
-        (Array.isArray(profileRes.data) ? profileRes.data[0] : profileRes.data) ?? null;
-      if (!p?.description) {
-        // Repli : fiche déjà rédigée sur une capture approuvée de la même espèce.
-        let q = supabase.from('captures').select('description, habitat, diet, conservation, fun_fact')
-          .eq('status', 'approved').not('description', 'is', null)
-          .order('created_at', { ascending: false }).limit(1);
-        q = s.scientific_name ? q.ilike('scientific_name', s.scientific_name) : q.ilike('animal_name', s.name);
-        const { data: rows } = await q;
-        if (rows?.[0]) p = rows[0];
-      }
-      setAnimalResult((prev) => {
-        if (!prev || prev.animal_name !== s.name) return prev; // autre choix entre-temps
-        const a = animalRes.data;
-        return {
-          ...prev,
-          category: a?.category ?? prev.category,
-          rarity: (a?.rarity as typeof prev.rarity) ?? prev.rarity,
-          scientific_name: prev.scientific_name || a?.scientific_name || prev.scientific_name,
-          description: p?.description ?? prev.description,
-          habitat: p?.habitat ?? prev.habitat,
-          diet: p?.diet ?? prev.diet,
-          conservation: p?.conservation ?? prev.conservation,
-          fun_fact: p?.fun_fact ?? prev.fun_fact,
-        };
-      });
-    })();
-  }, []);
 
 
   const [manualName, setManualName] = useState('');
@@ -936,17 +885,6 @@ setManualMode(false);
                 </div>
               )}
 
-              {/* Suggestions d'espèces semblables (Premium) quand la confiance < 90 % —
-                  placées en fin de fiche, juste au-dessus des actions fixes. */}
-              {!duplicateCapture && typeof animalResult.confidence === 'number' && animalResult.confidence < 90 && (animalResult.alternatives?.length ?? 0) > 0 && (
-                <SimilarSpeciesStrip
-                  names={animalResult.alternatives ?? []}
-                  scientificNames={animalResult.alternatives_scientific}
-                  isPremium={isPremium}
-                  onGoPremium={() => navigate('/premium')}
-                  onPick={handlePickSimilar}
-                />
-              )}
 
             </div>
           </div>
