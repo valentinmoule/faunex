@@ -35,8 +35,8 @@ const useFeatures = (t: (key: string) => string): FeatureRow[] => [
   },
   {
     label: t('profile.premium.features.zoneSearch'),
-    free: <span className="text-sm font-medium">4</span>,
-    premium: <span className="text-sm font-semibold text-primary">{t('profile.premium.features.unlimited')}</span>,
+    free: <span className="text-sm font-medium">{t('profile.premium.features.fourPerDay')}</span>,
+    premium: <span className="text-sm font-semibold text-primary">{t('profile.premium.features.unlimitedGeneric')}</span>,
   },
   {
     label: t('profile.premium.features.explorerPhotos'),
