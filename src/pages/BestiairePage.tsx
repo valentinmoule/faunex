@@ -303,13 +303,17 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
     animals,
     myCaptures,
     removeCaptureLocally,
-    loading,
+    loading: catalogueLoading,
+    capturesLoaded,
     unreadCount,
     subscribedZones,
     setSubscribedZones,
     animalsByDept,
     loadDeptAnimals,
   } = useBestiaryData(session?.user?.id, { light: viewMode === 'leaderboard' });
+  // Mon Faunex dépend des captures : on garde le loader logo tant qu'elles ne
+  // sont pas chargées, pour ne jamais afficher l'état vide à tort.
+  const loading = catalogueLoading || (isFaunexHub && viewMode !== 'leaderboard' && !capturesLoaded);
 
   const uid = session?.user?.id;
 

@@ -51,6 +51,7 @@ export const useBestiaryData = (userId: string | undefined, opts?: { light?: boo
       .sort((a, b) => a.name.localeCompare(b.name, 'fr'));
   });
   const [loading, setLoading] = useState(() => !cachedAtMount.current);
+  const [capturesLoaded, setCapturesLoaded] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [subscribedZones, setSubscribedZones] = useState<ZoneSub[]>([]);
   const [animalsByDept, setAnimalsByDept] = useState<Record<string, Set<string>>>({});
@@ -201,6 +202,7 @@ const buildList = (
           })
           .map(toCard),
       );
+      setCapturesLoaded(true);
 
       const capturesByName = new Map<string, any>();
       userCaptures.forEach((c: any) => {
@@ -314,6 +316,7 @@ list = buildList(catalogue, capturesByName, findersMap);
     setMyCaptures,
     removeCaptureLocally,
     loading,
+    capturesLoaded,
     unreadCount,
     subscribedZones,
     setSubscribedZones,
