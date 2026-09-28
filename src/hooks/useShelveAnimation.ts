@@ -59,8 +59,8 @@ const prefersReducedMotion = () =>
 export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSlot }: Options) => {
   const [pendingShelve, setPendingShelve] = useState<PendingShelve | null>(null);
   const [flight, setFlight] = useState<ShelveFlight | null>(null);
-  const [hiddenSlot, setHiddenSlot] = useState(false);
-  const [flashing, setFlashing] = useState(false);
+  const hiddenSlot = false;
+  const flashing = false;
   const cardRef = useRef<HTMLDivElement | null>(null);
   const backdropRef = useRef<HTMLDivElement | null>(null);
   const labelRef = useRef<HTMLDivElement | null>(null);
