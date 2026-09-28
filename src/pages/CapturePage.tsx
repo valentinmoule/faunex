@@ -959,12 +959,6 @@ setManualMode(false);
                   {saving || preparingBestiary ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
                   {saving || preparingBestiary ? t('capture.actions.saving') : t('capture.actions.add')}
                 </button>
-                <button
-                  onClick={resetCapture}
-                  className="w-full py-3.5 rounded-full font-display text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {t('capture.actions.dontAdd')}
-                </button>
               </>
             )}
             <button
