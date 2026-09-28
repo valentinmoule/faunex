@@ -1,6 +1,7 @@
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
 import type { AnimalCard } from '@/data/mockData';
 import { setPendingShelve } from '@/lib/shelveAnimation';
 
@@ -63,12 +64,12 @@ describe('Suppression de capture', () => {
   it('ferme la fiche, garde la carte scintillante, puis retire la capture dès la fin de son animation', async () => {
     const onDeleted = vi.fn();
     const onClose = vi.fn();
-    const { container, rerender } = render(<CardDetailSheet card={card} open onClose={onClose} onDeleted={onDeleted} />);
+    const { container, rerender } = render(<MemoryRouter><CardDetailSheet card={card} open onClose={onClose} onDeleted={onDeleted} /></MemoryRouter>);
     fireEvent.click(await screen.findByRole('button', { name: 'capture.detail.deleteCapture' }));
     fireEvent.click(screen.getByRole('button', { name: 'capture.detail.deleteBtn' }));
     await waitFor(() => expect(onClose).toHaveBeenCalledOnce());
     expect(onDeleted).not.toHaveBeenCalled();
-    rerender(<CardDetailSheet card={null} open={false} onClose={onClose} onDeleted={onDeleted} />);
+    rerender(<MemoryRouter><CardDetailSheet card={null} open={false} onClose={onClose} onDeleted={onDeleted} /></MemoryRouter>);
     const ghost = document.querySelector('.delete-vanish-card');
     expect(ghost).toBeInTheDocument();
     expect(document.querySelectorAll('.delete-sparkle')).toHaveLength(12);
