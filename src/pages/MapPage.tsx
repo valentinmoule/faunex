@@ -251,7 +251,7 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
                 <Marker
                   key={c.id}
                   position={[lat, lng]}
-                  icon={buildIcon(c.rarity, c.category, 1)}
+                  icon={buildIcon(c.rarity, c.category, 1, c.image_url)}
                   eventHandlers={{ click: () => openCapture(c) }}
                 />
               );
@@ -263,7 +263,7 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
           <Marker
             key={g.key}
             position={[g.lead.latitude, g.lead.longitude]}
-            icon={buildIcon(g.lead.rarity, g.lead.category, g.items.length)}
+            icon={buildIcon(g.lead.rarity, g.lead.category, g.items.length, g.lead.image_url)}
             eventHandlers={{
               click: () => (g.items.length === 1 ? openCapture(g.lead) : setGroupItems(g.items)),
             }}
