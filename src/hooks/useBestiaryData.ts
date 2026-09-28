@@ -5,6 +5,7 @@ import type { Rarity } from '@/data/mockData';
 import { buildRegionalAnimalSet, type BestiaryAnimal, type ZoneSub } from '@/lib/bestiary';
 import { readCatalogueCache, writeCatalogueCache, type CatalogueEntry } from '@/lib/bestiaryCache';
 import type { AnimalCard } from '@/data/mockData';
+import { peekPendingShelve } from '@/lib/shelveAnimation';
 
 /** Loads the bestiary catalogue, the user's captures, notifications count and zone subscriptions.
  *  Pass `light: true` (e.g. on the leaderboard tab) to only load the notification count —
@@ -12,18 +13,43 @@ import type { AnimalCard } from '@/data/mockData';
 export const useBestiaryData = (userId: string | undefined, opts?: { light?: boolean }) => {
   const light = !!opts?.light;
   const cachedAtMount = useRef(readCatalogueCache());
-  const [animals, setAnimals] = useState<BestiaryAnimal[]>(() =>
-    (cachedAtMount.current?.entries || [])
-      .map((entry) => ({
+  const shelveAtMount = useRef(peekPendingShelve());
+  const [animals, setAnimals] = useState<BestiaryAnimal[]>(() => {
+    const pending = shelveAtMount.current;
+    const pendingName = pending?.animalName.trim().toLocaleLowerCase('fr');
+    const pendingScientific = pending?.scientificName?.trim().toLowerCase();
+    return (cachedAtMount.current?.entries || [])
+      .map((entry) => {
+        const isPending = !!pending && (
+          entry.name.trim().toLocaleLowerCase('fr') === pendingName
+          || (!!pendingScientific && entry.scientific_name?.trim().toLowerCase() === pendingScientific)
+        );
+        return {
         name: entry.name,
         scientific_name: entry.scientific_name || '',
         rarity: entry.rarity,
         category: entry.category || '',
-        captured: false,
+        captured: isPending,
+        captureData: isPending ? {
+          id: `pending-${pending.ts}`,
+          name: pending.animalName,
+          scientificName: pending.scientificName || '',
+          image: pending.imageUrl,
+          rarity: pending.rarity,
+          category: pending.category,
+          description: '',
+          habitat: '',
+          diet: '',
+          conservation: '',
+          funFact: '',
+          discoveredAt: new Date(pending.ts).toISOString(),
+          location: '',
+        } : undefined,
         finders: 0,
-      } as BestiaryAnimal))
-      .sort((a, b) => a.name.localeCompare(b.name, 'fr')),
-  );
+      } as BestiaryAnimal;
+      })
+      .sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+  });
   const [loading, setLoading] = useState(() => !cachedAtMount.current);
   const [unreadCount, setUnreadCount] = useState(0);
   const [subscribedZones, setSubscribedZones] = useState<ZoneSub[]>([]);
@@ -83,6 +109,9 @@ const buildList = (
       capturesByName: Map<string, any>,
       findersMap?: Map<string, number>,
     ): BestiaryAnimal[] => {
+      const pending = shelveAtMount.current;
+      const pendingName = pending?.animalName.trim().toLocaleLowerCase('fr');
+      const pendingScientific = pending?.scientificName?.trim().toLowerCase();
       // Déduplication défensive : la pagination du catalogue peut renvoyer
       // deux fois la même espèce si l'ordre n'est pas strictement stable.
       const seen = new Set<string>();
@@ -95,13 +124,31 @@ const buildList = (
         })
         .map((a) => {
         const capture = capturesByName.get(a.name.toLowerCase());
+        const isPending = !capture && !!pending && (
+          a.name.trim().toLocaleLowerCase('fr') === pendingName
+          || (!!pendingScientific && a.scientific_name?.trim().toLowerCase() === pendingScientific)
+        );
         return {
           name: a.name,
           scientific_name: a.scientific_name || '',
           rarity: a.rarity,
           category: a.category || '',
-          captured: !!capture,
-          captureData: capture ? toCard(capture) : undefined,
+          captured: !!capture || isPending,
+          captureData: capture ? toCard(capture) : isPending ? {
+            id: `pending-${pending.ts}`,
+            name: pending.animalName,
+            scientificName: pending.scientificName || '',
+            image: pending.imageUrl,
+            rarity: pending.rarity,
+            category: pending.category,
+            description: '',
+            habitat: '',
+            diet: '',
+            conservation: '',
+            funFact: '',
+            discoveredAt: new Date(pending.ts).toISOString(),
+            location: '',
+          } : undefined,
           finders: findersMap?.get(a.name.toLowerCase()) || 0,
         } as BestiaryAnimal;
       });
