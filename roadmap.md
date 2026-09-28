@@ -34,6 +34,7 @@
 ## Transitions des cartes
 - [x] Garder la carte visible sans écran blanc entre Ajouter et son rangement
 - [x] Retirer la capture dès la fin visible de l'animation de suppression
+- [ ] Tester automatiquement le fond continu, le placement et la disparition dès la fin de l'effet
 
 ## Nettoyage des noms d’espèces
 - [x] Corriger les noms, capitales et parenthèses signalés
