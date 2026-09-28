@@ -52,6 +52,13 @@ const prefersReducedMotion = () =>
   typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
 /**
+ * Durée d'affichage du compteur « +XP ». Doit rester calée sur la durée de
+ * `shelve-xp-reveal` dans index.css, sinon le compteur est coupé avant la fin
+ * de son fondu.
+ */
+const XP_REWARD_MS = 1200;
+
+/**
  * Animation « la carte se range dans le bestiaire » après une capture.
  * Uniquement des transform/opacity (GPU) via Web Animations : aucun reflow
  * pendant le vol, donc fluide même sur des téléphones modestes.
