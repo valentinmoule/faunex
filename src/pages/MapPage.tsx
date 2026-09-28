@@ -74,7 +74,7 @@ const buildIcon = (rarity: string, category: string, count = 1, imageUrl?: strin
     <CatIcon color={color} strokeWidth={2.2} />
   );
   const photo = imageUrl
-    ? `<img class="faunex-pin-photo" src="${thumbUrl(imageUrl, 128, 70)}" alt="" loading="lazy" draggable="false" />`
+    ? `<img class="faunex-pin-photo" src="${thumbUrl(imageUrl, 128, 70)}" alt="" width="36" height="36" draggable="false" />`
     : `<span class="faunex-pin-icon">${iconSvg}</span>`;
   return L.divIcon({
     className: 'faunex-pin',
