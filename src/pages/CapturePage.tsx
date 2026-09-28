@@ -100,12 +100,22 @@ const [manualMode, setManualMode] = useState(false);
     void (async () => {
       const [animalRes, profileRes] = await Promise.all([
         supabase.from('animals').select('category, rarity, scientific_name').ilike('name', s.name).limit(1).maybeSingle(),
-        supabase.from('species_profiles').select('description, habitat, diet, conservation, fun_fact').eq('normalized_name', s.name.trim().toLowerCase()).limit(1).maybeSingle(),
+        (supabase.rpc as any)('species_profile_for', { p_name: s.name, p_scientific: s.scientific_name ?? null }),
       ]);
+      let p: { description?: string | null; habitat?: string | null; diet?: string | null; conservation?: string | null; fun_fact?: string | null } | null =
+        (Array.isArray(profileRes.data) ? profileRes.data[0] : profileRes.data) ?? null;
+      if (!p?.description) {
+        // Repli : fiche déjà rédigée sur une capture approuvée de la même espèce.
+        let q = supabase.from('captures').select('description, habitat, diet, conservation, fun_fact')
+          .eq('status', 'approved').not('description', 'is', null)
+          .order('created_at', { ascending: false }).limit(1);
+        q = s.scientific_name ? q.ilike('scientific_name', s.scientific_name) : q.ilike('animal_name', s.name);
+        const { data: rows } = await q;
+        if (rows?.[0]) p = rows[0];
+      }
       setAnimalResult((prev) => {
         if (!prev || prev.animal_name !== s.name) return prev; // autre choix entre-temps
         const a = animalRes.data;
-        const p = profileRes.data;
         return {
           ...prev,
           category: a?.category ?? prev.category,
