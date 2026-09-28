@@ -16,9 +16,10 @@ const mocks = vi.hoisted(() => {
 
 vi.mock('@/integrations/supabase/client', () => ({ supabase: { from: () => mocks.captureQuery } }));
 vi.mock('@/contexts/AuthContext', () => ({
-  useAuth: () => ({ session: { user: { id: 'owner' } }, loading: false, needsUsername: false }),
+  useAuth: () => authState,
   AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
+const authState = { session: { user: { id: 'owner' } }, loading: false, needsUsername: false };
 vi.mock('@/hooks/useSpeciesLocale', () => ({
   useSpeciesName: () => ({ speciesName: (name: string) => name }),
   useSpeciesFacts: () => ({}),
