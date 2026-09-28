@@ -147,7 +147,7 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
   }, [pendingShelve, loading, ready, resolveSlot]);
 
   // 2. Jouer l'animation une fois la carte volante montée.
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!flight) return;
     const card = cardRef.current;
     if (!card) return;
