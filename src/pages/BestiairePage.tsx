@@ -301,7 +301,6 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const {
     animals,
     myCaptures,
-    setMyCaptures,
     removeCaptureLocally,
     loading,
     unreadCount,
