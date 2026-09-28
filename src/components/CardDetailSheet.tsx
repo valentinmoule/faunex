@@ -1382,7 +1382,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                 type="button"
                 onClick={handleDelete}
                 disabled={deleting}
-                className="py-3 rounded-2xl bg-destructive text-destructive-foreground font-display font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-60"
+                className="py-3 rounded-2xl bg-primary text-primary-foreground font-display font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-60"
               >
                 {deleting ? t('capture.detail.deleting') : t('capture.detail.deleteBtn')}
               </button>
