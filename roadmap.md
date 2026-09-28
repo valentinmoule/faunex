@@ -33,5 +33,5 @@
 
 ## Nettoyage des noms d’espèces
 - [x] Corriger les noms, capitales et parenthèses signalés
-- [ ] Fusionner Âne et les variantes génériques d’Araignée
+- [x] Fusionner Âne et les variantes génériques d’Araignée
 - [x] Bloquer les formulations incertaines avant la modération
