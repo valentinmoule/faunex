@@ -342,7 +342,7 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
                     onClick={() => go('/explorers?view=search')}
                   />
                   <DrawerRow
-                    icon={<Star className="size-[18px] text-amber" />}
+                    icon={<Star className="size-[18px]" />}
                     label={t('profile.page.drawer.rate')}
                     onClick={() => { void openStoreListing(); }}
                   />
