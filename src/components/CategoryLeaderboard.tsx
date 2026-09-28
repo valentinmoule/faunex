@@ -333,28 +333,32 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
                 </button>
               </li>
             ))}
-            {mine && !rows.some(r => r.is_me) && (
-              <li className="flex items-center gap-3 px-5 py-2.5 bg-primary/5">
-                <span className="w-6 text-center text-[13px] font-display font-bold text-primary">{mine.rank}</span>
-                <div
-                  style={avatarFallbackStyle(user?.email)}
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-display font-bold"
-                >
-                  {(user?.email || '?').charAt(0).toUpperCase()}
-                </div>
-                <p className="flex-1 min-w-0 truncate text-[13px] font-display font-bold text-primary">{t('social.leaderboard.you')}</p>
-                <RankMovement change={mine.rank_change} />
-                <span className="text-[13px] font-display font-bold text-foreground shrink-0">{mine.captures}</span>
-              </li>
-            )}
           </ul>
           </>
           )}
     </>
   );
 
+  // Barre « ma position » épinglée en bas quand l'utilisateur n'est pas dans le top visible.
+  const myPositionBar = mine && !rows.some(r => r.is_me) && !lockedTab && rows.length > 0 ? (
+    <div className="sticky bottom-0 z-10 border-t border-border bg-card/95 backdrop-blur-sm">
+      <div className="flex items-center gap-3 px-5 py-2.5">
+        <span className="w-6 text-center text-[13px] font-display font-bold text-primary">{mine.rank}</span>
+        <div
+          style={avatarFallbackStyle(user?.email)}
+          className="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-display font-bold"
+        >
+          {(user?.email || '?').charAt(0).toUpperCase()}
+        </div>
+        <p className="flex-1 min-w-0 truncate text-[13px] font-display font-bold text-primary">{t('social.leaderboard.you')}</p>
+        <RankMovement change={mine.rank_change} />
+        <span className="text-[13px] font-display font-bold text-foreground shrink-0">{mine.captures}</span>
+      </div>
+    </div>
+  ) : null;
+
   if (inline) {
-    return <div className="pb-2">{content}</div>;
+    return <div className="pb-2">{content}{myPositionBar}</div>;
   }
 
   return (
