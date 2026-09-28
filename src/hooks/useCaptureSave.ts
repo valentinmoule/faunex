@@ -75,13 +75,18 @@ export const useCaptureSave = ({ userId, photo, geo, takenAt = null }: SaveConte
           .limit(1);
         if (data && data.length > 0) return data[0];
       }
+      // Même règle que l'index serveur : nom commun sans espaces superflus,
+      // insensible à la casse (jokers % et _ neutralisés).
+      const key = animalName.trim().toLowerCase();
+      const pattern = key.replace(/[\\%_]/g, (c) => `\\${c}`);
       const { data } = await supabase
         .from('captures')
         .select('id, image_url, animal_name')
         .eq('user_id', userId)
-        .ilike('animal_name', animalName)
-        .limit(1);
-      return data && data.length > 0 ? data[0] : null;
+        .ilike('animal_name', `%${pattern}%`)
+        .limit(20);
+      const match = (data ?? []).find((c) => (c.animal_name ?? '').trim().toLowerCase() === key);
+      return match ?? null;
     },
     [userId]
   );
