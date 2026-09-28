@@ -66,6 +66,7 @@ const XP_REWARD_MS = 1200;
 export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSlot }: Options) => {
   const [pendingShelve, setPendingShelve] = useState<PendingShelve | null>(null);
   const [flight, setFlight] = useState<ShelveFlight | null>(null);
+  const [xpReward, setXpReward] = useState<{ amount: number } | null>(null);
   const hiddenSlot = false;
   const flashing = false;
   const cardRef = useRef<HTMLDivElement | null>(null);
