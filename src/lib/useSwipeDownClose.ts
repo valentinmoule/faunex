@@ -12,7 +12,7 @@ import { useCallback, useEffect, useState } from 'react';
  *
  * Usage : <SheetContent ref={swipe.ref} style={swipe.style} ... />
  */
-export function useSwipeDownClose(onClose: () => void, threshold = 90) {
+export function useSwipeDownClose(onClose: () => void, threshold = 56) {
   const [el, setEl] = useState<HTMLElement | null>(null);
   const [dragY, setDragY] = useState(0);
 
