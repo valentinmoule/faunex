@@ -118,18 +118,18 @@ const LockedField = ({ icon, label }: { icon: React.ReactNode; label: string }) 
 
 // Game-style sparkle burst positions for the delete animation (percent of card area)
 const DELETE_SPARKLES = [
-  { x: '18%', y: '22%', size: 14, delay: 0 },
-  { x: '62%', y: '14%', size: 10, delay: 30 },
-  { x: '82%', y: '38%', size: 16, delay: 10 },
-  { x: '40%', y: '34%', size: 12, delay: 60 },
-  { x: '10%', y: '55%', size: 12, delay: 40 },
-  { x: '55%', y: '52%', size: 18, delay: 0 },
-  { x: '78%', y: '70%', size: 12, delay: 70 },
-  { x: '30%', y: '68%', size: 16, delay: 20 },
-  { x: '66%', y: '86%', size: 14, delay: 50 },
-  { x: '14%', y: '84%', size: 10, delay: 80 },
-  { x: '48%', y: '78%', size: 10, delay: 90 },
-  { x: '88%', y: '58%', size: 10, delay: 60 },
+  { x: '18%', y: '22%', size: 14, delay: 250 },
+  { x: '62%', y: '14%', size: 10, delay: 290 },
+  { x: '82%', y: '38%', size: 16, delay: 270 },
+  { x: '40%', y: '34%', size: 12, delay: 320 },
+  { x: '10%', y: '55%', size: 12, delay: 300 },
+  { x: '55%', y: '52%', size: 18, delay: 250 },
+  { x: '78%', y: '70%', size: 12, delay: 330 },
+  { x: '30%', y: '68%', size: 16, delay: 280 },
+  { x: '66%', y: '86%', size: 14, delay: 310 },
+  { x: '14%', y: '84%', size: 10, delay: 340 },
+  { x: '48%', y: '78%', size: 10, delay: 350 },
+  { x: '88%', y: '58%', size: 10, delay: 320 },
 ];
 
 const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, feedView = false, author }: Props) => {
@@ -239,7 +239,8 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
   useEffect(() => {
     setIsOwner(false);
     setConfirmDelete(false);
-    setDeleteAnimating(false);
+    // Ne pas interrompre l'effet de suppression lorsque la fiche vient de se fermer.
+    if (!deleteInProgressRef.current) setDeleteAnimating(false);
     setNote('');
     setNoteDraft('');
     setEditingNote(false);
@@ -422,7 +423,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
       setDeleteAnimating(false);
       setVanishCard(null);
       deleteInProgressRef.current = false;
-    }, 780);
+    }, 980);
   }, [card, displayName, onDeleted, onClose]);
 
   // Escape closes the delete confirmation
