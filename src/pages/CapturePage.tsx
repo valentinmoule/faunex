@@ -797,7 +797,15 @@ setManualMode(false);
                     animal_name: s.name,
                     scientific_name: s.scientific_name ?? prev.scientific_name,
                     rarity: (s.rarity as typeof prev.rarity) ?? prev.rarity,
+                    // Les infos ci-dessous appartiennent à l'espèce identifiée
+                    // initialement : on les vide pour ne pas enregistrer la fiche
+                    // d'un autre animal sous le nouveau nom.
+                    category: '',
                     description: '',
+                    habitat: '',
+                    diet: '',
+                    conservation: '',
+                    fun_fact: '',
                     alternatives: Array.from(new Set([prev.animal_name, ...(prev.alternatives ?? [])])).filter((n) => n !== s.name),
                   } : prev)}
                 />
