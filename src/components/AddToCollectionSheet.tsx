@@ -72,7 +72,12 @@ const AddToCollectionSheet = ({
         onClick={close}
         className="absolute inset-0 bg-foreground/40 backdrop-blur-[2px]"
       />
-      <div className="relative w-full max-w-lg rounded-t-3xl bg-card border-t border-border p-4 pb-8 space-y-1 animate-in slide-in-from-bottom-4 duration-200">
+      <div
+        ref={swipe.ref}
+        style={swipe.style}
+        className="relative w-full max-w-lg rounded-t-3xl bg-card border-t border-border p-4 pb-8 space-y-1 animate-in slide-in-from-bottom-4 duration-200"
+      >
+        <div className="mx-auto mb-2 h-1 w-10 rounded-full bg-border" />
         <div className="flex items-center justify-between px-1 pb-2">
           <h3 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">
             {t('bestiary.customCollections.addTitle')}
