@@ -58,42 +58,6 @@ export const useCaptureSave = ({ userId, photo, geo, takenAt = null }: SaveConte
     return urlData.publicUrl;
   }, [photo, userId]);
 
-  const findDuplicate = useCallback(
-    async (animalName: string, scientificName?: string | null) => {
-      if (!userId) return null;
-      // Le doublon se juge d'abord sur l'espèce (nom scientifique) : deux noms communs
-      // différents peuvent désigner le même taxon (« Chat domestique » / « Chat Européen »).
-      // Exception : les races domestiques partagent un même binôme (Bichon maltais et
-      // Cocker anglais = Canis lupus familiaris) — on ne compare alors que la race.
-      if (scientificName && isSpeciesBinomial(scientificName)) {
-
-        const { data } = await supabase
-          .from('captures')
-          .select('id, image_url, animal_name')
-          .eq('user_id', userId)
-          .ilike('scientific_name', scientificName)
-          .limit(1);
-        if (data && data.length > 0) return data[0];
-        // Le serveur renomme la capture d'après le catalogue (ex. « Porc
-        // domestique » / Sus domesticus → « Cochon domestique ») : on cherche
-        // donc aussi sous ce nom de catalogue.
-        const { data: cat } = await supabase
-          .from('animals')
-          .select('name')
-          .ilike('scientific_name', scientificName.trim())
-          .order('created_at')
-          .limit(1);
-        const catalogueName = cat?.[0]?.name;
-        if (catalogueName && catalogueName.trim().toLowerCase() !== animalName.trim().toLowerCase()) {
-          const byCatalogue = await findByName(catalogueName);
-          if (byCatalogue) return byCatalogue;
-        }
-      }
-      return findByName(animalName);
-    },
-    [userId]
-  );
-
   const findByName = useCallback(
     async (animalName: string) => {
       if (!userId) return null;
@@ -111,6 +75,52 @@ export const useCaptureSave = ({ userId, photo, geo, takenAt = null }: SaveConte
       return match ?? null;
     },
     [userId]
+  );
+
+  const findDuplicate = useCallback(
+    async (animalName: string, scientificName?: string | null) => {
+      if (!userId) return null;
+
+      // Rejouer d'abord la résolution appliquée par les triggers d'insertion. Sans
+      // cela, « Porc domestique » / Sus domesticus est inséré comme « Cochon
+      // domestique » / Sus scrofa domesticus : l'index unique voit le doublon,
+      // tandis que le client cherchait encore les libellés proposés par l'IA.
+      const { data: identities } = await supabase.rpc('resolve_species_identity', {
+        p_name: animalName,
+        p_scientific: scientificName ?? '',
+      });
+      const resolved = identities?.[0];
+
+      const names = Array.from(new Set(
+        [animalName, resolved?.matched ? resolved.name : null]
+          .filter((value): value is string => Boolean(value?.trim()))
+      ));
+      const scientificNames = Array.from(new Set(
+        [scientificName, resolved?.matched ? resolved.scientific_name : null]
+          .filter((value): value is string => Boolean(value?.trim()))
+      ));
+
+      // Le doublon se juge d'abord sur l'espèce (nom scientifique) : deux noms communs
+      // différents peuvent désigner le même taxon. Les races domestiques partageant
+      // un binôme sont volontairement comparées uniquement par leur nom commun.
+      for (const candidate of scientificNames) {
+        if (!isSpeciesBinomial(candidate)) continue;
+        const { data } = await supabase
+          .from('captures')
+          .select('id, image_url, animal_name')
+          .eq('user_id', userId)
+          .ilike('scientific_name', candidate.trim())
+          .limit(1);
+        if (data && data.length > 0) return data[0];
+      }
+
+      for (const candidate of names) {
+        const byName = await findByName(candidate);
+        if (byName) return byName;
+      }
+      return null;
+    },
+    [findByName, userId]
   );
 
 

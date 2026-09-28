@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.resolve_species_identity(text, text) TO authenticated;
