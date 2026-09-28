@@ -2483,11 +2483,12 @@
 /* Marker pulse rings */
 .faunex-pin-outer {
   position: relative;
-  width: 46px;
-  height: 46px;
+  width: 54px;
+  height: 54px;
   border-radius: 50%;
 
-  background: var(--pin-color);
+  /* Cadre = même dégradé que la bordure de carte de cette rareté */
+  background: var(--pin-frame, var(--pin-color));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2496,8 +2497,8 @@
 }
 
 .faunex-pin-inner {
-  width: 36px;
-  height: 36px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   overflow: hidden;
   background: #fff;
@@ -2508,14 +2509,15 @@
 }
 
 .faunex-pin-photo {
-  width: 36px;
-  height: 36px;
-  min-width: 36px;
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
   flex: none;
   object-fit: cover;
   display: block;
   border-radius: 50%;
 }
+
 
 .faunex-pin-icon {
   display: flex;
