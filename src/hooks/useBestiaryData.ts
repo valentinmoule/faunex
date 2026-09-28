@@ -10,11 +10,27 @@ import { peekPendingShelve } from '@/lib/shelveAnimation';
 /** Loads the bestiary catalogue, the user's captures, notifications count and zone subscriptions.
  *  Pass `light: true` (e.g. on the leaderboard tab) to only load the notification count —
  *  the heavy catalogue/finders fetching is skipped. */
+type SessionSnapshot = {
+  userId: string;
+  animals: BestiaryAnimal[];
+  myCaptures: AnimalCard[];
+  subscribedZones: ZoneSub[];
+};
+/** Cache mémoire de session : la navigation entre pages réaffiche instantanément
+ *  les dernières données, la revalidation se fait en arrière-plan. */
+let sessionSnapshot: SessionSnapshot | null = null;
+export const invalidateBestiarySession = () => { sessionSnapshot = null; };
+
 export const useBestiaryData = (userId: string | undefined, opts?: { light?: boolean }) => {
   const light = !!opts?.light;
   const cachedAtMount = useRef(readCatalogueCache());
   const shelveAtMount = useRef(peekPendingShelve());
+  const snapAtMount = useRef(
+    !shelveAtMount.current && userId && sessionSnapshot?.userId === userId && sessionSnapshot.animals.length
+      ? sessionSnapshot : null,
+  );
   const [animals, setAnimals] = useState<BestiaryAnimal[]>(() => {
+    if (snapAtMount.current) return snapAtMount.current.animals;
     const pending = shelveAtMount.current;
     const pendingName = pending?.animalName.trim().toLocaleLowerCase('fr');
     const pendingScientific = pending?.scientificName?.trim().toLowerCase();
@@ -50,13 +66,18 @@ export const useBestiaryData = (userId: string | undefined, opts?: { light?: boo
       })
       .sort((a, b) => a.name.localeCompare(b.name, 'fr'));
   });
-  const [loading, setLoading] = useState(() => !cachedAtMount.current);
-  const [capturesLoaded, setCapturesLoaded] = useState(false);
+  const [loading, setLoading] = useState(() => !cachedAtMount.current && !snapAtMount.current);
+  const [capturesLoaded, setCapturesLoaded] = useState(() => !!snapAtMount.current);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [subscribedZones, setSubscribedZones] = useState<ZoneSub[]>([]);
+  const [subscribedZones, setSubscribedZones] = useState<ZoneSub[]>(() => snapAtMount.current?.subscribedZones || []);
   const [animalsByDept, setAnimalsByDept] = useState<Record<string, Set<string>>>({});
   /** Raw approved captures of the user — the single source of truth for "how many captures". */
-  const [myCaptures, setMyCaptures] = useState<AnimalCard[]>([]);
+  const [myCaptures, setMyCaptures] = useState<AnimalCard[]>(() => snapAtMount.current?.myCaptures || []);
+
+  useEffect(() => {
+    if (!userId || !capturesLoaded || light || animals.length === 0) return;
+    sessionSnapshot = { userId, animals, myCaptures, subscribedZones };
+  }, [userId, capturesLoaded, light, animals, myCaptures, subscribedZones]);
 
   const removeCaptureLocally = useCallback((captureId: string) => {
     setMyCaptures((current) => current.filter((capture) => capture.id !== captureId));
@@ -159,7 +180,7 @@ const buildList = (
 
     const fetchData = async () => {
       const cached = cachedAtMount.current || readCatalogueCache();
-      if (!cached) setLoading(true);
+      if (!cached && !snapAtMount.current) setLoading(true);
 
 // 1) Les captures de l'utilisateur (petit volume) : indispensables pour l'état "capturé".
       //    En parallèle : le nombre d'utilisateurs distincts ayant trouvé chaque espèce.
