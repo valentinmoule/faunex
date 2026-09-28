@@ -1838,12 +1838,12 @@
   overflow: hidden;
   border: 6px solid hsl(0 0% 78%);
   background: hsl(var(--card));
-  box-shadow: 0 24px 48px -16px hsl(var(--foreground) / 0.45);
+  box-shadow: 0 18px 36px -16px hsl(var(--foreground) / 0.38);
   opacity: 0;
   transform-origin: 50% 50%;
   will-change: transform, opacity;
   backface-visibility: hidden;
-  contain: layout paint;
+  contain: strict;
 }
 .shelve-flying-card[data-rarity="very_rare"],
 .shelve-flying-card[data-rarity="ultra_rare"],
@@ -1858,14 +1858,6 @@
   display: block;
 }
 
-.shelve-card-shine {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(115deg, transparent 30%, hsl(0 0% 100% / 0.6) 48%, transparent 66%);
-  transform: translateX(-130%);
-  animation: shelve-shine 900ms 380ms ease-in-out both;
-}
-
 .shelve-card-label {
   position: absolute;
   inset-inline: 0;
@@ -1878,11 +1870,6 @@
 }
 .shelve-card-label span { font: 600 9px/1.2 'Manrope', sans-serif; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.85; }
 .shelve-card-label strong { font: 700 15px/1.15 'Sora', sans-serif; }
-
-@keyframes shelve-shine {
-  0% { transform: translateX(-130%); }
-  100% { transform: translateX(130%); }
-}
 
 @keyframes shelve-slot-flash {
   0% {
@@ -1904,11 +1891,10 @@
 }
 
 .shelve-slot-flash {
-  animation: shelve-slot-flash 1100ms ease-out forwards;
+  animation: shelve-slot-flash 760ms ease-out forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .shelve-card-shine,
   .shelve-slot-flash {
     animation-duration: 1ms !important;
     transition-duration: 1ms !important;

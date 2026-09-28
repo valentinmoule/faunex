@@ -21,6 +21,33 @@ export interface ShelveFlight {
   slot: PendingShelve;
 }
 
+/** Attend le décodage sans jamais bloquer le parcours sur un réseau lent. */
+const prepareImage = (src: string) => new Promise<void>((resolve) => {
+  if (!src) {
+    resolve();
+    return;
+  }
+  const image = new Image();
+  let settled = false;
+  const finish = () => {
+    if (settled) return;
+    settled = true;
+    resolve();
+  };
+  const timeout = window.setTimeout(finish, 700);
+  image.onload = () => {
+    window.clearTimeout(timeout);
+    if (typeof image.decode === 'function') image.decode().catch(() => undefined).finally(finish);
+    else finish();
+  };
+  image.onerror = () => {
+    window.clearTimeout(timeout);
+    finish();
+  };
+  image.src = src;
+  if (image.complete) image.onload?.(new Event('load'));
+});
+
 const prefersReducedMotion = () =>
   typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
@@ -65,7 +92,7 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
       setPendingShelve(null);
     };
 
-    const tryStart = () => {
+    const tryStart = async () => {
       if (cancelled) return;
       const slot = resolveSlot(pendingShelve);
       if (!slot) {
@@ -78,6 +105,11 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
       consumePendingShelve();
       const r0 = slot.getBoundingClientRect();
       if (r0.top < 0 || r0.bottom > window.innerHeight) slot.scrollIntoView({ behavior: 'auto', block: 'center' });
+
+      // La photo doit être décodée avant l'apparition de la carte volante :
+      // son chargement ne vient ainsi plus couper la première image du vol.
+      await prepareImage(pendingShelve.imageUrl);
+      if (cancelled) return;
 
       // Deux frames : la virtualisation et le scroll sont stabilisés.
       requestAnimationFrame(() => requestAnimationFrame(() => {
@@ -148,39 +180,26 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
           // Le voile est déjà visible (posé dès l'arrivée) : on le maintient.
           anims.push(backdrop.animate([{ opacity: 1 }, { opacity: 1 }], { duration: 1, fill: 'forwards' }));
         }
-        // Apparition : la carte « éclot » au centre avec un léger rebond.
-        const reveal = card.animate(
-          [
-            { transform: at(dx, dy, 0.55, 0.55, -10), opacity: 0 },
-            { transform: at(dx, dy, 1.04, 1.04, -5), opacity: 1, offset: 0.7 },
-            { transform: at(dx, dy, 1, 1, -6), opacity: 1 },
-          ],
-          { duration: reduced ? 1 : 560, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', fill: 'forwards' },
-        );
-        anims.push(reveal);
-        await reveal.finished;
-        if (cancelled) return;
-        await new Promise((r) => setTimeout(r, reduced ? 0 : 450));
-        if (cancelled) return;
-
-        // Vol : trajectoire courbe vers l'emplacement, la carte se redresse.
+        // Un seul mouvement continu : moins de couches et aucune pause entre
+        // l'apparition et le rangement, pour rester fluide sur mobile.
         const end = destination();
         if (!end) throw new Error('Shelve slot disappeared');
-        const midX = dx + (end.x - dx) * 0.55;
-        const midY = dy + (end.y - dy) * 0.55 - 36;
-        const midSx = 1 + (end.sx - 1) * 0.55;
-        const midSy = 1 + (end.sy - 1) * 0.55;
+        const midX = dx + (end.x - dx) * 0.42;
+        const midY = dy + (end.y - dy) * 0.42 - 18;
+        const midSx = 1 + (end.sx - 1) * 0.42;
+        const midSy = 1 + (end.sy - 1) * 0.42;
         const fly = card.animate(
           [
-            { transform: at(dx, dy, 1, 1, -6) },
-            { transform: at(midX, midY, midSx, midSy, 3), offset: 0.5 },
-            { transform: at(end.x, end.y, end.sx, end.sy, 0) },
+            { transform: at(dx, dy, 0.9, 0.9, -4), opacity: 0 },
+            { transform: at(dx, dy, 1, 1, -4), opacity: 1, offset: 0.16 },
+            { transform: at(midX, midY, midSx, midSy, 1.5), opacity: 1, offset: 0.52 },
+            { transform: at(end.x, end.y, end.sx, end.sy, 0), opacity: 1 },
           ],
-          { duration: reduced ? 1 : 820, easing: 'cubic-bezier(0.6, 0, 0.2, 1)', fill: 'forwards' },
+          { duration: reduced ? 1 : 720, easing: 'cubic-bezier(0.32, 0.72, 0, 1)', fill: 'forwards' },
         );
         anims.push(fly);
-        if (label) anims.push(label.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 260, fill: 'forwards', easing: 'ease-in' }));
-        if (backdrop) anims.push(backdrop.animate([{ opacity: 1 }, { opacity: 0 }], { duration: reduced ? 1 : 700, delay: 200, fill: 'forwards' }));
+        if (label) anims.push(label.animate([{ opacity: 1 }, { opacity: 1, offset: 0.42 }, { opacity: 0 }], { duration: reduced ? 1 : 560, fill: 'forwards', easing: 'ease-in' }));
+        if (backdrop) anims.push(backdrop.animate([{ opacity: 1 }, { opacity: 0 }], { duration: reduced ? 1 : 520, delay: reduced ? 0 : 120, fill: 'forwards' }));
         await fly.finished;
         if (cancelled) return;
 
@@ -190,7 +209,7 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
         if (landing && (Math.abs(landing.x - end.x) > 0.5 || Math.abs(landing.y - end.y) > 0.5 || Math.abs(landing.sx - end.sx) > 0.005 || Math.abs(landing.sy - end.sy) > 0.005)) {
           const settle = card.animate(
             [{ transform: at(end.x, end.y, end.sx, end.sy, 0) }, { transform: at(landing.x, landing.y, landing.sx, landing.sy, 0) }],
-            { duration: reduced ? 1 : 120, easing: 'ease-out', fill: 'forwards' },
+            { duration: reduced ? 1 : 80, easing: 'ease-out', fill: 'forwards' },
           );
           anims.push(settle);
           await settle.finished;
@@ -201,7 +220,7 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
         hapticDiscovery();
         setHiddenSlot(false);
         setFlashing(true);
-        const out = card.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 180, fill: 'forwards' });
+        const out = card.animate([{ opacity: 1 }, { opacity: 0 }], { duration: reduced ? 1 : 100, fill: 'forwards' });
         anims.push(out);
         await out.finished;
         if (cancelled) return;
@@ -210,7 +229,7 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
           setFlashing(false);
           setShelveRunning(false);
           setPendingShelve(null);
-        }, 900);
+        }, 620);
       } catch {
         // Animation annulée (démontage) : on nettoie.
         setHiddenSlot(false);
