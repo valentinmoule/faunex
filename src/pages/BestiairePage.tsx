@@ -316,7 +316,7 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   // Le Bestiaire aussi garde le loader logo jusqu'aux captures (images prêtes),
   // sauf pendant un rangement où le Bestiaire doit rester visible.
   const shelvingAtMount = useRef(
-    typeof window !== 'undefined' && !!sessionStorage.getItem('faunex.pendingShelve'),
+    typeof window !== 'undefined' && !!sessionStorage.getItem('faunex:pending-shelve'),
   );
   const loading = catalogueLoading || (viewMode !== 'leaderboard' && !capturesLoaded && (isFaunexHub || !shelvingAtMount.current));
 
