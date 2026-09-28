@@ -59,12 +59,13 @@ const prefersReducedMotion = () =>
 export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSlot }: Options) => {
   const [pendingShelve, setPendingShelve] = useState<PendingShelve | null>(null);
   const [flight, setFlight] = useState<ShelveFlight | null>(null);
-  const [hiddenSlot, setHiddenSlot] = useState(false);
-  const [flashing, setFlashing] = useState(false);
+  const hiddenSlot = false;
+  const flashing = false;
   const cardRef = useRef<HTMLDivElement | null>(null);
   const backdropRef = useRef<HTMLDivElement | null>(null);
   const labelRef = useRef<HTMLDivElement | null>(null);
   const ran = useRef(false);
+  const slotEl = useRef<HTMLElement | null>(null);
   const prepared = useRef(false);
 
   useEffect(() => {
@@ -122,7 +123,9 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
         const sh = sw * 1.25; // même format que la carte d'attente (4/5)
         const cx = to.left + to.width / 2;
         const cy = to.top + to.height / 2;
-        setHiddenSlot(true);
+        // Masquage direct dans le DOM : pas de re-rendu de toute la grille.
+        live.style.visibility = 'hidden';
+        slotEl.current = live;
         setFlight({
           style: { left: cx - sw / 2, top: cy - sh / 2, width: sw, height: sh },
           dx: vw / 2 - cx,
@@ -220,21 +223,25 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
 
         // Atterrissage : la vraie carte réapparaît sous la volante, puis flash.
         hapticDiscovery();
-        setHiddenSlot(false);
-        setFlashing(true);
+        const landed = resolveSlot(flight.slot) || slotEl.current;
+        if (slotEl.current) slotEl.current.style.visibility = '';
+        if (landed) {
+          landed.style.visibility = '';
+          landed.classList.add('shelve-slot-flash');
+          window.setTimeout(() => landed.classList.remove('shelve-slot-flash'), 800);
+        }
         const out = card.animate([{ opacity: 1 }, { opacity: 0 }], { duration: reduced ? 1 : 100, fill: 'forwards' });
         anims.push(out);
         await out.finished;
         if (cancelled) return;
         setFlight(null);
         setTimeout(() => {
-          setFlashing(false);
           setShelveRunning(false);
           setPendingShelve(null);
         }, 620);
       } catch {
         // Animation annulée (démontage) : on nettoie.
-        setHiddenSlot(false);
+        if (slotEl.current) slotEl.current.style.visibility = '';
         setFlight(null);
         setShelveRunning(false);
       }
