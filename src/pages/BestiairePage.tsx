@@ -378,7 +378,7 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
       ?? null;
   }, []);
 
-  const { pendingShelve, flight, cardRef: shelveCardRef, backdropRef: shelveBackdropRef, labelRef: shelveLabelRef, isFlashing, isHidden } = useShelveAnimation({
+  const { pendingShelve, flight, cardRef: shelveCardRef, labelRef: shelveLabelRef, isFlashing, isHidden } = useShelveAnimation({
     loading,
     ready: shelveScrollDone || shelveTargetIndexRef.current == null,
     resolveSlot: resolveShelveSlot,

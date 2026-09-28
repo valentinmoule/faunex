@@ -1,5 +1,4 @@
 import React, { Suspense } from "react";
-import { createPortal } from "react-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,7 +20,6 @@ import { useSyncAccountLocale } from "./hooks/useAppLocale";
 import { ProfileDrawerProvider } from "./components/ProfileDrawer";
 import AppErrorBoundary from "./components/AppErrorBoundary";
 import { lazyWithRetry } from "./lib/lazyWithRetry";
-import { peekPendingShelve, type PendingShelve } from "./lib/shelveAnimation";
 
 
 // Lazy-loaded routes for smaller initial bundle
