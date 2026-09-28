@@ -181,13 +181,13 @@ const FAST_PROMPT = `Expert naturaliste. Identifie l'animal au rang le plus pré
 
 3. TAXONOMIE : ne déduis jamais le latin du nom français. Binôme uniquement si l'espèce est réellement publiée avec le bon genre ; sinon rang RÉEL sûr (scientific_name = ce rang seul, scientific_rank, animal_name générique, confidence ≤ 60). animal_name = nom commun français seul, sans parenthèses. Jamais de nom inventé.
 
-4. DOMESTIQUES : race réelle seule (jamais "Croisé…"). Doute → "Chien domestique" / "Chat Européen" / "Vache domestique" + alternatives. Chien Canis lupus familiaris, chat Felis catus, bovin "Vache <Race>" Bos taurus.
+4. DOMESTIQUES : race réelle seule (jamais "Croisé…"). Doute → "Chien domestique" / "Chat Européen" / "Vache domestique". Chien Canis lupus familiaris, chat Felis catus, bovin "Vache <Race>" Bos taurus.
 
 5. SAUVAGE : jamais l'espèce la plus courante par défaut ; compare les critères diagnostiques et baisse la confiance si ambigu.
 
 6. RARETÉ (France, 8 paliers) : common commune/quotidienne · uncommon peu commune/fréquente · rare plutôt rare, demande de la chance · very_rare rare/très localisée · ultra_rare menacée ou protégée · illustration_rare épique/quasi-impossible · special_rare mythique · hyper_rare légendaire, le sommet.
 
-7. CONFIANCE : 90+ certaine · 70-89 probable · 50-69 plusieurs espèces · <50 incertain. Si < 90 → 2 à 5 alternatives (espèces visuellement proches, noms communs) + alternatives_scientific (binômes, même ordre).`;
+7. CONFIANCE : 90+ certaine · 70-89 probable · 50-69 plusieurs espèces · <50 incertain.`;
 
 
 /** Annexe ajoutée seulement à la passe profonde (cas ambigus). */
@@ -494,7 +494,7 @@ serve(async (req) => {
                 // Les critères détaillés sont déjà dans le prompt système :
                 // on ne les répète ni ici ni dans les descriptions du schéma
                 // (chaque répétition est facturée à chaque appel).
-                text: "1) image_type + is_real_photo. 2) Si vraie photo : identifie au rang le plus précis, calibre la confiance, alternatives si doute."
+                text: "1) image_type + is_real_photo. 2) Si vraie photo : identifie au rang le plus précis, calibre la confiance."
               },
 
               { type: "image_url", image_url: { url: image } }
@@ -540,15 +540,6 @@ serve(async (req) => {
                     enum: ["common", "uncommon", "rare", "very_rare", "ultra_rare", "illustration_rare", "special_rare", "hyper_rare"]
                   },
                   confidence: { type: "integer", minimum: 0, maximum: 100 },
-                  alternatives: {
-                    type: "array",
-                    items: { type: "string" }
-                  },
-                  alternatives_scientific: {
-                    type: "array",
-                    description: "Noms scientifiques binomiaux des alternatives, même ordre.",
-                    items: { type: "string" }
-                  },
                   subject_bbox: {
                     type: "object",
                     description: "Boîte du sujet, normalisée 0..1 (x,y coin haut-gauche, w,h taille), généreuse. Omets si aucun animal.",
@@ -686,9 +677,6 @@ serve(async (req) => {
           if (parsed.animal_name) parsed.animal_name = cleanCommonName(parsed.animal_name);
           if (parsed.scientific_name) parsed.scientific_name = cleanScientificName(parsed.scientific_name);
 
-          if (Array.isArray(parsed.alternatives)) {
-            parsed.alternatives = parsed.alternatives.map((a: unknown) => cleanCommonName(a)).filter(Boolean);
-          }
         }
         return parsed;
       } catch {
