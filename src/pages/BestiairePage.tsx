@@ -262,6 +262,7 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
     setSelectedCollectionKey(null);
     setSelectedCustomId(null);
     setSelectedZoneId(null);
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
   }, [isFaunexHub, searchParams]);
 
   const changeView = useCallback((next: ViewMode) => {
