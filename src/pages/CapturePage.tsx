@@ -591,8 +591,14 @@ setManualMode(false);
         return;
       }
       if (msg.includes('unique_species_per_user') || msg.includes('duplicate key')) {
-        // Sécurité serveur : l'espèce existe déjà sous un autre nom commun.
-        toast.error(t('capture.errors.alreadyHaveSpecies', { name: animalResult.scientific_name ?? animalResult.animal_name }));
+        // Sécurité serveur : l'espèce existe déjà. On propose quand même le
+        // remplacement de la photo plutôt qu'un simple message bloquant.
+        const existing = await findDuplicate(animalResult.animal_name, animalResult.scientific_name).catch(() => null);
+        if (existing) {
+          setDuplicateCapture(existing);
+          return;
+        }
+        toast.error(t('capture.errors.alreadyHaveSpecies', { name: animalResult.animal_name }));
         return;
       }
       toast.error(isDailyLimitError(err) ? quotaMessage : t('capture.errors.saveError'));
