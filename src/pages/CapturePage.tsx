@@ -939,7 +939,7 @@ setManualMode(false);
 
         {/* Portail hors de la page animée : l'ancrage est réellement celui du viewport. */}
         {animalResult && !identifying && revealPhase === 'done' && createPortal(
-          <div className="fixed inset-x-0 bottom-0 z-[100] border-t border-border/60 bg-background px-5 pt-3 pb-[max(8px,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_hsl(var(--foreground)/0.12)] space-y-2.5">
+          <div className="fixed inset-x-0 bottom-0 z-[100] border-t border-border/60 bg-background px-5 pt-3 pb-[max(18px,calc(env(safe-area-inset-bottom)+12px))] shadow-[0_-8px_24px_hsl(var(--foreground)/0.12)] space-y-2.5">
             {duplicateCapture ? (
               <>
                 <button
