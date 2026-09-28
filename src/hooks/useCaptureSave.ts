@@ -74,7 +74,29 @@ export const useCaptureSave = ({ userId, photo, geo, takenAt = null }: SaveConte
           .ilike('scientific_name', scientificName)
           .limit(1);
         if (data && data.length > 0) return data[0];
+        // Le serveur renomme la capture d'après le catalogue (ex. « Porc
+        // domestique » / Sus domesticus → « Cochon domestique ») : on cherche
+        // donc aussi sous ce nom de catalogue.
+        const { data: cat } = await supabase
+          .from('animals')
+          .select('name')
+          .ilike('scientific_name', scientificName.trim())
+          .order('created_at')
+          .limit(1);
+        const catalogueName = cat?.[0]?.name;
+        if (catalogueName && catalogueName.trim().toLowerCase() !== animalName.trim().toLowerCase()) {
+          const byCatalogue = await findByName(catalogueName);
+          if (byCatalogue) return byCatalogue;
+        }
       }
+      return findByName(animalName);
+    },
+    [userId]
+  );
+
+  const findByName = useCallback(
+    async (animalName: string) => {
+      if (!userId) return null;
       // Même règle que l'index serveur : nom commun sans espaces superflus,
       // insensible à la casse (jokers % et _ neutralisés).
       const key = animalName.trim().toLowerCase();
