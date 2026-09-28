@@ -4,7 +4,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { CollectionHero } from '@/components/CollectionHero';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, Check, Images, Trophy, Users, Lock, FolderPlus } from 'lucide-react';
+import { ArrowLeft, Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, Check, Images, Trophy, Users, Lock, FolderPlus } from 'lucide-react';
 import {
   POPULARITY_LABELS,
   SpeciesCategoryIcon,
@@ -1822,14 +1822,6 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
 
           {viewMode === 'badges' && (
             <section>
-              <button
-                type="button"
-                onClick={() => changeView('mine')}
-                className="mb-4 inline-flex items-center gap-1 text-sm font-display font-semibold text-muted-foreground active:scale-95 transition-transform"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                {t('bestiary.tabs.mine')}
-              </button>
               <FaunexAchievements />
             </section>
           )}

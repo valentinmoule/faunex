@@ -208,14 +208,17 @@ const PremiumPage = () => {
   return (
     <div className="min-h-screen bg-background pb-40">
       <PaymentTestModeBanner />
-      <PageHeader className="px-4 pb-2">
-        <button
-          onClick={() => navigate(-1)}
-          aria-label={t('profile.premium.backAria')}
-          className="h-10 w-10 rounded-full bg-card border border-border flex items-center justify-center shadow-sm"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </button>
+      <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
+        <div className="flex items-center gap-3 max-w-lg mx-auto">
+          <button
+            onClick={() => navigate(-1)}
+            aria-label={t('profile.premium.backAria')}
+            className="p-1.5 rounded-full hover:bg-muted transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5 text-foreground" />
+          </button>
+          <h1 className="text-xl font-display font-bold text-foreground">{t('profile.premium.badge')}</h1>
+        </div>
       </PageHeader>
 
       <main className="px-5 pt-2">
