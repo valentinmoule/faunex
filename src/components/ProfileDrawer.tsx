@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Camera, ChevronRight, Crown, Loader2, Search, Settings, Share2, ShieldCheck, Star, UserRound } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
+import { useSwipeDownClose } from '@/lib/useSwipeDownClose';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { PremiumAvatar } from '@/components/PremiumAvatar';
@@ -227,11 +228,20 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
     [badgeProgress],
   );
 
+  const closeDrawer = useCallback(() => setOpen(false), []);
+  const swipeClose = useSwipeDownClose(closeDrawer);
+
+
   return (
     <ProfileDrawerContext.Provider value={{ openProfile, claimableBadges }}>
       {children}
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="bottom" className="max-h-[88vh] overflow-y-auto rounded-t-[28px] border-border px-5 pb-8 pt-3">
+        <SheetContent
+          ref={swipeClose.ref}
+          style={swipeClose.style}
+          side="bottom"
+          className="max-h-[88vh] overflow-y-auto rounded-t-[28px] border-border px-5 pb-8 pt-3"
+        >
           <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-border" />
           <SheetTitle className="sr-only">{t('profile.page.title')}</SheetTitle>
 

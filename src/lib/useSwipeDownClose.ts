@@ -12,7 +12,7 @@ import { useCallback, useEffect, useState } from 'react';
  *
  * Usage : <SheetContent ref={swipe.ref} style={swipe.style} ... />
  */
-export function useSwipeDownClose(onClose: () => void, threshold = 90) {
+export function useSwipeDownClose(onClose: () => void, threshold = 56) {
   const [el, setEl] = useState<HTMLElement | null>(null);
   const [dragY, setDragY] = useState(0);
 
@@ -79,7 +79,7 @@ export function useSwipeDownClose(onClose: () => void, threshold = 90) {
       dragging = true;
       // Non-passif : on bloque le scroll natif pour garder la main sur le geste
       if (e.cancelable) e.preventDefault();
-      current = Math.min(dy * 0.7, 260);
+      current = Math.min(dy * 0.9, 320);
       setDragY(current);
     };
 

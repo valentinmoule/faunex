@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Bookmark, Check, Crown, FolderPlus, Plus, X } from 'lucide-react';
 import { hapticTap } from '@/lib/haptics';
+import { useSwipeDownClose } from '@/lib/useSwipeDownClose';
 import type { CustomCollection } from '@/hooks/useCustomCollections';
 
 interface Props {
@@ -40,15 +41,18 @@ const AddToCollectionSheet = ({
   const [name, setName] = useState('');
   const [saving, setSaving] = useState(false);
 
+  const close = useCallback(() => {
+    setCreating(false);
+    setName('');
+    onClose();
+  }, [onClose]);
+
+  const swipe = useSwipeDownClose(close);
+
   if (!open) return null;
 
   const target = document.querySelector('[role="dialog"]') || document.body;
 
-  const close = () => {
-    setCreating(false);
-    setName('');
-    onClose();
-  };
 
   const submitCreate = async () => {
     if (!name.trim() || saving) return;
@@ -68,7 +72,12 @@ const AddToCollectionSheet = ({
         onClick={close}
         className="absolute inset-0 bg-foreground/40 backdrop-blur-[2px]"
       />
-      <div className="relative w-full max-w-lg rounded-t-3xl bg-card border-t border-border p-4 pb-8 space-y-1 animate-in slide-in-from-bottom-4 duration-200">
+      <div
+        ref={swipe.ref}
+        style={swipe.style}
+        className="relative w-full max-w-lg rounded-t-3xl bg-card border-t border-border p-4 pb-8 space-y-1 animate-in slide-in-from-bottom-4 duration-200"
+      >
+        <div className="mx-auto mb-2 h-1 w-10 rounded-full bg-border" />
         <div className="flex items-center justify-between px-1 pb-2">
           <h3 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">
             {t('bestiary.customCollections.addTitle')}
