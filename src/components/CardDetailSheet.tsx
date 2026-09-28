@@ -896,18 +896,6 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   {t('capture.detail.exploreDesc')}
                 </p>
-                {finders !== undefined && (
-                  <div className="mt-3 flex items-center justify-center">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-background/80 border border-border px-3 py-1.5">
-                      <FindersBadge count={finders} />
-                      <span className="text-[11px] font-display font-medium text-muted-foreground">
-                        {finders > 0
-                          ? t('capture.finders.alreadyCaptured')
-                          : t('capture.finders.noneYet')}
-                      </span>
-                    </span>
-                  </div>
-                )}
               </div>
 
             ) : !feedView ? (
