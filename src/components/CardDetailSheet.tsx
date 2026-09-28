@@ -161,6 +161,9 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteAnimating, setDeleteAnimating] = useState(false);
+  // Snapshot de la carte pour l'animation de disparition : la fiche se ferme
+  // (card devient null) avant que l'effet ne soit terminé.
+  const [vanishCard, setVanishCard] = useState<{ id: string; image: string | null; rarity: string; name: string } | null>(null);
   const deleteInProgressRef = useRef(false);
   const [note, setNote] = useState('');
   const [noteDraft, setNoteDraft] = useState('');
