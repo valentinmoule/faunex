@@ -161,6 +161,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteAnimating, setDeleteAnimating] = useState(false);
+  const deleteInProgressRef = useRef(false);
   const [note, setNote] = useState('');
   const [noteDraft, setNoteDraft] = useState('');
   const [editingNote, setEditingNote] = useState(false);
@@ -388,23 +389,29 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
   }, [card, noteDraft, savingNote]);
 
   const handleDelete = useCallback(async () => {
-    if (!card || deleting) return;
+    if (!card || deleteInProgressRef.current) return;
+    deleteInProgressRef.current = true;
     setDeleting(true);
+    setConfirmDelete(false);
+    setDeleteAnimating(true);
+    hapticTap();
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!reduceMotion) {
+      await new Promise<void>((resolve) => window.setTimeout(resolve, 920));
+    }
+
     const { error } = await supabase.from('captures').delete().eq('id', card.id);
     setDeleting(false);
     if (error) {
+      deleteInProgressRef.current = false;
+      setDeleteAnimating(false);
       toast({ title: t('capture.detail.toastDeleteImpossible'), description: t('capture.detail.toastRetry'), variant: 'destructive' });
       return;
     }
 
-    setConfirmDelete(false);
-    setDeleteAnimating(true);
-    hapticTap();
-    const delay = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 680;
-    window.setTimeout(() => {
-      onDeleted?.(card.id);
-      onClose();
-    }, delay);
+    onDeleted?.(card.id);
+    onClose();
   }, [card, deleting, onDeleted, onClose]);
 
   // Escape closes the delete confirmation
@@ -639,10 +646,18 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
 
   return (
     <>
-      <Drawer.Root open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <Drawer.Root open={open} onOpenChange={(isOpen) => !isOpen && !deleteInProgressRef.current && onClose()}>
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 z-[1300] bg-black/80" />
-          <Drawer.Content className={`fixed inset-x-0 bottom-0 z-[1300] rounded-t-3xl border-0 outline-none overflow-hidden bg-background ${feedView ? 'max-h-[92dvh] flex flex-col' : 'h-[92vh]'}`}>
+          <Drawer.Content
+            onPointerDownOutside={(event) => {
+              if (confirmDelete || deleteInProgressRef.current) event.preventDefault();
+            }}
+            onInteractOutside={(event) => {
+              if (confirmDelete || deleteInProgressRef.current) event.preventDefault();
+            }}
+            className={`fixed inset-x-0 bottom-0 z-[1300] rounded-t-3xl border-0 outline-none overflow-hidden bg-background ${feedView ? 'max-h-[92dvh] flex flex-col' : 'h-[92vh]'}`}
+          >
             {/* Handle + close: absolute over content */}
             <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[1301] w-12 h-1.5 rounded-full bg-white/40" />
             <button
@@ -723,17 +738,6 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                     </div>
                   </div>
                 </div>
-                {deleteAnimating && (
-                  <div aria-hidden className="delete-sparkles">
-                    {DELETE_SPARKLES.map((s, i) => (
-                      <span
-                        key={i}
-                        className="delete-sparkle"
-                        style={{ left: s.x, top: s.y, ['--s' as any]: `${s.size}px`, ['--d' as any]: `${s.delay}ms` }}
-                      />
-                    ))}
-                  </div>
-                )}
               </HolographicCard>
             </div>
 
@@ -1326,6 +1330,31 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                 {deleting ? t('capture.detail.deleting') : t('capture.detail.deleteBtn')}
               </button>
             </div>
+          </div>
+        </div>
+      ), document.body)}
+
+      {/* The delete action sits below the photo, so the effect must be viewport-fixed:
+          attaching it to the card would leave it above the user's current scroll. */}
+      {deleteAnimating && createPortal((
+        <div aria-hidden className="delete-vanish-stage">
+          <div className={`delete-vanish-card holo-frame holo-frame--${normalizeRarity(card.rarity).replace(/_/g, '-')}`}>
+            {card.image ? (
+              <img src={card.image} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <div className="h-full w-full bg-muted" />
+            )}
+            <div className="delete-vanish-shade" />
+            <span className="delete-vanish-name">{displayName}</span>
+          </div>
+          <div className="delete-sparkles">
+            {DELETE_SPARKLES.map((s, i) => (
+              <span
+                key={i}
+                className="delete-sparkle"
+                style={{ left: s.x, top: s.y, ['--s' as any]: `${s.size}px`, ['--d' as any]: `${s.delay}ms` }}
+              />
+            ))}
           </div>
         </div>
       ), document.body)}
