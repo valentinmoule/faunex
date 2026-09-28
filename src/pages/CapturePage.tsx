@@ -577,7 +577,7 @@ setManualMode(false);
         return;
       }
       consumed = false;
-      finishSave(animalResult, imageUrl, t('capture.toasts.updatedInFaunex', { name: animalResult.animal_name }));
+      finishSave(animalResult, imageUrl);
     } catch (err) {
       cancelPrepare();
       console.error(err);
