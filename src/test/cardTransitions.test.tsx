@@ -15,6 +15,7 @@ const mocks = vi.hoisted(() => {
   };
   return { deleteCapture, captureQuery, feedQuery };
 });
+const bestiaryGate = vi.hoisted(() => ({ pending: null as Promise<void> | null }));
 
 vi.mock('@/integrations/supabase/client', () => ({ supabase: { from: (table: string) => table === 'captures' ? mocks.captureQuery : { select: () => mocks.feedQuery } } }));
 vi.mock('@/contexts/AuthContext', () => ({
@@ -93,7 +94,10 @@ describe('Suppression de capture', () => {
 // The handoff is only allowed once the flying card has been mounted.
 vi.mock('@/lib/lazyWithRetry', () => ({ lazyWithRetry: (factory: () => Promise<{ default: React.ComponentType }>) => React.lazy(factory) }));
 vi.mock('@/pages/CapturePage', () => ({ default: () => <div>Capture ready</div> }));
-vi.mock('@/pages/BestiairePage', () => ({ default: () => <div>Bestiaire ready</div> }));
+vi.mock('@/pages/BestiairePage', () => ({ default: () => {
+  if (bestiaryGate.pending) throw bestiaryGate.pending;
+  return <div>Bestiaire ready</div>;
+} }));
 vi.mock('@/components/BottomNav', () => ({ default: () => null }));
 vi.mock('@/components/PullToDiscover', () => ({ default: () => null }));
 vi.mock('@/components/PushPermissionPrompt', () => ({ PushPermissionPrompt: () => null }));
@@ -113,6 +117,8 @@ describe('Rangement dans le Bestiaire', () => {
   it('garde la carte sur un fond opaque pendant la navigation et ne la retire qu’au passage au vol', async () => {
     history.replaceState(null, '', '/capture');
     const view = render(<App />);
+    let release: (() => void) | undefined;
+    bestiaryGate.pending = new Promise<void>((resolve) => { release = resolve; });
     setPendingShelve({ animalName: 'Renard roux', scientificName: 'Vulpes vulpes', category: 'Mammifère', rarity: 'common', imageUrl: '/renard.jpg' });
     act(() => window.dispatchEvent(new Event('faunex:shelve-pending')));
     const holding = document.querySelector('.shelve-holding-card');
@@ -121,12 +127,18 @@ describe('Rangement dans le Bestiaire', () => {
     expect(document.querySelector('.shelve-holding-backdrop')).toBeInTheDocument();
     history.pushState(null, '', '/bestiaire');
     act(() => window.dispatchEvent(new PopStateEvent('popstate')));
+    expect(document.querySelector('.shelve-holding-card')).toBeInTheDocument();
+    expect(document.querySelector('.shelve-holding-backdrop')).toBeInTheDocument();
+    expect(screen.queryByText('Loading logo')).not.toBeInTheDocument();
+    bestiaryGate.pending = null;
+    await act(async () => { release?.(); });
     await screen.findByText('Bestiaire ready');
     expect(document.querySelector('.shelve-holding-card')).toBeInTheDocument();
     expect(document.querySelector('.page-transition')).toBeNull();
     act(() => window.dispatchEvent(new Event('faunex:shelve-flight')));
     expect(document.querySelector('.shelve-holding-card')).not.toBeInTheDocument();
     view.unmount();
+    bestiaryGate.pending = null;
     history.replaceState(null, '', '/');
   });
 });
