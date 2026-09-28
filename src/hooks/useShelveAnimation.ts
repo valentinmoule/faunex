@@ -267,6 +267,7 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
   return {
     pendingShelve,
     flight,
+    xpReward,
     cardRef,
     labelRef,
     isHidden: (name: string, sci?: string | null) => hiddenSlot && isTarget(name, sci),

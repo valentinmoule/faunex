@@ -387,7 +387,7 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
       ?? null;
   }, []);
 
-  const { pendingShelve, flight, cardRef: shelveCardRef, labelRef: shelveLabelRef, isFlashing, isHidden } = useShelveAnimation({
+  const { pendingShelve, flight, xpReward, cardRef: shelveCardRef, labelRef: shelveLabelRef, isFlashing, isHidden } = useShelveAnimation({
     loading,
     ready: shelveScrollDone || shelveTargetIndexRef.current == null,
     resolveSlot: resolveShelveSlot,
@@ -1331,16 +1331,19 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
           <strong>{shelveSpeciesName(pendingShelve.animalName)}</strong>
         </div>
       </div>}
-      {flight && (pendingShelve.xpGained ?? 0) > 0 && (
-        <div className="shelve-xp-reward" role="status" aria-live="polite">
-          <span className="shelve-xp-orb">XP</span>
-          <strong>+{pendingShelve.xpGained}</strong>
-          <span className="shelve-xp-spark shelve-xp-spark-one" />
-          <span className="shelve-xp-spark shelve-xp-spark-two" />
-          <span className="shelve-xp-spark shelve-xp-spark-three" />
-        </div>
-      )}
     </>,
+    document.body,
+  ) : null;
+
+  /** Compteur d'XP : portail indépendante, elle survit à la carte volante. */
+  const xpRewardOverlay = xpReward ? createPortal(
+    <div className="shelve-xp-reward" role="status" aria-live="polite">
+      <span className="shelve-xp-orb">XP</span>
+      <strong>+{xpReward.amount}</strong>
+      <span className="shelve-xp-spark shelve-xp-spark-one" />
+      <span className="shelve-xp-spark shelve-xp-spark-two" />
+      <span className="shelve-xp-spark shelve-xp-spark-three" />
+    </div>,
     document.body,
   ) : null;
 
@@ -1444,6 +1447,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
         <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={removeCaptureLocally} />
         {deptPickerSheet}
         {flyingCardOverlay}
+        {xpRewardOverlay}
       </main>
     );
   }
@@ -1604,6 +1608,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
 
         <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={removeCaptureLocally} />
         {flyingCardOverlay}
+        {xpRewardOverlay}
         {deptPickerSheet}
       </main>
     );
@@ -2212,6 +2217,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
         </div>
         <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={removeCaptureLocally} />
         {flyingCardOverlay}
+        {xpRewardOverlay}
         {deptPickerSheet}
         {celebratedReward && (
           <RewardCelebration
@@ -2433,6 +2439,7 @@ onClick={() => {
       <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={removeCaptureLocally} />
 
       {flyingCardOverlay}
+      {xpRewardOverlay}
     </main>
   );
 };
