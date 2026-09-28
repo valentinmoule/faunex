@@ -332,22 +332,22 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
                 )}
                 <div className="overflow-hidden rounded-2xl bg-muted divide-y divide-border/60">
                   <DrawerRow
-                    icon={<Share2 className="size-4" />}
+                    icon={<Share2 className="size-[18px]" />}
                     label={t('profile.page.drawer.shareProfile')}
                     onClick={() => { void shareMyProfile(); }}
                   />
                   <DrawerRow
-                    icon={<Search className="size-4" />}
+                    icon={<Search className="size-[18px]" />}
                     label={t('profile.page.drawer.findExplorers')}
                     onClick={() => go('/explorers?view=search')}
                   />
                   <DrawerRow
-                    icon={<Star className="size-4 text-amber" />}
+                    icon={<Star className="size-[18px] text-amber" />}
                     label={t('profile.page.drawer.rate')}
                     onClick={() => { void openStoreListing(); }}
                   />
                   <DrawerRow
-                    icon={<Settings className="size-4" />}
+                    icon={<Settings className="size-[18px]" />}
                     label={t('profile.page.drawer.settings')}
                     onClick={() => go('/settings')}
                   />
@@ -375,7 +375,7 @@ const DrawerRow = ({ icon, label, onClick, badge }: { icon: ReactNode; label: st
     onClick={onClick}
     className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-muted/70 active:bg-muted/50"
   >
-    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-card text-foreground shadow-sm">
+    <span className="flex w-5 shrink-0 items-center justify-center text-foreground">
       {icon}
     </span>
     <span className="flex-1 text-sm font-display font-semibold text-foreground">{label}</span>
