@@ -41,15 +41,18 @@ const AddToCollectionSheet = ({
   const [name, setName] = useState('');
   const [saving, setSaving] = useState(false);
 
+  const close = useCallback(() => {
+    setCreating(false);
+    setName('');
+    onClose();
+  }, [onClose]);
+
+  const swipe = useSwipeDownClose(close);
+
   if (!open) return null;
 
   const target = document.querySelector('[role="dialog"]') || document.body;
 
-  const close = () => {
-    setCreating(false);
-    setName('');
-    onClose();
-  };
 
   const submitCreate = async () => {
     if (!name.trim() || saving) return;
