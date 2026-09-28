@@ -117,6 +117,22 @@ const LockedField = ({ icon, label }: { icon: React.ReactNode; label: string }) 
 };
 
 
+// Game-style sparkle burst positions for the delete animation (percent of card area)
+const DELETE_SPARKLES = [
+  { x: '18%', y: '22%', size: 14, delay: 0 },
+  { x: '62%', y: '14%', size: 10, delay: 30 },
+  { x: '82%', y: '38%', size: 16, delay: 10 },
+  { x: '40%', y: '34%', size: 12, delay: 60 },
+  { x: '10%', y: '55%', size: 12, delay: 40 },
+  { x: '55%', y: '52%', size: 18, delay: 0 },
+  { x: '78%', y: '70%', size: 12, delay: 70 },
+  { x: '30%', y: '68%', size: 16, delay: 20 },
+  { x: '66%', y: '86%', size: 14, delay: 50 },
+  { x: '14%', y: '84%', size: 10, delay: 80 },
+  { x: '48%', y: '78%', size: 10, delay: 90 },
+  { x: '88%', y: '58%', size: 10, delay: 60 },
+];
+
 const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, feedView = false, author }: Props) => {
   const { t, i18n } = useTranslation();
   const { session } = useAuth();
@@ -670,6 +686,19 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                   </div>
 
                   <div className="relative w-full h-full rounded-[1.25rem] overflow-hidden">
+
+                    {deleteAnimating && (
+                      <div aria-hidden className="delete-sparkles">
+                        {DELETE_SPARKLES.map((s, i) => (
+                          <span
+                            key={i}
+                            className="delete-sparkle"
+                            style={{ left: s.x, top: s.y, ['--s' as any]: `${s.size}px`, ['--d' as any]: `${s.delay}ms` }}
+                          />
+                        ))}
+                      </div>
+                    )}
+
 
                     {card.image ? (
                       <img src={card.image} alt={displayName} loading="eager" decoding="async" fetchPriority="high" className="w-full h-full object-cover pointer-events-none select-none" draggable={false} />
