@@ -1897,12 +1897,13 @@
 }
 .shelve-flying-card.shelve-holding-card {
   left: 50%;
-  top: 50%;
+  top: auto;
+  bottom: 0;
   width: min(112px, 28vw);
   aspect-ratio: 4 / 5;
   height: auto;
   opacity: 1;
-  transform: translate3d(-50%, -50%, 0);
+  transform: translate3d(-50%, 0, 0);
 }
 
 .shelve-flying-card {
