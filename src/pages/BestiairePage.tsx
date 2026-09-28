@@ -1651,7 +1651,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
 
           {/* View toggle — floating gamified tab bar */}
           {viewMode !== 'leaderboard' && viewMode !== 'badges' && (
-          <div className={`sticky top-[70px] z-30 -mx-4 px-4 pt-1 pb-2 ${viewMode === 'mine' && !showMineControls ? '' : 'bg-gradient-to-b from-background via-background/95 to-transparent'}`}>
+          <div className={`sticky top-[85px] z-30 -mx-4 px-4 pt-1 pb-2 ${viewMode === 'mine' && !showMineControls ? '' : 'bg-gradient-to-b from-background via-background/95 to-transparent'}`}>
             <div className={`flex items-center gap-1 p-1 rounded-full bg-card/90 backdrop-blur-xl border border-border w-full ${viewMode === 'mine' && !showMineControls ? '' : 'shadow-lg shadow-foreground/5'}`}>
               {(isFaunexHub ? [
                 { key: 'mine' as const, label: t('bestiary.tabs.mine'), icon: Images },
@@ -2107,7 +2107,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
 
           {viewMode === 'leaderboard' && (
             <section>
-              <div className="sticky top-[70px] z-30 -mx-4 px-4 pt-1 pb-2 bg-gradient-to-b from-background via-background/95 to-transparent">
+              <div className="sticky top-[85px] z-30 -mx-4 px-4 pt-1 pb-2 bg-gradient-to-b from-background via-background/95 to-transparent">
                 <div className="grid grid-cols-2 gap-1 p-1 rounded-full bg-card/90 backdrop-blur-xl border border-border w-full shadow-lg shadow-foreground/5">
                   {([['global', t('social.leaderboard.tabGlobal'), Globe], ['explorers', t('social.leaderboard.tabExplorers'), Users]] as const).map(([key, label, Icon]) => {
                     const active = leaderboardScope === key;
