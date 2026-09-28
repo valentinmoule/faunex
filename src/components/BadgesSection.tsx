@@ -37,7 +37,7 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
 
   return (
     <div id="badges" className="scroll-mt-20">
-      <h3 className="text-lg font-display font-black text-foreground mb-5">{t('profile.badges.title')}</h3>
+      <h3 className="text-xl font-display font-black text-foreground mb-4">{t('profile.badges.title')}</h3>
 
       {loading && <p className="text-xs text-muted-foreground font-display">{t('profile.badges.loading')}</p>}
 
