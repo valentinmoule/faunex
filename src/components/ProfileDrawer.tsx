@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Camera, ChevronRight, Crown, Loader2, Search, Settings, Share2, ShieldCheck, Star, UserRound } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
+import { useSwipeDownClose } from '@/lib/useSwipeDownClose';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { PremiumAvatar } from '@/components/PremiumAvatar';
