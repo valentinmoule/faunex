@@ -15,7 +15,7 @@ describe('Placement de la carte rangée', () => {
   });
 
   it('garde la case masquée pendant le vol et la réaffiche à l’atterrissage avant de retirer la volante', async () => {
-    setPendingShelve({ animalName: 'Renard roux', scientificName: 'Vulpes vulpes', category: 'Mammifère', rarity: 'common', imageUrl: '' });
+    setPendingShelve({ animalName: 'Renard roux', scientificName: 'Vulpes vulpes', category: 'Mammifère', rarity: 'common', imageUrl: '', xpGained: 50 });
     const slot = document.createElement('div');
     slot.getBoundingClientRect = () => ({ left: 100, top: 150, width: 160, height: 200, right: 260, bottom: 350, x: 100, y: 150, toJSON: () => ({}) });
     document.body.appendChild(slot);
@@ -31,9 +31,10 @@ describe('Placement de la carte rangée', () => {
 
     const resolveSlot = vi.fn(() => slot);
     const Stage = () => {
-      const { pendingShelve, flight, cardRef, labelRef } = useShelveAnimation({ loading: false, resolveSlot });
-      return pendingShelve && <>
-        {flight && <div ref={cardRef} className="shelve-flying-card"><div ref={labelRef} /></div>}
+      const { pendingShelve, flight, xpReward, cardRef, labelRef } = useShelveAnimation({ loading: false, resolveSlot });
+      return <>
+        {pendingShelve && flight && <div ref={cardRef} className="shelve-flying-card"><div ref={labelRef} /></div>}
+        {xpReward && <div className="shelve-xp-reward">+{xpReward.amount}</div>}
       </>;
     };
     const view = render(<Stage />);
@@ -50,6 +51,9 @@ describe('Placement de la carte rangée', () => {
       expect.objectContaining({ duration: 90 }),
     );
     await waitFor(() => expect(document.querySelector('.shelve-flying-card')).not.toBeInTheDocument());
+    // Le compteur d'XP survit à la carte volante, puis se retire à la fin de son animation.
+    expect(document.querySelector('.shelve-xp-reward')).toBeInTheDocument();
+    await waitFor(() => expect(document.querySelector('.shelve-xp-reward')).not.toBeInTheDocument(), { timeout: 4000 });
     view.unmount();
     slot.remove();
   });

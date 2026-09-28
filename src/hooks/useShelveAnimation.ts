@@ -52,6 +52,13 @@ const prefersReducedMotion = () =>
   typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
 /**
+ * Durée d'affichage du compteur « +XP ». Doit rester calée sur la durée de
+ * `shelve-xp-reveal` dans index.css, sinon le compteur est coupé avant la fin
+ * de son fondu.
+ */
+const XP_REWARD_MS = 1200;
+
+/**
  * Animation « la carte se range dans le bestiaire » après une capture.
  * Uniquement des transform/opacity (GPU) via Web Animations : aucun reflow
  * pendant le vol, donc fluide même sur des téléphones modestes.
@@ -59,6 +66,7 @@ const prefersReducedMotion = () =>
 export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSlot }: Options) => {
   const [pendingShelve, setPendingShelve] = useState<PendingShelve | null>(null);
   const [flight, setFlight] = useState<ShelveFlight | null>(null);
+  const [xpReward, setXpReward] = useState<{ amount: number } | null>(null);
   const hiddenSlot = false;
   const flashing = false;
   const cardRef = useRef<HTMLDivElement | null>(null);
@@ -70,6 +78,14 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
   useLayoutEffect(() => {
     if (flight && cardRef.current) window.dispatchEvent(new Event('faunex:shelve-flight'));
   }, [flight]);
+
+  // Le compteur d'XP a sa propre durée de vie : il reste affiché après
+  // l'atterrissage de la carte, le temps de jouer tout son fondu.
+  useEffect(() => {
+    if (!xpReward) return;
+    const timer = window.setTimeout(() => setXpReward(null), prefersReducedMotion() ? 1 : XP_REWARD_MS);
+    return () => window.clearTimeout(timer);
+  }, [xpReward]);
 
   useEffect(() => {
     const peeked = peekPendingShelve();
@@ -136,6 +152,9 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
           dy: vh - sh / 2 - cy,
           slot: pendingShelve,
         });
+        // Le « +XP » démarre avec le vol et lui survit le temps de son animation.
+        const xpAmount = pendingShelve.xpGained ?? 0;
+        if (xpAmount > 0) setXpReward({ amount: xpAmount });
       }));
     };
 
@@ -248,6 +267,7 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
   return {
     pendingShelve,
     flight,
+    xpReward,
     cardRef,
     labelRef,
     isHidden: (name: string, sci?: string | null) => hiddenSlot && isTarget(name, sci),
