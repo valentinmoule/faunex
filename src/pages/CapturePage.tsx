@@ -16,7 +16,8 @@ import { useAnimalIdentification, type RejectionKind } from '@/hooks/useAnimalId
 import { useCaptureSave } from '@/hooks/useCaptureSave';
 import { useCaptureReveal } from '@/hooks/useCaptureReveal';
 import RevealStage from '@/components/capture/RevealStage';
-import SimilarSpeciesStrip from '@/components/capture/SimilarSpeciesStrip';
+import SimilarSpeciesStrip, { type SimilarSpecies } from '@/components/capture/SimilarSpeciesStrip';
+import { supabase } from '@/integrations/supabase/client';
 import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
 import RarityBadge from '@/components/RarityBadge';
 import HolographicCard from '@/components/HolographicCard';
