@@ -1331,6 +1331,15 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
           <strong>{shelveSpeciesName(pendingShelve.animalName)}</strong>
         </div>
       </div>}
+      {flight && (pendingShelve.xpGained ?? 0) > 0 && (
+        <div className="shelve-xp-reward" role="status" aria-live="polite">
+          <span className="shelve-xp-orb">XP</span>
+          <strong>+{pendingShelve.xpGained}</strong>
+          <span className="shelve-xp-spark shelve-xp-spark-one" />
+          <span className="shelve-xp-spark shelve-xp-spark-two" />
+          <span className="shelve-xp-spark shelve-xp-spark-three" />
+        </div>
+      )}
     </>,
     document.body,
   ) : null;

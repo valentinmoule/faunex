@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Camera, Zap, MapPin, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine, ZoomIn, Focus, Crosshair, ArrowLeft, Clock, Info, Sparkles, ShieldQuestion, Users, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
-import { setPendingShelve } from '@/lib/shelveAnimation';
+import { captureXpForRarity, setPendingShelve } from '@/lib/shelveAnimation';
 import { prepareSourceImage, prepareSourceFile } from '@/lib/imageProcessing';
 import { isHeicFile, readExifCameraInfo, exifDateToIso } from '@/lib/exif';
 import { IS_NATIVE_APP } from '@/lib/platform';
@@ -473,17 +473,17 @@ setManualMode(false);
     }, delay);
   };
 
-  const finishSave = (animal: AnimalResult, imageUrl: string, message?: string) => {
+  const finishSave = (animal: AnimalResult, imageUrl: string, xpGained: number) => {
     setSaved(true);
     setPreparingBestiary(true);
     setDuplicateCapture(null);
-    if (message) toast.success(message);
     setPendingShelve({
       animalName: animal.animal_name,
       scientificName: animal.scientific_name ?? null,
       category: animal.category,
       rarity: animal.rarity,
       imageUrl,
+      xpGained,
     });
     // Préchargement de la page et décodage de la photo pendant que le bouton
     // tourne : l'animation démarre ensuite sans aucun écran intermédiaire.
@@ -529,7 +529,7 @@ setManualMode(false);
         return;
       }
       consumed = false;
-      finishSave(animalResult, imageUrl);
+      finishSave(animalResult, imageUrl, captureXpForRarity(animalResult.rarity));
     } catch (err) {
       cancelPrepare();
       console.error(err);
@@ -577,7 +577,7 @@ setManualMode(false);
         return;
       }
       consumed = false;
-      finishSave(animalResult, imageUrl);
+      finishSave(animalResult, imageUrl, 0);
     } catch (err) {
       cancelPrepare();
       console.error(err);
