@@ -427,6 +427,10 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
         card={selectedCard}
         open={!!selectedCard}
         onClose={() => setSelectedCard(null)}
+        onDeleted={(captureId) => {
+          setCaptures((current) => current.filter((capture) => capture.id !== captureId));
+          setGroupItems((current) => current?.filter((capture) => capture.id !== captureId) || null);
+        }}
       />
     </main>
 

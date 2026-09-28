@@ -657,7 +657,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                 onTap={card.image ? openFullscreenImage : undefined}
                 subjectBox={card.subjectBox}
                 noHolo={isUncaptured}
-                className={`relative mx-auto max-w-[280px] aspect-[4/5] rounded-[1.75rem] transition-[transform,opacity,filter] duration-400 ease-in ${card.image ? 'cursor-pointer' : ''} ${deleteAnimating ? 'scale-[0.82] opacity-0 blur-sm translate-y-5' : ''}`}
+                className={`relative mx-auto max-w-[280px] aspect-[4/5] rounded-[1.75rem] transition-[transform,opacity,filter] duration-[400ms] ease-in ${card.image ? 'cursor-pointer' : ''} ${deleteAnimating ? 'scale-[0.82] opacity-0 blur-sm translate-y-5' : ''}`}
                 style={{ ['--holo-radius' as any]: '1.75rem' }}
 
               >
