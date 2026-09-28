@@ -249,7 +249,11 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
       if (!pendingShelve) return false;
       // Plusieurs espèces/races peuvent partager le même binôme : ne pas
       // masquer ni illuminer leurs cases voisines pendant le rangement.
-      return name.trim().toLocaleLowerCase('fr') === pendingShelve.animalName.trim().toLocaleLowerCase('fr');
+      const sameName = name.trim().toLocaleLowerCase('fr') === pendingShelve.animalName.trim().toLocaleLowerCase('fr');
+      if (!sameName) return false;
+      const expectedScientific = pendingShelve.scientificName?.trim().toLowerCase();
+      const candidateScientific = scientific?.trim().toLowerCase();
+      return !expectedScientific || !candidateScientific || expectedScientific === candidateScientific;
     },
     [pendingShelve],
   );

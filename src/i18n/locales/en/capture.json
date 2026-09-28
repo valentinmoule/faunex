@@ -36,6 +36,16 @@
       "premiumCapBody": "Your Premium plan gives you unlimited captures, but a safety cap of 200 identifications per 24 h protects the service. Try again a bit later.",
       "premiumCapToast": "Premium safety cap reached (200 identifications / 24 h). Try again a bit later."
     },
+    "actions": {
+      "preparingBestiary": "Preparing your Bestiary…",
+      "add": "Add",
+      "saving": "Adding…",
+      "dontAdd": "Don't add",
+      "newCapture": "New capture",
+      "sending": "Sending…",
+      "requestVerificationBtn": "Request verification",
+      "submitForValidation": "Submit for validation"
+    },
     "errors": {
       "cameraReset": "The camera is resetting, try again in a moment",
       "imageUnreadable": "This image could not be read. Try another photo (JPEG or PNG).",

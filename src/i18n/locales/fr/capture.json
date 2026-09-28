@@ -36,6 +36,16 @@
       "premiumCapBody": "Ton abonnement Premium te donne des captures illimitées, mais un plafond de sécurité de 200 identifications par 24 h protège le service. Réessaie un peu plus tard.",
       "premiumCapToast": "Plafond de sécurité Premium atteint (200 identifications / 24 h). Réessaie un peu plus tard."
     },
+    "actions": {
+      "preparingBestiary": "Préparation du Bestiaire…",
+      "add": "Ajouter",
+      "saving": "Ajout…",
+      "dontAdd": "Ne pas ajouter",
+      "newCapture": "Nouvelle capture",
+      "sending": "Envoi…",
+      "requestVerificationBtn": "Demander une vérification",
+      "submitForValidation": "Envoyer pour validation"
+    },
     "errors": {
       "cameraReset": "La caméra se réinitialise, réessaie dans un instant",
       "imageUnreadable": "Cette image n'a pas pu être lue. Réessaie avec une autre photo (JPEG ou PNG).",

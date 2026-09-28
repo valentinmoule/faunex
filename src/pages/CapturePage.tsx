@@ -48,6 +48,7 @@ const CapturePage = () => {
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
   const [animalResult, setAnimalResult] = useState<AnimalResult | null>(null);
   const [saved, setSaved] = useState(false);
+  const [preparingBestiary, setPreparingBestiary] = useState(false);
   /** Invitation Premium affichée après la dernière identification du jour. */
   const [premiumPrompt, setPremiumPrompt] = useState(false);
   /** Verrou synchrone contre les doubles taps sur « Ajouter ». */
@@ -505,6 +506,7 @@ setManualMode(false);
 
   const finishSave = (animal: AnimalResult, imageUrl: string, message?: string) => {
     setSaved(true);
+    setPreparingBestiary(true);
     setDuplicateCapture(null);
     if (message) toast.success(message);
     setPendingShelve({
@@ -609,6 +611,18 @@ setManualMode(false);
         className="hidden"
         onChange={importFromGallery}
       />
+
+      {preparingBestiary && createPortal(
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-background" role="status" aria-live="polite">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="font-display text-sm font-semibold text-foreground">
+              {t('capture.actions.preparingBestiary')}
+            </p>
+          </div>
+        </div>,
+        document.body,
+      )}
       
 
       
