@@ -221,13 +221,16 @@ const AppRoutes = () => {
         </PageTransition>
       </Suspense>
       {holding && createPortal(
-        <div className="shelve-flying-card shelve-holding-card" data-rarity={holding.rarity} aria-hidden>
-          {holding.imageUrl && <img src={holding.imageUrl} alt="" decoding="sync" />}
-          <div className="shelve-card-label">
-            <span>{t('bestiary.shelve.newDiscovery')}</span>
-            <strong>{speciesName(holding.animalName)}</strong>
+        <>
+          <div className="shelve-holding-backdrop" aria-hidden />
+          <div className="shelve-flying-card shelve-holding-card" data-rarity={holding.rarity} aria-hidden>
+            {holding.imageUrl && <img src={holding.imageUrl} alt="" decoding="sync" />}
+            <div className="shelve-card-label">
+              <span>{t('bestiary.shelve.newDiscovery')}</span>
+              <strong>{speciesName(holding.animalName)}</strong>
+            </div>
           </div>
-        </div>, document.body,
+        </>, document.body,
       )}
       {!isCapturePage && !isModerationPage && !isPremiumPage && !isPublicPage && <BottomNav />}
 

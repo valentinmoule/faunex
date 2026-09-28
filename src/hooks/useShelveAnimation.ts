@@ -208,7 +208,7 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
         );
         anims.push(fly);
         if (label) anims.push(label.animate([{ opacity: 1 }, { opacity: 1, offset: 0.45 }, { opacity: 0, offset: 0.62 }, { opacity: 0 }], { duration: reduced ? 1 : 900, fill: 'forwards' }));
-        if (backdrop) anims.push(backdrop.animate([{ opacity: 1 }, { opacity: 0 }], { duration: reduced ? 1 : 560, delay: reduced ? 0 : 420, fill: 'forwards', easing: 'ease-out' }));
+        if (backdrop) anims.push(backdrop.animate([{ opacity: 1 }, { opacity: 0 }], { duration: reduced ? 1 : 500, fill: 'forwards', easing: 'ease-out' }));
         await fly.finished;
         if (cancelled) return;
 
