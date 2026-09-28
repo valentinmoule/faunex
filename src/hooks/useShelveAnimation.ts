@@ -152,6 +152,9 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
           dy: vh - sh / 2 - cy,
           slot: pendingShelve,
         });
+        // Le « +XP » démarre avec le vol et lui survit le temps de son animation.
+        const xpAmount = pendingShelve.xpGained ?? 0;
+        if (xpAmount > 0) setXpReward({ amount: xpAmount });
       }));
     };
 
