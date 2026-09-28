@@ -29,7 +29,7 @@ vi.mock('react-i18next', async (importOriginal) => ({
 }));
 vi.mock('@/hooks/useFavorites', () => ({ useFavorites: () => ({ isFavorite: () => false, toggleFavorite: vi.fn() }) }));
 vi.mock('@/hooks/useSubscription', () => ({ useSubscription: () => ({ isPremium: false }) }));
-vi.mock('@/hooks/useCustomCollections', () => ({ useCustomCollections: () => ({ collections: [] }) }));
+vi.mock('@/hooks/useCustomCollections', () => ({ useCustomCollections: () => ({ collections: [], collectionsForSpecies: () => new Set() }) }));
 vi.mock('@/hooks/useSpeciesFinders', () => ({ useSpeciesFinders: () => undefined }));
 vi.mock('@/lib/haptics', () => ({ hapticTap: vi.fn(), hapticDiscovery: vi.fn() }));
 vi.mock('@/hooks/useAppLocale', () => ({ useSyncAccountLocale: () => undefined }));
