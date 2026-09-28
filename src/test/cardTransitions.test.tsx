@@ -22,7 +22,10 @@ vi.mock('@/hooks/useSpeciesLocale', () => ({
   useSpeciesName: () => ({ speciesName: (name: string) => name }),
   useSpeciesFacts: () => ({}),
 }));
-vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'fr' } }) }));
+vi.mock('react-i18next', async (importOriginal) => ({
+  ...await importOriginal<typeof import('react-i18next')>(),
+  useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'fr' } }),
+}));
 vi.mock('@/hooks/useFavorites', () => ({ useFavorites: () => ({ isFavorite: () => false, toggleFavorite: vi.fn() }) }));
 vi.mock('@/hooks/useSubscription', () => ({ useSubscription: () => ({ isPremium: false }) }));
 vi.mock('@/hooks/useCustomCollections', () => ({ useCustomCollections: () => ({ collections: [] }) }));
