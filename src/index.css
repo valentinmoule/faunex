@@ -1895,7 +1895,7 @@
   z-index: 9999;
   pointer-events: none;
 }
-.shelve-holding-card {
+.shelve-flying-card.shelve-holding-card {
   left: 50%;
   top: 50%;
   width: min(112px, 28vw);
