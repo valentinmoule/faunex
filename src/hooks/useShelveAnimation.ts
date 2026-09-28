@@ -197,28 +197,19 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
         await fly.finished;
         if (cancelled) return;
 
-        // Atterrissage : la vraie carte réapparaît sous la volante, puis flash.
+        // Atterrissage : la vraie carte, déjà peinte avec la photo optimiste,
+        // remplace la volante dans la même frame pour éviter tout trou visuel.
         hapticDiscovery();
         const landed = resolveSlot(flight.slot) || slotEl.current;
         if (slotEl.current) slotEl.current.style.visibility = '';
         if (landed) {
           landed.style.visibility = '';
-          // La volante reste en place tant que la photo de la vraie case n'est pas peinte.
-          const imgs = Array.from(landed.querySelectorAll('img'));
-          imgs.forEach((i) => { i.loading = 'eager'; });
-          await Promise.race([
-            Promise.all(imgs.map((i) =>
-              i.complete && i.naturalWidth > 0
-                ? Promise.resolve()
-                : (typeof i.decode === 'function' ? i.decode().catch(() => undefined) : new Promise((r) => { i.onload = i.onerror = () => r(undefined); })),
-            )),
-            new Promise((r) => window.setTimeout(r, 900)),
-          ]);
-          if (cancelled) return;
           landed.classList.add('shelve-slot-flash');
           window.setTimeout(() => landed.classList.remove('shelve-slot-flash'), 800);
         }
-        const out = card.animate([{ opacity: 1 }, { opacity: 0 }], { duration: reduced ? 1 : 160, easing: 'ease-out', fill: 'forwards' });
+        await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+        if (cancelled) return;
+        const out = card.animate([{ opacity: 1 }, { opacity: 0 }], { duration: reduced ? 1 : 90, easing: 'linear', fill: 'forwards' });
         anims.push(out);
         await out.finished;
         if (cancelled) return;

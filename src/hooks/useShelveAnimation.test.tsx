@@ -45,6 +45,10 @@ describe('Placement de la carte rangée', () => {
     await act(async () => { completeFlight?.(); await flyFinished; });
     await waitFor(() => expect(slot.style.visibility).toBe(''));
     expect(slot).toHaveClass('shelve-slot-flash');
+    expect(animate).toHaveBeenCalledWith(
+      [{ opacity: 1 }, { opacity: 0 }],
+      expect.objectContaining({ duration: 90 }),
+    );
     await waitFor(() => expect(document.querySelector('.shelve-flying-card')).not.toBeInTheDocument());
     view.unmount();
     slot.remove();
