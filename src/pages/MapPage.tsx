@@ -50,17 +50,18 @@ const RARITY_COLORS: Record<string, string> = {
   hyper_rare: 'hsl(24 98% 50%)',
 };
 
-// Cadre de la vignette = cadre de la carte (même dégradé, même famille de rareté)
+// Cadre de la vignette = teinte du cadre de carte de cette rareté
 const RARITY_FRAMES: Record<string, string> = {
-  common: 'var(--rarity-frame-neutral)',
-  uncommon: 'var(--rarity-frame-neutral)',
-  rare: 'var(--rarity-frame-neutral)',
-  very_rare: 'var(--rarity-frame-gold)',
-  ultra_rare: 'var(--rarity-frame-gold)',
-  illustration_rare: 'var(--rarity-frame-gold)',
+  common: 'var(--pin-frame-neutral)',
+  uncommon: 'var(--pin-frame-neutral)',
+  rare: 'var(--pin-frame-neutral)',
+  very_rare: 'var(--pin-frame-gold)',
+  ultra_rare: 'var(--pin-frame-gold)',
+  illustration_rare: 'var(--pin-frame-gold)',
   special_rare: 'var(--rarity-frame-mythic)',
   hyper_rare: 'var(--rarity-frame-legendary)',
 };
+
 
 
 

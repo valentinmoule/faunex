@@ -77,6 +77,12 @@
     --rarity-frame-iridescent: linear-gradient(135deg, hsl(265 90% 55%) 0%, hsl(320 95% 62%) 12%, hsl(190 100% 55%) 24%, hsl(255 95% 70%) 34%, hsl(300 95% 60%) 47%, hsl(170 95% 48%) 61%, hsl(275 90% 58%) 75%, hsl(45 100% 60%) 85%, hsl(330 95% 60%) 93%, hsl(200 100% 60%) 100%);
     --rarity-frame-mythic: linear-gradient(135deg, hsl(285 84% 48%) 0%, hsl(315 95% 66%) 18%, hsl(190 94% 72%) 37%, hsl(265 90% 60%) 54%, hsl(320 92% 65%) 72%, hsl(185 95% 65%) 88%, hsl(285 84% 48%) 100%);
     --rarity-frame-legendary: linear-gradient(135deg, hsl(42 100% 47%) 0%, hsl(52 100% 82%) 13%, hsl(185 100% 56%) 27%, hsl(222 97% 52%) 42%, hsl(305 95% 57%) 59%, hsl(47 100% 70%) 74%, hsl(175 100% 52%) 88%, hsl(42 100% 47%) 100%);
+    /* Contour des vignettes de carte : mêmes teintes que les cadres de carte,
+       mais en un seul reflet lisse (les reflets multiples des cartes se lisaient
+       comme un double liseré sur une bague fine). */
+    --pin-frame-neutral: linear-gradient(135deg, hsl(220 9% 58%) 0%, hsl(215 14% 90%) 48%, hsl(220 9% 50%) 100%);
+    --pin-frame-gold: linear-gradient(135deg, hsl(38 78% 44%) 0%, hsl(48 96% 80%) 48%, hsl(36 82% 40%) 100%);
+
     --rarity-mythic-glow: 305 90% 63%;
     --rarity-legendary-glow: 43 100% 59%;
     /* Métal des labels de rareté : mêmes reflets que les cadres, teintes
