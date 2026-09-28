@@ -50,6 +50,20 @@ const RARITY_COLORS: Record<string, string> = {
   hyper_rare: 'hsl(24 98% 50%)',
 };
 
+// Cadre de la vignette = teinte du cadre de carte de cette rareté
+const RARITY_FRAMES: Record<string, string> = {
+  common: 'var(--pin-frame-neutral)',
+  uncommon: 'var(--pin-frame-neutral)',
+  rare: 'var(--pin-frame-neutral)',
+  very_rare: 'var(--pin-frame-gold)',
+  ultra_rare: 'var(--pin-frame-gold)',
+  illustration_rare: 'var(--pin-frame-gold)',
+  special_rare: 'var(--rarity-frame-mythic)',
+  hyper_rare: 'var(--rarity-frame-legendary)',
+};
+
+
+
 
 const getCategoryIcon = (category: string): ComponentType<{ className?: string; strokeWidth?: string | number; color?: string }> => {
   const cat = category.toLowerCase();
@@ -70,27 +84,29 @@ const RARITY_ORDER_LOCAL = RARITY_ORDER;
 
 const buildIcon = (rarity: string, category: string, count = 1, imageUrl?: string | null) => {
   const color = RARITY_COLORS[rarity] || RARITY_COLORS.common;
+  const frame = RARITY_FRAMES[rarity] || RARITY_FRAMES.common;
   const CatIcon = getCategoryIcon(category);
   const iconSvg = renderToStaticMarkup(
     <CatIcon color={color} strokeWidth={2.2} />
   );
   const photo = imageUrl
-    ? `<img class="faunex-pin-photo" src="${thumbUrl(imageUrl, 128, 70)}" alt="" width="36" height="36" draggable="false" />`
+    ? `<img class="faunex-pin-photo" src="${thumbUrl(imageUrl, 160, 72)}" alt="" width="42" height="42" draggable="false" />`
     : `<span class="faunex-pin-icon">${iconSvg}</span>`;
   return L.divIcon({
     className: 'faunex-pin',
     html: `
-      <div class="faunex-pin-outer" style="--pin-color:${color}">
+      <div class="faunex-pin-outer" style="--pin-color:${color};--pin-frame:${frame}">
         <div class="faunex-pin-inner">
           ${photo}
         </div>
         ${count > 1 ? `<span class="faunex-pin-count">${count > 99 ? '99+' : count}</span>` : ''}
       </div>
     `,
-    iconSize: [46, 46],
-    iconAnchor: [23, 23],
+    iconSize: [54, 54],
+    iconAnchor: [27, 27],
   });
 };
+
 
 
 const RecenterOnUser = ({ position }: { position: [number, number] | null }) => {
@@ -223,7 +239,7 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
           // mètres par pixel à ce zoom, puis conversion en degrés
           const mPerPx = (156543.03392 * Math.cos(latRad)) / Math.pow(2, zoom);
           const degPerPx = mPerPx / 111320;
-          const PIN = 44; // taille du pin + marge, en px
+          const PIN = 52; // taille du pin + marge, en px
 
           // répartition en anneaux : 8 pins max sur le 1er, puis de plus en plus
           const rings: CaptureMarker[][] = [];
