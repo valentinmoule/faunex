@@ -353,7 +353,7 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
                   />
                   {isAdmin && (
                     <DrawerRow
-                      icon={<ShieldCheck className="size-4 text-amber" />}
+                      icon={<ShieldCheck className="size-[18px] text-amber" />}
                       label={t('profile.page.moderation.title')}
                       onClick={() => go('/moderation')}
                       badge={pendingCount}
