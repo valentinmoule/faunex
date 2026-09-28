@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Camera, ChevronRight, Crown, Loader2, Search, Settings, Share2, ShieldCheck, UserRound } from 'lucide-react';
+import { Camera, ChevronRight, Crown, Loader2, Search, Settings, Share2, ShieldCheck, Star, UserRound } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,7 @@ import ProfileBadgesRow from '@/components/ProfileBadgesRow';
 import { useBadges } from '@/hooks/useBadges';
 import { shareContent } from '@/lib/share';
 import { shareOrigin } from '@/lib/authRedirect';
+import { openStoreListing } from '@/lib/store';
 
 interface DrawerProfile {
   display_name: string | null;
@@ -329,6 +330,11 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
                     icon={<Search className="size-4" />}
                     label={t('profile.page.drawer.findExplorers')}
                     onClick={() => go('/explorers?view=search')}
+                  />
+                  <DrawerRow
+                    icon={<Star className="size-4 text-amber" />}
+                    label={t('profile.page.drawer.rate')}
+                    onClick={() => { void openStoreListing(); }}
                   />
                   <DrawerRow
                     icon={<Settings className="size-4" />}
