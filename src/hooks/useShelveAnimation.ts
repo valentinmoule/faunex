@@ -79,6 +79,14 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
     if (flight && cardRef.current) window.dispatchEvent(new Event('faunex:shelve-flight'));
   }, [flight]);
 
+  // Le compteur d'XP a sa propre durée de vie : il reste affiché après
+  // l'atterrissage de la carte, le temps de jouer tout son fondu.
+  useEffect(() => {
+    if (!xpReward) return;
+    const timer = window.setTimeout(() => setXpReward(null), prefersReducedMotion() ? 1 : XP_REWARD_MS);
+    return () => window.clearTimeout(timer);
+  }, [xpReward]);
+
   useEffect(() => {
     const peeked = peekPendingShelve();
     if (peeked) { setShelveRunning(true); setPendingShelve(peeked); }
