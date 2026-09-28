@@ -403,7 +403,6 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
             </SheetTitle>
           </SheetHeader>
           {content}
-          {myPositionBar}
         </SheetContent>
       </Sheet>
     </>
