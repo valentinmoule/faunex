@@ -132,8 +132,9 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
         slotEl.current = live;
         setFlight({
           style: { left: cx - sw / 2, top: cy - sh / 2, width: sw, height: sh },
+          // Départ en bas au centre (là où était l'écran de capture).
           dx: vw / 2 - cx,
-          dy: vh / 2 - cy,
+          dy: vh - sh / 2 - cy,
           slot: pendingShelve,
         });
       }));
@@ -183,40 +184,21 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
 
     const run = async () => {
       try {
-        // Un seul trajet, sur le Bestiaire révélé dès le départ.
+        // Un seul trajet direct, une seule courbe : la carte file vers sa case.
         const end = destination();
         if (!end) throw new Error('Shelve slot disappeared');
-        // Geste « classeur » : petite carte directement vers sa pochette.
-        const preX = end.x;
-        const preY = end.y - Math.max(14, 22 * end.sy);
-        const soft = 'cubic-bezier(0.22, 1, 0.36, 1)';
         const fly = card.animate(
           [
-            { transform: at(dx, dy, 1, 1, 0), opacity: 1, easing: 'ease-in-out' },
-            { transform: at(dx * 0.45, dy * 0.45, end.sx * 1.04, end.sy * 1.04, 0), opacity: 1, offset: 0.45, easing: soft },
-            { transform: at(preX, preY, end.sx * 1.06, end.sy * 1.06, 2), opacity: 1, offset: 0.86, easing: 'cubic-bezier(0.5, 0, 0.75, 0)' },
+            { transform: at(dx, dy, 1, 1, 0), opacity: 1 },
             { transform: at(end.x, end.y, end.sx, end.sy, 0), opacity: 1 },
           ],
-          { duration: reduced ? 1 : 650, easing: 'linear', fill: 'forwards' },
+          { duration: reduced ? 1 : 480, easing: 'cubic-bezier(0.25, 0.8, 0.3, 1)', fill: 'forwards' },
         );
         anims.push(fly);
-        if (label) anims.push(label.animate([{ opacity: 0 }, { opacity: 0 }], { duration: reduced ? 1 : 650, fill: 'forwards' }));
-        if (backdrop) anims.push(backdrop.animate([{ opacity: 1 }, { opacity: 0 }], { duration: reduced ? 1 : 120, fill: 'forwards', easing: 'ease-out' }));
+        if (label) anims.push(label.animate([{ opacity: 0 }, { opacity: 0 }], { duration: reduced ? 1 : 480, fill: 'forwards' }));
+        if (backdrop) anims.push(backdrop.animate([{ opacity: 1 }, { opacity: 1 }], { duration: reduced ? 1 : 480, fill: 'forwards' }));
         await fly.finished;
         if (cancelled) return;
-
-        // Si la grille a bougé pendant le vol, ajuster les derniers pixels AVANT
-        // de rendre la carte réelle visible, sans saut à l'atterrissage.
-        const landing = destination();
-        if (landing && (Math.abs(landing.x - end.x) > 0.5 || Math.abs(landing.y - end.y) > 0.5 || Math.abs(landing.sx - end.sx) > 0.005 || Math.abs(landing.sy - end.sy) > 0.005)) {
-          const settle = card.animate(
-            [{ transform: at(end.x, end.y, end.sx, end.sy, 0) }, { transform: at(landing.x, landing.y, landing.sx, landing.sy, 0) }],
-            { duration: reduced ? 1 : 80, easing: 'ease-out', fill: 'forwards' },
-          );
-          anims.push(settle);
-          await settle.finished;
-          if (cancelled) return;
-        }
 
         // Atterrissage : la vraie carte réapparaît sous la volante, puis flash.
         hapticDiscovery();
@@ -227,7 +209,7 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
           landed.classList.add('shelve-slot-flash');
           window.setTimeout(() => landed.classList.remove('shelve-slot-flash'), 800);
         }
-        const out = card.animate([{ opacity: 1 }, { opacity: 0 }], { duration: reduced ? 1 : 100, fill: 'forwards' });
+        const out = card.animate([{ opacity: 1 }, { opacity: 0 }], { duration: reduced ? 1 : 90, fill: 'forwards' });
         anims.push(out);
         await out.finished;
         if (cancelled) return;
