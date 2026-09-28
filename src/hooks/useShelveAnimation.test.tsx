@@ -23,7 +23,7 @@ describe('Placement de la carte rangée', () => {
     let completeFlight: (() => void) | undefined;
     const flyFinished = new Promise<void>((resolve) => { completeFlight = resolve; });
     const animate = vi.fn(function (this: Element, _frames: Keyframe[], options: KeyframeAnimationOptions) {
-      const isFlight = this.classList.contains('shelve-flying-card') && options.duration === 900;
+      const isFlight = this.classList.contains('shelve-flying-card') && options.duration === 650;
       return { finished: isFlight ? flyFinished : Promise.resolve(), cancel: vi.fn() } as unknown as Animation;
     });
     vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => window.setTimeout(() => callback(performance.now()), 0));

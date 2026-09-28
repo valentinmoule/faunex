@@ -123,8 +123,8 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
         const to = live.getBoundingClientRect();
         const vw = window.innerWidth;
         const vh = window.innerHeight;
-        const sw = Math.min(240, vw * 0.6);
-        const sh = sw * 1.25; // même format que la carte d'attente (4/5)
+        const sw = Math.min(112, vw * 0.28);
+        const sh = sw * 1.25; // petite carte qui file directement dans sa case
         const cx = to.left + to.width / 2;
         const cy = to.top + to.height / 2;
         // Masquage direct dans le DOM : pas de re-rendu de toute la grille.
@@ -183,32 +183,25 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
 
     const run = async () => {
       try {
-        if (backdrop) {
-          // Le voile est déjà visible (posé dès l'arrivée) : on le maintient.
-          anims.push(backdrop.animate([{ opacity: 1 }, { opacity: 1 }], { duration: 1, fill: 'forwards' }));
-        }
-        // Un seul mouvement continu : moins de couches et aucune pause entre
-        // l'apparition et le rangement, pour rester fluide sur mobile.
+        // Un seul trajet, sur le Bestiaire révélé dès le départ.
         const end = destination();
         if (!end) throw new Error('Shelve slot disappeared');
-        // Geste « classeur » : la carte apparaît au centre, se présente, puis
-        // glisse dans sa pochette en arrivant légèrement par le haut.
+        // Geste « classeur » : petite carte directement vers sa pochette.
         const preX = end.x;
         const preY = end.y - Math.max(14, 22 * end.sy);
         const soft = 'cubic-bezier(0.22, 1, 0.36, 1)';
         const fly = card.animate(
           [
-            // Départ exactement où la carte d'attente était affichée : aucun saut.
             { transform: at(dx, dy, 1, 1, 0), opacity: 1, easing: 'ease-in-out' },
-            { transform: at(dx, dy - 4, 1.01, 1.01, 0), opacity: 1, offset: 0.2, easing: soft },
+            { transform: at(dx * 0.45, dy * 0.45, end.sx * 1.04, end.sy * 1.04, 0), opacity: 1, offset: 0.45, easing: soft },
             { transform: at(preX, preY, end.sx * 1.06, end.sy * 1.06, 2), opacity: 1, offset: 0.86, easing: 'cubic-bezier(0.5, 0, 0.75, 0)' },
             { transform: at(end.x, end.y, end.sx, end.sy, 0), opacity: 1 },
           ],
-          { duration: reduced ? 1 : 900, easing: 'linear', fill: 'forwards' },
+          { duration: reduced ? 1 : 650, easing: 'linear', fill: 'forwards' },
         );
         anims.push(fly);
-        if (label) anims.push(label.animate([{ opacity: 1 }, { opacity: 1, offset: 0.45 }, { opacity: 0, offset: 0.62 }, { opacity: 0 }], { duration: reduced ? 1 : 900, fill: 'forwards' }));
-        if (backdrop) anims.push(backdrop.animate([{ opacity: 1 }, { opacity: 0 }], { duration: reduced ? 1 : 500, fill: 'forwards', easing: 'ease-out' }));
+        if (label) anims.push(label.animate([{ opacity: 0 }, { opacity: 0 }], { duration: reduced ? 1 : 650, fill: 'forwards' }));
+        if (backdrop) anims.push(backdrop.animate([{ opacity: 1 }, { opacity: 0 }], { duration: reduced ? 1 : 120, fill: 'forwards', easing: 'ease-out' }));
         await fly.finished;
         if (cancelled) return;
 
@@ -239,10 +232,9 @@ export const useShelveAnimation = ({ loading, ready = true, onPrepare, resolveSl
         await out.finished;
         if (cancelled) return;
         setFlight(null);
-        setTimeout(() => {
-          setShelveRunning(false);
-          setPendingShelve(null);
-        }, 620);
+        setPendingShelve(null);
+        // Laisser le flash de la case démarrer avant la montée de niveau.
+        window.setTimeout(() => setShelveRunning(false), reduced ? 1 : 350);
       } catch {
         // Animation annulée (démontage) : on nettoie.
         if (slotEl.current) slotEl.current.style.visibility = '';

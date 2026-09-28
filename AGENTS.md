@@ -26,6 +26,6 @@ Match both common and scientific names before falling back to either, measure th
 
 Compute rank movement server-side from captures before `now() - 24 hours`, preserving the active scope, period, and animal category so arrows always compare like with like.
 
-## Keep the shelving card above route changes
+## Shelving transition stays on the Bestiary surface
 
-Render the waiting card from the shared app shell and switch to the Bestiary flight only when its destination is ready, because route loading and entrance transitions otherwise expose a blank frame.
+Show only the short flight into the actual tile once the Bestiary is ready; avoid a fullscreen dark veil or enlarged waiting photo, since they obscure the destination and flash black after landing.
