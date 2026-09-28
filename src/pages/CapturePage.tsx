@@ -912,7 +912,7 @@ setManualMode(false);
               {/* Doublon : l'espèce est déjà dans le Faunex — comparatif des photos
                   (cliquables pour les voir en grand). Les boutons sont dans le pied fixe. */}
               {duplicateCapture && (
-                <div className="space-y-3 pt-1">
+                <div ref={duplicateRef} className="space-y-3 pt-1 scroll-mt-6">
                   <p className="text-foreground font-display font-semibold text-sm text-center">
                     {t('capture.duplicate.warning', { name: duplicateCapture.animal_name })}
                   </p>
