@@ -587,19 +587,24 @@ setManualMode(false);
     if (!animalResult || !duplicateCapture) return;
     if (savingRef.current) return;
     savingRef.current = true;
+    setPreparingBestiary(true);
+    void import('./BestiairePage');
+    const cancelPrepare = () => setPreparingBestiary(false);
     let consumed = false;
     try {
-      if (!(await consumeSlot())) return;
+      if (!(await consumeSlot())) { cancelPrepare(); return; }
       consumed = true;
       const imageUrl = await replaceCapture(animalResult, duplicateCapture.id);
       if (!imageUrl) {
         await quota.refund();
         consumed = false;
+        cancelPrepare();
         return;
       }
       consumed = false;
       finishSave(animalResult, imageUrl, t('capture.toasts.updatedInFaunex', { name: animalResult.animal_name }));
     } catch (err) {
+      cancelPrepare();
       console.error(err);
       if (consumed) await quota.refund();
       toast.error(t('capture.errors.updateError'));
