@@ -20,4 +20,22 @@ registerAppSW();
 setupNativeStatusBar();
 setupAuthDeepLinks();
 
+// Préchargement en tâche de fond des onglets principaux : la navigation
+// entre pages devient instantanée, sans alourdir le premier affichage.
+const prefetchTabs = () => {
+  const conn = (navigator as any).connection;
+  if (conn?.saveData || /2g/.test(conn?.effectiveType || "")) return;
+  [
+    () => import("./pages/BestiairePage"),
+    () => import("./pages/CollectionPage"),
+    () => import("./pages/ExplorersPage"),
+    () => import("./pages/CapturePage"),
+    () => import("./pages/NotificationsPage"),
+  ].forEach((load, i) => setTimeout(() => load().catch(() => {}), i * 400));
+};
+window.addEventListener("load", () => {
+  const idle = (window as any).requestIdleCallback || ((cb: () => void) => setTimeout(cb, 2000));
+  idle(prefetchTabs, { timeout: 4000 });
+});
+
 
