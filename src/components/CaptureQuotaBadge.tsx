@@ -1,4 +1,4 @@
-import { Camera, Crown, Infinity, Plus } from 'lucide-react';
+import { Camera, Crown, Infinity as InfinityIcon, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -22,7 +22,7 @@ const CaptureQuotaBadge = ({ userId, isPremium }: CaptureQuotaBadgeProps) => {
       <div className="flex min-w-[58px] items-center justify-center gap-1.5 px-2.5 text-primary">
         <Camera className="h-4 w-4" strokeWidth={2.25} />
         {isPremium ? (
-          <Infinity className="h-5 w-5" strokeWidth={2.5} aria-hidden="true" />
+          <InfinityIcon className="h-5 w-5" strokeWidth={2.5} aria-hidden="true" />
         ) : (
           <span className="text-sm font-display font-bold tabular-nums">
             {remaining === null ? '—' : remaining}

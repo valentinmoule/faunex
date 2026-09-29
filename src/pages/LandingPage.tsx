@@ -163,8 +163,7 @@ const LandingPage = () => {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const handleCta = (location: string) => {
-    console.log('[landing-cta]', location);
+  const handleCta = () => {
     navigate('/auth?mode=signup');
   };
 
