@@ -220,11 +220,21 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
   }, [imageFullscreen]);
 
 
+  // Close sub-sheets when the detail sheet closes, so they never linger
+  // over the next opened card.
+  useEffect(() => {
+    if (open) return;
+    setAddToOpen(false);
+    setShareOpen(false);
+  }, [open]);
+
   // Reset transient UI state when a new card opens
   useEffect(() => {
     if (!card || !open) return;
     hapticTap();
     setShowComments(false);
+    setAddToOpen(false);
+    setShareOpen(false);
     setNewComment('');
     setImageFullscreen(false);
     setComments([]);
