@@ -415,7 +415,7 @@ setManualMode(false);
     // soumission d'un animal non reconnu) consomme un slot quotidien : elle
     // aboutit à une capture ajoutée au Faunex après validation.
     if (!(await consumeSlot())) return;
-    let consumed = true;
+    const consumed = true;
     try {
       // Le modérateur doit voir ce que l'IA proposait pour arbitrer.
       const aiNote = disputedResult

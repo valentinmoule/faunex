@@ -163,8 +163,7 @@ const LandingPage = () => {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const handleCta = (location: string) => {
-    console.log('[landing-cta]', location);
+  const handleCta = () => {
     navigate('/auth?mode=signup');
   };
 
@@ -593,7 +592,7 @@ const LandingPage = () => {
               size="lg"
               variant="secondary"
               className="font-display font-bold gap-2 text-base px-7 py-6 rounded-2xl bg-background text-primary hover:bg-background/90 hover:scale-[1.02] transition-transform w-full"
-              onClick={() => handleCta('final')}
+              onClick={handleCta}
             >
               {t('marketing.landing.finalCta.cta')} <ChevronRight className="w-5 h-5" />
             </Button>
@@ -652,7 +651,7 @@ const LandingPage = () => {
         <Button
           size="lg"
           className="w-full font-display font-bold gap-2 text-base py-6 rounded-2xl shadow-[0_8px_24px_-8px_hsla(150,55%,30%,0.6)]"
-          onClick={() => handleCta('sticky')}
+          onClick={handleCta}
         >
           {t('marketing.landing.stickyCta')} <ChevronRight className="w-5 h-5" />
         </Button>
