@@ -363,7 +363,7 @@ const ExplorersPage = () => {
     if (!session?.user) return;
     const uid = session.user.id;
     const liked = likedPosts.has(captureId);
-    setLikedPosts(prev => { const n = new Set(prev); liked ? n.delete(captureId) : n.add(captureId); return n; });
+    setLikedPosts(prev => { const n = new Set(prev); if (liked) { n.delete(captureId); } else { n.add(captureId); } return n; });
     setLikeCounts(prev => ({ ...prev, [captureId]: (prev[captureId] || 0) + (liked ? -1 : 1) }));
     if (liked) await supabase.from('feed_likes').delete().eq('user_id', uid).eq('capture_id', captureId);
     else {

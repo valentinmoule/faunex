@@ -241,7 +241,7 @@ export const buildShareImage = async (card: AnimalCard): Promise<Blob> => {
   ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = '#ffffff';
   ctx.font = '800 74px Sora, system-ui, sans-serif';
-  let nameY = py + ph - 148;
+  const nameY = py + ph - 148;
   const name = card.name || '';
   if (ctx.measureText(name).width > pw - 100) {
     ctx.font = '800 56px Sora, system-ui, sans-serif';
