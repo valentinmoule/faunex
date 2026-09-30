@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react';
+import { type ReactNode, useRef } from 'react';
 import {
   SlidersHorizontal,
   Check,
@@ -248,9 +248,57 @@ export const SpeciesSortFilterSheet = ({
   confirmLabel,
 }: SpeciesSortFilterSheetProps) => {
   const { t } = useTranslation();
+  // Swipe vers le bas pour fermer : actif seulement quand la liste est en haut.
+  const contentRef = useRef<HTMLDivElement | null>(null);
+  const drag = useRef<{ startY: number; active: boolean }>({ startY: 0, active: false });
+
+  const onTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    const el = contentRef.current;
+    drag.current = { startY: e.touches[0].clientY, active: !!el && el.scrollTop <= 0 };
+  };
+  const onTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!drag.current.active) return;
+    const el = contentRef.current;
+    if (!el) return;
+    const delta = e.touches[0].clientY - drag.current.startY;
+    if (delta <= 0) {
+      el.style.transform = '';
+      return;
+    }
+    el.style.transition = 'none';
+    el.style.transform = `translateY(${delta}px)`;
+  };
+  const onTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!drag.current.active) return;
+    drag.current.active = false;
+    const el = contentRef.current;
+    if (!el) return;
+    const delta = e.changedTouches[0].clientY - drag.current.startY;
+    if (delta > 90) {
+      el.style.transform = '';
+      el.style.transition = '';
+      onOpenChange(false);
+      return;
+    }
+    el.style.transition = 'transform 200ms ease-out';
+    el.style.transform = 'translateY(0)';
+    window.setTimeout(() => {
+      el.style.transform = '';
+      el.style.transition = '';
+    }, 220);
+  };
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-3xl px-5 pb-8">
+      <SheetContent
+        ref={contentRef}
+        side="bottom"
+        className="max-h-[85vh] overflow-y-auto rounded-t-3xl px-5 pb-8"
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+        onTouchCancel={onTouchEnd}
+      >
         <SheetHeader className="text-left">
           <SheetTitle className="font-display text-base flex items-center gap-2">
             <SlidersHorizontal className="w-4 h-4 text-primary" />
