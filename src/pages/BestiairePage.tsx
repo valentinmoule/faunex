@@ -2,9 +2,10 @@ import { createPortal } from 'react-dom';
 import { useState, useMemo, useCallback, useEffect, useRef, memo } from 'react';
 import { PageHeader } from '@/components/PageHeader';
 import { CollectionHero } from '@/components/CollectionHero';
+import { OverflowMenu } from '@/components/OverflowMenu';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { ArrowLeft, Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, Check, Images, Trophy, Users, Lock, FolderPlus } from 'lucide-react';
+import { ArrowLeft, Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, Check, Images, Trophy, Users, Lock, FolderPlus, Pencil } from 'lucide-react';
 import {
   POPULARITY_LABELS,
   SpeciesCategoryIcon,
