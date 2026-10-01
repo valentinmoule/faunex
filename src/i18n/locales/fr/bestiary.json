@@ -238,6 +238,7 @@
       "emptyHint2": "Tu peux ajouter une espèce même si tu ne l'as pas encore capturée : elle apparaît alors comme une case à compléter.",
       "goFaunex": "Aller à mon faunex",
       "rename": "Renommer",
+      "actions": "Plus d’actions",
       "delete": "Supprimer la collection",
       "deleteConfirm": "Supprimer cette collection ? Les espèces qu’elle contient seront retirées.",
       "cancel": "Annuler",
