@@ -42,6 +42,7 @@ rarityTileBorder,
   type ZoneSub,
 } from '@/lib/bestiary';
 import { getCollectionArt, getZoneArt } from '@/lib/collectionArt';
+import { hapticTap } from '@/lib/haptics';
 
 import { MIN_BREEDS_PER_GROUP, BREED_GROUPS, getBreedGroup, getSpeciesGroup, type BreedGroup } from '@/lib/breedGroups';
 import { useBestiaryData } from '@/hooks/useBestiaryData';
@@ -1510,9 +1511,30 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
             </button>
           )}
           {items.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-10">
-              {t('bestiary.customCollections.empty')}
-            </p>
+            <div className="max-w-sm mx-auto pt-8 pb-4 text-center">
+              <FolderPlus className="w-7 h-7 text-primary mx-auto" aria-hidden="true" />
+              <h2 className="mt-3 font-display font-bold text-[1.05rem] text-foreground leading-tight">
+                {t('bestiary.customCollections.empty')}
+              </h2>
+              <p className="mt-2 text-[0.9rem] font-body text-foreground/80 leading-relaxed">
+                {t('bestiary.customCollections.emptyHint', { name: selectedCustom.name })}
+              </p>
+              <p className="mt-1.5 text-xs font-body text-muted-foreground leading-relaxed">
+                {t('bestiary.customCollections.emptyHint2')}
+              </p>
+              <button
+                onClick={() => {
+                  hapticTap();
+                  setSelectedCustomId(null);
+                  setRenamingCustom(false);
+                  navigate('/home');
+                }}
+                className="mt-6 w-full inline-flex items-center justify-center gap-2 px-4 py-4 rounded-full bg-primary text-primary-foreground font-display font-semibold text-[0.9rem] leading-none shadow-lg shadow-primary/25 active:scale-[0.98] transition-all duration-300"
+              >
+                <PawPrint className="w-[1.05rem] h-[1.05rem] shrink-0" aria-hidden="true" />
+                <span className="whitespace-nowrap">{t('bestiary.customCollections.goFaunex')}</span>
+              </button>
+            </div>
           ) : (
             <div className="grid grid-cols-3 gap-2">
               {customCollectionAnimals.map((animal) => (
