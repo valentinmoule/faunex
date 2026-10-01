@@ -2,9 +2,10 @@ import { createPortal } from 'react-dom';
 import { useState, useMemo, useCallback, useEffect, useRef, memo } from 'react';
 import { PageHeader } from '@/components/PageHeader';
 import { CollectionHero } from '@/components/CollectionHero';
+import { OverflowMenu } from '@/components/OverflowMenu';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { ArrowLeft, Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, Check, Images, Trophy, Users, Lock, FolderPlus } from 'lucide-react';
+import { ArrowLeft, Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, Check, Images, Trophy, Users, Lock, FolderPlus, Pencil } from 'lucide-react';
 import {
   POPULARITY_LABELS,
   SpeciesCategoryIcon,
@@ -1470,16 +1471,37 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
           captured={capturedCount}
           total={items.length}
           onBack={() => { setSelectedCustomId(null); setRenamingCustom(false); }}
-          onRemove={() => {
-            if (window.confirm(t('bestiary.customCollections.deleteConfirm'))) {
-              customCollections.deleteCollection(selectedCustom.id);
-              setSelectedCustomId(null);
-            }
-          }}
-          removeLabel={t('bestiary.customCollections.delete')}
+          actions={
+            <OverflowMenu
+              label={t('bestiary.customCollections.actions')}
+              items={[
+                {
+                  label: t('bestiary.customCollections.rename'),
+                  icon: <Pencil className="w-4 h-4 shrink-0" aria-hidden="true" />,
+                  onSelect: () => {
+                    hapticTap();
+                    setCustomNameDraft(selectedCustom.name);
+                    setRenamingCustom(true);
+                  },
+                },
+                {
+                  label: t('bestiary.customCollections.delete'),
+                  icon: <Trash2 className="w-4 h-4 shrink-0" aria-hidden="true" />,
+                  tone: 'destructive',
+                  onSelect: () => {
+                    hapticTap();
+                    if (window.confirm(t('bestiary.customCollections.deleteConfirm'))) {
+                      customCollections.deleteCollection(selectedCustom.id);
+                      setSelectedCustomId(null);
+                    }
+                  },
+                },
+              ]}
+            />
+          }
         />
         <div className="max-w-lg mx-auto px-4 pt-4">
-          {renamingCustom ? (
+          {renamingCustom && (
             <form
               className="flex items-center gap-2 mb-4"
               onSubmit={(e) => {
@@ -1502,13 +1524,6 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                 <X className="w-4 h-4" />
               </button>
             </form>
-          ) : (
-            <button
-              onClick={() => { setCustomNameDraft(selectedCustom.name); setRenamingCustom(true); }}
-              className="mb-4 text-xs font-display font-semibold text-muted-foreground hover:text-foreground transition-colors"
-            >
-              {t('bestiary.customCollections.rename')}
-            </button>
           )}
           {items.length === 0 ? (
             <div className="max-w-sm mx-auto pt-8 pb-4 text-center">

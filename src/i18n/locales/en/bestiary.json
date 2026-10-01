@@ -238,6 +238,7 @@
       "emptyHint2": "You can add a species even if you haven't captured it yet — it shows up as an empty slot to fill.",
       "goFaunex": "Go to my Faunex",
       "rename": "Rename",
+      "actions": "More actions",
       "delete": "Delete collection",
       "deleteConfirm": "Delete this collection? Its species will be removed.",
       "cancel": "Cancel",
