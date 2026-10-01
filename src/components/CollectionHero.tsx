@@ -28,6 +28,7 @@ export function CollectionHero({
   onBack,
   onRemove,
   removeLabel,
+  actions,
 }: CollectionHeroProps) {
   const { t } = useTranslation();
   const pct = total > 0 ? Math.round((captured / total) * 100) : 0;
@@ -52,7 +53,9 @@ export function CollectionHero({
           >
             <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
-          {onRemove && (
+          {actions ? (
+            actions
+          ) : onRemove ? (
             <button
               onClick={onRemove}
               aria-label={resolvedRemoveLabel}
@@ -60,7 +63,7 @@ export function CollectionHero({
             >
               <Trash2 className="w-4 h-4" />
             </button>
-          )}
+          ) : null}
         </div>
 
         <div className="mt-auto">
