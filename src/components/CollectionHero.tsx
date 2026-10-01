@@ -13,6 +13,8 @@ interface CollectionHeroProps {
   onBack: () => void;
   onRemove?: () => void;
   removeLabel?: string;
+  /** Remplace le bouton corbeille par un bouton d'actions défilantes (⋯). */
+  actions?: ReactNode;
 }
 
 export function CollectionHero({
