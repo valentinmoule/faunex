@@ -85,6 +85,13 @@
       "when": 1790611820906,
       "tag": "0011_allow_authenticated_species_identity_resolution",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1791014070236,
+      "tag": "0012_dedupe_pending_captures",
+      "breakpoints": true
     }
   ]
 }
