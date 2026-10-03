@@ -53,9 +53,17 @@ const AddToCollectionSheet = ({
         return;
       }
 
+      const portalTarget = document.querySelector('[role="dialog"]');
+      const targetBounds = portalTarget?.getBoundingClientRect() ?? {
+        top: 0,
+        bottom: window.innerHeight,
+      };
+      const viewportTop = viewport.offsetTop;
+      const viewportBottom = viewportTop + viewport.height;
+
       setVisualViewportInsets({
-        top: Math.max(0, viewport.offsetTop),
-        bottom: Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop),
+        top: Math.max(0, viewportTop - targetBounds.top),
+        bottom: Math.max(0, targetBounds.bottom - viewportBottom),
       });
     };
 
