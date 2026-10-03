@@ -1349,7 +1349,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
             onTouchMove={(e) => e.stopPropagation()}
             onTouchEnd={(e) => e.stopPropagation()}
             onClick={(e) => e.stopPropagation()}
-            className="absolute top-3 right-3 z-[60] w-16 h-16 -m-1 p-1 rounded-full flex items-center justify-center text-white/90 active:text-white transition-colors"
+            className="detail-fullscreen-close absolute right-3 z-[60] w-16 h-16 -m-1 p-1 rounded-full flex items-center justify-center text-white/90 active:text-white transition-colors"
             style={{ touchAction: 'manipulation' }}
             aria-label={t('capture.detail.closeImage')}
           >
