@@ -2827,6 +2827,14 @@ html.is-native-app {
 html.is-native-ios body {
   padding-top: env(safe-area-inset-top);
 }
+/* Les overlays fixed échappent au padding du body : garder leur fermeture
+   sous l'encoche / Dynamic Island tout en conservant une grande zone tactile. */
+.detail-fullscreen-close {
+  top: 0.75rem;
+}
+html.is-native-ios .detail-fullscreen-close {
+  top: calc(env(safe-area-inset-top, 0px) + 0.75rem);
+}
 /* Android : MainActivity applique l'encart exact de la status bar à la
    WebView. Ne pas le doubler en CSS. */
 html.is-native-android body {
