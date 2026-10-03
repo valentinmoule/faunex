@@ -37,3 +37,7 @@ Match captures (including pending shelves) to tiles by exact common name first; 
 ## Bundle badge artwork
 
 Import badge art locally; hosted `/__l5e/assets-v1/` routes are absent from native bundles.
+
+## One pending moderation request per user and species
+
+Guard manual submissions with a synchronous lock on the client and keep the partial unique index on pending captures (user, trimmed lowercase name), because rapid taps used to queue the same photo several times.

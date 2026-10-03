@@ -52,6 +52,8 @@ const CapturePage = () => {
   const [premiumPrompt, setPremiumPrompt] = useState(false);
   /** Verrou synchrone contre les doubles taps sur « Ajouter ». */
   const savingRef = useRef(false);
+  /** Envoi d'une demande de modération en cours (bouton désactivé dès le tap). */
+  const [manualSubmitting, setManualSubmitting] = useState(false);
 /** Verrou synchrone contre deux analyses IA simultanées. */
   const identifyingRef = useRef(false);
   /** Effet « prise de photo » : le déclencheur holographique pulse ~700 ms. */
@@ -390,7 +392,7 @@ setManualMode(false);
     setManualMode(true);
   };
 
-  const saveManualEntry = async () => {
+  const submitManualRequest = async () => {
     const trimmedName = manualName.trim();
     const trimmedSpecies = cleanScientificName(manualSpecies) || '';
     const trimmedDesc = manualDescription.trim();
@@ -445,11 +447,30 @@ setManualMode(false);
     } catch (err) {
       console.error(err);
       if (consumed) await quota.refund();
-      if (String((err as { message?: string })?.message ?? err).includes('SESSION_EXPIRED')) {
+      const msg = String((err as { message?: string })?.message ?? err);
+      if (msg.includes('SESSION_EXPIRED')) {
         toast.error(t('capture.errors.sessionExpired'));
         return;
       }
+      if (msg.includes('captures_unique_pending_per_user') || msg.includes('duplicate key')) {
+        // Une demande identique attend déjà la modération.
+        toast.error(t('capture.errors.alreadyHaveSpecies', { name: trimmedName }));
+        return;
+      }
       toast.error(isDailyLimitError(err) ? quotaMessage : t('capture.errors.submissionError'));
+    }
+  };
+
+  /** Verrou synchrone : les taps rapides envoyaient plusieurs fois la même demande. */
+  const saveManualEntry = async () => {
+    if (savingRef.current) return;
+    savingRef.current = true;
+    setManualSubmitting(true);
+    try {
+      await submitManualRequest();
+    } finally {
+      savingRef.current = false;
+      setManualSubmitting(false);
     }
   };
 
@@ -1111,11 +1132,11 @@ setManualMode(false);
         ) : duplicateCapture ? null : manualMode ? (
           <button
             onClick={saveManualEntry}
-            disabled={saving || !manualName.trim() || !manualDescription.trim()}
+            disabled={saving || manualSubmitting || !manualName.trim() || !manualDescription.trim()}
             className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-amber text-foreground font-display text-sm disabled:opacity-50"
           >
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : disputedResult ? <ShieldQuestion className="w-4 h-4" /> : <PenLine className="w-4 h-4" />}
-            {saving ? t('capture.actions.sending') : disputedResult ? t('capture.actions.requestVerificationBtn') : t('capture.actions.submitForValidation')}
+            {saving || manualSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : disputedResult ? <ShieldQuestion className="w-4 h-4" /> : <PenLine className="w-4 h-4" />}
+            {saving || manualSubmitting ? t('capture.actions.sending') : disputedResult ? t('capture.actions.requestVerificationBtn') : t('capture.actions.submitForValidation')}
           </button>
         ) : identifying ? null : capturedPhoto ? null : (
           <>
