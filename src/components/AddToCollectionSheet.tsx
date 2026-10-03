@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Bookmark, Check, Crown, FolderPlus, Plus, X } from 'lucide-react';
@@ -40,6 +40,47 @@ const AddToCollectionSheet = ({
   const [creating, setCreating] = useState(false);
   const [name, setName] = useState('');
   const [saving, setSaving] = useState(false);
+  const [visualViewportInsets, setVisualViewportInsets] = useState({ top: 0, bottom: 0 });
+  const nameInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const viewport = window.visualViewport;
+    const updateInsets = () => {
+      if (!viewport) {
+        setVisualViewportInsets({ top: 0, bottom: 0 });
+        return;
+      }
+
+      setVisualViewportInsets({
+        top: Math.max(0, viewport.offsetTop),
+        bottom: Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop),
+      });
+    };
+
+    updateInsets();
+    viewport?.addEventListener('resize', updateInsets);
+    viewport?.addEventListener('scroll', updateInsets);
+    return () => {
+      viewport?.removeEventListener('resize', updateInsets);
+      viewport?.removeEventListener('scroll', updateInsets);
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (!creating) return;
+
+    const revealInput = () => {
+      nameInputRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    };
+    const animationFrame = window.requestAnimationFrame(revealInput);
+    const keyboardTimer = window.setTimeout(revealInput, 300);
+    return () => {
+      window.cancelAnimationFrame(animationFrame);
+      window.clearTimeout(keyboardTimer);
+    };
+  }, [creating, visualViewportInsets.bottom]);
 
   const close = useCallback(() => {
     setCreating(false);
@@ -66,7 +107,10 @@ const AddToCollectionSheet = ({
   };
 
   return createPortal(
-    <div className="absolute inset-0 z-50 flex items-end justify-center">
+    <div
+      className="absolute left-0 right-0 z-50 flex items-end justify-center"
+      style={{ top: visualViewportInsets.top, bottom: visualViewportInsets.bottom }}
+    >
       <button
         aria-label={t('bestiary.common.close')}
         onClick={close}
@@ -75,7 +119,7 @@ const AddToCollectionSheet = ({
       <div
         ref={swipe.ref}
         style={swipe.style}
-        className="relative w-full max-w-lg rounded-t-3xl bg-card border-t border-border p-4 pb-8 space-y-1 animate-in slide-in-from-bottom-4 duration-200"
+        className="relative max-h-full w-full max-w-lg overflow-y-auto overscroll-contain rounded-t-3xl bg-card border-t border-border p-4 pb-8 space-y-1 animate-in slide-in-from-bottom-4 duration-200"
       >
         <div className="mx-auto mb-2 h-1 w-10 rounded-full bg-border" />
         <div className="flex items-center justify-between px-1 pb-2">
@@ -133,6 +177,7 @@ const AddToCollectionSheet = ({
           {creating ? (
             <div className="flex items-center gap-2 px-1">
               <input
+                ref={nameInputRef}
                 autoFocus
                 type="text"
                 value={name}
@@ -142,7 +187,7 @@ const AddToCollectionSheet = ({
                 }}
                 placeholder={t('bestiary.customCollections.namePlaceholder')}
                 maxLength={40}
-                className="flex-1 min-w-0 px-3 py-2.5 rounded-xl bg-muted/60 border border-border text-sm font-display placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
+                className="flex-1 min-w-0 scroll-mb-4 px-3 py-2.5 rounded-xl bg-muted/60 border border-border text-sm font-display placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
               />
               <button
                 onClick={() => void submitCreate()}
