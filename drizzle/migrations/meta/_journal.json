@@ -99,6 +99,13 @@
       "when": 1791052502385,
       "tag": "0013_unlimited_captures_day_2026_10_04",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1791109353358,
+      "tag": "0014_unlimited_day_capture_trigger",
+      "breakpoints": true
     }
   ]
 }
