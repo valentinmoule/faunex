@@ -198,7 +198,15 @@ CRITÈRES DIAGNOSTIQUES (cas ambigus) :
 - Coccinelles : 22 points jaune vif 3-4 mm · Asiatique 6-8 mm pronotum blanc en M · 7 points rouge exactement 7 · 14 points damier jaune.
 - Chats : face ronde Persan/British, triangulaire Siamois/Oriental, en cœur Birman ; pelage, oreilles, queue, motifs. Défaut "Chat Européen".
 - Même rigueur pour mésanges, pouillots, goélands/mouettes, hirondelles/martinets, lézards, bourdons/abeilles, corvidés.
+- Oiseaux : juvénile, femelle et plumage d'hiver diffèrent du mâle adulte ; vérifie bec, barres alaires, couleur des pattes avant de trancher.
+- Sauvage vs domestique : Sanglier vs Cochon, Pigeon biset vs ramier (tache blanche au cou), Canard colvert vs domestique, Chat forestier vs chat tigré.
+- Petit sujet ou partiel : analyse toute l'image ; si seuls des traits non diagnostiques sont visibles, remonte au genre/famille plutôt que de deviner l'espèce.
 - Objet vs animal : matériau, coutures, posture rigide, socle, yeux en verre, absence de pelage individuel.`;
+
+/** Prompt unique et stable : un seul préfixe système maximise la mise en cache
+ *  des jetons d'entrée et donne les critères diagnostiques dès la passe rapide,
+ *  ce qui évite des secondes passes (le vrai poste de coût). */
+const ID_PROMPT = FAST_PROMPT + DEEP_ANNEX;
 
 
 
@@ -693,7 +701,7 @@ serve(async (req) => {
       FAST_MODEL,
       2,
 
-      isNewUser ? FAST_PROMPT + DEEP_ANNEX : FAST_PROMPT,
+      ID_PROMPT,
       // Effort « low » même pour la première impression : mesuré sur photo réelle,
       // Flash 3.6 en effort low identifie l'espèce avec la même confiance (0,98)
       // que l'effort high, pour ~4× moins de jetons de raisonnement.
@@ -710,7 +718,7 @@ serve(async (req) => {
     // diagnostique ET la photo pleine résolution, uniquement quand Lite échoue
     // ou hésite franchement. Effort de raisonnement modéré : au-delà, les
     // jetons de « réflexion » coûtent plus que le gain de précision observé.
-    const CONFUSABLE = /(chevreuil|biche|cerf|daim|faon|coccinelle|mesange|mésange|pouillot|goeland|goéland|mouette|hirondelle|martinet|bourdon|abeille|corneille|corbeau|choucas|lezard|lézard|pipistrelle)/i;
+    const CONFUSABLE = /(chevreuil|biche|cerf|daim|faon|coccinelle|mesange|mésange|pouillot|pigeon|sanglier|canard|fauvette|bergeronnette|grenouille|crapaud|araignee|araignée|guepe|guêpe|syrphe|goeland|goéland|mouette|hirondelle|martinet|bourdon|abeille|corneille|corbeau|choucas|lezard|lézard|pipistrelle)/i;
     const label = String(animalData?.animal_name || "");
     const confidence = typeof animalData?.confidence === "number" ? animalData.confidence : -1;
     const needsDeep =
@@ -726,7 +734,7 @@ serve(async (req) => {
         DEEP_MODEL,
         animalData ? 1 : 2,
 
-        FAST_PROMPT + DEEP_ANNEX,
+        ID_PROMPT,
         "low",
         imageUrl,
       );
