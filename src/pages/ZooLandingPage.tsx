@@ -62,13 +62,14 @@ const Stat = ({ value, label, prefix }: { value: number; label: string; prefix?:
   );
 };
 
-/** Renders a title with an italic primary-colored highlight: value uses __HL__ as the placeholder. */
-const HighlightTitle = ({ value, highlight }: { value: string; highlight: string }) => {
+/** Renders a title with an italic highlight: value uses __HL__ as the placeholder.
+ *  `light` renders the highlight in primary-foreground (for use on the green gradient card). */
+const HighlightTitle = ({ value, highlight, light = false }: { value: string; highlight: string; light?: boolean }) => {
   const [before, after] = value.split('__HL__');
   return (
     <>
       {before}
-      <span className="font-editorial italic text-primary">{highlight}</span>
+      <span className={`font-editorial italic ${light ? 'text-primary-foreground' : 'text-primary'}`}>{highlight}</span>
       {after}
     </>
   );
@@ -434,6 +435,7 @@ const ZooLandingPage = () => {
             <Sparkles className="w-8 h-8 text-primary-foreground mx-auto mb-3" />
             <h2 className="text-3xl sm:text-4xl font-display font-black text-primary-foreground mb-2 leading-tight">
               <HighlightTitle
+                light
                 value={t('marketing.zoo.finalCta.title')}
                 highlight={t('marketing.zoo.finalCta.titleHighlight')}
               />
