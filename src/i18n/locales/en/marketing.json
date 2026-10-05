@@ -12,6 +12,7 @@
       "allGuides": "All guides",
       "useCases": "Use cases",
       "pricing": "Pricing",
+      "zoos": "Zoos & parks",
       "account": "Account",
       "createAccount": "Create an account",
       "login": "Log in",
@@ -155,6 +156,99 @@
         "allUseCases": "All use cases"
       },
       "stickyCta": "Create my free account"
+    },
+    "zoo": {
+      "meta": {
+        "title": "Faunex for zoos & wildlife parks — Attract new visitors",
+        "description": "Integrate your institution into Faunex: a local audience passionate about nature, your featured species in the game, an experience that brings visitors back. Contact us.",
+        "ogTitle": "Faunex for zoos — put your institution on explorers' route",
+        "ogDescription": "A local audience passionate about nature, your featured species in the game, an experience that brings visitors back. Contact us."
+      },
+      "hero": {
+        "badge": "For institutions — Zoos & parks",
+        "logoAlt": "Faunex logo",
+        "title": "Your zoo, in the __HL__",
+        "titleHighlight": "bestiary of our explorers",
+        "subtitle": "Faunex turns every wildlife sighting into a collectible card. A local, curious and nature-loving audience is choosing its next outings — put your institution on their route.",
+        "cta": "Contact us",
+        "secondaryCta": "Discover the app",
+        "note": "Reply within 48 h · No commitment"
+      },
+      "audience": {
+        "title": "An audience that matches __HL__",
+        "titleHighlight": "your goals",
+        "subtitle": "Families, nature lovers, local explorers: our users are constantly looking for places to watch wildlife. That's your ground.",
+        "statsExplorers": "Explorers",
+        "statsCaptures": "Captures",
+        "item1Title": "Attract new visitors",
+        "item1Desc": "Explorers around you look for where to watch wildlife: your zoo shows up as the obvious outing, at the right time.",
+        "item2Title": "Build loyalty",
+        "item2Desc": "Collecting cards gives a reason to come back every season to complete the bestiary of your species.",
+        "item3Title": "Showcase your species",
+        "item3Desc": "Put your star species and conservation programs in front of a receptive audience.",
+        "item4Title": "Measure your impact",
+        "item4Desc": "Visits generated, most searched species, engagement around your institution: tracked together with you."
+      },
+      "principle": {
+        "title": "The principle of __HL__",
+        "titleHighlight": "Faunex",
+        "subtitle": "A free app: photograph the wildlife you come across, the AI identifies it, and every encounter becomes a collectible card.",
+        "step1Title": "Photograph",
+        "step1Desc": "The explorer photographs an animal they spot — on a walk, in town, or on a visit to you.",
+        "step2Title": "Identify",
+        "step2Desc": "The AI identifies the species in 3 seconds: name, habitat, fun facts, rarity.",
+        "step3Title": "Collect",
+        "step3Desc": "Every animal becomes a unique card, from common to mythic, in the explorer's bestiary.",
+        "showcaseTitle": "The experience in __HL__",
+        "showcaseTitleHighlight": "pictures",
+        "showcaseSubtitle": "Collectible cards showing real wildlife, photographed by the community.",
+        "showcaseAlt": "Faunex app previews"
+      },
+      "integration": {
+        "title": "Your zoo, __HL__ in the experience",
+        "titleHighlight": "integrated",
+        "subtitle": "Depending on the plan you choose, your institution takes part in the game:",
+        "item1Title": "On the explorers' map",
+        "item1Desc": "Your zoo is shown to explorers around you, right when they are looking for a nature outing.",
+        "item2Title": "Your species in the spotlight",
+        "item2Desc": "Your emblematic species woven into the game path, with your content: fun facts, programs, news.",
+        "item3Title": "Challenges and highlights",
+        "item3Desc": "Themed quests during holidays, births or new arrivals at the park.",
+        "item4Title": "A dedicated contact",
+        "item4Desc": "One single contact to drive the integration, the animations and the results."
+      },
+      "onboarding": {
+        "title": "Integrate your institution into __HL__",
+        "titleHighlight": "Faunex",
+        "step1Title": "We talk",
+        "step1Desc": "30 minutes to understand your goals: attendance, family audiences, seasonality.",
+        "step2Title": "We integrate",
+        "step2Desc": "We set up your presence, your featured species and your challenges. No technical work on your side.",
+        "step3Title": "We run it together",
+        "step3Desc": "Results are shared regularly and adjusted season by season, with you.",
+        "reassurance1": "No technical installation",
+        "reassurance2": "You keep control of your content",
+        "reassurance3": "No commitment"
+      },
+      "faq": {
+        "title": "Frequently asked __HL__",
+        "titleHighlight": "questions",
+        "q1": "How much does an integration cost?",
+        "a1": "The scope is defined together based on the size of your institution and the features you choose. Contact us: we reply within 48 h with a tailored proposal.",
+        "q2": "Which institutions are concerned?",
+        "a2": "Zoos, wildlife parks, aquariums, nature parks and reserves: any institution that brings wildlife to the public.",
+        "q3": "Do we need to change anything in our park?",
+        "a3": "No. The integration happens on Faunex's side: no development for you, and your content stays approved by your teams.",
+        "q4": "Our visitors don't know Faunex. So what?",
+        "a4": "That's exactly the point: explorers already active around you discover your institution, and your on-site visitors leave with an app that brings them back."
+      },
+      "finalCta": {
+        "title": "Ready to welcome __HL__?",
+        "titleHighlight": "new explorers",
+        "subtitle": "Tell us about your institution: we come back with a proposal tailored to your goals.",
+        "cta": "Contact us",
+        "note": "Reply within 48 h · No commitment"
+      }
     },
     "home": {
       "explorer": "Explorer",

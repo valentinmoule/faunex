@@ -12,6 +12,7 @@
       "allGuides": "Tous les guides",
       "useCases": "Cas d'usage",
       "pricing": "Tarifs",
+      "zoos": "Zoos & parcs",
       "account": "Compte",
       "createAccount": "Créer un compte",
       "login": "Se connecter",
@@ -155,6 +156,99 @@
         "allUseCases": "Tous les cas d'usage"
       },
       "stickyCta": "Créer mon compte gratuit"
+    },
+    "zoo": {
+      "meta": {
+        "title": "Faunex pour les zoos & parcs animaliers — Attirez de nouveaux visiteurs",
+        "description": "Intégrez votre établissement à Faunex : une audience locale passionnée de nature, vos espèces en vedette dans le jeu, une expérience qui ramène vos visiteurs. Contactez-nous.",
+        "ogTitle": "Faunex pour les zoos — mettez votre établissement sur le parcours des explorateurs",
+        "ogDescription": "Une audience locale passionnée de nature, vos espèces en vedette dans le jeu, une expérience qui ramène vos visiteurs. Contactez-nous."
+      },
+      "hero": {
+        "badge": "Espace établissements — Zoos & parcs",
+        "logoAlt": "Logo Faunex",
+        "title": "Votre zoo, dans le __HL__",
+        "titleHighlight": "bestiaire de nos explorateurs",
+        "subtitle": "Faunex transforme chaque observation de faune en carte à collectionner. Une audience locale, curieuse et passionnée de nature, qui choisit ses prochaines sorties — mettez votre établissement sur sa route.",
+        "cta": "Nous contacter",
+        "secondaryCta": "Découvrir l'app",
+        "note": "Réponse sous 48 h · Sans engagement"
+      },
+      "audience": {
+        "title": "Une audience qui correspond à __HL__",
+        "titleHighlight": "vos enjeux",
+        "subtitle": "Familles, passionnés de nature, curieux de proximité : nos explorateurs cherchent en permanence où observer des animaux. Voilà votre terrain.",
+        "statsExplorers": "Explorateurs",
+        "statsCaptures": "Captures",
+        "item1Title": "Attirez de nouveaux visiteurs",
+        "item1Desc": "Les explorateurs autour de vous cherchent où observer la faune : votre zoo apparaît comme la sortie évidente, au bon moment.",
+        "item2Title": "Fidélisez votre public",
+        "item2Desc": "La collection de cartes donne une raison de revenir à chaque saison pour compléter le bestiaire de vos espèces.",
+        "item3Title": "Valorisez vos espèces",
+        "item3Desc": "Mettez en avant vos espèces vedettes et vos programmes de conservation auprès d'un public réceptif.",
+        "item4Title": "Suivez votre impact",
+        "item4Desc": "Visites générées, espèces les plus recherchées, engagement autour de votre établissement : le tout suivi avec vous."
+      },
+      "principle": {
+        "title": "Le principe de __HL__",
+        "titleHighlight": "Faunex",
+        "subtitle": "Une application gratuite : on photographie la faune croisée, l'IA l'identifie, et chaque rencontre devient une carte à collectionner.",
+        "step1Title": "Photographier",
+        "step1Desc": "L'explorateur photographie un animal qu'il croise — en balade, en ville, ou en visite chez vous.",
+        "step2Title": "Identifier",
+        "step2Desc": "L'IA identifie l'espèce en 3 secondes : nom, habitat, anecdotes, rareté.",
+        "step3Title": "Collectionner",
+        "step3Desc": "Chaque animal devient une carte unique, du commun au mythique, dans le bestiaire de l'explorateur.",
+        "showcaseTitle": "L'expérience en __HL__",
+        "showcaseTitleHighlight": "images",
+        "showcaseSubtitle": "Des cartes de collection à l'image de la faune réelle, photographiée par la communauté.",
+        "showcaseAlt": "Aperçus de l'application Faunex"
+      },
+      "integration": {
+        "title": "Votre zoo, __HL__ à l'expérience",
+        "titleHighlight": "intégré",
+        "subtitle": "Selon la formule choisie, votre établissement prend part au jeu :",
+        "item1Title": "Présent sur la carte des explorateurs",
+        "item1Desc": "Votre zoo est signalé aux explorateurs autour de vous, au moment où ils cherchent une sortie nature.",
+        "item2Title": "Vos espèces en vedette",
+        "item2Desc": "Vos espèces emblématiques intégrées au parcours de jeu, avec vos contenus : anecdotes, programmes, actualités.",
+        "item3Title": "Défis et temps forts",
+        "item3Desc": "Quêtes à thème pendant les vacances, les naissances ou les nouveautés du parc.",
+        "item4Title": "Un interlocuteur dédié",
+        "item4Desc": "Un seul contact pour piloter l'intégration, les animations et le suivi des résultats."
+      },
+      "onboarding": {
+        "title": "Intégrez votre établissement à __HL__",
+        "titleHighlight": "Faunex",
+        "step1Title": "On échange",
+        "step1Desc": "30 minutes pour comprendre vos enjeux : fréquentation, publics familiaux, saisonnalité.",
+        "step2Title": "On intègre",
+        "step2Desc": "Nous configurons votre présence, vos espèces vedettes et vos défis. Aucun travail technique de votre côté.",
+        "step3Title": "On anime ensemble",
+        "step3Desc": "Les résultats sont partagés régulièrement et ajustés au fil des saisons, avec vous.",
+        "reassurance1": "Pas d'installation technique",
+        "reassurance2": "Vous gardez la main sur vos contenus",
+        "reassurance3": "Sans engagement"
+      },
+      "faq": {
+        "title": "Questions __HL__",
+        "titleHighlight": "fréquentes",
+        "q1": "Combien coûte une intégration ?",
+        "a1": "Le périmètre est défini ensemble selon la taille de l'établissement et les fonctionnalités choisies. Contactez-nous : nous revenons vers vous sous 48 h avec une proposition adaptée.",
+        "q2": "Quels établissements sont concernés ?",
+        "a2": "Zoos, parcs animaliers, aquariums, parcs naturels et réserves : tout établissement qui fait vivre la faune auprès du public.",
+        "q3": "Faut-il modifier quelque chose dans notre parc ?",
+        "a3": "Non. L'intégration se fait du côté de Faunex : vous n'avez aucun développement à réaliser, et vos contenus restent validés par vos équipes.",
+        "q4": "Nos visiteurs ne connaissent pas Faunex. Et alors ?",
+        "a4": "C'est justement l'apport : les explorateurs déjà actifs autour de vous découvrent votre établissement, et vos visiteurs sur place repartent avec une app qui les fait revenir."
+      },
+      "finalCta": {
+        "title": "Prêt à accueillir __HL__ ?",
+        "titleHighlight": "de nouveaux explorateurs",
+        "subtitle": "Parlez-nous de votre établissement : nous revenons vers vous avec une proposition adaptée à vos enjeux.",
+        "cta": "Nous contacter",
+        "note": "Réponse sous 48 h · Sans engagement"
+      }
     },
     "home": {
       "explorer": "Explorateur",
