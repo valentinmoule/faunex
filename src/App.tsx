@@ -44,6 +44,7 @@ const PricingPage = lazyWithRetry(() => import("./pages/PricingPage"));
 const RefundPolicyPage = lazyWithRetry(() => import("./pages/RefundPolicyPage"));
 const PrivacyPage = lazyWithRetry(() => import("./pages/PrivacyPage"));
 const LandingPage = SHOW_MARKETING_PAGES ? lazyWithRetry(() => import("./pages/LandingPage")) : null;
+const ZooLandingPage = SHOW_MARKETING_PAGES ? lazyWithRetry(() => import("./pages/ZooLandingPage")) : null;
 const CompleteProfilePage = lazyWithRetry(() => import("./pages/CompleteProfilePage"));
 const ContentIndexPage = SHOW_MARKETING_PAGES ? lazyWithRetry(() => import("./pages/ContentIndexPage")) : null;
 const ArticlePage = SHOW_MARKETING_PAGES ? lazyWithRetry(() => import("./pages/ArticlePage")) : null;
@@ -137,6 +138,7 @@ const AppRoutes = () => {
     location.pathname === '/legal' ||
     location.pathname === '/confidentialite' ||
     location.pathname === '/tarifs' ||
+    location.pathname === '/zoo' ||
     location.pathname === '/remboursement' ||
     location.pathname.startsWith('/guides') ||
     location.pathname.startsWith('/fonctionnalites') ||
@@ -195,6 +197,9 @@ const AppRoutes = () => {
               <Route path="/especes" element={<SpeciesIndexPage />} />
               <Route path="/especes/:slug" element={<SpeciesPage />} />
             </>
+          )}
+          {SHOW_MARKETING_PAGES && ZooLandingPage && (
+            <Route path="/zoo" element={<ZooLandingPage />} />
           )}
 
           <Route path="*" element={<NotFound />} />
