@@ -190,21 +190,33 @@ const ModerationPage = () => {
     let enriched: any = null;
     let enrichError: any = null;
     try {
-      const res = await withTimeout(
+      const call = (q: typeof quality) => withTimeout(
         supabase.functions.invoke('enrich-capture', {
           body: {
             capture_id: capture.id,
             animal_name: candidateName,
             scientific_name: (scientificOverride?.trim() || undefined),
-            quality,
+            quality: q,
             force_name: forceName,
           },
-
         }),
         75_000,
       );
-      enriched = res.data;
+      // Une réponse vide (coupure réseau / fonction arrêtée en cours de route)
+      // ou non décodée ne doit pas bloquer : on décode, puis on relance une fois.
+      const parse = (d: any) => {
+        if (typeof d === 'string') { try { return JSON.parse(d); } catch { return null; } }
+        return d ?? null;
+      };
+      let res = await call(quality);
+      enriched = parse(res.data);
       enrichError = res.error;
+      if (!enrichError && !enriched?.animal && !enriched?.code) {
+        console.warn('enrich-capture empty response, retrying', res.data);
+        res = await call('high' as typeof quality);
+        enriched = parse(res.data);
+        enrichError = res.error;
+      }
     } catch {
       enrichError = null;
       enriched = null;
@@ -227,7 +239,7 @@ const ModerationPage = () => {
               duplicate: enriched.duplicate ?? null,
               identifiedAs: enriched.identified_as ?? null,
             }
-          : { code: 'empty_response', message: "La fonction a répondu sans fiche exploitable." };
+          : { code: 'empty_response', message: "Aucune fiche reçue (même après une 2e tentative avec le modèle avancé). Réessaye, ou renseigne toi-même le nom de l'espèce." };
       if (failure.code === 'duplicate') {
         failure.message = duplicateMessage(
           nameOverride?.trim() || capture.animal_name,
