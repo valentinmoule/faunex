@@ -239,7 +239,7 @@ const ModerationPage = () => {
               duplicate: enriched.duplicate ?? null,
               identifiedAs: enriched.identified_as ?? null,
             }
-          : { code: 'empty_response', message: "La fonction a répondu sans fiche exploitable." };
+          : { code: 'empty_response', message: "Aucune fiche reçue (même après une 2e tentative avec le modèle avancé). Réessaye, ou renseigne toi-même le nom de l'espèce." };
       if (failure.code === 'duplicate') {
         failure.message = duplicateMessage(
           nameOverride?.trim() || capture.animal_name,
