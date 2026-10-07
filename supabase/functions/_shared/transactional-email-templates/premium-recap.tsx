@@ -27,7 +27,7 @@ const Email = (p: Props) =>
 export const template = {
   component: Email,
   subject: (d: Props) =>
-    pick({ fr: 'Ton mois Premium en chiffres — renouvellement bientôt', en: 'Your Premium month in numbers — renewal soon' }, d?.locale),
-  displayName: 'Récap Premium avant renouvellement',
+    pick({ fr: 'Ton récap Premium — ton accès a pris fin', en: 'Your Premium recap — your access has ended' }, d?.locale),
+  displayName: 'Récap de fin de Premium',
   previewData: { displayName: 'Valentin', captures: 12, species: 9, xp: 640, renewalDate: '10 octobre 2026', locale: 'fr' },
 } satisfies TemplateEntry
