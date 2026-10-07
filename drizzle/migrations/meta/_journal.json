@@ -106,6 +106,13 @@
       "when": 1791109353358,
       "tag": "0014_unlimited_day_capture_trigger",
       "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1791382492427,
+      "tag": "0015_cancellation_feedback",
+      "breakpoints": true
     }
   ]
 }
