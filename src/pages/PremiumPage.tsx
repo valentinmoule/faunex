@@ -15,6 +15,7 @@ import { IS_NATIVE_APP } from '@/lib/platform';
 import { Browser } from '@capacitor/browser';
 import { useTranslation } from 'react-i18next';
 import { useAppLocale } from '@/hooks/useAppLocale';
+import { CancelSurveySheet } from '@/components/CancelSurveySheet';
 
 interface FeatureRow {
   label: string;
@@ -108,6 +109,7 @@ const PremiumPage = () => {
   const { isPremium, subscription, loading, refresh } = useSubscription(session?.user?.id);
   const { openCheckout, loading: checkoutLoading } = usePaddleCheckout();
   const [plan, setPlan] = useState<'monthly' | 'yearly'>('yearly');
+  const [surveyOpen, setSurveyOpen] = useState(false);
   const FEATURES = useFeatures(t);
   const PLANS = usePlans(t);
   const selected = PLANS[plan];
@@ -256,6 +258,11 @@ const PremiumPage = () => {
           <p className="relative mt-1 text-xs text-muted-foreground">
             {selected.note}
           </p>
+          {!isPremium && plan === 'monthly' && (
+            <button type="button" onClick={() => setPlan('yearly')} className="relative mt-2 text-xs font-semibold text-primary">
+              {t('profile.premium.yearlyHint')}
+            </button>
+          )}
         </section>
 
         <div className="mt-5 rounded-[2rem] border border-border bg-card p-5 shadow-sm">
@@ -304,6 +311,11 @@ const PremiumPage = () => {
                 <Button variant="outline" onClick={handleManage} className="h-12 w-full rounded-2xl">
                   {t('profile.premium.manage')}
                 </Button>
+                {!subscription?.cancel_at_period_end && session?.user && (
+                  <button type="button" onClick={() => setSurveyOpen(true)} className="w-full py-1 text-center text-xs text-muted-foreground underline-offset-2 hover:underline">
+                    {t('profile.premium.cancel')}
+                  </button>
+                )}
               </>
             ) : (
               <Button
@@ -320,6 +332,9 @@ const PremiumPage = () => {
           </div>
         </div>,
         document.body
+      )}
+      {session?.user && (
+        <CancelSurveySheet open={surveyOpen} onOpenChange={setSurveyOpen} userId={session.user.id} onContinue={handleManage} />
       )}
     </div>
   );

@@ -7,6 +7,7 @@ import { template as reengagementJ2 } from './reengagement-j2.tsx'
 import { template as noCaptureJ7 } from './no-capture-j7.tsx'
 import { template as inactivityEmail } from './inactivity-email.tsx'
 import { template as accountBlocked } from './account-blocked.tsx'
+import { template as premiumRecap } from './premium-recap.tsx'
 
 export interface TemplateEntry {
   component: any
@@ -26,4 +27,5 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'no-capture-j7': noCaptureJ7,
   'inactivity-email': inactivityEmail,
   'account-blocked': accountBlocked,
+  'premium-recap': premiumRecap,
 }

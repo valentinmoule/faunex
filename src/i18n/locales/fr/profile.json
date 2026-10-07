@@ -386,6 +386,23 @@
         "quests": "Quêtes et objectifs",
         "globalLeaderboards": "Classement global",
         "badges": "Badges et récompenses"
+      },
+      "cancel": "Résilier mon abonnement",
+      "yearlyHint": "Avec la formule annuelle, tu économises 4,80 € par an.",
+      "cancelSurvey": {
+        "title": "Avant de partir…",
+        "subtitle": "Dis-nous en un mot pourquoi tu résilies, ça nous aide à améliorer Faunex.",
+        "reasons": {
+          "too_expensive": "Trop cher",
+          "not_using": "Je ne l'utilise pas assez",
+          "free_enough": "La version gratuite me suffit",
+          "missing_feature": "Il manque une fonction",
+          "unrecognized_charge": "Je n'ai pas reconnu le prélèvement",
+          "other": "Autre raison"
+        },
+        "commentPlaceholder": "Un détail à ajouter ? (facultatif)",
+        "continue": "Continuer vers la résiliation",
+        "stay": "Garder Premium"
       }
     },
     "pricing": {

@@ -386,6 +386,23 @@
         "quests": "Quests and objectives",
         "globalLeaderboards": "Global leaderboards",
         "badges": "Badges and rewards"
+      },
+      "cancel": "Cancel my subscription",
+      "yearlyHint": "With the yearly plan, you save €4.80 a year.",
+      "cancelSurvey": {
+        "title": "Before you go…",
+        "subtitle": "Tell us briefly why you are cancelling — it helps us improve Faunex.",
+        "reasons": {
+          "too_expensive": "Too expensive",
+          "not_using": "I don't use it enough",
+          "free_enough": "The free version is enough",
+          "missing_feature": "A feature is missing",
+          "unrecognized_charge": "I didn't recognise the charge",
+          "other": "Other reason"
+        },
+        "commentPlaceholder": "Anything to add? (optional)",
+        "continue": "Continue to cancellation",
+        "stay": "Keep Premium"
       }
     },
     "pricing": {
