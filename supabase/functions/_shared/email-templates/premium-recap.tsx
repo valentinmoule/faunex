@@ -27,8 +27,8 @@ export const PremiumRecapEmail = ({ displayName, siteUrl, captures, species, xp,
           <Heading style={h1}>{pick({ fr: `${displayName}, ton mois Premium 🌿`, en: `${displayName}, your Premium month 🌿` }, l)}</Heading>
           <Text style={highlight}>
             {pick({
-              fr: `📸 ${captures} capture${captures > 1 ? 's' : ''}\n🦋 ${species} espèce${species > 1 ? 's' : ''} différente${species > 1 ? 's' : ''}\n⭐ ${xp} XP gagnés`,
-              en: `📸 ${captures} capture${captures === 1 ? '' : 's'}\n🦋 ${species} different species\n⭐ ${xp} XP earned`,
+              fr: `📸 ${captures} capture${captures > 1 ? 's' : ''}\n🦋 ${species} espèce${species > 1 ? 's' : ''} différente${species > 1 ? 's' : ''}${xp > 0 ? `\n⭐ ${xp} XP gagnés` : ''}`,
+              en: `📸 ${captures} capture${captures === 1 ? '' : 's'}\n🦋 ${species} different species${xp > 0 ? `\n⭐ ${xp} XP earned` : ''}`,
             }, l)}
           </Text>
           <Text style={text}>
