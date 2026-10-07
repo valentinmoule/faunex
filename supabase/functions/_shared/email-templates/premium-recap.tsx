@@ -33,20 +33,14 @@ export const PremiumRecapEmail = ({ displayName, siteUrl, captures, species, xp,
           </Text>
           <Text style={text}>
             {pick({
-              fr: `Ton abonnement Premium se renouvelle automatiquement le ${renewalDate}. Le prélèvement apparaîtra sous le nom « PADDLE.NET* FAUNEX » sur ton relevé.`,
-              en: `Your Premium subscription renews automatically on ${renewalDate}. The charge will appear as "PADDLE.NET* FAUNEX" on your statement.`,
+              fr: `Ton accès Premium a pris fin le ${renewalDate}. Aucun nouveau prélèvement ne sera effectué. Tes captures et ton Bestiaire restent intacts.`,
+              en: `Your Premium access ended on ${renewalDate}. No further charge will be made. Your captures and Bestiary stay intact.`,
             }, l)}
           </Text>
-          <Text style={text}>
-            {pick({
-              fr: `Astuce : la formule annuelle revient à 2 € par mois. Tu peux changer de formule ou gérer ton abonnement à tout moment depuis la page Premium.`,
-              en: `Tip: the yearly plan works out at €2 per month. You can switch plans or manage your subscription anytime from the Premium page.`,
-            }, l)}
-          </Text>
-          <Button style={button} href={`${siteUrl}/premium`}>
-            {pick({ fr: 'Voir mon abonnement', en: 'View my subscription' }, l)}
+          <Button style={button} href={siteUrl}>
+            {pick({ fr: 'Ouvrir Faunex', en: 'Open Faunex' }, l)}
           </Button>
-          <Text style={footer}>{pick({ fr: "Merci de soutenir Faunex !\nL'équipe Faunex 🦊", en: 'Thanks for supporting Faunex!\nThe Faunex team 🦊' }, l)}</Text>
+          <Text style={footer}>{pick({ fr: "Merci d'avoir soutenu Faunex !\nL'équipe Faunex 🦊", en: 'Thanks for supporting Faunex!\nThe Faunex team 🦊' }, l)}</Text>
         </Container>
       </Body>
     </Html>
