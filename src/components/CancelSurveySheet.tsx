@@ -35,7 +35,7 @@ export const CancelSurveySheet = ({ open, onOpenChange, userId, onContinue }: Pr
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="rounded-t-[2rem] pb-[calc(20px+env(safe-area-inset-bottom))]">
+      <SheetContent side="bottom" className="z-[70] rounded-t-[2rem] pb-[calc(20px+env(safe-area-inset-bottom))]">
         <SheetHeader className="text-left">
           <SheetTitle className="font-display">{t('profile.premium.cancelSurvey.title')}</SheetTitle>
           <SheetDescription>{t('profile.premium.cancelSurvey.subtitle')}</SheetDescription>
