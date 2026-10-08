@@ -20,6 +20,7 @@ export const CancelSurveySheet = ({ open, onOpenChange, userId, onContinue }: Pr
   const { t } = useTranslation();
   const [reason, setReason] = useState<string | null>(null);
   const [comment, setComment] = useState('');
+  const [sent, setSent] = useState(false);
 
   const submit = () => {
     // Un builder PostgREST n'émet la requête que si on branche un .then() :
