@@ -2255,6 +2255,10 @@ export type Database = {
         Args: { p_job_key: string; p_lease_seconds?: number }
         Returns: string
       }
+      admin_analytics: {
+        Args: { _end: string; _excluded: string[]; _start: string }
+        Returns: Json
+      }
       ai_analyses_remaining_today: { Args: never; Returns: number }
       ai_usage_stats: {
         Args: { p_days?: number }

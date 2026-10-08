@@ -113,6 +113,13 @@
       "when": 1791382492427,
       "tag": "0015_cancellation_feedback",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1791479330633,
+      "tag": "0016_admin_analytics_rpc",
+      "breakpoints": true
     }
   ]
 }
