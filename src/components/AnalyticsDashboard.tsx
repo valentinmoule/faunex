@@ -28,6 +28,8 @@ interface AnalyticsData {
     totalUsers: number; totalCaptures: number;
     avgCapturesPerUser: number;
     usersWithCapture: number; usersWithCaptureRate: number;
+    activeInPeriod: number; newUsersInPeriod: number;
+    capturesInPeriod: number; capturersInPeriod: number;
     loginsInPeriod: number; avgLoginsPerUser: number;
     avgTimeBetweenCapturesHours: number;
   };
@@ -39,7 +41,18 @@ interface AnalyticsData {
   topUsers: { user_id: string; name: string; captures: number }[];
   retention: { j1: number; j7: number; j30: number; cohortSizes: { j1: number; j7: number; j30: number } };
   newVsReturning: { new: number; returning: number };
+  cancelReasons: { reason: string; count: number }[];
+  cancelComments: { reason: string; comment: string; created_at: string }[];
 }
+
+const CANCEL_LABELS: Record<string, string> = {
+  too_expensive: 'Trop cher',
+  not_using: "Ne l'utilise pas assez",
+  free_enough: 'La version gratuite suffit',
+  missing_feature: 'Il manque une fonction',
+  unrecognized_charge: 'Prélèvement non reconnu',
+  other: 'Autre raison',
+};
 
 const PIE_COLORS = ['hsl(152, 55%, 38%)', 'hsl(40, 80%, 60%)'];
 
@@ -144,6 +157,14 @@ const AnalyticsDashboard = () => {
       {data && !loading && (
         <>
           {/* KPI grid */}
+          <h3 className="text-xs font-display font-bold uppercase tracking-wide text-muted-foreground">Sur la période</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <Kpi icon={<Activity className="w-4 h-4" />} label="Actifs" value={fmtNum(data.kpis.activeInPeriod)} hint="connectés sur la période" />
+            <Kpi icon={<Users className="w-4 h-4" />} label="Nouveaux inscrits" value={fmtNum(data.kpis.newUsersInPeriod)} />
+            <Kpi icon={<Camera className="w-4 h-4" />} label="Captures" value={fmtNum(data.kpis.capturesInPeriod)} hint={`${fmtNum(data.kpis.capturersInPeriod)} explorateurs`} />
+            <Kpi icon={<Repeat className="w-4 h-4" />} label="Connexions / user" value={data.kpis.avgLoginsPerUser.toFixed(1)} hint={`${fmtNum(data.kpis.loginsInPeriod)} connexions`} />
+          </div>
+          <h3 className="text-xs font-display font-bold uppercase tracking-wide text-muted-foreground pt-2">Aujourd'hui (fenêtres fixes, indépendantes du filtre)</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <Kpi icon={<Activity className="w-4 h-4" />} label="DAU" value={fmtNum(data.kpis.dau)} hint="actifs 24h" />
             <Kpi icon={<Activity className="w-4 h-4" />} label="WAU" value={fmtNum(data.kpis.wau)} hint="actifs 7j" />
@@ -152,7 +173,6 @@ const AnalyticsDashboard = () => {
             <Kpi icon={<Camera className="w-4 h-4" />} label="Captures" value={fmtNum(data.kpis.totalCaptures)} hint="total" />
             <Kpi icon={<TrendingUp className="w-4 h-4" />} label="Moy. captures / user" value={data.kpis.avgCapturesPerUser.toFixed(1)} />
             <Kpi icon={<UserCheck className="w-4 h-4" />} label="Avec ≥1 capture" value={fmtNum(data.kpis.usersWithCapture)} hint={fmtPct(data.kpis.usersWithCaptureRate)} />
-            <Kpi icon={<Repeat className="w-4 h-4" />} label="Connexions / user" value={data.kpis.avgLoginsPerUser.toFixed(1)} hint={`${fmtNum(data.kpis.loginsInPeriod)} sur période`} />
             <Kpi icon={<Clock className="w-4 h-4" />} label="Temps entre captures" value={fmtHours(data.kpis.avgTimeBetweenCapturesHours)} />
             <Kpi label="Rétention J1" value={fmtPct(data.retention.j1)} hint={`cohorte ${data.retention.cohortSizes.j1}`} />
             <Kpi label="Rétention J7" value={fmtPct(data.retention.j7)} hint={`cohorte ${data.retention.cohortSizes.j7}`} />
@@ -228,6 +248,35 @@ const AnalyticsDashboard = () => {
               </div>
             </ChartCard>
           </div>
+
+          <ChartCard title="Motifs de départ (période)">
+            {data.cancelReasons.length === 0 ? (
+              <p className="text-xs text-muted-foreground">Aucune réponse sur la période.</p>
+            ) : (
+              <div className="space-y-1.5">
+                {data.cancelReasons.map(r => {
+                  const total = data.cancelReasons.reduce((a, b) => a + b.count, 0);
+                  return (
+                    <div key={r.reason} className="flex items-center gap-2 text-xs">
+                      <span className="flex-1 truncate font-display font-semibold text-foreground">{CANCEL_LABELS[r.reason] ?? r.reason}</span>
+                      <span className="text-muted-foreground">{fmtPct(r.count / total)}</span>
+                      <span className="w-8 text-right text-primary font-bold">{r.count}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            {data.cancelComments.length > 0 && (
+              <div className="mt-3 pt-3 border-t border-border space-y-2">
+                {data.cancelComments.map((c, i) => (
+                  <div key={i} className="text-xs">
+                    <span className="text-muted-foreground">{new Date(c.created_at).toLocaleDateString('fr-FR')} · {CANCEL_LABELS[c.reason] ?? c.reason}</span>
+                    <p className="text-foreground">« {c.comment} »</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </ChartCard>
         </>
       )}
     </div>
