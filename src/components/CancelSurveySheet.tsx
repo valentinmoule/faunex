@@ -22,12 +22,21 @@ export const CancelSurveySheet = ({ open, onOpenChange, userId, onContinue }: Pr
   const [comment, setComment] = useState('');
 
   const submit = () => {
-    if (reason) {
-      void supabase.from('cancellation_feedback').insert({
-        user_id: userId,
-        reason,
-        comment: comment.trim().slice(0, 1000) || null,
-      });
+    // Un builder PostgREST n'émet la requête que si on branche un .then() :
+    // sans lui, rien n'est écrit en base. On l'appelle sans attendre pour ne
+    // pas sortir du geste utilisateur (l'ouverture du portail s'en sert).
+    if (reason && !sent) {
+      setSent(true);
+      supabase
+        .from('cancellation_feedback')
+        .insert({
+          user_id: userId,
+          reason,
+          comment: comment.trim().slice(0, 1000) || null,
+        })
+        .then(({ error }) => {
+          if (error) console.error('[cancel-survey] enregistrement impossible:', error.message);
+        });
     }
     onOpenChange(false);
     onContinue();
