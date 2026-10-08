@@ -41,3 +41,9 @@ Import badge art locally; hosted `/__l5e/assets-v1/` routes are absent from nati
 ## One pending moderation request per user and species
 
 Guard manual submissions with a synchronous lock on the client and keep the partial unique index on pending captures (user, trimmed lowercase name), because rapid taps used to queue the same photo several times.
+
+## Supabase writes must be awaited or chained to a handler
+
+Every Supabase query builder call (insert, update, delete, upsert) must be `await`ed or have a `.then()` with a handler attached. When the write is followed by something that needs the live user gesture (opening a payment portal popup), chain `.then()` and keep going synchronously instead of awaiting.
+
+**Why:** PostgREST builders are lazy thenables — the HTTP request only leaves when `then()` runs, so a bare `void supabase.from(...)` fails silently and nothing is stored.
