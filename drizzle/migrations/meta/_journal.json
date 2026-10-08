@@ -120,6 +120,13 @@
       "when": 1791479330633,
       "tag": "0016_admin_analytics_rpc",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1791479461326,
+      "tag": "0017_admin_analytics_faster",
+      "breakpoints": true
     }
   ]
 }
