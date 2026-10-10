@@ -29,6 +29,7 @@ const staticEntries: SitemapEntry[] = [
   { path: '/tarifs', changefreq: 'monthly', priority: '0.8' },
   { path: '/remboursement', changefreq: 'yearly', priority: '0.3' },
   { path: '/zoo', changefreq: 'monthly', priority: '0.7' },
+  { path: '/associations', changefreq: 'monthly', priority: '0.7' },
   { path: '/guides', changefreq: 'weekly', priority: '0.8' },
   { path: '/guides/identifier-oiseau-photo-ia', changefreq: 'monthly', priority: '0.7' },
   { path: '/guides/animaux-jardin-france', changefreq: 'monthly', priority: '0.7' },
