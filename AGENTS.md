@@ -2,6 +2,10 @@
 
 Rules for working on this codebase.
 
+## Partner landing pages share one presentation
+
+Use the shared partner page with audience-specific translated copy and imagery, keeping public partner routes gated out of native builds to avoid duplicated layouts and marketing screens in the native app.
+
 ## Full-screen overlays must escape animated page wrappers
 
 Wrap any `position: fixed` overlay (reward sheets, modals, lightboxes) in `createPortal`, targeting the open `[role="dialog"]` when one exists, otherwise `document.body`.

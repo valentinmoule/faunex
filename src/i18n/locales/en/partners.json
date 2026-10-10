@@ -1,0 +1,159 @@
+{
+  "partners": {
+    "nav": {
+      "label": "Partners",
+      "zoo": "Zoos & parks",
+      "associations": "Associations",
+      "app": "Discover Faunex"
+    },
+    "contact": "Let’s discuss your project",
+    "contactNote": "contact@faunex.fr",
+    "principleTitle": "How Faunex works",
+    "principleDesc": "Photograph, identify, collect: every animal encounter becomes a card in a personal bestiary.",
+    "steps": [
+      {
+        "title": "Photograph",
+        "desc": "Observe an animal and take a photograph without disturbing it."
+      },
+      {
+        "title": "Identify",
+        "desc": "Discover its name, habitat and fun facts with AI."
+      },
+      {
+        "title": "Collect",
+        "desc": "Keep a card of your encounter and grow your bestiary."
+      }
+    ],
+    "processTitle": "A project shaped together",
+    "process": [
+      {
+        "title": "Your idea",
+        "desc": "Tell us about your location, audience and goals."
+      },
+      {
+        "title": "Our proposal",
+        "desc": "Together we define the format, scope and partnership terms."
+      },
+      {
+        "title": "Getting ready",
+        "desc": "We prepare the content and programme with your team."
+      }
+    ],
+    "showcaseAlt": "Faunex previews: animal identification and collectible wildlife cards",
+    "faqTitle": "Your questions",
+    "zoo": {
+      "title": "Faunex for zoos",
+      "metaTitle": "Visibility for zoos and wildlife parks — Faunex",
+      "description": "Introduce your zoo to a wildlife-loving community. Build your presence in the Faunex experience with us.",
+      "eyebrow": "VISIBILITY · ZOOS & WILDLIFE PARKS",
+      "subtitle": "Your institution, on the explorers’ path. Inspire a nature-curious community to discover your animals and your mission.",
+      "imageAlt": "Giraffes at a wildlife park watched by visitors",
+      "audienceTitle": "An audience aligned with your goals",
+      "audienceDesc": "Faunex brings together people who enjoy observing animals, learning and collecting their encounters. A natural connection with your institution.",
+      "benefits": [
+        {
+          "title": "Introduce your zoo",
+          "desc": "Present your institution to an audience already interested in wildlife and nature outings."
+        },
+        {
+          "title": "Share your mission",
+          "desc": "Highlight your species and your work to raise conservation awareness."
+        },
+        {
+          "title": "Extend the discovery",
+          "desc": "Collectible cards create a memory of the visit and encourage further exploration."
+        }
+      ],
+      "offerTitle": "Your zoo in the experience",
+      "offerDesc": "A visibility partnership shaped together around your institution and objectives.",
+      "offers": [
+        {
+          "title": "Your institution in the spotlight",
+          "desc": "Define how to present your zoo and inspire discovery in Faunex."
+        },
+        {
+          "title": "Your species and your story",
+          "desc": "Choose the emblematic animals and content that tell your story."
+        },
+        {
+          "title": "Your key moments",
+          "desc": "Explore opportunities to highlight your events and seasonal activities."
+        }
+      ],
+      "finalTitle": "Bring your institution into Faunex",
+      "finalDesc": "Tell us about your zoo, your audience and your visibility goals.",
+      "subject": "Zoo visibility partnership — Faunex",
+      "faq": [
+        {
+          "q": "Which institutions is this for?",
+          "a": "Zoos, wildlife parks and aquariums looking to share their animals and mission with the Faunex community."
+        },
+        {
+          "q": "What does it cost?",
+          "a": "The scope and price of the partnership are defined together. Contact us to discuss your institution."
+        },
+        {
+          "q": "How does a partnership start?",
+          "a": "An initial conversation helps us understand your goals and define the content and visibility arrangements."
+        }
+      ]
+    },
+    "associations": {
+      "title": "Faunex for associations",
+      "metaTitle": "Nature events for associations — Faunex",
+      "description": "Nature walks, collection challenges and tailored events: introduce your members to biodiversity with Faunex.",
+      "eyebrow": "EVENTS · ASSOCIATIONS",
+      "subtitle": "Bring your members together around biodiversity. A walk, a challenge or a tailored event: turn wildlife observation into a shared adventure.",
+      "imageAlt": "A group observes and photographs a butterfly on a nature walk",
+      "audienceTitle": "Nature brings people together",
+      "audienceDesc": "Nature associations, local groups and outdoor clubs: share your passion and add a new dimension to your gatherings.",
+      "benefits": [
+        {
+          "title": "Bring members together",
+          "desc": "A shared goal to connect, explore and exchange discoveries."
+        },
+        {
+          "title": "Learn through observation",
+          "desc": "Discover local wildlife in a playful way while respecting animals and their habitats."
+        },
+        {
+          "title": "Keep a lasting memory",
+          "desc": "Each participant keeps cards of their encounters in their Faunex."
+        }
+      ],
+      "offerTitle": "Three ways to explore together",
+      "offerDesc": "Choose a format or combine them. We define the programme and arrangements together around your group.",
+      "offers": [
+        {
+          "title": "Nature walks",
+          "desc": "An observation walk to discover local animals, photograph them and learn together."
+        },
+        {
+          "title": "Collection challenges",
+          "desc": "A photographic challenge built around species or a theme: grow a bestiary without collecting or catching animals."
+        },
+        {
+          "title": "Tailored events",
+          "desc": "A biodiversity day, an association gathering or a seasonal event designed around your project."
+        }
+      ],
+      "finalTitle": "Let’s create your next nature event",
+      "finalDesc": "Tell us about your association, location, proposed dates and expected group size.",
+      "subject": "Association event — Faunex",
+      "faq": [
+        {
+          "q": "Can we combine all three formats?",
+          "a": "Yes. A nature walk can include a photographic collection challenge and be part of a larger event."
+        },
+        {
+          "q": "Do members need to know Faunex already?",
+          "a": "No. We plan the preparation with you around the group. Faunex is available on iPhone, Android and in a browser."
+        },
+        {
+          "q": "What budget should we allow?",
+          "a": "The budget and Faunex usage arrangements during the event depend on its format, duration and number of participants."
+        }
+      ]
+    }
+  }
+}
