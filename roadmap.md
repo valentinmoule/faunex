@@ -1,7 +1,7 @@
 
 ## Pages partenaires B2B
-- [ ] Offre visibilité zoos et page associations (sorties nature, défis de collecte, événements sur mesure)
-- [ ] Liens, traductions FR/EN et vérification des pages
+- [x] Offre visibilité zoos et page associations (sorties nature, défis de collecte, événements sur mesure)
+- [x] Liens, traductions FR/EN et vérification des pages
 
 ## i18n FR/EN (en cours)
 - [x] Infra i18next + détection device + sélecteur Paramètres + profiles.locale
