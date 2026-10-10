@@ -1,0 +1,159 @@
+{
+  "partners": {
+    "nav": {
+      "label": "Espace partenaires",
+      "zoo": "Zoos & parcs",
+      "associations": "Associations",
+      "app": "Découvrir Faunex"
+    },
+    "contact": "Parlons de votre projet",
+    "contactNote": "contact@faunex.fr",
+    "principleTitle": "Le principe de Faunex",
+    "principleDesc": "Photographier, identifier, collectionner : chaque rencontre avec un animal devient une carte dans un bestiaire personnel.",
+    "steps": [
+      {
+        "title": "Photographier",
+        "desc": "Observer un animal et le prendre en photo, sans le déranger."
+      },
+      {
+        "title": "Identifier",
+        "desc": "Découvrir son nom, son habitat et ses anecdotes grâce à l’IA."
+      },
+      {
+        "title": "Collectionner",
+        "desc": "Garder une carte de sa rencontre et enrichir son bestiaire."
+      }
+    ],
+    "processTitle": "Un projet construit avec vous",
+    "process": [
+      {
+        "title": "Votre idée",
+        "desc": "Partagez votre lieu, votre public et les objectifs de votre projet."
+      },
+      {
+        "title": "Notre proposition",
+        "desc": "Nous définissons ensemble le format, le périmètre et les modalités du partenariat."
+      },
+      {
+        "title": "La mise en place",
+        "desc": "Nous préparons les contenus et le déroulement avec vos équipes."
+      }
+    ],
+    "showcaseAlt": "Aperçus de Faunex : identification et collection de cartes d’animaux",
+    "zoo": {
+      "title": "Faunex pour les zoos",
+      "metaTitle": "Visibilité pour les zoos et parcs animaliers — Faunex",
+      "description": "Faites découvrir votre zoo à une communauté passionnée de faune. Construisons votre présence dans l’expérience Faunex.",
+      "eyebrow": "VISIBILITÉ · ZOOS & PARCS ANIMALIERS",
+      "subtitle": "Votre établissement, sur le chemin des explorateurs. Donnez envie à une communauté curieuse de nature de découvrir vos animaux et votre mission.",
+      "imageAlt": "Girafes dans un parc animalier, observées par des visiteurs",
+      "audienceTitle": "Une audience qui correspond à vos enjeux",
+      "audienceDesc": "Faunex rassemble des personnes qui aiment observer les animaux, apprendre et collectionner leurs rencontres. Une affinité naturelle avec votre établissement.",
+      "benefits": [
+        {
+          "title": "Faire connaître votre zoo",
+          "desc": "Présentez votre établissement à un public déjà intéressé par la faune et les sorties nature."
+        },
+        {
+          "title": "Valoriser votre mission",
+          "desc": "Mettez en lumière vos espèces et vos actions de sensibilisation à la conservation."
+        },
+        {
+          "title": "Prolonger la découverte",
+          "desc": "La collection de cartes crée un souvenir de visite et nourrit l’envie de continuer à explorer."
+        }
+      ],
+      "offerTitle": "Votre zoo intégré à l’expérience",
+      "offerDesc": "Une offre de visibilité à construire ensemble, selon votre établissement et vos objectifs.",
+      "offers": [
+        {
+          "title": "Votre établissement en lumière",
+          "desc": "Définissons comment présenter votre zoo et donner envie de le découvrir dans Faunex."
+        },
+        {
+          "title": "Vos espèces et votre histoire",
+          "desc": "Choisissons les animaux emblématiques et les contenus qui racontent votre mission."
+        },
+        {
+          "title": "Vos temps forts",
+          "desc": "Étudions des mises en avant autour de vos événements et de votre saisonnalité."
+        }
+      ],
+      "finalTitle": "Intégrez votre établissement à Faunex",
+      "finalDesc": "Parlez-nous de votre zoo, de votre public et de vos enjeux de visibilité.",
+      "subject": "Partenariat visibilité zoo — Faunex",
+      "faq": [
+        {
+          "q": "Quels établissements sont concernés ?",
+          "a": "Les zoos, parcs animaliers et aquariums souhaitant faire découvrir leurs animaux et leur mission au public de Faunex."
+        },
+        {
+          "q": "Quel est le tarif ?",
+          "a": "Le périmètre et le tarif du partenariat sont définis ensemble. Contactez-nous pour discuter de votre établissement."
+        },
+        {
+          "q": "Comment démarre le partenariat ?",
+          "a": "Un premier échange permet de comprendre vos objectifs et de définir les contenus et les modalités de mise en avant."
+        }
+      ]
+    },
+    "associations": {
+      "title": "Faunex pour les associations",
+      "metaTitle": "Événements nature pour les associations — Faunex",
+      "description": "Sorties nature, défis de collecte et événements sur mesure : faites découvrir la biodiversité à vos adhérents avec Faunex.",
+      "eyebrow": "ÉVÉNEMENTS · ASSOCIATIONS",
+      "subtitle": "Rassemblez vos adhérents autour de la biodiversité. Une sortie, un défi ou un événement sur mesure : transformez l’observation des animaux en aventure collective.",
+      "imageAlt": "Un groupe observe et photographie un papillon lors d’une sortie nature",
+      "audienceTitle": "La nature, un terrain de rencontre",
+      "audienceDesc": "Associations naturalistes, collectifs locaux et clubs de plein air : partagez votre passion et donnez une nouvelle dimension à vos rencontres.",
+      "benefits": [
+        {
+          "title": "Rassembler vos adhérents",
+          "desc": "Un objectif commun pour échanger, explorer et partager ses découvertes."
+        },
+        {
+          "title": "Sensibiliser par l’observation",
+          "desc": "Faire connaître la faune locale avec une approche ludique, en respectant les animaux et leurs habitats."
+        },
+        {
+          "title": "Garder un souvenir vivant",
+          "desc": "Chaque participant conserve ses rencontres sous forme de cartes dans son Faunex."
+        }
+      ],
+      "offerTitle": "Trois façons de vivre l’aventure",
+      "offerDesc": "Choisissez un format ou combinez-les. Le déroulement et les modalités sont définis ensemble selon votre groupe.",
+      "offers": [
+        {
+          "title": "Sorties nature",
+          "desc": "Une balade d’observation pour découvrir les animaux du territoire, les photographier et apprendre ensemble."
+        },
+        {
+          "title": "Défis de collecte",
+          "desc": "Un défi photographique autour d’espèces ou d’un thème : enrichir son bestiaire sans prélever ni capturer d’animaux."
+        },
+        {
+          "title": "Événements sur mesure",
+          "desc": "Une journée biodiversité, une rencontre associative ou un rendez-vous saisonnier adapté à votre projet."
+        }
+      ],
+      "finalTitle": "Créons votre prochain événement nature",
+      "finalDesc": "Indiquez-nous votre association, le lieu, la période et le nombre de participants envisagé.",
+      "subject": "Événement association — Faunex",
+      "faq": [
+        {
+          "q": "Peut-on combiner les trois formats ?",
+          "a": "Oui. Une sortie nature peut inclure un défi de collecte photographique et s’inscrire dans un événement plus large."
+        },
+        {
+          "q": "Faut-il déjà connaître Faunex ?",
+          "a": "Non. Nous définissons avec vous la préparation adaptée au groupe. Faunex est disponible sur iPhone, Android et dans le navigateur."
+        },
+        {
+          "q": "Quel budget prévoir ?",
+          "a": "Le budget et les modalités d’utilisation de Faunex pendant l’événement sont définis selon le format, la durée et le nombre de participants."
+        }
+      ]
+    },
+    "faqTitle": "Vos questions"
+  }
+}
