@@ -232,7 +232,9 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
         social_10: Math.min(following, 10),
         followers_5: Math.min(followers, 5),
         followers_25: Math.min(followers, 25),
-        [COMMUNITY_BADGE_ID]: claimedSet.has(COMMUNITY_BADGE_ID) ? 1 : 0,
+        // Rejoindre le Discord ne peut pas être vérifié : le badge reste réclamable
+        // depuis la liste, même si l'invitation a été fermée ou rejointe ailleurs.
+        [COMMUNITY_BADGE_ID]: 1,
         premium_member: premiumRes.data || claimedSet.has('premium_member') ? 1 : 0,
       };
 
