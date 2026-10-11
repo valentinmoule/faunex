@@ -127,6 +127,13 @@
       "when": 1791479461326,
       "tag": "0017_admin_analytics_faster",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1791715104305,
+      "tag": "0018_fix_quest_rarity_progress",
+      "breakpoints": true
     }
   ]
 }
