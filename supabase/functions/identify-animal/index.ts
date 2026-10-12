@@ -177,7 +177,7 @@ const FAST_PROMPT = `Expert naturaliste. Identifie l'animal au rang le plus pré
 
 1. AUTHENTICITÉ d'abord : renseigne image_type + is_real_photo. Seule une VRAIE PHOTO d'animal VIVANT est valide. Invalide : illustration, dessin, vectoriel, logo, mascotte, peinture, tatouage, statue, taxidermie, rendu 3D, image IA, jeu vidéo, capture/photo d'écran ou de papier, jouet, peluche, figurine, tout OBJET en forme d'animal (déco, déguisement, gonflable, gâteau, graffiti, panneau) ; et tout animal MORT ou préparé (plat, poisson/fruits de mer servis ou en étal, viande, carcasse, trophée, écrasé, insecte épinglé, squelette, coquille vide) → animal_mort_ou_plat. Indices : matériau/couture/socle/yeux peints, aplats sans grain, fond uni, watermark, assiette/couverts/glace/découpe/sang. Doute → is_real_photo false, "Inconnu", confidence 0, pas d'alternative.
 
-2. INTERDITS → "Inconnu", confidence 0 : humain (humain + animal → identifie l'animal), fiction, espèces éteintes, aucun animal. Exception : vraies espèces dites "dragon" (Komodo, barbu, volant).
+2. HUMAIN seul → image_type "humain", animal_name "Humain", scientific_name "Homo sapiens", confidence 0 ; jamais animal_mort_ou_plat. Humain + animal vivant → identifie l'animal. Autres INTERDITS → "Inconnu", confidence 0 : fiction, espèces éteintes, aucun animal. Exception : vraies espèces dites "dragon" (Komodo, barbu, volant).
 
 3. TAXONOMIE : ne déduis jamais le latin du nom français. Binôme uniquement si l'espèce est réellement publiée avec le bon genre ; sinon rang RÉEL sûr (scientific_name = ce rang seul, scientific_rank, animal_name générique, confidence ≤ 60). animal_name = nom commun français seul, sans parenthèses. Jamais de nom inventé.
 
@@ -318,7 +318,7 @@ serve(async (req) => {
           await cacheDb.from("identify_cache").upsert({
             image_hash: imageHash,
             outcome,
-            payload: { ...body, __outcome: outcome, __at: Date.now() },
+            payload: { ...body, __outcome: outcome, __at: Date.now(), __rejection_version: 2 },
             created_at: new Date().toISOString(),
             hits: 0,
           }, { onConflict: "image_hash" });
@@ -338,12 +338,14 @@ serve(async (req) => {
         if (cached && typeof cached === "object") {
           const outcome = String((cached as any).__outcome ?? "success");
           const at = Number((cached as any).__at ?? 0);
-          const fresh = LONG_LIVED_OUTCOMES.includes(outcome) ||
-            Date.now() - at < NEGATIVE_TTL_MS;
+          const legacyRejection = outcome === "not_a_real_photo" && (cached as any).__rejection_version !== 2;
+          const fresh = !legacyRejection && (LONG_LIVED_OUTCOMES.includes(outcome) ||
+            Date.now() - at < NEGATIVE_TTL_MS);
           if (fresh) {
             const body = { ...(cached as Record<string, unknown>) };
             delete body.__outcome;
             delete body.__at;
+            delete body.__rejection_version;
             console.log("identify cache hit", outcome, isProbe ? "(probe)" : "");
             // Mesure : une réutilisation de cache = un appel IA économisé.
             cacheDb.from("ml_dataset_events").insert({
@@ -522,7 +524,7 @@ serve(async (req) => {
                   is_real_photo: { type: "boolean" },
                   image_type: {
                     type: "string",
-                    enum: ["photo_reelle", "illustration", "dessin", "logo_icone", "peinture", "rendu_3d", "image_generee_ia", "capture_ecran", "photo_ecran_ou_papier", "jouet_peluche_figurine", "objet_representation", "animal_mort_ou_plat", "autre"]
+                    enum: ["photo_reelle", "humain", "illustration", "dessin", "logo_icone", "peinture", "rendu_3d", "image_generee_ia", "capture_ecran", "photo_ecran_ou_papier", "jouet_peluche_figurine", "objet_representation", "animal_mort_ou_plat", "autre"]
                   },
                   animal_name: { type: "string" },
                   scientific_name: { type: "string" },
@@ -755,6 +757,13 @@ serve(async (req) => {
     // Le verdict retenu est celui du dernier modèle exécuté (le modèle profond
     // repasse systématiquement sur les cas à confiance faible, dont ceux-ci).
     const imageType = typeof animalData?.image_type === "string" ? animalData.image_type : null;
+    // Le refus humain prime sur l'authenticité, même si le modèle classe mal l'image.
+    const humanName = String(animalData?.animal_name ?? "").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const humanScientific = String(animalData?.scientific_name ?? "").trim().toLowerCase();
+    if (imageType === "humain" || humanScientific === "homo sapiens" ||
+      ["humain", "etre humain", "homme", "femme", "enfant", "personne", "human", "selfie", "visage"].includes(humanName)) {
+      return await finish({ success: false, reason: "human", image_type: "humain" }, "human");
+    }
     const notRealPhoto =
       animalData?.is_real_photo === false || (imageType !== null && imageType !== "photo_reelle");
 
