@@ -165,7 +165,7 @@ const LOCAL_CACHE_KEY = 'faunex.identify.cache.v1';
 const LOCAL_CACHE_TTL = 30 * 24 * 60 * 60 * 1000;
 const LOCAL_CACHE_MAX = 60;
 
-type LocalCacheEntry = { at: number; outcome: IdentifyOutcome };
+type LocalCacheEntry = { at: number; outcome: IdentifyOutcome; rejectionVersion?: number };
 
 const readLocalCache = (): Record<string, LocalCacheEntry> => {
   try {
@@ -179,6 +179,7 @@ const readLocalCache = (): Record<string, LocalCacheEntry> => {
 const getLocalOutcome = (hash: string): IdentifyOutcome | null => {
   const entry = readLocalCache()[hash];
   if (!entry || Date.now() - entry.at > LOCAL_CACHE_TTL) return null;
+  if (entry.outcome.status === 'rejected' && entry.rejectionVersion !== 2) return null;
   return entry.outcome;
 };
 
@@ -187,7 +188,7 @@ const setLocalOutcome = (hash: string, outcome: IdentifyOutcome) => {
   if (outcome.status === 'error') return;
   try {
     const store = readLocalCache();
-    store[hash] = { at: Date.now(), outcome };
+    store[hash] = { at: Date.now(), outcome, rejectionVersion: 2 };
     const entries = Object.entries(store)
       .sort((a, b) => b[1].at - a[1].at)
       .slice(0, LOCAL_CACHE_MAX);
@@ -248,6 +249,16 @@ export const useAnimalIdentification = () => {
           };
         }
 
+        // Un humain doit avoir son propre refus, même si l'authenticité est mal classée.
+        if (data?.reason === 'human' || data?.image_type === 'humain' || (data?.animal && isHuman(data.animal))) {
+          return {
+            status: 'rejected',
+            kind: 'human',
+            title: i18n.t('capture.rejected.human.title'),
+            message: i18n.t('capture.rejected.human.message'),
+          };
+        }
+
         // Image non photographique : refus explicite et assumé. L'utilisateur
         // garde la possibilité de demander une modération humaine.
         if (data?.reason === 'not_a_real_photo') {
@@ -285,14 +296,6 @@ export const useAnimalIdentification = () => {
           // `hint` porte le repli taxonomique honnête (genre / famille) quand le
           // serveur a rejeté une espèce non validée.
           return { status: 'unknown', hint: typeof data?.hint === 'string' ? data.hint : undefined };
-        }
-        if (isHuman(animal)) {
-          return {
-            status: 'rejected',
-            kind: 'human',
-            title: i18n.t('capture.rejected.human.title'),
-            message: i18n.t('capture.rejected.human.message'),
-          };
         }
         if (
           animal.animal_name.toLowerCase() === 'inconnu' ||
