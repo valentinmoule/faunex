@@ -1562,6 +1562,21 @@ export type Database = {
         }
         Relationships: []
       }
+      species_finder_cache: {
+        Row: {
+          animal_key: string
+          finders: number
+        }
+        Insert: {
+          animal_key: string
+          finders: number
+        }
+        Update: {
+          animal_key?: string
+          finders?: number
+        }
+        Relationships: []
+      }
       species_pages: {
         Row: {
           animal_name: string
@@ -2530,6 +2545,7 @@ export type Database = {
         Args: { p_collection_id?: string }
         Returns: number
       }
+      refresh_species_finder_key: { Args: { _key: string }; Returns: undefined }
       refund_ai_analysis: {
         Args: { p_request: string; p_user: string }
         Returns: boolean
