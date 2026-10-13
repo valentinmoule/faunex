@@ -5,6 +5,7 @@ import { compressForAI, dataUrlBytes, hashDataUrl } from '@/lib/imageProcessing'
 import type { AnimalResult } from '@/types/capture';
 import { logDatasetEvent, setPendingImageHash } from '@/lib/dataset';
 import { hapticSuccess } from '@/lib/haptics';
+import { isVagueGroupName } from '@/lib/placeholderNames';
 
 /** Motifs de refus explicites (l'utilisateur peut toujours demander une modération). */
 export type RejectionKind = 'representation' | 'internet' | 'human' | 'dead';
