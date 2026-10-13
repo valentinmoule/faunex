@@ -141,6 +141,13 @@
       "when": 1791910911886,
       "tag": "0019_plural_tolerant_species_match",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1791911206459,
+      "tag": "0020_match_typed_scientific_name",
+      "breakpoints": true
     }
   ]
 }
