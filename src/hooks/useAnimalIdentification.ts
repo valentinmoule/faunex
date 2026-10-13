@@ -304,6 +304,13 @@ export const useAnimalIdentification = () => {
           return { status: 'unknown' };
         }
 
+        // Nom trop vague (« Oiseau », « Opilion »…) : pas une espèce, on envoie
+        // l'explorateur vers la saisie manuelle (validation en modération), en
+        // gardant la proposition de l'IA comme indice pré-rempli.
+        if (isVagueGroupName(animal.animal_name)) {
+          return { status: 'unknown', hint: animal.animal_name };
+        }
+
         // Dataset : on archive la prédiction brute du modèle (jamais une
         // vérité terrain) pour pouvoir la comparer plus tard au label retenu.
         if (!data?.cached) {
