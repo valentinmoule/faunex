@@ -5,6 +5,7 @@ import { compressForAI, dataUrlBytes, hashDataUrl } from '@/lib/imageProcessing'
 import type { AnimalResult } from '@/types/capture';
 import { logDatasetEvent, setPendingImageHash } from '@/lib/dataset';
 import { hapticSuccess } from '@/lib/haptics';
+import { isVagueGroupName } from '@/lib/placeholderNames';
 
 /** Motifs de refus explicites (l'utilisateur peut toujours demander une modération). */
 export type RejectionKind = 'representation' | 'internet' | 'human' | 'dead';
@@ -302,6 +303,13 @@ export const useAnimalIdentification = () => {
           isFictionalOrExtinct(animal)
         ) {
           return { status: 'unknown' };
+        }
+
+        // Nom trop vague (« Oiseau », « Opilion »…) : pas une espèce, on envoie
+        // l'explorateur vers la saisie manuelle (validation en modération), en
+        // gardant la proposition de l'IA comme indice pré-rempli.
+        if (isVagueGroupName(animal.animal_name)) {
+          return { status: 'unknown', hint: animal.animal_name };
         }
 
         // Dataset : on archive la prédiction brute du modèle (jamais une
