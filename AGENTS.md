@@ -51,3 +51,7 @@ Guard manual submissions with a synchronous lock on the client and keep the part
 Every Supabase query builder call (insert, update, delete, upsert) must be `await`ed or have a `.then()` with a handler attached. When the write is followed by something that needs the live user gesture (opening a payment portal popup), chain `.then()` and keep going synchronously instead of awaiting.
 
 **Why:** PostgREST builders are lazy thenables — the HTTP request only leaves when `then()` runs, so a bare `void supabase.from(...)` fails silently and nothing is stored.
+
+## User-typed species names snap to existing tiles
+
+Resolve capture names server-side against the catalogue (exact, synonyms, singular/plural-insensitive, then fuzzy) before creating a new species, because spelling variants like "Passereaux" otherwise create duplicate Bestiary tiles.

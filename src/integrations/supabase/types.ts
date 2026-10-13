@@ -2547,7 +2547,15 @@ export type Database = {
           scientific_name: string
         }[]
       }
+      resolve_species_identity_plural: {
+        Args: { p_name: string }
+        Returns: {
+          name: string
+          scientific_name: string
+        }[]
+      }
       settle_league_group: { Args: { p_group_id: string }; Returns: undefined }
+      singular_animal_label: { Args: { p: string }; Returns: string }
       species_finder_count: {
         Args: { _name: string; _scientific?: string }
         Returns: number
