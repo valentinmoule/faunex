@@ -134,6 +134,13 @@
       "when": 1791715104305,
       "tag": "0018_fix_quest_rarity_progress",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1791910911886,
+      "tag": "0019_plural_tolerant_species_match",
+      "breakpoints": true
     }
   ]
 }
