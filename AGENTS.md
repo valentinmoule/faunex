@@ -55,3 +55,7 @@ Every Supabase query builder call (insert, update, delete, upsert) must be `awai
 ## User-typed species names snap to existing tiles
 
 Resolve capture names server-side against the catalogue (exact, synonyms, singular/plural-insensitive, then fuzzy) before creating a new species, because spelling variants like "Passereaux" otherwise create duplicate Bestiary tiles.
+
+## Discoverer counts come from a trigger-maintained cache
+
+`species_finder_counts()` reads `species_finder_cache`, kept in sync per species by a trigger on captures, because recomputing the full aggregate on every paginated call was the top database cost.
