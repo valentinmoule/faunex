@@ -1,4 +1,4 @@
-import { ReactNode, useRef } from 'react';
+import { ReactNode, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { peekPendingShelve } from '@/lib/shelveAnimation';
 
@@ -15,6 +15,7 @@ const PageTransition = ({ children }: { children: ReactNode }) => {
   const location = useLocation();
   const prev = useRef(location.pathname);
   const dir = useRef('');
+  const [completedPath, setCompletedPath] = useState<string | null>(null);
 
   if (prev.current !== location.pathname) {
     const from = tabIndex(prev.current);
@@ -25,7 +26,13 @@ const PageTransition = ({ children }: { children: ReactNode }) => {
 
   const skip = location.pathname === '/bestiaire' && peekPendingShelve();
   return (
-    <div key={location.pathname} className={skip ? '' : dir.current || 'page-transition'}>
+    <div
+      key={location.pathname}
+      className={skip || completedPath === location.pathname ? '' : dir.current || 'page-transition'}
+      onAnimationEnd={(event) => {
+        if (event.target === event.currentTarget) setCompletedPath(location.pathname);
+      }}
+    >
       {children}
     </div>
   );

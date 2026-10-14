@@ -733,7 +733,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
             >
               <span className="text-white text-lg font-light leading-none">✕</span>
             </button>
-            <div className={feedView ? 'flex-1 min-h-0 overflow-y-auto' : 'h-full overflow-y-auto'}>
+            <div className={`detail-sheet-scroll w-full min-w-0 overflow-x-hidden overflow-y-auto ${feedView ? 'flex-1 min-h-0' : 'h-full'}`}>
           <div className={`relative overflow-hidden ${photoBackdrop ? '' : heroClass}`} style={{ zIndex: 0 }}>
             {photoBackdrop && (
               <>
@@ -940,7 +940,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                     onChange={(e) => setNewComment(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSubmitComment()}
                     placeholder={t('capture.detail.commentPlaceholder')}
-                    className="flex-1 bg-background rounded-full px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body"
+                    className="flex-1 min-w-0 bg-background rounded-full px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body"
                   />
                   <button
                     onClick={handleSubmitComment}
@@ -1414,7 +1414,7 @@ const DetailRow = ({ icon, label, value, action }: {
     <span className="mt-0.5 text-muted-foreground">{icon}</span>
     <div className="flex-1 min-w-0">
       <p className="text-[10px] font-display font-bold uppercase tracking-wider text-muted-foreground">{label}</p>
-      <p className="text-sm text-foreground/85 leading-snug mt-0.5">{value}</p>
+      <p className="text-sm text-foreground/85 leading-snug mt-0.5 break-words">{value}</p>
     </div>
     {action}
   </div>

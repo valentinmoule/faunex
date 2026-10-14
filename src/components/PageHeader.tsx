@@ -12,7 +12,7 @@ export function PageHeader({ children, className, sticky = false }: PageHeaderPr
     <header
       className={cn(
         'pt-[max(env(safe-area-inset-top),1rem)]',
-        sticky && 'sticky top-0 z-40',
+        sticky && 'page-header-sticky sticky top-0 z-40',
         className
       )}
     >
