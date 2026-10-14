@@ -1,5 +1,5 @@
-// Première connexion : utilisé par DailyQuestPopup, LevelSplash, etc.
-// (ancien module de la popup d'installation PWA, conservé pour ces usages)
+// Première connexion : utilisé par DailyQuestPopup, etc.
+
 
 const FIRST_LOGIN_KEY = 'faunex_first_login_done';
 
