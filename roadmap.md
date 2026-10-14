@@ -1,4 +1,10 @@
 
+## Corrections iOS
+- [ ] Garder le header visible au défilement des badges et quêtes
+- [ ] Corriger le rendu du contour mythique
+- [ ] Empêcher le défilement horizontal de la fiche espèce
+- [ ] Vérifier les corrections dans l’app et les tests disponibles
+
 ## Pages partenaires B2B
 - [x] Offre visibilité zoos et page associations (sorties nature, défis de collecte, événements sur mesure)
 - [x] Liens, traductions FR/EN et vérification des pages
