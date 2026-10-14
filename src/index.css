@@ -2827,6 +2827,41 @@ html.is-native-app {
 html.is-native-ios body {
   padding-top: env(safe-area-inset-top);
 }
+/* Le header ne doit jamais remonter sous la barre système au scroll. */
+html.is-native-ios .page-header-sticky {
+  top: env(safe-area-inset-top, 0px);
+}
+html.is-native-ios .page-header-sticky::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  bottom: 100%;
+  height: env(safe-area-inset-top, 0px);
+  background: hsl(var(--background));
+  pointer-events: none;
+}
+/* Une seule couche de dégradé évite le clip de bordure instable de WebKit
+   pendant le mouvement irisé ; la photo garde son propre rayon intérieur. */
+html.is-native-ios .holo-frame:is(.holo-frame--special-rare, .holo-frame--hyper-rare),
+html.is-native-ios .game-tile.tile-border-iridescent {
+  background-image: var(--frame-grad, var(--tile-frame));
+  background-clip: border-box;
+  background-size: 300% 300%;
+}
+html.is-native-ios .holo-frame:is(.holo-frame--special-rare, .holo-frame--hyper-rare),
+html.is-native-ios .game-tile.tile-grid-2.tile-border-iridescent {
+  animation-name: iridescent-flow-ios;
+}
+@keyframes iridescent-flow-ios {
+  0%, 100% { background-position: 0% 0%; }
+  50% { background-position: 32% 54%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html.is-native-ios .holo-frame:is(.holo-frame--special-rare, .holo-frame--hyper-rare),
+  html.is-native-ios .game-tile.tile-grid-2.tile-border-iridescent {
+    animation: none;
+  }
+}
 /* Les overlays fixed échappent au padding du body : garder leur fermeture
    sous l'encoche / Dynamic Island tout en conservant une grande zone tactile. */
 .detail-fullscreen-close {
@@ -3386,7 +3421,6 @@ html.is-native-android body {
 
 .page-transition {
   animation: page-enter 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
-  will-change: opacity, transform;
 }
 
 @keyframes page-enter-right {
@@ -3400,7 +3434,7 @@ html.is-native-android body {
 .page-transition-right { animation: page-enter-right 0.32s cubic-bezier(0.22, 1, 0.36, 1) both; }
 .page-transition-left { animation: page-enter-left 0.32s cubic-bezier(0.22, 1, 0.36, 1) both; }
 @media (prefers-reduced-motion: reduce) {
-  .page-transition-right, .page-transition-left { animation: none; }
+  .page-transition, .page-transition-right, .page-transition-left { animation: none; }
 }
 
 /* Petit "pop" sur l'onglet actif de la barre de navigation */

@@ -12,6 +12,12 @@ Wrap any `position: fixed` overlay (reward sheets, modals, lightboxes) in `creat
 
 **Why:** transformed page wrappers otherwise contain and misplace fixed descendants.
 
+## iOS headers and card surfaces stay within their viewport
+
+Keep sticky headers below the native top safe area, remove page transition transforms after entry, and constrain species sheets to vertical scrolling while leaving photo carousels horizontal, because WebKit otherwise hides headers or permits sideways page movement.
+
+Use a single gradient background for native iOS iridescent frames, retaining the existing inner photo clipping and motion, because animated dual background clipping is unstable in WebKit.
+
 ## Subscription-gated badges must be validated on the server
 
 Check Premium eligibility in the badge claim function, not only in the badge UI, so a modified client cannot claim an unearned subscription badge.
