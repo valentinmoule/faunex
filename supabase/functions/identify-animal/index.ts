@@ -459,7 +459,7 @@ serve(async (req) => {
      */
     // Compte interne : dernière génération Flash en une seule passe (plus
     // rapide, pas de seconde passe) — volume négligeable côté coût.
-    const DEEP_MODEL = boostedAccount ? "google/gemini-3.7-flash" : "google/gemini-3.6-flash";
+    const DEEP_MODEL = boostedAccount ? "google/gemini-3.8-flash" : "google/gemini-3.8-flash";
     const FAST_MODEL = boostedAccount || isNewUser ? DEEP_MODEL : "google/gemini-3.1-flash-lite";
     /** Fiches d'espèces : texte seul, toujours sur le modèle le moins cher. */
     const TEXT_MODEL = "google/gemini-3.1-flash-lite";

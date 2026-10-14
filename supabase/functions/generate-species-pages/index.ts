@@ -15,7 +15,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const MODEL = 'google/gemini-2.5-flash'
+const MODEL = 'google/gemini-3.8-flash'
 
 const SYSTEM = [
   "Tu es naturaliste de terrain et rédacteur SEO pour Faunex, une application d'identification d'animaux.",
