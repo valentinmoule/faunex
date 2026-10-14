@@ -252,7 +252,7 @@ Deno.serve(async (req) => {
     // retente avec un modèle de repli plutôt que de laisser le modérateur attendre.
     // La modération privilégie la précision : chaîne haute qualité par défaut.
     // Repli sur Flash 3.6 (2,3× moins cher que l'ancien 3.5 à requête égale).
-    const models = ['google/gemini-3.1-flash-lite', 'google/gemini-3.6-flash']
+    const models = ['google/gemini-3.1-flash-lite', 'google/gemini-3.8-flash']
 
     const callGateway = async (model: string, timeoutMs: number) => {
       const controller = new AbortController()
