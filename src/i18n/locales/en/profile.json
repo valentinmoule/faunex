@@ -250,11 +250,6 @@
       "reward10": "Master naturalist in the making!",
       "rewardMax": "Living legend of wildlife!"
     },
-    "levelSplash": {
-      "welcomeName": "Welcome, {{name}}",
-      "welcomeGeneric": "Welcome, explorer",
-      "level": "Level {{level}}"
-    },
     "levelBadge": {
       "level": "Level {{level}}"
     },
