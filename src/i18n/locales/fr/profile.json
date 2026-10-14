@@ -250,11 +250,6 @@
       "reward10": "Maître naturaliste en devenir !",
       "rewardMax": "Légende vivante de la faune !"
     },
-    "levelSplash": {
-      "welcomeName": "Bienvenue, {{name}}",
-      "welcomeGeneric": "Bienvenue, explorateur",
-      "level": "Niveau {{level}}"
-    },
     "levelBadge": {
       "level": "Niveau {{level}}"
     },
