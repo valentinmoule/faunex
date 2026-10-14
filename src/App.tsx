@@ -6,7 +6,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import LevelSplash from "./components/LevelSplash";
 import LevelUpCelebration from "./components/LevelUpCelebration";
 import LoadingScreen from "./components/LoadingScreen";
 import BottomNav from "./components/BottomNav";
@@ -217,8 +216,8 @@ const AppRoutes = () => {
       {!isPremiumPage && (
         <>
           <PushPermissionPrompt />
-          <LevelSplash />
           <LevelUpCelebration />
+
         </>
       )}
       <FirstLoginMarker />
