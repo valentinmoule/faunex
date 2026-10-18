@@ -169,6 +169,13 @@
       "when": 1792318965832,
       "tag": "0023_secure_nearby_reservations_and_social_visibility",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1792319257629,
+      "tag": "0024_restrict_storage_listing_to_owner",
+      "breakpoints": true
     }
   ]
 }
