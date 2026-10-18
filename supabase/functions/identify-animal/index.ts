@@ -240,7 +240,10 @@ serve(async (req) => {
   try {
     const authToken = req.headers.get('Authorization')?.match(/^Bearer\s+(.+)$/i)?.[1];
     if (!authToken) return jsonResponse({ error: 'Unauthorized' }, 401);
-    const authClient = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_ANON_KEY')!);
+    const serviceUrl = Deno.env.get('SUPABASE_URL');
+    const publishableKey = Deno.env.get('SUPABASE_ANON_KEY');
+    if (!serviceUrl || !publishableKey) return jsonResponse({ error: 'Service unavailable' }, 503);
+    const authClient = createClient(serviceUrl, publishableKey);
     const { data: authenticated, error: authError } = await authClient.auth.getUser(authToken);
     if (authError || !authenticated.user) return jsonResponse({ error: 'Unauthorized' }, 401);
     const { imageBase64, imageFast, requestId, imageHash: clientHash, probe } = await req.json();
