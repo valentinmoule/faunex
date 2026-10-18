@@ -38,7 +38,7 @@ Compute rank movement server-side from captures before `now() - 24 hours`, prese
 
 ## Shelving transition stays on the Bestiary surface
 
-Keep the capture view visible until the Bestiary is ready, then show the real Bestiary and glide the small card directly into its actual tile; never cover the Bestiary with an intermediate blank veil or waiting card.
+Keep the capture view visible until the Bestiary is ready, then glide the small card directly into its actual tile; never cover the Bestiary with a blank veil or waiting card.
 
 ## A capture fills exactly one Bestiary tile
 
@@ -78,4 +78,4 @@ Read private preferences with `get_my_profile`; keep public profile fields and l
 
 ## Realtime channel names must be unique per subscription
 
-Append a random suffix to every `supabase.channel()` name, because supabase-js dedupes channels by topic and returns the already-subscribed channel on effect re-runs, making `.on()` throw and crash the app.
+Append a random suffix to every `supabase.channel()` name: supabase-js dedupes channels by topic and returns the already-subscribed channel on effect re-runs, making `.on()` throw and crash the app.
