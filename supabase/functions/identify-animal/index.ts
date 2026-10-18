@@ -221,6 +221,11 @@ serve(async (req) => {
   let boostedAccount = false;
   let quotaRequestId: string | null = null;
   let quotaConsumed = false;
+  const jsonResponse = (body: unknown, status = 200) =>
+    new Response(JSON.stringify(body), {
+      status,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
 
   const refundQuota = async () => {
     if (!quotaConsumed || !quotaDb || !quotaUserId || !quotaRequestId) return;
@@ -309,12 +314,6 @@ serve(async (req) => {
     /** Un verdict « ce n'est pas une vraie photo » est déterministe : on le garde longtemps. */
     const NEGATIVE_TTL_MS = 2 * 60 * 60 * 1000;
     const LONG_LIVED_OUTCOMES = ["success", "not_a_real_photo"];
-
-    const jsonResponse = (body: unknown, status = 200) =>
-      new Response(JSON.stringify(body), {
-        status,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
 
     /** Réponse finale mise en cache (et mesurée). */
     const finish = async (body: Record<string, unknown>, outcome: string) => {
