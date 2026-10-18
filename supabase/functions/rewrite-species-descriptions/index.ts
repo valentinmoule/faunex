@@ -65,11 +65,19 @@ Deno.serve(async (req) => {
     })
 
   try {
+    const token = req.headers.get('Authorization')?.replace(/^Bearer\s+/i, '')
+    if (!token) return json({ error: 'Unauthorized' }, 401)
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY')
     const admin = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
     )
+    const { data: identity, error: authError } = await admin.auth.getUser(token)
+    if (authError || !identity.user) return json({ error: 'Unauthorized' }, 401)
+    const { data: isAdmin, error: roleError } = await admin.rpc('has_role', {
+      _user_id: identity.user.id, _role: 'admin',
+    })
+    if (roleError || !isAdmin) return json({ error: 'Forbidden' }, 403)
     if (!LOVABLE_API_KEY) return json({ error: 'missing LOVABLE_API_KEY' }, 500)
 
     const body = await req.json().catch(() => ({}))

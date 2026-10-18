@@ -345,7 +345,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
   const saveLocation = useCallback(async (nom: string | null, coords?: [number, number]) => {
     if (!card || savingLocation) return;
     setSavingLocation(true);
-    const payload: Record<string, unknown> = { location: nom };
+    const payload: { location: string | null; longitude?: number | null; latitude?: number | null } = { location: nom };
     if (coords) {
       payload.longitude = coords[0];
       payload.latitude = coords[1];

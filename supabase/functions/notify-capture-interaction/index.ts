@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     )
 
-    const { capture_id, actor_id, type, content } = await req.json()
+    const { capture_id, actor_id, type } = await req.json()
 
     if (!capture_id || !actor_id || !type || !['like', 'comment'].includes(type)) {
       return json({ error: 'Missing or invalid params' }, 400)
@@ -44,6 +44,21 @@ Deno.serve(async (req) => {
     if (actor_id !== callerId) {
       return json({ error: 'Forbidden: actor must be the authenticated caller' }, 403)
     }
+
+    const { data: visibleCapture } = await anonClient.from('captures').select('id').eq('id', capture_id).maybeSingle()
+    if (!visibleCapture) return json({ error: 'capture_not_found' }, 404)
+    const { data: interaction, error: interactionError } = type === 'like'
+      ? await supabase.from('feed_likes').select('id').eq('capture_id', capture_id).eq('user_id', callerId).maybeSingle()
+      : await supabase.from('feed_comments').select('id, content').eq('capture_id', capture_id).eq('user_id', callerId)
+        .order('created_at', { ascending: false }).limit(1).maybeSingle()
+    if (interactionError || !interaction) return json({ error: 'interaction_not_found' }, 403)
+    const content = 'content' in interaction ? String(interaction.content) : ''
+    const notificationKey = `interaction-${type}-${interaction.id}`
+    const { data: claimed, error: claimError } = await supabase.rpc('try_claim_notification', {
+      p_key: notificationKey, p_ttl_seconds: 86400,
+    })
+    if (claimError) return json({ error: 'notification_unavailable' }, 503)
+    if (!claimed) return json({ success: true, skipped: 'duplicate_notification' })
 
     const { data: capture } = await supabase
       .from('captures')
@@ -77,9 +92,7 @@ Deno.serve(async (req) => {
     let emailResult: unknown = 'skipped'
     if (emailAllowed) {
       const templateName = type === 'like' ? 'capture-like' : 'capture-comment'
-      const idempotencyBase = type === 'like'
-        ? `like-${capture_id}-${actor_id}`
-        : `comment-${capture_id}-${actor_id}-${Date.now()}`
+      const idempotencyBase = notificationKey
 
       emailResult = await sendAppEmail(supabase, templateName, ownerAuth.user.email, {
         templateData: {

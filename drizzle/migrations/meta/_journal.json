@@ -155,6 +155,41 @@
       "when": 1791914515051,
       "tag": "0021_species_finder_counts_cache",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1792318882834,
+      "tag": "0022_harden_capture_dataset_and_reward_writes",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1792318965832,
+      "tag": "0023_secure_nearby_reservations_and_social_visibility",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1792319257629,
+      "tag": "0024_restrict_storage_listing_to_owner",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1792319528310,
+      "tag": "0025_limit_private_profile_columns",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1792319763247,
+      "tag": "0026_preserve_owner_profile_delete_and_followed_badges",
+      "breakpoints": true
     }
   ]
 }

@@ -65,3 +65,15 @@ Resolve capture names server-side against the catalogue (exact, synonyms, singul
 ## Discoverer counts come from a trigger-maintained cache
 
 `species_finder_counts()` reads `species_finder_cache`, kept in sync per species by a trigger on captures, because recomputing the full aggregate on every paginated call was the top database cost.
+
+## Privileged notifications validate stored events
+
+Derive recipients/content from verified follows, interactions, moderation captures or blocked accounts and deduplicate by event ID, because caller fields cannot prove a legitimate notification.
+
+## Nearby endpoints consume reserved searches
+
+Reserve and consume nearby searches under one per-user database lock, including older client reservations, because endpoint auth alone does not enforce quotas.
+
+## Private preferences use the owner RPC
+
+Read private preferences with `get_my_profile`; keep public profile fields and legacy sharing-preference reads column-granted, because private notification/email fields must not be community-readable while existing native sharing behavior remains supported.

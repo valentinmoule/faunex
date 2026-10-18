@@ -221,6 +221,11 @@ serve(async (req) => {
   let boostedAccount = false;
   let quotaRequestId: string | null = null;
   let quotaConsumed = false;
+  const jsonResponse = (body: unknown, status = 200) =>
+    new Response(JSON.stringify(body), {
+      status,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
 
   const refundQuota = async () => {
     if (!quotaConsumed || !quotaDb || !quotaUserId || !quotaRequestId) return;
@@ -233,6 +238,14 @@ serve(async (req) => {
   };
 
   try {
+    const authToken = req.headers.get('Authorization')?.match(/^Bearer\s+(.+)$/i)?.[1];
+    if (!authToken) return jsonResponse({ error: 'Unauthorized' }, 401);
+    const serviceUrl = Deno.env.get('SUPABASE_URL');
+    const publishableKey = Deno.env.get('SUPABASE_ANON_KEY');
+    if (!serviceUrl || !publishableKey) return jsonResponse({ error: 'Service unavailable' }, 503);
+    const authClient = createClient(serviceUrl, publishableKey);
+    const { data: authenticated, error: authError } = await authClient.auth.getUser(authToken);
+    if (authError || !authenticated.user) return jsonResponse({ error: 'Unauthorized' }, 401);
     const { imageBase64, imageFast, requestId, imageHash: clientHash, probe } = await req.json();
     /** Empreinte fournie par le client (SHA-256 des octets de l'image compressée). */
     const providedHash = typeof clientHash === "string" && /^[0-9a-f]{64}$/.test(clientHash)
@@ -304,12 +317,6 @@ serve(async (req) => {
     /** Un verdict « ce n'est pas une vraie photo » est déterministe : on le garde longtemps. */
     const NEGATIVE_TTL_MS = 2 * 60 * 60 * 1000;
     const LONG_LIVED_OUTCOMES = ["success", "not_a_real_photo"];
-
-    const jsonResponse = (body: unknown, status = 200) =>
-      new Response(JSON.stringify(body), {
-        status,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
 
     /** Réponse finale mise en cache (et mesurée). */
     const finish = async (body: Record<string, unknown>, outcome: string) => {
@@ -398,8 +405,8 @@ serve(async (req) => {
             p_request: stableRequestId,
           });
           if (quotaError) {
-            // Le quota ne doit jamais bloquer le service en cas d'incident base.
             console.error("ai quota check failed", quotaError);
+            return jsonResponse({ error: 'Analysis temporarily unavailable' }, 503);
           } else if (typeof remaining === "number" && remaining < 0) {
             const premiumCap = remaining === -2;
             console.log("ai quota exhausted", userId, premiumCap ? "premium" : "free");
@@ -419,8 +426,10 @@ serve(async (req) => {
         }
       } catch (e) {
         console.error("ai quota skipped", e);
+        return jsonResponse({ error: 'Analysis temporarily unavailable' }, 503);
       }
     }
+    if (!quotaConsumed) return jsonResponse({ error: 'Analysis temporarily unavailable' }, 503);
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");

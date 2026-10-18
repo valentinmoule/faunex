@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -9,13 +10,32 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
+    const authorization = req.headers.get('Authorization');
+    const token = authorization?.match(/^Bearer\s+(.+)$/i)?.[1];
+    if (!token) return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+    const serviceUrl = Deno.env.get('SUPABASE_URL');
+    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    if (!serviceUrl || !serviceKey) throw new Error('Service unavailable');
+    const admin = createClient(serviceUrl, serviceKey);
+    const { data: identity, error: authError } = await admin.auth.getUser(token);
+    if (authError || !identity.user) return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
     const { latitude, longitude } = await req.json();
-    if (!latitude || !longitude) {
+    if (typeof latitude !== 'number' || typeof longitude !== 'number' || !Number.isFinite(latitude) || !Number.isFinite(longitude) || Math.abs(latitude) > 90 || Math.abs(longitude) > 180) {
       return new Response(JSON.stringify({ error: "Coordonnées manquantes" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    // Consume the already-reserved search, including on older native clients.
+    const { data: allowed, error: quotaError } = await admin.rpc('claim_nearby_search', { p_user: identity.user.id });
+    if (quotaError || !allowed) return new Response(JSON.stringify({ error: 'DAILY_NEARBY_LIMIT_REACHED' }), {
+      status: quotaError ? 503 : 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");

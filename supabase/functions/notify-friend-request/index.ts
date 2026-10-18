@@ -47,6 +47,18 @@ Deno.serve(async (req) => {
       return json({ error: 'Forbidden: requester must be the authenticated caller' }, 403)
     }
 
+    const { data: follow, error: followError } = await supabase.from('explorer_follows')
+      .select('id, status, created_at').eq('follower_id', callerId).eq('following_id', addressee_id).maybeSingle()
+    if (followError || !follow || !['pending', 'accepted'].includes(follow.status)) {
+      return json({ error: 'follow_not_found' }, 403)
+    }
+    const notificationKey = `follow-${follow.id}`
+    const { data: claimed, error: claimError } = await supabase.rpc('try_claim_notification', {
+      p_key: notificationKey, p_ttl_seconds: 86400,
+    })
+    if (claimError) return json({ error: 'notification_unavailable' }, 503)
+    if (!claimed) return json({ success: true, skipped: 'duplicate_notification' })
+
     const [{ data: requesterProfile }, { data: addresseeProfile }, { data: addresseeAuth }] =
       await Promise.all([
         supabase.from('profiles').select('display_name, username').eq('user_id', requester_id).single(),
@@ -77,7 +89,7 @@ Deno.serve(async (req) => {
           recipientName,
           profileUrl: `${APP_URL}/explorers`,
         },
-        idempotencyKey: `new-follower-${requester_id}-${addressee_id}-${Date.now()}`,
+        idempotencyKey: notificationKey,
       })
     }
 
