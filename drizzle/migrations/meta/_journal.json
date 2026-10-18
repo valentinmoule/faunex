@@ -176,6 +176,13 @@
       "when": 1792319257629,
       "tag": "0024_restrict_storage_listing_to_owner",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1792319528310,
+      "tag": "0025_limit_private_profile_columns",
+      "breakpoints": true
     }
   ]
 }
