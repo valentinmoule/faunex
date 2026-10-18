@@ -75,3 +75,7 @@ Reserve and consume nearby searches under one per-user database lock, including 
 ## Private preferences use the owner RPC
 
 Read private preferences with `get_my_profile`; keep public profile fields and legacy sharing-preference reads column-granted, because private notification/email fields must not be community-readable while existing native sharing behavior remains supported.
+
+## Realtime channel names must be unique per subscription
+
+Append a random suffix to every `supabase.channel()` name, because supabase-js dedupes channels by topic and returns the already-subscribed channel on effect re-runs, making `.on()` throw and crash the app.
