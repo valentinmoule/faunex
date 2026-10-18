@@ -9,7 +9,7 @@ const corsHeaders = {
 /**
  * Envoie l'email « compte bloqué » à un utilisateur.
  * Réservé aux administrateurs (ou aux appels internes service role).
- * Accepte soit `user_id` (l'email est résolu côté serveur) soit `email`.
+ * Le destinataire et son blocage sont vérifiés auprès du service d'authentification.
  */
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
@@ -41,12 +41,14 @@ Deno.serve(async (req) => {
 
     const body = await req.json().catch(() => ({}))
     const userId: string | undefined = body?.user_id
-    let email: string | undefined = typeof body?.email === 'string' ? body.email.trim() : undefined
-
-    if (!email && userId) {
-      const { data: userAuth } = await supabase.auth.admin.getUserById(userId)
-      email = userAuth?.user?.email ?? undefined
+    if (!userId) return json({ error: 'Missing user_id' }, 400)
+    const { data: userAuth, error: userError } = await supabase.auth.admin.getUserById(userId)
+    const user = userAuth?.user
+    const bannedUntil = user && 'banned_until' in user ? user.banned_until : null
+    if (userError || !user || typeof bannedUntil !== 'string' || Date.parse(bannedUntil) <= Date.now()) {
+      return json({ error: 'Account is not blocked' }, 409)
     }
+    const email = user.email
 
     if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
       return json({ error: 'Missing or invalid email / user_id' }, 400)
