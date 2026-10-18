@@ -25,7 +25,7 @@ const LevelUpCelebration = () => {
     const key = `faunex_level_${session.user.id}`;
 
     const channel = supabase
-      .channel('level-up-watch')
+      .channel(`level-up-watch-${Math.random().toString(36).slice(2)}`)
       .on(
         'postgres_changes',
         {

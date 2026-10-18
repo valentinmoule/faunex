@@ -68,7 +68,7 @@ const QuestsInline = () => {
     fetchQuests();
     if (!session?.user) return;
     const channel = supabase
-      .channel('daily-quests-inline')
+      .channel(`daily-quests-inline-${Math.random().toString(36).slice(2)}`)
       .on('postgres_changes', {
         event: 'UPDATE', schema: 'public', table: 'daily_quests',
         filter: `user_id=eq.${session.user.id}`,
