@@ -2364,6 +2364,10 @@ export type Database = {
         Args: { p_badge_id: string; p_xp_reward: number }
         Returns: boolean
       }
+      claim_badge_in_timezone: {
+        Args: { p_badge_id: string; p_timezone: string; p_xp_reward: number }
+        Returns: boolean
+      }
       claim_identify_cache: {
         Args: { p_hash: string; p_max_age: string }
         Returns: Json
@@ -2591,6 +2595,14 @@ export type Database = {
           name: string
           scientific_name: string
         }[]
+      }
+      reward_city_match: {
+        Args: { p_name: string; p_rule: string }
+        Returns: boolean
+      }
+      reward_eligibility: {
+        Args: { p_badge_id: string; p_timezone?: string }
+        Returns: number
       }
       reward_normalize: { Args: { p_text: string }; Returns: string }
       reward_species_group: {
