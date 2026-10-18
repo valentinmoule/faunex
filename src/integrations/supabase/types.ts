@@ -1568,6 +1568,36 @@ export type Database = {
         }
         Relationships: []
       }
+      reward_catalogue_groups: {
+        Row: {
+          animal_id: string
+          group_key: string | null
+        }
+        Insert: {
+          animal_id: string
+          group_key?: string | null
+        }
+        Update: {
+          animal_id?: string
+          group_key?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reward_catalogue_groups_animal_id_fkey"
+            columns: ["animal_id"]
+            isOneToOne: true
+            referencedRelation: "animals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reward_catalogue_groups_animal_id_fkey"
+            columns: ["animal_id"]
+            isOneToOne: true
+            referencedRelation: "ml_dataset_captures"
+            referencedColumns: ["animal_id"]
+          },
+        ]
+      }
       reward_security_rules: {
         Row: {
           definition: Json
