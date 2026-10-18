@@ -1,0 +1,2 @@
+REVOKE ALL ON TABLE public.reward_security_rules,public.reward_catalogue_groups FROM PUBLIC,anon,authenticated;
+GRANT ALL ON TABLE public.reward_security_rules,public.reward_catalogue_groups TO service_role;

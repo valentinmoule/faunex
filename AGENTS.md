@@ -18,9 +18,9 @@ Keep sticky headers below the native top safe area, remove page transition trans
 
 Use a single gradient background for native iOS iridescent frames, retaining the existing inner photo clipping and motion, because animated dual background clipping is unstable in WebKit.
 
-## Subscription-gated badges must be validated on the server
+## Rewards are server-authoritative
 
-Check Premium eligibility in the badge claim function, not only in the badge UI, so a modified client cannot claim an unearned subscription badge.
+Validate claims from trusted rules (synced with badge/group/city definitions and the trigger-maintained group cache), ignoring client XP while preserving caps and legacy calls. Award capture XP once after approval and catalogue triggers; lock profile updates and credit league points only through grant_xp, because retries and concurrency must not multiply rewards.
 
 ## Blurred photo backdrops need a large scale
 
@@ -54,9 +54,7 @@ Guard manual submissions with a synchronous lock on the client and keep the part
 
 ## Supabase writes must be awaited or chained to a handler
 
-Every Supabase query builder call (insert, update, delete, upsert) must be `await`ed or have a `.then()` with a handler attached. When the write is followed by something that needs the live user gesture (opening a payment portal popup), chain `.then()` and keep going synchronously instead of awaiting.
-
-**Why:** PostgREST builders are lazy thenables — the HTTP request only leaves when `then()` runs, so a bare `void supabase.from(...)` fails silently and nothing is stored.
+Await or chain every Supabase write with a handler: lazy builders send nothing otherwise. Chain `.then()` without awaiting before gesture-dependent payment popups, to preserve browser permission.
 
 ## User-typed species names snap to existing tiles
 

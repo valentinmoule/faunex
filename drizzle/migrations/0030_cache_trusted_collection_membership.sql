@@ -1,0 +1,14 @@
+SET LOCAL statement_timeout='120s';
+CREATE TABLE public.reward_catalogue_groups (animal_id uuid PRIMARY KEY REFERENCES public.animals(id) ON DELETE CASCADE, group_key text);
+GRANT ALL ON public.reward_catalogue_groups TO service_role;
+ALTER TABLE public.reward_catalogue_groups ENABLE ROW LEVEL SECURITY;
+INSERT INTO public.reward_catalogue_groups(animal_id,group_key) SELECT id,public.reward_species_group(name,scientific_name,category) FROM public.animals;
+CREATE INDEX reward_catalogue_groups_key ON public.reward_catalogue_groups(group_key);
+CREATE OR REPLACE FUNCTION public.sync_reward_catalogue_group() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ BEGIN INSERT INTO public.reward_catalogue_groups(animal_id,group_key) VALUES(NEW.id,public.reward_species_group(NEW.name,NEW.scientific_name,NEW.category)) ON CONFLICT(animal_id) DO UPDATE SET group_key=excluded.group_key; RETURN NEW; END $$;
+CREATE TRIGGER reward_catalogue_group_sync AFTER INSERT OR UPDATE OF name,scientific_name,category ON public.animals FOR EACH ROW EXECUTE FUNCTION public.sync_reward_catalogue_group();
+REVOKE ALL ON FUNCTION public.sync_reward_catalogue_group() FROM PUBLIC,anon,authenticated;
+GRANT EXECUTE ON FUNCTION public.sync_reward_catalogue_group() TO service_role;
+DO $outer$ DECLARE def text; BEGIN SELECT pg_get_functiondef('public.reward_eligibility(text,text)'::regprocedure) INTO def;
+def:=replace(def,'WITH members AS (SELECT a.name FROM public.animals a WHERE public.reward_species_group(a.name,a.scientific_name,a.category)=k)','WITH members AS (SELECT a.name FROM public.animals a JOIN public.reward_catalogue_groups g ON g.animal_id=a.id WHERE g.group_key=k)');
+EXECUTE def;
+END $outer$;

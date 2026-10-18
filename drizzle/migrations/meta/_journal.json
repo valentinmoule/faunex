@@ -190,6 +190,41 @@
       "when": 1792319763247,
       "tag": "0026_preserve_owner_profile_delete_and_followed_badges",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1792320353349,
+      "tag": "0027_trusted_reward_rules_and_capture_awards",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1792320445545,
+      "tag": "0028_validate_all_badge_and_territory_claims",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1792320553306,
+      "tag": "0029_approved_capture_quest_progress",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1792320636384,
+      "tag": "0030_cache_trusted_collection_membership",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1792320797162,
+      "tag": "0031_restrict_reward_configuration_grants",
+      "breakpoints": true
     }
   ]
 }

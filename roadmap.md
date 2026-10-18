@@ -1,11 +1,13 @@
 
 ## Sécurité sans changement visuel
+- [x] Terminer la protection des récompenses et dépendances restantes, puis relancer tous les tests et vérifier les écrans connectés
 - [x] Sécuriser les fonctions publiques et les destinataires des notifications
-- [ ] Finaliser l’éligibilité serveur des badges et territoires sans modifier les règles existantes ; la rareté et les récompenses de quêtes sont protégées
+- [x] Valider les badges et territoires côté serveur selon les règles existantes, sans accepter de montant XP client
 - [x] Protéger les préférences e-mail/notifications tout en conservant les lectures communautaires et les préférences de partage natives
-- [x] Mettre à jour les dépendances vulnérables compatibles ; les alertes restantes nécessitent une migration majeure ou une analyse d’applicabilité
-- [x] Tester les refus et les usages authentifiés (18 tests réussis)
-- [ ] Confirmer le comportement des récompenses de captures en attente avant modification du déclencheur XP
+- [x] Mettre à jour les dépendances restantes : aucun avis de vulnérabilité connu sur les 74 dépendances de production analysées
+- [x] Relancer les tests : 28 tests réussis ; scénario serveur transactionnel réussi (annulation de toutes les données de test)
+- [x] Récompenser une capture uniquement à sa première approbation, sans double XP ni double crédit de ligue
+- [x] Relancer le contrôle global : alertes de lecture des catalogues communs conservées, sans restreindre les usages légitimes
 
 ## Corrections iOS
 - [x] Garder le header visible au défilement des badges et quêtes

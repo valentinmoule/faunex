@@ -348,6 +348,7 @@ export type Database = {
           taken_at: string | null
           taxon_id: string | null
           user_id: string
+          xp_awarded: boolean
         }
         Insert: {
           animal_name: string
@@ -375,6 +376,7 @@ export type Database = {
           taken_at?: string | null
           taxon_id?: string | null
           user_id: string
+          xp_awarded?: boolean
         }
         Update: {
           animal_name?: string
@@ -402,6 +404,7 @@ export type Database = {
           taken_at?: string | null
           taxon_id?: string | null
           user_id?: string
+          xp_awarded?: boolean
         }
         Relationships: [
           {
@@ -1565,6 +1568,51 @@ export type Database = {
         }
         Relationships: []
       }
+      reward_catalogue_groups: {
+        Row: {
+          animal_id: string
+          group_key: string | null
+        }
+        Insert: {
+          animal_id: string
+          group_key?: string | null
+        }
+        Update: {
+          animal_id?: string
+          group_key?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reward_catalogue_groups_animal_id_fkey"
+            columns: ["animal_id"]
+            isOneToOne: true
+            referencedRelation: "animals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reward_catalogue_groups_animal_id_fkey"
+            columns: ["animal_id"]
+            isOneToOne: true
+            referencedRelation: "ml_dataset_captures"
+            referencedColumns: ["animal_id"]
+          },
+        ]
+      }
+      reward_security_rules: {
+        Row: {
+          definition: Json
+          rule_key: string
+        }
+        Insert: {
+          definition: Json
+          rule_key: string
+        }
+        Update: {
+          definition?: Json
+          rule_key?: string
+        }
+        Relationships: []
+      }
       species_finder_cache: {
         Row: {
           animal_key: string
@@ -2346,6 +2394,10 @@ export type Database = {
         Args: { p_badge_id: string; p_xp_reward: number }
         Returns: boolean
       }
+      claim_badge_in_timezone: {
+        Args: { p_badge_id: string; p_timezone: string; p_xp_reward: number }
+        Returns: boolean
+      }
       claim_identify_cache: {
         Args: { p_hash: string; p_max_age: string }
         Returns: Json
@@ -2573,6 +2625,19 @@ export type Database = {
           name: string
           scientific_name: string
         }[]
+      }
+      reward_city_match: {
+        Args: { p_name: string; p_rule: string }
+        Returns: boolean
+      }
+      reward_eligibility: {
+        Args: { p_badge_id: string; p_timezone?: string }
+        Returns: number
+      }
+      reward_normalize: { Args: { p_text: string }; Returns: string }
+      reward_species_group: {
+        Args: { p_category: string; p_name: string; p_scientific: string }
+        Returns: string
       }
       settle_league_group: { Args: { p_group_id: string }; Returns: undefined }
       singular_animal_label: { Args: { p: string }; Returns: string }
