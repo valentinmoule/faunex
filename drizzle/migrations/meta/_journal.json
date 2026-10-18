@@ -218,6 +218,13 @@
       "when": 1792320636384,
       "tag": "0030_cache_trusted_collection_membership",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1792320797162,
+      "tag": "0031_restrict_reward_configuration_grants",
+      "breakpoints": true
     }
   ]
 }
