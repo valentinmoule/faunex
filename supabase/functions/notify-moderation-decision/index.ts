@@ -48,22 +48,37 @@ Deno.serve(async (req) => {
 
 
     const body = await req.json()
-    const userId: string | undefined = body?.user_id
     const decision: string | undefined = body?.decision
-    const animalName: string = (body?.animal_name || 'Ta capture').toString().slice(0, 120)
     const captureId: string | undefined = body?.capture_id
-    // 'duplicate' : rejet parce que l'espèce est déjà dans le bestiaire de l'explorateur.
-    const reason: string = body?.reason === 'duplicate' ? 'duplicate' : 'not_identifiable'
-    // Espèce déjà présente dans le bestiaire, pour un message de rejet explicite.
-    const duplicateName: string | null = body?.duplicate_name
-      ? body.duplicate_name.toString().slice(0, 120)
-      : null
-    const duplicateScientific: string | null = body?.duplicate_scientific
-      ? body.duplicate_scientific.toString().slice(0, 120)
-      : null
-
-    if (!userId || !decision || !['approved', 'rejected'].includes(decision)) {
+    if (!captureId || !decision || !['approved', 'rejected'].includes(decision)) {
       return json({ error: 'Missing or invalid params' }, 400)
+    }
+    const { data: capture, error: captureError } = await supabase.from('captures')
+      .select('id, user_id, animal_name, scientific_name, status').eq('id', captureId).maybeSingle()
+    if (captureError || !capture) return json({ error: 'capture_not_found' }, 404)
+    if ((decision === 'approved' && capture.status !== 'approved') ||
+        (decision === 'rejected' && !['pending_review', 'processing'].includes(capture.status))) {
+      return json({ error: 'invalid_moderation_state' }, 409)
+    }
+    const userId = capture.user_id
+    const animalName = capture.animal_name
+    let reason = 'not_identifiable'
+    let duplicateName: string | null = null
+    let duplicateScientific: string | null = null
+    if (decision === 'rejected' && body?.reason === 'duplicate') {
+      const { data: identities } = await supabase.rpc('resolve_species_identity', {
+        p_name: capture.animal_name, p_scientific: capture.scientific_name ?? '',
+      })
+      const identity = identities?.[0]
+      const { data: duplicate } = await supabase.from('captures')
+        .select('animal_name, scientific_name').eq('user_id', userId).eq('status', 'approved')
+        .neq('id', captureId).ilike('animal_name', identity?.matched ? identity.name : animalName)
+        .limit(1).maybeSingle()
+      if (duplicate) {
+        reason = 'duplicate'
+        duplicateName = duplicate.animal_name
+        duplicateScientific = duplicate.scientific_name
+      }
     }
 
     // Anti-doublon : une même décision (auto-modération + relance manuelle, ou
@@ -74,7 +89,7 @@ Deno.serve(async (req) => {
       p_key: dedupeKey,
       p_ttl_seconds: 86400,
     })
-    if (claimErr) console.error('try_claim_notification failed', claimErr.message)
+    if (claimErr) return json({ error: 'notification_unavailable' }, 503)
     if (claimed === false) {
       return json({ success: true, skipped: 'duplicate_notification' })
     }

@@ -366,7 +366,7 @@ const ModerationPage = () => {
         console.error('notification reject failed', notifError);
         toast.warning('La notification de rejet n\'a pas pu être envoyée');
       }
-      supabase.functions
+      await supabase.functions
         .invoke('notify-moderation-decision', {
           body: {
             user_id: capture.user_id,

@@ -233,6 +233,11 @@ serve(async (req) => {
   };
 
   try {
+    const authToken = req.headers.get('Authorization')?.match(/^Bearer\s+(.+)$/i)?.[1];
+    if (!authToken) return jsonResponse({ error: 'Unauthorized' }, 401);
+    const authClient = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_ANON_KEY')!);
+    const { data: authenticated, error: authError } = await authClient.auth.getUser(authToken);
+    if (authError || !authenticated.user) return jsonResponse({ error: 'Unauthorized' }, 401);
     const { imageBase64, imageFast, requestId, imageHash: clientHash, probe } = await req.json();
     /** Empreinte fournie par le client (SHA-256 des octets de l'image compressée). */
     const providedHash = typeof clientHash === "string" && /^[0-9a-f]{64}$/.test(clientHash)
@@ -398,8 +403,8 @@ serve(async (req) => {
             p_request: stableRequestId,
           });
           if (quotaError) {
-            // Le quota ne doit jamais bloquer le service en cas d'incident base.
             console.error("ai quota check failed", quotaError);
+            return jsonResponse({ error: 'Analysis temporarily unavailable' }, 503);
           } else if (typeof remaining === "number" && remaining < 0) {
             const premiumCap = remaining === -2;
             console.log("ai quota exhausted", userId, premiumCap ? "premium" : "free");
@@ -419,8 +424,10 @@ serve(async (req) => {
         }
       } catch (e) {
         console.error("ai quota skipped", e);
+        return jsonResponse({ error: 'Analysis temporarily unavailable' }, 503);
       }
     }
+    if (!quotaConsumed) return jsonResponse({ error: 'Analysis temporarily unavailable' }, 503);
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
