@@ -158,7 +158,7 @@ const ExplorersPage = () => {
     fetchData();
 
     const channel = supabase
-      .channel('notif-count-explorers')
+      .channel(`notif-count-explorers-${Math.random().toString(36).slice(2)}`)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${session.user.id}` }, () => {
         supabase.from('notifications').select('*', { count: 'exact', head: true }).eq('user_id', session.user.id).eq('read', false).then(({ count }) => setUnreadCount(count || 0));
       })

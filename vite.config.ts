@@ -107,9 +107,13 @@ export default defineConfig(({ mode }) => ({
   },
   optimizeDeps: {
     include: ["react-leaflet", "@react-leaflet/core", "leaflet"],
+    // es2022 : @floating-ui utilise du destructuring qu'esbuild ne sait pas
+    // réécrire en es2020 — sans ça le pré-bundling échoue et le serveur dev
+    // refuse de démarrer.
+    esbuildOptions: { target: "es2022" },
   },
   build: {
-    target: "es2020",
+    target: "es2022",
     cssCodeSplit: true,
     sourcemap: false,
     chunkSizeWarningLimit: 1200,

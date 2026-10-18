@@ -14,9 +14,7 @@ Wrap any `position: fixed` overlay (reward sheets, modals, lightboxes) in `creat
 
 ## iOS headers and card surfaces stay within their viewport
 
-Keep sticky headers below the native top safe area, remove page transition transforms after entry, and constrain species sheets to vertical scrolling while leaving photo carousels horizontal, because WebKit otherwise hides headers or permits sideways page movement.
-
-Use a single gradient background for native iOS iridescent frames, retaining the existing inner photo clipping and motion, because animated dual background clipping is unstable in WebKit.
+Keep sticky headers below the native top safe area, remove page transition transforms after entry, and constrain species sheets to vertical scrolling while leaving photo carousels horizontal — WebKit otherwise hides headers or permits sideways page movement. Use a single gradient background for native iOS iridescent frames (keeping inner photo clipping and motion), because animated dual background clipping is unstable in WebKit.
 
 ## Rewards are server-authoritative
 
@@ -38,7 +36,7 @@ Compute rank movement server-side from captures before `now() - 24 hours`, prese
 
 ## Shelving transition stays on the Bestiary surface
 
-Keep the capture view visible until the Bestiary is ready, then show the real Bestiary and glide the small card directly into its actual tile; never cover the Bestiary with an intermediate blank veil or waiting card.
+Keep the capture view visible until the Bestiary is ready, then glide the small card directly into its actual tile; never cover the Bestiary with a blank veil or waiting card.
 
 ## A capture fills exactly one Bestiary tile
 
@@ -75,3 +73,7 @@ Reserve and consume nearby searches under one per-user database lock, including 
 ## Private preferences use the owner RPC
 
 Read private preferences with `get_my_profile`; keep public profile fields and legacy sharing-preference reads column-granted, because private notification/email fields must not be community-readable while existing native sharing behavior remains supported.
+
+## Realtime channel names must be unique per subscription
+
+Append a random suffix to every `supabase.channel()` name: supabase-js dedupes channels by topic, so an effect re-run gets the already-subscribed channel and `.on()` throws, crashing the app.

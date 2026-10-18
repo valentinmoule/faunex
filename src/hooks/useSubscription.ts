@@ -62,7 +62,10 @@ export function useSubscription(userId?: string) {
   useEffect(() => {
     if (!userId) return;
     const channel = supabase
-      .channel(`subscriptions-${userId}`)
+      // Suffixe unique : supabase-js déduplique les canaux par nom et
+      // renvoie l'ancien canal déjà abonné si l'effet se relance, ce qui
+      // faisait planter .on() au démarrage.
+      .channel(`subscriptions-${userId}-${Math.random().toString(36).slice(2)}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "subscriptions", filter: `user_id=eq.${userId}` },
