@@ -348,6 +348,7 @@ export type Database = {
           taken_at: string | null
           taxon_id: string | null
           user_id: string
+          xp_awarded: boolean
         }
         Insert: {
           animal_name: string
@@ -375,6 +376,7 @@ export type Database = {
           taken_at?: string | null
           taxon_id?: string | null
           user_id: string
+          xp_awarded?: boolean
         }
         Update: {
           animal_name?: string
@@ -402,6 +404,7 @@ export type Database = {
           taken_at?: string | null
           taxon_id?: string | null
           user_id?: string
+          xp_awarded?: boolean
         }
         Relationships: [
           {
@@ -1565,6 +1568,21 @@ export type Database = {
         }
         Relationships: []
       }
+      reward_security_rules: {
+        Row: {
+          definition: Json
+          rule_key: string
+        }
+        Insert: {
+          definition: Json
+          rule_key: string
+        }
+        Update: {
+          definition?: Json
+          rule_key?: string
+        }
+        Relationships: []
+      }
       species_finder_cache: {
         Row: {
           animal_key: string
@@ -2573,6 +2591,11 @@ export type Database = {
           name: string
           scientific_name: string
         }[]
+      }
+      reward_normalize: { Args: { p_text: string }; Returns: string }
+      reward_species_group: {
+        Args: { p_category: string; p_name: string; p_scientific: string }
+        Returns: string
       }
       settle_league_group: { Args: { p_group_id: string }; Returns: undefined }
       singular_animal_label: { Args: { p: string }; Returns: string }

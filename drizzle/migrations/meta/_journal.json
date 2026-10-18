@@ -190,6 +190,13 @@
       "when": 1792319763247,
       "tag": "0026_preserve_owner_profile_delete_and_followed_badges",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1792320353349,
+      "tag": "0027_trusted_reward_rules_and_capture_awards",
+      "breakpoints": true
     }
   ]
 }

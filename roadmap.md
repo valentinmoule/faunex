@@ -1,5 +1,6 @@
 
 ## Sécurité sans changement visuel
+- [ ] Terminer la protection des récompenses et dépendances restantes, puis relancer tous les tests et vérifier le parcours connecté
 - [x] Sécuriser les fonctions publiques et les destinataires des notifications
 - [ ] Finaliser l’éligibilité serveur des badges et territoires sans modifier les règles existantes ; la rareté et les récompenses de quêtes sont protégées
 - [x] Protéger les préférences e-mail/notifications tout en conservant les lectures communautaires et les préférences de partage natives
