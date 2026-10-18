@@ -2587,6 +2587,10 @@ export type Database = {
           user_id: string
         }[]
       }
+      profile_mentions_other_species: {
+        Args: { p_target: string; p_text: string }
+        Returns: boolean
+      }
       progress_taxon: { Args: { p_taxon_id: string }; Returns: string }
       rarity_floor_for_iucn: { Args: { p_status: string }; Returns: number }
       rarity_from_rank: { Args: { p_rank: number }; Returns: string }
