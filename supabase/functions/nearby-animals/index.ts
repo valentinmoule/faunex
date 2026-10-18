@@ -15,7 +15,10 @@ serve(async (req) => {
     if (!token) return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
-    const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
+    const serviceUrl = Deno.env.get('SUPABASE_URL');
+    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    if (!serviceUrl || !serviceKey) throw new Error('Service unavailable');
+    const admin = createClient(serviceUrl, serviceKey);
     const { data: identity, error: authError } = await admin.auth.getUser(token);
     if (authError || !identity.user) return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
