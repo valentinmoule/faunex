@@ -20,7 +20,7 @@ Use a single gradient background for native iOS iridescent frames, retaining the
 
 ## Rewards are server-authoritative
 
-Validate all claims from trusted rules (synced with badge/group/city definitions), ignoring client XP while preserving caps and legacy calls. Award capture XP once after approval and catalogue triggers; lock profile updates and credit league points only through grant_xp, because retries and concurrency must not multiply rewards.
+Validate claims from trusted rules (synced with badge/group/city definitions and the trigger-maintained group cache), ignoring client XP while preserving caps and legacy calls. Award capture XP once after approval and catalogue triggers; lock profile updates and credit league points only through grant_xp, because retries and concurrency must not multiply rewards.
 
 ## Blurred photo backdrops need a large scale
 
