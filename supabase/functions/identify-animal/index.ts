@@ -977,6 +977,20 @@ serve(async (req) => {
       const name = String(animalData?.animal_name || "").trim();
       if (!admin || !name || name.toLowerCase() === "inconnu") return;
 
+      // Détecte une fiche qui décrit une autre espèce du Bestiaire.
+      const mentionsOtherSpecies = async (text: string): Promise<boolean> => {
+        try {
+          const { data, error } = await admin.rpc("profile_mentions_other_species", {
+            p_target: name,
+            p_text: text.slice(0, 2000),
+          });
+          if (error) return false;
+          return Boolean(data);
+        } catch {
+          return false;
+        }
+      };
+
       try {
         const { data } = await admin.rpc("species_profile_for", {
           p_name: name,
