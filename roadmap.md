@@ -1,4 +1,11 @@
 
+## Sécurité sans changement visuel
+- [ ] Sécuriser les fonctions publiques et les destinataires des notifications
+- [ ] Valider les récompenses et la rareté côté serveur
+- [ ] Protéger les données privées tout en conservant les lectures communautaires légitimes
+- [ ] Mettre à jour les dépendances vulnérables compatibles
+- [ ] Tester les refus et les usages authentifiés, puis classer les alertes
+
 ## Corrections iOS
 - [x] Garder le header visible au défilement des badges et quêtes
 - [x] Corriger le rendu du contour mythique
