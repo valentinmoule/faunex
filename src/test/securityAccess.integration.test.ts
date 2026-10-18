@@ -47,4 +47,30 @@ describe.skipIf(!available)('Hosted access controls', () => {
     const response = await call('nearby-animals', { latitude: 999, longitude: 0 }, true);
     expect(response.status).toBe(400);
   }, 45_000);
+
+  const restHeaders = () => ({ apikey: key, Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' });
+
+  it('preserves public profile reads for the signed-in experience', async () => {
+    const response = await fetch(`${url}/rest/v1/profiles?select=user_id,username,level&user_id=eq.${session.user.id}`, { headers: restHeaders() });
+    expect(response.status).toBe(200);
+    expect((await response.json())[0].user_id).toBe(session.user.id);
+  }, 45_000);
+
+  it('keeps private email preferences behind the owner RPC', async () => {
+    const direct = await fetch(`${url}/rest/v1/profiles?select=notify_email_likes`, { headers: restHeaders() });
+    expect(direct.status).toBe(403);
+    const own = await fetch(`${url}/rest/v1/rpc/get_my_profile`, { method: 'POST', headers: restHeaders(), body: '{}' });
+    expect(own.status).toBe(200);
+    const profile = await own.json();
+    expect(profile.user_id).toBe(session.user.id);
+    expect(typeof profile.notify_email_likes).toBe('boolean');
+  }, 45_000);
+
+  it('refuses direct league point grants from an authenticated caller', async () => {
+    const response = await fetch(`${url}/rest/v1/rpc/league_add_points`, {
+      method: 'POST', headers: restHeaders(),
+      body: JSON.stringify({ p_user_id: session.user.id, p_points: 0 }),
+    });
+    expect([403, 404]).toContain(response.status);
+  }, 45_000);
 });
