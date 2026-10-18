@@ -1012,7 +1012,11 @@ serve(async (req) => {
           : q.ilike("animal_name", name);
         const { data: rows } = await q;
         const prev = rows?.[0];
-        if (prev?.description && String(prev.description).length > 40) {
+        if (
+          prev?.description &&
+          String(prev.description).length > 40 &&
+          !(await mentionsOtherSpecies(String(prev.description)))
+        ) {
           animalData.description = prev.description;
           animalData.habitat = prev.habitat;
           animalData.diet = prev.diet;
@@ -1091,6 +1095,10 @@ serve(async (req) => {
         const args = d.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
         const profile = args ? JSON.parse(args) : null;
         if (!profile?.description) return;
+        // Garde-fou : l'IA décrit parfois une espèce voisine (ex. « mouette
+        // pygmée » pour une Mouette de Ross). Si le texte cite le nom d'une
+        // autre espèce du Bestiaire, on le jette plutôt que de le propager.
+        if (await mentionsOtherSpecies(String(profile.description))) return;
 
         animalData.description = profile.description;
         animalData.habitat = profile.habitat;
