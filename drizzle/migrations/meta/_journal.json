@@ -183,6 +183,13 @@
       "when": 1792319528310,
       "tag": "0025_limit_private_profile_columns",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1792319763247,
+      "tag": "0026_preserve_owner_profile_delete_and_followed_badges",
+      "breakpoints": true
     }
   ]
 }
