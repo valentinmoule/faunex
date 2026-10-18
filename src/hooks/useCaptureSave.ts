@@ -22,12 +22,9 @@ export const useCaptureSave = ({ userId, photo, geo, takenAt = null }: SaveConte
   useEffect(() => {
     if (!userId) return;
     supabase
-      .from('profiles')
-      .select('default_share_captures')
-      .eq('user_id', userId)
-      .maybeSingle()
+      .rpc('get_my_profile')
       .then(({ data }) => {
-        if (data && (data as any).default_share_captures === false) setDefaultShare(false);
+        if (data) setDefaultShare(data.default_share_captures !== false);
       });
   }, [userId]);
 

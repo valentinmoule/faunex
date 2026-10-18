@@ -73,13 +73,6 @@ Deno.serve(async (req) => {
     const scientific: string = String(body?.scientific_name || '').trim()
     if (!name) return json({ error: 'missing name' }, 400)
 
-    const source = {
-      description: String(body?.description || '').trim(),
-      habitat: String(body?.habitat || '').trim(),
-      diet: String(body?.diet || '').trim(),
-      fun_fact: String(body?.fun_fact || '').trim(),
-    }
-
     // 1) Cache : fiche EN déjà traduite ?
     const { data: cached } = await admin.rpc('species_profile_en', {
       p_name: name,
@@ -97,27 +90,30 @@ Deno.serve(async (req) => {
     }
 
     // 2) Complète les champs manquants depuis species_profiles (FR).
-    const { data: fr } = await admin
+    const { data: namedProfile, error: profileError } = await admin
       .from('species_profiles')
       .select('id, description, habitat, diet, fun_fact')
-      .or(
-        [
-          `normalized_name.eq.${name.toLowerCase()}`,
-          scientific ? `normalized_scientific.eq.${scientific.toLowerCase()}` : '',
-        ]
-          .filter(Boolean)
-          .join(','),
-      )
+      .eq('normalized_name', name.toLowerCase())
       .limit(1)
       .maybeSingle()
+    if (profileError) return json({ error: 'profile_unavailable' }, 503)
+    const fr = namedProfile ?? (scientific ? (await admin.from('species_profiles')
+      .select('id, description, habitat, diet, fun_fact')
+      .eq('normalized_scientific', scientific.toLowerCase()).limit(1).maybeSingle()).data : null)
+    // Shared translations must originate from stored facts, not request text.
+    const source = fr ?? (await admin.from('captures')
+      .select('description, habitat, diet, fun_fact')
+      .eq('user_id', userData.user.id).eq('animal_name', name).eq('status', 'approved')
+      .limit(1).maybeSingle()).data
+    if (!source) return json({ error: 'nothing_to_translate' }, 404)
 
     const payload = {
       name,
       scientific_name: scientific || undefined,
-      description: source.description || fr?.description || '',
-      habitat: source.habitat || fr?.habitat || '',
-      diet: source.diet || fr?.diet || '',
-      fun_fact: source.fun_fact || fr?.fun_fact || '',
+      description: source.description || '',
+      habitat: source.habitat || '',
+      diet: source.diet || '',
+      fun_fact: source.fun_fact || '',
     }
 
     if (!payload.description && !payload.habitat && !payload.diet && !payload.fun_fact) {
