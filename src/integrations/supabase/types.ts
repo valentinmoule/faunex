@@ -1246,16 +1246,19 @@ export type Database = {
       }
       nearby_search_attempts: {
         Row: {
+          consumed_at: string | null
           created_at: string
           id: string
           user_id: string
         }
         Insert: {
+          consumed_at?: string | null
           created_at?: string
           id?: string
           user_id: string
         }
         Update: {
+          consumed_at?: string | null
           created_at?: string
           id?: string
           user_id?: string
@@ -2347,6 +2350,7 @@ export type Database = {
         Args: { p_hash: string; p_max_age: string }
         Returns: Json
       }
+      claim_nearby_search: { Args: { p_user: string }; Returns: boolean }
       claim_quest_reward: { Args: { p_quest_id: string }; Returns: boolean }
       collection_rule_taxa: {
         Args: { p_rule_id: string }

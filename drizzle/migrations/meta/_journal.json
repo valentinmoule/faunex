@@ -162,6 +162,13 @@
       "when": 1792318882834,
       "tag": "0022_harden_capture_dataset_and_reward_writes",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1792318965832,
+      "tag": "0023_secure_nearby_reservations_and_social_visibility",
+      "breakpoints": true
     }
   ]
 }
