@@ -14,9 +14,7 @@ Wrap any `position: fixed` overlay (reward sheets, modals, lightboxes) in `creat
 
 ## iOS headers and card surfaces stay within their viewport
 
-Keep sticky headers below the native top safe area, remove page transition transforms after entry, and constrain species sheets to vertical scrolling while leaving photo carousels horizontal, because WebKit otherwise hides headers or permits sideways page movement.
-
-Use a single gradient background for native iOS iridescent frames, retaining the existing inner photo clipping and motion, because animated dual background clipping is unstable in WebKit.
+Keep sticky headers below the native top safe area, remove page transition transforms after entry, and constrain species sheets to vertical scrolling while leaving photo carousels horizontal — WebKit otherwise hides headers or permits sideways page movement. Use a single gradient background for native iOS iridescent frames (keeping inner photo clipping and motion), because animated dual background clipping is unstable in WebKit.
 
 ## Rewards are server-authoritative
 
@@ -78,4 +76,4 @@ Read private preferences with `get_my_profile`; keep public profile fields and l
 
 ## Realtime channel names must be unique per subscription
 
-Append a random suffix to every `supabase.channel()` name: supabase-js dedupes channels by topic and returns the already-subscribed channel on effect re-runs, making `.on()` throw and crash the app.
+Append a random suffix to every `supabase.channel()` name: supabase-js dedupes channels by topic, so an effect re-run gets the already-subscribed channel and `.on()` throws, crashing the app.
