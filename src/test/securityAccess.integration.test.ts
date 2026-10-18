@@ -50,6 +50,49 @@ describe.skipIf(!available)('Hosted access controls', () => {
 
   const restHeaders = () => ({ apikey: key, Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' });
 
+  const rpc = (name: string, body: unknown) => fetch(`${url}/rest/v1/rpc/${name}`, {
+    method: 'POST', headers: restHeaders(), body: JSON.stringify(body),
+  });
+
+  it('rejects an invented badge without changing profile XP', async () => {
+    const before = await (await rpc('get_my_profile', {})).json();
+    const response = await rpc('claim_badge', { p_badge_id: 'invented_reward_security_test', p_xp_reward: 500 });
+    expect(response.status).toBe(200);
+    expect(await response.json()).toBe(false);
+    const after = await (await rpc('get_my_profile', {})).json();
+    expect([after.level, after.xp]).toEqual([before.level, before.xp]);
+  }, 45_000);
+
+  it.each(['zone_00000000-0000-0000-0000-000000000001', 'collection_invented_security_test'])(
+    'rejects an unowned or unknown reward %s', async (id) => {
+      const response = await rpc('claim_badge', { p_badge_id: id, p_xp_reward: 500 });
+      expect(response.status).toBe(200);
+      expect(await response.json()).toBe(false);
+    }, 45_000,
+  );
+
+  it('rejects an invalid timezone on the device-time claim path', async () => {
+    const response = await rpc('claim_badge_in_timezone', { p_badge_id: 'early_bird', p_xp_reward: 500, p_timezone: 'invalid/timezone' });
+    expect(response.status).toBe(200);
+    expect(await response.json()).toBe(false);
+  }, 45_000);
+
+  it('never credits a previously claimed badge twice', async () => {
+    const read = await fetch(`${url}/rest/v1/user_badges?select=badge_id&user_id=eq.${session.user.id}&limit=1`, { headers: restHeaders() });
+    const badges = await read.json();
+    expect(badges.length).toBe(1);
+    const before = await (await rpc('get_my_profile', {})).json();
+    const replies = await Promise.all([0, 500].map((amount) => rpc('claim_badge', { p_badge_id: badges[0].badge_id, p_xp_reward: amount })));
+    expect(await Promise.all(replies.map((r) => r.json()))).toEqual([false, false]);
+    const after = await (await rpc('get_my_profile', {})).json();
+    expect([after.level, after.xp]).toEqual([before.level, before.xp]);
+  }, 45_000);
+
+  it('refuses direct XP grants', async () => {
+    const response = await rpc('grant_xp', { p_user_id: session.user.id, p_amount: 500 });
+    expect([403, 404]).toContain(response.status);
+  }, 45_000);
+
   it('preserves public profile reads for the signed-in experience', async () => {
     const response = await fetch(`${url}/rest/v1/profiles?select=user_id,username,level&user_id=eq.${session.user.id}`, { headers: restHeaders() });
     expect(response.status).toBe(200);

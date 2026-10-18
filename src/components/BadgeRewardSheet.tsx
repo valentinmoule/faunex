@@ -74,9 +74,10 @@ const BadgeRewardSheet = ({ entry, onClose, onClaimed }: Props) => {
   const claim = async () => {
     if (claiming || claimed) return;
     setClaiming(true);
-    const { data, error } = await supabase.rpc('claim_badge', {
+    const { data, error } = await supabase.rpc('claim_badge_in_timezone', {
       p_badge_id: badge.id,
       p_xp_reward: badge.xp,
+      p_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Paris',
     });
     setClaiming(false);
     if (error || !data) {
