@@ -1,10 +1,11 @@
 
 ## Sécurité sans changement visuel
-- [ ] Sécuriser les fonctions publiques et les destinataires des notifications
-- [ ] Valider les récompenses et la rareté côté serveur
-- [ ] Protéger les données privées tout en conservant les lectures communautaires légitimes
-- [ ] Mettre à jour les dépendances vulnérables compatibles
-- [ ] Tester les refus et les usages authentifiés, puis classer les alertes
+- [x] Sécuriser les fonctions publiques et les destinataires des notifications
+- [ ] Finaliser l’éligibilité serveur des badges et territoires sans modifier les règles existantes ; la rareté et les récompenses de quêtes sont protégées
+- [x] Protéger les préférences e-mail/notifications tout en conservant les lectures communautaires et les préférences de partage natives
+- [x] Mettre à jour les dépendances vulnérables compatibles ; les alertes restantes nécessitent une migration majeure ou une analyse d’applicabilité
+- [x] Tester les refus et les usages authentifiés (18 tests réussis)
+- [ ] Confirmer le comportement des récompenses de captures en attente avant modification du déclencheur XP
 
 ## Corrections iOS
 - [x] Garder le header visible au défilement des badges et quêtes

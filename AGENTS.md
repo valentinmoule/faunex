@@ -76,4 +76,4 @@ Reserve and consume nearby searches under one per-user database lock, including 
 
 ## Private preferences use the owner RPC
 
-Read private preferences with `get_my_profile`; preserve legacy native reads until deployment permits narrower column grants, because revoking them prematurely breaks sharing preferences.
+Read private preferences with `get_my_profile`; keep public profile fields and legacy sharing-preference reads column-granted, because private notification/email fields must not be community-readable while existing native sharing behavior remains supported.
