@@ -41,11 +41,11 @@ serve(async (req) => {
         .in("rank", ["species", "subspecies", "breed", "group"]),
     ]);
 
-    const stats = {
+    const stats = roundStats({
       totalUsers: Math.max(usersRes.count ?? 0, FLOORS.totalUsers),
       totalCaptures: Math.max(capturesRes.count ?? 0, FLOORS.totalCaptures),
       speciesCount: Math.max(taxaRes.count ?? 0, FLOORS.speciesCount),
-    };
+    });
 
     return new Response(JSON.stringify(stats), {
       headers: {
@@ -56,7 +56,7 @@ serve(async (req) => {
     });
   } catch (e) {
     console.error("public-stats error:", e);
-    return new Response(JSON.stringify(FLOORS), {
+    return new Response(JSON.stringify(roundStats(FLOORS)), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
