@@ -101,9 +101,26 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
   const [alertAnimal, setAlertAnimal] = useState<NearbyAnimal | null>(null);
   const [collapsed, setCollapsed] = useState(false);
 
-  const fetchNearby = () => {
+  const showLimitToast = () => {
+    toast.error(t('map.pull.limitReachedTitle'), {
+      description: t('map.pull.limitReachedDescription'),
+      action: { label: t('map.pull.premiumAction'), onClick: () => navigate('/premium') },
+    });
+  };
+
+  const fetchNearby = async () => {
     if (!isGeolocationAvailable()) {
       toast.error(t('map.nearby.geoUnavailable'));
+      return;
+    }
+    if (exhausted) {
+      showLimitToast();
+      return;
+    }
+    // Reserve a daily search slot; the edge function consumes this reservation.
+    const allowed = await consume();
+    if (!allowed) {
+      showLimitToast();
       return;
     }
 
@@ -117,7 +134,15 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
           const { data, error: fnError } = await supabase.functions.invoke('nearby-animals', {
             body: { latitude: pos.coords.latitude, longitude: pos.coords.longitude },
           });
-          if (fnError) throw fnError;
+          if (fnError) {
+            void refreshQuota();
+            if (String(fnError.message || '').includes('DAILY_NEARBY_LIMIT_REACHED') || (fnError as any).status === 429) {
+              showLimitToast();
+              setLoading(false);
+              return;
+            }
+            throw fnError;
+          }
           if (data?.success) {
             const fetched: NearbyAnimal[] = (data.animals || []).slice(0, 3).map((a: NearbyAnimal) => ({ ...a, name: cleanName(a.name) }));
             const loc = data.location_name || '';
