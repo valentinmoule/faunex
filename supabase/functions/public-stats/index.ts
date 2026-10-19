@@ -10,6 +10,7 @@ const corsHeaders = {
 const FLOORS = {
   totalUsers: 2000,
   totalCaptures: 15000,
+  speciesCount: 2400,
 };
 
 serve(async (req) => {
@@ -20,14 +21,21 @@ serve(async (req) => {
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, serviceKey);
 
-    const [usersRes, capturesRes] = await Promise.all([
+    const [usersRes, capturesRes, taxaRes] = await Promise.all([
       supabase.from("profiles").select("*", { count: "exact", head: true }),
       supabase.from("captures").select("*", { count: "exact", head: true }).eq("status", "approved"),
+      supabase
+        .from("taxa")
+        .select("*", { count: "exact", head: true })
+        .eq("collectible", true)
+        .eq("status", "validated")
+        .in("rank", ["species", "subspecies", "breed", "group"]),
     ]);
 
     const stats = {
       totalUsers: Math.max(usersRes.count ?? 0, FLOORS.totalUsers),
       totalCaptures: Math.max(capturesRes.count ?? 0, FLOORS.totalCaptures),
+      speciesCount: Math.max(taxaRes.count ?? 0, FLOORS.speciesCount),
     };
 
     return new Response(JSON.stringify(stats), {
