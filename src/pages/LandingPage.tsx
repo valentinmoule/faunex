@@ -9,6 +9,7 @@ import { AppStoreBadge, PlayStoreBadge } from '@/components/StoreBadges';
 import HolographicCard from '@/components/HolographicCard';
 import LandingPhoneShowcase from '@/components/LandingPhoneShowcase';
 import { supabase } from '@/integrations/supabase/client';
+import { roundLandingStats } from '@/lib/landingStats';
 import { guides, useCases, localizedArticle } from '@/content/articles';
 import type { Rarity } from '@/data/mockData';
 
@@ -113,7 +114,7 @@ const LandingPage = () => {
   const [stats, setStats] = useState<Stats>({
     totalUsers: 5000,
     totalCaptures: 100000,
-    speciesCount: 2400,
+    speciesCount: 3000,
   });
   const [showStickyCta, setShowStickyCta] = useState(false);
   const [recentCaptures, setRecentCaptures] = useState<RecentCapture[]>([]);
@@ -138,7 +139,7 @@ const LandingPage = () => {
   useEffect(() => {
     supabase.functions.invoke('public-stats').then(({ data }) => {
       if (data && typeof data === 'object') {
-        setStats((prev) => ({ ...prev, ...(data as Stats) }));
+        setStats((prev) => ({ ...prev, ...roundLandingStats(data as Stats) }));
       }
     });
   }, []);
