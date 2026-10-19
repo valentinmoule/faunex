@@ -13,6 +13,15 @@ const FLOORS = {
   speciesCount: 2400,
 };
 
+// Marketing figures are always rounded UP to the next thousand (6 745 -> 7 000).
+const roundUp1000 = (n: number) => Math.ceil(n / 1000) * 1000;
+
+const roundStats = (s: { totalUsers: number; totalCaptures: number; speciesCount: number }) => ({
+  totalUsers: roundUp1000(s.totalUsers),
+  totalCaptures: roundUp1000(s.totalCaptures),
+  speciesCount: roundUp1000(s.speciesCount),
+});
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
