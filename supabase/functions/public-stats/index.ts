@@ -10,7 +10,7 @@ const corsHeaders = {
 const FLOORS = {
   totalUsers: 2000,
   totalCaptures: 15000,
-  speciesCount: 2400,
+  speciesCount: 8000,
 };
 
 // Marketing figures are always rounded UP to the next thousand (6 745 -> 7 000).
