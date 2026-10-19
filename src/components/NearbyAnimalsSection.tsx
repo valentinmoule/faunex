@@ -6,8 +6,11 @@ import { RarityBadge } from '@/components/RarityBadge';
 import { toast } from 'sonner';
 import { getCurrentPosition, isGeolocationAvailable } from '@/lib/geo';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import NearbyRadar from './NearbyRadar';
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNearbyQuota } from '@/hooks/useNearbyQuota';
 
 interface NearbyAnimal {
   name: string;
