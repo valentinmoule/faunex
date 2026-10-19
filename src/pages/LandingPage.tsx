@@ -141,7 +141,7 @@ const LandingPage = () => {
   const [stats, setStats] = useState<Stats>({
     totalUsers: 5000,
     totalCaptures: 100000,
-    speciesCount: 3000,
+    speciesCount: 9000,
   });
   const [showStickyCta, setShowStickyCta] = useState(false);
   const [recentCaptures, setRecentCaptures] = useState<RecentCapture[]>([]);
