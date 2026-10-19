@@ -6,8 +6,11 @@ import { RarityBadge } from '@/components/RarityBadge';
 import { toast } from 'sonner';
 import { getCurrentPosition, isGeolocationAvailable } from '@/lib/geo';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import NearbyRadar from './NearbyRadar';
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNearbyQuota } from '@/hooks/useNearbyQuota';
 
 interface NearbyAnimal {
   name: string;
@@ -78,6 +81,9 @@ const cleanName = (value: string) => {
 const NearbyAnimalsSection = ({ capturedNames }: Props) => {
   const { speciesName } = useSpeciesName();
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { session } = useAuth();
+  const { exhausted, consume, refresh: refreshQuota } = useNearbyQuota(session?.user?.id);
   // Restore from sessionStorage on mount
   const cached = (() => {
     try {
@@ -95,9 +101,26 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
   const [alertAnimal, setAlertAnimal] = useState<NearbyAnimal | null>(null);
   const [collapsed, setCollapsed] = useState(false);
 
-  const fetchNearby = () => {
+  const showLimitToast = () => {
+    toast.error(t('map.pull.limitReachedTitle'), {
+      description: t('map.pull.limitReachedDescription'),
+      action: { label: t('map.pull.premiumAction'), onClick: () => navigate('/premium') },
+    });
+  };
+
+  const fetchNearby = async () => {
     if (!isGeolocationAvailable()) {
       toast.error(t('map.nearby.geoUnavailable'));
+      return;
+    }
+    if (exhausted) {
+      showLimitToast();
+      return;
+    }
+    // Reserve a daily search slot; the edge function consumes this reservation.
+    const allowed = await consume();
+    if (!allowed) {
+      showLimitToast();
       return;
     }
 
@@ -111,7 +134,15 @@ const NearbyAnimalsSection = ({ capturedNames }: Props) => {
           const { data, error: fnError } = await supabase.functions.invoke('nearby-animals', {
             body: { latitude: pos.coords.latitude, longitude: pos.coords.longitude },
           });
-          if (fnError) throw fnError;
+          if (fnError) {
+            void refreshQuota();
+            if (String(fnError.message || '').includes('DAILY_NEARBY_LIMIT_REACHED') || (fnError as any).status === 429) {
+              showLimitToast();
+              setLoading(false);
+              return;
+            }
+            throw fnError;
+          }
           if (data?.success) {
             const fetched: NearbyAnimal[] = (data.animals || []).slice(0, 3).map((a: NearbyAnimal) => ({ ...a, name: cleanName(a.name) }));
             const loc = data.location_name || '';
