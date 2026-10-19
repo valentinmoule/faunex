@@ -62,32 +62,59 @@ const rarityChip: Record<Rarity, string> = {
 };
 
 
-// Count-up hook with intersection observer
+// Count-up hook with intersection observer.
+// The block paints fallback figures first and the live ones arrive from
+// public-stats afterwards, so the animation has to retarget instead of latching
+// on the first value it sees.
 const useCountUp = (target: number, duration = 1500) => {
   const [value, setValue] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
-  const triggered = useRef(false);
+  const started = useRef(false);
+  const from = useRef(0);
+  const raf = useRef(0);
 
   useEffect(() => {
-    if (!ref.current || triggered.current) return;
+    if (!ref.current) return;
+
+    const run = () => {
+      const start = performance.now();
+      const fromVal = from.current;
+      const delta = target - fromVal;
+      const tick = (now: number) => {
+        const t = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - t, 3);
+        from.current = fromVal + delta * eased;
+        setValue(Math.floor(from.current));
+        if (t < 1) raf.current = requestAnimationFrame(tick);
+        else {
+          from.current = target;
+          setValue(target);
+        }
+      };
+      raf.current = requestAnimationFrame(tick);
+    };
+
+    // Figures refreshed after the first paint: glide from the value on screen.
+    if (started.current) {
+      run();
+      return () => cancelAnimationFrame(raf.current);
+    }
+
     const obs = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !triggered.current) {
-          triggered.current = true;
-          const start = performance.now();
-          const tick = (now: number) => {
-            const t = Math.min((now - start) / duration, 1);
-            const eased = 1 - Math.pow(1 - t, 3);
-            setValue(Math.floor(eased * target));
-            if (t < 1) requestAnimationFrame(tick);
-          };
-          requestAnimationFrame(tick);
+        if (entry.isIntersecting && !started.current) {
+          started.current = true;
+          obs.disconnect();
+          run();
         }
       },
       { threshold: 0.3 }
     );
     obs.observe(ref.current);
-    return () => obs.disconnect();
+    return () => {
+      obs.disconnect();
+      cancelAnimationFrame(raf.current);
+    };
   }, [target, duration]);
 
   return { ref, value };
