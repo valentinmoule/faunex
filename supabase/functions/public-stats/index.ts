@@ -33,12 +33,8 @@ serve(async (req) => {
     const [usersRes, capturesRes, taxaRes] = await Promise.all([
       supabase.from("profiles").select("*", { count: "exact", head: true }),
       supabase.from("captures").select("*", { count: "exact", head: true }).eq("status", "approved"),
-      supabase
-        .from("taxa")
-        .select("*", { count: "exact", head: true })
-        .eq("collectible", true)
-        .eq("status", "validated")
-        .in("rank", ["species", "subspecies", "breed", "group"]),
+      // Same source as the Bestiaire grid (every species tile).
+      supabase.from("animals").select("*", { count: "exact", head: true }),
     ]);
 
     const stats = roundStats({
