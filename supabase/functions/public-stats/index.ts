@@ -13,6 +13,15 @@ const FLOORS = {
   speciesCount: 2400,
 };
 
+// Marketing figures are always rounded UP to the next thousand (6 745 -> 7 000).
+const roundUp1000 = (n: number) => Math.ceil(n / 1000) * 1000;
+
+const roundStats = (s: { totalUsers: number; totalCaptures: number; speciesCount: number }) => ({
+  totalUsers: roundUp1000(s.totalUsers),
+  totalCaptures: roundUp1000(s.totalCaptures),
+  speciesCount: roundUp1000(s.speciesCount),
+});
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -32,11 +41,11 @@ serve(async (req) => {
         .in("rank", ["species", "subspecies", "breed", "group"]),
     ]);
 
-    const stats = {
+    const stats = roundStats({
       totalUsers: Math.max(usersRes.count ?? 0, FLOORS.totalUsers),
       totalCaptures: Math.max(capturesRes.count ?? 0, FLOORS.totalCaptures),
       speciesCount: Math.max(taxaRes.count ?? 0, FLOORS.speciesCount),
-    };
+    });
 
     return new Response(JSON.stringify(stats), {
       headers: {
@@ -47,7 +56,7 @@ serve(async (req) => {
     });
   } catch (e) {
     console.error("public-stats error:", e);
-    return new Response(JSON.stringify(FLOORS), {
+    return new Response(JSON.stringify(roundStats(FLOORS)), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
