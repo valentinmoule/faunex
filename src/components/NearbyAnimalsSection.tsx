@@ -81,6 +81,9 @@ const cleanName = (value: string) => {
 const NearbyAnimalsSection = ({ capturedNames }: Props) => {
   const { speciesName } = useSpeciesName();
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { session } = useAuth();
+  const { exhausted, consume, refresh: refreshQuota } = useNearbyQuota(session?.user?.id);
   // Restore from sessionStorage on mount
   const cached = (() => {
     try {
