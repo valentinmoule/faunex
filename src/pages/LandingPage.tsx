@@ -363,7 +363,7 @@ const LandingPage = () => {
 
       {/* SOCIAL PROOF */}
       <section className="px-5 py-8 border-b border-border/50 bg-muted/30">
-        <div className="max-w-lg mx-auto grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="max-w-lg mx-auto grid grid-cols-2 gap-3">
           <Stat value={stats.totalUsers} label={t('marketing.landing.stats.explorers')} prefix="+" />
           <Stat value={stats.totalCaptures} label={t('marketing.landing.stats.captures')} prefix="+" />
           <Stat value={stats.speciesCount} label={t('marketing.landing.stats.species')} prefix="+" />
