@@ -87,7 +87,9 @@
       },
       "stats": {
         "explorers": "Explorateurs",
-        "captures": "Captures"
+        "captures": "Captures",
+        "species": "Espèces à trouver",
+        "averageRating": "Note moyenne"
       },
       "howItWorks": {
         "title": "3 gestes, {{highlight}}",

@@ -87,7 +87,9 @@
       },
       "stats": {
         "explorers": "Explorers",
-        "captures": "Captures"
+        "captures": "Captures",
+        "species": "Species to find",
+        "averageRating": "Average rating"
       },
       "howItWorks": {
         "title": "3 moves, {{highlight}}",

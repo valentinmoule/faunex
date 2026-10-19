@@ -15,7 +15,11 @@ import type { Rarity } from '@/data/mockData';
 interface Stats {
   totalUsers: number;
   totalCaptures: number;
+  speciesCount: number;
 }
+
+// Note moyenne affichée sur la landing (chiffre fixe, non connecté aux stores).
+const STORE_RATING = 4.5;
 
 interface RecentCapture {
   animal_name: string;
@@ -88,12 +92,13 @@ const useCountUp = (target: number, duration = 1500) => {
   return { ref, value };
 };
 
-const Stat = ({ value, label, prefix }: { value: number; label: string; prefix?: string }) => {
-  const { ref, value: animated } = useCountUp(value);
+const Stat = ({ value, label, prefix, decimals = 0 }: { value: number; label: string; prefix?: string; decimals?: number }) => {
+  const { ref, value: animated } = useCountUp(Math.round(value * 10 ** decimals));
+  const formatted = (animated / 10 ** decimals).toLocaleString('fr-FR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
   return (
     <div className="text-center">
       <p className="text-2xl sm:text-3xl font-display font-black text-primary tabular-nums">
-        <span ref={ref}>{prefix}{animated.toLocaleString('fr-FR')}</span>
+        <span ref={ref}>{prefix}{formatted}</span>
       </p>
       <p className="text-[11px] sm:text-xs text-muted-foreground font-display uppercase tracking-wider mt-0.5">
         {label}
@@ -108,6 +113,7 @@ const LandingPage = () => {
   const [stats, setStats] = useState<Stats>({
     totalUsers: 5000,
     totalCaptures: 100000,
+    speciesCount: 2400,
   });
   const [showStickyCta, setShowStickyCta] = useState(false);
   const [recentCaptures, setRecentCaptures] = useState<RecentCapture[]>([]);
@@ -357,9 +363,11 @@ const LandingPage = () => {
 
       {/* SOCIAL PROOF */}
       <section className="px-5 py-8 border-b border-border/50 bg-muted/30">
-        <div className="max-w-lg mx-auto grid grid-cols-2 gap-3">
+        <div className="max-w-lg mx-auto grid grid-cols-2 sm:grid-cols-4 gap-3">
           <Stat value={stats.totalUsers} label={t('marketing.landing.stats.explorers')} prefix="+" />
           <Stat value={stats.totalCaptures} label={t('marketing.landing.stats.captures')} prefix="+" />
+          <Stat value={stats.speciesCount} label={t('marketing.landing.stats.species')} prefix="+" />
+          <Stat value={STORE_RATING} label={t('marketing.landing.stats.averageRating')} decimals={1} />
         </div>
       </section>
 
