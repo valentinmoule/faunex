@@ -1,4 +1,9 @@
 
+## Intégrité des descriptions d’espèces
+- [x] Vérifier et corriger les fiches du Criquet égyptien et de la Salamandre de Corse (141 captures harmonisées)
+- [x] Protéger les associations et sauvegardes de fiches contre les mélanges d’espèces
+- [x] Tester les cas signalés et vérifier les données corrigées (6 règles serveur, 5 tests identification ; criquet vérifié connecté, salamandre verrouillée car non découverte sur le compte)
+
 ## Sécurité sans changement visuel
 - [x] Terminer la protection des récompenses et dépendances restantes, puis relancer tous les tests et vérifier les écrans connectés
 - [x] Sécuriser les fonctions publiques et les destinataires des notifications

@@ -2684,6 +2684,15 @@ export type Database = {
           scientific_name: string
         }[]
       }
+      species_profile_identity_matches: {
+        Args: {
+          p_name: string
+          p_profile_name: string
+          p_profile_scientific: string
+          p_scientific: string
+        }
+        Returns: boolean
+      }
       species_translation_progress: {
         Args: never
         Returns: {

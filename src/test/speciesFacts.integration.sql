@@ -1,0 +1,7 @@
+-- Read-only regressions: division by zero fails if a rule breaks.
+SELECT 1 / CASE WHEN NOT public.species_profile_identity_matches('Salamandre de Corse','Salamandra corsica','Salamandre de Corse','Salamandra salamandra') THEN 1 ELSE 0 END AS conflicting_identity_rejected;
+SELECT 1 / CASE WHEN NOT public.species_profile_identity_matches('Jack Russell','Canis lupus familiaris','Labrador','Canis lupus familiaris') THEN 1 ELSE 0 END AS shared_breed_binomial_rejected;
+SELECT 1 / CASE WHEN public.species_profile_identity_matches('Criquet égyptien','Anacridium aegyptium','Criquet égyptien','Anacridium aegyptium') THEN 1 ELSE 0 END AS exact_identity_accepted;
+SELECT 1 / CASE WHEN public.profile_mentions_other_species('Salamandre de Corse','La salamandre tachetée est un amphibien urodèle.') THEN 1 ELSE 0 END AS wrong_salamander_detected;
+SELECT 1 / CASE WHEN NOT public.profile_mentions_other_species('Criquet égyptien','Le Criquet égyptien est un orthoptère du bassin méditerranéen.') THEN 1 ELSE 0 END AS broader_group_allowed;
+SELECT 1 / CASE WHEN NOT EXISTS (SELECT 1 FROM public.captures c JOIN public.species_profiles p ON p.animal_name=c.animal_name AND p.scientific_name=c.scientific_name WHERE c.status='approved' AND c.animal_name IN ('Criquet égyptien','Salamandre de Corse') AND (c.description,c.habitat,c.diet,c.fun_fact) IS DISTINCT FROM (p.description,p.habitat,p.diet,p.fun_fact)) THEN 1 ELSE 0 END AS corrected_captures_use_canonical_facts;

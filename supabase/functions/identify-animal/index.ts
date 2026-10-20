@@ -353,6 +353,18 @@ serve(async (req) => {
             delete body.__outcome;
             delete body.__at;
             delete body.__rejection_version;
+            // Refresh facts even when the image identification itself is cached.
+            const cachedAnimal = body.animal as Record<string, unknown> | undefined;
+            if (body.success && cachedAnimal?.animal_name) {
+              const { data, error } = await cacheDb.rpc("species_profile_for", {
+                p_name: cachedAnimal.animal_name,
+                p_scientific: cachedAnimal.scientific_name || null,
+              });
+              const profile = !error && Array.isArray(data) ? data[0] : null;
+              for (const field of ["description", "habitat", "diet", "conservation", "fun_fact"]) {
+                cachedAnimal[field] = profile?.[field] ?? null;
+              }
+            }
             console.log("identify cache hit", outcome, isProbe ? "(probe)" : "");
             // Mesure : une réutilisation de cache = un appel IA économisé.
             cacheDb.from("ml_dataset_events").insert({
@@ -990,6 +1002,9 @@ serve(async (req) => {
     const attachProfile = async () => {
       const name = String(animalData?.animal_name || "").trim();
       if (!admin || !name || name.toLowerCase() === "inconnu") return;
+      for (const field of ["description", "habitat", "diet", "conservation", "fun_fact"]) {
+        animalData[field] = null;
+      }
 
       // Détecte une fiche qui décrit une autre espèce du Bestiaire.
       const mentionsOtherSpecies = async (text: string): Promise<boolean> => {
@@ -998,10 +1013,10 @@ serve(async (req) => {
             p_target: name,
             p_text: text.slice(0, 2000),
           });
-          if (error) return false;
+          if (error) return true;
           return Boolean(data);
         } catch {
-          return false;
+          return true;
         }
       };
 
@@ -1011,7 +1026,7 @@ serve(async (req) => {
           p_scientific: animalData.scientific_name || null,
         });
         const row = Array.isArray(data) ? data[0] : data;
-        if (row?.description) {
+        if (row?.description && !(await mentionsOtherSpecies(String(row.description)))) {
           animalData.description = row.description;
           animalData.habitat = row.habitat;
           animalData.diet = row.diet;
@@ -1035,9 +1050,8 @@ serve(async (req) => {
           .not("description", "is", null)
           .order("created_at", { ascending: false })
           .limit(1);
-        q = animalData.scientific_name
-          ? q.ilike("scientific_name", animalData.scientific_name)
-          : q.ilike("animal_name", name);
+        q = q.eq("animal_name", name);
+        if (animalData.scientific_name) q = q.eq("scientific_name", animalData.scientific_name);
         const { data: rows } = await q;
         const prev = rows?.[0];
         if (
