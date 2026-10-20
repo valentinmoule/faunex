@@ -473,6 +473,16 @@ serve(async (req) => {
     /** Fiches d'espèces : texte seul, toujours sur le modèle le moins cher. */
     const TEXT_MODEL = "google/gemini-3.1-flash-lite";
 
+    // Budget global de la phase IA : sans lui, les appels et reprises
+    // enchaînés dépassent la limite d'exécution de la plateforme, qui coupe
+    // la requête (504) et jette la réponse. Chaque appel est borné par le
+    // temps restant (large multiple de la latence observée de ces petites
+    // passes « low effort ») ; les passes optionnelles sont sautées quand le
+    // budget est presque consommé, pour toujours répondre proprement.
+    const aiPhaseStartedAt = Date.now();
+    const AI_PHASE_BUDGET_MS = 75_000;
+    const budgetLeft = () => AI_PHASE_BUDGET_MS - (Date.now() - aiPhaseStartedAt);
+
     const callGateway = async (
       model: string,
       prompt: string,
@@ -481,6 +491,7 @@ serve(async (req) => {
     ) => {
       return await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
 
+      signal: AbortSignal.timeout(Math.max(10_000, Math.min(45_000, budgetLeft()))),
       method: "POST",
       headers: {
         Authorization: `Bearer ${LOVABLE_API_KEY}`,
@@ -600,12 +611,15 @@ serve(async (req) => {
       fallbackModel?: string,
     ) => {
       for (let i = 0; i < attempts; i++) {
+        // Plus assez de budget pour un appel utile : on rend la main plutôt
+        // que de laisser la plateforme couper la requête en plein vol.
+        if (budgetLeft() < 12_000) return null;
         const startedAt = Date.now();
         const attemptModel = i === 0 ? model : (fallbackModel ?? model);
         try {
           const r = await callGateway(attemptModel, prompt, effort, image);
           const retryable = r.status === 429 || r.status >= 500;
-          if (retryable && i < attempts - 1) {
+          if (retryable && i < attempts - 1 && budgetLeft() > 20_000) {
             const retryAfter = Number(r.headers.get("Retry-After"));
             const delayMs = Number.isFinite(retryAfter) && retryAfter > 0
               ? Math.min(retryAfter * 1_000, 8_000)
@@ -737,7 +751,7 @@ serve(async (req) => {
       confidence < 55 ||
       (CONFUSABLE.test(label) && confidence < 70);
 
-    if (needsDeep) {
+    if (needsDeep && budgetLeft() > 25_000) {
       // Quand la passe rapide n'a aucun résultat, une seule reprise est permise
       // après un retour explicitement temporaire du service. Une réponse rapide
       // déjà exploitable ne déclenche jamais de seconde tentative profonde.
@@ -1053,8 +1067,12 @@ serve(async (req) => {
       }
 
       // 2) Génération unique (texte seul, pas d'image → coût minimal).
+      // Sautée si le budget de la phase IA est presque consommé : mieux vaut
+      // une fiche vide qu'une requête coupée par la plateforme.
+      if (budgetLeft() < 20_000) return;
       try {
         const r = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          signal: AbortSignal.timeout(Math.max(8_000, Math.min(30_000, budgetLeft()))),
           method: "POST",
           headers: {
             Authorization: `Bearer ${LOVABLE_API_KEY}`,
