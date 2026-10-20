@@ -473,6 +473,16 @@ serve(async (req) => {
     /** Fiches d'espèces : texte seul, toujours sur le modèle le moins cher. */
     const TEXT_MODEL = "google/gemini-3.1-flash-lite";
 
+    // Budget global de la phase IA : sans lui, les appels et reprises
+    // enchaînés dépassent la limite d'exécution de la plateforme, qui coupe
+    // la requête (504) et jette la réponse. Chaque appel est borné par le
+    // temps restant (large multiple de la latence observée de ces petites
+    // passes « low effort ») ; les passes optionnelles sont sautées quand le
+    // budget est presque consommé, pour toujours répondre proprement.
+    const aiPhaseStartedAt = Date.now();
+    const AI_PHASE_BUDGET_MS = 75_000;
+    const budgetLeft = () => AI_PHASE_BUDGET_MS - (Date.now() - aiPhaseStartedAt);
+
     const callGateway = async (
       model: string,
       prompt: string,
@@ -481,6 +491,7 @@ serve(async (req) => {
     ) => {
       return await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
 
+      signal: AbortSignal.timeout(Math.max(10_000, Math.min(45_000, budgetLeft()))),
       method: "POST",
       headers: {
         Authorization: `Bearer ${LOVABLE_API_KEY}`,
