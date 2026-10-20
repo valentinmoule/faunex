@@ -751,7 +751,7 @@ serve(async (req) => {
       confidence < 55 ||
       (CONFUSABLE.test(label) && confidence < 70);
 
-    if (needsDeep) {
+    if (needsDeep && budgetLeft() > 25_000) {
       // Quand la passe rapide n'a aucun résultat, une seule reprise est permise
       // après un retour explicitement temporaire du service. Une réponse rapide
       // déjà exploitable ne déclenche jamais de seconde tentative profonde.
