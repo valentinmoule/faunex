@@ -1067,8 +1067,12 @@ serve(async (req) => {
       }
 
       // 2) Génération unique (texte seul, pas d'image → coût minimal).
+      // Sautée si le budget de la phase IA est presque consommé : mieux vaut
+      // une fiche vide qu'une requête coupée par la plateforme.
+      if (budgetLeft() < 20_000) return;
       try {
         const r = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          signal: AbortSignal.timeout(Math.max(8_000, Math.min(30_000, budgetLeft()))),
           method: "POST",
           headers: {
             Authorization: `Bearer ${LOVABLE_API_KEY}`,
