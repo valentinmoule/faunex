@@ -76,4 +76,9 @@ Read private preferences with `get_my_profile`; keep public profile fields and l
 
 ## Realtime channel names must be unique per subscription
 
-Append a random suffix to every `supabase.channel()` name: supabase-js dedupes channels by topic, so an effect re-run gets the already-subscribed channel and `.on()` throws, crashing the app.
+Suffix every `supabase.channel()` name randomly: reused topics crash on `.on()`.
+
+<!-- LOVABLE:BEGIN -->
+## Canonical species facts
+Apply shared facts after capture name canonicalization, reject scientific conflicts, refresh facts on image-cache hits, and invalidate translations after source changes, because moderation and older clients can save stale descriptions under corrected names.
+<!-- LOVABLE:END -->
