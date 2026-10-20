@@ -1,4 +1,9 @@
 
+## Intégrité des descriptions d’espèces
+- [ ] Vérifier et corriger les fiches du Criquet égyptien et de la Salamandre de Corse
+- [ ] Protéger les associations et sauvegardes de fiches contre les mélanges d’espèces
+- [ ] Tester les cas signalés et vérifier les données corrigées
+
 ## Sécurité sans changement visuel
 - [x] Terminer la protection des récompenses et dépendances restantes, puis relancer tous les tests et vérifier les écrans connectés
 - [x] Sécuriser les fonctions publiques et les destinataires des notifications
