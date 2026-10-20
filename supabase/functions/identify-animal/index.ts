@@ -611,12 +611,15 @@ serve(async (req) => {
       fallbackModel?: string,
     ) => {
       for (let i = 0; i < attempts; i++) {
+        // Plus assez de budget pour un appel utile : on rend la main plutôt
+        // que de laisser la plateforme couper la requête en plein vol.
+        if (budgetLeft() < 12_000) return null;
         const startedAt = Date.now();
         const attemptModel = i === 0 ? model : (fallbackModel ?? model);
         try {
           const r = await callGateway(attemptModel, prompt, effort, image);
           const retryable = r.status === 429 || r.status >= 500;
-          if (retryable && i < attempts - 1) {
+          if (retryable && i < attempts - 1 && budgetLeft() > 20_000) {
             const retryAfter = Number(r.headers.get("Retry-After"));
             const delayMs = Number.isFinite(retryAfter) && retryAfter > 0
               ? Math.min(retryAfter * 1_000, 8_000)
