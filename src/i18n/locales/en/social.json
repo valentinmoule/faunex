@@ -133,6 +133,7 @@
       "messageCaptureApproved": " approved your capture! It's now in your Faunex 🎉",
       "messageCaptureRejectedWithReason": " rejected your submission \"{{reason}}\". The animal couldn't be verified.",
       "messageCaptureRejected": " rejected your submission. The animal couldn't be verified.",
+      "messageCaptureRejectedDuplicate": " rejected your submission: you already captured \"{{name}}\" — it's in your bestiary!",
       "messageFriendRequest": " followed your profile",
       "messageFriendAccepted": " accepted your friend request",
       "messageLike": " liked your capture",
