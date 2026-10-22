@@ -1,5 +1,6 @@
 
 ## Intégrité des descriptions d’espèces
+- [x] Séparer Boa du Pacifique (Candoia paulsoni) et Python de Bismarck (Bothrochilus boa), corriger les trois captures ; deux tests de correspondance réussis
 - [x] Corriger la fiche commune et harmoniser les 155 captures du Cochon domestique (0 description vietnamienne restante ; Cochon vietnamien inchangé)
 - [x] Vérifier et corriger les fiches du Criquet égyptien et de la Salamandre de Corse (141 captures harmonisées)
 - [x] Protéger les associations et sauvegardes de fiches contre les mélanges d’espèces
