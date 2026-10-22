@@ -136,7 +136,7 @@ Deno.serve(async (req) => {
             duplicateName,
             duplicateScientific,
             captureUrl: approved
-              ? `${APP_URL}/collection${captureId ? `?capture=${captureId}` : ''}`
+              ? `${APP_URL}/home${captureId ? `?capture=${captureId}` : ''}`
               : `${APP_URL}/capture`,
           },
           idempotencyKey: dedupeKey,
@@ -161,7 +161,7 @@ Deno.serve(async (req) => {
               : reason === 'captured_animal'
                 ? `Les animaux capturés ou pêchés par l'humain ne sont pas acceptés, même relâchés ensuite. Photographie-les en liberté !`
                 : `${animalName} n'a pas pu être identifiée. Retente avec une photo plus nette.`,
-      url: approved ? `/collection${captureId ? `?capture=${captureId}` : ''}` : '/capture',
+      url: approved ? `/home${captureId ? `?capture=${captureId}` : ''}` : '/capture',
       tag: `moderation-${captureId ?? userId}`,
     })
 

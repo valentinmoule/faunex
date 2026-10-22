@@ -24,7 +24,6 @@ import { lazyWithRetry } from "./lib/lazyWithRetry";
 // Lazy-loaded routes for smaller initial bundle
 
 const CapturePage = lazyWithRetry(() => import("./pages/CapturePage"));
-const CollectionPage = lazyWithRetry(() => import("./pages/CollectionPage"));
 const ExplorersPage = lazyWithRetry(() => import("./pages/ExplorersPage"));
 const AuthPage = lazyWithRetry(() => import("./pages/AuthPage"));
 const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
@@ -110,6 +109,13 @@ const LandingRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+// Ancienne route /collection : redirige vers Mon Faunex en conservant les
+// paramètres (ex. ?capture=… des liens de notifications et de partage).
+const CollectionRedirect = () => {
+  const location = useLocation();
+  return <Navigate to={`/home${location.search}`} replace />;
+};
+
 // Marque la première connexion comme gérée après un court délai :
 // les popups (Splash de niveau, quêtes du jour) ne s'affichent qu'à partir
 // de la visite suivante — remplace l'ancienne popup d'installation PWA.
@@ -168,7 +174,7 @@ const AppRoutes = () => {
           <Route path="/auth/native-bridge" element={<NativeAuthBridgePage />} />
           <Route path="/complete-profile" element={<ProtectedRoute><CompleteProfilePage /></ProtectedRoute>} />
           <Route path="/home" element={<ProtectedRoute><BestiairePage /></ProtectedRoute>} />
-          <Route path="/collection" element={<ProtectedRoute><CollectionPage /></ProtectedRoute>} />
+          <Route path="/collection" element={<CollectionRedirect />} />
           <Route path="/capture" element={<ProtectedRoute><CapturePage /></ProtectedRoute>} />
           <Route path="/profile" element={<Navigate to="/home?profile=1" replace />} />
           <Route path="/feed" element={<Navigate to="/explorers" replace />} />

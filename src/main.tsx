@@ -27,7 +27,6 @@ const prefetchTabs = () => {
   if (conn?.saveData || /2g/.test(conn?.effectiveType || "")) return;
   [
     () => import("./pages/BestiairePage"),
-    () => import("./pages/CollectionPage"),
     () => import("./pages/ExplorersPage"),
     () => import("./pages/CapturePage"),
     () => import("./pages/NotificationsPage"),

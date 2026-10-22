@@ -239,9 +239,9 @@ const NotificationsPage = () => {
                     if (isBadgeEarned) {
                       navigate('/home?tab=badges');
                     } else if ((isLike || isComment) && notif.capture_id) {
-                      navigate(`/collection?capture=${notif.capture_id}`);
+                      navigate(`/home?capture=${notif.capture_id}`);
                     } else if (isModerationNotif && notif.capture_id) {
-                      navigate(`/collection?capture=${notif.capture_id}`);
+                      navigate(`/home?capture=${notif.capture_id}`);
                     } else {
                       navigate(`/explorer/${notif.actor_id}/collection`);
                     }
