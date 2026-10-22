@@ -213,7 +213,9 @@ const NotificationsPage = () => {
                     ? t('social.notifications.messageCaptureApprovedWithName', { name: notif.capture.animal_name })
                     : t('social.notifications.messageCaptureApproved'))
                 : isCaptureRejected
-                ? (notif.comment_text
+                ? (notif.comment_text?.startsWith('duplicate:')
+                    ? t('social.notifications.messageCaptureRejectedDuplicate', { name: notif.comment_text.slice('duplicate:'.length) })
+                    : notif.comment_text
                     ? t('social.notifications.messageCaptureRejectedWithReason', { reason: notif.comment_text })
                     : t('social.notifications.messageCaptureRejected'))
                 : isFriendRequest
