@@ -65,7 +65,10 @@ Deno.serve(async (req) => {
     let reason = 'not_identifiable'
     let duplicateName: string | null = null
     let duplicateScientific: string | null = null
-    if (decision === 'rejected' && body?.reason === 'duplicate') {
+    if (decision === 'rejected') {
+      // Doublon détecté automatiquement, quelle que soit la raison invoquée :
+      // si l'explorateur possède déjà cette espèce, on le lui dit plutôt que
+      // « l'animal n'a pas pu être vérifié ».
       const { data: identities } = await supabase.rpc('resolve_species_identity', {
         p_name: capture.animal_name, p_scientific: capture.scientific_name ?? '',
       })
@@ -78,6 +81,13 @@ Deno.serve(async (req) => {
         reason = 'duplicate'
         duplicateName = duplicate.animal_name
         duplicateScientific = duplicate.scientific_name
+        // La notification in-app (insérée par l'appelant avant cet appel) porte
+        // le nom de l'espèce en comment_text : on le remplace par un marqueur
+        // « duplicate:… » pour que l'app affiche le message « déjà capturée ».
+        await supabase.from('notifications')
+          .update({ comment_text: `duplicate:${duplicate.animal_name}` })
+          .eq('user_id', userId).eq('type', 'capture_rejected')
+          .eq('comment_text', animalName)
       }
     }
 
