@@ -24,7 +24,6 @@ import { lazyWithRetry } from "./lib/lazyWithRetry";
 // Lazy-loaded routes for smaller initial bundle
 
 const CapturePage = lazyWithRetry(() => import("./pages/CapturePage"));
-const CollectionPage = lazyWithRetry(() => import("./pages/CollectionPage"));
 const ExplorersPage = lazyWithRetry(() => import("./pages/ExplorersPage"));
 const AuthPage = lazyWithRetry(() => import("./pages/AuthPage"));
 const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
