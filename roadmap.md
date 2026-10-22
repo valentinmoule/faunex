@@ -1,6 +1,6 @@
 
 ## Intégrité des descriptions d’espèces
-- [ ] Corriger le nom corrompu de la Mélitée orangée dans la référence et les trois captures concernées ; vérifier la sauvegarde
+- [x] Corriger le nom corrompu de la Mélitée orangée dans la référence et les trois captures concernées ; deux tests serveur réussis, correction automatique des noms à la sauvegarde vérifiée
 - [x] Annuler la fusion incorrecte du Criquet des ajoncs, rétablir la capture identifiable et renommer Omocestus viridulus en Criquet verdelet ; trois tests serveur réussis
 - [x] Séparer Boa du Pacifique (Candoia paulsoni) et Python de Bismarck (Bothrochilus boa), corriger les trois captures ; deux tests de correspondance réussis
 - [x] Corriger la fiche commune et harmoniser les 155 captures du Cochon domestique (0 description vietnamienne restante ; Cochon vietnamien inchangé)
