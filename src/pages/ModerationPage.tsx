@@ -608,9 +608,32 @@ const ModerationPage = () => {
                       )}
 
                       <div className="space-y-2 pt-1">
+                        {rejectMenuFor === capture.id && (
+                          <div className="divide-y divide-border/60">
+                            <p className="px-1 pb-1.5 text-[10px] font-display font-bold uppercase tracking-wide text-muted-foreground">
+                              Motif du rejet — l'explorateur reçoit un e-mail explicatif
+                            </p>
+                            {REJECT_REASONS.map(r => (
+                              <button
+                                key={r.value}
+                                onClick={() => reject(capture, r.value)}
+                                disabled={processing === capture.id}
+                                className="w-full flex items-center gap-2 px-1 py-2.5 text-left text-xs font-display font-semibold text-destructive disabled:opacity-50 hover:bg-destructive/5 transition-colors"
+                              >
+                                <X className="w-3.5 h-3.5 shrink-0" /> {r.label}
+                              </button>
+                            ))}
+                            <button
+                              onClick={() => setRejectMenuFor(null)}
+                              className="w-full px-1 py-2.5 text-left text-xs font-display font-semibold text-muted-foreground hover:bg-muted/40 transition-colors"
+                            >
+                              Annuler
+                            </button>
+                          </div>
+                        )}
                         <div className="flex gap-2">
                           <button
-                            onClick={() => reject(capture)}
+                            onClick={() => setRejectMenuFor(rejectMenuFor === capture.id ? null : capture.id)}
                             disabled={processing === capture.id}
                             className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-destructive/10 text-destructive text-xs font-display font-semibold disabled:opacity-50 hover:bg-destructive/20 transition-colors"
                           >
