@@ -213,11 +213,17 @@ const NotificationsPage = () => {
                     ? t('social.notifications.messageCaptureApprovedWithName', { name: notif.capture.animal_name })
                     : t('social.notifications.messageCaptureApproved'))
                 : isCaptureRejected
-                ? (notif.comment_text?.startsWith('duplicate:')
-                    ? t('social.notifications.messageCaptureRejectedDuplicate', { name: notif.comment_text.slice('duplicate:'.length) })
-                    : notif.comment_text
-                    ? t('social.notifications.messageCaptureRejectedWithReason', { reason: notif.comment_text })
-                    : t('social.notifications.messageCaptureRejected'))
+                ? (() => {
+                    const ct = notif.comment_text ?? '';
+                    const prefixed = ct.match(/^(duplicate|dead_animal|internet_image|captured_animal):(.*)$/);
+                    if (prefixed) {
+                      const [, motif, name] = prefixed;
+                      return t(`social.notifications.messageCaptureRejected_${motif}`, { name });
+                    }
+                    return ct
+                      ? t('social.notifications.messageCaptureRejectedWithReason', { reason: ct })
+                      : t('social.notifications.messageCaptureRejected');
+                  })()
                 : isFriendRequest
                 ? t('social.notifications.messageFriendRequest')
                 : isFriendAccepted

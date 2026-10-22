@@ -62,7 +62,8 @@ Deno.serve(async (req) => {
     }
     const userId = capture.user_id
     const animalName = capture.animal_name
-    let reason = 'not_identifiable'
+    const ALLOWED_REASONS = ['not_identifiable', 'duplicate', 'dead_animal', 'internet_image', 'captured_animal']
+    let reason = ALLOWED_REASONS.includes(body?.reason) ? body.reason : 'not_identifiable'
     let duplicateName: string | null = null
     let duplicateScientific: string | null = null
     if (decision === 'rejected') {
@@ -86,6 +87,12 @@ Deno.serve(async (req) => {
         // « duplicate:… » pour que l'app affiche le message « déjà capturée ».
         await supabase.from('notifications')
           .update({ comment_text: `duplicate:${duplicate.animal_name}` })
+          .eq('user_id', userId).eq('type', 'capture_rejected')
+          .eq('comment_text', animalName)
+      } else if (reason !== 'not_identifiable') {
+        // Marqueur « motif:… » pour que l'app affiche le message adapté.
+        await supabase.from('notifications')
+          .update({ comment_text: `${reason}:${animalName}` })
           .eq('user_id', userId).eq('type', 'capture_rejected')
           .eq('comment_text', animalName)
       }
@@ -147,7 +154,13 @@ Deno.serve(async (req) => {
         ? `${animalName} rejoint ton bestiaire !`
         : reason === 'duplicate'
           ? `${animalName} correspond à ${duplicateName ? `« ${duplicateName} »` : 'une espèce'}${duplicateScientific ? ` (${duplicateScientific})` : ''}, déjà dans ton bestiaire. Pars à la rencontre d'une nouvelle espèce !`
-          : `${animalName} n'a pas pu être identifiée. Retente avec une photo plus nette.`,
+          : reason === 'dead_animal'
+            ? `Les animaux morts ou cadavres ne sont pas acceptés sur Faunex. Photographie des animaux vivants !`
+            : reason === 'internet_image'
+              ? `Les images provenant d'Internet ne sont pas acceptées. Partage uniquement tes propres photos !`
+              : reason === 'captured_animal'
+                ? `Les animaux capturés ou pêchés par l'humain ne sont pas acceptés, même relâchés ensuite. Photographie-les en liberté !`
+                : `${animalName} n'a pas pu être identifiée. Retente avec une photo plus nette.`,
       url: approved ? `/collection${captureId ? `?capture=${captureId}` : ''}` : '/capture',
       tag: `moderation-${captureId ?? userId}`,
     })
