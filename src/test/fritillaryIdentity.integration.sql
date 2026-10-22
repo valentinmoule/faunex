@@ -1,0 +1,3 @@
+-- Scientific identity and French name must remain consistent across both catalogues and saved captures.
+SELECT 1 / CASE WHEN EXISTS (SELECT 1 FROM public.animals WHERE name='Mélitée orangée' AND scientific_name='Melitaea didyma') AND EXISTS (SELECT 1 FROM public.taxa WHERE id='f1807989-ed5c-4fb7-a89a-2688c3062c0e' AND vernacular_name='Mélitée orangée' AND scientific_name='Melitaea didyma') THEN 1 ELSE 0 END AS fritillary_catalogue_identity;
+SELECT 1 / CASE WHEN (SELECT count(*) FROM public.captures WHERE id IN ('3c1dba92-f8cf-4fcc-9b4c-2e1ef34cc0cb','655868a5-abd9-48dd-81ac-449fb2e17d16','71332ed7-309a-467d-8c46-1c5663ea4238') AND animal_name='Mélitée orangée' AND scientific_name='Melitaea didyma')=3 THEN 1 ELSE 0 END AS reported_captures_restored;
