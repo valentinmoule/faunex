@@ -110,6 +110,13 @@ const LandingRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+// Ancienne route /collection : redirige vers Mon Faunex en conservant les
+// paramètres (ex. ?capture=… des liens de notifications et de partage).
+const CollectionRedirect = () => {
+  const location = useLocation();
+  return <Navigate to={`/home${location.search}`} replace />;
+};
+
 // Marque la première connexion comme gérée après un court délai :
 // les popups (Splash de niveau, quêtes du jour) ne s'affichent qu'à partir
 // de la visite suivante — remplace l'ancienne popup d'installation PWA.
