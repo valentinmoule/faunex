@@ -1,0 +1,4 @@
+-- Read-only regressions: division by zero fails if a reported identity changes again.
+SELECT 1 / CASE WHEN EXISTS (SELECT 1 FROM public.animals WHERE name='Criquet des ajoncs' AND scientific_name='Chorthippus binotatus') AND NOT EXISTS (SELECT 1 FROM public.animal_merge_map WHERE old_name='Criquet des ajoncs') THEN 1 ELSE 0 END AS binotatus_stays_distinct;
+SELECT 1 / CASE WHEN EXISTS (SELECT 1 FROM public.animals WHERE name='Criquet verdelet' AND scientific_name='Omocestus viridulus') AND NOT EXISTS (SELECT 1 FROM public.animals WHERE name='Criquet vert' AND scientific_name='Omocestus viridulus') THEN 1 ELSE 0 END AS viridulus_french_name;
+SELECT 1 / CASE WHEN EXISTS (SELECT 1 FROM public.captures WHERE id='9172338b-c747-4535-bacf-172ffb126e28' AND animal_name='Criquet des ajoncs' AND scientific_name='Chorthippus binotatus' AND description LIKE '%Chorthippus binotatus%') THEN 1 ELSE 0 END AS reported_capture_restored;
