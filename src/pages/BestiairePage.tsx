@@ -313,6 +313,35 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
     animalsByDept,
     loadDeptAnimals,
   } = useBestiaryData(session?.user?.id, { light: viewMode === 'leaderboard' });
+
+  // Ouvre automatiquement la fiche d'une capture passée en paramètre
+  // (liens de notifications : like, commentaire, décision de modération).
+  useEffect(() => {
+    const captureId = searchParams.get('capture');
+    if (!captureId || !capturesLoaded) return;
+    const found = myCaptures.find(c => c.id === captureId);
+    if (found) {
+      setSelectedCard(found);
+      setSearchParams({}, { replace: true });
+      return;
+    }
+    // La capture peut ne pas être dans ma collection (ex. capture d'un autre
+    // explorateur likée/commentée) : on la charge directement.
+    let cancelled = false;
+    supabase.from('captures').select('*').eq('id', captureId).maybeSingle().then(({ data }) => {
+      if (cancelled || !data) return;
+      setSelectedCard({
+        id: data.id, name: data.animal_name, scientificName: data.scientific_name || '',
+        image: data.image_url, rarity: normalizeRarity(data.rarity), category: data.category || '',
+        description: data.description || '', habitat: data.habitat || '', diet: data.diet || '',
+        conservation: data.conservation || '', funFact: data.fun_fact || '',
+        discoveredAt: data.created_at, location: data.location || '',
+        latitude: data.latitude ?? null, longitude: data.longitude ?? null,
+      });
+      setSearchParams({}, { replace: true });
+    });
+    return () => { cancelled = true; };
+  }, [searchParams, capturesLoaded, myCaptures, setSearchParams]);
   // Mon Faunex dépend des captures : on garde le loader logo tant qu'elles ne
   // sont pas chargées, pour ne jamais afficher l'état vide à tort.
   // Le Bestiaire aussi garde le loader logo jusqu'aux captures (images prêtes),
