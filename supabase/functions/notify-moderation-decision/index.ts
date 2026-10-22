@@ -89,6 +89,12 @@ Deno.serve(async (req) => {
           .update({ comment_text: `duplicate:${duplicate.animal_name}` })
           .eq('user_id', userId).eq('type', 'capture_rejected')
           .eq('comment_text', animalName)
+      } else if (reason !== 'not_identifiable') {
+        // Marqueur « motif:… » pour que l'app affiche le message adapté.
+        await supabase.from('notifications')
+          .update({ comment_text: `${reason}:${animalName}` })
+          .eq('user_id', userId).eq('type', 'capture_rejected')
+          .eq('comment_text', animalName)
       }
     }
 
