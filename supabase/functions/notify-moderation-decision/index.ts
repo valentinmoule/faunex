@@ -148,7 +148,13 @@ Deno.serve(async (req) => {
         ? `${animalName} rejoint ton bestiaire !`
         : reason === 'duplicate'
           ? `${animalName} correspond à ${duplicateName ? `« ${duplicateName} »` : 'une espèce'}${duplicateScientific ? ` (${duplicateScientific})` : ''}, déjà dans ton bestiaire. Pars à la rencontre d'une nouvelle espèce !`
-          : `${animalName} n'a pas pu être identifiée. Retente avec une photo plus nette.`,
+          : reason === 'dead_animal'
+            ? `Les animaux morts ou cadavres ne sont pas acceptés sur Faunex. Photographie des animaux vivants !`
+            : reason === 'internet_image'
+              ? `Les images provenant d'Internet ne sont pas acceptées. Partage uniquement tes propres photos !`
+              : reason === 'captured_animal'
+                ? `Les animaux capturés ou pêchés par l'humain ne sont pas acceptés, même relâchés ensuite. Photographie-les en liberté !`
+                : `${animalName} n'a pas pu être identifiée. Retente avec une photo plus nette.`,
       url: approved ? `/collection${captureId ? `?capture=${captureId}` : ''}` : '/capture',
       tag: `moderation-${captureId ?? userId}`,
     })

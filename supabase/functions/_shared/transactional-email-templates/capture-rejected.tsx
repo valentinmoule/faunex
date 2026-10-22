@@ -57,6 +57,36 @@ const CaptureRejectedEmail = ({
                 l,
               )}
             </Text>
+          ) : reason === 'dead_animal' ? (
+            <Text style={text}>
+              {pick(
+                {
+                  fr: `Ta capture de ${animalName} n'a pas été validée : les animaux morts ou les cadavres ne sont pas acceptés sur Faunex. L'app célèbre la nature vivante — photographie des animaux vivants, en liberté !`,
+                  en: `Your capture of ${animalName} wasn't approved: dead animals or carcasses are not accepted on Faunex. The app celebrates living nature — photograph live animals in the wild!`,
+                },
+                l,
+              )}
+            </Text>
+          ) : reason === 'internet_image' ? (
+            <Text style={text}>
+              {pick(
+                {
+                  fr: `Ta capture de ${animalName} n'a pas été validée : les images provenant d'Internet ne sont pas acceptées. Faunex est une collection de tes propres rencontres — partage uniquement des photos que tu as prises toi-même.`,
+                  en: `Your capture of ${animalName} wasn't approved: images taken from the Internet are not accepted. Faunex is a collection of your own encounters — only share photos you took yourself.`,
+                },
+                l,
+              )}
+            </Text>
+          ) : reason === 'captured_animal' ? (
+            <Text style={text}>
+              {pick(
+                {
+                  fr: `Ta capture de ${animalName} n'a pas été validée : les animaux capturés ou pêchés par l'humain ne sont pas acceptés, même s'ils sont ensuite relâchés. Photographie les animaux en liberté, sans les déranger.`,
+                  en: `Your capture of ${animalName} wasn't approved: animals captured or fished by humans are not accepted, even if released afterwards. Photograph animals in the wild, without disturbing them.`,
+                },
+                l,
+              )}
+            </Text>
           ) : (
             <Text style={text}>
               {pick(
