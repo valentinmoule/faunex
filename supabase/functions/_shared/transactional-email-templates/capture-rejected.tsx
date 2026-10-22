@@ -122,7 +122,7 @@ export const template = {
           { fr: `${d?.animalName || 'Ta capture'} n'a pas pu être validée`, en: `${d?.animalName || 'Your capture'} could not be approved` },
           d?.locale,
         ),
-  displayName: 'Capture rejetée',
+  displayName: 'Capture rejetée — espèce non identifiable',
   previewData: { recipientName: 'Sam', animalName: 'Renard roux', captureUrl: 'https://faunex.lovable.app', locale: 'fr' },
 } satisfies TemplateEntry
 

@@ -23,6 +23,44 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'capture-comment': captureComment,
   'capture-approved': captureApproved,
   'capture-rejected': captureRejected,
+  // Variantes de motifs de rejet — aperçu uniquement : l'envoi réel passe toujours
+  // par la clé 'capture-rejected', le motif étant transmis via templateData.
+  'capture-rejected-duplicate': {
+    component: captureRejected.component,
+    subject: captureRejected.subject,
+    displayName: 'Capture rejetée — déjà dans ton bestiaire',
+    previewData: {
+      recipientName: 'Sam', animalName: 'Renard roux', captureUrl: 'https://faunex.lovable.app', locale: 'fr',
+      reason: 'duplicate', duplicateName: 'Renard roux', duplicateScientific: 'Vulpes vulpes',
+    },
+  },
+  'capture-rejected-dead-animal': {
+    component: captureRejected.component,
+    subject: captureRejected.subject,
+    displayName: 'Capture rejetée — animal mort ou cadavre',
+    previewData: {
+      recipientName: 'Sam', animalName: 'Renard roux', captureUrl: 'https://faunex.lovable.app', locale: 'fr',
+      reason: 'dead_animal',
+    },
+  },
+  'capture-rejected-internet-image': {
+    component: captureRejected.component,
+    subject: captureRejected.subject,
+    displayName: 'Capture rejetée — image provenant d\'Internet',
+    previewData: {
+      recipientName: 'Sam', animalName: 'Renard roux', captureUrl: 'https://faunex.lovable.app', locale: 'fr',
+      reason: 'internet_image',
+    },
+  },
+  'capture-rejected-captured-animal': {
+    component: captureRejected.component,
+    subject: captureRejected.subject,
+    displayName: 'Capture rejetée — animal capturé ou pêché',
+    previewData: {
+      recipientName: 'Sam', animalName: 'Renard roux', captureUrl: 'https://faunex.lovable.app', locale: 'fr',
+      reason: 'captured_animal',
+    },
+  },
   'reengagement-j2': reengagementJ2,
   'no-capture-j7': noCaptureJ7,
   'inactivity-email': inactivityEmail,
