@@ -168,7 +168,7 @@ const AppRoutes = () => {
           <Route path="/auth/native-bridge" element={<NativeAuthBridgePage />} />
           <Route path="/complete-profile" element={<ProtectedRoute><CompleteProfilePage /></ProtectedRoute>} />
           <Route path="/home" element={<ProtectedRoute><BestiairePage /></ProtectedRoute>} />
-          <Route path="/collection" element={<ProtectedRoute><CollectionPage /></ProtectedRoute>} />
+          <Route path="/collection" element={<CollectionRedirect />} />
           <Route path="/capture" element={<ProtectedRoute><CapturePage /></ProtectedRoute>} />
           <Route path="/profile" element={<Navigate to="/home?profile=1" replace />} />
           <Route path="/feed" element={<Navigate to="/explorers" replace />} />

@@ -288,7 +288,7 @@ export const shareText = (card: AnimalCard) => `J'ai capturé ${card.name} sur F
 
 export const shareLink = (card: AnimalCard) => {
   const origin = IS_NATIVE_APP ? 'https://faunex.fr' : window.location.origin;
-  return `${origin}/collection?capture=${card.id}`;
+  return `${origin}/home?capture=${card.id}`;
 };
 
 const downloadBlob = (blob: Blob, fileName: string) => {
