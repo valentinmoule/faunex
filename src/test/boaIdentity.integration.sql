@@ -1,0 +1,3 @@
+-- Read-only catalogue identity regressions: zero division fails on a mix-up.
+SELECT 1 / CASE WHEN EXISTS (SELECT 1 FROM public.animals WHERE name='Boa du Pacifique' AND scientific_name='Candoia paulsoni') AND NOT EXISTS (SELECT 1 FROM public.animals WHERE name='Boa du Pacifique' AND scientific_name='Bothrochilus boa') THEN 1 ELSE 0 END AS pacific_boa_identity;
+SELECT 1 / CASE WHEN EXISTS (SELECT 1 FROM public.animals WHERE name='Python de Bismarck' AND scientific_name='Bothrochilus boa') AND NOT EXISTS (SELECT 1 FROM public.animals WHERE name IN ('Boa de Bismarck','Python de Bismarck') AND scientific_name='Candoia paulsoni') THEN 1 ELSE 0 END AS bismarck_python_identity;
