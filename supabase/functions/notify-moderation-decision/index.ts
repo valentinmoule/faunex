@@ -62,7 +62,8 @@ Deno.serve(async (req) => {
     }
     const userId = capture.user_id
     const animalName = capture.animal_name
-    let reason = 'not_identifiable'
+    const ALLOWED_REASONS = ['not_identifiable', 'duplicate', 'dead_animal', 'internet_image', 'captured_animal']
+    let reason = ALLOWED_REASONS.includes(body?.reason) ? body.reason : 'not_identifiable'
     let duplicateName: string | null = null
     let duplicateScientific: string | null = null
     if (decision === 'rejected') {
