@@ -1,6 +1,6 @@
 
 ## Intégrité des descriptions d’espèces
-- [ ] Corriger la fiche commune et harmoniser les captures du Cochon domestique, puis vérifier la séparation avec le Cochon vietnamien
+- [x] Corriger la fiche commune et harmoniser les 155 captures du Cochon domestique (0 description vietnamienne restante ; Cochon vietnamien inchangé)
 - [x] Vérifier et corriger les fiches du Criquet égyptien et de la Salamandre de Corse (141 captures harmonisées)
 - [x] Protéger les associations et sauvegardes de fiches contre les mélanges d’espèces
 - [x] Tester les cas signalés et vérifier les données corrigées (6 règles serveur, 5 tests identification ; criquet vérifié connecté, salamandre verrouillée car non découverte sur le compte)
