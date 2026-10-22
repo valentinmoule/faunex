@@ -352,7 +352,19 @@ const ModerationPage = () => {
   };
 
 
-  const reject = async (capture: PendingCapture, reason: 'not_identifiable' | 'duplicate' = 'not_identifiable') => {
+  type RejectReason = 'not_identifiable' | 'duplicate' | 'dead_animal' | 'internet_image' | 'captured_animal';
+
+  const REJECT_REASONS: { value: Exclude<RejectReason, 'duplicate'>; label: string }[] = [
+    { value: 'not_identifiable', label: 'Espèce non identifiable' },
+    { value: 'dead_animal', label: 'Animal mort ou cadavre' },
+    { value: 'internet_image', label: 'Image provenant d’Internet' },
+    { value: 'captured_animal', label: 'Animal capturé ou pêché par l’humain' },
+  ];
+
+  const [rejectMenuFor, setRejectMenuFor] = useState<string | null>(null);
+
+  const reject = async (capture: PendingCapture, reason: RejectReason = 'not_identifiable') => {
+    setRejectMenuFor(null);
     setProcessing(capture.id);
     // Notify the user BEFORE deleting (the capture row disappears afterwards)
     if (session?.user) {
