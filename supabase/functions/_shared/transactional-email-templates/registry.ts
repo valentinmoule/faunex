@@ -61,6 +61,15 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
       reason: 'captured_animal',
     },
   },
+  'capture-rejected-human': {
+    component: captureRejected.component,
+    subject: captureRejected.subject,
+    displayName: 'Capture rejetée — humain sur la photo',
+    previewData: {
+      recipientName: 'Sam', animalName: 'Renard roux', captureUrl: 'https://faunex.lovable.app', locale: 'fr',
+      reason: 'human',
+    },
+  },
   'reengagement-j2': reengagementJ2,
   'no-capture-j7': noCaptureJ7,
   'inactivity-email': inactivityEmail,
