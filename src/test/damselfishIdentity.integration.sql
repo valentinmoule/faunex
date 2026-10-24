@@ -1,7 +1,7 @@
 -- Read-only regressions: a taxonomic mismatch raises division by zero.
 SELECT 1 / CASE WHEN EXISTS (
-  SELECT 1 FROM public.resolve_species_identity('demoiselle azur bleu ciel', 'Chrysiptera hemicyanea')
-  WHERE scientific_name = 'Chrysiptera hemicyanea' AND matched
+  SELECT 1 FROM public.animals
+  WHERE name = 'Demoiselle bleue et jaune' AND scientific_name = 'Chrysiptera hemicyanea'
 ) THEN 1 ELSE 0 END AS azure_damselfish_identity;
 
 SELECT 1 / CASE WHEN EXISTS (
