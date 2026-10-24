@@ -87,6 +87,16 @@ const CaptureRejectedEmail = ({
                 l,
               )}
             </Text>
+          ) : reason === 'human' ? (
+            <Text style={text}>
+              {pick(
+                {
+                  fr: `Ta capture de ${animalName} n'a pas été validée : les photos d'humains ne sont pas acceptées sur Faunex. L'app est dédiée à la faune sauvage — photographie des animaux, pas des personnes !`,
+                  en: `Your capture of ${animalName} wasn't approved: photos of humans are not accepted on Faunex. The app is dedicated to wildlife — photograph animals, not people!`,
+                },
+                l,
+              )}
+            </Text>
           ) : (
             <Text style={text}>
               {pick(
