@@ -67,9 +67,10 @@ Deno.serve(async (req) => {
     let duplicateName: string | null = null
     let duplicateScientific: string | null = null
     if (decision === 'rejected') {
-      // Doublon détecté automatiquement, quelle que soit la raison invoquée :
-      // si l'explorateur possède déjà cette espèce, on le lui dit plutôt que
-      // « l'animal n'a pas pu être vérifié ».
+      // Doublon détecté automatiquement, seulement quand le modérateur n'a pas
+      // choisi de motif précis : si l'explorateur possède déjà cette espèce, on
+      // le lui dit plutôt que « l'animal n'a pas pu être vérifié ». Un motif
+      // explicite (animal mort, image Internet, animal capturé…) prime toujours.
       const { data: identities } = await supabase.rpc('resolve_species_identity', {
         p_name: capture.animal_name, p_scientific: capture.scientific_name ?? '',
       })
@@ -78,7 +79,7 @@ Deno.serve(async (req) => {
         .select('animal_name, scientific_name').eq('user_id', userId).eq('status', 'approved')
         .neq('id', captureId).ilike('animal_name', identity?.matched ? identity.name : animalName)
         .limit(1).maybeSingle()
-      if (duplicate) {
+      if (duplicate && reason === 'not_identifiable') {
         reason = 'duplicate'
         duplicateName = duplicate.animal_name
         duplicateScientific = duplicate.scientific_name
