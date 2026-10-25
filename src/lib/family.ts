@@ -3,6 +3,8 @@ export interface FamilyInfo {
   owner_id: string;
   active: boolean;
   environment: 'live' | 'sandbox';
+  renews_at?: string | null;
+  cancel_at_period_end?: boolean;
   members: Array<{user_id:string; name:string; username:string | null}>;
   invitations: Array<{id:string; expires_at:string; recipient_email?:string | null}>;
 }

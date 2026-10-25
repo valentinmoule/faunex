@@ -19,6 +19,7 @@ import { CancelSurveySheet } from '@/components/CancelSurveySheet';
 import { PremiumReferral } from '@/components/PremiumReferral';
 import { getPaddleEnvironment } from '@/lib/paddle';
 import { hasActiveFamily, readFamily, type FamilyInfo } from '@/lib/family';
+import { hasPersonalPremium } from '@/lib/premiumAccess';
 
 const BENEFITS = [
   { icon: ScanLine, key: 'identification' },
@@ -80,8 +81,14 @@ const PremiumPage = () => {
       .eq('environment', getPaddleEnvironment()).gt('ends_at', new Date().toISOString())
       .then(({ data }) => setBonusDays((data ?? []).reduce((sum, item) => sum + item.days, 0)));
   }, [session?.user.id, subscription]);
+  const personalActive = hasPersonalPremium(subscription, bonusDays);
   const PLANS = usePlans(t);
   const selected = PLANS[plan];
+  const renewalLabel = (iso?: string | null, cancels?: boolean | null) => (iso
+    ? `${t(cancels ? 'profile.premium.accessUntil' : 'profile.premium.nextRenewal')}${new Date(iso).toLocaleDateString(locale === 'en' ? 'en-US' : 'fr-FR')}`
+    : null);
+  const personalRenewal = personalActive ? renewalLabel(subscription?.current_period_end, subscription?.cancel_at_period_end) : null;
+  const familyRenewal = familyActive ? renewalLabel(family?.renews_at, family?.cancel_at_period_end) : null;
 
   useEffect(() => {
     if (params.get('checkout') === 'success') {
@@ -247,9 +254,13 @@ const PremiumPage = () => {
               <ul className="my-5 space-y-3 border-t border-border pt-5 text-sm leading-relaxed">
                 {['personalAccounts', 'allBenefits', 'personalCollection', 'cancelAnytime'].map(key => <li key={key} className="flex gap-2.5"><Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden /><span>{t(`profile.premium.presentation.${key}`)}</span></li>)}
               </ul>
-              <Button onClick={handleSubscribe} disabled={checkoutLoading || referralBusy || loading || isPremium} className="mt-auto h-auto min-h-12 w-full whitespace-normal py-3">
-                {checkoutLoading || referralBusy ? <Loader2 className="size-4 animate-spin" /> : t(isPremium && !familyActive ? 'profile.premium.activeSubscription' : 'profile.premium.presentation.choosePersonal')}
-              </Button>
+              {personalActive ? (
+                personalRenewal && <p className="mt-auto text-center text-xs text-muted-foreground">{personalRenewal}</p>
+              ) : (
+                <Button onClick={handleSubscribe} disabled={checkoutLoading || referralBusy || loading || isPremium} className="mt-auto h-auto min-h-12 w-full whitespace-normal py-3">
+                  {checkoutLoading || referralBusy ? <Loader2 className="size-4 animate-spin" /> : t('profile.premium.presentation.choosePersonal')}
+                </Button>
+              )}
             </article>
             <article className="flex flex-col rounded-lg border border-primary/25 bg-secondary p-5 sm:p-6">
               <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground"><Users className="size-4" aria-hidden />{t('profile.premium.badge')}</div>
@@ -259,7 +270,11 @@ const PremiumPage = () => {
               <ul className="my-5 space-y-3 border-t border-primary/15 pt-5 text-sm leading-relaxed">
                 {['familyAccounts', 'allBenefits', 'familyIndependent', 'familyInvites', 'cancelAnytime'].map(key => <li key={key} className="flex gap-2.5"><Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden /><span>{t(`profile.premium.presentation.${key}`)}</span></li>)}
               </ul>
-              <Button onClick={() => navigate('/family')} className="mt-auto h-auto min-h-12 w-full whitespace-normal py-3">{t(familyActive ? 'family.active' : 'profile.premium.presentation.chooseFamily')}</Button>
+              {familyActive ? (
+                familyRenewal && <p className="mt-auto text-center text-xs text-muted-foreground">{familyRenewal}</p>
+              ) : (
+                <Button onClick={() => navigate('/family')} className="mt-auto h-auto min-h-12 w-full whitespace-normal py-3">{t('profile.premium.presentation.chooseFamily')}</Button>
+              )}
             </article>
           </div>
         </section>
@@ -275,48 +290,16 @@ const PremiumPage = () => {
         {bonusDays > 0 && <p className="mb-5 text-sm font-medium text-primary">{t('profile.premium.referral.bonus', { days: bonusDays })}</p>}
       </main>
 
-      {isPremium && createPortal(
+      {isPremium && subscription && createPortal(
         <div className="fixed inset-x-0 bottom-0 z-[60] border-t border-border bg-background/90 backdrop-blur-xl px-5 pt-3 pb-[calc(12px+env(safe-area-inset-bottom))]">
           <div className="mx-auto max-w-2xl space-y-2">
-            {loading ? (
-              <Button disabled className="h-12 w-full rounded-2xl">
-                <Loader2 className="h-4 w-4 animate-spin" />
-              </Button>
-            ) : isPremium ? (
-              <>
-                <div className="flex items-center justify-center gap-2 rounded-2xl bg-primary/10 px-4 py-3 text-sm font-semibold text-primary">
-                  <Check className="h-4 w-4" /> {t(familyActive ? 'family.active' : 'profile.premium.activeSubscription')}
-                </div>
-                {familyActive && <Button variant="outline" onClick={() => navigate('/family')} className="h-12 w-full rounded-2xl">{t('family.title')}</Button>}
-                {subscription?.current_period_end && (
-                  <p className="text-center text-xs text-muted-foreground">
-                    {familyActive && <>{t('profile.premium.presentation.personal')} · </>}
-                    {subscription.cancel_at_period_end ? t('profile.premium.accessUntil') : t('profile.premium.nextRenewal')}
-                    {new Date(subscription.current_period_end).toLocaleDateString(locale === 'en' ? 'en-US' : 'fr-FR')}
-                  </p>
-                )}
-                {subscription && <Button variant="outline" onClick={handleManage} className="h-12 w-full rounded-2xl">
-                  {familyActive && <>{t('profile.premium.presentation.personal')} · </>}
-                  {t('profile.premium.manage')}
-                </Button>}
-                {subscription && !subscription.cancel_at_period_end && session?.user && (
-                  <button type="button" onClick={() => setSurveyOpen(true)} className="w-full py-1 text-center text-xs text-muted-foreground underline-offset-2 hover:underline">
-                    {t('profile.premium.cancel')}
-                  </button>
-                )}
-              </>
-            ) : (
-              <Button
-                onClick={handleSubscribe}
-                disabled={checkoutLoading || referralBusy || loading}
-                className="h-12 w-full rounded-2xl text-base font-semibold"
-              >
-                {checkoutLoading || referralBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : selected.cta}
-              </Button>
+            <Button variant="outline" onClick={handleManage} className="h-12 w-full rounded-2xl">{t('profile.premium.manage')}</Button>
+            {!subscription.cancel_at_period_end && session?.user && (
+              <button type="button" onClick={() => setSurveyOpen(true)} className="w-full py-1 text-center text-xs text-muted-foreground underline-offset-2 hover:underline">
+                {t('profile.premium.cancel')}
+              </button>
             )}
-            <p className="text-center text-[11px] text-muted-foreground">
-              {t('profile.premium.secure')}
-            </p>
+            <p className="text-center text-[11px] text-muted-foreground">{t('profile.premium.secure')}</p>
           </div>
         </div>,
         document.body

@@ -3,6 +3,7 @@
 - [x] Vérifier la gestion Paddle après exclusion des anciens identifiants d’accès manuel et sélection du bon environnement ; réponse 200 avec le compte connecté, aucune erreur écran, sept tests réussis
 - [x] Corriger l’offre active affichée pour l’accès Famille offert de Valentin, sans modifier sa facturation Personnel ; Famille actif et gestion des invitations vérifiés connecté, 13 tests réussis
 - [x] Afficher deux cartes Personnel/Famille avec détails et tarifs, remplacer le comparatif par une liste légère ; page connectée, tarifs mensuels, accès Famille et absence de débordement mobile vérifiés, 16 tests réussis
+- [x] Retirer la pastille « Premium actif », le bouton « Ma famille » et l’état « Actif » des cartes ; date de renouvellement sous chaque carte, état et gestion gardés dans Paramètres ; page connectée vérifiée, 14 tests et scénario serveur annulé réussis
 
 ## Premium Famille
 - [x] Accorder à Valentin Premium Famille offert sans expiration, séparé des paiements ; accès actif et invitation e-mail visibles connecté, tests serveur et dix tests réussis
