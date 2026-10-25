@@ -51,6 +51,47 @@ const gbifMatch = async (params: Record<string, string>) => {
   }
 };
 
+/**
+ * Plancher de rareté imposé par le statut UICN (miroir de la fonction SQL
+ * `rarity_floor_for_iucn` + ordre `rarity_rank`). Une espèce menacée ne peut
+ * pas naître « commune » : le plancher est appliqué dès la création de la
+ * fiche, sans jamais abaisser l'estimation du modèle.
+ */
+const RARITY_ORDER = [
+  "common", "uncommon", "rare", "very_rare", "ultra_rare",
+  "illustration_rare", "special_rare", "hyper_rare",
+];
+const IUCN_RARITY_FLOOR: Record<string, string> = {
+  NT: "rare",
+  VU: "very_rare",
+  EN: "ultra_rare",
+  CR: "illustration_rare",
+  EW: "special_rare",
+  EX: "special_rare",
+};
+const IUCN_VALID = ["LC", "NT", "VU", "EN", "CR", "EW", "EX", "DD", "NE"];
+
+/** Statut UICN d'un taxon GBIF déjà résolu (clé d'usage connue). */
+const iucnCategoryFor = async (usageKey: unknown): Promise<string | null> => {
+  if (typeof usageKey !== "number" && typeof usageKey !== "string") return null;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 4_000);
+  try {
+    const res = await fetch(
+      `https://api.gbif.org/v1/species/${usageKey}/iucnRedListCategory`,
+      { signal: ctrl.signal },
+    );
+    if (!res.ok) return null;
+    const body = await res.json();
+    const code = String(body?.code ?? "").toUpperCase();
+    return IUCN_VALID.includes(code) ? code : null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+};
+
 const RANK_FR: Record<string, string> = {
   GENUS: "genre",
   FAMILY: "famille",
