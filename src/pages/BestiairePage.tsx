@@ -1,5 +1,6 @@
 import { createPortal } from 'react-dom';
 import { useState, useMemo, useCallback, useEffect, useRef, memo } from 'react';
+import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/PageHeader';
 import { CollectionHero } from '@/components/CollectionHero';
 import { OverflowMenu } from '@/components/OverflowMenu';
@@ -1841,7 +1842,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
           {/* View toggle — floating gamified tab bar */}
           {viewMode !== 'leaderboard' && viewMode !== 'badges' && (
           <div className={`sticky top-[73px] z-30 -mx-4 px-4 pt-3 pb-2 ${viewMode === 'mine' && !showMineControls ? '' : 'bg-gradient-to-b from-background via-background/95 to-transparent'}`}>
-            <div className={`flex items-center gap-1 p-1 rounded-full bg-card/90 backdrop-blur-xl border border-border w-full ${viewMode === 'mine' && !showMineControls ? '' : 'shadow-lg shadow-foreground/5'}`}>
+            <div className="game-tabs flex items-center w-full" role="tablist">
               {(isFaunexHub ? [
                 { key: 'mine' as const, label: t('bestiary.tabs.mine'), icon: Images },
                 { key: 'map' as const, label: t('bestiary.tabs.map'), icon: MapIcon },
@@ -1851,18 +1852,14 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
               ]).map(({ key, label, icon: Icon }) => {
                 const active = viewMode === key;
                 return (
-                  <button
+                  <Button variant="ghost" role="tab" aria-selected={active}
                     key={key}
                     onClick={() => changeView(key)}
-                    className={`relative flex-1 flex items-center justify-center gap-1.5 text-xs font-display font-semibold py-2 rounded-full transition-all duration-200 active:scale-95 ${
-                      active
-                        ? 'bg-gradient-to-br from-primary to-primary/75 text-primary-foreground shadow-md shadow-primary/30 scale-[1.02]'
-                        : 'text-muted-foreground hover:text-foreground'
-                    }`}
+                    className="game-tab min-w-0 flex-1 h-10 gap-1.5 px-2 text-xs"
                   >
                     <Icon className={`w-3.5 h-3.5 transition-transform ${active ? 'scale-110' : ''}`} />
                     <span className="truncate">{label}</span>
-                  </button>
+                  </Button>
                 );
               })}
             </div>
@@ -1907,15 +1904,15 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                   {mineActiveFilterCount > 0 && (
                     <div className="flex flex-wrap items-center gap-1.5 mb-3">
                       {mineCategoryFilter.map(cat => (
-                        <button
+                        <Button variant="chip" size="sm" aria-pressed={true}
                           key={cat}
                           onClick={() => setMineCategoryFilter(prev => prev.filter(c => c !== cat))}
-                          className="flex items-center gap-1 pl-2 pr-1.5 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-display font-semibold active:scale-95 transition"
+                          className="h-8 gap-1 px-2 text-[11px]"
                         >
                           <SpeciesCategoryIcon category={cat} className="w-3.5 h-3.5" />
                           {cat === FAVORITES_FILTER ? t('bestiary.collections.favorites') : categoryLabel(cat)}
                           <X className="w-3 h-3" />
-                        </button>
+                        </Button>
                       ))}
                       {mineRarityFilter.map(r => (
                         <button
@@ -1930,15 +1927,15 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                       {minePopularityFilter.map(tier => {
                         const { Icon, label } = POPULARITY_LABELS[tier];
                         return (
-                          <button
+                          <Button variant="chip" size="sm" aria-pressed={true}
                             key={tier}
                             onClick={() => setMinePopularityFilter(prev => prev.filter(x => x !== tier))}
-                            className={`popularity-chip popularity-chip--${tier} text-[11px] font-display font-semibold active:scale-95 transition`}
+                            className="h-8 gap-1 px-2 text-[11px]"
                           >
                             <Icon className="w-3 h-3" />
                             {label}
                             <X className="w-3 h-3" />
-                          </button>
+                          </Button>
                         );
                       })}
                       <button
@@ -2061,28 +2058,28 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
               {(categoryFilter.length > 0 || popularityFilter.length > 0) && (
                 <div className="flex flex-wrap items-center gap-1.5 mb-3">
                   {categoryFilter.map(cat => (
-                    <button
+                    <Button variant="chip" size="sm" aria-pressed={true}
                       key={cat}
                       onClick={() => setCategoryFilter(prev => prev.filter(c => c !== cat))}
-                      className="flex items-center gap-1 pl-2 pr-1.5 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-display font-semibold active:scale-95 transition"
+                      className="h-8 gap-1 px-2 text-[11px]"
                     >
 <SpeciesCategoryIcon category={cat} className="w-3.5 h-3.5" />
                       {categoryLabel(cat)}
                       <X className="w-3 h-3" />
-                    </button>
+                    </Button>
                   ))}
 {popularityFilter.map(tier => {
                     const { Icon } = POPULARITY_LABELS[tier];
                     return (
-                    <button
+                    <Button variant="chip" size="sm" aria-pressed={true}
                       key={tier}
                       onClick={() => setPopularityFilter(prev => prev.filter(t => t !== tier))}
-                      className={`popularity-chip popularity-chip--${tier} text-[11px] font-display font-semibold active:scale-95 transition`}
+                      className="h-8 gap-1 px-2 text-[11px]"
                     >
                       <Icon className="w-3 h-3" />
                       {POPULARITY_LABELS[tier].label}
                       <X className="w-3 h-3" />
-                    </button>
+                    </Button>
                     );
                   })}
                   <button
@@ -2320,23 +2317,19 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
           {viewMode === 'leaderboard' && (
             <section>
               <div className="sticky top-[73px] z-30 -mx-4 px-4 pt-3 pb-2 bg-gradient-to-b from-background via-background/95 to-transparent">
-                <div className="grid grid-cols-2 gap-1 p-1 rounded-full bg-card/90 backdrop-blur-xl border border-border w-full shadow-lg shadow-foreground/5">
+                <div className="game-tabs grid grid-cols-2 w-full" role="tablist">
                   {([['global', t('social.leaderboard.tabGlobal'), Globe], ['explorers', t('social.leaderboard.tabExplorers'), Users]] as const).map(([key, label, Icon]) => {
                     const active = leaderboardScope === key;
                     const locked = key === 'explorers' && !isPremium;
                     return (
-                      <button
+                      <Button variant="ghost" role="tab" aria-selected={active}
                         key={key}
                         onClick={() => setLeaderboardScope(key)}
-                        className={`relative flex-1 flex items-center justify-center gap-1.5 text-xs font-display font-semibold py-2 rounded-full transition-all duration-200 active:scale-95 ${
-                          active
-                            ? 'bg-gradient-to-br from-primary to-primary/75 text-primary-foreground shadow-md shadow-primary/30 scale-[1.02]'
-                            : 'text-muted-foreground hover:text-foreground'
-                        }`}
+                        className="game-tab min-w-0 flex-1 h-10 gap-1.5 px-2 text-xs"
                       >
                         {locked ? <Lock className={`w-3.5 h-3.5 ${active ? 'scale-110' : ''}`} /> : <Icon className={`w-3.5 h-3.5 transition-transform ${active ? 'scale-110' : ''}`} />}
                         <span className="truncate">{label}</span>
-                      </button>
+                      </Button>
                     );
                   })}
                 </div>
@@ -2348,18 +2341,17 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                   ] as [string, string][]).map(([key, label]) => {
                     const active = leaderboardFilter === key;
                     return (
-                      <button
+                      <Button variant="chip" size="sm"
                         key={key}
                         type="button"
                         role="tab"
                         aria-selected={active}
+                        aria-pressed={active}
                         onClick={() => setLeaderboardFilter(key)}
-                        className={`shrink-0 rounded-full px-3.5 py-2 text-[12px] font-display font-semibold transition-colors ${
-                          active ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground'
-                        }`}
+                        className="shrink-0 px-3.5 text-xs"
                       >
                         {label}
-                      </button>
+                      </Button>
                     );
                   })}
                 </div>

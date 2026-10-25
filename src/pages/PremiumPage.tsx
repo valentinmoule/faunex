@@ -225,15 +225,14 @@ const PremiumPage = () => {
         <section className="mt-8" aria-labelledby="premium-plans">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <h2 id="premium-plans" className="font-display text-lg font-semibold">{t('profile.premium.presentation.available')}</h2>
-            <div className="grid grid-cols-2 gap-1 rounded-full bg-muted p-1">
+            <div className="game-tabs grid grid-cols-2">
               {(Object.keys(PLANS) as Array<keyof typeof PLANS>).map((key) => (
                 <Button variant="ghost" size="sm"
                   key={key}
                   onClick={() => setPlan(key)}
                   aria-pressed={plan === key}
-                  className={`px-3 text-sm font-semibold ${
-                    plan === key ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground'
-                  }`}
+                  className="game-tab px-3 text-sm"
+                  data-state={plan === key ? 'active' : 'inactive'}
                 >
                   {PLANS[key].label}
                   {key === 'yearly' && (
