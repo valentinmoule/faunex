@@ -469,7 +469,12 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
 
   const { isPremium, loading: premiumLoading } = useSubscription(session?.user?.id);
   const { favoriteIds } = useFavorites(session?.user?.id);
-  const { collectionKeys, addCollection, removeCollection } = useSpeciesCollections(session?.user?.id);
+  const { collectionKeys: rawCollectionKeys, addCollection, removeCollection } = useSpeciesCollections(session?.user?.id);
+  // Les clés thématiques (offertes à tous) ne consomment jamais un slot gratuit.
+  const collectionKeys = useMemo(
+    () => rawCollectionKeys.filter((k) => !k.startsWith(THEME_PREFIX)),
+    [rawCollectionKeys],
+  );
   const customCollections = useCustomCollections(session?.user?.id);
   const { covers: collectionCovers, setCover: setCollectionCover } = useCollectionCovers(session?.user?.id);
   const pinnedStandard = usePinnedProfileCollections(session?.user?.id);
