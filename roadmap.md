@@ -1,7 +1,7 @@
 
 ## Correction des captures déjà enregistrées
-- [ ] Ajouter une demande de correction depuis la fiche, réutiliser la photo en modération et décompter une analyse sans double envoi.
-- [ ] Vérifier les droits, le quota et la correction sans nouveau gain d’XP.
+- [x] Ajouter une demande de correction depuis la fiche, réutiliser la photo en modération et décompter une analyse sans double envoi ; saisie et réception vérifiées connecté.
+- [x] Vérifier les droits, le quota et la correction sans nouveau gain d’XP ; tests serveur transactionnels annulés réussis.
 
 ## Illustrations des collections
 - [x] Étendre le choix d’une photo personnelle aux groupes, catégories et territoires ; six tests réussis, sauvegarde et rechargement vérifiés connecté, choix temporaire retiré.

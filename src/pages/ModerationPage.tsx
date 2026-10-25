@@ -307,7 +307,7 @@ const ModerationPage = () => {
 
     const { error } = await supabase
       .from('captures')
-      .update({ status: 'approved' })
+      .update({ status: 'approved', correction_name: null, correction_scientific_name: null, correction_note: null, correction_requested_at: null })
       .eq('id', capture.id);
 
     if (error) {
@@ -372,6 +372,13 @@ const ModerationPage = () => {
   const reject = async (capture: PendingCapture, reason: RejectReason = 'not_identifiable') => {
     setRejectMenuFor(null);
     setProcessing(capture.id);
+    if (capture.correction_name) {
+      const { error } = await supabase.from('captures').update({ status: 'approved', correction_name: null, correction_scientific_name: null, correction_note: null, correction_requested_at: null }).eq('id', capture.id);
+      if (error) toast.error(t('capture.errors.submissionError'));
+      else { toast.success(t('capture.correction.declined')); setCaptures(prev => prev.filter(c => c.id !== capture.id)); }
+      setProcessing(null);
+      return;
+    }
     // Notify the user BEFORE deleting (the capture row disappears afterwards)
     if (session?.user) {
       const { error: notifError } = await supabase.from('notifications').insert({

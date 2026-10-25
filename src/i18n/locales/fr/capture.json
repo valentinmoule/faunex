@@ -144,7 +144,8 @@
     },
     "correction": {
           "proposal": "Correction demandée : {{name}}",
-          "title": "Corriger l’espèce",
+    "title": "Corriger l’espèce",
+    "declined": "Correction refusée, capture originale conservée",
           "description": "Cette demande utilise une analyse de ton quota. Ta photo sera remise en modération jusqu’à validation du nom.",
           "name": "Espèce proposée",
           "note": "Précisions (optionnel)",
