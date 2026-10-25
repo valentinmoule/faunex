@@ -152,7 +152,7 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
               aria-current={i === active ? 'true' : undefined}
               onClick={() => scrollToItem(i)}
             >
-              <span className={`h-1.5 rounded-full transition-all ${i === active ? 'w-5 bg-primary' : 'w-1.5 bg-border'}`} />
+              <span className={`h-1.5 max-w-full rounded-full transition-all ${i === active ? 'w-5 bg-primary' : 'w-1.5 bg-border'}`} />
             </Button>
           ))}
         </div>
