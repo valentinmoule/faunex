@@ -2498,6 +2498,7 @@ export type Database = {
           created_at: string
           id: string
           reason: string | null
+          report_type: string | null
           scientific_name: string | null
           species_name: string
           status: string
@@ -2507,6 +2508,7 @@ export type Database = {
           created_at?: string
           id?: string
           reason?: string | null
+          report_type?: string | null
           scientific_name?: string | null
           species_name: string
           status?: string
@@ -2516,6 +2518,7 @@ export type Database = {
           created_at?: string
           id?: string
           reason?: string | null
+          report_type?: string | null
           scientific_name?: string | null
           species_name?: string
           status?: string

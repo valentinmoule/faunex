@@ -7,12 +7,15 @@ import { supabase } from '@/integrations/supabase/client';
 import { requestCaptureCorrection } from '@/lib/captureCorrection';
 import { toast } from '@/hooks/use-toast';
 
+type ReportType = 'wrong_species' | 'does_not_exist';
+
 /**
  * Fenêtre unique « Corriger l'espèce / Signaler une fiche erronée ».
  * - Avec captureId (propriétaire de la capture) : demande de correction en
  *   modération, qui consomme une analyse du quota.
- * - Sans captureId : signalement de la fiche avec la proposition de
- *   l'utilisateur, sans quota.
+ * - Sans captureId : signalement de la fiche, sans quota. L'utilisateur choisit
+ *   un motif : espèce incorrecte (il propose alors le bon nom) ou fiche qui ne
+ *   correspond à aucune espèce réelle.
  */
 export function CaptureCorrectionDialog({ captureId, speciesName, speciesScientific, open, onClose, onSubmitted }: {
   captureId?: string;
@@ -24,25 +27,33 @@ export function CaptureCorrectionDialog({ captureId, speciesName, speciesScienti
 }) {
   const { t } = useTranslation();
   const isReport = !captureId;
+  const [type, setType] = useState<ReportType>('wrong_species');
   const [name, setName] = useState('');
   const [scientific, setScientific] = useState('');
   const [note, setNote] = useState('');
   const [sending, setSending] = useState(false);
   const lock = useRef(false);
 
+  // Fiche signalée comme n'existant pas : aucun nom à proposer, seul le motif compte.
+  const missing = isReport && type === 'does_not_exist';
+  const needsName = !missing && name.trim().length < 2;
+
   async function submit() {
-    if (lock.current || name.trim().length < 2) return;
+    if (lock.current || needsName) return;
     lock.current = true; setSending(true);
     try {
       if (isReport) {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) throw new Error('unauthenticated');
-        const suggestion = `${name.trim()}${scientific.trim() ? ` (${scientific.trim()})` : ''}${note.trim() ? ` — ${note.trim()}` : ''}`;
+        const reason = missing
+          ? (note.trim() || t('species.report.typeDoesNotExist'))
+          : `${name.trim()}${scientific.trim() ? ` (${scientific.trim()})` : ''}${note.trim() ? ` — ${note.trim()}` : ''}`;
         const { error } = await supabase.from('species_reports').insert({
           user_id: session.user.id,
           species_name: speciesName,
           scientific_name: speciesScientific || null,
-          reason: suggestion,
+          reason,
+          report_type: type,
         });
         // 23505 = signalement déjà envoyé pour cette fiche : on confirme quand même.
         if (error && error.code !== '23505') throw error;
@@ -80,29 +91,61 @@ export function CaptureCorrectionDialog({ captureId, speciesName, speciesScienti
               </span>
               <div className="space-y-1">
                 <h2 className="font-display text-lg font-bold">{t(isReport ? 'species.report.dialogTitle' : 'capture.correction.title')}</h2>
-                <p className="text-xs leading-relaxed text-muted-foreground">{t(isReport ? 'species.report.dialogDescription' : 'capture.correction.description')}</p>
+                <p className="text-xs leading-relaxed text-muted-foreground">
+                  {t(isReport ? (missing ? 'species.report.dialogDescriptionMissing' : 'species.report.dialogDescription') : 'capture.correction.description')}
+                </p>
               </div>
             </div>
 
+            {isReport && (
+              <div className="space-y-2">
+                <span className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t('species.report.typeLabel')}</span>
+                <div className="flex flex-wrap gap-2">
+                  {(['wrong_species', 'does_not_exist'] as const).map(k => (
+                    <button
+                      key={k}
+                      type="button"
+                      aria-pressed={type === k}
+                      onClick={() => setType(k)}
+                      className="game-chip inline-flex items-center gap-1.5 px-3.5 py-2 text-xs"
+                    >
+                      {t(k === 'does_not_exist' ? 'species.report.typeDoesNotExist' : 'species.report.typeWrongSpecies')}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="space-y-4">
-              <label className="block space-y-1.5">
-                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t('capture.correction.name')}</span>
-                <Input autoFocus value={name} onChange={e => setName(e.target.value)} maxLength={120} placeholder={t('capture.manual.namePlaceholder')} className={fieldClass} />
-              </label>
-              <label className="block space-y-1.5">
-                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t('capture.manual.speciesPlaceholder')}</span>
-                <Input value={scientific} onChange={e => setScientific(e.target.value)} maxLength={160} placeholder="Ex. Lynx borealis" className={fieldClass} />
-              </label>
+              {!missing && (
+                <>
+                  <label className="block space-y-1.5">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t('capture.correction.name')}</span>
+                    <Input autoFocus value={name} onChange={e => setName(e.target.value)} maxLength={120} placeholder={t('capture.manual.namePlaceholder')} className={fieldClass} />
+                  </label>
+                  <label className="block space-y-1.5">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t('capture.manual.speciesPlaceholder')}</span>
+                    <Input value={scientific} onChange={e => setScientific(e.target.value)} maxLength={160} placeholder="Ex. Lynx borealis" className={fieldClass} />
+                  </label>
+                </>
+              )}
               <label className="block space-y-1.5">
                 <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t('capture.correction.note')}</span>
-                <Input value={note} onChange={e => setNote(e.target.value)} maxLength={500} placeholder={t('capture.manual.descriptionPlaceholder')} className={fieldClass} />
+                <Input
+                  autoFocus={missing}
+                  value={note}
+                  onChange={e => setNote(e.target.value)}
+                  maxLength={500}
+                  placeholder={t(missing ? 'species.report.missingNotePlaceholder' : 'capture.manual.descriptionPlaceholder')}
+                  className={fieldClass}
+                />
               </label>
             </div>
 
             <div className="space-y-2">
               <button
                 onClick={submit}
-                disabled={sending || name.trim().length < 2}
+                disabled={sending || needsName}
                 className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-sm font-semibold text-primary-foreground shadow-sm transition-opacity disabled:opacity-50"
               >
                 {sending && <Loader2 className="h-4 w-4 animate-spin" />}
