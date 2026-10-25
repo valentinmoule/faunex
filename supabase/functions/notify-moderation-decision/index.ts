@@ -151,7 +151,7 @@ Deno.serve(async (req) => {
             correction,
             duplicateName,
             duplicateScientific,
-            captureUrl: approved
+            captureUrl: approved || correction
               ? `${APP_URL}/home${captureId ? `?capture=${captureId}` : ''}`
               : `${APP_URL}/capture`,
           },
