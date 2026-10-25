@@ -54,6 +54,7 @@ import { VirtualSpeciesGrid } from '@/components/VirtualSpeciesGrid';
 import { useZoneSubscriptions } from '@/hooks/useZoneSubscriptions';
 import { useSpeciesCollections } from '@/hooks/useSpeciesCollections';
 import { useCustomCollections } from '@/hooks/useCustomCollections';
+import { useCollectionCovers } from '@/hooks/useCollectionCovers';
 import CategoryLeaderboard, { LeaderboardResetBadge } from '@/components/CategoryLeaderboard';
 import { useSubscription } from '@/hooks/useSubscription';
 import { toast } from 'sonner';
@@ -457,6 +458,14 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const { favoriteIds } = useFavorites(session?.user?.id);
   const { collectionKeys, addCollection, removeCollection } = useSpeciesCollections(session?.user?.id);
   const customCollections = useCustomCollections(session?.user?.id);
+  const { covers: collectionCovers, setCover: setCollectionCover } = useCollectionCovers(session?.user?.id);
+  const personalCoverImage = (key: string) => animals.find(a => a.captureData?.id === collectionCovers[key])?.captureData?.image;
+  const usePersonalCover = selectedCard?.image ? async () => {
+    const key = selectedZoneId ? `zone:${selectedZoneId}` : selectedCollectionKey;
+    if (!key || !selectedCard) return;
+    if (await setCollectionCover(key, selectedCard.id)) setSelectedCard(null);
+    else toast.error(t('bestiary.customCollections.coverSaveError'));
+  } : undefined;
   const { isClaimed, claimReward, claiming: claimingReward } = useCollectionRewards(session?.user?.id);
   const [celebratedReward, setCelebratedReward] = useState<{ title: string; xp: number } | null>(null);
 
@@ -1401,7 +1410,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
       <main className="min-h-screen bg-background pb-24">
         
         <CollectionHero
-          image={getZoneArt(selectedZone.kind).image}
+          image={personalCoverImage(`zone:${selectedZone.id}`) || getZoneArt(selectedZone.kind).image}
           overlay={getZoneArt(selectedZone.kind).overlay}
           title={title}
           subtitle={isCity ? `${selectedZone.cityPostcode || ''}${dept ? ` · ${dept.name}` : ''}` : undefined}
@@ -1478,7 +1487,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
           onReset={() => { setZoneRarityFilter([]); setZonePopularityFilter([]); }}
         />
 
-        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={removeCaptureLocally} />
+        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={removeCaptureLocally} onUseCollectionCover={usePersonalCover} />
         {deptPickerSheet}
         {flyingCardOverlay}
         {xpRewardOverlay}
@@ -1624,7 +1633,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
       <main className="min-h-screen bg-background pb-24">
         
         <CollectionHero
-          image={getCollectionArt(selectedCollection.group.key, selectedCollection.group.label).image}
+          image={personalCoverImage(selectedCollection.group.key) || getCollectionArt(selectedCollection.group.key, selectedCollection.group.label).image}
           overlay={getCollectionArt(selectedCollection.group.key, selectedCollection.group.label).overlay}
           title={selectedCollection.group.label}
           captured={selectedCollection.captured}
@@ -1691,7 +1700,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
           onReset={() => { setCollectionRarityFilter([]); setCollectionPopularityFilter([]); }}
         />
 
-        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={removeCaptureLocally} />
+        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={removeCaptureLocally} onUseCollectionCover={usePersonalCover} />
         {flyingCardOverlay}
         {xpRewardOverlay}
         {deptPickerSheet}
@@ -2164,7 +2173,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                       <CollectionTile
                         key={zone.id}
                         title={title}
-                        image={art.image}
+                        image={personalCoverImage(`zone:${zone.id}`) || art.image}
                         overlay={art.overlay}
                         captured={p.captured}
                         total={p.total}
@@ -2185,7 +2194,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                       <CollectionTile
                         key={group.key}
                         title={group.label}
-                        image={art.image}
+                        image={personalCoverImage(group.key) || art.image}
                         overlay={art.overlay}
                         captured={captured}
                         total={total}
