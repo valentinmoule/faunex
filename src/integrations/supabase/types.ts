@@ -328,6 +328,10 @@ export type Database = {
           category: string | null
           comments_count: number
           conservation: string | null
+          correction_name: string | null
+          correction_note: string | null
+          correction_requested_at: string | null
+          correction_scientific_name: string | null
           created_at: string
           description: string | null
           diet: string | null
@@ -356,6 +360,10 @@ export type Database = {
           category?: string | null
           comments_count?: number
           conservation?: string | null
+          correction_name?: string | null
+          correction_note?: string | null
+          correction_requested_at?: string | null
+          correction_scientific_name?: string | null
           created_at?: string
           description?: string | null
           diet?: string | null
@@ -384,6 +392,10 @@ export type Database = {
           category?: string | null
           comments_count?: number
           conservation?: string | null
+          correction_name?: string | null
+          correction_note?: string | null
+          correction_requested_at?: string | null
+          correction_scientific_name?: string | null
           created_at?: string
           description?: string | null
           diet?: string | null
@@ -2976,6 +2988,15 @@ export type Database = {
         Returns: undefined
       }
       remove_family_member: { Args: { p_user: string }; Returns: undefined }
+      request_capture_correction: {
+        Args: {
+          p_capture: string
+          p_name: string
+          p_note?: string
+          p_scientific?: string
+        }
+        Returns: Json
+      }
       reserve_referral: {
         Args: { p_code: string; p_env: string }
         Returns: string
