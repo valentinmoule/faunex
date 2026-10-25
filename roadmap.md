@@ -1,9 +1,10 @@
 
 ## Parrainage Premium annuel
-- [ ] Ajouter le code personnel et la saisie avant l’achat annuel, avec validation pour les nouveaux clients
-- [ ] Accorder 30 jours aux deux comptes après paiement confirmé, sans auto-parrainage ni double récompense
-- [ ] Reporter le renouvellement des abonnements actifs et conserver les jours offerts pour les autres comptes
-- [ ] Tester les règles, déployer et vérifier le parcours connecté ; paiement réel non exécuté sans accord
+- [x] Ajouter le code personnel et la saisie avant l’achat annuel, avec validation pour les nouveaux clients
+- [x] Accorder 30 jours aux deux comptes après paiement confirmé, sans auto-parrainage ni double récompense
+- [x] Reporter le renouvellement des abonnements actifs et conserver les jours offerts pour les autres comptes
+- [x] Huit tests réussis, scénario serveur transactionnel annulé après validation, traitement Paddle vérifié et déployé ; code personnel/copier vérifiés connecté
+- [ ] Confirmer un achat annuel complet et le report réel de renouvellement : paiement de test non exécuté dans cette session
 
 ## Notifications natives iPhone et Android
 - [x] Préciser les alternatives : APNs direct sur iPhone ; service unifié possible, mais FCM généralement requis sur Android

@@ -244,7 +244,7 @@ const PremiumPage = () => {
         </div>
       </PageHeader>
 
-      <main className="px-5 pt-2">
+      <main className="px-5 pt-2 pb-24">
         <section className="relative overflow-hidden rounded-[2rem] border border-border bg-card p-6 shadow-sm">
           <div className="absolute -top-16 -right-10 h-40 w-40 rounded-full bg-primary/10 blur-2xl" aria-hidden />
           <Crown className="relative h-6 w-6 text-primary" aria-hidden />
