@@ -225,13 +225,15 @@ export const useAnimalIdentification = () => {
 
       setPendingImageHash(imageHash);
 
-      const cached = cacheRef.current.get(imageHash);
+      const { data: auth } = await supabase.auth.getSession();
+      const requestKey = `${auth.session?.user.id ?? 'signed-out'}:${imageHash}`;
+      const cached = cacheRef.current.get(requestKey);
       if (cached) return await cached;
 
       // 1) Cache local persistant : même photo déjà identifiée sur cet appareil
       //    → aucun réseau, aucun appel IA.
       const local = getLocalOutcome(imageHash);
-      if (local) {
+      if (local && local.status !== 'identified') {
         if (local.status === 'identified') hapticSuccess();
         return local;
       }
@@ -328,7 +330,7 @@ export const useAnimalIdentification = () => {
           });
         }
         hapticSuccess();
-        return { status: 'identified', animal };
+        return { status: 'identified', animal: { ...animal, analyzed_image: compressedUrl } };
       };
 
       const run = async (): Promise<IdentifyOutcome> => {
@@ -338,7 +340,7 @@ export const useAnimalIdentification = () => {
         try {
           const probe = await withTimeout(
             supabase.functions.invoke('identify-animal', {
-              body: { imageHash, probe: true },
+              body: { imageHash, imageBase64: compressedUrl, probe: true },
             }),
             8_000,
           );
@@ -384,14 +386,14 @@ export const useAnimalIdentification = () => {
       };
 
       const promise = run();
-      cacheRef.current.set(imageHash, promise);
+      cacheRef.current.set(requestKey, promise);
       // On attend le résultat ici : sinon `identifying` retombait à false
       // immédiatement (le finally s'exécutait avant la résolution) et l'UI
       // n'affichait plus aucun indicateur d'analyse.
       const outcome = await promise;
       // Un échec ou une non-reconnaissance ne doit jamais être mis en cache,
       // sinon une nouvelle tentative sur la même image ne relance rien.
-      if (outcome.status !== 'identified') cacheRef.current.delete(imageHash);
+      cacheRef.current.delete(requestKey);
       // Verdicts stables mémorisés localement (identification, refus explicite).
       if (outcome.status === 'identified' || outcome.status === 'rejected') {
         setLocalOutcome(imageHash, outcome);

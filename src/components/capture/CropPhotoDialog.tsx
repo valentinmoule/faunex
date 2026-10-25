@@ -7,7 +7,7 @@ import { Loader2, X } from 'lucide-react';
 interface Props {
   photo: string;
   onCancel: () => void;
-  onDone: (cropped: string) => void;
+  onDone: (cropped: string, area: Area) => void;
 }
 
 const loadImage = (src: string) =>
@@ -26,7 +26,9 @@ export async function cropDataUrl(src: string, area: Area): Promise<string> {
   const canvas = document.createElement('canvas');
   canvas.width = Math.round(area.width * scale);
   canvas.height = Math.round(area.height * scale);
-  canvas.getContext('2d')!.drawImage(img, area.x, area.y, area.width, area.height, 0, 0, canvas.width, canvas.height);
+  const context = canvas.getContext('2d');
+  if (!context) throw new Error('CANVAS_UNAVAILABLE');
+  context.drawImage(img, area.x, area.y, area.width, area.height, 0, 0, canvas.width, canvas.height);
   return canvas.toDataURL('image/jpeg', 0.8);
 }
 
@@ -43,7 +45,7 @@ export default function CropPhotoDialog({ photo, onCancel, onDone }: Props) {
     if (!area) return;
     setBusy(true);
     try {
-      onDone(await cropDataUrl(photo, area));
+      onDone(await cropDataUrl(photo, area), area);
     } finally {
       setBusy(false);
     }

@@ -129,7 +129,7 @@ export const useCaptureSave = ({ userId, photo, geo, takenAt = null }: SaveConte
         const ownerId = await resolveSessionUserId();
         const imageUrl = await uploadImage(ownerId);
         if (!imageUrl) return null;
-        const { error } = await supabase.from('captures').insert({
+        const { data: inserted, error } = await supabase.from('captures').insert({
           user_id: ownerId,
           image_url: imageUrl,
           animal_name: animal.animal_name,
@@ -148,8 +148,15 @@ export const useCaptureSave = ({ userId, photo, geo, takenAt = null }: SaveConte
           latitude: geo.coords?.lat || null,
           longitude: geo.coords?.lng || null,
           subject_bbox: animal.subject_bbox ?? null,
-        });
+        }).select('id').single();
         if (error) throw error;
+        if (inserted && animal.economy_validation_id && animal.analyzed_image) {
+          const { data: reward, error: rewardError } = await supabase.functions.invoke('confirm-capture-eclats', {
+            body: { mode: 'ai', captureId: inserted.id, receiptId: animal.economy_validation_id, analyzedImage: animal.analyzed_image, crop: animal.economy_crop },
+          });
+          if (rewardError) console.warn('Éclats confirmation pending');
+          window.dispatchEvent(new CustomEvent('faunex:eclats', { detail: { amount: Number(reward?.amount ?? 0) } }));
+        }
         // Dataset : l'explorateur a accepté la proposition de l'IA.
         void logDatasetEvent({
           event_type: 'user_accepted',

@@ -206,6 +206,7 @@ setAnimalResult(null);
       const outcome = await identify(dataUrl);
 
       if (outcome.status === 'identified') {
+        if (outcome.animal.analyzed_image) setCapturedPhoto(outcome.animal.analyzed_image);
         triggerReveal(outcome.animal);
       } else if (outcome.status === 'error') {
         setIdentifyError(outcome.message);
@@ -232,6 +233,7 @@ setAnimalResult(null);
     try {
       const outcome = await identify(capturedPhoto);
       if (outcome.status === 'identified') {
+        if (outcome.animal.analyzed_image) setCapturedPhoto(outcome.animal.analyzed_image);
         triggerReveal(outcome.animal);
       } else if (outcome.status === 'error') {
         setIdentifyError(outcome.message);
@@ -966,10 +968,10 @@ setManualMode(false);
           <CropPhotoDialog
             photo={capturedPhoto}
             onCancel={() => setCropOpen(false)}
-            onDone={(cropped) => {
+            onDone={(cropped, area) => {
               setCapturedPhoto(cropped);
               // L'ancien cadrage du sujet ne correspond plus à la photo recadrée.
-              setAnimalResult((r) => (r ? { ...r, subject_bbox: null } : r));
+              setAnimalResult((r) => (r ? { ...r, subject_bbox: null, economy_crop: r.economy_crop ? undefined : area, economy_validation_id: r.economy_crop ? undefined : r.economy_validation_id } : r));
               setCropOpen(false);
             }}
           />
