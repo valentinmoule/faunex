@@ -32,19 +32,18 @@ describe('Daily learning limit dialog', () => {
     mount();
     await screen.findByRole('dialog');
     fireEvent.click(screen.getByRole('button', { name: 'learning.backPath' }));
-    fireEvent.animationEnd(screen.getByRole('dialog'));
-    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
-    fireEvent.click(screen.getByRole('button', { name: 'À faire · learning.current' }));
+    await waitFor(() => expect(screen.getByRole('dialog')).toHaveAttribute('data-state', 'closed'));
+    fireEvent.click(screen.getByRole('button', { name: 'À faire · learning.current', hidden: true }));
     await screen.findByRole('dialog');
+    await waitFor(() => expect(screen.getByRole('dialog')).toHaveAttribute('data-state', 'open'));
     expect(mocks.start).not.toHaveBeenCalled();
   });
   it('still starts a completed step as revision at the daily limit', async () => {
     mocks.start.mockResolvedValue({ id: 'revision', lesson: { id: 'done' } });
     mount(); await screen.findByRole('dialog');
     fireEvent.click(screen.getByRole('button', { name: 'common.close' }));
-    fireEvent.animationEnd(screen.getByRole('dialog'));
-    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
-    fireEvent.click(screen.getByRole('button', { name: 'Déjà faite · learning.done' }));
+    await waitFor(() => expect(screen.getByRole('dialog')).toHaveAttribute('data-state', 'closed'));
+    fireEvent.click(screen.getByRole('button', { name: 'Déjà faite · learning.done', hidden: true }));
     await screen.findByTestId('revision');
     expect(mocks.start).toHaveBeenCalledWith('path', 'done');
   });
