@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Étendre réellement le relief d’Apprendre aux boutons, onglets et chips sur les pages principales, puis vérifier les interactions.
+- [x] Étendre réellement le relief d’Apprendre aux boutons, onglets et chips sur les pages principales, puis vérifier les interactions.
 
 - [x] Harmoniser toutes les illustrations par défaut des collections avec le style 3D ludique du calendrier, préserver les photos personnelles et vérifier l’affichage.
 
