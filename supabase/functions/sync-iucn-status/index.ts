@@ -100,11 +100,15 @@ Deno.serve(async (req) => {
     if (!recomputeOnly && batch > 0) {
       /* Parcours déterministe du catalogue par tranches (offset), pour que
        * l'appelant puisse enchaîner les lots sans jamais repasser deux fois
-       * sur les mêmes espèces. */
-      const { data: pending, count } = await supabase
+       * sur les mêmes espèces. `onlyMissing` cible uniquement les fiches sans
+       * statut (rattrapage des espèces créées depuis la dernière passe). */
+      const onlyMissing = body.onlyMissing === true;
+      let q = supabase
         .from("animals")
         .select("scientific_name", { count: "exact" })
-        .not("scientific_name", "is", null)
+        .not("scientific_name", "is", null);
+      if (onlyMissing) q = q.is("iucn_status", null);
+      const { data: pending, count } = await q
         .order("scientific_name", { ascending: true })
         .range(offset, offset + batch - 1);
 
