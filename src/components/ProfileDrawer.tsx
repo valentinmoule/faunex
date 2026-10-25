@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Camera, ChevronRight, Crown, Loader2, Search, Settings, Share2, ShieldCheck, Star, UserRound } from 'lucide-react';
+import { Camera, ChevronRight, Crown, Eye, Loader2, Search, Settings, Share2, ShieldCheck, Star, UserRound } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { useSwipeDownClose } from '@/lib/useSwipeDownClose';
@@ -335,6 +335,11 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
                     icon={<Share2 className="size-[18px]" />}
                     label={t('profile.page.drawer.shareProfile')}
                     onClick={() => { void shareMyProfile(); }}
+                  />
+                  <DrawerRow
+                    icon={<Eye className="size-[18px]" />}
+                    label={t('profile.page.drawer.viewPublicProfile')}
+                    onClick={() => userId && go(`/explorer/${userId}/collection`)}
                   />
                   <DrawerRow
                     icon={<Search className="size-[18px]" />}
