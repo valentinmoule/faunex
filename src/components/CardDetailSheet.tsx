@@ -168,7 +168,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
   const [isOwner, setIsOwner] = useState(false);
   const [cropOpen, setCropOpen] = useState(false);
   const [imageOverride, setImageOverride] = useState<{ id: string; url: string } | null>(null);
-  const cardImage = imageOverride?.id === card.id ? imageOverride.url : card.image;
+  const cardImage = card && imageOverride?.id === card.id ? imageOverride.url : card?.image;
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteAnimating, setDeleteAnimating] = useState(false);
