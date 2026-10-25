@@ -824,11 +824,15 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
           {/* Card Body */}
           <div className="relative -mt-8 bg-background rounded-t-3xl px-5 pb-10 pt-5 space-y-5">
             {isUncaptured && session && (
-              <div className="flex justify-center">
-                <Button variant="ghost" onClick={() => { hapticTap(); setAddToOpen(true); }}>
-                  <Bookmark aria-hidden="true" />
-                  {t('bestiary.customCollections.addTitle')}
-                </Button>
+              <div className="flex items-center justify-center">
+                <button
+                  onClick={() => { hapticTap(); setAddToOpen(true); }}
+                  aria-label={t('bestiary.customCollections.addTitle')}
+                  title={t('bestiary.customCollections.addTitle')}
+                  className="relative flex items-center py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
+                >
+                  <Bookmark className="w-6 h-6 transition-all text-muted-foreground group-hover:text-primary" />
+                </button>
               </div>
             )}
 
