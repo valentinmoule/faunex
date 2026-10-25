@@ -28,6 +28,7 @@ export default function LearningPage() {
   const lessons = path?.chapters.flatMap(c => c.lessons) ?? [];
   const completed = new Set(data?.completed.filter(c => c.path_id === path?.id).map(c => c.lesson_id));
   const current = lessons.find(l => !completed.has(l.id)); const quota = Boolean(data && data.used >= data.limit);
+  const target = current ?? lessons[lessons.length - 1]; const reviewing = Boolean(target && !current); const offerPremium = quota && data?.limit === 3;
   const currentNode = useRef<HTMLDivElement>(null);
   const arrivalId = current?.id ?? lessons[lessons.length - 1]?.id;
   useEffect(() => {
