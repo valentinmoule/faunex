@@ -29,6 +29,7 @@ export function OverflowMenu({
   items,
   align = 'end',
   triggerClassName,
+  iconClassName,
 }: OverflowMenuProps) {
   return (
     <DropdownMenuPrimitive.Root>
@@ -41,7 +42,7 @@ export function OverflowMenu({
             'p-2 rounded-full bg-background/70 backdrop-blur-md border border-border/50 hover:bg-background transition-colors'
           }
         >
-          <MoreHorizontal className="w-4 h-4 text-foreground" aria-hidden="true" />
+          <MoreHorizontal className={iconClassName ?? 'w-4 h-4 text-foreground'} aria-hidden="true" />
         </button>
       </DropdownMenuPrimitive.Trigger>
       <DropdownMenuPrimitive.Portal>
