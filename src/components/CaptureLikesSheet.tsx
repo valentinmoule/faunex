@@ -93,7 +93,7 @@ export default function CaptureLikesSheet({ captureId, open, onClose, onViewProf
                     <PremiumAvatar name={person.display_name || person.username} avatarUrl={person.avatar_url} size="lg" />
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-sm text-foreground">{person.display_name || person.username || t('capture.detail.anonymous')}</span>
-                      {person.username && <span className="block truncate text-xs font-normal text-muted-foreground">@{person.username}</span>}
+                      {person.username && <span className="block truncate text-xs font-normal text-muted-foreground">@{person.username.replace(/^@+/, '')}</span>}
                     </span>
                   </Button>
                 </li>
