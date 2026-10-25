@@ -1480,7 +1480,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
           }}
         />
       )}
-      {correctionOpen && <CaptureCorrectionDialog captureId={card.id} open={correctionOpen} onClose={() => setCorrectionOpen(false)} onSubmitted={() => { setCorrectionOpen(false); onClose(); onDeleted?.(card.id); }} />}
+      {correctionOpen && <CaptureCorrectionDialog captureId={isOwner ? card.id : undefined} speciesName={card.name} speciesScientific={card.scientificName} open={correctionOpen} onClose={() => setCorrectionOpen(false)} onSubmitted={() => { setCorrectionOpen(false); if (isOwner) { onClose(); onDeleted?.(card.id); } }} />}
     </>
 
   );
