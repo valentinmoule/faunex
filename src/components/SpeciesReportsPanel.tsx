@@ -9,6 +9,7 @@ interface Report {
   species_name: string;
   scientific_name: string | null;
   reason: string | null;
+  report_type: string | null;
   created_at: string;
 }
 
@@ -19,7 +20,7 @@ export default function SpeciesReportsPanel() {
   const load = async () => {
     const { data, error } = await supabase
       .from('species_reports')
-      .select('id,species_name,scientific_name,reason,created_at')
+      .select('id,species_name,scientific_name,reason,report_type,created_at')
       .eq('status', 'pending')
       .order('created_at', { ascending: false });
     if (error) toast.error(error.message);
@@ -52,6 +53,9 @@ export default function SpeciesReportsPanel() {
             <div>
               <p className="font-display font-bold text-foreground">{list[0].species_name}</p>
               {list[0].scientific_name && <p className="text-xs italic text-muted-foreground">{list[0].scientific_name}</p>}
+              {list.some(r => r.report_type === 'does_not_exist') && (
+                <p className="text-xs font-semibold text-destructive">Espèce inexistante signalée</p>
+              )}
             </div>
             <span className="text-xs text-muted-foreground">{list.length} signalement{list.length > 1 ? 's' : ''}</span>
           </div>
