@@ -14,6 +14,7 @@ import { useAppLocale } from '@/hooks/useAppLocale';
 import { Languages, Users } from 'lucide-react';
 import { shareOrigin } from '@/lib/authRedirect';
 import { shareContent } from '@/lib/share';
+import { canManageFamily, readFamily } from '@/lib/family';
 
 interface SettingsProps {
   profile: {
@@ -33,6 +34,15 @@ const SettingsPage = () => {
   const { locale, isAuto, changeLocale } = useAppLocale();
   const [profile, setProfile] = useState<{ display_name: string; username: string; avatar_url: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [familyOwner, setFamilyOwner] = useState(false);
+  useEffect(() => {
+    let cancelled=false;
+    setFamilyOwner(false);
+    if(session?.user) supabase.rpc('my_family').then(({data,error})=>{
+      if(!cancelled) setFamilyOwner(!error && canManageFamily(readFamily(data),session.user.id));
+    });
+    return ()=>{cancelled=true;};
+  },[session?.user.id]);
 
   // Edit profile state
   const [editName, setEditName] = useState('');
@@ -241,7 +251,7 @@ const SettingsPage = () => {
           <div className="space-y-1">
 
             <MenuItem icon={<Crown className="w-5 h-5" />} label={t('settings.premium')} onClick={() => navigate('/premium')} />
-            <MenuItem icon={<Users className="w-5 h-5" />} label={t('family.title')} onClick={() => navigate('/family')} />
+            {familyOwner && <MenuItem icon={<Users className="w-5 h-5" />} label={t('family.title')} onClick={() => navigate('/family')} />}
             <MenuItem icon={<Pencil className="w-5 h-5" />} label={t('settings.editProfile')} onClick={() => setSection('edit')} />
             <MenuItem icon={<Bell className="w-5 h-5" />} label={t('settings.notifications')} onClick={() => setSection('notifications')} />
             <MenuItem icon={<Share2 className="w-5 h-5" />} label={t('settings.shareProfile')} onClick={handleShare} />

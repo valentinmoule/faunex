@@ -8,6 +8,7 @@ import { template as noCaptureJ7 } from './no-capture-j7.tsx'
 import { template as inactivityEmail } from './inactivity-email.tsx'
 import { template as accountBlocked } from './account-blocked.tsx'
 import { template as premiumRecap } from './premium-recap.tsx'
+import { template as familyInvitation } from './family-invitation.tsx'
 
 export interface TemplateEntry {
   component: any
@@ -18,6 +19,7 @@ export interface TemplateEntry {
 }
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
+  'family-invitation': familyInvitation,
   'new-follower': newFollower,
   'capture-like': captureLike,
   'capture-comment': captureComment,
