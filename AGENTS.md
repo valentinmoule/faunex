@@ -52,7 +52,7 @@ Match captures (including pending shelves) to tiles by exact common name first; 
 
 ## Bundle badge artwork
 
-Import badge art locally; hosted `/__l5e/assets-v1/` routes are absent from native bundles.
+Import badge art locally; hosted `/__l5e/assets-v1/` routes are absent natively.
 
 ## Collection artwork keeps explicit group assignments
 
