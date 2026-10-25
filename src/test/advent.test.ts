@@ -1,8 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { adventStart, adventState, defaultAdventDays, type AdventSubmission } from '@/lib/advent';
+import { adventStart, adventState, canOpenAdvent, defaultAdventDays, type AdventSubmission } from '@/lib/advent';
 
 const submission = (patch: Partial<AdventSubmission> = {}): AdventSubmission => ({ id: 's', collection_id: 'c', day: 1, image_url: 'photo', approved_at: null, claimed_at: null, ...patch });
 describe('Advent calendar rules', () => {
+  it('keeps the visible collection inaccessible until December 1 Paris midnight', () => {
+    expect(canOpenAdvent(2026, new Date('2026-10-25T16:40:00Z'))).toBe(false);
+    expect(canOpenAdvent(2026, new Date('2026-11-30T22:59:59Z'))).toBe(false);
+    expect(canOpenAdvent(2026, new Date('2026-11-30T23:00:00Z'))).toBe(true);
+  });
   it('opens December 1 at midnight Paris time', () => {
     expect(adventStart(2026, 1).toISOString()).toBe('2026-11-30T23:00:00.000Z');
     expect(adventState(2026, 1, new Date('2026-11-30T22:59:59Z'), [])).toBe('locked');
