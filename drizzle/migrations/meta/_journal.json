@@ -428,6 +428,13 @@
       "when": 1792951493526,
       "tag": "0060_eclats_lessons_only",
       "breakpoints": true
+    },
+    {
+      "idx": 61,
+      "version": "7",
+      "when": 1792952151619,
+      "tag": "0061_learning_paths_and_atomic_seed_rewards",
+      "breakpoints": true
     }
   ]
 }

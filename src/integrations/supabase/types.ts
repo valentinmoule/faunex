@@ -1584,6 +1584,109 @@ export type Database = {
         }
         Relationships: []
       }
+      learning_attempts: {
+        Row: {
+          answers: Json
+          created_at: string
+          finished: boolean
+          id: string
+          lesson_id: string
+          path_id: string
+          result: Json | null
+          snapshot: Json
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          created_at?: string
+          finished?: boolean
+          id?: string
+          lesson_id: string
+          path_id: string
+          result?: Json | null
+          snapshot: Json
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          created_at?: string
+          finished?: boolean
+          id?: string
+          lesson_id?: string
+          path_id?: string
+          result?: Json | null
+          snapshot?: Json
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_attempts_path_id_fkey"
+            columns: ["path_id"]
+            isOneToOne: false
+            referencedRelation: "learning_paths"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      learning_completions: {
+        Row: {
+          completed_at: string
+          lesson_id: string
+          path_id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          lesson_id: string
+          path_id: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          lesson_id?: string
+          path_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_completions_path_id_fkey"
+            columns: ["path_id"]
+            isOneToOne: false
+            referencedRelation: "learning_paths"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      learning_paths: {
+        Row: {
+          content: Json
+          id: string
+          published: boolean
+          sort_order: number
+          title: string
+          title_en: string
+          updated_at: string
+        }
+        Insert: {
+          content?: Json
+          id?: string
+          published?: boolean
+          sort_order?: number
+          title: string
+          title_en?: string
+          updated_at?: string
+        }
+        Update: {
+          content?: Json
+          id?: string
+          published?: boolean
+          sort_order?: number
+          title?: string
+          title_en?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       login_events: {
         Row: {
           created_at: string
@@ -3348,6 +3451,17 @@ export type Database = {
           username: string
         }[]
       }
+      learning_answer: {
+        Args: { p_attempt: string; p_choice: number; p_index: number }
+        Returns: Json
+      }
+      learning_attempt_view: { Args: { p_id: string }; Returns: Json }
+      learning_finish: { Args: { p_attempt: string }; Returns: Json }
+      learning_start: {
+        Args: { p_lesson: string; p_path: string }
+        Returns: Json
+      }
+      learning_status: { Args: never; Returns: Json }
       match_animal: {
         Args: { p_name: string; p_scientific?: string }
         Returns: {
