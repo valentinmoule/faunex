@@ -469,7 +469,12 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
 
   const { isPremium, loading: premiumLoading } = useSubscription(session?.user?.id);
   const { favoriteIds } = useFavorites(session?.user?.id);
-  const { collectionKeys, addCollection, removeCollection } = useSpeciesCollections(session?.user?.id);
+  const { collectionKeys: rawCollectionKeys, addCollection, removeCollection } = useSpeciesCollections(session?.user?.id);
+  // Les clés thématiques (offertes à tous) ne consomment jamais un slot gratuit.
+  const collectionKeys = useMemo(
+    () => rawCollectionKeys.filter((k) => !k.startsWith(THEME_PREFIX)),
+    [rawCollectionKeys],
+  );
   const customCollections = useCustomCollections(session?.user?.id);
   const { covers: collectionCovers, setCover: setCollectionCover } = useCollectionCovers(session?.user?.id);
   const pinnedStandard = usePinnedProfileCollections(session?.user?.id);
@@ -1019,7 +1024,11 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
 
   const filteredCollectionOptions = useMemo(() => {
     const q = normalizeSearch(collectionSearch);
-    return availableCollections.filter((e) => !q || normalizeSearch(e.group.label).includes(q));
+    return availableCollections
+      // Les collections thématiques et le Calendrier de l'Avent sont offerts à
+      // tous : jamais ajoutées comme collection suivie ni comptées dans le quota.
+      .filter((e) => !e.group.key.startsWith(THEME_PREFIX))
+      .filter((e) => !q || normalizeSearch(e.group.label).includes(q));
   }, [availableCollections, collectionSearch]);
 
 
