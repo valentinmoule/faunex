@@ -27,7 +27,6 @@ import AddToCollectionSheet from '@/components/AddToCollectionSheet';
 import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
 import { useSpeciesFacts, useSpeciesName } from '@/hooks/useSpeciesLocale';
 import { PremiumAvatar } from '@/components/PremiumAvatar';
-import { Button } from '@/components/ui/button';
 import { CaptureCorrectionDialog } from '@/components/CaptureCorrectionDialog';
 import { ScanSearch } from 'lucide-react';
 
@@ -923,10 +922,16 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                   </button>
                 )}
                 {isOwner && (
-                  <Button variant="ghost" size="icon" onClick={() => setCorrectionOpen(true)} aria-label={t('capture.correction.title')} title={t('capture.correction.title')} className="text-muted-foreground hover:text-primary">
-                    <ScanSearch className="h-6 w-6" />
-                  </Button>
+                  <button
+                    onClick={() => { hapticTap(); setCorrectionOpen(true); }}
+                    aria-label={t('capture.correction.title')}
+                    title={t('capture.correction.title')}
+                    className="relative flex items-center py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
+                  >
+                    <ScanSearch className="w-6 h-6 text-muted-foreground transition-colors group-hover:text-primary" />
+                  </button>
                 )}
+
                 {isOwner && (
                   <button
                     onClick={() => { hapticTap(); setConfirmDelete(true); }}
