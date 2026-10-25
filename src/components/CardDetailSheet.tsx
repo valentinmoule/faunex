@@ -35,6 +35,7 @@ import { saveCroppedCaptureImage } from '@/lib/captureCrop';
 import CaptureLikesSheet from '@/components/CaptureLikesSheet';
 import CommentMentionInput from '@/components/CommentMentionInput';
 import { Button } from '@/components/ui/button';
+import SpeciesNaturalHistory from '@/components/SpeciesNaturalHistory';
 
 interface Props {
   card: AnimalCard | null;
@@ -1040,6 +1041,8 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
             ) : !feedView ? (
               <p className="text-sm text-foreground/80 leading-relaxed text-center">{facts.description}</p>
             ) : null}
+
+            {!feedView && session && <SpeciesNaturalHistory name={card.name} scientificName={card.scientificName} />}
 
             {/* Infos — liste épurée façon iOS */}
             {feedView ? null : isUncaptured ? (
