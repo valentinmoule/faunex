@@ -5,7 +5,7 @@ import { CollectionHero } from '@/components/CollectionHero';
 import { OverflowMenu } from '@/components/OverflowMenu';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { ArrowLeft, Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, Check, Images, Trophy, Users, Lock, FolderPlus, Pencil } from 'lucide-react';
+import { ArrowLeft, Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, Check, Images, Trophy, Users, Lock, FolderPlus, Pencil, Pin, PinOff } from 'lucide-react';
 import {
   POPULARITY_LABELS,
   SpeciesCategoryIcon,
@@ -1516,6 +1516,16 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
             <OverflowMenu
               label={t('bestiary.customCollections.actions')}
               items={[
+                {
+                  label: t(selectedCustom.pinned_at ? 'bestiary.customCollections.unpin' : 'bestiary.customCollections.pin'),
+                  icon: selectedCustom.pinned_at
+                    ? <PinOff className="w-4 h-4 shrink-0" aria-hidden="true" />
+                    : <Pin className="w-4 h-4 shrink-0" aria-hidden="true" />,
+                  onSelect: () => {
+                    hapticTap();
+                    void customCollections.togglePin(selectedCustom.id);
+                  },
+                },
                 {
                   label: t('bestiary.customCollections.rename'),
                   icon: <Pencil className="w-4 h-4 shrink-0" aria-hidden="true" />,
