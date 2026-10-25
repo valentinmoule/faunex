@@ -12,7 +12,7 @@ export default function EclatsPage() {
   const { t, i18n } = useTranslation();
   const wallet = useWallet();
   const [refreshing, setRefreshing] = useState(false);
-  return <main className="min-h-screen bg-background pb-24">
+  return <main className="flex min-h-screen flex-col bg-background pb-24">
     <PageHeader sticky className="border-b border-border bg-background px-5 pb-4">
       <div className="mx-auto flex max-w-lg items-center gap-3">
         <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label={t('common.back')}><ArrowLeft className="h-5 w-5" /></Button>
