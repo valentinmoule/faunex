@@ -3,6 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 
 /**
+ * Dernière position du carrousel (index du sachet centré), conservée au
+ * démontage pour y revenir quand l'utilisateur revient d'une collection.
+ */
+let rememberedActive = 0;
+
+/**
  * Carrousel horizontal de boosters : un sachet centré en grand, les voisins
  * réduits de chaque côté ; défilement au doigt avec aimantation.
  */
@@ -10,8 +16,8 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
   const { t } = useTranslation();
   const ref = useRef<HTMLDivElement>(null);
   const items = Children.toArray(children);
-  const [active, setActive] = useState(0);
-  const activeRef = useRef(0);
+  const [active, setActive] = useState(() => Math.min(rememberedActive, items.length - 1));
+  const activeRef = useRef(Math.min(rememberedActive, items.length - 1));
 
   const update = useCallback(() => {
     const el = ref.current;
@@ -57,6 +63,25 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
     ro.observe(el);
     return () => ro.disconnect();
   }, [update, items.length]);
+
+  // Retour d'une collection : replacer le carrousel sur le dernier sachet centré.
+  const restoredRef = useRef(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || restoredRef.current || rememberedActive <= 0 || rememberedActive >= items.length) return;
+    restoredRef.current = true;
+    const raf = requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        const node = ref.current?.children[rememberedActive] as HTMLElement | undefined;
+        if (!ref.current || !node) return;
+        ref.current.scrollLeft = node.offsetLeft - (ref.current.clientWidth - node.offsetWidth) / 2;
+      }),
+    );
+    return () => cancelAnimationFrame(raf);
+  }, [items.length]);
+
+  // Mémorise la position au démontage (ouverture d'une collection, autre onglet…).
+  useEffect(() => () => { rememberedActive = activeRef.current; }, []);
 
   // Glisser à la souris (Chrome desktop) : le défilement natif ne répond qu'au tactile.
   const drag = useRef<{ x: number; left: number; moved: boolean } | null>(null);
