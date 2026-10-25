@@ -58,6 +58,8 @@ import { useCustomCollections } from '@/hooks/useCustomCollections';
 import { usePinnedProfileCollections } from '@/hooks/usePinnedProfileCollections';
 import { useCollectionCovers } from '@/hooks/useCollectionCovers';
 import { useThemedCollections } from '@/hooks/useThemedCollections';
+import { useAdventCalendars } from '@/hooks/useAdventCalendars';
+import adventCover from '@/assets/collections/advent-2026.jpg';
 import { THEME_PREFIX, themeMatcher, themeTitle } from '@/lib/themedCollections';
 import CategoryLeaderboard, { LeaderboardResetBadge } from '@/components/CategoryLeaderboard';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -564,6 +566,8 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
 
   /** Collections thématiques Faunex (gérées depuis l'admin, sans mise à jour de l'app). */
   const { collections: themedCollections } = useThemedCollections();
+  const advent = useAdventCalendars();
+  const visibleAdvent = advent.collections.filter(c => c.published && (!c.starts_at || new Date(c.starts_at) <= advent.now));
   const themedEntries = useMemo(
     () =>
       themedCollections.map((c) => {
@@ -2181,7 +2185,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                 </button>
               </div>
 
-              {subscribedZones.length === 0 && myCollections.length === 0 && customCollections.collections.length === 0 && themedEntries.length === 0 ? (
+              {subscribedZones.length === 0 && myCollections.length === 0 && customCollections.collections.length === 0 && themedEntries.length === 0 && visibleAdvent.length === 0 ? (
                 <button
                   onClick={openAddSlotModal}
                   className="w-full rounded-2xl border border-dashed border-border p-6 text-center transition active:scale-[0.98] hover:border-primary/40"
@@ -2196,6 +2200,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                 </button>
               ) : (
                 <BoosterCarousel>
+                  {visibleAdvent.map(c => <CollectionTile key={c.id} title={themeTitle(c, i18n.language)} image={c.cover_url || adventCover} overlay={getCollectionArt('advent').overlay} captured={new Set(advent.submissions.filter(s => s.collection_id === c.id && s.approved_at).map(s => s.day)).size} total={24} onOpen={() => navigate(`/advent/${c.id}`)} />)}
                   {/* Collections thématiques créées par Faunex, visibles par tous */}
                   {themedEntries.map(({ group, total, captured, cover }) => {
                     const art = getCollectionArt(group.key, group.label);

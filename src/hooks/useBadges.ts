@@ -91,7 +91,7 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
         setLoading(true);
       }
 
-      const [capturesRes, claimedRes, followersRes, followingRes, catalogue, premiumRes] = await Promise.all([
+      const [capturesRes, claimedRes, followersRes, followingRes, catalogue, premiumRes, adventRes] = await Promise.all([
         fetchAllRows<any>((from, to) =>
           supabase
             .from('captures')
@@ -106,6 +106,7 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
         supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('follower_id', userId),
         fetchCatalogue(),
         supabase.rpc('is_premium', { p_user_id: userId }),
+        supabase.rpc('advent_badge_progress', { p_user: userId }),
       ]);
 
       if (cancelled) return;
@@ -250,7 +251,11 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
         claimedAt: claimedSet.has(b.id) ? claimedAtMap.get(b.id) ?? null : null,
       }));
 
-      const next = [...staticBadges, ...collectionBadges, ...rankBadges];
+      const adventBadges: BadgeProgress[] = ((adventRes.data || []) as unknown as { id: string; year: number; xp: number; progress: number }[]).map(c => ({
+        badge: { id: c.id, name: t('advent.badge', { year: c.year }), description: t('advent.badgeDescription'), icon: '🎄', group: 'collections', xp: c.xp, total: 24 },
+        progress: c.progress, earned: c.progress >= 24, claimed: claimedSet.has(c.id), claimedAt: claimedAtMap.get(c.id) ?? null,
+      }));
+      const next = [...staticBadges, ...collectionBadges, ...rankBadges, ...adventBadges];
       badgesCache.set(`${userId}:${i18n.language}`, next);
       setBadges(next);
       setLoading(false);
