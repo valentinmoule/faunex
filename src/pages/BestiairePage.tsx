@@ -1803,13 +1803,13 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
             </div>
           </PageHeader>
         ) : (
-          <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
+          <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-4 py-4">
             <div className="max-w-lg mx-auto">
               <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-display font-bold text-primary">
+                <h1 className="whitespace-nowrap text-2xl font-display font-bold text-primary">
                   {viewMode === 'leaderboard' ? t('social.leaderboard.ranking') : isFaunexHub ? t('bestiary.header.title') : t('bestiary.header.bestiaryTitle')}
                 </h1>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   <CurrencyBalance />
                   <CaptureQuotaBadge userId={session?.user?.id} isPremium={isPremium} premiumLoading={premiumLoading} />
                   <button

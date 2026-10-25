@@ -12,7 +12,7 @@ export default function CurrencyBalance() {
   if (!data?.enabled) return null;
   return (
     <GameCounter
-      icon={<SeedIcon className="h-[18px] w-[18px]" />}
+      icon={<SeedIcon className="h-4 w-4" />}
       value={data.balance.toLocaleString(i18n.language)}
       label={t('economy.balance', { amount: data.balance })}
       title={t('economy.balance', { amount: data.balance })}

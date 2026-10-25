@@ -20,10 +20,10 @@ const CaptureQuotaBadge = ({ userId, isPremium, premiumLoading }: CaptureQuotaBa
 
   return (
     <GameCounter
-      icon={<Camera className="h-[18px] w-[18px]" strokeWidth={2.5} />}
+      icon={<Camera className="h-4 w-4" strokeWidth={2.5} />}
       value={
         isPremium ? (
-          <InfinityIcon className="h-5 w-5" strokeWidth={2.5} aria-hidden="true" />
+          <InfinityIcon className="h-[18px] w-[18px]" strokeWidth={2.5} aria-hidden="true" />
         ) : premiumLoading ? (
           <span className="w-5" aria-hidden="true" />
         ) : (
