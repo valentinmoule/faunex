@@ -1,7 +1,7 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Check, Loader2, Crown, Minus } from 'lucide-react';
+import { ArrowLeft, Check, Loader2, Crown, UserRound, Users, ScanLine, MapPin, Images, FolderHeart, Trophy, BadgeCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import { PageHeader } from '@/components/PageHeader';
 import { PaymentTestModeBanner } from '@/components/PaymentTestModeBanner';
@@ -19,76 +19,21 @@ import { CancelSurveySheet } from '@/components/CancelSurveySheet';
 import { PremiumReferral } from '@/components/PremiumReferral';
 import { getPaddleEnvironment } from '@/lib/paddle';
 
-interface FeatureRow {
-  label: string;
-  free: ReactNode;
-  premium: ReactNode;
-}
-
-const useFeatures = (t: (key: string) => string): FeatureRow[] => [
-  {
-    label: t('profile.premium.features.identification'),
-    free: <span className="text-sm font-medium">{t('profile.premium.features.fourPerDay')}</span>,
-    premium: <span className="text-sm font-semibold text-primary">{t('profile.premium.features.unlimited')}</span>,
-  },
-  {
-    label: t('profile.premium.features.collections'),
-    free: <span className="text-sm font-medium">4</span>,
-    premium: <span className="text-sm font-semibold text-primary">{t('profile.premium.features.unlimitedPlural')}</span>,
-  },
-  {
-    label: t('profile.premium.features.zoneSearch'),
-    free: <span className="text-sm font-medium">{t('profile.premium.features.fourPerDay')}</span>,
-    premium: <span className="text-sm font-semibold text-primary">{t('profile.premium.features.unlimitedGeneric')}</span>,
-  },
-  {
-    label: t('profile.premium.features.explorerPhotos'),
-    free: <span className="text-sm font-medium">{t('profile.premium.features.followedOnly')}</span>,
-    premium: <span className="text-sm font-semibold text-primary">{t('profile.premium.features.allExplorers')}</span>,
-  },
-  {
-    label: t('profile.premium.features.customCollections'),
-    free: <Minus className="h-4 w-4 text-muted-foreground" />,
-    premium: <Check className="h-4 w-4 text-primary" />,
-  },
-  {
-    label: t('profile.premium.features.explorersRanking'),
-    free: <Minus className="h-4 w-4 text-muted-foreground" />,
-    premium: <Check className="h-4 w-4 text-primary" />,
-  },
-  {
-    label: t('profile.premium.features.premiumBadge'),
-    free: <Minus className="h-4 w-4 text-muted-foreground" />,
-    premium: <Check className="h-4 w-4 text-primary" />,
-  },
-  {
-    label: t('profile.premium.features.notesLocation'),
-    free: <Check className="h-4 w-4 text-foreground" />,
-    premium: <Check className="h-4 w-4 text-primary" />,
-  },
-  {
-    label: t('profile.premium.features.quests'),
-    free: <Check className="h-4 w-4 text-foreground" />,
-    premium: <Check className="h-4 w-4 text-primary" />,
-  },
-  {
-    label: t('profile.premium.features.globalLeaderboards'),
-    free: <Check className="h-4 w-4 text-foreground" />,
-    premium: <Check className="h-4 w-4 text-primary" />,
-  },
-  {
-    label: t('profile.premium.features.badges'),
-    free: <Check className="h-4 w-4 text-foreground" />,
-    premium: <Check className="h-4 w-4 text-primary" />,
-  },
-];
+const BENEFITS = [
+  { icon: ScanLine, key: 'identification' },
+  { icon: MapPin, key: 'exploration' },
+  { icon: FolderHeart, key: 'collections' },
+  { icon: Images, key: 'photos' },
+  { icon: Trophy, key: 'ranking' },
+  { icon: BadgeCheck, key: 'badge' },
+] as const;
 
 const usePlans = (t: (key: string) => string) => ({
   monthly: {
     priceId: PREMIUM_MONTHLY_PRICE_ID,
     label: t('profile.premium.plans.monthly.label'),
     price: '2,40 €',
-    period: '/ mois',
+    period: t('profile.premium.presentation.perMonth'),
     note: t('profile.premium.plans.monthly.note'),
     cta: t('profile.premium.plans.monthly.cta'),
   },
@@ -96,7 +41,7 @@ const usePlans = (t: (key: string) => string) => ({
     priceId: PREMIUM_YEARLY_PRICE_ID,
     label: t('profile.premium.plans.yearly.label'),
     price: '24 €',
-    period: '/ an',
+    period: t('profile.premium.presentation.perYear'),
     note: t('profile.premium.plans.yearly.note'),
     cta: t('profile.premium.plans.yearly.cta'),
   },
@@ -121,7 +66,6 @@ const PremiumPage = () => {
       .eq('environment', getPaddleEnvironment()).gt('ends_at', new Date().toISOString())
       .then(({ data }) => setBonusDays((data ?? []).reduce((sum, item) => sum + item.days, 0)));
   }, [session?.user.id, subscription]);
-  const FEATURES = useFeatures(t);
   const PLANS = usePlans(t);
   const selected = PLANS[plan];
 
@@ -233,36 +177,40 @@ const PremiumPage = () => {
       <PaymentTestModeBanner />
       <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="flex items-center gap-3 max-w-lg mx-auto">
-          <button
+          <Button variant="ghost" size="icon"
             onClick={() => navigate(-1)}
             aria-label={t('profile.premium.backAria')}
             className="p-1.5 rounded-full hover:bg-muted transition-colors"
           >
             <ArrowLeft className="w-5 h-5 text-foreground" />
-          </button>
+          </Button>
           <h1 className="text-xl font-display font-bold text-foreground">{t('profile.premium.badge')}</h1>
         </div>
       </PageHeader>
 
-      <main className="px-5 pt-2 pb-24">
-        <section className="relative overflow-hidden rounded-[2rem] border border-border bg-card p-6 shadow-sm">
-          <div className="absolute -top-16 -right-10 h-40 w-40 rounded-full bg-primary/10 blur-2xl" aria-hidden />
-          <Crown className="relative h-6 w-6 text-primary" aria-hidden />
-          <h2 className="relative mt-3 font-display text-2xl font-bold leading-tight">
+      <main className="mx-auto max-w-3xl px-5 pt-6 pb-24">
+        <section>
+          <Crown className="h-6 w-6 text-primary" aria-hidden />
+          <h2 className="mt-3 font-display text-2xl font-bold leading-tight">
             {t('profile.premium.title')}
           </h2>
-          <p className="relative mt-2 text-sm text-muted-foreground">
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
             {t('profile.premium.description')}
           </p>
 
 
-          {!isPremium && (
-            <div className="relative mt-5 grid grid-cols-2 gap-2 rounded-2xl bg-muted p-1">
+        </section>
+
+        <section className="mt-8" aria-labelledby="premium-plans">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <h2 id="premium-plans" className="font-display text-lg font-semibold">{t('profile.premium.presentation.available')}</h2>
+            <div className="grid grid-cols-2 gap-1 rounded-full bg-muted p-1">
               {(Object.keys(PLANS) as Array<keyof typeof PLANS>).map((key) => (
-                <button
+                <Button variant="ghost" size="sm"
                   key={key}
                   onClick={() => setPlan(key)}
-                  className={`relative rounded-xl px-3 py-2 text-sm font-semibold transition-colors ${
+                  aria-pressed={plan === key}
+                  className={`px-3 text-sm font-semibold ${
                     plan === key ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground'
                   }`}
                 >
@@ -272,54 +220,48 @@ const PremiumPage = () => {
                       {t('profile.premium.discount')}
                     </span>
                   )}
-                </button>
+                </Button>
               ))}
             </div>
-          )}
-
-          <div className="relative mt-5 flex items-end gap-1.5">
-            <span className="font-display text-4xl font-bold">{selected.price}</span>
-            <span className="pb-1 text-sm text-muted-foreground">{selected.period}</span>
           </div>
-          <p className="relative mt-1 text-xs text-muted-foreground">
-            {selected.note}
-          </p>
-          {!isPremium && plan === 'monthly' && (
-            <button type="button" onClick={() => setPlan('yearly')} className="relative mt-2 text-xs font-semibold text-primary">
-              {t('profile.premium.yearlyHint')}
-            </button>
-          )}
+          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            <article className="flex flex-col rounded-lg border border-border bg-card p-5 sm:p-6">
+              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground"><UserRound className="size-4" aria-hidden />{t('profile.premium.badge')}</div>
+              <h3 className="mt-3 font-display text-2xl font-bold text-primary">{t('profile.premium.presentation.personal')}</h3>
+              <p className="mt-3 flex items-baseline gap-1.5"><span className="font-display text-3xl font-bold">{selected.price}</span><span className="text-sm text-muted-foreground">{selected.period}</span></p>
+              <p className="mt-2 min-h-10 text-xs leading-relaxed text-muted-foreground">{selected.note}</p>
+              <ul className="my-5 space-y-3 border-t border-border pt-5 text-sm leading-relaxed">
+                {['personalAccounts', 'allBenefits', 'personalCollection', 'cancelAnytime'].map(key => <li key={key} className="flex gap-2.5"><Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden /><span>{t(`profile.premium.presentation.${key}`)}</span></li>)}
+              </ul>
+              <Button onClick={handleSubscribe} disabled={checkoutLoading || referralBusy || loading || isPremium} className="mt-auto h-auto min-h-12 w-full whitespace-normal py-3">
+                {checkoutLoading || referralBusy ? <Loader2 className="size-4 animate-spin" /> : t(isPremium ? 'profile.premium.activeSubscription' : 'profile.premium.presentation.choosePersonal')}
+              </Button>
+            </article>
+            <article className="flex flex-col rounded-lg border border-primary/25 bg-secondary p-5 sm:p-6">
+              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground"><Users className="size-4" aria-hidden />{t('profile.premium.badge')}</div>
+              <h3 className="mt-3 font-display text-2xl font-bold text-primary">{t('profile.premium.presentation.family')}</h3>
+              <p className="mt-3 flex items-baseline gap-1.5"><span className="font-display text-3xl font-bold">{plan === 'yearly' ? '40 €' : '4 €'}</span><span className="text-sm text-muted-foreground">{selected.period}</span></p>
+              <p className="mt-2 min-h-10 text-xs leading-relaxed text-muted-foreground">{t(`profile.premium.presentation.family${plan === 'yearly' ? 'Yearly' : 'Monthly'}Note`)}</p>
+              <ul className="my-5 space-y-3 border-t border-primary/15 pt-5 text-sm leading-relaxed">
+                {['familyAccounts', 'allBenefits', 'familyIndependent', 'familyInvites', 'cancelAnytime'].map(key => <li key={key} className="flex gap-2.5"><Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden /><span>{t(`profile.premium.presentation.${key}`)}</span></li>)}
+              </ul>
+              <Button onClick={() => navigate('/family')} className="mt-auto h-auto min-h-12 w-full whitespace-normal py-3">{t('profile.premium.presentation.chooseFamily')}</Button>
+            </article>
+          </div>
         </section>
 
-        <div className="mt-5 rounded-[2rem] border border-border bg-card p-5 shadow-sm">
-          <h2 className="font-display text-lg font-semibold mb-4">{t('profile.premium.compareFeatures')}</h2>
-          <div className="overflow-hidden rounded-2xl border border-border">
-            <div className="grid grid-cols-[1fr_80px_80px] bg-muted">
-              <div className="px-4 py-3 text-xs font-semibold text-muted-foreground">{t('profile.premium.feature')}</div>
-              <div className="px-2 py-3 text-center text-xs font-semibold text-muted-foreground">{t('profile.premium.free')}</div>
-              <div className="px-2 py-3 text-center text-xs font-semibold text-primary">Premium</div>
-            </div>
-            {FEATURES.map((feature, index) => (
-              <div
-                key={feature.label}
-                className={`grid grid-cols-[1fr_80px_80px] items-center ${
-                  index !== FEATURES.length - 1 ? 'border-b border-border' : ''
-                }`}
-              >
-                <div className="px-4 py-3.5 text-sm font-medium">{feature.label}</div>
-                <div className="flex justify-center px-2 py-3.5">{feature.free}</div>
-                <div className="flex justify-center px-2 py-3.5">{feature.premium}</div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <section className="mt-9 border-t border-border pt-7" aria-labelledby="premium-benefits">
+          <h2 id="premium-benefits" className="font-display text-xl font-bold">{t('profile.premium.presentation.why')}</h2>
+          <ul className="mt-5 space-y-5">
+            {BENEFITS.map(({ icon: Icon, key }) => <li key={key} className="flex items-center gap-4"><Icon className="size-6 shrink-0 text-primary" strokeWidth={1.75} aria-hidden /><span className="text-sm leading-relaxed">{t(`profile.premium.presentation.benefits.${key}`)}</span></li>)}
+          </ul>
+        </section>
 
         {session?.user && <PremiumReferral userId={session.user.id} eligible={!loading && !subscription && !isPremium && plan === 'yearly'} code={referralCode} onCodeChange={setReferralCode} />}
         {bonusDays > 0 && <p className="mb-5 text-sm font-medium text-primary">{t('profile.premium.referral.bonus', { days: bonusDays })}</p>}
-        <Button variant="outline" className="w-full mb-5" onClick={()=>navigate('/family')}>{t('family.offer')}</Button>
       </main>
 
-      {createPortal(
+      {isPremium && createPortal(
         <div className="fixed inset-x-0 bottom-0 z-[60] border-t border-border bg-background/90 backdrop-blur-xl px-5 pt-3 pb-[calc(12px+env(safe-area-inset-bottom))]">
           <div className="mx-auto max-w-2xl space-y-2">
             {loading ? (

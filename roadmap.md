@@ -1,4 +1,7 @@
 
+## Présentation Premium
+- [ ] Afficher deux cartes Personnel/Famille avec détails et tarifs, remplacer le comparatif par une liste légère et vérifier les deux parcours
+
 ## Premium Famille
 - [x] Réserver l’entrée Ma famille au payeur Famille ; invitations e-mail liées à l’adresse vérifiée, reprise après inscription/confirmation/profil ; 12 tests et scénario transactionnel annulé réussis, envoi interdit au non-payeur vérifié
 - [ ] Confirmer réception de l’e-mail et inscription complète d’un invité après un vrai achat Famille : aucun achat Famille disponible pour vérifier ce parcours complet, aucun abonnement fictif conservé
