@@ -1,4 +1,8 @@
 
+## Correction des captures déjà enregistrées
+- [ ] Ajouter une demande de correction depuis la fiche, réutiliser la photo en modération et décompter une analyse sans double envoi.
+- [ ] Vérifier les droits, le quota et la correction sans nouveau gain d’XP.
+
 ## Illustrations des collections
 - [x] Étendre le choix d’une photo personnelle aux groupes, catégories et territoires ; six tests réussis, sauvegarde et rechargement vérifiés connecté, choix temporaire retiré.
 - [x] Ajouter 16 photos immersives propres aux groupes répétitifs ; 16 images distinctes chargées et compilation réussie, navigation inchangée.
