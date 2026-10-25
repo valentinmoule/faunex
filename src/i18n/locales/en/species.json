@@ -46,6 +46,11 @@
       "error": "The report couldn't be sent.",
       "dialogTitle": "Report an incorrect species page",
       "dialogDescription": "Tell us the correct species name and our team will review this page.",
+      "dialogDescriptionMissing": "Explain why this entry doesn't match any real species and our team will review it.",
+      "typeLabel": "Reason",
+      "typeWrongSpecies": "Wrong species",
+      "typeDoesNotExist": "This species doesn't exist",
+      "missingNotePlaceholder": "e.g. This name doesn't match any known species",
       "send": "Send report"
     }
   }

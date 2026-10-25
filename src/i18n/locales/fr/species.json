@@ -46,6 +46,11 @@
       "error": "Le signalement n'a pas pu être envoyé.",
       "dialogTitle": "Signaler une fiche erronée",
       "dialogDescription": "Indique le nom de l’espèce correcte : notre équipe vérifiera la fiche.",
+      "dialogDescriptionMissing": "Explique pourquoi cette fiche ne correspond à aucune espèce réelle : notre équipe vérifiera.",
+      "typeLabel": "Motif",
+      "typeWrongSpecies": "Espèce incorrecte",
+      "typeDoesNotExist": "Cette espèce n’existe pas",
+      "missingNotePlaceholder": "Ex. Ce nom ne correspond à aucune espèce connue",
       "send": "Envoyer le signalement"
     }
   }
