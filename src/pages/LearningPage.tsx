@@ -4,12 +4,14 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Check, Lock, Sprout, Loader2, Star, Play, RotateCcw, Target } from 'lucide-react';
-import SeedIcon from '@/components/SeedIcon';
+import CurrencyBalance from '@/components/CurrencyBalance';
+import CaptureQuotaBadge from '@/components/CaptureQuotaBadge';
 import { PageHeader } from '@/components/PageHeader';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/contexts/AuthContext';
-import { useWallet, walletKey } from '@/hooks/useWallet';
+import { walletKey } from '@/hooks/useWallet';
+import { useSubscription } from '@/hooks/useSubscription';
 import { learningStatus, startLesson, learningText, type LearningAttempt } from '@/lib/learning';
 import LearningPlayer from '@/components/LearningPlayer';
 import sideForest from '@/assets/learning/side-forest.webp';
@@ -20,7 +22,7 @@ import sideMountain from '@/assets/learning/side-mountain.webp';
 const chapterWorlds = [sideGarden, sideForest, sidePond, sideMountain];
 
 export default function LearningPage() {
-  const { t, i18n } = useTranslation(); const navigate = useNavigate(); const { session } = useAuth(); const client = useQueryClient(); const wallet = useWallet();
+  const { t, i18n } = useTranslation(); const navigate = useNavigate(); const { session } = useAuth(); const client = useQueryClient(); const { isPremium, loading: premiumLoading } = useSubscription(session?.user?.id);
   const status = useQuery({ queryKey: ['learning', session?.user.id], queryFn: learningStatus, staleTime: 0, refetchOnWindowFocus: true, refetchInterval: 60_000 });
   const [pathId, setPathId] = useState(() => session?.user.id ? localStorage.getItem(`learning-path:${session.user.id}`) ?? '' : '');
   const [attempt, setAttempt] = useState<LearningAttempt | null>(null); const [busy, setBusy] = useState(false); const [error, setError] = useState('');
@@ -58,7 +60,7 @@ export default function LearningPage() {
   function refresh() { void client.invalidateQueries({ queryKey: ['learning', session?.user.id] }); void client.invalidateQueries({ queryKey: walletKey(session?.user.id) }); }
   if (attempt) return <LearningPlayer key={attempt.id} initial={attempt} onClose={() => { setAttempt(null); refresh(); }} onFinished={refresh} onRetry={() => { const id = attempt.lesson.id; setAttempt(null); void open(id); }} />;
   return <main className="learning-world min-h-screen bg-background pb-[50svh]">
-    <PageHeader sticky className="border-b border-border bg-background px-5 py-4"><div className="mx-auto flex max-w-lg items-center gap-3"><Button variant="ghost" size="icon" onClick={() => navigate('/home')} aria-label={t('common.back')}><ArrowLeft className="h-5 w-5" /></Button><h1 className="font-display text-2xl font-bold">{t('learning.title')}</h1><Button variant="ghost" className="ml-auto gap-2 text-primary" onClick={() => navigate('/eclats')} aria-label={t('economy.balance', { amount: wallet.data?.balance ?? 0 })}><SeedIcon className="h-5 w-5" />{wallet.isPending ? '—' : wallet.data?.balance.toLocaleString(i18n.language) ?? 0}</Button></div></PageHeader>
+    <PageHeader sticky className="border-b border-border bg-background px-4 py-4"><div className="mx-auto flex max-w-lg items-center gap-3"><Button variant="ghost" size="icon" onClick={() => navigate('/home')} aria-label={t('common.back')}><ArrowLeft className="h-5 w-5" /></Button><h1 className="min-w-0 truncate font-display text-2xl font-bold">{t('learning.title')}</h1><div className="ml-auto flex items-center gap-1.5"><CurrencyBalance /><CaptureQuotaBadge userId={session?.user?.id} isPremium={isPremium} premiumLoading={premiumLoading} /></div></div></PageHeader>
     <div className="mx-auto max-w-lg px-4 pt-4">
       {status.isPending && <Loader2 className="mx-auto h-6 w-6 animate-spin text-primary" />}
       {status.isError && <><p role="alert" className="text-destructive">{t('learning.error')}</p><Button variant="ghost" onClick={() => void status.refetch()}>{t('learning.retry')}</Button></>}
