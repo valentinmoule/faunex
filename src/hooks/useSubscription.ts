@@ -24,8 +24,10 @@ function computeActive(sub: SubscriptionRow | null): boolean {
 /** Cache mémoire partagé : évite un état "chargement" à chaque montage
  *  (plusieurs composants utilisent ce hook sur une même page). */
 const subCache = new Map<string, SubscriptionRow | null>();
+const bonusCache = new Map<string, boolean>();
 
 export function useSubscription(userId?: string) {
+  const [bonusActive, setBonusActive] = useState(() => userId ? bonusCache.get(userId) ?? false : false);
   const [subscription, setSubscription] = useState<SubscriptionRow | null>(
     () => (userId && subCache.has(userId) ? subCache.get(userId) ?? null : null),
   );
@@ -34,6 +36,7 @@ export function useSubscription(userId?: string) {
   const fetchSubscription = useCallback(async () => {
     if (!userId) {
       setSubscription(null);
+      setBonusActive(false);
       setLoading(false);
       return;
     }
@@ -52,6 +55,12 @@ export function useSubscription(userId?: string) {
 
     subCache.set(userId, (data as SubscriptionRow | null) ?? null);
     setSubscription((data as SubscriptionRow | null) ?? null);
+    const { data: rewards } = await supabase.from('referral_rewards').select('starts_at, ends_at')
+      .eq('user_id', userId).eq('environment', getPaddleEnvironment())
+      .lte('starts_at', new Date().toISOString()).gt('ends_at', new Date().toISOString());
+    const activeBonus = Boolean(rewards?.length);
+    bonusCache.set(userId, activeBonus);
+    setBonusActive(activeBonus);
     setLoading(false);
   }, [userId]);
 
@@ -80,7 +89,7 @@ export function useSubscription(userId?: string) {
 
   return {
     subscription,
-    isPremium: computeActive(subscription),
+    isPremium: computeActive(subscription) || bonusActive,
     loading,
     refresh: fetchSubscription,
   };
