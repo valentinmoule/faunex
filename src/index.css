@@ -25,6 +25,10 @@
 .learning-callout { background: hsl(var(--card)); color: hsl(var(--foreground)); border: 2px solid hsl(var(--amber)); border-radius: 10px; box-shadow: 0 3px 0 hsl(var(--amber-dark) / .2); }
 .learning-callout::after { content: ''; position: absolute; bottom: -8px; left: calc(50% - 6px); border-width: 6px 6px 0; border-style: solid; border-color: hsl(var(--amber)) transparent transparent; }
 .learning-stop-title { line-height: 1.4; text-shadow: 0 2px 0 hsl(var(--learning-ground)); }
+.learning-side { position: absolute; top: 0; bottom: 0; width: 64px; z-index: 1; pointer-events: none; background-repeat: repeat-y; background-size: 64px auto; filter: drop-shadow(0 6px 3px hsl(var(--learning-shadow) / .1)); }
+.learning-side-left { left: -16px; background-position: left top; }
+.learning-side-right { right: -16px; background-position: left 380px; transform: scaleX(-1); }
+@media (max-width: 350px) { .learning-side { width: 48px; background-size: 48px auto; } }
 .learning-scenery { position: absolute; top: 4px; width: 126px; height: 130px; pointer-events: none; }
 .learning-scenery-left { left: 0; }
 .learning-scenery-right { right: 0; }
