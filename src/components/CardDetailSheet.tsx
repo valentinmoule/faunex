@@ -897,6 +897,23 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                     <Share2 className="w-6 h-6 text-muted-foreground transition-colors group-hover:text-primary" />
                   </button>
                 )}
+                {onUseCollectionCover && isOwner && card.image && (
+                  <button
+                    onClick={async () => {
+                      if (savingCover) return;
+                      hapticTap();
+                      setSavingCover(true);
+                      try { await onUseCollectionCover(); }
+                      finally { setSavingCover(false); }
+                    }}
+                    disabled={savingCover}
+                    aria-label={t('bestiary.customCollections.useAsCover')}
+                    title={t('bestiary.customCollections.useAsCover')}
+                    className="relative flex items-center py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
+                  >
+                    <ImagePlus className={`w-6 h-6 transition-colors ${savingCover ? 'text-primary/50' : 'text-muted-foreground group-hover:text-primary'}`} />
+                  </button>
+                )}
                 {isOwner && (
                   <button
                     onClick={() => { hapticTap(); setConfirmDelete(true); }}
@@ -908,26 +925,6 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                   </button>
                 )}
                 </div>
-              </div>
-            )}
-
-
-            {onUseCollectionCover && isOwner && card.image && !isUncaptured && (
-              <div className="flex justify-center">
-                <Button
-                  variant="ghost"
-                  disabled={savingCover}
-                  onClick={async () => {
-                    if (savingCover) return;
-                    hapticTap();
-                    setSavingCover(true);
-                    try { await onUseCollectionCover(); }
-                    finally { setSavingCover(false); }
-                  }}
-                >
-                  <ImagePlus aria-hidden="true" />
-                  {t('bestiary.customCollections.useAsCover')}
-                </Button>
               </div>
             )}
 
