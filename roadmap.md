@@ -1,6 +1,6 @@
 
 ## Analyse du compte de démonstration
-- [ ] Activer la première passe Flash performante pour le compte demandé uniquement, tester et déployer
+- [x] Première passe Gemini 3.8 Flash activée pour le compte demandé, autres comptes et quotas inchangés ; fonction déployée, 11 tests réussis, identification connectée d’un Harfang des neiges affichée en 13,6 s sans ajout à la collection
 
 ## Intégrité des descriptions d’espèces
 - [x] Corriger la capture de demoiselle du 24 octobre et son label de validation ; séparation Chrysiptera hemicyanea / Chrysiptera parasema vérifiée, photo conservée, trois tests serveur réussis et fiche ouverte dans l’application
