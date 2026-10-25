@@ -3921,11 +3921,11 @@ html.is-native-android body {
   background: linear-gradient(180deg, transparent 38%, hsl(var(--booster-ink) / .08) 56%, hsl(var(--booster-ink) / .82) 100%);
 }
 .collection-booster-volume {
-  background: linear-gradient(90deg, hsl(var(--booster-ink) / .64), transparent 5%, hsl(var(--booster-paper) / .12) 7%, transparent 11%, transparent 89%, hsl(var(--booster-ink) / .32) 94%, hsl(var(--booster-paper) / .12) 96%, hsl(var(--booster-ink) / .6));
+  background: linear-gradient(90deg, hsl(var(--booster-ink) / .38), transparent 8%, transparent 90%, hsl(var(--booster-ink) / .38));
   box-shadow: inset 0 0 0 1px hsl(var(--booster-ink) / .22);
 }
 .collection-booster-gloss {
-  background: linear-gradient(112deg, transparent 16%, hsl(var(--booster-paper) / .24) 18%, transparent 19%, transparent 27%, hsl(var(--booster-paper) / .2) 30%, transparent 33%, transparent 74%, hsl(var(--booster-paper) / .12) 78%, transparent 80%);
+  background: linear-gradient(112deg, transparent 20%, hsl(var(--booster-paper) / .04) 48%, transparent 76%);
 }
 .collection-booster-title {
   font-family: 'Fraunces', Georgia, serif;
