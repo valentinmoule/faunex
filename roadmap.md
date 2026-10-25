@@ -1,7 +1,7 @@
 
 ## Premium Famille — analyse et plan uniquement
-- [ ] Analyser les comptes, les accès Premium et les achats web/iOS/Android
-- [ ] Présenter un plan sécurisé avec limites, invitations et conservation des abonnements individuels
+- [x] Analyser les comptes, les accès Premium et les achats web/iOS/Android ; chemin mobile Paddle externe observé, aucun achat intégré trouvé dans les chemins inspectés
+- [x] Préparer le plan : quatre comptes au total, 40 €/an ou 4 €/mois, parrainage annuel et invitations sécurisées ; présentation pour validation
 - [ ] Implémenter après validation du plan et définition de l’offre : accord utilisateur requis, aucun paiement à modifier avant
 
 ## Parrainage Premium annuel
