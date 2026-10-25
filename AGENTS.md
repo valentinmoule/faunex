@@ -20,9 +20,7 @@ Use the shared partner page with audience-specific translated copy and imagery, 
 
 ## Full-screen overlays must escape animated page wrappers
 
-Wrap any `position: fixed` overlay (reward sheets, modals, lightboxes) in `createPortal`, targeting the open `[role="dialog"]` when one exists, otherwise `document.body`.
-
-**Why:** transformed page wrappers otherwise contain and misplace fixed descendants.
+Portal fixed overlays (reward sheets, modals, lightboxes) into the open `[role="dialog"]`, otherwise `document.body`, because transformed page wrappers misplace fixed descendants.
 
 ## iOS headers and card surfaces stay within their viewport
 
