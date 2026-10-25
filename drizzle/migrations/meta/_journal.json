@@ -477,6 +477,13 @@
       "when": 1792961540076,
       "tag": "0067_add_species_reports_type",
       "breakpoints": true
+    },
+    {
+      "idx": 68,
+      "version": "7",
+      "when": 1792962831193,
+      "tag": "0068_catalogue_update_snapshots",
+      "breakpoints": true
     }
   ]
 }
