@@ -947,7 +947,6 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                       }] : []),
                       ...(isOwner ? [
                         {
-                        {
                           label: t('capture.detail.deleteCapture'),
                           icon: <Trash2 className="w-5 h-5 text-destructive" />,
                           tone: 'destructive' as const,
