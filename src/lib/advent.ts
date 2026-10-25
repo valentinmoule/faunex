@@ -10,6 +10,10 @@ const enCategories = ['mammal','bird','reptile','amphibian','fish','insect','ara
 export const defaultAdventDays = (): AdventChallenge[] => proposed.map((indices, i) => ({ day: i + 1, categories: indices.map(j => ADVENT_CATEGORIES[j]), title: indices.length ? `Trouver : ${indices.map(j => ADVENT_CATEGORIES[j]).join(' ou ')}` : 'Trouver un animal de n’importe quelle catégorie', title_en: indices.length ? `Find a ${indices.map(j => enCategories[j]).join(' or ')}` : 'Find an animal of any category', xp: 50 }));
 export const adventStart = (year: number, day: number) => new Date(Date.UTC(year, 11, day, -1));
 export const canOpenAdvent = (year: number, now: Date) => now >= adventStart(year, 1);
+export const adventCountdown = (year: number, now: Date) => {
+  const ms = Math.max(0, adventStart(year, 1).getTime() - now.getTime());
+  return { days: Math.floor(ms / 86400000), hours: Math.floor(ms / 3600000) % 24, minutes: Math.floor(ms / 60000) % 60 };
+};
 export function adventState(year: number, day: number, now: Date, submissions: AdventSubmission[]): AdventState {
   const own = submissions.filter(s => s.day === day);
   if (own.some(s => s.claimed_at)) return 'claimed';
