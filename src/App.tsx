@@ -26,6 +26,8 @@ import EclatsActivity from './components/EclatsActivity';
 
 const CapturePage = lazyWithRetry(() => import("./pages/CapturePage"));
 const EclatsPage = lazyWithRetry(() => import('./pages/EclatsPage'));
+const LearningPage = lazyWithRetry(() => import('./pages/LearningPage'));
+const AdminLearningPage = lazyWithRetry(() => import('./pages/AdminLearningPage'));
 const ExplorersPage = lazyWithRetry(() => import("./pages/ExplorersPage"));
 const AuthPage = lazyWithRetry(() => import("./pages/AuthPage"));
 const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
@@ -160,8 +162,8 @@ const FirstLoginMarker = () => {
 const AppRoutes = () => {
   const location = useLocation();
   useSyncAccountLocale();
-  const isCapturePage = location.pathname === '/capture';
-  const isModerationPage = location.pathname === '/moderation' || location.pathname === '/admin/collections';
+  const isCapturePage = location.pathname === '/capture' || location.pathname === '/apprendre';
+  const isModerationPage = location.pathname === '/moderation' || location.pathname.startsWith('/admin/');
   const isPremiumPage = location.pathname === '/premium';
   const isPublicPage =
     location.pathname === '/' ||
@@ -204,6 +206,8 @@ const AppRoutes = () => {
           <Route path="/complete-profile" element={<ProtectedRoute><CompleteProfilePage /></ProtectedRoute>} />
           <Route path="/home" element={<ProtectedRoute><BestiairePage /></ProtectedRoute>} />
           <Route path="/eclats" element={<ProtectedRoute><EclatsPage /></ProtectedRoute>} />
+          <Route path="/apprendre" element={<ProtectedRoute><LearningPage /></ProtectedRoute>} />
+          <Route path="/admin/apprendre" element={<AdminRoute><AdminLearningPage /></AdminRoute>} />
           <Route path="/collection" element={<CollectionRedirect />} />
           <Route path="/capture" element={<ProtectedRoute><CapturePage /></ProtectedRoute>} />
           <Route path="/profile" element={<Navigate to="/home?profile=1" replace />} />

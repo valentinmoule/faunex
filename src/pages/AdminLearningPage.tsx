@@ -1,0 +1,54 @@
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, Plus, Trash2, Eye, Save, ArrowUp, ArrowDown } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { PageHeader } from '@/components/PageHeader';
+import LearningPlayer from '@/components/LearningPlayer';
+import type { LearningChapter, LearningLesson, LearningQuestion, LearningAttempt } from '@/lib/learning';
+import type { Json } from '@/integrations/supabase/types';
+
+type Draft = { id?: string; title: string; title_en: string; published: boolean; sort_order: number; content: { chapters: LearningChapter[] } };
+const emptyQuestion = (): LearningQuestion => ({ type: 'mcq', prompt: '', prompt_en: '', options: ['', ''], options_en: ['', ''], correct: 0, explanation: '', explanation_en: '' });
+const emptyLesson = (): LearningLesson => ({ id: crypto.randomUUID(), title: '', title_en: '', intro: '', intro_en: '', questions: Array.from({ length: 5 }, emptyQuestion) });
+export default function AdminLearningPage() {
+  const { t } = useTranslation(); const navigate = useNavigate(); const [paths, setPaths] = useState<Draft[]>([]); const [draft, setDraft] = useState<Draft | null>(null); const [preview, setPreview] = useState<LearningAttempt | null>(null); const [busy, setBusy] = useState(false); const [message, setMessage] = useState('');
+  async function load() { const { data, error } = await supabase.from('learning_paths').select('*').order('sort_order'); if (error) setMessage(t('learning.error')); else setPaths(data as unknown as Draft[]); }
+  useEffect(() => { void load(); }, []);
+  function change(fn: (value: Draft) => void) { if (!draft) return; const next = structuredClone(draft); fn(next); setDraft(next); }
+  async function save() { if (!draft) return; setBusy(true); setMessage(''); try { const values = { title: draft.title, title_en: draft.title_en, published: draft.published, sort_order: draft.sort_order, content: draft.content as unknown as Json }; const result = draft.id ? await supabase.from('learning_paths').update(values).eq('id', draft.id) : await supabase.from('learning_paths').insert(values); if (result.error) throw result.error; setDraft(null); await load(); setMessage(t('learning.saved')); } catch { setMessage(t('learning.publishError')); } finally { setBusy(false); } }
+  const field = (label: string, value: string, update: (value: string) => void, multiline = false) => <div className="space-y-2"><Label>{t(`learning.${label}`)}{multiline ? <Textarea className="mt-2 min-h-24" value={value} onChange={e => update(e.target.value)} /> : <Input className="mt-2" value={value} onChange={e => update(e.target.value)} />}</Label></div>;
+  const move = <T,>(items: T[], index: number, direction: number) => { const target = index + direction; if (target < 0 || target >= items.length) return; [items[index], items[target]] = [items[target], items[index]]; };
+  const tools = (remove: () => void, up: () => void, down: () => void) => <div className="flex gap-1"><Button variant="ghost" size="icon" aria-label={t('learning.order')} onClick={up}><ArrowUp className="h-4 w-4" /></Button><Button variant="ghost" size="icon" aria-label={t('learning.order')} onClick={down}><ArrowDown className="h-4 w-4" /></Button><Button variant="ghost" size="icon" aria-label={t('learning.remove')} onClick={remove}><Trash2 className="h-4 w-4" /></Button></div>;
+  if (preview) return <LearningPlayer key={preview.id} initial={preview} preview onClose={() => setPreview(null)} onFinished={() => {}} onRetry={() => setPreview({ ...preview, id: crypto.randomUUID(), answers: [], finished: false, result: null })} />;
+  return <main className="min-h-screen bg-background pb-12"><PageHeader sticky className="border-b border-border bg-background px-5 py-4"><div className="mx-auto flex max-w-2xl items-center gap-3"><Button variant="ghost" size="icon" onClick={() => draft ? setDraft(null) : navigate('/moderation')} aria-label={t('common.back')}><ArrowLeft className="h-5 w-5" /></Button><h1 className="font-display text-xl font-bold">{t('learning.admin')}</h1>{draft && <Button className="ml-auto" disabled={busy} onClick={() => void save()}><Save className="mr-2 h-4 w-4" />{t('learning.save')}</Button>}</div></PageHeader><div className="mx-auto max-w-2xl space-y-6 px-5 py-6">
+    {message && <p role="status" className="text-sm text-primary">{message}</p>}
+    {!draft ? <><Button onClick={() => setDraft({ title: '', title_en: '', published: false, sort_order: paths.length, content: { chapters: [] } })}><Plus className="mr-2 h-4 w-4" />{t('learning.newPath')}</Button><ul className="divide-y divide-border">{paths.map(p => <li key={p.id} className="py-4"><Button variant="ghost" className="h-auto w-full justify-between whitespace-normal text-left" onClick={() => setDraft(structuredClone(p))}><span>{p.title}</span><span className="ml-3 text-xs text-muted-foreground">{t(p.published ? 'learning.published' : 'learning.draft')}</span></Button></li>)}</ul></> : <>
+      {field('titleFr', draft.title, value => change(d => { d.title = value; }))}{field('titleEn', draft.title_en, value => change(d => { d.title_en = value; }))}
+      <Label className="flex items-center justify-between">{t('learning.published')}<Switch checked={draft.published} onCheckedChange={value => change(d => { d.published = value; })} /></Label><Label>{t('learning.order')}<Input type="number" value={draft.sort_order} onChange={e => change(d => { d.sort_order = Number(e.target.value); })} /></Label>
+      {draft.content.chapters.map((chapter, ci) => <section key={ci} className="space-y-5 border-t border-border pt-6"><div className="flex items-center justify-between"><h2 className="font-display text-lg font-bold">{t('learning.chapter', { number: ci + 1 })}</h2>{tools(() => change(d => { d.content.chapters.splice(ci, 1); }), () => change(d => move(d.content.chapters, ci, -1)), () => change(d => move(d.content.chapters, ci, 1)))}</div>
+        {field('titleFr', chapter.title, value => change(d => { d.content.chapters[ci].title = value; }))}{field('titleEn', chapter.title_en, value => change(d => { d.content.chapters[ci].title_en = value; }))}
+        {chapter.lessons.map((lesson, li) => <section key={lesson.id} className="space-y-5 border-t border-border py-5"><div className="flex flex-wrap items-center justify-between gap-2"><h3 className="font-bold">{t('learning.lesson', { number: li + 1 })}</h3>{tools(() => change(d => { d.content.chapters[ci].lessons.splice(li, 1); }), () => change(d => move(d.content.chapters[ci].lessons, li, -1)), () => change(d => move(d.content.chapters[ci].lessons, li, 1)))}<Button variant="ghost" size="icon" aria-label={t('learning.previewLesson')} onClick={() => setPreview({ id: crypto.randomUUID(), lesson: { ...lesson, questions: lesson.questions ?? [] }, answers: [], finished: false, result: null })}><Eye className="h-5 w-5" /></Button></div>
+          {(['title', 'title_en', 'intro', 'intro_en'] as const).map(key => field(key === 'title' ? 'titleFr' : key === 'title_en' ? 'titleEn' : key === 'intro' ? 'introFr' : 'introEn', lesson[key], value => change(d => { d.content.chapters[ci].lessons[li][key] = value; }), key.startsWith('intro')))}
+          <Label className="flex items-center justify-between">{t('learning.special')}<Switch checked={Boolean(lesson.special)} onCheckedChange={value => change(d => { d.content.chapters[ci].lessons[li].special = value; })} /></Label>
+          {(lesson.questions ?? []).map((q, qi) => { const edit = (fn: (question: LearningQuestion) => void) => change(d => { const question = d.content.chapters[ci].lessons[li].questions?.[qi]; if (question) fn(question); }); return <details key={qi} className="border-t border-border py-3"><summary className="cursor-pointer font-semibold">{t('learning.question', { number: qi + 1, total: lesson.questions?.length })}</summary><div className="mt-5 space-y-4">{tools(() => change(d => { d.content.chapters[ci].lessons[li].questions?.splice(qi, 1); }), () => change(d => move(d.content.chapters[ci].lessons[li].questions ?? [], qi, -1)), () => change(d => move(d.content.chapters[ci].lessons[li].questions ?? [], qi, 1)))}
+            <Label>{t('learning.type')}<select className="mt-2 h-10 w-full rounded-md border border-input bg-background px-3" value={q.type} onChange={e => edit(v => { v.type = e.target.value as LearningQuestion['type']; if (v.type === 'boolean') { v.options = [t('learning.true', { lng: 'fr' }), t('learning.false', { lng: 'fr' })]; v.options_en = ['True', 'False']; v.correct = 0; } })}>{(['mcq', 'boolean', 'visual'] as const).map(type => <option key={type} value={type}>{t(`learning.${type}`)}</option>)}</select></Label>
+            {field('promptFr', q.prompt, value => edit(v => { v.prompt = value; }))}{field('promptEn', q.prompt_en, value => edit(v => { v.prompt_en = value; }))}
+            {field('optionsFr', q.options.join('\n'), value => edit(v => { v.options = value.split('\n'); }), true)}{field('optionsEn', q.options_en.join('\n'), value => edit(v => { v.options_en = value.split('\n'); }), true)}
+            <Label>{t('learning.rightAnswer')}<select className="mt-2 h-10 w-full rounded-md border border-input bg-background px-3" value={q.correct ?? 0} onChange={e => edit(v => { v.correct = Number(e.target.value); })}>{q.options.map((option, i) => <option key={i} value={i}>{i + 1}. {option}</option>)}</select></Label>
+            {field('explanationFr', q.explanation ?? '', value => edit(v => { v.explanation = value; }), true)}{field('explanationEn', q.explanation_en ?? '', value => edit(v => { v.explanation_en = value; }), true)}
+            {q.type === 'visual' && <>{field('photo', q.image ?? '', value => edit(v => { v.image = value; }))}{field('credit', q.credit ?? '', value => edit(v => { v.credit = value; }))}</>}
+          </div></details>; })}
+          <Button variant="ghost" onClick={() => change(d => { d.content.chapters[ci].lessons[li].questions?.push(emptyQuestion()); })}><Plus className="mr-2 h-4 w-4" />{t('learning.addQuestion')}</Button>
+        </section>)}
+        <Button variant="outline" onClick={() => change(d => { d.content.chapters[ci].lessons.push(emptyLesson()); })}><Plus className="mr-2 h-4 w-4" />{t('learning.addLesson')}</Button>
+      </section>)}
+      <Button variant="outline" onClick={() => change(d => { d.content.chapters.push({ title: '', title_en: '', lessons: [] }); })}><Plus className="mr-2 h-4 w-4" />{t('learning.addChapter')}</Button>
+    </>}
+  </div></main>;
+}
