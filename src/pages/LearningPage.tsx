@@ -11,9 +11,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useWallet, walletKey } from '@/hooks/useWallet';
 import { learningStatus, startLesson, learningText, type LearningAttempt } from '@/lib/learning';
 import LearningPlayer from '@/components/LearningPlayer';
-import pathMark from '@/assets/learning/path-mark.png';
-import forestDetail from '@/assets/learning/forest-detail.png';
-import pondMark from '@/assets/learning/pond-mark.png';
+import sideForest from '@/assets/learning/side-forest.webp';
+import sideGarden from '@/assets/learning/side-garden.webp';
+import sidePond from '@/assets/learning/side-pond.webp';
+import sideMountain from '@/assets/learning/side-mountain.webp';
+
+const chapterWorlds = [sideGarden, sideForest, sidePond, sideMountain];
 
 export default function LearningPage() {
   const { t, i18n } = useTranslation(); const navigate = useNavigate(); const { session } = useAuth(); const client = useQueryClient(); const wallet = useWallet();
@@ -49,16 +52,11 @@ export default function LearningPage() {
         {quota && <section className="border-y border-border py-5"><h2 className="font-display text-lg font-bold">{t('learning.quota')}</h2><p className="mt-2 text-sm text-muted-foreground">{t('learning.quotaMessage', { time: new Date(data.reset_at).toLocaleTimeString(i18n.language, { hour: '2-digit', minute: '2-digit' }) })}</p>{data.limit === 3 && <Button variant="ghost" className="mt-2 px-0 text-primary" onClick={() => navigate('/premium')}>{t('learning.premium')}</Button>}</section>}
         {path.chapters.map((chapter, ci) => ({ chapter, ci })).reverse().map(({ chapter, ci }) => <section key={ci} className={`learning-chapter ${ci % 2 ? 'learning-chapter-sky' : ''}`}>
           <div className="learning-chapter-heading flex items-center gap-3 px-4 py-4"><div className="learning-chapter-emblem flex h-11 w-11 shrink-0 items-center justify-center font-display text-xl font-extrabold">{ci + 1}</div><div className="min-w-0"><p className="text-xs font-bold uppercase opacity-80">{t('learning.chapter', { number: ci + 1 })}</p><h2 className="mt-1 font-display text-base font-bold">{text(chapter, 'title')}</h2></div><span className="ml-auto shrink-0 text-sm font-extrabold">{chapter.lessons.filter(l => completed.has(l.id)).length}/{chapter.lessons.length}</span></div>
-          <div className="learning-board relative mx-auto max-w-sm pb-8 pt-14">{[...chapter.lessons].reverse().map((lesson, li) => {
+          <div className="relative"><div aria-hidden="true" className="learning-world learning-world-left" style={{ backgroundImage: `url(${chapterWorlds[ci % chapterWorlds.length]})` }} /><div aria-hidden="true" className="learning-world learning-world-right" style={{ backgroundImage: `url(${chapterWorlds[ci % chapterWorlds.length]})` }} /><div className="learning-board relative mx-auto max-w-sm pb-8 pt-14">{[...chapter.lessons].reverse().map((lesson, li) => {
             const position = lessons.findIndex(item => item.id === lesson.id); const done = completed.has(lesson.id); const active = current?.id === lesson.id; const locked = !done && !active;
             const offset = li % 2 ? 'translate-x-14' : '-translate-x-14';
             return <div key={lesson.id} ref={lesson.id === arrivalId ? currentNode : undefined} className="learning-stop relative flex h-56 flex-col items-center">
               {li < chapter.lessons.length - 1 && <svg aria-hidden="true" viewBox="0 0 300 224" preserveAspectRatio="none" className={`learning-trail pointer-events-none absolute left-1/2 top-12 h-56 w-full -translate-x-1/2 ${li % 2 ? '-scale-x-100' : ''}`}><path d="M 94 0 C 94 100, 206 100, 206 224" /></svg>}
-              <div aria-hidden="true" className={`learning-scenery ${li % 2 ? 'learning-scenery-left' : 'learning-scenery-right'}`}>
-                {active
-                  ? <img src={pathMark} width={1024} height={1024} alt="" loading="eager" className="learning-scenery-hero" />
-                  : <img src={position % 2 ? forestDetail : pondMark} width={1024} height={1024} alt="" loading="lazy" className="learning-forest-detail" />}
-              </div>
               <div className={`relative z-10 flex w-40 flex-col items-center ${offset}`}>
                 {active && !quota && <span className="learning-callout absolute -top-9 whitespace-nowrap px-3 py-1.5 text-xs font-extrabold">{t('learning.current')}</span>}
                 <Button variant="ghost" size="icon" disabled={busy || locked || (active && quota)} aria-label={`${text(lesson, 'title')} · ${t(done ? 'learning.done' : locked ? 'learning.locked' : 'learning.current')}`} onClick={() => void open(lesson.id)} className={`learning-node h-24 w-24 ${done ? 'learning-node-done' : active ? 'learning-node-active' : 'learning-node-locked'}`}>
@@ -68,7 +66,7 @@ export default function LearningPage() {
                 {done && <span className="mt-1 text-xs font-bold text-primary">{t('learning.done')}</span>}
               </div>
             </div>;
-          })}</div>
+          })}</div></div>
         </section>)}
       </>}
       {!status.isPending && !status.isError && !path && <div className="py-20 text-center"><Sprout className="mx-auto mb-5 h-16 w-16 text-primary" /><p className="text-muted-foreground">{t('learning.empty')}</p></div>}
