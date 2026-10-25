@@ -15,6 +15,8 @@ interface OverflowMenuProps {
   items: OverflowMenuItem[];
   align?: 'start' | 'center' | 'end';
   triggerClassName?: string;
+  /** Classes de l’icône du déclencheur (taille/couleur selon l’endroit d’usage). */
+  iconClassName?: string;
 }
 
 /**
