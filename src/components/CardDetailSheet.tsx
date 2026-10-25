@@ -1033,7 +1033,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
               </div>
 
             ) : !feedView ? (
-              <p className="text-sm text-foreground/80 leading-relaxed text-center max-w-sm mx-auto">{facts.description}</p>
+              <p className="text-sm text-foreground/80 leading-relaxed text-left">{facts.description}</p>
             ) : null}
 
             {/* Infos — liste épurée façon iOS */}
