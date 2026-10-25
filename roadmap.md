@@ -6,7 +6,8 @@
 - [x] Ajouter les tarifs web 40 €/an et 4 €/mois en test ; activation après paiement relu et vérifié, droits familiaux serveur, parrainage annuel
 - [x] Vérifier 14 tests, scénario transactionnel annulé et parcours connecté : tarifs visibles, deuxième abonnement refusé, invitation invalide refusée, aucun débordement horizontal
 - [ ] Tester un paiement Famille complet, renouvellement, remboursement et parrainage prolongé : achat de test et scénarios de facturation non exécutés ; aucun abonnement familial fictif conservé
-- [ ] Configurer les achats Famille iOS/Android et leur validation serveur : produits et accès Apple/Google requis ; achats Famille désactivés dans les apps natives en attendant
+- [x] Conserver Paddle sur iOS/Android comme Solo, selon la demande utilisateur ; ouvrir Famille dans le navigateur externe avec intention de paiement vérifiée, sans achats Apple/Google
+- [ ] Confirmer le parcours Paddle Famille sur téléphone après synchronisation/reconstruction : appareils natifs indisponibles ici ; validation des stores non garantie
 
 ## Parrainage Premium annuel
 - [x] Ajouter le code personnel et la saisie avant l’achat annuel, avec validation pour les nouveaux clients

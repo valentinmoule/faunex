@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Users, Copy, UserMinus, Link, X, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -22,6 +22,17 @@ export default function FamilyPage() {
   const [busy,setBusy]=useState(false); const [failed,setFailed]=useState(false); const [link,setLink]=useState('');
   const [remove,setRemove]=useState<string|null>(null); const [code,setCode]=useState('');
   const {openCheckout}=usePaddleCheckout(); const {refresh}=useSubscription(user?.id);
+  const [params,setParams]=useSearchParams(); const autoOpened=useRef(false);
+  useEffect(()=>{
+    if(IS_NATIVE_APP || params.get('checkout')!=='auto' || autoOpened.current || !user)return;
+    autoOpened.current=true;
+    const plan=params.get('plan')==='monthly'?'monthly':'yearly';
+    const familyIntentId=params.get('familyIntent');
+    const uid=params.get('uid'); const referralId=params.get('referral');
+    setParams({}, {replace:true});
+    if(!familyIntentId || uid!==user.id){toast.error(t('family.error'));return;}
+    void openCheckout({priceId:plan==='yearly'?'faunex_premium_family_yearly':'faunex_premium_family_monthly',plan,customerEmail:user.email,customData:{userId:user.id,familyIntentId,...(plan==='yearly'&&referralId?{referralId}:{})},successUrl:`${window.location.origin}/family?checkout=success`}).catch(()=>toast.error(t('family.error')));
+  },[params,user,setParams,openCheckout,t]);
   const error=(message?:string)=>toast.error(t(`family.errors.${message}`,{defaultValue:t('family.error')}));
   const load=async()=>{setLoading(true); const {data,error:e}=await supabase.rpc('my_family');setFailed(Boolean(e));if(!e)setFamily(readFamily(data));setLoading(false);};
   useEffect(()=>{void load();const listener=()=>void load();window.addEventListener('focus',listener);return()=>window.removeEventListener('focus',listener);},[]);
@@ -29,7 +40,7 @@ export default function FamilyPage() {
   const invite=()=>action(async()=>{const {data,error:e}=await supabase.rpc('create_family_invitation');if(e)throw e;setLink(`https://faunex.fr/family/invite#${data}`);});
   const copy=async()=>{try{await navigator.clipboard.writeText(link);toast.success(t('family.copied'));}catch{error();}};
   const subscribe=(plan:'monthly'|'yearly')=>action(async()=>{
-    if(!user || IS_NATIVE_APP)return;
+    if(!user)return;
     let referralId:string|undefined;
     if(plan==='yearly'&&code.trim()){const {data,error:e}=await supabase.rpc('reserve_referral',{p_code:code,p_env:getPaddleEnvironment()});if(e)throw e;referralId=data;}
     const {data,error:e}=await supabase.functions.invoke('family-checkout',{body:{plan,environment:getPaddleEnvironment()}});
@@ -38,7 +49,7 @@ export default function FamilyPage() {
       const detail=response instanceof Response ? await response.json().catch(()=>null) : null;
       throw new Error(detail?.error ?? data?.error ?? 'error');
     }
-    await openCheckout({priceId:data.priceId,customerEmail:user.email,customData:{userId:user.id,familyIntentId:data.intentId,...(referralId?{referralId}:{})},successUrl:`${window.location.origin}/family?checkout=success`});
+    await openCheckout({priceId:data.priceId,plan,customerEmail:user.email,customData:{userId:user.id,familyIntentId:data.intentId,...(referralId?{referralId}:{})},successUrl:`${window.location.origin}/family?checkout=success`});
   });
   const owner=family?.owner_id===user?.id;
   return <div className="min-h-screen bg-background pb-28">
@@ -47,7 +58,7 @@ export default function FamilyPage() {
     <main className="max-w-lg mx-auto px-5 pt-6 space-y-6">
       {loading?<Loader2 className="size-6 animate-spin text-primary"/>:failed?<Button variant="outline" onClick={()=>void load()}>{t('family.retry')}</Button>:!family?<>
         <Users className="size-8 text-primary"/><h2 className="text-2xl font-display font-bold">{t('family.offer')}</h2><p className="text-muted-foreground">{t('family.intro')}</p><p className="text-sm text-muted-foreground">{t('family.empty')}</p>
-        {IS_NATIVE_APP?<p className="text-sm text-muted-foreground">{t('family.nativeUnavailable')}</p>:<><Input value={code} onChange={e=>setCode(e.target.value)} aria-label={t('family.referral')} placeholder={t('family.referral')}/><div className="divide-y divide-border">{(['yearly','monthly'] as const).map(plan=><div key={plan} className="flex items-center justify-between gap-3 py-4"><span className="font-semibold">{t(`family.${plan}`)}</span><Button disabled={busy} onClick={()=>void subscribe(plan)}>{busy?<Loader2 className="size-4 animate-spin"/>:t('family.subscribe')}</Button></div>)}</div></>}
+        <Input value={code} onChange={e=>setCode(e.target.value)} aria-label={t('family.referral')} placeholder={t('family.referral')}/><div className="divide-y divide-border">{(['yearly','monthly'] as const).map(plan=><div key={plan} className="flex items-center justify-between gap-3 py-4"><span className="font-semibold">{t(`family.${plan}`)}</span><Button disabled={busy} onClick={()=>void subscribe(plan)}>{busy?<Loader2 className="size-4 animate-spin"/>:t('family.subscribe')}</Button></div>)}</div>
       </>:<>
         <div className="flex items-center gap-2"><Users className="size-5 text-primary"/><span className={family.active?'text-primary font-semibold':'text-muted-foreground'}>{t(family.active?'family.active':'family.expired')}</span></div>
         <h2 className="font-display font-semibold">{t('family.members',{count:family.members.length})}</h2>
