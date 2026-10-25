@@ -234,7 +234,6 @@ export const useAnimalIdentification = () => {
       //    → aucun réseau, aucun appel IA.
       const local = getLocalOutcome(imageHash);
       if (local && local.status !== 'identified') {
-        if (local.status === 'identified') hapticSuccess();
         return local;
       }
 
