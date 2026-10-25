@@ -44,7 +44,8 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
       const styles = getComputedStyle(el);
       const available =
         el.clientHeight - parseFloat(styles.paddingTop) - parseFloat(styles.paddingBottom);
-      const w = Math.max(180, Math.min(available * 0.56, 320, window.innerWidth * 0.78));
+      // Garder une portion lisible des voisins, même après leur réduction.
+      const w = Math.min(available * 0.56, 320, el.clientWidth * 0.68);
       el.parentElement?.style.setProperty('--booster-w', `${Math.round(w)}px`);
       update();
     };
