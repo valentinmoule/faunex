@@ -1,5 +1,5 @@
-import { act, beforeEach, renderHook, waitFor } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { usePinnedProfileCollections } from '@/hooks/usePinnedProfileCollections';
 
 const state = vi.hoisted(() => ({
