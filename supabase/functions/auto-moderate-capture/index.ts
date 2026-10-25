@@ -1,5 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { logDatasetEvent } from '../_shared/dataset.ts'
+import { attestModeratedCapture } from '../_shared/economyProof.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -509,6 +510,10 @@ async function examine(
   if (verdict.subject_bbox) update.subject_bbox = verdict.subject_bbox
 
   const { error: updErr } = await supabase.from('captures').update(update).eq('id', capture.id)
+  if (!updErr) {
+    try { await attestModeratedCapture(supabase, capture.id, 'auto_moderation') }
+    catch (error) { console.error('Economy moderation proof pending', String(error)) }
+  }
   if (updErr) {
     console.error('auto-approve update failed', updErr)
     // La capture reste 'pending_review' (modération manuelle) et redevient

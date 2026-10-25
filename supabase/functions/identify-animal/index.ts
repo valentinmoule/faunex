@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { identificationAccountPolicy } from "./accountPolicy.ts";
+import { imageBytes, imageDigest, issueAiProof } from '../_shared/economyProof.ts';
 
 
 const corsHeaders = {
@@ -314,7 +315,8 @@ serve(async (req) => {
      * « sonde » (hash seul, sans upload) et pour l'analyse réelle, ce qui permet
      * de savoir qu'une photo est déjà identifiée SANS téléverser l'image.
      */
-    const imageHash = providedHash ??
+    const verifiedHash = imageUrl ? await imageDigest(imageBytes(imageUrl)) : null;
+    const imageHash = verifiedHash ?? providedHash ??
       await sha256Hex((imageUrl.split(",")[1] ?? imageUrl).slice(0, 2_000_000));
     /** Un verdict « ce n'est pas une vraie photo » est déterministe : on le garde longtemps. */
     const NEGATIVE_TTL_MS = 2 * 60 * 60 * 1000;
@@ -335,7 +337,7 @@ serve(async (req) => {
           console.error("identify cache write failed", e);
         }
       }
-      return jsonResponse(body);
+      return jsonResponse(cacheDb && verifiedHash ? await issueAiProof(cacheDb, authenticated.user.id, body, verifiedHash) : body);
     };
 
     if (cacheDb) {
@@ -378,7 +380,8 @@ serve(async (req) => {
             }).then(({ error }: { error: unknown }) => {
               if (error) console.error("cache hit log failed", error);
             });
-            return jsonResponse({ ...body, cached: true });
+            const result = { ...body, cached: true };
+            return jsonResponse(verifiedHash ? await issueAiProof(cacheDb, authenticated.user.id, result, verifiedHash) : result);
           }
         }
       } catch (e) {

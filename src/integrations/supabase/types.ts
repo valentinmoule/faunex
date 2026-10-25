@@ -368,6 +368,51 @@ export type Database = {
           },
         ]
       }
+      capture_validations: {
+        Row: {
+          animal_name: string
+          capture_id: string | null
+          consumed_at: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          image_hash: string
+          image_url: string | null
+          revoked_at: string | null
+          scientific_name: string | null
+          source: string
+          user_id: string
+        }
+        Insert: {
+          animal_name: string
+          capture_id?: string | null
+          consumed_at?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          image_hash: string
+          image_url?: string | null
+          revoked_at?: string | null
+          scientific_name?: string | null
+          source: string
+          user_id: string
+        }
+        Update: {
+          animal_name?: string
+          capture_id?: string | null
+          consumed_at?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          image_hash?: string
+          image_url?: string | null
+          revoked_at?: string | null
+          scientific_name?: string | null
+          source?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       captures: {
         Row: {
           animal_name: string
@@ -382,6 +427,7 @@ export type Database = {
           created_at: string
           description: string | null
           diet: string | null
+          economy_validation_id: string | null
           fun_fact: string | null
           habitat: string | null
           id: string
@@ -414,6 +460,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           diet?: string | null
+          economy_validation_id?: string | null
           fun_fact?: string | null
           habitat?: string | null
           id?: string
@@ -446,6 +493,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           diet?: string | null
+          economy_validation_id?: string | null
           fun_fact?: string | null
           habitat?: string | null
           id?: string
@@ -761,6 +809,216 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      eclats_capture_events: {
+        Row: {
+          animal_id: string | null
+          base_awarded: number
+          capture_id: string
+          created_at: string
+          discovery_awarded: number
+          image_hash: string
+          revoked_at: string | null
+          rule_version: number
+          user_id: string
+        }
+        Insert: {
+          animal_id?: string | null
+          base_awarded?: number
+          capture_id: string
+          created_at?: string
+          discovery_awarded?: number
+          image_hash: string
+          revoked_at?: string | null
+          rule_version: number
+          user_id: string
+        }
+        Update: {
+          animal_id?: string | null
+          base_awarded?: number
+          capture_id?: string
+          created_at?: string
+          discovery_awarded?: number
+          image_hash?: string
+          revoked_at?: string | null
+          rule_version?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      eclats_discoveries: {
+        Row: {
+          animal_id: string
+          bonus_awarded: boolean
+          created_at: string
+          first_capture_id: string | null
+          historical: boolean
+          user_id: string
+        }
+        Insert: {
+          animal_id: string
+          bonus_awarded?: boolean
+          created_at?: string
+          first_capture_id?: string | null
+          historical?: boolean
+          user_id: string
+        }
+        Update: {
+          animal_id?: string
+          bonus_awarded?: boolean
+          created_at?: string
+          first_capture_id?: string | null
+          historical?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
+      eclats_historical_names: {
+        Row: {
+          normalized_name: string
+          user_id: string
+        }
+        Insert: {
+          normalized_name: string
+          user_id: string
+        }
+        Update: {
+          normalized_name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      eclats_species_redirects: {
+        Row: {
+          created_at: string
+          new_animal_id: string
+          old_animal_id: string
+          reason: string
+        }
+        Insert: {
+          created_at?: string
+          new_animal_id: string
+          old_animal_id: string
+          reason: string
+        }
+        Update: {
+          created_at?: string
+          new_animal_id?: string
+          old_animal_id?: string
+          reason?: string
+        }
+        Relationships: []
+      }
+      eclats_transactions: {
+        Row: {
+          actor_id: string | null
+          amount: number
+          balance_after: number
+          balance_delta: number
+          created_at: string
+          debt_delta: number
+          id: string
+          kind: string
+          operation_key: string
+          reason: string | null
+          rule_version: number
+          source_id: string | null
+          user_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          amount: number
+          balance_after: number
+          balance_delta: number
+          created_at?: string
+          debt_delta?: number
+          id?: string
+          kind: string
+          operation_key: string
+          reason?: string | null
+          rule_version: number
+          source_id?: string | null
+          user_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          amount?: number
+          balance_after?: number
+          balance_delta?: number
+          created_at?: string
+          debt_delta?: number
+          id?: string
+          kind?: string
+          operation_key?: string
+          reason?: string | null
+          rule_version?: number
+          source_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      eclats_wallets: {
+        Row: {
+          balance: number
+          debt: number
+          earned: number
+          reversed: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          debt?: number
+          earned?: number
+          reversed?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          debt?: number
+          earned?: number
+          reversed?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      economy_settings: {
+        Row: {
+          capture_reward: number
+          chapter_reward: number
+          daily_reward: number
+          discovery_reward: number
+          enabled: boolean
+          exercise_reward: number
+          id: number
+          launch_at: string
+          version: number
+        }
+        Insert: {
+          capture_reward?: number
+          chapter_reward?: number
+          daily_reward?: number
+          discovery_reward?: number
+          enabled?: boolean
+          exercise_reward?: number
+          id?: number
+          launch_at?: string
+          version?: number
+        }
+        Update: {
+          capture_reward?: number
+          chapter_reward?: number
+          daily_reward?: number
+          discovery_reward?: number
+          enabled?: boolean
+          exercise_reward?: number
+          id?: number
+          launch_at?: string
+          version?: number
+        }
+        Relationships: []
       }
       email_send_log: {
         Row: {
@@ -2824,8 +3082,21 @@ export type Database = {
         Args: { p_job_key: string; p_lease_seconds?: number }
         Returns: string
       }
+      admin_adjust_eclats: {
+        Args: {
+          p_amount: number
+          p_operation: string
+          p_reason: string
+          p_user: string
+        }
+        Returns: Json
+      }
       admin_analytics: {
         Args: { _end: string; _excluded: string[]; _start: string }
+        Returns: Json
+      }
+      admin_revoke_capture_eclats: {
+        Args: { p_capture: string; p_reason: string }
         Returns: Json
       }
       advent_badge_progress: { Args: { p_user: string }; Returns: Json }
@@ -2850,6 +3121,15 @@ export type Database = {
         }[]
       }
       apply_hybrid_rarity: { Args: { p_limit?: number }; Returns: number }
+      bind_capture_eclats: {
+        Args: {
+          p_capture: string
+          p_proof: string
+          p_url: string
+          p_user: string
+        }
+        Returns: Json
+      }
       canonical_animal_category: {
         Args: { p_category: string; p_name?: string; p_scientific?: string }
         Returns: string
@@ -2914,6 +3194,7 @@ export type Database = {
         Args: { p_badge_id: string; p_timezone: string; p_xp_reward: number }
         Returns: boolean
       }
+      claim_daily_eclats: { Args: never; Returns: Json }
       claim_identify_cache: {
         Args: { p_hash: string; p_max_age: string }
         Returns: Json
@@ -2954,6 +3235,23 @@ export type Database = {
       }
       create_family_invitation: { Args: never; Returns: string }
       draw_weekly_quests: { Args: { p_week?: string }; Returns: number }
+      eclats_animal_id: {
+        Args: { p_name: string; p_scientific: string }
+        Returns: string
+      }
+      eclats_apply: {
+        Args: {
+          p_actor?: string
+          p_amount: number
+          p_key: string
+          p_kind: string
+          p_reason?: string
+          p_source: string
+          p_user: string
+          p_version: number
+        }
+        Returns: number
+      }
       enqueue_hybrid_rarity: { Args: never; Returns: number }
       ensure_paid_family: { Args: { p_subscription: string }; Returns: string }
       ensure_weekly_quests: { Args: never; Returns: number }
@@ -3090,6 +3388,7 @@ export type Database = {
           total_players: number
         }[]
       }
+      my_eclats_wallet: { Args: never; Returns: Json }
       my_family: { Args: never; Returns: Json }
       my_league: {
         Args: never

@@ -19,11 +19,13 @@ import { useSyncAccountLocale } from "./hooks/useAppLocale";
 import { ProfileDrawerProvider } from "./components/ProfileDrawer";
 import AppErrorBoundary from "./components/AppErrorBoundary";
 import { lazyWithRetry } from "./lib/lazyWithRetry";
+import EclatsActivity from './components/EclatsActivity';
 
 
 // Lazy-loaded routes for smaller initial bundle
 
 const CapturePage = lazyWithRetry(() => import("./pages/CapturePage"));
+const EclatsPage = lazyWithRetry(() => import('./pages/EclatsPage'));
 const ExplorersPage = lazyWithRetry(() => import("./pages/ExplorersPage"));
 const AuthPage = lazyWithRetry(() => import("./pages/AuthPage"));
 const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
@@ -180,6 +182,7 @@ const AppRoutes = () => {
 
   return (
     <>
+      <EclatsActivity />
       <Suspense fallback={<LoadingScreen />}>
         <PageTransition>
         <Routes>
@@ -200,6 +203,7 @@ const AppRoutes = () => {
           <Route path="/auth/native-bridge" element={<NativeAuthBridgePage />} />
           <Route path="/complete-profile" element={<ProtectedRoute><CompleteProfilePage /></ProtectedRoute>} />
           <Route path="/home" element={<ProtectedRoute><BestiairePage /></ProtectedRoute>} />
+          <Route path="/eclats" element={<ProtectedRoute><EclatsPage /></ProtectedRoute>} />
           <Route path="/collection" element={<CollectionRedirect />} />
           <Route path="/capture" element={<ProtectedRoute><CapturePage /></ProtectedRoute>} />
           <Route path="/profile" element={<Navigate to="/home?profile=1" replace />} />

@@ -407,6 +407,20 @@
       "when": 1792948621828,
       "tag": "0057_comment_mentions",
       "breakpoints": true
+    },
+    {
+      "idx": 58,
+      "version": "7",
+      "when": 1792950510141,
+      "tag": "0058_explorer_eclats_foundation",
+      "breakpoints": true
+    },
+    {
+      "idx": 59,
+      "version": "7",
+      "when": 1792950791756,
+      "tag": "0059_atomic_eclats_validation",
+      "breakpoints": true
     }
   ]
 }
