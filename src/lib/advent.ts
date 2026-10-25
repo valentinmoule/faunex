@@ -9,6 +9,7 @@ const proposed = [[0],[1],[5],[8],[4],[0,1],[6],[1],[0],[5,6],[4,7],[],[8],[1],[
 const enCategories = ['mammal','bird','reptile','amphibian','fish','insect','arachnid','crustacean','mollusc','echinoderm','cnidarian','other invertebrate'];
 export const defaultAdventDays = (): AdventChallenge[] => proposed.map((indices, i) => ({ day: i + 1, categories: indices.map(j => ADVENT_CATEGORIES[j]), title: indices.length ? `Trouver : ${indices.map(j => ADVENT_CATEGORIES[j]).join(' ou ')}` : 'Trouver un animal de n’importe quelle catégorie', title_en: indices.length ? `Find a ${indices.map(j => enCategories[j]).join(' or ')}` : 'Find an animal of any category', xp: 50 }));
 export const adventStart = (year: number, day: number) => new Date(Date.UTC(year, 11, day, -1));
+export const canOpenAdvent = (year: number, now: Date) => now >= adventStart(year, 1);
 export function adventState(year: number, day: number, now: Date, submissions: AdventSubmission[]): AdventState {
   const own = submissions.filter(s => s.day === day);
   if (own.some(s => s.claimed_at)) return 'claimed';

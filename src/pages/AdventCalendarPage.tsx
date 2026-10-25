@@ -9,7 +9,7 @@ import { PageHeader } from '@/components/PageHeader';
 import BadgeRewardSheet from '@/components/BadgeRewardSheet';
 import BadgeMedallion from '@/components/BadgeMedallion';
 import { useAdventCalendars } from '@/hooks/useAdventCalendars';
-import { adventState } from '@/lib/advent';
+import { adventState, canOpenAdvent } from '@/lib/advent';
 import cover from '@/assets/collections/advent-2026.jpg';
 
 export default function AdventCalendarPage() {
@@ -22,6 +22,7 @@ export default function AdventCalendarPage() {
   useEffect(() => { if (!id) return; void supabase.from('user_badges').select('badge_id').eq('badge_id', `advent_${id}`).then(({ data }) => setBadgeClaimed(Boolean(data?.length))); }, [id]);
   if (!loaded) return <div className="flex min-h-screen items-center justify-center"><Loader2 className="size-6 animate-spin text-primary" /></div>;
   if (!calendar) return <main className="p-6"><Button variant="ghost" onClick={() => navigate(-1)}><ArrowLeft />{t('bestiary.common.back')}</Button><p>{t('advent.notFound')}</p></main>;
+  if (!canOpenAdvent(calendar.calendar_year, now)) return <main className="min-h-screen bg-background p-6"><Button variant="ghost" onClick={() => navigate('/bestiaire?tab=collections')}><ArrowLeft />{t('bestiary.common.back')}</Button><p className="mt-6 text-center font-display font-semibold">{t('advent.locked', { day: 1 })}</p></main>;
   const count = new Set(own.filter(s => s.approved_at).map(s => s.day)).size;
   const challenge = calendar.calendar_days.find(d => d.day === selected);
   const state = challenge ? adventState(calendar.calendar_year, challenge.day, now, own) : null;
