@@ -27,7 +27,7 @@ const subCache = new Map<string, SubscriptionRow | null>();
 const bonusCache = new Map<string, boolean>();
 
 export function useSubscription(userId?: string) {
-  const [bonusActive, setBonusActive] = useState(() => userId ? bonusCache.get(userId) ?? false : false);
+  const [bonusActive, setBonusActive] = useState(false);
   const [subscription, setSubscription] = useState<SubscriptionRow | null>(
     () => (userId && subCache.has(userId) ? subCache.get(userId) ?? null : null),
   );
@@ -58,7 +58,8 @@ export function useSubscription(userId?: string) {
     const { data: rewards } = await supabase.from('referral_rewards').select('starts_at, ends_at')
       .eq('user_id', userId).eq('environment', getPaddleEnvironment())
       .lte('starts_at', new Date().toISOString()).gt('ends_at', new Date().toISOString());
-    const activeBonus = Boolean(rewards?.length);
+    const { data: access, error: accessError } = await supabase.rpc('my_premium_access');
+    const activeBonus = !accessError && access === true;
     bonusCache.set(userId, activeBonus);
     setBonusActive(activeBonus);
     setLoading(false);
@@ -89,7 +90,7 @@ export function useSubscription(userId?: string) {
 
   return {
     subscription,
-    isPremium: computeActive(subscription) || bonusActive,
+    isPremium: !loading && bonusActive,
     loading,
     refresh: fetchSubscription,
   };

@@ -11,7 +11,7 @@ import { isPushSupported, subscribeToPush, unsubscribeFromPush, hasActivePushSub
 import { prepareSourceImage, readFileAsDataUrl, dataUrlToBytes } from '@/lib/imageProcessing';
 import { useTranslation } from 'react-i18next';
 import { useAppLocale } from '@/hooks/useAppLocale';
-import { Languages } from 'lucide-react';
+import { Languages, Users } from 'lucide-react';
 import { shareOrigin } from '@/lib/authRedirect';
 import { shareContent } from '@/lib/share';
 
@@ -241,6 +241,7 @@ const SettingsPage = () => {
           <div className="space-y-1">
 
             <MenuItem icon={<Crown className="w-5 h-5" />} label={t('settings.premium')} onClick={() => navigate('/premium')} />
+            <MenuItem icon={<Users className="w-5 h-5" />} label={t('family.title')} onClick={() => navigate('/family')} />
             <MenuItem icon={<Pencil className="w-5 h-5" />} label={t('settings.editProfile')} onClick={() => setSection('edit')} />
             <MenuItem icon={<Bell className="w-5 h-5" />} label={t('settings.notifications')} onClick={() => setSection('notifications')} />
             <MenuItem icon={<Share2 className="w-5 h-5" />} label={t('settings.shareProfile')} onClick={handleShare} />

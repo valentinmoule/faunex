@@ -6,6 +6,10 @@ Rules for working on this codebase.
 
 Reserve referrals for authenticated new customers, verify completed transactions by reading Paddle, and grant both rewards atomically once; persist absolute billing targets before delaying renewals without proration so retries cannot multiply benefits. Keep separate entitlements for accounts without an active renewal because cancellation must stay intact.
 
+## Family access derives from verified purchases
+
+Keep family membership separate from personal data and billing, include the payer in the seat limit, serialize invitations and acceptance in database functions, and authorize Premium server-side; bind family purchases to authenticated checkout intents and never treat client or sandbox status as live access. Native family sales remain unavailable until verified store purchases are configured.
+
 ## Partner landing pages share one presentation
 
 Use the shared partner page with audience-specific translated copy and imagery, keeping public partner routes gated out of native builds to avoid duplicated layouts and marketing screens in the native app.
