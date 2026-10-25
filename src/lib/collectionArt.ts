@@ -3,7 +3,7 @@
  *
  * Chaque collection (grande catégorie, groupe thématique ou territoire) reçoit
  * une illustration de biome dessinée dans un style unique et cohérent
- * (affiche naturaliste, gouache texturée) + une teinte d'accent.
+ * (illustration digitale immersive, couleurs fraîches) + une teinte d'accent.
  * L'illustration donne à chaque collection son identité visuelle propre.
  */
 import city from '@/assets/collections/city.jpg';
