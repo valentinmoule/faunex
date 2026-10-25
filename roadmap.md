@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Classification traduite et intégrée au bloc d’informations ; tailles/poids vérifiés sur le Lion, tests et affichage téléphone/ordinateur validés. Bengal : absence de mensurations propres à la race confirmée, pas de valeurs génériques de chat substituées.
+
 - [x] Fiches : classification (embranchement, classe, ordre, famille), mensurations sourcées avec moyennes/fourchettes distinctes et données inconnues explicites ; cache partagé, traductions FR/EN, 5 tests et fiche Lion vérifiée connecté sur ordinateur/téléphone.
 
 - [x] Orthoptères : comparer les 119 fiches du fichier et présenter le nettoyage complet à valider.

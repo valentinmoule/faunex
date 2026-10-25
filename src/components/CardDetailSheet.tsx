@@ -36,6 +36,7 @@ import CaptureLikesSheet from '@/components/CaptureLikesSheet';
 import CommentMentionInput from '@/components/CommentMentionInput';
 import { Button } from '@/components/ui/button';
 import SpeciesNaturalHistory from '@/components/SpeciesNaturalHistory';
+import DetailRow from '@/components/DetailRow';
 
 interface Props {
   card: AnimalCard | null;
@@ -1042,8 +1043,6 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
               <p className="text-sm text-foreground/80 leading-relaxed text-center">{facts.description}</p>
             ) : null}
 
-            {!feedView && session && <SpeciesNaturalHistory name={card.name} scientificName={card.scientificName} />}
-
             {/* Infos — liste épurée façon iOS */}
             {feedView ? null : isUncaptured ? (
               <div className="space-y-2.5">
@@ -1070,6 +1069,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                       value={t('capture.finders.people', { count: finders })}
                     />
                   )}
+                  {session && <SpeciesNaturalHistory name={card.name} scientificName={card.scientificName} />}
                 </div>
 
 
@@ -1108,6 +1108,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                 <DetailRow icon={<MapPin className="w-4 h-4" />} label={t('capture.detail.habitat')} value={facts.habitat} />
                 <DetailRow icon={<UtensilsCrossed className="w-4 h-4" />} label={t('capture.detail.diet')} value={facts.diet} />
                 <DetailRow icon={<Shield className="w-4 h-4" />} label={t('capture.detail.conservation')} value={card.conservation} />
+                {session && <SpeciesNaturalHistory name={card.name} scientificName={card.scientificName} />}
                 {captureDate && (
                   <DetailRow
                     icon={<Calendar className="w-4 h-4" />}
@@ -1497,18 +1498,5 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
 
   );
 };
-
-const DetailRow = ({ icon, label, value, action }: {
-  icon: React.ReactNode; label: string; value: React.ReactNode; action?: React.ReactNode;
-}) => (
-  <div className="flex items-start gap-3 px-4 py-3">
-    <span className="mt-0.5 text-muted-foreground">{icon}</span>
-    <div className="flex-1 min-w-0">
-      <p className="text-[10px] font-display font-bold uppercase tracking-wider text-muted-foreground">{label}</p>
-      <p className="text-sm text-foreground/85 leading-snug mt-0.5 break-words">{value}</p>
-    </div>
-    {action}
-  </div>
-);
 
 export default CardDetailSheet;
