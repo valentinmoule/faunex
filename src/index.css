@@ -3937,6 +3937,8 @@ html.is-native-android body {
   text-wrap: balance;
   overflow-wrap: anywhere;
   text-shadow: 0 2px 2px hsl(var(--booster-ink) / .7);
+  /* Couleur fixe : le survol du sachet ne doit jamais teinter le titre. */
+  color: hsl(var(--booster-paper));
 }
 .collection-booster-count {
   color: hsl(var(--booster-paper) / .85);
