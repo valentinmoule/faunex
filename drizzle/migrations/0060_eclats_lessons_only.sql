@@ -1,0 +1,5 @@
+CREATE OR REPLACE FUNCTION public.claim_daily_eclats() RETURNS jsonb LANGUAGE sql SECURITY DEFINER SET search_path=public AS $$ SELECT jsonb_build_object('awarded',false,'amount',0) $$;
+CREATE OR REPLACE FUNCTION public.reward_capture_eclats() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ BEGIN RETURN NEW; END $$;
+ALTER TABLE public.economy_settings ALTER COLUMN daily_reward SET DEFAULT 0, ALTER COLUMN capture_reward SET DEFAULT 0, ALTER COLUMN discovery_reward SET DEFAULT 0, ALTER COLUMN exercise_reward SET DEFAULT 0;
+COMMENT ON FUNCTION public.claim_daily_eclats() IS 'DEPRECATED: no activity rewards. Compatibility no-op for older clients; only completed lessons may earn Eclats.';
+COMMENT ON FUNCTION public.reward_capture_eclats() IS 'DEPRECATED: captures and discoveries never earn Eclats. Compatibility no-op keeps capture behavior unchanged.';
