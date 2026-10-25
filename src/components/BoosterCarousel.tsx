@@ -64,6 +64,25 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
     return () => ro.disconnect();
   }, [update, items.length]);
 
+  // Retour d'une collection : replacer le carrousel sur le dernier sachet centré.
+  const restoredRef = useRef(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || restoredRef.current || rememberedActive <= 0 || rememberedActive >= items.length) return;
+    restoredRef.current = true;
+    const raf = requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        const node = ref.current?.children[rememberedActive] as HTMLElement | undefined;
+        if (!ref.current || !node) return;
+        ref.current.scrollLeft = node.offsetLeft - (ref.current.clientWidth - node.offsetWidth) / 2;
+      }),
+    );
+    return () => cancelAnimationFrame(raf);
+  }, [items.length]);
+
+  // Mémorise la position au démontage (ouverture d'une collection, autre onglet…).
+  useEffect(() => () => { rememberedActive = activeRef.current; }, []);
+
   // Glisser à la souris (Chrome desktop) : le défilement natif ne répond qu'au tactile.
   const drag = useRef<{ x: number; left: number; moved: boolean } | null>(null);
   const suppressClick = useRef(false);
