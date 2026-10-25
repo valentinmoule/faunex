@@ -38,6 +38,8 @@ const ResetPasswordPage = lazyWithRetry(() => import("./pages/ResetPasswordPage"
 const NativeAuthCallbackPage = lazyWithRetry(() => import("./pages/NativeAuthCallbackPage"));
 const NativeAuthBridgePage = lazyWithRetry(() => import("./pages/NativeAuthBridgePage"));
 const PremiumPage = lazyWithRetry(() => import("./pages/PremiumPage"));
+const FamilyPage = lazyWithRetry(() => import("./pages/FamilyPage"));
+const FamilyInvitePage = lazyWithRetry(() => import("./pages/FamilyInvitePage"));
 const PricingPage = lazyWithRetry(() => import("./pages/PricingPage"));
 const RefundPolicyPage = lazyWithRetry(() => import("./pages/RefundPolicyPage"));
 const PrivacyPage = lazyWithRetry(() => import("./pages/PrivacyPage"));
@@ -98,7 +100,14 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
 const AuthRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, loading } = useAuth();
   if (loading) return null;
-  if (session) return <Navigate to="/home" replace />;
+  if (session) {
+    const invitation=sessionStorage.getItem('faunex.familyReturn');
+    if(invitation && /^[0-9a-f]{64}$/.test(invitation)) {
+      sessionStorage.removeItem('faunex.familyReturn');
+      return <Navigate to={`/family/invite#${invitation}`} replace />;
+    }
+    return <Navigate to="/home" replace />;
+  }
   return <>{children}</>;
 };
 
@@ -140,6 +149,7 @@ const AppRoutes = () => {
     location.pathname === '/' ||
     location.pathname.startsWith('/auth') ||
     location.pathname === '/reset-password' ||
+    location.pathname === '/family/invite' ||
     location.pathname === '/complete-profile' ||
     location.pathname === '/legal' ||
     location.pathname === '/confidentialite' ||
@@ -185,6 +195,8 @@ const AppRoutes = () => {
           <Route path="/moderation" element={<AdminRoute><ModerationPage /></AdminRoute>} />
           <Route path="/quests" element={<Navigate to="/home?tab=badges" replace />} />
           <Route path="/premium" element={<ProtectedRoute><PremiumPage /></ProtectedRoute>} />
+          <Route path="/family" element={<ProtectedRoute><FamilyPage /></ProtectedRoute>} />
+          <Route path="/family/invite" element={<FamilyInvitePage />} />
           <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
           <Route path="/legal" element={<LegalPage />} />
           <Route path="/confidentialite" element={<PrivacyPage />} />

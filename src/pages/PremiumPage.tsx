@@ -316,6 +316,7 @@ const PremiumPage = () => {
 
         {session?.user && <PremiumReferral userId={session.user.id} eligible={!loading && !subscription && !isPremium && plan === 'yearly'} code={referralCode} onCodeChange={setReferralCode} />}
         {bonusDays > 0 && <p className="mb-5 text-sm font-medium text-primary">{t('profile.premium.referral.bonus', { days: bonusDays })}</p>}
+        <Button variant="outline" className="w-full mb-5" onClick={()=>navigate('/family')}>{t('family.offer')}</Button>
       </main>
 
       {createPortal(

@@ -1,8 +1,12 @@
 
-## Premium Famille — analyse et plan uniquement
+## Premium Famille
 - [x] Analyser les comptes, les accès Premium et les achats web/iOS/Android ; chemin mobile Paddle externe observé, aucun achat intégré trouvé dans les chemins inspectés
 - [x] Préparer le plan : quatre comptes au total, 40 €/an ou 4 €/mois, parrainage annuel et invitations sécurisées ; présentation pour validation
-- [ ] Implémenter après validation du plan et définition de l’offre : accord utilisateur requis, aucun paiement à modifier avant
+- [x] Plan validé ; page Ma famille FR/EN, invitations à usage unique de sept jours, trois invités maximum, retrait et départ sans perte de données
+- [x] Ajouter les tarifs web 40 €/an et 4 €/mois en test ; activation après paiement relu et vérifié, droits familiaux serveur, parrainage annuel
+- [x] Vérifier 14 tests, scénario transactionnel annulé et parcours connecté : tarifs visibles, deuxième abonnement refusé, invitation invalide refusée, aucun débordement horizontal
+- [ ] Tester un paiement Famille complet, renouvellement, remboursement et parrainage prolongé : achat de test et scénarios de facturation non exécutés ; aucun abonnement familial fictif conservé
+- [ ] Configurer les achats Famille iOS/Android et leur validation serveur : produits et accès Apple/Google requis ; achats Famille désactivés dans les apps natives en attendant
 
 ## Parrainage Premium annuel
 - [x] Ajouter le code personnel et la saisie avant l’achat annuel, avec validation pour les nouveaux clients
