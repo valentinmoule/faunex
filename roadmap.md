@@ -1,7 +1,8 @@
 
 ## Identité des œdipodes
-- [ ] Vérifier les trois noms, corriger le catalogue et les fiches associées, ajouter Sphingonotus caerulans si absent
-- [ ] Examiner les captures et les risques de confusion sans réattribuer des photos non vérifiées ; tester les identités
+- [x] Corriger Œdipode germanique, sa fiche et ses 116 captures ; confirmer Œdipode turquoise et l’aigue-marine déjà présents
+- [x] Ajouter les critères diagnostiques aux analyses et à la modération, déployer les deux fonctions ; cinq contrôles serveur réussis, espèces vérifiées dans le Bestiaire connecté
+- [ ] Fusionner le doublon « Criquet à ailes jaunes » / « Œdipode turquoise » : un explorateur possède les deux photos ; choix de la photo à conserver nécessaire avant fusion
 
 ## Analyse du compte de démonstration
 - [x] Première passe Gemini 3.8 Flash activée pour le compte demandé, autres comptes et quotas inchangés ; fonction déployée, 11 tests réussis, identification connectée d’un Harfang des neiges affichée en 13,6 s sans ajout à la collection
