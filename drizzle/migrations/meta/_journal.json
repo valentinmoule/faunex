@@ -267,6 +267,13 @@
       "when": 1792927921499,
       "tag": "0037_premium_referrals",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1792928120867,
+      "tag": "0038_referral_service_rpc_grants",
+      "breakpoints": true
     }
   ]
 }
