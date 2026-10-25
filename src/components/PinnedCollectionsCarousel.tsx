@@ -116,7 +116,7 @@ export const PinnedCollectionsCarousel = ({
     captures.filter((c) =>
       key.startsWith('cat:')
         ? normalizeCategory(c.category) === key.slice(4)
-        : getSpeciesGroup(c.name, c.scientific_name, c.category)?.key === key,
+        : getSpeciesGroup(c.name, c.scientificName, c.category)?.key === key,
     );
 
   const entries = useMemo<ShowcaseEntry[]>(() => {
