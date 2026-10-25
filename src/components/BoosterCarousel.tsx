@@ -25,6 +25,7 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
       node.style.opacity = String(1 - ratio * 0.35);
       if (dist < bestDist) { bestDist = dist; best = i; }
     });
+    activeRef.current = best;
     setActive(best);
   }, []);
 
