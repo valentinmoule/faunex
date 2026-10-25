@@ -3121,6 +3121,15 @@ export type Database = {
         }[]
       }
       apply_hybrid_rarity: { Args: { p_limit?: number }; Returns: number }
+      bind_capture_eclats: {
+        Args: {
+          p_capture: string
+          p_proof: string
+          p_url: string
+          p_user: string
+        }
+        Returns: Json
+      }
       canonical_animal_category: {
         Args: { p_category: string; p_name?: string; p_scientific?: string }
         Returns: string
