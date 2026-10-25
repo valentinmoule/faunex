@@ -8,31 +8,29 @@
 .learning-world { background: hsl(var(--learning-ground)); }
 .learning-chapter { --chapter-color: var(--learning-green); --chapter-base: var(--learning-green-base); }
 .learning-chapter-sky { --chapter-color: var(--learning-sky); --chapter-base: var(--learning-sky-base); }
-.learning-chapter-heading { position: relative; z-index: 2; background: hsl(var(--chapter-color)); color: hsl(var(--primary-foreground)); border: 2px solid hsl(var(--card) / .28); border-radius: 18px 18px 6px 6px; box-shadow: 0 7px 0 hsl(var(--chapter-base)), 0 12px 0 hsl(var(--chapter-base) / .1); }
-.learning-chapter-emblem { border-radius: 50%; background: hsl(var(--card) / .18); box-shadow: inset 0 -3px 0 hsl(var(--chapter-base) / .3); }
+.learning-chapter-heading { position: relative; z-index: 2; background: hsl(var(--chapter-color)); color: hsl(var(--primary-foreground)); border: 2px solid hsl(var(--card) / .28); border-radius: 16px; box-shadow: inset 0 3px 0 hsl(var(--card) / .15), 0 6px 0 hsl(var(--chapter-base)), 0 10px 0 hsl(var(--chapter-base) / .08); }
+.learning-chapter-emblem { border: 2px solid hsl(var(--card) / .35); border-radius: 14px; background: hsl(var(--chapter-base) / .28); box-shadow: inset 0 3px 0 hsl(var(--chapter-base) / .2); }
 .learning-board { background-image: repeating-conic-gradient(from 45deg, hsl(var(--learning-ground-tile)) 0% 25%, transparent 0% 50%); background-size: 92px 92px; }
-.learning-trail path { fill: none; stroke: hsl(var(--learning-trail)); stroke-width: 22; stroke-linecap: round; stroke-dasharray: 1 31; }
+.learning-trail path { fill: none; stroke: hsl(var(--learning-trail)); stroke-width: 14; stroke-linecap: round; stroke-dasharray: 8 22; filter: drop-shadow(0 3px 0 hsl(var(--learning-shadow) / .07)); }
 .learning-node { position: relative; border: 4px solid hsl(var(--card) / .5); border-radius: 24px; transform: rotate(-12deg) skew(8deg, 8deg); transition: transform .18s, box-shadow .18s; }
-.learning-node-face { display: flex; flex-direction: column; align-items: center; gap: 3px; transform: skew(-8deg, -8deg) rotate(12deg); }
+.learning-node-face { display: flex; flex-direction: column; align-items: center; gap: 6px; transform: skew(-8deg, -8deg) rotate(12deg); }
+.learning-node-face > svg { width: 36px; height: 36px; filter: drop-shadow(0 2px 0 hsl(var(--learning-shadow) / .15)); }
 .learning-step-number { font-size: 12px; font-weight: 900; line-height: 1; }
 .learning-node-active, .learning-node-active:hover { background: hsl(var(--amber)); color: hsl(var(--primary-foreground)); box-shadow: 0 12px 0 hsl(var(--amber-dark)), 0 18px 0 hsl(var(--learning-shadow) / .12), 0 0 0 12px hsl(var(--amber) / .2); }
 .learning-node-active::after { content: ''; position: absolute; inset: -17px; border: 2px dashed hsl(var(--amber-dark) / .55); border-radius: 32px; animation: learning-beacon 2.4s ease-in-out infinite; }
 .learning-node-done, .learning-node-done:hover { background: hsl(var(--learning-green)); color: hsl(var(--primary-foreground)); box-shadow: 0 12px 0 hsl(var(--learning-green-base)), 0 18px 0 hsl(var(--learning-shadow) / .1); }
 .learning-node-locked, .learning-node-locked:hover { background: hsl(var(--learning-muted)); color: hsl(var(--muted-foreground)); box-shadow: 0 12px 0 hsl(var(--learning-muted-base)), 0 18px 0 hsl(var(--learning-shadow) / .06); }
-.learning-node-trophy { border-radius: 30px; }
 .learning-node:disabled { opacity: 1; }
 .learning-node:not(:disabled):active { transform: translateY(6px) rotate(-12deg) skew(8deg, 8deg); }
-.learning-callout { background: hsl(var(--foreground)); color: hsl(var(--card)); border-radius: 10px; box-shadow: 0 4px 0 hsl(var(--learning-shadow) / .15); }
-.learning-callout::after { content: ''; position: absolute; bottom: -6px; left: calc(50% - 6px); border-width: 6px 6px 0; border-style: solid; border-color: hsl(var(--foreground)) transparent transparent; }
+.learning-callout { background: hsl(var(--card)); color: hsl(var(--foreground)); border: 2px solid hsl(var(--amber)); border-radius: 10px; box-shadow: 0 3px 0 hsl(var(--amber-dark) / .2); }
+.learning-callout::after { content: ''; position: absolute; bottom: -8px; left: calc(50% - 6px); border-width: 6px 6px 0; border-style: solid; border-color: hsl(var(--amber)) transparent transparent; }
 .learning-stop-title { line-height: 1.4; text-shadow: 0 2px 0 hsl(var(--learning-ground)); }
 .learning-scenery { position: absolute; top: 4px; width: 126px; height: 130px; pointer-events: none; }
 .learning-scenery-left { left: 0; }
 .learning-scenery-right { right: 0; }
 .learning-fox { width: 145px; max-width: none; height: 145px; object-fit: contain; filter: drop-shadow(0 8px 3px hsl(var(--learning-shadow) / .12)); }
-.learning-prize { margin: 20px auto; color: hsl(var(--amber)); filter: drop-shadow(0 5px 0 hsl(var(--amber-dark))); }
-.learning-grass { position: absolute; left: 32px; top: 52px; width: 42px; height: 45px; border-radius: 80% 0 70% 0; background: hsl(var(--accent)); transform: rotate(-20deg); box-shadow: 14px 12px 0 -4px hsl(var(--learning-green)), -12px 10px 0 -6px hsl(var(--learning-green-base)); }
-.learning-flower { position: absolute; left: 73px; top: 42px; width: 13px; height: 13px; border-radius: 50%; background: hsl(var(--amber)); box-shadow: -9px 0 0 hsl(var(--card)), 9px 0 0 hsl(var(--card)), 0 -9px 0 hsl(var(--card)), 0 9px 0 hsl(var(--card)); }
-.learning-stone { position: absolute; left: 75px; top: 102px; width: 29px; height: 17px; border-radius: 50%; background: hsl(var(--learning-muted-base)); box-shadow: 0 4px 0 hsl(var(--learning-trail)); }
+.learning-forest-detail { width: 100px; height: 100px; margin: 30px auto 0; object-fit: contain; filter: drop-shadow(0 6px 3px hsl(var(--learning-shadow) / .1)); }
+.learning-scenery-left .learning-forest-detail { transform: scaleX(-1); }
 @keyframes learning-beacon { 50% { opacity: .45; transform: scale(1.05); } }
 @media (max-width: 350px) { .learning-scenery { width: 100px; } .learning-fox { width: 113px; height: 130px; } }
 @media (prefers-reduced-motion: reduce) { .learning-node { transition: none; } .learning-node-active::after { animation: none; } }
@@ -84,11 +82,11 @@
     --learning-green-base: 160 66% 27%;
     --learning-sky: 199 74% 45%;
     --learning-sky-base: 204 72% 32%;
-    --learning-muted: 155 15% 90%;
-    --learning-muted-base: 155 13% 79%;
+    --learning-muted: 145 12% 87%;
+    --learning-muted-base: 145 12% 72%;
     --learning-trail: 151 20% 83%;
     --learning-ground: 95 36% 96%;
-    --learning-ground-tile: 100 32% 94%;
+    --learning-ground-tile: 100 30% 95%;
     --learning-shadow: 160 30% 18%;
     --learning-button-shadow: 0 5px 0 hsl(var(--learning-green-base));
     --booster-ink: 165 44% 8%;
