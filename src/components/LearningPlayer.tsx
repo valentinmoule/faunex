@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Bean, Check, X, ArrowLeft, Sprout, Loader2 } from 'lucide-react';
+import { Check, X, ArrowLeft, Sprout, Loader2 } from 'lucide-react';
+import SeedIcon from '@/components/SeedIcon';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -44,7 +45,7 @@ export default function LearningPlayer({ initial, onClose, onFinished, onRetry, 
     <PageHeader sticky className="border-b border-border bg-background px-5 py-4"><div className="mx-auto flex max-w-lg items-center gap-3"><Button variant="ghost" size="icon" onClick={onClose} aria-label={t('common.back')}><ArrowLeft className="h-5 w-5" /></Button><h1 className="min-w-0 font-display text-lg font-bold">{preview ? t('learning.preview') : text(attempt.lesson, 'title')}</h1></div></PageHeader>
     <div className="mx-auto max-w-lg px-5 py-6">
       {attempt.finished && result ? <>
-        <div className="py-6 text-center"><Sprout className="mx-auto mb-5 h-20 w-20 text-primary" /><h2 className="font-display text-2xl font-bold">{t(result.passed ? result.reward > 0 ? 'learning.success' : 'learning.revisionSuccess' : 'learning.failure')}</h2><p className="mt-3 text-muted-foreground">{t('learning.score', result)}</p>{result.reward > 0 && <p className="mt-5 flex items-center justify-center gap-2 font-display text-xl font-bold text-primary"><Bean className="h-6 w-6" />{t('learning.reward', { amount: result.reward })}</p>}</div>
+        <div className="py-6 text-center"><Sprout className="mx-auto mb-5 h-20 w-20 text-primary" /><h2 className="font-display text-2xl font-bold">{t(result.passed ? result.reward > 0 ? 'learning.success' : 'learning.revisionSuccess' : 'learning.failure')}</h2><p className="mt-3 text-muted-foreground">{t('learning.score', result)}</p>{result.reward > 0 && <p className="mt-5 flex items-center justify-center gap-2 font-display text-xl font-bold text-primary"><SeedIcon className="h-7 w-7" glow />{t('learning.reward', { amount: result.reward })}</p>}</div>
         {!result.passed && <ul className="mb-6 divide-y divide-border">{attempt.lesson.questions.map((q, i) => attempt.answers[i] !== q.correct && <li key={i} className="py-4"><p className="font-semibold">{text(q, 'prompt')}</p><p className="mt-2 text-primary">{(english ? q.options_en : q.options)[q.correct ?? 0]}</p><p className="mt-2 text-sm text-muted-foreground">{text(q, 'explanation')}</p></li>)}</ul>}
         {!result.passed && <Button className="mb-3 w-full" onClick={onRetry}>{t('learning.retry')}</Button>}<Button variant={result.passed ? 'default' : 'ghost'} className="w-full" onClick={onClose}>{t('learning.backPath')}</Button>
       </> : intro ? <section className="py-8"><Sprout className="mb-6 h-16 w-16 text-primary" /><h2 className="font-display text-2xl font-bold">{text(attempt.lesson, 'title')}</h2><p className="mt-5 whitespace-pre-line leading-relaxed text-muted-foreground">{text(attempt.lesson, 'intro')}</p><Button className="mt-8 w-full" onClick={() => setIntro(false)}>{t('learning.start')}</Button></section> : question ? <>
