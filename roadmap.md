@@ -3,7 +3,7 @@
 - [x] Afficher deux cartes Personnel/Famille avec détails et tarifs, remplacer le comparatif par une liste légère ; page connectée, tarifs mensuels, accès Famille et absence de débordement mobile vérifiés, 16 tests réussis
 
 ## Premium Famille
-- [ ] Accorder à Valentin Premium Famille offert sans expiration, séparé des paiements, et vérifier la gestion et les invitations
+- [x] Accorder à Valentin Premium Famille offert sans expiration, séparé des paiements ; accès actif et invitation e-mail visibles connecté, tests serveur et dix tests réussis
 - [x] Réserver l’entrée Ma famille au payeur Famille ; invitations e-mail liées à l’adresse vérifiée, reprise après inscription/confirmation/profil ; 12 tests et scénario transactionnel annulé réussis, envoi interdit au non-payeur vérifié
 - [ ] Confirmer réception de l’e-mail et inscription complète d’un invité après un vrai achat Famille : aucun achat Famille disponible pour vérifier ce parcours complet, aucun abonnement fictif conservé
 - [x] Analyser les comptes, les accès Premium et les achats web/iOS/Android ; chemin mobile Paddle externe observé, aucun achat intégré trouvé dans les chemins inspectés
