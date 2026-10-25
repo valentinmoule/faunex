@@ -140,6 +140,8 @@
       "messageCaptureRejected_internet_image": " a rejeté ta soumission : les images provenant d'Internet ne sont pas acceptées. Partage uniquement tes propres photos !",
       "messageCaptureRejected_captured_animal": " a rejeté ta soumission : les animaux capturés ou pêchés par l'humain ne sont pas acceptés, même relâchés ensuite.",
       "messageCaptureRejected_human": " a rejeté ta soumission : les photos d'humains ne sont pas acceptées. Photographie des animaux sauvages !",
+      "messageCaptureCorrectionAccepted": " a accepté ta demande de correction : ta capture est maintenant « {{name}} » 🎉",
+      "messageCaptureRejected_correction_declined": " n'a pas retenu ta demande de correction : ta capture « {{name}} » reste inchangée, avec sa photo et son nom actuels.",
       "messageFriendRequest": " s'est abonné(e) à ton profil",
       "messageFriendAccepted": " a accepté ta demande d'ami",
       "messageLike": " a aimé ta capture",

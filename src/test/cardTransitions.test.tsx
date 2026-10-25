@@ -69,7 +69,9 @@ describe('Suppression de capture', () => {
     const onDeleted = vi.fn();
     const onClose = vi.fn();
     const { container, rerender } = render(<MemoryRouter><CardDetailSheet card={card} open onClose={onClose} onDeleted={onDeleted} /></MemoryRouter>);
-    fireEvent.click(await screen.findByRole('button', { name: 'capture.detail.deleteCapture' }));
+    const moreBtn = await screen.findByRole('button', { name: 'common.moreActions' });
+    fireEvent.keyDown(moreBtn, { key: 'Enter' });
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'capture.detail.deleteCapture' }));
     fireEvent.click(screen.getByRole('button', { name: 'capture.detail.deleteBtn' }));
     await waitFor(() => expect(onClose).toHaveBeenCalledOnce());
     expect(onDeleted).toHaveBeenCalledExactlyOnceWith(card.id);

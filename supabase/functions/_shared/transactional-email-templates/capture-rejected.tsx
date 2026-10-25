@@ -13,6 +13,8 @@ interface Props {
   captureUrl?: string
   /** 'duplicate' = espèce déjà présente dans le bestiaire de l'explorateur. */
   reason?: 'not_identifiable' | 'duplicate' | string
+  /** true = refus d'une demande de correction : la capture reste inchangée. */
+  correction?: boolean
   /** Espèce déjà présente dans le bestiaire, à l'origine du doublon. */
   duplicateName?: string | null
   duplicateScientific?: string | null
@@ -24,6 +26,7 @@ const CaptureRejectedEmail = ({
   animalName = 'ta capture',
   captureUrl = 'https://faunex.lovable.app',
   reason = 'not_identifiable',
+  correction = false,
   duplicateName = null,
   duplicateScientific = null,
   locale,
@@ -38,16 +41,30 @@ const CaptureRejectedEmail = ({
   return (
     <Html lang={l} dir="ltr">
       <Head />
-      <Preview>{pick({ fr: `Ta capture de ${animalName} n'a pas pu être validée`, en: `Your capture of ${animalName} could not be approved` }, l)}</Preview>
+      <Preview>{correction
+        ? pick({ fr: `Ta demande de correction pour « ${animalName} » n'a pas été retenue`, en: `Your correction request for "${animalName}" wasn't retained` }, l)
+        : pick({ fr: `Ta capture de ${animalName} n'a pas pu être validée`, en: `Your capture of ${animalName} could not be approved` }, l)}</Preview>
       <Body style={main}>
         <Container style={container}>
           <Img
             src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png"
             width="48" height="48" alt="Faunex" style={logo}
           />
-          <Heading style={h1}>{pick({ fr: 'Capture non validée', en: 'Capture not approved' }, l)}</Heading>
+          <Heading style={h1}>{correction
+            ? pick({ fr: 'Correction non retenue', en: 'Correction not retained' }, l)
+            : pick({ fr: 'Capture non validée', en: 'Capture not approved' }, l)}</Heading>
           <Text style={text}>{pick({ fr: 'Salut', en: 'Hey' }, l)} <strong>{recipientName}</strong>,</Text>
-          {reason === 'duplicate' ? (
+          {correction ? (
+            <Text style={text}>
+              {pick(
+                {
+                  fr: `Ta demande de correction pour « ${animalName} » n'a pas été retenue après vérification. Pas d'inquiétude : ta capture reste inchangée dans ton bestiaire, avec sa photo et son nom actuels.`,
+                  en: `Your correction request for "${animalName}" wasn't retained after review. No worries: your capture stays unchanged in your bestiary, with its current photo and name.`,
+                },
+                l,
+              )}
+            </Text>
+          ) : reason === 'duplicate' ? (
             <Text style={text}>
               {pick(
                 {
@@ -109,9 +126,11 @@ const CaptureRejectedEmail = ({
             </Text>
           )}
           <Button style={button} href={captureUrl}>
-            {reason === 'duplicate'
-              ? pick({ fr: 'Capturer une nouvelle espèce', en: 'Capture a new species' }, l)
-              : pick({ fr: 'Refaire une capture', en: 'Try another capture' }, l)}
+            {correction
+              ? pick({ fr: 'Voir ma capture', en: 'View my capture' }, l)
+              : reason === 'duplicate'
+                ? pick({ fr: 'Capturer une nouvelle espèce', en: 'Capture a new species' }, l)
+                : pick({ fr: 'Refaire une capture', en: 'Try another capture' }, l)}
           </Button>
           <Text style={footer}>{pick({ fr: 'À bientôt sur le terrain !', en: 'See you out there!' }, l)}</Text>
         </Container>
@@ -123,7 +142,12 @@ const CaptureRejectedEmail = ({
 export const template = {
   component: CaptureRejectedEmail,
   subject: (d: Props) =>
-    d?.reason === 'duplicate'
+    d?.correction
+      ? pick(
+          { fr: `Ta demande de correction pour « ${d?.animalName || 'ta capture'} » n'a pas été retenue`, en: `Your correction request for "${d?.animalName || 'your capture'}" wasn't retained` },
+          d?.locale,
+        )
+      : d?.reason === 'duplicate'
       ? pick(
           { fr: `${d?.animalName || 'Cette espèce'} est déjà dans ton bestiaire`, en: `${d?.animalName || 'This species'} is already in your bestiary` },
           d?.locale,

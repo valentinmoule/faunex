@@ -329,6 +329,9 @@ const ModerationPage = () => {
           type: 'capture_approved',
           actor_id: session.user.id,
           capture_id: capture.id,
+          // Marqueur « correction:… » : l'app affiche que la demande de
+          // correction d'espèce a été acceptée, pas une simple validation.
+          comment_text: capture.correction_name ? `correction:${finalName}` : null,
         });
         if (notifError) {
           console.error('notification approve failed', notifError);
@@ -341,6 +344,7 @@ const ModerationPage = () => {
               decision: 'approved',
               animal_name: finalName,
               capture_id: capture.id,
+              correction: !!capture.correction_name,
             },
           })
           .then(({ error: fnError }) => {
@@ -373,6 +377,33 @@ const ModerationPage = () => {
     setRejectMenuFor(null);
     setProcessing(capture.id);
     if (capture.correction_name) {
+      // Correction refusée : la capture garde sa photo et son nom d'origine.
+      // On notifie l'explorateur AVANT de repasser la capture en « approved »,
+      // pour que la fonction serveur valide encore l'état « pending_review ».
+      if (session?.user) {
+        const { error: notifError } = await supabase.from('notifications').insert({
+          user_id: capture.user_id,
+          type: 'capture_rejected',
+          actor_id: session.user.id,
+          capture_id: capture.id,
+          comment_text: `correction_declined:${capture.animal_name}`,
+        });
+        if (notifError) console.error('notification correction declined failed', notifError);
+        await supabase.functions
+          .invoke('notify-moderation-decision', {
+            body: {
+              user_id: capture.user_id,
+              decision: 'rejected',
+              animal_name: capture.animal_name,
+              capture_id: capture.id,
+              reason: 'correction_declined',
+              correction: true,
+            },
+          })
+          .then(({ error: fnError }) => {
+            if (fnError) console.error('notify-moderation-decision failed', fnError);
+          });
+      }
       const { error } = await supabase.from('captures').update({ status: 'approved', correction_name: null, correction_scientific_name: null, correction_note: null, correction_requested_at: null }).eq('id', capture.id);
       if (error) toast.error(t('capture.errors.submissionError'));
       else { toast.success(t('capture.correction.declined')); setCaptures(prev => prev.filter(c => c.id !== capture.id)); }
