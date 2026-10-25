@@ -51,6 +51,10 @@
     --booster-paper: 48 40% 96%;
     --booster-foil: linear-gradient(110deg, hsl(var(--forest-dark)), hsl(var(--forest-light)) 26%, hsl(var(--primary)) 48%, hsl(var(--forest-light)) 77%, hsl(var(--forest-dark)));
     --booster-foil-gold: linear-gradient(110deg, hsl(var(--amber-dark)), hsl(var(--amber-light)) 26%, hsl(var(--amber)) 48%, hsl(var(--amber-light)) 77%, hsl(var(--amber-dark)));
+    --booster-foil-v: linear-gradient(180deg, hsl(var(--forest-light)), hsl(var(--primary)) 50%, hsl(var(--forest-dark)));
+    --booster-foil-v-bottom: linear-gradient(0deg, hsl(var(--forest-light)), hsl(var(--primary)) 50%, hsl(var(--forest-dark)));
+    --booster-foil-gold-v: linear-gradient(180deg, hsl(var(--amber-light)), hsl(var(--amber)) 50%, hsl(var(--amber-dark)));
+    --booster-foil-gold-v-bottom: linear-gradient(0deg, hsl(var(--amber-light)), hsl(var(--amber)) 50%, hsl(var(--amber-dark)));
     --booster-shadow: 0 22px 28px -14px hsl(var(--booster-ink) / .38), 0 5px 8px -4px hsl(var(--booster-ink) / .3);
 
     /* Nuancier des avatars par défaut (sans photo) — une teinte stable par
@@ -3866,25 +3870,59 @@ html.is-native-android body {
 }
 .collection-booster {
   box-shadow: var(--booster-shadow);
+  --booster-crimp: hsl(var(--primary));
+}
+.collection-booster-gold {
+  --booster-crimp: hsl(var(--amber));
+  --booster-foil-v: var(--booster-foil-gold-v);
+  --booster-foil-v-bottom: var(--booster-foil-gold-v-bottom);
 }
 .collection-booster-face {
   border-radius: 7px;
   color: hsl(var(--booster-paper));
   clip-path: polygon(0 0, 100% 0, 99% 3%, 98% 16%, 98.5% 50%, 98% 85%, 99% 97%, 100% 100%, 0 100%, 1% 97%, 2% 85%, 1.5% 50%, 2% 16%, 1% 3%);
 }
+/* Scellage aluminium : stries de sertissage verticales, reflet brossé,
+   dégradé métal dans la hauteur et bord cranté côté illustration. */
 .collection-booster-seal {
-  background: repeating-linear-gradient(90deg, hsl(var(--booster-paper) / .16) 0 1px, transparent 1px 3px), var(--booster-foil);
-  box-shadow: inset 0 1px hsl(var(--booster-paper) / .55), inset 0 -2px 3px hsl(var(--booster-ink) / .3);
+  background:
+    linear-gradient(115deg, transparent 28%, hsl(var(--booster-paper) / .28) 44%, transparent 60%),
+    repeating-linear-gradient(90deg,
+      hsl(var(--booster-paper) / .32) 0 1px,
+      hsl(var(--booster-ink) / .28) 1px 2.5px,
+      transparent 2.5px 4px),
+    var(--booster-foil-v);
+  box-shadow: inset 0 1px hsl(var(--booster-paper) / .45), inset 0 -1px 2px hsl(var(--booster-ink) / .4);
 }
-.collection-booster-gold .collection-booster-seal {
-  background: repeating-linear-gradient(90deg, hsl(var(--booster-paper) / .16) 0 1px, transparent 1px 3px), var(--booster-foil-gold);
+.collection-booster-seal-bottom {
+  background:
+    linear-gradient(115deg, transparent 28%, hsl(var(--booster-paper) / .28) 44%, transparent 60%),
+    repeating-linear-gradient(90deg,
+      hsl(var(--booster-paper) / .32) 0 1px,
+      hsl(var(--booster-ink) / .28) 1px 2.5px,
+      transparent 2.5px 4px),
+    var(--booster-foil-v-bottom);
+  box-shadow: inset 0 -1px hsl(var(--booster-paper) / .45), inset 0 1px 2px hsl(var(--booster-ink) / .4);
+}
+/* Dents du sertissage : zigzag métallique entre le scellage et l'illustration */
+.collection-booster-crimp {
+  height: 6px;
+  background:
+    linear-gradient(45deg, transparent 33.333%, var(--booster-crimp) 33.333%, var(--booster-crimp) 66.667%, transparent 66.667%),
+    linear-gradient(-45deg, transparent 33.333%, var(--booster-crimp) 33.333%, var(--booster-crimp) 66.667%, transparent 66.667%);
+  background-size: 6px 12px;
+  background-position: 0 -6px;
+  filter: drop-shadow(0 1px 1px hsl(var(--booster-ink) / .35));
+}
+.collection-booster-crimp-bottom {
+  transform: scaleY(-1);
 }
 .collection-booster-print {
   background: linear-gradient(180deg, transparent 38%, hsl(var(--booster-ink) / .08) 56%, hsl(var(--booster-ink) / .82) 100%);
 }
 .collection-booster-volume {
-  background: linear-gradient(90deg, hsl(var(--booster-ink) / .64), transparent 5%, hsl(var(--booster-paper) / .18) 7%, transparent 11%, transparent 89%, hsl(var(--booster-ink) / .32) 94%, hsl(var(--booster-paper) / .2) 96%, hsl(var(--booster-ink) / .6));
-  box-shadow: inset 0 0 1px 1px hsl(var(--booster-paper) / .3);
+  background: linear-gradient(90deg, hsl(var(--booster-ink) / .64), transparent 5%, hsl(var(--booster-paper) / .12) 7%, transparent 11%, transparent 89%, hsl(var(--booster-ink) / .32) 94%, hsl(var(--booster-paper) / .12) 96%, hsl(var(--booster-ink) / .6));
+  box-shadow: inset 0 0 0 1px hsl(var(--booster-ink) / .22);
 }
 .collection-booster-gloss {
   background: linear-gradient(112deg, transparent 16%, hsl(var(--booster-paper) / .24) 18%, transparent 19%, transparent 27%, hsl(var(--booster-paper) / .2) 30%, transparent 33%, transparent 74%, hsl(var(--booster-paper) / .12) 78%, transparent 80%);
