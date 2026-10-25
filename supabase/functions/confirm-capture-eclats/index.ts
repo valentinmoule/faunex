@@ -2,6 +2,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
 import { z } from 'npm:zod@3';
 import { imageBytes, imageDigest, attestModeratedCapture } from '../_shared/economyProof.ts';
+import { matchesCrop } from '../_shared/cropProof.ts';
 
 const schema = z.discriminatedUnion('mode', [
   z.object({ mode: z.literal('ai'), captureId: z.string().uuid(), receiptId: z.string().uuid(), analyzedImage: z.string().max(8_000_000), crop: z.object({ x: z.number().nonnegative(), y: z.number().nonnegative(), width: z.number().positive(), height: z.number().positive() }).optional() }),
@@ -35,12 +36,10 @@ Deno.serve(async req => {
     const originalBytes = imageBytes(input.analyzedImage);
     if (await imageDigest(originalBytes) !== proof.image_hash) return json({ error: 'Image mismatch' }, 400);
     if (!capture.image_url.startsWith(`${url}/storage/v1/object/public/captures/${auth.user.id}/`)) return json({ error: 'Invalid photo' }, 400);
-    // Exact bytes when uncropped; crop verification is deliberately deferred rather than trusting client pixels.
-    if (input.crop) return json({ success: true, deferred: 'crop_validation' });
     const res = await fetch(capture.image_url, { signal: AbortSignal.timeout(12_000) });
     if (!res.ok) return json({ error: 'Photo unavailable' }, 503);
     const savedBytes = new Uint8Array(await res.arrayBuffer());
-    if (savedBytes.length > 6_000_000 || await imageDigest(savedBytes) !== proof.image_hash) return json({ error: 'Image mismatch' }, 400);
+    if (savedBytes.length > 6_000_000 || (input.crop ? !matchesCrop(originalBytes, savedBytes, input.crop) : await imageDigest(savedBytes) !== proof.image_hash)) return json({ error: 'Image mismatch' }, 400);
     const norm = (v: string | null) => (v ?? '').trim().toLowerCase();
     if (norm(capture.animal_name) !== norm(proof.animal_name) || norm(capture.scientific_name) !== norm(proof.scientific_name)) return json({ success: true, deferred: 'canonical_identity' });
     const { error: bindError } = await db.from('capture_validations').update({ image_url: capture.image_url, capture_id: capture.id }).eq('id', proof.id).is('consumed_at', null);
