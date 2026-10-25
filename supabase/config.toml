@@ -34,3 +34,6 @@ project_id = "pakwuooxumrghsbwczwx"
 
 [functions.auth-email-hook]
 verify_jwt = false
+
+[functions.generate-collection-cover]
+verify_jwt = false
