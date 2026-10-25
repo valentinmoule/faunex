@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 /**
  * Collection présentée comme un vrai booster de cartes à collectionner :
  * illustration pleine largeur, scellages métalliques striés et crantés,
- * bandeau de titre façon sachet et ombre portée douce.
+ * titre et compteur posés à plat, et ombre portée douce.
  * L'XP n'est jamais affiché ici — il est révélé à la réclamation.
  */
 export interface CollectionTileProps {
@@ -85,24 +85,15 @@ const CollectionTile = ({
           </span>
         )}
 
-        {/* Bandeau titre façon sachet */}
-        <div className="absolute inset-x-[7%] bottom-[7%]">
-          <div
-            className="relative overflow-hidden rounded-lg px-3 py-2 text-center"
-            style={{
-              ...foil(gold),
-              boxShadow:
-                'inset 0 1px 0 hsl(var(--background)/0.6), inset 0 -1px 0 hsl(var(--foreground)/0.3), 0 8px 16px hsl(var(--foreground)/0.45)',
-            }}
-          >
-            <span className="block font-display text-[15px] font-extrabold uppercase leading-tight tracking-wide text-background [text-shadow:0_1px_2px_hsl(var(--foreground)/0.6)]">
-              {title}
-            </span>
-            <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-foreground/70 px-2 py-0.5 font-display text-[10px] font-bold tabular-nums text-background">
-              {captured}
-              <span className="opacity-70">/ {total}</span>
-            </span>
-          </div>
+        {/* Titre et compteur posés à plat sur le sachet, sans bandeau */}
+        <div className="absolute inset-x-[7%] bottom-[8%] text-center">
+          <span className="block font-display text-[17px] font-extrabold uppercase leading-tight tracking-wide text-background [text-shadow:0_1px_3px_hsl(var(--foreground)/0.9),0_0_14px_hsl(var(--foreground)/0.5)]">
+            {title}
+          </span>
+          <span className="mt-0.5 block font-display text-[11px] font-bold tabular-nums text-background/90 [text-shadow:0_1px_2px_hsl(var(--foreground)/0.9)]">
+            {captured}
+            <span className="opacity-70">/ {total}</span>
+          </span>
         </div>
 
         {/* Scellage bas */}
