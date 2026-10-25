@@ -1,15 +1,22 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { verifyWebhook, EventName, type PaddleEnv } from '../_shared/paddle.ts';
+import { confirmReferral } from './referrals.ts';
 
 let _supabase: ReturnType<typeof createClient> | null = null;
 function getSupabase() {
   if (!_supabase) {
     _supabase = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+      requiredEnv('SUPABASE_URL'),
+      requiredEnv('SUPABASE_SERVICE_ROLE_KEY')
     );
   }
   return _supabase;
+}
+
+function requiredEnv(key: string) {
+  const value = Deno.env.get(key);
+  if (!value) throw new Error(`${key} not configured`);
+  return value;
 }
 
 /** Mirror the Paddle customer. Idempotent: upsert keyed on the Paddle customer ID. */
@@ -80,7 +87,7 @@ async function handleSubscriptionCreated(data: any, env: PaddleEnv) {
     updated_at: new Date().toISOString(),
   }, { onConflict: 'paddle_subscription_id' });
 
-  if (error) console.error('Upsert subscription failed:', error);
+  if (error) throw error;
 }
 
 async function handleSubscriptionUpdated(data: any, env: PaddleEnv) {
@@ -137,7 +144,10 @@ async function handleTransactionCompleted(data: any, env: PaddleEnv) {
     .eq('paddle_subscription_id', data.subscriptionId)
     .eq('environment', env);
 
-  if (error) console.error('Transaction sync failed:', error);
+  if (error) throw error;
+  if (data?.customData?.referralId) {
+    await confirmReferral(getSupabase(), data.id, env);
+  }
 }
 
 async function handleWebhook(req: Request, env: PaddleEnv) {
@@ -173,6 +183,7 @@ Deno.serve(async (req) => {
   }
   const url = new URL(req.url);
   const env = (url.searchParams.get('env') || 'sandbox') as PaddleEnv;
+  if (env !== 'live' && env !== 'sandbox') return new Response('Invalid environment', { status: 400 });
   try {
     await handleWebhook(req, env);
     return new Response(JSON.stringify({ received: true }), {
