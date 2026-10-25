@@ -1,6 +1,6 @@
 
 ## Présentation Premium
-- [ ] Vérifier la gestion Paddle après exclusion des anciens identifiants d’accès manuel et sélection du bon environnement
+- [x] Vérifier la gestion Paddle après exclusion des anciens identifiants d’accès manuel et sélection du bon environnement ; réponse 200 avec le compte connecté, aucune erreur écran, sept tests réussis
 - [x] Corriger l’offre active affichée pour l’accès Famille offert de Valentin, sans modifier sa facturation Personnel ; Famille actif et gestion des invitations vérifiés connecté, 13 tests réussis
 - [x] Afficher deux cartes Personnel/Famille avec détails et tarifs, remplacer le comparatif par une liste légère ; page connectée, tarifs mensuels, accès Famille et absence de débordement mobile vérifiés, 16 tests réussis
 
