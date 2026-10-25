@@ -1,6 +1,34 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
-import { exactTaxonomy, extractMeasurements } from './policy.ts';
+import { exactTaxonomy, extractMeasurements, parseEstimatedMeasurements } from './policy.ts';
+
+// Typical adult size/weight estimated by AI when no measured source (ADW)
+// documents the species. Strict JSON, metric only, validated before caching.
+async function estimateMeasurements(name: string, scientific: string) {
+  const apiKey = Deno.env.get('LOVABLE_API_KEY');
+  if (!apiKey) return {};
+  try {
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      signal: AbortSignal.timeout(15000),
+      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash-lite',
+        messages: [
+          { role: 'system', content: 'You are a zoology reference. Reply with strict JSON only, no markdown, no prose.' },
+          { role: 'user', content: `For the species "${name}" (${scientific}), give the typical adult body length and weight as JSON: {"size": "<number or range> <mm|cm|m>", "weight": "<number or range> <mg|g|kg>"}. Use a range ("x to y unit") when variation is large. Metric units only. If genuinely unknown for this species, omit the key.` },
+        ],
+        temperature: 0,
+      }),
+    });
+    if (!response.ok) return {};
+    const data = await response.json();
+    const content = data?.choices?.[0]?.message?.content;
+    return typeof content === 'string' ? parseEstimatedMeasurements(content) : {};
+  } catch {
+    return {};
+  }
+}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
