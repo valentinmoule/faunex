@@ -33,12 +33,60 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
     return () => window.removeEventListener('resize', update);
   }, [update, items.length]);
 
+  // Glisser à la souris (Chrome desktop) : le défilement natif ne répond qu'au tactile.
+  const drag = useRef<{ x: number; left: number; moved: boolean } | null>(null);
+  const suppressClick = useRef(false);
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    if (e.pointerType !== 'mouse' || e.button !== 0 || !ref.current) return;
+    drag.current = { x: e.clientX, left: ref.current.scrollLeft, moved: false };
+  };
+  const onPointerMove = (e: React.PointerEvent) => {
+    const d = drag.current;
+    const el = ref.current;
+    if (!d || !el) return;
+    const dx = e.clientX - d.x;
+    if (!d.moved && Math.abs(dx) > 5) {
+      d.moved = true;
+      el.style.scrollSnapType = 'none';
+      el.style.cursor = 'grabbing';
+      el.setPointerCapture(e.pointerId);
+    }
+    if (d.moved) el.scrollLeft = d.left - dx;
+  };
+  const endDrag = () => {
+    const d = drag.current;
+    const el = ref.current;
+    drag.current = null;
+    if (!d?.moved || !el) return;
+    suppressClick.current = true;
+    el.style.cursor = '';
+    // Aimante vers le sachet le plus proche du centre.
+    const center = el.scrollLeft + el.clientWidth / 2;
+    let target = 0; let bestDist = Infinity;
+    Array.from(el.children).forEach((c) => {
+      const n = c as HTMLElement;
+      const mid = n.offsetLeft + n.offsetWidth / 2;
+      if (Math.abs(mid - center) < bestDist) { bestDist = Math.abs(mid - center); target = mid - el.clientWidth / 2; }
+    });
+    el.scrollTo({ left: target, behavior: 'smooth' });
+    window.setTimeout(() => { if (ref.current) ref.current.style.scrollSnapType = ''; }, 400);
+  };
+
   return (
     <div className="-mx-4">
       <div
         ref={ref}
         onScroll={update}
-        className="flex snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain px-[16vw] py-6 scrollbar-none"
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        onClickCapture={(e) => {
+          if (suppressClick.current) { e.preventDefault(); e.stopPropagation(); suppressClick.current = false; }
+        }}
+        onDragStart={(e) => e.preventDefault()}
+        className="flex cursor-grab select-none snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain px-[16vw] py-6 scrollbar-none"
       >
         {items.map((child, i) => (
           <div
