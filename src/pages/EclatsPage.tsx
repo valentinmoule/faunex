@@ -19,7 +19,6 @@ export default function EclatsPage() {
   const { t, i18n } = useTranslation();
   const wallet = useWallet();
   const [refreshing, setRefreshing] = useState(false);
-  const section = t('learning.title');
   return <main className="flex min-h-screen flex-col bg-background">
     <PageHeader sticky className="border-b border-border bg-background px-5 pb-4">
       <div className="mx-auto flex max-w-lg items-center gap-3">
@@ -51,7 +50,7 @@ export default function EclatsPage() {
             <Icon className="mt-0.5 h-6 w-6 shrink-0 text-primary" aria-hidden />
             <div>
               <p className="font-display text-base font-bold">{t(`economy.upcoming.${key}`)}</p>
-              <p className="mt-1 text-sm text-muted-foreground">{t(`economy.upcoming.${key}Desc`, { section })}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{t(`economy.upcoming.${key}Desc`)}</p>
             </div>
           </li>)}
         </ul>
