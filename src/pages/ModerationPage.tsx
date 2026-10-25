@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PageHeader } from '@/components/PageHeader';
 import { ArrowLeft, Check, X, Loader2, AlertTriangle, Sparkles, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -24,6 +25,9 @@ interface PendingCapture {
   user_id: string;
   description: string | null;
   caption: string | null;
+  correction_name?: string | null;
+  correction_scientific_name?: string | null;
+  correction_note?: string | null;
 
   user_display_name?: string;
 }
@@ -100,6 +104,7 @@ type JobState = { status: string; paused_reason: string | null; last_run_at: str
 
 
 const ModerationPage = () => {
+  const { t } = useTranslation();
   const { session } = useAuth();
   const navigate = useNavigate();
   const [captures, setCaptures] = useState<PendingCapture[]>([]);
@@ -129,7 +134,7 @@ const ModerationPage = () => {
     setLoading(true);
     const { data, error } = await supabase
       .from('captures')
-      .select('id, animal_name, scientific_name, image_url, location, created_at, user_id, description, caption')
+      .select('id, animal_name, scientific_name, image_url, location, created_at, user_id, description, caption, correction_name, correction_scientific_name, correction_note')
       .eq('status', 'pending_review')
       .order('created_at', { ascending: true });
 
@@ -167,7 +172,7 @@ const ModerationPage = () => {
     /** Nom scientifique saisi par le modérateur. */
     scientificOverride?: string,
   ) => {
-    const candidateName = nameOverride?.trim() || capture.animal_name;
+    const candidateName = nameOverride?.trim() || capture.correction_name || capture.animal_name;
     if (isPlaceholderName(candidateName)) {
       toast.error('Ce nom est trop incertain pour créer une espèce.');
       return;
@@ -195,7 +200,7 @@ const ModerationPage = () => {
           body: {
             capture_id: capture.id,
             animal_name: candidateName,
-            scientific_name: (scientificOverride?.trim() || undefined),
+            scientific_name: (scientificOverride?.trim() || capture.correction_scientific_name || undefined),
             quality: q,
             force_name: forceName,
           },
@@ -242,7 +247,7 @@ const ModerationPage = () => {
           : { code: 'empty_response', message: "Aucune fiche reçue (même après une 2e tentative avec le modèle avancé). Réessaye, ou renseigne toi-même le nom de l'espèce." };
       if (failure.code === 'duplicate') {
         failure.message = duplicateMessage(
-          nameOverride?.trim() || capture.animal_name,
+          nameOverride?.trim() || capture.correction_name || capture.animal_name,
           failure.duplicate,
           failure.identifiedAs,
         );
@@ -510,6 +515,7 @@ const ModerationPage = () => {
                     <div className="p-4 space-y-2">
                       <div>
                         <h3 className="text-base font-display font-bold text-foreground">{capture.animal_name}</h3>
+                        {capture.correction_name && <p className="text-sm text-primary">{t('capture.correction.proposal', { name: capture.correction_name })}{capture.correction_note ? ` — ${capture.correction_note}` : ''}</p>}
                         {capture.scientific_name && (
                           <p className="text-xs text-muted-foreground italic">{capture.scientific_name}</p>
                         )}

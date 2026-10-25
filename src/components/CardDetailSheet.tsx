@@ -28,6 +28,8 @@ import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
 import { useSpeciesFacts, useSpeciesName } from '@/hooks/useSpeciesLocale';
 import { PremiumAvatar } from '@/components/PremiumAvatar';
 import { Button } from '@/components/ui/button';
+import { CaptureCorrectionDialog } from '@/components/CaptureCorrectionDialog';
+import { ScanSearch } from 'lucide-react';
 
 interface Props {
   card: AnimalCard | null;
@@ -161,6 +163,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
   const customCollections = useCustomCollections(session?.user?.id);
   const [addToOpen, setAddToOpen] = useState(false);
   const [savingCover, setSavingCover] = useState(false);
+  const [correctionOpen, setCorrectionOpen] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -230,6 +233,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
     if (open) return;
     setAddToOpen(false);
     setShareOpen(false);
+    setCorrectionOpen(false);
   }, [open]);
 
   // Reset transient UI state when a new card opens
@@ -915,6 +919,11 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                   </button>
                 )}
                 {isOwner && (
+                  <Button variant="ghost" size="icon" onClick={() => setCorrectionOpen(true)} aria-label={t('capture.correction.title')} title={t('capture.correction.title')} className="text-muted-foreground hover:text-primary">
+                    <ScanSearch className="h-6 w-6" />
+                  </Button>
+                )}
+                {isOwner && (
                   <button
                     onClick={() => { hapticTap(); setConfirmDelete(true); }}
                     aria-label={t('capture.detail.deleteCapture')}
@@ -1431,6 +1440,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
       ), document.body)}
 
       {vanishOverlay}
+      {correctionOpen && <CaptureCorrectionDialog captureId={card.id} open={correctionOpen} onClose={() => setCorrectionOpen(false)} onSubmitted={() => { setCorrectionOpen(false); onClose(); onDeleted?.(card.id); }} />}
     </>
 
   );

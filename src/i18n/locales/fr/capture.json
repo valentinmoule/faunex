@@ -142,6 +142,14 @@
       "animal_mort_ou_plat": "un animal mort ou préparé (plat, étal, trophée…)",
       "default": "une image graphique"
     },
+    "correction": {
+          "proposal": "Correction demandée : {{name}}",
+          "title": "Corriger l’espèce",
+          "description": "Cette demande utilise une analyse de ton quota. Ta photo sera remise en modération jusqu’à validation du nom.",
+          "name": "Espèce proposée",
+          "note": "Précisions (optionnel)",
+          "alreadyPending": "Cette capture est déjà en modération."
+    },
     "manual": {
       "humanVerification": "Vérification humaine",
       "requestVerificationTitle": "Demander une vérification",
