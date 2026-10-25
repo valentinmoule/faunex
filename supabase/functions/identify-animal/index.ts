@@ -1020,6 +1020,24 @@ serve(async (req) => {
         if (!isSpecies && typeof animalData.confidence === "number") {
           animalData.confidence = Math.min(animalData.confidence, 60);
         }
+        // Plancher UICN : le statut de conservation est récupéré pendant la
+        // vérification GBIF (clé d'usage déjà résolue), stocké sur la fiche et
+        // appliqué comme plancher de rareté. Une espèce menacée ne naît jamais
+        // « commune », sans jamais abaisser l'estimation du modèle.
+        if (isSpecies) {
+          const iucn = await iucnCategoryFor((verdict.gbif as { usageKey?: unknown })?.usageKey);
+          if (iucn) {
+            animalData.iucn_status = iucn;
+            const floor = IUCN_RARITY_FLOOR[iucn];
+            if (
+              floor &&
+              RARITY_ORDER.indexOf(String(animalData.rarity ?? "common")) <
+                RARITY_ORDER.indexOf(floor)
+            ) {
+              animalData.rarity = floor;
+            }
+          }
+        }
       } else {
         // GBIF injoignable : on n'empêche pas la capture mais on ne prétend pas
         // à une identification validée, et la confiance affichée est plafonnée.
