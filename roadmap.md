@@ -1,9 +1,12 @@
 
 ## Notifications natives iPhone et Android
 - [x] Préciser les alternatives : APNs direct sur iPhone ; service unifié possible, mais FCM généralement requis sur Android
-- [ ] Connecter le service d’envoi Firebase et vérifier la configuration Apple/Android
-- [ ] Enregistrer les appareils et relier les notifications e-mail aux notifications natives, en respectant les préférences
-- [ ] Tester les règles d’envoi et confirmer la réception sur appareils après reconstruction
+- [x] Connecter Firebase ; validation sans livraison et accès depuis l’application réussis
+- [x] Ajouter l’enregistrement privé des appareils et les notifications sociales, modération, compte bloqué, relance et récap Premium ; fonctions déployées
+- [x] Tester les règles : préférences sociales distinctes, motifs de refus conservés, liens limités à l’application ; cinq tests réussis, aperçu sans erreur
+- [ ] Installer google-services.json Android et GoogleService-Info.plist iOS : fichiers mobiles non fournis (la clé du compte de service n’est pas une configuration mobile)
+- [ ] Configurer la clé Apple APNs dans Firebase et la capacité Push Notifications du profil de signature : accès Apple requis
+- [ ] Synchroniser/reconstruire les apps et confirmer la réception sur iPhone/Android : appareils natifs non disponibles ici
 
 ## Identité des œdipodes
 - [x] Corriger Œdipode germanique, sa fiche et ses 116 captures ; confirmer Œdipode turquoise et l’aigue-marine déjà présents

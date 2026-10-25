@@ -8,6 +8,7 @@ let token: string | null = null;
 let activeUser: string | null = null;
 let generation = 0;
 let ready: Promise<void> | null = null;
+let registering = false;
 
 export async function nativePushPermission() {
   try { return (await FirebaseMessaging.checkPermissions()).receive; }
@@ -32,7 +33,7 @@ export async function initializeNativePush(userId: string) {
   ready = (async () => {
     try {
       const refreshed = await FirebaseMessaging.addListener('tokenReceived', event => {
-        if (generation === current) void saveToken(event.token, userId, current);
+        if (generation === current && (registering || localStorage.getItem('faunex_native_push_enabled') === 'true')) void saveToken(event.token, userId, current);
       });
       const tapped = await FirebaseMessaging.addListener('notificationActionPerformed', event => {
         if (generation !== current) return;
@@ -64,22 +65,28 @@ export async function subscribeNativePush(): Promise<boolean> {
     if (!user) return false;
     await initializeNativePush(user.id);
     if ((await FirebaseMessaging.requestPermissions()).receive !== 'granted') return false;
+    registering = true;
     const result = await FirebaseMessaging.getToken();
     const saved = await saveToken(result.token, user.id, generation);
     if (saved) localStorage.setItem('faunex_native_push_enabled', 'true');
     return saved;
   } catch { return false; }
+  finally { registering = false; }
 }
 
 export async function unsubscribeNativePush() {
+  if (!token && localStorage.getItem('faunex_native_push_enabled') !== 'true') {
+    await stopNativePushListeners();
+    return;
+  }
   if (token) {
     const { error } = await supabase.functions.invoke('register-native-push', { body: { token, platform: Capacitor.getPlatform(), action: 'remove' } });
     if (error) throw new Error('Unable to remove push registration');
   }
+  await stopNativePushListeners();
   await FirebaseMessaging.deleteToken();
   token = null;
   localStorage.removeItem('faunex_native_push_enabled');
-  await stopNativePushListeners();
 }
 
 export async function hasNativePushSubscription() {

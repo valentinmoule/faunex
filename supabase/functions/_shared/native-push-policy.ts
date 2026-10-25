@@ -22,7 +22,7 @@ export function nativeEmailPayload(template: string, data: Record<string, unknow
     const reasons: Record<string, [string, string]> = {
       duplicate: ['Tu possèdes déjà cette espèce dans ton bestiaire.', 'You already have this species in your bestiary.'],
       dead_animal: ['Les animaux morts ou cadavres ne sont pas acceptés sur Faunex.', 'Dead animals or carcasses are not accepted on Faunex.'],
-      internet_image: ['Les images provenantant d’Internet ne sont pas acceptées. Partage tes propres photos.', 'Images from the Internet are not accepted. Share your own photos.'],
+      internet_image: ['Les images provenant d’Internet ne sont pas acceptées. Partage tes propres photos.', 'Images from the Internet are not accepted. Share your own photos.'],
       captured_animal: ['Les animaux capturés ou pêchés par l’humain ne sont pas acceptés, même relâchés ensuite.', 'Animals caught or fished by humans are not accepted, even if released afterwards.'],
       human: ['Les photos d’humains ne sont pas acceptées sur Faunex.', 'Photos of humans are not accepted on Faunex.'],
       not_identifiable: [`${name} n’a pas pu être identifiée. Retente avec une photo plus nette.`, `${name} could not be identified. Try a clearer photo.`],
