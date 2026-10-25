@@ -257,6 +257,9 @@
       "displayName": "Display name",
       "username": "Username",
       "usernamePlaceholder": "@username",
+      "bio": "Bio",
+      "bioPlaceholder": "A few words about you, your love of nature…",
+      "bioCounter": "{{count}}/150",
       "avatarAlt": "Avatar",
       "marketingEmails": {
         "label": "Reminder emails",
