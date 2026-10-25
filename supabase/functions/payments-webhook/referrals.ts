@@ -1,8 +1,8 @@
-import { createClient } from 'npm:@supabase/supabase-js@2';
+import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 import { getPaddleClient, type PaddleEnv } from '../_shared/paddle.ts';
 import { qualifyingReferralPayment, referralBillingTarget } from '../_shared/referral-policy.ts';
 
-type Client = ReturnType<typeof createClient>;
+type Client = SupabaseClient;
 
 /** Read the paid transaction back from Paddle: simulated or client-supplied events cannot grant access. */
 export async function confirmReferral(client: Client, transactionId: string, env: PaddleEnv) {
@@ -16,7 +16,7 @@ export async function confirmReferral(client: Client, transactionId: string, env
   if (error) throw error;
   if (!referral || transaction.customData?.userId !== referral.referred_user_id) return;
   if (new Date(transaction.createdAt) < new Date(referral.created_at)) return;
-  if (!transaction.subscriptionId) return;
+  if (!transaction.subscriptionId || !transaction.customerId) return;
 
   if (!referral.rewarded_at) {
     // A shared email/customer or an earlier Premium purchase is not a new customer.
@@ -33,7 +33,7 @@ export async function confirmReferral(client: Client, transactionId: string, env
     const history = paddle.transactions.list({ customerId: [transaction.customerId], status: ['completed'] });
     for await (const previous of history) {
       if (previous.id !== transaction.id && previous.items.some(item =>
-        item.price.importMeta?.externalId?.startsWith('faunex_premium_'))) return;
+        item.price?.importMeta?.externalId?.startsWith('faunex_premium_'))) return;
     }
     const sub = await paddle.subscriptions.get(transaction.subscriptionId);
     if (sub.customData?.userId !== referral.referred_user_id) return;

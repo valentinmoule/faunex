@@ -1,8 +1,8 @@
-import { createClient } from 'npm:@supabase/supabase-js@2';
+import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2';
 import { verifyWebhook, EventName, type PaddleEnv } from '../_shared/paddle.ts';
 import { confirmReferral } from './referrals.ts';
 
-let _supabase: ReturnType<typeof createClient> | null = null;
+let _supabase: SupabaseClient | null = null;
 function getSupabase() {
   if (!_supabase) {
     _supabase = createClient(

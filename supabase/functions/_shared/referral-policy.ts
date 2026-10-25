@@ -3,9 +3,9 @@ export const REFERRAL_ANNUAL_PRICE = 'faunex_premium_yearly';
 
 export function qualifyingReferralPayment(data: {
   status?: string; origin?: string; subscriptionId?: string | null;
-  details?: { totals?: { total?: string } }; items?: Array<{ price?: {
-    importMeta?: { externalId?: string }; billingCycle?: { interval?: string; frequency?: number } | null;
-  } }>;
+  details?: { totals?: { total?: string } } | null; items?: Array<{ price?: {
+    importMeta?: { externalId?: string | null } | null; billingCycle?: { interval?: string; frequency?: number } | null;
+  } | null }>;
 }): boolean {
   return data.status === 'completed' && Boolean(data.subscriptionId)
     && data.origin !== 'subscription_recurring'
