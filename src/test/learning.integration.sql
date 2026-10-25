@@ -1,0 +1,51 @@
+INSERT INTO public.learning_paths(id,title,title_en,published,content)
+SELECT '00000000-0000-0000-0000-000000000100','Test','Test',true,jsonb_build_object('chapters',jsonb_build_array(jsonb_build_object('title','Chapitre','title_en','Chapter','lessons',(SELECT jsonb_agg(jsonb_build_object('id','step-'||s,'title','Étape','title_en','Step','intro','Introduction','intro_en','Introduction','questions',(SELECT jsonb_agg(jsonb_build_object('type','mcq','prompt','Question','prompt_en','Question','options',jsonb_build_array('Oui','Non'),'options_en',jsonb_build_array('Yes','No'),'correct',0,'explanation','Explication','explanation_en','Explanation')) FROM generate_series(1,5)))) FROM generate_series(1,11) s))));
+DO $$
+DECLARE u uuid:='00000000-0000-0000-0000-000000000001';p uuid:='00000000-0000-0000-0000-000000000100';a jsonb;v jsonb;i integer;j integer;count_before integer;bal bigint;
+BEGIN
+ PERFORM set_config('request.jwt.claim.sub',u::text,true);
+ IF (public.learning_status()->>'limit')::integer<>3 THEN RAISE EXCEPTION 'Free limit must equal 3'; END IF;
+ BEGIN PERFORM public.learning_start(p,'step-2'); RAISE EXCEPTION 'Prerequisite bypassed'; EXCEPTION WHEN OTHERS THEN IF SQLERRM<>'LESSON_LOCKED' THEN RAISE; END IF; END;
+ a:=public.learning_start(p,'step-1');
+ IF a->'lesson'->'questions'->0 ? 'correct' OR a->'lesson'->'questions'->0 ? 'explanation' THEN RAISE EXCEPTION 'Unanswered key leaked'; END IF;
+ IF (public.learning_start(p,'step-1')->>'id')<>a->>'id' THEN RAISE EXCEPTION 'Attempt did not resume'; END IF;
+ FOR i IN 0..4 LOOP v:=public.learning_answer((a->>'id')::uuid,i,CASE WHEN i<3 THEN 0 ELSE 1 END); END LOOP;
+ v:=public.learning_finish((a->>'id')::uuid);
+ IF (v->'result'->>'passed')::boolean OR (v->'result'->>'reward')::integer<>0 THEN RAISE EXCEPTION '3/5 must fail with zero reward'; END IF;
+ IF (public.learning_status()->>'used')::integer<>0 THEN RAISE EXCEPTION 'Failure consumed quota'; END IF;
+ IF EXISTS(SELECT 1 FROM public.eclats_transactions WHERE user_id=u) THEN RAISE EXCEPTION 'Failure granted seeds'; END IF;
+ FOR j IN 1..3 LOOP
+ a:=public.learning_start(p,'step-'||j);
+ FOR i IN 0..4 LOOP v:=public.learning_answer((a->>'id')::uuid,i,CASE WHEN i<4 THEN 0 ELSE 1 END); END LOOP;
+ v:=public.learning_finish((a->>'id')::uuid);
+ IF NOT (v->'result'->>'passed')::boolean OR (v->'result'->>'reward')::integer<>10 THEN RAISE EXCEPTION '4/5 must pass with 10 seeds'; END IF;
+ PERFORM public.learning_finish((a->>'id')::uuid);
+ END LOOP;
+ SELECT balance INTO bal FROM public.eclats_wallets WHERE user_id=u; IF bal<>30 THEN RAISE EXCEPTION 'Three rewards must be exactly 30, retries included'; END IF;
+ BEGIN PERFORM public.learning_start(p,'step-4'); RAISE EXCEPTION 'Free daily limit bypassed'; EXCEPTION WHEN OTHERS THEN IF SQLERRM<>'DAILY_LIMIT' THEN RAISE; END IF; END;
+ a:=public.learning_start(p,'step-1'); FOR i IN 0..4 LOOP v:=public.learning_answer((a->>'id')::uuid,i,0); END LOOP; v:=public.learning_finish((a->>'id')::uuid);
+ IF (v->'result'->>'reward')::integer<>0 OR (public.learning_status()->>'used')::integer<>3 THEN RAISE EXCEPTION 'Replay rewarded or consumed quota'; END IF;
+ PERFORM set_config('test.premium','true',true);
+ IF (public.learning_status()->>'limit')::integer<>10 OR (public.learning_status()->>'used')::integer<>3 THEN RAISE EXCEPTION 'Upgrade must leave exactly seven completions'; END IF;
+ FOR j IN 4..10 LOOP a:=public.learning_start(p,'step-'||j); FOR i IN 0..4 LOOP v:=public.learning_answer((a->>'id')::uuid,i,0); END LOOP; PERFORM public.learning_finish((a->>'id')::uuid); END LOOP;
+ BEGIN PERFORM public.learning_start(p,'step-11'); RAISE EXCEPTION 'Premium daily limit bypassed'; EXCEPTION WHEN OTHERS THEN IF SQLERRM<>'DAILY_LIMIT' THEN RAISE; END IF; END;
+ IF (public.learning_status()->>'used')::integer<>10 THEN RAISE EXCEPTION 'Premium count must be 10'; END IF;
+ SELECT balance INTO bal FROM public.eclats_wallets WHERE user_id=u; IF bal<>100 THEN RAISE EXCEPTION '10 completions must equal 100 seeds'; END IF;
+ UPDATE public.learning_completions SET completed_at=now()-interval '2 days' WHERE user_id=u;
+ IF (public.learning_status()->>'used')::integer<>0 THEN RAISE EXCEPTION 'Previous UTC days consumed today quota'; END IF;
+ IF (public.learning_status()->>'reset_at')::timestamptz<>((date_trunc('day',now() AT TIME ZONE 'UTC')+interval '1 day') AT TIME ZONE 'UTC') THEN RAISE EXCEPTION 'Reset not UTC midnight'; END IF;
+ a:=public.learning_start(p,'step-11');
+ FOR i IN 0..4 LOOP v:=public.learning_answer((a->>'id')::uuid,i,0); END LOOP;
+ PERFORM set_config('test.fail_credit','true',true);
+ BEGIN PERFORM public.learning_finish((a->>'id')::uuid); RAISE EXCEPTION 'Credit error not propagated'; EXCEPTION WHEN OTHERS THEN IF SQLERRM<>'TEST_CREDIT_FAILURE' THEN RAISE; END IF; END;
+ IF EXISTS(SELECT 1 FROM public.learning_completions WHERE user_id=u AND lesson_id='step-11') OR (public.learning_attempt_view((a->>'id')::uuid)->>'finished')::boolean THEN RAISE EXCEPTION 'Partial completion after failed credit'; END IF;
+ PERFORM set_config('test.fail_credit','false',true);
+ UPDATE public.learning_paths SET published=false WHERE id=p;
+ BEGIN PERFORM public.learning_finish((a->>'id')::uuid); RAISE EXCEPTION 'Unpublished completed'; EXCEPTION WHEN OTHERS THEN IF SQLERRM<>'NOT_FOUND' THEN RAISE; END IF; END;
+ PERFORM set_config('request.jwt.claim.sub','00000000-0000-0000-0000-000000000002',true);
+ BEGIN PERFORM public.learning_attempt_view((a->>'id')::uuid); RAISE EXCEPTION 'Other user read attempt'; EXCEPTION WHEN OTHERS THEN IF SQLERRM<>'NOT_FOUND' THEN RAISE; END IF; END;
+ IF has_table_privilege('authenticated','public.learning_attempts','SELECT') THEN RAISE EXCEPTION 'Private snapshots exposed'; END IF;
+END $$;
+SET ROLE authenticated;
+DO $$ BEGIN IF EXISTS(SELECT 1 FROM public.learning_paths) THEN RAISE EXCEPTION 'Nonadmin read answer keys'; END IF; END $$;
+RESET ROLE;
