@@ -16,16 +16,16 @@ interface GameCounterProps {
 const GameCounter = ({ icon, value, label, onClick, title }: GameCounterProps) => {
   const inner = (
     <>
-      <span className="flex h-[22px] w-[22px] shrink-0 items-center justify-center" aria-hidden="true">
+      <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center" aria-hidden="true">
         {icon}
       </span>
-      <span className="inline-flex min-w-[18px] items-center justify-center font-display text-[15px] font-extrabold tabular-nums text-primary">
+      <span className="min-w-[16px] text-center font-display text-[13px] font-extrabold tabular-nums text-primary">
         {value}
       </span>
     </>
   );
 
-  const className = 'flex h-8 shrink-0 items-center gap-2 press';
+  const className = 'flex h-8 shrink-0 items-center gap-1.5 press';
 
   if (onClick) {
     return (
