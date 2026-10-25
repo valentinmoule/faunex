@@ -1,4 +1,7 @@
 
+## Illustrations des collections
+- [x] Ajouter 16 photos immersives propres aux groupes répétitifs ; 16 images distinctes chargées et compilation réussie, navigation inchangée.
+
 ## Espèces non capturées dans les collections personnalisées
 - [x] Ajouter depuis la fiche du Bestiaire sans capture ; sauvegarde et silhouette 0/1 vérifiées connecté après rechargement, collection temporaire retirée et test réussi.
 
