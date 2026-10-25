@@ -176,7 +176,8 @@ const NotificationsPage = () => {
               const actorName = isModerationNotif || isBadgeEarned ? t('social.notifications.systemActor') : (notif.actor?.display_name || notif.actor?.username || t('social.notifications.unknownActor'));
               const avatarUrl = isModerationNotif || isBadgeEarned ? null : notif.actor?.avatar_url;
               const isLike = notif.type === 'like';
-              const isComment = notif.type === 'comment';
+              const isMention = notif.type === 'mention';
+              const isComment = notif.type === 'comment' || isMention;
               const isFriendRequest = notif.type === 'friend_request' || notif.type === 'new_follower';
               const isFriendAccepted = notif.type === 'friend_accepted';
               const isCaptureApproved = notif.type === 'capture_approved';
@@ -232,7 +233,7 @@ const NotificationsPage = () => {
                 ? t('social.notifications.messageFriendAccepted')
                 : isLike
                 ? t('social.notifications.messageLike')
-                : t('social.notifications.messageComment');
+                : isMention ? t('social.notifications.messageMention') : t('social.notifications.messageComment');
 
               return (
                 <button

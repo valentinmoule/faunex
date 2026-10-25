@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { avatarFallbackStyle } from '@/lib/avatarPalette';
 import { PageHeader } from '@/components/PageHeader';
 import { notifyCaptureInteraction } from '@/lib/notifyCaptureInteraction';
+import CommentMentionInput from '@/components/CommentMentionInput';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Search, Bell, Heart, MessageCircle, Send, UserPlus, UserCheck, X, Users, ChevronRight, Clock, Check as CheckIcon, XCircle, ArrowLeft } from 'lucide-react';
 import CardDetailSheet from '@/components/CardDetailSheet';
@@ -390,12 +391,12 @@ const ExplorersPage = () => {
   }, [openComments, loadComments]);
 
   const handleSubmitComment = useCallback(async (captureId: string) => {
-    if (!session?.user || !newComment.trim()) return;
+    if (!session?.user || !newComment.trim() || submittingComment) return;
     setSubmittingComment(true);
-    const { error } = await supabase.from('feed_comments').insert({ user_id: session.user.id, capture_id: captureId, content: newComment.trim() });
-    if (!error) { notifyCaptureInteraction(captureId, session.user.id, 'comment', newComment.trim()); setNewComment(''); setCommentCounts(prev => ({ ...prev, [captureId]: (prev[captureId] || 0) + 1 })); await loadComments(captureId); }
+    const { data: savedComment, error } = await supabase.from('feed_comments').insert({ user_id: session.user.id, capture_id: captureId, content: newComment.trim() }).select('id').single();
+    if (!error) { notifyCaptureInteraction(captureId, session.user.id, 'comment', newComment.trim(), savedComment?.id); setNewComment(''); setCommentCounts(prev => ({ ...prev, [captureId]: (prev[captureId] || 0) + 1 })); await loadComments(captureId); }
     setSubmittingComment(false);
-  }, [session, newComment, loadComments]);
+  }, [session, newComment, loadComments, submittingComment]);
 
   // Auto-open capture from notification link
   useEffect(() => {
@@ -751,7 +752,7 @@ const ExplorersPage = () => {
                         </div>
                       )}
                       <div className="flex items-center gap-2">
-                        <input type="text" value={newComment} onChange={e => setNewComment(e.target.value)} onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSubmitComment(post.id)} placeholder={t('social.explorers.commentPlaceholder')} className="flex-1 bg-muted rounded-full px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
+                        <CommentMentionInput value={newComment} onChange={setNewComment} onSubmit={() => handleSubmitComment(post.id)} placeholder={t('social.explorers.commentPlaceholder')} className="w-full bg-muted rounded-full px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
                         <button onClick={() => handleSubmitComment(post.id)} disabled={!newComment.trim() || submittingComment} className="p-1.5 rounded-full bg-primary text-primary-foreground disabled:opacity-40 transition-opacity"><Send className="w-3 h-3" /></button>
                       </div>
                     </div>

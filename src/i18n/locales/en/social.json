@@ -146,6 +146,7 @@
       "messageFriendAccepted": " accepted your friend request",
       "messageLike": " liked your capture",
       "messageComment": " commented on your capture",
+      "messageMention": " mentioned you in a comment on",
       "commentQuote": "\"{{text}}\""
     },
     "shareProfile": {

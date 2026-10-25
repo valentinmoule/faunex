@@ -146,6 +146,7 @@
       "messageFriendAccepted": " a accepté ta demande d'ami",
       "messageLike": " a aimé ta capture",
       "messageComment": " a commenté ta capture",
+      "messageMention": " t’a mentionné dans un commentaire sur",
       "commentQuote": "« {{text}} »"
     },
     "shareProfile": {
