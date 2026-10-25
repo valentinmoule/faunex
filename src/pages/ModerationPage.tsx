@@ -482,6 +482,12 @@ const ModerationPage = () => {
               Auto-validation en pause
             </div>
           )}
+          <button
+            onClick={() => navigate('/admin/collections')}
+            className="rounded-full px-3 py-1.5 text-xs font-display font-bold text-primary hover:bg-primary/10 transition"
+          >
+            Collections
+          </button>
         </div>
       </PageHeader>
 

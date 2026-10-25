@@ -32,9 +32,7 @@ Validate claims from trusted rules (synced with badge/group/city definitions and
 
 ## Blurred photo backdrops need a large scale
 
-Any full-bleed `filter: blur()` photo backdrop (`background-size: cover` on a viewport-sized element) must be scaled well past the blur radius — `scale(1.9)` for a 42px blur, `scale(2.25)` for 50px — and the layer behind it must stay opaque.
-
-**Why:** blur fades alpha inward and exposes the screen behind an under-scaled layer.
+Scale full-bleed `filter: blur()` photo backdrops well past the blur radius (`scale(1.9)` for 42px, `scale(2.25)` for 50px) over an opaque layer, because blur fades alpha inward.
 
 ## Shelving targets the exact displayed species tile
 
@@ -46,7 +44,7 @@ Compute rank movement server-side from captures before `now() - 24 hours`, prese
 
 ## Shelving transition stays on the Bestiary surface
 
-Keep the capture view visible until the Bestiary is ready, then glide the small card directly into its actual tile; never cover the Bestiary with a blank veil or waiting card.
+Keep the capture view until the Bestiary is ready, then glide the card into its tile; never cover the Bestiary with a veil or waiting card.
 
 ## A capture fills exactly one Bestiary tile
 
@@ -54,7 +52,7 @@ Match captures (including pending shelves) to tiles by exact common name first; 
 
 ## Bundle badge artwork
 
-Import badge art locally; hosted `/__l5e/assets-v1/` routes are absent from native bundles.
+Import badge art locally; hosted `/__l5e/assets-v1/` routes are absent natively.
 
 ## Collection artwork keeps explicit group assignments
 
@@ -94,7 +92,7 @@ Read private preferences with `get_my_profile`; keep public profile fields and l
 
 ## Realtime channel names must be unique per subscription
 
-Suffix every `supabase.channel()` name randomly: reused topics crash on `.on()`.
+Suffix `supabase.channel()` names randomly; reused topics crash on `.on()`.
 
 ## Identification account overrides are server-authoritative
 
@@ -108,3 +106,7 @@ Use species names for custom collection membership and refresh mounted collectio
 ## Canonical species facts
 Apply shared facts after capture name canonicalization, reject scientific conflicts, refresh facts on image-cache hits, and invalidate translations after source changes, because moderation and older clients can save stale descriptions under corrected names.
 <!-- LOVABLE:END -->
+
+## Themed collections are data, not code
+
+Store admin themed collections (species names, optional rules and dates) in `themed_collections`, matched by `src/lib/themedCollections.ts`, with covers in the public captures bucket, so they ship without a store release.
