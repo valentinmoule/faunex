@@ -1,8 +1,10 @@
 -- Run transactionally through the managed database tool; no data is retained.
 BEGIN;
 DO $$
-DECLARE owner uuid:=gen_random_uuid(); guest uuid:=gen_random_uuid(); third uuid:=gen_random_uuid(); fourth uuid:=gen_random_uuid(); fifth uuid:=gen_random_uuid(); subscription uuid; family uuid; invitation text; replay text; refused boolean;
+DECLARE owner uuid; guest uuid:=gen_random_uuid(); third uuid:=gen_random_uuid(); fourth uuid:=gen_random_uuid(); subscription uuid; family uuid; invitation text; replay text; refused boolean;
 BEGIN
+ SELECT user_id INTO owner FROM public.profiles WHERE NOT EXISTS(SELECT 1 FROM public.family_memberships WHERE user_id=profiles.user_id AND left_at IS NULL) LIMIT 1;
+ IF owner IS NULL THEN RAISE EXCEPTION 'test_requires_existing_account'; END IF;
  INSERT INTO public.subscriptions(user_id,paddle_subscription_id,paddle_customer_id,product_id,price_id,status,environment,current_period_end)
  VALUES(owner,'family_test_'||owner,'ctm_test_'||owner,'faunex_premium_family','faunex_premium_family_yearly','active','live',now()+interval '1 year') RETURNING id INTO subscription;
  family:=public.ensure_paid_family(subscription);

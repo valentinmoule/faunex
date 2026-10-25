@@ -33,7 +33,11 @@ export default function FamilyPage() {
     let referralId:string|undefined;
     if(plan==='yearly'&&code.trim()){const {data,error:e}=await supabase.rpc('reserve_referral',{p_code:code,p_env:getPaddleEnvironment()});if(e)throw e;referralId=data;}
     const {data,error:e}=await supabase.functions.invoke('family-checkout',{body:{plan,environment:getPaddleEnvironment()}});
-    if(e||!data?.intentId)throw new Error(data?.error??'error');
+    if(e || !data?.intentId) {
+      const response=e && 'context' in e ? e.context : null;
+      const detail=response instanceof Response ? await response.json().catch(()=>null) : null;
+      throw new Error(detail?.error ?? data?.error ?? 'error');
+    }
     await openCheckout({priceId:data.priceId,customerEmail:user.email,customData:{userId:user.id,familyIntentId:data.intentId,...(referralId?{referralId}:{})},successUrl:`${window.location.origin}/family?checkout=success`});
   });
   const owner=family?.owner_id===user?.id;
