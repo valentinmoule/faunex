@@ -27,10 +27,11 @@ const CaptureQuotaBadge = ({ userId, isPremium, premiumLoading }: CaptureQuotaBa
         <Camera className="h-4 w-4" strokeWidth={2.25} />
         {isPremium ? (
           <InfinityIcon className="h-5 w-5" strokeWidth={2.5} aria-hidden="true" />
+        ) : premiumLoading ? (
+          <span className="w-5" aria-hidden="true" />
         ) : (
-          {isPremium ? (
           <span className="text-sm font-display font-bold tabular-nums">
-            {!premiumLoading && remaining !== null ? remaining : ''}
+            {remaining === null ? '—' : remaining}
           </span>
         )}
       </div>
