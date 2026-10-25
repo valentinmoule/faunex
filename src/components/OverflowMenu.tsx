@@ -53,7 +53,10 @@ export function OverflowMenu({
           align={align}
           sideOffset={8}
           collisionPadding={12}
-          className="z-50 min-w-[13.5rem] rounded-2xl border border-border bg-background p-1 shadow-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95"
+          className={
+            contentClassName ??
+            'z-50 min-w-[13.5rem] rounded-2xl border border-border bg-background p-1 shadow-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95'
+          }
         >
           {items.map((item) => (
             <DropdownMenuPrimitive.Item

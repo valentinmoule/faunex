@@ -932,6 +932,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                     label={t('common.moreActions')}
                     triggerClassName="relative flex items-center py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
                     iconClassName="w-6 h-6 text-muted-foreground transition-colors group-hover:text-primary"
+                    contentClassName="z-[10010] min-w-[13.5rem] rounded-2xl border border-border bg-background p-1 shadow-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95"
                     items={[
                       ...(cardImage ? [{
                         label: t('capture.detail.share'),
