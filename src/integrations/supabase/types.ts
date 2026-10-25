@@ -556,6 +556,30 @@ export type Database = {
         }
         Relationships: []
       }
+      catalogue_update_snapshots: {
+        Row: {
+          batch_key: string
+          created_at: string
+          relation_name: string
+          row_data: Json
+          row_key: string
+        }
+        Insert: {
+          batch_key: string
+          created_at?: string
+          relation_name: string
+          row_data: Json
+          row_key: string
+        }
+        Update: {
+          batch_key?: string
+          created_at?: string
+          relation_name?: string
+          row_data?: Json
+          row_key?: string
+        }
+        Relationships: []
+      }
       collection_rules: {
         Row: {
           collection_id: string
@@ -3258,6 +3282,10 @@ export type Database = {
           day: string
           identify_calls: number
         }[]
+      }
+      apply_approved_catalogue_rename: {
+        Args: { p_batch: string; p_old: string }
+        Returns: string
       }
       apply_hybrid_rarity: { Args: { p_limit?: number }; Returns: number }
       bind_capture_eclats: {

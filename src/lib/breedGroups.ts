@@ -29,6 +29,7 @@ const normalize = (value: string) =>
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
+    .replace(/œ/g, 'oe')
     .replace(/[’'-]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
@@ -56,7 +57,7 @@ const TYPES: BreedGroup[] = [
   { key: 'bees', label: 'Abeilles & guêpes', emoji: '🐝', categories: ['Insectes'], keywords: ['abeille', 'bourdon', 'guepe', 'frelon', 'andrene', 'osmie', 'anthidie', 'collete', 'xylocope', 'chrysis', 'ammophile', 'sphex', 'ichneumon', 'braconid', 'tenthrede', 'bembex', 'megachile', 'halicte'] },
   { key: 'ants', label: 'Fourmis', emoji: '🐜', categories: ['Insectes'], keywords: ['fourmi'] },
   { key: 'beetles', label: 'Coléoptères', emoji: '🪲', categories: ['Insectes'], keywords: ['coleoptere', 'carabe', 'cetoine', 'capricorne', 'chrysomele', 'charancon', 'hanneton', 'bupreste', 'cantharide', 'longicorne', 'scarabee', 'lucane', 'tenebrion', 'taupin', 'staphylin', 'cicindele', 'altise', 'criocere', 'clyte', 'dytique', 'bousier', 'doryphore', 'lampyre', 'ver luisant', 'clairon', 'anthrene', 'balanin', 'clytre'] },
-  { key: 'grasshoppers', label: 'Criquets & sauterelles', emoji: '🦗', categories: ['Insectes'], keywords: ['criquet', 'sauterelle', 'grillon', 'courtiliere', 'ephippigere', 'decticelle', 'oedipode', 'phaneroptere', 'tetrix'] },
+  { key: 'grasshoppers', label: 'Criquets & sauterelles', emoji: '🦗', categories: ['Insectes'], keywords: ['criquet', 'sauterelle', 'grillon', 'courtiliere', 'ephippigere', 'decticelle', 'dectique', 'oedipode', 'phaneroptere', 'tetrix', 'caelifere', 'miramelle', 'pyrgomorphe', 'arcyptere', 'caloptene', 'stenobothre', 'aiolope', 'truxale', 'pholidoptere', 'analote', 'troglophile', 'yersinelle', 'leptophye', 'barbitiste', 'myrmecophile'] },
   { key: 'bugs', label: 'Punaises', emoji: '🛡️', categories: ['Insectes'], keywords: ['punaise', 'gendarme', 'pentatome', 'coree', 'reduve', 'nepe', 'notonecte', 'graphosome'] },
   { key: 'cicadas', label: 'Cigales & pucerons', emoji: '🎶', categories: ['Insectes'], keywords: ['cigale', 'cicadelle', 'cercope', 'puceron', 'psylle', 'cochenille', 'aleurode'] },
   { key: 'flies', label: 'Mouches & moustiques', emoji: '🪳', categories: ['Insectes'], keywords: ['mouche', 'moustique', 'taon', 'syrphe', 'bombyle', 'tipule', 'asile', 'eristale', 'cousin', 'bibion', 'drosophile', 'lucilie', 'asticot', 'cecidomyie', 'chlorops'] },
