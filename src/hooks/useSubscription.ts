@@ -11,20 +11,9 @@ export interface SubscriptionRow {
   cancel_at_period_end: boolean | null;
 }
 
-const ACTIVE_STATUSES = ["active", "trialing", "past_due"];
-
-function computeActive(sub: SubscriptionRow | null): boolean {
-  if (!sub) return false;
-  const end = sub.current_period_end ? new Date(sub.current_period_end).getTime() : null;
-  const stillInPeriod = end === null || end > Date.now();
-  if (ACTIVE_STATUSES.includes(sub.status) && stillInPeriod) return true;
-  return sub.status === "canceled" && end !== null && end > Date.now();
-}
-
 /** Cache mémoire partagé : évite un état "chargement" à chaque montage
  *  (plusieurs composants utilisent ce hook sur une même page). */
 const subCache = new Map<string, SubscriptionRow | null>();
-const bonusCache = new Map<string, boolean>();
 
 export function useSubscription(userId?: string) {
   const [bonusActive, setBonusActive] = useState(false);
@@ -55,18 +44,18 @@ export function useSubscription(userId?: string) {
 
     subCache.set(userId, (data as SubscriptionRow | null) ?? null);
     setSubscription((data as SubscriptionRow | null) ?? null);
-    const { data: rewards } = await supabase.from('referral_rewards').select('starts_at, ends_at')
-      .eq('user_id', userId).eq('environment', getPaddleEnvironment())
-      .lte('starts_at', new Date().toISOString()).gt('ends_at', new Date().toISOString());
     const { data: access, error: accessError } = await supabase.rpc('my_premium_access');
     const activeBonus = !accessError && access === true;
-    bonusCache.set(userId, activeBonus);
     setBonusActive(activeBonus);
     setLoading(false);
   }, [userId]);
 
   useEffect(() => {
     fetchSubscription();
+    const onFocus=()=>void fetchSubscription();
+    window.addEventListener('focus',onFocus);
+    const timer=window.setInterval(()=>void fetchSubscription(),60000);
+    return ()=>{window.removeEventListener('focus',onFocus);window.clearInterval(timer);};
   }, [fetchSubscription]);
 
   useEffect(() => {
