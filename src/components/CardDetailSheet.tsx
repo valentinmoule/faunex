@@ -33,6 +33,7 @@ import { ScanSearch, Crop as CropIcon } from 'lucide-react';
 import CropPhotoDialog from '@/components/capture/CropPhotoDialog';
 import { saveCroppedCaptureImage } from '@/lib/captureCrop';
 import CaptureLikesSheet from '@/components/CaptureLikesSheet';
+import CommentMentionInput from '@/components/CommentMentionInput';
 import { Button } from '@/components/ui/button';
 
 interface Props {
@@ -546,15 +547,15 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
   }, [session, card, liked]);
 
   const handleSubmitComment = useCallback(async () => {
-    if (!session?.user || !card || !newComment.trim()) return;
+    if (!session?.user || !card || !newComment.trim() || submitting) return;
     setSubmitting(true);
-    const { error } = await supabase.from('feed_comments').insert({
+    const { data: savedComment, error } = await supabase.from('feed_comments').insert({
       user_id: session.user.id,
       capture_id: card.id,
       content: newComment.trim(),
-    });
+    }).select('id').single();
     if (!error) {
-      notifyCaptureInteraction(card.id, session.user.id, 'comment', newComment.trim());
+      notifyCaptureInteraction(card.id, session.user.id, 'comment', newComment.trim(), savedComment?.id);
       setNewComment('');
       // Refetch comments
       const { data } = await supabase.from('feed_comments').select('*').eq('capture_id', card.id).order('created_at', { ascending: true });
@@ -567,7 +568,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
       }
     }
     setSubmitting(false);
-  }, [session, card, newComment]);
+  }, [session, card, newComment, submitting]);
 
   const timeAgo = (date: string) => {
     const diff = Date.now() - new Date(date).getTime();
@@ -1002,13 +1003,12 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                 )}
 
                 <div className="flex items-center gap-2 pt-1">
-                  <input
-                    type="text"
+                  <CommentMentionInput
                     value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSubmitComment()}
+                    onChange={setNewComment}
+                    onSubmit={handleSubmitComment}
                     placeholder={t('capture.detail.commentPlaceholder')}
-                    className="flex-1 min-w-0 bg-background rounded-full px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body"
+                    className="w-full min-w-0 bg-background rounded-full px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body"
                   />
                   <button
                     onClick={handleSubmitComment}

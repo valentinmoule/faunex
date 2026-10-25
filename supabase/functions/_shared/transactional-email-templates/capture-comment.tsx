@@ -14,6 +14,7 @@ interface Props {
   commentText?: string
   captureUrl?: string
   locale?: Locale | string
+  mention?: boolean
 }
 
 const CaptureCommentEmail = ({
@@ -23,23 +24,24 @@ const CaptureCommentEmail = ({
   commentText = '',
   captureUrl = 'https://faunex.lovable.app',
   locale,
+  mention = false,
 }: Props) => {
   const l = resolveLocale(locale as string | undefined)
   return (
     <Html lang={l} dir="ltr">
       <Head />
-      <Preview>{pick({ fr: `${actorName} a commenté ta capture de ${animalName} 💬`, en: `${actorName} commented on your capture of ${animalName} 💬` }, l)}</Preview>
+      <Preview>{mention ? pick({ fr: `${actorName} t’a mentionné dans un commentaire 💬`, en: `${actorName} mentioned you in a comment 💬` }, l) : pick({ fr: `${actorName} a commenté ta capture de ${animalName} 💬`, en: `${actorName} commented on your capture of ${animalName} 💬` }, l)}</Preview>
       <Body style={main}>
         <Container style={container}>
           <Img
             src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png"
             width="48" height="48" alt="Faunex" style={logo}
           />
-          <Heading style={h1}>{pick({ fr: 'Nouveau commentaire ! 💬', en: 'New comment! 💬' }, l)}</Heading>
+          <Heading style={h1}>{mention ? pick({ fr: 'Tu as été mentionné ! 💬', en: 'You were mentioned! 💬' }, l) : pick({ fr: 'Nouveau commentaire ! 💬', en: 'New comment! 💬' }, l)}</Heading>
           <Text style={text}>{pick({ fr: 'Salut', en: 'Hey' }, l)} <strong>{recipientName}</strong>,</Text>
           <Text style={text}>
             <strong>{actorName}</strong>{' '}
-            {pick({ fr: `a commenté ta capture de ${animalName} :`, en: `commented on your capture of ${animalName}:` }, l)}
+            {mention ? pick({ fr: `t’a mentionné dans un commentaire sur la capture de ${animalName} :`, en: `mentioned you in a comment on the capture of ${animalName}:` }, l) : pick({ fr: `a commenté ta capture de ${animalName} :`, en: `commented on your capture of ${animalName}:` }, l)}
           </Text>
           {commentText && <Text style={quote}>« {commentText} »</Text>}
           <Button style={button} href={captureUrl}>{pick({ fr: 'Voir la conversation', en: 'View the conversation' }, l)}</Button>
@@ -52,7 +54,7 @@ const CaptureCommentEmail = ({
 
 export const template = {
   component: CaptureCommentEmail,
-  subject: (d: Props) => pick(
+  subject: (d: Props) => d.mention ? pick({ fr: `${d.actorName || 'Un explorateur'} t’a mentionné dans un commentaire 💬`, en: `${d.actorName || 'An explorer'} mentioned you in a comment 💬` }, d.locale) : pick(
     { fr: `${d?.actorName || 'Un explorateur'} a commenté ta capture de ${d?.animalName || 'faune'} 💬`, en: `${d?.actorName || 'An explorer'} commented on your capture of ${d?.animalName || 'wildlife'} 💬` },
     d?.locale,
   ),

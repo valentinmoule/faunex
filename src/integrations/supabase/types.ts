@@ -2926,6 +2926,12 @@ export type Database = {
           taxon_id: string
         }[]
       }
+      comment_mention_recipients: {
+        Args: { p_actor_id: string; p_capture_id: string; p_content: string }
+        Returns: {
+          user_id: string
+        }[]
+      }
       complete_share_quest: { Args: { p_quest_id: string }; Returns: boolean }
       confirm_paid_referral: {
         Args: {
