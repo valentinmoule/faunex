@@ -50,7 +50,7 @@ export const usePinnedProfileCollections = (userId?: string) => {
           .eq('collection_key', collectionKey);
         if (error) setPins(prev);
       } else {
-        const row = { collection_key: collectionKey, pinned_at: new Date().toISOString() };
+        const row = { user_id: userId, collection_key: collectionKey, pinned_at: new Date().toISOString() };
         setPins((p) => [...p, row]);
         const { data, error } = await supabase
           .from('pinned_profile_collections')
