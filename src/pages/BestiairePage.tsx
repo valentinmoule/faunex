@@ -215,6 +215,7 @@ const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [selectedCollectionKey, setSelectedCollectionKey] = useState<string | null>(null);
   const [selectedCustomId, setSelectedCustomId] = useState<string | null>(null);
   const [renamingCustom, setRenamingCustom] = useState(false);
+  const [coverPickerOpen, setCoverPickerOpen] = useState(false);
   const [customNameDraft, setCustomNameDraft] = useState('');
   const [creatingCustom, setCreatingCustom] = useState(false);
   const [newCustomName, setNewCustomName] = useState('');
@@ -748,9 +749,11 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
     return resolved;
   }, [selectedCustom, customCollections, browseAnimals]);
 
-  /** Image de couverture d'une collection perso : première espèce capturée. */
+  /** Image de couverture d'une collection perso : photo choisie, sinon première espèce capturée. */
   const customCover = useCallback(
     (collectionId: string): string | null => {
+      const chosen = customCollections.collections.find((c) => c.id === collectionId)?.cover_image;
+      if (chosen) return chosen;
       for (const item of customCollections.itemsFor(collectionId)) {
         const target = item.animal_name.toLocaleLowerCase('fr');
         const sci = item.scientific_name?.trim().toLowerCase();
