@@ -77,7 +77,7 @@ const BottomNav = () => {
                 strokeWidth={active ? 2.4 : 1.9}
               />
               <span
-                className={`text-[10px] font-display tracking-tight transition-colors duration-200 ${
+                className={`text-[9px] sm:text-[10px] font-display tracking-tight transition-colors duration-200 ${
                   active ? 'text-primary font-bold' : 'text-muted-foreground font-medium'
                 }`}
               >
