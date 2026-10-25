@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Check, Lock, Sprout, Bean, Loader2, Star } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWallet, walletKey } from '@/hooks/useWallet';
@@ -44,18 +43,15 @@ export default function LearningPage() {
       {status.isPending && <Loader2 className="mx-auto h-6 w-6 animate-spin text-primary" />}
       {status.isError && <><p role="alert" className="text-destructive">{t('learning.error')}</p><Button variant="ghost" onClick={() => void status.refetch()}>{t('learning.retry')}</Button></>}
       {path && data && <>
-        <div className="flex items-center justify-between gap-3 border-b border-border pb-4"><p className="text-xs font-semibold text-muted-foreground">{t('learning.daily', data)}</p><div className="flex max-w-40 flex-1 gap-1" aria-hidden="true">{Array.from({ length: data.limit }, (_, i) => <span key={i} className={`h-2 flex-1 rounded-full ${i < data.used ? 'bg-primary' : 'bg-border'}`} />)}</div></div>
-        <section className="pb-7 pt-5">
+        {data.paths.length > 1 && <section className="pb-7 pt-5">
           {data.paths.length > 1 && <Select value={path.id} onValueChange={id => { setPathId(id); if (session?.user.id) localStorage.setItem(`learning-path:${session.user.id}`, id); }}><SelectTrigger className="h-auto min-h-10 border-0 bg-transparent p-0 text-left font-display text-xl font-bold shadow-none [&>span]:whitespace-normal" aria-label={t('learning.choosePath')}><SelectValue /></SelectTrigger><SelectContent>{data.paths.map(p => <SelectItem key={p.id} value={p.id}>{text(p, 'title')}</SelectItem>)}</SelectContent></Select>}
-          <div className="mt-3 flex items-center gap-3"><Progress value={lessons.length ? completed.size / lessons.length * 100 : 0} className="h-2 flex-1" /><span className="shrink-0 text-xs font-semibold text-muted-foreground">{t('learning.progress', { done: completed.size, total: lessons.length })}</span></div>
-        </section>
-        {quota && <section className="border-y border-border py-5"><h2 className="font-display text-lg font-bold">{t('learning.quota')}</h2><p className="mt-2 text-sm text-muted-foreground">{t('learning.quotaMessage', { time: new Date(data.reset_at).toLocaleTimeString(i18n.language, { hour: '2-digit', minute: '2-digit' }) })}</p>{data.limit === 3 && <Button variant="ghost" className="mt-2 px-0 text-primary" onClick={() => navigate('/premium')}>{t('learning.premium')}</Button>}</section>}
+        </section>}
         {path.chapters.map((chapter, ci) => ({ chapter, ci })).reverse().map(({ chapter, ci }) => <section key={ci} className={`learning-chapter ${ci % 2 ? 'learning-chapter-sky' : ''}`}>
           <div className="learning-chapter-heading flex items-center gap-3 px-4 py-4"><div className="learning-chapter-emblem flex h-11 w-11 shrink-0 items-center justify-center font-display text-xl font-extrabold">{ci + 1}</div><div className="min-w-0"><p className="text-xs font-bold uppercase opacity-80">{t('learning.chapter', { number: ci + 1 })}</p><h2 className="mt-1 font-display text-base font-bold">{text(chapter, 'title')}</h2></div><span className="ml-auto shrink-0 text-sm font-extrabold">{chapter.lessons.filter(l => completed.has(l.id)).length}/{chapter.lessons.length}</span></div>
           <div className="relative"><div aria-hidden="true" className="learning-side learning-side-left" style={{ backgroundImage: `url(${chapterWorlds[ci % chapterWorlds.length]})` }} /><div aria-hidden="true" className="learning-side learning-side-right" style={{ backgroundImage: `url(${chapterWorlds[ci % chapterWorlds.length]})` }} /><div className="learning-board relative mx-auto max-w-sm pb-8 pt-14">{[...chapter.lessons].reverse().map((lesson, li) => {
             const position = lessons.findIndex(item => item.id === lesson.id); const done = completed.has(lesson.id); const active = current?.id === lesson.id; const locked = !done && !active;
             const offset = li % 2 ? 'translate-x-14' : '-translate-x-14';
-            return <div key={lesson.id} ref={lesson.id === arrivalId ? currentNode : undefined} className="learning-stop relative flex h-56 flex-col items-center">
+            return <div key={lesson.id} ref={lesson.id === arrivalId ? currentNode : undefined} className={`learning-stop relative flex flex-col items-center ${active && quota ? 'min-h-56 pb-8' : 'h-56'}`}>
               {li < chapter.lessons.length - 1 && <svg aria-hidden="true" viewBox="0 0 300 224" preserveAspectRatio="none" className={`learning-trail pointer-events-none absolute left-1/2 top-12 h-56 w-full -translate-x-1/2 ${li % 2 ? '-scale-x-100' : ''}`}><path d="M 94 0 C 94 100, 206 100, 206 224" /></svg>}
               <div className={`relative z-10 flex w-40 flex-col items-center ${offset}`}>
                 {active && !quota && <span className="learning-callout absolute -top-9 whitespace-nowrap px-3 py-1.5 text-xs font-extrabold">{t('learning.current')}</span>}
@@ -65,6 +61,7 @@ export default function LearningPage() {
                 <p className={`learning-stop-title mt-6 px-2 text-center text-sm font-extrabold ${locked ? 'text-muted-foreground' : 'text-foreground'}`}>{text(lesson, 'title')}</p>
                 {done && <span className="mt-1 text-xs font-bold text-primary">{t('learning.done')}</span>}
               </div>
+              {active && quota && <div role="status" className="relative z-10 mt-5 w-full px-4 text-center"><p className="font-semibold">{t('learning.quota')}</p>{data.limit === 3 ? <Button className="mt-3" onClick={() => navigate('/premium')}>{t('learning.premium')}</Button> : <p className="mt-2 text-sm text-muted-foreground">{t('learning.quotaMessage', { time: new Date(data.reset_at).toLocaleTimeString(i18n.language, { hour: '2-digit', minute: '2-digit' }) })}</p>}</div>}
             </div>;
           })}</div></div>
         </section>)}
