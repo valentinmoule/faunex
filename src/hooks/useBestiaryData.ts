@@ -6,6 +6,7 @@ import { buildRegionalAnimalSet, type BestiaryAnimal, type ZoneSub } from '@/lib
 import { readCatalogueCache, writeCatalogueCache, type CatalogueEntry } from '@/lib/bestiaryCache';
 import type { AnimalCard } from '@/data/mockData';
 import { peekPendingShelve } from '@/lib/shelveAnimation';
+import { subscribeCaptureImageUpdates, updateCaptureImage } from '@/lib/captureImageUpdates';
 
 /** Loads the bestiary catalogue, the user's captures, notifications count and zone subscriptions.
  *  Pass `light: true` (e.g. on the leaderboard tab) to only load the notification count —
@@ -73,6 +74,24 @@ export const useBestiaryData = (userId: string | undefined, opts?: { light?: boo
   const [animalsByDept, setAnimalsByDept] = useState<Record<string, Set<string>>>({});
   /** Raw approved captures of the user — the single source of truth for "how many captures". */
   const [myCaptures, setMyCaptures] = useState<AnimalCard[]>(() => snapAtMount.current?.myCaptures || []);
+
+  useEffect(() => subscribeCaptureImageUpdates((update) => {
+    if (update.userId !== userId) return;
+    const updateAnimals = (current: BestiaryAnimal[]) => current.map((animal) => {
+      if (animal.captureData?.id !== update.captureId) return animal;
+      return { ...animal, captureData: updateCaptureImage(animal.captureData, update) };
+    });
+    // Update the navigation cache as well as every mounted grid, without refetching the catalogue.
+    if (sessionSnapshot?.userId === userId) {
+      sessionSnapshot = {
+        ...sessionSnapshot,
+        animals: updateAnimals(sessionSnapshot.animals),
+        myCaptures: sessionSnapshot.myCaptures.map((card) => updateCaptureImage(card, update)),
+      };
+    }
+    setMyCaptures((current) => current.map((card) => updateCaptureImage(card, update)));
+    setAnimals(updateAnimals);
+  }), [userId]);
 
   useEffect(() => {
     if (!userId || !capturesLoaded || light || animals.length === 0) return;

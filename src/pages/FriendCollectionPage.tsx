@@ -28,6 +28,7 @@ import { applyCustomCaptureOrder, parseCaptureOrder } from '@/lib/captureOrder';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { followUser as followUserUtil } from '@/lib/followUtils';
+import { subscribeCaptureImageUpdates, updateCaptureImage } from '@/lib/captureImageUpdates';
 
 interface BadgeDef {
   id: string;
@@ -83,6 +84,11 @@ const FriendCollectionPage = () => {
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
 
   const [captures, setCaptures] = useState<AnimalCard[]>([]);
+  useEffect(() => subscribeCaptureImageUpdates((update) => {
+    if (update.userId !== userId) return;
+    setCaptures((current) => current.map((card) => updateCaptureImage(card, update)));
+    setSelectedCard((current) => current ? updateCaptureImage(current, update) : null);
+  }), [userId]);
   const [loading, setLoading] = useState(true);
   const [profileName, setProfileName] = useState('');
   const [profileLevel, setProfileLevel] = useState(0);
