@@ -223,20 +223,20 @@ const PremiumPage = () => {
         </section>
 
         <section className="mt-8" aria-labelledby="premium-plans">
-          <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-col gap-4">
             <h2 id="premium-plans" className="font-display text-lg font-semibold">{t('profile.premium.presentation.available')}</h2>
-            <div className="game-tabs grid grid-cols-2">
+            <div className="game-tabs grid w-full grid-cols-2">
               {(Object.keys(PLANS) as Array<keyof typeof PLANS>).map((key) => (
                 <Button variant="ghost" size="sm"
                   key={key}
                   onClick={() => setPlan(key)}
                   aria-pressed={plan === key}
-                  className="game-tab px-3 text-sm"
+                  className="game-tab h-11 min-w-0 gap-2 px-2 text-sm"
                   data-state={plan === key ? 'active' : 'inactive'}
                 >
                   {PLANS[key].label}
                   {key === 'yearly' && (
-                    <span className="ml-1.5 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary">
+                    <span className="shrink-0 rounded-md bg-card px-1.5 py-1 text-xs font-extrabold leading-none text-primary">
                       {t('profile.premium.discount')}
                     </span>
                   )}
@@ -248,7 +248,10 @@ const PremiumPage = () => {
             <article className="flex flex-col rounded-lg border border-border bg-card p-5 sm:p-6">
               <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground"><UserRound className="size-4" aria-hidden />{t('profile.premium.badge')}</div>
               <h3 className="mt-3 font-display text-2xl font-bold text-primary">{t('profile.premium.presentation.personal')}</h3>
-              <p className="mt-3 flex items-baseline gap-1.5"><span className="font-display text-3xl font-bold">{selected.price}</span><span className="text-sm text-muted-foreground">{selected.period}</span></p>
+              <p className="mt-3 flex flex-wrap items-baseline gap-1.5">
+                {plan === 'yearly' && <del className="mr-1 text-lg font-semibold tabular-nums text-muted-foreground">{new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR' }).format(2.4 * 12)}</del>}
+                <span className="font-display text-3xl font-bold">{selected.price}</span><span className="text-sm text-muted-foreground">{selected.period}</span>
+              </p>
               <p className="mt-2 min-h-10 text-xs leading-relaxed text-muted-foreground">{selected.note}</p>
               <ul className="my-5 space-y-3 border-t border-border pt-5 text-sm leading-relaxed">
                 {['personalAccounts', 'allBenefits', 'personalCollection', 'cancelAnytime'].map(key => <li key={key} className="flex gap-2.5"><Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden /><span>{t(`profile.premium.presentation.${key}`)}</span></li>)}
@@ -267,7 +270,10 @@ const PremiumPage = () => {
             <article className="flex flex-col rounded-lg border border-primary/25 bg-secondary p-5 sm:p-6">
               <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground"><Users className="size-4" aria-hidden />{t('profile.premium.badge')}</div>
               <h3 className="mt-3 font-display text-2xl font-bold text-primary">{t('profile.premium.presentation.family')}</h3>
-              <p className="mt-3 flex items-baseline gap-1.5"><span className="font-display text-3xl font-bold">{plan === 'yearly' ? '40 €' : '4 €'}</span><span className="text-sm text-muted-foreground">{selected.period}</span></p>
+              <p className="mt-3 flex flex-wrap items-baseline gap-1.5">
+                {plan === 'yearly' && <del className="mr-1 text-lg font-semibold tabular-nums text-muted-foreground">{new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(4 * 12)}</del>}
+                <span className="font-display text-3xl font-bold">{plan === 'yearly' ? '40 €' : '4 €'}</span><span className="text-sm text-muted-foreground">{selected.period}</span>
+              </p>
               <p className="mt-2 min-h-10 text-xs leading-relaxed text-muted-foreground">{t(`profile.premium.presentation.family${plan === 'yearly' ? 'Yearly' : 'Monthly'}Note`)}</p>
               <ul className="my-5 space-y-3 border-t border-primary/15 pt-5 text-sm leading-relaxed">
                 {['familyAccounts', 'allBenefits', 'familyIndependent', 'familyInvites', 'cancelAnytime'].map(key => <li key={key} className="flex gap-2.5"><Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden /><span>{t(`profile.premium.presentation.${key}`)}</span></li>)}
