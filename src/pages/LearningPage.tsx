@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, ArrowRight, Check, Lock, Sprout, Trophy, Bean, Loader2, Bird, Star, BookOpen } from 'lucide-react';
+import { ArrowLeft, Check, Lock, Sprout, Trophy, Bean, Loader2, Bird, Star, BookOpen } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -23,11 +23,17 @@ export default function LearningPage() {
   const lessons = path?.chapters.flatMap(c => c.lessons) ?? [];
   const completed = new Set(data?.completed.filter(c => c.path_id === path?.id).map(c => c.lesson_id));
   const current = lessons.find(l => !completed.has(l.id)); const quota = Boolean(data && data.used >= data.limit);
+  const currentNode = useRef<HTMLDivElement>(null);
+  const arrivalId = current?.id ?? lessons[lessons.length - 1]?.id;
+  useEffect(() => {
+    if (attempt || !arrivalId) return;
+    const frame = requestAnimationFrame(() => currentNode.current?.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    return () => cancelAnimationFrame(frame);
+  }, [path?.id, arrivalId, attempt]);
   async function open(id: string) { if (!path) return; setBusy(true); setError(''); try { setAttempt(await startLesson(path.id, id)); } catch (e) { const message = String((e as { message?: string }).message); setError(t(message.includes('DAILY_LIMIT') ? 'learning.quota' : message.includes('LESSON_LOCKED') ? 'learning.locked' : 'learning.error')); } finally { setBusy(false); } }
   function refresh() { void client.invalidateQueries({ queryKey: ['learning', session?.user.id] }); void client.invalidateQueries({ queryKey: walletKey(session?.user.id) }); }
   if (attempt) return <LearningPlayer key={attempt.id} initial={attempt} onClose={() => { setAttempt(null); refresh(); }} onFinished={refresh} onRetry={() => { const id = attempt.lesson.id; setAttempt(null); void open(id); }} />;
-  let step = 0;
-  return <main className="learning-world min-h-screen bg-background pb-16">
+  return <main className="learning-world min-h-screen bg-background pb-[50svh]">
     <PageHeader sticky className="border-b border-border bg-background px-5 py-4"><div className="mx-auto flex max-w-lg items-center gap-3"><Button variant="ghost" size="icon" onClick={() => navigate('/home')} aria-label={t('common.back')}><ArrowLeft className="h-5 w-5" /></Button><h1 className="font-display text-2xl font-bold">{t('learning.title')}</h1><Button variant="ghost" className="ml-auto gap-2 text-primary" onClick={() => navigate('/eclats')} aria-label={t('economy.balance', { amount: wallet.data?.balance ?? 0 })}><Bean className="h-5 w-5" />{wallet.isPending ? '—' : wallet.data?.balance.toLocaleString(i18n.language) ?? 0}</Button></div></PageHeader>
     <div className="mx-auto max-w-lg px-5 pt-4">
       {status.isPending && <Loader2 className="mx-auto h-6 w-6 animate-spin text-primary" />}
@@ -40,13 +46,12 @@ export default function LearningPage() {
           <img src={gardenVignette} width={720} height={341} alt="" className="mx-auto mt-3 w-full max-w-sm object-contain" />
         </section>
         {quota && <section className="border-y border-border py-5"><h2 className="font-display text-lg font-bold">{t('learning.quota')}</h2><p className="mt-2 text-sm text-muted-foreground">{t('learning.quotaMessage', { time: new Date(data.reset_at).toLocaleTimeString(i18n.language, { hour: '2-digit', minute: '2-digit' }) })}</p>{data.limit === 3 && <Button variant="ghost" className="mt-2 px-0 text-primary" onClick={() => navigate('/premium')}>{t('learning.premium')}</Button>}</section>}
-        <Button className="learning-continue mb-7 mt-1 h-12 w-full gap-3 font-display font-bold" disabled={busy || (Boolean(current) && quota)} onClick={() => void open(current?.id ?? lessons[0]?.id)}>{busy ? <Loader2 className="h-5 w-5 animate-spin" /> : <BookOpen className="h-5 w-5" />}{t(current ? 'learning.resume' : 'learning.review')}<ArrowRight className="ml-auto h-5 w-5" /></Button>
-        {path.chapters.map((chapter, ci) => <section key={ci} className={`learning-chapter ${ci % 2 ? 'learning-chapter-sky' : ''}`}>
+        {path.chapters.map((chapter, ci) => ({ chapter, ci })).reverse().map(({ chapter, ci }) => <section key={ci} className={`learning-chapter ${ci % 2 ? 'learning-chapter-sky' : ''}`}>
           <div className="learning-chapter-heading flex items-center gap-4 px-4 py-4"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-current/20"><BookOpen className="h-5 w-5" /></div><div className="min-w-0"><p className="text-xs font-bold uppercase opacity-80">{t('learning.chapter', { number: ci + 1 })}</p><h2 className="mt-1 font-display text-base font-bold">{text(chapter, 'title')}</h2></div></div>
-          <div className="relative mx-auto max-w-sm pb-6 pt-10">{chapter.lessons.map((lesson, li) => {
-            const position = step++; const done = completed.has(lesson.id); const active = current?.id === lesson.id; const locked = !done && !active;
+          <div className="relative mx-auto max-w-sm pb-6 pt-10">{[...chapter.lessons].reverse().map((lesson, li) => {
+            const position = lessons.findIndex(item => item.id === lesson.id); const done = completed.has(lesson.id); const active = current?.id === lesson.id; const locked = !done && !active;
             const offset = li % 2 ? 'translate-x-12' : '-translate-x-12';
-            return <div key={lesson.id} className="relative flex h-44 flex-col items-center">
+            return <div key={lesson.id} ref={lesson.id === arrivalId ? currentNode : undefined} className="relative flex h-44 flex-col items-center">
               {li < chapter.lessons.length - 1 && <svg aria-hidden="true" viewBox="0 0 300 176" preserveAspectRatio="none" className={`learning-trail pointer-events-none absolute left-1/2 top-8 h-44 w-full -translate-x-1/2 ${li % 2 ? '-scale-x-100' : ''}`}><path d="M 104 0 C 104 75, 196 90, 196 176" /></svg>}
               <div className={`relative z-10 flex w-40 flex-col items-center ${offset}`}>
                 {active && !quota && <span className="learning-callout absolute -top-7 whitespace-nowrap rounded-lg px-3 py-1 text-xs font-extrabold">{t('learning.resume')}</span>}
