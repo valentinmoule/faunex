@@ -184,7 +184,7 @@ Deno.serve(async (req) => {
               : reason === 'human'
                 ? `Les photos d'humains ne sont pas acceptées sur Faunex. Photographie des animaux sauvages !`
                 : `${animalName} n'a pas pu être identifiée. Retente avec une photo plus nette.`,
-      url: approved ? `/home${captureId ? `?capture=${captureId}` : ''}` : '/capture',
+      url: approved || correction ? `/home${captureId ? `?capture=${captureId}` : ''}` : '/capture',
       tag: `moderation-${captureId ?? userId}`,
     })
 
