@@ -2412,6 +2412,60 @@ export type Database = {
         }
         Relationships: []
       }
+      species_natural_history: {
+        Row: {
+          animal_id: string
+          checked_at: string
+          class_name: string | null
+          family: string | null
+          gbif_key: number | null
+          measurements: Json
+          order_name: string | null
+          phylum: string | null
+          scientific_name: string
+          sources: Json
+        }
+        Insert: {
+          animal_id: string
+          checked_at?: string
+          class_name?: string | null
+          family?: string | null
+          gbif_key?: number | null
+          measurements?: Json
+          order_name?: string | null
+          phylum?: string | null
+          scientific_name: string
+          sources?: Json
+        }
+        Update: {
+          animal_id?: string
+          checked_at?: string
+          class_name?: string | null
+          family?: string | null
+          gbif_key?: number | null
+          measurements?: Json
+          order_name?: string | null
+          phylum?: string | null
+          scientific_name?: string
+          sources?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "species_natural_history_animal_id_fkey"
+            columns: ["animal_id"]
+            isOneToOne: true
+            referencedRelation: "animals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "species_natural_history_animal_id_fkey"
+            columns: ["animal_id"]
+            isOneToOne: true
+            referencedRelation: "ml_dataset_captures"
+            referencedColumns: ["animal_id"]
+          },
+        ]
+      }
       species_pages: {
         Row: {
           animal_name: string
