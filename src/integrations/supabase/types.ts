@@ -900,6 +900,38 @@ export type Database = {
         }
         Relationships: []
       }
+      family_complimentary_grants: {
+        Row: {
+          expires_at: string | null
+          family_id: string
+          granted_at: string
+          reason: string
+          revoked_at: string | null
+        }
+        Insert: {
+          expires_at?: string | null
+          family_id: string
+          granted_at?: string
+          reason: string
+          revoked_at?: string | null
+        }
+        Update: {
+          expires_at?: string | null
+          family_id?: string
+          granted_at?: string
+          reason?: string
+          revoked_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_complimentary_grants_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: true
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       family_invitations: {
         Row: {
           accepted_at: string | null
