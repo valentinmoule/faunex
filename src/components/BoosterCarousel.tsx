@@ -102,6 +102,14 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
         {items.map((child, i) => (
           <div
             key={i}
+            onClickCapture={(e) => {
+              if (i !== activeRef.current) {
+                e.preventDefault();
+                e.stopPropagation();
+                suppressClick.current = false;
+                scrollToItem(i);
+              }
+            }}
             className="w-[68vw] max-w-[320px] shrink-0 snap-center transition-[transform,opacity] duration-150 ease-out will-change-transform"
           >
             {child}
