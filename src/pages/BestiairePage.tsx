@@ -1686,8 +1686,8 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
   if (!selectedCategory) {
     const showMineControls = myCapturedAnimals.length > 0 || mineSearch.trim().length > 0 || mineActiveFilterCount > 0;
     return (
-      <main className="min-h-screen bg-background pb-24">
-        {/* Badges & quêtes : en-tête titre + retour, comme la page Notifications */}
+      <main className={`min-h-screen bg-background ${viewMode === 'collections' ? 'overflow-hidden pb-0' : 'pb-24'}`}>
+         {/* Badges & quêtes : en-tête titre + retour, comme la page Notifications */}
         {viewMode === 'badges' ? (
           <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
             <div className="flex items-center gap-3 max-w-lg mx-auto">
@@ -2302,7 +2302,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
     : categoryData.find(c => c.name === selectedCategory);
 
   return (
-    <main className={`min-h-screen bg-background ${viewMode === 'collections' ? 'overflow-hidden pb-0' : 'pb-24'}`}>
+    <main className="min-h-screen bg-background pb-24">
       <Helmet>
         <title>{t('bestiary.seo.title')}</title>
         <meta name="description" content={t('bestiary.seo.description')} />
