@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
-import { activeMention, insertMention } from '@/lib/commentMentions';
+import { activeMention, insertMention, mentionSearchFilter } from '@/lib/commentMentions';
 import { Button } from '@/components/ui/button';
 import { PremiumAvatar } from '@/components/PremiumAvatar';
 
