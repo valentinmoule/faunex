@@ -151,9 +151,15 @@ export const useCaptureSave = ({ userId, photo, geo, takenAt = null }: SaveConte
         }).select('id').single();
         if (error) throw error;
         if (inserted && animal.economy_validation_id && animal.analyzed_image) {
-          const { data: reward, error: rewardError } = await supabase.functions.invoke('confirm-capture-eclats', {
+          const confirmation = {
             body: { mode: 'ai', captureId: inserted.id, receiptId: animal.economy_validation_id, analyzedImage: animal.analyzed_image, crop: animal.economy_crop },
-          });
+          };
+          let { data: reward, error: rewardError } = await supabase.functions.invoke('confirm-capture-eclats', confirmation);
+          if (rewardError) {
+            const retry = await supabase.functions.invoke('confirm-capture-eclats', confirmation);
+            reward = retry.data;
+            rewardError = retry.error;
+          }
           if (rewardError) console.warn('Éclats confirmation pending');
           window.dispatchEvent(new CustomEvent('faunex:eclats', { detail: { amount: Number(reward?.amount ?? 0) } }));
         }

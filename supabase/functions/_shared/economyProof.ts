@@ -11,6 +11,11 @@ export function imageBytes(dataUrl: string): Uint8Array {
   if (!encoded || encoded.length > 8_000_000) throw new Error('INVALID_IMAGE');
   const bytes = Uint8Array.from(atob(encoded), c => c.charCodeAt(0));
   if (bytes.length < 16 || bytes.length > 6_000_000) throw new Error('INVALID_IMAGE_SIZE');
+  const jpeg = bytes[0] === 255 && bytes[1] === 216;
+  const png = bytes[0] === 137 && bytes[1] === 80 && bytes[2] === 78 && bytes[3] === 71;
+  const gif = bytes[0] === 71 && bytes[1] === 73 && bytes[2] === 70;
+  const webp = String.fromCharCode(...bytes.slice(0, 4)) === 'RIFF' && String.fromCharCode(...bytes.slice(8, 12)) === 'WEBP';
+  if (!jpeg && !png && !gif && !webp) throw new Error('INVALID_IMAGE_SIGNATURE');
   return bytes;
 }
 
@@ -28,7 +33,8 @@ export async function issueAiProof(db: SupabaseClient, userId: string, body: Rec
 export async function attestModeratedCapture(db: SupabaseClient, captureId: string, source: 'auto_moderation' | 'human_moderation') {
   const { data: capture, error } = await db.from('captures').select('id,user_id,image_url,animal_name,scientific_name,status').eq('id', captureId).single();
   if (error || !capture || capture.status !== 'approved') return;
-  const { data: existing } = await db.from('eclats_capture_events').select('animal_id').eq('capture_id', capture.id).maybeSingle();
+  const { data: existing, error: existingError } = await db.from('eclats_capture_events').select('animal_id').eq('capture_id', capture.id).maybeSingle();
+  if (existingError) throw existingError;
   if (existing?.animal_id) {
     const { data: identity } = await db.rpc('eclats_animal_id', { p_name: capture.animal_name, p_scientific: capture.scientific_name });
     if (identity === existing.animal_id) return;
