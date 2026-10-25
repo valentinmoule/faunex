@@ -244,6 +244,7 @@
       "cancel": "Cancel",
       "confirm": "Delete",
       "removeSpecies": "Remove from collection",
+      "useAsCover": "Use as collection cover",
       "changeCover": "Change cover image",
       "coverSheetTitle": "Pick a cover image",
       "coverSheetEmpty": "Capture a species from this collection first to use your photo as the cover.",

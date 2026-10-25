@@ -7,7 +7,7 @@ import { Drawer } from 'vaul';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { type AnimalCard, type Rarity, RARITY_LABELS, RARITY_FX, normalizeRarity } from '@/data/mockData';
 import { categoryLabel } from '@/lib/bestiary';
-import { MapPin, Leaf, UtensilsCrossed, Shield, Sparkles, Heart, MessageCircle, Send, PawPrint, Bird, Fish, Bug, Turtle, Shell, Snail, Waves, Lock, Camera, Pencil, Calendar, StickyNote, Users, type LucideIcon } from 'lucide-react';
+import { MapPin, Leaf, UtensilsCrossed, Shield, Sparkles, Heart, MessageCircle, Send, PawPrint, Bird, Fish, Bug, Turtle, Shell, Snail, Waves, Lock, Camera, Pencil, Calendar, StickyNote, Users, ImagePlus, type LucideIcon } from 'lucide-react';
 import { FrogIcon } from '@/components/icons/FrogIcon';
 import { SpiderIcon } from '@/components/icons/SpiderIcon';
 import { supabase } from '@/integrations/supabase/client';
@@ -39,6 +39,8 @@ interface Props {
   onDeleted?: (captureId: string) => void;
   /** Mode feed : fiche allégée d'une capture d'explorateur — pas de description, ni d'infos. */
   feedView?: boolean;
+  /** Set this own capture as the cover of the currently opened custom collection. */
+  onUseCollectionCover?: () => Promise<void>;
   /** Auteur de la capture (mode feed) — en-tête avatar + nom. */
   author?: { id: string; name: string; avatarUrl?: string | null } | null;
 }
@@ -133,7 +135,7 @@ const DELETE_SPARKLES = [
   { x: '88%', y: '58%', size: 10, delay: 140 },
 ];
 
-const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, feedView = false, author }: Props) => {
+const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, feedView = false, author, onUseCollectionCover }: Props) => {
   const { t, i18n } = useTranslation();
   const { session } = useAuth();
   // Nom commun localisé + fiche d'espèce localisée (traduite à la demande, puis cachée).
@@ -158,6 +160,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
   const { isPremium } = useSubscription(session?.user?.id);
   const customCollections = useCustomCollections(session?.user?.id);
   const [addToOpen, setAddToOpen] = useState(false);
+  const [savingCover, setSavingCover] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -908,6 +911,25 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
               </div>
             )}
 
+
+            {onUseCollectionCover && isOwner && card.image && !isUncaptured && (
+              <div className="flex justify-center">
+                <Button
+                  variant="ghost"
+                  disabled={savingCover}
+                  onClick={async () => {
+                    if (savingCover) return;
+                    hapticTap();
+                    setSavingCover(true);
+                    try { await onUseCollectionCover(); }
+                    finally { setSavingCover(false); }
+                  }}
+                >
+                  <ImagePlus aria-hidden="true" />
+                  {t('bestiary.customCollections.useAsCover')}
+                </Button>
+              </div>
+            )}
 
             {/* Comments section */}
             {showComments && (
