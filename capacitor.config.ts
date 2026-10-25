@@ -4,6 +4,9 @@ const config: CapacitorConfig = {
   appId: 'fr.faunex.app',
   appName: 'Faunex',
   webDir: 'dist',
+  experimental: {
+    ios: { spm: { packageOptions: { '@capacitor-firebase/messaging': { symlink: true } } } },
+  },
   backgroundColor: '#f9f5ec',
 
   // Pas de `server.url` : l'app native embarque le build local (`npm run build:app`),
@@ -27,6 +30,7 @@ const config: CapacitorConfig = {
   },
 
   plugins: {
+    FirebaseMessaging: { presentationOptions: ['alert', 'sound'] },
     SplashScreen: {
       backgroundColor: '#f9f5ec',
       androidScaleType: 'CENTER_CROP',

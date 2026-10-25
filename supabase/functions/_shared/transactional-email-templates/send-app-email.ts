@@ -1,5 +1,7 @@
 import { EmailAPIError } from 'npm:@lovable.dev/email-js@0.1.0'
 import { sendTemplateEmail } from './send-email.ts'
+import { sendNativePush } from '../native-push.ts'
+import { nativeEmailPayload } from '../native-push-policy.ts'
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
@@ -17,8 +19,17 @@ export async function sendAppEmail(
     idempotencyKey?: string
     /** Stored in email_send_log.message_id — used by senders for one-shot idempotency. */
     messageId?: string
+    /** Trusted recipient from the event handler, never looked up by listUsers email filtering. */
+    nativeUserId?: string
   } = {},
 ): Promise<'sent' | 'suppressed' | 'failed'> {
+  if (options.nativeUserId) {
+    try {
+      const { data: profile } = await supabase.from('profiles').select('locale').eq('user_id', options.nativeUserId).maybeSingle()
+      const payload = nativeEmailPayload(templateName, options.templateData ?? {}, profile?.locale ?? 'fr', options.idempotencyKey ?? options.messageId ?? `${templateName}-${options.nativeUserId}`)
+      if (payload) await sendNativePush(supabase, options.nativeUserId, payload, templateName)
+    } catch { console.error('Native email notification failed', { templateName }) }
+  }
   const logRow = (
     status: 'sent' | 'suppressed' | 'failed',
     errorMessage?: string,

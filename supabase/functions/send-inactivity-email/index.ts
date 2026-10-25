@@ -120,6 +120,7 @@ Deno.serve(async (req) => {
 
 
       const outcome = await sendAppEmail(supabase, 'inactivity-email', email, {
+        nativeUserId: profile.user_id,
         templateData: { displayName, siteUrl },
         idempotencyKey: messageId,
         messageId,

@@ -66,6 +66,10 @@ Resolve capture names server-side against the catalogue (exact, synonyms, singul
 
 Derive recipients/content from verified follows, interactions, moderation captures or blocked accounts and deduplicate by event ID, because caller fields cannot prove a legitimate notification.
 
+## Native push uses FCM tokens, separate from browser subscriptions
+
+Register native FCM devices through authenticated server code, remove registrations before logout, and dispatch only from verified event handlers with private preferences and event deduplication; keep web push independent because APNs/FCM tokens are not VAPID subscriptions. Mobile Firebase configuration files belong only in native targets, never service-account keys in the bundle.
+
 ## Nearby endpoints consume reserved searches
 
 Reserve and consume nearby searches under one per-user database lock, including older client reservations, because endpoint auth alone does not enforce quotas.

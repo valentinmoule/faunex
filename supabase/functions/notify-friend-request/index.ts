@@ -1,5 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import webpush from 'npm:web-push@3.6.7'
+import { sendNativePush } from '../_shared/native-push.ts'
 import { sendAppEmail } from '../_shared/transactional-email-templates/send-app-email.ts'
 
 const corsHeaders = {
@@ -111,6 +112,7 @@ Deno.serve(async (req) => {
 })
 
 async function sendPushToUser(supabase: any, userId: string, payload: { title: string; body: string; url: string; tag: string }) {
+  await sendNativePush(supabase, userId, payload, 'new-follower').catch(() => console.error('Native follower push failed'))
   const VAPID_PUBLIC = Deno.env.get('VAPID_PUBLIC_KEY')
   const VAPID_PRIVATE = Deno.env.get('VAPID_PRIVATE_KEY')
   const VAPID_SUBJECT = Deno.env.get('VAPID_SUBJECT') ?? 'mailto:hello@faunex.fr'

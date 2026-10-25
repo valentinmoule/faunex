@@ -102,6 +102,7 @@ Deno.serve(async (req) => {
 
 
       const outcome = await sendAppEmail(supabase, 'reengagement-j2', email, {
+        nativeUserId: profile.user_id,
         templateData: { displayName, siteUrl },
         idempotencyKey: messageId,
         messageId,

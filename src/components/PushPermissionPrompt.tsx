@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Bell, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { isPushSupported, subscribeToPush } from '@/lib/pushNotifications';
+import { isPushSupported, subscribeToPush, getPushPermission } from '@/lib/pushNotifications';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 
@@ -18,7 +18,6 @@ export function PushPermissionPrompt() {
   useEffect(() => {
     if (!session) return;
     if (!isPushSupported()) return;
-    if (Notification.permission !== 'default') return;
 
     const dismissed = localStorage.getItem(STORAGE_KEY);
     if (dismissed) {
@@ -27,7 +26,11 @@ export function PushPermissionPrompt() {
     }
 
     // Petit délai pour ne pas s'afficher en même temps que le banner PWA install
-    const t = setTimeout(() => setShow(true), 4000);
+    const t = setTimeout(() => {
+      getPushPermission().then(permission => {
+        if (permission === 'default' || permission === 'prompt' || permission === 'prompt-with-rationale') setShow(true);
+      });
+    }, 4000);
     return () => clearTimeout(t);
   }, [session]);
 
