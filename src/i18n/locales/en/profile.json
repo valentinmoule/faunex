@@ -389,6 +389,8 @@
       "activeSubscription": "Active subscription",
       "accessUntil": "Access until ",
       "nextRenewal": "Next renewal on ",
+      "activePlan": "Active plan",
+      "noEndDate": "Access with no end date",
       "manage": "Manage my subscription",
       "secure": "Secure payment. No commitment, cancel in one click.",
       "checkoutSuccess": "Thanks! Your subscription is being activated.",

@@ -255,7 +255,10 @@ const PremiumPage = () => {
                 {['personalAccounts', 'allBenefits', 'personalCollection', 'cancelAnytime'].map(key => <li key={key} className="flex gap-2.5"><Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden /><span>{t(`profile.premium.presentation.${key}`)}</span></li>)}
               </ul>
               {personalActive ? (
-                personalRenewal && <p className="mt-auto text-center text-xs text-muted-foreground">{personalRenewal}</p>
+                <div className="mt-auto rounded-lg bg-primary/10 px-3 py-3 text-center">
+                  <p className="flex items-center justify-center gap-1.5 text-sm font-semibold text-primary"><Check className="size-4" aria-hidden />{t('profile.premium.activePlan')}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{personalRenewal ?? t('profile.premium.noEndDate')}</p>
+                </div>
               ) : (
                 <Button onClick={handleSubscribe} disabled={checkoutLoading || referralBusy || loading || isPremium} className="mt-auto h-auto min-h-12 w-full whitespace-normal py-3">
                   {checkoutLoading || referralBusy ? <Loader2 className="size-4 animate-spin" /> : t('profile.premium.presentation.choosePersonal')}
@@ -271,7 +274,10 @@ const PremiumPage = () => {
                 {['familyAccounts', 'allBenefits', 'familyIndependent', 'familyInvites', 'cancelAnytime'].map(key => <li key={key} className="flex gap-2.5"><Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden /><span>{t(`profile.premium.presentation.${key}`)}</span></li>)}
               </ul>
               {familyActive ? (
-                familyRenewal && <p className="mt-auto text-center text-xs text-muted-foreground">{familyRenewal}</p>
+                <div className="mt-auto rounded-lg bg-primary/10 px-3 py-3 text-center">
+                  <p className="flex items-center justify-center gap-1.5 text-sm font-semibold text-primary"><Check className="size-4" aria-hidden />{t('profile.premium.activePlan')}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{familyRenewal ?? t('profile.premium.noEndDate')}</p>
+                </div>
               ) : (
                 <Button onClick={() => navigate('/family')} className="mt-auto h-auto min-h-12 w-full whitespace-normal py-3">{t('profile.premium.presentation.chooseFamily')}</Button>
               )}
