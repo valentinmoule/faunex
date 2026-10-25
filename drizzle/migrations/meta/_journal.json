@@ -323,6 +323,13 @@
       "when": 1792932085541,
       "tag": "0045_family_renewal_date",
       "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "7",
+      "when": 1792936264695,
+      "tag": "0046_custom_collections_cover_image",
+      "breakpoints": true
     }
   ]
 }

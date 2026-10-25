@@ -634,6 +634,7 @@ export type Database = {
       }
       custom_collections: {
         Row: {
+          cover_image: string | null
           created_at: string
           id: string
           name: string
@@ -641,6 +642,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          cover_image?: string | null
           created_at?: string
           id?: string
           name: string
@@ -648,6 +650,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          cover_image?: string | null
           created_at?: string
           id?: string
           name?: string

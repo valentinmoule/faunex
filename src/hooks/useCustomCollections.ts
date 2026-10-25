@@ -7,6 +7,7 @@ const notifyCollectionsChanged = () => window.dispatchEvent(new Event(COLLECTION
 export interface CustomCollection {
   id: string;
   name: string;
+  cover_image: string | null;
   created_at: string;
 }
 
