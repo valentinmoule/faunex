@@ -143,13 +143,13 @@
       "default": "a graphic image"
     },
     "correction": {
-          "proposal": "Requested correction: {{name}}",
-    "title": "Correct species",
-    "declined": "Correction declined, original capture preserved",
-          "description": "This request uses one analysis from your quota. Your photo will return to moderation until the name is validated.",
-          "name": "Proposed species",
-          "note": "Details (optional)",
-          "alreadyPending": "This capture is already awaiting moderation."
+      "proposal": "Requested correction: {{name}}",
+      "title": "Correct species",
+      "declined": "Correction declined, original capture preserved",
+      "description": "This request uses one analysis from your quota. Your photo will return to moderation until the name is validated.",
+      "name": "Proposed species",
+      "note": "Details (optional)",
+      "alreadyPending": "This capture is already awaiting moderation."
     },
     "manual": {
       "humanVerification": "Human verification",
@@ -278,6 +278,13 @@
       "unlockTitle": "Unlock similar photos",
       "unlockDesc": "With Premium, discover photos of this species taken by all other explorers.",
       "premiumCta": "Discover Premium"
+    },
+    "crop": {
+      "title": "Crop photo",
+      "cancel": "Cancel",
+      "zoom": "Zoom",
+      "apply": "Apply crop",
+      "action": "Crop photo"
     }
   }
 }

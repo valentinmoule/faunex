@@ -143,13 +143,13 @@
       "default": "une image graphique"
     },
     "correction": {
-          "proposal": "Correction demandée : {{name}}",
-    "title": "Corriger l’espèce",
-    "declined": "Correction refusée, capture originale conservée",
-          "description": "Cette demande utilise une analyse de ton quota. Ta photo sera remise en modération jusqu’à validation du nom.",
-          "name": "Espèce proposée",
-          "note": "Précisions (optionnel)",
-          "alreadyPending": "Cette capture est déjà en modération."
+      "proposal": "Correction demandée : {{name}}",
+      "title": "Corriger l’espèce",
+      "declined": "Correction refusée, capture originale conservée",
+      "description": "Cette demande utilise une analyse de ton quota. Ta photo sera remise en modération jusqu’à validation du nom.",
+      "name": "Espèce proposée",
+      "note": "Précisions (optionnel)",
+      "alreadyPending": "Cette capture est déjà en modération."
     },
     "manual": {
       "humanVerification": "Vérification humaine",
@@ -278,6 +278,13 @@
       "unlockTitle": "Débloque les photos similaires",
       "unlockDesc": "Avec Premium, découvre les photos de cette espèce prises par tous les autres explorateurs.",
       "premiumCta": "Découvrir Premium"
+    },
+    "crop": {
+      "title": "Recadrer la photo",
+      "cancel": "Annuler",
+      "zoom": "Zoom",
+      "apply": "Valider le recadrage",
+      "action": "Recadrer la photo"
     }
   }
 }
