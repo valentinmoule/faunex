@@ -6,7 +6,8 @@
  * peut aller au-delà, et les espèces domestiques restent toujours communes.
  *
  * Réservé aux administrateurs. Appel par lots : { batch: 200 } jusqu'à
- * `remaining: 0`, puis { recompute: true } pour appliquer la rareté hybride.
+ * `remaining: 0` ({ onlyMissing: true } pour ne traiter que les fiches sans
+ * statut), puis { recompute: true } pour appliquer la rareté hybride.
  */
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
