@@ -13,6 +13,8 @@ interface Props {
   captureUrl?: string
   /** 'duplicate' = espèce déjà présente dans le bestiaire de l'explorateur. */
   reason?: 'not_identifiable' | 'duplicate' | string
+  /** true = refus d'une demande de correction : la capture reste inchangée. */
+  correction?: boolean
   /** Espèce déjà présente dans le bestiaire, à l'origine du doublon. */
   duplicateName?: string | null
   duplicateScientific?: string | null
@@ -24,6 +26,7 @@ const CaptureRejectedEmail = ({
   animalName = 'ta capture',
   captureUrl = 'https://faunex.lovable.app',
   reason = 'not_identifiable',
+  correction = false,
   duplicateName = null,
   duplicateScientific = null,
   locale,

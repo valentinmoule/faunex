@@ -67,10 +67,15 @@ const CaptureApprovedEmail = ({
 
 export const template = {
   component: CaptureApprovedEmail,
-  subject: (d: Props) => pick(
-    { fr: `${d?.animalName || 'Ta capture'} a été validée 🎉`, en: `${d?.animalName || 'Your capture'} has been approved 🎉` },
-    d?.locale,
-  ),
+  subject: (d: Props) => d?.correction
+    ? pick(
+        { fr: `Correction acceptée : ta capture est maintenant « ${d?.animalName || 'identifiée'} » 🎉`, en: `Correction accepted: your capture is now "${d?.animalName || 'identified'}" 🎉` },
+        d?.locale,
+      )
+    : pick(
+        { fr: `${d?.animalName || 'Ta capture'} a été validée 🎉`, en: `${d?.animalName || 'Your capture'} has been approved 🎉` },
+        d?.locale,
+      ),
   displayName: 'Capture validée',
   previewData: { recipientName: 'Sam', animalName: 'Renard roux', captureUrl: 'https://faunex.lovable.app', locale: 'fr' },
 } satisfies TemplateEntry
