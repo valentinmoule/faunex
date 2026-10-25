@@ -1,5 +1,6 @@
 
 ## Premium Famille
+- [ ] Réserver l’entrée Ma famille au payeur Famille et ajouter les invitations e-mail liées à l’adresse vérifiée, avec reprise après inscription
 - [x] Analyser les comptes, les accès Premium et les achats web/iOS/Android ; chemin mobile Paddle externe observé, aucun achat intégré trouvé dans les chemins inspectés
 - [x] Préparer le plan : quatre comptes au total, 40 €/an ou 4 €/mois, parrainage annuel et invitations sécurisées ; présentation pour validation
 - [x] Plan validé ; page Ma famille FR/EN, invitations à usage unique de sept jours, trois invités maximum, retrait et départ sans perte de données
