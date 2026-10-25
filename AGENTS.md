@@ -52,7 +52,7 @@ Match captures (including pending shelves) to tiles by exact common name first; 
 
 ## Bundle badge artwork
 
-Import badge art locally; hosted `/__l5e/assets-v1/` routes are absent natively.
+Import badge art locally; hosted asset routes are absent natively.
 
 ## Collection artwork keeps explicit group assignments
 
@@ -72,7 +72,7 @@ Resolve capture names server-side against the catalogue (exact, synonyms, singul
 
 ## Discoverer counts come from a trigger-maintained cache
 
-`species_finder_counts()` reads `species_finder_cache`, kept in sync per species by a trigger on captures, because recomputing the full aggregate on every paginated call was the top database cost; clients read it through the shared 5-minute `fetchFinderCounts()` cache instead of paginating the RPC per screen.
+`species_finder_counts()` reads `species_finder_cache`, kept in sync per species by a trigger on captures, because recomputing the full aggregate on every paginated call was the top database cost; clients use the shared `fetchFinderCounts()` cache.
 
 ## Privileged notifications validate stored events
 
@@ -92,7 +92,7 @@ Read private preferences with `get_my_profile`; keep public profile fields and l
 
 ## Realtime channel names must be unique per subscription
 
-Suffix `supabase.channel()` names randomly; reused topics crash on `.on()`.
+Suffix channel names randomly; reused topics crash `.on()`.
 
 ## Identification account overrides are server-authoritative
 
