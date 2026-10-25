@@ -170,19 +170,6 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
   const [savingCover, setSavingCover] = useState(false);
   const [correctionOpen, setCorrectionOpen] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
-  const reportSpecies = async () => {
-    if (!card || !session) return;
-    const { error } = await supabase.from('species_reports').insert({
-      user_id: session.user.id,
-      species_name: card.name,
-      scientific_name: card.scientificName || null,
-    });
-    if (error && error.code !== '23505') {
-      toast({ title: t('species.report.error'), variant: 'destructive' });
-      return;
-    }
-    toast({ title: t('species.report.sent') });
-  };
   const [cropOpen, setCropOpen] = useState(false);
   const [imageOverride, setImageOverride] = useState<{ id: string; url: string } | null>(null);
   const cardImage = card && imageOverride?.id === card.id ? imageOverride.url : card?.image;
