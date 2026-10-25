@@ -1831,7 +1831,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
         )}
 
         <div className="max-w-lg mx-auto px-4 pt-4 space-y-6">
-          {isFaunexHub && <div className="flex items-center justify-between"><Button className="gap-2" onClick={() => navigate('/apprendre')}><Sprout className="h-5 w-5" />{t('learning.entry')}</Button><CurrencyBalance /></div>}
+          {isFaunexHub && <div className="flex justify-end"><CurrencyBalance /></div>}
 
 
           {/* View toggle — floating gamified tab bar */}

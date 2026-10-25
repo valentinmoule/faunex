@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Camera, Users, PawPrint, BookOpen, Trophy } from 'lucide-react';
+import { Camera, Users, PawPrint, BookOpen, Trophy, Sprout } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { hapticTap } from '@/lib/haptics';
 
@@ -8,6 +8,7 @@ type NavTab = { path: string; labelKey: string; icon: typeof PawPrint; tab?: str
 const tabs: NavTab[] = [
   { path: '/home', labelKey: 'nav.faunex', icon: PawPrint },
   { path: '/bestiaire', labelKey: 'nav.bestiary', icon: BookOpen },
+  { path: '/apprendre', labelKey: 'nav.learn', icon: Sprout },
   { path: '/capture', labelKey: 'nav.capture', icon: Camera },
   { path: '/explorers', labelKey: 'nav.explorers', icon: Users },
   { path: '/bestiaire', labelKey: 'nav.leaderboard', icon: Trophy, tab: 'leaderboard' },
