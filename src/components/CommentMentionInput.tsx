@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
-import { activeMention, insertMention } from '@/lib/commentMentions';
+import { activeMention, insertMention, mentionSearchFilter } from '@/lib/commentMentions';
 import { Button } from '@/components/ui/button';
 import { PremiumAvatar } from '@/components/PremiumAvatar';
 
@@ -22,11 +22,13 @@ export default function CommentMentionInput({ value, onChange, onSubmit, placeho
     setSuggestions([]);
     if (query === null || !query || dismissed) return;
     const timer = setTimeout(async () => {
-      // Only username-safe characters reach the pattern; escape wildcard underscores.
-      const pattern = query.replace(/_/g, '\\_');
       const { data } = await supabase.from('profiles').select('user_id, username, display_name, avatar_url')
-        .or(`username.ilike.@${pattern}%,username.ilike.${pattern}%`).limit(6);
-      if (!cancelled) setSuggestions(data ?? []);
+        .or(mentionSearchFilter(query));
+      if (!cancelled) {
+        // A user can match on both username and display name; keep one row per explorer.
+        const seen = new Set<string>();
+        setSuggestions((data ?? []).filter(e => (seen.has(e.user_id) ? false : (seen.add(e.user_id), true))));
+      }
     }, 220);
     return () => { cancelled = true; clearTimeout(timer); };
   }, [query, dismissed]);
