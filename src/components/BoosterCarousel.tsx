@@ -103,7 +103,7 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <div className="booster-carousel -mx-4 flex h-full min-h-0 flex-col">
+    <div className="booster-carousel -mx-4 flex min-h-0 flex-1 flex-col">
       <div
         ref={ref}
         onScroll={update}
