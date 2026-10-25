@@ -9,6 +9,9 @@ export interface FamilyInfo {
 export function canManageFamily(family:FamilyInfo|null,userId?:string):boolean {
   return Boolean(userId && family?.owner_id===userId);
 }
+export function hasActiveFamily(family: FamilyInfo | null): boolean {
+  return family?.active === true;
+}
 export function readFamily(value:unknown):FamilyInfo | null {
   if (!value || typeof value!=='object' || !('id' in value) || !('members' in value) || !Array.isArray(value.members)) return null;
   return value as FamilyInfo;

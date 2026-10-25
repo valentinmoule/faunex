@@ -11,6 +11,8 @@ Reserve referrals for authenticated new customers, verify completed transactions
 Keep family membership separate from personal data and billing, include the payer in the seat limit, serialize invitations and acceptance in database functions, and authorize Premium server-side; bind family purchases to authenticated checkout intents and never treat client or sandbox status as live access. Reuse the native external-browser checkout bridge for family purchases, carrying the verified intent without bypassing payment verification.
 Bind emailed family invitations to the recipient's verified auth email in the acceptance RPC, issue them only through an authenticated owner-checked server function, and resume them after signup/profile completion; this prevents forwarded links from granting another account access.
 Store explicitly authorized complimentary family access in service-only grants checked by family_valid, never by fabricating Paddle payments or changing billing rows; the existing subscription link is only an anchor for these grants.
+Display the active family offer from my_family independently of personal billing rows, because complimentary access and family membership do not replace existing Paddle purchases.
+Scope portal lookups to the requested billing environment and validate Paddle identifiers, because local grant anchors cannot create customer portal sessions.
 
 ## Partner landing pages share one presentation
 
