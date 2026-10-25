@@ -11,8 +11,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useWallet, walletKey } from '@/hooks/useWallet';
 import { learningStatus, startLesson, learningText, type LearningAttempt } from '@/lib/learning';
 import LearningPlayer from '@/components/LearningPlayer';
-import foxExplorer from '@/assets/learning/fox-explorer.png';
+import pathMark from '@/assets/learning/path-mark.png';
 import forestDetail from '@/assets/learning/forest-detail.png';
+import pondMark from '@/assets/learning/pond-mark.png';
 
 export default function LearningPage() {
   const { t, i18n } = useTranslation(); const navigate = useNavigate(); const { session } = useAuth(); const client = useQueryClient(); const wallet = useWallet();
