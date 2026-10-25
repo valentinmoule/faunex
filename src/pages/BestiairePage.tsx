@@ -55,6 +55,7 @@ import { VirtualSpeciesGrid } from '@/components/VirtualSpeciesGrid';
 import { useZoneSubscriptions } from '@/hooks/useZoneSubscriptions';
 import { useSpeciesCollections } from '@/hooks/useSpeciesCollections';
 import { useCustomCollections } from '@/hooks/useCustomCollections';
+import { usePinnedProfileCollections } from '@/hooks/usePinnedProfileCollections';
 import { useCollectionCovers } from '@/hooks/useCollectionCovers';
 import CategoryLeaderboard, { LeaderboardResetBadge } from '@/components/CategoryLeaderboard';
 import { useSubscription } from '@/hooks/useSubscription';
