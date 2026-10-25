@@ -181,11 +181,12 @@ Deno.serve(async (req) => {
 
     const { data: capture, error: capErr } = await supabase
       .from('captures')
-      .select('id, animal_name, description, image_url, location, user_id')
+      .select('id, animal_name, description, image_url, location, user_id, correction_note')
       .eq('id', captureId)
       .maybeSingle()
 
     if (capErr || !capture) return json({ error: 'Capture introuvable' }, 404)
+    if (capture.correction_note) capture.description = capture.correction_note;
 
     const animalName = (overrideName || capture.animal_name || '').toString().trim()
     if (!animalName) return json({ error: 'Nom d\'animal manquant' }, 400)
