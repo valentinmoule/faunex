@@ -123,6 +123,11 @@ Deno.serve(async (req) => {
           if (Object.keys(measurements).length) sources.push({ label: 'Animal Diversity Web · University of Michigan', url: sourceUrl });
         }
       } catch { /* Unknown measurements remain unknown; taxonomy is still usable. */ }
+      // No measured source: fall back to an AI estimate, clearly labelled.
+      if (!Object.keys(measurements).length) {
+        measurements = await estimateMeasurements(body.name.trim(), scientific);
+        if (Object.keys(measurements).length) sources.push({ label: 'Estimation IA', url: 'https://faunex.fr' });
+      }
     }
     const record = { animal_id: animal.id, scientific_name: scientific, ...taxonomy, measurements, sources, checked_at: new Date().toISOString() };
     const { error: saveError } = await admin.from('species_natural_history').upsert(record);
