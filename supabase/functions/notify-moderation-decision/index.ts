@@ -148,6 +148,7 @@ Deno.serve(async (req) => {
             recipientName,
             animalName,
             reason,
+            correction,
             duplicateName,
             duplicateScientific,
             captureUrl: approved
@@ -163,10 +164,15 @@ Deno.serve(async (req) => {
 
     const pushResult = await sendPushToUser(supabase, userId, {
       title: approved
-        ? 'Capture validée 🎉'
+        ? correction ? 'Correction acceptée 🎉' : 'Capture validée 🎉'
+        : correction ? 'Correction non retenue'
         : reason === 'duplicate' ? 'Espèce déjà collectionnée' : 'Capture non validée',
       body: approved
-        ? `${animalName} rejoint ton bestiaire !`
+        ? correction
+          ? `Ta demande de correction a été acceptée : ta capture est maintenant « ${animalName} » !`
+          : `${animalName} rejoint ton bestiaire !`
+        : correction
+          ? `Ta demande de correction n'a pas été retenue : ta capture « ${animalName} » reste inchangée, avec sa photo et son nom actuels.`
         : reason === 'duplicate'
           ? `${animalName} correspond à ${duplicateName ? `« ${duplicateName} »` : 'une espèce'}${duplicateScientific ? ` (${duplicateScientific})` : ''}, déjà dans ton bestiaire. Pars à la rencontre d'une nouvelle espèce !`
           : reason === 'dead_animal'
