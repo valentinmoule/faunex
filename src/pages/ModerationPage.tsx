@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PageHeader } from '@/components/PageHeader';
+import { Button } from '@/components/ui/button';
+import { Sprout } from 'lucide-react';
 import { ArrowLeft, Check, X, Loader2, AlertTriangle, Sparkles, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -518,6 +520,7 @@ const ModerationPage = () => {
           >
             Collections
           </button>
+          <Button variant="ghost" size="icon" aria-label={t('learning.admin')} onClick={() => navigate('/admin/apprendre')}><Sprout className="h-5 w-5 text-primary" /></Button>
         </div>
       </PageHeader>
 
