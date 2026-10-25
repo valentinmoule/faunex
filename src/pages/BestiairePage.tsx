@@ -1019,7 +1019,11 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
 
   const filteredCollectionOptions = useMemo(() => {
     const q = normalizeSearch(collectionSearch);
-    return availableCollections.filter((e) => !q || normalizeSearch(e.group.label).includes(q));
+    return availableCollections
+      // Les collections thématiques et le Calendrier de l'Avent sont offerts à
+      // tous : jamais ajoutées comme collection suivie ni comptées dans le quota.
+      .filter((e) => !e.group.key.startsWith(THEME_PREFIX))
+      .filter((e) => !q || normalizeSearch(e.group.label).includes(q));
   }, [availableCollections, collectionSearch]);
 
 
