@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { Drawer } from 'vaul';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Check, Lock, Sprout, Loader2, Star, Play, RotateCcw, Target } from 'lucide-react';
+import { ArrowLeft, Check, Lock, Sprout, Loader2, Star, Play, RotateCcw, Target, X } from 'lucide-react';
 import CurrencyBalance from '@/components/CurrencyBalance';
 import CaptureQuotaBadge from '@/components/CaptureQuotaBadge';
 import { PageHeader } from '@/components/PageHeader';
@@ -31,6 +32,10 @@ export default function LearningPage() {
   const lessons = path?.chapters.flatMap(c => c.lessons) ?? [];
   const completed = new Set(data?.completed.filter(c => c.path_id === path?.id).map(c => c.lesson_id));
   const current = lessons.find(l => !completed.has(l.id)); const quota = Boolean(data && data.used >= data.limit);
+  const [quotaOpen, setQuotaOpen] = useState(false);
+  useEffect(() => {
+    if (!attempt) setQuotaOpen(quota);
+  }, [quota, attempt]);
   const target = current ?? lessons[lessons.length - 1]; const reviewing = Boolean(target && !current); const offerPremium = quota && data?.limit === 3;
   const currentNode = useRef<HTMLDivElement>(null);
   const [farFromStep, setFarFromStep] = useState(false);
@@ -56,7 +61,7 @@ export default function LearningPage() {
     observer.observe(node);
     return () => observer.disconnect();
   }, [path?.id, arrivalId, attempt]);
-  async function open(id: string) { if (!path) return; setBusy(true); setError(''); try { setAttempt(await startLesson(path.id, id)); } catch (e) { const message = String((e as { message?: string }).message); setError(t(message.includes('DAILY_LIMIT') ? 'learning.quota' : message.includes('LESSON_LOCKED') ? 'learning.locked' : 'learning.error')); } finally { setBusy(false); } }
+  async function open(id: string) { if (!path) return; if (quota && !completed.has(id)) { setQuotaOpen(true); return; } setBusy(true); setError(''); try { setAttempt(await startLesson(path.id, id)); } catch (e) { const message = String((e as { message?: string }).message); if (message.includes('DAILY_LIMIT')) { setQuotaOpen(true); refresh(); } else setError(t(message.includes('LESSON_LOCKED') ? 'learning.locked' : 'learning.error')); } finally { setBusy(false); } }
   function refresh() { void client.invalidateQueries({ queryKey: ['learning', session?.user.id] }); void client.invalidateQueries({ queryKey: walletKey(session?.user.id) }); }
   if (attempt) return <LearningPlayer key={attempt.id} initial={attempt} onClose={() => { setAttempt(null); refresh(); }} onFinished={refresh} onRetry={() => { const id = attempt.lesson.id; setAttempt(null); void open(id); }} />;
   return <main className="learning-world min-h-screen bg-background pb-[50svh]">
@@ -73,17 +78,16 @@ export default function LearningPage() {
           <div className="relative"><div aria-hidden="true" className="learning-side learning-side-left" style={{ backgroundImage: `url(${chapterWorlds[ci % chapterWorlds.length]})` }} /><div aria-hidden="true" className="learning-side learning-side-right" style={{ backgroundImage: `url(${chapterWorlds[ci % chapterWorlds.length]})` }} /><div className="learning-board relative mx-auto max-w-sm pb-8 pt-14">{[...chapter.lessons].reverse().map((lesson, li) => {
             const position = lessons.findIndex(item => item.id === lesson.id); const done = completed.has(lesson.id); const active = current?.id === lesson.id; const locked = !done && !active;
             const offset = li % 2 ? 'translate-x-14' : '-translate-x-14';
-            return <div key={lesson.id} ref={lesson.id === arrivalId ? currentNode : undefined} className={`learning-stop relative flex flex-col items-center ${active && quota ? 'min-h-56 pb-8' : 'h-56'}`}>
+            return <div key={lesson.id} ref={lesson.id === arrivalId ? currentNode : undefined} className="learning-stop relative flex h-56 flex-col items-center">
               {li < chapter.lessons.length - 1 && <svg aria-hidden="true" viewBox="0 0 300 224" preserveAspectRatio="none" className={`learning-trail pointer-events-none absolute left-1/2 top-12 h-56 w-[300px] max-w-none -translate-x-1/2 ${li % 2 ? '-scale-x-100' : ''}`}><path d="M 94 0 C 94 100, 206 100, 206 224" /></svg>}
               <div className={`relative z-10 flex w-40 flex-col items-center ${offset}`}>
                 {active && !quota && <span className="learning-callout absolute -top-9 whitespace-nowrap px-3 py-1.5 text-xs font-extrabold">{t('learning.current')}</span>}
-                <Button variant="ghost" size="icon" disabled={busy || locked || (active && quota)} aria-label={`${text(lesson, 'title')} · ${t(done ? 'learning.done' : locked ? 'learning.locked' : 'learning.current')}`} onClick={() => void open(lesson.id)} className={`learning-node h-24 w-24 ${done ? 'learning-node-done' : active ? 'learning-node-active' : 'learning-node-locked'}`}>
+                <Button variant="ghost" size="icon" disabled={busy || locked} aria-label={`${text(lesson, 'title')} · ${t(done ? 'learning.done' : locked ? 'learning.locked' : 'learning.current')}`} onClick={() => void open(lesson.id)} className={`learning-node h-24 w-24 ${done ? 'learning-node-done' : active ? 'learning-node-active' : 'learning-node-locked'}`}>
                   <span className="learning-node-face">{busy && active ? <Loader2 className="h-9 w-9 animate-spin" /> : done ? <Check className="h-10 w-10" strokeWidth={4} /> : locked ? <Lock className="h-7 w-7" /> : <Star className="h-10 w-10" fill="currentColor" />}<span className="learning-step-number">{position + 1}</span></span>
                 </Button>
                 <p className={`learning-stop-title mt-6 px-2 text-center text-sm font-extrabold ${locked ? 'text-muted-foreground' : 'text-foreground'}`}>{text(lesson, 'title')}</p>
                 {done && <span className="mt-1 text-xs font-bold text-primary">{t('learning.done')}</span>}
               </div>
-              {active && quota && <div role="status" className="relative z-10 mt-5 w-full px-4 text-center"><p className="font-semibold">{t('learning.quota')}</p>{data.limit === 3 ? <Button className="mt-3" onClick={() => navigate('/premium')}>{t('learning.premium')}</Button> : <p className="mt-2 text-sm text-muted-foreground">{t('learning.quotaMessage', { time: new Date(data.reset_at).toLocaleTimeString(i18n.language, { hour: '2-digit', minute: '2-digit' }) })}</p>}</div>}
             </div>;
           })}</div></div>
         </section>)}
@@ -100,5 +104,21 @@ export default function LearningPage() {
         <span className="min-w-0 flex-1"><span className="learning-cta-kicker">{offerPremium ? t('learning.quota') : reviewing ? t('learning.review') : t('learning.start')}</span><span className="learning-cta-title font-display text-base font-extrabold">{offerPremium ? t('learning.premium') : text(target, 'title')}</span></span>
       </button>
     </div>, document.body)}
+    <Drawer.Root open={quotaOpen} onOpenChange={setQuotaOpen}>
+      <Drawer.Portal>
+        <Drawer.Overlay className="fixed inset-0 z-[1400] bg-foreground/40 backdrop-blur-sm" />
+        <Drawer.Content className="fixed inset-x-0 bottom-0 z-[1401] rounded-t-3xl bg-background px-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-4 outline-none">
+          <div className="mx-auto max-w-sm text-center">
+            <div className="mx-auto mb-6 h-1.5 w-10 rounded-full bg-muted" />
+            <Drawer.Close asChild><Button variant="ghost" size="icon" className="absolute right-3 top-3" aria-label={t('common.close')}><X className="h-5 w-5" /></Button></Drawer.Close>
+            <Sprout className="mx-auto mb-4 h-12 w-12 text-primary" />
+            <Drawer.Title className="font-display text-xl font-bold">{t('learning.quota')}</Drawer.Title>
+            <Drawer.Description className="mt-3 text-base text-muted-foreground">{t('learning.quotaMessage')}</Drawer.Description>
+            {offerPremium && <Button className="mt-6 w-full" onClick={() => navigate('/premium')}>{t('learning.premium')}</Button>}
+            <Drawer.Close asChild><Button variant="ghost" className="mt-3 w-full">{t('learning.backPath')}</Button></Drawer.Close>
+          </div>
+        </Drawer.Content>
+      </Drawer.Portal>
+    </Drawer.Root>
   </main>;
 }
