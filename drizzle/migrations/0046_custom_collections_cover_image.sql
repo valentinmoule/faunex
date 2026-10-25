@@ -1,0 +1,2 @@
+ALTER TABLE public.custom_collections ADD COLUMN cover_image text;
+COMMENT ON COLUMN public.custom_collections.cover_image IS 'URL de la photo de capture choisie par l''utilisateur comme illustration de la collection (NULL = illustration automatique).';

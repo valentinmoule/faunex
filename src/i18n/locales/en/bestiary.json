@@ -243,7 +243,11 @@
       "deleteConfirm": "Delete this collection? Its species will be removed.",
       "cancel": "Cancel",
       "confirm": "Delete",
-      "removeSpecies": "Remove from collection"
+      "removeSpecies": "Remove from collection",
+      "changeCover": "Change cover image",
+      "coverSheetTitle": "Pick a cover image",
+      "coverSheetEmpty": "Capture a species from this collection first to use your photo as the cover.",
+      "resetCover": "Back to automatic cover"
     }
   }
 }

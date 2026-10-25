@@ -243,7 +243,11 @@
       "deleteConfirm": "Supprimer cette collection ? Les espèces qu’elle contient seront retirées.",
       "cancel": "Annuler",
       "confirm": "Supprimer",
-      "removeSpecies": "Retirer de la collection"
+      "removeSpecies": "Retirer de la collection",
+      "changeCover": "Changer l’illustration",
+      "coverSheetTitle": "Choisir une illustration",
+      "coverSheetEmpty": "Capture d’abord une espèce de cette collection pour utiliser ta photo comme illustration.",
+      "resetCover": "Revenir à l’illustration automatique"
     }
   }
 }
