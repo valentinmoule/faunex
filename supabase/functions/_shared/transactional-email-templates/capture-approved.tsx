@@ -11,6 +11,8 @@ interface Props {
   recipientName?: string
   animalName?: string
   captureUrl?: string
+  /** true = la validation concerne une demande de correction d'espèce. */
+  correction?: boolean
   locale?: Locale | string
 }
 
@@ -18,29 +20,42 @@ const CaptureApprovedEmail = ({
   recipientName = 'Explorateur',
   animalName = 'ta capture',
   captureUrl = 'https://faunex.lovable.app',
+  correction = false,
   locale,
 }: Props) => {
   const l = resolveLocale(locale as string | undefined)
   return (
     <Html lang={l} dir="ltr">
       <Head />
-      <Preview>{pick({ fr: `Ta capture de ${animalName} rejoint ton bestiaire 🎉`, en: `Your ${animalName} capture just joined your bestiary 🎉` }, l)}</Preview>
+      <Preview>{correction
+        ? pick({ fr: `Ta correction a été acceptée : ta capture est maintenant « ${animalName} » 🎉`, en: `Your correction was accepted: your capture is now "${animalName}" 🎉` }, l)
+        : pick({ fr: `Ta capture de ${animalName} rejoint ton bestiaire 🎉`, en: `Your ${animalName} capture just joined your bestiary 🎉` }, l)}</Preview>
       <Body style={main}>
         <Container style={container}>
           <Img
             src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png"
             width="48" height="48" alt="Faunex" style={logo}
           />
-          <Heading style={h1}>{pick({ fr: 'Capture validée ! 🎉', en: 'Capture approved! 🎉' }, l)}</Heading>
+          <Heading style={h1}>{correction
+            ? pick({ fr: 'Correction acceptée ! 🎉', en: 'Correction accepted! 🎉' }, l)
+            : pick({ fr: 'Capture validée ! 🎉', en: 'Capture approved! 🎉' }, l)}</Heading>
           <Text style={text}>{pick({ fr: 'Salut', en: 'Hey' }, l)} <strong>{recipientName}</strong>,</Text>
           <Text style={text}>
-            {pick(
-              {
-                fr: `Ta capture de ${animalName} vient d'être validée : elle rejoint officiellement ton bestiaire.`,
-                en: `Your capture of ${animalName} has just been approved: it officially joins your bestiary.`,
-              },
-              l,
-            )}
+            {correction
+              ? pick(
+                  {
+                    fr: `Bonne nouvelle : ta demande de correction a été acceptée. Ta capture est maintenant identifiée comme « ${animalName} » dans ton bestiaire.`,
+                    en: `Good news: your correction request was accepted. Your capture is now identified as "${animalName}" in your bestiary.`,
+                  },
+                  l,
+                )
+              : pick(
+                  {
+                    fr: `Ta capture de ${animalName} vient d'être validée : elle rejoint officiellement ton bestiaire.`,
+                    en: `Your capture of ${animalName} has just been approved: it officially joins your bestiary.`,
+                  },
+                  l,
+                )}
           </Text>
           <Button style={button} href={captureUrl}>{pick({ fr: 'Voir ma carte', en: 'View my card' }, l)}</Button>
           <Text style={footer}>{pick({ fr: "Continue d'explorer la faune sauvage !", en: 'Keep exploring the wildlife!' }, l)}</Text>
