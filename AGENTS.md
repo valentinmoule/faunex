@@ -32,9 +32,7 @@ Validate claims from trusted rules (synced with badge/group/city definitions and
 
 ## Blurred photo backdrops need a large scale
 
-Any full-bleed `filter: blur()` photo backdrop (`background-size: cover` on a viewport-sized element) must be scaled well past the blur radius — `scale(1.9)` for a 42px blur, `scale(2.25)` for 50px — and the layer behind it must stay opaque.
-
-**Why:** blur fades alpha inward and exposes the screen behind an under-scaled layer.
+Scale full-bleed `filter: blur()` photo backdrops well past the blur radius (`scale(1.9)` for 42px, `scale(2.25)` for 50px) over an opaque layer, because blur fades alpha inward.
 
 ## Shelving targets the exact displayed species tile
 
@@ -111,4 +109,4 @@ Apply shared facts after capture name canonicalization, reject scientific confli
 
 ## Themed collections are data, not code
 
-Admin-created themed collections live in `themed_collections` (manual species names plus optional category/rarity/keyword rules, optional date window) and are matched client-side by `src/lib/themedCollections.ts`; covers are uploaded or AI-generated into the public captures bucket by an admin-checked function, so new collections ship without a store release.
+Store admin themed collections (species names, optional rules and dates) in `themed_collections`, matched by `src/lib/themedCollections.ts`, with covers in the public captures bucket, so they ship without a store release.
