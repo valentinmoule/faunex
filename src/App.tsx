@@ -254,7 +254,7 @@ const AppRoutes = () => {
         </Routes>
         </PageTransition>
       </Suspense>
-      {!isCapturePage && !isModerationPage && !isPremiumPage && !isPublicPage && <BottomNav />}
+      {!isCapturePage && !isModerationPage && !isPremiumPage && !isPublicPage && location.pathname !== '/eclats' && <BottomNav />}
 
       <PullToDiscover />
       {!isPremiumPage && location.pathname !== '/apprendre' && !location.pathname.startsWith('/admin/apprendre') && (
