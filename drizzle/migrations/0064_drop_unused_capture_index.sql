@@ -1,0 +1,1 @@
+DROP INDEX IF EXISTS public.captures_approved_category_norm_idx;

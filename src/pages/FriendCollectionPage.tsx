@@ -1,3 +1,4 @@
+import { fetchFinderCounts } from '@/lib/finderCounts';
 import { useState, useEffect, useCallback } from 'react';
 import { avatarFallbackStyle } from '@/lib/avatarPalette';
 import { useTranslation } from 'react-i18next';
@@ -119,9 +120,7 @@ const FriendCollectionPage = () => {
       setLoading(true);
 
       // Compteurs communautaires d'espèces pour le filtre « popularité »
-      fetchAllRows<any>((from, to) =>
-        supabase.rpc('species_finder_counts').order('animal_key').range(from, to),
-      ).then((res) => {
+      fetchFinderCounts().then((res) => {
         const map = new Map<string, number>();
         (res.data || []).forEach((r: any) => {
           if (typeof r.finders === 'number') map.set(r.animal_key, r.finders);

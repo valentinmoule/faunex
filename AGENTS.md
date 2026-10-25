@@ -11,8 +11,8 @@ Reserve referrals for authenticated new customers, verify completed transactions
 Keep family membership separate from personal data and billing, include the payer in the seat limit, serialize invitations and acceptance in database functions, and authorize Premium server-side; bind family purchases to authenticated checkout intents and never treat client or sandbox status as live access. Reuse the native external-browser checkout bridge for family purchases, carrying the verified intent without bypassing payment verification.
 Bind emailed family invitations to the recipient's verified auth email in the acceptance RPC, issue them only through an authenticated owner-checked server function, and resume them after signup/profile completion; this prevents forwarded links from granting another account access.
 Store explicitly authorized complimentary family access in service-only grants checked by family_valid, never by fabricating Paddle payments or changing billing rows; the existing subscription link is only an anchor for these grants.
-Display the active family offer from my_family independently of personal billing rows, because complimentary access and family membership do not replace existing Paddle purchases.
-Scope portal lookups to the requested billing environment and validate Paddle identifiers, because local grant anchors cannot create customer portal sessions.
+Show the family offer from my_family, independent of personal billing rows.
+Scope portal lookups to the billing environment and validate Paddle IDs; grant anchors cannot open portals.
 
 ## Partner landing pages share one presentation
 
@@ -52,7 +52,7 @@ Match captures (including pending shelves) to tiles by exact common name first; 
 
 ## Bundle badge artwork
 
-Import badge art locally; hosted `/__l5e/assets-v1/` routes are absent natively.
+Import badge art locally; hosted asset routes are absent natively.
 
 ## Collection artwork keeps explicit group assignments
 
@@ -72,7 +72,7 @@ Resolve capture names server-side against the catalogue (exact, synonyms, singul
 
 ## Discoverer counts come from a trigger-maintained cache
 
-`species_finder_counts()` reads `species_finder_cache`, kept in sync per species by a trigger on captures, because recomputing the full aggregate on every paginated call was the top database cost.
+`species_finder_counts()` reads `species_finder_cache`, kept in sync per species by a trigger on captures, because recomputing the full aggregate on every paginated call was the top database cost; clients use the shared `fetchFinderCounts()` cache.
 
 ## Privileged notifications validate stored events
 
@@ -92,7 +92,7 @@ Read private preferences with `get_my_profile`; keep public profile fields and l
 
 ## Realtime channel names must be unique per subscription
 
-Suffix `supabase.channel()` names randomly; reused topics crash on `.on()`.
+Suffix channel names randomly; reused topics crash `.on()`.
 
 ## Identification account overrides are server-authoritative
 
