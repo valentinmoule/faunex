@@ -27,7 +27,6 @@ import AddToCollectionSheet from '@/components/AddToCollectionSheet';
 import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
 import { useSpeciesFacts, useSpeciesName } from '@/hooks/useSpeciesLocale';
 import { PremiumAvatar } from '@/components/PremiumAvatar';
-import { Button } from '@/components/ui/button';
 import { CaptureCorrectionDialog } from '@/components/CaptureCorrectionDialog';
 import { ScanSearch } from 'lucide-react';
 
