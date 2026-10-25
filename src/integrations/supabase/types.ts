@@ -1594,6 +1594,7 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          bio: string | null
           created_at: string
           default_share_captures: boolean
           display_name: string | null
@@ -1619,6 +1620,7 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           default_share_captures?: boolean
           display_name?: string | null
@@ -1644,6 +1646,7 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           default_share_captures?: boolean
           display_name?: string | null
@@ -2811,6 +2814,7 @@ export type Database = {
         Args: never
         Returns: {
           avatar_url: string | null
+          bio: string | null
           created_at: string
           default_share_captures: boolean
           display_name: string | null

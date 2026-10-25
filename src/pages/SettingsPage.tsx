@@ -32,7 +32,7 @@ const SettingsPage = () => {
   const [section, setSection] = useState<'menu' | 'edit' | 'notifications' | 'delete' | 'language'>('menu');
   const { t } = useTranslation();
   const { locale, isAuto, changeLocale } = useAppLocale();
-  const [profile, setProfile] = useState<{ display_name: string; username: string; avatar_url: string | null } | null>(null);
+  const [profile, setProfile] = useState<{ display_name: string; username: string; avatar_url: string | null; bio: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
   const [familyOwner, setFamilyOwner] = useState(false);
   useEffect(() => {
@@ -47,6 +47,7 @@ const SettingsPage = () => {
   // Edit profile state
   const [editName, setEditName] = useState('');
   const [editUsername, setEditUsername] = useState('');
+  const [editBio, setEditBio] = useState('');
   const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -96,9 +97,10 @@ const SettingsPage = () => {
     supabase.rpc('get_my_profile').then(({ data }) => {
       if (data) {
         const d: any = data;
-        setProfile({ display_name: d.display_name || '', username: d.username || '', avatar_url: d.avatar_url });
+        setProfile({ display_name: d.display_name || '', username: d.username || '', avatar_url: d.avatar_url, bio: d.bio || null });
         setEditName(d.display_name || '');
         setEditUsername(d.username || '');
+        setEditBio(d.bio || '');
         setMarketingEmails(d.marketing_emails ?? true);
         setIsPrivate(d.is_private ?? false);
         setDefaultShare(d.default_share_captures ?? true);
@@ -155,10 +157,11 @@ const SettingsPage = () => {
     const trimmedName = editName.trim();
     if (!trimmedName) { toast.error(t('profile.settings.errors.emptyName')); return; }
     setSaving(true);
-    const { error } = await supabase.from('profiles').update({ display_name: trimmedName, username: editUsername.trim() || null }).eq('user_id', session.user.id);
+    const trimmedBio = editBio.trim();
+    const { error } = await supabase.from('profiles').update({ display_name: trimmedName, username: editUsername.trim() || null, bio: trimmedBio || null }).eq('user_id', session.user.id);
     if (error) toast.error(t('profile.settings.errors.saveError'));
     else {
-      setProfile(prev => prev ? { ...prev, display_name: trimmedName, username: editUsername.trim() } : prev);
+      setProfile(prev => prev ? { ...prev, display_name: trimmedName, username: editUsername.trim(), bio: trimmedBio || null } : prev);
       toast.success(t('profile.settings.success.profileUpdated'));
       setSection('menu');
     }
@@ -316,6 +319,11 @@ const SettingsPage = () => {
               <div>
                 <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">{t('profile.settings.username')}</label>
                 <input type="text" value={editUsername} onChange={e => setEditUsername(e.target.value)} maxLength={30} placeholder={t('profile.settings.usernamePlaceholder')} className="w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
+              </div>
+              <div>
+                <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">{t('profile.settings.bio')}</label>
+                <textarea value={editBio} onChange={e => setEditBio(e.target.value)} maxLength={150} rows={3} placeholder={t('profile.settings.bioPlaceholder')} className="w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body resize-none" />
+                <p className="text-[10px] text-muted-foreground text-right mt-0.5">{t('profile.settings.bioCounter', { count: editBio.length })}</p>
               </div>
 
               {/* Private account toggle */}

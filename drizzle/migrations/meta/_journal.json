@@ -365,6 +365,13 @@
       "when": 1792940837576,
       "tag": "0051_profile_capture_order",
       "breakpoints": true
+    },
+    {
+      "idx": 52,
+      "version": "7",
+      "when": 1792941265822,
+      "tag": "0052_add_profile_bio",
+      "breakpoints": true
     }
   ]
 }
