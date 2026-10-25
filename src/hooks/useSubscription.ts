@@ -14,24 +14,34 @@ export interface SubscriptionRow {
 /** Cache mémoire partagé : évite un état "chargement" à chaque montage
  *  (plusieurs composants utilisent ce hook sur une même page). */
 const subCache = new Map<string, SubscriptionRow | null>();
+// Cache the verified entitlement, not just billing: family/bonus access may have no row.
+const accessCache = new Map<string, boolean>();
 
 export function useSubscription(userId?: string) {
-  const [bonusActive, setBonusActive] = useState(false);
+  const [bonusActive, setBonusActive] = useState(() => userId ? accessCache.get(userId) ?? false : false);
   const [subscription, setSubscription] = useState<SubscriptionRow | null>(
     () => (userId && subCache.has(userId) ? subCache.get(userId) ?? null : null),
   );
-  const [loading, setLoading] = useState(() => !(userId && subCache.has(userId)));
+  const [loading, setLoading] = useState(() => Boolean(userId && !accessCache.has(userId)));
+  const [resolvedUserId, setResolvedUserId] = useState(userId);
 
   const fetchSubscription = useCallback(async () => {
     if (!userId) {
       setSubscription(null);
       setBonusActive(false);
+      setResolvedUserId(undefined);
       setLoading(false);
       return;
     }
     if (subCache.has(userId)) {
       setSubscription(subCache.get(userId) ?? null);
+    }
+    if (accessCache.has(userId)) {
+      setBonusActive(accessCache.get(userId) ?? false);
+      setResolvedUserId(userId);
       setLoading(false);
+    } else {
+      setLoading(true);
     }
     const { data } = await supabase
       .from("subscriptions")
@@ -45,9 +55,13 @@ export function useSubscription(userId?: string) {
     subCache.set(userId, (data as SubscriptionRow | null) ?? null);
     setSubscription((data as SubscriptionRow | null) ?? null);
     const { data: access, error: accessError } = await supabase.rpc('my_premium_access');
-    const activeBonus = !accessError && access === true;
-    setBonusActive(activeBonus);
-    setLoading(false);
+    if (!accessError) {
+      const activeBonus = access === true;
+      accessCache.set(userId, activeBonus);
+      setBonusActive(activeBonus);
+      setResolvedUserId(userId);
+      setLoading(false);
+    }
   }, [userId]);
 
   useEffect(() => {
@@ -79,8 +93,8 @@ export function useSubscription(userId?: string) {
 
   return {
     subscription,
-    isPremium: !loading && bonusActive,
-    loading,
+    isPremium: resolvedUserId === userId && !loading && bonusActive,
+    loading: resolvedUserId !== userId || loading,
     refresh: fetchSubscription,
   };
 }
