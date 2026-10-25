@@ -1,5 +1,8 @@
 # Roadmap
 
+- [x] Orthoptères : comparer les 119 fiches du fichier et présenter le nettoyage complet à valider.
+- [ ] Orthoptères : appliquer les corrections, fusions et collections après validation, en conservant les captures.
+
 - [x] Étendre réellement le relief d’Apprendre aux boutons, onglets et chips sur les pages principales, puis vérifier les interactions.
 
 - [x] Harmoniser toutes les illustrations par défaut des collections avec le style 3D ludique du calendrier, préserver les photos personnelles et vérifier l’affichage.
