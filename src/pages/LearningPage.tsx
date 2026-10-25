@@ -33,8 +33,15 @@ export default function LearningPage() {
   const arrivalId = current?.id ?? lessons[lessons.length - 1]?.id;
   useEffect(() => {
     if (attempt || !arrivalId) return;
-    const frame = requestAnimationFrame(() => currentNode.current?.scrollIntoView({ block: 'center', behavior: 'instant' }));
-    return () => cancelAnimationFrame(frame);
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    let stopped = false;
+    const stop = () => { stopped = true; };
+    const snap = () => { if (!stopped) currentNode.current?.scrollIntoView({ block: 'center', behavior: 'instant' }); };
+    const frame = requestAnimationFrame(snap);
+    // Re-centre while the page transition and images settle, unless the user starts scrolling.
+    const timers = [80, 200, 400, 700, 1100].map(ms => window.setTimeout(snap, ms));
+    window.addEventListener('wheel', stop, { passive: true }); window.addEventListener('touchstart', stop, { passive: true });
+    return () => { cancelAnimationFrame(frame); timers.forEach(clearTimeout); window.removeEventListener('wheel', stop); window.removeEventListener('touchstart', stop); };
   }, [path?.id, arrivalId, attempt]);
   async function open(id: string) { if (!path) return; setBusy(true); setError(''); try { setAttempt(await startLesson(path.id, id)); } catch (e) { const message = String((e as { message?: string }).message); setError(t(message.includes('DAILY_LIMIT') ? 'learning.quota' : message.includes('LESSON_LOCKED') ? 'learning.locked' : 'learning.error')); } finally { setBusy(false); } }
   function refresh() { void client.invalidateQueries({ queryKey: ['learning', session?.user.id] }); void client.invalidateQueries({ queryKey: walletKey(session?.user.id) }); }
