@@ -432,6 +432,7 @@ export type Database = {
           habitat: string | null
           id: string
           image_url: string
+          iucn_status: string | null
           latitude: number | null
           likes_count: number
           location: string | null
@@ -465,6 +466,7 @@ export type Database = {
           habitat?: string | null
           id?: string
           image_url: string
+          iucn_status?: string | null
           latitude?: number | null
           likes_count?: number
           location?: string | null
@@ -498,6 +500,7 @@ export type Database = {
           habitat?: string | null
           id?: string
           image_url?: string
+          iucn_status?: string | null
           latitude?: number | null
           likes_count?: number
           location?: string | null
