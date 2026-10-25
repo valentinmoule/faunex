@@ -9,7 +9,7 @@ import { PageHeader } from '@/components/PageHeader';
 import BadgeRewardSheet from '@/components/BadgeRewardSheet';
 import BadgeMedallion from '@/components/BadgeMedallion';
 import { useAdventCalendars } from '@/hooks/useAdventCalendars';
-import { adventState, canOpenAdvent } from '@/lib/advent';
+import { adventCountdown, adventState, canOpenAdvent } from '@/lib/advent';
 import cover from '@/assets/collections/advent-2026.jpg';
 
 export default function AdventCalendarPage() {
@@ -22,7 +22,26 @@ export default function AdventCalendarPage() {
   useEffect(() => { if (!id) return; void supabase.from('user_badges').select('badge_id').eq('badge_id', `advent_${id}`).then(({ data }) => setBadgeClaimed(Boolean(data?.length))); }, [id]);
   if (!loaded) return <div className="flex min-h-screen items-center justify-center"><Loader2 className="size-6 animate-spin text-primary" /></div>;
   if (!calendar) return <main className="p-6"><Button variant="ghost" onClick={() => navigate(-1)}><ArrowLeft />{t('bestiary.common.back')}</Button><p>{t('advent.notFound')}</p></main>;
-  if (!canOpenAdvent(calendar.calendar_year, now)) return <main className="min-h-screen bg-background p-6"><Button variant="ghost" onClick={() => navigate('/bestiaire?tab=collections')}><ArrowLeft />{t('bestiary.common.back')}</Button><p className="mt-6 text-center font-display font-semibold">{t('advent.locked', { day: 1 })}</p></main>;
+  if (!canOpenAdvent(calendar.calendar_year, now)) {
+    const cd = adventCountdown(calendar.calendar_year, now);
+    const units = [{ v: cd.days, l: t('advent.countdownDays') }, { v: cd.hours, l: t('advent.countdownHours') }, { v: cd.minutes, l: t('advent.countdownMinutes') }];
+    return <main className="min-h-screen bg-background pb-28">
+      <PageHeader sticky className="bg-background/90 px-5 pb-3 backdrop-blur-xl"><div className="mx-auto flex max-w-lg items-center gap-3"><Button variant="ghost" size="icon" aria-label={t('bestiary.common.back')} onClick={() => navigate('/bestiaire?tab=collections')}><ArrowLeft /></Button><span className="font-display text-sm font-bold">{t('advent.title')}</span></div></PageHeader>
+      <div className="mx-auto max-w-lg px-5">
+        <div className="relative mt-2 h-64 overflow-hidden rounded-lg"><img src={calendar.cover_url || cover} width={1024} height={1536} alt="" className="h-full w-full object-cover object-center" /><div className="absolute inset-x-0 bottom-0 bg-background/90 px-4 py-3"><h1 className="font-display text-xl font-bold">{i18n.language.startsWith('en') ? calendar.title_en || calendar.title : calendar.title}</h1><p className="mt-1 text-xs text-muted-foreground">{t('advent.period', { year: calendar.calendar_year })}</p></div></div>
+        <section className="py-6 text-center">
+          <h2 className="font-display text-lg font-bold">{t('advent.teaserTitle')}</h2>
+          <div className="mt-4 flex justify-center gap-2">{units.map(u => <div key={u.l} className="flex w-20 flex-col items-center rounded-lg border border-primary/30 bg-primary/10 py-3"><span className="font-display text-2xl font-bold text-primary">{u.v}</span><span className="text-[11px] text-muted-foreground">{u.l}</span></div>)}</div>
+          <p className="mx-auto mt-4 max-w-sm text-sm text-muted-foreground">{t('advent.teaserMessage')}</p>
+        </section>
+        <div className="flex items-center justify-between py-2"><p className="font-display text-sm font-semibold">{t('advent.teaserDoors')}</p><Snowflake className="size-5 text-primary" /></div>
+        <div className="grid grid-cols-4 gap-2 pt-3">
+          {calendar.calendar_days.map(d => <div key={d.day} aria-label={t('advent.day', { day: d.day })} className="relative flex aspect-[4/5] flex-col items-center justify-center gap-2 rounded-lg border border-border bg-card px-1"><span className="font-display text-xl font-bold">{d.day}</span><Gift className="text-muted-foreground/50" /></div>)}
+        </div>
+        <section className="flex flex-col items-center py-8 text-center"><BadgeMedallion badgeId={`advent_${calendar.id}`} group="collections" state="locked" size={120} /><h2 className="mt-3 font-display font-bold">{t('advent.badge', { year: calendar.calendar_year })}</h2><p className="mt-1 text-xs text-muted-foreground">{t('advent.teaserBadge')}</p></section>
+      </div>
+    </main>;
+  }
   const count = new Set(own.filter(s => s.approved_at).map(s => s.day)).size;
   const challenge = calendar.calendar_days.find(d => d.day === selected);
   const state = challenge ? adventState(calendar.calendar_year, challenge.day, now, own) : null;

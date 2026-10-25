@@ -2202,7 +2202,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
               ) : (
                 <BoosterCarousel>
                   {visibleAdvent.map(c => {
-                    const open = () => canOpenAdvent(c.calendar_year, advent.now) ? navigate(`/advent/${c.id}`) : toast.info(t('advent.locked', { day: 1 }));
+                    const open = () => navigate(`/advent/${c.id}`);
                     return <CollectionTile key={c.id} title={themeTitle(c, i18n.language)} image={c.cover_url || adventCover} overlay={getCollectionArt('advent').overlay} captured={new Set(advent.submissions.filter(s => s.collection_id === c.id && s.approved_at).map(s => s.day)).size} total={24} complete={false} claimed={false} onClaim={open} onOpen={open} />;
                   })}
                   {/* Collections thématiques créées par Faunex, visibles par tous */}
