@@ -28,7 +28,9 @@ import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
 import { useSpeciesFacts, useSpeciesName } from '@/hooks/useSpeciesLocale';
 import { PremiumAvatar } from '@/components/PremiumAvatar';
 import { CaptureCorrectionDialog } from '@/components/CaptureCorrectionDialog';
-import { ScanSearch } from 'lucide-react';
+import { ScanSearch, Crop as CropIcon } from 'lucide-react';
+import CropPhotoDialog from '@/components/capture/CropPhotoDialog';
+import { saveCroppedCaptureImage } from '@/lib/captureCrop';
 
 interface Props {
   card: AnimalCard | null;
@@ -164,6 +166,9 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
   const [savingCover, setSavingCover] = useState(false);
   const [correctionOpen, setCorrectionOpen] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
+  const [cropOpen, setCropOpen] = useState(false);
+  const [imageOverride, setImageOverride] = useState<{ id: string; url: string } | null>(null);
+  const cardImage = card && imageOverride?.id === card.id ? imageOverride.url : card?.image;
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteAnimating, setDeleteAnimating] = useState(false);
@@ -250,10 +255,10 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
     setLikeCount(0);
 
     // Preload fullscreen image (usually already in browser cache from grid)
-    if (card.image) {
+    if (cardImage) {
       const img = new Image();
       img.decoding = 'async';
-      img.src = card.image;
+      img.src = cardImage;
     }
   }, [card, open]);
 
@@ -272,7 +277,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
     setLocation(card?.location ?? null);
     setTakenAt(null);
     if (!card || !open || !session?.user) return;
-    if (!card.image || card.id.startsWith('uncaptured-')) return;
+    if (!cardImage || card.id.startsWith('uncaptured-')) return;
     let cancelled = false;
     (async () => {
       const { data } = await supabase
@@ -421,7 +426,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
     setConfirmDelete(false);
     hapticTap();
 
-    const snapshot = { id: card.id, image: card.image, rarity: card.rarity, name: displayName };
+    const snapshot = { id: card.id, image: cardImage, rarity: card.rarity, name: displayName };
     const { error } = await supabase.from('captures').delete().eq('id', card.id);
     setDeleting(false);
     if (error) {
@@ -693,7 +698,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
   if (!card) return vanishOverlay;
 
 
-  const isUncaptured = !card.image || card.id.startsWith('uncaptured-');
+  const isUncaptured = !cardImage || card.id.startsWith('uncaptured-');
   const normalizedRarity = normalizeRarity(card.rarity);
   const cardFx = RARITY_FX[normalizedRarity];
   const isGold = !isUncaptured && cardFx === 'gold';
@@ -707,7 +712,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
   const isRare = !isUncaptured && cardFx === 'ink' && (normalizedRarity === 'rare' || normalizedRarity === 'very_rare');
   const heroFamily = normalizedRarity.replace(/_/g, '-');
   const heroClass = `detail-hero-${heroFamily}`;
-  const photoBackdrop = !isUncaptured && Boolean(card.image);
+  const photoBackdrop = !isUncaptured && Boolean(cardImage);
   const isShiny = isSilver || isGold;
 
   const detailAppearClass = isGold
@@ -747,7 +752,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                 <div
                   aria-hidden
                   className="detail-photo-backdrop"
-                  style={{ backgroundImage: `url("${card.image}")` }}
+                  style={{ backgroundImage: `url("${cardImage}")` }}
                 />
                 <div aria-hidden className={`detail-photo-veil ${heroClass}`} />
               </>
@@ -758,10 +763,10 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
               <HolographicCard
                 rarity={card.rarity}
                 appearAnimation={detailAppearClass}
-                onTap={card.image ? openFullscreenImage : undefined}
+                onTap={cardImage ? openFullscreenImage : undefined}
                 subjectBox={card.subjectBox}
                 noHolo={isUncaptured}
-                className={`relative mx-auto max-w-[280px] aspect-[4/5] rounded-[1.75rem] ${card.image ? 'cursor-pointer' : ''}`}
+                className={`relative mx-auto max-w-[280px] aspect-[4/5] rounded-[1.75rem] ${cardImage ? 'cursor-pointer' : ''}`}
                 style={{ ['--holo-radius' as any]: '1.75rem' }}
 
               >
@@ -776,8 +781,8 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
 
                   <div className="relative w-full h-full rounded-[1.25rem] overflow-hidden">
 
-                    {card.image ? (
-                      <img src={card.image} alt={displayName} loading="eager" decoding="async" fetchPriority="high" className="w-full h-full object-cover pointer-events-none select-none" draggable={false} />
+                    {cardImage ? (
+                      <img src={cardImage} alt={displayName} loading="eager" decoding="async" fetchPriority="high" className="w-full h-full object-cover pointer-events-none select-none" draggable={false} />
                     ) : (
                       (() => {
                         const CatIcon = getCategoryIcon(card.category);
@@ -800,9 +805,9 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                       })()
                     )}
                     {/* Glass shimmer overlay on image */}
-                    {card.image && isGold && <div className="detail-gold-glass" />}
-                    {card.image && isSilver && <div className="detail-silver-glass" />}
-                    {card.image && isRare && <div className="detail-rare-glass" />}
+                    {cardImage && isGold && <div className="detail-gold-glass" />}
+                    {cardImage && isSilver && <div className="detail-silver-glass" />}
+                    {cardImage && isRare && <div className="detail-rare-glass" />}
                     {/* Name overlay bottom-left */}
                     <div className="absolute bottom-0 left-0 right-0 pointer-events-none p-3 pr-4 pt-10 bg-gradient-to-t from-black/75 via-black/35 to-transparent">
                       <h3 className="text-white font-display font-bold text-base leading-tight drop-shadow-md">{displayName}</h3>
@@ -894,7 +899,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                     <Bookmark className={`w-6 h-6 transition-all ${isFavorite(card.id) ? 'fill-primary text-primary scale-110' : 'text-muted-foreground group-hover:text-primary'}`} />
                   </button>
                 )}
-                {card.image && (
+                {cardImage && (
                   <button
                     onClick={handleShare}
                     aria-label={t('capture.detail.share')}
@@ -904,7 +909,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                     <Share2 className="w-6 h-6 text-muted-foreground transition-colors group-hover:text-primary" />
                   </button>
                 )}
-                {onUseCollectionCover && isOwner && card.image && (
+                {onUseCollectionCover && isOwner && cardImage && (
                   <button
                     onClick={async () => {
                       if (savingCover) return;
@@ -919,6 +924,16 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                     className="relative flex items-center py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
                   >
                     <ImagePlus className={`w-6 h-6 transition-colors ${savingCover ? 'text-primary/50' : 'text-muted-foreground group-hover:text-primary'}`} />
+                  </button>
+                )}
+                {isOwner && cardImage && (
+                  <button
+                    onClick={() => { hapticTap(); setCropOpen(true); }}
+                    aria-label={t('capture.crop.action')}
+                    title={t('capture.crop.action')}
+                    className="relative flex items-center py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
+                  >
+                    <CropIcon className="w-6 h-6 text-muted-foreground transition-colors group-hover:text-primary" />
                   </button>
                 )}
                 {isOwner && (
@@ -1300,7 +1315,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
       )}
 
       {/* Fullscreen image - portalled to body so it stacks above the drawer */}
-      {imageFullscreen && card.image && createPortal((
+      {imageFullscreen && cardImage && createPortal((
         <div
           className={`detail-fullscreen fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden ${heroClass}`}
           style={photoBackdrop
@@ -1322,7 +1337,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
               <div
                 aria-hidden
                 className="detail-photo-backdrop"
-                style={{ backgroundImage: `url("${card.image}")` }}
+                style={{ backgroundImage: `url("${cardImage}")` }}
               />
               <div aria-hidden className={`detail-photo-veil ${heroClass}`} />
             </>
@@ -1357,7 +1372,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                     <div className="absolute inset-0">
 
                       <img
-                        src={card.image}
+                        src={cardImage}
                         alt={displayName}
                         loading="eager"
                         decoding="async"
@@ -1449,6 +1464,22 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
       ), document.body)}
 
       {vanishOverlay}
+      {cropOpen && cardImage && (
+        <CropPhotoDialog
+          photo={cardImage}
+          onCancel={() => setCropOpen(false)}
+          onDone={async (cropped) => {
+            const ok = await saveCroppedCaptureImage(card.id, cropped);
+            setCropOpen(false);
+            if (ok) {
+              setImageOverride({ id: card.id, url: ok });
+              toast({ title: t('capture.crop.saved') });
+            } else {
+              toast({ title: t('capture.crop.saveError'), variant: 'destructive' });
+            }
+          }}
+        />
+      )}
       {correctionOpen && <CaptureCorrectionDialog captureId={card.id} open={correctionOpen} onClose={() => setCorrectionOpen(false)} onSubmitted={() => { setCorrectionOpen(false); onClose(); onDeleted?.(card.id); }} />}
     </>
 

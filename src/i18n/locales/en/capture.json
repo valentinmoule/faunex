@@ -284,7 +284,9 @@
       "cancel": "Cancel",
       "zoom": "Zoom",
       "apply": "Apply crop",
-      "action": "Crop photo"
+      "action": "Crop photo",
+      "saved": "Photo cropped",
+      "saveError": "Couldn't save the crop"
     }
   }
 }

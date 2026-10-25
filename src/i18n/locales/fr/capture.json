@@ -284,7 +284,9 @@
       "cancel": "Annuler",
       "zoom": "Zoom",
       "apply": "Valider le recadrage",
-      "action": "Recadrer la photo"
+      "action": "Recadrer la photo",
+      "saved": "Photo recadrée",
+      "saveError": "Impossible d'enregistrer le recadrage"
     }
   }
 }

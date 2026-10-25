@@ -13,6 +13,7 @@ interface Props {
 const loadImage = (src: string) =>
   new Promise<HTMLImageElement>((resolve, reject) => {
     const img = new Image();
+    img.crossOrigin = 'anonymous';
     img.onload = () => resolve(img);
     img.onerror = reject;
     img.src = src;
@@ -49,7 +50,7 @@ export default function CropPhotoDialog({ photo, onCancel, onDone }: Props) {
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-[200] flex flex-col bg-foreground" role="dialog" aria-label={t('capture.crop.title')}>
+    <div className="fixed inset-0 z-[200] flex flex-col bg-foreground" role="dialog" data-crop aria-label={t('capture.crop.title')}>
       <div className="flex items-center justify-between px-4 pt-[max(16px,env(safe-area-inset-top))] pb-3">
         <button onClick={onCancel} className="p-2 rounded-full text-background" aria-label={t('capture.crop.cancel')}>
           <X className="w-6 h-6" />
@@ -86,6 +87,6 @@ export default function CropPhotoDialog({ photo, onCancel, onDone }: Props) {
         </button>
       </div>
     </div>,
-    document.body,
+    document.querySelector<HTMLElement>('[role="dialog"]:not([data-crop])') ?? document.body,
   );
 }
