@@ -1,5 +1,20 @@
 {
   "species": {
+    "naturalHistory": {
+      "title": "Classification et mensurations",
+      "phylum": "Embranchement",
+      "class_name": "Classe",
+      "order_name": "Ordre",
+      "family": "Famille",
+      "sizeAverage": "Taille moyenne adulte",
+      "weightAverage": "Poids moyen adulte",
+      "sizeRange": "Taille adulte (fourchette)",
+      "weightRange": "Poids adulte (fourchette)",
+      "unknown": "Non documenté",
+      "loading": "Chargement des données naturalistes…",
+      "unavailable": "Les sources sont temporairement indisponibles.",
+      "sources": "Sources :"
+    },
     "backHome": "Retour à l'accueil",
     "backToIndex": "Toutes les espèces",
     "breadcrumbHome": "Accueil",

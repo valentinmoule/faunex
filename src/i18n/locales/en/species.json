@@ -1,5 +1,20 @@
 {
   "species": {
+    "naturalHistory": {
+      "title": "Classification and measurements",
+      "phylum": "Phylum",
+      "class_name": "Class",
+      "order_name": "Order",
+      "family": "Family",
+      "sizeAverage": "Average adult length",
+      "weightAverage": "Average adult weight",
+      "sizeRange": "Adult length (range)",
+      "weightRange": "Adult weight (range)",
+      "unknown": "Not documented",
+      "loading": "Loading natural history data…",
+      "unavailable": "Sources are temporarily unavailable.",
+      "sources": "Sources:"
+    },
     "backHome": "Back to home",
     "backToIndex": "All species",
     "breadcrumbHome": "Home",
