@@ -12,16 +12,22 @@
 .learning-chapter-emblem { border: 2px solid hsl(var(--card) / .35); border-radius: 14px; background: hsl(var(--chapter-base) / .28); box-shadow: inset 0 3px 0 hsl(var(--chapter-base) / .2); }
 .learning-board { background-image: repeating-conic-gradient(from 45deg, hsl(var(--learning-ground-tile)) 0% 25%, transparent 0% 50%); background-size: 92px 92px; }
 .learning-trail path { fill: none; stroke: hsl(var(--learning-trail)); stroke-width: 14; stroke-linecap: round; stroke-dasharray: 8 22; filter: drop-shadow(0 3px 0 hsl(var(--learning-shadow) / .07)); }
-.learning-node { position: relative; border: 4px solid hsl(var(--card) / .5); border-radius: 24px; transform: rotate(-12deg) skew(8deg, 8deg); transition: transform .18s, box-shadow .18s; }
-.learning-node-face { display: flex; flex-direction: column; align-items: center; gap: 6px; transform: skew(-8deg, -8deg) rotate(12deg); }
-.learning-node-face > svg { width: 36px; height: 36px; filter: drop-shadow(0 2px 0 hsl(var(--learning-shadow) / .15)); }
+.learning-node { --node-surface: var(--learning-muted); --node-base: var(--learning-muted-base); position: relative; isolation: isolate; border: 0; border-radius: 0; background: transparent; overflow: visible; transition: transform .18s; -webkit-tap-highlight-color: transparent; }
+/* Project only the tile surfaces: controls and symbols keep their upright geometry. */
+.learning-node::before, .learning-node::after { content: ''; position: absolute; inset: 12px; border-radius: 12px; pointer-events: none; }
+.learning-node::before { z-index: -2; background: hsl(var(--node-base)); transform: translateY(12px) matrix(.866, .5, -.866, .5, 0, 0); box-shadow: 8px 8px 12px hsl(var(--learning-shadow) / .16); }
+.learning-node::after { z-index: -1; background: linear-gradient(135deg, hsl(var(--card) / .2), transparent 65%), hsl(var(--node-surface)); transform: matrix(.866, .5, -.866, .5, 0, 0); border: 2px solid hsl(var(--card) / .4); box-shadow: inset 3px 3px 0 hsl(var(--card) / .18); transition: transform .18s; }
+.learning-node:hover { background: transparent; }
+.learning-node-face { display: flex; flex-direction: column; align-items: center; gap: 2px; transform: translateY(-3px); pointer-events: none; }
+.learning-node-face > svg { width: 28px; height: 28px; filter: drop-shadow(0 2px 0 hsl(var(--learning-shadow) / .15)); }
 .learning-step-number { font-size: 12px; font-weight: 900; line-height: 1; }
-.learning-node-active, .learning-node-active:hover { background: hsl(var(--amber)); color: hsl(var(--primary-foreground)); box-shadow: 0 12px 0 hsl(var(--amber-dark)), 0 18px 0 hsl(var(--learning-shadow) / .12), 0 0 0 12px hsl(var(--amber) / .2); }
-.learning-node-active::after { content: ''; position: absolute; inset: -17px; border: 2px dashed hsl(var(--amber-dark) / .55); border-radius: 32px; animation: learning-beacon 2.4s ease-in-out infinite; }
-.learning-node-done, .learning-node-done:hover { background: hsl(var(--learning-green)); color: hsl(var(--primary-foreground)); box-shadow: 0 12px 0 hsl(var(--learning-green-base)), 0 18px 0 hsl(var(--learning-shadow) / .1); }
-.learning-node-locked, .learning-node-locked:hover { background: hsl(var(--learning-muted)); color: hsl(var(--muted-foreground)); box-shadow: 0 12px 0 hsl(var(--learning-muted-base)), 0 18px 0 hsl(var(--learning-shadow) / .06); }
+.learning-node-active, .learning-node-active:hover { --node-surface: var(--amber); --node-base: var(--amber-dark); color: hsl(var(--primary-foreground)); }
+.learning-node-active::after { outline: 3px solid hsl(var(--amber) / .35); outline-offset: 7px; }
+.learning-node-done, .learning-node-done:hover { --node-surface: var(--learning-green); --node-base: var(--learning-green-base); color: hsl(var(--primary-foreground)); }
+.learning-node-locked, .learning-node-locked:hover { color: hsl(var(--muted-foreground)); }
 .learning-node:disabled { opacity: 1; }
-.learning-node:not(:disabled):active { transform: translateY(6px) rotate(-12deg) skew(8deg, 8deg); }
+.learning-node:not(:disabled):active::after { transform: translateY(6px) matrix(.866, .5, -.866, .5, 0, 0); }
+.learning-node:not(:disabled):active .learning-node-face { transform: translateY(3px); }
 .learning-callout { background: hsl(var(--card)); color: hsl(var(--foreground)); border: 2px solid hsl(var(--amber)); border-radius: 10px; box-shadow: 0 3px 0 hsl(var(--amber-dark) / .2); }
 .learning-callout::after { content: ''; position: absolute; bottom: -8px; left: calc(50% - 6px); border-width: 6px 6px 0; border-style: solid; border-color: hsl(var(--amber)) transparent transparent; }
 .learning-stop-title { line-height: 1.4; text-shadow: 0 2px 0 hsl(var(--learning-ground)); }
@@ -35,9 +41,8 @@
 .learning-scenery-hero { width: 150px; max-width: none; height: 150px; object-fit: contain; filter: drop-shadow(0 8px 3px hsl(var(--learning-shadow) / .12)); }
 .learning-forest-detail { width: 100px; height: 100px; margin: 30px auto 0; object-fit: contain; filter: drop-shadow(0 6px 3px hsl(var(--learning-shadow) / .1)); }
 .learning-scenery-left .learning-forest-detail { transform: scaleX(-1); }
-@keyframes learning-beacon { 50% { opacity: .45; transform: scale(1.05); } }
 @media (max-width: 350px) { .learning-scenery { width: 100px; } .learning-scenery-hero { width: 115px; height: 115px; } }
-@media (prefers-reduced-motion: reduce) { .learning-node { transition: none; } .learning-node-active::after { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .learning-node, .learning-node::after { transition: none; } }
 
 @layer base {
   :root,
