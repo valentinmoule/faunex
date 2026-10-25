@@ -1,6 +1,6 @@
-import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
+import { useState, type ReactNode } from 'react';
+import { Drawer } from 'vaul';
 import { MoreHorizontal } from 'lucide-react';
-import type { ReactNode } from 'react';
 
 export interface OverflowMenuItem {
   label: string;
@@ -10,33 +10,37 @@ export interface OverflowMenuItem {
 }
 
 interface OverflowMenuProps {
-  /** Libellé du bouton (accessibilité) : « Plus d’actions ». */
+  /** Libellé du bouton (accessibilité) : « Plus d'actions ». */
   label: string;
   items: OverflowMenuItem[];
+  /** Conservé pour compatibilité d'API ; ignoré avec le panneau bas. */
   align?: 'start' | 'center' | 'end';
   triggerClassName?: string;
-  /** Classes de l’icône du déclencheur (taille/couleur selon l’endroit d’usage). */
+  /** Classes de l'icône du déclencheur (taille/couleur selon l'endroit d'usage). */
   iconClassName?: string;
-  /** Classes du panneau : permet de monter le z-index au-dessus des fiches plein écran. */
+  /** Conservé pour compatibilité d'API ; ignoré avec le panneau bas. */
   contentClassName?: string;
+  /** Titre optionnel affiché en haut du panneau. */
+  title?: string;
 }
 
 /**
- * Bouton « ⋯ » ouvrant une petite liste d'actions (Renommer, Supprimer…).
- * Le panneau est rendu dans un portail (Radix) : il n'est jamais enfermé
- * dans un conteneur animé de la page.
+ * Bouton « ⋯ » ouvrant une fenêtre basse d'actions (Renommer, Supprimer…),
+ * fermable d'un swipe vers le bas. Liste à plat, sans encadré.
+ * Le panneau est porté au-dessus des fiches plein écran (z 1400/1401).
  */
 export function OverflowMenu({
   label,
   items,
-  align = 'end',
   triggerClassName,
   iconClassName,
-  contentClassName,
+  title,
 }: OverflowMenuProps) {
+  const [open, setOpen] = useState(false);
+
   return (
-    <DropdownMenuPrimitive.Root>
-      <DropdownMenuPrimitive.Trigger asChild>
+    <Drawer.Root open={open} onOpenChange={setOpen}>
+      <Drawer.Trigger asChild>
         <button
           type="button"
           aria-label={label}
@@ -47,34 +51,38 @@ export function OverflowMenu({
         >
           <MoreHorizontal className={iconClassName ?? 'w-4 h-4 text-foreground'} aria-hidden="true" />
         </button>
-      </DropdownMenuPrimitive.Trigger>
-      <DropdownMenuPrimitive.Portal>
-        <DropdownMenuPrimitive.Content
-          align={align}
-          sideOffset={8}
-          collisionPadding={12}
-          className={
-            contentClassName ??
-            'z-50 min-w-[13.5rem] rounded-2xl border border-border bg-background p-1 shadow-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95'
-          }
-        >
-          {items.map((item) => (
-            <DropdownMenuPrimitive.Item
-              key={item.label}
-              onSelect={item.onSelect}
-              className={`flex select-none items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-display font-medium outline-none cursor-default transition-colors ${
-                item.tone === 'destructive'
-                  ? 'text-destructive data-[highlighted]:bg-destructive/10'
-                  : 'text-foreground data-[highlighted]:bg-muted'
-              }`}
-            >
-              {item.icon}
-              <span>{item.label}</span>
-            </DropdownMenuPrimitive.Item>
-          ))}
-        </DropdownMenuPrimitive.Content>
-      </DropdownMenuPrimitive.Portal>
-    </DropdownMenuPrimitive.Root>
+      </Drawer.Trigger>
+      <Drawer.Portal>
+        <Drawer.Overlay className="fixed inset-0 z-[1400] bg-foreground/40 backdrop-blur-sm" />
+        <Drawer.Content className="fixed inset-x-0 bottom-0 z-[1401] rounded-t-3xl bg-background pb-[calc(1.5rem+env(safe-area-inset-bottom))] outline-none">
+          <div className="mx-auto mt-3 h-1.5 w-10 rounded-full bg-muted" />
+          <div className="px-3 py-3">
+            {title && (
+              <h2 className="px-3 pb-2 text-sm font-display font-semibold text-muted-foreground">{title}</h2>
+            )}
+            <ul className="divide-y divide-border/60">
+              {items.map((item) => (
+                <li key={item.label}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOpen(false);
+                      item.onSelect();
+                    }}
+                    className={`flex w-full select-none items-center gap-3 px-3 py-3.5 text-left text-[15px] font-display font-medium outline-none transition-colors active:bg-muted ${
+                      item.tone === 'destructive' ? 'text-destructive' : 'text-foreground'
+                    }`}
+                  >
+                    {item.icon}
+                    <span>{item.label}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Drawer.Content>
+      </Drawer.Portal>
+    </Drawer.Root>
   );
 }
 
