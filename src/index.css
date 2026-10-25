@@ -28,11 +28,11 @@
 .learning-scenery { position: absolute; top: 4px; width: 126px; height: 130px; pointer-events: none; }
 .learning-scenery-left { left: 0; }
 .learning-scenery-right { right: 0; }
-.learning-fox { width: 145px; max-width: none; height: 145px; object-fit: contain; filter: drop-shadow(0 8px 3px hsl(var(--learning-shadow) / .12)); }
+.learning-scenery-hero { width: 150px; max-width: none; height: 150px; object-fit: contain; filter: drop-shadow(0 8px 3px hsl(var(--learning-shadow) / .12)); }
 .learning-forest-detail { width: 100px; height: 100px; margin: 30px auto 0; object-fit: contain; filter: drop-shadow(0 6px 3px hsl(var(--learning-shadow) / .1)); }
 .learning-scenery-left .learning-forest-detail { transform: scaleX(-1); }
 @keyframes learning-beacon { 50% { opacity: .45; transform: scale(1.05); } }
-@media (max-width: 350px) { .learning-scenery { width: 100px; } .learning-fox { width: 113px; height: 130px; } }
+@media (max-width: 350px) { .learning-scenery { width: 100px; } .learning-scenery-hero { width: 115px; height: 115px; } }
 @media (prefers-reduced-motion: reduce) { .learning-node { transition: none; } .learning-node-active::after { animation: none; } }
 
 @layer base {
