@@ -2,8 +2,7 @@
  * Univers graphique des collections.
  *
  * Chaque collection (grande catégorie, groupe thématique ou territoire) reçoit
- * une illustration de biome dessinée dans un style unique et cohérent
- * (illustration digitale immersive, couleurs fraîches) + une teinte d'accent.
+ * une photo immersive de son groupe ou biome + une teinte d'accent.
  * L'illustration donne à chaque collection son identité visuelle propre.
  */
 import city from '@/assets/collections/city.jpg';
@@ -24,6 +23,22 @@ import savanna from '@/assets/collections/savanna.jpg';
 import jungle from '@/assets/collections/jungle.jpg';
 import cave from '@/assets/collections/cave.jpg';
 import garden from '@/assets/collections/garden.jpg';
+import dogs from '@/assets/collections/dogs.jpg';
+import cats from '@/assets/collections/cats.jpg';
+import horses from '@/assets/collections/horses.jpg';
+import butterflies from '@/assets/collections/butterflies.jpg';
+import ladybugs from '@/assets/collections/ladybugs.jpg';
+import bees from '@/assets/collections/bees.jpg';
+import dragonflies from '@/assets/collections/dragonflies.jpg';
+import raptors from '@/assets/collections/raptors.jpg';
+import passerines from '@/assets/collections/passerines.jpg';
+import turtles from '@/assets/collections/turtles.jpg';
+import sharks from '@/assets/collections/sharks.jpg';
+import frogs from '@/assets/collections/frogs.jpg';
+import salamanders from '@/assets/collections/salamanders.jpg';
+import mushrooms from '@/assets/collections/mushrooms.jpg';
+import rodents from '@/assets/collections/rodents.jpg';
+import carnivores from '@/assets/collections/carnivores.jpg';
 
 export type SceneKey =
   | 'city' | 'meadow' | 'lake' | 'forest' | 'ocean'
@@ -124,13 +139,26 @@ const build = (scene: SceneKey): CollectionArt => ({
   scene,
 });
 
+/** Photos propres à chaque groupe ; les scènes restent les accents et le repli. */
+const GROUP_PHOTOS: Record<string, string> = {
+  dog: dogs, cat: cats, horse: horses,
+  butterflies, ladybugs, bees, dragonflies, raptors, passerines,
+  turtles, sharks, frogs, salamanders, rodents, carnivores,
+};
+
+const CATEGORY_PHOTOS: Record<string, string> = {
+  Champignons: mushrooms,
+};
+
 /** Illustration d'une collection à partir de sa clé (`cat:Oiseaux`, `butterflies`…). */
 export const getCollectionArt = (key: string, label?: string): CollectionArt => {
   if (key.startsWith('cat:')) {
     const name = label || key.slice(4);
-    return build(CATEGORY_SCENES[name] || 'forest');
+    const art = build(CATEGORY_SCENES[name] || 'forest');
+    return { ...art, image: CATEGORY_PHOTOS[name] || art.image };
   }
-  return build(GROUP_SCENES[key] || 'meadow');
+  const art = build(GROUP_SCENES[key] || 'meadow');
+  return { ...art, image: GROUP_PHOTOS[key] || art.image };
 };
 
 /** Illustration d'un territoire : ville dessinée, département en campagne. */

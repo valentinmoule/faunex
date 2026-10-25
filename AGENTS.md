@@ -58,6 +58,10 @@ Match captures (including pending shelves) to tiles by exact common name first; 
 
 Import badge art locally; hosted `/__l5e/assets-v1/` routes are absent from native bundles.
 
+## Collection artwork keeps explicit group assignments
+
+Import collection photos locally and assign group-specific artwork explicitly in the shared art resolver, retaining biome fallbacks and user-selected covers, because unrelated groups should not inherit the same image accidentally.
+
 ## One pending moderation request per user and species
 
 Guard manual submissions with a synchronous lock on the client and keep the partial unique index on pending captures (user, trimmed lowercase name), because rapid taps used to queue the same photo several times.
