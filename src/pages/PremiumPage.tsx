@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Check, Loader2, Crown, UserRound, Users, ScanLine, MapPin, Images, FolderHeart, Trophy, BadgeCheck } from 'lucide-react';
+import { ArrowLeft, Check, Loader2, Crown, UserRound, Users, ScanLine, MapPin, Images, FolderHeart, Trophy, BadgeCheck, GraduationCap } from 'lucide-react';
 import { toast } from 'sonner';
 import { PageHeader } from '@/components/PageHeader';
 import { PaymentTestModeBanner } from '@/components/PaymentTestModeBanner';
@@ -24,6 +24,7 @@ import { hasPersonalPremium } from '@/lib/premiumAccess';
 const BENEFITS = [
   { icon: ScanLine, key: 'identification' },
   { icon: MapPin, key: 'exploration' },
+  { icon: GraduationCap, key: 'learning' },
   { icon: FolderHeart, key: 'collections' },
   { icon: Images, key: 'photos' },
   { icon: Trophy, key: 'ranking' },
