@@ -1,5 +1,6 @@
 
 ## Illustrations des collections
+- [x] Étendre le choix d’une photo personnelle aux groupes, catégories et territoires ; six tests réussis, sauvegarde et rechargement vérifiés connecté, choix temporaire retiré.
 - [x] Ajouter 16 photos immersives propres aux groupes répétitifs ; 16 images distinctes chargées et compilation réussie, navigation inchangée.
 
 ## Espèces non capturées dans les collections personnalisées

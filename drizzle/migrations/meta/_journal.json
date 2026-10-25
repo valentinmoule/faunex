@@ -330,6 +330,20 @@
       "when": 1792936264695,
       "tag": "0046_custom_collections_cover_image",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1792937958436,
+      "tag": "0047_standard_collection_personal_covers",
+      "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "7",
+      "when": 1792938156667,
+      "tag": "0048_collection_cover_profile_user_reference",
+      "breakpoints": true
     }
   ]
 }

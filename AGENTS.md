@@ -60,7 +60,7 @@ Import badge art locally; hosted `/__l5e/assets-v1/` routes are absent from nati
 
 ## Collection artwork keeps explicit group assignments
 
-Import collection photos locally and assign group-specific artwork explicitly in the shared art resolver, retaining biome fallbacks and user-selected covers, because unrelated groups should not inherit the same image accidentally.
+Bundle group-specific art with biome fallbacks. Store standard/territory covers as owner-checked, user-scoped capture references; keep custom covers separate, so personal choices never change shared art and released captures stop supplying covers.
 
 ## One pending moderation request per user and species
 

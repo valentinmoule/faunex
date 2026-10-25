@@ -2325,6 +2325,46 @@ export type Database = {
         }
         Relationships: []
       }
+      user_collection_covers: {
+        Row: {
+          capture_id: string
+          collection_key: string
+          user_id: string
+        }
+        Insert: {
+          capture_id: string
+          collection_key: string
+          user_id: string
+        }
+        Update: {
+          capture_id?: string
+          collection_key?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_collection_covers_capture_id_fkey"
+            columns: ["capture_id"]
+            isOneToOne: false
+            referencedRelation: "captures"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_collection_covers_capture_id_fkey"
+            columns: ["capture_id"]
+            isOneToOne: false
+            referencedRelation: "ml_dataset_captures"
+            referencedColumns: ["capture_id"]
+          },
+          {
+            foreignKeyName: "user_collection_covers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       user_department_subscriptions: {
         Row: {
           city_name: string | null
