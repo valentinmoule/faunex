@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { Capacitor } from '@capacitor/core';
+import { initializeNativePush, stopNativePushListeners, unsubscribeNativePush } from '@/lib/nativePushNotifications';
 
 interface AuthContextType {
   session: Session | null;
@@ -26,6 +28,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [needsUsername, setNeedsUsername] = useState(false);
+
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+    if (session?.user.id) void initializeNativePush(session.user.id);
+    else void stopNativePushListeners();
+    return () => { void stopNativePushListeners(); };
+  }, [session?.user.id]);
 
   const checkUsername = async (user: User) => {
     // Only check for OAuth users (not email/password)
@@ -93,6 +102,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const signOut = async () => {
+    if (Capacitor.isNativePlatform()) await unsubscribeNativePush();
     await supabase.auth.signOut();
   };
 

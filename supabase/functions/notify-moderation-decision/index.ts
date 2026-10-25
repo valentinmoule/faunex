@@ -130,6 +130,7 @@ Deno.serve(async (req) => {
         approved ? 'capture-approved' : 'capture-rejected',
         email,
         {
+          nativeUserId: userId,
           templateData: {
             recipientName,
             animalName,

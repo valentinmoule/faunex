@@ -48,6 +48,7 @@ Deno.serve(async (req) => {
     const species = new Set((caps ?? []).map((c: any) => String(c.animal_name).toLowerCase())).size
 
     const outcome = await sendAppEmail(supabase, 'premium-recap', email, {
+      nativeUserId: s.user_id,
       templateData: {
         displayName: profile?.display_name || profile?.username || (locale === 'en' ? 'Explorer' : 'Explorateur'),
         siteUrl: 'https://faunex.fr',

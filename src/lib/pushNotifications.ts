@@ -1,4 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
+import { Capacitor } from '@capacitor/core';
+import { subscribeNativePush, unsubscribeNativePush, hasNativePushSubscription, nativePushPermission } from './nativePushNotifications';
 
 // Clé publique VAPID (publique par nature, OK en clair)
 export const VAPID_PUBLIC_KEY =
@@ -16,12 +18,18 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
 }
 
 export function isPushSupported(): boolean {
+  if (Capacitor.isNativePlatform()) return true;
   return (
     typeof window !== 'undefined' &&
     'serviceWorker' in navigator &&
     'PushManager' in window &&
     'Notification' in window
   );
+}
+
+export async function getPushPermission(): Promise<string> {
+  if (Capacitor.isNativePlatform()) return nativePushPermission();
+  return isPushSupported() ? Notification.permission : 'denied';
 }
 
 async function getOrRegisterSW(): Promise<ServiceWorkerRegistration | null> {
@@ -37,7 +45,9 @@ async function getOrRegisterSW(): Promise<ServiceWorkerRegistration | null> {
 }
 
 export async function subscribeToPush(): Promise<boolean> {
+  if (Capacitor.isNativePlatform()) return subscribeNativePush();
   if (!isPushSupported()) return false;
+  if (window.top !== window.self) return false;
 
   const permission = await Notification.requestPermission();
   if (permission !== 'granted') return false;
@@ -80,6 +90,7 @@ export async function subscribeToPush(): Promise<boolean> {
 }
 
 export async function unsubscribeFromPush(): Promise<void> {
+  if (Capacitor.isNativePlatform()) return unsubscribeNativePush();
   if (!isPushSupported()) return;
   const reg = await navigator.serviceWorker.getRegistration(SW_PATH);
   if (!reg) return;
@@ -91,6 +102,7 @@ export async function unsubscribeFromPush(): Promise<void> {
 }
 
 export async function hasActivePushSubscription(): Promise<boolean> {
+  if (Capacitor.isNativePlatform()) return hasNativePushSubscription();
   if (!isPushSupported()) return false;
   if (Notification.permission !== 'granted') return false;
   const reg = await navigator.serviceWorker.getRegistration(SW_PATH);

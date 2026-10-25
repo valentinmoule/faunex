@@ -55,6 +55,7 @@ Deno.serve(async (req) => {
     }
 
     const result = await sendAppEmail(supabase, 'account-blocked', email, {
+      nativeUserId: userId,
       idempotencyKey: `account-blocked-${userId ?? email}`,
     })
 
