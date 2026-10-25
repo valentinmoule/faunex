@@ -1,6 +1,6 @@
 
 ## Présentation Premium
-- [ ] Afficher deux cartes Personnel/Famille avec détails et tarifs, remplacer le comparatif par une liste légère et vérifier les deux parcours
+- [x] Afficher deux cartes Personnel/Famille avec détails et tarifs, remplacer le comparatif par une liste légère ; page connectée, tarifs mensuels, accès Famille et absence de débordement mobile vérifiés, 16 tests réussis
 
 ## Premium Famille
 - [x] Réserver l’entrée Ma famille au payeur Famille ; invitations e-mail liées à l’adresse vérifiée, reprise après inscription/confirmation/profil ; 12 tests et scénario transactionnel annulé réussis, envoi interdit au non-payeur vérifié
