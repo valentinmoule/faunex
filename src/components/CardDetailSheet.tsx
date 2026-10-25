@@ -835,7 +835,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
           {/* Card Body */}
           <div className="relative -mt-8 bg-background rounded-t-3xl px-5 pb-10 pt-5 space-y-5">
             {isUncaptured && session && (
-              <div className="flex items-center justify-center">
+              <div className="flex items-center justify-center gap-5">
                 <button
                   onClick={() => { hapticTap(); setAddToOpen(true); }}
                   aria-label={t('bestiary.customCollections.addTitle')}
@@ -844,6 +844,16 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                 >
                   <Bookmark className="w-6 h-6 transition-all text-muted-foreground group-hover:text-primary" />
                 </button>
+                <OverflowMenu
+                  label={t('common.moreActions')}
+                  triggerClassName="relative flex items-center py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
+                  iconClassName="w-6 h-6 text-muted-foreground transition-colors group-hover:text-primary"
+                  items={[{
+                    label: t('species.report.action'),
+                    icon: <ScanSearch className="w-5 h-5 text-muted-foreground" />,
+                    onSelect: () => { hapticTap(); setCorrectionOpen(true); },
+                  }]}
+                />
               </div>
             )}
 
