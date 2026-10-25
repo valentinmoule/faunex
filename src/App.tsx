@@ -31,6 +31,7 @@ const FriendCollectionPage = lazyWithRetry(() => import("./pages/FriendCollectio
 const BestiairePage = lazyWithRetry(() => import("./pages/BestiairePage"));
 const NotificationsPage = lazyWithRetry(() => import("./pages/NotificationsPage"));
 const ModerationPage = lazyWithRetry(() => import("./pages/ModerationPage"));
+const AdminCollectionsPage = lazyWithRetry(() => import("./pages/AdminCollectionsPage"));
 const LegalPage = lazyWithRetry(() => import("./pages/LegalPage"));
 const ShareProfilePage = lazyWithRetry(() => import("./pages/ShareProfilePage"));
 const SettingsPage = lazyWithRetry(() => import("./pages/SettingsPage"));
@@ -157,7 +158,7 @@ const AppRoutes = () => {
   const location = useLocation();
   useSyncAccountLocale();
   const isCapturePage = location.pathname === '/capture';
-  const isModerationPage = location.pathname === '/moderation';
+  const isModerationPage = location.pathname === '/moderation' || location.pathname === '/admin/collections';
   const isPremiumPage = location.pathname === '/premium';
   const isPublicPage =
     location.pathname === '/' ||
@@ -207,6 +208,7 @@ const AppRoutes = () => {
           <Route path="/bestiaire" element={<ProtectedRoute><BestiairePage /></ProtectedRoute>} />
           <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
           <Route path="/moderation" element={<AdminRoute><ModerationPage /></AdminRoute>} />
+          <Route path="/admin/collections" element={<AdminRoute><AdminCollectionsPage /></AdminRoute>} />
           <Route path="/quests" element={<Navigate to="/home?tab=badges" replace />} />
           <Route path="/premium" element={<ProtectedRoute><PremiumPage /></ProtectedRoute>} />
           <Route path="/family" element={<ProtectedRoute><FamilyPage /></ProtectedRoute>} />
