@@ -110,7 +110,7 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
                 scrollToItem(i);
               }
             }}
-            className="w-[68vw] max-w-[320px] shrink-0 snap-center transition-[transform,opacity] duration-150 ease-out will-change-transform"
+            className="w-[var(--booster-w)] shrink-0 snap-center transition-[transform,opacity] duration-150 ease-out will-change-transform"
           >
             {child}
           </div>
