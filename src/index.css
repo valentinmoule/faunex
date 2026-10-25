@@ -12,6 +12,9 @@
 .game-button-soft { --control-fill: var(--secondary); --control-base: var(--learning-muted-base); --control-ink: var(--secondary-foreground); }
 .game-button-outline { --control-fill: var(--card); --control-base: var(--learning-muted-base); --control-ink: var(--foreground); }
 .game-button-danger { --control-fill: var(--destructive); --control-base: var(--game-danger-base); }
+.game-button.learning-answer[aria-checked=true], .game-button.learning-answer[data-correct=true] { --control-fill: var(--learning-green); --control-base: var(--learning-green-base); --control-ink: var(--primary-foreground); }
+.game-button.learning-answer[aria-checked=true][data-correct=false] { --control-fill: var(--destructive); --control-base: var(--game-danger-base); }
+.game-button.learning-answer:disabled { opacity: 1; }
 .game-tabs { border: 2px solid hsl(var(--learning-muted) / .8); border-radius: 18px; background: hsl(var(--secondary)); padding: 5px; gap: 5px; box-shadow: inset 0 2px 3px hsl(var(--learning-shadow) / .08); }
 .game-tab, .game-chip { --control-fill: var(--card); --control-base: var(--learning-muted-base); --control-ink: var(--muted-foreground); position: relative; border: 2px solid hsl(var(--learning-muted)); border-radius: 12px; background: hsl(var(--control-fill)); color: hsl(var(--control-ink)); font-weight: 800; letter-spacing: 0; box-shadow: inset 0 2px 0 hsl(var(--card) / .3), 0 3px 0 hsl(var(--control-base)); transition: transform .15s, box-shadow .15s, background .15s; }
 .game-tab { border-color: transparent; background: transparent; box-shadow: none; }
