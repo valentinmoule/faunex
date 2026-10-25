@@ -76,7 +76,7 @@ Resolve capture names server-side against the catalogue (exact, synonyms, singul
 
 ## Privileged notifications validate stored events
 
-Derive recipients/content from verified follows, interactions, moderation captures or blocked accounts and deduplicate by event ID, because caller fields cannot prove a legitimate notification.
+Derive recipients/content from stored events, deduplicate per recipient, and enforce visibility for @mentions; use the comment trigger and preferences, because clients cannot prove notifications.
 
 ## Native push uses FCM tokens, separate from browser subscriptions
 
