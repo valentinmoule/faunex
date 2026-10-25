@@ -3,13 +3,27 @@ import { useTranslation } from 'react-i18next';
 import { Drawer } from 'vaul';
 import { Loader2, ScanSearch } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { supabase } from '@/integrations/supabase/client';
 import { requestCaptureCorrection } from '@/lib/captureCorrection';
 import { toast } from '@/hooks/use-toast';
 
-export function CaptureCorrectionDialog({ captureId, open, onClose, onSubmitted }: {
-  captureId: string; open: boolean; onClose: () => void; onSubmitted: () => void;
+/**
+ * Fenêtre unique « Corriger l'espèce / Signaler une fiche erronée ».
+ * - Avec captureId (propriétaire de la capture) : demande de correction en
+ *   modération, qui consomme une analyse du quota.
+ * - Sans captureId : signalement de la fiche avec la proposition de
+ *   l'utilisateur, sans quota.
+ */
+export function CaptureCorrectionDialog({ captureId, speciesName, speciesScientific, open, onClose, onSubmitted }: {
+  captureId?: string;
+  speciesName: string;
+  speciesScientific?: string | null;
+  open: boolean;
+  onClose: () => void;
+  onSubmitted: () => void;
 }) {
   const { t } = useTranslation();
+  const isReport = !captureId;
   const [name, setName] = useState('');
   const [scientific, setScientific] = useState('');
   const [note, setNote] = useState('');
@@ -20,14 +34,32 @@ export function CaptureCorrectionDialog({ captureId, open, onClose, onSubmitted 
     if (lock.current || name.trim().length < 2) return;
     lock.current = true; setSending(true);
     try {
-      const result = await requestCaptureCorrection(captureId, name, scientific, note);
+      if (isReport) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) throw new Error('unauthenticated');
+        const suggestion = `${name.trim()}${scientific.trim() ? ` (${scientific.trim()})` : ''}${note.trim() ? ` — ${note.trim()}` : ''}`;
+        const { error } = await supabase.from('species_reports').insert({
+          user_id: session.user.id,
+          species_name: speciesName,
+          scientific_name: speciesScientific || null,
+          reason: suggestion,
+        });
+        // 23505 = signalement déjà envoyé pour cette fiche : on confirme quand même.
+        if (error && error.code !== '23505') throw error;
+        toast({ title: t('species.report.sent') });
+        onSubmitted();
+        return;
+      }
+      const result = await requestCaptureCorrection(captureId!, name, scientific, note);
       if (result.success || result.reason === 'already_pending') {
         toast({ title: t(result.success ? 'capture.toasts.verificationRequested' : 'capture.correction.alreadyPending') });
         onSubmitted();
       } else {
         toast({ title: t(result.reason === 'daily_limit' ? 'capture.errors.dailyAnalysisLimit' : 'capture.errors.submissionError'), variant: 'destructive' });
       }
-    } catch { toast({ title: t('capture.errors.submissionError'), variant: 'destructive' }); }
+    } catch {
+      toast({ title: t(isReport ? 'species.report.error' : 'capture.errors.submissionError'), variant: 'destructive' });
+    }
     finally { lock.current = false; setSending(false); }
   }
 
@@ -47,8 +79,8 @@ export function CaptureCorrectionDialog({ captureId, open, onClose, onSubmitted 
                 <ScanSearch className="h-7 w-7 text-primary" />
               </span>
               <div className="space-y-1">
-                <h2 className="font-display text-lg font-bold">{t('capture.correction.title')}</h2>
-                <p className="text-xs leading-relaxed text-muted-foreground">{t('capture.correction.description')}</p>
+                <h2 className="font-display text-lg font-bold">{t(isReport ? 'species.report.dialogTitle' : 'capture.correction.title')}</h2>
+                <p className="text-xs leading-relaxed text-muted-foreground">{t(isReport ? 'species.report.dialogDescription' : 'capture.correction.description')}</p>
               </div>
             </div>
 
@@ -74,7 +106,7 @@ export function CaptureCorrectionDialog({ captureId, open, onClose, onSubmitted 
                 className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-sm font-semibold text-primary-foreground shadow-sm transition-opacity disabled:opacity-50"
               >
                 {sending && <Loader2 className="h-4 w-4 animate-spin" />}
-                {t('capture.actions.requestVerificationBtn')}
+                {t(isReport ? 'species.report.send' : 'capture.actions.requestVerificationBtn')}
               </button>
               <button
                 onClick={onClose}

@@ -43,7 +43,10 @@
     "report": {
       "action": "Signaler une fiche erronée",
       "sent": "Merci ! Notre équipe va vérifier cette fiche.",
-      "error": "Le signalement n'a pas pu être envoyé."
+      "error": "Le signalement n'a pas pu être envoyé.",
+      "dialogTitle": "Signaler une fiche erronée",
+      "dialogDescription": "Indique le nom de l’espèce correcte : notre équipe vérifiera la fiche.",
+      "send": "Envoyer le signalement"
     }
   }
 }

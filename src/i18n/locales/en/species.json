@@ -43,7 +43,10 @@
     "report": {
       "action": "Report an incorrect entry",
       "sent": "Thanks! Our team will review this entry.",
-      "error": "The report couldn't be sent."
+      "error": "The report couldn't be sent.",
+      "dialogTitle": "Report an incorrect species page",
+      "dialogDescription": "Tell us the correct species name and our team will review this page.",
+      "send": "Send report"
     }
   }
 }
