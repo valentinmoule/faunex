@@ -98,6 +98,10 @@ Suffix every `supabase.channel()` name randomly: reused topics crash on `.on()`.
 
 Resolve demo and internal identification overrides through the function-local account policy using the authenticated server user, never request fields; keep ordinary routing and quotas unchanged to isolate demo costs.
 
+## Custom collections are species lists, not capture lists
+
+Use species names for custom collection membership and refresh mounted collection hooks after successful membership writes, because uncaptured species have no capture ID and detail sheets and the Bestiary must stay synchronized. Hide capture-only favorites for uncaptured species.
+
 <!-- LOVABLE:BEGIN -->
 ## Canonical species facts
 Apply shared facts after capture name canonicalization, reject scientific conflicts, refresh facts on image-cache hits, and invalidate translations after source changes, because moderation and older clients can save stale descriptions under corrected names.

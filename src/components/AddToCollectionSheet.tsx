@@ -11,6 +11,7 @@ interface Props {
   onClose: () => void;
   isFavorite: boolean;
   onToggleFavorite: () => void;
+  showFavorite?: boolean;
   collections: CustomCollection[];
   /** Ids des collections contenant déjà cette espèce. */
   memberOf: Set<string>;
@@ -29,6 +30,7 @@ const AddToCollectionSheet = ({
   onClose,
   isFavorite,
   onToggleFavorite,
+  showFavorite = true,
   collections,
   memberOf,
   onToggleCollection,
@@ -140,7 +142,7 @@ const AddToCollectionSheet = ({
         </div>
 
         {/* Favoris */}
-        <button
+        {showFavorite && <button
           onClick={() => {
             hapticTap();
             onToggleFavorite();
@@ -152,7 +154,7 @@ const AddToCollectionSheet = ({
             {t('bestiary.customCollections.favorites')}
           </span>
           {isFavorite && <Check className="w-4 h-4 text-primary" />}
-        </button>
+        </button>}
 
         {/* Collections existantes */}
         {collections.length > 0 && (

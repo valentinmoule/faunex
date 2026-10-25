@@ -1,4 +1,7 @@
 
+## Espèces non capturées dans les collections personnalisées
+- [x] Ajouter depuis la fiche du Bestiaire sans capture ; sauvegarde et silhouette 0/1 vérifiées connecté après rechargement, collection temporaire retirée et test réussi.
+
 ## Présentation Premium
 - [x] Vérifier la gestion Paddle après exclusion des anciens identifiants d’accès manuel et sélection du bon environnement ; réponse 200 avec le compte connecté, aucune erreur écran, sept tests réussis
 - [x] Corriger l’offre active affichée pour l’accès Famille offert de Valentin, sans modifier sa facturation Personnel ; Famille actif et gestion des invitations vérifiés connecté, 13 tests réussis
