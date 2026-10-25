@@ -123,7 +123,7 @@ function Editor({ draft: initial, userId, onClose }: { draft: Draft; userId?: st
     try {
       const source = await prepareSourceFile(file);
       if (!source) throw new Error('unreadable');
-      const blob = new Blob([dataUrlToBytes(await resizeDataUrl(source, 1200, 0.82))], { type: 'image/jpeg' });
+      const blob = new Blob([dataUrlToBytes(await resizeDataUrl(source, 1200, 0.82)) as BlobPart], { type: 'image/jpeg' });
       const path = `${userId}/collections/${crypto.randomUUID()}.jpg`;
       const { error } = await supabase.storage.from('captures').upload(path, blob, { contentType: 'image/jpeg' });
       if (error) throw error;
