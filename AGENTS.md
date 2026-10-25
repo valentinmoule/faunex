@@ -2,6 +2,10 @@
 
 Rules for working on this codebase.
 
+## Referral rewards follow verified annual payments
+
+Reserve referrals for authenticated new customers, verify completed transactions by reading Paddle, and grant both rewards atomically once; persist absolute billing targets before delaying renewals without proration so retries cannot multiply benefits. Keep separate entitlements for accounts without an active renewal because cancellation must stay intact.
+
 ## Partner landing pages share one presentation
 
 Use the shared partner page with audience-specific translated copy and imagery, keeping public partner routes gated out of native builds to avoid duplicated layouts and marketing screens in the native app.

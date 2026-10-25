@@ -260,6 +260,20 @@
       "when": 1792926133997,
       "tag": "0036_native_push_devices",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1792927921499,
+      "tag": "0037_premium_referrals",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1792928120867,
+      "tag": "0038_referral_service_rpc_grants",
+      "breakpoints": true
     }
   ]
 }

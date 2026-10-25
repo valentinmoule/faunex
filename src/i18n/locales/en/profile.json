@@ -335,6 +335,24 @@
       }
     },
     "premium": {
+      "referral": {
+        "title": "Referrals",
+        "description": "A friend buys their first yearly Premium subscription using your code: you both receive 30 Premium days after payment is confirmed, added to the end of your subscription. Without a subscription, your 30 days start when payment is confirmed.",
+        "yourCode": "Your referral code",
+        "copy": "Copy code",
+        "copied": "Code copied!",
+        "copyError": "Unable to copy the code.",
+        "retry": "Try again",
+        "inputLabel": "Your referrer’s code (optional)",
+        "placeholder": "Referral code",
+        "bonus": "{{days}} free Premium days earned through referrals",
+        "errors": {
+          "self_referral": "You cannot use your own code.",
+          "existing_customer": "Referrals are only available to new Premium customers.",
+          "referral_already_set": "Another referrer is already linked to your account.",
+          "invalid_code": "This referral code is not valid."
+        }
+      },
       "badge": "Faunex Premium",
       "title": "Support Faunex and unlock the best of the app.",
       "description": "Faunex is a small independent project growing thanks to you. Your subscription directly helps fund servers, AI models and new features.",

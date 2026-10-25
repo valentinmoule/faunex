@@ -30,6 +30,7 @@ export function usePaddleCheckout() {
         if (options.plan) url.searchParams.set("plan", options.plan);
         if (options.customerEmail) url.searchParams.set("email", options.customerEmail);
         if (options.customData?.userId) url.searchParams.set("uid", options.customData.userId);
+        if (options.customData?.referralId) url.searchParams.set("referral", options.customData.referralId);
         await Browser.open({ url: url.toString(), presentationStyle: "popover" });
         return;
       }

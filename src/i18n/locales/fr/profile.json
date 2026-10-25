@@ -335,6 +335,24 @@
       }
     },
     "premium": {
+      "referral": {
+        "title": "Parrainage",
+        "description": "Un proche achète son premier abonnement Premium annuel avec ton code : vous gagnez chacun 30 jours de Premium après confirmation du paiement, ajoutés à la fin de l’abonnement. Sans abonnement, tes 30 jours commencent dès la confirmation.",
+        "yourCode": "Ton code de parrainage",
+        "copy": "Copier le code",
+        "copied": "Code copié !",
+        "copyError": "Impossible de copier le code.",
+        "retry": "Réessayer",
+        "inputLabel": "Code de ton parrain (facultatif)",
+        "placeholder": "Code de parrainage",
+        "bonus": "{{days}} jours de Premium offerts grâce au parrainage",
+        "errors": {
+          "self_referral": "Tu ne peux pas utiliser ton propre code.",
+          "existing_customer": "Le parrainage est réservé aux nouveaux clients Premium.",
+          "referral_already_set": "Un autre parrain est déjà associé à ton compte.",
+          "invalid_code": "Ce code de parrainage n’est pas valide."
+        }
+      },
       "badge": "Faunex Premium",
       "title": "Soutenez Faunex et débloquez le meilleur de l'application.",
       "description": "Faunex est un petit projet indépendant qui grandit grâce à vous. Votre abonnement aide directement à financer les serveurs, les modèles d'IA et le développement de nouvelles fonctionnalités.",
