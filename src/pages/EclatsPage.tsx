@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, RefreshCw } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Sprout } from 'lucide-react';
 import SeedIcon from '@/components/SeedIcon';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -12,7 +12,7 @@ export default function EclatsPage() {
   const { t, i18n } = useTranslation();
   const wallet = useWallet();
   const [refreshing, setRefreshing] = useState(false);
-  return <main className="flex min-h-screen flex-col bg-background pb-24">
+  return <main className="flex min-h-screen flex-col bg-background">
     <PageHeader sticky className="border-b border-border bg-background px-5 pb-4">
       <div className="mx-auto flex max-w-lg items-center gap-3">
         <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label={t('common.back')}><ArrowLeft className="h-5 w-5" /></Button>
@@ -22,9 +22,13 @@ export default function EclatsPage() {
     </PageHeader>
     <div className="mx-auto flex w-full max-w-lg flex-1 items-center justify-center px-5">
       <section className="py-14 text-center">
-        <SeedIcon className="mx-auto mb-5 h-20 w-20" glow />
+        <SeedIcon className="seed-float mx-auto mb-5 h-20 w-20" glow />
         <p className="font-display text-5xl font-bold tabular-nums">{wallet.isPending ? '—' : wallet.data?.balance.toLocaleString(i18n.language) ?? '—'}</p>
         <p className="mt-3 text-sm text-muted-foreground">{t('economy.available')}</p>
+        <button type="button" className="game-button mx-auto mt-8 flex items-center gap-2 px-6 py-3 text-base" onClick={() => navigate('/apprendre')}>
+          <Sprout className="h-5 w-5" />
+          {t('learning.title')}
+        </button>
         {Number(wallet.data?.debt ?? 0) > 0 && <p className="mt-3 text-sm text-muted-foreground">{t('economy.debt', { amount: wallet.data?.debt })}</p>}
         {wallet.isError && <p className="mt-8 text-sm text-destructive">{t('economy.error')}</p>}
       </section>
