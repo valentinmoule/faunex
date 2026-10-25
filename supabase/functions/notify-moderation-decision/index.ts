@@ -103,6 +103,13 @@ Deno.serve(async (req) => {
           .eq('user_id', userId).eq('type', 'capture_rejected')
           .eq('comment_text', animalName)
       }
+    } else if (decision === 'rejected' && correction) {
+      // Marqueur « correction_declined:… » : l'app affiche que la demande de
+      // correction n'a pas été retenue et que la capture reste inchangée.
+      await supabase.from('notifications')
+        .update({ comment_text: `correction_declined:${animalName}` })
+        .eq('user_id', userId).eq('type', 'capture_rejected')
+        .eq('comment_text', animalName)
     }
 
     // Anti-doublon : une même décision (auto-modération + relance manuelle, ou
