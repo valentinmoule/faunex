@@ -32,6 +32,7 @@ const BestiairePage = lazyWithRetry(() => import("./pages/BestiairePage"));
 const NotificationsPage = lazyWithRetry(() => import("./pages/NotificationsPage"));
 const ModerationPage = lazyWithRetry(() => import("./pages/ModerationPage"));
 const AdminCollectionsPage = lazyWithRetry(() => import("./pages/AdminCollectionsPage"));
+const AdventCalendarPage = lazyWithRetry(() => import("./pages/AdventCalendarPage"));
 const LegalPage = lazyWithRetry(() => import("./pages/LegalPage"));
 const ShareProfilePage = lazyWithRetry(() => import("./pages/ShareProfilePage"));
 const SettingsPage = lazyWithRetry(() => import("./pages/SettingsPage"));
@@ -209,6 +210,7 @@ const AppRoutes = () => {
           <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
           <Route path="/moderation" element={<AdminRoute><ModerationPage /></AdminRoute>} />
           <Route path="/admin/collections" element={<AdminRoute><AdminCollectionsPage /></AdminRoute>} />
+          <Route path="/advent/:id" element={<ProtectedRoute><AdventCalendarPage /></ProtectedRoute>} />
           <Route path="/quests" element={<Navigate to="/home?tab=badges" replace />} />
           <Route path="/premium" element={<ProtectedRoute><PremiumPage /></ProtectedRoute>} />
           <Route path="/family" element={<ProtectedRoute><FamilyPage /></ProtectedRoute>} />

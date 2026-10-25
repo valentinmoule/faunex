@@ -14,6 +14,53 @@ export type Database = {
   }
   public: {
     Tables: {
+      advent_submissions: {
+        Row: {
+          approved_at: string | null
+          approved_category: string | null
+          capture_id: string
+          claimed_at: string | null
+          collection_id: string
+          day: number
+          id: string
+          image_url: string
+          submitted_at: string
+          user_id: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_category?: string | null
+          capture_id: string
+          claimed_at?: string | null
+          collection_id: string
+          day: number
+          id?: string
+          image_url: string
+          submitted_at?: string
+          user_id: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_category?: string | null
+          capture_id?: string
+          claimed_at?: string | null
+          collection_id?: string
+          day?: number
+          id?: string
+          image_url?: string
+          submitted_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advent_submissions_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "themed_collections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_analysis_attempts: {
         Row: {
           created_at: string
@@ -2357,10 +2404,14 @@ export type Database = {
       }
       themed_collections: {
         Row: {
+          calendar_days: Json
+          calendar_year: number | null
           cover_url: string | null
           created_at: string
           description: string | null
           ends_at: string | null
+          event_kind: string
+          final_badge_xp: number
           id: string
           published: boolean
           rule_categories: string[]
@@ -2374,10 +2425,14 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          calendar_days?: Json
+          calendar_year?: number | null
           cover_url?: string | null
           created_at?: string
           description?: string | null
           ends_at?: string | null
+          event_kind?: string
+          final_badge_xp?: number
           id?: string
           published?: boolean
           rule_categories?: string[]
@@ -2391,10 +2446,14 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          calendar_days?: Json
+          calendar_year?: number | null
           cover_url?: string | null
           created_at?: string
           description?: string | null
           ends_at?: string | null
+          event_kind?: string
+          final_badge_xp?: number
           id?: string
           published?: boolean
           rule_categories?: string[]
@@ -2769,6 +2828,15 @@ export type Database = {
         Args: { _end: string; _excluded: string[]; _start: string }
         Returns: Json
       }
+      advent_badge_progress: { Args: { p_user: string }; Returns: Json }
+      advent_day_start: {
+        Args: { p_day: number; p_year: number }
+        Returns: string
+      }
+      advent_matches: {
+        Args: { p_categories: Json; p_category: string }
+        Returns: boolean
+      }
       ai_analyses_remaining_today: { Args: never; Returns: number }
       ai_usage_stats: {
         Args: { p_days?: number }
@@ -2833,6 +2901,10 @@ export type Database = {
           user_id: string
           username: string
         }[]
+      }
+      claim_advent_day: {
+        Args: { p_collection: string; p_day: number }
+        Returns: number
       }
       claim_badge: {
         Args: { p_badge_id: string; p_xp_reward: number }
@@ -2994,6 +3066,7 @@ export type Database = {
           vernacular_name: string
         }[]
       }
+      my_advent_calendars: { Args: never; Returns: Json }
       my_category_rank: {
         Args: { p_category: string; p_period?: string; p_scope?: string }
         Returns: {

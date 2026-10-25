@@ -1,5 +1,6 @@
 import communityMemberArt from '@/assets/badges/community_member.png';
 import premiumMemberArt from '@/assets/badges/premium_member.png';
+import adventArt from '@/assets/badges/advent.png';
 
 const bundledBadgeModules = import.meta.glob<string>('../assets/badges/native/*.webp', {
   eager: true,
@@ -22,6 +23,7 @@ export const BADGE_ART: Record<string, string> = {
 };
 
 export const getBadgeArt = (badgeId: string) =>
+  (badgeId.startsWith('advent_') ? adventArt : undefined) ??
   BADGE_ART[badgeId] ??
   (badgeId.startsWith('collection_')
     ? BADGE_ART.collection_default

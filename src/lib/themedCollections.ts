@@ -15,6 +15,10 @@ export interface ThemedCollection {
   ends_at: string | null;
   published: boolean;
   sort_order: number;
+  event_kind?: 'collection' | 'advent';
+  calendar_year?: number | null;
+  calendar_days?: import('./advent').AdventChallenge[];
+  final_badge_xp?: number;
 }
 
 export const THEME_PREFIX = 'theme:';

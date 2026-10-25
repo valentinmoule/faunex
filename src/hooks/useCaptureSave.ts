@@ -46,7 +46,7 @@ export const useCaptureSave = ({ userId, photo, geo, takenAt = null }: SaveConte
   const uploadImage = useCallback(async (uid?: string) => {
     if (!photo || !userId) return null;
     const ownerId = uid ?? userId;
-    const fileName = `${ownerId}/${Date.now()}.jpg`;
+    const fileName = `${ownerId}/observations/${crypto.randomUUID()}.jpg`;
     const { error: uploadError } = await supabase.storage
       .from('captures')
       .upload(fileName, dataUrlToBytes(photo), { contentType: 'image/jpeg' });
