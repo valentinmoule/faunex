@@ -197,6 +197,7 @@ const DEEP_ANNEX = `
 CRITÈRES DIAGNOSTIQUES (cas ambigus) :
 - Cervidés : Chevreuil petit/compact, museau court noir, miroir blanc en cœur, bois ≤ 3 pointes. Cerf-Biche grand, corps allongé, encolure épaisse, museau long (grande femelle sans bois = Biche). Daim tacheté, longue queue à raie noire, bois palmés.
 - Coccinelles : 22 points jaune vif 3-4 mm · Asiatique 6-8 mm pronotum blanc en M · 7 points rouge exactement 7 · 14 points damier jaune.
+- Œdipodes : Oedipoda germanica = Œdipode germanique, ailes postérieures rouges/orangées avec bande sombre ; Oedipoda caerulescens = Œdipode turquoise, ailes bleues avec bande sombre ; Sphingonotus caerulans = Œdipode aigue-marine, plus élancé, ailes bleues à la base sans bande sombre. Corps camouflé et ailes fermées seuls ne suffisent pas : sans critères diagnostiques visibles, reste au genre sûr et baisse la confiance, ne devine pas l'espèce.
 - Chats : face ronde Persan/British, triangulaire Siamois/Oriental, en cœur Birman ; pelage, oreilles, queue, motifs. Défaut "Chat Européen".
 - Même rigueur pour mésanges, pouillots, goélands/mouettes, hirondelles/martinets, lézards, bourdons/abeilles, corvidés.
 - Oiseaux : juvénile, femelle et plumage d'hiver diffèrent du mâle adulte ; vérifie bec, barres alaires, couleur des pattes avant de trancher.
