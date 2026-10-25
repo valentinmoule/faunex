@@ -7,9 +7,13 @@ import { useCaptureQuota } from '@/hooks/useCaptureQuota';
 interface CaptureQuotaBadgeProps {
   userId?: string;
   isPremium: boolean;
+  /** Vrai tant que l'état premium n'est pas connu : on n'affiche jamais le
+   *  chiffre pendant ce chargement, sinon un premium voit brièvement
+   *  « N » avant que le symbole ∞ n'apparaisse. */
+  premiumLoading?: boolean;
 }
 
-const CaptureQuotaBadge = ({ userId, isPremium }: CaptureQuotaBadgeProps) => {
+const CaptureQuotaBadge = ({ userId, isPremium, premiumLoading }: CaptureQuotaBadgeProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { remaining } = useCaptureQuota(userId);
@@ -23,6 +27,8 @@ const CaptureQuotaBadge = ({ userId, isPremium }: CaptureQuotaBadgeProps) => {
         <Camera className="h-4 w-4" strokeWidth={2.25} />
         {isPremium ? (
           <InfinityIcon className="h-5 w-5" strokeWidth={2.5} aria-hidden="true" />
+        ) : premiumLoading ? (
+          <span className="w-5" aria-hidden="true" />
         ) : (
           <span className="text-sm font-display font-bold tabular-nums">
             {remaining === null ? '—' : remaining}
