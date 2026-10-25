@@ -1597,6 +1597,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
             </div>
           )}
         </div>
+        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={removeCaptureLocally} />
       </div>
     );
   }

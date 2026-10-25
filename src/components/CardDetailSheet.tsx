@@ -27,6 +27,7 @@ import AddToCollectionSheet from '@/components/AddToCollectionSheet';
 import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
 import { useSpeciesFacts, useSpeciesName } from '@/hooks/useSpeciesLocale';
 import { PremiumAvatar } from '@/components/PremiumAvatar';
+import { Button } from '@/components/ui/button';
 
 interface Props {
   card: AnimalCard | null;
@@ -815,6 +816,14 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
 
           {/* Card Body */}
           <div className="relative -mt-8 bg-background rounded-t-3xl px-5 pb-10 pt-5 space-y-5">
+            {isUncaptured && session && (
+              <div className="flex justify-center">
+                <Button variant="ghost" onClick={() => { hapticTap(); setAddToOpen(true); }}>
+                  <Bookmark aria-hidden="true" />
+                  {t('bestiary.customCollections.addTitle')}
+                </Button>
+              </div>
+            )}
 
             {/* Ligne auteur + actions : auteur à gauche, boutons à droite */}
             {!isUncaptured && (
@@ -1228,6 +1237,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
           open={addToOpen}
           onClose={() => setAddToOpen(false)}
           isFavorite={isFavorite(card.id)}
+          showFavorite={!isUncaptured}
           onToggleFavorite={() => void toggleFavorite(card.id)}
           collections={customCollections.collections}
           memberOf={customCollections.collectionsForSpecies(card.name)}
@@ -1241,7 +1251,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
           onCreateCollection={async (name) => {
             const created = await customCollections.createCollection(name);
             if (!created) return false;
-            void customCollections.addItem(created.id, card.name, card.scientificName);
+            await customCollections.addItem(created.id, card.name, card.scientificName);
             return true;
           }}
           isPremium={isPremium}

@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
+const COLLECTIONS_CHANGED = 'faunex:custom-collections-changed';
+const notifyCollectionsChanged = () => window.dispatchEvent(new Event(COLLECTIONS_CHANGED));
+
 export interface CustomCollection {
   id: string;
   name: string;
@@ -51,8 +54,11 @@ export const useCustomCollections = (userId?: string) => {
       setLoaded(true);
     };
     void load();
+    const refresh = () => { void load(); };
+    window.addEventListener(COLLECTIONS_CHANGED, refresh);
     return () => {
       cancelled = true;
+      window.removeEventListener(COLLECTIONS_CHANGED, refresh);
     };
   }, [userId]);
 
@@ -68,6 +74,7 @@ export const useCustomCollections = (userId?: string) => {
         .single();
       if (error || !data) return null;
       setCollections((prev) => [...prev, data]);
+      notifyCollectionsChanged();
       return data;
     },
     [userId],
@@ -135,6 +142,7 @@ export const useCustomCollections = (userId?: string) => {
         setItems((p) => p.filter((i) => i.id !== optimistic.id));
       } else {
         setItems((p) => p.map((i) => (i.id === optimistic.id ? data : i)));
+        notifyCollectionsChanged();
       }
     },
     [userId, items],
@@ -152,6 +160,7 @@ export const useCustomCollections = (userId?: string) => {
         .eq('user_id', userId)
         .eq('animal_name', animalName);
       if (error) setItems(prev);
+      else notifyCollectionsChanged();
     },
     [userId, items],
   );
