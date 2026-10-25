@@ -449,6 +449,13 @@
       "when": 1792958831102,
       "tag": "0063_species_reports",
       "breakpoints": true
+    },
+    {
+      "idx": 64,
+      "version": "7",
+      "when": 1792959044355,
+      "tag": "0064_drop_unused_capture_index",
+      "breakpoints": true
     }
   ]
 }
