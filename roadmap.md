@@ -6,6 +6,6 @@
 - [x] Calendrier de l’Avent : proposer et faire valider les 24 défis et récompenses.
 - [x] Calendrier de l’Avent : gestion admin, cases quotidiennes et validation sécurisée des récompenses.
 
-- [ ] Éclats phase 1 : portefeuille privé, registre immuable, barèmes et activité quotidienne UTC.
-- [ ] Éclats phase 1 : preuves serveur, gains des nouvelles captures et découvertes, anti-recyclage et annulations protégées.
-- [ ] Éclats phase 1 : solde et historique bilingues, tests des règles et vérification du parcours connecté.
+- [x] Éclats phase 1 : portefeuille privé, registre immuable, barèmes et activité quotidienne UTC.
+- [x] Éclats phase 1 : preuves serveur, gains des nouvelles captures et découvertes, anti-recyclage et annulations protégées ; règles testées sur PostgreSQL isolé.
+- [x] Éclats phase 1 : solde et historique bilingues ; gain quotidien vérifié connecté et après rechargement ; import et doublon vérifiés. Nouvelle capture non exercée sur un compte réel : la photo de test correspond à une espèce déjà possédée.
