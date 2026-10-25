@@ -8,6 +8,7 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
   const ref = useRef<HTMLDivElement>(null);
   const items = Children.toArray(children);
   const [active, setActive] = useState(0);
+  const activeRef = useRef(0);
 
   const update = useCallback(() => {
     const el = ref.current;
@@ -24,6 +25,7 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
       node.style.opacity = String(1 - ratio * 0.35);
       if (dist < bestDist) { bestDist = dist; best = i; }
     });
+    activeRef.current = best;
     setActive(best);
   }, []);
 
@@ -73,6 +75,14 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
     window.setTimeout(() => { if (ref.current) ref.current.style.scrollSnapType = ''; }, 400);
   };
 
+  // Un appui sur un sachet voisin le recentre au lieu d'ouvrir la collection.
+  const scrollToItem = (i: number) => {
+    const el = ref.current;
+    const node = el?.children[i] as HTMLElement | undefined;
+    if (!el || !node) return;
+    el.scrollTo({ left: node.offsetLeft - (el.clientWidth - node.offsetWidth) / 2, behavior: 'smooth' });
+  };
+
   return (
     <div className="-mx-4">
       <div
@@ -86,12 +96,20 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
           if (suppressClick.current) { e.preventDefault(); e.stopPropagation(); suppressClick.current = false; }
         }}
         onDragStart={(e) => e.preventDefault()}
-        className="flex cursor-grab select-none snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain pt-6 pb-14 scrollbar-none"
+        className="flex cursor-grab select-none snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain pt-6 pb-14 no-scrollbar"
         style={{ paddingInline: 'calc(50% - min(34vw, 160px))' }}
       >
         {items.map((child, i) => (
           <div
             key={i}
+            onClickCapture={(e) => {
+              if (i !== activeRef.current) {
+                e.preventDefault();
+                e.stopPropagation();
+                suppressClick.current = false;
+                scrollToItem(i);
+              }
+            }}
             className="w-[68vw] max-w-[320px] shrink-0 snap-center transition-[transform,opacity] duration-150 ease-out will-change-transform"
           >
             {child}
