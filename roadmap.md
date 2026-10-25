@@ -1,5 +1,6 @@
 
 ## Notifications natives iPhone et Android
+- [ ] Préciser les alternatives à Firebase avant de choisir le transport mobile
 - [ ] Connecter le service d’envoi Firebase et vérifier la configuration Apple/Android
 - [ ] Enregistrer les appareils et relier les notifications e-mail aux notifications natives, en respectant les préférences
 - [ ] Tester les règles d’envoi et confirmer la réception sur appareils après reconstruction
