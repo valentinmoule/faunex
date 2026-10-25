@@ -3,15 +3,15 @@ import { Camera, Users, PawPrint, BookOpen, Trophy, Sprout } from 'lucide-react'
 import { useTranslation } from 'react-i18next';
 import { hapticTap } from '@/lib/haptics';
 
-type NavTab = { path: string; labelKey: string; icon: typeof PawPrint; tab?: string };
+type NavTab = { path: string; labelKey: string; icon: typeof PawPrint; tab?: string; weight?: number };
 
 const tabs: NavTab[] = [
   { path: '/home', labelKey: 'nav.faunex', icon: PawPrint },
   { path: '/bestiaire', labelKey: 'nav.bestiary', icon: BookOpen },
   { path: '/apprendre', labelKey: 'nav.learn', icon: Sprout },
   { path: '/capture', labelKey: 'nav.capture', icon: Camera },
-  { path: '/explorers', labelKey: 'nav.explorers', icon: Users },
-  { path: '/bestiaire', labelKey: 'nav.leaderboard', icon: Trophy, tab: 'leaderboard' },
+  { path: '/explorers', labelKey: 'nav.explorers', icon: Users, weight: 1.5 },
+  { path: '/bestiaire', labelKey: 'nav.leaderboard', icon: Trophy, tab: 'leaderboard', weight: 1.5 },
 ];
 
 const BottomNav = () => {
@@ -53,7 +53,7 @@ const BottomNav = () => {
                 key={tab.labelKey}
                 onClick={() => go(tab)}
                 aria-label={t(tab.labelKey)}
-                className="flex min-w-0 flex-1 flex-col items-center justify-center -mt-[43px] press"
+                className="flex w-[64px] flex-none flex-col items-center justify-center -mt-[43px] press"
               >
                 <div className="capture-halo w-[54px] h-[54px] rounded-[20px] bg-gradient-to-b from-forest-light to-primary flex items-center justify-center shadow-[0_2px_4px_hsla(165,25%,11%,0.08),0_12px_28px_-10px_hsl(var(--primary)/0.65)] ring-4 ring-card">
                   <Icon className="w-6 h-6 text-primary-foreground" strokeWidth={2.2} />
@@ -66,7 +66,8 @@ const BottomNav = () => {
             <button
               key={tab.labelKey}
               onClick={() => go(tab)}
-              className="relative flex min-w-0 flex-1 flex-col items-center justify-center gap-1 py-2 press"
+              className="relative flex min-w-0 flex-col items-center justify-center gap-1 py-2 press"
+              style={{ flexGrow: tab.weight ?? 1, flexBasis: 0 }}
             >
               <Icon
                 key={`${tab.labelKey}-${active ? 'on' : 'off'}`}
