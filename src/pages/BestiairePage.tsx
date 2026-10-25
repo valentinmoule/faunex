@@ -1810,6 +1810,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                   {viewMode === 'leaderboard' ? t('social.leaderboard.ranking') : isFaunexHub ? t('bestiary.header.title') : t('bestiary.header.bestiaryTitle')}
                 </h1>
                 <div className="flex items-center gap-2">
+                  <CurrencyBalance />
                   <CaptureQuotaBadge userId={session?.user?.id} isPremium={isPremium} premiumLoading={premiumLoading} />
                   <button
                     onClick={() => navigate('/notifications')}
@@ -1830,7 +1831,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
         )}
 
         <div className="max-w-lg mx-auto px-4 pt-4 space-y-6">
-          {isFaunexHub && <div className="flex justify-end"><CurrencyBalance /></div>}
+
 
 
           {/* View toggle — floating gamified tab bar */}
