@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Harmoniser toutes les illustrations par défaut des collections avec le style 3D ludique du calendrier, préserver les photos personnelles et vérifier l’affichage.
+- [x] Harmoniser toutes les illustrations par défaut des collections avec le style 3D ludique du calendrier, préserver les photos personnelles et vérifier l’affichage.
 
 - [x] Harmoniser boutons et contrôles avec le relief d’Apprendre, sans toucher aux cartes, raretés ni boosters ; vérifier les interactions.
 
