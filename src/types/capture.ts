@@ -17,6 +17,8 @@ export interface AnimalResult {
   scientific_rank?: string;
   /** true uniquement si le taxon a été confirmé dans un référentiel fiable. */
   taxon_validated?: boolean;
+  /** Statut UICN déterminé à l'identification (plancher de rareté). */
+  iucn_status?: string | null;
   subject_bbox?: { x: number; y: number; w: number; h: number } | null;
   economy_validation_id?: string;
   analyzed_image?: string;
