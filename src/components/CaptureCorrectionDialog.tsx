@@ -1,11 +1,11 @@
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Loader2 } from 'lucide-react';
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import { Drawer } from 'vaul';
+import { Loader2, ScanSearch } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { requestCaptureCorrection } from '@/lib/captureCorrection';
 import { toast } from '@/hooks/use-toast';
+
 export function CaptureCorrectionDialog({ captureId, open, onClose, onSubmitted }: {
   captureId: string; open: boolean; onClose: () => void; onSubmitted: () => void;
 }) {
@@ -15,6 +15,7 @@ export function CaptureCorrectionDialog({ captureId, open, onClose, onSubmitted 
   const [note, setNote] = useState('');
   const [sending, setSending] = useState(false);
   const lock = useRef(false);
+
   async function submit() {
     if (lock.current || name.trim().length < 2) return;
     lock.current = true; setSending(true);
@@ -29,17 +30,63 @@ export function CaptureCorrectionDialog({ captureId, open, onClose, onSubmitted 
     } catch { toast({ title: t('capture.errors.submissionError'), variant: 'destructive' }); }
     finally { lock.current = false; setSending(false); }
   }
-  return <Dialog open={open} onOpenChange={(value) => { if (!value && !sending) onClose(); }}>
-    <DialogContent className="z-[1400] max-w-sm max-h-[85dvh] overflow-y-auto rounded-lg" overlayClassName="z-[1399]">
-      <DialogTitle>{t('capture.correction.title')}</DialogTitle>
-      <DialogDescription>{t('capture.correction.description')}</DialogDescription>
-      <label className="space-y-1 text-sm">{t('capture.correction.name')}<Input value={name} onChange={e => setName(e.target.value)} maxLength={120} /></label>
-      <label className="space-y-1 text-sm">{t('capture.manual.speciesPlaceholder')}<Input value={scientific} onChange={e => setScientific(e.target.value)} maxLength={160} /></label>
-      <label className="space-y-1 text-sm">{t('capture.correction.note')}<Input value={note} onChange={e => setNote(e.target.value)} maxLength={500} /></label>
-      <div className="flex justify-end gap-2">
-        <Button variant="ghost" disabled={sending} onClick={onClose}>{t('capture.detail.cancel')}</Button>
-        <Button disabled={sending || name.trim().length < 2} onClick={submit}>{sending && <Loader2 className="h-4 w-4 animate-spin" />}{t('capture.actions.requestVerificationBtn')}</Button>
-      </div>
-    </DialogContent>
-  </Dialog>;
+
+  const fieldClass =
+    'h-12 rounded-2xl border-none bg-muted/60 px-4 text-sm shadow-none placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-primary/40';
+
+  return (
+    <Drawer.Root open={open} onOpenChange={(o) => { if (!o && !sending) onClose(); }}>
+      <Drawer.Portal>
+        <Drawer.Overlay className="fixed inset-0 z-[1400] bg-foreground/40 backdrop-blur-sm" />
+        <Drawer.Content className="fixed inset-x-0 bottom-0 z-[1401] max-h-[92vh] rounded-t-3xl bg-background pb-[calc(1.5rem+env(safe-area-inset-bottom))] outline-none">
+          <div className="mx-auto mt-3 h-1.5 w-10 rounded-full bg-muted" />
+
+          <div className="px-5 pt-4 space-y-5 overflow-y-auto">
+            <div className="flex flex-col items-center gap-3 text-center">
+              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+                <ScanSearch className="h-7 w-7 text-primary" />
+              </span>
+              <div className="space-y-1">
+                <h2 className="font-display text-lg font-bold">{t('capture.correction.title')}</h2>
+                <p className="text-xs leading-relaxed text-muted-foreground">{t('capture.correction.description')}</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <label className="block space-y-1.5">
+                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t('capture.correction.name')}</span>
+                <Input autoFocus value={name} onChange={e => setName(e.target.value)} maxLength={120} placeholder={t('capture.manual.namePlaceholder')} className={fieldClass} />
+              </label>
+              <label className="block space-y-1.5">
+                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t('capture.manual.speciesPlaceholder')}</span>
+                <Input value={scientific} onChange={e => setScientific(e.target.value)} maxLength={160} placeholder="Ex. Lynx borealis" className={fieldClass} />
+              </label>
+              <label className="block space-y-1.5">
+                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t('capture.correction.note')}</span>
+                <Input value={note} onChange={e => setNote(e.target.value)} maxLength={500} placeholder={t('capture.manual.descriptionPlaceholder')} className={fieldClass} />
+              </label>
+            </div>
+
+            <div className="space-y-2">
+              <button
+                onClick={submit}
+                disabled={sending || name.trim().length < 2}
+                className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-sm font-semibold text-primary-foreground shadow-sm transition-opacity disabled:opacity-50"
+              >
+                {sending && <Loader2 className="h-4 w-4 animate-spin" />}
+                {t('capture.actions.requestVerificationBtn')}
+              </button>
+              <button
+                onClick={onClose}
+                disabled={sending}
+                className="flex h-11 w-full items-center justify-center rounded-2xl text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/60 disabled:opacity-50"
+              >
+                {t('capture.detail.cancel')}
+              </button>
+            </div>
+          </div>
+        </Drawer.Content>
+      </Drawer.Portal>
+    </Drawer.Root>
+  );
 }
