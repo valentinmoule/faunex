@@ -1809,7 +1809,9 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                   {viewMode === 'leaderboard' ? t('social.leaderboard.ranking') : isFaunexHub ? t('bestiary.header.title') : t('bestiary.header.bestiaryTitle')}
                 </h1>
                 <div className="flex items-center gap-4">
-                  <CaptureQuotaBadge userId={session?.user?.id} isPremium={isPremium} premiumLoading={premiumLoading} />
+                  <div className="mr-2.5">
+                    <CaptureQuotaBadge userId={session?.user?.id} isPremium={isPremium} premiumLoading={premiumLoading} />
+                  </div>
                   <button
                     onClick={() => navigate('/notifications')}
                     className="relative h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted transition-colors"
