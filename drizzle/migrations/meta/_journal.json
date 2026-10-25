@@ -393,6 +393,13 @@
       "when": 1792946097394,
       "tag": "0055_advent_calendar_challenges",
       "breakpoints": true
+    },
+    {
+      "idx": 56,
+      "version": "7",
+      "when": 1792946271303,
+      "tag": "0056_harden_advent_configuration",
+      "breakpoints": true
     }
   ]
 }
