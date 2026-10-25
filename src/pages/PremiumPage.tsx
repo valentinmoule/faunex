@@ -162,7 +162,7 @@ const PremiumPage = () => {
     if (IS_NATIVE_APP) {
       // Dans l'app native, `window.open` n'ouvre rien d'utilisable : on passe
       // par le navigateur système.
-      const { data, error } = await supabase.functions.invoke('paddle-portal');
+      const { data, error } = await supabase.functions.invoke('paddle-portal', { body: { environment: getPaddleEnvironment() } });
       if (error || !data?.url) {
         toast.error(t('profile.premium.manageError'));
         return;
@@ -172,7 +172,7 @@ const PremiumPage = () => {
     }
     // Ouvre l'onglet immédiatement (dans le geste utilisateur) pour éviter le blocage de popup
     const tab = window.open('', '_blank');
-    const { data, error } = await supabase.functions.invoke('paddle-portal');
+    const { data, error } = await supabase.functions.invoke('paddle-portal', { body: { environment: getPaddleEnvironment() } });
     if (error || !data?.url) {
       tab?.close();
       toast.error(t('profile.premium.manageError'));
