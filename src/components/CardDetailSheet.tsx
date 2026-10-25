@@ -866,7 +866,18 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                     </button>
                   </div>
                 )}
-                <div className="flex items-center gap-3 flex-wrap justify-center">
+                <div className={`flex items-center gap-3 flex-wrap ${feedView && author ? '' : 'flex-1'}`}>
+                {cardImage && (
+                  <button
+                    onClick={handleShare}
+                    aria-label={t('capture.detail.share')}
+                    title={t('capture.detail.share')}
+                    className="relative flex items-center py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
+                  >
+                    <Share2 className="w-6 h-6 text-muted-foreground transition-colors group-hover:text-primary" />
+                  </button>
+                )}
+                <div className="flex items-center">
 
                 <div className="flex items-center">
                 <Button variant="ghost"
