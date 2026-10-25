@@ -166,24 +166,8 @@ const FriendCollectionPage = () => {
           latitude: c.latitude,
           longitude: c.longitude,
         }));
-        // Ordre personnalisé choisi par l'explorateur : les captures classées
-        // d'abord, les nouvelles (non classées) en tête du reste.
-        const customIds = Array.isArray(orderRes.data?.capture_ids)
-          ? (orderRes.data.capture_ids as unknown[]).filter((v): v is string => typeof v === 'string')
-          : [];
-        if (customIds.length > 0) {
-          const rank = new Map(customIds.map((id, i) => [id, i]));
-          mapped.sort((a, b) => {
-            const ra = rank.get(a.id);
-            const rb = rank.get(b.id);
-            if (ra === undefined && rb === undefined) {
-              return +new Date(b.discoveredAt || 0) - +new Date(a.discoveredAt || 0);
-            }
-            if (ra === undefined) return -1;
-            if (rb === undefined) return 1;
-            return ra - rb;
-          });
-        }
+        // Ordre personnalisé choisi par l'explorateur, affiché tel quel aux visiteurs.
+        applyCustomCaptureOrder(mapped, parseCaptureOrder(orderRes.data?.capture_ids));
         setCaptures(mapped);
       }
 
