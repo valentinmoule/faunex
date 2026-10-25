@@ -29,7 +29,7 @@ import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
 import { useSpeciesFacts, useSpeciesName } from '@/hooks/useSpeciesLocale';
 import { PremiumAvatar } from '@/components/PremiumAvatar';
 import { CaptureCorrectionDialog } from '@/components/CaptureCorrectionDialog';
-import { ScanSearch, Crop as CropIcon, Flag } from 'lucide-react';
+import { ScanSearch, Crop as CropIcon } from 'lucide-react';
 import CropPhotoDialog from '@/components/capture/CropPhotoDialog';
 import { saveCroppedCaptureImage } from '@/lib/captureCrop';
 import CaptureLikesSheet from '@/components/CaptureLikesSheet';
@@ -936,9 +936,9 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                         onSelect: () => { hapticTap(); handleShare(); },
                       }] : []),
                       ...(session ? [{
-                        label: t('species.report.action'),
-                        icon: <Flag className="w-5 h-5 text-muted-foreground" />,
-                        onSelect: () => { hapticTap(); void reportSpecies(); },
+                        label: t(isOwner ? 'capture.correction.title' : 'species.report.action'),
+                        icon: <ScanSearch className="w-5 h-5 text-muted-foreground" />,
+                        onSelect: () => { hapticTap(); setCorrectionOpen(true); },
                       }] : []),
                       ...(isOwner && cardImage ? [{
                         label: t('capture.crop.action'),
@@ -947,10 +947,6 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                       }] : []),
                       ...(isOwner ? [
                         {
-                          label: t('capture.correction.title'),
-                          icon: <ScanSearch className="w-5 h-5 text-muted-foreground" />,
-                          onSelect: () => { hapticTap(); setCorrectionOpen(true); },
-                        },
                         {
                           label: t('capture.detail.deleteCapture'),
                           icon: <Trash2 className="w-5 h-5 text-destructive" />,
