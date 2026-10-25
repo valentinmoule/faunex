@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Users, Copy, UserMinus, Link, X, Loader2 } from 'lucide-react';
+import { ArrowLeft, Users, UserMinus, Mail, X, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -19,7 +19,7 @@ import { useSubscription } from '@/hooks/useSubscription';
 export default function FamilyPage() {
   const {t,i18n}=useTranslation(); const navigate=useNavigate(); const {user}=useAuth();
   const [family,setFamily]=useState<FamilyInfo|null>(null); const [loading,setLoading]=useState(true);
-  const [busy,setBusy]=useState(false); const [failed,setFailed]=useState(false); const [link,setLink]=useState('');
+  const [busy,setBusy]=useState(false); const [failed,setFailed]=useState(false); const [email,setEmail]=useState('');
   const [remove,setRemove]=useState<string|null>(null); const [code,setCode]=useState('');
   const {openCheckout}=usePaddleCheckout(); const {refresh}=useSubscription(user?.id);
   const [params,setParams]=useSearchParams(); const autoOpened=useRef(false);
@@ -37,8 +37,15 @@ export default function FamilyPage() {
   const load=async()=>{setLoading(true); const {data,error:e}=await supabase.rpc('my_family');setFailed(Boolean(e));if(!e)setFamily(readFamily(data));setLoading(false);};
   useEffect(()=>{void load();const listener=()=>void load();window.addEventListener('focus',listener);return()=>window.removeEventListener('focus',listener);},[]);
   const action=async(fn:()=>Promise<void>)=>{if(busy)return;setBusy(true);try{await fn();await load();await refresh();}catch(e){error(e instanceof Error?e.message:undefined);}finally{setBusy(false);}};
-  const invite=()=>action(async()=>{const {data,error:e}=await supabase.rpc('create_family_invitation');if(e)throw e;setLink(`https://faunex.fr/family/invite#${data}`);});
-  const copy=async()=>{try{await navigator.clipboard.writeText(link);toast.success(t('family.copied'));}catch{error();}};
+  const invite=()=>action(async()=>{
+    const {data,error:e}=await supabase.functions.invoke('family-invite-email',{body:{email:email.trim(),locale:i18n.language.startsWith('en')?'en':'fr'}});
+    if(e||!data?.sent){
+      const response=e && 'context' in e?e.context:null;
+      const detail=response instanceof Response?await response.json().catch(()=>null):null;
+      throw new Error(detail?.error??data?.error??'email_send_failed');
+    }
+    setEmail('');toast.success(t('family.emailSent'));
+  });
   const subscribe=(plan:'monthly'|'yearly')=>action(async()=>{
     if(!user)return;
     let referralId:string|undefined;
@@ -64,9 +71,8 @@ export default function FamilyPage() {
         <h2 className="font-display font-semibold">{t('family.members',{count:family.members.length})}</h2>
         <div className="divide-y divide-border">{family.members.map(member=><div className="flex items-center justify-between gap-3 py-4" key={member.user_id}><div className="min-w-0"><p className="font-medium break-words">{member.name}</p><p className="text-sm text-muted-foreground">{member.user_id===family.owner_id?t('family.owner'):member.username}</p></div>{owner&&member.user_id!==user?.id&&<Button variant="ghost" size="icon" title={t('family.remove')} aria-label={t('family.remove')} disabled={busy} onClick={()=>setRemove(member.user_id)}><UserMinus className="size-5"/></Button>}</div>)}</div>
         {owner?<>
-          {family.active&&<Button disabled={busy||family.members.length+family.invitations.length>=4} onClick={()=>void invite()}><Link className="size-4 mr-2"/>{t('family.invite')}</Button>}
-          {link&&<div className="flex gap-2"><Input readOnly value={link} aria-label={t('family.invitation')}/><Button variant="ghost" size="icon" aria-label={t('family.copy')} title={t('family.copy')} onClick={()=>void copy()}><Copy className="size-5"/></Button></div>}
-          {family.invitations.length>0&&<><h3 className="font-semibold">{t('family.pending')}</h3>{family.invitations.map(inv=><div key={inv.id} className="flex items-center justify-between gap-2"><span className="text-sm text-muted-foreground">{t('family.expires',{date:new Date(inv.expires_at).toLocaleDateString(i18n.language)})}</span><Button variant="ghost" size="icon" aria-label={t('family.revoke')} title={t('family.revoke')} disabled={busy} onClick={()=>void action(async()=>{const {error:e}=await supabase.rpc('revoke_family_invitation',{p_invitation:inv.id});if(e)throw e;setLink('');})}><X className="size-4"/></Button></div>)}</>}
+          {family.active&&<form className="space-y-3" onSubmit={e=>{e.preventDefault();void invite();}}><label htmlFor="family-email" className="text-sm font-medium">{t('family.email')}</label><Input id="family-email" type="email" required maxLength={254} autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)} disabled={busy||family.members.length+family.invitations.length>=4}/><Button type="submit" disabled={busy||!email.trim()||family.members.length+family.invitations.length>=4}>{busy?<Loader2 className="size-4 mr-2 animate-spin"/>:<Mail className="size-4 mr-2"/>}{t('family.inviteEmail')}</Button></form>}
+          {family.invitations.length>0&&<><h3 className="font-semibold">{t('family.pending')}</h3>{family.invitations.map(inv=><div key={inv.id} className="flex items-center justify-between gap-2"><div className="min-w-0">{inv.recipient_email&&<p className="text-sm break-all">{inv.recipient_email}</p>}<p className="text-sm text-muted-foreground">{t('family.expires',{date:new Date(inv.expires_at).toLocaleDateString(i18n.language)})}</p></div><Button variant="ghost" size="icon" aria-label={t('family.revoke')} title={t('family.revoke')} disabled={busy} onClick={()=>void action(async()=>{const {error:e}=await supabase.rpc('revoke_family_invitation',{p_invitation:inv.id});if(e)throw e;})}><X className="size-4"/></Button></div>)}</>}
           <Button variant="outline" onClick={()=>navigate('/premium')}>{t('family.manage')}</Button>
         </>:<Button variant="outline" onClick={()=>setRemove(user?.id??null)}>{t('family.leave')}</Button>}
         {!owner&&<p className="text-sm text-muted-foreground">{t('family.personalWarning')}</p>}

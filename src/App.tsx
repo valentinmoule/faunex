@@ -76,6 +76,10 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/auth" replace />;
   }
   if (needsUsername && location.pathname !== '/complete-profile') return <Navigate to="/complete-profile" replace />;
+  const invitation=sessionStorage.getItem('faunex.familyReturn');
+  if(!needsUsername && invitation && /^[0-9a-f]{64}$/.test(invitation)) {
+    return <Navigate to={`/family/invite#${invitation}`} replace />;
+  }
   return <>{children}</>;
 };
 
@@ -111,7 +115,7 @@ const AuthRoute = ({ children }: { children: React.ReactNode }) => {
       sessionStorage.removeItem('faunex.familyCheckoutReturn');
       return <Navigate to={checkout} replace />;
     }
-    const invitation=sessionStorage.getItem('faunex.familyReturn');
+    const invitation=new URLSearchParams(window.location.search).get('familyInvite')??sessionStorage.getItem('faunex.familyReturn');
     if(invitation && /^[0-9a-f]{64}$/.test(invitation)) {
       sessionStorage.removeItem('faunex.familyReturn');
       return <Navigate to={`/family/invite#${invitation}`} replace />;

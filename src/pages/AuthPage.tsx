@@ -28,6 +28,10 @@ const AuthPage = () => {
   const [resetSentTo, setResetSentTo] = useState<string | null>(null);
   const [resending, setResending] = useState(false);
   const navigate = useNavigate();
+  const pendingInvitation=sessionStorage.getItem('faunex.familyReturn');
+  const invitationToken=pendingInvitation && /^[0-9a-f]{64}$/.test(pendingInvitation)?pendingInvitation:null;
+  const signupRedirect=authRedirectUrl(invitationToken?`/auth?familyInvite=${invitationToken}`:'');
+  const afterLogin=invitationToken?`/family/invite#${invitationToken}`:'/home';
 
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,7 +56,7 @@ const AuthPage = () => {
       const { error } = await supabase.auth.resend({
         type: 'signup',
         email: sentTo,
-        options: { emailRedirectTo: authRedirectUrl() },
+        options: { emailRedirectTo: signupRedirect },
       });
       if (error) throw error;
       toast.success(t('auth.toasts.emailResent'));
@@ -72,14 +76,14 @@ const AuthPage = () => {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success(t('auth.toasts.loginSuccess'));
-        navigate('/home');
+        navigate(afterLogin);
       } else {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
             data: { display_name: displayName },
-            emailRedirectTo: authRedirectUrl(),
+            emailRedirectTo: signupRedirect,
           },
         });
         if (error) throw error;
@@ -88,7 +92,7 @@ const AuthPage = () => {
         }
         // Session immédiate (confirmation désactivée) → on entre directement dans l'app
         if (data.session) {
-          navigate('/home');
+          navigate(afterLogin);
         } else {
           setSentTo(email);
         }
