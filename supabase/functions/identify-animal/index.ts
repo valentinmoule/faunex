@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { identificationAccountPolicy } from "./accountPolicy.ts";
 
 
 const corsHeaders = {
@@ -216,9 +217,8 @@ serve(async (req) => {
 
   let quotaDb: ReturnType<typeof createClient> | null = null;
   let quotaUserId: string | null = null;
-  /** Comptes internes (admin) : analyse toujours sur le modèle le plus performant. */
-  const BOOSTED_EMAILS = ["valentinmoulay@gmail.com"];
   let boostedAccount = false;
+  let demoAccount = false;
   let quotaRequestId: string | null = null;
   let quotaConsumed = false;
   const jsonResponse = (body: unknown, status = 200) =>
@@ -246,6 +246,7 @@ serve(async (req) => {
     const authClient = createClient(serviceUrl, publishableKey);
     const { data: authenticated, error: authError } = await authClient.auth.getUser(authToken);
     if (authError || !authenticated.user) return jsonResponse({ error: 'Unauthorized' }, 401);
+    ({ boostedAccount, demoAccount } = identificationAccountPolicy(authenticated.user.email));
     const { imageBase64, imageFast, requestId, imageHash: clientHash, probe } = await req.json();
     /** Empreinte fournie par le client (SHA-256 des octets de l'image compressée). */
     const providedHash = typeof clientHash === "string" && /^[0-9a-f]{64}$/.test(clientHash)
@@ -403,8 +404,6 @@ serve(async (req) => {
         const token = req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "") ?? "";
         const { data: userData } = await cacheDb.auth.getUser(token);
         const userId = userData?.user?.id;
-        const email = (userData?.user?.email || "").toLowerCase();
-        if (email && BOOSTED_EMAILS.includes(email)) boostedAccount = true;
         if (userId) {
           const stableRequestId = typeof requestId === "string" &&
               /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(requestId)
@@ -524,7 +523,7 @@ serve(async (req) => {
         // 360 jetons en effort low, ~1040 en high (dont 800 de « réflexion »),
         // d'où un plafond low serré et un plafond high assez large pour ne
         // jamais tronquer la fiche.
-        max_tokens: effort === "high" ? 1400 : 500,
+        ...(demoAccount ? {} : { max_tokens: effort === "high" ? 1400 : 500 }),
         messages: [
           { role: "system", content: prompt },
 
@@ -743,7 +742,7 @@ serve(async (req) => {
       // Flash 3.6 en effort low identifie l'espèce avec la même confiance (0,98)
       // que l'effort high, pour ~4× moins de jetons de raisonnement.
       "low",
-      isNewUser ? imageUrl : undefined,
+      boostedAccount || isNewUser ? imageUrl : undefined,
       // Repli sur le modèle plus robuste dès la seconde tentative.
       FAST_MODEL === DEEP_MODEL ? undefined : DEEP_MODEL,
     );
