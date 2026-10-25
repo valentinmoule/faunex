@@ -28,6 +28,8 @@ import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
 import { useSpeciesFacts, useSpeciesName } from '@/hooks/useSpeciesLocale';
 import { PremiumAvatar } from '@/components/PremiumAvatar';
 import { Button } from '@/components/ui/button';
+import { CaptureCorrectionDialog } from '@/components/CaptureCorrectionDialog';
+import { ScanSearch } from 'lucide-react';
 
 interface Props {
   card: AnimalCard | null;
@@ -161,6 +163,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
   const customCollections = useCustomCollections(session?.user?.id);
   const [addToOpen, setAddToOpen] = useState(false);
   const [savingCover, setSavingCover] = useState(false);
+  const [correctionOpen, setCorrectionOpen] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -230,6 +233,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
     if (open) return;
     setAddToOpen(false);
     setShareOpen(false);
+    setCorrectionOpen(false);
   }, [open]);
 
   // Reset transient UI state when a new card opens
@@ -717,7 +721,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
 
   return (
     <>
-      <Drawer.Root open={open} onOpenChange={(isOpen) => !isOpen && !deleteInProgressRef.current && onClose()}>
+      <Drawer.Root open={open && !correctionOpen} onOpenChange={(isOpen) => !isOpen && !correctionOpen && !deleteInProgressRef.current && onClose()}>
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 z-[1300] bg-black/80" />
           <Drawer.Content
@@ -847,7 +851,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                     </button>
                   </div>
                 )}
-                <div className="flex items-center gap-5 shrink-0">
+                <div className="flex items-center gap-3 flex-wrap justify-center">
 
                 <button
                   onClick={handleLike}
@@ -913,6 +917,11 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                   >
                     <ImagePlus className={`w-6 h-6 transition-colors ${savingCover ? 'text-primary/50' : 'text-muted-foreground group-hover:text-primary'}`} />
                   </button>
+                )}
+                {isOwner && (
+                  <Button variant="ghost" size="icon" onClick={() => setCorrectionOpen(true)} aria-label={t('capture.correction.title')} title={t('capture.correction.title')} className="text-muted-foreground hover:text-primary">
+                    <ScanSearch className="h-6 w-6" />
+                  </Button>
                 )}
                 {isOwner && (
                   <button
@@ -1431,6 +1440,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
       ), document.body)}
 
       {vanishOverlay}
+      {correctionOpen && <CaptureCorrectionDialog captureId={card.id} open={correctionOpen} onClose={() => setCorrectionOpen(false)} onSubmitted={() => { setCorrectionOpen(false); onClose(); onDeleted?.(card.id); }} />}
     </>
 
   );

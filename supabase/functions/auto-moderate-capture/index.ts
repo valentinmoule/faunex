@@ -110,6 +110,7 @@ Deno.serve(async (req) => {
       .from('captures')
       .select('id, user_id, animal_name, scientific_name, description, image_url, location')
       .eq('status', 'pending_review')
+      .is('correction_requested_at', null)
       .order('created_at', { ascending: true })
 
     if (batch) {

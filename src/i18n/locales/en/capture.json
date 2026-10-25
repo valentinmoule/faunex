@@ -142,6 +142,15 @@
       "animal_mort_ou_plat": "a dead or prepared animal (dish, stall, trophy…)",
       "default": "a graphic image"
     },
+    "correction": {
+          "proposal": "Requested correction: {{name}}",
+    "title": "Correct species",
+    "declined": "Correction declined, original capture preserved",
+          "description": "This request uses one analysis from your quota. Your photo will return to moderation until the name is validated.",
+          "name": "Proposed species",
+          "note": "Details (optional)",
+          "alreadyPending": "This capture is already awaiting moderation."
+    },
     "manual": {
       "humanVerification": "Human verification",
       "requestVerificationTitle": "Request verification",
