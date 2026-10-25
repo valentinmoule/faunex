@@ -10,6 +10,8 @@
       "weightAverage": "Poids moyen adulte",
       "sizeRange": "Taille adulte (fourchette)",
       "weightRange": "Poids adulte (fourchette)",
+      "sizeEstimate": "Taille adulte (estimation)",
+      "weightEstimate": "Poids adulte (estimation)",
       "unknown": "Non documenté",
       "loading": "Chargement des données naturalistes…",
       "unavailable": "Indisponible pour le moment.",

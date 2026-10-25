@@ -6,7 +6,7 @@ export interface NaturalHistory {
   class_name: string | null;
   order_name: string | null;
   family: string | null;
-  measurements: { size?: { value: string; kind: 'average' | 'range' }; weight?: { value: string; kind: 'average' | 'range' } };
+  measurements: { size?: { value: string; kind: 'average' | 'range' | 'estimate' }; weight?: { value: string; kind: 'average' | 'range' | 'estimate' } };
   sources: { label: string; url: string }[];
 }
 
