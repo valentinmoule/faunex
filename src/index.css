@@ -48,10 +48,13 @@
 .learning-cta:not(:disabled):active { transform: translateY(5px); box-shadow: inset 0 2px 0 hsl(var(--card) / .22), 0 1px 0 hsl(var(--learning-green-base)), 0 6px 12px hsl(var(--learning-shadow) / .16); }
 .learning-cta-premium { border-color: hsl(var(--amber-dark) / .55); background: linear-gradient(180deg, hsl(var(--amber-light)), hsl(var(--amber))); color: hsl(var(--primary-foreground)); box-shadow: inset 0 2px 0 hsl(var(--card) / .28), 0 6px 0 hsl(var(--amber-dark)), 0 14px 24px hsl(var(--learning-shadow) / .18); }
 .learning-cta-premium:not(:disabled):active { box-shadow: inset 0 2px 0 hsl(var(--card) / .28), 0 1px 0 hsl(var(--amber-dark)), 0 6px 12px hsl(var(--learning-shadow) / .16); }
+.learning-jump { position: fixed; right: 14px; bottom: calc(env(safe-area-inset-bottom) + 116px); z-index: 61; display: inline-flex; align-items: center; gap: 7px; padding: 9px 15px; border: 2px solid hsl(var(--amber-dark) / .55); border-radius: 999px; background: linear-gradient(180deg, hsl(var(--amber-light)), hsl(var(--amber))); color: hsl(var(--primary-foreground)); font-size: 13px; font-weight: 800; white-space: nowrap; box-shadow: inset 0 2px 0 hsl(var(--card) / .28), 0 4px 0 hsl(var(--amber-dark)), 0 10px 18px hsl(var(--learning-shadow) / .2); animation: learning-jump-in .22s ease-out; -webkit-tap-highlight-color: transparent; }
+.learning-jump:active { transform: translateY(3px); box-shadow: inset 0 2px 0 hsl(var(--card) / .28), 0 1px 0 hsl(var(--amber-dark)), 0 6px 12px hsl(var(--learning-shadow) / .16); }
+@keyframes learning-jump-in { from { opacity: 0; transform: translateY(10px) scale(.94); } to { opacity: 1; transform: none; } }
 .learning-cta-icon { display: flex; height: 40px; width: 40px; flex-shrink: 0; align-items: center; justify-content: center; border-radius: 14px; background: hsl(var(--card) / .2); box-shadow: inset 0 2px 0 hsl(var(--card) / .3); }
 .learning-cta-kicker { display: block; font-size: 11px; font-weight: 800; letter-spacing: .06em; opacity: .88; }
 .learning-cta-title { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.25; }
-@media (prefers-reduced-motion: reduce) { .learning-node, .learning-node::after, .learning-cta { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .learning-node, .learning-node::after, .learning-cta { transition: none; } .learning-jump { animation: none; transition: none; } }
 
 @layer base {
   :root,
