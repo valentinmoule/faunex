@@ -78,6 +78,10 @@ Read private preferences with `get_my_profile`; keep public profile fields and l
 
 Suffix every `supabase.channel()` name randomly: reused topics crash on `.on()`.
 
+## Identification account overrides are server-authoritative
+
+Resolve demo and internal identification overrides through the function-local account policy using the authenticated server user, never request fields; keep ordinary routing and quotas unchanged to isolate demo costs.
+
 <!-- LOVABLE:BEGIN -->
 ## Canonical species facts
 Apply shared facts after capture name canonicalization, reject scientific conflicts, refresh facts on image-cache hits, and invalidate translations after source changes, because moderation and older clients can save stale descriptions under corrected names.

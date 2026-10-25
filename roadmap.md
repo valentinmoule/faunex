@@ -1,4 +1,7 @@
 
+## Analyse du compte de démonstration
+- [ ] Activer la première passe Flash performante pour le compte demandé uniquement, tester et déployer
+
 ## Intégrité des descriptions d’espèces
 - [x] Corriger la capture de demoiselle du 24 octobre et son label de validation ; séparation Chrysiptera hemicyanea / Chrysiptera parasema vérifiée, photo conservée, trois tests serveur réussis et fiche ouverte dans l’application
 - [x] Corriger le nom corrompu de la Mélitée orangée dans la référence et les trois captures concernées ; deux tests serveur réussis, correction automatique des noms à la sauvegarde vérifiée
