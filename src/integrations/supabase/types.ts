@@ -835,6 +835,111 @@ export type Database = {
         }
         Relationships: []
       }
+      families: {
+        Row: {
+          closed_at: string | null
+          created_at: string
+          environment: string
+          id: string
+          owner_id: string
+          subscription_id: string
+        }
+        Insert: {
+          closed_at?: string | null
+          created_at?: string
+          environment: string
+          id?: string
+          owner_id: string
+          subscription_id: string
+        }
+        Update: {
+          closed_at?: string | null
+          created_at?: string
+          environment?: string
+          id?: string
+          owner_id?: string
+          subscription_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "families_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: true
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      family_invitations: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          expires_at: string
+          family_id: string
+          id: string
+          revoked_at: string | null
+          token_hash: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          expires_at?: string
+          family_id: string
+          id?: string
+          revoked_at?: string | null
+          token_hash: string
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          expires_at?: string
+          family_id?: string
+          id?: string
+          revoked_at?: string | null
+          token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_invitations_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      family_memberships: {
+        Row: {
+          family_id: string
+          id: string
+          joined_at: string
+          left_at: string | null
+          user_id: string
+        }
+        Insert: {
+          family_id: string
+          id?: string
+          joined_at?: string
+          left_at?: string | null
+          user_id: string
+        }
+        Update: {
+          family_id?: string
+          id?: string
+          joined_at?: string
+          left_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_memberships_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       feed_comments: {
         Row: {
           capture_id: string
@@ -2439,6 +2544,7 @@ export type Database = {
       }
     }
     Functions: {
+      accept_family_invitation: { Args: { p_token: string }; Returns: string }
       acquire_background_job: {
         Args: { p_job_key: string; p_lease_seconds?: number }
         Returns: string
@@ -2548,10 +2654,13 @@ export type Database = {
       consume_ai_analysis:
         | { Args: { p_user: string }; Returns: number }
         | { Args: { p_request: string; p_user: string }; Returns: number }
+      create_family_invitation: { Args: never; Returns: string }
       draw_weekly_quests: { Args: { p_week?: string }; Returns: number }
       enqueue_hybrid_rarity: { Args: never; Returns: number }
+      ensure_paid_family: { Args: { p_subscription: string }; Returns: string }
       ensure_weekly_quests: { Args: never; Returns: number }
       ensure_weekly_quests_for: { Args: { p_user_id: string }; Returns: number }
+      family_valid: { Args: { p_family: string }; Returns: boolean }
       get_my_profile: {
         Args: never
         Returns: {
@@ -2617,6 +2726,7 @@ export type Database = {
         }
         Returns: string
       }
+      in_my_family: { Args: { p_family: string }; Returns: boolean }
       is_premium: { Args: { p_user_id: string }; Returns: boolean }
       is_profile_private: { Args: { _user_id: string }; Returns: boolean }
       is_shared_domestic_binomial: {
@@ -2679,6 +2789,7 @@ export type Database = {
           total_players: number
         }[]
       }
+      my_family: { Args: never; Returns: Json }
       my_league: {
         Args: never
         Returns: {
@@ -2692,6 +2803,7 @@ export type Database = {
           week_start: string
         }[]
       }
+      my_premium_access: { Args: never; Returns: boolean }
       my_referral_code: { Args: never; Returns: string }
       my_species_progress: {
         Args: never
@@ -2750,6 +2862,7 @@ export type Database = {
         Args: { p_error?: string; p_job_key: string; p_resume?: boolean }
         Returns: undefined
       }
+      remove_family_member: { Args: { p_user: string }; Returns: undefined }
       reserve_referral: {
         Args: { p_code: string; p_env: string }
         Returns: string
@@ -2768,6 +2881,10 @@ export type Database = {
           name: string
           scientific_name: string
         }[]
+      }
+      revoke_family_invitation: {
+        Args: { p_invitation: string }
+        Returns: undefined
       }
       reward_city_match: {
         Args: { p_name: string; p_rule: string }
