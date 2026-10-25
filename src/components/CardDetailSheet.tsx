@@ -919,16 +919,6 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                     <Bookmark className={`w-6 h-6 transition-all ${isFavorite(card.id) ? 'fill-primary text-primary scale-110' : 'text-muted-foreground group-hover:text-primary'}`} />
                   </button>
                 )}
-                {!isOwner && cardImage && (
-                  <button
-                    onClick={handleShare}
-                    aria-label={t('capture.detail.share')}
-                    title={t('capture.detail.share')}
-                    className="relative flex items-center py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
-                  >
-                    <Share2 className="w-6 h-6 text-muted-foreground transition-colors group-hover:text-primary" />
-                  </button>
-                )}
                 {onUseCollectionCover && isOwner && cardImage && (
                   <button
                     onClick={async () => {
