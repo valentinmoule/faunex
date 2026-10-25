@@ -928,54 +928,31 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                   <OverflowMenu
                     label={t('common.moreActions')}
                     triggerClassName="relative ml-auto flex items-center py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
-                    iconClassName="w-6 h-6 text-muted-foreground transition-colors group-hover:text-primary"items={[
-
+                    iconClassName="w-6 h-6 text-muted-foreground transition-colors group-hover:text-primary"
+                    items={[
                       {
-
                         label: t('capture.detail.share'),
-
                         icon: <Share2 className="w-5 h-5 text-muted-foreground" />,
-
                         onSelect: () => { hapticTap(); handleShare(); },
-
                       },
-
                       ...(isOwner && cardImage ? [{
-
                         label: t('capture.crop.action'),
-
                         icon: <CropIcon className="w-5 h-5 text-muted-foreground" />,
-
                         onSelect: () => { hapticTap(); setCropOpen(true); },
-
                       }] : []),
-
                       ...(isOwner ? [
-
                         {
-
                           label: t('capture.correction.title'),
-
                           icon: <ScanSearch className="w-5 h-5 text-muted-foreground" />,
-
                           onSelect: () => { hapticTap(); setCorrectionOpen(true); },
-
                         },
-
                         {
-
                           label: t('capture.detail.deleteCapture'),
-
                           icon: <Trash2 className="w-5 h-5 text-destructive" />,
-
                           tone: 'destructive' as const,
-
                           onSelect: () => { hapticTap(); setConfirmDelete(true); },
-
                         },
-
                       ] : []),
-
                     ]}
                   />
                 )}
