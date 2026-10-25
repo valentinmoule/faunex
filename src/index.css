@@ -56,6 +56,7 @@
     --booster-foil-gold-v: linear-gradient(180deg, hsl(var(--amber-light)), hsl(var(--amber)) 50%, hsl(var(--amber-dark)));
     --booster-foil-gold-v-bottom: linear-gradient(0deg, hsl(var(--amber-light)), hsl(var(--amber)) 50%, hsl(var(--amber-dark)));
     --booster-shadow: 0 22px 28px -14px hsl(var(--booster-ink) / .38), 0 5px 8px -4px hsl(var(--booster-ink) / .3);
+    --booster-contour-shadow: drop-shadow(0 12px 10px hsl(var(--booster-ink) / .22)) drop-shadow(0 3px 3px hsl(var(--booster-ink) / .18));
 
     /* Nuancier des avatars par défaut (sans photo) — une teinte stable par
        explorateur, voir lib/avatarPalette. */
@@ -3869,7 +3870,7 @@ html.is-native-android body {
   .booster-carousel { --booster-w: min(78vw, 320px, calc((100dvh - 300px) * 0.56)); }
 }
 .collection-booster {
-  box-shadow: var(--booster-shadow);
+  filter: var(--booster-contour-shadow);
   --booster-crimp: hsl(var(--primary));
 }
 .collection-booster-gold {
