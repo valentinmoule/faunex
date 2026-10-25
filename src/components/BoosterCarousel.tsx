@@ -35,6 +35,25 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
     return () => window.removeEventListener('resize', update);
   }, [update, items.length]);
 
+  // Largeur du booster dérivée de la hauteur réellement disponible : tout
+  // (titre, sachet, stepper) tient dans l'écran sans défilement vertical.
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const fit = () => {
+      const styles = getComputedStyle(el);
+      const available =
+        el.clientHeight - parseFloat(styles.paddingTop) - parseFloat(styles.paddingBottom);
+      const w = Math.max(180, Math.min(available * 0.56, 320, window.innerWidth * 0.78));
+      el.parentElement?.style.setProperty('--booster-w', `${Math.round(w)}px`);
+      update();
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [update, items.length]);
+
   // Glisser à la souris (Chrome desktop) : le défilement natif ne répond qu'au tactile.
   const drag = useRef<{ x: number; left: number; moved: boolean } | null>(null);
   const suppressClick = useRef(false);
@@ -84,7 +103,7 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <div className="booster-carousel -mx-4">
+    <div className="booster-carousel -mx-4 flex min-h-0 flex-1 flex-col">
       <div
         ref={ref}
         onScroll={update}
@@ -96,7 +115,7 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
           if (suppressClick.current) { e.preventDefault(); e.stopPropagation(); suppressClick.current = false; }
         }}
         onDragStart={(e) => e.preventDefault()}
-        className="flex cursor-grab select-none snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain pt-6 pb-14 no-scrollbar"
+        className="flex min-h-0 flex-1 cursor-grab select-none snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain pt-2 pb-10 no-scrollbar"
         style={{ paddingInline: 'calc(50% - var(--booster-w) / 2)' }}
       >
         {items.map((child, i) => (
@@ -117,7 +136,7 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
         ))}
       </div>
       {items.length > 1 && (
-        <div className="-mt-8 flex justify-center gap-1.5" aria-hidden="true">
+        <div className="-mt-6 flex shrink-0 justify-center gap-1.5 pb-1" aria-hidden="true">
           {items.map((_, i) => (
             <span key={i} className={`h-1.5 rounded-full transition-all ${i === active ? 'w-5 bg-primary' : 'w-1.5 bg-border'}`} />
           ))}
