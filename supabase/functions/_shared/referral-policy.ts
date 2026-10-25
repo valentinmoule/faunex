@@ -11,7 +11,7 @@ export function qualifyingReferralPayment(data: {
     && data.origin !== 'subscription_recurring'
     && Number(data.details?.totals?.total ?? 0) > 0
     && data.items?.length === 1
-    && data.items[0]?.price?.importMeta?.externalId === REFERRAL_ANNUAL_PRICE
+    && [REFERRAL_ANNUAL_PRICE, 'faunex_premium_family_yearly'].includes(data.items[0]?.price?.importMeta?.externalId ?? '')
     && data.items[0]?.price?.billingCycle?.interval === 'year'
     && data.items[0]?.price?.billingCycle?.frequency === 1;
 }

@@ -1,6 +1,8 @@
 import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2';
 import { verifyWebhook, EventName, type PaddleEnv } from '../_shared/paddle.ts';
 import { confirmReferral } from './referrals.ts';
+import { syncVerifiedFamily } from './family.ts';
+import { isFamilyPrice } from '../_shared/family-policy.ts';
 
 let _supabase: SupabaseClient | null = null;
 function getSupabase() {
@@ -50,6 +52,10 @@ async function handleCustomerUpserted(data: any, env: PaddleEnv) {
 }
 
 async function handleSubscriptionCreated(data: any, env: PaddleEnv) {
+  if (isFamilyPrice(data?.items?.[0]?.price?.importMeta?.externalId)) {
+    await syncVerifiedFamily(getSupabase(),data.id,env);
+    return;
+  }
   const { id, customerId, items, status, currentBillingPeriod, customData, scheduledChange } = data;
 
   const userId = customData?.userId;
@@ -91,6 +97,10 @@ async function handleSubscriptionCreated(data: any, env: PaddleEnv) {
 }
 
 async function handleSubscriptionUpdated(data: any, env: PaddleEnv) {
+  if (isFamilyPrice(data?.items?.[0]?.price?.importMeta?.externalId)) {
+    await syncVerifiedFamily(getSupabase(),data.id,env);
+    return;
+  }
   const { id, status, currentBillingPeriod, scheduledChange } = data;
 
   const { error } = await getSupabase().from('subscriptions')
@@ -111,6 +121,10 @@ async function handleSubscriptionUpdated(data: any, env: PaddleEnv) {
 }
 
 async function handleSubscriptionCanceled(data: any, env: PaddleEnv) {
+  if (isFamilyPrice(data?.items?.[0]?.price?.importMeta?.externalId)) {
+    await syncVerifiedFamily(getSupabase(),data.id,env);
+    return;
+  }
   const { error } = await getSupabase().from('subscriptions')
     .update({
       status: 'canceled',
@@ -134,6 +148,8 @@ async function handleTransactionCompleted(data: any, env: PaddleEnv) {
   }
 
   if (!data?.subscriptionId) return;
+
+  await syncVerifiedFamily(getSupabase(),data.subscriptionId,env);
 
   const { error } = await getSupabase().from('subscriptions')
     .update({
