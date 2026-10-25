@@ -866,8 +866,17 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                     </button>
                   </div>
                 )}
-                <div className="flex items-center gap-3 flex-wrap justify-center">
-
+                <div className={`flex items-center gap-3 flex-wrap ${feedView && author ? '' : 'flex-1'}`}>
+                {cardImage && (
+                  <button
+                    onClick={handleShare}
+                    aria-label={t('capture.detail.share')}
+                    title={t('capture.detail.share')}
+                    className="relative flex items-center py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
+                  >
+                    <Share2 className="w-6 h-6 text-muted-foreground transition-colors group-hover:text-primary" />
+                  </button>
+                )}
                 <div className="flex items-center">
                 <Button variant="ghost"
                   onClick={handleLike}
@@ -879,7 +888,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                   <Heart className={`w-6 h-6 transition-all ${liked ? 'fill-destructive text-destructive scale-110' : 'text-muted-foreground group-hover:text-destructive'}`} />
                 </Button>
                   {likeCount > 0 && (
-                    <Button variant="ghost" onClick={() => { hapticTap(); setLikesOpen(true); }} aria-label={t('capture.detail.viewLikes', { count: likeCount })} className={`h-10 min-w-8 rounded-none px-1 text-sm hover:bg-transparent ${liked ? 'text-destructive' : 'text-muted-foreground'}`}>{likeCount}</Button>
+                    <Button variant="ghost" onClick={() => { hapticTap(); setLikesOpen(true); }} aria-label={t('capture.detail.viewLikes', { count: likeCount })} className={`h-10 rounded-none px-1 text-sm font-display font-semibold hover:bg-transparent ${liked ? 'text-destructive' : 'text-muted-foreground'}`}>{likeCount}</Button>
                   )}
                 </div>
                 <button
@@ -908,16 +917,6 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                     <Bookmark className={`w-6 h-6 transition-all ${isFavorite(card.id) ? 'fill-primary text-primary scale-110' : 'text-muted-foreground group-hover:text-primary'}`} />
                   </button>
                 )}
-                {!isOwner && cardImage && (
-                  <button
-                    onClick={handleShare}
-                    aria-label={t('capture.detail.share')}
-                    title={t('capture.detail.share')}
-                    className="relative flex items-center py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
-                  >
-                    <Share2 className="w-6 h-6 text-muted-foreground transition-colors group-hover:text-primary" />
-                  </button>
-                )}
                 {onUseCollectionCover && isOwner && cardImage && (
                   <button
                     onClick={async () => {
@@ -938,14 +937,9 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                 {isOwner && (
                   <OverflowMenu
                     label={t('common.moreActions')}
-                    triggerClassName="relative flex items-center py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
+                    triggerClassName="relative ml-auto flex items-center py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
                     iconClassName="w-6 h-6 text-muted-foreground transition-colors group-hover:text-primary"
                     items={[
-                      ...(cardImage ? [{
-                        label: t('capture.detail.share'),
-                        icon: <Share2 className="w-5 h-5 text-muted-foreground" />,
-                        onSelect: () => { hapticTap(); handleShare(); },
-                      }] : []),
                       ...(cardImage ? [{
                         label: t('capture.crop.action'),
                         icon: <CropIcon className="w-5 h-5 text-muted-foreground" />,
@@ -1037,7 +1031,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
               </div>
 
             ) : !feedView ? (
-              <p className="text-sm text-foreground/80 leading-relaxed text-center max-w-sm mx-auto">{facts.description}</p>
+              <p className="text-sm text-foreground/80 leading-relaxed text-left">{facts.description}</p>
             ) : null}
 
             {/* Infos — liste épurée façon iOS */}
