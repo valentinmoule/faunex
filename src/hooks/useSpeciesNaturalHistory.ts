@@ -29,6 +29,7 @@ export function useSpeciesNaturalHistory(name?: string, scientific?: string, ena
     staleTime: 24 * 60 * 60 * 1000,
     // One retry for transient source failures; expected absences resolve to null.
     retry: 1,
+    retryDelay: 400,
     throwOnError: false,
     queryFn: async (): Promise<NaturalHistory | null> => {
       const { data, error } = await supabase.functions.invoke('species-natural-history', {
