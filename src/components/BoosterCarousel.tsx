@@ -84,7 +84,7 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <div className="-mx-4">
+    <div className="booster-carousel -mx-4">
       <div
         ref={ref}
         onScroll={update}
@@ -97,7 +97,7 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
         }}
         onDragStart={(e) => e.preventDefault()}
         className="flex cursor-grab select-none snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain pt-6 pb-14 no-scrollbar"
-        style={{ paddingInline: 'calc(50% - min(34vw, 160px))' }}
+        style={{ paddingInline: 'calc(50% - var(--booster-w) / 2)' }}
       >
         {items.map((child, i) => (
           <div
@@ -110,7 +110,7 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
                 scrollToItem(i);
               }
             }}
-            className="w-[68vw] max-w-[320px] shrink-0 snap-center transition-[transform,opacity] duration-150 ease-out will-change-transform"
+            className="w-[var(--booster-w)] shrink-0 snap-center transition-[transform,opacity] duration-150 ease-out will-change-transform"
           >
             {child}
           </div>
