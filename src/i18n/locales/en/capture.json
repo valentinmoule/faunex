@@ -287,6 +287,8 @@
       "premiumCta": "Discover Premium"
     },
     "crop": {
+      "premiumTitle": "Photo cropping with Premium",
+      "premiumDescription": "Make your animal stand out by cropping its photo. This feature is available to Premium explorers only.",
       "title": "Crop photo",
       "cancel": "Cancel",
       "zoom": "Zoom",
