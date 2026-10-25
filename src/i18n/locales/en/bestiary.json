@@ -256,7 +256,8 @@
       "showcase": "Pinned collections",
       "showcaseEmpty": "No captured species yet.",
       "progress": "{{captured}}/{{total}} captured",
-      "showcaseCapturedCount": "{{count}} species captured"
+      "showcaseCapturedCount_one": "{{count}} species captured",
+      "showcaseCapturedCount_other": "{{count}} species captured"
     }
   }
 }
