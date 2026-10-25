@@ -2052,7 +2052,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
           )}
 
           {viewMode === 'collections' && (
-            <section className="space-y-4">
+            <section className="flex h-[calc(100dvh-205px-env(safe-area-inset-bottom))] flex-col gap-4 overflow-hidden">
               {/* Formulaire de création de collection personnalisée (ouvert depuis le hub « Ajouter ») */}
               {creatingCustom && (
                 <form
