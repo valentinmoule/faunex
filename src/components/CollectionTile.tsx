@@ -104,6 +104,7 @@ const CollectionTile = ({
       {readyToClaim && (
         <div className="absolute bottom-0 left-1/2 z-10 -translate-x-1/2 translate-y-1/2">
           <Button
+            variant="collection"
             onClick={onClaim}
             disabled={claiming}
             aria-label={t('bestiary.collections.claim')}

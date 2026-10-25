@@ -10,6 +10,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "game-button bg-primary text-primary-foreground",
+        collection: "bg-primary text-primary-foreground shadow-[0_1px_2px_hsl(var(--foreground)/0.06),0_8px_20px_-12px_hsl(var(--primary)/0.7)] hover:bg-primary/92",
         destructive: "game-button game-button-danger bg-destructive text-destructive-foreground",
         outline: "game-button game-button-outline border border-border bg-card",
         secondary: "game-button game-button-soft bg-secondary text-secondary-foreground",
