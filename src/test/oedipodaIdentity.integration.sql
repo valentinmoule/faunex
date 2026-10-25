@@ -1,0 +1,6 @@
+-- Scientific identities and diagnostic profiles must stay distinct.
+SELECT 1 / CASE WHEN EXISTS (SELECT 1 FROM public.animals WHERE name='Œdipode germanique' AND scientific_name='Oedipoda germanica') THEN 1 ELSE 0 END AS germanica_name;
+SELECT 1 / CASE WHEN EXISTS (SELECT 1 FROM public.animals WHERE name='Œdipode turquoise' AND scientific_name='Oedipoda caerulescens') THEN 1 ELSE 0 END AS caerulescens_name;
+SELECT 1 / CASE WHEN EXISTS (SELECT 1 FROM public.animals WHERE name='Œdipode aigue-marine' AND scientific_name='Sphingonotus caerulans') THEN 1 ELSE 0 END AS caerulans_present;
+SELECT 1 / CASE WHEN EXISTS (SELECT 1 FROM public.species_profiles WHERE scientific_name='Oedipoda germanica' AND description LIKE '%rouges à orangées%' AND description NOT LIKE '%bleu vif%') THEN 1 ELSE 0 END AS germanica_red_wings;
+SELECT 1 / CASE WHEN NOT EXISTS (SELECT 1 FROM public.captures WHERE scientific_name='Oedipoda germanica' AND animal_name<>'Œdipode germanique') THEN 1 ELSE 0 END AS germanica_capture_names;

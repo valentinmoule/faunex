@@ -19,6 +19,7 @@ Méthode obligatoire :
 - Si la description apporte une précision plus fine que le nom (ex. nom "oiseau" + description "petit oiseau jaune au chant flûté dans les roseaux"), affine le nom vers l'espèce la plus précise et cohérente.
 - Si le nom proposé est clairement incompatible avec la photo ET la description, retiens l'espèce que la photo et la description désignent conjointement (sans commenter ce choix dans la fiche).
 - N'invente jamais un détail absent de la photo et de la description : en cas d'incertitude, reste au niveau taxonomique le plus précis dont tu es sûr.
+- Œdipodes : Oedipoda germanica = Œdipode germanique (ailes postérieures rouges/orangées, bande sombre) ; Oedipoda caerulescens = Œdipode turquoise (ailes bleues, bande sombre) ; Sphingonotus caerulans = Œdipode aigue-marine (plus élancé, ailes bleues à la base sans bande sombre). Corps camouflé ou ailes fermées seuls ne permettent pas de trancher : exige des critères diagnostiques sur la photo ou dans les observations, sinon reste au genre sûr.
 - animal_name = uniquement le nom commun français, sans parenthèses ni précision ajoutée (pas de "(famille des Lycosidae)", "(genre Bombus)", "(mâle)", "(à préciser)", pas de nom scientifique répété) : le rang précis va dans scientific_name.
 
 
