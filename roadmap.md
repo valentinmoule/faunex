@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Corriger les mensurations manquantes et intégrer la classification traduite au bloc d’informations des fiches.
+
 - [x] Fiches : classification (embranchement, classe, ordre, famille), mensurations sourcées avec moyennes/fourchettes distinctes et données inconnues explicites ; cache partagé, traductions FR/EN, 5 tests et fiche Lion vérifiée connecté sur ordinateur/téléphone.
 
 - [x] Orthoptères : comparer les 119 fiches du fichier et présenter le nettoyage complet à valider.
