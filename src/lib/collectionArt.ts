@@ -38,7 +38,10 @@ import frogs from '@/assets/collections/frogs.jpg';
 import salamanders from '@/assets/collections/salamanders.jpg';
 import mushrooms from '@/assets/collections/mushrooms.jpg';
 import rodents from '@/assets/collections/rodents.jpg';
-import carnivores from '@/assets/collections/carnivores.jpg';
+import carnivores from '@/assets/collections/carnivores-refined.jpg';
+import arachnids from '@/assets/collections/arachnids.jpg';
+import spiders from '@/assets/collections/spiders.jpg';
+import birds from '@/assets/collections/birds.jpg';
 
 export type SceneKey =
   | 'city' | 'meadow' | 'lake' | 'forest' | 'ocean'
@@ -143,11 +146,13 @@ const build = (scene: SceneKey): CollectionArt => ({
 const GROUP_PHOTOS: Record<string, string> = {
   dog: dogs, cat: cats, horse: horses,
   butterflies, ladybugs, bees, dragonflies, raptors, passerines,
-  turtles, sharks, frogs, salamanders, rodents, carnivores,
+  turtles, sharks, frogs, salamanders, rodents, carnivores, spiders,
 };
 
 const CATEGORY_PHOTOS: Record<string, string> = {
   Champignons: mushrooms,
+  Arachnides: arachnids,
+  Oiseaux: birds,
 };
 
 /** Illustration d'une collection à partir de sa clé (`cat:Oiseaux`, `butterflies`…). */
