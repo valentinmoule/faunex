@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Check, Loader2, Crown, UserRound, Users, ScanLine, MapPin, Images, FolderHeart, Trophy, BadgeCheck, GraduationCap } from 'lucide-react';
+import { ArrowLeft, Check, Loader2, Crown, UserRound, Users, ScanLine, MapPin, Images, FolderHeart, Trophy, BadgeCheck, GraduationCap, Crop } from 'lucide-react';
 import { toast } from 'sonner';
 import { PageHeader } from '@/components/PageHeader';
 import { PaymentTestModeBanner } from '@/components/PaymentTestModeBanner';
@@ -27,6 +27,7 @@ const BENEFITS = [
   { icon: GraduationCap, key: 'learning' },
   { icon: FolderHeart, key: 'collections' },
   { icon: Images, key: 'photos' },
+  { icon: Crop, key: 'crop' },
   { icon: Trophy, key: 'ranking' },
   { icon: BadgeCheck, key: 'badge' },
 ] as const;
