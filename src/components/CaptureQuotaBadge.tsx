@@ -1,7 +1,6 @@
-import { Infinity as InfinityIcon } from 'lucide-react';
+import { Camera, Infinity as InfinityIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import CaptureIcon from '@/components/CaptureIcon';
 import GameCounter from '@/components/GameCounter';
 import { useCaptureQuota } from '@/hooks/useCaptureQuota';
 
@@ -21,7 +20,7 @@ const CaptureQuotaBadge = ({ userId, isPremium, premiumLoading }: CaptureQuotaBa
 
   return (
     <GameCounter
-      icon={<CaptureIcon className="h-[18px] w-[18px]" />}
+      icon={<Camera className="h-[18px] w-[18px] text-primary" strokeWidth={2} />}
       value={
         isPremium ? (
           <InfinityIcon className="h-[18px] w-[18px]" strokeWidth={2.5} aria-hidden="true" />
