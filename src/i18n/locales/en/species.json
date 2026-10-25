@@ -39,6 +39,11 @@
       "empty": "No guide matches your search.",
       "ctaTitle": "Identify any animal from a photo",
       "ctaBody": "Take a photo, Faunex recognises the species and adds it to your collection."
+    },
+    "report": {
+      "action": "Report an incorrect entry",
+      "sent": "Thanks! Our team will review this entry.",
+      "error": "The report couldn't be sent."
     }
   }
 }

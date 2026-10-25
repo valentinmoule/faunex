@@ -15,6 +15,7 @@ import { type Rarity } from '@/data/mockData';
 import RarityBadge from '@/components/RarityBadge';
 import { isPlaceholderName } from '@/lib/placeholderNames';
 
+import SpeciesReportsPanel from '@/components/SpeciesReportsPanel';
 import AnalyticsDashboard from '@/components/AnalyticsDashboard';
 
 interface PendingCapture {
@@ -527,8 +528,9 @@ const ModerationPage = () => {
 
       <div className="max-w-3xl mx-auto px-4 pt-4">
         <Tabs defaultValue="moderation" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-4">
+          <TabsList className="grid w-full grid-cols-3 mb-4">
             <TabsTrigger value="moderation">Modération</TabsTrigger>
+            <TabsTrigger value="reports">Fiches signalées</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
@@ -789,6 +791,8 @@ const ModerationPage = () => {
               <BestiaryPopulator />
             </div>
           </TabsContent>
+
+          <TabsContent value="reports"><SpeciesReportsPanel /></TabsContent>
 
           <TabsContent value="analytics">
             <AnalyticsDashboard />

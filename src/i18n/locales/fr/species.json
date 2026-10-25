@@ -39,6 +39,11 @@
       "empty": "Aucune fiche ne correspond à ta recherche.",
       "ctaTitle": "Identifie n'importe quel animal en photo",
       "ctaBody": "Prends une photo, Faunex reconnaît l'espèce et l'ajoute à ta collection."
+    },
+    "report": {
+      "action": "Signaler une fiche erronée",
+      "sent": "Merci ! Notre équipe va vérifier cette fiche.",
+      "error": "Le signalement n'a pas pu être envoyé."
     }
   }
 }
