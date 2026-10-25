@@ -17,6 +17,8 @@ interface OverflowMenuProps {
   triggerClassName?: string;
   /** Classes de l’icône du déclencheur (taille/couleur selon l’endroit d’usage). */
   iconClassName?: string;
+  /** Classes du panneau : permet de monter le z-index au-dessus des fiches plein écran. */
+  contentClassName?: string;
 }
 
 /**
@@ -30,6 +32,7 @@ export function OverflowMenu({
   align = 'end',
   triggerClassName,
   iconClassName,
+  contentClassName,
 }: OverflowMenuProps) {
   return (
     <DropdownMenuPrimitive.Root>
