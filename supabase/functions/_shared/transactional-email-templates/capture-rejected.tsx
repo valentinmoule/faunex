@@ -126,9 +126,11 @@ const CaptureRejectedEmail = ({
             </Text>
           )}
           <Button style={button} href={captureUrl}>
-            {reason === 'duplicate'
-              ? pick({ fr: 'Capturer une nouvelle espèce', en: 'Capture a new species' }, l)
-              : pick({ fr: 'Refaire une capture', en: 'Try another capture' }, l)}
+            {correction
+              ? pick({ fr: 'Voir ma capture', en: 'View my capture' }, l)
+              : reason === 'duplicate'
+                ? pick({ fr: 'Capturer une nouvelle espèce', en: 'Capture a new species' }, l)
+                : pick({ fr: 'Refaire une capture', en: 'Try another capture' }, l)}
           </Button>
           <Text style={footer}>{pick({ fr: 'À bientôt sur le terrain !', en: 'See you out there!' }, l)}</Text>
         </Container>
@@ -140,7 +142,12 @@ const CaptureRejectedEmail = ({
 export const template = {
   component: CaptureRejectedEmail,
   subject: (d: Props) =>
-    d?.reason === 'duplicate'
+    d?.correction
+      ? pick(
+          { fr: `Ta demande de correction pour « ${d?.animalName || 'ta capture'} » n'a pas été retenue`, en: `Your correction request for "${d?.animalName || 'your capture'}" wasn't retained` },
+          d?.locale,
+        )
+      : d?.reason === 'duplicate'
       ? pick(
           { fr: `${d?.animalName || 'Cette espèce'} est déjà dans ton bestiaire`, en: `${d?.animalName || 'This species'} is already in your bestiary` },
           d?.locale,
