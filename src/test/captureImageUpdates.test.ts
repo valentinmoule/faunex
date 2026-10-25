@@ -4,7 +4,9 @@ import { publishCaptureImageUpdate, subscribeCaptureImageUpdates, updateCaptureI
 import { useBestiaryData } from '@/hooks/useBestiaryData';
 import type { AnimalCard } from '@/data/mockData';
 
-vi.mock('@/integrations/supabase/client', () => ({ supabase: {} }));
+vi.mock('@/integrations/supabase/client', () => ({ supabase: {
+  from: () => ({ select: () => ({ eq: () => ({ eq: async () => ({ count: 0 }) }) }) }),
+} }));
 vi.mock('@/lib/bestiaryCache', () => ({ readCatalogueCache: () => null, writeCatalogueCache: vi.fn() }));
 vi.mock('@/lib/shelveAnimation', () => ({ peekPendingShelve: () => null }));
 
@@ -29,9 +31,9 @@ describe('Capture image updates', () => {
   });
 
   it('updates the mounted capture grid immediately after a save event', () => {
-    const hook = renderHook(() => useBestiaryData(undefined));
+    const hook = renderHook(() => useBestiaryData('owner', { light: true }));
     act(() => hook.result.current.setMyCaptures([card]));
-    act(() => publishCaptureImageUpdate({ ...update, userId: undefined as unknown as string }));
+    act(() => publishCaptureImageUpdate(update));
     expect(hook.result.current.myCaptures[0].image).toBe('cropped.jpg');
     hook.unmount();
   });
