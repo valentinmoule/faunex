@@ -421,6 +421,13 @@
       "when": 1792950791756,
       "tag": "0059_atomic_eclats_validation",
       "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "7",
+      "when": 1792951493526,
+      "tag": "0060_eclats_lessons_only",
+      "breakpoints": true
     }
   ]
 }
