@@ -87,9 +87,7 @@ const CollectionTile = ({
           >
             Faunex
           </span>
-          <span className="mt-1.5 rounded-sm bg-foreground/70 px-2 py-[1px] font-display text-[8px] font-bold uppercase tracking-[0.2em] text-background">
-            {t('bestiary.collections.title', { defaultValue: 'Collection' })}
-          </span>
+
         </div>
 
         {(claimed || readyToClaim) && (
