@@ -24,6 +24,7 @@ import { PinnedCollectionsCarousel } from '@/components/PinnedCollectionsCarouse
 import { type AnimalCard, type Rarity, RARITY_RANK, RARITY_FX, normalizeRarity } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
 import { fetchAllRows } from '@/lib/fetchAll';
+import { applyCustomCaptureOrder, parseCaptureOrder } from '@/lib/captureOrder';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { followUser as followUserUtil } from '@/lib/followUtils';
