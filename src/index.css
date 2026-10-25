@@ -25,7 +25,7 @@
 .learning-node-active::after { outline: 3px solid hsl(var(--amber) / .35); outline-offset: 7px; }
 .learning-node-done, .learning-node-done:hover { --node-surface: var(--learning-green); --node-base: var(--learning-green-base); color: hsl(var(--primary-foreground)); }
 .learning-node-locked, .learning-node-locked:hover { color: hsl(var(--muted-foreground)); }
-.learning-node:disabled { opacity: 1; }
+.learning-node.learning-node:disabled { opacity: 1; }
 .learning-node:not(:disabled):active::after { transform: translateY(6px) matrix(.866, .5, -.866, .5, 0, 0); }
 .learning-node:not(:disabled):active .learning-node-face { transform: translateY(3px); }
 .learning-callout { background: hsl(var(--card)); color: hsl(var(--foreground)); border: 2px solid hsl(var(--amber)); border-radius: 10px; box-shadow: 0 3px 0 hsl(var(--amber-dark) / .2); }
