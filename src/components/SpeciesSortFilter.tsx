@@ -16,6 +16,7 @@ import {
   Bookmark,
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Button } from '@/components/ui/button';
 import RarityBadge from '@/components/RarityBadge';
 import { type Rarity, RARITY_LABELS, RARITY_ORDER, RARITY_RANK, normalizeRarity } from '@/data/mockData';
 import { categoryLabel, getCategoryIcon, normalizeCategory } from '@/lib/bestiary';
@@ -401,18 +402,18 @@ export const SpeciesSortFilterSheet = ({
         </section>
 
         <div className="flex items-center gap-2 mt-6">
-          <button
+          <Button variant="outline"
             onClick={onReset}
-            className="flex-1 py-3 rounded-xl border border-border bg-card text-sm font-display font-semibold text-muted-foreground active:scale-[0.98] transition"
+            className="flex-1 h-12 px-2 whitespace-normal text-sm"
           >
             {t('bestiary.filterModal.reset')}
-          </button>
-          <button
+          </Button>
+          <Button variant="default"
             onClick={() => onOpenChange(false)}
-            className="flex-1 py-3 rounded-xl bg-primary text-primary-foreground text-sm font-display font-bold active:scale-[0.98] transition"
+            className="flex-1 h-12 px-2 whitespace-normal text-sm"
           >
             {confirmLabel ?? t('bestiary.filterModal.seeSpecies', { count: resultCount })}
-          </button>
+          </Button>
         </div>
       </SheetContent>
     </Sheet>

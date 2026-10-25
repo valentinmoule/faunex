@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { Button } from '@/components/ui/button';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -921,14 +922,14 @@ setManualMode(false);
           <div className="fixed inset-x-0 bottom-0 z-[100] border-t border-border/60 bg-background px-5 pt-3 pb-[max(22px,calc(env(safe-area-inset-bottom)+16px))] shadow-[0_-8px_24px_hsl(var(--foreground)/0.12)] space-y-4">
             {duplicateCapture ? (
               <>
-                <button
+                <Button variant="default"
                   onClick={doReplaceExisting}
                   disabled={saving || preparingBestiary}
-                  className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full bg-primary text-primary-foreground font-display text-sm font-semibold disabled:opacity-50"
+                  className="w-full h-12 text-sm"
                 >
                   {saving || preparingBestiary ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
                   {t('capture.duplicate.replacePhoto')}
-                </button>
+                </Button>
                 <button
                   onClick={keepExisting}
                   className="w-full py-3.5 rounded-full font-display text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
@@ -937,23 +938,23 @@ setManualMode(false);
                 </button>
               </>
             ) : (
-              <button
+              <Button variant="default"
                 onClick={saveToCollection}
                 disabled={saving || preparingBestiary}
-                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full bg-primary text-primary-foreground font-display text-sm font-semibold disabled:opacity-50"
+                className="w-full h-12 text-sm"
               >
                 {saving || preparingBestiary ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
                 {saving || preparingBestiary ? t('capture.actions.saving') : t('capture.actions.add')}
-              </button>
+              </Button>
             )}
-            <button
+            <Button variant="outline"
               onClick={() => setCropOpen(true)}
               disabled={saving || preparingBestiary}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-full border border-border font-display text-sm font-semibold text-foreground disabled:opacity-50"
+              className="w-full h-12 text-sm"
             >
               <CropIcon className="w-4 h-4" />
               {t('capture.crop.action')}
-            </button>
+            </Button>
             <button
               onClick={requestVerification}
               className="mx-auto flex items-center gap-1 text-xs font-medium text-muted-foreground underline underline-offset-2 hover:text-foreground transition-colors"

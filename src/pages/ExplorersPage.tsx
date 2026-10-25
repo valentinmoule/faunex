@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { Button } from '@/components/ui/button';
 import { avatarFallbackStyle } from '@/lib/avatarPalette';
 import { PageHeader } from '@/components/PageHeader';
 import { notifyCaptureInteraction } from '@/lib/notifyCaptureInteraction';
@@ -489,17 +490,17 @@ const ExplorersPage = () => {
         {searchTab !== 'search' && (
           <div className="max-w-lg mx-auto px-4 pt-3">
             <div className="flex gap-2 pb-2 overflow-x-auto">
-              <button onClick={() => setSearchTab('following')} className={`px-4 py-1.5 rounded-full text-xs font-display font-semibold transition-colors whitespace-nowrap ${searchTab === 'following' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+              <Button variant="chip" size="sm" aria-pressed={searchTab === 'following'} onClick={() => setSearchTab('following')} className="relative shrink-0 px-3 text-xs">
                 Abonnements ({following.length})
-              </button>
-              <button onClick={() => setSearchTab('followers')} className={`px-4 py-1.5 rounded-full text-xs font-display font-semibold transition-colors whitespace-nowrap ${searchTab === 'followers' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+              </Button>
+              <Button variant="chip" size="sm" aria-pressed={searchTab === 'followers'} onClick={() => setSearchTab('followers')} className="relative shrink-0 px-3 text-xs">
                 Abonnés ({followers.length})
-              </button>
+              </Button>
               {pendingRequests.length > 0 && (
-                <button onClick={() => setSearchTab('requests')} className={`px-4 py-1.5 rounded-full text-xs font-display font-semibold transition-colors whitespace-nowrap relative ${searchTab === 'requests' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+                <Button variant="chip" size="sm" aria-pressed={searchTab === 'requests'} onClick={() => setSearchTab('requests')} className="relative shrink-0 px-3 text-xs">
                   Demandes ({pendingRequests.length})
                   <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-destructive text-destructive-foreground text-[9px] font-bold flex items-center justify-center">{pendingRequests.length}</span>
-                </button>
+                </Button>
               )}
             </div>
           </div>
@@ -515,7 +516,7 @@ const ExplorersPage = () => {
               isFollowing(user.user_id) ? (
                 <button onClick={() => unfollowUser(user.user_id)} className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-muted text-foreground text-xs font-display font-semibold"><UserCheck className="w-3.5 h-3.5" /> Abonné</button>
               ) : isPending(user.user_id) ? (
-                <button disabled className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-muted text-muted-foreground text-xs font-display font-semibold"><Clock className="w-3.5 h-3.5" /> En attente</button>
+                <Button variant="secondary" size="sm" disabled className="h-8 gap-1 px-3 text-xs"><Clock className="w-3.5 h-3.5" /> En attente</Button>
               ) : (
                 <button onClick={() => handleFollow(user.user_id)} className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-display font-semibold"><UserPlus className="w-3.5 h-3.5" /> S'abonner</button>
               );
@@ -573,7 +574,7 @@ const ExplorersPage = () => {
                   isFollowing(f.user_id) ? (
                     <button onClick={() => unfollowUser(f.user_id)} className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-muted text-foreground text-xs font-display font-semibold"><UserCheck className="w-3.5 h-3.5" /> Abonné</button>
                   ) : isPending(f.user_id) ? (
-                    <button disabled className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-muted text-muted-foreground text-xs font-display font-semibold"><Clock className="w-3.5 h-3.5" /> En attente</button>
+                    <Button variant="secondary" size="sm" disabled className="h-8 gap-1 px-3 text-xs"><Clock className="w-3.5 h-3.5" /> En attente</Button>
                   ) : (
                     <button onClick={() => handleFollow(f.user_id)} className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-display font-semibold"><UserPlus className="w-3.5 h-3.5" /> S'abonner</button>
                   )
