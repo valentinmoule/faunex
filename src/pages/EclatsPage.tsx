@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { ArrowLeft, Gem, Loader2, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Bean, Loader2, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
@@ -36,7 +36,7 @@ export default function EclatsPage() {
     </PageHeader>
     <div className="mx-auto max-w-lg px-5">
       <section className="py-8 text-center">
-        <Gem className="mx-auto mb-3 h-10 w-10 text-primary" />
+        <Bean className="mx-auto mb-3 h-10 w-10 text-primary" />
         <p className="font-display text-4xl font-bold tabular-nums">{wallet.isPending ? '—' : wallet.data?.balance.toLocaleString(i18n.language) ?? '—'}</p>
         <p className="mt-2 text-sm text-muted-foreground">{t('economy.available')}</p>
         {Number(wallet.data?.debt ?? 0) > 0 && <p className="mt-3 text-sm text-muted-foreground">{t('economy.debt', { amount: wallet.data?.debt })}</p>}
