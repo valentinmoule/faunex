@@ -108,3 +108,7 @@ Use species names for custom collection membership and refresh mounted collectio
 ## Canonical species facts
 Apply shared facts after capture name canonicalization, reject scientific conflicts, refresh facts on image-cache hits, and invalidate translations after source changes, because moderation and older clients can save stale descriptions under corrected names.
 <!-- LOVABLE:END -->
+
+## Themed collections are data, not code
+
+Admin-created themed collections live in `themed_collections` (manual species names plus optional category/rarity/keyword rules, optional date window) and are matched client-side by `src/lib/themedCollections.ts`; covers are uploaded or AI-generated into the public captures bucket by an admin-checked function, so new collections ship without a store release.
