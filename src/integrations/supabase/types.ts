@@ -2490,6 +2490,36 @@ export type Database = {
         }
         Relationships: []
       }
+      species_reports: {
+        Row: {
+          created_at: string
+          id: string
+          reason: string | null
+          scientific_name: string | null
+          species_name: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          reason?: string | null
+          scientific_name?: string | null
+          species_name: string
+          status?: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          reason?: string | null
+          scientific_name?: string | null
+          species_name?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           cancel_at_period_end: boolean | null
