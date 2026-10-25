@@ -27,6 +27,9 @@ export async function confirmReferral(client: Client, transactionId: string, env
     if (buyer.error || sponsor.error) throw new Error('Referral accounts unavailable');
     if (!buyer.data.user || !sponsor.data.user) return;
     if (buyer.data.user.email?.toLowerCase() === sponsor.data.user.email?.toLowerCase()) return;
+    const customer = await paddle.customers.get(transaction.customerId);
+    if (customer.email.toLowerCase() !== buyer.data.user.email?.toLowerCase()) return;
+    if (customer.email.toLowerCase() === sponsor.data.user.email?.toLowerCase()) return;
     const history = paddle.transactions.list({ customerId: [transaction.customerId], status: ['completed'] });
     for await (const previous of history) {
       if (previous.id !== transaction.id && previous.items.some(item =>
