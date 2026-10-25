@@ -16,7 +16,7 @@ import HolographicCard from '@/components/HolographicCard';
 import RarityBadge from '@/components/RarityBadge';
 import { hapticTap } from '@/lib/haptics';
 import { toast } from '@/hooks/use-toast';
-import { Trash2, Share2, Bookmark, MoreHorizontal } from 'lucide-react';
+import { Trash2, Share2, Bookmark } from 'lucide-react';
 import OverflowMenu from '@/components/OverflowMenu';
 import { useNavigate } from 'react-router-dom';
 import { useFavorites } from '@/hooks/useFavorites';
@@ -867,16 +867,6 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                   </div>
                 )}
                 <div className={`flex items-center gap-3 flex-wrap ${feedView && author ? '' : 'flex-1'}`}>
-                {cardImage && (
-                  <button
-                    onClick={handleShare}
-                    aria-label={t('capture.detail.share')}
-                    title={t('capture.detail.share')}
-                    className="relative flex items-center py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
-                  >
-                    <Share2 className="w-6 h-6 text-muted-foreground transition-colors group-hover:text-primary" />
-                  </button>
-                )}
                 <div className="flex items-center">
                 <Button variant="ghost"
                   onClick={handleLike}
@@ -934,28 +924,35 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                     <ImagePlus className={`w-6 h-6 transition-colors ${savingCover ? 'text-primary/50' : 'text-muted-foreground group-hover:text-primary'}`} />
                   </button>
                 )}
-                {isOwner && (
+                {cardImage && (
                   <OverflowMenu
                     label={t('common.moreActions')}
                     triggerClassName="relative ml-auto flex items-center py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
                     iconClassName="w-6 h-6 text-muted-foreground transition-colors group-hover:text-primary"
                     items={[
-                      ...(cardImage ? [{
+                      {
+                        label: t('capture.detail.share'),
+                        icon: <Share2 className="w-5 h-5 text-muted-foreground" />,
+                        onSelect: () => { hapticTap(); handleShare(); },
+                      },
+                      ...(isOwner && cardImage ? [{
                         label: t('capture.crop.action'),
                         icon: <CropIcon className="w-5 h-5 text-muted-foreground" />,
                         onSelect: () => { hapticTap(); setCropOpen(true); },
                       }] : []),
-                      {
-                        label: t('capture.correction.title'),
-                        icon: <ScanSearch className="w-5 h-5 text-muted-foreground" />,
-                        onSelect: () => { hapticTap(); setCorrectionOpen(true); },
-                      },
-                      {
-                        label: t('capture.detail.deleteCapture'),
-                        icon: <Trash2 className="w-5 h-5 text-destructive" />,
-                        tone: 'destructive' as const,
-                        onSelect: () => { hapticTap(); setConfirmDelete(true); },
-                      },
+                      ...(isOwner ? [
+                        {
+                          label: t('capture.correction.title'),
+                          icon: <ScanSearch className="w-5 h-5 text-muted-foreground" />,
+                          onSelect: () => { hapticTap(); setCorrectionOpen(true); },
+                        },
+                        {
+                          label: t('capture.detail.deleteCapture'),
+                          icon: <Trash2 className="w-5 h-5 text-destructive" />,
+                          tone: 'destructive' as const,
+                          onSelect: () => { hapticTap(); setConfirmDelete(true); },
+                        },
+                      ] : []),
                     ]}
                   />
                 )}
@@ -1031,7 +1028,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
               </div>
 
             ) : !feedView ? (
-              <p className="text-sm text-foreground/80 leading-relaxed text-left">{facts.description}</p>
+              <p className="text-sm text-foreground/80 leading-relaxed text-center">{facts.description}</p>
             ) : null}
 
             {/* Infos — liste épurée façon iOS */}
