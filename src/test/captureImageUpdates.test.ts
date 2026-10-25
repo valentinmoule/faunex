@@ -16,6 +16,7 @@ const update = { captureId: 'capture-1', userId: 'owner', imageUrl: 'cropped.jpg
 describe('Capture image updates', () => {
   it('replaces only the edited capture photo', () => {
     expect(updateCaptureImage(card, update).image).toBe('cropped.jpg');
+    expect(updateCaptureImage({ ...card, subjectBox: [0.1, 0.1, 0.8, 0.8] }, update).subjectBox).toBeUndefined();
     const other = { ...card, id: 'capture-2' };
     expect(updateCaptureImage(other, update)).toBe(other);
   });

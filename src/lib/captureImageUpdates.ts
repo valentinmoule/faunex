@@ -19,5 +19,5 @@ export function subscribeCaptureImageUpdates(listener: (update: CaptureImageUpda
 }
 
 export function updateCaptureImage(card: AnimalCard, update: CaptureImageUpdate): AnimalCard {
-  return card.id === update.captureId ? { ...card, image: update.imageUrl } : card;
+  return card.id === update.captureId ? { ...card, image: update.imageUrl, subjectBox: undefined } : card;
 }
