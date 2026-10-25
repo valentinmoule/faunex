@@ -1,5 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
-import { fetchAllRows } from '@/lib/fetchAllRows';
+import { fetchAllRows } from '@/lib/fetchAll';
 
 /**
  * Compteurs de découvreurs par espèce, partagés entre écrans.
