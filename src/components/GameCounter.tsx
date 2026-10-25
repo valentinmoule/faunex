@@ -16,7 +16,7 @@ interface GameCounterProps {
 const GameCounter = ({ icon, value, label, onClick, title }: GameCounterProps) => {
   const inner = (
     <>
-      <span className="game-counter-emblem flex h-6 w-6 shrink-0 items-center justify-center" aria-hidden="true">
+      <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center" aria-hidden="true">
         {icon}
       </span>
       <span className="min-w-[16px] text-center font-display text-[13px] font-extrabold tabular-nums text-primary">
