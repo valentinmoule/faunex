@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Camera, ChevronRight, Crown, Eye, Loader2, Search, Settings, Share2, ShieldCheck, Star, UserRound } from 'lucide-react';
+import { Camera, ChevronRight, Crown, Eye, Loader2, Search, Settings, Share2, ShieldCheck, Sprout, Star, UserRound } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { useSwipeDownClose } from '@/lib/useSwipeDownClose';
@@ -345,6 +345,11 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
                     icon={<Search className="size-[18px]" />}
                     label={t('profile.page.drawer.findExplorers')}
                     onClick={() => go('/explorers?view=search')}
+                  />
+                  <DrawerRow
+                    icon={<Sprout className="size-[18px]" />}
+                    label={t('learning.title')}
+                    onClick={() => go('/apprendre')}
                   />
                   <DrawerRow
                     icon={<Star className="size-[18px]" />}
