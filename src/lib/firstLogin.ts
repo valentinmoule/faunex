@@ -1,4 +1,4 @@
-// Première connexion : utilisé par DailyQuestPopup, etc.
+// Première connexion.
 
 
 const FIRST_LOGIN_KEY = 'faunex_first_login_done';

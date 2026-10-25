@@ -43,6 +43,12 @@ vi.mock('@/components/AddToCollectionSheet', () => ({ default: () => null }));
 vi.mock('@/components/HolographicCard', () => ({ default: ({ children }: { children: React.ReactNode }) => <div>{children}</div> }));
 vi.mock('@/components/RarityBadge', () => ({ default: () => null }));
 vi.mock('@/components/PremiumAvatar', () => ({ PremiumAvatar: () => null }));
+vi.mock('@/components/OverflowMenu', () => {
+  const Menu = ({ label, items }: { label: string; items: Array<{ label: string; onSelect: () => void }> }) => (
+    <div><button type="button" aria-label={label} />{items.map((i) => <button key={i.label} type="button" role="menuitem" onClick={i.onSelect}>{i.label}</button>)}</div>
+  );
+  return { default: Menu, OverflowMenu: Menu };
+});
 vi.mock('vaul', () => ({ Drawer: {
   Root: ({ children, open }: { children: React.ReactNode; open: boolean }) => open ? <>{children}</> : null,
   Portal: ({ children }: { children: React.ReactNode }) => <>{children}</>,
