@@ -1,4 +1,7 @@
 
+## Illustrations des collections
+- [ ] Générer des photos immersives spécifiques aux groupes les plus répétitifs et les associer à leurs boosters sans changer la navigation.
+
 ## Espèces non capturées dans les collections personnalisées
 - [x] Ajouter depuis la fiche du Bestiaire sans capture ; sauvegarde et silhouette 0/1 vérifiées connecté après rechargement, collection temporaire retirée et test réussi.
 
