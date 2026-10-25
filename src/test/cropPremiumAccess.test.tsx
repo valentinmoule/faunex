@@ -15,7 +15,7 @@ describe('Premium photo cropping', () => {
     const onCancel = vi.fn();
     render(<CropPhotoDialog photo="photo.jpg" onDone={onDone} onCancel={onCancel} />);
     expect(screen.queryByTestId('crop-editor')).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: 'capture.similarPhotos.premiumCta' }));
+    fireEvent.click(screen.getByRole('button', { name: 'capture.explorerPhotos.premiumCta' }));
     expect(state.navigate).toHaveBeenCalledWith('/premium');
     expect(onCancel).toHaveBeenCalledOnce();
     expect(onDone).not.toHaveBeenCalled();
@@ -29,6 +29,6 @@ describe('Premium photo cropping', () => {
     state.loading = true;
     render(<CropPhotoDialog photo="photo.jpg" onDone={vi.fn()} onCancel={vi.fn()} />);
     expect(screen.queryByTestId('crop-editor')).toBeNull();
-    expect(screen.queryByRole('button', { name: 'capture.similarPhotos.premiumCta' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'capture.explorerPhotos.premiumCta' })).toBeNull();
   });
 });

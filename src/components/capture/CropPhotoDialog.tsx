@@ -73,7 +73,7 @@ export default function CropPhotoDialog({ photo, onCancel, onDone }: Props) {
               <Drawer.Description className="mt-2 text-sm text-muted-foreground">{t('capture.crop.premiumDescription')}</Drawer.Description>
               {loading ? <Loader2 className="mx-auto mt-6 h-6 w-6 animate-spin text-primary" aria-label={t('capture.actions.saving')} /> : (
                 <Button className="mt-6 h-12 w-full" onClick={() => { onCancel(); navigate('/premium'); }}>
-                  <Sparkles className="h-4 w-4" />{t('capture.similarPhotos.premiumCta')}
+                  <Sparkles className="h-4 w-4" />{t('capture.explorerPhotos.premiumCta')}
                 </Button>
               )}
               <Button variant="ghost" className="mt-2 w-full" onClick={onCancel}>{t('capture.crop.cancel')}</Button>
