@@ -62,7 +62,7 @@ export default function SeedIcon({ className = '', glow = false }: { className?:
       <ellipse cx="9.1" cy="11.1" rx="2.2" ry="3.3" transform="rotate(-26 9.1 11.1)" fill="hsl(var(--card) / .78)" />
       <ellipse cx="8.4" cy="9.2" rx="0.9" ry="1.3" transform="rotate(-26 8.4 9.2)" fill="hsl(var(--card) / .95)" />
       <path
-        d="M7.1 16.9 L 7.7 18.2 L 9.0 18.8 L 7.7 19.4 L 7.1 20.7 L 6.5 19.4 L 5.2 18.8 L 6.5 18.2 Z"
+        d="M9.4 15.7 L 9.95 16.85 L 11.1 17.4 L 9.95 17.95 L 9.4 19.1 L 8.85 17.95 L 7.7 17.4 L 8.85 16.85 Z"
         fill="hsl(var(--card) / .72)"
       />
     </svg>
