@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Fiches : classification (embranchement, classe, ordre, famille), taille et poids adultes documentés, cache partagé et affichage FR/EN vérifié.
+- [x] Fiches : classification (embranchement, classe, ordre, famille), mensurations sourcées avec moyennes/fourchettes distinctes et données inconnues explicites ; cache partagé, traductions FR/EN, 5 tests et fiche Lion vérifiée connecté sur ordinateur/téléphone.
 
 - [x] Orthoptères : comparer les 119 fiches du fichier et présenter le nettoyage complet à valider.
 - [x] Orthoptères : appliquer 49 renommages vérifiés, corriger le nom scientifique du Criquet des adrets et synchroniser les collections sans perdre les captures.
