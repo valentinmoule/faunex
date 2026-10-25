@@ -1,11 +1,18 @@
 import { useState } from 'react';
-import { ArrowLeft, RefreshCw, Sprout } from 'lucide-react';
+import { ArrowLeft, Frame, Lightbulb, Palette, RefreshCw, Sparkles, Sprout, Volume2 } from 'lucide-react';
 import SeedIcon from '@/components/SeedIcon';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useWallet } from '@/hooks/useWallet';
 import { PageHeader } from '@/components/PageHeader';
 import { Button } from '@/components/ui/button';
+
+const UPCOMING = [
+  { icon: Volume2, key: 'cry' },
+  { icon: Lightbulb, key: 'hint' },
+  { icon: Frame, key: 'frame' },
+  { icon: Palette, key: 'background' },
+];
 
 export default function EclatsPage() {
   const navigate = useNavigate();
@@ -20,8 +27,8 @@ export default function EclatsPage() {
         <Button variant="ghost" size="icon" className="ml-auto" disabled={refreshing} aria-label={t('economy.refresh')} onClick={async () => { setRefreshing(true); try { await wallet.refetch(); } finally { setRefreshing(false); } }}><RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} /></Button>
       </div>
     </PageHeader>
-    <div className="mx-auto flex w-full max-w-lg flex-1 items-center justify-center px-5">
-      <section className="py-14 text-center">
+    <div className="mx-auto flex w-full max-w-lg flex-1 flex-col px-5">
+      <section className="py-12 text-center">
         <SeedIcon className="seed-float mx-auto mb-5 h-20 w-20" glow />
         <p className="font-display text-5xl font-bold tabular-nums">{wallet.isPending ? '—' : wallet.data?.balance.toLocaleString(i18n.language) ?? '—'}</p>
         <p className="mt-3 text-sm text-muted-foreground">{t('economy.available')}</p>
@@ -31,6 +38,23 @@ export default function EclatsPage() {
         </button>
         {Number(wallet.data?.debt ?? 0) > 0 && <p className="mt-3 text-sm text-muted-foreground">{t('economy.debt', { amount: wallet.data?.debt })}</p>}
         {wallet.isError && <p className="mt-8 text-sm text-destructive">{t('economy.error')}</p>}
+      </section>
+      <section className="pb-14">
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="font-display text-xl font-bold">{t('economy.upcoming.title')}</h2>
+          <span className="rounded-full border border-primary/40 bg-primary/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-primary">{t('economy.upcoming.badge')}</span>
+        </div>
+        <p className="mt-2 text-sm text-muted-foreground">{t('economy.upcoming.note')}</p>
+        <ul className="mt-4 divide-y divide-border">
+          {UPCOMING.map(({ icon: Icon, key }) => <li key={key} className="flex items-start gap-4 py-4">
+            <Icon className="mt-0.5 h-6 w-6 shrink-0 text-primary" aria-hidden />
+            <div>
+              <p className="font-display text-base font-bold">{t(`economy.upcoming.${key}`)}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{t(`economy.upcoming.${key}Desc`)}</p>
+            </div>
+          </li>)}
+        </ul>
+        <p className="mt-5 flex items-center gap-2 text-sm text-muted-foreground"><Sparkles className="h-4 w-4 shrink-0" aria-hidden />{t('economy.upcoming.more')}</p>
       </section>
     </div>
   </main>;
