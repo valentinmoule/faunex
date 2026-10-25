@@ -6,7 +6,8 @@
 - [x] Tester les règles : préférences sociales distinctes, motifs de refus conservés, liens limités à l’application ; cinq tests réussis, aperçu sans erreur
 - [x] Installer et valider google-services.json dans android/app pour fr.faunex.app ; plugin Google Services déjà activé, dépendance Messaging fournie par Capacitor
 - [x] Installer GoogleService-Info.plist iOS pour com.faunex.faunex et l’inclure dans les ressources de la cible Xcode ; identifiant App Store préservé
-- [ ] Configurer la clé Apple APNs dans Firebase et la capacité Push Notifications du profil de signature : accès Apple requis
+- [x] Clé Apple APNs importée dans Firebase, confirmé par l’utilisateur ; réception non encore vérifiée
+- [ ] Vérifier la capacité Push Notifications et le profil de signature dans Xcode : accès Apple requis
 - [ ] Synchroniser/reconstruire les apps et confirmer la réception sur iPhone/Android : appareils natifs non disponibles ici
 
 ## Identité des œdipodes
