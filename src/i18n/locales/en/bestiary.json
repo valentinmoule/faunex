@@ -250,7 +250,12 @@
       "changeCover": "Change cover image",
       "coverSheetTitle": "Pick a cover image",
       "coverSheetEmpty": "Capture a species from this collection first to use your photo as the cover.",
-      "resetCover": "Back to automatic cover"
+      "resetCover": "Back to automatic cover",
+      "pin": "Pin to my profile",
+      "unpin": "Remove from my profile",
+      "showcase": "Pinned collections",
+      "showcaseEmpty": "No captured species yet.",
+      "progress": "{{captured}}/{{total}} captured"
     }
   }
 }
