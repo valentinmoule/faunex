@@ -19,6 +19,12 @@
 .game-tab[data-state=active]:hover, .game-tab[aria-selected=true]:hover, .game-chip[data-state=on]:hover, .game-chip[aria-pressed=true]:hover { background: linear-gradient(180deg, hsl(var(--card) / .2), transparent), hsl(var(--control-fill)); color: hsl(var(--control-ink)); }
 .game-chip:not(:disabled):active, .game-tab:not(:disabled):active { transform: translateY(2px); box-shadow: inset 0 1px 0 hsl(var(--card) / .2), 0 1px 0 hsl(var(--control-base)); }
 .game-input { box-shadow: inset 0 2px 3px hsl(var(--learning-shadow) / .05); }
+.capture-game-counter { border: 2px solid hsl(var(--learning-muted)); border-radius: 12px; background: linear-gradient(180deg, hsl(var(--card)), hsl(var(--secondary))); box-shadow: inset 0 2px 0 hsl(var(--card)), 0 3px 0 hsl(var(--learning-muted-base)); }
+.capture-game-emblem, .capture-game-add { border-radius: 8px; color: hsl(var(--primary-foreground)); background: linear-gradient(180deg, hsl(var(--learning-green)), hsl(var(--primary))); box-shadow: inset 0 2px 0 hsl(var(--card) / .35), 0 2px 0 hsl(var(--learning-green-base)); }
+.capture-game-emblem svg { filter: drop-shadow(0 1px 0 hsl(var(--learning-green-base))); }
+.capture-game-premium { border-radius: 8px; color: hsl(var(--foreground)); background: linear-gradient(180deg, hsl(var(--amber-light)), hsl(var(--amber))); box-shadow: inset 0 2px 0 hsl(var(--card) / .45), 0 2px 0 hsl(var(--amber-dark)); }
+.capture-game-add:hover { color: hsl(var(--primary-foreground)); background: hsl(var(--learning-green)); }
+.capture-game-add:active { transform: translateY(2px); box-shadow: inset 0 1px 0 hsl(var(--card) / .25); }
 .game-switch { box-shadow: inset 0 2px 3px hsl(var(--learning-shadow) / .16); }
 .game-switch-thumb { background: linear-gradient(180deg, hsl(var(--card)), hsl(var(--secondary))); box-shadow: 0 2px 0 hsl(var(--learning-shadow) / .18), inset 0 1px 0 hsl(var(--card)); }
 @media (prefers-reduced-motion: reduce) { .game-button, .game-tab, .game-chip { transition: none; } }
