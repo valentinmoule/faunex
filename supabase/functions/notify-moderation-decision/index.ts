@@ -50,23 +50,29 @@ Deno.serve(async (req) => {
     const body = await req.json()
     const decision: string | undefined = body?.decision
     const captureId: string | undefined = body?.capture_id
+    // Correction d'espèce demandée par l'explorateur : messages adaptés, et un
+    // refus ne supprime rien — la capture garde sa photo et son nom d'origine.
+    const correction = body?.correction === true
     if (!captureId || !decision || !['approved', 'rejected'].includes(decision)) {
       return json({ error: 'Missing or invalid params' }, 400)
     }
     const { data: capture, error: captureError } = await supabase.from('captures')
       .select('id, user_id, animal_name, scientific_name, status').eq('id', captureId).maybeSingle()
     if (captureError || !capture) return json({ error: 'capture_not_found' }, 404)
+    // Correction refusée : la capture est déjà repassée « approved » (inchangée).
     if ((decision === 'approved' && capture.status !== 'approved') ||
-        (decision === 'rejected' && !['pending_review', 'processing'].includes(capture.status))) {
+        (decision === 'rejected' && !['pending_review', 'processing'].includes(capture.status) &&
+          !(correction && capture.status === 'approved'))) {
       return json({ error: 'invalid_moderation_state' }, 409)
     }
     const userId = capture.user_id
     const animalName = capture.animal_name
-    const ALLOWED_REASONS = ['not_identifiable', 'duplicate', 'dead_animal', 'internet_image', 'captured_animal', 'human']
+    const ALLOWED_REASONS = ['not_identifiable', 'duplicate', 'dead_animal', 'internet_image', 'captured_animal', 'human', 'correction_declined']
     let reason = ALLOWED_REASONS.includes(body?.reason) ? body.reason : 'not_identifiable'
+    if (correction && decision === 'rejected') reason = 'correction_declined'
     let duplicateName: string | null = null
     let duplicateScientific: string | null = null
-    if (decision === 'rejected') {
+    if (decision === 'rejected' && !correction) {
       // Doublon détecté automatiquement, seulement quand le modérateur n'a pas
       // choisi de motif précis : si l'explorateur possède déjà cette espèce, on
       // le lui dit plutôt que « l'animal n'a pas pu être vérifié ». Un motif
