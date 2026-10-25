@@ -55,7 +55,9 @@ export default function LearningPage() {
             return <div key={lesson.id} ref={lesson.id === arrivalId ? currentNode : undefined} className="learning-stop relative flex h-56 flex-col items-center">
               {li < chapter.lessons.length - 1 && <svg aria-hidden="true" viewBox="0 0 300 224" preserveAspectRatio="none" className={`learning-trail pointer-events-none absolute left-1/2 top-12 h-56 w-full -translate-x-1/2 ${li % 2 ? '-scale-x-100' : ''}`}><path d="M 94 0 C 94 100, 206 100, 206 224" /></svg>}
               <div aria-hidden="true" className={`learning-scenery ${li % 2 ? 'learning-scenery-left' : 'learning-scenery-right'}`}>
-                <img src={active ? foxExplorer : forestDetail} width={816} height={816} alt="" loading={active ? 'eager' : 'lazy'} className={active ? 'learning-fox' : 'learning-forest-detail'} />
+                {active
+                  ? <img src={pathMark} width={1024} height={1024} alt="" loading="eager" className="learning-scenery-hero" />
+                  : <img src={position % 2 ? forestDetail : pondMark} width={1024} height={1024} alt="" loading="lazy" className="learning-forest-detail" />}
               </div>
               <div className={`relative z-10 flex w-40 flex-col items-center ${offset}`}>
                 {active && !quota && <span className="learning-callout absolute -top-9 whitespace-nowrap px-3 py-1.5 text-xs font-extrabold">{t('learning.current')}</span>}
