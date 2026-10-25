@@ -1,4 +1,9 @@
 
+## Notifications natives iPhone et Android
+- [ ] Connecter le service d’envoi Firebase et vérifier la configuration Apple/Android
+- [ ] Enregistrer les appareils et relier les notifications e-mail aux notifications natives, en respectant les préférences
+- [ ] Tester les règles d’envoi et confirmer la réception sur appareils après reconstruction
+
 ## Identité des œdipodes
 - [x] Corriger Œdipode germanique, sa fiche et ses 116 captures ; confirmer Œdipode turquoise et l’aigue-marine déjà présents
 - [x] Ajouter les critères diagnostiques aux analyses et à la modération, déployer les deux fonctions ; cinq contrôles serveur réussis, espèces vérifiées dans le Bestiaire connecté
