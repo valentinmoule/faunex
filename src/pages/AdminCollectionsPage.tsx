@@ -9,6 +9,9 @@ import { useThemedCollections } from '@/hooks/useThemedCollections';
 import { isThemeActive, type ThemedCollection } from '@/lib/themedCollections';
 import { RARITY_ORDER, RARITY_LABELS } from '@/data/mockData';
 import { prepareSourceFile, resizeDataUrl, dataUrlToBytes } from '@/lib/imageProcessing';
+import AdventCalendarEditor from '@/components/AdventCalendarEditor';
+import { Button } from '@/components/ui/button';
+import { useTranslation } from 'react-i18next';
 
 const CATEGORIES = ['Mammifères', 'Oiseaux', 'Reptiles', 'Amphibiens', 'Poissons', 'Insectes', 'Arachnides', 'Crustacés', 'Mollusques', 'Échinodermes', 'Cnidaires', 'Autres invertébrés'];
 
@@ -35,6 +38,8 @@ export default function AdminCollectionsPage() {
   const { session } = useAuth();
   const { collections, loaded, reload } = useThemedCollections({ all: true });
   const [draft, setDraft] = useState<Draft | null>(null);
+  const [newCalendar, setNewCalendar] = useState(false);
+  const { t } = useTranslation();
 
   const status = (c: ThemedCollection) => {
     if (!c.published) return 'Brouillon';
@@ -43,6 +48,7 @@ export default function AdminCollectionsPage() {
     return 'Terminée';
   };
 
+  if (newCalendar || draft?.event_kind === 'advent') return <AdventCalendarEditor initial={draft?.id ? draft as ThemedCollection : undefined} onClose={() => { setDraft(null); setNewCalendar(false); void reload(); }} />;
   if (draft) return <Editor draft={draft} userId={session?.user?.id} onClose={() => { setDraft(null); void reload(); }} />;
 
   return (
@@ -59,6 +65,7 @@ export default function AdminCollectionsPage() {
         </div>
       </PageHeader>
       <div className="max-w-lg mx-auto px-5 pt-4">
+        <Button variant="outline" className="mb-4 w-full" onClick={() => setNewCalendar(true)}><Plus />{t('advent.new')}</Button>
         <p className="text-xs text-muted-foreground mb-4">Visibles par tous les utilisateurs dans le Bestiaire dès leur publication, sans mise à jour de l'app.</p>
         {!loaded ? (
           <Loader2 className="w-5 h-5 animate-spin mx-auto text-muted-foreground" />
