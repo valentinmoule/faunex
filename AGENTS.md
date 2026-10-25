@@ -64,7 +64,7 @@ Bundle group-specific art with biome fallbacks. Store standard/territory covers 
 
 ## One pending moderation request per user and species
 
-Guard manual submissions with a synchronous lock on the client and keep the partial unique index on pending captures (user, trimmed lowercase name), because rapid taps used to queue the same photo several times.
+Lock manual submissions and keep the pending user/species unique index to prevent duplicates. Resubmit owned captures via the quota-charging RPC, preserving photo/XP; exclude corrections from auto-moderation for human review.
 
 ## Supabase writes must be awaited or chained to a handler
 
