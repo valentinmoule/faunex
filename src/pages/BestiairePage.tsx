@@ -990,6 +990,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
     setPickerMode('hub');
   }, []);
   const swipeClosePicker = useSwipeDownClose(closeDeptPicker);
+  const swipeCloseCover = useSwipeDownClose(() => setCoverPickerOpen(false));
 
   const deptPickerSheet = (
     <Sheet
@@ -1508,6 +1509,14 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
             <OverflowMenu
               label={t('bestiary.customCollections.actions')}
               items={[
+                {
+                  label: t('bestiary.customCollections.changeCover'),
+                  icon: <Images className="w-4 h-4 shrink-0" aria-hidden="true" />,
+                  onSelect: () => {
+                    hapticTap();
+                    setCoverPickerOpen(true);
+                  },
+                },
                 {
                   label: t('bestiary.customCollections.rename'),
                   icon: <Pencil className="w-4 h-4 shrink-0" aria-hidden="true" />,
