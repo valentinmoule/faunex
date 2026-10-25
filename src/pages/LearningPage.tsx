@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Check, Lock, Sprout, Bean, Loader2, Star } from 'lucide-react';
+import { ArrowLeft, Check, Lock, Sprout, Bean, Loader2, Star, Play, RotateCcw } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -27,6 +28,7 @@ export default function LearningPage() {
   const lessons = path?.chapters.flatMap(c => c.lessons) ?? [];
   const completed = new Set(data?.completed.filter(c => c.path_id === path?.id).map(c => c.lesson_id));
   const current = lessons.find(l => !completed.has(l.id)); const quota = Boolean(data && data.used >= data.limit);
+  const target = current ?? lessons[lessons.length - 1]; const reviewing = Boolean(target && !current); const offerPremium = quota && data?.limit === 3;
   const currentNode = useRef<HTMLDivElement>(null);
   const arrivalId = current?.id ?? lessons[lessons.length - 1]?.id;
   useEffect(() => {
@@ -69,5 +71,11 @@ export default function LearningPage() {
       {!status.isPending && !status.isError && !path && <div className="py-20 text-center"><Sprout className="mx-auto mb-5 h-16 w-16 text-primary" /><p className="text-muted-foreground">{t('learning.empty')}</p></div>}
       {error && <p role="alert" className="mt-4 text-destructive">{error}</p>}
     </div>
+    {path && target && (offerPremium || !quota) && createPortal(<div className="learning-footer">
+      <button type="button" className={`learning-cta${offerPremium ? ' learning-cta-premium' : ''}`} disabled={busy} onClick={() => (offerPremium ? navigate('/premium') : void open(target.id))}>
+        <span className="learning-cta-icon">{busy ? <Loader2 className="h-5 w-5 animate-spin" /> : offerPremium ? <Star className="h-5 w-5" fill="currentColor" /> : reviewing ? <RotateCcw className="h-5 w-5" /> : <Play className="h-5 w-5" fill="currentColor" />}</span>
+        <span className="min-w-0 flex-1"><span className="learning-cta-kicker">{offerPremium ? t('learning.quota') : reviewing ? t('learning.review') : t('learning.start')}</span><span className="learning-cta-title font-display text-base font-extrabold">{offerPremium ? t('learning.premium') : text(target, 'title')}</span></span>
+      </button>
+    </div>, document.body)}
   </main>;
 }
