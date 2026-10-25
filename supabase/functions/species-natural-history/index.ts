@@ -1,6 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
-import { exactTaxonomy, extractMeasurements, parseEstimatedMeasurements } from './policy.ts';
+import { exactTaxonomy, extractMeasurements, groupTaxonomy, normalizeScientific, parseEstimatedMeasurements } from './policy.ts';
 
 // Typical adult size/weight estimated by AI when no measured source (ADW)
 // documents the species. Strict JSON schema, metric only, validated before caching.
@@ -105,16 +105,29 @@ Deno.serve(async (req) => {
     const scientific = animal.scientific_name.trim();
     const { data: cache } = await admin.from('species_natural_history').select('*').eq('animal_id', animal.id).maybeSingle();
     if (cache?.scientific_name === scientific && Date.now() - Date.parse(cache.checked_at) < 90 * 86400000) return json(cache);
-    const response = await fetch(`https://api.gbif.org/v1/species/match?strict=true&name=${encodeURIComponent(scientific)}`, { signal: AbortSignal.timeout(8000) });
-    if (!response.ok) return json({ error: 'source_unavailable' }, 503);
-    const taxonomy = exactTaxonomy(await response.json(), scientific);
+    const normalized = normalizeScientific(scientific);
+    const gbif = async (params: Record<string, string>) => {
+      const res = await fetch(`https://api.gbif.org/v1/species/match?${new URLSearchParams({ strict: 'true', ...params })}`, { signal: AbortSignal.timeout(8000) });
+      return res.ok ? await res.json() as Record<string, unknown> : null;
+    };
+    const match = normalized ? await gbif({ name: normalized }) : {};
+    if (!match) return json({ error: 'source_unavailable' }, 503);
+    const exact = exactTaxonomy(match, normalized);
+    // Group entries (genus "sp.", families, domestic forms) keep their
+    // resolved ranks; unknown binomials fall back to their exact genus.
+    let taxonomy = exact ?? groupTaxonomy(match);
+    const genus = normalized.split(' ')[0];
+    if (!taxonomy && normalized.includes(' ') && /^[A-Z][a-z]+$/.test(genus)) {
+      const genusMatch = await gbif({ name: genus, rank: 'GENUS' });
+      if (genusMatch?.rank === 'GENUS' && genusMatch.canonicalName === genus) taxonomy = groupTaxonomy(genusMatch);
+    }
     if (!taxonomy) return json({ error: 'unresolved_identity' }, 404);
     const sources = [{ label: 'GBIF', url: `https://www.gbif.org/species/${taxonomy.gbif_key}` }];
     let measurements = {};
     // Shared binomials (including domestic breeds) do not share measurements.
     const { count, error: siblingError } = await admin.from('animals').select('id', { count: 'exact', head: true }).ilike('scientific_name', scientific);
-    if (!siblingError && count === 1 && /^[A-Z][a-z]+ [a-z]+$/.test(scientific)) {
-      const sourceUrl = `https://animaldiversity.org/accounts/${scientific.replace(' ', '_')}/`;
+    if (exact && !siblingError && count === 1 && /^[A-Z][a-z]+ [a-z]+$/.test(normalized)) {
+      const sourceUrl = `https://animaldiversity.org/accounts/${normalized.replace(' ', '_')}/`;
       try {
         const page = await fetch(sourceUrl, { signal: AbortSignal.timeout(8000), headers: { 'User-Agent': 'Faunex/1.0 (+https://faunex.fr)' } });
         if (page.ok) {
