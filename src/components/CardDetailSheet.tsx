@@ -721,7 +721,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
 
   return (
     <>
-      <Drawer.Root open={open} onOpenChange={(isOpen) => !isOpen && !deleteInProgressRef.current && onClose()}>
+      <Drawer.Root modal={!correctionOpen} open={open} onOpenChange={(isOpen) => !isOpen && !correctionOpen && !deleteInProgressRef.current && onClose()}>
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 z-[1300] bg-black/80" />
           <Drawer.Content
@@ -851,7 +851,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                     </button>
                   </div>
                 )}
-                <div className="flex items-center gap-5 shrink-0">
+                <div className="flex items-center gap-3 flex-wrap justify-center">
 
                 <button
                   onClick={handleLike}
