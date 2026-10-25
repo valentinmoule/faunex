@@ -71,5 +71,11 @@ export default function LearningPage() {
       {!status.isPending && !status.isError && !path && <div className="py-20 text-center"><Sprout className="mx-auto mb-5 h-16 w-16 text-primary" /><p className="text-muted-foreground">{t('learning.empty')}</p></div>}
       {error && <p role="alert" className="mt-4 text-destructive">{error}</p>}
     </div>
+    {path && target && (offerPremium || !quota) && createPortal(<div className="learning-footer">
+      <button type="button" className={`learning-cta${offerPremium ? ' learning-cta-premium' : ''}`} disabled={busy} onClick={() => (offerPremium ? navigate('/premium') : void open(target.id))}>
+        <span className="learning-cta-icon">{busy ? <Loader2 className="h-5 w-5 animate-spin" /> : offerPremium ? <Star className="h-5 w-5" fill="currentColor" /> : reviewing ? <RotateCcw className="h-5 w-5" /> : <Play className="h-5 w-5" fill="currentColor" />}</span>
+        <span className="min-w-0 flex-1"><span className="learning-cta-kicker">{offerPremium ? t('learning.quota') : reviewing ? t('learning.review') : t('learning.start')}</span><span className="learning-cta-title font-display text-base font-extrabold">{offerPremium ? t('learning.premium') : text(target, 'title')}</span></span>
+      </button>
+    </div>, document.body)}
   </main>;
 }
