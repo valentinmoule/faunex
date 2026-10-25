@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { dataUrlToBytes } from '@/lib/imageProcessing';
+import { publishCaptureImageUpdate } from '@/lib/captureImageUpdates';
 
 /** Uploads a cropped photo for an owned capture and points the capture at it. Returns the new URL. */
 export async function saveCroppedCaptureImage(captureId: string, dataUrl: string): Promise<string | null> {
@@ -16,5 +17,7 @@ export async function saveCroppedCaptureImage(captureId: string, dataUrl: string
     .update({ image_url: url, subject_bbox: null })
     .eq('id', captureId)
     .eq('user_id', user.id);
-  return error ? null : url;
+  if (error) return null;
+  publishCaptureImageUpdate({ captureId, userId: user.id, imageUrl: url });
+  return url;
 }
