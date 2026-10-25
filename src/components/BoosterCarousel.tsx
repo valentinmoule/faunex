@@ -86,7 +86,8 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
           if (suppressClick.current) { e.preventDefault(); e.stopPropagation(); suppressClick.current = false; }
         }}
         onDragStart={(e) => e.preventDefault()}
-        className="flex cursor-grab select-none snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain px-[16vw] py-6 scrollbar-none"
+        className="flex cursor-grab select-none snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain pt-6 pb-14 scrollbar-none"
+        style={{ paddingInline: 'calc(50% - min(34vw, 160px))' }}
       >
         {items.map((child, i) => (
           <div
@@ -98,7 +99,7 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
         ))}
       </div>
       {items.length > 1 && (
-        <div className="flex justify-center gap-1.5" aria-hidden="true">
+        <div className="-mt-8 flex justify-center gap-1.5" aria-hidden="true">
           {items.map((_, i) => (
             <span key={i} className={`h-1.5 rounded-full transition-all ${i === active ? 'w-5 bg-primary' : 'w-1.5 bg-border'}`} />
           ))}
