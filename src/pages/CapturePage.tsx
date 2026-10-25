@@ -16,6 +16,8 @@ import { useAnimalIdentification, type RejectionKind } from '@/hooks/useAnimalId
 import { useCaptureSave } from '@/hooks/useCaptureSave';
 import { useCaptureReveal } from '@/hooks/useCaptureReveal';
 import RevealStage from '@/components/capture/RevealStage';
+import CropPhotoDialog from '@/components/capture/CropPhotoDialog';
+import { Crop as CropIcon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
 import RarityBadge from '@/components/RarityBadge';
@@ -45,6 +47,7 @@ const CapturePage = () => {
   const navigate = useNavigate();
 
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
+  const [cropOpen, setCropOpen] = useState(false);
   const [animalResult, setAnimalResult] = useState<AnimalResult | null>(null);
   const [saved, setSaved] = useState(false);
   const [preparingBestiary, setPreparingBestiary] = useState(false);
@@ -942,6 +945,14 @@ setManualMode(false);
               </button>
             )}
             <button
+              onClick={() => setCropOpen(true)}
+              disabled={saving || preparingBestiary}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-full border border-border font-display text-sm font-semibold text-foreground disabled:opacity-50"
+            >
+              <CropIcon className="w-4 h-4" />
+              {t('capture.crop.action')}
+            </button>
+            <button
               onClick={requestVerification}
               className="mx-auto flex items-center gap-1 text-xs font-medium text-muted-foreground underline underline-offset-2 hover:text-foreground transition-colors"
             >
@@ -949,6 +960,19 @@ setManualMode(false);
             </button>
           </div>,
           document.querySelector<HTMLElement>('[role="dialog"]') ?? document.body,
+        )}
+
+        {cropOpen && capturedPhoto && (
+          <CropPhotoDialog
+            photo={capturedPhoto}
+            onCancel={() => setCropOpen(false)}
+            onDone={(cropped) => {
+              setCapturedPhoto(cropped);
+              // L'ancien cadrage du sujet ne correspond plus à la photo recadrée.
+              setAnimalResult((r) => (r ? { ...r, subject_bbox: null } : r));
+              setCropOpen(false);
+            }}
+          />
         )}
 
         {/* Technical failure (network / AI) — not a real "unknown animal" */}
