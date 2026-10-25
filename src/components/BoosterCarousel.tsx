@@ -75,6 +75,14 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
     window.setTimeout(() => { if (ref.current) ref.current.style.scrollSnapType = ''; }, 400);
   };
 
+  // Un appui sur un sachet voisin le recentre au lieu d'ouvrir la collection.
+  const scrollToItem = (i: number) => {
+    const el = ref.current;
+    const node = el?.children[i] as HTMLElement | undefined;
+    if (!el || !node) return;
+    el.scrollTo({ left: node.offsetLeft - (el.clientWidth - node.offsetWidth) / 2, behavior: 'smooth' });
+  };
+
   return (
     <div className="-mx-4">
       <div
