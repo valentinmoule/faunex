@@ -24,6 +24,7 @@ import { PinnedCollectionsCarousel } from '@/components/PinnedCollectionsCarouse
 import { type AnimalCard, type Rarity, RARITY_RANK, RARITY_FX, normalizeRarity } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
 import { fetchAllRows } from '@/lib/fetchAll';
+import { applyCustomCaptureOrder, parseCaptureOrder } from '@/lib/captureOrder';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { followUser as followUserUtil } from '@/lib/followUtils';
@@ -121,11 +122,12 @@ const FriendCollectionPage = () => {
         setFindersMap(map);
       });
 
-      const [profileRes, capturesRes, followingCountRes, followersCountRes] = await Promise.all([
+      const [profileRes, capturesRes, followingCountRes, followersCountRes, orderRes] = await Promise.all([
         supabase.from('profiles').select('display_name, username, level, xp, xp_to_next, avatar_url, total_captures').eq('user_id', userId).maybeSingle(),
         fetchAllRows<any>((from, to) => supabase.from('captures').select('*').eq('user_id', userId).eq('status', 'approved').order('created_at', { ascending: false }).range(from, to)),
         supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('follower_id', userId),
         supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('following_id', userId),
+        supabase.from('profile_capture_order').select('capture_ids').eq('user_id', userId).maybeSingle(),
       ]);
 
       setProfileName(profileRes.data?.display_name || profileRes.data?.username || t('social.friendCollection.defaultName'));
@@ -147,7 +149,7 @@ const FriendCollectionPage = () => {
       }
 
       if (!capturesRes.error && capturesRes.data) {
-        setCaptures(capturesRes.data.map((c: any) => ({
+        const mapped = capturesRes.data.map((c: any) => ({
           id: c.id,
           name: c.animal_name,
           scientificName: c.scientific_name || '',
@@ -164,7 +166,10 @@ const FriendCollectionPage = () => {
           location: c.location || '',
           latitude: c.latitude,
           longitude: c.longitude,
-        })));
+        }));
+        // Ordre personnalisé choisi par l'explorateur, affiché tel quel aux visiteurs.
+        applyCustomCaptureOrder(mapped, parseCaptureOrder(orderRes.data?.capture_ids));
+        setCaptures(mapped);
       }
 
       // Compute badges

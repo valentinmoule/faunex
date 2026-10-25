@@ -21,6 +21,7 @@ import {
 import { type Rarity, type AnimalCard, RARITY_LABELS, RARITY_ORDER, RARITY_RANK, normalizeRarity } from '@/data/mockData';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { applyCustomCaptureOrder } from '@/lib/captureOrder';
 import CardDetailSheet from '@/components/CardDetailSheet';
 import RarityBadge from '@/components/RarityBadge';
 import FindersBadge from '@/components/FindersBadge';
@@ -399,6 +400,13 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
         } catch {
           /* stockage indisponible */
         }
+        // Persiste l'ordre pour l'afficher aux autres utilisateurs sur le profil public.
+        void supabase
+          .from('profile_capture_order')
+          .upsert({ user_id: uid, capture_ids: orderedIds, updated_at: new Date().toISOString() })
+          .then(({ error }) => {
+            if (error) console.error('capture order save failed', error);
+          });
       }
     },
     [uid],
@@ -904,17 +912,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
       });
     }
     if (mineSort === 'custom' && customOrder.length > 0) {
-      const rank = new Map(customOrder.map((id, i) => [id, i]));
-      return list.sort((a, b) => {
-        const ra = rank.get(a.id);
-        const rb = rank.get(b.id);
-        if (ra === undefined && rb === undefined) {
-          return +new Date(b.discoveredAt || 0) - +new Date(a.discoveredAt || 0);
-        }
-        if (ra === undefined) return -1; // nouvelles captures en tête
-        if (rb === undefined) return 1;
-        return ra - rb;
-      });
+      return applyCustomCaptureOrder(list, customOrder);
     }
     return list.sort((a, b) => +new Date(b.discoveredAt || 0) - +new Date(a.discoveredAt || 0));
   }, [favoriteIds, myCaptures, mineRarityFilter, mineCategoryFilter, minePopularityFilter, findersByName, mineSearch, mineSort, customOrder]);

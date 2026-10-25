@@ -1573,6 +1573,24 @@ export type Database = {
         }
         Relationships: []
       }
+      profile_capture_order: {
+        Row: {
+          capture_ids: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          capture_ids?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          capture_ids?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
