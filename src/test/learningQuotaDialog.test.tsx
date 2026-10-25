@@ -32,6 +32,7 @@ describe('Daily learning limit dialog', () => {
     mount();
     await screen.findByRole('dialog');
     fireEvent.click(screen.getByRole('button', { name: 'learning.backPath' }));
+    fireEvent.animationEnd(screen.getByRole('dialog'));
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     fireEvent.click(screen.getByRole('button', { name: 'À faire · learning.current' }));
     await screen.findByRole('dialog');
@@ -41,6 +42,7 @@ describe('Daily learning limit dialog', () => {
     mocks.start.mockResolvedValue({ id: 'revision', lesson: { id: 'done' } });
     mount(); await screen.findByRole('dialog');
     fireEvent.click(screen.getByRole('button', { name: 'common.close' }));
+    fireEvent.animationEnd(screen.getByRole('dialog'));
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     fireEvent.click(screen.getByRole('button', { name: 'Déjà faite · learning.done' }));
     await screen.findByTestId('revision');
