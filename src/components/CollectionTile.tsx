@@ -1,6 +1,7 @@
 import { Check, Gift, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
+import { useBoosterTint } from '@/lib/dominantColor';
 
 /**
  * Collection présentée comme un vrai booster de cartes à collectionner :
@@ -35,9 +36,19 @@ const CollectionTile = ({
   const { t } = useTranslation();
   const readyToClaim = complete && !claimed;
   const gold = readyToClaim || claimed;
+  const tint = useBoosterTint(image);
+  // Scellages métalliques teintés par la couleur dominante de l'illustration
+  // (le doré de complétion reste prioritaire).
+  const tintStyle = !gold && tint
+    ? ({
+        '--booster-crimp': `hsl(${tint.base})`,
+        '--booster-foil-v': `linear-gradient(180deg, hsl(${tint.light}), hsl(${tint.base}) 50%, hsl(${tint.dark}))`,
+        '--booster-foil-v-bottom': `linear-gradient(0deg, hsl(${tint.light}), hsl(${tint.base}) 50%, hsl(${tint.dark}))`,
+      } as React.CSSProperties)
+    : undefined;
 
   return (
-    <div className={`collection-booster relative w-full rounded-[7px] ${gold ? 'collection-booster-gold' : ''}`}>
+    <div className={`collection-booster relative w-full rounded-[7px] ${gold ? 'collection-booster-gold' : ''}`} style={tintStyle}>
       <Button
         variant="ghost"
         onClick={onOpen}
