@@ -40,7 +40,7 @@ export const useCustomCollections = (userId?: string) => {
       const [{ data: cols }, { data: rows }] = await Promise.all([
         supabase
           .from('custom_collections')
-          .select('id, name, created_at')
+          .select('id, name, cover_image, created_at')
           .eq('user_id', userId)
           .order('created_at', { ascending: true }),
         supabase
@@ -71,7 +71,7 @@ export const useCustomCollections = (userId?: string) => {
       const { data, error } = await supabase
         .from('custom_collections')
         .insert({ user_id: userId, name: trimmed })
-        .select('id, name, created_at')
+        .select('id, name, cover_image, created_at')
         .single();
       if (error || !data) return null;
       setCollections((prev) => [...prev, data]);
@@ -166,6 +166,23 @@ export const useCustomCollections = (userId?: string) => {
     [userId, items],
   );
 
+  /** Définit (ou retire, avec null) la photo d'illustration choisie par l'utilisateur. */
+  const setCoverImage = useCallback(
+    async (id: string, url: string | null) => {
+      if (!userId) return;
+      const prev = collections;
+      setCollections((p) => p.map((c) => (c.id === id ? { ...c, cover_image: url } : c)));
+      const { error } = await supabase
+        .from('custom_collections')
+        .update({ cover_image: url })
+        .eq('id', id)
+        .eq('user_id', userId);
+      if (error) setCollections(prev);
+      else notifyCollectionsChanged();
+    },
+    [userId, collections],
+  );
+
   const itemsFor = useCallback(
     (collectionId: string) => items.filter((i) => i.collection_id === collectionId),
     [items],
@@ -184,6 +201,7 @@ export const useCustomCollections = (userId?: string) => {
     createCollection,
     renameCollection,
     deleteCollection,
+    setCoverImage,
     addItem,
     removeItem,
     itemsFor,
