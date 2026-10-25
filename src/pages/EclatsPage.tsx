@@ -20,7 +20,7 @@ export default function EclatsPage() {
         <Button variant="ghost" size="icon" className="ml-auto" disabled={refreshing} aria-label={t('economy.refresh')} onClick={async () => { setRefreshing(true); try { await wallet.refetch(); } finally { setRefreshing(false); } }}><RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} /></Button>
       </div>
     </PageHeader>
-    <div className="mx-auto max-w-lg px-5">
+    <div className="mx-auto flex w-full max-w-lg flex-1 items-center justify-center px-5">
       <section className="py-14 text-center">
         <SeedIcon className="mx-auto mb-5 h-20 w-20" glow />
         <p className="font-display text-5xl font-bold tabular-nums">{wallet.isPending ? '—' : wallet.data?.balance.toLocaleString(i18n.language) ?? '—'}</p>
