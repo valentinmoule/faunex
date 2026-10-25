@@ -14,7 +14,7 @@ export function useThemedCollections(opts: { all?: boolean } = {}) {
       .order('sort_order', { ascending: true })
       .order('created_at', { ascending: false });
     if (!error && data) {
-      const rows = data as ThemedCollection[];
+      const rows = data as unknown as ThemedCollection[];
       setCollections(opts.all ? rows : rows.filter((c) => c.event_kind !== 'advent' && isThemeActive(c)));
     }
     setLoaded(true);

@@ -2200,7 +2200,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                 </button>
               ) : (
                 <BoosterCarousel>
-                  {visibleAdvent.map(c => <CollectionTile key={c.id} title={themeTitle(c, i18n.language)} image={c.cover_url || adventCover} overlay={getCollectionArt('advent').overlay} captured={new Set(advent.submissions.filter(s => s.collection_id === c.id && s.approved_at).map(s => s.day)).size} total={24} onOpen={() => navigate(`/advent/${c.id}`)} />)}
+                  {visibleAdvent.map(c => <CollectionTile key={c.id} title={themeTitle(c, i18n.language)} image={c.cover_url || adventCover} overlay={getCollectionArt('advent').overlay} captured={new Set(advent.submissions.filter(s => s.collection_id === c.id && s.approved_at).map(s => s.day)).size} total={24} complete={false} claimed={false} onClaim={() => navigate(`/advent/${c.id}`)} onOpen={() => navigate(`/advent/${c.id}`)} />)}
                   {/* Collections thématiques créées par Faunex, visibles par tous */}
                   {themedEntries.map(({ group, total, captured, cover }) => {
                     const art = getCollectionArt(group.key, group.label);
