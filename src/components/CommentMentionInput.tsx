@@ -22,14 +22,8 @@ export default function CommentMentionInput({ value, onChange, onSubmit, placeho
     setSuggestions([]);
     if (query === null || !query || dismissed) return;
     const timer = setTimeout(async () => {
-      // Only username-safe characters reach the pattern; escape wildcard underscores.
-      const pattern = query.replace(/_/g, '\\_');
       const { data } = await supabase.from('profiles').select('user_id, username, display_name, avatar_url')
-        .or([
-          `username.ilike.@${pattern}%`,
-          `username.ilike.${pattern}%`,
-          `display_name.ilike.${pattern}%`,
-        ].join(',')).limit(6);
+        .or(mentionSearchFilter(query));
       if (!cancelled) {
         // A user can match on both username and display name; keep one row per explorer.
         const seen = new Set<string>();
