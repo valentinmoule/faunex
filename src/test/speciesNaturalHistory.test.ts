@@ -30,3 +30,22 @@ describe('AI measurement estimates', () => {
     expect(parseEstimatedMeasurements('The fox is 60 cm long')).toEqual({});
   });
 });
+
+import { groupTaxonomy, normalizeScientific } from '../../supabase/functions/species-natural-history/policy';
+
+describe('group-level classification', () => {
+  it('cleans catalogue noise before matching', () => {
+    expect(normalizeScientific('Phaps  chalcoptera')).toBe('Phaps chalcoptera');
+    expect(normalizeScientific('Chrysops sp.')).toBe('Chrysops');
+    expect(normalizeScientific('Neocaridina davidi "Blue dream"')).toBe('Neocaridina davidi');
+  });
+  it('keeps the ranks GBIF resolved for a genus or family entry', () => {
+    expect(groupTaxonomy({ matchType: 'HIGHERRANK', kingdom: 'Animalia', rank: 'GENUS', phylum: 'Arthropoda', class: 'Insecta', order: 'Diptera', family: 'Tabanidae', usageKey: 1 }))
+      .toEqual({ phylum: 'Arthropoda', class_name: 'Insecta', order_name: 'Diptera', family: 'Tabanidae', gbif_key: 1 });
+  });
+  it('never accepts kingdom-only, fuzzy or non-animal answers', () => {
+    expect(groupTaxonomy({ matchType: 'HIGHERRANK', kingdom: 'Animalia', rank: 'KINGDOM' })).toBeNull();
+    expect(groupTaxonomy({ matchType: 'FUZZY', kingdom: 'Animalia', rank: 'SPECIES', phylum: 'Chordata' })).toBeNull();
+    expect(groupTaxonomy({ matchType: 'EXACT', kingdom: 'Plantae', rank: 'GENUS', phylum: 'Tracheophyta' })).toBeNull();
+  });
+});
