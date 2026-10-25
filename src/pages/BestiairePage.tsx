@@ -64,6 +64,7 @@ import { localizedSpeciesName } from '@/lib/speciesI18n';
 import MapPage from '@/pages/MapPage';
 import FaunexAchievements from '@/components/FaunexAchievements';
 import CollectionTile from '@/components/CollectionTile';
+import BoosterCarousel from '@/components/BoosterCarousel';
 import BinderGrid from '@/components/BinderGrid';
 import { useFavorites } from '@/hooks/useFavorites';
 import { FAVORITES_FILTER } from '@/components/SpeciesSortFilter';
@@ -2103,7 +2104,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                   </p>
                 </button>
               ) : (
-                <div className="grid grid-cols-2 gap-x-4 gap-y-5">
+                <BoosterCarousel>
                   {/* Collections personnalisées (Premium) — même écusson, en tête de la grille */}
                   {customCollections.collections.map((c) => {
                     const items = customCollections.itemsFor(c.id);
@@ -2178,9 +2179,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                       />
                     );
                   })}
-                </div>
-
-
+                </BoosterCarousel>
               )}
             </section>
           )}
