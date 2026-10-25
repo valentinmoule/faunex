@@ -1,4 +1,4 @@
-import { act, renderHook, waitFor } from '@testing-library/react';
+import { act, beforeEach, renderHook, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { usePinnedProfileCollections } from '@/hooks/usePinnedProfileCollections';
 
@@ -41,6 +41,11 @@ vi.mock('@/integrations/supabase/client', () => ({
 }));
 
 describe('Pinned standard collections (profile showcase)', () => {
+  beforeEach(() => {
+    state.pins = [];
+    state.inserted = null;
+  });
+
   it('pins a standard collection with a timestamp', async () => {
     const { result } = renderHook(() => usePinnedProfileCollections('user-1'));
     await waitFor(() => expect(result.current.loaded).toBe(true));
