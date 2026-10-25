@@ -1,7 +1,6 @@
-import { Infinity as InfinityIcon } from 'lucide-react';
+import { Camera, Infinity as InfinityIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import CaptureIcon from '@/components/CaptureIcon';
 import GameCounter from '@/components/GameCounter';
 import { useCaptureQuota } from '@/hooks/useCaptureQuota';
 
