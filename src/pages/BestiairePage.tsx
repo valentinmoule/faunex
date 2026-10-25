@@ -1806,7 +1806,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
           <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-4 py-4">
             <div className="max-w-lg mx-auto">
               <div className="flex items-center justify-between">
-                <h1 className="whitespace-nowrap text-2xl font-display font-bold text-primary">
+                <h1 className="min-w-0 truncate text-2xl font-display font-bold text-primary">
                   {viewMode === 'leaderboard' ? t('social.leaderboard.ranking') : isFaunexHub ? t('bestiary.header.title') : t('bestiary.header.bestiaryTitle')}
                 </h1>
                 <div className="flex items-center gap-1.5">
