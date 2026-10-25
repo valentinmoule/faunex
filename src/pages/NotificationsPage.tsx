@@ -209,13 +209,15 @@ const NotificationsPage = () => {
               const message = isBadgeEarned
                 ? t('social.notifications.messageBadgeEarned')
                 : isCaptureApproved
-                ? (notif.capture?.animal_name
-                    ? t('social.notifications.messageCaptureApprovedWithName', { name: notif.capture.animal_name })
-                    : t('social.notifications.messageCaptureApproved'))
+                ? (notif.comment_text?.startsWith('correction:')
+                    ? t('social.notifications.messageCaptureCorrectionAccepted', { name: notif.comment_text.slice('correction:'.length) })
+                    : notif.capture?.animal_name
+                      ? t('social.notifications.messageCaptureApprovedWithName', { name: notif.capture.animal_name })
+                      : t('social.notifications.messageCaptureApproved'))
                 : isCaptureRejected
                 ? (() => {
                     const ct = notif.comment_text ?? '';
-                    const prefixed = ct.match(/^(duplicate|dead_animal|internet_image|captured_animal):(.*)$/);
+                    const prefixed = ct.match(/^(duplicate|dead_animal|internet_image|captured_animal|human|correction_declined):(.*)$/);
                     if (prefixed) {
                       const [, motif, name] = prefixed;
                       return t(`social.notifications.messageCaptureRejected_${motif}`, { name });
