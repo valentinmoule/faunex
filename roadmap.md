@@ -8,3 +8,4 @@
 
 - [x] Éclats phase 1 : portefeuille privé, registre immuable, solde et historique bilingues.
 - [x] Nouvelle règle : supprimer les gains connexion, activité, capture et découverte, y compris pour les anciens clients ; réserver les gains aux leçons de la future phase Apprendre.
+- [ ] Apprendre : valider le plan du parcours interactif et sa place dans la navigation avant implémentation.
