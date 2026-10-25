@@ -15,6 +15,10 @@ interface OverflowMenuProps {
   items: OverflowMenuItem[];
   align?: 'start' | 'center' | 'end';
   triggerClassName?: string;
+  /** Classes de l’icône du déclencheur (taille/couleur selon l’endroit d’usage). */
+  iconClassName?: string;
+  /** Classes du panneau : permet de monter le z-index au-dessus des fiches plein écran. */
+  contentClassName?: string;
 }
 
 /**
@@ -27,6 +31,8 @@ export function OverflowMenu({
   items,
   align = 'end',
   triggerClassName,
+  iconClassName,
+  contentClassName,
 }: OverflowMenuProps) {
   return (
     <DropdownMenuPrimitive.Root>
@@ -39,7 +45,7 @@ export function OverflowMenu({
             'p-2 rounded-full bg-background/70 backdrop-blur-md border border-border/50 hover:bg-background transition-colors'
           }
         >
-          <MoreHorizontal className="w-4 h-4 text-foreground" aria-hidden="true" />
+          <MoreHorizontal className={iconClassName ?? 'w-4 h-4 text-foreground'} aria-hidden="true" />
         </button>
       </DropdownMenuPrimitive.Trigger>
       <DropdownMenuPrimitive.Portal>
@@ -47,7 +53,10 @@ export function OverflowMenu({
           align={align}
           sideOffset={8}
           collisionPadding={12}
-          className="z-50 min-w-[13.5rem] rounded-2xl border border-border bg-background p-1 shadow-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95"
+          className={
+            contentClassName ??
+            'z-50 min-w-[13.5rem] rounded-2xl border border-border bg-background p-1 shadow-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95'
+          }
         >
           {items.map((item) => (
             <DropdownMenuPrimitive.Item

@@ -25,7 +25,8 @@
     "captureQuotaRemaining": "{{count}} captures restantes aujourd’hui",
     "unlimitedCaptures": "Captures illimitées",
     "goPremium": "Passer à Faunex Premium",
-    "premiumActive": "Faunex Premium actif"
+    "premiumActive": "Faunex Premium actif",
+    "moreActions": "Plus d’actions"
   },
   "language": {
     "title": "Langue",

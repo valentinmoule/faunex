@@ -16,7 +16,8 @@ import HolographicCard from '@/components/HolographicCard';
 import RarityBadge from '@/components/RarityBadge';
 import { hapticTap } from '@/lib/haptics';
 import { toast } from '@/hooks/use-toast';
-import { Trash2, Share2, Bookmark } from 'lucide-react';
+import { Trash2, Share2, Bookmark, MoreHorizontal } from 'lucide-react';
+import OverflowMenu from '@/components/OverflowMenu';
 import { useNavigate } from 'react-router-dom';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useCustomCollections } from '@/hooks/useCustomCollections';
@@ -899,7 +900,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                     <Bookmark className={`w-6 h-6 transition-all ${isFavorite(card.id) ? 'fill-primary text-primary scale-110' : 'text-muted-foreground group-hover:text-primary'}`} />
                   </button>
                 )}
-                {cardImage && (
+                {!isOwner && cardImage && (
                   <button
                     onClick={handleShare}
                     aria-label={t('capture.detail.share')}
@@ -926,36 +927,36 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                     <ImagePlus className={`w-6 h-6 transition-colors ${savingCover ? 'text-primary/50' : 'text-muted-foreground group-hover:text-primary'}`} />
                   </button>
                 )}
-                {isOwner && cardImage && (
-                  <button
-                    onClick={() => { hapticTap(); setCropOpen(true); }}
-                    aria-label={t('capture.crop.action')}
-                    title={t('capture.crop.action')}
-                    className="relative flex items-center py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
-                  >
-                    <CropIcon className="w-6 h-6 text-muted-foreground transition-colors group-hover:text-primary" />
-                  </button>
-                )}
                 {isOwner && (
-                  <button
-                    onClick={() => { hapticTap(); setCorrectionOpen(true); }}
-                    aria-label={t('capture.correction.title')}
-                    title={t('capture.correction.title')}
-                    className="relative flex items-center py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
-                  >
-                    <ScanSearch className="w-6 h-6 text-muted-foreground transition-colors group-hover:text-primary" />
-                  </button>
-                )}
-
-                {isOwner && (
-                  <button
-                    onClick={() => { hapticTap(); setConfirmDelete(true); }}
-                    aria-label={t('capture.detail.deleteCapture')}
-                    title={t('capture.detail.deleteCapture')}
-                    className="relative flex items-center py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
-                  >
-                    <Trash2 className="w-6 h-6 text-muted-foreground transition-colors group-hover:text-primary" />
-                  </button>
+                  <OverflowMenu
+                    label={t('common.moreActions')}
+                    triggerClassName="relative flex items-center py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
+                    iconClassName="w-6 h-6 text-muted-foreground transition-colors group-hover:text-primary"
+                    contentClassName="z-[10010] min-w-[13.5rem] rounded-2xl border border-border bg-background p-1 shadow-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95"
+                    items={[
+                      ...(cardImage ? [{
+                        label: t('capture.detail.share'),
+                        icon: <Share2 className="w-5 h-5 text-muted-foreground" />,
+                        onSelect: () => { hapticTap(); handleShare(); },
+                      }] : []),
+                      ...(cardImage ? [{
+                        label: t('capture.crop.action'),
+                        icon: <CropIcon className="w-5 h-5 text-muted-foreground" />,
+                        onSelect: () => { hapticTap(); setCropOpen(true); },
+                      }] : []),
+                      {
+                        label: t('capture.correction.title'),
+                        icon: <ScanSearch className="w-5 h-5 text-muted-foreground" />,
+                        onSelect: () => { hapticTap(); setCorrectionOpen(true); },
+                      },
+                      {
+                        label: t('capture.detail.deleteCapture'),
+                        icon: <Trash2 className="w-5 h-5 text-destructive" />,
+                        tone: 'destructive' as const,
+                        onSelect: () => { hapticTap(); setConfirmDelete(true); },
+                      },
+                    ]}
+                  />
                 )}
                 </div>
               </div>
