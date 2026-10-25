@@ -141,13 +141,13 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
         ))}
       </div>
       {items.length > 1 && (
-        <div className="relative flex shrink-0 flex-wrap justify-center px-3 pb-5">
+        <div className="relative flex shrink-0 flex-nowrap justify-center px-3 pb-5">
           {items.map((_, i) => (
             <Button
               key={i}
               variant="ghost"
               size="icon"
-              className="h-6 w-6 shrink-0 rounded-full p-0 hover:bg-transparent"
+              className="h-6 min-w-0 max-w-6 shrink-0 grow basis-0 rounded-full p-0 hover:bg-transparent"
               aria-label={t('bestiary.collections.goToBooster', { number: i + 1 })}
               aria-current={i === active ? 'true' : undefined}
               onClick={() => scrollToItem(i)}
