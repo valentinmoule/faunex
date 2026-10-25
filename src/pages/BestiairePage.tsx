@@ -399,6 +399,13 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
         } catch {
           /* stockage indisponible */
         }
+        // Persiste l'ordre pour l'afficher aux autres utilisateurs sur le profil public.
+        void supabase
+          .from('profile_capture_order')
+          .upsert({ user_id: uid, capture_ids: orderedIds, updated_at: new Date().toISOString() })
+          .then(({ error }) => {
+            if (error) console.error('capture order save failed', error);
+          });
       }
     },
     [uid],
