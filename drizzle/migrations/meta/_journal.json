@@ -358,6 +358,13 @@
       "when": 1792940482440,
       "tag": "0050_pinned_custom_collections_showcase",
       "breakpoints": true
+    },
+    {
+      "idx": 51,
+      "version": "7",
+      "when": 1792940837576,
+      "tag": "0051_profile_capture_order",
+      "breakpoints": true
     }
   ]
 }
