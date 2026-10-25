@@ -148,7 +148,7 @@ const FriendCollectionPage = () => {
       }
 
       if (!capturesRes.error && capturesRes.data) {
-        setCaptures(capturesRes.data.map((c: any) => ({
+        const mapped = capturesRes.data.map((c: any) => ({
           id: c.id,
           name: c.animal_name,
           scientificName: c.scientific_name || '',
@@ -165,7 +165,26 @@ const FriendCollectionPage = () => {
           location: c.location || '',
           latitude: c.latitude,
           longitude: c.longitude,
-        })));
+        }));
+        // Ordre personnalisé choisi par l'explorateur : les captures classées
+        // d'abord, les nouvelles (non classées) en tête du reste.
+        const customIds = Array.isArray(orderRes.data?.capture_ids)
+          ? (orderRes.data.capture_ids as unknown[]).filter((v): v is string => typeof v === 'string')
+          : [];
+        if (customIds.length > 0) {
+          const rank = new Map(customIds.map((id, i) => [id, i]));
+          mapped.sort((a, b) => {
+            const ra = rank.get(a.id);
+            const rb = rank.get(b.id);
+            if (ra === undefined && rb === undefined) {
+              return +new Date(b.discoveredAt || 0) - +new Date(a.discoveredAt || 0);
+            }
+            if (ra === undefined) return -1;
+            if (rb === undefined) return 1;
+            return ra - rb;
+          });
+        }
+        setCaptures(mapped);
       }
 
       // Compute badges
