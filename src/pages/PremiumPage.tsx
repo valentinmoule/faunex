@@ -290,48 +290,16 @@ const PremiumPage = () => {
         {bonusDays > 0 && <p className="mb-5 text-sm font-medium text-primary">{t('profile.premium.referral.bonus', { days: bonusDays })}</p>}
       </main>
 
-      {isPremium && createPortal(
+      {isPremium && subscription && createPortal(
         <div className="fixed inset-x-0 bottom-0 z-[60] border-t border-border bg-background/90 backdrop-blur-xl px-5 pt-3 pb-[calc(12px+env(safe-area-inset-bottom))]">
           <div className="mx-auto max-w-2xl space-y-2">
-            {loading ? (
-              <Button disabled className="h-12 w-full rounded-2xl">
-                <Loader2 className="h-4 w-4 animate-spin" />
-              </Button>
-            ) : isPremium ? (
-              <>
-                <div className="flex items-center justify-center gap-2 rounded-2xl bg-primary/10 px-4 py-3 text-sm font-semibold text-primary">
-                  <Check className="h-4 w-4" /> {t(familyActive ? 'family.active' : 'profile.premium.activeSubscription')}
-                </div>
-                {familyActive && <Button variant="outline" onClick={() => navigate('/family')} className="h-12 w-full rounded-2xl">{t('family.title')}</Button>}
-                {subscription?.current_period_end && (
-                  <p className="text-center text-xs text-muted-foreground">
-                    {familyActive && <>{t('profile.premium.presentation.personal')} · </>}
-                    {subscription.cancel_at_period_end ? t('profile.premium.accessUntil') : t('profile.premium.nextRenewal')}
-                    {new Date(subscription.current_period_end).toLocaleDateString(locale === 'en' ? 'en-US' : 'fr-FR')}
-                  </p>
-                )}
-                {subscription && <Button variant="outline" onClick={handleManage} className="h-12 w-full rounded-2xl">
-                  {familyActive && <>{t('profile.premium.presentation.personal')} · </>}
-                  {t('profile.premium.manage')}
-                </Button>}
-                {subscription && !subscription.cancel_at_period_end && session?.user && (
-                  <button type="button" onClick={() => setSurveyOpen(true)} className="w-full py-1 text-center text-xs text-muted-foreground underline-offset-2 hover:underline">
-                    {t('profile.premium.cancel')}
-                  </button>
-                )}
-              </>
-            ) : (
-              <Button
-                onClick={handleSubscribe}
-                disabled={checkoutLoading || referralBusy || loading}
-                className="h-12 w-full rounded-2xl text-base font-semibold"
-              >
-                {checkoutLoading || referralBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : selected.cta}
-              </Button>
+            <Button variant="outline" onClick={handleManage} className="h-12 w-full rounded-2xl">{t('profile.premium.manage')}</Button>
+            {!subscription.cancel_at_period_end && session?.user && (
+              <button type="button" onClick={() => setSurveyOpen(true)} className="w-full py-1 text-center text-xs text-muted-foreground underline-offset-2 hover:underline">
+                {t('profile.premium.cancel')}
+              </button>
             )}
-            <p className="text-center text-[11px] text-muted-foreground">
-              {t('profile.premium.secure')}
-            </p>
+            <p className="text-center text-[11px] text-muted-foreground">{t('profile.premium.secure')}</p>
           </div>
         </div>,
         document.body
