@@ -931,6 +931,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                   <OverflowMenu
                     label={t('common.moreActions')}
                     triggerClassName="relative flex items-center py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
+                    iconClassName="w-6 h-6 text-muted-foreground transition-colors group-hover:text-primary"
                     items={[
                       ...(cardImage ? [{
                         label: t('capture.detail.share'),
