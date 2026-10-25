@@ -43,13 +43,10 @@ export default function CaptureIcon({ className = '' }: { className?: string }) 
       {/* Reflet du dessus */}
       <path d="M5.8 9 H18.2" stroke="hsl(var(--card) / .45)" strokeWidth="1.3" strokeLinecap="round" />
 
-      {/* Flash */}
-      <circle cx="18.1" cy="11.6" r="1" fill="hsl(var(--amber-light))" stroke="hsl(var(--forest-dark))" strokeWidth="0.7" />
-
       {/* Objectif */}
-      <circle cx="12" cy="14.2" r="4.2" fill={`url(#${lens})`} stroke="hsl(var(--forest-dark))" strokeWidth="1.2" />
-      <circle cx="12" cy="14.2" r="2" fill="hsl(var(--forest-dark) / .82)" />
-      <ellipse cx="10.5" cy="12.7" rx="1.1" ry="0.8" transform="rotate(-32 10.5 12.7)" fill="hsl(var(--card) / .9)" />
+      <circle cx="12" cy="14.2" r="4.5" fill={`url(#${lens})`} stroke="hsl(var(--forest-dark))" strokeWidth="1.2" />
+      <circle cx="12" cy="14.2" r="2.1" fill="hsl(var(--forest-dark) / .82)" />
+      <ellipse cx="10.4" cy="12.6" rx="1.2" ry="0.85" transform="rotate(-32 10.4 12.6)" fill="hsl(var(--card) / .9)" />
     </svg>
   );
 }
