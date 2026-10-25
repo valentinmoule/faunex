@@ -55,6 +55,7 @@ import { VirtualSpeciesGrid } from '@/components/VirtualSpeciesGrid';
 import { useZoneSubscriptions } from '@/hooks/useZoneSubscriptions';
 import { useSpeciesCollections } from '@/hooks/useSpeciesCollections';
 import { useCustomCollections } from '@/hooks/useCustomCollections';
+import { usePinnedProfileCollections } from '@/hooks/usePinnedProfileCollections';
 import { useCollectionCovers } from '@/hooks/useCollectionCovers';
 import CategoryLeaderboard, { LeaderboardResetBadge } from '@/components/CategoryLeaderboard';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -467,6 +468,7 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const { collectionKeys, addCollection, removeCollection } = useSpeciesCollections(session?.user?.id);
   const customCollections = useCustomCollections(session?.user?.id);
   const { covers: collectionCovers, setCover: setCollectionCover } = useCollectionCovers(session?.user?.id);
+  const pinnedStandard = usePinnedProfileCollections(session?.user?.id);
   const personalCoverImage = (key: string) => animals.find(a => a.captureData?.id === collectionCovers[key])?.captureData?.image;
   const usePersonalCover = selectedCard?.image ? async () => {
     const key = selectedZoneId ? `zone:${selectedZoneId}` : selectedCollectionKey;
@@ -1647,8 +1649,33 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
           captured={selectedCollection.captured}
           total={selectedCollection.total}
           onBack={() => setSelectedCollectionKey(null)}
-          onRemove={() => { removeCollection(selectedCollection.group.key); setSelectedCollectionKey(null); }}
-          removeLabel={t('bestiary.collectionHero.remove')}
+          actions={
+            <OverflowMenu
+              label={t('bestiary.customCollections.actions')}
+              items={[
+                {
+                  label: t(pinnedStandard.isPinned(selectedCollection.group.key) ? 'bestiary.customCollections.unpin' : 'bestiary.customCollections.pin'),
+                  icon: pinnedStandard.isPinned(selectedCollection.group.key)
+                    ? <PinOff className="w-4 h-4 shrink-0" aria-hidden="true" />
+                    : <Pin className="w-4 h-4 shrink-0" aria-hidden="true" />,
+                  onSelect: () => {
+                    hapticTap();
+                    void pinnedStandard.togglePin(selectedCollection.group.key);
+                  },
+                },
+                {
+                  label: t('bestiary.collectionHero.remove'),
+                  icon: <Trash2 className="w-4 h-4 shrink-0" aria-hidden="true" />,
+                  tone: 'destructive',
+                  onSelect: () => {
+                    hapticTap();
+                    removeCollection(selectedCollection.group.key);
+                    setSelectedCollectionKey(null);
+                  },
+                },
+              ]}
+            />
+          }
         />
 
         <div className="relative z-10 max-w-lg mx-auto px-3 pt-3 space-y-4">
