@@ -57,6 +57,8 @@ import { useSpeciesCollections } from '@/hooks/useSpeciesCollections';
 import { useCustomCollections } from '@/hooks/useCustomCollections';
 import { usePinnedProfileCollections } from '@/hooks/usePinnedProfileCollections';
 import { useCollectionCovers } from '@/hooks/useCollectionCovers';
+import { useThemedCollections } from '@/hooks/useThemedCollections';
+import { THEME_PREFIX, themeMatcher, themeTitle } from '@/lib/themedCollections';
 import CategoryLeaderboard, { LeaderboardResetBadge } from '@/components/CategoryLeaderboard';
 import { useSubscription } from '@/hooks/useSubscription';
 import { toast } from 'sonner';
@@ -560,6 +562,29 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
       .sort((a, b) => a.group.label.localeCompare(b.group.label, 'fr'));
   }, [animals]);
 
+  /** Collections thématiques Faunex (gérées depuis l'admin, sans mise à jour de l'app). */
+  const { collections: themedCollections } = useThemedCollections();
+  const themedEntries = useMemo(
+    () =>
+      themedCollections.map((c) => {
+        const match = themeMatcher(c);
+        let total = 0;
+        let captured = 0;
+        animals.forEach((a) => {
+          if (!match(a)) return;
+          total++;
+          if (a.captured) captured++;
+        });
+        return {
+          group: { key: `${THEME_PREFIX}${c.id}`, label: themeTitle(c, i18n.language), emoji: '✨' } as BreedGroup,
+          total,
+          captured,
+          cover: c.cover_url,
+        };
+      }),
+    [themedCollections, animals, i18n.language],
+  );
+
   /** Every species group that actually has species in the bestiary, with progress. */
   const availableCollections = useMemo(() => {
     const counts = new Map<string, { total: number; captured: number }>();
@@ -574,8 +599,8 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
     const groups = BREED_GROUPS.map((group) => ({ group, ...(counts.get(group.key) || { total: 0, captured: 0 }) }))
       .filter((e) => e.total >= MIN_BREEDS_PER_GROUP)
       .sort((a, b) => a.group.label.localeCompare(b.group.label, 'fr'));
-    return [...categoryCollections, ...groups];
-  }, [animals, categoryCollections]);
+    return [...themedEntries, ...categoryCollections, ...groups];
+  }, [animals, categoryCollections, themedEntries]);
 
   const myCollections = useMemo(
     () => availableCollections.filter((e) => collectionKeys.includes(e.group.key)),
@@ -590,13 +615,17 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const collectionAnimals = useMemo(() => {
     if (!selectedCollection) return [];
     const key = selectedCollection.group.key;
+    if (key.startsWith(THEME_PREFIX)) {
+      const theme = themedCollections.find((c) => `${THEME_PREFIX}${c.id}` === key);
+      return theme ? animals.filter(themeMatcher(theme)) : [];
+    }
     const list = key.startsWith('cat:')
       ? animals.filter((a) => normalizeCategory(a.category) === selectedCollection.group.label)
       : animals.filter(
           (a) => getSpeciesGroup(a.name, a.scientific_name, a.category)?.key === key,
         );
     return list; // déjà trié alphabétiquement via `animals`
-  }, [animals, selectedCollection]);
+  }, [animals, selectedCollection, themedCollections]);
 
 
 
@@ -1643,7 +1672,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
       <main className="min-h-screen bg-background pb-24">
         
         <CollectionHero
-          image={personalCoverImage(selectedCollection.group.key) || getCollectionArt(selectedCollection.group.key, selectedCollection.group.label).image}
+          image={personalCoverImage(selectedCollection.group.key) || themedEntries.find((e) => e.group.key === selectedCollection.group.key)?.cover || getCollectionArt(selectedCollection.group.key, selectedCollection.group.label).image}
           overlay={getCollectionArt(selectedCollection.group.key, selectedCollection.group.label).overlay}
           title={selectedCollection.group.label}
           captured={selectedCollection.captured}
@@ -1663,16 +1692,16 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                     void pinnedStandard.togglePin(selectedCollection.group.key);
                   },
                 },
-                {
+                ...(selectedCollection.group.key.startsWith(THEME_PREFIX) ? [] : [{
                   label: t('bestiary.collectionHero.remove'),
                   icon: <Trash2 className="w-4 h-4 shrink-0" aria-hidden="true" />,
-                  tone: 'destructive',
+                  tone: 'destructive' as const,
                   onSelect: () => {
                     hapticTap();
                     removeCollection(selectedCollection.group.key);
                     setSelectedCollectionKey(null);
                   },
-                },
+                }]),
               ]}
             />
           }
@@ -2152,7 +2181,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                 </button>
               </div>
 
-              {subscribedZones.length === 0 && myCollections.length === 0 && customCollections.collections.length === 0 ? (
+              {subscribedZones.length === 0 && myCollections.length === 0 && customCollections.collections.length === 0 && themedEntries.length === 0 ? (
                 <button
                   onClick={openAddSlotModal}
                   className="w-full rounded-2xl border border-dashed border-border p-6 text-center transition active:scale-[0.98] hover:border-primary/40"
@@ -2167,6 +2196,27 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                 </button>
               ) : (
                 <BoosterCarousel>
+                  {/* Collections thématiques créées par Faunex, visibles par tous */}
+                  {themedEntries.map(({ group, total, captured, cover }) => {
+                    const art = getCollectionArt(group.key, group.label);
+                    const rewardId = `${COLLECTION_REWARD_PREFIX}${group.key}`;
+                    const xp = collectionRewardXp(total);
+                    return (
+                      <CollectionTile
+                        key={group.key}
+                        title={group.label}
+                        image={personalCoverImage(group.key) || cover || art.image}
+                        overlay={art.overlay}
+                        captured={captured}
+                        total={total}
+                        complete={total > 0 && captured >= total}
+                        claimed={isClaimed(rewardId)}
+                        claiming={claimingReward === rewardId}
+                        onOpen={() => setSelectedCollectionKey(group.key)}
+                        onClaim={() => handleClaimCollectionReward(rewardId, xp, group.label)}
+                      />
+                    );
+                  })}
                   {/* Collections personnalisées (Premium) — même écusson, en tête de la grille */}
                   {customCollections.collections.map((c) => {
                     const items = customCollections.itemsFor(c.id);
@@ -2221,7 +2271,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                     );
                   })}
 
-                  {myCollections.map(({ group, total, captured }) => {
+                  {myCollections.filter(({ group }) => !group.key.startsWith(THEME_PREFIX)).map(({ group, total, captured }) => {
                     const art = getCollectionArt(group.key, group.label);
                     const rewardId = `${COLLECTION_REWARD_PREFIX}${group.key}`;
                     const xp = collectionRewardXp(total);
