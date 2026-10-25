@@ -250,7 +250,12 @@
       "changeCover": "Changer l’illustration",
       "coverSheetTitle": "Choisir une illustration",
       "coverSheetEmpty": "Capture d’abord une espèce de cette collection pour utiliser ta photo comme illustration.",
-      "resetCover": "Revenir à l’illustration automatique"
+      "resetCover": "Revenir à l’illustration automatique",
+      "pin": "Épingler sur mon profil",
+      "unpin": "Retirer de mon profil",
+      "showcase": "Collections épinglées",
+      "showcaseEmpty": "Aucune espèce capturée pour le moment.",
+      "progress": "{{captured}}/{{total}} capturées"
     }
   }
 }

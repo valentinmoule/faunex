@@ -8,6 +8,7 @@ export interface CustomCollection {
   id: string;
   name: string;
   cover_image: string | null;
+  pinned_at: string | null;
   created_at: string;
 }
 
@@ -40,7 +41,7 @@ export const useCustomCollections = (userId?: string) => {
       const [{ data: cols }, { data: rows }] = await Promise.all([
         supabase
           .from('custom_collections')
-          .select('id, name, cover_image, created_at')
+          .select('id, name, cover_image, pinned_at, created_at')
           .eq('user_id', userId)
           .order('created_at', { ascending: true }),
         supabase
@@ -71,7 +72,7 @@ export const useCustomCollections = (userId?: string) => {
       const { data, error } = await supabase
         .from('custom_collections')
         .insert({ user_id: userId, name: trimmed })
-        .select('id, name, cover_image, created_at')
+        .select('id, name, cover_image, pinned_at, created_at')
         .single();
       if (error || !data) return null;
       setCollections((prev) => [...prev, data]);
@@ -183,6 +184,26 @@ export const useCustomCollections = (userId?: string) => {
     [userId, collections],
   );
 
+  /** Épingle (ou désépingle) la collection sur la vitrine du profil. */
+  const togglePin = useCallback(
+    async (id: string) => {
+      if (!userId) return;
+      const target = collections.find((c) => c.id === id);
+      if (!target) return;
+      const pinnedAt = target.pinned_at ? null : new Date().toISOString();
+      const prev = collections;
+      setCollections((p) => p.map((c) => (c.id === id ? { ...c, pinned_at: pinnedAt } : c)));
+      const { error } = await supabase
+        .from('custom_collections')
+        .update({ pinned_at: pinnedAt })
+        .eq('id', id)
+        .eq('user_id', userId);
+      if (error) setCollections(prev);
+      else notifyCollectionsChanged();
+    },
+    [userId, collections],
+  );
+
   const itemsFor = useCallback(
     (collectionId: string) => items.filter((i) => i.collection_id === collectionId),
     [items],
@@ -202,6 +223,7 @@ export const useCustomCollections = (userId?: string) => {
     renameCollection,
     deleteCollection,
     setCoverImage,
+    togglePin,
     addItem,
     removeItem,
     itemsFor,

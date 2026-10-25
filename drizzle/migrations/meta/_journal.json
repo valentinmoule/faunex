@@ -351,6 +351,13 @@
       "when": 1792938832166,
       "tag": "0049_capture_species_correction",
       "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1792940482440,
+      "tag": "0050_pinned_custom_collections_showcase",
+      "breakpoints": true
     }
   ]
 }
