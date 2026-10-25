@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Fiches : classification (embranchement, classe, ordre, famille), taille et poids adultes documentés, cache partagé et affichage FR/EN vérifié.
+
 - [x] Orthoptères : comparer les 119 fiches du fichier et présenter le nettoyage complet à valider.
 - [x] Orthoptères : appliquer 49 renommages vérifiés, corriger le nom scientifique du Criquet des adrets et synchroniser les collections sans perdre les captures.
 - [ ] Orthoptères : terminer les fusions, ajouts et réattributions incertaines — attente de validation des identités, dont les conflits Miramelle des moraines et Truxale méditerranéenne.
