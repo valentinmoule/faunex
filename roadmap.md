@@ -5,7 +5,7 @@
 - [x] Ajouter l’enregistrement privé des appareils et les notifications sociales, modération, compte bloqué, relance et récap Premium ; fonctions déployées
 - [x] Tester les règles : préférences sociales distinctes, motifs de refus conservés, liens limités à l’application ; cinq tests réussis, aperçu sans erreur
 - [x] Installer et valider google-services.json dans android/app pour fr.faunex.app ; plugin Google Services déjà activé, dépendance Messaging fournie par Capacitor
-- [ ] Installer GoogleService-Info.plist iOS : fichier reçu pour fr.faunex.app, mais la cible iOS existante utilise com.faunex.faunex ; télécharger la configuration Firebase pour com.faunex.faunex sans changer l’identifiant App Store
+- [x] Installer GoogleService-Info.plist iOS pour com.faunex.faunex et l’inclure dans les ressources de la cible Xcode ; identifiant App Store préservé
 - [ ] Configurer la clé Apple APNs dans Firebase et la capacité Push Notifications du profil de signature : accès Apple requis
 - [ ] Synchroniser/reconstruire les apps et confirmer la réception sur iPhone/Android : appareils natifs non disponibles ici
 
