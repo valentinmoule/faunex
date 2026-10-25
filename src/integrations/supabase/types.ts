@@ -1592,6 +1592,104 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_codes: {
+        Row: {
+          code: string
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          code?: string
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      referral_rewards: {
+        Row: {
+          billing_applied_at: string | null
+          billing_subscription_id: string | null
+          billing_target_at: string | null
+          days: number
+          ends_at: string
+          environment: string
+          id: string
+          referral_id: string
+          starts_at: string
+          user_id: string
+        }
+        Insert: {
+          billing_applied_at?: string | null
+          billing_subscription_id?: string | null
+          billing_target_at?: string | null
+          days?: number
+          ends_at: string
+          environment: string
+          id?: string
+          referral_id: string
+          starts_at: string
+          user_id: string
+        }
+        Update: {
+          billing_applied_at?: string | null
+          billing_subscription_id?: string | null
+          billing_target_at?: string | null
+          days?: number
+          ends_at?: string
+          environment?: string
+          id?: string
+          referral_id?: string
+          starts_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_rewards_referral_id_fkey"
+            columns: ["referral_id"]
+            isOneToOne: false
+            referencedRelation: "referrals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referrals: {
+        Row: {
+          created_at: string
+          environment: string
+          id: string
+          referred_user_id: string
+          referrer_user_id: string
+          rewarded_at: string | null
+          subscription_id: string | null
+          transaction_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          environment: string
+          id?: string
+          referred_user_id: string
+          referrer_user_id: string
+          rewarded_at?: string | null
+          subscription_id?: string | null
+          transaction_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          environment?: string
+          id?: string
+          referred_user_id?: string
+          referrer_user_id?: string
+          rewarded_at?: string | null
+          subscription_id?: string | null
+          transaction_id?: string | null
+        }
+        Relationships: []
+      }
       reward_catalogue_groups: {
         Row: {
           animal_id: string
@@ -2435,6 +2533,18 @@ export type Database = {
         }[]
       }
       complete_share_quest: { Args: { p_quest_id: string }; Returns: boolean }
+      confirm_paid_referral: {
+        Args: {
+          p_customer: string
+          p_env: string
+          p_paid_end: string
+          p_paid_start: string
+          p_referral: string
+          p_subscription: string
+          p_transaction: string
+        }
+        Returns: undefined
+      }
       consume_ai_analysis:
         | { Args: { p_user: string }; Returns: number }
         | { Args: { p_request: string; p_user: string }; Returns: number }
@@ -2582,6 +2692,7 @@ export type Database = {
           week_start: string
         }[]
       }
+      my_referral_code: { Args: never; Returns: string }
       my_species_progress: {
         Args: never
         Returns: {
@@ -2638,6 +2749,10 @@ export type Database = {
       release_background_job: {
         Args: { p_error?: string; p_job_key: string; p_resume?: boolean }
         Returns: undefined
+      }
+      reserve_referral: {
+        Args: { p_code: string; p_env: string }
+        Returns: string
       }
       resolve_species_identity: {
         Args: { p_name: string; p_scientific: string }
