@@ -1,13 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, MessageCircle, ExternalLink, Sparkles, Award } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { COMMUNITY_BADGE_ID, COMMUNITY_BADGE_XP, joinDiscordCommunity } from '@/lib/discordCommunity';
 import { toast } from 'sonner';
 
 const STORAGE_KEY = 'faunex_discord_card_closed';
-const DISCORD_INVITE_URL = 'https://discord.gg/YrAEV5EQa4';
-export const COMMUNITY_BADGE_ID = 'community_member';
-export const COMMUNITY_BADGE_XP = 50;
+export { COMMUNITY_BADGE_ID, COMMUNITY_BADGE_XP };
 
 interface DiscordInviteCardProps {
   onBadgeEarned?: () => void;
@@ -32,12 +30,8 @@ const DiscordInviteCard = ({ onBadgeEarned }: DiscordInviteCardProps) => {
   };
 
   const handleJoin = async () => {
-    window.open(DISCORD_INVITE_URL, '_blank', 'noopener,noreferrer');
     try {
-      const { data: claimed } = await supabase.rpc('claim_badge', {
-        p_badge_id: COMMUNITY_BADGE_ID,
-        p_xp_reward: COMMUNITY_BADGE_XP,
-      });
+      const claimed = await joinDiscordCommunity();
       if (claimed) {
         toast.success(t('social.discordInvite.toastBadgeUnlocked', { xp: COMMUNITY_BADGE_XP }));
         onBadgeEarned?.();

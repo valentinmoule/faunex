@@ -16,6 +16,7 @@ import { Languages, Users } from 'lucide-react';
 import { shareOrigin } from '@/lib/authRedirect';
 import { shareContent } from '@/lib/share';
 import { canManageFamily, readFamily } from '@/lib/family';
+import { COMMUNITY_BADGE_XP, joinDiscordCommunity } from '@/lib/discordCommunity';
 
 interface SettingsProps {
   profile: {
@@ -260,7 +261,15 @@ const SettingsPage = () => {
             <MenuItem icon={<Bell className="w-5 h-5" />} label={t('settings.notifications')} onClick={() => setSection('notifications')} />
             <MenuItem icon={<Share2 className="w-5 h-5" />} label={t('settings.shareProfile')} onClick={handleShare} />
             <MenuItem icon={<Languages className="w-5 h-5" />} label={t('language.title')} onClick={() => setSection('language')} />
-            <MenuItem icon={<MessageCircle className="w-5 h-5" />} label={t('settings.discord')} onClick={() => window.open('https://discord.gg/YrAEV5EQa4', '_blank', 'noopener,noreferrer')} />
+            <MenuItem icon={<MessageCircle className="w-5 h-5" />} label={t('settings.discord')} onClick={async () => {
+              try {
+                if (await joinDiscordCommunity()) {
+                  toast.success(t('social.discordInvite.toastBadgeUnlocked', { xp: COMMUNITY_BADGE_XP }));
+                }
+              } catch {
+                // Opening Discord remains available even when the reward request fails.
+              }
+            }} />
             <MenuItem icon={<Scale className="w-5 h-5" />} label={t('settings.legal')} onClick={() => navigate('/legal')} />
             <MenuItem icon={<Lock className="w-5 h-5" />} label={t('settings.privacy')} onClick={() => navigate('/confidentialite')} />
             <div className="pt-4 space-y-1">
