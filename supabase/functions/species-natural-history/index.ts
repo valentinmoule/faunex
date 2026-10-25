@@ -3,28 +3,79 @@ import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
 import { exactTaxonomy, extractMeasurements, parseEstimatedMeasurements } from './policy.ts';
 
 // Typical adult size/weight estimated by AI when no measured source (ADW)
-// documents the species. Strict JSON, metric only, validated before caching.
+// documents the species. Strict JSON schema, metric only, validated before caching.
 async function estimateMeasurements(name: string, scientific: string) {
   const apiKey = Deno.env.get('LOVABLE_API_KEY');
   if (!apiKey) return {};
   try {
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/responses', {
       method: 'POST',
-      signal: AbortSignal.timeout(15000),
-      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      signal: AbortSignal.timeout(20000),
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        'X-Lovable-AIG-SDK': 'fetch',
+      },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash-lite',
-        messages: [
-          { role: 'system', content: 'You are a zoology reference. Reply with strict JSON only, no markdown, no prose.' },
-          { role: 'user', content: `For the species "${name}" (${scientific}), give the typical adult body length and weight as JSON: {"size": "<number or range> <mm|cm|m>", "weight": "<number or range> <mg|g|kg>"}. Use a range ("x to y unit") when variation is large. Metric units only. If genuinely unknown for this species, omit the key.` },
+        model: 'openai/gpt-6-astra',
+        store: false,
+        stream: true,
+        reasoning: { effort: 'low' },
+        text: {
+          format: {
+            type: 'json_schema',
+            name: 'adult_measurements',
+            strict: true,
+            schema: {
+              type: 'object',
+              properties: {
+                size: { type: ['string', 'null'], description: 'Typical adult body length, metric, e.g. "12 cm" or "8 to 15 cm". Null if unknown.' },
+                weight: { type: ['string', 'null'], description: 'Typical adult weight, metric, e.g. "30 g" or "20 to 45 g". Null if unknown.' },
+              },
+              required: ['size', 'weight'],
+              additionalProperties: false,
+            },
+          },
+        },
+        input: [
+          { role: 'system', content: 'You are a zoology reference. Answer with the requested JSON only.' },
+          { role: 'user', content: `For the species "${name}" (${scientific}), give the typical adult body length and weight. Use a range ("x to y unit") when variation is large. Metric units only (mm, cm, m, mg, g, kg). If genuinely unknown for this species, use null.` },
         ],
-        temperature: 0,
       }),
     });
-    if (!response.ok) return {};
-    const data = await response.json();
-    const content = data?.choices?.[0]?.message?.content;
-    return typeof content === 'string' ? parseEstimatedMeasurements(content) : {};
+    if (!response.ok || !response.body) return {};
+    // Consume the SSE stream and keep the final accumulated text.
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let text = '';
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const events = buffer.split('\n\n');
+      buffer = events.pop() ?? '';
+      for (const event of events) {
+        for (const line of event.split('\n')) {
+          if (!line.startsWith('data:')) continue;
+          const payload = line.slice(5).trim();
+          if (!payload || payload === '[DONE]') continue;
+          try {
+            const parsed = JSON.parse(payload);
+            if (parsed.type === 'response.output_text.delta' && typeof parsed.delta === 'string') text += parsed.delta;
+            else if (parsed.type === 'response.completed') {
+              const output = parsed.response?.output ?? [];
+              for (const item of output) {
+                for (const part of item?.content ?? []) {
+                  if (part?.type === 'output_text' && typeof part.text === 'string') text = part.text;
+                }
+              }
+            }
+          } catch { /* partial event, ignore */ }
+        }
+      }
+    }
+    return text ? parseEstimatedMeasurements(text) : {};
   } catch {
     return {};
   }
