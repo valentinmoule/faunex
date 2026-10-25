@@ -59,7 +59,6 @@ import { usePinnedProfileCollections } from '@/hooks/usePinnedProfileCollections
 import { useCollectionCovers } from '@/hooks/useCollectionCovers';
 import { useThemedCollections } from '@/hooks/useThemedCollections';
 import { useAdventCalendars } from '@/hooks/useAdventCalendars';
-import { canOpenAdvent } from '@/lib/advent';
 import adventCover from '@/assets/collections/advent-2026.jpg';
 import { THEME_PREFIX, themeMatcher, themeTitle } from '@/lib/themedCollections';
 import CategoryLeaderboard, { LeaderboardResetBadge } from '@/components/CategoryLeaderboard';
