@@ -244,6 +244,7 @@
       "cancel": "Annuler",
       "confirm": "Supprimer",
       "removeSpecies": "Retirer de la collection",
+      "useAsCover": "Utiliser comme illustration de la collection",
       "changeCover": "Changer l’illustration",
       "coverSheetTitle": "Choisir une illustration",
       "coverSheetEmpty": "Capture d’abord une espèce de cette collection pour utiliser ta photo comme illustration.",

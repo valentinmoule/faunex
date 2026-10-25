@@ -215,7 +215,6 @@ const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [selectedCollectionKey, setSelectedCollectionKey] = useState<string | null>(null);
   const [selectedCustomId, setSelectedCustomId] = useState<string | null>(null);
   const [renamingCustom, setRenamingCustom] = useState(false);
-  const [coverPickerOpen, setCoverPickerOpen] = useState(false);
   const [customNameDraft, setCustomNameDraft] = useState('');
   const [creatingCustom, setCreatingCustom] = useState(false);
   const [newCustomName, setNewCustomName] = useState('');
@@ -990,7 +989,6 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
     setPickerMode('hub');
   }, []);
   const swipeClosePicker = useSwipeDownClose(closeDeptPicker);
-  const swipeCloseCover = useSwipeDownClose(() => setCoverPickerOpen(false));
 
   const deptPickerSheet = (
     <Sheet
@@ -1510,14 +1508,6 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
               label={t('bestiary.customCollections.actions')}
               items={[
                 {
-                  label: t('bestiary.customCollections.changeCover'),
-                  icon: <Images className="w-4 h-4 shrink-0" aria-hidden="true" />,
-                  onSelect: () => {
-                    hapticTap();
-                    setCoverPickerOpen(true);
-                  },
-                },
-                {
                   label: t('bestiary.customCollections.rename'),
                   icon: <Pencil className="w-4 h-4 shrink-0" aria-hidden="true" />,
                   onSelect: () => {
@@ -1526,6 +1516,11 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                     setRenamingCustom(true);
                   },
                 },
+                ...(selectedCustom.cover_image ? [{
+                  label: t('bestiary.customCollections.resetCover'),
+                  icon: <Images className="w-4 h-4 shrink-0" aria-hidden="true" />,
+                  onSelect: () => { void customCollections.setCoverImage(selectedCustom.id, null); },
+                }] : []),
                 {
                   label: t('bestiary.customCollections.delete'),
                   icon: <Trash2 className="w-4 h-4 shrink-0" aria-hidden="true" />,
@@ -1609,71 +1604,17 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
             </div>
           )}
         </div>
-        {/* Choix de l'illustration : une des photos capturées de la collection */}
-        <Sheet open={coverPickerOpen} onOpenChange={setCoverPickerOpen}>
-          <SheetContent
-            ref={swipeCloseCover.ref}
-            style={swipeCloseCover.style}
-            side="bottom"
-            className="max-h-[80vh] p-0 flex flex-col rounded-t-3xl"
-          >
-            <SheetHeader className="px-5 py-4 border-b border-border">
-              <SheetTitle className="font-display">{t('bestiary.customCollections.coverSheetTitle')}</SheetTitle>
-            </SheetHeader>
-            <div className="flex-1 overflow-y-auto px-5 py-4">
-              {(() => {
-                const photos = customCollectionAnimals.filter((a) => a.captured && a.captureData?.image);
-                if (photos.length === 0) {
-                  return (
-                    <p className="py-6 text-center text-sm text-muted-foreground font-body">
-                      {t('bestiary.customCollections.coverSheetEmpty')}
-                    </p>
-                  );
-                }
-                return (
-                  <div className="grid grid-cols-3 gap-2">
-                    {photos.map((a) => {
-                      const url = a.captureData!.image;
-                      const active = selectedCustom.cover_image === url;
-                      return (
-                        <button
-                          key={a.name}
-                          onClick={() => {
-                            hapticTap();
-                            customCollections.setCoverImage(selectedCustom.id, url);
-                            setCoverPickerOpen(false);
-                          }}
-                          aria-label={a.name}
-                          className={`relative aspect-square overflow-hidden rounded-xl border-2 transition active:scale-[0.97] ${active ? 'border-primary' : 'border-transparent'}`}
-                        >
-                          <img src={url} alt={a.name} loading="lazy" className="h-full w-full object-cover" />
-                          {active && (
-                            <span className="absolute right-1.5 top-1.5 rounded-full bg-primary p-0.5 text-primary-foreground">
-                              <Check className="h-3 w-3" />
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                );
-              })()}
-              {selectedCustom.cover_image && (
-                <button
-                  onClick={() => {
-                    hapticTap();
-                    customCollections.setCoverImage(selectedCustom.id, null);
-                    setCoverPickerOpen(false);
-                  }}
-                  className="mt-4 w-full rounded-full border border-border px-4 py-2.5 text-sm font-display font-medium text-foreground transition active:scale-[0.98]"
-                >
-                  {t('bestiary.customCollections.resetCover')}
-                </button>
-              )}
-            </div>
-          </SheetContent>
-        </Sheet>
-        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={removeCaptureLocally} />
+        <CardDetailSheet
+          card={selectedCard}
+          open={!!selectedCard}
+          onClose={() => setSelectedCard(null)}
+          communityFinders={selectedFinders}
+          onDeleted={removeCaptureLocally}
+          onUseCollectionCover={selectedCard?.image ? async () => {
+            await customCollections.setCoverImage(selectedCustom.id, selectedCard.image);
+            setSelectedCard(null);
+          } : undefined}
+        />
       </div>
     );
   }
