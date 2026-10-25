@@ -890,7 +890,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                   <Heart className={`w-6 h-6 transition-all ${liked ? 'fill-destructive text-destructive scale-110' : 'text-muted-foreground group-hover:text-destructive'}`} />
                 </Button>
                   {likeCount > 0 && (
-                    <Button variant="ghost" onClick={() => { hapticTap(); setLikesOpen(true); }} aria-label={t('capture.detail.viewLikes', { count: likeCount })} className={`h-10 min-w-8 rounded-none px-1 text-sm hover:bg-transparent ${liked ? 'text-destructive' : 'text-muted-foreground'}`}>{likeCount}</Button>
+                    <Button variant="ghost" onClick={() => { hapticTap(); setLikesOpen(true); }} aria-label={t('capture.detail.viewLikes', { count: likeCount })} className={`h-10 rounded-none px-1 text-sm font-display font-semibold hover:bg-transparent ${liked ? 'text-destructive' : 'text-muted-foreground'}`}>{likeCount}</Button>
                   )}
                 </div>
                 <button
