@@ -12,8 +12,7 @@
       "weightRange": "Adult weight (range)",
       "unknown": "Not documented",
       "loading": "Loading natural history data…",
-      "unavailable": "Sources are temporarily unavailable.",
-      "sources": "Sources:",
+      "unavailable": "Currently unavailable.",
       "taxa": {
         "Chordata": "Chordates",
         "Arthropoda": "Arthropods",
