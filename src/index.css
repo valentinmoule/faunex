@@ -3858,6 +3858,12 @@ html.is-native-android body {
   45% { transform: translate(-6px, -3px) } 60% { transform: translate(5px, 4px) }
   80% { transform: translate(-2px, 1px) }
 }
+/* Largeur du sachet pilotée par la place verticale disponible (portrait),
+   sinon plafonnée comme avant ; partagée entre le carrousel et ses items. */
+.booster-carousel { --booster-w: min(68vw, 320px); }
+@media (orientation: portrait) and (min-height: 620px) {
+  .booster-carousel { --booster-w: min(78vw, 320px, calc((100dvh - 300px) * 0.56)); }
+}
 .collection-booster {
   box-shadow: var(--booster-shadow);
 }
