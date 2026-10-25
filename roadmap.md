@@ -1,7 +1,8 @@
 # Roadmap
 
 - [x] Orthoptères : comparer les 119 fiches du fichier et présenter le nettoyage complet à valider.
-- [ ] Orthoptères : appliquer les corrections, fusions et collections après validation, en conservant les captures.
+- [x] Orthoptères : appliquer 49 renommages vérifiés, corriger le nom scientifique du Criquet des adrets et synchroniser les collections sans perdre les captures.
+- [ ] Orthoptères : terminer les fusions, ajouts et réattributions incertaines — attente de validation des identités, dont les conflits Miramelle des moraines et Truxale méditerranéenne.
 
 - [x] Étendre réellement le relief d’Apprendre aux boutons, onglets et chips sur les pages principales, puis vérifier les interactions.
 
