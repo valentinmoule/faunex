@@ -721,7 +721,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
 
   return (
     <>
-      <Drawer.Root modal={!correctionOpen} open={open} onOpenChange={(isOpen) => !isOpen && !correctionOpen && !deleteInProgressRef.current && onClose()}>
+      <Drawer.Root open={open && !correctionOpen} onOpenChange={(isOpen) => !isOpen && !correctionOpen && !deleteInProgressRef.current && onClose()}>
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 z-[1300] bg-black/80" />
           <Drawer.Content
