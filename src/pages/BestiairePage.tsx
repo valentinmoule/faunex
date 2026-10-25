@@ -1179,16 +1179,16 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
               ))}
             </div>
 
-            <button
+            <Button
               onClick={() => {
                 setShowDeptPicker(false);
                 setPickerMode('hub');
                 navigate('/premium');
               }}
-              className="w-full max-w-xs rounded-2xl bg-primary text-primary-foreground py-3.5 font-display font-semibold text-sm active:scale-[0.98] transition shadow-lg shadow-primary/20"
+              className="h-12 w-full max-w-xs text-sm"
             >
               {t('bestiary.picker.goPremium')}
-            </button>
+            </Button>
             <button
               onClick={() => {
                 setShowDeptPicker(false);
@@ -1214,15 +1214,15 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                     dangerouslySetInnerHTML={{ __html: t('bestiary.picker.limitReachedDesc', { limit: FREE_SLOT_LIMIT, interpolation: { escapeValue: false } }).replace('<bold>', '<strong class="text-foreground">').replace('</bold>', '</strong>') }}
                   />
                 </div>
-                <button
+                <Button
                   onClick={() => {
                     setShowDeptPicker(false);
                     navigate('/premium');
                   }}
-                  className="w-full max-w-xs rounded-2xl bg-primary text-primary-foreground py-3.5 font-display font-semibold text-sm active:scale-[0.98] transition"
+                  className="h-12 w-full max-w-xs text-sm"
                 >
                   {t('bestiary.picker.goPremium')}
-                </button>
+                </Button>
                 <button
                   onClick={() => setShowDeptPicker(false)}
                   className="text-xs font-display text-muted-foreground underline"
@@ -1300,24 +1300,20 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
         {pickerMode === 'explore' && (
           <>
             <div className="px-5 pt-3 flex gap-2">
-              <button
+              <Button variant="chip" aria-pressed={pickerTab === 'department'}
                 onClick={() => setPickerTab('department')}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-display font-semibold transition ${
-                  pickerTab === 'department' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-                }`}
+                className="flex-1 gap-1.5 px-2 text-xs"
               >
                 <MapIcon className="w-3.5 h-3.5" strokeWidth={2} />
                 {t('bestiary.picker.departmentTab')}
-              </button>
-              <button
+              </Button>
+              <Button variant="chip" aria-pressed={pickerTab === 'city'}
                 onClick={() => setPickerTab('city')}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-display font-semibold transition ${
-                  pickerTab === 'city' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-                }`}
+                className="flex-1 gap-1.5 px-2 text-xs"
               >
                 <Building2 className="w-3.5 h-3.5" strokeWidth={2} />
                 {t('bestiary.picker.cityTab')}
-              </button>
+              </Button>
             </div>
             <div className="px-5 py-3 border-b border-border">
               <div className="relative">
@@ -2368,12 +2364,12 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                     <p className="mt-1 text-[12px] font-display text-muted-foreground leading-relaxed">
                       {t('social.leaderboard.lockedDesc')}
                     </p>
-                    <button
+                    <Button
                       onClick={() => navigate('/premium')}
-                      className="mt-4 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-[13px] font-display font-bold shadow-lg active:scale-[0.98] transition-transform"
+                      className="h-12 w-full max-w-xs text-sm"
                     >
                       {t('social.leaderboard.lockedCta')}
-                    </button>
+                    </Button>
                   </div>
                 )
               ) : (
