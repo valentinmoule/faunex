@@ -132,7 +132,7 @@ Deno.serve(async (req) => {
         const page = await fetch(sourceUrl, { signal: AbortSignal.timeout(8000), headers: { 'User-Agent': 'Faunex/1.0 (+https://faunex.fr)' } });
         if (page.ok) {
           const html = await page.text();
-          if (html.includes(scientific)) measurements = extractMeasurements(html);
+          if (html.includes(normalized)) measurements = extractMeasurements(html);
           if (Object.keys(measurements).length) sources.push({ label: 'Animal Diversity Web · University of Michigan', url: sourceUrl });
         }
       } catch { /* Unknown measurements remain unknown; taxonomy is still usable. */ }
