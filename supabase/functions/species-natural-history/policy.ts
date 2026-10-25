@@ -1,4 +1,4 @@
-export type Measurement = { value: string; kind: 'average' | 'range' };
+export type Measurement = { value: string; kind: 'average' | 'range' | 'estimate' };
 
 export function exactTaxonomy(match: Record<string, unknown>, scientific: string) {
   if (match.matchType !== 'EXACT' || match.kingdom !== 'Animalia' ||
