@@ -17,4 +17,7 @@ INSERT INTO public.animals(name,scientific_name) VALUES('Renard roux','Vulpes vu
 for (const file of ['drizzle/migrations/0058_explorer_eclats_foundation.sql', 'drizzle/migrations/0059_atomic_eclats_validation.sql']) await db.exec(readFileSync(file, 'utf8'));
 await db.exec(readFileSync('src/test/eclats.integration.sql', 'utf8'));
 console.log('Éclats ledger, UTC, anti-duplicate, reversal and access tests passed');
+await db.exec(readFileSync('drizzle/migrations/0060_eclats_lessons_only.sql', 'utf8'));
+await db.exec(readFileSync('src/test/eclatsLessonsOnly.integration.sql', 'utf8'));
+console.log('Lessons-only: activity, captures and discoveries award zero, even with legacy positive settings');
 await db.close();
