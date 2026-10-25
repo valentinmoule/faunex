@@ -29,7 +29,7 @@ import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
 import { useSpeciesFacts, useSpeciesName } from '@/hooks/useSpeciesLocale';
 import { PremiumAvatar } from '@/components/PremiumAvatar';
 import { CaptureCorrectionDialog } from '@/components/CaptureCorrectionDialog';
-import { ScanSearch, Crop as CropIcon } from 'lucide-react';
+import { ScanSearch, Crop as CropIcon, Flag } from 'lucide-react';
 import CropPhotoDialog from '@/components/capture/CropPhotoDialog';
 import { saveCroppedCaptureImage } from '@/lib/captureCrop';
 import CaptureLikesSheet from '@/components/CaptureLikesSheet';
@@ -170,6 +170,19 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
   const [savingCover, setSavingCover] = useState(false);
   const [correctionOpen, setCorrectionOpen] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
+  const reportSpecies = async () => {
+    if (!card || !session) return;
+    const { error } = await supabase.from('species_reports').insert({
+      user_id: session.user.id,
+      species_name: card.name,
+      scientific_name: card.scientificName || null,
+    });
+    if (error && error.code !== '23505') {
+      toast({ title: t('species.report.error'), variant: 'destructive' });
+      return;
+    }
+    toast({ title: t('species.report.sent') });
+  };
   const [cropOpen, setCropOpen] = useState(false);
   const [imageOverride, setImageOverride] = useState<{ id: string; url: string } | null>(null);
   const cardImage = card && imageOverride?.id === card.id ? imageOverride.url : card?.image;
@@ -924,17 +937,22 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                     <ImagePlus className={`w-6 h-6 transition-colors ${savingCover ? 'text-primary/50' : 'text-muted-foreground group-hover:text-primary'}`} />
                   </button>
                 )}
-                {cardImage && (
+                {(
                   <OverflowMenu
                     label={t('common.moreActions')}
                     triggerClassName="relative ml-auto flex items-center py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
                     iconClassName="w-6 h-6 text-muted-foreground transition-colors group-hover:text-primary"
                     items={[
-                      {
+                      ...(cardImage ? [{
                         label: t('capture.detail.share'),
                         icon: <Share2 className="w-5 h-5 text-muted-foreground" />,
                         onSelect: () => { hapticTap(); handleShare(); },
-                      },
+                      }] : []),
+                      ...(session ? [{
+                        label: t('species.report.action'),
+                        icon: <Flag className="w-5 h-5 text-muted-foreground" />,
+                        onSelect: () => { hapticTap(); void reportSpecies(); },
+                      }] : []),
                       ...(isOwner && cardImage ? [{
                         label: t('capture.crop.action'),
                         icon: <CropIcon className="w-5 h-5 text-muted-foreground" />,
