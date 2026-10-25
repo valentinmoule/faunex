@@ -123,6 +123,7 @@
       "seeSpecies_other": "See {{count}} species"
     },
     "collections": {
+      "goToBooster": "View booster {{number}}",
       "title": "My collections",
       "favorites": "Favorites",
       "favoritesEmpty": "Tap the bookmark on one of your captures to add it here.",

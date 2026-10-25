@@ -1,10 +1,13 @@
 import { Children, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Button } from '@/components/ui/button';
 
 /**
  * Carrousel horizontal de boosters : un sachet centré en grand, les voisins
  * réduits de chaque côté ; défilement au doigt avec aimantation.
  */
 const BoosterCarousel = ({ children }: { children: ReactNode }) => {
+  const { t } = useTranslation();
   const ref = useRef<HTMLDivElement>(null);
   const items = Children.toArray(children);
   const [active, setActive] = useState(0);
@@ -100,7 +103,8 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
     const el = ref.current;
     const node = el?.children[i] as HTMLElement | undefined;
     if (!el || !node) return;
-    el.scrollTo({ left: node.offsetLeft - (el.clientWidth - node.offsetWidth) / 2, behavior: 'smooth' });
+    suppressClick.current = false;
+    el.scrollTo({ left: node.offsetLeft - (el.clientWidth - node.offsetWidth) / 2, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
   };
 
   return (
@@ -137,9 +141,19 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
         ))}
       </div>
       {items.length > 1 && (
-        <div className="-mt-6 flex shrink-0 justify-center gap-1.5 pb-1" aria-hidden="true">
+        <div className="relative flex shrink-0 flex-wrap justify-center px-3 pb-5">
           {items.map((_, i) => (
-            <span key={i} className={`h-1.5 rounded-full transition-all ${i === active ? 'w-5 bg-primary' : 'w-1.5 bg-border'}`} />
+            <Button
+              key={i}
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 shrink-0 rounded-full p-0 hover:bg-transparent"
+              aria-label={t('bestiary.collections.goToBooster', { number: i + 1 })}
+              aria-current={i === active ? 'true' : undefined}
+              onClick={() => scrollToItem(i)}
+            >
+              <span className={`h-1.5 rounded-full transition-all ${i === active ? 'w-5 bg-primary' : 'w-1.5 bg-border'}`} />
+            </Button>
           ))}
         </div>
       )}
