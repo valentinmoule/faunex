@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Users, UserMinus, Mail, X, Loader2 } from 'lucide-react';
+import { ArrowLeft, Users, UserMinus, Mail, X, Loader2, MoreVertical } from 'lucide-react';
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -15,12 +16,14 @@ import { getPaddleEnvironment } from '@/lib/paddle';
 import { usePaddleCheckout } from '@/hooks/usePaddleCheckout';
 import { PaymentTestModeBanner } from '@/components/PaymentTestModeBanner';
 import { useSubscription } from '@/hooks/useSubscription';
+import { PremiumAvatar } from '@/components/PremiumAvatar';
 
 export default function FamilyPage() {
   const {t,i18n}=useTranslation(); const navigate=useNavigate(); const {user}=useAuth();
   const [family,setFamily]=useState<FamilyInfo|null>(null); const [loading,setLoading]=useState(true);
   const [busy,setBusy]=useState(false); const [failed,setFailed]=useState(false); const [email,setEmail]=useState('');
   const [remove,setRemove]=useState<string|null>(null); const [code,setCode]=useState('');
+  const [avatars,setAvatars]=useState<Record<string,string|null>>({});
   const {openCheckout}=usePaddleCheckout(); const {refresh}=useSubscription(user?.id);
   const [params,setParams]=useSearchParams(); const autoOpened=useRef(false);
   useEffect(()=>{
@@ -34,7 +37,21 @@ export default function FamilyPage() {
     void openCheckout({priceId:plan==='yearly'?'faunex_premium_family_yearly':'faunex_premium_family_monthly',plan,customerEmail:user.email,customData:{userId:user.id,familyIntentId,...(plan==='yearly'&&referralId?{referralId}:{})},successUrl:`${window.location.origin}/family?checkout=success`}).catch(()=>toast.error(t('family.error')));
   },[params,user,setParams,openCheckout,t]);
   const error=(message?:string)=>toast.error(t(`family.errors.${message}`,{defaultValue:t('family.error')}));
-  const load=async()=>{setLoading(true); const {data,error:e}=await supabase.rpc('my_family');setFailed(Boolean(e));if(!e)setFamily(readFamily(data));setLoading(false);};
+  const load=async()=>{
+    setLoading(true);
+    const {data,error:e}=await supabase.rpc('my_family');
+    setFailed(Boolean(e));
+    if(!e){
+      const next=readFamily(data);
+      setFamily(next);
+      setAvatars({});
+      if(next?.members.length){
+        const {data:profiles}=await supabase.from('profiles').select('user_id,avatar_url').in('user_id',next.members.map(member=>member.user_id));
+        setAvatars(Object.fromEntries((profiles??[]).map(profile=>[profile.user_id,profile.avatar_url])));
+      }
+    }
+    setLoading(false);
+  };
   useEffect(()=>{void load();const listener=()=>void load();window.addEventListener('focus',listener);return()=>window.removeEventListener('focus',listener);},[]);
   const action=async(fn:()=>Promise<void>)=>{if(busy)return;setBusy(true);try{await fn();await load();await refresh();}catch(e){error(e instanceof Error?e.message:undefined);}finally{setBusy(false);}};
   const invite=()=>action(async()=>{
@@ -69,7 +86,16 @@ export default function FamilyPage() {
       </>:<>
         <div className="flex items-center gap-2"><Users className="size-5 text-primary"/><span className={family.active?'text-primary font-semibold':'text-muted-foreground'}>{t(family.active?'family.active':'family.expired')}</span></div>
         <h2 className="font-display font-semibold">{t('family.members',{count:family.members.length})}</h2>
-        <div className="divide-y divide-border">{family.members.map(member=><div className="flex items-center justify-between gap-3 py-4" key={member.user_id}><div className="min-w-0"><p className="font-medium break-words">{member.name}</p><p className="text-sm text-muted-foreground">{member.user_id===family.owner_id?t('family.owner'):member.username}</p></div>{owner&&member.user_id!==user?.id&&<Button variant="ghost" size="icon" title={t('family.remove')} aria-label={t('family.remove')} disabled={busy} onClick={()=>setRemove(member.user_id)}><UserMinus className="size-5"/></Button>}</div>)}</div>
+        <div className="divide-y divide-border">{family.members.map(member=><div className="flex items-center gap-3 py-4" key={member.user_id}>
+          <PremiumAvatar avatarUrl={avatars[member.user_id]} name={member.name||member.username} size="lg"/>
+          <div className="min-w-0 flex-1"><p className="font-medium break-words">{member.name}</p><p className="text-sm text-muted-foreground">{member.user_id===family.owner_id?t('family.owner'):member.username}</p></div>
+          {owner&&member.user_id!==family.owner_id&&<DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild><Button variant="ghost" size="icon" title={t('family.memberActions',{name:member.name})} aria-label={t('family.memberActions',{name:member.name})} disabled={busy}><MoreVertical className="size-5"/></Button></DropdownMenu.Trigger>
+            <DropdownMenu.Portal><DropdownMenu.Content align="end" sideOffset={4} collisionPadding={12} className="z-50 rounded-lg border border-border bg-popover p-1 text-popover-foreground">
+              <DropdownMenu.Item disabled={busy} onSelect={()=>setRemove(member.user_id)} className="flex cursor-default items-center gap-2 rounded-md px-3 py-2 text-sm outline-none data-[highlighted]:bg-accent data-[disabled]:opacity-50"><UserMinus className="size-4"/>{t('family.removeFromPlan')}</DropdownMenu.Item>
+            </DropdownMenu.Content></DropdownMenu.Portal>
+          </DropdownMenu.Root>}
+        </div>)}</div>
         {owner?<>
           {family.active&&<form className="space-y-3" onSubmit={e=>{e.preventDefault();void invite();}}><label htmlFor="family-email" className="text-sm font-medium">{t('family.email')}</label><Input id="family-email" type="email" required maxLength={254} autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)} disabled={busy||family.members.length+family.invitations.length>=4}/><Button type="submit" disabled={busy||!email.trim()||family.members.length+family.invitations.length>=4}>{busy?<Loader2 className="size-4 mr-2 animate-spin"/>:<Mail className="size-4 mr-2"/>}{t('family.inviteEmail')}</Button></form>}
           {family.invitations.length>0&&<><h3 className="font-semibold">{t('family.pending')}</h3>{family.invitations.map(inv=><div key={inv.id} className="flex items-center justify-between gap-2"><div className="min-w-0">{inv.recipient_email&&<p className="text-sm break-all">{inv.recipient_email}</p>}<p className="text-sm text-muted-foreground">{t('family.expires',{date:new Date(inv.expires_at).toLocaleDateString(i18n.language)})}</p></div><Button variant="ghost" size="icon" aria-label={t('family.revoke')} title={t('family.revoke')} disabled={busy} onClick={()=>void action(async()=>{const {error:e}=await supabase.rpc('revoke_family_invitation',{p_invitation:inv.id});if(e)throw e;})}><X className="size-4"/></Button></div>)}</>}
@@ -78,6 +104,6 @@ export default function FamilyPage() {
         {!owner&&<p className="text-sm text-muted-foreground">{t('family.personalWarning')}</p>}
       </>}
     </main>
-    {remove&&createPortal(<div role="dialog" aria-modal="true" className="fixed inset-0 z-[100] bg-background/95 flex items-center justify-center px-6"><div className="max-w-sm space-y-6"><h2 className="font-semibold">{t(remove===user?.id?'family.confirmLeave':'family.confirmRemove')}</h2><div className="flex gap-3"><Button variant="outline" onClick={()=>setRemove(null)}>{t('family.cancel')}</Button><Button disabled={busy} onClick={()=>void action(async()=>{const {error:e}=await supabase.rpc('remove_family_member',{p_user:remove});if(e)throw e;setRemove(null);})}>{t('family.confirm')}</Button></div></div></div>,document.body)}
+    {remove&&createPortal(<div role="dialog" aria-modal="true" className="fixed inset-0 z-[100] bg-background/95 flex items-center justify-center px-6"><div className="max-w-sm space-y-6"><h2 className="font-semibold">{t(remove===user?.id?'family.confirmLeave':'family.confirmRemove')}</h2>{remove!==user?.id&&<p className="text-sm text-muted-foreground">{t('family.removeWarning')}</p>}<div className="flex gap-3"><Button variant="outline" onClick={()=>setRemove(null)}>{t('family.cancel')}</Button><Button disabled={busy} onClick={()=>void action(async()=>{const {error:e}=await supabase.rpc('remove_family_member',{p_user:remove});if(e)throw e;setRemove(null);})}>{t('family.confirm')}</Button></div></div></div>,document.body)}
   </div>;
 }
