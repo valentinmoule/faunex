@@ -6,6 +6,7 @@ describe('orthoptera collection after catalogue actualisation', () => {
     ['Dectique verrucivore', 'Decticus verrucivorus'],
     ['Œdipode germanique', 'Oedipoda germanica'],
     ['Œdipode turquoise', 'Oedipoda caerulescens'],
+    ['Miramelle des moraines', 'Miramella alpina'],
     ['Miramelle des moraines', 'Podisma pedestris'],
     ['Pyrgomorphe à tête conique', 'Pyrgomorpha conica'],
     ['Arcyptère bariolée', 'Arcyptera fusca'],
