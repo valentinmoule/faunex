@@ -1,3 +1,4 @@
+import { fetchFinderCounts } from '@/lib/finderCounts';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { fetchAllRows } from '@/lib/fetchAll';
@@ -224,9 +225,7 @@ const buildList = (
         ),
         // Pagination obligatoire : l'API limite les RPC à 1000 lignes par défaut,
         // or il y a plus de 4000 espèces capturées par la communauté.
-        fetchAllRows<any>((from, to) =>
-          supabase.rpc('species_finder_counts').order('animal_key').range(from, to),
-        ),
+        fetchFinderCounts(),
 
       ]);
       const userCaptures = capturesResult.data || [];
