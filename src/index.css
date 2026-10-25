@@ -47,6 +47,14 @@
     --amber-dark: 32 82% 45%;
     --earth: 25 24% 40%;
     --sky: 205 88% 55%;
+    --learning-green: 155 65% 40%;
+    --learning-green-base: 160 66% 27%;
+    --learning-sky: 199 74% 45%;
+    --learning-sky-base: 204 72% 32%;
+    --learning-muted: 155 15% 90%;
+    --learning-muted-base: 155 13% 79%;
+    --learning-trail: 151 20% 83%;
+    --learning-button-shadow: 0 5px 0 hsl(var(--learning-green-base));
     --booster-ink: 165 44% 8%;
     --booster-paper: 48 40% 96%;
     --booster-foil: linear-gradient(110deg, hsl(var(--forest-dark)), hsl(var(--forest-light)) 26%, hsl(var(--primary)) 48%, hsl(var(--forest-light)) 77%, hsl(var(--forest-dark)));
