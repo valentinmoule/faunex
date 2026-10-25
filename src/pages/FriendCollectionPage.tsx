@@ -20,6 +20,7 @@ import {
   SPECIES_SORT_OPTIONS,
 } from '@/components/SpeciesSortFilter';
 import CardDetailSheet from '@/components/CardDetailSheet';
+import { PinnedCollectionsCarousel } from '@/components/PinnedCollectionsCarousel';
 import { type AnimalCard, type Rarity, RARITY_RANK, RARITY_FX, normalizeRarity } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
 import { fetchAllRows } from '@/lib/fetchAll';
@@ -385,6 +386,11 @@ const FriendCollectionPage = () => {
           </div>
         </div>
       </PageHeader>
+
+      {/* Vitrine : collections épinglées en ronds façon stories */}
+      {userId && (
+        <PinnedCollectionsCarousel userId={userId} captures={captures} onSelectCard={setSelectedCard} />
+      )}
 
       {/* Collection - always visible */}
       <div className="max-w-lg mx-auto px-4 pt-3">
