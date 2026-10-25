@@ -1573,6 +1573,24 @@ export type Database = {
         }
         Relationships: []
       }
+      pinned_profile_collections: {
+        Row: {
+          collection_key: string
+          pinned_at: string
+          user_id: string
+        }
+        Insert: {
+          collection_key: string
+          pinned_at?: string
+          user_id: string
+        }
+        Update: {
+          collection_key?: string
+          pinned_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profile_capture_order: {
         Row: {
           capture_ids: Json

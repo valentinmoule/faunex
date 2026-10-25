@@ -372,6 +372,13 @@
       "when": 1792941265822,
       "tag": "0052_add_profile_bio",
       "breakpoints": true
+    },
+    {
+      "idx": 53,
+      "version": "7",
+      "when": 1792941916270,
+      "tag": "0053_pinned_profile_collections",
+      "breakpoints": true
     }
   ]
 }
