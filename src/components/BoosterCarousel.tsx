@@ -8,6 +8,7 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
   const ref = useRef<HTMLDivElement>(null);
   const items = Children.toArray(children);
   const [active, setActive] = useState(0);
+  const activeRef = useRef(0);
 
   const update = useCallback(() => {
     const el = ref.current;
@@ -86,7 +87,7 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
           if (suppressClick.current) { e.preventDefault(); e.stopPropagation(); suppressClick.current = false; }
         }}
         onDragStart={(e) => e.preventDefault()}
-        className="flex cursor-grab select-none snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain pt-6 pb-14 scrollbar-none"
+        className="flex cursor-grab select-none snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain pt-6 pb-14 no-scrollbar"
         style={{ paddingInline: 'calc(50% - min(34vw, 160px))' }}
       >
         {items.map((child, i) => (
