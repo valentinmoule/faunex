@@ -2052,7 +2052,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
           )}
 
           {viewMode === 'collections' && (
-            <section className="flex h-[calc(100dvh-205px-env(safe-area-inset-bottom))] flex-col gap-4 overflow-hidden">
+            <section className="flex h-[calc(100dvh-231px-env(safe-area-inset-bottom))] flex-col gap-4 overflow-hidden">
               {/* Formulaire de création de collection personnalisée (ouvert depuis le hub « Ajouter ») */}
               {creatingCustom && (
                 <form
@@ -2302,7 +2302,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
     : categoryData.find(c => c.name === selectedCategory);
 
   return (
-    <main className="min-h-screen bg-background pb-24">
+    <main className={`min-h-screen bg-background ${viewMode === 'collections' ? 'overflow-hidden pb-0' : 'pb-24'}`}>
       <Helmet>
         <title>{t('bestiary.seo.title')}</title>
         <meta name="description" content={t('bestiary.seo.description')} />
