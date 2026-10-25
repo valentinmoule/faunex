@@ -1,0 +1,2 @@
+ALTER TABLE public.species_reports ADD COLUMN IF NOT EXISTS report_type text;
+COMMENT ON COLUMN public.species_reports.report_type IS 'Motif du signalement : wrong_species (mauvaise identification) ou does_not_exist (la fiche ne correspond a aucune espece reelle).';
