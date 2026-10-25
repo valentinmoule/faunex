@@ -1,0 +1,2 @@
+ALTER TABLE public.user_collection_covers DROP CONSTRAINT user_collection_covers_user_id_fkey;
+ALTER TABLE public.user_collection_covers ADD CONSTRAINT user_collection_covers_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(user_id) ON DELETE CASCADE;
