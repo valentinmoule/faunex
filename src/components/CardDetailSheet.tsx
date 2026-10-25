@@ -32,6 +32,8 @@ import { CaptureCorrectionDialog } from '@/components/CaptureCorrectionDialog';
 import { ScanSearch, Crop as CropIcon } from 'lucide-react';
 import CropPhotoDialog from '@/components/capture/CropPhotoDialog';
 import { saveCroppedCaptureImage } from '@/lib/captureCrop';
+import CaptureLikesSheet from '@/components/CaptureLikesSheet';
+import { Button } from '@/components/ui/button';
 
 interface Props {
   card: AnimalCard | null;
@@ -206,6 +208,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
 
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
+  const [likesOpen, setLikesOpen] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentCount, setCommentCount] = useState(0);
   const [newComment, setNewComment] = useState('');
@@ -239,6 +242,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
     setAddToOpen(false);
     setShareOpen(false);
     setCorrectionOpen(false);
+    setLikesOpen(false);
   }, [open]);
 
   // Reset transient UI state when a new card opens
@@ -254,6 +258,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
     setCommentCount(0);
     setLiked(false);
     setLikeCount(0);
+    setLikesOpen(false);
 
     // Preload fullscreen image (usually already in browser cache from grid)
     if (cardImage) {
@@ -862,18 +867,20 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                 )}
                 <div className="flex items-center gap-3 flex-wrap justify-center">
 
-                <button
+                <div className="flex items-center">
+                <Button variant="ghost"
                   onClick={handleLike}
                   aria-pressed={liked}
                   aria-label={t('capture.detail.like')}
                   title={t('capture.detail.like')}
-                  className="relative flex items-center gap-2 py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
+                  className="group h-10 w-8 rounded-none p-0 hover:bg-transparent [&_svg]:size-6"
                 >
                   <Heart className={`w-6 h-6 transition-all ${liked ? 'fill-destructive text-destructive scale-110' : 'text-muted-foreground group-hover:text-destructive'}`} />
+                </Button>
                   {likeCount > 0 && (
-                    <span className={`text-sm font-display font-semibold ${liked ? 'text-destructive' : 'text-muted-foreground'}`}>{likeCount}</span>
+                    <Button variant="ghost" onClick={() => { hapticTap(); setLikesOpen(true); }} aria-label={t('capture.detail.viewLikes', { count: likeCount })} className={`h-10 min-w-8 rounded-none px-1 text-sm hover:bg-transparent ${liked ? 'text-destructive' : 'text-muted-foreground'}`}>{likeCount}</Button>
                   )}
-                </button>
+                </div>
                 <button
                   onClick={() => setShowComments(!showComments)}
                   aria-expanded={showComments}
@@ -1283,6 +1290,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
           </Drawer.Content>
         </Drawer.Portal>
       </Drawer.Root>
+      <CaptureLikesSheet key={card.id} captureId={card.id} open={likesOpen} onClose={() => setLikesOpen(false)} onViewProfile={userId => { setLikesOpen(false); onClose(); navigate(`/explorer/${userId}/collection`); }} />
       <ShareCaptureSheet card={card} open={shareOpen} onClose={() => setShareOpen(false)} />
       {card && (
         <AddToCollectionSheet
