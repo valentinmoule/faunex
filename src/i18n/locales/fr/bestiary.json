@@ -123,6 +123,7 @@
       "seeSpecies_other": "Voir {{count}} espèces"
     },
     "collections": {
+      "goToBooster": "Voir le booster {{number}}",
       "title": "Mes collections",
       "favorites": "Favoris",
       "favoritesEmpty": "Touche le marque-page d'une de tes captures pour l'ajouter ici.",
