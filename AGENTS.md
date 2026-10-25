@@ -8,7 +8,7 @@ Reserve referrals for authenticated new customers, verify completed transactions
 
 ## Family access derives from verified purchases
 
-Keep family membership separate from personal data and billing, include the payer in the seat limit, serialize invitations and acceptance in database functions, and authorize Premium server-side; bind family purchases to authenticated checkout intents and never treat client or sandbox status as live access. Native family sales remain unavailable until verified store purchases are configured.
+Keep family membership separate from personal data and billing, include the payer in the seat limit, serialize invitations and acceptance in database functions, and authorize Premium server-side; bind family purchases to authenticated checkout intents and never treat client or sandbox status as live access. Reuse the native external-browser checkout bridge for family purchases, carrying the verified intent without bypassing payment verification.
 
 ## Partner landing pages share one presentation
 

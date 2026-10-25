@@ -69,7 +69,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, loading, needsUsername } = useAuth();
   const location = useLocation();
   if (loading) return <LoadingScreen />;
-  if (!session) return <Navigate to="/auth" replace />;
+  if (!session) {
+    if(location.pathname==='/family' && new URLSearchParams(location.search).get('checkout')==='auto') {
+      sessionStorage.setItem('faunex.familyCheckoutReturn',location.pathname+location.search);
+    }
+    return <Navigate to="/auth" replace />;
+  }
   if (needsUsername && location.pathname !== '/complete-profile') return <Navigate to="/complete-profile" replace />;
   return <>{children}</>;
 };
@@ -101,6 +106,11 @@ const AuthRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, loading } = useAuth();
   if (loading) return null;
   if (session) {
+    const checkout=sessionStorage.getItem('faunex.familyCheckoutReturn');
+    if(checkout?.startsWith('/family?') && new URLSearchParams(checkout.split('?')[1]).get('checkout')==='auto') {
+      sessionStorage.removeItem('faunex.familyCheckoutReturn');
+      return <Navigate to={checkout} replace />;
+    }
     const invitation=sessionStorage.getItem('faunex.familyReturn');
     if(invitation && /^[0-9a-f]{64}$/.test(invitation)) {
       sessionStorage.removeItem('faunex.familyReturn');
