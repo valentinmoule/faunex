@@ -2,6 +2,7 @@ import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { AnimalCard } from '@/data/mockData';
 import { setPendingShelve } from '@/lib/shelveAnimation';
 
@@ -17,7 +18,7 @@ const mocks = vi.hoisted(() => {
 });
 const bestiaryGate = vi.hoisted(() => ({ pending: null as Promise<void> | null }));
 
-vi.mock('@/integrations/supabase/client', () => ({ supabase: { from: (table: string) => table === 'captures' ? mocks.captureQuery : { select: () => mocks.feedQuery } } }));
+vi.mock('@/integrations/supabase/client', () => ({ supabase: { from: (table: string) => table === 'captures' ? mocks.captureQuery : { select: () => mocks.feedQuery }, functions: { invoke: async () => ({ data: null, error: null }) } } }));
 vi.mock('@/contexts/AuthContext', () => ({
   useAuth: () => authState,
   AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
@@ -74,14 +75,20 @@ describe('Suppression de capture', () => {
   it('retire la vraie tuile sous le snapshot animé pour éviter toute réapparition à la fin', async () => {
     const onDeleted = vi.fn();
     const onClose = vi.fn();
-    const { container, rerender } = render(<MemoryRouter><CardDetailSheet card={card} open onClose={onClose} onDeleted={onDeleted} /></MemoryRouter>);
+    const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const sheet = (c: AnimalCard | null, open: boolean) => (
+      <QueryClientProvider client={qc}>
+        <MemoryRouter><CardDetailSheet card={c} open={open} onClose={onClose} onDeleted={onDeleted} /></MemoryRouter>
+      </QueryClientProvider>
+    );
+    const { container, rerender } = render(sheet(card, true));
     const moreBtn = await screen.findByRole('button', { name: 'common.moreActions' });
     fireEvent.keyDown(moreBtn, { key: 'Enter' });
     fireEvent.click(await screen.findByRole('menuitem', { name: 'capture.detail.deleteCapture' }));
     fireEvent.click(screen.getByRole('button', { name: 'capture.detail.deleteBtn' }));
     await waitFor(() => expect(onClose).toHaveBeenCalledOnce());
     expect(onDeleted).toHaveBeenCalledExactlyOnceWith(card.id);
-    rerender(<MemoryRouter><CardDetailSheet card={null} open={false} onClose={onClose} onDeleted={onDeleted} /></MemoryRouter>);
+    rerender(sheet(null, false));
     const ghost = document.querySelector('.delete-vanish-card');
     expect(ghost).toBeInTheDocument();
     expect(document.querySelectorAll('.delete-sparkle')).toHaveLength(12);
