@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "240699999555",
+    "project_id": "faunex-19f67",
+    "storage_bucket": "faunex-19f67.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:240699999555:android:edb248332a1d3769c61bf6",
+        "android_client_info": {
+          "package_name": "fr.faunex.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0oQjZCL5Xm1qFHQMJGoBaxnYQgmVCE7Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
