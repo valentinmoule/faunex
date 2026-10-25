@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Check, Lock, Sprout, Loader2, Star, Play, RotateCcw } from 'lucide-react';
+import { ArrowLeft, Check, Lock, Sprout, Loader2, Star, Play, RotateCcw, Target } from 'lucide-react';
 import SeedIcon from '@/components/SeedIcon';
 import { PageHeader } from '@/components/PageHeader';
 import { Button } from '@/components/ui/button';
@@ -31,6 +31,7 @@ export default function LearningPage() {
   const current = lessons.find(l => !completed.has(l.id)); const quota = Boolean(data && data.used >= data.limit);
   const target = current ?? lessons[lessons.length - 1]; const reviewing = Boolean(target && !current); const offerPremium = quota && data?.limit === 3;
   const currentNode = useRef<HTMLDivElement>(null);
+  const [farFromStep, setFarFromStep] = useState(false);
   const arrivalId = current?.id ?? lessons[lessons.length - 1]?.id;
   useEffect(() => {
     if (attempt || !arrivalId) return;
@@ -43,6 +44,15 @@ export default function LearningPage() {
     const timers = [80, 200, 400, 700, 1100].map(ms => window.setTimeout(snap, ms));
     window.addEventListener('wheel', stop, { passive: true }); window.addEventListener('touchstart', stop, { passive: true });
     return () => { cancelAnimationFrame(frame); timers.forEach(clearTimeout); window.removeEventListener('wheel', stop); window.removeEventListener('touchstart', stop); };
+  }, [path?.id, arrivalId, attempt]);
+  useEffect(() => {
+    const node = currentNode.current;
+    if (attempt || !node) return;
+    // Le bouton de retour n'apparaît que quand l'étape en cours sort de la zone utile
+    // de l'écran (sous l'en-tête ou au-dessus du bandeau du bas).
+    const observer = new IntersectionObserver(([entry]) => setFarFromStep(!entry.isIntersecting), { rootMargin: '-72px 0px -132px 0px' });
+    observer.observe(node);
+    return () => observer.disconnect();
   }, [path?.id, arrivalId, attempt]);
   async function open(id: string) { if (!path) return; setBusy(true); setError(''); try { setAttempt(await startLesson(path.id, id)); } catch (e) { const message = String((e as { message?: string }).message); setError(t(message.includes('DAILY_LIMIT') ? 'learning.quota' : message.includes('LESSON_LOCKED') ? 'learning.locked' : 'learning.error')); } finally { setBusy(false); } }
   function refresh() { void client.invalidateQueries({ queryKey: ['learning', session?.user.id] }); void client.invalidateQueries({ queryKey: walletKey(session?.user.id) }); }
@@ -79,6 +89,9 @@ export default function LearningPage() {
       {!status.isPending && !status.isError && !path && <div className="py-20 text-center"><Sprout className="mx-auto mb-5 h-16 w-16 text-primary" /><p className="text-muted-foreground">{t('learning.empty')}</p></div>}
       {error && <p role="alert" className="mt-4 text-destructive">{error}</p>}
     </div>
+    {path && farFromStep && createPortal(<button type="button" className="learning-jump font-display" onClick={() => currentNode.current?.scrollIntoView({ block: 'center', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })}>
+      <Target className="h-4 w-4" /><span>{t('learning.backToStep')}</span>
+    </button>, document.body)}
     {path && target && (offerPremium || !quota) && createPortal(<div className="learning-footer">
       <button type="button" className={`learning-cta${offerPremium ? ' learning-cta-premium' : ''}`} disabled={busy} onClick={() => (offerPremium ? navigate('/premium') : void open(target.id))}>
         <span className="learning-cta-icon">{busy ? <Loader2 className="h-5 w-5 animate-spin" /> : offerPremium ? <Star className="h-5 w-5" fill="currentColor" /> : reviewing ? <RotateCcw className="h-5 w-5" /> : <Play className="h-5 w-5" fill="currentColor" />}</span>
