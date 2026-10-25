@@ -11,7 +11,7 @@ import {
   rank1Badge,
   type BadgeDef,
 } from '@/lib/badges';
-import { COMMUNITY_BADGE_ID, COMMUNITY_BADGE_XP } from '@/components/DiscordInviteCard';
+import { COMMUNITY_BADGE_ID, COMMUNITY_BADGE_XP } from '@/lib/discordCommunity';
 import { useTranslation } from 'react-i18next';
 
 export interface BadgeProgress {
