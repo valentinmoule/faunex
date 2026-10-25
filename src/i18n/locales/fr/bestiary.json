@@ -255,7 +255,9 @@
       "unpin": "Retirer de mon profil",
       "showcase": "Collections épinglées",
       "showcaseEmpty": "Aucune espèce capturée pour le moment.",
-      "progress": "{{captured}}/{{total}} capturées"
+      "progress": "{{captured}}/{{total}} capturées",
+      "showcaseCapturedCount": "{{count}} espèce capturée",
+      "showcaseCapturedCount_other": "{{count}} espèces capturées"
     }
   }
 }
