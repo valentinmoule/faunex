@@ -25,7 +25,7 @@ const GameCounter = ({ icon, value, label, onClick, title }: GameCounterProps) =
     </>
   );
 
-  const className = 'flex h-8 shrink-0 items-center gap-1.5 press';
+  const className = 'flex h-8 shrink-0 items-center gap-2 press';
 
   if (onClick) {
     return (

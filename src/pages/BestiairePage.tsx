@@ -1809,7 +1809,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                 <h1 className="min-w-0 truncate text-2xl font-display font-bold text-primary">
                   {viewMode === 'leaderboard' ? t('social.leaderboard.ranking') : isFaunexHub ? t('bestiary.header.title') : t('bestiary.header.bestiaryTitle')}
                 </h1>
-                <div className="flex items-center gap-2.5">
+                <div className="flex items-center gap-4">
                   <CurrencyBalance />
                   <CaptureQuotaBadge userId={session?.user?.id} isPremium={isPremium} premiumLoading={premiumLoading} />
                   <button
