@@ -30,8 +30,9 @@ Deno.serve(async req => {
       await attestModeratedCapture(db, input.captureId, 'human_moderation');
       return json({ success: true });
     }
-    const { data: capture } = await db.from('captures').select('id,user_id,image_url,animal_name,scientific_name,status').eq('id', input.captureId).eq('user_id', auth.user.id).single();
-    const { data: proof } = await db.from('capture_validations').select('*').eq('id', input.receiptId).eq('user_id', auth.user.id).single();
+    const { data: capture, error: captureError } = await db.from('captures').select('id,user_id,image_url,animal_name,scientific_name,status').eq('id', input.captureId).eq('user_id', auth.user.id).single();
+    const { data: proof, error: proofError } = await db.from('capture_validations').select('*').eq('id', input.receiptId).eq('user_id', auth.user.id).single();
+    if (captureError || proofError) return json({ error: 'Validation unavailable' }, 409);
     if (!capture || !proof || proof.source !== 'ai' || proof.revoked_at || proof.consumed_at || new Date(proof.expires_at).getTime() < Date.now() || capture.status !== 'approved') return json({ error: 'Invalid validation' }, 409);
     const originalBytes = imageBytes(input.analyzedImage);
     if (await imageDigest(originalBytes) !== proof.image_hash) return json({ error: 'Image mismatch' }, 400);
@@ -42,12 +43,9 @@ Deno.serve(async req => {
     if (savedBytes.length > 6_000_000 || (input.crop ? !matchesCrop(originalBytes, savedBytes, input.crop) : await imageDigest(savedBytes) !== proof.image_hash)) return json({ error: 'Image mismatch' }, 400);
     const norm = (v: string | null) => (v ?? '').trim().toLowerCase();
     if (norm(capture.animal_name) !== norm(proof.animal_name) || norm(capture.scientific_name) !== norm(proof.scientific_name)) return json({ success: true, deferred: 'canonical_identity' });
-    const { error: bindError } = await db.from('capture_validations').update({ image_url: capture.image_url, capture_id: capture.id }).eq('id', proof.id).is('consumed_at', null);
+    const { data: confirmation, error: bindError } = await db.rpc('bind_capture_eclats', { p_capture: capture.id, p_proof: proof.id, p_user: auth.user.id, p_url: capture.image_url });
     if (bindError) throw bindError;
-    const { error: updateError } = await db.from('captures').update({ economy_validation_id: proof.id }).eq('id', capture.id).eq('image_url', capture.image_url).eq('animal_name', capture.animal_name).eq('status', 'approved');
-    if (updateError) throw updateError;
-    const { data: gains } = await db.from('eclats_transactions').select('balance_delta').eq('user_id', auth.user.id).or(`operation_key.eq.capture:${capture.id},source_id.eq.${capture.id}`);
-    return json({ success: true, amount: (gains ?? []).reduce((n, r) => n + Number(r.balance_delta), 0) });
+    return json(confirmation);
   } catch (error) {
     console.error('Capture economy confirmation failed', error instanceof Error ? error.message : 'unknown');
     return json({ error: 'Confirmation unavailable' }, 503);
