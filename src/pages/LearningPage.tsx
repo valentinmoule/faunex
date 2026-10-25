@@ -53,8 +53,8 @@ export default function LearningPage() {
                 <Button variant="ghost" size="icon" disabled={busy || locked || (active && quota)} aria-label={`${text(lesson, 'title')} · ${t(done ? 'learning.done' : locked ? 'learning.locked' : 'learning.current')}`} onClick={() => void open(lesson.id)} className={`learning-node h-20 w-20 rounded-full ${done ? 'learning-node-done' : active ? 'learning-node-active' : 'learning-node-locked'} ${lesson.special ? 'learning-node-trophy' : ''}`}>
                   {done ? <Check className="h-9 w-9" strokeWidth={3} /> : locked ? <Lock className="h-7 w-7" /> : lesson.special ? <Trophy className="h-9 w-9" /> : position % 2 ? <Star className="h-9 w-9" fill="currentColor" /> : <Bird className="h-9 w-9" />}
                 </Button>
-                <p className={`mt-4 text-center text-sm font-bold ${locked ? 'text-muted-foreground' : 'text-foreground'}`}>{text(lesson, 'title')}</p>
-                {done && <span className="mt-1 text-xs font-semibold text-primary">{t('learning.done')}</span>}
+                <p className={`mt-4 bg-background px-2 text-center text-sm font-bold ${locked ? 'text-muted-foreground' : 'text-foreground'}`}>{text(lesson, 'title')}</p>
+                {done && <span className="mt-1 bg-background px-2 text-xs font-semibold text-primary">{t('learning.done')}</span>}
               </div>
               {lesson.special && <Trophy aria-hidden="true" className="absolute left-5 top-5 h-12 w-12 text-muted-foreground/20" />}
             </div>;
