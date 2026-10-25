@@ -1,4 +1,9 @@
 
+## Premium Famille — analyse et plan uniquement
+- [ ] Analyser les comptes, les accès Premium et les achats web/iOS/Android
+- [ ] Présenter un plan sécurisé avec limites, invitations et conservation des abonnements individuels
+- [ ] Implémenter après validation du plan et définition de l’offre : accord utilisateur requis, aucun paiement à modifier avant
+
 ## Parrainage Premium annuel
 - [x] Ajouter le code personnel et la saisie avant l’achat annuel, avec validation pour les nouveaux clients
 - [x] Accorder 30 jours aux deux comptes après paiement confirmé, sans auto-parrainage ni double récompense
