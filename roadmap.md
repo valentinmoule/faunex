@@ -1,5 +1,6 @@
 
 ## Notifications natives iPhone et Android
+- [x] Préciser les alternatives : APNs direct sur iPhone ; service unifié possible, mais FCM généralement requis sur Android
 - [ ] Connecter le service d’envoi Firebase et vérifier la configuration Apple/Android
 - [ ] Enregistrer les appareils et relier les notifications e-mail aux notifications natives, en respectant les préférences
 - [ ] Tester les règles d’envoi et confirmer la réception sur appareils après reconstruction
