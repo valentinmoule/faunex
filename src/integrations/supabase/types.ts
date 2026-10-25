@@ -870,6 +870,36 @@ export type Database = {
           },
         ]
       }
+      family_checkout_intents: {
+        Row: {
+          created_at: string
+          environment: string
+          expires_at: string
+          id: string
+          price_id: string
+          subscription_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          environment: string
+          expires_at?: string
+          id?: string
+          price_id: string
+          subscription_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          environment?: string
+          expires_at?: string
+          id?: string
+          price_id?: string
+          subscription_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       family_invitations: {
         Row: {
           accepted_at: string | null
@@ -2660,6 +2690,7 @@ export type Database = {
       ensure_paid_family: { Args: { p_subscription: string }; Returns: string }
       ensure_weekly_quests: { Args: never; Returns: number }
       ensure_weekly_quests_for: { Args: { p_user_id: string }; Returns: number }
+      family_checkout_guard: { Args: { p_user: string }; Returns: undefined }
       family_valid: { Args: { p_family: string }; Returns: boolean }
       get_my_profile: {
         Args: never

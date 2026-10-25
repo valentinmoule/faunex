@@ -281,6 +281,13 @@
       "when": 1792929456046,
       "tag": "0039_premium_family_memberships",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1792929844005,
+      "tag": "0040_family_checkout_intents",
+      "breakpoints": true
     }
   ]
 }
