@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Harmoniser boutons et contrôles avec le relief d’Apprendre, sans toucher aux cartes, raretés ni boosters ; vérifier les interactions.
+- [x] Harmoniser boutons et contrôles avec le relief d’Apprendre, sans toucher aux cartes, raretés ni boosters ; vérifier les interactions.
 
 - [x] Mentions @ dans les commentaires : saisie, notification sécurisée et vérification.
 
