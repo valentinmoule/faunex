@@ -1,4 +1,8 @@
 
+## Identité des œdipodes
+- [ ] Vérifier les trois noms, corriger le catalogue et les fiches associées, ajouter Sphingonotus caerulans si absent
+- [ ] Examiner les captures et les risques de confusion sans réattribuer des photos non vérifiées ; tester les identités
+
 ## Analyse du compte de démonstration
 - [x] Première passe Gemini 3.8 Flash activée pour le compte demandé, autres comptes et quotas inchangés ; fonction déployée, 11 tests réussis, identification connectée d’un Harfang des neiges affichée en 13,6 s sans ajout à la collection
 
