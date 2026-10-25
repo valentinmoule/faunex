@@ -16,7 +16,7 @@ import HolographicCard from '@/components/HolographicCard';
 import RarityBadge from '@/components/RarityBadge';
 import { hapticTap } from '@/lib/haptics';
 import { toast } from '@/hooks/use-toast';
-import { Trash2, Share2, Bookmark, MoreHorizontal } from 'lucide-react';
+import { Trash2, Share2, Bookmark } from 'lucide-react';
 import OverflowMenu from '@/components/OverflowMenu';
 import { useNavigate } from 'react-router-dom';
 import { useFavorites } from '@/hooks/useFavorites';
