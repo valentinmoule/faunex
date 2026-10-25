@@ -79,7 +79,6 @@ import { FAVORITES_FILTER } from '@/components/SpeciesSortFilter';
 import RewardCelebration from '@/components/RewardCelebration';
 import CaptureQuotaBadge from '@/components/CaptureQuotaBadge';
 import CurrencyBalance from '@/components/CurrencyBalance';
-import { Button } from '@/components/ui/button';
 import { Sprout } from 'lucide-react';
 import { ProfileButton } from '@/components/ProfileDrawer';
 import {
