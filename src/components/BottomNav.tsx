@@ -51,7 +51,7 @@ const BottomNav = () => {
               <button
                 key={tab.labelKey}
                 onClick={() => go(tab)}
-                className="flex flex-col items-center justify-center -mt-6 press"
+                className="flex flex-col items-center justify-center -mt-[18px] press"
               >
                 <div className="capture-halo w-[54px] h-[54px] rounded-[20px] bg-gradient-to-b from-forest-light to-primary flex items-center justify-center shadow-[0_2px_4px_hsla(165,25%,11%,0.08),0_12px_28px_-10px_hsl(var(--primary)/0.65)] ring-4 ring-card">
                   <Icon className="w-6 h-6 text-primary-foreground" strokeWidth={2.2} />
