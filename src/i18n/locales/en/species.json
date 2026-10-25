@@ -10,6 +10,8 @@
       "weightAverage": "Average adult weight",
       "sizeRange": "Adult length (range)",
       "weightRange": "Adult weight (range)",
+      "sizeEstimate": "Adult length (estimate)",
+      "weightEstimate": "Adult weight (estimate)",
       "unknown": "Not documented",
       "loading": "Loading natural history data…",
       "unavailable": "Currently unavailable.",

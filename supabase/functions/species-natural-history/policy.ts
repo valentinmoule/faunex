@@ -1,4 +1,4 @@
-export type Measurement = { value: string; kind: 'average' | 'range' };
+export type Measurement = { value: string; kind: 'average' | 'range' | 'estimate' };
 
 export function exactTaxonomy(match: Record<string, unknown>, scientific: string) {
   if (match.matchType !== 'EXACT' || match.kingdom !== 'Animalia' ||
@@ -25,6 +25,28 @@ export function extractMeasurements(html: string): Record<string, Measurement> {
         result[key] = { value, kind };
         break;
       }
+    }
+  }
+  return result;
+}
+
+const METRIC_VALUE = /^\d+(?:\.\d+)?(?:\s+to\s+\d+(?:\.\d+)?)?\s*(?:mm|cm|m|mg|g|kg)$/;
+
+// When no measured source exists, an AI estimate fills the sheet. Only strict
+// metric values are kept; anything else is dropped so prose never leaks in.
+export function parseEstimatedMeasurements(raw: string): Record<string, Measurement> {
+  const result: Record<string, Measurement> = {};
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw.replace(/^```(?:json)?\s*|\s*```$/g, '').trim());
+  } catch {
+    return result;
+  }
+  if (typeof parsed !== 'object' || parsed === null) return result;
+  for (const key of ['size', 'weight'] as const) {
+    const value = (parsed as Record<string, unknown>)[key];
+    if (typeof value === 'string' && METRIC_VALUE.test(value.trim())) {
+      result[key] = { value: value.trim(), kind: 'estimate' };
     }
   }
   return result;

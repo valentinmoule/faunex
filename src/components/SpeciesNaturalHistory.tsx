@@ -19,7 +19,8 @@ export default function SpeciesNaturalHistory({ name, scientificName }: { name: 
       {(['size', 'weight'] as const).map((key) => {
         const metric = data.measurements?.[key];
         const Icon = key === 'size' ? Ruler : Weight;
-        return <DetailRow key={key} icon={<Icon className="w-4 h-4" />} label={t(`species.naturalHistory.${key}${metric?.kind === 'range' ? 'Range' : 'Average'}`)} value={metric ? measurement(metric.value) : t('species.naturalHistory.unknown')} />;
+        const suffix = metric?.kind === 'range' ? 'Range' : metric?.kind === 'estimate' ? 'Estimate' : 'Average';
+        return <DetailRow key={key} icon={<Icon className="w-4 h-4" />} label={t(`species.naturalHistory.${key}${suffix}`)} value={metric ? measurement(metric.value) : t('species.naturalHistory.unknown')} />;
       })}
     </>
   );

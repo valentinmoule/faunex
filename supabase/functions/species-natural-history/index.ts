@@ -1,6 +1,85 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
-import { exactTaxonomy, extractMeasurements } from './policy.ts';
+import { exactTaxonomy, extractMeasurements, parseEstimatedMeasurements } from './policy.ts';
+
+// Typical adult size/weight estimated by AI when no measured source (ADW)
+// documents the species. Strict JSON schema, metric only, validated before caching.
+async function estimateMeasurements(name: string, scientific: string) {
+  const apiKey = Deno.env.get('LOVABLE_API_KEY');
+  if (!apiKey) return {};
+  try {
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/responses', {
+      method: 'POST',
+      signal: AbortSignal.timeout(20000),
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        'X-Lovable-AIG-SDK': 'fetch',
+      },
+      body: JSON.stringify({
+        model: 'openai/gpt-6-astra',
+        store: false,
+        stream: true,
+        reasoning: { effort: 'low' },
+        text: {
+          format: {
+            type: 'json_schema',
+            name: 'adult_measurements',
+            strict: true,
+            schema: {
+              type: 'object',
+              properties: {
+                size: { type: ['string', 'null'], description: 'Typical adult body length, metric, e.g. "12 cm" or "8 to 15 cm". Null if unknown.' },
+                weight: { type: ['string', 'null'], description: 'Typical adult weight, metric, e.g. "30 g" or "20 to 45 g". Null if unknown.' },
+              },
+              required: ['size', 'weight'],
+              additionalProperties: false,
+            },
+          },
+        },
+        input: [
+          { role: 'system', content: 'You are a zoology reference. Answer with the requested JSON only.' },
+          { role: 'user', content: `For the species "${name}" (${scientific}), give the typical adult body length and weight. Use a range ("x to y unit") when variation is large. Metric units only (mm, cm, m, mg, g, kg). If genuinely unknown for this species, use null.` },
+        ],
+      }),
+    });
+    if (!response.ok || !response.body) return {};
+    // Consume the SSE stream and keep the final accumulated text.
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let text = '';
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const events = buffer.split('\n\n');
+      buffer = events.pop() ?? '';
+      for (const event of events) {
+        for (const line of event.split('\n')) {
+          if (!line.startsWith('data:')) continue;
+          const payload = line.slice(5).trim();
+          if (!payload || payload === '[DONE]') continue;
+          try {
+            const parsed = JSON.parse(payload);
+            if (parsed.type === 'response.output_text.delta' && typeof parsed.delta === 'string') text += parsed.delta;
+            else if (parsed.type === 'response.completed') {
+              const output = parsed.response?.output ?? [];
+              for (const item of output) {
+                for (const part of item?.content ?? []) {
+                  if (part?.type === 'output_text' && typeof part.text === 'string') text = part.text;
+                }
+              }
+            }
+          } catch { /* partial event, ignore */ }
+        }
+      }
+    }
+    return text ? parseEstimatedMeasurements(text) : {};
+  } catch {
+    return {};
+  }
+}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
@@ -44,6 +123,11 @@ Deno.serve(async (req) => {
           if (Object.keys(measurements).length) sources.push({ label: 'Animal Diversity Web · University of Michigan', url: sourceUrl });
         }
       } catch { /* Unknown measurements remain unknown; taxonomy is still usable. */ }
+      // No measured source: fall back to an AI estimate, clearly labelled.
+      if (!Object.keys(measurements).length) {
+        measurements = await estimateMeasurements(body.name.trim(), scientific);
+        if (Object.keys(measurements).length) sources.push({ label: 'Estimation IA', url: 'https://faunex.fr' });
+      }
     }
     const record = { animal_id: animal.id, scientific_name: scientific, ...taxonomy, measurements, sources, checked_at: new Date().toISOString() };
     const { error: saveError } = await admin.from('species_natural_history').upsert(record);
