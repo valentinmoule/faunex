@@ -55,8 +55,9 @@ const CollectionTile = ({
         />
         <div className="collection-booster-print absolute inset-0" />
 
-        {/* Scellage haut */}
+        {/* Scellage haut : aluminium serti + bord cranté */}
         <div className="collection-booster-seal absolute inset-x-0 top-0 h-[7%]" />
+        <div className="collection-booster-crimp absolute inset-x-0 top-[7%]" />
 
 
 
@@ -78,8 +79,9 @@ const CollectionTile = ({
           </span>
         </div>
 
-        {/* Scellage bas */}
-        <div className="collection-booster-seal absolute inset-x-0 bottom-0 h-[3.5%]" />
+        {/* Scellage bas : aluminium serti + bord cranté */}
+        <div className="collection-booster-crimp collection-booster-crimp-bottom absolute inset-x-0 bottom-[4.5%]" />
+        <div className="collection-booster-seal collection-booster-seal-bottom absolute inset-x-0 bottom-0 h-[4.5%]" />
 
         {/* Volume coussin : bords latéraux assombris, centre bombé */}
         <div className="collection-booster-volume pointer-events-none absolute inset-0" />
