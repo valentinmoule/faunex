@@ -1835,7 +1835,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
         )}
 
         <div className="max-w-lg mx-auto px-4 pt-4 space-y-6">
-          {isFaunexHub && <div className="flex items-center justify-between"><Button variant="ghost" className="gap-2 px-0 text-primary" onClick={() => navigate('/apprendre')}><Sprout className="h-5 w-5" />{t('learning.entry')}</Button><CurrencyBalance /></div>}
+          {isFaunexHub && <div className="flex items-center justify-between"><Button className="gap-2" onClick={() => navigate('/apprendre')}><Sprout className="h-5 w-5" />{t('learning.entry')}</Button><CurrencyBalance /></div>}
 
 
           {/* View toggle — floating gamified tab bar */}
@@ -1884,7 +1884,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                         value={mineSearch}
                         onChange={(e) => setMineSearch(e.target.value)}
                         placeholder={t('bestiary.mine.searchPlaceholder')}
-                        className="w-full pl-9 pr-9 py-2.5 rounded-xl bg-card border border-border text-sm font-display placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
+                        className="game-input w-full pl-9 pr-9 py-2.5 rounded-xl bg-card border border-border text-sm font-display placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
                       />
                       {mineSearch && (
                         <button

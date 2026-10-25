@@ -3,6 +3,7 @@ import { Camera } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { hapticTap } from '@/lib/haptics';
 import { SwirlCardsBackdrop } from '@/components/SwirlCardsBackdrop';
+import { Button } from '@/components/ui/button';
 
 interface EmptyCaptureStateProps {
   userName?: string;
@@ -77,25 +78,23 @@ export const EmptyCaptureState = ({ userName, onCapture }: EmptyCaptureStateProp
           </p>
         </div>
 
-        <button
+        <Button
           onClick={() => {
             hapticTap();
             onCapture();
           }}
           className={`
             w-full inline-flex items-center justify-center gap-2
-            px-4 py-4 rounded-full
+            h-auto px-4 py-4 rounded-full
             bg-primary text-primary-foreground
             font-display font-semibold text-[0.9rem] leading-none
-            shadow-lg shadow-primary/25
-            active:scale-[0.98] transition-all duration-300
             ${done ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3 pointer-events-none'}
           `}
           aria-label={t('bestiary.emptyCapture.cta')}
         >
           <Camera className="w-[1.05rem] h-[1.05rem] shrink-0" aria-hidden="true" />
           <span className="whitespace-nowrap">{t('bestiary.emptyCapture.cta')}</span>
-        </button>
+        </Button>
       </div>
     </div>
   );

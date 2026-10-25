@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, Fragment } from 'react';
 import { avatarFallbackStyle } from '@/lib/avatarPalette';
 import { PageHeader } from '@/components/PageHeader';
+import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Pencil, KeyRound, Share2, Scale, LogOut, Trash2, Loader2, Camera, Check, X, ChevronRight, Mail, Lock, Bell, Crown, MessageCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -314,15 +315,15 @@ const SettingsPage = () => {
             <div className="space-y-3">
               <div>
                 <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">{t('profile.settings.displayName')}</label>
-                <input type="text" value={editName} onChange={e => setEditName(e.target.value)} maxLength={50} className="w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
+                <input type="text" value={editName} onChange={e => setEditName(e.target.value)} maxLength={50} className="game-input w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
               </div>
               <div>
                 <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">{t('profile.settings.username')}</label>
-                <input type="text" value={editUsername} onChange={e => setEditUsername(e.target.value)} maxLength={30} placeholder={t('profile.settings.usernamePlaceholder')} className="w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
+                <input type="text" value={editUsername} onChange={e => setEditUsername(e.target.value)} maxLength={30} placeholder={t('profile.settings.usernamePlaceholder')} className="game-input w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
               </div>
               <div>
                 <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">{t('profile.settings.bio')}</label>
-                <textarea value={editBio} onChange={e => setEditBio(e.target.value)} maxLength={150} rows={3} placeholder={t('profile.settings.bioPlaceholder')} className="w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body resize-none" />
+                <textarea value={editBio} onChange={e => setEditBio(e.target.value)} maxLength={150} rows={3} placeholder={t('profile.settings.bioPlaceholder')} className="game-input w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body resize-none" />
                 <p className="text-[10px] text-muted-foreground text-right mt-0.5">{t('profile.settings.bioCounter', { count: editBio.length })}</p>
               </div>
 
@@ -343,9 +344,9 @@ const SettingsPage = () => {
                       toast.success(newVal ? t('profile.settings.privateAccount.enabled') : t('profile.settings.privateAccount.disabled'));
                     }
                   }}
-                  className={`relative w-11 h-6 rounded-full transition-colors ${isPrivate ? 'bg-primary' : 'bg-muted-foreground/30'}`}
+                  className={`game-switch relative w-11 h-6 rounded-full transition-colors ${isPrivate ? 'bg-primary' : 'bg-muted-foreground/30'}`}
                 >
-                  <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card shadow transition-transform ${isPrivate ? 'translate-x-5' : 'translate-x-0'}`} />
+                  <span className={`game-switch-thumb absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card shadow transition-transform ${isPrivate ? 'translate-x-5' : 'translate-x-0'}`} />
                 </button>
               </div>
 
@@ -366,21 +367,21 @@ const SettingsPage = () => {
                       toast.success(newVal ? t('profile.settings.defaultShare.enabled') : t('profile.settings.defaultShare.disabled'));
                     }
                   }}
-                  className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${defaultShare ? 'bg-primary' : 'bg-muted-foreground/30'}`}
+                  className={`game-switch relative w-11 h-6 rounded-full transition-colors shrink-0 ${defaultShare ? 'bg-primary' : 'bg-muted-foreground/30'}`}
                 >
-                  <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card shadow transition-transform ${defaultShare ? 'translate-x-5' : 'translate-x-0'}`} />
+                  <span className={`game-switch-thumb absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card shadow transition-transform ${defaultShare ? 'translate-x-5' : 'translate-x-0'}`} />
                 </button>
               </div>
             </div>
 
-            <button
+            <Button
               onClick={handleSaveProfile}
               disabled={saving}
               className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-primary-foreground font-display text-sm font-semibold disabled:opacity-50"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
               {t('profile.settings.save')}
-            </button>
+            </Button>
 
             {/* Password */}
             <div className="pt-2 space-y-3 border-t border-border">
@@ -391,24 +392,24 @@ const SettingsPage = () => {
               <p className="text-[11px] text-muted-foreground -mt-1">{t('profile.settings.password.intro')}</p>
               <div>
                 <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">{t('profile.settings.password.old')}</label>
-                <input type="password" value={oldPassword} onChange={e => setOldPassword(e.target.value)} className="w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
+                <input type="password" value={oldPassword} onChange={e => setOldPassword(e.target.value)} className="game-input w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
               </div>
               <div>
                 <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">{t('profile.settings.password.new')}</label>
-                <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} className="w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
+                <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} className="game-input w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
               </div>
               <div>
                 <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">{t('profile.settings.password.confirm')}</label>
-                <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
+                <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="game-input w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
               </div>
-              <button
+              <Button variant="secondary"
                 onClick={handleChangePassword}
                 disabled={changingPassword}
                 className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-muted text-foreground font-display text-sm font-semibold disabled:opacity-50"
               >
                 {changingPassword ? <Loader2 className="w-4 h-4 animate-spin" /> : <KeyRound className="w-4 h-4" />}
                 {t('profile.settings.password.submit')}
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -430,9 +431,9 @@ const SettingsPage = () => {
                     toast.success(newVal ? t('profile.settings.marketingEmails.enabled') : t('profile.settings.marketingEmails.disabled'));
                   }
                 }}
-                className={`relative w-11 h-6 rounded-full transition-colors ${marketingEmails ? 'bg-primary' : 'bg-muted-foreground/30'}`}
+                className={`game-switch relative w-11 h-6 rounded-full transition-colors ${marketingEmails ? 'bg-primary' : 'bg-muted-foreground/30'}`}
               >
-                <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card shadow transition-transform ${marketingEmails ? 'translate-x-5' : 'translate-x-0'}`} />
+                <span className={`game-switch-thumb absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card shadow transition-transform ${marketingEmails ? 'translate-x-5' : 'translate-x-0'}`} />
               </button>
             </div>
 
@@ -460,9 +461,9 @@ const SettingsPage = () => {
                     }
                     setPushBusy(false);
                   }}
-                  className={`relative w-11 h-6 rounded-full transition-colors ${pushEnabled ? 'bg-primary' : 'bg-muted-foreground/30'} disabled:opacity-50`}
+                  className={`game-switch relative w-11 h-6 rounded-full transition-colors ${pushEnabled ? 'bg-primary' : 'bg-muted-foreground/30'} disabled:opacity-50`}
                 >
-                  <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card shadow transition-transform ${pushEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
+                  <span className={`game-switch-thumb absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card shadow transition-transform ${pushEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
                 </button>
               </div>
             )}
@@ -520,7 +521,7 @@ const SettingsPage = () => {
                 value={deleteConfirm}
                 onChange={e => setDeleteConfirm(e.target.value)}
                 placeholder={t('profile.settings.delete.placeholder')}
-                className="w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-destructive/30 font-body"
+                className="game-input w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-destructive/30 font-body"
               />
             </div>
             <button
