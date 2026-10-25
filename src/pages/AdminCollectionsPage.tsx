@@ -8,7 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useThemedCollections } from '@/hooks/useThemedCollections';
 import { isThemeActive, type ThemedCollection } from '@/lib/themedCollections';
 import { RARITY_ORDER, RARITY_LABELS } from '@/data/mockData';
-import { compressImage } from '@/lib/imageProcessing';
+import { prepareSourceFile, resizeDataUrl, dataUrlToBytes } from '@/lib/imageProcessing';
 
 const CATEGORIES = ['Mammifères', 'Oiseaux', 'Reptiles', 'Amphibiens', 'Poissons', 'Insectes', 'Arachnides', 'Crustacés', 'Mollusques', 'Échinodermes', 'Cnidaires', 'Autres invertébrés'];
 
@@ -121,7 +121,9 @@ function Editor({ draft: initial, userId, onClose }: { draft: Draft; userId?: st
     if (!userId) return;
     setUploading(true);
     try {
-      const blob = await compressImage(file, 1200, 0.82).catch(() => file);
+      const source = await prepareSourceFile(file);
+      if (!source) throw new Error('unreadable');
+      const blob = new Blob([dataUrlToBytes(await resizeDataUrl(source, 1200, 0.82))], { type: 'image/jpeg' });
       const path = `${userId}/collections/${crypto.randomUUID()}.jpg`;
       const { error } = await supabase.storage.from('captures').upload(path, blob, { contentType: 'image/jpeg' });
       if (error) throw error;
