@@ -41,16 +41,30 @@ const CaptureRejectedEmail = ({
   return (
     <Html lang={l} dir="ltr">
       <Head />
-      <Preview>{pick({ fr: `Ta capture de ${animalName} n'a pas pu être validée`, en: `Your capture of ${animalName} could not be approved` }, l)}</Preview>
+      <Preview>{correction
+        ? pick({ fr: `Ta demande de correction pour « ${animalName} » n'a pas été retenue`, en: `Your correction request for "${animalName}" wasn't retained` }, l)
+        : pick({ fr: `Ta capture de ${animalName} n'a pas pu être validée`, en: `Your capture of ${animalName} could not be approved` }, l)}</Preview>
       <Body style={main}>
         <Container style={container}>
           <Img
             src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png"
             width="48" height="48" alt="Faunex" style={logo}
           />
-          <Heading style={h1}>{pick({ fr: 'Capture non validée', en: 'Capture not approved' }, l)}</Heading>
+          <Heading style={h1}>{correction
+            ? pick({ fr: 'Correction non retenue', en: 'Correction not retained' }, l)
+            : pick({ fr: 'Capture non validée', en: 'Capture not approved' }, l)}</Heading>
           <Text style={text}>{pick({ fr: 'Salut', en: 'Hey' }, l)} <strong>{recipientName}</strong>,</Text>
-          {reason === 'duplicate' ? (
+          {correction ? (
+            <Text style={text}>
+              {pick(
+                {
+                  fr: `Ta demande de correction pour « ${animalName} » n'a pas été retenue après vérification. Pas d'inquiétude : ta capture reste inchangée dans ton bestiaire, avec sa photo et son nom actuels.`,
+                  en: `Your correction request for "${animalName}" wasn't retained after review. No worries: your capture stays unchanged in your bestiary, with its current photo and name.`,
+                },
+                l,
+              )}
+            </Text>
+          ) : reason === 'duplicate' ? (
             <Text style={text}>
               {pick(
                 {
