@@ -3,6 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 
 /**
+ * Dernière position du carrousel (index du sachet centré), conservée au
+ * démontage pour y revenir quand l'utilisateur revient d'une collection.
+ */
+let rememberedActive = 0;
+
+/**
  * Carrousel horizontal de boosters : un sachet centré en grand, les voisins
  * réduits de chaque côté ; défilement au doigt avec aimantation.
  */
@@ -10,8 +16,8 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
   const { t } = useTranslation();
   const ref = useRef<HTMLDivElement>(null);
   const items = Children.toArray(children);
-  const [active, setActive] = useState(0);
-  const activeRef = useRef(0);
+  const [active, setActive] = useState(() => Math.min(rememberedActive, items.length - 1));
+  const activeRef = useRef(Math.min(rememberedActive, items.length - 1));
 
   const update = useCallback(() => {
     const el = ref.current;
