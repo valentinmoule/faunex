@@ -1,5 +1,6 @@
 
 ## Présentation Premium
+- [ ] Corriger l’offre active affichée pour l’accès Famille offert de Valentin, sans modifier sa facturation Personnel ; vérifier connecté
 - [x] Afficher deux cartes Personnel/Famille avec détails et tarifs, remplacer le comparatif par une liste légère ; page connectée, tarifs mensuels, accès Famille et absence de débordement mobile vérifiés, 16 tests réussis
 
 ## Premium Famille

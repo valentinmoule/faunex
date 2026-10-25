@@ -18,6 +18,7 @@ import { useAppLocale } from '@/hooks/useAppLocale';
 import { CancelSurveySheet } from '@/components/CancelSurveySheet';
 import { PremiumReferral } from '@/components/PremiumReferral';
 import { getPaddleEnvironment } from '@/lib/paddle';
+import { hasActiveFamily, readFamily, type FamilyInfo } from '@/lib/family';
 
 const BENEFITS = [
   { icon: ScanLine, key: 'identification' },
@@ -60,6 +61,19 @@ const PremiumPage = () => {
   const [referralCode, setReferralCode] = useState('');
   const [referralBusy, setReferralBusy] = useState(false);
   const [bonusDays, setBonusDays] = useState(0);
+  const [family, setFamily] = useState<FamilyInfo | null>(null);
+  const familyActive = hasActiveFamily(family);
+  useEffect(() => {
+    let cancelled = false;
+    if (!session?.user.id) {
+      setFamily(null);
+      return;
+    }
+    supabase.rpc('my_family').then(({ data, error }) => {
+      if (!cancelled) setFamily(error ? null : readFamily(data));
+    });
+    return () => { cancelled = true; };
+  }, [session?.user.id, subscription]);
   useEffect(() => {
     if (!session?.user.id) return;
     supabase.from('referral_rewards').select('days').eq('user_id', session.user.id)
@@ -234,7 +248,7 @@ const PremiumPage = () => {
                 {['personalAccounts', 'allBenefits', 'personalCollection', 'cancelAnytime'].map(key => <li key={key} className="flex gap-2.5"><Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden /><span>{t(`profile.premium.presentation.${key}`)}</span></li>)}
               </ul>
               <Button onClick={handleSubscribe} disabled={checkoutLoading || referralBusy || loading || isPremium} className="mt-auto h-auto min-h-12 w-full whitespace-normal py-3">
-                {checkoutLoading || referralBusy ? <Loader2 className="size-4 animate-spin" /> : t(isPremium ? 'profile.premium.activeSubscription' : 'profile.premium.presentation.choosePersonal')}
+                {checkoutLoading || referralBusy ? <Loader2 className="size-4 animate-spin" /> : t(isPremium && !familyActive ? 'profile.premium.activeSubscription' : 'profile.premium.presentation.choosePersonal')}
               </Button>
             </article>
             <article className="flex flex-col rounded-lg border border-primary/25 bg-secondary p-5 sm:p-6">
@@ -245,7 +259,7 @@ const PremiumPage = () => {
               <ul className="my-5 space-y-3 border-t border-primary/15 pt-5 text-sm leading-relaxed">
                 {['familyAccounts', 'allBenefits', 'familyIndependent', 'familyInvites', 'cancelAnytime'].map(key => <li key={key} className="flex gap-2.5"><Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden /><span>{t(`profile.premium.presentation.${key}`)}</span></li>)}
               </ul>
-              <Button onClick={() => navigate('/family')} className="mt-auto h-auto min-h-12 w-full whitespace-normal py-3">{t('profile.premium.presentation.chooseFamily')}</Button>
+              <Button onClick={() => navigate('/family')} className="mt-auto h-auto min-h-12 w-full whitespace-normal py-3">{t(familyActive ? 'family.active' : 'profile.premium.presentation.chooseFamily')}</Button>
             </article>
           </div>
         </section>
@@ -271,15 +285,18 @@ const PremiumPage = () => {
             ) : isPremium ? (
               <>
                 <div className="flex items-center justify-center gap-2 rounded-2xl bg-primary/10 px-4 py-3 text-sm font-semibold text-primary">
-                  <Check className="h-4 w-4" /> {t('profile.premium.activeSubscription')}
+                  <Check className="h-4 w-4" /> {t(familyActive ? 'family.active' : 'profile.premium.activeSubscription')}
                 </div>
+                {familyActive && <Button variant="outline" onClick={() => navigate('/family')} className="h-12 w-full rounded-2xl">{t('family.title')}</Button>}
                 {subscription?.current_period_end && (
                   <p className="text-center text-xs text-muted-foreground">
+                    {familyActive && <>{t('profile.premium.presentation.personal')} · </>}
                     {subscription.cancel_at_period_end ? t('profile.premium.accessUntil') : t('profile.premium.nextRenewal')}
                     {new Date(subscription.current_period_end).toLocaleDateString(locale === 'en' ? 'en-US' : 'fr-FR')}
                   </p>
                 )}
                 {subscription && <Button variant="outline" onClick={handleManage} className="h-12 w-full rounded-2xl">
+                  {familyActive && <>{t('profile.premium.presentation.personal')} · </>}
                   {t('profile.premium.manage')}
                 </Button>}
                 {subscription && !subscription.cancel_at_period_end && session?.user && (
