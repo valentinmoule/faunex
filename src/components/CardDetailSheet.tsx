@@ -939,14 +939,9 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                 {isOwner && (
                   <OverflowMenu
                     label={t('common.moreActions')}
-                    triggerClassName="relative flex items-center py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
+                    triggerClassName="relative ml-auto flex items-center py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
                     iconClassName="w-6 h-6 text-muted-foreground transition-colors group-hover:text-primary"
                     items={[
-                      ...(cardImage ? [{
-                        label: t('capture.detail.share'),
-                        icon: <Share2 className="w-5 h-5 text-muted-foreground" />,
-                        onSelect: () => { hapticTap(); handleShare(); },
-                      }] : []),
                       ...(cardImage ? [{
                         label: t('capture.crop.action'),
                         icon: <CropIcon className="w-5 h-5 text-muted-foreground" />,
