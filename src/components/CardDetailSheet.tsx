@@ -878,8 +878,6 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                   </button>
                 )}
                 <div className="flex items-center">
-
-                <div className="flex items-center">
                 <Button variant="ghost"
                   onClick={handleLike}
                   aria-pressed={liked}
