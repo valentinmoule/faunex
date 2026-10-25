@@ -253,6 +253,13 @@
       "when": 1792482398751,
       "tag": "0035_index_species_fact_lookup",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1792926133997,
+      "tag": "0036_native_push_devices",
+      "breakpoints": true
     }
   ]
 }
