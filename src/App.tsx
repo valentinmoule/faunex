@@ -257,7 +257,7 @@ const AppRoutes = () => {
       {!isCapturePage && !isModerationPage && !isPremiumPage && !isPublicPage && <BottomNav />}
 
       <PullToDiscover />
-      {!isPremiumPage && (
+      {!isPremiumPage && location.pathname !== '/apprendre' && !location.pathname.startsWith('/admin/apprendre') && (
         <>
           <PushPermissionPrompt />
           <LevelUpCelebration />
