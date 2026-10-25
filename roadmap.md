@@ -118,6 +118,8 @@
 - [x] Catégorie et nombre de captures dans la même carte d’infos que Rareté, Date, Localisation
 - [x] Compteurs de likes et de commentaires affichés seulement lorsqu’ils sont non nuls
 - [x] Suppression : icône poubelle à côté de Partager + pop-up de confirmation au-dessus de la fiche
+- [x] Espèce non découverte : bouton « Ajouter » repris à l'identique des actions des espèces découvertes (icône marque-page plate, sans texte ni fond), vérifié dans les deux fiches
+
 
 ## Transitions des cartes
 - [x] Garder la carte visible sans écran blanc entre Ajouter et son rangement
