@@ -288,6 +288,13 @@
       "when": 1792929844005,
       "tag": "0040_family_checkout_intents",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1792930865058,
+      "tag": "0041_family_email_invitations",
+      "breakpoints": true
     }
   ]
 }

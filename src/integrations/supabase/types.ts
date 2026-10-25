@@ -907,6 +907,7 @@ export type Database = {
           expires_at: string
           family_id: string
           id: string
+          recipient_email: string | null
           revoked_at: string | null
           token_hash: string
         }
@@ -916,6 +917,7 @@ export type Database = {
           expires_at?: string
           family_id: string
           id?: string
+          recipient_email?: string | null
           revoked_at?: string | null
           token_hash: string
         }
@@ -925,6 +927,7 @@ export type Database = {
           expires_at?: string
           family_id?: string
           id?: string
+          recipient_email?: string | null
           revoked_at?: string | null
           token_hash?: string
         }
@@ -2684,6 +2687,10 @@ export type Database = {
       consume_ai_analysis:
         | { Args: { p_user: string }; Returns: number }
         | { Args: { p_request: string; p_user: string }; Returns: number }
+      create_family_email_invitation: {
+        Args: { p_email: string; p_user: string }
+        Returns: Json
+      }
       create_family_invitation: { Args: never; Returns: string }
       draw_weekly_quests: { Args: { p_week?: string }; Returns: number }
       enqueue_hybrid_rarity: { Args: never; Returns: number }
