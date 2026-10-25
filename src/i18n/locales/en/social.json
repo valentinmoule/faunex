@@ -101,6 +101,7 @@
       "statsCaptures": "Captures",
       "statsFollowing": "Following",
       "statsFollowers": "Followers",
+      "statsBadges": "Badges",
       "filterAll": "All",
       "searchPlaceholder": "Search this collection…",
       "noMatchSearch": "No capture matches “{{query}}”.",
