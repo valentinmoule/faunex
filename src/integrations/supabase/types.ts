@@ -2355,6 +2355,60 @@ export type Database = {
           },
         ]
       }
+      themed_collections: {
+        Row: {
+          cover_url: string | null
+          created_at: string
+          description: string | null
+          ends_at: string | null
+          id: string
+          published: boolean
+          rule_categories: string[]
+          rule_keywords: string[]
+          rule_rarities: string[]
+          sort_order: number
+          species_names: string[]
+          starts_at: string | null
+          title: string
+          title_en: string | null
+          updated_at: string
+        }
+        Insert: {
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          published?: boolean
+          rule_categories?: string[]
+          rule_keywords?: string[]
+          rule_rarities?: string[]
+          sort_order?: number
+          species_names?: string[]
+          starts_at?: string | null
+          title: string
+          title_en?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          published?: boolean
+          rule_categories?: string[]
+          rule_keywords?: string[]
+          rule_rarities?: string[]
+          sort_order?: number
+          species_names?: string[]
+          starts_at?: string | null
+          title?: string
+          title_en?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_badges: {
         Row: {
           badge_id: string
