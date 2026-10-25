@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 /**
  * Collection présentée comme un vrai booster de cartes à collectionner :
  * illustration pleine largeur, scellages métalliques striés et crantés,
- * grand logo en relief, bandeau de titre façon sachet et ombre portée douce.
+ * bandeau de titre façon sachet et ombre portée douce.
  * L'XP n'est jamais affiché ici — il est révélé à la réclamation.
  */
 export interface CollectionTileProps {
@@ -76,19 +76,7 @@ const CollectionTile = ({
           <div className="absolute inset-x-0 bottom-0 h-px bg-foreground/30" />
         </div>
 
-        {/* Logo en relief */}
-        <div className="absolute inset-x-0 top-[9%] flex justify-center">
-          <span
-            className="font-display text-[30px] font-black uppercase italic leading-none tracking-tight text-background"
-            style={{
-              WebkitTextStroke: '2px hsl(var(--primary))',
-              textShadow:
-                '0 2px 0 hsl(var(--primary)), 0 4px 0 hsl(var(--primary)/0.6), 0 10px 18px hsl(var(--foreground)/0.55)',
-            }}
-          >
-            Faunex
-          </span>
-        </div>
+
 
         {(claimed || readyToClaim) && (
           <span className="absolute right-2.5 top-[8%] inline-flex items-center gap-1 rounded-full bg-amber px-2 py-0.5 text-[9px] font-display font-bold text-background shadow">
