@@ -28,8 +28,9 @@ const CaptureQuotaBadge = ({ userId, isPremium, premiumLoading }: CaptureQuotaBa
         {isPremium ? (
           <InfinityIcon className="h-5 w-5" strokeWidth={2.5} aria-hidden="true" />
         ) : (
+          {isPremium ? (
           <span className="text-sm font-display font-bold tabular-nums">
-            {remaining === null ? '—' : remaining}
+            {!premiumLoading && remaining !== null ? remaining : ''}
           </span>
         )}
       </div>
