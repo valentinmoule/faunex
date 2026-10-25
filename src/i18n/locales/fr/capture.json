@@ -287,6 +287,8 @@
       "premiumCta": "Découvrir Premium"
     },
     "crop": {
+      "premiumTitle": "Le recadrage, avec Premium",
+      "premiumDescription": "Mets ton animal en valeur en recadrant sa photo. Cette fonctionnalité est réservée aux explorateurs Premium.",
       "title": "Recadrer la photo",
       "cancel": "Annuler",
       "zoom": "Zoom",

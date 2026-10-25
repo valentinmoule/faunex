@@ -3,6 +3,12 @@ import { createPortal } from 'react-dom';
 import Cropper, { type Area } from 'react-easy-crop';
 import { useTranslation } from 'react-i18next';
 import { Loader2, X } from 'lucide-react';
+import { Crop, Sparkles } from 'lucide-react';
+import { Drawer } from 'vaul';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
+import { useSubscription } from '@/hooks/useSubscription';
 
 interface Props {
   photo: string;
@@ -34,6 +40,9 @@ export async function cropDataUrl(src: string, area: Area): Promise<string> {
 
 export default function CropPhotoDialog({ photo, onCancel, onDone }: Props) {
   const { t } = useTranslation();
+  const { session } = useAuth();
+  const { isPremium, loading } = useSubscription(session?.user?.id);
+  const navigate = useNavigate();
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [area, setArea] = useState<Area | null>(null);
@@ -42,7 +51,7 @@ export default function CropPhotoDialog({ photo, onCancel, onDone }: Props) {
   const onComplete = useCallback((_: Area, pixels: Area) => setArea(pixels), []);
 
   const confirm = async () => {
-    if (!area) return;
+    if (!isPremium || loading || !area) return;
     setBusy(true);
     try {
       onDone(await cropDataUrl(photo, area), area);
@@ -50,6 +59,30 @@ export default function CropPhotoDialog({ photo, onCancel, onDone }: Props) {
       setBusy(false);
     }
   };
+
+  if (!isPremium) {
+    return (
+      <Drawer.Root open onOpenChange={(open) => { if (!open) onCancel(); }}>
+        <Drawer.Portal container={document.querySelector<HTMLElement>('[role="dialog"]:not([data-crop])') ?? document.body}>
+          <Drawer.Overlay className="fixed inset-0 z-[200] bg-foreground/50" />
+          <Drawer.Content data-crop className="fixed inset-x-0 bottom-0 z-[201] rounded-t-3xl bg-background px-6 pb-[max(24px,env(safe-area-inset-bottom))] pt-3 outline-none">
+            <div className="mx-auto mb-6 h-1 w-10 rounded-full bg-muted-foreground/25" />
+            <div className="mx-auto max-w-sm text-center">
+              <Crop className="mx-auto mb-4 h-12 w-12 text-primary" />
+              <Drawer.Title className="font-display text-xl font-bold">{t('capture.crop.premiumTitle')}</Drawer.Title>
+              <Drawer.Description className="mt-2 text-sm text-muted-foreground">{t('capture.crop.premiumDescription')}</Drawer.Description>
+              {loading ? <Loader2 className="mx-auto mt-6 h-6 w-6 animate-spin text-primary" aria-label={t('capture.actions.saving')} /> : (
+                <Button className="mt-6 h-12 w-full" onClick={() => { onCancel(); navigate('/premium'); }}>
+                  <Sparkles className="h-4 w-4" />{t('capture.similarPhotos.premiumCta')}
+                </Button>
+              )}
+              <Button variant="ghost" className="mt-2 w-full" onClick={onCancel}>{t('capture.crop.cancel')}</Button>
+            </div>
+          </Drawer.Content>
+        </Drawer.Portal>
+      </Drawer.Root>
+    );
+  }
 
   return createPortal(
     <div className="fixed inset-0 z-[200] flex flex-col bg-foreground" role="dialog" data-crop aria-label={t('capture.crop.title')}>
