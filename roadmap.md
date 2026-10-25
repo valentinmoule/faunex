@@ -1,6 +1,6 @@
 
 ## Espèces non capturées dans les collections personnalisées
-- [ ] Permettre l’ajout depuis leur fiche du Bestiaire, actualiser la collection et vérifier la sauvegarde sans capture.
+- [x] Ajouter depuis la fiche du Bestiaire sans capture ; sauvegarde et silhouette 0/1 vérifiées connecté après rechargement, collection temporaire retirée et test réussi.
 
 ## Présentation Premium
 - [x] Vérifier la gestion Paddle après exclusion des anciens identifiants d’accès manuel et sélection du bon environnement ; réponse 200 avec le compte connecté, aucune erreur écran, sept tests réussis
