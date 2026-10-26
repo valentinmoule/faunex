@@ -220,8 +220,7 @@
     "contest": {
       "tabFeed": "Feed",
       "tabContest": "Photo of the week",
-      "voteTitle": "Vote for the best photo",
-      "voteHint": "Photos submitted last week. One vote per explorer, until Sunday night.",
+      "voteTitle": "Photo of the week",
       "voteEmpty": "No photos in the running this week. Submit yours for the next vote!",
       "vote": "Vote",
       "voted": "Your vote",

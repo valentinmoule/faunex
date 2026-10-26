@@ -220,8 +220,7 @@
     "contest": {
       "tabFeed": "Fil",
       "tabContest": "Photo de la semaine",
-      "voteTitle": "Vote pour la meilleure photo",
-      "voteHint": "Photos proposées la semaine dernière. Un seul vote par explorateur, jusqu'à dimanche soir.",
+      "voteTitle": "Photo de la semaine",
       "voteEmpty": "Aucune photo en lice cette semaine. Propose la tienne pour le prochain vote !",
       "vote": "Voter",
       "voted": "Ton vote",
