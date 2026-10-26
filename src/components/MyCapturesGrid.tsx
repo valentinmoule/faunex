@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { AnimalCard } from '@/data/mockData';
 import RarityBadge from '@/components/RarityBadge';
+import { CapturePhotoOfWeekMark } from '@/components/social/PhotoOfWeekMark';
 import { rarityTileBorder } from '@/lib/bestiary';
 import { hapticTap } from '@/lib/haptics';
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
@@ -195,6 +196,7 @@ export const MyCapturesGrid = ({ items, onSelect, onReorder }: Props) => {
             <div className="absolute top-1.5 right-1.5 pointer-events-none">
               <RarityBadge rarity={animal.rarity} plain />
             </div>
+            <CapturePhotoOfWeekMark captureId={animal.id} className="absolute top-1.5 left-1.5" />
             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5 pt-8 pointer-events-none">
               <p className="text-xs font-display font-bold text-white truncate leading-tight">
                 {speciesName(animal.name)}

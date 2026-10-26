@@ -25,6 +25,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { applyCustomCaptureOrder } from '@/lib/captureOrder';
 import CardDetailSheet from '@/components/CardDetailSheet';
 import RarityBadge from '@/components/RarityBadge';
+import { CapturePhotoOfWeekMark } from '@/components/social/PhotoOfWeekMark';
 import FindersBadge from '@/components/FindersBadge';
 import MyCapturesGrid from '@/components/MyCapturesGrid';
 import EmptyCaptureState from '@/components/EmptyCaptureState';
@@ -153,6 +154,7 @@ const BrowseSpeciesCard = memo(
           <div className="absolute top-1.5 right-1.5">
             <RarityBadge rarity={animal.rarity} plain />
           </div>
+          <CapturePhotoOfWeekMark captureId={animal.captureData.id} className="absolute top-8 left-1.5 !h-6 !w-6" />
           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5 pt-8">
             <p className="text-xs font-display font-bold text-white truncate leading-tight">
               {displayName}
@@ -2576,6 +2578,7 @@ onClick={() => {
                         loading="lazy"
                       />
                       <div className={`absolute top-1.5 right-1.5 w-2 h-2 rounded-full ${rarityDot[animal.rarity] || 'bg-muted-foreground'}`} />
+                      <CapturePhotoOfWeekMark captureId={animal.captureData.id} className="absolute top-1 left-1 !h-5 !w-5" />
                     </div>
                     <div className="px-1.5 py-1 bg-card">
                       <p className="text-[9px] font-display font-bold text-foreground truncate leading-tight">{animal.name}</p>
