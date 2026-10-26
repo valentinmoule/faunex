@@ -642,7 +642,7 @@ const ExplorersPage = () => {
         </div>
       </PageHeader>
 
-      <div className="max-w-lg mx-auto px-4 pt-3 pb-2">
+      <div className="relative z-10 max-w-lg mx-auto px-4 pt-3 pb-2">
         <div className="game-tabs flex items-center w-full" role="tablist">
           {([
             { key: 'feed' as const, label: t('social.contest.tabFeed'), icon: Newspaper },
