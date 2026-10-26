@@ -4,12 +4,13 @@ import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { Drawer } from 'vaul';
 import { toast } from 'sonner';
-import { Check, Clock, ImagePlus, Trophy, Vote } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { PremiumAvatar } from '@/components/PremiumAvatar';
 import RarityBadge from '@/components/RarityBadge';
+import TimeLeftBadge from '@/components/TimeLeftBadge';
 import PhotoOfWeekMark from '@/components/social/PhotoOfWeekMark';
 import { thumbUrl } from '@/lib/imageUrl';
 import { rarityTileBorder } from '@/lib/bestiary';
@@ -29,7 +30,7 @@ function parisVoteEnd(now = new Date()): Date {
   return new Date(base - 3600000);
 }
 
-function VoteCountdown() {
+function VoteCountdown({ className = '' }: { className?: string }) {
   const { t } = useTranslation();
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => { const id = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(id); }, []);
@@ -37,9 +38,11 @@ function VoteCountdown() {
   const d = Math.floor(left / 86400000), h = Math.floor(left / 3600000) % 24, m = Math.floor(left / 60000) % 60, sec = Math.floor(left / 1000) % 60;
   const pad = (n: number) => String(n).padStart(2, '0');
   return (
-    <p className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-primary tabular-nums">
-      <Clock className="h-3.5 w-3.5" />{t('social.contest.voteEndsIn')} {d > 0 ? `${d}${t('social.contest.dayShort')} ` : ''}{pad(h)}:{pad(m)}:{pad(sec)}
-    </p>
+    <TimeLeftBadge
+      className={className}
+      label={`${t('social.contest.voteEndsIn')} `}
+      value={`${d > 0 ? `${d}${t('social.contest.dayShort')} ` : ''}${pad(h)}:${pad(m)}:${pad(sec)}`}
+    />
   );
 }
 
@@ -166,9 +169,10 @@ export default function PhotoContestTab() {
     <div className="space-y-8 px-4 pt-4 pb-6">
       {/* Vote */}
       <section>
-        <h2 className="flex items-center gap-2 font-display text-lg font-bold"><Vote className="h-5 w-5 text-primary" />{t('social.contest.voteTitle')}</h2>
-        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t('social.contest.voteHint')}</p>
-        <VoteCountdown />
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 px-1 pt-1">
+          <h2 className="min-w-0 text-lg font-display font-bold text-foreground">{t('social.contest.voteTitle')}</h2>
+          <VoteCountdown className="shrink-0" />
+        </div>
         {ballot.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted-foreground">{t('social.contest.voteEmpty')}</p>
         ) : (
@@ -200,7 +204,7 @@ export default function PhotoContestTab() {
 
       {/* Ma participation */}
       <section>
-        <h2 className="flex items-center gap-2 font-display text-lg font-bold"><ImagePlus className="h-5 w-5 text-primary" />{t('social.contest.myEntryTitle')}</h2>
+        <h2 className="text-lg font-display font-bold text-foreground">{t('social.contest.myEntryTitle')}</h2>
         <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t('social.contest.myEntryHint')}</p>
         {myEntry ? (
           <div className="mt-3 flex items-center gap-4">
@@ -218,7 +222,7 @@ export default function PhotoContestTab() {
       {/* Gagnants */}
       {winners.length > 0 && (
         <section>
-          <h2 className="flex items-center gap-2 font-display text-lg font-bold"><Trophy className="h-5 w-5 text-primary" />{t('social.contest.winnersTitle')}</h2>
+          <h2 className="text-lg font-display font-bold text-foreground">{t('social.contest.winnersTitle')}</h2>
           <div className="mt-3 grid grid-cols-2 gap-3">
             {winners.map((w) => {
               const author = w.display_name || w.username || t('social.common.anonymous');
