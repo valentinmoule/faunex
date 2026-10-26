@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { Drawer } from 'vaul';
 import { toast } from 'sonner';
-import { Check, ImagePlus, Trophy, Vote } from 'lucide-react';
+import { Check, Clock, ImagePlus, Trophy, Vote } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,32 @@ import { rarityTileBorder } from '@/lib/bestiary';
 import { hapticTap } from '@/lib/haptics';
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
 import type { Rarity } from '@/data/mockData';
+function parisVoteEnd(now = new Date()): Date {
+  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Paris', year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' }).formatToParts(now).map((p) => [p.type, p.value]));
+  const dow = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].indexOf(parts.weekday);
+  const base = Date.UTC(+parts.year, +parts.month - 1, +parts.day + (7 - dow));
+  for (const off of [1, 2]) {
+    const d = new Date(base - off * 3600000);
+    const h = new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Paris', hour: '2-digit', hourCycle: 'h23' }).format(d);
+    if (h === '00') return d;
+  }
+  return new Date(base - 3600000);
+}
+
+function VoteCountdown() {
+  const { t } = useTranslation();
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => { const id = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(id); }, []);
+  const left = Math.max(0, parisVoteEnd(new Date(now)).getTime() - now);
+  const d = Math.floor(left / 86400000), h = Math.floor(left / 3600000) % 24, m = Math.floor(left / 60000) % 60, sec = Math.floor(left / 1000) % 60;
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return (
+    <p className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-primary tabular-nums">
+      <Clock className="h-3.5 w-3.5" />{t('social.contest.voteEndsIn')} {d > 0 ? `${d}${t('social.contest.dayShort')} ` : ''}{pad(h)}:{pad(m)}:{pad(sec)}
+    </p>
+  );
+}
+
 import {
   type BallotEntry,
   type ContestWinner,
@@ -129,6 +155,7 @@ export default function PhotoContestTab() {
       <section>
         <h2 className="flex items-center gap-2 font-display text-lg font-bold"><Vote className="h-5 w-5 text-primary" />{t('social.contest.voteTitle')}</h2>
         <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t('social.contest.voteHint')}</p>
+        <VoteCountdown />
         {ballot.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted-foreground">{t('social.contest.voteEmpty')}</p>
         ) : (
