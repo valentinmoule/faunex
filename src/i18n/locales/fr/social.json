@@ -20,7 +20,10 @@
       "timeAgo_now": "À l'instant",
       "timeAgo_min": "Il y a {{count}}min",
       "timeAgo_hour": "Il y a {{count}}h",
-      "timeAgo_day": "Il y a {{count}}j"
+      "timeAgo_day": "Il y a {{count}}j",
+      "removeFollower": "Retirer cet abonné",
+      "removeFollowerConfirm": "Retirer {{name}} de tes abonnés ?",
+      "followerRemoved": "Abonné retiré"
     },
     "explorers": {
       "toastFollowError": "Erreur lors de l'abonnement",
