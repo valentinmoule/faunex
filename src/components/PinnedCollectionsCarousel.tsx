@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { getCollectionArt } from '@/lib/collectionArt';
 import { rarityTileBorder, normalizeCategory } from '@/lib/bestiary';
 import { useContestWinnerCaptures } from '@/hooks/usePhotoContest';
+import { CollectorEditionMark } from '@/components/social/CollectorEdition';
 import { BREED_GROUPS, getSpeciesGroup } from '@/lib/breedGroups';
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
 import type { AnimalCard } from '@/data/mockData';
@@ -213,8 +214,9 @@ export const PinnedCollectionsCarousel = ({
                           className={`game-tile relative aspect-[3/4] overflow-hidden rounded-xl ${winners?.has(card.id) ? 'tile-frame-none' : `border-[3px] ${rarityTileBorder[card.rarity] || 'tile-border-plain'}`} bg-card`}
                         >
                           <img src={card.image} alt={speciesName(card.name)} className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
-                          <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-foreground/70 to-transparent px-1.5 pb-1 pt-4 text-left text-[10px] font-semibold text-background">
-                            {speciesName(card.name)}
+                          <span className="absolute inset-x-0 bottom-0 flex items-baseline gap-1 bg-gradient-to-t from-foreground/70 to-transparent px-1.5 pb-1 pt-4 text-left text-[10px] font-semibold text-background">
+                            <span className="min-w-0 truncate">{speciesName(card.name)}</span>
+                            {winners?.has(card.id) && <CollectorEditionMark className="collector-mark--tile shrink-0 text-[9px]" />}
                           </span>
                         </button>
                       ))}

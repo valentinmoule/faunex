@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { AnimalCard } from '@/data/mockData';
 import RarityBadge from '@/components/RarityBadge';
 import { useContestWinnerCaptures } from '@/hooks/usePhotoContest';
+import { CollectorEditionMark } from '@/components/social/CollectorEdition';
 import { rarityTileBorder } from '@/lib/bestiary';
 import { hapticTap } from '@/lib/haptics';
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
@@ -200,8 +201,9 @@ export const MyCapturesGrid = ({ items, onSelect, onReorder }: Props) => {
               <RarityBadge rarity={animal.rarity} plain />
             </div>
             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5 pt-8 pointer-events-none">
-              <p className="text-xs font-display font-bold text-white truncate leading-tight">
-                {speciesName(animal.name)}
+              <p className="flex items-baseline gap-1 text-xs font-display font-bold text-white leading-tight">
+                <span className="min-w-0 truncate">{speciesName(animal.name)}</span>
+                {winners?.has(animal.id) && <CollectorEditionMark className="collector-mark--tile shrink-0 text-[10px]" />}
               </p>
               {animal.scientificName && (
                 <p className="text-[9px] font-body italic text-white/80 truncate">

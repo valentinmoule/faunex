@@ -19,6 +19,7 @@ import { hapticTap } from '@/lib/haptics';
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
 import type { AnimalCard, Rarity } from '@/data/mockData';
 import CardDetailSheet from '@/components/CardDetailSheet';
+import { CollectorEditionMark } from '@/components/social/CollectorEdition';
 function parisVoteEnd(now = new Date()): Date {
   const parts = Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Paris', year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' }).formatToParts(now).map((p) => [p.type, p.value]));
   const dow = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].indexOf(parts.weekday);
@@ -63,7 +64,10 @@ const Tile = ({ image, rarity, name, children, frameless, onOpen }: { image: str
     <img src={thumbUrl(image, 500)} alt={name} className="absolute inset-0 h-full w-full object-cover" loading="lazy" decoding="async" />
     <div className="absolute top-2 right-2"><RarityBadge rarity={rarity} plain className="feed-card-rarity" /></div>
     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-2.5 pt-8">
-      <p className="truncate text-xs font-display font-bold text-white">{name}</p>
+      <p className="flex items-baseline gap-1 text-xs font-display font-bold text-white leading-tight">
+        <span className="min-w-0 truncate">{name}</span>
+        {frameless && <CollectorEditionMark className="collector-mark--tile shrink-0 text-[10px]" />}
+      </p>
     </div>
     {children}
   </div>
