@@ -54,14 +54,19 @@ export function CollectorHoloLayers() {
   );
 }
 
-/** AI background-removed animal layered above the photo for a pop-out depth effect. */
-export function CollectorCutout({ captureId }: { captureId?: string }) {
+/** AI-detected animal silhouette used as a mask: golden aura + depth shadow, photo stays intact. */
+export function CollectorSilhouette({ captureId }: { captureId?: string }) {
   const { data: cutouts } = useContestWinnerCutouts();
   const url = captureId ? cutouts?.get(captureId) : undefined;
   if (!url) return null;
+  const maskStyle = {
+    WebkitMaskImage: `url(${url})`,
+    maskImage: `url(${url})`,
+  } as const;
   return (
-    <div className="collector-cutout" aria-hidden="true">
-      <img src={url} alt="" loading="lazy" decoding="async" draggable={false} />
+    <div className="collector-silhouette" aria-hidden="true">
+      <div className="collector-silhouette__shadow" style={maskStyle} />
+      <div className="collector-silhouette__aura" style={maskStyle} />
     </div>
   );
 }

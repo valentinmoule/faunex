@@ -4202,24 +4202,46 @@ html.is-native-android body {
 }
 
 /* Détourage IA de l'animal : ressort en relief au-dessus du décor. */
-.collector-cutout {
+/* Silhouette IA de l'animal utilisée comme masque : halo doré + ombre de
+   profondeur qui épousent sa forme, la photo originale reste intacte. */
+.collector-silhouette {
   position: absolute;
   inset: 0;
   z-index: 8;
   pointer-events: none;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
 }
-.collector-cutout img {
-  width: 92%;
-  height: 92%;
-  object-fit: contain;
-  object-position: bottom center;
-  filter:
-    drop-shadow(0 10px 10px hsla(0, 0%, 0%, 0.55))
-    drop-shadow(0 0 26px hsla(42, 92%, 62%, 0.4));
-  transform: translateY(-2.5%) scale(1.07);
+.collector-silhouette__shadow,
+.collector-silhouette__aura {
+  position: absolute;
+  inset: 0;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: bottom center;
+  mask-position: bottom center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+/* Ombre douce sous l'animal : ancre l'animal dans le décor (profondeur). */
+.collector-silhouette__shadow {
+  background: hsla(0, 0%, 0%, 0.5);
+  filter: blur(14px);
+  transform: translateY(2.5%) scale(1.04);
+}
+/* Aura dorée lumineuse autour de la silhouette. */
+.collector-silhouette__aura {
+  background: radial-gradient(
+    ellipse at 50% 45%,
+    hsla(46, 100%, 72%, 0.95) 0%,
+    hsla(42, 95%, 58%, 0.75) 45%,
+    hsla(38, 90%, 50%, 0.45) 100%
+  );
+  filter: blur(22px);
+  transform: scale(1.12);
+  animation: collector-aura-breathe 4.5s ease-in-out infinite;
+}
+@keyframes collector-aura-breathe {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 0.95; }
 }
 
 @media (prefers-reduced-motion: reduce) {
