@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowDown, ArrowUp, ChevronRight, Clock, Crown, Lock, Minus, Trophy } from 'lucide-react';
+import { ArrowDown, ArrowUp, ChevronRight, Crown, Lock, Minus, Trophy } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { PremiumAvatar } from '@/components/PremiumAvatar';
 import { avatarFallbackStyle } from '@/lib/avatarPalette';
@@ -10,6 +10,7 @@ import { usePremiumUsers } from '@/hooks/usePremiumUsers';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSwipeDownClose } from '@/lib/useSwipeDownClose';
+import TimeLeftBadge from '@/components/TimeLeftBadge';
 
 interface Row {
   rank: number;
@@ -58,18 +59,11 @@ export const LeaderboardResetBadge = ({ className = '' }: { className?: string }
   }, []);
 
   return (
-    <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber/5 border border-amber/15 ${className}`}>
-      <div className="relative flex items-center justify-center">
-        <Clock className="w-4 h-4 text-muted-foreground animate-[spin_4s_linear_infinite]" />
-        <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber/60" />
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-amber" />
-        </span>
-      </div>
-      <p className="text-[12px] font-display text-muted-foreground tracking-tight leading-none">
-        {t('social.leaderboard.resetIn')}<span className="text-foreground font-bold">{formatTimeLeft(timeLeft, t)}</span>
-      </p>
-    </div>
+    <TimeLeftBadge
+      className={className}
+      label={t('social.leaderboard.resetIn')}
+      value={formatTimeLeft(timeLeft, t)}
+    />
   );
 };
 
