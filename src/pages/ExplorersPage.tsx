@@ -642,9 +642,21 @@ const ExplorersPage = () => {
         </div>
       </PageHeader>
 
-      <div className="max-w-lg mx-auto flex gap-2 px-4 pt-3">
-        <Button variant="chip" size="sm" aria-pressed={feedTab === 'feed'} onClick={() => setFeedTab('feed')} className="shrink-0 px-3 text-xs">{t('social.contest.tabFeed')}</Button>
-        <Button variant="chip" size="sm" aria-pressed={feedTab === 'contest'} onClick={() => setFeedTab('contest')} className="shrink-0 px-3 text-xs">{t('social.contest.tabContest')}</Button>
+      <div className="max-w-lg mx-auto px-4 pt-3 pb-2">
+        <div className="game-tabs flex items-center w-full" role="tablist">
+          {([
+            { key: 'feed' as const, label: t('social.contest.tabFeed'), icon: Newspaper },
+            { key: 'contest' as const, label: t('social.contest.tabContest'), icon: Trophy },
+          ]).map(({ key, label, icon: Icon }) => {
+            const active = feedTab === key;
+            return (
+              <Button key={key} variant="ghost" role="tab" aria-selected={active} onClick={() => setFeedTab(key)} className="game-tab min-w-0 flex-1 h-10 gap-1.5 px-2 text-xs">
+                <Icon className={`w-3.5 h-3.5 transition-transform ${active ? 'scale-110' : ''}`} />
+                <span className="truncate">{label}</span>
+              </Button>
+            );
+          })}
+        </div>
       </div>
 
       <div className="max-w-lg mx-auto">
