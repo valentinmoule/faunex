@@ -20,9 +20,21 @@ export function CollectorEditionMark({ className = '' }: { className?: string })
 }
 
 /** Reflections are rendered with the silhouette so the animal is always excluded. */
-export function CollectorHoloLayers() {
+export function CollectorHoloLayers({ captureId, photoUrl }: { captureId?: string; photoUrl?: string }) {
+  const { data: cutouts } = useContestWinnerCutouts();
+  const url = captureId ? cutouts?.get(captureId) : undefined;
+  const [mask, setMask] = useState<string>();
+  useEffect(() => {
+    let cancelled = false;
+    if (!url || !photoUrl) return;
+    buildBackgroundMask(photoUrl, url)
+      .then((m) => { if (!cancelled) setMask(m); })
+      .catch(() => { /* Sans analyse fiable, le foil reste uniforme. */ });
+    return () => { cancelled = true; };
+  }, [photoUrl, url]);
+  const style = mask ? ({ WebkitMaskImage: `url(${mask})`, maskImage: `url(${mask})` } as React.CSSProperties) : undefined;
   return (
-    <div className="tg-holo" aria-hidden="true">
+    <div className={`tg-holo${mask ? ' tg-holo--masked' : ''}`} style={style} aria-hidden="true">
       <div className="tg-holo__shine" />
       <div className="tg-holo__glare" />
     </div>
@@ -130,6 +142,24 @@ async function buildBackgroundMask(photoUrl: string, cutoutUrl: string): Promise
   }
   ctx.filter = 'none';
   ctx.drawImage(cutout, px, py, pw, ph);
+  // Analyse du décor : le foil suit la texture (contours, reliefs, zones claires) des éléments du fond.
+  const photoCanvas = document.createElement('canvas');
+  photoCanvas.width = w; photoCanvas.height = h;
+  const pctx = photoCanvas.getContext('2d');
+  if (pctx) {
+    pctx.drawImage(photo, 0, 0, w, h);
+    const src = pctx.getImageData(0, 0, w, h).data;
+    const out = ctx.getImageData(0, 0, w, h);
+    const lum = new Float32Array(w * h);
+    for (let i = 0; i < w * h; i++) lum[i] = (src[i * 4] * 0.299 + src[i * 4 + 1] * 0.587 + src[i * 4 + 2] * 0.114) / 255;
+    for (let y = 1; y < h - 1; y++) for (let x = 1; x < w - 1; x++) {
+      const i = y * w + x;
+      const edge = Math.min(1, (Math.abs(lum[i + 1] - lum[i - 1]) + Math.abs(lum[i + w] - lum[i - w])) * 3);
+      const detail = Math.min(1, 0.25 + lum[i] * 0.45 + edge * 0.6);
+      out.data[i * 4 + 3] = Math.round(out.data[i * 4 + 3] * detail);
+    }
+    ctx.putImageData(out, 0, 0);
+  }
   const url = canvas.toDataURL('image/png');
   maskCache.set(key, url);
   return url;

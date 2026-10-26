@@ -823,7 +823,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                     {cardImage && !isContestWinner && isRare && <div className="detail-rare-glass" />}
                     {/* Édition collector : halo doré sur la silhouette IA + reflets ultra gold */}
                     {isContestWinner && cardImage && <CollectorSilhouette captureId={card.id} photoUrl={cardImage} />}
-                    {isContestWinner && cardImage && <CollectorHoloLayers />}
+                    {isContestWinner && cardImage && <CollectorHoloLayers captureId={card.id} photoUrl={cardImage} />}
                     {/* Name overlay bottom-left */}
                     <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none p-3 pr-4 pt-10 bg-gradient-to-t from-black/75 via-black/35 to-transparent">
                       <h3 className="text-white font-display font-bold text-base leading-tight drop-shadow-md">
@@ -1409,7 +1409,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                       {!isContestWinner && isSilver && <div className="detail-silver-glass detail-glass--fullscreen" />}
                       {!isContestWinner && isRare && <div className="detail-rare-glass detail-glass--fullscreen" />}
                       {isContestWinner && <CollectorSilhouette captureId={card.id} photoUrl={cardImage} />}
-                      {isContestWinner && <CollectorHoloLayers />}
+                      {isContestWinner && <CollectorHoloLayers captureId={card.id} photoUrl={cardImage} />}
                     </div>
                     {/* Name overlay bottom-left */}
                     <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none p-5 pr-6 pt-16 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
