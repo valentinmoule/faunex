@@ -34,17 +34,13 @@ Validate claims from trusted rules (synced with badge/group/city definitions and
 
 Scale full-bleed `filter: blur()` photo backdrops well past the blur radius (`scale(1.9)` for 42px, `scale(2.25)` for 50px) over an opaque layer, because blur fades alpha inward.
 
-## Shelving targets the exact displayed species tile
+## Shelving stays on the Bestiary and targets the displayed tile
 
-Match common and scientific names before either alone, measure the live tile in flight, and keep the landing flash geometry, so cards never appear to miss their slot.
+Keep the capture view until the Bestiary is ready, then glide into its tile without a veil or waiting card. Match both names before either alone, measure the live tile in flight, and retain landing flash geometry so cards never miss their slot.
 
 ## Leaderboard movement compares with the same board 24 hours earlier
 
 Compute rank movement server-side from captures before `now() - 24 hours`, keeping scope, period and category.
-
-## Shelving transition stays on the Bestiary surface
-
-Keep the capture view until the Bestiary is ready, then glide the card into its tile; never cover the Bestiary with a veil or waiting card.
 
 ## A capture fills exactly one Bestiary tile
 
@@ -80,7 +76,7 @@ Derive recipients/content from stored events, deduplicate per recipient, and enf
 
 ## Native push uses FCM tokens, separate from browser subscriptions
 
-Register native FCM devices through authenticated server code, remove registrations before logout, and dispatch only from verified event handlers with private preferences and event deduplication; keep web push independent because APNs/FCM tokens are not VAPID subscriptions. Mobile Firebase configuration files belong only in native targets, never service-account keys in the bundle.
+Register native FCM devices server-side with auth, remove before logout, and dispatch from verified, deduplicated events respecting private preferences. Keep web push separate: FCM tokens are not VAPID subscriptions. Bundle Firebase config only in native targets, never service-account keys.
 
 ## Nearby endpoints consume reserved searches
 
@@ -117,4 +113,4 @@ Submit/vote/withdraw via contest RPCs (Paris weeks, one entry/vote); finalize wi
 
 ## Winner overlay shares the existing card interaction
 
-Use the supplied WinnerHoloEffect overlay in detail and fullscreen, mapping package variables to HolographicCard spring coordinates without adding gesture handlers; a single rendering path prevents mixed foil styles and preserves zoom.
+Use WinnerHoloEffect in detail/fullscreen, mapping package variables to HolographicCard springs without new gestures; one render path avoids mixed foil styles and preserves zoom.
