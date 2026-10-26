@@ -4373,7 +4373,7 @@ html.is-native-android body {
   background-position: 0% var(--background-y, 50%);
   filter: brightness(calc((var(--pointer-from-center, 0) * 0.3) + 0.5)) contrast(2.3) saturate(1);
   mix-blend-mode: color-dodge;
-  opacity: calc(var(--card-opacity, 0) * 0.9);
+  opacity: calc(var(--card-opacity, 0) * 0.45);
   transition: opacity 0.3s ease;
 }
 .tg-holo__shine::after {
@@ -4390,6 +4390,6 @@ html.is-native-android body {
   background-image: radial-gradient(farthest-corner circle at var(--pointer-x, 50%) var(--pointer-y, 50%),
     hsla(0, 0%, 100%, 1) 10%, hsla(0, 0%, 100%, 0.6) 35%, hsla(180, 11%, 35%, 1) 60%);
   mix-blend-mode: soft-light;
-  opacity: calc(var(--card-opacity, 0) * 0.8);
+  opacity: calc(var(--card-opacity, 0) * 0.5);
   transition: opacity 0.3s ease;
 }
