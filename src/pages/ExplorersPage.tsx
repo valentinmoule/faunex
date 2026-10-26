@@ -362,6 +362,16 @@ const ExplorersPage = () => {
     fetchFollows();
   };
 
+  const removeFollower = async (followerId: string, name: string) => {
+    if (!userId) return;
+    if (!window.confirm(t('social.common.removeFollowerConfirm', { name, defaultValue: 'Retirer {{name}} de tes abonnés ?' }))) return;
+    const { error } = await supabase.from('explorer_follows').delete().eq('follower_id', followerId).eq('following_id', userId);
+    if (error) { toast.error(t('social.common.genericError')); return; }
+    toast.success(t('social.common.followerRemoved', { defaultValue: 'Abonné retiré' }));
+    setFollowers(prev => prev.filter(f => f.user_id !== followerId));
+    fetchFollows();
+  };
+
   const isFollowing = (uid: string) => followingIds.has(uid);
   const isPending = (uid: string) => pendingIds.has(uid);
 
@@ -576,13 +586,21 @@ const ExplorersPage = () => {
             ) : (
               <div className="divide-y divide-border">
                 {followers.map(f => f.profile && <UserRow key={f.user_id} user={f.profile} onClick={() => navigate(`/explorer/${f.user_id}/collection`)} action={
-                  isFollowing(f.user_id) ? (
+                  <div className="flex items-center gap-1.5">
+                  {isFollowing(f.user_id) ? (
                     <button onClick={() => unfollowUser(f.user_id)} className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-muted text-foreground text-xs font-display font-semibold"><UserCheck className="w-3.5 h-3.5" /> Abonné</button>
                   ) : isPending(f.user_id) ? (
                     <Button variant="secondary" size="sm" disabled className="h-8 gap-1 px-3 text-xs"><Clock className="w-3.5 h-3.5" /> En attente</Button>
                   ) : (
                     <button onClick={() => handleFollow(f.user_id)} className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-display font-semibold"><UserPlus className="w-3.5 h-3.5" /> S'abonner</button>
-                  )
+                  )}
+                  <button
+                    type="button"
+                    aria-label={t('social.common.removeFollower', { defaultValue: 'Retirer cet abonné' })}
+                    onClick={(e) => { e.stopPropagation(); removeFollower(f.user_id, f.profile?.display_name || f.profile?.username || ''); }}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground active:opacity-70"
+                  ><X className="w-4 h-4" /></button>
+                  </div>
                 } isPremium={searchPremiumIds.has(f.user_id)} />)}
               </div>
             )
