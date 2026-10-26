@@ -4393,3 +4393,5 @@ html.is-native-android body {
   opacity: calc(var(--card-opacity, 0) * 0.5);
   transition: opacity 0.3s ease;
 }
+.tg-holo--masked > * { -webkit-mask-size: cover; mask-size: cover; -webkit-mask-position: center; mask-position: center; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; }
+.tg-holo--masked .tg-holo__shine { opacity: calc(var(--card-opacity, 0) * 0.7); }
