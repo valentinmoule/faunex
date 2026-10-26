@@ -141,7 +141,7 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
       const nightOwl = hours.some((h) => h >= 21 || (h >= 0 && h < 5));
       const earlyBird = hours.some((h) => h >= 5 && h < 8);
 
-      const myCategories = new Set(
+      const myCategories = new Set<string>(
         captures.map((c: any) => normalizeCategory(c.category || '')).filter(Boolean),
       );
 
