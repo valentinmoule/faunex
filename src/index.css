@@ -4071,9 +4071,7 @@ html.is-native-android body {
   border: none;
   position: relative;
   isolation: isolate;
-  box-shadow:
-    0 0 16px hsl(var(--collector-gold) / 0.08),
-    0 10px 24px -12px hsl(0 0% 0% / 0.5);
+  box-shadow: 0 10px 24px -12px hsl(0 0% 0% / 0.5);
 }
 
 /* Reflets ultra gold animés sur toute la surface de la carte. */
