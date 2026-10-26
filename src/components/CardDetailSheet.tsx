@@ -149,6 +149,7 @@ const DELETE_SPARKLES = [
 const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, feedView = false, author, onUseCollectionCover }: Props) => {
   const { t, i18n } = useTranslation();
   const { data: contestWinners } = useContestWinnerCaptures();
+  const isContestWinner = !!card?.id && !!contestWinners?.has(card.id);
   const { session } = useAuth();
   // Nom commun localisé + fiche d'espèce localisée (traduite à la demande, puis cachée).
   const { speciesName } = useSpeciesName();
@@ -820,12 +821,18 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                       })()
                     )}
                     {/* Glass shimmer overlay on image */}
-                    {cardImage && isGold && <div className="detail-gold-glass" />}
-                    {cardImage && isSilver && <div className="detail-silver-glass" />}
-                    {cardImage && isRare && <div className="detail-rare-glass" />}
+                    {cardImage && !isContestWinner && isGold && <div className="detail-gold-glass" />}
+                    {cardImage && !isContestWinner && isSilver && <div className="detail-silver-glass" />}
+                    {cardImage && !isContestWinner && isRare && <div className="detail-rare-glass" />}
+                    {/* Édition collector : détourage IA en relief + reflets ultra gold */}
+                    {isContestWinner && cardImage && <CollectorCutout captureId={card.id} />}
+                    {isContestWinner && cardImage && <CollectorHoloLayers />}
                     {/* Name overlay bottom-left */}
-                    <div className="absolute bottom-0 left-0 right-0 pointer-events-none p-3 pr-4 pt-10 bg-gradient-to-t from-black/75 via-black/35 to-transparent">
-                      <h3 className="text-white font-display font-bold text-base leading-tight drop-shadow-md">{displayName}</h3>
+                    <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none p-3 pr-4 pt-10 bg-gradient-to-t from-black/75 via-black/35 to-transparent">
+                      <h3 className="text-white font-display font-bold text-base leading-tight drop-shadow-md">
+                        {displayName}
+                        {isContestWinner && <CollectorEditionMark className="ml-1.5 text-sm align-middle" />}
+                      </h3>
                       {card.scientificName && (
                         <p className="text-white/85 text-[11px] italic font-body leading-tight mt-0.5 drop-shadow">{card.scientificName}</p>
                       )}
