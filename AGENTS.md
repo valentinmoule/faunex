@@ -52,7 +52,7 @@ Match captures (including pending shelves) to tiles by exact common name first; 
 
 ## Bundle badge artwork
 
-Import badge art locally; hosted asset routes are absent natively.
+Import badge art locally (no hosted asset routes natively).
 
 ## Collection artwork keeps explicit group assignments
 
@@ -92,7 +92,7 @@ Read private preferences with `get_my_profile`; keep public profile fields and l
 
 ## Realtime channel names must be unique per subscription
 
-Suffix channel names randomly; reused topics crash `.on()`.
+Suffix channel names randomly (reused topics crash `.on()`).
 
 ## Identification account overrides are server-authoritative
 
@@ -113,4 +113,4 @@ Store admin themed collections (species names, optional rules and dates) in `the
 
 ## Photo contest is server-authoritative
 
-Submit, vote and withdraw only through the contest RPCs, which check Paris-time week windows, ownership and one entry/vote per week; winners are finalized lazily by those RPCs into `photo_contest_winners`, so no scheduler is needed and clients cannot fake results.
+Submit, vote and withdraw only via contest RPCs (Paris-time weeks, one entry/vote each); they finalize winners lazily, so no scheduler and no client-forged results.
