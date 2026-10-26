@@ -104,7 +104,8 @@
         "Carabidae": "Ground beetles",
         "Araneidae": "Orb-weaver spiders",
         "Salticidae": "Jumping spiders"
-      }
+      },
+      "moreData": "See more data"
     },
     "backHome": "Back to home",
     "backToIndex": "All species",

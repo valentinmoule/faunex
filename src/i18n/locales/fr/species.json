@@ -104,7 +104,8 @@
         "Carabidae": "Carabidés",
         "Araneidae": "Aranéidés",
         "Salticidae": "Salticidés"
-      }
+      },
+      "moreData": "Voir plus de données"
     },
     "backHome": "Retour à l'accueil",
     "backToIndex": "Toutes les espèces",
