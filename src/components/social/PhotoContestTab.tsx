@@ -116,6 +116,14 @@ export default function PhotoContestTab() {
 
   useEffect(() => { load(); }, [load]);
 
+  // Génère paresseusement les détourages IA des nouveaux gagnants (une fois par session,
+  // la fonction ne fait rien quand tous les gagnants ont déjà leur détourage).
+  useEffect(() => {
+    if (cutoutRequested) return;
+    cutoutRequested = true;
+    supabase.functions.invoke('generate-winner-cutout').catch(() => {});
+  }, []);
+
   const openPicker = async () => {
     if (!userId) return;
     setPickOpen(true);
