@@ -83,7 +83,8 @@ interface FollowProfile {
 }
 
 // Comptes techniques masqués de la liste des explorateurs (review App Store)
-const HIDDEN_USER_IDS = ['f7910e92-39a6-4703-b31d-bf1e245e2a4e', 'ac0df155-7422-4073-bfc1-14e2a71960bc', 'c62717cb-255a-4491-a5a0-132880e703be'];
+/** Comptes internes (tests de rareté, comptes de développement) jamais proposés dans la recherche d'explorateurs. */
+const HIDDEN_USER_IDS = ['f7910e92-39a6-4703-b31d-bf1e245e2a4e', 'ac0df155-7422-4073-bfc1-14e2a71960bc', 'c62717cb-255a-4491-a5a0-132880e703be', '2d72654b-0a59-4f18-89d4-8ce2bfc7e129'];
 
 const ExplorersPage = () => {
   const { t } = useTranslation();
