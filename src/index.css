@@ -3138,6 +3138,22 @@ html.is-native-android body {
     inset 0 1px 0 hsla(0, 0%, 100%, 0.35);
 }
 
+/* Cartes primées « Photo de la semaine » : photo à plat, sans cadre. */
+.game-tile.tile-frame-none {
+  border-width: 0;
+  --tile-border-width: 0px;
+  background-image: none;
+  box-shadow: 0 3px 10px -6px hsl(var(--foreground) / 0.35);
+}
+.game-tile.tile-frame-none::before,
+.game-tile.tile-frame-none::after {
+  content: none;
+}
+.game-tile.tile-frame-none:active {
+  transform: translate3d(0, 2px, 0) scale(0.985);
+  box-shadow: 0 1px 4px -2px hsl(var(--foreground) / 0.3);
+}
+
 
 /* Rayon intérieur concentrique : la photo épouse la courbure du cadre
    (certains navigateurs perdent le clip overflow-hidden sur les tuiles
@@ -4038,55 +4054,19 @@ html.is-native-android body {
 
 /* ═══════════════════════════════════════════════════
    ÉDITION COLLECTOR — « Photo de la semaine »
-   Réservé aux cartes primées : cadre doré animé intégré
-   (remplace la bordure de rareté), reflets ultra gold,
-   symbole ✦ W premium et détourage IA en relief.
+   Réservé aux cartes primées : aucune bordure, des reflets
+   ultra gold, le symbole ✦ W et un halo doré sur l'animal.
    ═══════════════════════════════════════════════════ */
 
-@property --collector-angle {
-  syntax: '<angle>';
-  initial-value: 0deg;
-  inherits: false;
-}
-
-/* Cadre collector : pas de bordure classique, un liseré doré
-   holographique animé directement intégré à la carte. */
-.collector-frame {
+/* Carte primée : aucun cadre, seulement une lueur dorée discrète. */
+.collector-card {
   border: none;
   position: relative;
   isolation: isolate;
   box-shadow:
-    0 0 16px hsla(42, 90%, 55%, 0.38),
-    0 0 44px hsla(42, 90%, 55%, 0.16),
+    0 0 18px hsla(42, 90%, 55%, 0.3),
+    0 0 46px hsla(42, 90%, 55%, 0.14),
     0 10px 24px -12px hsl(0 0% 0% / 0.5);
-}
-.collector-frame::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  z-index: 30;
-  pointer-events: none;
-  padding: 3px;
-  background: conic-gradient(
-    from var(--collector-angle),
-    hsl(42 95% 52%),
-    hsl(52 100% 84%) 12%,
-    hsl(38 92% 44%) 26%,
-    hsl(48 100% 70%) 40%,
-    hsl(36 88% 40%) 55%,
-    hsl(52 100% 88%) 70%,
-    hsl(40 92% 50%) 85%,
-    hsl(42 95% 52%)
-  );
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-          mask-composite: exclude;
-  animation: collector-angle-spin 7s linear infinite;
-}
-@keyframes collector-angle-spin {
-  to { --collector-angle: 360deg; }
 }
 
 /* Reflets ultra gold animés sur toute la surface de la carte. */
@@ -4246,7 +4226,6 @@ html.is-native-android body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .collector-frame::before,
   .collector-holo::before,
   .collector-holo::after,
   .collector-shine-bar::after,

@@ -24,7 +24,6 @@ import CaptureMilestoneCard, { isMilestoneRank } from '@/components/CaptureMiles
 import ExplorersEmptyState from '@/components/social/ExplorersEmptyState';
 import { ProfileButton } from '@/components/ProfileDrawer';
 import PhotoContestTab from '@/components/social/PhotoContestTab';
-import PhotoOfWeekMark from '@/components/social/PhotoOfWeekMark';
 import { useContestWinnerCaptures } from '@/hooks/usePhotoContest';
 
 
@@ -693,8 +692,10 @@ const ExplorersPage = () => {
                     <button
 
                       onClick={() => { hapticTap(); setSelectedCard(toAnimalCard(post)); }}
-                      className={`game-tile tile-grid-1 relative block w-full aspect-[4/5] rounded-2xl border-[8px] overflow-hidden text-left active:scale-[0.99] transition-transform ${
-                        rarityTileBorder[post.rarity as Rarity] || 'tile-border-plain border-border'
+                      className={`game-tile tile-grid-1 relative block w-full aspect-[4/5] rounded-2xl overflow-hidden text-left active:scale-[0.99] transition-transform ${
+                        contestWinners?.has(post.id)
+                          ? 'tile-frame-none'
+                          : `border-[8px] ${rarityTileBorder[post.rarity as Rarity] || 'tile-border-plain border-border'}`
                       } bg-card`}
                     >
                       <img
@@ -707,7 +708,6 @@ const ExplorersPage = () => {
                       <div className="absolute top-2.5 right-2.5">
                         <RarityBadge rarity={post.rarity as Rarity} plain className="feed-card-rarity" />
                       </div>
-                      {contestWinners?.has(post.id) && <PhotoOfWeekMark className="absolute top-2 left-2" />}
                       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 pt-10">
                         <p className="text-sm font-display font-bold text-white truncate leading-tight">
                           {speciesName(post.animal_name)}
