@@ -2008,6 +2008,104 @@ export type Database = {
         }
         Relationships: []
       }
+      photo_contest_entries: {
+        Row: {
+          capture_id: string
+          created_at: string
+          id: string
+          user_id: string
+          week_start: string
+        }
+        Insert: {
+          capture_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+          week_start: string
+        }
+        Update: {
+          capture_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+          week_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "photo_contest_entries_capture_id_fkey"
+            columns: ["capture_id"]
+            isOneToOne: true
+            referencedRelation: "captures"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "photo_contest_entries_capture_id_fkey"
+            columns: ["capture_id"]
+            isOneToOne: true
+            referencedRelation: "ml_dataset_captures"
+            referencedColumns: ["capture_id"]
+          },
+        ]
+      }
+      photo_contest_votes: {
+        Row: {
+          created_at: string
+          entry_id: string
+          id: string
+          voter_id: string
+          week_start: string
+        }
+        Insert: {
+          created_at?: string
+          entry_id: string
+          id?: string
+          voter_id: string
+          week_start: string
+        }
+        Update: {
+          created_at?: string
+          entry_id?: string
+          id?: string
+          voter_id?: string
+          week_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "photo_contest_votes_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "photo_contest_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      photo_contest_winners: {
+        Row: {
+          capture_id: string | null
+          decided_at: string
+          entry_id: string | null
+          user_id: string
+          votes: number
+          week_start: string
+        }
+        Insert: {
+          capture_id?: string | null
+          decided_at?: string
+          entry_id?: string | null
+          user_id: string
+          votes?: number
+          week_start: string
+        }
+        Update: {
+          capture_id?: string | null
+          decided_at?: string
+          entry_id?: string | null
+          user_id?: string
+          votes?: number
+          week_start?: string
+        }
+        Relationships: []
+      }
       pinned_profile_collections: {
         Row: {
           collection_key: string
@@ -3364,6 +3462,7 @@ export type Database = {
         }[]
       }
       captures_remaining_today: { Args: never; Returns: number }
+      cast_contest_vote: { Args: { p_entry_id: string }; Returns: boolean }
       catalogue_name_for_binomial: {
         Args: { p_scientific: string }
         Returns: string
@@ -3450,6 +3549,40 @@ export type Database = {
       consume_ai_analysis:
         | { Args: { p_user: string }; Returns: number }
         | { Args: { p_request: string; p_user: string }; Returns: number }
+      contest_ballot: {
+        Args: never
+        Returns: {
+          animal_name: string
+          avatar_url: string
+          capture_id: string
+          display_name: string
+          entry_id: string
+          image_url: string
+          is_mine: boolean
+          rarity: string
+          scientific_name: string
+          user_id: string
+          username: string
+          voted_for: boolean
+        }[]
+      }
+      contest_finalize: { Args: never; Returns: undefined }
+      contest_recent_winners: {
+        Args: { p_limit?: number }
+        Returns: {
+          animal_name: string
+          avatar_url: string
+          capture_id: string
+          display_name: string
+          image_url: string
+          rarity: string
+          user_id: string
+          username: string
+          votes: number
+          week_start: string
+        }[]
+      }
+      contest_week: { Args: { p_at?: string }; Returns: string }
       create_family_email_invitation: {
         Args: { p_email: string; p_user: string }
         Returns: Json
@@ -3798,6 +3931,7 @@ export type Database = {
         }[]
       }
       strip_label_parenthetical: { Args: { p_label: string }; Returns: string }
+      submit_contest_photo: { Args: { p_capture_id: string }; Returns: string }
       territory_leaderboard: {
         Args: { p_department: string; p_limit?: number; p_scope?: string }
         Returns: {
@@ -3837,6 +3971,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      withdraw_contest_photo: { Args: never; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"

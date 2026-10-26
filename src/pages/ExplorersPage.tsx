@@ -23,6 +23,9 @@ import { useSpeciesName } from '@/hooks/useSpeciesLocale';
 import CaptureMilestoneCard, { isMilestoneRank } from '@/components/CaptureMilestoneCard';
 import ExplorersEmptyState from '@/components/social/ExplorersEmptyState';
 import { ProfileButton } from '@/components/ProfileDrawer';
+import PhotoContestTab from '@/components/social/PhotoContestTab';
+import PhotoOfWeekMark from '@/components/social/PhotoOfWeekMark';
+import { useContestWinnerCaptures } from '@/hooks/usePhotoContest';
 
 
 // ── Feed types ──
@@ -91,6 +94,8 @@ const ExplorersPage = () => {
 
   // View mode: 'feed' (default) or 'search' (search/followers/following)
   const [view, setView] = useState<'feed' | 'search'>('feed');
+  const [feedTab, setFeedTab] = useState<'feed' | 'contest'>(() => (searchParams.get('tab') === 'contest' ? 'contest' : 'feed'));
+  const { data: contestWinners } = useContestWinnerCaptures();
 
   // ── Feed state ──
   const FEED_PAGE_SIZE = 25;
@@ -637,8 +642,15 @@ const ExplorersPage = () => {
         </div>
       </PageHeader>
 
+      <div className="max-w-lg mx-auto flex gap-2 px-4 pt-3">
+        <Button variant="chip" size="sm" aria-pressed={feedTab === 'feed'} onClick={() => setFeedTab('feed')} className="shrink-0 px-3 text-xs">{t('social.contest.tabFeed')}</Button>
+        <Button variant="chip" size="sm" aria-pressed={feedTab === 'contest'} onClick={() => setFeedTab('contest')} className="shrink-0 px-3 text-xs">{t('social.contest.tabContest')}</Button>
+      </div>
+
       <div className="max-w-lg mx-auto">
-        {feedLoading ? (
+        {feedTab === 'contest' ? (
+          <PhotoContestTab />
+        ) : feedLoading ? (
           <div className="text-center py-16"><p className="text-muted-foreground font-display">{t('social.common.loading')}</p></div>
         ) : posts.length === 0 ? (
           <ExplorersEmptyState onSearch={() => { setView('search'); setSearchTab('search'); }} />
@@ -683,6 +695,7 @@ const ExplorersPage = () => {
                       <div className="absolute top-2.5 right-2.5">
                         <RarityBadge rarity={post.rarity as Rarity} plain className="feed-card-rarity" />
                       </div>
+                      {contestWinners?.has(post.id) && <PhotoOfWeekMark className="absolute top-2 left-2" />}
                       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 pt-10">
                         <p className="text-sm font-display font-bold text-white truncate leading-tight">
                           {speciesName(post.animal_name)}

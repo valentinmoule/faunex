@@ -105,6 +105,7 @@ export const STATIC_BADGE_SEEDS: StaticBadgeSeed[] = [
   { id: 'followers_5', icon: '✨', total: 5, group: 'social', xp: 200 },
   { id: 'followers_25', icon: '👑', total: 25, group: 'social', xp: 600 },
   { id: 'premium_member', icon: '🦊', total: 1, group: 'social', xp: 150 },
+  { id: 'photo_of_week', icon: '📷', total: 1, group: 'social', xp: 300 },
 ];
 
 /** Resolves the translated name/description of a static badge seed. */

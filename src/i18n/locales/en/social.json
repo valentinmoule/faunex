@@ -216,6 +216,38 @@
       "badgeName": "Community member",
       "badgeMentionSuffix": " badge +{{xp}} XP",
       "toastBadgeUnlocked": "\"Community member\" badge unlocked! +{{xp}} XP 🎉"
+    },
+    "contest": {
+      "tabFeed": "Feed",
+      "tabContest": "Photo of the week",
+      "voteTitle": "Vote for the best photo",
+      "voteHint": "Photos submitted last week. One vote per explorer, until Sunday night.",
+      "voteEmpty": "No photos in the running this week. Submit yours for the next vote!",
+      "vote": "Vote",
+      "voted": "Your vote",
+      "yours": "Your photo",
+      "voteDone": "Vote saved!",
+      "myEntryTitle": "Your entry",
+      "myEntryHint": "Submit a photo captured or imported this week. Voting happens next week.",
+      "submit": "Submit a photo",
+      "withdraw": "Withdraw",
+      "submitted": "Photo submitted! Voting opens on Monday.",
+      "pickTitle": "Choose your photo",
+      "pickEmpty": "No approved capture this week yet. Capture an animal to take part!",
+      "winnersTitle": "Photos of the week",
+      "weekOf": "Week of {{date}}",
+      "votes_one": "{{count}} vote",
+      "votes_other": "{{count}} votes",
+      "badge": "Photo of the week",
+      "errors": {
+        "already_voted": "You already voted this week.",
+        "own_photo": "You can't vote for your own photo.",
+        "voting_closed": "Voting is closed.",
+        "already_submitted": "You already submitted a photo this week.",
+        "not_this_week": "Only photos from this week can take part.",
+        "not_approved": "This capture isn't approved yet.",
+        "generic": "Something went wrong."
+      }
     }
   }
 }

@@ -216,6 +216,38 @@
       "badgeName": "Membre de la communauté",
       "badgeMentionSuffix": " +{{xp}} XP",
       "toastBadgeUnlocked": "Badge « Membre de la communauté » débloqué ! +{{xp}} XP 🎉"
+    },
+    "contest": {
+      "tabFeed": "Fil",
+      "tabContest": "Photo de la semaine",
+      "voteTitle": "Vote pour la meilleure photo",
+      "voteHint": "Photos proposées la semaine dernière. Un seul vote par explorateur, jusqu'à dimanche soir.",
+      "voteEmpty": "Aucune photo en lice cette semaine. Propose la tienne pour le prochain vote !",
+      "vote": "Voter",
+      "voted": "Ton vote",
+      "yours": "Ta photo",
+      "voteDone": "Vote enregistré !",
+      "myEntryTitle": "Ta participation",
+      "myEntryHint": "Propose une photo capturée ou importée cette semaine. Le vote a lieu la semaine prochaine.",
+      "submit": "Proposer une photo",
+      "withdraw": "Retirer",
+      "submitted": "Photo proposée ! Le vote ouvre lundi.",
+      "pickTitle": "Choisis ta photo",
+      "pickEmpty": "Aucune capture validée cette semaine. Capture un animal pour participer !",
+      "winnersTitle": "Photos de la semaine",
+      "weekOf": "Semaine du {{date}}",
+      "votes_one": "{{count}} vote",
+      "votes_other": "{{count}} votes",
+      "badge": "Photo de la semaine",
+      "errors": {
+        "already_voted": "Tu as déjà voté cette semaine.",
+        "own_photo": "Tu ne peux pas voter pour ta photo.",
+        "voting_closed": "Le vote est terminé.",
+        "already_submitted": "Tu as déjà proposé une photo cette semaine.",
+        "not_this_week": "Seules les photos de cette semaine peuvent participer.",
+        "not_approved": "Cette capture n'est pas encore validée.",
+        "generic": "Une erreur est survenue."
+      }
     }
   }
 }

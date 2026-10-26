@@ -91,7 +91,7 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
         setLoading(true);
       }
 
-      const [capturesRes, claimedRes, followersRes, followingRes, catalogue, premiumRes, adventRes] = await Promise.all([
+      const [capturesRes, claimedRes, followersRes, followingRes, catalogue, premiumRes, adventRes, contestWinsRes] = await Promise.all([
         fetchAllRows<any>((from, to) =>
           supabase
             .from('captures')
@@ -107,6 +107,7 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
         fetchCatalogue(),
         supabase.rpc('is_premium', { p_user_id: userId }),
         supabase.rpc('advent_badge_progress', { p_user: userId }),
+        supabase.from('photo_contest_winners').select('week_start', { count: 'exact', head: true }).eq('user_id', userId),
       ]);
 
       if (cancelled) return;
@@ -237,6 +238,7 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
         // depuis la liste, même si l'invitation a été fermée ou rejointe ailleurs.
         [COMMUNITY_BADGE_ID]: 1,
         premium_member: premiumRes.data || claimedSet.has('premium_member') ? 1 : 0,
+        photo_of_week: (contestWinsRes.count || 0) > 0 || claimedSet.has('photo_of_week') ? 1 : 0,
       };
 
       const allStaticBadges: BadgeDef[] = [

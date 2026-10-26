@@ -229,6 +229,10 @@
         "premium_member": {
           "name": "Explorateur Premium",
           "description": "Devenir membre Premium de Faunex"
+        },
+        "photo_of_week": {
+          "name": "Photo de la semaine",
+          "description": "Remporter le vote de la photo de la semaine"
         }
       },
       "collectionDescription": "Compléter la collection {{label}}",

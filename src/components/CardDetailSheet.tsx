@@ -14,6 +14,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import HolographicCard from '@/components/HolographicCard';
 import RarityBadge from '@/components/RarityBadge';
+import PhotoOfWeekMark from '@/components/social/PhotoOfWeekMark';
+import { useContestWinnerCaptures } from '@/hooks/usePhotoContest';
 import { hapticTap } from '@/lib/haptics';
 import { toast } from '@/hooks/use-toast';
 import { Trash2, Share2, Bookmark } from 'lucide-react';
@@ -146,6 +148,7 @@ const DELETE_SPARKLES = [
 
 const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, feedView = false, author, onUseCollectionCover }: Props) => {
   const { t, i18n } = useTranslation();
+  const { data: contestWinners } = useContestWinnerCaptures();
   const { session } = useAuth();
   // Nom commun localisé + fiche d'espèce localisée (traduite à la demande, puis cachée).
   const { speciesName } = useSpeciesName();
@@ -787,6 +790,9 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                   <div className="absolute top-[14px] right-[14px] z-20 pointer-events-none">
                     <RarityBadge rarity={card.rarity} plain />
                   </div>
+                  {contestWinners?.has(card.id) && (
+                    <PhotoOfWeekMark className="absolute top-[10px] left-[10px] z-20 !h-11 !w-11" />
+                  )}
 
                   <div className="relative w-full h-full rounded-[1.25rem] overflow-hidden">
 

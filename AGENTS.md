@@ -36,11 +36,11 @@ Scale full-bleed `filter: blur()` photo backdrops well past the blur radius (`sc
 
 ## Shelving targets the exact displayed species tile
 
-Match both common and scientific names before falling back to either, measure the live tile during flight, and keep the landing flash geometry unchanged, because shared binomials and flash scaling make a correctly placed card appear to miss its slot.
+Match common and scientific names before either alone, measure the live tile in flight, and keep the landing flash geometry, so cards never appear to miss their slot.
 
 ## Leaderboard movement compares with the same board 24 hours earlier
 
-Compute rank movement server-side from captures before `now() - 24 hours`, preserving the active scope, period, and animal category so arrows always compare like with like.
+Compute rank movement server-side from captures before `now() - 24 hours`, keeping scope, period and category.
 
 ## Shelving transition stays on the Bestiary surface
 
@@ -52,7 +52,7 @@ Match captures (including pending shelves) to tiles by exact common name first; 
 
 ## Bundle badge artwork
 
-Import badge art locally; hosted asset routes are absent natively.
+Import badge art locally (no hosted asset routes natively).
 
 ## Collection artwork keeps explicit group assignments
 
@@ -92,7 +92,7 @@ Read private preferences with `get_my_profile`; keep public profile fields and l
 
 ## Realtime channel names must be unique per subscription
 
-Suffix channel names randomly; reused topics crash `.on()`.
+Suffix channel names randomly (reused topics crash `.on()`).
 
 ## Identification account overrides are server-authoritative
 
@@ -110,3 +110,7 @@ Apply shared facts after capture name canonicalization, reject scientific confli
 ## Themed collections are data, not code
 
 Store admin themed collections (species names, optional rules and dates) in `themed_collections`, matched by `src/lib/themedCollections.ts`, with covers in the public captures bucket, so they ship without a store release.
+
+## Photo contest is server-authoritative
+
+Submit, vote and withdraw only via contest RPCs (Paris-time weeks, one entry/vote each); they finalize winners lazily, so no scheduler and no client-forged results.
