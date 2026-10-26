@@ -10,7 +10,7 @@ import { Progress } from '@/components/ui/progress';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { rarityTileBorder, normalizeCategory } from '@/lib/bestiary';
 import RarityBadge from '@/components/RarityBadge';
-import { CapturePhotoOfWeekMark } from '@/components/social/PhotoOfWeekMark';
+import { useContestWinnerCaptures } from '@/hooks/usePhotoContest';
 import {
   SpeciesFilterButton,
   SpeciesSortFilterSheet,
@@ -71,6 +71,7 @@ interface FollowProfile {
 }
 
 const FriendCollectionPage = () => {
+  const { data: winners } = useContestWinnerCaptures();
   const { t } = useTranslation();
   const { userId } = useParams<{ userId: string }>();
   const { session } = useAuth();
@@ -459,7 +460,7 @@ const FriendCollectionPage = () => {
                 <div
                   key={card.id}
                   onClick={() => setSelectedCard(card)}
-                  className={`game-tile tile-grid-2 relative aspect-[3/4] rounded-xl border-[5px] overflow-hidden cursor-pointer ${rarityTileBorder[card.rarity] || 'tile-border-plain'} bg-card`}
+                  className={`game-tile tile-grid-2 relative aspect-[3/4] rounded-xl overflow-hidden cursor-pointer ${winners?.has(card.id) ? 'tile-frame-none' : `border-[5px] ${rarityTileBorder[card.rarity] || 'tile-border-plain'}`} bg-card`}
                 >
                   <img
                     src={card.image}
@@ -470,7 +471,6 @@ const FriendCollectionPage = () => {
 <div className="absolute top-1.5 right-1.5">
                     <RarityBadge rarity={card.rarity} plain />
                   </div>
-                  <CapturePhotoOfWeekMark captureId={card.id} className="absolute top-1.5 left-1.5" />
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5 pt-8">
                     <p className="text-xs font-display font-bold text-white truncate leading-tight">
                       {speciesName(card.name)}

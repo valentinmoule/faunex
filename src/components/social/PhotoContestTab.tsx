@@ -13,7 +13,6 @@ import { Button } from '@/components/ui/button';
 import { PremiumAvatar } from '@/components/PremiumAvatar';
 import RarityBadge from '@/components/RarityBadge';
 import TimeLeftBadge from '@/components/TimeLeftBadge';
-import PhotoOfWeekMark from '@/components/social/PhotoOfWeekMark';
 import { thumbUrl } from '@/lib/imageUrl';
 import { rarityTileBorder } from '@/lib/bestiary';
 import { hapticTap } from '@/lib/haptics';
@@ -59,8 +58,8 @@ interface WeekCapture { id: string; image_url: string; animal_name: string; rari
 
 let cutoutRequested = false;
 
-const Tile = ({ image, rarity, name, children, onOpen }: { image: string; rarity: string; name: string; children?: React.ReactNode; onOpen?: () => void }) => (
-  <div role={onOpen ? 'button' : undefined} onClick={onOpen ? () => { hapticTap(); onOpen(); } : undefined} className={`${onOpen ? 'cursor-pointer active:scale-[0.99] transition-transform ' : ''}game-tile relative block w-full aspect-[4/5] rounded-2xl border-[6px] overflow-hidden bg-card ${rarityTileBorder[rarity as Rarity] || 'tile-border-plain border-border'}`}>
+const Tile = ({ image, rarity, name, children, frameless, onOpen }: { image: string; rarity: string; name: string; children?: React.ReactNode; frameless?: boolean; onOpen?: () => void }) => (
+  <div role={onOpen ? 'button' : undefined} onClick={onOpen ? () => { hapticTap(); onOpen(); } : undefined} className={`${onOpen ? 'cursor-pointer active:scale-[0.99] transition-transform ' : ''}game-tile relative block w-full aspect-[4/5] rounded-2xl overflow-hidden bg-card ${frameless ? 'tile-frame-none' : `border-[6px] ${rarityTileBorder[rarity as Rarity] || 'tile-border-plain border-border'}`}`}>
     <img src={thumbUrl(image, 500)} alt={name} className="absolute inset-0 h-full w-full object-cover" loading="lazy" decoding="async" />
     <div className="absolute top-2 right-2"><RarityBadge rarity={rarity} plain className="feed-card-rarity" /></div>
     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-2.5 pt-8">
@@ -245,9 +244,7 @@ export default function PhotoContestTab() {
             {myWinners.map((w) => {
               return (
                 <div key={w.week_start} className="space-y-1.5">
-                  <Tile image={w.image_url} rarity={w.rarity} name={speciesName(w.animal_name)} onOpen={() => openCapture(w.capture_id)}>
-                    <PhotoOfWeekMark className="absolute top-1.5 left-1.5" />
-                  </Tile>
+                  <Tile image={w.image_url} rarity={w.rarity} name={speciesName(w.animal_name)} frameless onOpen={() => openCapture(w.capture_id)} />
                   <p className="text-[11px] text-muted-foreground">{t('social.contest.weekOf', { date: fmtWeek(w.week_start) })} · {t('social.contest.votes', { count: w.votes })}</p>
                 </div>
               );
