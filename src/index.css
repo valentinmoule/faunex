@@ -4196,6 +4196,17 @@ html.is-native-android body {
 }
 .collector-outline-gold { flood-color: hsl(var(--collector-gold)); }
 .collector-outline-shadow { flood-color: hsl(var(--collector-shadow)); }
+.collector-foil-stop { stop-color: hsl(var(--collector-gold)); }
+.collector-background-depth { fill: hsl(var(--collector-shadow)); }
+.collector-background-foil {
+  animation: collector-foil-drift 12s ease-in-out infinite;
+  transform-box: view-box;
+  transform-origin: center;
+}
+@keyframes collector-foil-drift {
+  0%, 100% { transform: translate(-24%, -12%); opacity: 0.55; }
+  50% { transform: translate(24%, 12%); opacity: 0.85; }
+}
 .collector-silhouette__shadow,
 .collector-silhouette__aura {
   position: absolute;
@@ -4237,7 +4248,8 @@ html.is-native-android body {
   .collector-shine-bar::after,
   .collector-sparkles span,
   .collector-silhouette__aura,
-  .collector-silhouette {
+  .collector-silhouette,
+  .collector-background-foil {
     animation: none;
   }
 }
