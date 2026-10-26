@@ -1393,10 +1393,10 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                 style={{ ['--holo-radius' as any]: '1.5rem' }}
                 overlay={<>
                   <div className="holo-fullscreen-rarity"><RarityBadge rarity={card.rarity} plain /></div>
-                  {contestWinners?.has(card.id) && <PhotoOfWeekMark className="absolute top-3 left-3 !h-11 !w-11" />}
+                  {isContestWinner && <PhotoOfWeekMark className="absolute top-3 left-3 !h-11 !w-11" />}
                 </>}
               >
-                <div className={`relative w-full h-full rounded-[1.5rem] overflow-hidden shadow-2xl holo-frame holo-frame--fullscreen holo-frame--${normalizeRarity(card.rarity).replace(/_/g, '-')}`}>
+                <div className={`relative w-full h-full rounded-[1.5rem] overflow-hidden shadow-2xl ${isContestWinner ? 'collector-frame' : `holo-frame holo-frame--fullscreen holo-frame--${normalizeRarity(card.rarity).replace(/_/g, '-')}`}`}>
                   <div className="relative w-full h-full rounded-2xl overflow-hidden bg-black/30">
                     <div className="absolute inset-0">
 
@@ -1409,13 +1409,18 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                         className="w-full h-full object-cover pointer-events-none select-none"
                         draggable={false}
                       />
-                      {isGold && <div className="detail-gold-glass detail-glass--fullscreen" />}
-                      {isSilver && <div className="detail-silver-glass detail-glass--fullscreen" />}
-                      {isRare && <div className="detail-rare-glass detail-glass--fullscreen" />}
+                      {!isContestWinner && isGold && <div className="detail-gold-glass detail-glass--fullscreen" />}
+                      {!isContestWinner && isSilver && <div className="detail-silver-glass detail-glass--fullscreen" />}
+                      {!isContestWinner && isRare && <div className="detail-rare-glass detail-glass--fullscreen" />}
+                      {isContestWinner && <CollectorCutout captureId={card.id} />}
+                      {isContestWinner && <CollectorHoloLayers />}
                     </div>
                     {/* Name overlay bottom-left */}
                     <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none p-5 pr-6 pt-16 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
-                      <h3 className="text-white font-display font-bold text-2xl leading-tight drop-shadow-lg">{displayName}</h3>
+                      <h3 className="text-white font-display font-bold text-2xl leading-tight drop-shadow-lg">
+                        {displayName}
+                        {isContestWinner && <CollectorEditionMark className="ml-2 text-xl align-middle" />}
+                      </h3>
                       {card.scientificName && (
                         <p className="text-white/90 text-sm italic font-body leading-tight mt-1 drop-shadow">{card.scientificName}</p>
                       )}
