@@ -4249,7 +4249,8 @@ html.is-native-android body {
   .collector-holo::before,
   .collector-holo::after,
   .collector-shine-bar::after,
-  .collector-sparkles span {
+  .collector-sparkles span,
+  .collector-silhouette__aura {
     animation: none;
   }
 }

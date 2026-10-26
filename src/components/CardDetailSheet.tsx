@@ -14,7 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import HolographicCard from '@/components/HolographicCard';
 import RarityBadge from '@/components/RarityBadge';
-import PhotoOfWeekMark, { CollectorEditionMark, CollectorHoloLayers, CollectorCutout } from '@/components/social/PhotoOfWeekMark';
+import PhotoOfWeekMark, { CollectorEditionMark, CollectorHoloLayers, CollectorSilhouette } from '@/components/social/PhotoOfWeekMark';
 import { useContestWinnerCaptures } from '@/hooks/usePhotoContest';
 import { hapticTap } from '@/lib/haptics';
 import { toast } from '@/hooks/use-toast';
@@ -824,8 +824,8 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                     {cardImage && !isContestWinner && isGold && <div className="detail-gold-glass" />}
                     {cardImage && !isContestWinner && isSilver && <div className="detail-silver-glass" />}
                     {cardImage && !isContestWinner && isRare && <div className="detail-rare-glass" />}
-                    {/* Édition collector : détourage IA en relief + reflets ultra gold */}
-                    {isContestWinner && cardImage && <CollectorCutout captureId={card.id} />}
+                    {/* Édition collector : halo doré sur la silhouette IA + reflets ultra gold */}
+                    {isContestWinner && cardImage && <CollectorSilhouette captureId={card.id} />}
                     {isContestWinner && cardImage && <CollectorHoloLayers />}
                     {/* Name overlay bottom-left */}
                     <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none p-3 pr-4 pt-10 bg-gradient-to-t from-black/75 via-black/35 to-transparent">
@@ -1412,7 +1412,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                       {!isContestWinner && isGold && <div className="detail-gold-glass detail-glass--fullscreen" />}
                       {!isContestWinner && isSilver && <div className="detail-silver-glass detail-glass--fullscreen" />}
                       {!isContestWinner && isRare && <div className="detail-rare-glass detail-glass--fullscreen" />}
-                      {isContestWinner && <CollectorCutout captureId={card.id} />}
+                      {isContestWinner && <CollectorSilhouette captureId={card.id} />}
                       {isContestWinner && <CollectorHoloLayers />}
                     </div>
                     {/* Name overlay bottom-left */}
