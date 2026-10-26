@@ -4223,25 +4223,26 @@ html.is-native-android body {
 }
 /* Ombre douce sous l'animal : ancre l'animal dans le décor (profondeur). */
 .collector-silhouette__shadow {
-  background: hsla(0, 0%, 0%, 0.5);
-  filter: blur(14px);
-  transform: translateY(2.5%) scale(1.04);
+  background: hsla(0, 0%, 0%, 0.3);
+  filter: blur(18px);
+  transform: translateY(2%) scale(1.03);
 }
-/* Aura dorée lumineuse autour de la silhouette. */
+/* Aura dorée lumineuse autour de la silhouette : volontairement diffuse et
+   élargie pour que la lumière déborde autour de l'animal sans le masquer. */
 .collector-silhouette__aura {
   background: radial-gradient(
     ellipse at 50% 45%,
-    hsla(46, 100%, 72%, 0.95) 0%,
-    hsla(42, 95%, 58%, 0.75) 45%,
-    hsla(38, 90%, 50%, 0.45) 100%
+    hsla(46, 100%, 74%, 0.4) 0%,
+    hsla(42, 95%, 60%, 0.28) 45%,
+    hsla(38, 90%, 52%, 0.14) 100%
   );
-  filter: blur(22px);
-  transform: scale(1.12);
+  filter: blur(28px);
+  transform: scale(1.22);
   animation: collector-aura-breathe 4.5s ease-in-out infinite;
 }
 @keyframes collector-aura-breathe {
-  0%, 100% { opacity: 0.55; }
-  50% { opacity: 0.95; }
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.85; }
 }
 
 @media (prefers-reduced-motion: reduce) {
