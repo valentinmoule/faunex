@@ -1,0 +1,1 @@
+CREATE POLICY "Users can remove their followers" ON public.explorer_follows FOR DELETE TO authenticated USING (auth.uid() = following_id);
