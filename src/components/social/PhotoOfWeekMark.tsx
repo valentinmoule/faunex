@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Camera } from 'lucide-react';
-import { useContestWinnerCaptures } from '@/hooks/usePhotoContest';
+import { useContestWinnerCaptures, useContestWinnerCutouts } from '@/hooks/usePhotoContest';
 import './PhotoOfWeekMark.css';
 
 /** Small emblem shown on a card whose photo won « Photo de la semaine ». */
