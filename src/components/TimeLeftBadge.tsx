@@ -11,9 +11,9 @@ interface TimeLeftBadgeProps {
 /** Pastille d'échéance hebdomadaire : horloge qui tourne + durée restante.
  *  Partagée par le classement de la semaine et le vote Photo de la semaine. */
 export const TimeLeftBadge = ({ label, value, className = '' }: TimeLeftBadgeProps) => (
-  <div className={`inline-flex shrink-0 items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-amber/5 border border-amber/15 ${className}`}>
+  <div className={`inline-flex shrink-0 items-center gap-1 px-2 py-1.5 rounded-full bg-amber/5 border border-amber/15 ${className}`}>
     <div className="relative flex items-center justify-center">
-      <Clock className="w-4 h-4 text-muted-foreground animate-[spin_4s_linear_infinite]" />
+      <Clock className="w-3.5 h-3.5 text-muted-foreground animate-[spin_4s_linear_infinite]" />
       <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber/60" />
         <span className="relative inline-flex rounded-full h-2 w-2 bg-amber" />

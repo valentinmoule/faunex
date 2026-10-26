@@ -169,8 +169,8 @@ export default function PhotoContestTab() {
     <div className="space-y-8 px-4 pt-4 pb-6">
       {/* Vote */}
       <section>
-        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 px-1 pt-1">
-          <h2 className="min-w-0 text-lg font-display font-bold text-foreground">{t('social.contest.voteTitle')}</h2>
+        <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-2 px-1 pt-1">
+          <h2 className="min-w-0 truncate text-lg font-display font-bold text-foreground">{t('social.contest.voteTitle')}</h2>
           <VoteCountdown className="shrink-0" />
         </div>
         {ballot.length === 0 ? (
