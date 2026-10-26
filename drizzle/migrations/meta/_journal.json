@@ -526,6 +526,13 @@
       "when": 1793002536711,
       "tag": "0072_learning_seed_first_attempt",
       "breakpoints": true
+    },
+    {
+      "idx": 73,
+      "version": "7",
+      "when": 1793014036521,
+      "tag": "0073_photo_of_the_week_contest",
+      "breakpoints": true
     }
   ]
 }
