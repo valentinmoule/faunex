@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { AnimalCard } from '@/data/mockData';
 import RarityBadge from '@/components/RarityBadge';
-import { CapturePhotoOfWeekMark } from '@/components/social/PhotoOfWeekMark';
+import { useContestWinnerCaptures } from '@/hooks/usePhotoContest';
 import { rarityTileBorder } from '@/lib/bestiary';
 import { hapticTap } from '@/lib/haptics';
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
@@ -19,6 +19,7 @@ interface Props {
 /** Grille "Mes captures" avec réorganisation au long press (drag & drop tactile + souris). */
 export const MyCapturesGrid = ({ items, onSelect, onReorder }: Props) => {
   const { speciesName } = useSpeciesName();
+  const { data: winners } = useContestWinnerCaptures();
   const [order, setOrder] = useState<AnimalCard[]>(items);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [ghost, setGhost] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -176,8 +177,10 @@ export const MyCapturesGrid = ({ items, onSelect, onReorder }: Props) => {
                   }
                 : undefined
             }
-            className={`game-tile tile-grid-2 relative aspect-[3/4] rounded-xl border-[5px] overflow-hidden cursor-pointer ${
-              rarityTileBorder[animal.rarity] || 'tile-border-plain border-border'
+            className={`game-tile tile-grid-2 relative aspect-[3/4] rounded-xl overflow-hidden cursor-pointer ${
+              winners?.has(animal.id)
+                ? 'tile-frame-none'
+                : `border-[5px] ${rarityTileBorder[animal.rarity] || 'tile-border-plain border-border'}`
             } bg-card ${
               isDragging
                 ? 'shadow-2xl ring-2 ring-primary/60 transition-none'
@@ -196,7 +199,6 @@ export const MyCapturesGrid = ({ items, onSelect, onReorder }: Props) => {
             <div className="absolute top-1.5 right-1.5 pointer-events-none">
               <RarityBadge rarity={animal.rarity} plain />
             </div>
-            <CapturePhotoOfWeekMark captureId={animal.id} className="absolute top-1.5 left-1.5" />
             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5 pt-8 pointer-events-none">
               <p className="text-xs font-display font-bold text-white truncate leading-tight">
                 {speciesName(animal.name)}
