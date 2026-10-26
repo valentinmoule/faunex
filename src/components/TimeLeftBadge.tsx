@@ -7,7 +7,7 @@ interface TimeLeftBadgeProps {
 }
 
 /** Pastille d'échéance hebdomadaire : horloge qui tourne + durée restante seule.
- *  Partagée par le classement de la semaine et le vote Photo de la semaine. */
+ *  Partagée par le classement de la semaine et le vote Capture de la semaine. */
 export const TimeLeftBadge = ({ value, className = '' }: TimeLeftBadgeProps) => (
   <div className={`inline-flex shrink-0 items-center gap-1 px-2 py-1.5 rounded-full bg-amber/5 border border-amber/15 ${className}`}>
     <div className="relative flex items-center justify-center">

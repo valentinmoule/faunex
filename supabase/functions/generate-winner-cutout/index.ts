@@ -1,5 +1,5 @@
 // Génère le détourage IA (fond transparent) des animaux gagnants du concours
-// « Photo de la semaine » pour l'édition collector. Idempotent : ne traite que
+// « Capture de la semaine » pour l'édition collector. Idempotent : ne traite que
 // les gagnants sans cutout_url, par petits lots.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
