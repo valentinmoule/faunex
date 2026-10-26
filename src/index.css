@@ -4337,7 +4337,6 @@ html.is-native-android body {
   mix-blend-mode: color-dodge;
   opacity: calc(0.28 + var(--pointer-from-center, 0) * 0.25);
   filter: brightness(calc((var(--pointer-from-center, 0) * 0.4) + 0.4)) contrast(1.4) saturate(1.4);
-  animation: collector-vfoil-idle 8s ease-in-out infinite alternate;
 }
 .collector-vfoil__shine::after {
   content: "";
@@ -4352,6 +4351,3 @@ html.is-native-android body {
   background-size: 120% 150%; background-position: center;
   mix-blend-mode: hard-light; opacity: calc(0.12 + var(--pointer-from-center, 0) * 0.2);
 }
-@keyframes collector-vfoil-idle { from { background-position: 0% 20%, 30% 20%, 40% 20%; } to { background-position: 0% 80%, 70% 80%, 60% 80%; } }
-.card-tilting .collector-vfoil__shine, [style*="--pointer-from-center: 0."] .collector-vfoil__shine { animation: none; }
-@media (prefers-reduced-motion: reduce) { .collector-vfoil__shine { animation: none; } }
