@@ -20,12 +20,7 @@ export function CollectorEditionMark({ className = '' }: { className?: string })
 
 /** Reflections are rendered with the silhouette so the animal is always excluded. */
 export function CollectorHoloLayers() {
-  return (
-    <div className="collector-gold-foil pointer-events-none" aria-hidden="true">
-      <div className="collector-gold-foil__sheen" />
-      <div className="collector-gold-foil__sparkle" />
-    </div>
-  );
+  return null;
 }
 
 /** AI-detected animal silhouette used as a mask: golden aura + depth shadow, photo stays intact. */
@@ -95,12 +90,7 @@ async function locateSilhouette(photoUrl: string, maskUrl: string): Promise<Plac
   return { x: best.x * photo.naturalWidth, y: best.y * photo.naturalHeight, width: best.width * photo.naturalWidth, height: best.height * photo.naturalHeight };
 }
 
-export function CollectorSilhouette(_props: { captureId?: string; photoUrl: string }) {
-  // Photo originale conservée : aucune silhouette IA pour le moment.
-  return null;
-}
-
-export function CollectorSilhouetteAI({ captureId, photoUrl }: { captureId?: string; photoUrl: string }) {
+export function CollectorSilhouette({ captureId, photoUrl }: { captureId?: string; photoUrl: string }) {
   const filterId = `collector-outline-${useId().replace(/:/g, '')}`;
   const { data: cutouts } = useContestWinnerCutouts();
   const url = captureId ? cutouts?.get(captureId) : undefined;
@@ -137,32 +127,32 @@ export function CollectorSilhouetteAI({ captureId, photoUrl }: { captureId?: str
           <rect width={w} height={h} fill="white" />
           <image href={url} {...aligned.placement} preserveAspectRatio="none" filter={`url(#${filterId}-exclude)`} />
         </mask>
-        {/* Fine diagonal holo texture, like the foil of V cards. */}
-        <linearGradient id={`${filterId}-texture`} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2={w * 0.035} y2={w * 0.035} spreadMethod="repeat">
-          <stop offset="0" className="collector-holo-a" stopOpacity="0" />
-          <stop offset="0.5" className="collector-holo-a" stopOpacity="0.5" />
-          <stop offset="1" className="collector-holo-a" stopOpacity="0" />
+        {/* Gold holo foil inspired by pokemon-cards-css "regular holo": repeating bands + pointer glare. */}
+        <linearGradient id={`${filterId}-bands`} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2={w * 0.22} y2={w * 0.13} spreadMethod="repeat">
+          <stop offset="0" stopColor="hsl(42, 90%, 55%)" />
+          <stop offset="0.25" stopColor="hsl(50, 100%, 80%)" />
+          <stop offset="0.5" stopColor="hsl(32, 80%, 45%)" />
+          <stop offset="0.75" stopColor="hsl(55, 100%, 88%)" />
+          <stop offset="1" stopColor="hsl(42, 90%, 55%)" />
         </linearGradient>
-        {/* Moving light band that reveals the texture as it sweeps. */}
-        <linearGradient id={`${filterId}-sweep`} x1="0" y1="1" x2="1" y2="0">
-          <stop offset="0.3" stopColor="white" stopOpacity="0" />
-          <stop offset="0.5" stopColor="white" stopOpacity="1" />
-          <stop offset="0.7" stopColor="white" stopOpacity="0" />
+        <linearGradient id={`${filterId}-scan`} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2={w * 0.012} y2={-w * 0.012} spreadMethod="repeat">
+          <stop offset="0" stopColor="black" />
+          <stop offset="0.5" stopColor="white" stopOpacity="0.5" />
+          <stop offset="1" stopColor="black" />
         </linearGradient>
-        <linearGradient id={`${filterId}-tint`} x1="0" y1="1" x2="1" y2="0">
-          <stop offset="0" className="collector-holo-a" />
-          <stop offset="0.5" className="collector-holo-b" />
-          <stop offset="1" className="collector-holo-c" />
-        </linearGradient>
-        <mask id={`${filterId}-sweep-mask`} maskUnits="userSpaceOnUse" x={-w} y={-h} width={w * 3} height={h * 3}>
-          <rect x={-w} y={-h} width={w * 3} height={h * 3} fill={`url(#${filterId}-sweep)`} className="collector-background-foil" />
-        </mask>
+        <radialGradient id={`${filterId}-glare`}>
+          <stop offset="0" stopColor="hsl(50, 100%, 92%)" stopOpacity="0.9" />
+          <stop offset="0.6" stopColor="hsl(42, 90%, 60%)" stopOpacity="0.15" />
+          <stop offset="1" stopColor="black" stopOpacity="0" />
+        </radialGradient>
       </defs>
       <g mask={`url(#${filterId}-background)`}>
-        <rect width={w} height={h} className="collector-background-depth" fillOpacity="0.06" />
-        <g mask={`url(#${filterId}-sweep-mask)`} className="collector-foil-layer">
-          <rect width={w} height={h} fill={`url(#${filterId}-tint)`} fillOpacity="0.12" />
-          <rect width={w} height={h} fill={`url(#${filterId}-texture)`} fillOpacity="0.22" />
+        <g className="collector-foil-bands">
+          <rect x={-w} y={-h} width={w * 3} height={h * 3} fill={`url(#${filterId}-bands)`} />
+          <rect x={-w} y={-h} width={w * 3} height={h * 3} fill={`url(#${filterId}-scan)`} style={{ mixBlendMode: 'overlay' }} opacity="0.5" />
+        </g>
+        <g className="collector-foil-glare">
+          <ellipse cx={w / 2} cy={h / 2} rx={w * 0.6} ry={h * 0.5} fill={`url(#${filterId}-glare)`} />
         </g>
       </g>
     </svg>

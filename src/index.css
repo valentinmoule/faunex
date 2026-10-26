@@ -4293,3 +4293,17 @@ html.is-native-android body {
   to { filter: brightness(1.1); }
 }
 @media (prefers-reduced-motion: reduce) { .collector-gold-foil__sheen { animation: none; } }
+
+/* Foil doré masqué par la silhouette IA (pokemon-cards-css) : bandes + glare suivant l'inclinaison. */
+.collector-silhouette { mix-blend-mode: color-dodge; opacity: 0.32; filter: brightness(0.8) contrast(1.4) saturate(1.1); }
+.collector-foil-bands {
+  transform: translate(calc((var(--pointer-from-left, 0.5) - 0.5) * 120px), calc((var(--pointer-from-top, 0.5) - 0.5) * 80px));
+  transition: transform 0.2s ease-out;
+  animation: collector-bands-idle 10s ease-in-out infinite alternate;
+}
+.collector-foil-glare {
+  transform: translate(calc((var(--pointer-from-left, 0.5) - 0.5) * 70%), calc((var(--pointer-from-top, 0.5) - 0.5) * 70%));
+  transform-box: view-box; transition: transform 0.2s ease-out; mix-blend-mode: screen;
+}
+@keyframes collector-bands-idle { from { translate: -30px 0; } to { translate: 30px 0; } }
+@media (prefers-reduced-motion: reduce) { .collector-foil-bands { animation: none; } }
