@@ -244,6 +244,8 @@
         "already_submitted": "Tu as déjà proposé une photo cette semaine.",
         "not_this_week": "Seules les photos de cette semaine peuvent participer.",
         "not_approved": "Cette capture n'est pas encore validée.",
+        "already_entered": "Cette photo participe déjà au concours.",
+        "not_owner": "Cette photo ne t'appartient pas.",
         "generic": "Une erreur est survenue."
       },
       "dayShort": "j"
