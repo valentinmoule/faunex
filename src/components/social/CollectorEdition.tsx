@@ -53,19 +53,34 @@ async function locateSilhouette(photoUrl: string, maskUrl: string): Promise<Plac
     if (subject[i + 3] > 240) samples.push({ x: x / size, y: y / size, r: subject[i], g: subject[i + 1], b: subject[i + 2] });
   }
   if (samples.length < 8) throw new Error('No silhouette');
+  const means = [0, 0, 0];
+  for (const s of samples) { means[0] += s.r; means[1] += s.g; means[2] += s.b; }
+  for (let c = 0; c < 3; c++) means[c] /= samples.length;
+  const subjectVariance = [0, 0, 0];
+  for (const s of samples) {
+    s.r -= means[0]; s.g -= means[1]; s.b -= means[2];
+    subjectVariance[0] += s.r ** 2; subjectVariance[1] += s.g ** 2; subjectVariance[2] += s.b ** 2;
+  }
   let best = { x: 0, y: 0, width: 1, height: 1 }, score = Infinity;
   const ratio = (mask.naturalHeight / mask.naturalWidth) / (photo.naturalHeight / photo.naturalWidth);
   const search = (minScale: number, maxScale: number, minX: number, maxX: number, minY: number, maxY: number, step: number) => {
     for (let scale = minScale; scale <= maxScale; scale += step) {
       const height = scale * ratio;
       for (let y = minY; y <= Math.min(maxY, 1 - height); y += step) for (let x = minX; x <= Math.min(maxX, 1 - scale); x += step) {
-        let error = 0;
+        const sums = [0, 0, 0], squares = [0, 0, 0], covariance = [0, 0, 0];
         for (const sample of samples) {
           const sx = Math.min(size - 1, Math.round((x + sample.x * scale) * size));
           const sy = Math.min(size - 1, Math.round((y + sample.y * height) * size));
           const i = (sy * size + sx) * 4;
-          error += (source[i] - sample.r) ** 2 + (source[i + 1] - sample.g) ** 2 + (source[i + 2] - sample.b) ** 2;
+          const centered = [sample.r, sample.g, sample.b];
+          for (let c = 0; c < 3; c++) {
+            const value = source[i + c];
+            sums[c] += value; squares[c] += value * value; covariance[c] += value * centered[c];
+          }
         }
+        // Normalized correlation ignores exposure shifts introduced by AI edits.
+        let error = 0;
+        for (let c = 0; c < 3; c++) error -= covariance[c] / Math.sqrt(Math.max(1, (squares[c] - sums[c] ** 2 / samples.length) * subjectVariance[c]));
         if (error < score) { score = error; best = { x, y, width: scale, height }; }
       }
     }
