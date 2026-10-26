@@ -68,7 +68,7 @@ Resolve capture names server-side against the catalogue (exact, synonyms, singul
 
 ## Discoverer counts come from a trigger-maintained cache
 
-`species_finder_counts()` reads `species_finder_cache`, kept in sync per species by a trigger on captures, because recomputing the full aggregate on every paginated call was the top database cost; clients use the shared `fetchFinderCounts()` cache.
+`species_finder_counts()` reads trigger-maintained `species_finder_cache`; clients share `fetchFinderCounts()`, because repeated full aggregates were the top database cost.
 
 ## Privileged notifications validate stored events
 
@@ -76,7 +76,7 @@ Derive recipients/content from stored events, deduplicate per recipient, and enf
 
 ## Native push uses FCM tokens, separate from browser subscriptions
 
-Register native FCM devices server-side with auth, remove before logout, and dispatch from verified, deduplicated events respecting private preferences. Keep web push separate: FCM tokens are not VAPID subscriptions. Bundle Firebase config only in native targets, never service-account keys.
+Register FCM devices with server auth, remove before logout, and dispatch verified deduplicated events respecting private preferences. Keep FCM separate from web VAPID. Bundle Firebase config only natively, never service-account keys.
 
 ## Nearby endpoints consume reserved searches
 
@@ -109,7 +109,7 @@ Store admin themed collections (species names, optional rules and dates) in `the
 
 ## Photo contest is server-authoritative
 
-Submit/vote/withdraw via contest RPCs (Paris weeks, one entry/vote); finalize winners lazily. All photo surfaces use the shared winner cache by displayed capture ID, never species, to avoid false awards.
+Contest RPCs enforce Paris weeks and one entry/vote. Winner-row triggers use a service-only notifier; hourly finalization is the timed backstop. Persist email/push completion separately with stable event keys. Results respect managed unsubscribe and registered push devices. Use the shared winner cache by capture ID, never species.
 
 ## Winner overlay shares the existing card interaction
 

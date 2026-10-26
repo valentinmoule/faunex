@@ -30,6 +30,11 @@ export function nativeEmailPayload(template: string, data: Record<string, unknow
     const message = reasons[String(data.reason)] ?? reasons.not_identifiable
     return { title: en ? 'Capture not approved' : 'Capture non validée', body: message[en ? 1 : 0], url: '/capture', tag }
   }
+  if (template === 'contest-winner') return {
+    title: en ? 'You won Capture of the week! 🏆' : 'Tu as remporté la Capture de la semaine ! 🏆',
+    body: en ? `${name} is now a collector ✦ W card. Your badge is ready to claim!` : `${name} devient une carte collector ✦ W. Ton badge est prêt à récupérer !`,
+    url: safeNativePath(data.captureUrl, '/explorers'), tag,
+  }
   const message = messages[template]
   return message ? { title: message[0], body: message[1], url: message[2], tag } : null
 }

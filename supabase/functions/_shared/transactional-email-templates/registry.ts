@@ -9,6 +9,7 @@ import { template as inactivityEmail } from './inactivity-email.tsx'
 import { template as accountBlocked } from './account-blocked.tsx'
 import { template as premiumRecap } from './premium-recap.tsx'
 import { template as familyInvitation } from './family-invitation.tsx'
+import { template as contestWinner } from './contest-winner.tsx'
 
 export interface TemplateEntry {
   component: any
@@ -19,6 +20,7 @@ export interface TemplateEntry {
 }
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
+  'contest-winner': contestWinner,
   'family-invitation': familyInvitation,
   'new-follower': newFollower,
   'capture-like': captureLike,
