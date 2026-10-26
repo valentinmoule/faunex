@@ -1,3 +1,5 @@
+// ============= Full file contents =============
+
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -171,6 +173,23 @@ export default function PhotoContestTab() {
 
   return (
     <div className="space-y-8 px-4 pt-4 pb-6">
+      {/* Ma participation */}
+      <section className="rounded-3xl border border-border bg-gradient-to-b from-primary/10 via-card to-card p-4">
+        <h2 className="text-base font-display font-bold text-foreground">{t('social.contest.myEntryTitle')}</h2>
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t('social.contest.myEntryHint')}</p>
+        {myEntry ? (
+          <div className="mt-3 flex items-center gap-3">
+            <div className="w-24 shrink-0"><Tile image={myEntry.image_url} rarity={myEntry.rarity} name={speciesName(myEntry.animal_name)} onOpen={() => openCapture(myEntry.capture_id)} /></div>
+            <div className="min-w-0 space-y-2">
+              <p className="text-sm text-muted-foreground">{t('social.contest.submitted')}</p>
+              <Button variant="secondary" size="sm" onClick={withdraw} disabled={busy}>{t('social.contest.withdraw')}</Button>
+            </div>
+          </div>
+        ) : (
+          <Button className="mt-3 w-full" onClick={openPicker}>{t('social.contest.submit')}</Button>
+        )}
+      </section>
+
       {/* Vote */}
       <section>
         <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-2 px-1 pt-1">
@@ -204,23 +223,6 @@ export default function PhotoContestTab() {
               );
             })}
           </div>
-        )}
-      </section>
-
-      {/* Ma participation */}
-      <section>
-        <h2 className="text-lg font-display font-bold text-foreground">{t('social.contest.myEntryTitle')}</h2>
-        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t('social.contest.myEntryHint')}</p>
-        {myEntry ? (
-          <div className="mt-3 flex items-center gap-4">
-            <div className="w-32 shrink-0"><Tile image={myEntry.image_url} rarity={myEntry.rarity} name={speciesName(myEntry.animal_name)} onOpen={() => openCapture(myEntry.capture_id)} /></div>
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">{t('social.contest.submitted')}</p>
-              <Button variant="secondary" size="sm" onClick={withdraw} disabled={busy}>{t('social.contest.withdraw')}</Button>
-            </div>
-          </div>
-        ) : (
-          <Button className="mt-3 w-full" onClick={openPicker}>{t('social.contest.submit')}</Button>
         )}
       </section>
 
