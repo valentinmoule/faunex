@@ -4354,7 +4354,8 @@ html.is-native-android body {
    Trainer Gallery Holofoil (simeydotme/pokemon-cards-css) — seul effet
    des cartes primées ✦ W. Variables pilotées par HolographicCard.
    ================================================================ */
-.tg-holo { position: absolute; inset: 0; z-index: 9; pointer-events: none; border-radius: inherit; overflow: hidden; }
+.tg-holo { position: absolute; inset: 0; pointer-events: none; border-radius: inherit; overflow: hidden; }
+.tg-holo__shine, .tg-holo__glare { z-index: 9; }
 .tg-holo__shine, .tg-holo__shine::after, .tg-holo__glare { position: absolute; inset: 0; border-radius: inherit; }
 .tg-holo__shine {
   --space: 5%;
