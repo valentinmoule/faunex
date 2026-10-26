@@ -2084,7 +2084,9 @@ export type Database = {
           capture_id: string | null
           cutout_url: string | null
           decided_at: string
+          email_notified_at: string | null
           entry_id: string | null
+          push_notified_at: string | null
           user_id: string
           votes: number
           week_start: string
@@ -2093,7 +2095,9 @@ export type Database = {
           capture_id?: string | null
           cutout_url?: string | null
           decided_at?: string
+          email_notified_at?: string | null
           entry_id?: string | null
+          push_notified_at?: string | null
           user_id: string
           votes?: number
           week_start: string
@@ -2102,7 +2106,9 @@ export type Database = {
           capture_id?: string | null
           cutout_url?: string | null
           decided_at?: string
+          email_notified_at?: string | null
           entry_id?: string | null
+          push_notified_at?: string | null
           user_id?: string
           votes?: number
           week_start?: string
@@ -3841,6 +3847,10 @@ export type Database = {
         }
         Returns: Json
       }
+      request_contest_winner_notification: {
+        Args: { p_week: string }
+        Returns: number
+      }
       reserve_referral: {
         Args: { p_code: string; p_env: string }
         Returns: string
@@ -3948,6 +3958,7 @@ export type Database = {
           username: string
         }[]
       }
+      tick_contest_results: { Args: never; Returns: undefined }
       top_captured_species: {
         Args: { p_limit?: number }
         Returns: {
