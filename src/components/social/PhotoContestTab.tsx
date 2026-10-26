@@ -40,7 +40,6 @@ function VoteCountdown({ className = '' }: { className?: string }) {
   return (
     <TimeLeftBadge
       className={className}
-      label={`${t('social.contest.voteEndsIn')} `}
       value={`${d > 0 ? `${d}${t('social.contest.dayShort')} ` : ''}${pad(h)}:${pad(m)}:${pad(sec)}`}
     />
   );

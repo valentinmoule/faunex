@@ -186,7 +186,6 @@
       "sheetTitleTerritory": "Top {{label}} cette semaine",
       "sheetTitleGeneral": "Classement cette semaine",
       "sheetTitleCategory": "Top {{category}} cette semaine",
-      "resetIn": "Réinitialisation dans ",
       "tabGlobal": "Global",
       "tabFollows": "Mes abonnements",
       "lockedTitle": "Classement de tes abonnements",
@@ -247,7 +246,6 @@
         "not_approved": "Cette capture n'est pas encore validée.",
         "generic": "Une erreur est survenue."
       },
-      "voteEndsIn": "Fin du vote",
       "dayShort": "j"
     }
   }
