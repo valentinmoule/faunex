@@ -34,9 +34,9 @@ export function CollectorHoloLayers({ captureId, photoUrl }: { captureId?: strin
   }, [photoUrl, url]);
   const style = mask ? ({ WebkitMaskImage: `url(${mask})`, maskImage: `url(${mask})` } as React.CSSProperties) : undefined;
   return (
-    <div className={`tg-holo${mask ? ' tg-holo--masked' : ''}`} style={style} aria-hidden="true">
-      <div className="tg-holo__shine" />
-      <div className="tg-holo__glare" />
+    <div className={`tg-holo${mask ? ' tg-holo--masked' : ''}`} aria-hidden="true">
+      <div className="tg-holo__shine" style={style} />
+      <div className="tg-holo__glare" style={style} />
     </div>
   );
 }
