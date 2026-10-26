@@ -4,6 +4,7 @@ import { Drawer } from 'vaul';
 import { supabase } from '@/integrations/supabase/client';
 import { getCollectionArt } from '@/lib/collectionArt';
 import { rarityTileBorder, normalizeCategory } from '@/lib/bestiary';
+import { useContestWinnerCaptures } from '@/hooks/usePhotoContest';
 import { BREED_GROUPS, getSpeciesGroup } from '@/lib/breedGroups';
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
 import type { AnimalCard } from '@/data/mockData';
@@ -45,6 +46,7 @@ export const PinnedCollectionsCarousel = ({
 }) => {
   const { t } = useTranslation();
   const { speciesName } = useSpeciesName();
+  const { data: winners } = useContestWinnerCaptures();
   const [collections, setCollections] = useState<PinnedCollection[]>([]);
   const [items, setItems] = useState<PinnedItem[]>([]);
   const [standardPins, setStandardPins] = useState<PinnedStandard[]>([]);
@@ -208,7 +210,7 @@ export const PinnedCollectionsCarousel = ({
                         <button
                           key={card.id}
                           onClick={() => { setOpenId(null); onSelectCard(card); }}
-                          className={`game-tile relative aspect-[3/4] overflow-hidden rounded-xl border-[3px] ${rarityTileBorder[card.rarity] || 'tile-border-plain'} bg-card`}
+                          className={`game-tile relative aspect-[3/4] overflow-hidden rounded-xl ${winners?.has(card.id) ? 'tile-frame-none' : `border-[3px] ${rarityTileBorder[card.rarity] || 'tile-border-plain'}`} bg-card`}
                         >
                           <img src={card.image} alt={speciesName(card.name)} className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
                           <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-foreground/70 to-transparent px-1.5 pb-1 pt-4 text-left text-[10px] font-semibold text-background">
