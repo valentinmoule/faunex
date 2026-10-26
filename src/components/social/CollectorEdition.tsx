@@ -151,8 +151,8 @@ export function CollectorSilhouette({ captureId, photoUrl }: { captureId?: strin
       <g mask={`url(#${filterId}-background)`}>
         <rect width={w} height={h} className="collector-background-depth" fillOpacity="0.06" />
         <g mask={`url(#${filterId}-sweep-mask)`} className="collector-foil-layer">
-          <rect width={w} height={h} fill={`url(#${filterId}-tint)`} fillOpacity="0.1" />
-          <rect width={w} height={h} fill={`url(#${filterId}-texture)`} fillOpacity="0.16" />
+          <rect width={w} height={h} fill={`url(#${filterId}-tint)`} fillOpacity="0.12" />
+          <rect width={w} height={h} fill={`url(#${filterId}-texture)`} fillOpacity="0.22" />
         </g>
       </g>
     </svg>
