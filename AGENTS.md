@@ -36,11 +36,11 @@ Scale full-bleed `filter: blur()` photo backdrops well past the blur radius (`sc
 
 ## Shelving targets the exact displayed species tile
 
-Match both common and scientific names before falling back to either, measure the live tile during flight, and keep the landing flash geometry unchanged, because shared binomials and flash scaling make a correctly placed card appear to miss its slot.
+Match common and scientific names before either alone, measure the live tile in flight, and keep the landing flash geometry, so cards never appear to miss their slot.
 
 ## Leaderboard movement compares with the same board 24 hours earlier
 
-Compute rank movement server-side from captures before `now() - 24 hours`, preserving the active scope, period, and animal category so arrows always compare like with like.
+Compute rank movement server-side from captures before `now() - 24 hours`, keeping scope, period and category.
 
 ## Shelving transition stays on the Bestiary surface
 
