@@ -114,3 +114,7 @@ Store admin themed collections (species names, optional rules and dates) in `the
 ## Photo contest is server-authoritative
 
 Submit/vote/withdraw via contest RPCs (Paris weeks, one entry/vote); finalize winners lazily. All photo surfaces use the shared winner cache by displayed capture ID, never species, to avoid false awards.
+
+## Winner overlay shares the existing card interaction
+
+Use the supplied WinnerHoloEffect overlay in detail and fullscreen, mapping package variables to HolographicCard spring coordinates without adding gesture handlers; a single rendering path prevents mixed foil styles and preserves zoom.

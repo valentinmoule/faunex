@@ -13,24 +13,6 @@ export function useContestWinnerCaptures() {
   });
 }
 
-/** AI cutout URLs of winner captures, keyed by capture id (collector edition depth layer). */
-export function useContestWinnerCutouts() {
-  return useQuery({
-    queryKey: ['photo-contest-winner-cutouts'],
-    staleTime: 10 * 60 * 1000,
-    queryFn: async (): Promise<Map<string, string>> => {
-      const { data } = await supabase.from('photo_contest_winners').select('capture_id, cutout_url');
-      const map = new Map<string, string>();
-      for (const r of data ?? []) {
-        if (r.capture_id && (r as { cutout_url?: string | null }).cutout_url) {
-          map.set(r.capture_id, (r as { cutout_url?: string | null }).cutout_url!);
-        }
-      }
-      return map;
-    },
-  });
-}
-
 export interface BallotEntry {
   entry_id: string;
   capture_id: string;
