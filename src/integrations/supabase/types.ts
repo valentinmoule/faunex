@@ -2082,6 +2082,7 @@ export type Database = {
       photo_contest_winners: {
         Row: {
           capture_id: string | null
+          cutout_url: string | null
           decided_at: string
           entry_id: string | null
           user_id: string
@@ -2090,6 +2091,7 @@ export type Database = {
         }
         Insert: {
           capture_id?: string | null
+          cutout_url?: string | null
           decided_at?: string
           entry_id?: string | null
           user_id: string
@@ -2098,6 +2100,7 @@ export type Database = {
         }
         Update: {
           capture_id?: string | null
+          cutout_url?: string | null
           decided_at?: string
           entry_id?: string | null
           user_id?: string
