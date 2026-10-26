@@ -4265,3 +4265,31 @@ html.is-native-android body {
     animation: none;
   }
 }
+
+/* Édition collector : reflets dorés subtils autour de l'animal (centre laissé net), pilotés par l'inclinaison. */
+.collector-gold-foil {
+  position: absolute; inset: 0; z-index: 10; overflow: hidden; border-radius: inherit;
+  -webkit-mask-image: radial-gradient(ellipse 46% 42% at 50% 50%, transparent 55%, #000 100%);
+  mask-image: radial-gradient(ellipse 46% 42% at 50% 50%, transparent 55%, #000 100%);
+}
+.collector-gold-foil__sheen {
+  position: absolute; inset: 0; mix-blend-mode: soft-light; opacity: 0.55;
+  background-image:
+    repeating-linear-gradient(115deg, hsla(45, 100%, 75%, 0) 0%, hsla(45, 100%, 78%, 0.55) 3%, hsla(38, 95%, 60%, 0) 6%),
+    linear-gradient(115deg, transparent 25%, hsla(46, 100%, 80%, 0.9) 50%, transparent 75%);
+  background-size: 240% 240%, 220% 220%;
+  background-position:
+    calc(20% + var(--pointer-from-left, 0.5) * 60%) calc(20% + var(--pointer-from-top, 0.5) * 60%),
+    calc(100% - var(--pointer-from-left, 0.5) * 100%) 50%;
+  animation: collector-gold-drift 9s ease-in-out infinite alternate;
+  transition: background-position 0.25s ease-out;
+}
+.collector-gold-foil__sparkle {
+  position: absolute; inset: 0; mix-blend-mode: screen;
+  background: radial-gradient(circle at var(--pointer-x, 50%) var(--pointer-y, 50%), hsla(48, 100%, 80%, 0.22), transparent 45%);
+}
+@keyframes collector-gold-drift {
+  from { filter: brightness(0.95); }
+  to { filter: brightness(1.1); }
+}
+@media (prefers-reduced-motion: reduce) { .collector-gold-foil__sheen { animation: none; } }
