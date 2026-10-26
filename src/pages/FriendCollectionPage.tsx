@@ -158,6 +158,22 @@ const FriendCollectionPage = () => {
         setAmIFollowing(!!followData && followData.length > 0);
       }
 
+      // Profil privé : photos visibles seulement pour les abonnés acceptés (et soi-même).
+      let canSeeCaptures = myId === userId;
+      if (!canSeeCaptures) {
+        const { data: privacy } = await supabase.from('profiles').select('is_private').eq('user_id', userId).maybeSingle();
+        if (!(privacy as any)?.is_private) canSeeCaptures = true;
+        else if (myId) {
+          const { data: accepted } = await supabase.from('explorer_follows').select('id')
+            .eq('follower_id', myId).eq('following_id', userId).eq('status', 'accepted').limit(1);
+          canSeeCaptures = !!accepted && accepted.length > 0;
+        }
+      }
+      if (!canSeeCaptures) {
+        capturesRes.data = [];
+        setCaptures([]);
+      }
+
       if (!capturesRes.error && capturesRes.data) {
         const mapped = capturesRes.data.map((c: any) => ({
           id: c.id,
