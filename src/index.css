@@ -4192,11 +4192,11 @@ html.is-native-android body {
   z-index: 8;
   pointer-events: none;
   overflow: visible;
-  animation: collector-aura-breathe 8s ease-in-out infinite;
 }
-.collector-outline-gold { flood-color: hsl(var(--collector-gold)); }
-.collector-outline-shadow { flood-color: hsl(var(--collector-shadow)); }
-.collector-foil-stop { stop-color: hsl(var(--collector-gold)); }
+.collector-holo-a { stop-color: hsl(var(--collector-reflection)); }
+.collector-holo-b { stop-color: hsl(var(--collector-gold)); }
+.collector-holo-c { stop-color: hsl(var(--collector-reflection)); }
+.collector-foil-layer { mix-blend-mode: screen; }
 .collector-background-depth { fill: hsl(var(--collector-shadow)); }
 .collector-background-foil {
   animation: collector-foil-drift 12s ease-in-out infinite;
@@ -4204,8 +4204,8 @@ html.is-native-android body {
   transform-origin: center;
 }
 @keyframes collector-foil-drift {
-  0%, 100% { transform: translate(-24%, -12%); opacity: 0.55; }
-  50% { transform: translate(24%, 12%); opacity: 0.85; }
+  0%, 100% { transform: translate(-30%, -15%); }
+  50% { transform: translate(30%, 15%); }
 }
 .collector-silhouette__shadow,
 .collector-silhouette__aura {
