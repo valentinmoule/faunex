@@ -19,7 +19,7 @@ export const TimeLeftBadge = ({ label, value, className = '' }: TimeLeftBadgePro
         <span className="relative inline-flex rounded-full h-2 w-2 bg-amber" />
       </span>
     </div>
-    <p className="whitespace-nowrap text-[12px] font-display text-muted-foreground tracking-tight leading-none">
+    <p className="whitespace-nowrap text-[11px] font-display text-muted-foreground tracking-tight leading-none">
       {label}<span className="text-foreground font-bold tabular-nums">{value}</span>
     </p>
   </div>
