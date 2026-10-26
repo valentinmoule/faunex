@@ -4035,3 +4035,199 @@ html.is-native-android body {
   .reveal-stage *, .reveal-stage { animation-duration: 1ms !important; animation-iteration-count: 1 !important; animation-delay: 0ms !important; }
   .rv-confetti, .rv-spark, .rv-shock, .rv-flash, .rv-twinkle, .rv-rays, .rv-charge-ring { display: none; }
 }
+
+/* ═══════════════════════════════════════════════════
+   ÉDITION COLLECTOR — « Photo de la semaine »
+   Réservé aux cartes primées : cadre doré animé intégré
+   (remplace la bordure de rareté), reflets ultra gold,
+   symbole ✦ W premium et détourage IA en relief.
+   ═══════════════════════════════════════════════════ */
+
+@property --collector-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+/* Cadre collector : pas de bordure classique, un liseré doré
+   holographique animé directement intégré à la carte. */
+.collector-frame {
+  border: none;
+  position: relative;
+  isolation: isolate;
+  box-shadow:
+    0 0 16px hsla(42, 90%, 55%, 0.38),
+    0 0 44px hsla(42, 90%, 55%, 0.16),
+    0 10px 24px -12px hsl(0 0% 0% / 0.5);
+}
+.collector-frame::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: 30;
+  pointer-events: none;
+  padding: 3px;
+  background: conic-gradient(
+    from var(--collector-angle),
+    hsl(42 95% 52%),
+    hsl(52 100% 84%) 12%,
+    hsl(38 92% 44%) 26%,
+    hsl(48 100% 70%) 40%,
+    hsl(36 88% 40%) 55%,
+    hsl(52 100% 88%) 70%,
+    hsl(40 92% 50%) 85%,
+    hsl(42 95% 52%)
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  animation: collector-angle-spin 7s linear infinite;
+}
+@keyframes collector-angle-spin {
+  to { --collector-angle: 360deg; }
+}
+
+/* Reflets ultra gold animés sur toute la surface de la carte. */
+.collector-holo {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: inherit;
+}
+.collector-holo::before {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  background: conic-gradient(
+    from 0deg,
+    hsla(42, 92%, 62%, 0.42),
+    hsla(30, 88%, 52%, 0.22),
+    hsla(52, 95%, 74%, 0.42),
+    hsla(35, 88%, 56%, 0.22),
+    hsla(42, 92%, 62%, 0.42)
+  );
+  animation: gold-sweep 6s linear infinite;
+  mix-blend-mode: overlay;
+}
+.collector-holo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 22% 12%, hsla(48, 95%, 82%, 0.5) 0%, transparent 38%),
+    radial-gradient(circle at 78% 88%, hsla(42, 92%, 78%, 0.32) 0%, transparent 34%),
+    radial-gradient(circle at 62% 28%, hsla(52, 95%, 88%, 0.24) 0%, transparent 28%);
+  animation: gold-holo-rainbow 5s ease-in-out infinite;
+}
+
+/* Barre de reflet doré qui balaye la carte. */
+.collector-shine-bar {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: inherit;
+}
+.collector-shine-bar::after {
+  content: '';
+  position: absolute;
+  top: -80%;
+  left: -80%;
+  width: 60%;
+  height: 260%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsla(42, 92%, 86%, 0.3),
+    hsla(50, 90%, 92%, 0.55),
+    hsla(42, 92%, 86%, 0.3),
+    transparent
+  );
+  animation: gold-shine-sweep 4.5s ease-in-out infinite;
+}
+
+/* Étincelles dorées. */
+.collector-sparkles {
+  position: absolute;
+  inset: 0;
+  z-index: 14;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: inherit;
+}
+.collector-sparkles span {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: hsla(46, 95%, 88%, 0.95);
+  box-shadow: 0 0 8px 3px hsla(42, 92%, 72%, 0.65), 0 0 16px 5px hsla(42, 92%, 60%, 0.35);
+  animation: gold-star-pulse 2.5s ease-in-out infinite;
+}
+.collector-sparkles span:nth-child(1) { top: 12%; left: 18%; animation-delay: 0s; }
+.collector-sparkles span:nth-child(2) { top: 30%; left: 78%; animation-delay: 0.4s; }
+.collector-sparkles span:nth-child(3) { top: 55%; left: 35%; animation-delay: 0.9s; }
+.collector-sparkles span:nth-child(4) { top: 75%; left: 82%; animation-delay: 1.3s; }
+.collector-sparkles span:nth-child(5) { top: 8%; left: 55%; animation-delay: 0.2s; }
+.collector-sparkles span:nth-child(6) { top: 48%; left: 8%; animation-delay: 0.7s; }
+.collector-sparkles span:nth-child(7) { top: 90%; left: 50%; animation-delay: 1.1s; }
+.collector-sparkles span:nth-child(8) { top: 65%; left: 65%; animation-delay: 1.6s; }
+
+/* Symbole « ✦ W » premium en doré, à côté du nom de l'espèce. */
+.collector-mark {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.18em;
+  font-family: var(--font-display, inherit);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  background: linear-gradient(
+    160deg,
+    hsl(52 100% 88%) 0%,
+    hsl(46 98% 62%) 35%,
+    hsl(38 92% 44%) 62%,
+    hsl(50 100% 84%) 100%
+  );
+  -webkit-background-clip: text;
+          background-clip: text;
+  color: transparent;
+  filter:
+    drop-shadow(0 1px 1px hsla(38, 90%, 25%, 0.65))
+    drop-shadow(0 0 7px hsla(48, 100%, 66%, 0.5));
+}
+
+/* Détourage IA de l'animal : ressort en relief au-dessus du décor. */
+.collector-cutout {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.collector-cutout img {
+  width: 92%;
+  height: 92%;
+  object-fit: contain;
+  object-position: bottom center;
+  filter:
+    drop-shadow(0 10px 10px hsla(0, 0%, 0%, 0.55))
+    drop-shadow(0 0 26px hsla(42, 92%, 62%, 0.4));
+  transform: translateY(-2.5%) scale(1.07);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .collector-frame::before,
+  .collector-holo::before,
+  .collector-holo::after,
+  .collector-shine-bar::after,
+  .collector-sparkles span {
+    animation: none;
+  }
+}
