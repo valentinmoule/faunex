@@ -113,4 +113,4 @@ Store admin themed collections (species names, optional rules and dates) in `the
 
 ## Photo contest is server-authoritative
 
-Submit, vote and withdraw only via contest RPCs (Paris-time weeks, one entry/vote each); they finalize winners lazily, so no scheduler and no client-forged results.
+Submit/vote/withdraw via contest RPCs (Paris weeks, one entry/vote); finalize winners lazily. All photo surfaces use the shared mark/cache by displayed capture ID, never species, to avoid false awards.

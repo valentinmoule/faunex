@@ -1384,7 +1384,10 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                 paused={zoomInteracting || zoom.scale > 1.01}
                 className="holo-fullscreen-photo relative rounded-[1.5rem] pointer-events-auto touch-none"
                 style={{ ['--holo-radius' as any]: '1.5rem' }}
-                overlay={<div className="holo-fullscreen-rarity"><RarityBadge rarity={card.rarity} plain /></div>}
+                overlay={<>
+                  <div className="holo-fullscreen-rarity"><RarityBadge rarity={card.rarity} plain /></div>
+                  {contestWinners?.has(card.id) && <PhotoOfWeekMark className="absolute top-3 left-3 !h-11 !w-11" />}
+                </>}
               >
                 <div className={`relative w-full h-full rounded-[1.5rem] overflow-hidden shadow-2xl holo-frame holo-frame--fullscreen holo-frame--${normalizeRarity(card.rarity).replace(/_/g, '-')}`}>
                   <div className="relative w-full h-full rounded-2xl overflow-hidden bg-black/30">

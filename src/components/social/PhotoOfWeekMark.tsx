@@ -1,17 +1,26 @@
 import { useTranslation } from 'react-i18next';
-import photoOfWeekArt from '@/assets/badges/photo_of_week.png';
+import { Camera } from 'lucide-react';
+import { useContestWinnerCaptures } from '@/hooks/usePhotoContest';
+import './PhotoOfWeekMark.css';
 
 /** Small emblem shown on a card whose photo won « Photo de la semaine ». */
 export default function PhotoOfWeekMark({ className = '' }: { className?: string }) {
   const { t } = useTranslation();
   return (
-    <img
-      src={photoOfWeekArt}
-      alt={t('social.contest.badge')}
+    <span
+      role="img"
+      aria-label={t('social.contest.badge')}
       title={t('social.contest.badge')}
-      width={36}
-      height={36}
-      className={`pointer-events-none h-9 w-9 drop-shadow-md ${className}`}
-    />
+      className={`photo-week-mark pointer-events-none h-7 w-7 ${className}`}
+    >
+      <Camera aria-hidden="true" strokeWidth={2} />
+    </span>
   );
+}
+
+/** Resolve only the actual displayed capture, never the species identity. */
+export function CapturePhotoOfWeekMark({ captureId, className = '' }: { captureId?: string; className?: string }) {
+  const { data: winners } = useContestWinnerCaptures();
+  if (!captureId || !winners?.has(captureId)) return null;
+  return <PhotoOfWeekMark className={className} />;
 }
