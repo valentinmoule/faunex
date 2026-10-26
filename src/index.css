@@ -4188,6 +4188,13 @@ html.is-native-android body {
     drop-shadow(0 0 7px hsla(48, 100%, 66%, 0.5));
 }
 
+/* Version compacte pour les vignettes de grille : halo doré plus serré. */
+.collector-mark--tile {
+  filter:
+    drop-shadow(0 1px 1px hsla(38, 90%, 18%, 0.8))
+    drop-shadow(0 0 3px hsla(48, 100%, 66%, 0.4));
+}
+
 /* Détourage IA de l'animal : ressort en relief au-dessus du décor. */
 /* Silhouette IA de l'animal utilisée comme masque : halo doré + ombre de
    profondeur qui épousent sa forme, la photo originale reste intacte. */
