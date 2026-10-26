@@ -44,4 +44,34 @@ describe('Premium loading state', () => {
     expect(hook.result.current.loading).toBe(false);
     hook.unmount();
   });
+
+  it('shares concurrent reads but revalidates a later explicit refresh', async () => {
+    let resolve: (value: { data: boolean; error: null }) => void = () => {};
+    const before = mocks.rpc.mock.calls.length;
+    mocks.rpc.mockImplementationOnce(() => new Promise(done => { resolve = done; }));
+    const first = renderHook(() => useSubscription('shared-refresh'));
+    const second = renderHook(() => useSubscription('shared-refresh'));
+    await waitFor(() => expect(mocks.rpc.mock.calls.length - before).toBe(1));
+    await act(async () => resolve({ data: true, error: null }));
+    expect(first.result.current.isPremium).toBe(true);
+    expect(second.result.current.isPremium).toBe(true);
+    mocks.rpc.mockResolvedValueOnce({ data: false, error: null });
+    await act(async () => { await first.result.current.refresh(); });
+    expect(mocks.rpc.mock.calls.length - before).toBe(2);
+    expect(first.result.current.isPremium).toBe(false);
+    first.unmount(); second.unmount();
+  });
+
+  it('ignores a previous account response after switching accounts', async () => {
+    let resolve: (value: { data: boolean; error: null }) => void = () => {};
+    mocks.rpc.mockImplementationOnce(() => new Promise(done => { resolve = done; }));
+    const hook = renderHook(({ userId }) => useSubscription(userId), { initialProps: { userId: 'old-account' } });
+    mocks.rpc.mockResolvedValueOnce({ data: false, error: null });
+    hook.rerender({ userId: 'new-account' });
+    await waitFor(() => expect(hook.result.current.loading).toBe(false));
+    await act(async () => resolve({ data: true, error: null }));
+    expect(hook.result.current.isPremium).toBe(false);
+    expect(hook.result.current.loading).toBe(false);
+    hook.unmount();
+  });
 });

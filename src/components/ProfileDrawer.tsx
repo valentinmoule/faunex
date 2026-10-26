@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { createContext, forwardRef, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Camera, ChevronRight, Crown, Eye, Loader2, Search, Settings, Share2, ShieldCheck, Sprout, Star, UserRound } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -42,11 +42,12 @@ export const useProfileDrawer = () => {
   return value;
 };
 
-export const ProfileButton = ({ className = '' }: { className?: string }) => {
+export const ProfileButton = forwardRef<HTMLButtonElement, { className?: string }>(({ className = '' }, ref) => {
   const { t } = useTranslation();
   const { openProfile, claimableBadges } = useProfileDrawer();
   return (
     <Button
+      ref={ref}
       type="button"
       variant="ghost"
       size="icon"
@@ -66,7 +67,8 @@ export const ProfileButton = ({ className = '' }: { className?: string }) => {
       </span>
     </Button>
   );
-};
+});
+ProfileButton.displayName = 'ProfileButton';
 
 export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => {
   const { t } = useTranslation();
