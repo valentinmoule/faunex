@@ -18,9 +18,9 @@ export function CollectorEditionMark({ className = '' }: { className?: string })
   );
 }
 
-/** A single restrained reflection; no full-photo gold veil or sparkles. */
+/** Reflections are rendered with the silhouette so the animal is always excluded. */
 export function CollectorHoloLayers() {
-  return <div className="collector-shine-bar" aria-hidden="true" />;
+  return null;
 }
 
 /** AI-detected animal silhouette used as a mask: golden aura + depth shadow, photo stays intact. */
@@ -99,20 +99,41 @@ export function CollectorSilhouette({ captureId, photoUrl }: { captureId?: strin
   return (
     <svg className="collector-silhouette" width="100%" height="100%" viewBox={`0 0 ${aligned.width} ${aligned.height}`} preserveAspectRatio="xMidYMid slice" aria-hidden="true">
       <defs>
+        <filter id={`${filterId}-black`}>
+          <feFlood floodColor="black" />
+          <feComposite in2="SourceAlpha" operator="in" />
+        </filter>
+        <mask id={`${filterId}-background`} maskUnits="userSpaceOnUse" x="0" y="0" width={aligned.width} height={aligned.height}>
+          <rect width={aligned.width} height={aligned.height} fill="white" />
+          <image href={url} {...aligned.placement} preserveAspectRatio="none" filter={`url(#${filterId}-black)`} />
+        </mask>
+        <linearGradient id={`${filterId}-foil`} x1="0" y1="1" x2="1" y2="0">
+          <stop offset="0" className="collector-foil-stop" stopOpacity="0" />
+          <stop offset="0.35" className="collector-foil-stop" stopOpacity="0" />
+          <stop offset="0.46" className="collector-foil-stop" stopOpacity="0.06" />
+          <stop offset="0.5" className="collector-foil-stop" stopOpacity="0.22" />
+          <stop offset="0.54" className="collector-foil-stop" stopOpacity="0.06" />
+          <stop offset="0.65" className="collector-foil-stop" stopOpacity="0" />
+          <stop offset="1" className="collector-foil-stop" stopOpacity="0" />
+        </linearGradient>
         <filter id={filterId} x="-25%" y="-25%" width="150%" height="150%" colorInterpolationFilters="sRGB">
-          <feMorphology in="SourceAlpha" operator="dilate" radius={aligned.width * 0.004} result="expanded" />
-          <feGaussianBlur in="expanded" stdDeviation={aligned.width * 0.009} result="softEdge" />
+          <feMorphology in="SourceAlpha" operator="dilate" radius={aligned.width * 0.008} result="expanded" />
+          <feGaussianBlur in="expanded" stdDeviation={aligned.width * 0.014} result="softEdge" />
           <feComposite in="softEdge" in2="SourceAlpha" operator="out" result="outerEdge" />
-          <feFlood className="collector-outline-gold" floodOpacity="0.48" result="gold" />
+          <feFlood className="collector-outline-gold" floodOpacity="0.72" result="gold" />
           <feComposite in="gold" in2="outerEdge" operator="in" result="halo" />
-          <feOffset in="SourceAlpha" dy={aligned.width * 0.007} result="offset" />
-          <feGaussianBlur in="offset" stdDeviation={aligned.width * 0.006} result="softShadow" />
+          <feOffset in="SourceAlpha" dy={aligned.width * 0.016} result="offset" />
+          <feGaussianBlur in="offset" stdDeviation={aligned.width * 0.013} result="softShadow" />
           <feComposite in="softShadow" in2="SourceAlpha" operator="out" result="outerShadow" />
-          <feFlood className="collector-outline-shadow" floodOpacity="0.22" result="shadowColor" />
+          <feFlood className="collector-outline-shadow" floodOpacity="0.4" result="shadowColor" />
           <feComposite in="shadowColor" in2="outerShadow" operator="in" result="shadow" />
           <feMerge><feMergeNode in="shadow" /><feMergeNode in="halo" /></feMerge>
         </filter>
       </defs>
+      <g mask={`url(#${filterId}-background)`}>
+        <rect width={aligned.width} height={aligned.height} className="collector-background-depth" fillOpacity="0.12" />
+        <rect x={-aligned.width} y={-aligned.height} width={aligned.width * 3} height={aligned.height * 3} fill={`url(#${filterId}-foil)`} className="collector-background-foil" />
+      </g>
       <image href={url} {...aligned.placement} preserveAspectRatio="none" filter={`url(#${filterId})`} />
     </svg>
   );
