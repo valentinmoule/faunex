@@ -21,7 +21,12 @@ export function CollectorEditionMark({ className = '' }: { className?: string })
 
 /** Reflections are rendered with the silhouette so the animal is always excluded. */
 export function CollectorHoloLayers() {
-  return null;
+  return (
+    <div className="tg-holo" aria-hidden="true">
+      <div className="tg-holo__shine" />
+      <div className="tg-holo__glare" />
+    </div>
+  );
 }
 
 /** AI-detected animal silhouette used as a mask: golden aura + depth shadow, photo stays intact. */
@@ -134,24 +139,7 @@ async function buildBackgroundMask(photoUrl: string, cutoutUrl: string): Promise
  * Gold « V full art » foil from pokemon-cards-css (sunpillar bands + diagonal
  * scanlines + pointer glare), masked by the AI silhouette so the animal is never covered.
  */
-export function CollectorSilhouette({ captureId, photoUrl }: { captureId?: string; photoUrl: string }) {
-  const { data: cutouts } = useContestWinnerCutouts();
-  const url = captureId ? cutouts?.get(captureId) : undefined;
-  const [mask, setMask] = useState<string>();
-  useEffect(() => {
-    let cancelled = false;
-    if (!url) return;
-    buildBackgroundMask(photoUrl, url)
-      .then((m) => { if (!cancelled) setMask(m); })
-      .catch(() => { /* Without a reliable silhouette, keep the photo untouched. */ });
-    return () => { cancelled = true; };
-  }, [photoUrl, url]);
-  if (!mask) return null;
-  const style = { WebkitMaskImage: `url(${mask})`, maskImage: `url(${mask})` } as React.CSSProperties;
-  return (
-    <div className="collector-vfoil" style={style} aria-hidden="true">
-      <div className="collector-vfoil__shine" />
-      <div className="collector-vfoil__glare" />
-    </div>
-  );
+/** Silhouette/detourage disabled: Trainer Gallery Holofoil keeps the original photo untouched. */
+export function CollectorSilhouette(_props: { captureId?: string; photoUrl: string }) {
+  return null;
 }
