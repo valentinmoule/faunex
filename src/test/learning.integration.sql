@@ -31,7 +31,7 @@ BEGIN
  FOR j IN 4..10 LOOP a:=public.learning_start(p,'step-'||j); FOR i IN 0..4 LOOP v:=public.learning_answer((a->>'id')::uuid,i,0); END LOOP; v:=public.learning_finish((a->>'id')::uuid); IF (v->'result'->>'reward')::integer<>5 THEN RAISE EXCEPTION 'Perfect step must award five seeds'; END IF; PERFORM public.learning_finish((a->>'id')::uuid); END LOOP;
  BEGIN PERFORM public.learning_start(p,'step-11'); RAISE EXCEPTION 'Premium daily limit bypassed'; EXCEPTION WHEN OTHERS THEN IF SQLERRM<>'DAILY_LIMIT' THEN RAISE; END IF; END;
  IF (public.learning_status()->>'used')::integer<>10 THEN RAISE EXCEPTION 'Premium count must be 10'; END IF;
- SELECT balance INTO bal FROM public.eclats_wallets WHERE user_id=u; IF bal<>48 THEN RAISE EXCEPTION '13 plus seven perfect steps must equal 48 seeds'; END IF;
+ SELECT balance INTO bal FROM public.eclats_wallets WHERE user_id=u; IF bal<>46 THEN RAISE EXCEPTION '11 plus seven perfect steps must equal 46 seeds'; END IF;
  UPDATE public.learning_completions SET completed_at=now()-interval '2 days' WHERE user_id=u;
  IF (public.learning_status()->>'used')::integer<>0 THEN RAISE EXCEPTION 'Previous UTC days consumed today quota'; END IF;
  IF (public.learning_status()->>'reset_at')::timestamptz<>((date_trunc('day',now() AT TIME ZONE 'UTC')+interval '1 day') AT TIME ZONE 'UTC') THEN RAISE EXCEPTION 'Reset not UTC midnight'; END IF;
