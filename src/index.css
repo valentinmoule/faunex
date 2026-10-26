@@ -4058,6 +4058,11 @@ html.is-native-android body {
    ultra gold, le symbole ✦ W et un halo doré sur l'animal.
    ═══════════════════════════════════════════════════ */
 
+/* Carte primée : les reflets génériques de la carte passeraient sur l'animal,
+   seul le reflet du décor (CollectorSilhouette) est conservé. */
+.holo-collector .holo-shine,
+.holo-collector .holo-glare { display: none !important; }
+
 /* Carte primée : aucun cadre, seulement une lueur dorée discrète. */
 .collector-card {
   --collector-gold: 46 92% 72%;

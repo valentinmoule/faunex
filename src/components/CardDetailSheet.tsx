@@ -779,7 +779,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                 onTap={cardImage ? openFullscreenImage : undefined}
                 subjectBox={card.subjectBox}
                 noHolo={isUncaptured}
-                className={`relative mx-auto max-w-[280px] aspect-[4/5] rounded-[1.75rem] ${cardImage ? 'cursor-pointer' : ''}`}
+                className={`relative mx-auto max-w-[280px] aspect-[4/5] rounded-[1.75rem] ${cardImage ? 'cursor-pointer' : ''} ${isContestWinner ? 'holo-collector' : ''}`}
                 style={{ ['--holo-radius' as any]: '1.75rem' }}
 
               >
@@ -1386,7 +1386,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                 subjectBox={card.subjectBox}
                 containInteraction
                 paused={zoomInteracting || zoom.scale > 1.01}
-                className="holo-fullscreen-photo relative rounded-[1.5rem] pointer-events-auto touch-none"
+                className={`holo-fullscreen-photo relative rounded-[1.5rem] pointer-events-auto touch-none ${isContestWinner ? 'holo-collector' : ''}`}
                 style={{ ['--holo-radius' as any]: '1.5rem' }}
                 overlay={<>
                   <div className="holo-fullscreen-rarity"><RarityBadge rarity={card.rarity} plain /></div>
