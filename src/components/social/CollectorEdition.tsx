@@ -20,7 +20,12 @@ export function CollectorEditionMark({ className = '' }: { className?: string })
 
 /** Reflections are rendered with the silhouette so the animal is always excluded. */
 export function CollectorHoloLayers() {
-  return null;
+  return (
+    <div className="collector-gold-foil pointer-events-none" aria-hidden="true">
+      <div className="collector-gold-foil__sheen" />
+      <div className="collector-gold-foil__sparkle" />
+    </div>
+  );
 }
 
 /** AI-detected animal silhouette used as a mask: golden aura + depth shadow, photo stays intact. */
@@ -90,7 +95,12 @@ async function locateSilhouette(photoUrl: string, maskUrl: string): Promise<Plac
   return { x: best.x * photo.naturalWidth, y: best.y * photo.naturalHeight, width: best.width * photo.naturalWidth, height: best.height * photo.naturalHeight };
 }
 
-export function CollectorSilhouette({ captureId, photoUrl }: { captureId?: string; photoUrl: string }) {
+export function CollectorSilhouette(_props: { captureId?: string; photoUrl: string }) {
+  // Photo originale conservée : aucune silhouette IA pour le moment.
+  return null;
+}
+
+export function CollectorSilhouetteAI({ captureId, photoUrl }: { captureId?: string; photoUrl: string }) {
   const filterId = `collector-outline-${useId().replace(/:/g, '')}`;
   const { data: cutouts } = useContestWinnerCutouts();
   const url = captureId ? cutouts?.get(captureId) : undefined;
