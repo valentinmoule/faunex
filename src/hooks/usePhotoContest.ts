@@ -26,6 +26,7 @@ export interface BallotEntry {
   avatar_url: string | null;
   is_mine: boolean;
   voted_for: boolean;
+  vote_count: number;
 }
 
 export interface ContestWinner {

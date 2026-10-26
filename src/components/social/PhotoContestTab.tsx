@@ -195,6 +195,7 @@ export default function PhotoContestTab() {
                       {t('social.contest.vote')}
                     </Button>
                   )}
+                  <p className="text-center text-[11px] text-muted-foreground">{t('social.contest.votes', { count: e.vote_count })}</p>
                 </div>
               );
             })}
