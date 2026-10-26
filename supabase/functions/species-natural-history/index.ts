@@ -101,7 +101,7 @@ Deno.serve(async (req) => {
     const { data: animal, error } = await admin.from('animals').select('id,name,scientific_name')
       .eq('name', body.name.trim()).maybeSingle();
     if (error) return json({ error: 'catalogue_unavailable' }, 503);
-    if (!animal?.scientific_name || animal.scientific_name.toLowerCase() !== body.scientific_name.trim().toLowerCase()) return json({ error: 'identity_conflict' }, 404);
+    if (!animal?.scientific_name || animal.scientific_name.toLowerCase() !== body.scientific_name.trim().toLowerCase()) return json(null);
     const scientific = animal.scientific_name.trim();
     const { data: cache } = await admin.from('species_natural_history').select('*').eq('animal_id', animal.id).maybeSingle();
     if (cache?.scientific_name === scientific && Date.now() - Date.parse(cache.checked_at) < 90 * 86400000) return json(cache);
@@ -121,7 +121,7 @@ Deno.serve(async (req) => {
       const genusMatch = await gbif({ name: genus, rank: 'GENUS' });
       if (genusMatch?.rank === 'GENUS' && genusMatch.canonicalName === genus) taxonomy = groupTaxonomy(genusMatch);
     }
-    if (!taxonomy) return json({ error: 'unresolved_identity' }, 404);
+    if (!taxonomy) return json(null);
     const sources = [{ label: 'GBIF', url: `https://www.gbif.org/species/${taxonomy.gbif_key}` }];
     let measurements = {};
     // Shared binomials (including domestic breeds) do not share measurements.
