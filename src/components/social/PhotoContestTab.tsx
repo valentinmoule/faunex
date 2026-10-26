@@ -57,6 +57,8 @@ import {
 interface MyEntry { capture_id: string; image_url: string; animal_name: string; rarity: string }
 interface WeekCapture { id: string; image_url: string; animal_name: string; rarity: string }
 
+let cutoutRequested = false;
+
 const Tile = ({ image, rarity, name, children, onOpen }: { image: string; rarity: string; name: string; children?: React.ReactNode; onOpen?: () => void }) => (
   <div role={onOpen ? 'button' : undefined} onClick={onOpen ? () => { hapticTap(); onOpen(); } : undefined} className={`${onOpen ? 'cursor-pointer active:scale-[0.99] transition-transform ' : ''}game-tile relative block w-full aspect-[4/5] rounded-2xl border-[6px] overflow-hidden bg-card ${rarityTileBorder[rarity as Rarity] || 'tile-border-plain border-border'}`}>
     <img src={thumbUrl(image, 500)} alt={name} className="absolute inset-0 h-full w-full object-cover" loading="lazy" decoding="async" />
