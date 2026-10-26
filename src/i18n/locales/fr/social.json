@@ -247,7 +247,9 @@
         "not_this_week": "Seules les photos de cette semaine peuvent participer.",
         "not_approved": "Cette capture n'est pas encore validée.",
         "generic": "Une erreur est survenue."
-      }
+      },
+      "voteEndsIn": "Fin du vote dans",
+      "dayShort": "j"
     }
   }
 }
