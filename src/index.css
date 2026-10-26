@@ -4307,3 +4307,47 @@ html.is-native-android body {
 }
 @keyframes collector-bands-idle { from { translate: -30px 0; } to { translate: 30px 0; } }
 @media (prefers-reduced-motion: reduce) { .collector-foil-bands { animation: none; } }
+
+/* Foil « V full art » doré (pokemon-cards-css), masqué hors de l'animal par la silhouette IA. */
+.collector-vfoil {
+  --bx: calc(var(--pointer-from-left, 0.5) * 100%);
+  --by: calc(var(--pointer-from-top, 0.5) * 100%);
+  position: absolute; inset: 0; z-index: 9; pointer-events: none; border-radius: inherit; overflow: hidden;
+  -webkit-mask-size: cover; mask-size: cover; -webkit-mask-position: center; mask-position: center;
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+}
+.collector-vfoil__shine, .collector-vfoil__shine::after, .collector-vfoil__glare { position: absolute; inset: 0; }
+.collector-vfoil__shine, .collector-vfoil__shine::after {
+  --space: 5%;
+  background-image:
+    repeating-linear-gradient(0deg,
+      hsl(38, 90%, 62%) calc(var(--space) * 1), hsl(48, 100%, 76%) calc(var(--space) * 2),
+      hsl(30, 85%, 55%) calc(var(--space) * 3), hsl(52, 100%, 84%) calc(var(--space) * 4),
+      hsl(40, 95%, 66%) calc(var(--space) * 5), hsl(28, 80%, 58%) calc(var(--space) * 6),
+      hsl(38, 90%, 62%) calc(var(--space) * 7)),
+    repeating-linear-gradient(133deg,
+      #1a1206 0%, hsl(42, 30%, 62%) 3.8%, hsl(45, 60%, 72%) 4.5%, hsl(42, 30%, 62%) 5.2%, #1a1206 10%, #1a1206 12%),
+    radial-gradient(farthest-corner circle at var(--pointer-x, 50%) var(--pointer-y, 50%),
+      hsla(0, 0%, 0%, 0.1) 12%, hsla(0, 0%, 0%, 0.15) 20%, hsla(0, 0%, 0%, 0.25) 120%);
+  background-blend-mode: hue, hard-light;
+  background-size: 200% 700%, 300% 100%, 200% 100%;
+  background-position: 0% var(--by), calc(var(--bx) + (var(--by) * 0.2)) var(--by), var(--bx) var(--by);
+}
+.collector-vfoil__shine {
+  mix-blend-mode: color-dodge;
+  opacity: calc(0.28 + var(--pointer-from-center, 0) * 0.25);
+  filter: brightness(calc((var(--pointer-from-center, 0) * 0.4) + 0.4)) contrast(1.4) saturate(1.4);
+}
+.collector-vfoil__shine::after {
+  content: "";
+  background-size: 200% 400%, 195% 100%, 200% 100%;
+  background-position: 0% var(--by), calc((var(--bx) + (var(--by) * 0.2)) * -1) calc(var(--by) * -1), var(--bx) var(--by);
+  filter: brightness(calc((var(--pointer-from-center, 0) * 0.4) + 0.8)) contrast(1.5) saturate(1.25);
+  mix-blend-mode: exclusion;
+}
+.collector-vfoil__glare {
+  background-image: radial-gradient(farthest-corner circle at var(--pointer-x, 50%) var(--pointer-y, 50%),
+    hsl(48, 80%, 88%) 5%, hsl(38, 20%, 35%) 60%, hsl(30, 40%, 10%) 150%);
+  background-size: 120% 150%; background-position: center;
+  mix-blend-mode: hard-light; opacity: calc(0.12 + var(--pointer-from-center, 0) * 0.2);
+}
