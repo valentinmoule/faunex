@@ -787,6 +787,9 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                   <div className="absolute top-[14px] right-[14px] z-20 pointer-events-none">
                     <RarityBadge rarity={card.rarity} plain />
                   </div>
+                  {contestWinners?.has(card.id) && (
+                    <PhotoOfWeekMark className="absolute top-[10px] left-[10px] z-20 !h-11 !w-11" />
+                  )}
 
                   <div className="relative w-full h-full rounded-[1.25rem] overflow-hidden">
 
