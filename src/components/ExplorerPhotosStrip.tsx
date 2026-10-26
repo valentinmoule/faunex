@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { Crown, Lock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import CardDetailSheet from '@/components/CardDetailSheet';
-import { CapturePhotoOfWeekMark } from '@/components/social/PhotoOfWeekMark';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { type Rarity } from '@/data/mockData';
@@ -115,7 +114,6 @@ const ExplorerPhotosStrip = ({ animalName, scientificName, rarity, excludeUserId
           <button key={p.id} type="button" onClick={() => setSelected(p)} className="snap-start shrink-0 w-32 text-left active:scale-95 transition-transform">
             <span className="relative block">
               <img src={p.image_url} alt="" loading="lazy" className="w-32 h-32 rounded-2xl object-cover bg-muted" />
-              <CapturePhotoOfWeekMark captureId={p.id} className="absolute top-1.5 left-1.5" />
             </span>
             {p.author && <p className="mt-1 px-1 text-[11px] text-muted-foreground truncate">{p.author}</p>}
           </button>
