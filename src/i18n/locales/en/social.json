@@ -186,7 +186,6 @@
       "sheetTitleTerritory": "Top {{label}} this week",
       "sheetTitleGeneral": "This week's ranking",
       "sheetTitleCategory": "Top {{category}} this week",
-      "resetIn": "Resets in ",
       "tabGlobal": "Global",
       "tabFollows": "My follows",
       "lockedTitle": "Ranking of your follows",
@@ -247,7 +246,6 @@
         "not_approved": "This capture isn't approved yet.",
         "generic": "Something went wrong."
       },
-      "voteEndsIn": "Voting ends",
       "dayShort": "d"
     }
   }

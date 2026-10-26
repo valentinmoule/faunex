@@ -61,7 +61,6 @@ export const LeaderboardResetBadge = ({ className = '' }: { className?: string }
   return (
     <TimeLeftBadge
       className={className}
-      label={t('social.leaderboard.resetIn')}
       value={formatTimeLeft(timeLeft, t)}
     />
   );
