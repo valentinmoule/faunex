@@ -231,8 +231,8 @@
           "description": "Become a Faunex Premium member"
         },
         "photo_of_week": {
-          "name": "Photo of the week",
-          "description": "Win the photo of the week vote"
+          "name": "Capture of the week",
+          "description": "Win the capture of the week vote"
         }
       },
       "collectionDescription": "Complete the {{label}} collection",
