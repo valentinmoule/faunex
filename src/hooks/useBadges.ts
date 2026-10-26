@@ -13,6 +13,7 @@ import {
 } from '@/lib/badges';
 import { COMMUNITY_BADGE_ID, COMMUNITY_BADGE_XP } from '@/lib/discordCommunity';
 import { useTranslation } from 'react-i18next';
+import { singleFlight } from '@/lib/singleFlight';
 
 export interface BadgeProgress {
   badge: BadgeDef;
@@ -68,6 +69,8 @@ const fetchCatalogue = (): Promise<CatalogueRow[]> => {
 
 /** Last computed list per user: shown instantly on revisit while refreshing in background. */
 const badgesCache = new Map<string, BadgeProgress[]>();
+const readProgress = singleFlight<any[]>();
+const readRanks = singleFlight<Array<{ cat: string; rank: number | null }>>();
 
 /**
  * Computes the full badge list of a user: static badges, one badge per
@@ -91,7 +94,7 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
         setLoading(true);
       }
 
-      const [capturesRes, claimedRes, followersRes, followingRes, catalogue, premiumRes, adventRes, contestWinsRes] = await Promise.all([
+      const [capturesRes, claimedRes, followersRes, followingRes, catalogue, premiumRes, adventRes, contestWinsRes] = await readProgress(`${userId}:${refreshKey}`, () => Promise.all([
         fetchAllRows<any>((from, to) =>
           supabase
             .from('captures')
@@ -108,7 +111,7 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
         supabase.rpc('is_premium', { p_user_id: userId }),
         supabase.rpc('advent_badge_progress', { p_user: userId }),
         supabase.from('photo_contest_winners').select('week_start', { count: 'exact', head: true }).eq('user_id', userId),
-      ]);
+      ]));
 
       if (cancelled) return;
 
@@ -138,7 +141,7 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
       const nightOwl = hours.some((h) => h >= 21 || (h >= 0 && h < 5));
       const earlyBird = hours.some((h) => h >= 5 && h < 8);
 
-      const myCategories = new Set(
+      const myCategories = new Set<string>(
         captures.map((c: any) => normalizeCategory(c.category || '')).filter(Boolean),
       );
 
@@ -172,13 +175,13 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
 
       // ---- Leaderboard ranks ----
       const cats = Array.from(myCategories);
-      const ranks = await Promise.all(
+      const ranks = await readRanks(`${userId}:${refreshKey}:${JSON.stringify(cats)}`, () => Promise.all(
         cats.map(async (cat) => {
           const { data } = await supabase.rpc('my_category_rank', { p_category: cat });
           const row: any = Array.isArray(data) ? data[0] : data;
           return { cat, rank: row?.rank ? Number(row.rank) : null };
         }),
-      );
+      ));
       if (cancelled) return;
 
       const bestRank = ranks.reduce<number | null>(

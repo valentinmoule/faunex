@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Passe performances : lectures simultanées Premium/badges regroupées, lecture facturation/droits parallélisée, réponses ancien compte ignorées, ProfileButton accepte sa ref ; 147 tests passants (21 intégrations ignorées), pages principales et navigation connectée vérifiées sans plantage. Aucun changement de design/règles ; validation native iPhone/Android non disponible ici. Cloud : mémoire 86 %, connexions 50/60, capacité supplémentaire signalée sans redimensionnement.
+
 - [x] Prévenir chaque gagnant de la Capture de la semaine par e-mail et push : clôture horaire, envoi déclenché par victoire, canaux indépendants, anti-doublon ; 12 tests passants et e-mail réel confirmé sur le compte test. Réception push non vérifiée : aucun appareil enregistré sur ce compte.
 
 - [x] Classification traduite et intégrée au bloc d’informations ; tailles/poids vérifiés sur le Lion, tests et affichage téléphone/ordinateur validés. Bengal : absence de mensurations propres à la race confirmée, pas de valeurs génériques de chat substituées.

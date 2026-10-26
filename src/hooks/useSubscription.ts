@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getPaddleEnvironment } from "@/lib/paddle";
 
@@ -16,6 +16,29 @@ export interface SubscriptionRow {
 const subCache = new Map<string, SubscriptionRow | null>();
 // Cache the verified entitlement, not just billing: family/bonus access may have no row.
 const accessCache = new Map<string, boolean>();
+const pending = new Map<string, Promise<{ subscription: SubscriptionRow | null; access: boolean | undefined; billingOk: boolean }>>();
+
+/** Share only overlapping reads; later refreshes still always revalidate. */
+function readSubscription(userId: string, environment: string) {
+  const key = `${environment}:${userId}`;
+  const existing = pending.get(key);
+  if (existing) return existing;
+  const request = Promise.all([
+    supabase.from("subscriptions")
+      .select("id, status, price_id, product_id, current_period_end, cancel_at_period_end")
+      .eq("user_id", userId).eq("environment", environment)
+      .order("created_at", { ascending: false }).limit(1).maybeSingle(),
+    supabase.rpc('my_premium_access'),
+  ]).then(([billing, entitlement]) => {
+    const subscription = (billing.data as SubscriptionRow | null) ?? null;
+    if (!billing.error) subCache.set(userId, subscription);
+    const access = entitlement.error ? undefined : entitlement.data === true;
+    if (access !== undefined) accessCache.set(userId, access);
+    return { subscription, access, billingOk: !billing.error };
+  }).finally(() => { pending.delete(key); });
+  pending.set(key, request);
+  return request;
+}
 
 export function useSubscription(userId?: string) {
   const [bonusActive, setBonusActive] = useState(() => userId ? accessCache.get(userId) ?? false : false);
@@ -24,6 +47,8 @@ export function useSubscription(userId?: string) {
   );
   const [loading, setLoading] = useState(() => Boolean(userId && !accessCache.has(userId)));
   const [resolvedUserId, setResolvedUserId] = useState(userId);
+  const activeUser = useRef(userId);
+  activeUser.current = userId;
 
   const fetchSubscription = useCallback(async () => {
     if (!userId) {
@@ -43,29 +68,22 @@ export function useSubscription(userId?: string) {
     } else {
       setLoading(true);
     }
-    const { data } = await supabase
-      .from("subscriptions")
-      .select("id, status, price_id, product_id, current_period_end, cancel_at_period_end")
-      .eq("user_id", userId)
-      .eq("environment", getPaddleEnvironment())
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    subCache.set(userId, (data as SubscriptionRow | null) ?? null);
-    setSubscription((data as SubscriptionRow | null) ?? null);
-    const { data: access, error: accessError } = await supabase.rpc('my_premium_access');
-    if (!accessError) {
-      const activeBonus = access === true;
-      accessCache.set(userId, activeBonus);
-      setBonusActive(activeBonus);
-      setResolvedUserId(userId);
-      setLoading(false);
+    try {
+      const result = await readSubscription(userId, getPaddleEnvironment());
+      if (activeUser.current !== userId) return;
+      if (result.billingOk) setSubscription(result.subscription);
+      if (result.access !== undefined) {
+        setBonusActive(result.access);
+        setResolvedUserId(userId);
+        setLoading(false);
+      }
+    } catch {
+      // Retain verified cached access; an unavailable check never revokes it.
     }
   }, [userId]);
 
   useEffect(() => {
-    fetchSubscription();
+    void fetchSubscription();
     const onFocus=()=>void fetchSubscription();
     window.addEventListener('focus',onFocus);
     const timer=window.setInterval(()=>void fetchSubscription(),60000);

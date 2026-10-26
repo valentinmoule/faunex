@@ -89,14 +89,15 @@ Read private preferences with `get_my_profile`; keep public profile fields and l
 ## Realtime channel names must be unique per subscription
 
 Suffix channel names randomly (reused topics crash `.on()`).
+Coalesce overlapping subscription/badge reads by user/event keys; later refreshes revalidate and stale account responses cannot update current access.
 
 ## Identification account overrides are server-authoritative
 
-Resolve demo and internal identification overrides through the function-local account policy using the authenticated server user, never request fields; keep ordinary routing and quotas unchanged to isolate demo costs.
+Resolve demo/internal overrides through function-local authenticated account policy, never request fields; preserve ordinary routing/quotas to isolate costs.
 
 ## Custom collections are species lists, not capture lists
 
-Use species names for custom collection membership and refresh mounted collection hooks after successful membership writes, because uncaptured species have no capture ID and detail sheets and the Bestiary must stay synchronized. Hide capture-only favorites for uncaptured species.
+Custom collections store species names, not capture IDs. Refresh mounted hooks after writes to keep sheets/Bestiary synced; hide capture-only favorites for uncaptured species.
 
 <!-- LOVABLE:BEGIN -->
 ## Canonical species facts
