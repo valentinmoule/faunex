@@ -1,4 +1,5 @@
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useState } from 'react';
+import type React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useContestWinnerCutouts } from '@/hooks/usePhotoContest';
 
@@ -90,71 +91,67 @@ async function locateSilhouette(photoUrl: string, maskUrl: string): Promise<Plac
   return { x: best.x * photo.naturalWidth, y: best.y * photo.naturalHeight, width: best.width * photo.naturalWidth, height: best.height * photo.naturalHeight };
 }
 
+const maskCache = new Map<string, string>();
+
+/** Inverse mask (white = background, transparent = animal + soft margin) at the photo's own size. */
+async function buildBackgroundMask(photoUrl: string, cutoutUrl: string): Promise<string> {
+  const key = `${photoUrl}|${cutoutUrl}`;
+  const cached = maskCache.get(key);
+  if (cached) return cached;
+  const load = (url: string) => new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image();
+    image.crossOrigin = 'anonymous';
+    image.onload = () => resolve(image);
+    image.onerror = reject;
+    image.src = url;
+  });
+  const [photo, cutout] = await Promise.all([load(photoUrl), load(cutoutUrl)]);
+  const placement = placements.get(key) ?? await locateSilhouette(photoUrl, cutoutUrl);
+  placements.set(key, placement);
+  const scale = Math.min(1, 512 / photo.naturalWidth);
+  const w = Math.round(photo.naturalWidth * scale), h = Math.round(photo.naturalHeight * scale);
+  const canvas = document.createElement('canvas');
+  canvas.width = w; canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Canvas unavailable');
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, w, h);
+  ctx.globalCompositeOperation = 'destination-out';
+  const px = placement.x * scale, py = placement.y * scale, pw = placement.width * scale, ph = placement.height * scale;
+  const grow = w * 0.012;
+  ctx.filter = `blur(${w * 0.025}px)`;
+  for (const [dx, dy] of [[0, 0], [grow, 0], [-grow, 0], [0, grow], [0, -grow], [grow, grow], [-grow, -grow], [grow, -grow], [-grow, grow]]) {
+    ctx.drawImage(cutout, px + dx, py + dy, pw, ph);
+  }
+  ctx.filter = 'none';
+  ctx.drawImage(cutout, px, py, pw, ph);
+  const url = canvas.toDataURL('image/png');
+  maskCache.set(key, url);
+  return url;
+}
+
+/**
+ * Gold « V full art » foil from pokemon-cards-css (sunpillar bands + diagonal
+ * scanlines + pointer glare), masked by the AI silhouette so the animal is never covered.
+ */
 export function CollectorSilhouette({ captureId, photoUrl }: { captureId?: string; photoUrl: string }) {
-  const filterId = `collector-outline-${useId().replace(/:/g, '')}`;
   const { data: cutouts } = useContestWinnerCutouts();
   const url = captureId ? cutouts?.get(captureId) : undefined;
-  const [aligned, setAligned] = useState<{ placement: Placement; width: number; height: number }>();
+  const [mask, setMask] = useState<string>();
   useEffect(() => {
     let cancelled = false;
     if (!url) return;
-    const key = `${photoUrl}|${url}`;
-    const image = new Image();
-    image.onload = async () => {
-      try {
-        const placement = placements.get(key) ?? await locateSilhouette(photoUrl, url);
-        placements.set(key, placement);
-        if (!cancelled) setAligned({ placement, width: image.naturalWidth, height: image.naturalHeight });
-      } catch { /* Keep the original photo untouched if registration is unavailable. */ }
-    };
-    image.src = photoUrl;
+    buildBackgroundMask(photoUrl, url)
+      .then((m) => { if (!cancelled) setMask(m); })
+      .catch(() => { /* Without a reliable silhouette, keep the photo untouched. */ });
     return () => { cancelled = true; };
   }, [photoUrl, url]);
-  if (!url || !aligned) return null;
-  const w = aligned.width, h = aligned.height;
+  if (!mask) return null;
+  const style = { WebkitMaskImage: `url(${mask})`, maskImage: `url(${mask})` } as React.CSSProperties;
   return (
-    <svg className="collector-silhouette" width="100%" height="100%" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-      <defs>
-        {/* Animal + a soft margin around it: the holographic foil never touches the animal. */}
-        <filter id={`${filterId}-exclude`} x="-25%" y="-25%" width="150%" height="150%">
-          <feMorphology in="SourceAlpha" operator="dilate" radius={w * 0.006} result="grown" />
-          <feGaussianBlur in="grown" stdDeviation={w * 0.01} result="soft" />
-          <feMerge result="alpha"><feMergeNode in="soft" /><feMergeNode in="SourceAlpha" /></feMerge>
-          <feFlood floodColor="black" />
-          <feComposite in2="alpha" operator="in" />
-        </filter>
-        <mask id={`${filterId}-background`} maskUnits="userSpaceOnUse" x="0" y="0" width={w} height={h}>
-          <rect width={w} height={h} fill="white" />
-          <image href={url} {...aligned.placement} preserveAspectRatio="none" filter={`url(#${filterId}-exclude)`} />
-        </mask>
-        {/* Gold holo foil inspired by pokemon-cards-css "regular holo": repeating bands + pointer glare. */}
-        <linearGradient id={`${filterId}-bands`} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2={w * 0.22} y2={w * 0.13} spreadMethod="repeat">
-          <stop offset="0" stopColor="hsl(42, 90%, 55%)" />
-          <stop offset="0.25" stopColor="hsl(50, 100%, 80%)" />
-          <stop offset="0.5" stopColor="hsl(32, 80%, 45%)" />
-          <stop offset="0.75" stopColor="hsl(55, 100%, 88%)" />
-          <stop offset="1" stopColor="hsl(42, 90%, 55%)" />
-        </linearGradient>
-        <linearGradient id={`${filterId}-scan`} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2={w * 0.012} y2={-w * 0.012} spreadMethod="repeat">
-          <stop offset="0" stopColor="black" />
-          <stop offset="0.5" stopColor="white" stopOpacity="0.5" />
-          <stop offset="1" stopColor="black" />
-        </linearGradient>
-        <radialGradient id={`${filterId}-glare`}>
-          <stop offset="0" stopColor="hsl(50, 100%, 92%)" stopOpacity="0.9" />
-          <stop offset="0.6" stopColor="hsl(42, 90%, 60%)" stopOpacity="0.15" />
-          <stop offset="1" stopColor="black" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-      <g mask={`url(#${filterId}-background)`}>
-        <g className="collector-foil-bands">
-          <rect x={-w} y={-h} width={w * 3} height={h * 3} fill={`url(#${filterId}-bands)`} />
-          <rect x={-w} y={-h} width={w * 3} height={h * 3} fill={`url(#${filterId}-scan)`} style={{ mixBlendMode: 'overlay' }} opacity="0.5" />
-        </g>
-        <g className="collector-foil-glare">
-          <ellipse cx={w / 2} cy={h / 2} rx={w * 0.6} ry={h * 0.5} fill={`url(#${filterId}-glare)`} />
-        </g>
-      </g>
-    </svg>
+    <div className="collector-vfoil" style={style} aria-hidden="true">
+      <div className="collector-vfoil__shine" />
+      <div className="collector-vfoil__glare" />
+    </div>
   );
 }
