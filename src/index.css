@@ -4351,47 +4351,41 @@ html.is-native-android body {
 }
 
 /* ================================================================
-   Trainer Gallery Holofoil (simeydotme/pokemon-cards-css) — seul effet
-   des cartes primées ✦ W. Variables pilotées par HolographicCard.
+   Holographique premium des cartes primées ✦ W (CSS pur).
+   Discret au repos, lumineux pendant l'inclinaison (HolographicCard).
    ================================================================ */
-.tg-holo { position: absolute; inset: 0; pointer-events: none; border-radius: inherit; overflow: hidden; }
-.tg-holo__shine, .tg-holo__glare { z-index: 9; }
-.tg-holo__shine, .tg-holo__shine::after, .tg-holo__glare { position: absolute; inset: 0; border-radius: inherit; }
-.tg-holo__shine {
-  --space: 5%;
-  --angle: -22deg;
-  background-image: repeating-linear-gradient(var(--angle),
-    hsla(283, 49%, 60%, 0.75) calc(var(--space) * 1),
-    hsla(2, 74%, 59%, 0.75) calc(var(--space) * 2),
-    hsla(53, 67%, 53%, 0.75) calc(var(--space) * 3),
-    hsla(93, 56%, 52%, 0.75) calc(var(--space) * 4),
-    hsla(176, 38%, 50%, 0.75) calc(var(--space) * 5),
-    hsla(228, 100%, 77%, 0.75) calc(var(--space) * 6),
-    hsla(283, 49%, 61%, 0.75) calc(var(--space) * 7));
-  background-blend-mode: color-dodge;
-  background-size: 300% 400%;
-  background-position: 0% var(--background-y, 50%);
-  filter: brightness(calc((var(--pointer-from-center, 0) * 0.3) + 0.5)) contrast(2.3) saturate(1);
-  mix-blend-mode: color-dodge;
-  opacity: calc(var(--card-opacity, 0) * 0.45);
-  transition: opacity 0.3s ease;
+.w-holo {
+  --w-o: calc(0.1 + var(--card-opacity, 0) * 0.15);
+  position: absolute; inset: 0; pointer-events: none; border-radius: inherit; overflow: hidden;
 }
-.tg-holo__shine::after {
-  content: "";
-  background-image: radial-gradient(farthest-corner ellipse
-    at calc((var(--pointer-x, 50%) * 0.5) + 25%) calc((var(--pointer-y, 50%) * 0.5) + 25%),
-    hsl(0, 0%, 100%) 5%, hsla(300, 100%, 11%, 0.6) 40%, hsl(0, 0%, 22%) 120%);
-  background-position: center center;
-  background-size: 400% 500%;
-  filter: brightness(calc((var(--pointer-from-center, 0) * 0.2) + 0.4)) contrast(0.85) saturate(1.1);
-  mix-blend-mode: hard-light;
+.w-holo > * { position: absolute; inset: 0; z-index: 9; border-radius: inherit; transition: opacity 0.4s ease, background-position 0.15s ease-out; }
+.w-holo__sheen {
+  background-image: linear-gradient(115deg,
+    transparent 20%,
+    hsla(190, 80%, 70%, 0.7) 32%,
+    hsla(270, 65%, 72%, 0.7) 42%,
+    hsla(330, 70%, 75%, 0.7) 52%,
+    hsla(45, 85%, 70%, 0.7) 62%,
+    transparent 76%);
+  background-size: 250% 250%;
+  background-position: calc(var(--pointer-from-left, 0.5) * 100%) calc(var(--pointer-from-top, 0.5) * 100%);
+  mix-blend-mode: screen;
+  opacity: var(--w-o);
 }
-.tg-holo__glare {
-  background-image: radial-gradient(farthest-corner circle at var(--pointer-x, 50%) var(--pointer-y, 50%),
-    hsla(0, 0%, 100%, 1) 10%, hsla(0, 0%, 100%, 0.6) 35%, hsla(180, 11%, 35%, 1) 60%);
+.w-holo__texture {
+  background-image:
+    repeating-linear-gradient(115deg,
+      hsla(190, 70%, 70%, 0.5) 0px, hsla(280, 60%, 72%, 0.5) 3px,
+      hsla(330, 65%, 74%, 0.5) 6px, hsla(45, 80%, 70%, 0.5) 9px, hsla(190, 70%, 70%, 0.5) 12px),
+    repeating-linear-gradient(25deg, hsla(0, 0%, 100%, 0.25) 0 1px, transparent 1px 4px);
+  background-size: 200% 200%, auto;
+  background-position: calc(var(--pointer-from-left, 0.5) * -60%) calc(var(--pointer-from-top, 0.5) * -60%), 0 0;
   mix-blend-mode: soft-light;
-  opacity: calc(var(--card-opacity, 0) * 0.5);
-  transition: opacity 0.3s ease;
+  opacity: calc(var(--w-o) * 1.4);
 }
-.tg-holo--masked > * { -webkit-mask-size: cover; mask-size: cover; -webkit-mask-position: center; mask-position: center; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; }
-.tg-holo--masked .tg-holo__shine { opacity: calc(var(--card-opacity, 0) * 0.7); }
+.w-holo__glare {
+  background-image: radial-gradient(circle at var(--pointer-x, 50%) var(--pointer-y, 50%),
+    hsla(0, 0%, 100%, 0.55) 0%, hsla(0, 0%, 100%, 0.12) 30%, transparent 60%);
+  mix-blend-mode: screen;
+  opacity: calc(var(--card-opacity, 0) * 0.35);
+}

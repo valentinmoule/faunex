@@ -57,8 +57,6 @@ import {
 interface MyEntry { capture_id: string; image_url: string; animal_name: string; rarity: string }
 interface WeekCapture { id: string; image_url: string; animal_name: string; rarity: string }
 
-let cutoutRequested = false;
-
 const Tile = ({ image, rarity, name, children, frameless, onOpen }: { image: string; rarity: string; name: string; children?: React.ReactNode; frameless?: boolean; onOpen?: () => void }) => (
   <div role={onOpen ? 'button' : undefined} onClick={onOpen ? () => { hapticTap(); onOpen(); } : undefined} className={`${onOpen ? 'cursor-pointer active:scale-[0.99] transition-transform ' : ''}game-tile relative block w-full aspect-[4/5] rounded-2xl overflow-hidden bg-card ${frameless ? 'tile-frame-none' : `border-[6px] ${rarityTileBorder[rarity as Rarity] || 'tile-border-plain border-border'}`}`}>
     <img src={thumbUrl(image, 500)} alt={name} className="absolute inset-0 h-full w-full object-cover" loading="lazy" decoding="async" />
@@ -120,14 +118,6 @@ export default function PhotoContestTab() {
   }, [userId, queryClient]);
 
   useEffect(() => { load(); }, [load]);
-
-  // Génère paresseusement les détourages IA des nouveaux gagnants (une fois par session,
-  // la fonction ne fait rien quand tous les gagnants ont déjà leur détourage).
-  useEffect(() => {
-    if (cutoutRequested) return;
-    cutoutRequested = true;
-    supabase.functions.invoke('generate-winner-cutout').catch(() => {});
-  }, []);
 
   const openPicker = async () => {
     if (!userId) return;
