@@ -232,7 +232,7 @@
       "submitted": "Photo submitted! Voting opens on Monday.",
       "pickTitle": "Choose your photo",
       "pickEmpty": "No approved capture this week yet. Capture an animal to take part!",
-      "winnersTitle": "Photos of the week",
+      "winnersTitle": "My award-winning photos",
       "weekOf": "Week of {{date}}",
       "votes_one": "{{count}} vote",
       "votes_other": "{{count}} votes",

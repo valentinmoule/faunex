@@ -168,6 +168,7 @@ export default function PhotoContestTab() {
 
   const hasVoted = ballot.some((e) => e.voted_for);
   const fmtWeek = (d: string) => new Date(`${d}T12:00:00`).toLocaleDateString(i18n.language, { day: 'numeric', month: 'long' });
+  const myWinners = winners.filter((w) => w.user_id === userId);
 
   if (loading) return <p className="py-16 text-center font-display text-muted-foreground">{t('social.common.loading')}</p>;
 
@@ -227,18 +228,16 @@ export default function PhotoContestTab() {
       </section>
 
       {/* Gagnants */}
-      {winners.length > 0 && (
+      {myWinners.length > 0 && (
         <section>
           <h2 className="text-lg font-display font-bold text-foreground">{t('social.contest.winnersTitle')}</h2>
           <div className="mt-3 grid grid-cols-2 gap-3">
-            {winners.map((w) => {
-              const author = w.display_name || w.username || t('social.common.anonymous');
+            {myWinners.map((w) => {
               return (
                 <div key={w.week_start} className="space-y-1.5">
                   <Tile image={w.image_url} rarity={w.rarity} name={speciesName(w.animal_name)} onOpen={() => openCapture(w.capture_id)}>
                     <PhotoOfWeekMark className="absolute top-1.5 left-1.5" />
                   </Tile>
-                  <button onClick={() => navigate(`/explorer/${w.user_id}/collection`)} className="block w-full truncate text-left text-xs font-display font-semibold">{author}</button>
                   <p className="text-[11px] text-muted-foreground">{t('social.contest.weekOf', { date: fmtWeek(w.week_start) })} · {t('social.contest.votes', { count: w.votes })}</p>
                 </div>
               );
