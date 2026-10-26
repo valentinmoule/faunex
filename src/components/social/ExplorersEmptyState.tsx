@@ -2,6 +2,7 @@ import { Search, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { hapticTap } from '@/lib/haptics';
 import { SwirlAvatarsBackdrop } from '@/components/SwirlAvatarsBackdrop';
+import { Button } from '@/components/ui/button';
 
 interface ExplorersEmptyStateProps {
   onSearch: () => void;
@@ -26,16 +27,17 @@ export const ExplorersEmptyState = ({ onSearch }: ExplorersEmptyStateProps) => {
         </p>
 
 
-        <button
+        <Button
+          size="lg"
           onClick={() => {
             hapticTap();
             onSearch();
           }}
-          className="mt-7 w-full inline-flex items-center justify-center gap-2 px-4 py-4 rounded-full bg-primary text-primary-foreground font-display font-semibold text-[0.9rem] leading-none shadow-lg shadow-primary/25 active:scale-[0.98] transition-all duration-300"
+          className="mt-7 w-full px-4 text-[0.9rem]"
         >
           <Search className="w-[1.05rem] h-[1.05rem] shrink-0" aria-hidden="true" />
           <span className="whitespace-nowrap">{t('social.explorers.emptyFeed.cta')}</span>
-        </button>
+        </Button>
 
         <p className="mt-4 inline-flex items-center justify-center gap-1.5 text-[11px] font-body text-muted-foreground">
           <Users className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
