@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
-/** Captures named « Photo de la semaine » (small public table, cached app-wide). */
+/** Captures named « Capture de la semaine » (small public table, cached app-wide). */
 export function useContestWinnerCaptures() {
   return useQuery({
     queryKey: ['photo-contest-winner-captures'],

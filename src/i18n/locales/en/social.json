@@ -218,8 +218,8 @@
     },
     "contest": {
       "tabFeed": "Feed",
-      "tabContest": "Photo of the week",
-      "voteTitle": "Photo of the week",
+      "tabContest": "Capture of the week",
+      "voteTitle": "Capture of the week",
       "voteEmpty": "No photos in the running this week. Submit yours for the next vote!",
       "vote": "Vote",
       "voted": "Your vote",
@@ -236,7 +236,7 @@
       "weekOf": "Week of {{date}}",
       "votes_one": "{{count}} vote",
       "votes_other": "{{count}} votes",
-      "badge": "Photo of the week",
+      "badge": "Capture of the week",
       "errors": {
         "already_voted": "You already voted this week.",
         "own_photo": "You can't vote for your own photo.",

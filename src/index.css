@@ -3138,7 +3138,7 @@ html.is-native-android body {
     inset 0 1px 0 hsla(0, 0%, 100%, 0.35);
 }
 
-/* Cartes primées « Photo de la semaine » : photo à plat, sans cadre. */
+/* Cartes primées « Capture de la semaine » : photo à plat, sans cadre. */
 .game-tile.tile-frame-none {
   border-width: 0;
   --tile-border-width: 0px;
@@ -4053,7 +4053,7 @@ html.is-native-android body {
 }
 
 /* ═══════════════════════════════════════════════════
-   ÉDITION COLLECTOR — « Photo de la semaine »
+   ÉDITION COLLECTOR — « Capture de la semaine »
    Réservé aux cartes primées : aucune bordure, des reflets
    ultra gold, le symbole ✦ W et un halo doré sur l'animal.
    ═══════════════════════════════════════════════════ */
