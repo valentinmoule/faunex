@@ -26,6 +26,7 @@ import { applyCustomCaptureOrder } from '@/lib/captureOrder';
 import CardDetailSheet from '@/components/CardDetailSheet';
 import RarityBadge from '@/components/RarityBadge';
 import { useContestWinnerCaptures } from '@/hooks/usePhotoContest';
+import { CollectorEditionMark } from '@/components/social/CollectorEdition';
 import FindersBadge from '@/components/FindersBadge';
 import MyCapturesGrid from '@/components/MyCapturesGrid';
 import EmptyCaptureState from '@/components/EmptyCaptureState';
@@ -158,8 +159,9 @@ const BrowseSpeciesCard = memo(
             <RarityBadge rarity={animal.rarity} plain />
           </div>
           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5 pt-8">
-            <p className="text-xs font-display font-bold text-white truncate leading-tight">
-              {displayName}
+            <p className="flex items-baseline gap-1 text-xs font-display font-bold text-white leading-tight">
+              <span className="min-w-0 truncate">{displayName}</span>
+              {winners?.has(animal.captureData?.id ?? '') && <CollectorEditionMark className="collector-mark--tile shrink-0 text-[10px]" />}
             </p>
             {animal.scientific_name && (
               <p className="text-[9px] font-body italic text-white/80 truncate">
@@ -2585,7 +2587,10 @@ onClick={() => {
                       <div className={`absolute top-1.5 right-1.5 w-2 h-2 rounded-full ${rarityDot[animal.rarity] || 'bg-muted-foreground'}`} />
                     </div>
                     <div className="px-1.5 py-1 bg-card">
-                      <p className="text-[9px] font-display font-bold text-foreground truncate leading-tight">{animal.name}</p>
+                      <p className="flex items-baseline gap-1 text-[9px] font-display font-bold text-foreground leading-tight">
+                        <span className="min-w-0 truncate">{animal.name}</span>
+                        {winners?.has(animal.captureData?.id ?? '') && <CollectorEditionMark className="collector-mark--tile shrink-0 text-[8px]" />}
+                      </p>
                     </div>
                   </div>
                 ) : (

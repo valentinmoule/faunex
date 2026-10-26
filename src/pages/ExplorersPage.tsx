@@ -25,6 +25,7 @@ import ExplorersEmptyState from '@/components/social/ExplorersEmptyState';
 import { ProfileButton } from '@/components/ProfileDrawer';
 import PhotoContestTab from '@/components/social/PhotoContestTab';
 import { useContestWinnerCaptures } from '@/hooks/usePhotoContest';
+import { CollectorEditionMark } from '@/components/social/CollectorEdition';
 
 
 // ── Feed types ──
@@ -709,8 +710,9 @@ const ExplorersPage = () => {
                         <RarityBadge rarity={post.rarity as Rarity} plain className="feed-card-rarity" />
                       </div>
                       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 pt-10">
-                        <p className="text-sm font-display font-bold text-white truncate leading-tight">
-                          {speciesName(post.animal_name)}
+                        <p className="flex items-baseline gap-1 text-sm font-display font-bold text-white leading-tight">
+                          <span className="min-w-0 truncate">{speciesName(post.animal_name)}</span>
+                          {contestWinners?.has(post.id) && <CollectorEditionMark className="collector-mark--tile shrink-0 text-xs" />}
                         </p>
                         {post.scientific_name && (
                           <p className="text-[10px] font-body italic text-white/80 truncate">
