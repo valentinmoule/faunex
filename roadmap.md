@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Prévenir chaque gagnant de la Capture de la semaine par e-mail et push, sans doublon et selon ses préférences.
+- [x] Prévenir chaque gagnant de la Capture de la semaine par e-mail et push : clôture horaire, envoi déclenché par victoire, canaux indépendants, anti-doublon ; 12 tests passants et e-mail réel confirmé sur le compte test. Réception push non vérifiée : aucun appareil enregistré sur ce compte.
 
 - [x] Classification traduite et intégrée au bloc d’informations ; tailles/poids vérifiés sur le Lion, tests et affichage téléphone/ordinateur validés. Bengal : absence de mensurations propres à la race confirmée, pas de valeurs génériques de chat substituées.
 
