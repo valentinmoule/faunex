@@ -540,6 +540,13 @@
       "when": 1793015549153,
       "tag": "0074_photo_contest_vote_count",
       "breakpoints": true
+    },
+    {
+      "idx": 75,
+      "version": "7",
+      "when": 1793016282089,
+      "tag": "0075_migration",
+      "breakpoints": true
     }
   ]
 }

@@ -54,7 +54,7 @@ export function currentContestWeekStart(now = new Date()): Date {
 }
 
 export const contestErrorKey = (message?: string) => {
-  const known = ['already_voted', 'own_photo', 'voting_closed', 'already_submitted', 'not_this_week', 'not_approved'];
+  const known = ['already_voted', 'own_photo', 'voting_closed', 'already_submitted', 'not_this_week', 'not_approved', 'already_entered', 'not_owner'];
   const hit = known.find((k) => message?.includes(k));
   return `social.contest.errors.${hit ?? 'generic'}`;
 };

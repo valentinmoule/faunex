@@ -125,7 +125,12 @@ export default function PhotoContestTab() {
       .eq('status', 'approved')
       .gte('created_at', currentContestWeekStart().toISOString())
       .order('created_at', { ascending: false });
-    setWeekCaptures((data as WeekCapture[]) ?? []);
+    const ids = (data ?? []).map((c: any) => c.id);
+    const { data: entered } = ids.length
+      ? await supabase.from('photo_contest_entries').select('capture_id').in('capture_id', ids)
+      : { data: [] as { capture_id: string }[] };
+    const taken = new Set((entered ?? []).map((e: any) => e.capture_id));
+    setWeekCaptures(((data as WeekCapture[]) ?? []).filter((c) => !taken.has(c.id)));
   };
 
   const submit = async (captureId: string) => {
