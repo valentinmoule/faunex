@@ -3563,6 +3563,7 @@ export type Database = {
           scientific_name: string
           user_id: string
           username: string
+          vote_count: number
           voted_for: boolean
         }[]
       }

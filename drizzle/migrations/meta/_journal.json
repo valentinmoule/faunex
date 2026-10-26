@@ -533,6 +533,13 @@
       "when": 1793014036521,
       "tag": "0073_photo_of_the_week_contest",
       "breakpoints": true
+    },
+    {
+      "idx": 74,
+      "version": "7",
+      "when": 1793015549153,
+      "tag": "0074_photo_contest_vote_count",
+      "breakpoints": true
     }
   ]
 }
