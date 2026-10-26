@@ -5,7 +5,8 @@ import { PageHeader } from '@/components/PageHeader';
 import { notifyCaptureInteraction } from '@/lib/notifyCaptureInteraction';
 import CommentMentionInput from '@/components/CommentMentionInput';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Search, Bell, Heart, MessageCircle, Send, UserPlus, UserCheck, X, Users, ChevronRight, Clock, Check as CheckIcon, XCircle, ArrowLeft, Newspaper, Trophy } from 'lucide-react';
+import { Search, Bell, Heart, MessageCircle, Send, UserPlus, UserCheck, X, Users, Clock, Check as CheckIcon, XCircle, ArrowLeft, Newspaper, Trophy, UserX, UserMinus } from 'lucide-react';
+import ConfirmDialog from '@/components/ConfirmDialog';
 import CardDetailSheet from '@/components/CardDetailSheet';
 import { type AnimalCard, type Rarity } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
@@ -133,6 +134,9 @@ const ExplorersPage = () => {
   const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
   const [pendingRequests, setPendingRequests] = useState<FollowProfile[]>([]);
   const [followsLoading, setFollowsLoading] = useState(true);
+  // Action en attente de confirmation (retirer un abonné / se désabonner).
+  const [confirmAction, setConfirmAction] = useState<{ kind: 'unfollow' | 'remove_follower'; id: string; name: string } | null>(null);
+  const [confirmBusy, setConfirmBusy] = useState(false);
 
   const userId = session?.user?.id;
 
@@ -354,22 +358,37 @@ const ExplorersPage = () => {
     toast.info('Demande refusée'); fetchFollows();
   };
 
+  // Le retrait d'un abonnement ou d'un abonné passe toujours par la modale de
+  // confirmation : rien n'est supprimé tant que l'explorateur n'a pas confirmé.
+  const askUnfollow = (id: string, name: string) => setConfirmAction({ kind: 'unfollow', id, name });
+  const askRemoveFollower = (id: string, name: string) => setConfirmAction({ kind: 'remove_follower', id, name });
+
   const unfollowUser = async (targetId: string) => {
     if (!userId) return;
-    await supabase.from('explorer_follows').delete().eq('follower_id', userId).eq('following_id', targetId);
-    toast.info('Désabonné');
+    const { error } = await supabase.from('explorer_follows').delete().eq('follower_id', userId).eq('following_id', targetId);
+    if (error) { toast.error(t('social.common.genericError')); return; }
+    toast.info(t('social.common.unfollow'));
     setFollowingIds(prev => { const s = new Set(prev); s.delete(targetId); return s; });
+    setFollowing(prev => prev.filter(f => f.user_id !== targetId));
     fetchFollows();
   };
 
-  const removeFollower = async (followerId: string, name: string) => {
+  const removeFollower = async (followerId: string) => {
     if (!userId) return;
-    if (!window.confirm(t('social.common.removeFollowerConfirm', { name, defaultValue: 'Retirer {{name}} de tes abonnés ?' }))) return;
     const { error } = await supabase.from('explorer_follows').delete().eq('follower_id', followerId).eq('following_id', userId);
     if (error) { toast.error(t('social.common.genericError')); return; }
-    toast.success(t('social.common.followerRemoved', { defaultValue: 'Abonné retiré' }));
+    toast.success(t('social.common.followerRemoved'));
     setFollowers(prev => prev.filter(f => f.user_id !== followerId));
     fetchFollows();
+  };
+
+  const runConfirmAction = async () => {
+    if (!confirmAction || confirmBusy) return;
+    setConfirmBusy(true);
+    if (confirmAction.kind === 'unfollow') await unfollowUser(confirmAction.id);
+    else await removeFollower(confirmAction.id);
+    setConfirmBusy(false);
+    setConfirmAction(null);
   };
 
   const isFollowing = (uid: string) => followingIds.has(uid);
@@ -529,7 +548,7 @@ const ExplorersPage = () => {
             const list = searchResults.filter(u => u.user_id !== userId);
             const renderAction = (user: SearchUser) =>
               isFollowing(user.user_id) ? (
-                <button onClick={() => unfollowUser(user.user_id)} className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-muted text-foreground text-xs font-display font-semibold"><UserCheck className="w-3.5 h-3.5" /> Abonné</button>
+                <button onClick={() => askUnfollow(user.user_id, user.display_name || user.username || '')} className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-muted text-foreground text-xs font-display font-semibold"><UserCheck className="w-3.5 h-3.5" /> {t('social.common.following')}</button>
               ) : isPending(user.user_id) ? (
                 <Button variant="secondary" size="sm" disabled className="h-8 gap-1 px-3 text-xs"><Clock className="w-3.5 h-3.5" /> En attente</Button>
               ) : (
@@ -569,7 +588,9 @@ const ExplorersPage = () => {
               </div>
             ) : (
               <div className="divide-y divide-border">
-                {following.map(f => f.profile && <UserRow key={f.user_id} user={f.profile} onClick={() => navigate(`/explorer/${f.user_id}/collection`)} action={<ChevronRight className="w-4 h-4 text-muted-foreground" />} isPremium={searchPremiumIds.has(f.user_id)} />)}
+                {following.map(f => f.profile && <UserRow key={f.user_id} user={f.profile} onClick={() => navigate(`/explorer/${f.user_id}/collection`)} action={
+                  <button onClick={() => askUnfollow(f.user_id, f.profile?.display_name || f.profile?.username || '')} className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-muted text-foreground text-xs font-display font-semibold"><UserCheck className="w-3.5 h-3.5" /> {t('social.common.following')}</button>
+                } isPremium={searchPremiumIds.has(f.user_id)} />)}
               </div>
             )
           )}
@@ -588,7 +609,7 @@ const ExplorersPage = () => {
                 {followers.map(f => f.profile && <UserRow key={f.user_id} user={f.profile} onClick={() => navigate(`/explorer/${f.user_id}/collection`)} action={
                   <div className="flex items-center gap-1.5">
                   {isFollowing(f.user_id) ? (
-                    <button onClick={() => unfollowUser(f.user_id)} className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-muted text-foreground text-xs font-display font-semibold"><UserCheck className="w-3.5 h-3.5" /> Abonné</button>
+                    <button onClick={() => askUnfollow(f.user_id, f.profile?.display_name || f.profile?.username || '')} className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-muted text-foreground text-xs font-display font-semibold"><UserCheck className="w-3.5 h-3.5" /> {t('social.common.following')}</button>
                   ) : isPending(f.user_id) ? (
                     <Button variant="secondary" size="sm" disabled className="h-8 gap-1 px-3 text-xs"><Clock className="w-3.5 h-3.5" /> En attente</Button>
                   ) : (
@@ -597,7 +618,7 @@ const ExplorersPage = () => {
                   <button
                     type="button"
                     aria-label={t('social.common.removeFollower', { defaultValue: 'Retirer cet abonné' })}
-                    onClick={(e) => { e.stopPropagation(); removeFollower(f.user_id, f.profile?.display_name || f.profile?.username || ''); }}
+                    onClick={(e) => { e.stopPropagation(); askRemoveFollower(f.user_id, f.profile?.display_name || f.profile?.username || ''); }}
                     className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground active:opacity-70"
                   ><X className="w-4 h-4" /></button>
                   </div>
@@ -626,6 +647,23 @@ const ExplorersPage = () => {
             )
           )}
         </div>
+
+        <ConfirmDialog
+          open={confirmAction !== null}
+          title={confirmAction?.kind === 'remove_follower'
+            ? t('social.common.removeFollowerConfirm', { name: confirmAction.name })
+            : t('social.common.unfollowConfirm', { name: confirmAction?.name || '' })}
+          description={confirmAction?.kind === 'remove_follower'
+            ? t('social.common.removeFollowerConfirmDesc')
+            : t('social.common.unfollowConfirmDesc')}
+          confirmLabel={confirmAction?.kind === 'remove_follower'
+            ? t('social.common.removeFollowerBtn')
+            : t('social.common.unfollowBtn')}
+          icon={confirmAction?.kind === 'remove_follower' ? <UserMinus className="h-5 w-5" /> : <UserX className="h-5 w-5" />}
+          busy={confirmBusy}
+          onConfirm={runConfirmAction}
+          onOpenChange={(next) => { if (!next && !confirmBusy) setConfirmAction(null); }}
+        />
       </main>
     );
   }

@@ -23,7 +23,12 @@
       "timeAgo_day": "{{count}}d ago",
       "removeFollower": "Remove follower",
       "removeFollowerConfirm": "Remove {{name}} from your followers?",
-      "followerRemoved": "Follower removed"
+      "removeFollowerConfirmDesc": "They won't see your captures if your profile is private.",
+      "removeFollowerBtn": "Remove",
+      "followerRemoved": "Follower removed",
+      "unfollowConfirm": "Unfollow {{name}}?",
+      "unfollowConfirmDesc": "You won't see their captures in your feed anymore.",
+      "unfollowBtn": "Unfollow"
     },
     "explorers": {
       "toastFollowError": "Error while following",

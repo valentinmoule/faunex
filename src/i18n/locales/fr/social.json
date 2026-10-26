@@ -23,7 +23,12 @@
       "timeAgo_day": "Il y a {{count}}j",
       "removeFollower": "Retirer cet abonné",
       "removeFollowerConfirm": "Retirer {{name}} de tes abonnés ?",
-      "followerRemoved": "Abonné retiré"
+      "removeFollowerConfirmDesc": "Cette personne ne verra plus tes captures si ton profil est privé.",
+      "removeFollowerBtn": "Retirer",
+      "followerRemoved": "Abonné retiré",
+      "unfollowConfirm": "Se désabonner de {{name}} ?",
+      "unfollowConfirmDesc": "Tu ne verras plus ses captures dans ton fil.",
+      "unfollowBtn": "Se désabonner"
     },
     "explorers": {
       "toastFollowError": "Erreur lors de l'abonnement",
