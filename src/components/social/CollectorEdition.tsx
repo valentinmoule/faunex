@@ -132,10 +132,10 @@ export function CollectorSilhouette({ captureId, photoUrl }: { captureId?: strin
           <stop offset="1" className="collector-foil-stop" stopOpacity="0" />
         </linearGradient>
         <filter id={filterId} x="-25%" y="-25%" width="150%" height="150%" colorInterpolationFilters="sRGB">
-          <feMorphology in="SourceAlpha" operator="dilate" radius={aligned.width * 0.008} result="expanded" />
+          <feMorphology in="SourceAlpha" operator="dilate" radius={aligned.width * 0.004} result="expanded" />
           <feGaussianBlur in="expanded" stdDeviation={aligned.width * 0.014} result="softEdge" />
           <feComposite in="softEdge" in2="SourceAlpha" operator="out" result="outerEdge" />
-          <feFlood className="collector-outline-gold" floodOpacity="0.72" result="gold" />
+          <feFlood className="collector-outline-gold" floodOpacity="0.5" result="gold" />
           <feComposite in="gold" in2="outerEdge" operator="in" result="halo" />
           <feOffset in="SourceAlpha" dy={aligned.width * 0.016} result="offset" />
           <feGaussianBlur in="offset" stdDeviation={aligned.width * 0.013} result="softShadow" />
