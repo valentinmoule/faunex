@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronDown, GitBranch, Ruler, Weight } from 'lucide-react';
 import { useSpeciesNaturalHistory } from '@/hooks/useSpeciesNaturalHistory';
+import DetailRow from '@/components/DetailRow';
 
 // Only documented values are shown: a missing rank or measurement hides its
 // row, and a lookup failure hides the toggle instead of an "unavailable" line.
@@ -46,5 +47,3 @@ export default function SpeciesNaturalHistory({ name, scientificName }: { name: 
     </>
   );
 }
-
-import DetailRow from '@/components/DetailRow';
