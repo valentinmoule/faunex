@@ -512,6 +512,13 @@
       "when": 1793002267620,
       "tag": "0071_learning_seed_by_score",
       "breakpoints": true
+    },
+    {
+      "idx": 72,
+      "version": "7",
+      "when": 1793002527817,
+      "tag": "0072_learning_seed_first_attempt",
+      "breakpoints": true
     }
   ]
 }

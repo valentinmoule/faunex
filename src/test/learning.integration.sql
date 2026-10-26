@@ -18,14 +18,14 @@ BEGIN
  a:=public.learning_start(p,'step-'||j);
  FOR i IN 0..4 LOOP v:=public.learning_answer((a->>'id')::uuid,i,CASE WHEN i<4 THEN 0 ELSE 1 END); END LOOP;
  v:=public.learning_finish((a->>'id')::uuid);
- IF NOT (v->'result'->>'passed')::boolean OR (v->'result'->>'reward')::integer<>(CASE WHEN j=1 THEN 1 ELSE 4 END) THEN RAISE EXCEPTION 'Reward must top up to the correct answer count'; END IF;
+ IF NOT (v->'result'->>'passed')::boolean OR (v->'result'->>'reward')::integer<>(CASE WHEN j=1 THEN 0 ELSE 4 END) THEN RAISE EXCEPTION 'A retry must never add seeds'; END IF;
  PERFORM public.learning_finish((a->>'id')::uuid);
  END LOOP;
- SELECT balance INTO bal FROM public.eclats_wallets WHERE user_id=u; IF bal<>12 THEN RAISE EXCEPTION 'Three 4/5 passes must total 12 seeds'; END IF;
+ SELECT balance INTO bal FROM public.eclats_wallets WHERE user_id=u; IF bal<>11 THEN RAISE EXCEPTION 'First attempt 3 seeds plus two 4/5 passes must total 11'; END IF;
  BEGIN PERFORM public.learning_start(p,'step-4'); RAISE EXCEPTION 'Free daily limit bypassed'; EXCEPTION WHEN OTHERS THEN IF SQLERRM<>'DAILY_LIMIT' THEN RAISE; END IF; END;
  a:=public.learning_start(p,'step-1'); FOR i IN 0..4 LOOP v:=public.learning_answer((a->>'id')::uuid,i,0); END LOOP; v:=public.learning_finish((a->>'id')::uuid);
- IF (v->'result'->>'reward')::integer<>1 OR (public.learning_status()->>'used')::integer<>3 THEN RAISE EXCEPTION 'Replay must award only the missing seed without consuming quota'; END IF;
- SELECT balance INTO bal FROM public.eclats_wallets WHERE user_id=u; IF bal<>13 THEN RAISE EXCEPTION 'Perfect replay must top step-1 up to five seeds'; END IF;
+ IF (v->'result'->>'reward')::integer<>0 OR (public.learning_status()->>'used')::integer<>3 THEN RAISE EXCEPTION 'Replay must never reward or consume quota'; END IF;
+ SELECT balance INTO bal FROM public.eclats_wallets WHERE user_id=u; IF bal<>11 THEN RAISE EXCEPTION 'Perfect replay must not add seeds'; END IF;
  PERFORM set_config('test.premium','true',true);
  IF (public.learning_status()->>'limit')::integer<>10 OR (public.learning_status()->>'used')::integer<>3 THEN RAISE EXCEPTION 'Upgrade must leave exactly seven completions'; END IF;
  FOR j IN 4..10 LOOP a:=public.learning_start(p,'step-'||j); FOR i IN 0..4 LOOP v:=public.learning_answer((a->>'id')::uuid,i,0); END LOOP; v:=public.learning_finish((a->>'id')::uuid); IF (v->'result'->>'reward')::integer<>5 THEN RAISE EXCEPTION 'Perfect step must award five seeds'; END IF; PERFORM public.learning_finish((a->>'id')::uuid); END LOOP;
