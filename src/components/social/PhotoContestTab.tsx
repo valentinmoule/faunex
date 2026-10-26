@@ -15,7 +15,8 @@ import { thumbUrl } from '@/lib/imageUrl';
 import { rarityTileBorder } from '@/lib/bestiary';
 import { hapticTap } from '@/lib/haptics';
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
-import type { Rarity } from '@/data/mockData';
+import type { AnimalCard, Rarity } from '@/data/mockData';
+import CardDetailSheet from '@/components/CardDetailSheet';
 function parisVoteEnd(now = new Date()): Date {
   const parts = Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Paris', year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' }).formatToParts(now).map((p) => [p.type, p.value]));
   const dow = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].indexOf(parts.weekday);
@@ -52,8 +53,8 @@ import {
 interface MyEntry { capture_id: string; image_url: string; animal_name: string; rarity: string }
 interface WeekCapture { id: string; image_url: string; animal_name: string; rarity: string }
 
-const Tile = ({ image, rarity, name, children }: { image: string; rarity: string; name: string; children?: React.ReactNode }) => (
-  <div className={`game-tile relative block w-full aspect-[4/5] rounded-2xl border-[6px] overflow-hidden bg-card ${rarityTileBorder[rarity as Rarity] || 'tile-border-plain border-border'}`}>
+const Tile = ({ image, rarity, name, children, onOpen }: { image: string; rarity: string; name: string; children?: React.ReactNode; onOpen?: () => void }) => (
+  <div role={onOpen ? 'button' : undefined} onClick={onOpen ? () => { hapticTap(); onOpen(); } : undefined} className={`${onOpen ? 'cursor-pointer active:scale-[0.99] transition-transform ' : ''}game-tile relative block w-full aspect-[4/5] rounded-2xl border-[6px] overflow-hidden bg-card ${rarityTileBorder[rarity as Rarity] || 'tile-border-plain border-border'}`}>
     <img src={thumbUrl(image, 500)} alt={name} className="absolute inset-0 h-full w-full object-cover" loading="lazy" decoding="async" />
     <div className="absolute top-2 right-2"><RarityBadge rarity={rarity} plain className="feed-card-rarity" /></div>
     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-2.5 pt-8">
@@ -78,6 +79,18 @@ export default function PhotoContestTab() {
   const [busy, setBusy] = useState(false);
   const [pickOpen, setPickOpen] = useState(false);
   const [weekCaptures, setWeekCaptures] = useState<WeekCapture[] | null>(null);
+
+  const [detailCard, setDetailCard] = useState<AnimalCard | null>(null);
+  const openCapture = async (captureId: string) => {
+    const { data: c } = await supabase.from('captures').select('id, animal_name, scientific_name, image_url, subject_bbox, rarity, category, description, habitat, diet, conservation, fun_fact, created_at').eq('id', captureId).maybeSingle();
+    if (!c) return;
+    setDetailCard({
+      id: c.id, name: c.animal_name, scientificName: c.scientific_name || '', image: c.image_url,
+      subjectBox: c.subject_bbox as any, rarity: c.rarity as Rarity, category: c.category || '', description: c.description || '',
+      habitat: c.habitat || '', diet: c.diet || '', conservation: c.conservation || '',
+      funFact: c.fun_fact || '', discoveredAt: c.created_at, location: '',
+    });
+  };
 
   const load = useCallback(async () => {
     if (!userId) return;
@@ -164,7 +177,7 @@ export default function PhotoContestTab() {
               const author = e.display_name || e.username || t('social.common.anonymous');
               return (
                 <div key={e.entry_id} className="space-y-2">
-                  <Tile image={e.image_url} rarity={e.rarity} name={speciesName(e.animal_name)} />
+                  <Tile image={e.image_url} rarity={e.rarity} name={speciesName(e.animal_name)} onOpen={() => openCapture(e.capture_id)} />
                   <button onClick={() => navigate(`/explorer/${e.user_id}/collection`)} className="flex min-w-0 items-center gap-2">
                     <PremiumAvatar avatarUrl={e.avatar_url} name={author} size="sm" />
                     <span className="truncate text-xs font-display font-semibold">{author}</span>
@@ -191,7 +204,7 @@ export default function PhotoContestTab() {
         <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t('social.contest.myEntryHint')}</p>
         {myEntry ? (
           <div className="mt-3 flex items-center gap-4">
-            <div className="w-32 shrink-0"><Tile image={myEntry.image_url} rarity={myEntry.rarity} name={speciesName(myEntry.animal_name)} /></div>
+            <div className="w-32 shrink-0"><Tile image={myEntry.image_url} rarity={myEntry.rarity} name={speciesName(myEntry.animal_name)} onOpen={() => openCapture(myEntry.capture_id)} /></div>
             <div className="space-y-2">
               <p className="text-sm text-muted-foreground">{t('social.contest.submitted')}</p>
               <Button variant="secondary" size="sm" onClick={withdraw} disabled={busy}>{t('social.contest.withdraw')}</Button>
@@ -211,7 +224,7 @@ export default function PhotoContestTab() {
               const author = w.display_name || w.username || t('social.common.anonymous');
               return (
                 <div key={w.week_start} className="space-y-1.5">
-                  <Tile image={w.image_url} rarity={w.rarity} name={speciesName(w.animal_name)}>
+                  <Tile image={w.image_url} rarity={w.rarity} name={speciesName(w.animal_name)} onOpen={() => openCapture(w.capture_id)}>
                     <PhotoOfWeekMark className="absolute top-1.5 left-1.5" />
                   </Tile>
                   <button onClick={() => navigate(`/explorer/${w.user_id}/collection`)} className="block w-full truncate text-left text-xs font-display font-semibold">{author}</button>
@@ -248,6 +261,7 @@ export default function PhotoContestTab() {
           </Drawer.Content>
         </Drawer.Portal>
       </Drawer.Root>
+      <CardDetailSheet card={detailCard} open={!!detailCard} onClose={() => setDetailCard(null)} />
     </div>
   );
 }
