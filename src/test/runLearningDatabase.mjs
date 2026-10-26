@@ -17,6 +17,7 @@ INSERT INTO public.eclats_wallets(user_id,balance) VALUES(p_user,p_amount) ON CO
 INSERT INTO public.eclats_transactions VALUES(p_user,p_key,p_amount); RETURN p_amount; END $$;
 `);
 await db.exec(readFileSync('drizzle/migrations/0061_learning_paths_and_atomic_seed_rewards.sql','utf8'));
+await db.exec(readFileSync('drizzle/migrations/0071_learning_seed_by_score.sql','utf8'));
 await db.exec(readFileSync('src/test/learning.integration.sql','utf8'));
 console.log('Learning: score-based seeds, 80% threshold, 3/10 daily limits, upgrade, replay top-up, UTC, privacy, prerequisites and rollback passed');
 await db.close();
