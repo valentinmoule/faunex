@@ -16,22 +16,3 @@ export function CollectorEditionMark({ className = '' }: { className?: string })
   );
 }
 
-/**
- * Premium holographic foil for prize-winning cards (pure CSS): diagonal
- * cyan/violet/pink/gold gradient (screen) + fine holo texture (soft-light).
- * Driven by the existing HolographicCard pointer/tilt variables.
- */
-export function CollectorHoloLayers(_props: { captureId?: string; photoUrl?: string }) {
-  return (
-    <div className="w-holo" aria-hidden="true">
-      <div className="w-holo__sheen" />
-      <div className="w-holo__texture" />
-      <div className="w-holo__glare" />
-    </div>
-  );
-}
-
-/** AI silhouette removed: kept as a no-op for existing call sites. */
-export function CollectorSilhouette(_props: { captureId?: string; photoUrl: string }) {
-  return null;
-}

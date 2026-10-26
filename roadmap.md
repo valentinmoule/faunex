@@ -26,3 +26,5 @@
 - [x] Apprendre : parcours, exercices, administration et premier contenu bilingue.
 - [x] Apprendre : tests des récompenses, quotas et parcours connecté sur téléphone et ordinateur.
 - [x] Apprendre : parcours illustré, chemin sinueux et étapes en relief inspirés de Duolingo et Chess.com.
+
+- [x] Intégrer le package holographique fourni aux cartes primées : texture PNG originale extraite de la simulation, styles repris, anciens effets retirés ; cochon vérifié en fiche et plein écran, comparaison visuelle à l’aperçu et tests de transitions passants.

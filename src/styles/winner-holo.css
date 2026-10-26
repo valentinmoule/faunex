@@ -1,0 +1,31 @@
+/* Original overlay styles extracted from the supplied real-photo simulation.
+   Faunex spring coordinates drive the package variables; no new interaction engine. */
+.faunex-winner-holo {
+  --winner-1-background: linear-gradient(106deg,transparent 0%,transparent 60%,#fff0 67%,#fff8 69%,#fff2 70.5%,transparent 73.5%,transparent 100%);
+  --winner-2-background: linear-gradient(90deg,#ffeaba50 0%,transparent 2.2%,transparent 89%,#fff4d744 96%,#fff8df77 100%),linear-gradient(180deg,#ffecb742,transparent 5%,transparent 89%,#fff1bc45);
+  --winner-3-background-image: repeating-linear-gradient(105deg,transparent 0px,#fff6 1px,transparent 2px,transparent 7px);
+  --winner-4-box-shadow: inset 0 0 0 1.15px #ffe5aecc,inset 0 0 9px #ffe1ad6a,inset 0 0 21px #ffba5440,0 0 1px #fff6d5;
+  --winner-5-box-shadow: inset 0 0 0 2px #fff5cc22;
+  --strength: .76;
+  --engagement: var(--card-opacity, 0);
+  --dx: calc((var(--pointer-from-left, .5) - .5) * 24px);
+  --dy: calc((var(--pointer-from-top, .5) - .5) * 25px);
+  --glass-shift: calc((var(--pointer-from-left, .5) - .5) * 31%);
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  pointer-events: none;
+  border-radius: inherit;
+  overflow: hidden;
+}
+.faunex-winner-holo > * { border-radius: inherit; }
+
+.faunex-winner-holo__prism{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;z-index:2;pointer-events:none;opacity:calc(var(--strength,.76) * (.31 + var(--engagement,0)*.69));transform:translate(var(--dx,0px),var(--dy,0px)) scale(1.025);transition:opacity .25s ease;will-change:transform,opacity}
+.faunex-winner-holo__glass-arc{position:absolute;inset:0;z-index:3;pointer-events:none;mix-blend-mode:screen;opacity:calc(.26 + var(--engagement,0)*.42);background:var(--winner-1-background);transform:translateX(var(--glass-shift,0%));filter:blur(3px)}
+.faunex-winner-holo__glass-edge{position:absolute;inset:0;z-index:3;pointer-events:none;opacity:calc(.6 + var(--engagement,0)*.27);background:var(--winner-2-background);mix-blend-mode:screen;mask-image:linear-gradient(90deg,#000 0%,transparent 13%,transparent 82%,#000 100%)}
+.faunex-winner-holo__microfoil{position:absolute;inset:0;pointer-events:none;z-index:3;opacity:calc(.035 + var(--engagement,0)*.09);mix-blend-mode:screen;background-image:var(--winner-3-background-image);mask-image:linear-gradient(to right,#0005,transparent 26%,transparent 68%,#0008)}
+.faunex-winner-holo__rim{position:absolute;inset:0;z-index:4;pointer-events:none;border-radius:inherit;box-shadow:var(--winner-4-box-shadow);}
+.faunex-winner-holo__rim:after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:var(--winner-5-box-shadow);pointer-events:none}
+@media (prefers-reduced-motion: reduce) {
+ .faunex-winner-holo > * { transition: none; }
+}

@@ -14,7 +14,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import HolographicCard from '@/components/HolographicCard';
 import RarityBadge from '@/components/RarityBadge';
-import { CollectorEditionMark, CollectorHoloLayers, CollectorSilhouette } from '@/components/social/CollectorEdition';
+import { CollectorEditionMark } from '@/components/social/CollectorEdition';
+import { WinnerHoloEffect } from '@/components/social/WinnerHoloEffect';
 import { useContestWinnerCaptures } from '@/hooks/usePhotoContest';
 import { hapticTap } from '@/lib/haptics';
 import { toast } from '@/hooks/use-toast';
@@ -821,9 +822,8 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                     {cardImage && !isContestWinner && isGold && <div className="detail-gold-glass" />}
                     {cardImage && !isContestWinner && isSilver && <div className="detail-silver-glass" />}
                     {cardImage && !isContestWinner && isRare && <div className="detail-rare-glass" />}
-                    {/* Édition collector : halo doré sur la silhouette IA + reflets ultra gold */}
-                    {isContestWinner && cardImage && <CollectorSilhouette captureId={card.id} photoUrl={cardImage} />}
-                    {isContestWinner && cardImage && <CollectorHoloLayers captureId={card.id} photoUrl={cardImage} />}
+                    {/* Édition collector : calques originaux du package fourni */}
+                    {isContestWinner && cardImage && <WinnerHoloEffect />}
                     {/* Name overlay bottom-left */}
                     <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none p-3 pr-4 pt-10 bg-gradient-to-t from-black/75 via-black/35 to-transparent">
                       <h3 className="text-white font-display font-bold text-base leading-tight drop-shadow-md">
@@ -1408,8 +1408,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                       {!isContestWinner && isGold && <div className="detail-gold-glass detail-glass--fullscreen" />}
                       {!isContestWinner && isSilver && <div className="detail-silver-glass detail-glass--fullscreen" />}
                       {!isContestWinner && isRare && <div className="detail-rare-glass detail-glass--fullscreen" />}
-                      {isContestWinner && <CollectorSilhouette captureId={card.id} photoUrl={cardImage} />}
-                      {isContestWinner && <CollectorHoloLayers captureId={card.id} photoUrl={cardImage} />}
+                      {isContestWinner && <WinnerHoloEffect />}
                     </div>
                     {/* Name overlay bottom-left */}
                     <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none p-5 pr-6 pt-16 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
