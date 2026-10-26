@@ -247,7 +247,9 @@
         "not_this_week": "Only photos from this week can take part.",
         "not_approved": "This capture isn't approved yet.",
         "generic": "Something went wrong."
-      }
+      },
+      "voteEndsIn": "Voting ends in",
+      "dayShort": "d"
     }
   }
 }
