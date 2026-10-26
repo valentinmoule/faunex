@@ -100,13 +100,13 @@ export function CollectorSilhouette({ captureId, photoUrl }: { captureId?: strin
     <svg className="collector-silhouette" width="100%" height="100%" viewBox={`0 0 ${aligned.width} ${aligned.height}`} preserveAspectRatio="xMidYMid slice" aria-hidden="true">
       <defs>
         <filter id={filterId} x="-25%" y="-25%" width="150%" height="150%" colorInterpolationFilters="sRGB">
-          <feMorphology in="SourceAlpha" operator="dilate" radius="2" result="expanded" />
-          <feGaussianBlur in="expanded" stdDeviation="4" result="softEdge" />
+          <feMorphology in="SourceAlpha" operator="dilate" radius={aligned.width * 0.004} result="expanded" />
+          <feGaussianBlur in="expanded" stdDeviation={aligned.width * 0.009} result="softEdge" />
           <feComposite in="softEdge" in2="SourceAlpha" operator="out" result="outerEdge" />
           <feFlood className="collector-outline-gold" floodOpacity="0.48" result="gold" />
           <feComposite in="gold" in2="outerEdge" operator="in" result="halo" />
-          <feOffset in="SourceAlpha" dy="3" result="offset" />
-          <feGaussianBlur in="offset" stdDeviation="3" result="softShadow" />
+          <feOffset in="SourceAlpha" dy={aligned.width * 0.007} result="offset" />
+          <feGaussianBlur in="offset" stdDeviation={aligned.width * 0.006} result="softShadow" />
           <feComposite in="softShadow" in2="SourceAlpha" operator="out" result="outerShadow" />
           <feFlood className="collector-outline-shadow" floodOpacity="0.22" result="shadowColor" />
           <feComposite in="shadowColor" in2="outerShadow" operator="in" result="shadow" />
