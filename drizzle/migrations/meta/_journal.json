@@ -561,6 +561,13 @@
       "when": 1793026563662,
       "tag": "0077_private_captures_followers",
       "breakpoints": true
+    },
+    {
+      "idx": 78,
+      "version": "7",
+      "when": 1793026698593,
+      "tag": "0078_remove_followers",
+      "breakpoints": true
     }
   ]
 }

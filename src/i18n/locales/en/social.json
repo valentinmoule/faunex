@@ -20,7 +20,10 @@
       "timeAgo_now": "Just now",
       "timeAgo_min": "{{count}}min ago",
       "timeAgo_hour": "{{count}}h ago",
-      "timeAgo_day": "{{count}}d ago"
+      "timeAgo_day": "{{count}}d ago",
+      "removeFollower": "Remove follower",
+      "removeFollowerConfirm": "Remove {{name}} from your followers?",
+      "followerRemoved": "Follower removed"
     },
     "explorers": {
       "toastFollowError": "Error while following",
