@@ -111,45 +111,50 @@ export function CollectorSilhouette({ captureId, photoUrl }: { captureId?: strin
     return () => { cancelled = true; };
   }, [photoUrl, url]);
   if (!url || !aligned) return null;
+  const w = aligned.width, h = aligned.height;
   return (
-    <svg className="collector-silhouette" width="100%" height="100%" viewBox={`0 0 ${aligned.width} ${aligned.height}`} preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <svg className="collector-silhouette" width="100%" height="100%" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="xMidYMid slice" aria-hidden="true">
       <defs>
-        <filter id={`${filterId}-black`}>
+        {/* Animal + a soft margin around it: the holographic foil never touches the animal. */}
+        <filter id={`${filterId}-exclude`} x="-25%" y="-25%" width="150%" height="150%">
+          <feMorphology in="SourceAlpha" operator="dilate" radius={w * 0.006} result="grown" />
+          <feGaussianBlur in="grown" stdDeviation={w * 0.01} result="soft" />
+          <feMerge result="alpha"><feMergeNode in="soft" /><feMergeNode in="SourceAlpha" /></feMerge>
           <feFlood floodColor="black" />
-          <feComposite in2="SourceAlpha" operator="in" />
+          <feComposite in2="alpha" operator="in" />
         </filter>
-        <mask id={`${filterId}-background`} maskUnits="userSpaceOnUse" x="0" y="0" width={aligned.width} height={aligned.height}>
-          <rect width={aligned.width} height={aligned.height} fill="white" />
-          <image href={url} {...aligned.placement} preserveAspectRatio="none" filter={`url(#${filterId}-black)`} />
+        <mask id={`${filterId}-background`} maskUnits="userSpaceOnUse" x="0" y="0" width={w} height={h}>
+          <rect width={w} height={h} fill="white" />
+          <image href={url} {...aligned.placement} preserveAspectRatio="none" filter={`url(#${filterId}-exclude)`} />
         </mask>
-        <linearGradient id={`${filterId}-foil`} x1="0" y1="1" x2="1" y2="0">
-          <stop offset="0" className="collector-foil-stop" stopOpacity="0" />
-          <stop offset="0.35" className="collector-foil-stop" stopOpacity="0" />
-          <stop offset="0.46" className="collector-foil-stop" stopOpacity="0.06" />
-          <stop offset="0.5" className="collector-foil-stop" stopOpacity="0.22" />
-          <stop offset="0.54" className="collector-foil-stop" stopOpacity="0.06" />
-          <stop offset="0.65" className="collector-foil-stop" stopOpacity="0" />
-          <stop offset="1" className="collector-foil-stop" stopOpacity="0" />
+        {/* Fine diagonal holo texture, like the foil of V cards. */}
+        <linearGradient id={`${filterId}-texture`} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2={w * 0.035} y2={w * 0.035} spreadMethod="repeat">
+          <stop offset="0" className="collector-holo-a" stopOpacity="0" />
+          <stop offset="0.5" className="collector-holo-a" stopOpacity="0.5" />
+          <stop offset="1" className="collector-holo-a" stopOpacity="0" />
         </linearGradient>
-        <filter id={filterId} x="-25%" y="-25%" width="150%" height="150%" colorInterpolationFilters="sRGB">
-          <feMorphology in="SourceAlpha" operator="dilate" radius={aligned.width * 0.004} result="expanded" />
-          <feGaussianBlur in="expanded" stdDeviation={aligned.width * 0.014} result="softEdge" />
-          <feComposite in="softEdge" in2="SourceAlpha" operator="out" result="outerEdge" />
-          <feFlood className="collector-outline-gold" floodOpacity="0.5" result="gold" />
-          <feComposite in="gold" in2="outerEdge" operator="in" result="halo" />
-          <feOffset in="SourceAlpha" dy={aligned.width * 0.016} result="offset" />
-          <feGaussianBlur in="offset" stdDeviation={aligned.width * 0.013} result="softShadow" />
-          <feComposite in="softShadow" in2="SourceAlpha" operator="out" result="outerShadow" />
-          <feFlood className="collector-outline-shadow" floodOpacity="0.4" result="shadowColor" />
-          <feComposite in="shadowColor" in2="outerShadow" operator="in" result="shadow" />
-          <feMerge><feMergeNode in="shadow" /><feMergeNode in="halo" /></feMerge>
-        </filter>
+        {/* Moving light band that reveals the texture as it sweeps. */}
+        <linearGradient id={`${filterId}-sweep`} x1="0" y1="1" x2="1" y2="0">
+          <stop offset="0.3" stopColor="white" stopOpacity="0" />
+          <stop offset="0.5" stopColor="white" stopOpacity="1" />
+          <stop offset="0.7" stopColor="white" stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id={`${filterId}-tint`} x1="0" y1="1" x2="1" y2="0">
+          <stop offset="0" className="collector-holo-a" />
+          <stop offset="0.5" className="collector-holo-b" />
+          <stop offset="1" className="collector-holo-c" />
+        </linearGradient>
+        <mask id={`${filterId}-sweep-mask`} maskUnits="userSpaceOnUse" x={-w} y={-h} width={w * 3} height={h * 3}>
+          <rect x={-w} y={-h} width={w * 3} height={h * 3} fill={`url(#${filterId}-sweep)`} className="collector-background-foil" />
+        </mask>
       </defs>
       <g mask={`url(#${filterId}-background)`}>
-        <rect width={aligned.width} height={aligned.height} className="collector-background-depth" fillOpacity="0.12" />
-        <rect x={-aligned.width} y={-aligned.height} width={aligned.width * 3} height={aligned.height * 3} fill={`url(#${filterId}-foil)`} className="collector-background-foil" />
+        <rect width={w} height={h} className="collector-background-depth" fillOpacity="0.06" />
+        <g mask={`url(#${filterId}-sweep-mask)`} className="collector-foil-layer">
+          <rect width={w} height={h} fill={`url(#${filterId}-tint)`} fillOpacity="0.12" />
+          <rect width={w} height={h} fill={`url(#${filterId}-texture)`} fillOpacity="0.22" />
+        </g>
       </g>
-      <image href={url} {...aligned.placement} preserveAspectRatio="none" filter={`url(#${filterId})`} />
     </svg>
   );
 }
