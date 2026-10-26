@@ -110,3 +110,7 @@ Apply shared facts after capture name canonicalization, reject scientific confli
 ## Themed collections are data, not code
 
 Store admin themed collections (species names, optional rules and dates) in `themed_collections`, matched by `src/lib/themedCollections.ts`, with covers in the public captures bucket, so they ship without a store release.
+
+## Photo contest is server-authoritative
+
+Submit, vote and withdraw only through the contest RPCs, which check Paris-time week windows, ownership and one entry/vote per week; winners are finalized lazily by those RPCs into `photo_contest_winners`, so no scheduler is needed and clients cannot fake results.
