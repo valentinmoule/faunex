@@ -14,7 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import HolographicCard from '@/components/HolographicCard';
 import RarityBadge from '@/components/RarityBadge';
-import PhotoOfWeekMark from '@/components/social/PhotoOfWeekMark';
+import PhotoOfWeekMark, { CollectorEditionMark, CollectorHoloLayers, CollectorCutout } from '@/components/social/PhotoOfWeekMark';
 import { useContestWinnerCaptures } from '@/hooks/usePhotoContest';
 import { hapticTap } from '@/lib/haptics';
 import { toast } from '@/hooks/use-toast';
@@ -783,14 +783,14 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
 
               >
                 <div
-                  className={`relative w-full h-full rounded-[1.75rem] overflow-hidden holo-frame holo-frame--${normalizeRarity(card.rarity).replace(/_/g, '-')} transition-[transform,opacity,filter] duration-[420ms] ease-in ${deleteAnimating ? 'scale-[0.72] opacity-0 blur-sm translate-y-5' : ''}`}
+                  className={`relative w-full h-full rounded-[1.75rem] overflow-hidden ${isContestWinner ? 'collector-frame' : `holo-frame holo-frame--${normalizeRarity(card.rarity).replace(/_/g, '-')}`} transition-[transform,opacity,filter] duration-[420ms] ease-in ${deleteAnimating ? 'scale-[0.72] opacity-0 blur-sm translate-y-5' : ''}`}
                   style={deleteAnimating ? { transitionDelay: '180ms' } : undefined}
                 >
                   {/* Pastille de rareté sur la carte */}
                   <div className="absolute top-[14px] right-[14px] z-20 pointer-events-none">
                     <RarityBadge rarity={card.rarity} plain />
                   </div>
-                  {contestWinners?.has(card.id) && (
+                  {isContestWinner && (
                     <PhotoOfWeekMark className="absolute top-[10px] left-[10px] z-20 !h-11 !w-11" />
                   )}
 
