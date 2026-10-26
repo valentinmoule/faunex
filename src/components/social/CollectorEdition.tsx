@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useContestWinnerCutouts } from '@/hooks/usePhotoContest';
 
@@ -17,32 +18,35 @@ export function CollectorEditionMark({ className = '' }: { className?: string })
   );
 }
 
-/** Animated ultra-gold holographic layers for collector edition cards. */
+/** A single restrained reflection; no full-photo gold veil or sparkles. */
 export function CollectorHoloLayers() {
-  return (
-    <>
-      <div className="collector-holo" aria-hidden="true" />
-      <div className="collector-shine-bar" aria-hidden="true" />
-      <div className="collector-sparkles" aria-hidden="true">
-        {Array.from({ length: 8 }, (_, i) => <span key={i} />)}
-      </div>
-    </>
-  );
+  return <div className="collector-shine-bar" aria-hidden="true" />;
 }
 
 /** AI-detected animal silhouette used as a mask: golden aura + depth shadow, photo stays intact. */
 export function CollectorSilhouette({ captureId }: { captureId?: string }) {
+  const filterId = `collector-outline-${useId().replace(/:/g, '')}`;
   const { data: cutouts } = useContestWinnerCutouts();
   const url = captureId ? cutouts?.get(captureId) : undefined;
   if (!url) return null;
-  const maskStyle = {
-    WebkitMaskImage: `url(${url})`,
-    maskImage: `url(${url})`,
-  } as const;
   return (
-    <div className="collector-silhouette" aria-hidden="true">
-      <div className="collector-silhouette__shadow" style={maskStyle} />
-      <div className="collector-silhouette__aura" style={maskStyle} />
-    </div>
+    <svg className="collector-silhouette" width="100%" height="100%" aria-hidden="true">
+      <defs>
+        <filter id={filterId} x="-25%" y="-25%" width="150%" height="150%" colorInterpolationFilters="sRGB">
+          <feMorphology in="SourceAlpha" operator="dilate" radius="2" result="expanded" />
+          <feGaussianBlur in="expanded" stdDeviation="4" result="softEdge" />
+          <feComposite in="softEdge" in2="SourceAlpha" operator="out" result="outerEdge" />
+          <feFlood className="collector-outline-gold" floodOpacity="0.48" result="gold" />
+          <feComposite in="gold" in2="outerEdge" operator="in" result="halo" />
+          <feOffset in="SourceAlpha" dy="3" result="offset" />
+          <feGaussianBlur in="offset" stdDeviation="3" result="softShadow" />
+          <feComposite in="softShadow" in2="SourceAlpha" operator="out" result="outerShadow" />
+          <feFlood className="collector-outline-shadow" floodOpacity="0.22" result="shadowColor" />
+          <feComposite in="shadowColor" in2="outerShadow" operator="in" result="shadow" />
+          <feMerge><feMergeNode in="shadow" /><feMergeNode in="halo" /></feMerge>
+        </filter>
+      </defs>
+      <image href={url} width="100%" height="100%" preserveAspectRatio="xMidYMid slice" filter={`url(#${filterId})`} />
+    </svg>
   );
 }

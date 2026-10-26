@@ -4060,12 +4060,14 @@ html.is-native-android body {
 
 /* Carte primée : aucun cadre, seulement une lueur dorée discrète. */
 .collector-card {
+  --collector-gold: 46 92% 72%;
+  --collector-shadow: 0 0% 0%;
+  --collector-reflection: 48 90% 90%;
   border: none;
   position: relative;
   isolation: isolate;
   box-shadow:
-    0 0 18px hsla(42, 90%, 55%, 0.3),
-    0 0 46px hsla(42, 90%, 55%, 0.14),
+    0 0 16px hsl(var(--collector-gold) / 0.08),
     0 10px 24px -12px hsl(0 0% 0% / 0.5);
 }
 
@@ -4118,17 +4120,17 @@ html.is-native-android body {
   position: absolute;
   top: -80%;
   left: -80%;
-  width: 60%;
+  width: 22%;
   height: 260%;
   background: linear-gradient(
     90deg,
     transparent,
-    hsla(42, 92%, 86%, 0.3),
-    hsla(50, 90%, 92%, 0.55),
-    hsla(42, 92%, 86%, 0.3),
+    hsl(var(--collector-reflection) / 0.015),
+    hsl(var(--collector-reflection) / 0.055),
+    hsl(var(--collector-reflection) / 0.015),
     transparent
   );
-  animation: gold-shine-sweep 4.5s ease-in-out infinite;
+  animation: gold-shine-sweep 14s ease-in-out infinite;
 }
 
 /* Étincelles dorées. */
@@ -4189,7 +4191,11 @@ html.is-native-android body {
   inset: 0;
   z-index: 8;
   pointer-events: none;
+  overflow: visible;
+  animation: collector-aura-breathe 8s ease-in-out infinite;
 }
+.collector-outline-gold { flood-color: hsl(var(--collector-gold)); }
+.collector-outline-shadow { flood-color: hsl(var(--collector-shadow)); }
 .collector-silhouette__shadow,
 .collector-silhouette__aura {
   position: absolute;
@@ -4221,8 +4227,8 @@ html.is-native-android body {
   animation: collector-aura-breathe 4.5s ease-in-out infinite;
 }
 @keyframes collector-aura-breathe {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.7; }
+  0%, 100% { opacity: 0.65; }
+  50% { opacity: 0.9; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -4230,7 +4236,8 @@ html.is-native-android body {
   .collector-holo::after,
   .collector-shine-bar::after,
   .collector-sparkles span,
-  .collector-silhouette__aura {
+  .collector-silhouette__aura,
+  .collector-silhouette {
     animation: none;
   }
 }
