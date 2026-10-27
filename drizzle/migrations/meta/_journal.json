@@ -568,6 +568,13 @@
       "when": 1793026698593,
       "tag": "0078_remove_followers",
       "breakpoints": true
+    },
+    {
+      "idx": 79,
+      "version": "7",
+      "when": 1793090541221,
+      "tag": "0079_admin_delete_bestiary_species",
+      "breakpoints": true
     }
   ]
 }

@@ -3419,6 +3419,10 @@ export type Database = {
         Args: { _end: string; _excluded: string[]; _start: string }
         Returns: Json
       }
+      admin_delete_bestiary_species: {
+        Args: { p_name: string; p_scientific?: string }
+        Returns: boolean
+      }
       admin_revoke_capture_eclats: {
         Args: { p_capture: string; p_reason: string }
         Returns: Json
