@@ -88,12 +88,11 @@ Read private preferences with `get_my_profile`; keep public profile fields and l
 
 ## Realtime channel names must be unique per subscription
 
-Suffix channel names randomly (reused topics crash `.on()`).
-Coalesce overlapping subscription/badge reads by user/event keys; later refreshes revalidate and stale account responses cannot update current access.
+Suffix channels randomly; coalesce Premium/badge reads by user/event, revalidate refreshes and ignore stale accounts.
 
 ## Identification account overrides are server-authoritative
 
-Resolve demo/internal overrides through function-local authenticated account policy, never request fields; preserve ordinary routing/quotas to isolate costs.
+Resolve internal overrides from server-authenticated accounts, never request fields; preserve ordinary routing/quotas.
 
 ## Custom collections are species lists, not capture lists
 
@@ -104,6 +103,8 @@ Custom collections store species names, not capture IDs. Refresh mounted hooks a
 Apply shared facts after capture name canonicalization, reject scientific conflicts, refresh facts on image-cache hits, and invalidate translations after source changes, because moderation and older clients can save stale descriptions under corrected names.
 <!-- LOVABLE:END -->
 
+## Capture UPDATE guard
+Compare protected fields via SECURITY DEFINER, never self-query captures in RLS: even admin approval recurses.
 
 ## Themed collections are data, not code
 
