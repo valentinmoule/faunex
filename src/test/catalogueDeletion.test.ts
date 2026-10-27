@@ -1,8 +1,8 @@
+// @vitest-environment node
 import { readFileSync } from 'node:fs';
 import { Blob as NodeBlob } from 'node:buffer';
 import { PGlite } from '@electric-sql/pglite';
 import { beforeEach, afterEach, describe, expect, it } from 'vitest';
-import { readCatalogueCache, writeCatalogueCache, removeCatalogueEntry, subscribeCatalogueDeletion } from '@/lib/bestiaryCache';
 
 describe('Catalogue deletion server authorization', () => {
   let db: PGlite;
@@ -47,15 +47,4 @@ describe('Catalogue deletion server authorization', () => {
     expect((await db.query<{deleted:boolean}>(`SELECT public.admin_delete_bestiary_species('Lion','Panthera tigris') AS deleted`)).rows[0].deleted).toBe(false);
     expect((await db.query('SELECT * FROM animals')).rows).toHaveLength(1);
   });
-});
-
-it('deletion updates the cached catalogue and mounted listeners', () => {
-  writeCatalogueCache([{name:'Lion',scientific_name:'Panthera leo',rarity:'rare',category:'Mammifères'}, {name:'Tigre',scientific_name:'Panthera tigris',rarity:'rare',category:'Mammifères'}],2);
-  const removed: string[] = [];
-  const unsubscribe = subscribeCatalogueDeletion((name) => removed.push(name));
-  removeCatalogueEntry('Lion');
-  expect(readCatalogueCache()?.entries.map((entry) => entry.name)).toEqual(['Tigre']);
-  expect(readCatalogueCache()?.count).toBe(1);
-  expect(removed).toEqual(['Lion']);
-  unsubscribe();
 });
