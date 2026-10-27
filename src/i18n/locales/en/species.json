@@ -1,5 +1,14 @@
 {
   "species": {
+    "adminDelete": {
+      "action": "Delete Bestiary entry",
+      "title": "Delete the {{name}} entry?",
+      "description": "This entry will be removed from the Bestiary for everyone. Their personal captures and photos will be preserved. This action is permanent.",
+      "confirm": "Delete entry",
+      "busy": "Deleting…",
+      "success": "Entry removed from the Bestiary",
+      "error": "Unable to delete. The entry may have changed or you may not have permission."
+    },
     "naturalHistory": {
       "title": "Classification and measurements",
       "phylum": "Phylum",

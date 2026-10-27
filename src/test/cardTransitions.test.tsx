@@ -18,7 +18,7 @@ const mocks = vi.hoisted(() => {
 });
 const bestiaryGate = vi.hoisted(() => ({ pending: null as Promise<void> | null }));
 
-vi.mock('@/integrations/supabase/client', () => ({ supabase: { from: (table: string) => table === 'captures' ? mocks.captureQuery : { select: () => mocks.feedQuery }, functions: { invoke: async () => ({ data: null, error: null }) } } }));
+vi.mock('@/integrations/supabase/client', () => ({ supabase: { rpc: async () => ({ data: false, error: null }), from: (table: string) => table === 'captures' ? mocks.captureQuery : { select: () => mocks.feedQuery }, functions: { invoke: async () => ({ data: null, error: null }) } } }));
 vi.mock('@/contexts/AuthContext', () => ({
   useAuth: () => authState,
   AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,

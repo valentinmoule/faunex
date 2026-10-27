@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Suppression directe des fiches du Bestiaire par administrateur/modérateur : confirmation, contrôle serveur, photos personnelles préservées ; suppression d’une fiche temporaire vérifiée dans l’aperçu connecté.
+
 - [x] Passe performances : lectures simultanées Premium/badges regroupées, lecture facturation/droits parallélisée, réponses ancien compte ignorées, ProfileButton accepte sa ref ; 147 tests passants (21 intégrations ignorées), pages principales et navigation connectée vérifiées sans plantage. Aucun changement de design/règles ; validation native iPhone/Android non disponible ici. Cloud : mémoire 86 %, connexions 50/60, capacité supplémentaire signalée sans redimensionnement.
 
 - [x] Prévenir chaque gagnant de la Capture de la semaine par e-mail et push : clôture horaire, envoi déclenché par victoire, canaux indépendants, anti-doublon ; 12 tests passants et e-mail réel confirmé sur le compte test. Réception push non vérifiée : aucun appareil enregistré sur ce compte.
