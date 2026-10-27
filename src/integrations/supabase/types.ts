@@ -580,6 +580,39 @@ export type Database = {
         }
         Relationships: []
       }
+      client_errors: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          path: string | null
+          platform: string | null
+          stack: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          path?: string | null
+          platform?: string | null
+          stack?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          path?: string | null
+          platform?: string | null
+          stack?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       collection_rules: {
         Row: {
           collection_id: string
