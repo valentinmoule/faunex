@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { Blob as NodeBlob } from 'node:buffer';
 import { PGlite } from '@electric-sql/pglite';
 import { beforeEach, afterEach, describe, expect, it } from 'vitest';
 import { readCatalogueCache, writeCatalogueCache, removeCatalogueEntry, subscribeCatalogueDeletion } from '@/lib/bestiaryCache';
@@ -6,7 +7,7 @@ import { readCatalogueCache, writeCatalogueCache, removeCatalogueEntry, subscrib
 describe('Catalogue deletion server authorization', () => {
   let db: PGlite;
   beforeEach(async () => {
-    db = new PGlite();
+    db = new PGlite({ fsBundle: new NodeBlob([readFileSync('node_modules/@electric-sql/pglite/dist/pglite.data')]) as unknown as Blob });
     await db.exec(`
       CREATE ROLE anon; CREATE ROLE authenticated;
       CREATE SCHEMA auth;
