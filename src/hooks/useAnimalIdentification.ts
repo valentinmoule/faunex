@@ -357,19 +357,42 @@ export const useAnimalIdentification = () => {
         const requestId = crypto.randomUUID();
         setStage('analyzing');
         let lastError: unknown = null;
-        try {
-          // Filet de sécurité : l'analyse ne doit jamais tourner indéfiniment.
-          const { data, error } = await withTimeout(
-            supabase.functions.invoke('identify-animal', {
-              body: { imageBase64: compressedUrl, requestId, imageHash },
-            }),
-            90_000,
-          );
-          if (error) throw error;
-          return interpret(data);
-        } catch (err) {
-          lastError = err;
-          console.error('identify-animal failed', err);
+        // Mobile networks (notably Android in the background) can drop the
+        // response after the server already analysed — and charged — the
+        // photo. Recovery: re-read the server cache (free), then retry once
+        // with the SAME requestId, which the quota counts only once.
+        for (let attempt = 0; attempt < 2; attempt += 1) {
+          try {
+            // Filet de sécurité : l'analyse ne doit jamais tourner indéfiniment.
+            const { data, error } = await withTimeout(
+              supabase.functions.invoke('identify-animal', {
+                body: { imageBase64: compressedUrl, requestId, imageHash },
+              }),
+              90_000,
+            );
+            if (error) throw error;
+            return interpret(data);
+          } catch (err) {
+            lastError = err;
+            console.error('identify-animal failed', err);
+          }
+          for (let i = 0; i < 3; i += 1) {
+            await new Promise((r) => setTimeout(r, 2_000));
+            try {
+              const probe = await withTimeout(
+                supabase.functions.invoke('identify-animal', {
+                  body: { imageHash, imageBase64: compressedUrl, probe: true },
+                }),
+                8_000,
+              );
+              const probeData = probe?.data as any;
+              if (!probe?.error && probeData && probeData.reason !== 'cache_miss') {
+                return interpret(probeData);
+              }
+            } catch {
+              /* keep trying */
+            }
+          }
         }
 
         const raw = JSON.stringify((lastError as any)?.message ?? lastError ?? '');
