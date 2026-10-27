@@ -40,6 +40,8 @@ import CommentMentionInput from '@/components/CommentMentionInput';
 import { Button } from '@/components/ui/button';
 import SpeciesNaturalHistory from '@/components/SpeciesNaturalHistory';
 import DetailRow from '@/components/DetailRow';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { useCatalogueModeration, deleteBestiarySpecies } from '@/hooks/useCatalogueModeration';
 
 interface Props {
   card: AnimalCard | null;
@@ -152,6 +154,33 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
   const { data: contestWinners } = useContestWinnerCaptures();
   const isContestWinner = !!card?.id && !!contestWinners?.has(card.id);
   const { session } = useAuth();
+  const { canDeleteSpecies } = useCatalogueModeration(session?.user.id, open);
+  const [confirmSpeciesDelete, setConfirmSpeciesDelete] = useState(false);
+  const [deletingSpecies, setDeletingSpecies] = useState(false);
+  const speciesDeleteBusy = useRef(false);
+  useEffect(() => { setConfirmSpeciesDelete(false); }, [card?.id, open]);
+  const handleSpeciesDelete = async () => {
+    if (!card || !canDeleteSpecies || speciesDeleteBusy.current) return;
+    speciesDeleteBusy.current = true;
+    setDeletingSpecies(true);
+    try {
+      await deleteBestiarySpecies(card.name, card.scientificName || '');
+      setConfirmSpeciesDelete(false);
+      onClose();
+      toast({ title: t('species.adminDelete.success') });
+    } catch {
+      toast({ title: t('species.adminDelete.error'), variant: 'destructive' });
+    } finally {
+      speciesDeleteBusy.current = false;
+      setDeletingSpecies(false);
+    }
+  };
+  const speciesDeleteItems = canDeleteSpecies ? [{
+    label: t('species.adminDelete.action'),
+    icon: <Trash2 className="w-5 h-5 text-destructive" />,
+    tone: 'destructive' as const,
+    onSelect: () => setConfirmSpeciesDelete(true),
+  }] : [];
   // Nom commun localisé + fiche d'espèce localisée (traduite à la demande, puis cachée).
   const { speciesName } = useSpeciesName();
   const displayName = speciesName(card?.name);
@@ -864,7 +893,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                     label: t('species.report.action'),
                     icon: <ScanSearch className="w-5 h-5 text-muted-foreground" />,
                     onSelect: () => { hapticTap(); setCorrectionOpen(true); },
-                  }]}
+                  }, ...speciesDeleteItems]}
                 />
               </div>
             )}
@@ -975,6 +1004,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                           onSelect: () => { hapticTap(); setConfirmDelete(true); },
                         },
                       ] : []),
+                      ...speciesDeleteItems,
                     ]}
                   />
                 )}
@@ -1451,6 +1481,16 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
       ), document.body)}
 
       {/* Delete confirmation — portalled so it floats above the drawer */}
+      <ConfirmDialog
+        open={confirmSpeciesDelete}
+        title={t('species.adminDelete.title', { name: displayName })}
+        description={t('species.adminDelete.description')}
+        confirmLabel={t(deletingSpecies ? 'species.adminDelete.busy' : 'species.adminDelete.confirm')}
+        busy={deletingSpecies}
+        icon={<Trash2 className="h-5 w-5" />}
+        onOpenChange={setConfirmSpeciesDelete}
+        onConfirm={() => { void handleSpeciesDelete(); }}
+      />
       {confirmDelete && createPortal((
         <div
           className="pointer-events-auto fixed inset-0 z-[10001] flex items-center justify-center px-6"

@@ -1,5 +1,14 @@
 {
   "species": {
+    "adminDelete": {
+      "action": "Supprimer la fiche du Bestiaire",
+      "title": "Supprimer la fiche {{name}} ?",
+      "description": "Cette fiche sera retirée du Bestiaire pour tous les utilisateurs. Leurs captures et photos personnelles seront conservées. Cette action est définitive.",
+      "confirm": "Supprimer la fiche",
+      "busy": "Suppression…",
+      "success": "Fiche retirée du Bestiaire",
+      "error": "Suppression impossible. La fiche a peut-être changé ou tes droits sont insuffisants."
+    },
     "naturalHistory": {
       "title": "Classification et mensurations",
       "phylum": "Embranchement",

@@ -14,6 +14,21 @@ export interface CatalogueEntry {
 }
 
 const KEY = 'faunex.catalogue.v28';
+const deletionListeners = new Set<(name: string) => void>();
+
+export function subscribeCatalogueDeletion(listener: (name: string) => void) {
+  deletionListeners.add(listener);
+  return () => { deletionListeners.delete(listener); };
+}
+
+export function removeCatalogueEntry(name: string) {
+  const cached = readCatalogueCache();
+  if (cached) {
+    const entries = cached.entries.filter((entry) => entry.name !== name);
+    writeCatalogueCache(entries, cached.count - (cached.entries.length - entries.length));
+  }
+  deletionListeners.forEach((listener) => listener(name));
+}
 // Anciennes versions du cache : purgées pour éviter des noms d'espèces obsolètes.
 try { ['faunex.catalogue.v1', 'faunex.catalogue.v2', 'faunex.catalogue.v3', 'faunex.catalogue.v4', 'faunex.catalogue.v5', 'faunex.catalogue.v6', 'faunex.catalogue.v7', 'faunex.catalogue.v8', 'faunex.catalogue.v9', 'faunex.catalogue.v10', 'faunex.catalogue.v11', 'faunex.catalogue.v12', 'faunex.catalogue.v13', 'faunex.catalogue.v14', 'faunex.catalogue.v15', 'faunex.catalogue.v16', 'faunex.catalogue.v17', 'faunex.catalogue.v18', 'faunex.catalogue.v19', 'faunex.catalogue.v20', 'faunex.catalogue.v21', 'faunex.catalogue.v22', 'faunex.catalogue.v23', 'faunex.catalogue.v24', 'faunex.catalogue.v25', 'faunex.catalogue.v26', 'faunex.catalogue.v27'].forEach((k) => localStorage.removeItem(k)); } catch { /* noop */ }
 const TTL = 24 * 60 * 60 * 1000; // 24 h

@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { fetchAllRows } from '@/lib/fetchAll';
 import type { Rarity } from '@/data/mockData';
 import { buildRegionalAnimalSet, type BestiaryAnimal, type ZoneSub } from '@/lib/bestiary';
-import { readCatalogueCache, writeCatalogueCache, type CatalogueEntry } from '@/lib/bestiaryCache';
+import { readCatalogueCache, writeCatalogueCache, subscribeCatalogueDeletion, type CatalogueEntry } from '@/lib/bestiaryCache';
 import type { AnimalCard } from '@/data/mockData';
 import { peekPendingShelve } from '@/lib/shelveAnimation';
 import { subscribeCaptureImageUpdates, updateCaptureImage } from '@/lib/captureImageUpdates';
@@ -75,6 +75,14 @@ export const useBestiaryData = (userId: string | undefined, opts?: { light?: boo
   const [animalsByDept, setAnimalsByDept] = useState<Record<string, Set<string>>>({});
   /** Raw approved captures of the user — the single source of truth for "how many captures". */
   const [myCaptures, setMyCaptures] = useState<AnimalCard[]>(() => snapAtMount.current?.myCaptures || []);
+
+  useEffect(() => subscribeCatalogueDeletion((name) => {
+    if (sessionSnapshot) {
+      sessionSnapshot = { ...sessionSnapshot, animals: sessionSnapshot.animals.filter((animal) => animal.name !== name) };
+    }
+    setAnimals((current) => current.filter((animal) => animal.name !== name));
+    if (cachedAtMount.current) cachedAtMount.current = readCatalogueCache();
+  }), []);
 
   useEffect(() => subscribeCaptureImageUpdates((update) => {
     if (update.userId !== userId) return;
