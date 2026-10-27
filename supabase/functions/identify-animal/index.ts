@@ -525,7 +525,9 @@ serve(async (req) => {
     // Compte interne : dernière génération Flash en une seule passe (plus
     // rapide, pas de seconde passe) — volume négligeable côté coût.
     const DEEP_MODEL = "google/gemini-3.8-flash";
-    const FAST_MODEL = boostedAccount || isNewUser ? DEEP_MODEL : "google/gemini-3.1-flash-lite";
+    // Tous les comptes : Flash 3.8 en passe unique (plus précis espèce/sous-espèce,
+    // ~2,4× le coût de Flash Lite, toujours sans modèle Pro).
+    const FAST_MODEL = DEEP_MODEL;
     /** Fiches d'espèces : texte seul, toujours sur le modèle le moins cher. */
     const TEXT_MODEL = "google/gemini-3.1-flash-lite";
 
@@ -787,7 +789,7 @@ serve(async (req) => {
       // Flash 3.6 en effort low identifie l'espèce avec la même confiance (0,98)
       // que l'effort high, pour ~4× moins de jetons de raisonnement.
       "low",
-      boostedAccount || isNewUser ? imageUrl : undefined,
+      imageUrl,
       // Repli sur le modèle plus robuste dès la seconde tentative.
       FAST_MODEL === DEEP_MODEL ? undefined : DEEP_MODEL,
     );
