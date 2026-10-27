@@ -3474,6 +3474,15 @@ export type Database = {
           capture_rank: number
         }[]
       }
+      capture_owner_fields_unchanged: {
+        Args: {
+          p_id: string
+          p_rarity: string
+          p_status: string
+          p_user_id: string
+        }
+        Returns: boolean
+      }
       captures_remaining_today: { Args: never; Returns: number }
       cast_contest_vote: { Args: { p_entry_id: string }; Returns: boolean }
       catalogue_name_for_binomial: {

@@ -575,6 +575,13 @@
       "when": 1793090541221,
       "tag": "0079_admin_delete_bestiary_species",
       "breakpoints": true
+    },
+    {
+      "idx": 80,
+      "version": "7",
+      "when": 1793091040337,
+      "tag": "0080_fix_capture_update_policy_recursion",
+      "breakpoints": true
     }
   ]
 }
