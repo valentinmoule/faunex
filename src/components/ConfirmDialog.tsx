@@ -81,7 +81,7 @@ export function ConfirmDialog({
         </div>
       </div>
     </div>,
-    document.body,
+    document.querySelector('[role="dialog"][data-state="open"]') ?? document.querySelector('[role="dialog"]') ?? document.body,
   );
 }
 
