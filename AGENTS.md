@@ -104,6 +104,7 @@ Custom collections store species names, not capture IDs. Refresh mounted hooks a
 Apply shared facts after capture name canonicalization, reject scientific conflicts, refresh facts on image-cache hits, and invalidate translations after source changes, because moderation and older clients can save stale descriptions under corrected names.
 <!-- LOVABLE:END -->
 
+
 ## Themed collections are data, not code
 
 Store admin themed collections (species names, optional rules and dates) in `themed_collections`, matched by `src/lib/themedCollections.ts`, with covers in the public captures bucket, so they ship without a store release.
