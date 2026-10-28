@@ -962,7 +962,8 @@ setManualMode(false);
               {t('capture.requestVerification')}
             </button>
           </div>,
-          document.querySelector<HTMLElement>('[role="dialog"]') ?? document.body,
+          // Never anchor into the crop screen: it is removed on close and would take the buttons with it.
+          document.querySelector<HTMLElement>('[role="dialog"]:not([data-crop])') ?? document.body,
         )}
 
         {cropOpen && capturedPhoto && (
