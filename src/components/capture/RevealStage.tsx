@@ -10,6 +10,14 @@ import { revealTimings } from '@/hooks/useCaptureReveal';
 
 type Finish = 'plain' | 'gold' | 'iridescent';
 
+/** Mythic/legendary borders carry extra classes (`tile-border-iridescent tile-finish-mythic`):
+ *  read only the border token, otherwise the palette lookup is undefined and the reveal crashes. */
+export const revealFinish = (rarity: string): Finish => {
+  const token = (rarityTileBorder[rarity] || '').split(/\s+/).find((c) => c.startsWith('tile-border-'));
+  const finish = token?.replace('tile-border-', '');
+  return finish === 'gold' || finish === 'iridescent' ? finish : 'plain';
+};
+
 const PALETTES: Record<Finish, string[]> = {
   plain: ['hsl(145 63% 49%)', 'hsl(145 70% 62%)', 'hsl(215 15% 92%)', 'hsl(48 96% 64%)', 'hsl(200 85% 62%)'],
   gold: ['hsl(45 100% 62%)', 'hsl(40 95% 52%)', 'hsl(52 100% 86%)', 'hsl(34 90% 46%)', 'hsl(0 0% 100%)'],
@@ -38,7 +46,7 @@ interface Props {
 const RevealStage = ({ phase, rarity, animal, photo, onSkip }: Props) => {
   const { t } = useTranslation();
   const rank = RARITY_RANK[rarity] ?? 0;
-  const finish = (rarityTileBorder[rarity] || 'tile-border-plain').replace('tile-border-', '') as Finish;
+  const finish = revealFinish(rarity);
   const timings = revealTimings(rarity);
 
   const confetti = useMemo(() => {
