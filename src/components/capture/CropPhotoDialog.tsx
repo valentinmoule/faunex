@@ -60,6 +60,17 @@ export default function CropPhotoDialog({ photo, onCancel, onDone }: Props) {
     }
   };
 
+  // Vaul locks the page (body pointer-events/overflow); an abrupt unmount can leave it locked.
+  useEffect(() => () => {
+    setTimeout(() => {
+      document.body.style.pointerEvents = '';
+      document.body.style.removeProperty('pointer-events');
+    }, 0);
+  }, []);
+
+  // While Premium status loads, don't mount the upsell drawer: swapping it out for the cropper froze the screen.
+  if (loading && !isPremium) return null;
+
   if (!isPremium) {
     return (
       <Drawer.Root open onOpenChange={(open) => { if (!open) onCancel(); }}>
