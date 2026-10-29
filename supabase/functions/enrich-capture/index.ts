@@ -1,5 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { logDatasetEvent } from '../_shared/dataset.ts'
+import { matchCatalogueSpecies } from '../_shared/species-matching.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -138,6 +139,16 @@ Deno.serve(async (req) => {
         if (providedAnimal[k] !== undefined) payload[k] = providedAnimal[k]
       }
       if (!payload.animal_name) return json({ error: 'animal_name manquant', code: 'bad_request' }, 400)
+      try {
+        const canonical = await matchCatalogueSpecies(supabase, String(payload.animal_name), typeof payload.scientific_name === 'string' ? payload.scientific_name : null)
+        if (canonical) {
+          const entry = canonical as { name: string; scientific_name: string | null }
+          payload.animal_name = entry.name
+          payload.scientific_name = entry.scientific_name || payload.scientific_name
+        }
+      } catch {
+        return json({ error: 'La fiche existante ne peut pas être vérifiée. Corrige les noms si nécessaire puis réessaie ; aucune modification enregistrée.', code: 'catalogue_lookup_failed' }, 422)
+      }
       const { error: applyErr } = await supabase.from('captures').update(payload).eq('id', captureId)
       if (applyErr) {
         console.error('apply update failed', applyErr)
@@ -421,16 +432,15 @@ Deno.serve(async (req) => {
       await new Promise((r) => setTimeout(r, 700 * (attempt + 1)))
     }
 
+    if (matchErr) return json({ error: 'La fiche existante ne peut pas être vérifiée. Corrige les noms si nécessaire puis réessaie ; aucune modification enregistrée.', code: 'catalogue_lookup_failed' }, 422)
     const existing = Array.isArray(matches) ? matches[0] : matches
     // Races domestiques : même binôme latin pour des races différentes, on ne doit
     // pas fusionner un Épagneul picard avec un Braque d'Auvergne.
-    const sharedBinomial = SHARED_BINOMIALS.has(norm(existing?.scientific_name))
-    const sameCommonName = norm(existing?.name) === norm(animal.animal_name || animalName)
-    if (existing && (!sharedBinomial || sameCommonName)) {
+    // The server matcher already protects shared domestic binomials and
+    // scientific conflicts; its accepted typo matches must not be discarded.
+    if (existing) {
       // En mode forcé, on n'adopte le nom canonique que s'il désigne bien le même nom.
-      if (!forceName || norm(existing.name) === norm(animalName)) {
-        animal.animal_name = existing.name || animal.animal_name
-      }
+      animal.animal_name = existing.name || animal.animal_name
       // En mode forcé, le binôme saisi par le modérateur reste prioritaire.
       if (!(forceName && overrideScientific)) {
         animal.scientific_name = existing.scientific_name || animal.scientific_name
