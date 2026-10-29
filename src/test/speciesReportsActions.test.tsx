@@ -7,6 +7,7 @@ vi.mock('@/hooks/useCatalogueModeration', () => ({ useCatalogueModeration: () =>
 vi.mock('@/components/CardDetailSheet', () => ({ default: () => null }));
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: mocks.toastError, info: vi.fn(), warning: vi.fn() } }));
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
+vi.mock('@/data/mockData', () => ({ normalizeRarity: (value: string) => value }));
 vi.mock('@/integrations/supabase/client', () => ({ supabase: { from: (table: string) => {
  const query: any = {
   select: () => query, eq: () => query, in: () => query,
