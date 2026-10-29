@@ -617,6 +617,13 @@
       "when": 1793297057866,
       "tag": "0085_fast_exact_species_resolution",
       "breakpoints": true
+    },
+    {
+      "idx": 86,
+      "version": "7",
+      "when": 1793298087357,
+      "tag": "0086_merge_catalogue_before_capture_canonicalization",
+      "breakpoints": true
     }
   ]
 }
