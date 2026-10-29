@@ -1,5 +1,22 @@
 {
   "species": {
+    "reportsAdmin": {
+      "empty": "Aucune fiche signalée",
+      "loadError": "Impossible de charger les signalements.",
+      "actionError": "Impossible de traiter ce signalement. Réessaie.",
+      "retry": "Réessayer",
+      "view": "Voir la fiche",
+      "delete": "Supprimer la fiche",
+      "resolve": "Marquer traité",
+      "dismiss": "Ignorer",
+      "resolved": "Signalement traité",
+      "dismissed": "Signalement ignoré",
+      "missing": "Cette fiche n’existe plus dans le Bestiaire.",
+      "deleteCloseError": "Fiche supprimée, mais le signalement reste ouvert. Marque-le comme traité.",
+      "count_one": "{{count}} signalement",
+      "count_other": "{{count}} signalements",
+      "doesNotExist": "Espèce inexistante signalée"
+    },
     "adminDelete": {
       "action": "Supprimer la fiche du Bestiaire",
       "title": "Supprimer la fiche {{name}} ?",

@@ -1,5 +1,22 @@
 {
   "species": {
+    "reportsAdmin": {
+      "empty": "No reported entries",
+      "loadError": "Unable to load reports.",
+      "actionError": "Unable to process this report. Please try again.",
+      "retry": "Retry",
+      "view": "View entry",
+      "delete": "Delete entry",
+      "resolve": "Mark resolved",
+      "dismiss": "Dismiss",
+      "resolved": "Report resolved",
+      "dismissed": "Report dismissed",
+      "missing": "This entry is no longer in the Bestiary.",
+      "deleteCloseError": "Entry deleted, but the report is still open. Mark it as resolved.",
+      "count_one": "{{count}} report",
+      "count_other": "{{count}} reports",
+      "doesNotExist": "Reported as a nonexistent species"
+    },
     "adminDelete": {
       "action": "Delete Bestiary entry",
       "title": "Delete the {{name}} entry?",
