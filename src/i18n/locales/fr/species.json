@@ -15,7 +15,28 @@
       "deleteCloseError": "Fiche supprimée, mais le signalement reste ouvert. Marque-le comme traité.",
       "count_one": "{{count}} signalement",
       "count_other": "{{count}} signalements",
-      "doesNotExist": "Espèce inexistante signalée"
+      "doesNotExist": "Espèce inexistante signalée",
+      "vernacular": "Changer le nom vernaculaire",
+      "scientific": "Changer le nom scientifique",
+      "merge": "Fusionner avec une autre fiche",
+      "vernacularLabel": "Nouveau nom vernaculaire (français)",
+      "scientificLabel": "Nouveau nom scientifique",
+      "search": "Rechercher une fiche par nom…",
+      "target": "Fiche à conserver",
+      "noResults": "Aucune fiche trouvée",
+      "mergeConfirm": "« {{source}} » sera fusionnée dans « {{target}} ». La fiche choisie sera conservée.",
+      "mergeSave": "Confirmer la fusion",
+      "saved": "Fiche mise à jour et signalement traité",
+      "errors": {
+        "generic": "Modification impossible. Réessaie.",
+        "MERGE_CAPTURE_CONFLICT": "Fusion bloquée : un explorateur possède déjà les deux fiches. Aucune photo n’a été supprimée.",
+        "DISTINCT_SPECIES": "Ces deux espèces sont distinctes et ne peuvent pas être fusionnées.",
+        "NAME_EXISTS": "Une fiche porte déjà ce nom. Utilise la fusion pour les regrouper.",
+        "STALE_SPECIES": "Cette fiche a changé. Ferme cette fenêtre et recharge les signalements.",
+        "STALE_REPORT": "Ce signalement a déjà été traité. Recharge les signalements.",
+        "NO_CHANGE": "Le nom est inchangé.",
+        "IDENTITY_CONFLICT": "Cette modification entre en conflit avec une fiche existante. Aucun changement enregistré."
+      }
     },
     "adminDelete": {
       "action": "Supprimer la fiche du Bestiaire",
