@@ -37,4 +37,10 @@ describe('Reported entry deletion', () => {
   expect(mocks.update).not.toHaveBeenCalled();
   expect(screen.getByText('Lion')).toBeInTheDocument();
  });
+ it('closes the report only on explicit validation without deleting the entry', async () => {
+  render(<SpeciesReportsPanel />);
+  fireEvent.click(await screen.findByRole('button', { name: 'species.reportsAdmin.resolve' }));
+  await waitFor(() => expect(mocks.update).toHaveBeenCalledWith({ status: 'resolved' }));
+  expect(mocks.remove).not.toHaveBeenCalled();
+ });
 });
