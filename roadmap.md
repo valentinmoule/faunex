@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Renforcer le rapprochement des espèces à la création et en modération : fautes, synonymes, conflits scientifiques et tests de non-fusion.
+
 - [x] Fiches signalées : cinq actions demandées, renommages et fusion vérifiés dans la modération connectée sur fiches temporaires puis nettoyées ; 8 tests passants. Fusion refusée si un explorateur possède déjà les deux fiches afin de conserver toutes les photos.
 
 - [x] Fiches signalées : aperçu des données, suppression du Bestiaire confirmée, traiter/ignorer et erreurs ; ouverture et annulation vérifiées connecté, 8 tests passants, aucune fiche réelle supprimée.
