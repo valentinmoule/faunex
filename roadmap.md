@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Fiches signalées : aperçu des données, suppression du Bestiaire confirmée, traiter/ignorer et erreurs ; ouverture et annulation vérifiées connecté, 8 tests passants, aucune fiche réelle supprimée.
+
 - [x] Suppression directe des fiches du Bestiaire par administrateur/modérateur : confirmation, contrôle serveur, photos personnelles préservées ; suppression d’une fiche temporaire vérifiée dans l’aperçu connecté.
 
 - [x] Passe performances : lectures simultanées Premium/badges regroupées, lecture facturation/droits parallélisée, réponses ancien compte ignorées, ProfileButton accepte sa ref ; 147 tests passants (21 intégrations ignorées), pages principales et navigation connectée vérifiées sans plantage. Aucun changement de design/règles ; validation native iPhone/Android non disponible ici. Cloud : mémoire 86 %, connexions 50/60, capacité supplémentaire signalée sans redimensionnement.
