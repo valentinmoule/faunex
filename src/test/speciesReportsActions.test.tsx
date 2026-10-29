@@ -12,7 +12,7 @@ vi.mock('@/integrations/supabase/client', () => ({ supabase: { from: (table: str
   select: () => query, eq: () => query, in: () => query,
   order: async () => ({ data: [{ id: 'report-1', species_name: 'Lion', scientific_name: 'Panthera leo', reason: 'incorrect', report_type: 'wrong_species', created_at: '2026-10-29' }] }),
   maybeSingle: async () => ({ data: { name: 'Lion', scientific_name: 'Panthera leo', category: 'Mammifères', rarity: 'common' } }),
-  update: (value: unknown) => { mocks.update(value); return { in: (field: string, ids: string[]) => ({ eq: () => ({ select: async () => ({ data: ids.map(id => ({ id })) }) }) }) },
+  update: (value: unknown) => { mocks.update(value); return { in: (field: string, ids: string[]) => ({ eq: () => ({ select: async () => ({ data: ids.map(id => ({ id })) }) }) }) }; },
  };
  return query;
 } } }));
