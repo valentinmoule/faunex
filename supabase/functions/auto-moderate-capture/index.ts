@@ -403,13 +403,7 @@ async function examine(
   // Un désaccord d'espèce n'est jamais un refus ferme : c'est un arbitrage humain.
   const ruleBreach = notRealPhoto || (!disagreement && verdict.name_matches === false && confidence === 0)
 
-  // CONFIANCE MAXIMALE À L'OBSERVATEUR : dans ~90 % des cas son nom est bon.
-  // Un simple écart de nom scientifique ou de formulation ne déclenche plus de
-  // modération humaine : on conserve les noms de l'observateur et on approuve.
-  // Seuls garde-fous : photo non réelle / objet / animal mort, nom vide ou
-  // « inconnu », et contradiction EXPLICITE de l'IA (name_matches === false),
-  // c'est-à-dire quand ce n'est manifestement pas cet animal (ou pas un animal).
-  const explicitContradiction = verdict.name_matches === false
+  // Precise species confirmation is required; uncertainty is reviewed by a human.
   const humanNeeded = requiresHumanSpeciesReview({ confidence, nameMatches: verdict.name_matches, disagreement, unknown, notRealPhoto, scientific: approvedSci })
 
 
@@ -782,15 +776,6 @@ const compatibleNames = (a: string, b: string) => {
   // Sinon : recouvrement majoritaire des mots signifiants.
   return shared / Math.max(setA.size, setB.size) >= 0.5
 }
-
-/** Compare deux binômes latins au niveau genre + espèce (sous-espèce ignorée). */
-const sameBinomial = (a: string, b: string) => {
-  const ca = norm(a).split(' ').slice(0, 2).join(' ')
-  const cb = norm(b).split(' ').slice(0, 2).join(' ')
-  if (!ca || !cb) return false
-  return ca === cb || ca.startsWith(cb) || cb.startsWith(ca)
-}
-
 
 const SHARED_BINOMIALS = new Set([
   'canis lupus familiaris', 'canis familiaris', 'canis lupus',

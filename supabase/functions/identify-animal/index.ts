@@ -902,6 +902,11 @@ serve(async (req) => {
       }
     })();
 
+    if (!admin) {
+      await refundQuota();
+      return await finish({ success: false, reason: "unverified_species" }, "catalogue_lookup_failed");
+    }
+
     /** Trace « best effort » de la réponse brute du modèle + verdict taxonomique. */
     const logRaw = async (verdict: TaxonVerdict | null, outcome: string) => {
       if (!admin) return;
