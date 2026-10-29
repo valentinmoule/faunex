@@ -28,6 +28,7 @@
       "mergeSave": "Confirmer la fusion",
       "saved": "Fiche mise à jour",
       "errors": {
+        "timeout": "Le traitement a pris trop de temps. Aucun changement enregistré. Réessaie.",
         "generic": "Modification impossible. Réessaie.",
         "MERGE_CAPTURE_CONFLICT": "Fusion bloquée : un explorateur possède déjà les deux fiches. Aucune photo n’a été supprimée.",
         "DISTINCT_SPECIES": "Ces deux espèces sont distinctes et ne peuvent pas être fusionnées.",
