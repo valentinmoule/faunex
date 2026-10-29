@@ -603,6 +603,13 @@
       "when": 1793296100213,
       "tag": "0083_strict_species_matching",
       "breakpoints": true
+    },
+    {
+      "idx": 84,
+      "version": "7",
+      "when": 1793296458849,
+      "tag": "0084_keep_species_reports_open_until_validation",
+      "breakpoints": true
     }
   ]
 }

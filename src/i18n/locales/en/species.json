@@ -7,7 +7,7 @@
       "retry": "Retry",
       "view": "View entry",
       "delete": "Delete entry",
-      "resolve": "Mark resolved",
+      "resolve": "Validate",
       "dismiss": "Dismiss",
       "resolved": "Report resolved",
       "dismissed": "Report dismissed",
@@ -26,7 +26,7 @@
       "noResults": "No entries found",
       "mergeConfirm": "“{{source}}” will be merged into “{{target}}”. The selected entry will be kept.",
       "mergeSave": "Confirm merge",
-      "saved": "Entry updated and report resolved",
+      "saved": "Entry updated",
       "errors": {
         "generic": "Unable to save. Try again.",
         "MERGE_CAPTURE_CONFLICT": "Merge blocked: an explorer already owns both entries. No photos were deleted.",

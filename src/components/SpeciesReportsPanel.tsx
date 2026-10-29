@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Loader2, Trash2, X, Pencil, Merge } from 'lucide-react';
+import { Loader2, Trash2, X, Pencil, Merge, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCatalogueModeration, deleteBestiarySpecies } from '@/hooks/useCatalogueModeration';
@@ -154,6 +154,7 @@ export default function SpeciesReportsPanel() {
               <Button size="sm" variant="outline" className="justify-start" disabled={!!busy} onClick={() => void editEntry(list, 'merge')}><Merge className="mr-2 h-4 w-4 shrink-0" />{t('species.reportsAdmin.merge')}</Button>
               <Button size="sm" variant="outline" className="justify-start text-destructive" disabled={!!busy} onClick={() => void openEntry(list, true)}><Trash2 className="mr-2 h-4 w-4 shrink-0" />{t('species.reportsAdmin.delete')}</Button>
             </>}
+            <Button size="sm" className="justify-start" disabled={!!busy} onClick={() => void close(list, 'resolved')}><Check className="mr-2 h-4 w-4" />{t('species.reportsAdmin.resolve')}</Button>
             <Button size="sm" variant="outline" className="justify-start" disabled={!!busy} onClick={() => void close(list, 'dismissed')}><X className="mr-2 h-4 w-4" />{t('species.reportsAdmin.dismiss')}</Button>
           </div>
         </div>;

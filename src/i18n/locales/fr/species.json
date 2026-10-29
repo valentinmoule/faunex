@@ -7,7 +7,7 @@
       "retry": "Réessayer",
       "view": "Voir la fiche",
       "delete": "Supprimer la fiche",
-      "resolve": "Marquer traité",
+      "resolve": "Valider",
       "dismiss": "Ignorer",
       "resolved": "Signalement traité",
       "dismissed": "Signalement ignoré",
@@ -26,7 +26,7 @@
       "noResults": "Aucune fiche trouvée",
       "mergeConfirm": "« {{source}} » sera fusionnée dans « {{target}} ». La fiche choisie sera conservée.",
       "mergeSave": "Confirmer la fusion",
-      "saved": "Fiche mise à jour et signalement traité",
+      "saved": "Fiche mise à jour",
       "errors": {
         "generic": "Modification impossible. Réessaie.",
         "MERGE_CAPTURE_CONFLICT": "Fusion bloquée : un explorateur possède déjà les deux fiches. Aucune photo n’a été supprimée.",
