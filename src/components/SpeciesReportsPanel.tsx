@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCatalogueModeration, deleteBestiarySpecies } from '@/hooks/useCatalogueModeration';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
-import CardDetailSheet from '@/components/CardDetailSheet';
+import ReportedSpeciesPreview from '@/components/ReportedSpeciesPreview';
 import { type AnimalCard, normalizeRarity } from '@/data/mockData';
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
 
@@ -73,11 +73,15 @@ export default function SpeciesReportsPanel() {
         .select('name,scientific_name,category,rarity').eq('name', report.species_name).maybeSingle();
       if (error) throw error;
       if (!animal) { toast.info(t('species.reportsAdmin.missing')); return; }
+      const { data: profile, error: profileError } = await supabase.from('species_profiles')
+        .select('description,habitat,diet,conservation,fun_fact').eq('animal_name', animal.name).maybeSingle();
+      if (profileError) throw profileError;
       const card: AnimalCard = {
         id: `uncaptured-${animal.name}`, name: animal.name,
         scientificName: animal.scientific_name ?? '', image: '',
         rarity: normalizeRarity(animal.rarity), category: animal.category,
-        description: '', habitat: '', diet: '', conservation: '', funFact: '',
+        description: profile?.description ?? '', habitat: profile?.habitat ?? '',
+        diet: profile?.diet ?? '', conservation: profile?.conservation ?? '', funFact: profile?.fun_fact ?? '',
         discoveredAt: '', location: '',
       };
       if (deleting) setDeleteTarget({ card, ids: list.map(item => item.id) });
@@ -136,7 +140,7 @@ export default function SpeciesReportsPanel() {
         </div>;
       })}
     </div>
-    <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} />
+    <ReportedSpeciesPreview card={selectedCard} onClose={() => setSelectedCard(null)} />
     <ConfirmDialog open={!!deleteTarget} title={t('species.adminDelete.title', { name: speciesName(deleteTarget?.card.name) })}
       description={t('species.adminDelete.description')} confirmLabel={t('species.adminDelete.confirm')}
       icon={<Trash2 className="h-6 w-6" />} busy={!!busy} onConfirm={() => void removeEntry()}

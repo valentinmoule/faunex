@@ -4,7 +4,7 @@ const mocks = vi.hoisted(() => ({ remove: vi.fn(), update: vi.fn(), toastError: 
 vi.mock('@/contexts/AuthContext', () => ({ useAuth: () => ({ session: { user: { id: 'admin' } } }) }));
 vi.mock('@/hooks/useSpeciesLocale', () => ({ useSpeciesName: () => ({ speciesName: (name: string) => name }) }));
 vi.mock('@/hooks/useCatalogueModeration', () => ({ useCatalogueModeration: () => ({ canDeleteSpecies: true }), deleteBestiarySpecies: mocks.remove }));
-vi.mock('@/components/CardDetailSheet', () => ({ default: () => null }));
+vi.mock('@/components/ReportedSpeciesPreview', () => ({ default: () => null }));
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: mocks.toastError, info: vi.fn(), warning: vi.fn() } }));
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
 vi.mock('@/data/mockData', () => ({ normalizeRarity: (value: string) => value }));
