@@ -3456,6 +3456,18 @@ export type Database = {
         Args: { p_name: string; p_scientific?: string }
         Returns: boolean
       }
+      admin_reported_species_action: {
+        Args: {
+          p_action: string
+          p_animal_id: string
+          p_expected_name: string
+          p_expected_scientific: string
+          p_report_ids: string[]
+          p_target_id?: string
+          p_value?: string
+        }
+        Returns: Json
+      }
       admin_revoke_capture_eclats: {
         Args: { p_capture: string; p_reason: string }
         Returns: Json

@@ -15,7 +15,28 @@
       "deleteCloseError": "Entry deleted, but the report is still open. Mark it as resolved.",
       "count_one": "{{count}} report",
       "count_other": "{{count}} reports",
-      "doesNotExist": "Reported as a nonexistent species"
+      "doesNotExist": "Reported as a nonexistent species",
+      "vernacular": "Change common name",
+      "scientific": "Change scientific name",
+      "merge": "Merge with another entry",
+      "vernacularLabel": "New common name (French)",
+      "scientificLabel": "New scientific name",
+      "search": "Search entries by name…",
+      "target": "Entry to keep",
+      "noResults": "No entries found",
+      "mergeConfirm": "“{{source}}” will be merged into “{{target}}”. The selected entry will be kept.",
+      "mergeSave": "Confirm merge",
+      "saved": "Entry updated and report resolved",
+      "errors": {
+        "generic": "Unable to save. Try again.",
+        "MERGE_CAPTURE_CONFLICT": "Merge blocked: an explorer already owns both entries. No photos were deleted.",
+        "DISTINCT_SPECIES": "These are distinct species and cannot be merged.",
+        "NAME_EXISTS": "An entry already uses this name. Use merge to combine them.",
+        "STALE_SPECIES": "This entry changed. Close this window and reload the reports.",
+        "STALE_REPORT": "This report was already handled. Reload the reports.",
+        "NO_CHANGE": "The name is unchanged.",
+        "IDENTITY_CONFLICT": "This change conflicts with an existing entry. Nothing was saved."
+      }
     },
     "adminDelete": {
       "action": "Delete Bestiary entry",
