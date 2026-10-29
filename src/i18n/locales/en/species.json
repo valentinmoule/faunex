@@ -28,6 +28,7 @@
       "mergeSave": "Confirm merge",
       "saved": "Entry updated",
       "errors": {
+        "timeout": "Processing took too long. Nothing was saved. Please try again.",
         "generic": "Unable to save. Try again.",
         "MERGE_CAPTURE_CONFLICT": "Merge blocked: an explorer already owns both entries. No photos were deleted.",
         "DISTINCT_SPECIES": "These are distinct species and cannot be merged.",

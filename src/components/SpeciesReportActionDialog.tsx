@@ -53,6 +53,7 @@ export default function SpeciesReportActionDialog({ source, action, onClose, onS
    onSaved(); onClose();
   } catch (failure) {
    const message = (failure as { message?: string }).message ?? '';
+   if ((failure as { code?: string }).code === '57014') { setError(t('species.reportsAdmin.errors.timeout')); return; }
    const code = ['MERGE_CAPTURE_CONFLICT','DISTINCT_SPECIES','NAME_EXISTS','STALE_SPECIES','STALE_REPORT','NO_CHANGE','IDENTITY_CONFLICT'].find(code => message.includes(code));
    setError(t(`species.reportsAdmin.errors.${code ?? 'generic'}`));
   } finally { locked.current = false; setSaving(false); }
