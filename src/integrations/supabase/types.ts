@@ -3534,6 +3534,15 @@ export type Database = {
         Args: { p_scientific: string }
         Returns: string
       }
+      catalogue_species_candidates: {
+        Args: { p_name: string; p_scientific: string }
+        Returns: {
+          distance: number
+          name: string
+          priority: number
+          scientific_name: string
+        }[]
+      }
       category_leaderboard: {
         Args: {
           p_category: string
@@ -3957,6 +3966,10 @@ export type Database = {
           animal_key: string
           finders: number
         }[]
+      }
+      species_label_distance: {
+        Args: { p_left: string; p_right: string }
+        Returns: number
       }
       species_names_en: {
         Args: never
