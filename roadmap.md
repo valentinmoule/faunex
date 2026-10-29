@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Fiches signalées : cinq actions demandées (nom vernaculaire, nom scientifique, fusion avec choix, suppression, ignorer), synchronisation sécurisée et tests connectés.
+- [x] Fiches signalées : cinq actions demandées, renommages et fusion vérifiés dans la modération connectée sur fiches temporaires puis nettoyées ; 8 tests passants. Fusion refusée si un explorateur possède déjà les deux fiches afin de conserver toutes les photos.
 
 - [x] Fiches signalées : aperçu des données, suppression du Bestiaire confirmée, traiter/ignorer et erreurs ; ouverture et annulation vérifiées connecté, 8 tests passants, aucune fiche réelle supprimée.
 
