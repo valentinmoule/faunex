@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Check, Eye, Loader2, Trash2, X } from 'lucide-react';
+import { Loader2, Trash2, X, Pencil, Merge } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCatalogueModeration, deleteBestiarySpecies } from '@/hooks/useCatalogueModeration';
@@ -10,6 +10,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 import ReportedSpeciesPreview from '@/components/ReportedSpeciesPreview';
 import { type AnimalCard, normalizeRarity } from '@/data/mockData';
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
+import SpeciesReportActionDialog, { type ReportAction, type ReportActionSource } from '@/components/SpeciesReportActionDialog';
 
 interface Report {
   id: string;
@@ -32,6 +33,21 @@ export default function SpeciesReportsPanel() {
   const busyRef = useRef(false);
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ card: AnimalCard; ids: string[] } | null>(null);
+
+  const [editSource, setEditSource] = useState<ReportActionSource | null>(null);
+  const [editAction, setEditAction] = useState<ReportAction>('vernacular');
+  const editEntry = async (list: Report[], action: ReportAction) => {
+    const report = list[0];
+    if (!report || busyRef.current || !canDeleteSpecies) return;
+    busyRef.current = true; setBusy(report.id);
+    try {
+      const { data, error } = await supabase.from('animals').select('id,name,scientific_name').eq('name', report.species_name).maybeSingle();
+      if (error) throw error;
+      if (!data) { toast.info(t('species.reportsAdmin.missing')); return; }
+      setEditAction(action); setEditSource({ ...data, reportIds: list.map(r => r.id) });
+    } catch { toast.error(t('species.reportsAdmin.actionError')); }
+    finally { busyRef.current = false; setBusy(null); }
+  };
 
   const load = async () => {
     setLoadError(false);
@@ -124,22 +140,26 @@ export default function SpeciesReportsPanel() {
         return <div key={first.id} className="space-y-3 py-4">
           <div className="flex items-baseline justify-between gap-3">
             <div className="min-w-0">
-              <p className="break-words font-display font-bold text-foreground">{speciesName(first.species_name)}</p>
+              <Button variant="link" className="h-auto max-w-full justify-start whitespace-normal p-0 text-left font-display font-bold text-foreground" disabled={!!busy} onClick={() => void openEntry(list)} aria-label={`${t('species.reportsAdmin.view')} : ${first.species_name}`}>{speciesName(first.species_name)}</Button>
               {first.scientific_name && <p className="break-words text-xs italic text-muted-foreground">{first.scientific_name}</p>}
               {list.some(report => report.report_type === 'does_not_exist') && <p className="text-xs font-semibold text-destructive">{t('species.reportsAdmin.doesNotExist')}</p>}
             </div>
             <span className="shrink-0 text-xs text-muted-foreground">{t('species.reportsAdmin.count', { count: list.length })}</span>
           </div>
           {list.filter(report => report.reason).map(report => <p key={report.id} className="break-words text-sm text-muted-foreground">« {report.reason} »</p>)}
-          <div className="grid grid-cols-2 gap-2">
-            <Button size="sm" variant="outline" disabled={!!busy} onClick={() => void openEntry(list)}><Eye className="mr-2 h-4 w-4 shrink-0" />{t('species.reportsAdmin.view')}</Button>
-            {canDeleteSpecies && <Button size="sm" variant="outline" className="text-destructive" disabled={!!busy} onClick={() => void openEntry(list, true)}><Trash2 className="mr-2 h-4 w-4 shrink-0" />{t('species.reportsAdmin.delete')}</Button>}
-            <Button size="sm" disabled={!!busy} onClick={() => void close(list, 'resolved')}>{busy === first.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Check className="mr-2 h-4 w-4" />}{t('species.reportsAdmin.resolve')}</Button>
-            <Button size="sm" variant="outline" disabled={!!busy} onClick={() => void close(list, 'dismissed')}><X className="mr-2 h-4 w-4" />{t('species.reportsAdmin.dismiss')}</Button>
+          <div className="flex flex-col items-stretch gap-2">
+            {canDeleteSpecies && <>
+              <Button size="sm" variant="outline" className="justify-start" disabled={!!busy} onClick={() => void editEntry(list, 'vernacular')}><Pencil className="mr-2 h-4 w-4 shrink-0" />{t('species.reportsAdmin.vernacular')}</Button>
+              <Button size="sm" variant="outline" className="justify-start" disabled={!!busy} onClick={() => void editEntry(list, 'scientific')}><Pencil className="mr-2 h-4 w-4 shrink-0" />{t('species.reportsAdmin.scientific')}</Button>
+              <Button size="sm" variant="outline" className="justify-start" disabled={!!busy} onClick={() => void editEntry(list, 'merge')}><Merge className="mr-2 h-4 w-4 shrink-0" />{t('species.reportsAdmin.merge')}</Button>
+              <Button size="sm" variant="outline" className="justify-start text-destructive" disabled={!!busy} onClick={() => void openEntry(list, true)}><Trash2 className="mr-2 h-4 w-4 shrink-0" />{t('species.reportsAdmin.delete')}</Button>
+            </>}
+            <Button size="sm" variant="outline" className="justify-start" disabled={!!busy} onClick={() => void close(list, 'dismissed')}><X className="mr-2 h-4 w-4" />{t('species.reportsAdmin.dismiss')}</Button>
           </div>
         </div>;
       })}
     </div>
+    <SpeciesReportActionDialog source={editSource} action={editAction} onClose={() => setEditSource(null)} onSaved={() => void load()} />
     <ReportedSpeciesPreview card={selectedCard} onClose={() => setSelectedCard(null)} />
     <ConfirmDialog open={!!deleteTarget} title={t('species.adminDelete.title', { name: speciesName(deleteTarget?.card.name) })}
       description={t('species.adminDelete.description')} confirmLabel={t('species.adminDelete.confirm')}
