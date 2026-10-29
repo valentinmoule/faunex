@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Fiches signalées : corrections successives et fusion sans clôture automatique, bouton Valider séparé ; suppression confirmée immédiate.
+- [x] Fiches signalées : corrections successives et fusion sans clôture automatique, bouton Valider séparé ; suppression confirmée immédiate. 11 tests et deux corrections puis validation vérifiées connecté sur une fiche temporaire, nettoyée ensuite.
 
 - [x] Rapprochement strict des espèces à la création et en modération : fautes, synonymes, conflits scientifiques, races et validation automatique prudente ; 25 tests passants et contrôle connecté.
 
