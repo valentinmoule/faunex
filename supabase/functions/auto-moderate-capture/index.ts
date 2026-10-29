@@ -1,6 +1,8 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { logDatasetEvent } from '../_shared/dataset.ts'
 import { attestModeratedCapture } from '../_shared/economyProof.ts'
+import { matchCatalogueSpecies } from '../_shared/species-matching.ts'
+import { STRICT_SPECIES_RULES, requiresHumanSpeciesReview } from '../_shared/strict-moderation.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -17,12 +19,10 @@ const corsHeaders = {
  * nom incompatible, doublon, espèce fictive/éteinte, humain), la capture reste
  * en modération manuelle.
  */
-const AUTO_PROMPT = `Expert naturaliste chargé du contrôle qualité. On te donne une PHOTO, le NOM proposé par l'observateur et sa description. Ta mission : VÉRIFIER le nom, pas deviner. Sois COOPÉRATIF : si la photo est compatible avec le nom proposé, valide-le.
+const AUTO_PROMPT = `Expert naturaliste chargé du contrôle qualité. On te donne une PHOTO, le NOM proposé par l'observateur et sa description. Ta mission : VÉRIFIER précisément l'espèce, pas deviner.
 
-- name_matches = true dès que la photo est COMPATIBLE avec l'animal nommé (espèce, genre, groupe ou race), même si la photo n'est pas parfaite. Accepte les synonymes, variantes régionales, orthographes approximatives, singulier/pluriel, nom de genre ou de famille au lieu de l'espèce, ainsi qu'une espèce voisine du même genre ou de la même famille.
-- name_matches = false UNIQUEMENT si aucun animal n'est visible, ou si l'animal photographié appartient manifestement à un tout autre groupe que le nom proposé (ex. « chat » pour un oiseau, « libellule » pour une araignée). Dans le doute, réponds true.
-- L'OBSERVATEUR A PRESQUE TOUJOURS RAISON (≈ 9 fois sur 10) : ne le contredis que si l'erreur est FLAGRANTE et visible sur la photo. Un simple désaccord de nom scientifique, de sous-espèce ou de race n'est PAS une contradiction : réponds true.
-- confidence = certitude que le nom proposé est acceptable (0-1). Une photo un peu floue ou lointaine mais clairement compatible reste > 0,8.
+${STRICT_SPECIES_RULES}
+- confidence = certitude de l'identification exacte (0-1), et non simple compatibilité avec un groupe.
 
 - AUTHENTICITÉ : seule une VRAIE PHOTO d'animal VIVANT est valide. Invalide (is_real_photo false, name_matches false, confidence 0) : illustration, dessin, logo, mascotte, peinture, rendu 3D, image IA, capture/photo d'écran ou de papier, autocollant, tatouage, peluche, figurine, statue et tout OBJET en forme d'animal (déco, bibelot, déguisement, gonflable, gâteau, graffiti, panneau) → objet_representation ; animal MORT ou préparé (plat, poisson/fruits de mer servis ou en étal, viande, carcasse, trophée, taxidermie, écrasé, insecte épinglé, squelette, coquille vide) → animal_mort_ou_plat. Indices : matériau/couture/socle/yeux peints/posture rigide, aplats sans grain, fond uni, watermark, assiette/couverts/glace/découpe/sang.
 - Humain, plante, aucun animal, créature de fiction ou espèce éteinte → name_matches false, confidence 0.
@@ -389,28 +389,22 @@ async function examine(
   // seule — la capture part systématiquement en modération humaine.
   const userSci = norm(capture.scientific_name)
   const aiSci = norm(verdict.scientific_name)
-  const sciSame = !!userSci && !!aiSci && sameBinomial(userSci, aiSci)
+  const sciSame = !!userSci && !!aiSci && userSci === aiSci
   const sciConflict = !!userSci && !!aiSci && !sciSame
   const nameConflict = !compatibleNames(name, finalName)
   const disagreement = sciConflict || (!sciSame && nameConflict)
 
   // Accord : on garde toujours les noms de l'observateur (jamais ceux de l'IA).
-  const approvedName = name
-  const approvedSci = capture.scientific_name || verdict.scientific_name || null
+  let approvedName = finalName
+  let approvedSci = capture.scientific_name || verdict.scientific_name || null
 
   // Non-respect des règles : image non photographique, objet, animal mort,
   // humain, espèce fictive/éteinte → refus ferme + notification.
   // Un désaccord d'espèce n'est jamais un refus ferme : c'est un arbitrage humain.
   const ruleBreach = notRealPhoto || (!disagreement && verdict.name_matches === false && confidence === 0)
 
-  // CONFIANCE MAXIMALE À L'OBSERVATEUR : dans ~90 % des cas son nom est bon.
-  // Un simple écart de nom scientifique ou de formulation ne déclenche plus de
-  // modération humaine : on conserve les noms de l'observateur et on approuve.
-  // Seuls garde-fous : photo non réelle / objet / animal mort, nom vide ou
-  // « inconnu », et contradiction EXPLICITE de l'IA (name_matches === false),
-  // c'est-à-dire quand ce n'est manifestement pas cet animal (ou pas un animal).
-  const explicitContradiction = verdict.name_matches === false
-  const humanNeeded = notRealPhoto || unknown || explicitContradiction
+  // Precise species confirmation is required; uncertainty is reviewed by a human.
+  const humanNeeded = requiresHumanSpeciesReview({ confidence, nameMatches: verdict.name_matches, disagreement, unknown, notRealPhoto, scientific: approvedSci })
 
 
 
@@ -462,7 +456,19 @@ async function examine(
 
   }
 
-  // Le nom validé peut différer légèrement (race précisée) : on re-vérifie le doublon.
+  // Canonicalize BEFORE checking the owner's duplicate and approving.
+  try {
+    const canonical = await matchCatalogueSpecies(supabase, approvedName, approvedSci)
+    if (canonical) {
+      const entry = canonical as { name: string; scientific_name: string | null }
+      approvedName = entry.name
+      approvedSci = entry.scientific_name || approvedSci
+    }
+  } catch {
+    await releaseClaim(supabase, capture.id)
+    return { capture_id: capture.id, approved: false, reason: 'needs_human', detail: 'catalogue_lookup_failed' }
+  }
+  // Le nom validé peut différer légèrement : on re-vérifie le doublon.
   const dup2 = await findUserDuplicate(
     supabase, capture.user_id, capture.id, approvedName, approvedSci,
   )
@@ -770,15 +776,6 @@ const compatibleNames = (a: string, b: string) => {
   // Sinon : recouvrement majoritaire des mots signifiants.
   return shared / Math.max(setA.size, setB.size) >= 0.5
 }
-
-/** Compare deux binômes latins au niveau genre + espèce (sous-espèce ignorée). */
-const sameBinomial = (a: string, b: string) => {
-  const ca = norm(a).split(' ').slice(0, 2).join(' ')
-  const cb = norm(b).split(' ').slice(0, 2).join(' ')
-  if (!ca || !cb) return false
-  return ca === cb || ca.startsWith(cb) || cb.startsWith(ca)
-}
-
 
 const SHARED_BINOMIALS = new Set([
   'canis lupus familiaris', 'canis familiaris', 'canis lupus',

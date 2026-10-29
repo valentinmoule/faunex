@@ -1,5 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { logDatasetEvent } from '../_shared/dataset.ts'
+import { matchCatalogueSpecies } from '../_shared/species-matching.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -15,10 +16,10 @@ On te donne TROIS sources d'information, toutes essentielles :
 
 Méthode obligatoire :
 - Lis d'abord la description et le nom proposé, puis confronte-les à la photo. La description est une preuve de terrain : utilise-la activement pour trancher entre espèces ressemblantes (biche vs chevreuil, coccinelle asiatique vs autochtone, races de chiens/chats/vaches, etc.).
-- Le nom proposé fait autorité tant qu'il est cohérent avec la photo et la description : normalise-le en français correct (orthographe, majuscule) et précise la race pour un animal domestique quand la photo ou la description la révèle.
+- Le nom proposé est une hypothèse, pas une preuve : exige des critères diagnostiques de l'espèce précise ; corrige l'orthographe sans inventer de variante de nom. Une espèce voisine ou de la même famille ne suffit pas à confirmer la proposition.
 - Si la description apporte une précision plus fine que le nom (ex. nom "oiseau" + description "petit oiseau jaune au chant flûté dans les roseaux"), affine le nom vers l'espèce la plus précise et cohérente.
 - Si le nom proposé est clairement incompatible avec la photo ET la description, retiens l'espèce que la photo et la description désignent conjointement (sans commenter ce choix dans la fiche).
-- N'invente jamais un détail absent de la photo et de la description : en cas d'incertitude, reste au niveau taxonomique le plus précis dont tu es sûr.
+- N'invente jamais un détail absent de la photo et de la description : en cas d'incertitude sur l'espèce exacte, réponds animal_name "Inconnu" pour que le modérateur vérifie, plutôt que créer une fiche approximative.
 - Œdipodes : Oedipoda germanica = Œdipode germanique (ailes postérieures rouges/orangées, bande sombre) ; Oedipoda caerulescens = Œdipode turquoise (ailes bleues, bande sombre) ; Sphingonotus caerulans = Œdipode aigue-marine (plus élancé, ailes bleues à la base sans bande sombre). Corps camouflé ou ailes fermées seuls ne permettent pas de trancher : exige des critères diagnostiques sur la photo ou dans les observations, sinon reste au genre sûr.
 - animal_name = uniquement le nom commun français, sans parenthèses ni précision ajoutée (pas de "(famille des Lycosidae)", "(genre Bombus)", "(mâle)", "(à préciser)", pas de nom scientifique répété) : le rang précis va dans scientific_name.
 
@@ -138,6 +139,16 @@ Deno.serve(async (req) => {
         if (providedAnimal[k] !== undefined) payload[k] = providedAnimal[k]
       }
       if (!payload.animal_name) return json({ error: 'animal_name manquant', code: 'bad_request' }, 400)
+      try {
+        const canonical = await matchCatalogueSpecies(supabase, String(payload.animal_name), typeof payload.scientific_name === 'string' ? payload.scientific_name : null)
+        if (canonical) {
+          const entry = canonical as { name: string; scientific_name: string | null }
+          payload.animal_name = entry.name
+          payload.scientific_name = entry.scientific_name || payload.scientific_name
+        }
+      } catch {
+        return json({ error: 'La fiche existante ne peut pas être vérifiée. Corrige les noms si nécessaire puis réessaie ; aucune modification enregistrée.', code: 'catalogue_lookup_failed' }, 422)
+      }
       const { error: applyErr } = await supabase.from('captures').update(payload).eq('id', captureId)
       if (applyErr) {
         console.error('apply update failed', applyErr)
@@ -421,16 +432,15 @@ Deno.serve(async (req) => {
       await new Promise((r) => setTimeout(r, 700 * (attempt + 1)))
     }
 
+    if (matchErr) return json({ error: 'La fiche existante ne peut pas être vérifiée. Corrige les noms si nécessaire puis réessaie ; aucune modification enregistrée.', code: 'catalogue_lookup_failed' }, 422)
     const existing = Array.isArray(matches) ? matches[0] : matches
     // Races domestiques : même binôme latin pour des races différentes, on ne doit
     // pas fusionner un Épagneul picard avec un Braque d'Auvergne.
-    const sharedBinomial = SHARED_BINOMIALS.has(norm(existing?.scientific_name))
-    const sameCommonName = norm(existing?.name) === norm(animal.animal_name || animalName)
-    if (existing && (!sharedBinomial || sameCommonName)) {
+    // The server matcher already protects shared domestic binomials and
+    // scientific conflicts; its accepted typo matches must not be discarded.
+    if (existing) {
       // En mode forcé, on n'adopte le nom canonique que s'il désigne bien le même nom.
-      if (!forceName || norm(existing.name) === norm(animalName)) {
-        animal.animal_name = existing.name || animal.animal_name
-      }
+      animal.animal_name = existing.name || animal.animal_name
       // En mode forcé, le binôme saisi par le modérateur reste prioritaire.
       if (!(forceName && overrideScientific)) {
         animal.scientific_name = existing.scientific_name || animal.scientific_name

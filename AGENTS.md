@@ -64,7 +64,7 @@ Await or chain every Supabase write with a handler: lazy builders send nothing o
 
 ## User-typed species names snap to existing tiles
 
-Resolve capture names server-side against the catalogue (exact, synonyms, singular/plural-insensitive, then fuzzy) before creating a new species, because spelling variants like "Passereaux" otherwise create duplicate Bestiary tiles.
+Use one server matcher for creation/moderation; reject scientific conflicts, ambiguous typos and failed lookups, preserving subspecies/breeds, because spelling errors create duplicate tiles.
 
 ## Discoverer counts come from a trigger-maintained cache
 

@@ -902,6 +902,11 @@ serve(async (req) => {
       }
     })();
 
+    if (!admin) {
+      await refundQuota();
+      return await finish({ success: false, reason: "unverified_species" }, "catalogue_lookup_failed");
+    }
+
     /** Trace « best effort » de la réponse brute du modèle + verdict taxonomique. */
     const logRaw = async (verdict: TaxonVerdict | null, outcome: string) => {
       if (!admin) return;
@@ -952,6 +957,7 @@ serve(async (req) => {
           if (matchErr.code !== "57014" && !String(matchErr.message ?? "").includes("timeout")) break;
           await new Promise((r) => setTimeout(r, 700 * (attempt + 1)));
         }
+        if (matchErr) throw new Error(`Catalogue lookup failed: ${matchErr.code}`);
         const existing = Array.isArray(matches) ? matches[0] : matches;
 
         if (existing) {
@@ -963,6 +969,8 @@ serve(async (req) => {
         }
       } catch (e) {
         console.error("dedup lookup failed", e);
+        await refundQuota();
+        return await finish({ success: false, reason: "unverified_species", hint: "La fiche existante n'a pas pu être vérifiée. Réessaie ou propose l'animal pour vérification." }, "catalogue_lookup_failed");
       }
     }
 
@@ -1015,6 +1023,25 @@ serve(async (req) => {
       if (verdict.status === "valid") {
         // On aligne le nom latin sur le nom accepté par GBIF (orthographe, synonymie).
         if (verdict.canonicalName) animalData.scientific_name = verdict.canonicalName;
+        // GBIF may correct the scientific name: check the catalogue again before
+        // treating the corrected identity as a new species.
+        if (admin) {
+          const { data: rematches, error: rematchError } = await admin.rpc("match_animal", {
+            p_name: animalData.animal_name, p_scientific: animalData.scientific_name || null,
+          });
+          if (rematchError) {
+            await refundQuota();
+            return await finish({ success: false, reason: "unverified_species" }, "catalogue_lookup_failed");
+          }
+          const canonical = Array.isArray(rematches) ? rematches[0] : rematches;
+          if (canonical) {
+            knownInBestiary = true;
+            animalData.animal_name = canonical.name;
+            animalData.scientific_name = canonical.scientific_name || animalData.scientific_name;
+            animalData.category = canonical.category || animalData.category;
+            animalData.rarity = canonical.rarity || animalData.rarity;
+          }
+        }
         animalData.scientific_rank = (verdict.rank || animalData.scientific_rank || "").toString().toLowerCase();
         animalData.taxon_validated = true;
         // Une confiance élevée n'est jamais affichée si l'espèce n'est pas atteinte.
