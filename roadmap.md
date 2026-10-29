@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Corriger le délai excessif des renommages de fiches signalées ; vérifier Conocéphale gracieux → Conocéphale des roseaux.
+- [x] Délai excessif des renommages corrigé : résolution exacte rapide ; Conocéphale des roseaux et ses 9 captures synchronisés, signalement toujours ouvert pour validation.
 
 - [x] Fiches signalées : corrections successives et fusion sans clôture automatique, bouton Valider séparé ; suppression confirmée immédiate. 11 tests et deux corrections puis validation vérifiées connecté sur une fiche temporaire, nettoyée ensuite.
 

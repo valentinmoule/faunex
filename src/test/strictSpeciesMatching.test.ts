@@ -36,7 +36,7 @@ describe('Unified species identity matching',()=>{
  it('canonicalizes an inserted capture without plural conflict bypass',async()=>{await db.query(`INSERT INTO captures VALUES ('Gypaete brabu','Gypaetus barbatus')`); expect((await db.query('SELECT * FROM captures')).rows).toEqual([{animal_name:'Gypaète barbu',scientific_name:'Gypaetus barbatus'}]); await expect(db.query(`INSERT INTO captures VALUES ('Criquets des ajoncs','Unknown species')`)).resolves.toBeDefined(); expect((await db.query(`SELECT scientific_name FROM captures WHERE animal_name='Criquets des ajoncs'`)).rows).toEqual([{scientific_name:'Unknown species'}]);});
  it('does not insert a spelling variant into the catalogue',async()=>{await db.query(`INSERT INTO animals(name,scientific_name) VALUES ('Gypaète brabu','Gypaetus barbatus')`); expect((await db.query(`SELECT count(*)::int AS count FROM animals WHERE scientific_name='Gypaetus barbatus'`)).rows).toEqual([{count:1}]);});
  it('resolves an exact canonical name without calling the expensive typo matcher',async()=>{
-  await db.exec(`CREATE OR REPLACE FUNCTION catalogue_species_candidates(text,text) RETURNS TABLE(name text,scientific_name text,priority integer,distance integer) LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'Expensive fallback should not run'; END $$;`);
+  await db.exec(`CREATE OR REPLACE FUNCTION catalogue_species_candidates(p_name text,p_scientific text) RETURNS TABLE(name text,scientific_name text,priority integer,distance integer) LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'Expensive fallback should not run'; END $$;`);
   expect((await match('Gypaète barbu','Gypaetus barbatus')).rows).toEqual([{name:'Gypaète barbu'}]);
  });
 });
