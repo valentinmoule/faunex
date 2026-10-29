@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Renforcer le rapprochement des espèces à la création et en modération : fautes, synonymes, conflits scientifiques et tests de non-fusion.
+- [x] Rapprochement strict des espèces à la création et en modération : fautes, synonymes, conflits scientifiques, races et validation automatique prudente ; 25 tests passants et contrôle connecté.
 
 - [x] Fiches signalées : cinq actions demandées, renommages et fusion vérifiés dans la modération connectée sur fiches temporaires puis nettoyées ; 8 tests passants. Fusion refusée si un explorateur possède déjà les deux fiches afin de conserver toutes les photos.
 
