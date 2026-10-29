@@ -31,6 +31,7 @@ describe('Reported species mutations',()=>{
   CREATE TABLE species_pages(animal_name text,scientific_name text,published boolean,updated_at timestamptz);`);
   await db.exec(readFileSync('drizzle/migrations/0082_reported_species_actions.sql','utf8'));
   await db.exec(readFileSync('drizzle/migrations/0084_keep_species_reports_open_until_validation.sql','utf8'));
+  await db.exec(readFileSync('drizzle/migrations/0086_merge_catalogue_before_capture_canonicalization.sql','utf8'));
  });
  afterAll(async()=>{await db.close()});
  beforeEach(async()=>{await db.exec(`TRUNCATE animals,captures,species_reports,catalogue_update_snapshots,species_profiles,animal_merge_map,taxa,species_natural_history,collection_taxa,animal_departments,eclats_species_redirects,ml_dataset_events,custom_collection_items,themed_collections,species_pages; SET test.role='admin';
@@ -60,6 +61,22 @@ describe('Reported species mutations',()=>{
   expect((await db.query('SELECT species_name,scientific_name,status FROM species_reports')).rows).toEqual([{species_name:'Renamed',scientific_name:'Correct sci',status:'pending'}]);
   await db.query(`UPDATE species_reports SET status='resolved' WHERE id=$1`,[r]);
   expect((await db.query('SELECT status FROM species_reports')).rows).toEqual([{status:'resolved'}]);
+ });
+ it('merges a shared binomial without capture triggers restoring the older source name',async()=>{
+  await db.exec(`UPDATE animals SET scientific_name='Oedipoda caerulescens';
+   UPDATE captures SET scientific_name='Oedipoda caerulescens';
+   UPDATE species_reports SET scientific_name='Oedipoda caerulescens';
+   CREATE FUNCTION test_binomial_canonicalization() RETURNS trigger LANGUAGE plpgsql AS $$
+   BEGIN
+    SELECT name INTO NEW.animal_name FROM animals WHERE scientific_name=NEW.scientific_name ORDER BY id LIMIT 1;
+    RETURN NEW;
+   END $$;
+   CREATE TRIGGER test_binomial BEFORE UPDATE ON captures FOR EACH ROW EXECUTE FUNCTION test_binomial_canonicalization();`);
+  try {
+   await db.query(`SELECT admin_reported_species_action(ARRAY[$1::uuid],$2::uuid,'Source','Oedipoda caerulescens','merge',NULL,$3::uuid)`,[r,a,b]);
+   expect((await db.query('SELECT animal_name,image_url,xp FROM captures')).rows).toEqual([{animal_name:'Target',image_url:'photo.jpg',xp:25}]);
+   expect((await db.query('SELECT name FROM animals')).rows).toEqual([{name:'Target'}]);
+  } finally { await db.exec('DROP TRIGGER test_binomial ON captures; DROP FUNCTION test_binomial_canonicalization();'); }
  });
  it('keeps the acting report pending when merging two reports from the same user',async()=>{
   await db.query(`INSERT INTO species_reports VALUES($1,$2,'Target','Target sci','pending')`,[b,a]);
