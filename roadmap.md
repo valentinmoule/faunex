@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Fiches signalées : cinq actions demandées (nom vernaculaire, nom scientifique, fusion avec choix, suppression, ignorer), synchronisation sécurisée et tests connectés.
+
 - [x] Fiches signalées : aperçu des données, suppression du Bestiaire confirmée, traiter/ignorer et erreurs ; ouverture et annulation vérifiées connecté, 8 tests passants, aucune fiche réelle supprimée.
 
 - [x] Suppression directe des fiches du Bestiaire par administrateur/modérateur : confirmation, contrôle serveur, photos personnelles préservées ; suppression d’une fiche temporaire vérifiée dans l’aperçu connecté.
