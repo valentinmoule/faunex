@@ -21,6 +21,7 @@ describe('Unified species identity matching',()=>{
   await db.exec(readFileSync('drizzle/migrations/0019_plural_tolerant_species_match.sql','utf8').split('CREATE OR REPLACE FUNCTION public.resolve_species_identity_plural')[0]);
   await db.exec(sql());
   await db.exec(`INSERT INTO animals(name,scientific_name) VALUES ('Gypaète barbu','Gypaetus barbatus'),('Criquet des ajoncs','Chorthippus binotatus'),('Criquet verdelet','Omocestus viridulus'),('Labrador','Canis lupus familiaris'),('Berger allemand','Canis lupus familiaris'),('Oiseau alpha',NULL),('Oiseau alpho',NULL);
+   INSERT INTO taxa(id,vernacular_name,status) VALUES(gen_random_uuid(),'Oiseau alpho','validated');
    CREATE TRIGGER enforce_name BEFORE INSERT ON captures FOR EACH ROW EXECUTE FUNCTION enforce_canonical_animal_name();`);
  });
  afterAll(async()=>{await db.close()});
