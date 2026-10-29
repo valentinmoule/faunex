@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Fiches signalées : ouvrir la fiche, supprimer du Bestiaire avec confirmation, traiter ou ignorer le signalement ; vérifier les actions connectées.
+- [x] Fiches signalées : aperçu des données, suppression du Bestiaire confirmée, traiter/ignorer et erreurs ; ouverture et annulation vérifiées connecté, 8 tests passants, aucune fiche réelle supprimée.
 
 - [x] Suppression directe des fiches du Bestiaire par administrateur/modérateur : confirmation, contrôle serveur, photos personnelles préservées ; suppression d’une fiche temporaire vérifiée dans l’aperçu connecté.
 
