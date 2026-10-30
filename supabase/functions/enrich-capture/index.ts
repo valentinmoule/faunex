@@ -502,6 +502,11 @@ Deno.serve(async (req) => {
     if (needsBreedClarification(forceName, Boolean(notesPrompt), animal)) {
       return json({ error: 'Les observations ont été prises en compte, mais plusieurs races restent possibles. Précise la race ou force un nom uniquement si tu peux la confirmer ; cette capture n’est pas déclarée comme doublon.', code: 'breed_uncertain' })
     }
+    // Mode forcé : un conflit d'identité n'arrête pas le modérateur ; on garde ses noms tels quels.
+    if (matchErr && forceName && !isTransientDbError(matchErr.code, matchErr.message)) {
+      matchErr = null
+      matches = null
+    }
     if (matchErr) return json({ error: 'Les noms commun et scientifique ne désignent pas une même fiche vérifiable. Corrige les noms puis réessaie ; aucune modification enregistrée.', code: isTransientDbError(matchErr.code, matchErr.message) ? 'catalogue_lookup_failed' : 'species_identity_conflict' })
     const existing = Array.isArray(matches) ? matches[0] : matches
     // Races domestiques : même binôme latin pour des races différentes, on ne doit
