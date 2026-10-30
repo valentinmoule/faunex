@@ -431,7 +431,7 @@ Deno.serve(async (req) => {
         code: 'ai_no_result',
         model_used: quality,
         can_retry_high: quality !== 'high',
-      }, 422)
+      }, 200)
     }
 
     let animal = JSON.parse(toolCall.function.arguments)
@@ -560,7 +560,7 @@ Deno.serve(async (req) => {
       return json({
         error: `L'IA n'a pas identifié d'espèce précise (« ${finalName} »). Refuse la capture ou renseigne toi-même le nom de l'espèce.`,
         code: 'not_identified',
-      }, 422)
+      }, 200)
     }
 
     const update: Record<string, unknown> = {

@@ -254,7 +254,7 @@ const ModerationPage = () => {
               identifiedAs: enriched.identified_as ?? null,
             }
           : enriched?.code
-            ? { code: enriched.code, message: enriched.error || 'La prévisualisation ne peut pas être créée.' }
+            ? { code: enriched.code, message: enriched.error || 'La prévisualisation ne peut pas être créée.', canRetryHigh: enriched.can_retry_high }
             : { code: 'empty_response', message: "Aucune fiche reçue (même après une 2e tentative avec le modèle avancé). Réessaye, ou renseigne toi-même le nom de l'espèce." };
       if (failure.code === 'duplicate') {
         failure.message = duplicateMessage(

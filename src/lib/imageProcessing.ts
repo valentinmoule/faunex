@@ -19,6 +19,46 @@ const decode = async (dataUrl: string): Promise<ImageBitmap | HTMLImageElement> 
   });
 };
 
+/** Vrai si l'image dessinée est vide : quasi noire ou totalement transparente
+ *  (échantillon réduit à 24×24, seuil de luminosité très bas pour ne pas
+ *  refuser une vraie photo de nuit). */
+export const isBlankCanvas = (c: HTMLCanvasElement): boolean => {
+  try {
+    const s = document.createElement('canvas');
+    s.width = 24;
+    s.height = 24;
+    const ctx = s.getContext('2d', { willReadFrequently: true });
+    if (!ctx) return false;
+    ctx.drawImage(c, 0, 0, 24, 24);
+    const d = ctx.getImageData(0, 0, 24, 24).data;
+    let max = 0;
+    for (let i = 0; i < d.length; i += 4) {
+      if (d[i + 3] === 0) continue;
+      max = Math.max(max, d[i], d[i + 1], d[i + 2]);
+    }
+    return max < 6;
+  } catch {
+    return false;
+  }
+};
+
+const isBlankDataUrl = async (dataUrl: string): Promise<boolean> => {
+  try {
+    const img = await decode(dataUrl);
+    const c = document.createElement('canvas');
+    c.width = img.width;
+    c.height = img.height;
+    c.getContext('2d')?.drawImage(img as CanvasImageSource, 0, 0);
+    if ('close' in img) img.close();
+    const blank = c.width < 32 || c.height < 32 || isBlankCanvas(c);
+    c.width = 0;
+    c.height = 0;
+    return blank;
+  } catch {
+    return false;
+  }
+};
+
 /** Approximate byte size of a base64 dataURL. */
 export const dataUrlBytes = (dataUrl: string): number => {
   const base64 = dataUrl.split(',')[1] ?? '';
@@ -126,7 +166,17 @@ export const prepareSourceFile = async (file: File): Promise<string | null> => {
       const ctx = c.getContext('2d');
       if (!ctx) return null;
       ctx.drawImage(img as CanvasImageSource, 0, 0, c.width, c.height);
+      // iOS renvoie parfois un bitmap minuscule ou entièrement noir (photo
+      // iCloud pas encore téléchargée, mémoire canvas saturée) : on le refuse
+      // pour essayer le décodeur suivant plutôt que d'envoyer une photo noire.
+      if (c.width < 32 || c.height < 32 || isBlankCanvas(c)) {
+        c.width = 0;
+        c.height = 0;
+        return null;
+      }
       const out = c.toDataURL('image/jpeg', 0.82);
+      c.width = 0;
+      c.height = 0;
       return out && out.length > 'data:image/jpeg;base64,'.length + 100 ? out : null;
     } catch {
       return null;
@@ -146,12 +196,15 @@ export const prepareSourceFile = async (file: File): Promise<string | null> => {
    *  refuse createImageBitmap sur certains JPEG/HEIC mais sait afficher l'image).
    *  Certaines photos arrivent sans type MIME (iOS, gestionnaires de fichiers) :
    *  on re-type alors le blob, sinon les deux décodeurs la refusent. */
-  const decodeBlob = async (blob: Blob): Promise<ImageBitmap | HTMLImageElement | null> => {
+  const decodeBlob = async (
+    blob: Blob,
+    skipBitmap = false,
+  ): Promise<ImageBitmap | HTMLImageElement | null> => {
     const source =
       blob.type && blob.type.startsWith('image/')
         ? blob
         : new Blob([blob], { type: 'image/jpeg' });
-    if (typeof createImageBitmap === 'function') {
+    if (!skipBitmap && typeof createImageBitmap === 'function') {
       try {
         const bmp = await createImageBitmap(source);
         if (bmp.width > 0) return bmp;
@@ -220,6 +273,12 @@ export const prepareSourceFile = async (file: File): Promise<string | null> => {
       const out = toJpeg(direct);
       if (out) return out;
     }
+    // 1b) le bitmap natif a donné une image vide/noire : on retente via <img>.
+    const viaImg = await decodeBlob(file, true);
+    if (viaImg) {
+      const out = toJpeg(viaImg);
+      if (out) return out;
+    }
     // 2) HEIC/HEIF iPhone que le navigateur ne sait pas décoder.
     const isRaw = /\.(dng|tif|tiff|arw|cr2|cr3|nef|raf|rw2|orf)$/i.test(file.name);
     if (!isRaw) {
@@ -246,7 +305,7 @@ export const prepareSourceFile = async (file: File): Promise<string | null> => {
     try {
       const raw = await readFileAsDataUrl(file);
       const viaDataUrl = await resizeDataUrl(raw, 1600, 0.82);
-      if (viaDataUrl && viaDataUrl !== raw) return viaDataUrl;
+      if (viaDataUrl && viaDataUrl !== raw && !(await isBlankDataUrl(viaDataUrl))) return viaDataUrl;
       const head = new Uint8Array(await file.slice(0, 12).arrayBuffer());
       const isJpeg = head[0] === 0xff && head[1] === 0xd8;
       const isPng = head[0] === 0x89 && head[1] === 0x50 && head[2] === 0x4e;
