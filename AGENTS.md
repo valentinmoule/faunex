@@ -16,7 +16,7 @@ Scope portal lookups to the billing environment and validate Paddle IDs; grant a
 
 ## Partner landing pages share one presentation
 
-Use the shared partner page with audience-specific translated copy and imagery, keeping public partner routes gated out of native builds to avoid duplicated layouts and marketing screens in the native app.
+Use the shared partner page with audience-specific translated copy/imagery; gate public partner routes out of native builds.
 
 ## Full-screen overlays must escape animated page wrappers
 
