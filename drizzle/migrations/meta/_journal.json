@@ -624,6 +624,20 @@
       "when": 1793298087357,
       "tag": "0086_merge_catalogue_before_capture_canonicalization",
       "breakpoints": true
+    },
+    {
+      "idx": 87,
+      "version": "7",
+      "when": 1793349302888,
+      "tag": "0087_fast_species_rename_lookups",
+      "breakpoints": true
+    },
+    {
+      "idx": 88,
+      "version": "7",
+      "when": 1793349341684,
+      "tag": "0088_fast_species_rename_triggers",
+      "breakpoints": true
     }
   ]
 }
