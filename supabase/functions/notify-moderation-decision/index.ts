@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
     }
     const userId = capture.user_id
     const animalName = capture.animal_name
-    const ALLOWED_REASONS = ['not_identifiable', 'duplicate', 'dead_animal', 'internet_image', 'captured_animal', 'human', 'correction_declined']
+    const ALLOWED_REASONS = ['not_identifiable', 'duplicate', 'dead_animal', 'internet_image', 'captured_animal', 'human', 'development_stage', 'correction_declined']
     let reason = ALLOWED_REASONS.includes(body?.reason) ? body.reason : 'not_identifiable'
     if (correction && decision === 'rejected') reason = 'correction_declined'
     let duplicateName: string | null = null

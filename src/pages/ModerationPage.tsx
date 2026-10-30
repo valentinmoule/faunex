@@ -363,7 +363,7 @@ const ModerationPage = () => {
   };
 
 
-  type RejectReason = 'not_identifiable' | 'duplicate' | 'dead_animal' | 'internet_image' | 'captured_animal' | 'human';
+  type RejectReason = 'not_identifiable' | 'duplicate' | 'dead_animal' | 'internet_image' | 'captured_animal' | 'human' | 'development_stage';
 
   const REJECT_REASONS: { value: Exclude<RejectReason, 'duplicate'>; label: string }[] = [
     { value: 'not_identifiable', label: 'Espèce non identifiable' },
@@ -371,6 +371,7 @@ const ModerationPage = () => {
     { value: 'internet_image', label: 'Image provenant d’Internet' },
     { value: 'captured_animal', label: 'Animal capturé ou pêché par l’humain' },
     { value: 'human', label: 'Humain sur la photo' },
+    { value: 'development_stage', label: 'Stade de développement non accepté (œuf, larve, cocon, chrysalide…)' },
   ];
 
   const [rejectMenuFor, setRejectMenuFor] = useState<string | null>(null);
