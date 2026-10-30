@@ -3,6 +3,7 @@ import { logDatasetEvent } from '../_shared/dataset.ts'
 import { matchCatalogueSpecies, isTransientDbError } from '../_shared/species-matching.ts'
 import { MORPHOLOGY_RULE, moderationVisionModels } from '../_shared/visual-identification-policy.ts'
 import { scientificOnlyOverride } from '../_shared/forced-identification.ts'
+import { shouldRecheckModerationIdentity } from '../_shared/moderation-conflict.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -281,7 +282,7 @@ Deno.serve(async (req) => {
     // Repli sur Flash 3.6 (2,3× moins cher que l'ancien 3.5 à requête égale).
     const models = moderationVisionModels(quality, forceName)
 
-    const callGateway = async (model: string, timeoutMs: number) => {
+    const callGateway = async (model: string, timeoutMs: number, identityCorrection = '') => {
       const controller = new AbortController()
       const timer = setTimeout(() => controller.abort(), timeoutMs)
       try {
@@ -298,6 +299,7 @@ Deno.serve(async (req) => {
         messages: [
           { role: 'system', content: forceName ? FORCE_NAME_PROMPT + (scientificOnly ? '\nSi seul le nom scientifique est fourni, il définit l’espèce : renseigne son nom commun français, sans conserver un ancien nom.' : '') : SYSTEM_PROMPT + '\n' + MORPHOLOGY_RULE },
           { role: 'user', content },
+          ...(identityCorrection ? [{ role: 'user', content: identityCorrection }] : []),
         ],
         tools: [
           {
@@ -409,7 +411,7 @@ Deno.serve(async (req) => {
       }, 422)
     }
 
-    const animal = JSON.parse(toolCall.function.arguments)
+    let animal = JSON.parse(toolCall.function.arguments)
 
     // Nom commun lisible : jamais de mention entre parenthèses (famille, genre, sexe…).
     const stripParenthetical = (value: unknown) => {
@@ -442,6 +444,29 @@ Deno.serve(async (req) => {
       matches = res.data
       matchErr = res.error
       if (!matchErr) break
+      if (shouldRecheckModerationIdentity(forceName, matchErr, attempt > 0)) {
+        // Re-read the photo against both catalogue identities; neither the old
+        // common name nor the generated Latin name alone proves the species.
+        const byCommon = await matchCatalogueSpecies(supabase, animal.animal_name || animalName, null).catch(() => null)
+        const byScientific = await matchCatalogueSpecies(supabase, '', animal.scientific_name || null).catch(() => null)
+        const correction = `Ta réponse précédente est contradictoire : ${JSON.stringify({ animal_name: animal.animal_name, scientific_name: animal.scientific_name })}. Voici les correspondances du Bestiaire, qui sont des candidats et non des preuves visuelles : ${JSON.stringify({ byCommon, byScientific })}. Réexamine la PHOTO et les caractères diagnostiques, puis produis une fiche complète avec un couple nom français/nom scientifique cohérent. Ne mélange jamais les informations de deux espèces. Si tu ne peux pas trancher, réponds animal_name Inconnu. Ne conserve pas un nom proposé incompatible.`
+        const checked = await callGateway('google/gemini-3.8-flash', 28_000, correction).catch(() => null)
+        if (checked?.ok) {
+          const checkedBody = await checked.json()
+          const argumentsText = checkedBody.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments
+          if (typeof argumentsText === 'string') {
+            try {
+              const corrected = JSON.parse(argumentsText)
+              if (corrected && typeof corrected === 'object' && corrected.animal_name) {
+                animal = corrected
+                animal.animal_name = stripParenthetical(animal.animal_name)
+                continue
+              }
+            } catch { /* Keep the original conflict; never silently accept it. */ }
+          }
+        }
+        break
+      }
       console.error('match_animal failed', attempt, matchErr)
       if (!isTransientDbError(matchErr.code, matchErr.message)) break
       await new Promise((r) => setTimeout(r, 800 * (attempt + 1)))
