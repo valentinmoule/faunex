@@ -150,7 +150,7 @@ Deno.serve(async (req) => {
           payload.scientific_name = entry.scientific_name || payload.scientific_name
         }
       } catch {
-        return json({ error: 'La fiche existante ne peut pas être vérifiée. Corrige les noms si nécessaire puis réessaie ; aucune modification enregistrée.', code: 'catalogue_lookup_failed' }, 422)
+        return json({ error: 'La fiche existante ne peut pas être vérifiée. Corrige les noms si nécessaire puis réessaie ; aucune modification enregistrée.', code: 'catalogue_lookup_failed' })
       }
       const { error: applyErr } = await supabase.from('captures').update(payload).eq('id', captureId)
       if (applyErr) {
@@ -442,7 +442,7 @@ Deno.serve(async (req) => {
       await new Promise((r) => setTimeout(r, 800 * (attempt + 1)))
     }
 
-    if (matchErr) return json({ error: 'La fiche existante ne peut pas être vérifiée. Corrige les noms si nécessaire puis réessaie ; aucune modification enregistrée.', code: 'catalogue_lookup_failed' }, 422)
+    if (matchErr) return json({ error: 'Les noms commun et scientifique ne désignent pas une même fiche vérifiable. Corrige les noms puis réessaie ; aucune modification enregistrée.', code: isTransientDbError(matchErr.code, matchErr.message) ? 'catalogue_lookup_failed' : 'species_identity_conflict' })
     const existing = Array.isArray(matches) ? matches[0] : matches
     // Races domestiques : même binôme latin pour des races différentes, on ne doit
     // pas fusionner un Épagneul picard avec un Braque d'Auvergne.
