@@ -6,6 +6,7 @@
       "actionError": "Unable to process this report. Please try again.",
       "retry": "Retry",
       "view": "View entry",
+      "description": "View description",
       "delete": "Delete entry",
       "resolve": "Validate",
       "dismiss": "Dismiss",
