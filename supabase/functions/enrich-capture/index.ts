@@ -1,6 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { logDatasetEvent } from '../_shared/dataset.ts'
 import { matchCatalogueSpecies, isTransientDbError } from '../_shared/species-matching.ts'
+import { MORPHOLOGY_RULE, moderationVisionModels } from '../_shared/visual-identification-policy.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -15,7 +16,7 @@ On te donne TROIS sources d'information, toutes essentielles :
 3. La DESCRIPTION écrite par l'observateur : elle contient souvent des indices décisifs que la photo ne montre pas (taille réelle, couleurs, chant/cri, comportement, milieu, saison, région, nombre d'individus, race supposée, contexte de la rencontre).
 
 Méthode obligatoire :
-- Lis d'abord la description et le nom proposé, puis confronte-les à la photo. La description est une preuve de terrain : utilise-la activement pour trancher entre espèces ressemblantes (biche vs chevreuil, coccinelle asiatique vs autochtone, races de chiens/chats/vaches, etc.).
+- Observe d'abord la morphologie visible, sans te laisser influencer par le nom proposé. Confronte ensuite la description et le nom à ces caractères ; les observations sont des indices, pas une preuve d'identité.
 - Le nom proposé est une hypothèse, pas une preuve : exige des critères diagnostiques de l'espèce précise ; corrige l'orthographe sans inventer de variante de nom. Une espèce voisine ou de la même famille ne suffit pas à confirmer la proposition.
 - Si la description apporte une précision plus fine que le nom (ex. nom "oiseau" + description "petit oiseau jaune au chant flûté dans les roseaux"), affine le nom vers l'espèce la plus précise et cohérente.
 - Si le nom proposé est clairement incompatible avec la photo ET la description, retiens l'espèce que la photo et la description désignent conjointement (sans commenter ce choix dans la fiche).
@@ -265,7 +266,7 @@ Deno.serve(async (req) => {
     // retente avec un modèle de repli plutôt que de laisser le modérateur attendre.
     // La modération privilégie la précision : chaîne haute qualité par défaut.
     // Repli sur Flash 3.6 (2,3× moins cher que l'ancien 3.5 à requête égale).
-    const models = ['google/gemini-3.1-flash-lite', 'google/gemini-3.8-flash']
+    const models = moderationVisionModels(quality, forceName)
 
     const callGateway = async (model: string, timeoutMs: number) => {
       const controller = new AbortController()
@@ -282,7 +283,7 @@ Deno.serve(async (req) => {
         model,
         temperature: 0,
         messages: [
-          { role: 'system', content: forceName ? FORCE_NAME_PROMPT : SYSTEM_PROMPT },
+          { role: 'system', content: forceName ? FORCE_NAME_PROMPT : SYSTEM_PROMPT + '\n' + MORPHOLOGY_RULE },
           { role: 'user', content },
         ],
         tools: [
