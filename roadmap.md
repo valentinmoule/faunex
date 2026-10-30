@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Prévisualisation IA : réanalyser une seule fois les résultats dont les noms se contredisent, sans contourner les contrôles ni changer les captures.
+- [x] Prévisualisation IA : reprise unique des contradictions, contrôles conservés ; 19 tests passants et aperçu IA connecté vérifié sans approbation. Reprise sur contradiction réelle non observée pendant cet essai.
 
 - [x] Identification : erreur Lite reproduite sur la photo ; Flash reste incertain, alternative Luna mitigée sur trois autres photos, donc pas de remplacement global. Vérification obligatoire des prédictions de punaise de lit, morphologie prioritaire, mode avancé de modération respecté ; 21 tests passants, fonctions déployées. Économie globale et parcours connecté non mesurés.
 
