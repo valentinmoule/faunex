@@ -666,6 +666,13 @@
       "when": 1793356630725,
       "tag": "0092_dataset_link_never_blocks",
       "breakpoints": true
+    },
+    {
+      "idx": 93,
+      "version": "7",
+      "when": 1793357824656,
+      "tag": "0093_canonical_name_skip_unchanged_identity",
+      "breakpoints": true
     }
   ]
 }
