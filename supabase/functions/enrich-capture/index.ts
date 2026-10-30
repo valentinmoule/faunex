@@ -1,6 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { logDatasetEvent } from '../_shared/dataset.ts'
-import { matchCatalogueSpecies } from '../_shared/species-matching.ts'
+import { matchCatalogueSpecies, isTransientDbError } from '../_shared/species-matching.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -428,7 +428,7 @@ Deno.serve(async (req) => {
       matchErr = res.error
       if (!matchErr) break
       console.error('match_animal failed', attempt, matchErr)
-      if (matchErr.code !== '57014' && !String(matchErr.message ?? '').includes('timeout')) break
+      if (!isTransientDbError(matchErr.code, matchErr.message)) break
       await new Promise((r) => setTimeout(r, 700 * (attempt + 1)))
     }
 

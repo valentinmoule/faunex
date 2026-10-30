@@ -64,7 +64,7 @@ Await or chain every Supabase write with a handler: lazy builders send nothing o
 
 ## User-typed species names snap to existing tiles
 
-Use one server matcher; reject scientific conflicts, ambiguous typos and failed lookups, preserving subspecies/breeds to prevent duplicate tiles. Report edits stay pending until validation; deletion closes immediately, enabling successive corrections.
+One server matcher; reject scientific conflicts, ambiguous typos, failed lookups; preserve subspecies/breeds. Retry `match_animal` on timeouts and connection saturation (`isTransientDbError`) — saturation is not proof a species is new.
 
 ## Discoverer counts come from a trigger-maintained cache
 

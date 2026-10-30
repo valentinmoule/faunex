@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { identificationAccountPolicy } from "./accountPolicy.ts";
 import { imageBytes, imageDigest, issueAiProof } from '../_shared/economyProof.ts';
+import { isTransientDbError } from '../_shared/species-matching.ts';
 
 
 const corsHeaders = {
@@ -954,7 +955,7 @@ serve(async (req) => {
           matchErr = res.error;
           if (!matchErr) break;
           console.error("match_animal failed", attempt, matchErr);
-          if (matchErr.code !== "57014" && !String(matchErr.message ?? "").includes("timeout")) break;
+          if (!isTransientDbError(matchErr.code, matchErr.message)) break;
           await new Promise((r) => setTimeout(r, 700 * (attempt + 1)));
         }
         if (matchErr) throw new Error(`Catalogue lookup failed: ${matchErr.code}`);
@@ -1026,9 +1027,19 @@ serve(async (req) => {
         // GBIF may correct the scientific name: check the catalogue again before
         // treating the corrected identity as a new species.
         if (admin) {
-          const { data: rematches, error: rematchError } = await admin.rpc("match_animal", {
-            p_name: animalData.animal_name, p_scientific: animalData.scientific_name || null,
-          });
+          let rematches: any = null;
+          let rematchError: any = null;
+          for (let attempt = 0; attempt < 3; attempt++) {
+            const res = await admin.rpc("match_animal", {
+              p_name: animalData.animal_name, p_scientific: animalData.scientific_name || null,
+            });
+            rematches = res.data;
+            rematchError = res.error;
+            if (!rematchError) break;
+            console.error("match_animal rematch failed", attempt, rematchError);
+            if (!isTransientDbError(rematchError.code, rematchError.message)) break;
+            await new Promise((r) => setTimeout(r, 700 * (attempt + 1)));
+          }
           if (rematchError) {
             await refundQuota();
             return await finish({ success: false, reason: "unverified_species" }, "catalogue_lookup_failed");
