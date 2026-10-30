@@ -218,7 +218,7 @@ const NotificationsPage = () => {
                 : isCaptureRejected
                 ? (() => {
                     const ct = notif.comment_text ?? '';
-                    const prefixed = ct.match(/^(duplicate|dead_animal|internet_image|captured_animal|human|correction_declined):(.*)$/);
+                    const prefixed = ct.match(/^(duplicate|dead_animal|internet_image|captured_animal|human|development_stage|correction_declined):(.*)$/);
                     if (prefixed) {
                       const [, motif, name] = prefixed;
                       return t(`social.notifications.messageCaptureRejected_${motif}`, { name });
