@@ -7,7 +7,7 @@ import type { AnimalCard } from '@/data/mockData';
 vi.mock('@/integrations/supabase/client', () => ({ supabase: {
   from: () => ({ select: () => ({ eq: () => ({ eq: async () => ({ count: 0 }) }) }) }),
 } }));
-vi.mock('@/lib/bestiaryCache', () => ({ readCatalogueCache: () => null, writeCatalogueCache: vi.fn() }));
+vi.mock('@/lib/bestiaryCache', () => ({ readCatalogueCache: () => null, writeCatalogueCache: vi.fn(), subscribeCatalogueDeletion: () => () => {} }));
 vi.mock('@/lib/shelveAnimation', () => ({ peekPendingShelve: () => null }));
 
 const card = { id: 'capture-1', image: 'original.jpg', name: 'Chat domestique' } as AnimalCard;
