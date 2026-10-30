@@ -20,7 +20,7 @@ Use the shared partner page with audience-specific translated copy and imagery, 
 
 ## Full-screen overlays must escape animated page wrappers
 
-Portal fixed overlays (reward sheets, modals, lightboxes) into the open `[role="dialog"]`, otherwise `document.body`, because transformed page wrappers misplace fixed descendants.
+Portal fixed overlays into the open `[role="dialog"]`, else `document.body`; transformed wrappers misplace fixed descendants.
 
 ## iOS headers and card surfaces stay within their viewport
 
@@ -32,7 +32,7 @@ Validate claims from trusted rules (synced with badge/group/city definitions and
 
 ## Blurred photo backdrops need a large scale
 
-Scale full-bleed `filter: blur()` photo backdrops well past the blur radius (`scale(1.9)` for 42px, `scale(2.25)` for 50px) over an opaque layer, because blur fades alpha inward.
+Scale blurred photo backdrops past the blur radius (1.9 for 42px, 2.25 for 50px) over an opaque layer; blur fades alpha inward.
 
 ## Shelving stays on the Bestiary and targets the displayed tile
 
@@ -40,7 +40,7 @@ Keep the capture view until the Bestiary is ready, then glide into its tile with
 
 ## Leaderboard movement compares with the same board 24 hours earlier
 
-Compute rank movement server-side from captures before `now() - 24 hours`, keeping scope, period and category.
+Compute rank movement server-side from captures before `now() - 24h`, same scope/period/category.
 
 ## A capture fills exactly one Bestiary tile
 
@@ -124,4 +124,4 @@ Use WinnerHoloEffect in detail/fullscreen, mapping package variables to Holograp
 
 ## Moderator-forced identities bypass catalogue identity checks
 
-Forced moderation names are written verbatim through the service-only `moderation_force_apply_capture` RPC, and catalogue identity triggers tolerate conflicts only for that write or for admin/moderator sessions, because automatic paths must stay strict while moderators keep the final say.
+Write forced names verbatim via service-only `moderation_force_apply_capture`; identity triggers tolerate conflicts only there or for admin/moderator sessions, so automatic paths stay strict.
