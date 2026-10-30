@@ -955,7 +955,7 @@ serve(async (req) => {
           matchErr = res.error;
           if (!matchErr) break;
           console.error("match_animal failed", attempt, matchErr);
-          if (matchErr.code !== "57014" && !String(matchErr.message ?? "").includes("timeout")) break;
+          if (!isTransientDbError(matchErr.code, matchErr.message)) break;
           await new Promise((r) => setTimeout(r, 700 * (attempt + 1)));
         }
         if (matchErr) throw new Error(`Catalogue lookup failed: ${matchErr.code}`);
