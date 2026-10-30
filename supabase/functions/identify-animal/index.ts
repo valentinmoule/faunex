@@ -528,7 +528,8 @@ serve(async (req) => {
     // Seconde passe : dernier Flash, réservé aux identifications douteuses.
     const DEEP_MODEL = "google/gemini-3.8-flash";
     // Tous les comptes : Flash Lite en première passe (coût maîtrisé).
-    const FAST_MODEL = "google/gemini-3.1-flash-lite";
+    // Comptes boostés (accountPolicy) : meilleur Flash dès la première passe.
+    const FAST_MODEL = boostedAccount ? DEEP_MODEL : "google/gemini-3.1-flash-lite";
     /** Fiches d'espèces : texte seul, toujours sur le modèle le moins cher. */
     const TEXT_MODEL = "google/gemini-3.1-flash-lite";
     const FALLBACK_VISION_MODEL = "google/gemini-3.1-flash-lite";
@@ -821,7 +822,7 @@ serve(async (req) => {
       confidence < 55 ||
       (CONFUSABLE.test(label) && confidence < 70);
 
-    if (needsDeep && budgetLeft() > 25_000) {
+    if (needsDeep && !boostedAccount && budgetLeft() > 25_000) {
       // Quand la passe rapide n'a aucun résultat, une seule reprise est permise
       // après un retour explicitement temporaire du service. Une réponse rapide
       // déjà exploitable ne déclenche jamais de seconde tentative profonde.
