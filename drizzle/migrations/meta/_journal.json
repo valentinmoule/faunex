@@ -645,6 +645,13 @@
       "when": 1793355087339,
       "tag": "0089_block_generic_domestic_chicken_tiles",
       "breakpoints": true
+    },
+    {
+      "idx": 90,
+      "version": "7",
+      "when": 1793355474849,
+      "tag": "0090_allow_moderator_forced_generic_chicken",
+      "breakpoints": true
     }
   ]
 }
