@@ -273,8 +273,8 @@ const PremiumPage = () => {
               <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground"><Users className="size-4" aria-hidden />{t('profile.premium.badge')}</div>
               <h3 className="mt-3 font-display text-2xl font-bold text-primary">{t('profile.premium.presentation.family')}</h3>
               <p className="mt-3 flex flex-wrap items-baseline gap-1.5">
-                {plan === 'yearly' && <del className="mr-1 text-lg font-semibold tabular-nums text-muted-foreground">{new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(4 * 12)}</del>}
-                <span className="font-display text-3xl font-bold">{plan === 'yearly' ? '40 €' : '4 €'}</span><span className="text-sm text-muted-foreground">{selected.period}</span>
+                {plan === 'yearly' && <del className="mr-1 text-lg font-semibold tabular-nums text-muted-foreground">{new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(6 * 12)}</del>}
+                <span className="font-display text-3xl font-bold">{plan === 'yearly' ? '60 €' : '6 €'}</span><span className="text-sm text-muted-foreground">{selected.period}</span>
               </p>
               <p className="mt-2 min-h-10 text-xs leading-relaxed text-muted-foreground">{t(`profile.premium.presentation.family${plan === 'yearly' ? 'Yearly' : 'Monthly'}Note`)}</p>
               <ul className="my-5 space-y-3 border-t border-primary/15 pt-5 text-sm leading-relaxed">
