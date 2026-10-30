@@ -1,4 +1,5 @@
 # Roadmap
+- [x] Appliquer le nom forcé avant les contrôles de race et distinguer le refus d’un nom générique de l’incertitude visuelle : 13 tests passants, fonction déployée et aperçu « Poule Marans » ouvert sur la capture concernée sans approbation.
 - [x] Retirer « Poule et coq domestiques » et ses deux variantes : 3 fiches supprimées, 4 photos conservées en modération humaine ; identification et garde serveur exigent une race précise pour les nouvelles validations, 21 tests passants, fonctions déployées.
 
 - [x] Modération : observations complémentaires FR/EN, transmises à l’IA sans remplacer les descriptions partagées ; 11 tests passants, saisie et transmission sur le coq vérifiées, réponse doublon conservée sans approbation.

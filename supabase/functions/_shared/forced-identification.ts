@@ -1,4 +1,16 @@
 /** Only explicitly entered common names may override a scientific-only correction. */
+export function applyForcedIdentity<T extends { animal_name?: string; scientific_name?: string }>(
+  animal: T,
+  override: { forceName: boolean; commonName?: string | null; scientificName?: string | null },
+): T {
+  if (!override.forceName) return animal;
+  return {
+    ...animal,
+    ...(override.commonName ? { animal_name: override.commonName } : {}),
+    ...(override.scientificName ? { scientific_name: override.scientificName } : {}),
+  };
+}
+
 export function scientificOnlyOverride(body: {
   force_name?: unknown;
   scientific_name?: unknown;
