@@ -758,7 +758,7 @@ const ModerationPage = () => {
                             className="w-full px-3 py-2 rounded-lg border border-border bg-background text-xs italic text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
                           />
                           <label htmlFor={`moderator-notes-${capture.id}`} className="block text-xs font-medium text-foreground">
-                            {t('social:moderationObservations', { defaultValue: 'Observations complémentaires' })}
+                            {t('social.moderationObservations')}
                           </label>
                           <Textarea
                             id={`moderator-notes-${capture.id}`}
