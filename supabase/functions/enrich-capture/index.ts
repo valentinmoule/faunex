@@ -1,7 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { logDatasetEvent } from '../_shared/dataset.ts'
 import { matchCatalogueSpecies, isTransientDbError } from '../_shared/species-matching.ts'
-import { MORPHOLOGY_RULE, moderationVisionModels } from '../_shared/visual-identification-policy.ts'
+import { MORPHOLOGY_RULE, moderationVisionModels, isGenericDomesticChicken } from '../_shared/visual-identification-policy.ts'
 import { scientificOnlyOverride } from '../_shared/forced-identification.ts'
 import { shouldRecheckModerationIdentity } from '../_shared/moderation-conflict.ts'
 import { moderatorNotesPrompt, needsBreedClarification } from './moderator-notes.ts'
@@ -438,7 +438,7 @@ Deno.serve(async (req) => {
       return cleaned || s.trim()
     }
     if (animal?.animal_name) animal.animal_name = stripParenthetical(animal.animal_name)
-    if (needsBreedClarification(forceName, Boolean(notesPrompt), animal)) {
+    if (isGenericDomesticChicken(animal.animal_name) || needsBreedClarification(forceName, Boolean(notesPrompt), animal)) {
       return json({ error: 'Les observations ont été prises en compte, mais plusieurs races restent possibles. Précise la race ou force un nom uniquement si tu peux la confirmer ; cette capture n’est pas déclarée comme doublon.', code: 'breed_uncertain' })
     }
 
@@ -493,7 +493,7 @@ Deno.serve(async (req) => {
       await new Promise((r) => setTimeout(r, 800 * (attempt + 1)))
     }
 
-    if (needsBreedClarification(forceName, Boolean(notesPrompt), animal)) {
+    if (isGenericDomesticChicken(animal.animal_name) || needsBreedClarification(forceName, Boolean(notesPrompt), animal)) {
       return json({ error: 'Les observations ont été prises en compte, mais plusieurs races restent possibles. Précise la race ou force un nom uniquement si tu peux la confirmer ; cette capture n’est pas déclarée comme doublon.', code: 'breed_uncertain' })
     }
     if (matchErr) return json({ error: 'Les noms commun et scientifique ne désignent pas une même fiche vérifiable. Corrige les noms puis réessaie ; aucune modification enregistrée.', code: isTransientDbError(matchErr.code, matchErr.message) ? 'catalogue_lookup_failed' : 'species_identity_conflict' })

@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Retirer les fiches génériques de poule/coq domestiques, conserver leurs photos en modération et empêcher leur recréation sans race fiable.
 
 - [x] Modération : observations complémentaires FR/EN, transmises à l’IA sans remplacer les descriptions partagées ; 11 tests passants, saisie et transmission sur le coq vérifiées, réponse doublon conservée sans approbation.
 
