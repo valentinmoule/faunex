@@ -121,3 +121,7 @@ Contest RPCs enforce Paris weeks and one entry/vote. Winner-row triggers use a s
 ## Winner overlay shares the existing card interaction
 
 Use WinnerHoloEffect in detail/fullscreen, mapping package variables to HolographicCard springs without new gestures; one render path avoids mixed foil styles and preserves zoom.
+
+## Moderator-forced identities bypass catalogue identity checks
+
+Forced moderation names are written verbatim through the service-only `moderation_force_apply_capture` RPC, and catalogue identity triggers tolerate conflicts only for that write or for admin/moderator sessions, because automatic paths must stay strict while moderators keep the final say.
