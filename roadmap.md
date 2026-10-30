@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Identification : erreur Lite reproduite sur la photo ; Flash reste incertain, alternative Luna mitigée sur trois autres photos, donc pas de remplacement global. Vérification obligatoire des prédictions de punaise de lit, morphologie prioritaire, mode avancé de modération respecté ; 21 tests passants, fonctions déployées. Économie globale et parcours connecté non mesurés.
+
 - [x] Délai excessif des renommages corrigé : résolution exacte rapide ; Conocéphale des roseaux et ses 9 captures synchronisés, signalement toujours ouvert pour validation.
 
 - [x] Fiches signalées : corrections successives et fusion sans clôture automatique, bouton Valider séparé ; suppression confirmée immédiate. 11 tests et deux corrections puis validation vérifiées connecté sur une fiche temporaire, nettoyée ensuite.

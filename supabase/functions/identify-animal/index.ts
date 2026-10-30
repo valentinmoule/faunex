@@ -3,6 +3,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { identificationAccountPolicy } from "./accountPolicy.ts";
 import { imageBytes, imageDigest, issueAiProof } from '../_shared/economyProof.ts';
 import { isTransientDbError } from '../_shared/species-matching.ts';
+import { MORPHOLOGY_RULE, needsIndependentVisualCheck } from '../_shared/visual-identification-policy.ts';
 
 
 const corsHeaders = {
@@ -251,7 +252,7 @@ CRITÈRES DIAGNOSTIQUES (cas ambigus) :
 /** Prompt unique et stable : un seul préfixe système maximise la mise en cache
  *  des jetons d'entrée et donne les critères diagnostiques dès la passe rapide,
  *  ce qui évite des secondes passes (le vrai poste de coût). */
-const ID_PROMPT = FAST_PROMPT + DEEP_ANNEX;
+const ID_PROMPT = FAST_PROMPT + DEEP_ANNEX + '\n' + MORPHOLOGY_RULE;
 
 
 
@@ -815,8 +816,11 @@ serve(async (req) => {
     const CONFUSABLE = /(chevreuil|biche|cerf|daim|faon|coccinelle|mesange|mésange|pouillot|pigeon|sanglier|canard|fauvette|bergeronnette|grenouille|crapaud|araignee|araignée|guepe|guêpe|syrphe|goeland|goéland|mouette|hirondelle|martinet|bourdon|abeille|corneille|corbeau|choucas|lezard|lézard|pipistrelle)/i;
     const label = String(animalData?.animal_name || "");
     const confidence = typeof animalData?.confidence === "number" ? animalData.confidence : -1;
+    const mandatoryVisualCheck = needsIndependentVisualCheck(animalData);
+    let visualCheckCompleted = false;
     const needsDeep =
       !animalData ||
+      mandatoryVisualCheck ||
       confidence < 55 ||
       (CONFUSABLE.test(label) && confidence < 70);
 
@@ -835,12 +839,18 @@ serve(async (req) => {
       if (deep?.ok) {
         const deepData = await parseAnimal(deep, DEEP_MODEL);
         if (deepData) {
+          visualCheckCompleted = true;
           animalData = deepData;
           response = deep;
         }
       } else if (deep) {
         response = response?.ok ? response : deep;
       }
+    }
+
+    // A failed mandatory check must not silently restore a confident guess.
+    if (mandatoryVisualCheck && !visualCheckCompleted && animalData) {
+      animalData = { ...animalData, animal_name: 'Inconnu', scientific_name: '', confidence: 0 };
     }
 
 
