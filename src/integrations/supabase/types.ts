@@ -3756,6 +3756,10 @@ export type Database = {
         Returns: string
       }
       in_my_family: { Args: { p_family: string }; Returns: boolean }
+      is_generic_domestic_chicken: {
+        Args: { p_name: string }
+        Returns: boolean
+      }
       is_premium: { Args: { p_user_id: string }; Returns: boolean }
       is_profile_private: { Args: { _user_id: string }; Returns: boolean }
       is_shared_domestic_binomial: {

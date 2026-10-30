@@ -3,7 +3,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { identificationAccountPolicy } from "./accountPolicy.ts";
 import { imageBytes, imageDigest, issueAiProof } from '../_shared/economyProof.ts';
 import { isTransientDbError } from '../_shared/species-matching.ts';
-import { MORPHOLOGY_RULE } from '../_shared/visual-identification-policy.ts';
+import { MORPHOLOGY_RULE, isGenericDomesticChicken } from '../_shared/visual-identification-policy.ts';
 
 
 const corsHeaders = {
@@ -984,6 +984,11 @@ serve(async (req) => {
         await refundQuota();
         return await finish({ success: false, reason: "unverified_species", hint: "La fiche existante n'a pas pu être vérifiée. Réessaie ou propose l'animal pour vérification." }, "catalogue_lookup_failed");
       }
+    }
+
+    if (isGenericDomesticChicken(animalData?.animal_name)) {
+      await refundQuota();
+      return await finish({ success: false, reason: "unverified_species", hint: "La race de cette poule ou de ce coq ne peut pas être confirmée. Propose la photo en modération pour vérification." }, "unverified_species");
     }
 
     /**

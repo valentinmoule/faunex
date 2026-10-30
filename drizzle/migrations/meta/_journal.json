@@ -638,6 +638,13 @@
       "when": 1793349341684,
       "tag": "0088_fast_species_rename_triggers",
       "breakpoints": true
+    },
+    {
+      "idx": 89,
+      "version": "7",
+      "when": 1793355087339,
+      "tag": "0089_block_generic_domestic_chicken_tiles",
+      "breakpoints": true
     }
   ]
 }
