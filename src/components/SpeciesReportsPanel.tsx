@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Loader2, Trash2, X, Pencil, Merge, Check } from 'lucide-react';
+import { Loader2, Trash2, X, Pencil, Merge, Check, BookOpen } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCatalogueModeration, deleteBestiarySpecies } from '@/hooks/useCatalogueModeration';
@@ -148,6 +148,7 @@ export default function SpeciesReportsPanel() {
           </div>
           {list.filter(report => report.reason).map(report => <p key={report.id} className="break-words text-sm text-muted-foreground">« {report.reason} »</p>)}
           <div className="flex flex-col items-stretch gap-2">
+            <Button size="sm" variant="outline" className="justify-start" disabled={!!busy} onClick={() => void openEntry(list)}><BookOpen className="mr-2 h-4 w-4 shrink-0" />{t('species.reportsAdmin.description')}</Button>
             {canDeleteSpecies && <>
               <Button size="sm" variant="outline" className="justify-start" disabled={!!busy} onClick={() => void editEntry(list, 'vernacular')}><Pencil className="mr-2 h-4 w-4 shrink-0" />{t('species.reportsAdmin.vernacular')}</Button>
               <Button size="sm" variant="outline" className="justify-start" disabled={!!busy} onClick={() => void editEntry(list, 'scientific')}><Pencil className="mr-2 h-4 w-4 shrink-0" />{t('species.reportsAdmin.scientific')}</Button>

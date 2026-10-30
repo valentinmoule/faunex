@@ -6,6 +6,7 @@
       "actionError": "Impossible de traiter ce signalement. Réessaie.",
       "retry": "Réessayer",
       "view": "Voir la fiche",
+      "description": "Voir la description",
       "delete": "Supprimer la fiche",
       "resolve": "Valider",
       "dismiss": "Ignorer",
