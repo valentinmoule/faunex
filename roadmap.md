@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Modération : observations complémentaires FR/EN, transmises à l’IA sans remplacer les descriptions partagées ; 11 tests passants, saisie et transmission sur le coq vérifiées, réponse doublon conservée sans approbation.
+
 - [x] Prévisualisation IA : reprise unique des contradictions, contrôles conservés ; 19 tests passants et aperçu IA connecté vérifié sans approbation. Reprise sur contradiction réelle non observée pendant cet essai.
 
 - [x] Identification : erreur Lite reproduite sur la photo ; Flash reste incertain, alternative Luna mitigée sur trois autres photos, donc pas de remplacement global. Vérification obligatoire des prédictions de punaise de lit, morphologie prioritaire, mode avancé de modération respecté ; 21 tests passants, fonctions déployées. Économie globale et parcours connecté non mesurés.

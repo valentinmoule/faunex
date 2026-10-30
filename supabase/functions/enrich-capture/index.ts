@@ -4,6 +4,7 @@ import { matchCatalogueSpecies, isTransientDbError } from '../_shared/species-ma
 import { MORPHOLOGY_RULE, moderationVisionModels } from '../_shared/visual-identification-policy.ts'
 import { scientificOnlyOverride } from '../_shared/forced-identification.ts'
 import { shouldRecheckModerationIdentity } from '../_shared/moderation-conflict.ts'
+import { moderatorNotesPrompt } from './moderator-notes.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -113,6 +114,12 @@ Deno.serve(async (req) => {
     if (!isAdmin) return json({ error: 'Forbidden' }, 403)
 
     const body = await req.json().catch(() => ({}))
+    let notesPrompt = ''
+    try {
+      notesPrompt = moderatorNotesPrompt(body?.moderator_notes)
+    } catch {
+      return json({ error: 'Les observations doivent être un texte de 1500 caractères maximum.', code: 'invalid_notes' }, 400)
+    }
     const captureId: string | undefined = body?.capture_id
     const overrideName: string | undefined = body?.animal_name
     // Nom scientifique saisi par le modérateur (indice fort ou autorité en mode forcé).
@@ -269,7 +276,7 @@ Deno.serve(async (req) => {
           "Croise la photo, le nom proposé et la description avant de conclure, puis produis la fiche complète de cet animal et la boîte englobante du sujet sur la photo.",
         ].filter(Boolean).join('\n')
 
-    const content: unknown[] = [{ type: 'text', text: userText }]
+    const content: unknown[] = [{ type: 'text', text: [userText, notesPrompt].filter(Boolean).join('\n') }]
     // En mode forcé on n'envoie pas la photo : pas de reconnaissance d'image, coût réduit.
     if (!forceName && capture.image_url) {
       content.push({ type: 'image_url', image_url: { url: capture.image_url } })
