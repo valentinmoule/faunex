@@ -94,6 +94,10 @@ Suffix channels randomly; coalesce Premium/badge reads by user/event, revalidate
 
 Resolve internal overrides from server-authenticated accounts, never request fields; preserve ordinary routing/quotas.
 
+<!-- LOVABLE:BEGIN -->
+Verify bedbug predictions independently of confidence; failed verification returns uncertainty. Honor advanced moderation vision, keeping forced documentary names economical, because confident visual errors bypass review.
+<!-- LOVABLE:END -->
+
 ## Custom collections are species lists, not capture lists
 
 Custom collections store species names, not capture IDs. Refresh mounted hooks after writes to keep sheets/Bestiary synced; hide capture-only favorites for uncaptured species.
