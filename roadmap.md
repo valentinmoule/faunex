@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Identification : comparer les options économiques sur la photo fournie et empêcher les identifications de punaise de lit non corroborées.
+
 - [x] Délai excessif des renommages corrigé : résolution exacte rapide ; Conocéphale des roseaux et ses 9 captures synchronisés, signalement toujours ouvert pour validation.
 
 - [x] Fiches signalées : corrections successives et fusion sans clôture automatique, bouton Valider séparé ; suppression confirmée immédiate. 11 tests et deux corrections puis validation vérifiées connecté sur une fiche temporaire, nettoyée ensuite.
