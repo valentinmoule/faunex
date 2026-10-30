@@ -531,6 +531,7 @@ serve(async (req) => {
     const FAST_MODEL = DEEP_MODEL;
     /** Fiches d'espèces : texte seul, toujours sur le modèle le moins cher. */
     const TEXT_MODEL = "google/gemini-3.1-flash-lite";
+    const FALLBACK_VISION_MODEL = "google/gemini-3.1-flash-lite";
 
     // Budget global de la phase IA : sans lui, les appels et reprises
     // enchaînés dépassent la limite d'exécution de la plateforme, qui coupe
@@ -547,10 +548,11 @@ serve(async (req) => {
       prompt: string,
       effort: "low" | "high" = "low",
       image: string = fastImageUrl,
+      timeoutMs: number = 45_000,
     ) => {
       return await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
 
-      signal: AbortSignal.timeout(Math.max(10_000, Math.min(45_000, budgetLeft()))),
+      signal: AbortSignal.timeout(Math.max(10_000, Math.min(timeoutMs, budgetLeft()))),
       method: "POST",
       headers: {
         Authorization: `Bearer ${LOVABLE_API_KEY}`,
@@ -676,7 +678,10 @@ serve(async (req) => {
         const startedAt = Date.now();
         const attemptModel = i === 0 ? model : (fallbackModel ?? model);
         try {
-          const r = await callGateway(attemptModel, prompt, effort, image);
+          // Premier essai plafonné à 28 s quand une reprise est possible : un
+          // appel bloqué ne doit pas consommer tout le budget de la requête.
+          const cap = i < attempts - 1 ? 28_000 : 45_000;
+          const r = await callGateway(attemptModel, prompt, effort, image, cap);
           const retryable = r.status === 429 || r.status >= 500;
           if (retryable && i < attempts - 1 && budgetLeft() > 20_000) {
             const retryAfter = Number(r.headers.get("Retry-After"));
@@ -695,6 +700,9 @@ serve(async (req) => {
             `${Date.now() - startedAt}ms`,
             netErr,
           );
+          // Délai dépassé ou coupure : reprise immédiate (modèle de repli plus
+          // rapide si fourni) tant qu'il reste du budget utile.
+          if (i < attempts - 1 && budgetLeft() > 15_000) continue;
           return null;
         }
       }
@@ -792,10 +800,11 @@ serve(async (req) => {
       "low",
       imageUrl,
       // Repli sur le modèle plus robuste dès la seconde tentative.
-      FAST_MODEL === DEEP_MODEL ? undefined : DEEP_MODEL,
+      // Repli rapide (Flash Lite, vision) si Flash ne répond pas à temps.
+      FALLBACK_VISION_MODEL,
     );
 
-    let animalData = response?.ok ? await parseAnimal(response, FAST_MODEL) : null;
+    let animalData = response?.ok ? await parseAnimal(response, response.headers.get("x-faunex-model") ?? FAST_MODEL) : null;
 
 
     // 2) Second passage sur Flash (bon marché, jamais de Pro) avec l'annexe
