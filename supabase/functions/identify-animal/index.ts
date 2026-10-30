@@ -663,6 +663,7 @@ serve(async (req) => {
      * les retours explicitement temporaires (429/5xx) sont retentés, avec une
      * courte attente bornée avant le modèle de repli éventuel.
      */
+    let lastAttemptModel: string | null = null;
     const tryModel = async (
       model: string,
       attempts: number,
@@ -682,6 +683,7 @@ serve(async (req) => {
           // appel bloqué ne doit pas consommer tout le budget de la requête.
           const cap = i < attempts - 1 ? 28_000 : 45_000;
           const r = await callGateway(attemptModel, prompt, effort, image, cap);
+          lastAttemptModel = attemptModel;
           const retryable = r.status === 429 || r.status >= 500;
           if (retryable && i < attempts - 1 && budgetLeft() > 20_000) {
             const retryAfter = Number(r.headers.get("Retry-After"));
@@ -804,7 +806,7 @@ serve(async (req) => {
       FALLBACK_VISION_MODEL,
     );
 
-    let animalData = response?.ok ? await parseAnimal(response, response.headers.get("x-faunex-model") ?? FAST_MODEL) : null;
+    let animalData = response?.ok ? await parseAnimal(response, lastAttemptModel ?? FAST_MODEL) : null;
 
 
     // 2) Second passage sur Flash (bon marché, jamais de Pro) avec l'annexe
