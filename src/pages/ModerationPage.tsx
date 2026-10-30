@@ -178,7 +178,7 @@ const ModerationPage = () => {
     isRetry = false,
   ) => {
     const candidateName = nameOverride?.trim() || capture.correction_name || capture.animal_name;
-    if (isPlaceholderName(candidateName)) {
+    if (isPlaceholderName(candidateName) && !(forceName && scientificOverride?.trim() && !nameOverride?.trim())) {
       toast.error('Ce nom est trop incertain pour créer une espèce.');
       return;
     }
@@ -208,6 +208,7 @@ const ModerationPage = () => {
             scientific_name: (scientificOverride?.trim() || capture.correction_scientific_name || undefined),
             quality: q,
             force_name: forceName,
+            common_name_supplied: Boolean(nameOverride?.trim() || (!scientificOverride?.trim() && capture.correction_name)),
           },
         }),
         75_000,

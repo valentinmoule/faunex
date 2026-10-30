@@ -2,6 +2,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2'
 import { logDatasetEvent } from '../_shared/dataset.ts'
 import { matchCatalogueSpecies, isTransientDbError } from '../_shared/species-matching.ts'
 import { MORPHOLOGY_RULE, moderationVisionModels } from '../_shared/visual-identification-policy.ts'
+import { scientificOnlyOverride } from '../_shared/forced-identification.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -126,6 +127,7 @@ Deno.serve(async (req) => {
     // force_name=true : le nom de l'observateur fait autorité. L'IA ne fait aucune
     // reconnaissance d'image, elle rédige seulement la fiche documentaire.
     const forceName: boolean = body?.force_name === true
+    const scientificOnly = scientificOnlyOverride(body)
     const providedAnimal = body?.animal && typeof body.animal === 'object' ? body.animal : null
     if (!captureId) return json({ error: 'capture_id is required' }, 400)
 
@@ -200,7 +202,11 @@ Deno.serve(async (req) => {
     if (capErr || !capture) return json({ error: 'Capture introuvable' }, 404)
     if (capture.correction_note) capture.description = capture.correction_note;
 
-    const animalName = (overrideName || capture.animal_name || '').toString().trim()
+    const scientificEntry = scientificOnly
+      ? await matchCatalogueSpecies(supabase, '', overrideScientific)
+      : null
+    const scientificCanonical = scientificEntry as { name?: string } | null
+    const animalName = (scientificOnly ? scientificCanonical?.name || overrideScientific : overrideName || capture.animal_name || '').toString().trim()
     if (!animalName) return json({ error: 'Nom d\'animal manquant' }, 400)
     const uncertainName =
       /inconnu|unknown/i.test(animalName) ||
@@ -213,7 +219,7 @@ Deno.serve(async (req) => {
 
     // Doublon : l'utilisateur possède déjà cette espèce (une capture par espèce).
     if (!skipDuplicateCheck) {
-      const dup = await findUserDuplicate(supabase, capture.user_id, captureId, animalName, overrideScientific)
+      const dup = await findUserDuplicate(supabase, capture.user_id, captureId, scientificOnly ? scientificCanonical?.name || '' : animalName, overrideScientific)
       if (dup) {
         // 200 volontaire : le doublon est un cas métier attendu, pas une panne.
         return json({
@@ -233,7 +239,9 @@ Deno.serve(async (req) => {
 
     const userText = forceName
       ? [
-          `Nom d'animal validé par le modérateur (autorité absolue, à conserver tel quel) : "${animalName}".`,
+          scientificOnly
+            ? `Seul le nom scientifique est imposé. Déduis son nom commun français exact dans animal_name ; aucun ancien nom commun n'est à conserver.${scientificCanonical?.name ? ` Nom canonique du Bestiaire à utiliser : "${scientificCanonical.name}".` : ''}`
+            : `Nom d'animal validé par le modérateur (autorité absolue, à conserver tel quel) : "${animalName}".`,
           overrideScientific
             ? `Nom scientifique imposé par le modérateur (autorité absolue, à conserver tel quel) : "${overrideScientific}".`
             : null,
@@ -283,7 +291,7 @@ Deno.serve(async (req) => {
         model,
         temperature: 0,
         messages: [
-          { role: 'system', content: forceName ? FORCE_NAME_PROMPT : SYSTEM_PROMPT + '\n' + MORPHOLOGY_RULE },
+          { role: 'system', content: forceName ? FORCE_NAME_PROMPT + (scientificOnly ? '\nSi seul le nom scientifique est fourni, il définit l’espèce : renseigne son nom commun français, sans conserver un ancien nom.' : '') : SYSTEM_PROMPT + '\n' + MORPHOLOGY_RULE },
           { role: 'user', content },
         ],
         tools: [
@@ -408,7 +416,8 @@ Deno.serve(async (req) => {
 
     // Mode forcé : le nom du modérateur/observateur prime sur toute reformulation IA.
     if (forceName) {
-      animal.animal_name = stripParenthetical(animalName)
+      if (!scientificOnly) animal.animal_name = stripParenthetical(animalName)
+      else if (scientificCanonical?.name) animal.animal_name = scientificCanonical.name
       if (overrideScientific) animal.scientific_name = overrideScientific
     }
 
