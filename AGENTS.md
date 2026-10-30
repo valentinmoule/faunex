@@ -9,8 +9,8 @@ Reserve referrals for authenticated new customers, verify completed transactions
 ## Family access derives from verified purchases
 
 Keep family membership separate from personal data and billing, include the payer in the seat limit, serialize invitations and acceptance in database functions, and authorize Premium server-side; bind family purchases to authenticated checkout intents and never treat client or sandbox status as live access. Reuse the native external-browser checkout bridge for family purchases, carrying the verified intent without bypassing payment verification.
-Bind emailed family invitations to the recipient's verified auth email in the acceptance RPC, issue them only through an authenticated owner-checked server function, and resume them after signup/profile completion; this prevents forwarded links from granting another account access.
-Store explicitly authorized complimentary family access in service-only grants checked by family_valid, never by fabricating Paddle payments or changing billing rows; the existing subscription link is only an anchor for these grants.
+Bind emailed invitations to the recipient's verified email in the acceptance RPC, issue them via an owner-checked server function, and resume after signup, so forwarded links grant nothing.
+Store complimentary family access in service-only grants checked by family_valid, never fake Paddle payments or billing rows; the subscription link is only an anchor.
 Show the family offer from my_family, independent of personal billing rows.
 Scope portal lookups to the billing environment and validate Paddle IDs; grant anchors cannot open portals.
 
@@ -24,7 +24,7 @@ Portal fixed overlays into the open `[role="dialog"]`, else `document.body`; tra
 
 ## iOS headers and card surfaces stay within their viewport
 
-Keep sticky headers below the native top safe area, remove page transition transforms after entry, and constrain species sheets to vertical scrolling while leaving photo carousels horizontal — WebKit otherwise hides headers or permits sideways page movement. Use a single gradient background for native iOS iridescent frames (keeping inner photo clipping and motion), because animated dual background clipping is unstable in WebKit.
+Keep sticky headers below the top safe area, drop page transition transforms after entry, and limit species sheets to vertical scroll (carousels stay horizontal); WebKit otherwise hides headers or shifts sideways. Use a single gradient background for native iOS iridescent frames (keeping inner photo clipping and motion), because animated dual background clipping is unstable in WebKit.
 
 ## Rewards are server-authoritative
 
