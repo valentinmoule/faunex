@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PageHeader } from '@/components/PageHeader';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 import { Sprout } from 'lucide-react';
 import { ArrowLeft, Check, X, Loader2, AlertTriangle, Sparkles, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -125,6 +126,7 @@ const ModerationPage = () => {
   const [nameOverrides, setNameOverrides] = useState<Record<string, string>>({});
   /** Nom scientifique proposé par le modérateur, par capture. */
   const [scientificOverrides, setScientificOverrides] = useState<Record<string, string>>({});
+  const [moderatorNotes, setModeratorNotes] = useState<Record<string, string>>({});
 
 
   useEffect(() => {
@@ -209,6 +211,7 @@ const ModerationPage = () => {
             quality: q,
             force_name: forceName,
             common_name_supplied: Boolean(nameOverride?.trim() || (!scientificOverride?.trim() && capture.correction_name)),
+            moderator_notes: moderatorNotes[capture.id]?.trim() || undefined,
           },
         }),
         75_000,
@@ -754,6 +757,17 @@ const ModerationPage = () => {
                             placeholder="Nom scientifique — ex. Canis lupus familiaris"
                             className="w-full px-3 py-2 rounded-lg border border-border bg-background text-xs italic text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
                           />
+                          <label htmlFor={`moderator-notes-${capture.id}`} className="block text-xs font-medium text-foreground">
+                            {t('social:moderationObservations', { defaultValue: 'Observations complémentaires' })}
+                          </label>
+                          <Textarea
+                            id={`moderator-notes-${capture.id}`}
+                            value={moderatorNotes[capture.id] ?? ''}
+                            onChange={e => setModeratorNotes(prev => ({ ...prev, [capture.id]: e.target.value }))}
+                            maxLength={1500}
+                            rows={4}
+                            className="text-xs resize-y"
+                          />
                           <p className="text-[10px] text-muted-foreground">
                             « Forcer » impose le nom (et le binôme s'il est saisi) sans reconnaissance d'image.
                             « Vérifier avec l'IA » les utilise comme indices.
@@ -785,7 +799,8 @@ const ModerationPage = () => {
                               disabled={
                                 processing === capture.id ||
                                 !((nameOverrides[capture.id] || '').trim() ||
-                                  (scientificOverrides[capture.id] || '').trim())
+                                  (scientificOverrides[capture.id] || '').trim() ||
+                                  (moderatorNotes[capture.id] || '').trim())
                               }
                               className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-muted text-foreground text-xs font-display font-semibold disabled:opacity-50 hover:bg-muted/80 transition-colors"
                             >
