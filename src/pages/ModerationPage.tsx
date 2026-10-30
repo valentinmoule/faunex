@@ -174,6 +174,8 @@ const ModerationPage = () => {
     nameOverride?: string,
     /** Nom scientifique saisi par le modérateur. */
     scientificOverride?: string,
+    /** Reprise automatique après un échec de vérification de fiche. */
+    isRetry = false,
   ) => {
     const candidateName = nameOverride?.trim() || capture.correction_name || capture.animal_name;
     if (isPlaceholderName(candidateName)) {
@@ -256,6 +258,12 @@ const ModerationPage = () => {
         );
       }
       console.error('enrich-capture failed', failure);
+      if (failure.code === 'catalogue_lookup_failed' && !isRetry) {
+        // Saturation passagère des connexions en base : on retente
+        // automatiquement une fois au lieu de renvoyer le modérateur.
+        await new Promise(r => setTimeout(r, 1500));
+        return prepareApprove(capture, quality, forceName, nameOverride, scientificOverride, true);
+      }
       setFailures(prev => ({ ...prev, [capture.id]: failure }));
       // Doublon : pas de toast, l'encart d'avertissement suffit (et reste lisible).
       if (failure.code !== 'duplicate') toast.error(failure.message);
@@ -363,7 +371,7 @@ const ModerationPage = () => {
   };
 
 
-  type RejectReason = 'not_identifiable' | 'duplicate' | 'dead_animal' | 'internet_image' | 'captured_animal' | 'human';
+  type RejectReason = 'not_identifiable' | 'duplicate' | 'dead_animal' | 'internet_image' | 'captured_animal' | 'human' | 'development_stage';
 
   const REJECT_REASONS: { value: Exclude<RejectReason, 'duplicate'>; label: string }[] = [
     { value: 'not_identifiable', label: 'Espèce non identifiable' },
@@ -371,6 +379,7 @@ const ModerationPage = () => {
     { value: 'internet_image', label: 'Image provenant d’Internet' },
     { value: 'captured_animal', label: 'Animal capturé ou pêché par l’humain' },
     { value: 'human', label: 'Humain sur la photo' },
+    { value: 'development_stage', label: 'Stade de développement non accepté (œuf, larve, cocon, chrysalide…)' },
   ];
 
   const [rejectMenuFor, setRejectMenuFor] = useState<string | null>(null);

@@ -25,6 +25,7 @@ export function nativeEmailPayload(template: string, data: Record<string, unknow
       internet_image: ['Les images provenant d’Internet ne sont pas acceptées. Partage tes propres photos.', 'Images from the Internet are not accepted. Share your own photos.'],
       captured_animal: ['Les animaux capturés ou pêchés par l’humain ne sont pas acceptés, même relâchés ensuite.', 'Animals caught or fished by humans are not accepted, even if released afterwards.'],
       human: ['Les photos d’humains ne sont pas acceptées sur Faunex.', 'Photos of humans are not accepted on Faunex.'],
+      development_stage: ['Les œufs, larves, cocons et chrysalides ne sont pas acceptés. Photographie l’animal identifiable !', 'Eggs, larvae, cocoons and chrysalises are not accepted. Photograph the identifiable animal!'],
       not_identifiable: [`${name} n’a pas pu être identifiée. Retente avec une photo plus nette.`, `${name} could not be identified. Try a clearer photo.`],
     }
     const message = reasons[String(data.reason)] ?? reasons.not_identifiable

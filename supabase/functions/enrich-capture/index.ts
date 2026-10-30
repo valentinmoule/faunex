@@ -419,7 +419,7 @@ Deno.serve(async (req) => {
      * silencieusement pendant un recalcul de rareté et un doublon est créé. */
     let matches: any = null
     let matchErr: any = null
-    for (let attempt = 0; attempt < 3; attempt++) {
+    for (let attempt = 0; attempt < 5; attempt++) {
       const res = await supabase.rpc('match_animal', {
         p_name: animal.animal_name || animalName,
         p_scientific: animal.scientific_name || null,
@@ -429,7 +429,7 @@ Deno.serve(async (req) => {
       if (!matchErr) break
       console.error('match_animal failed', attempt, matchErr)
       if (!isTransientDbError(matchErr.code, matchErr.message)) break
-      await new Promise((r) => setTimeout(r, 700 * (attempt + 1)))
+      await new Promise((r) => setTimeout(r, 800 * (attempt + 1)))
     }
 
     if (matchErr) return json({ error: 'La fiche existante ne peut pas être vérifiée. Corrige les noms si nécessaire puis réessaie ; aucune modification enregistrée.', code: 'catalogue_lookup_failed' }, 422)

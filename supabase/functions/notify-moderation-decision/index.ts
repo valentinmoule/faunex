@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
     }
     const userId = capture.user_id
     const animalName = capture.animal_name
-    const ALLOWED_REASONS = ['not_identifiable', 'duplicate', 'dead_animal', 'internet_image', 'captured_animal', 'human', 'correction_declined']
+    const ALLOWED_REASONS = ['not_identifiable', 'duplicate', 'dead_animal', 'internet_image', 'captured_animal', 'human', 'development_stage', 'correction_declined']
     let reason = ALLOWED_REASONS.includes(body?.reason) ? body.reason : 'not_identifiable'
     if (correction && decision === 'rejected') reason = 'correction_declined'
     let duplicateName: string | null = null
@@ -183,6 +183,8 @@ Deno.serve(async (req) => {
               ? `Les animaux capturés ou pêchés par l'humain ne sont pas acceptés, même relâchés ensuite. Photographie-les en liberté !`
               : reason === 'human'
                 ? `Les photos d'humains ne sont pas acceptées sur Faunex. Photographie des animaux sauvages !`
+              : reason === 'development_stage'
+                ? `Les œufs, larves, cocons, chrysalides et autres stades de développement ne sont pas acceptés sur Faunex. Photographie l'animal une fois identifiable !`
                 : `${animalName} n'a pas pu être identifiée. Retente avec une photo plus nette.`,
       url: approved || correction ? `/home${captureId ? `?capture=${captureId}` : ''}` : '/capture',
       tag: `moderation-${captureId ?? userId}`,

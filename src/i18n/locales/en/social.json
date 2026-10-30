@@ -148,6 +148,7 @@
       "messageCaptureRejected_internet_image": " rejected your submission: images taken from the Internet are not accepted. Only share your own photos!",
       "messageCaptureRejected_captured_animal": " rejected your submission: animals captured or fished by humans are not accepted, even if released afterwards.",
       "messageCaptureRejected_human": " rejected your submission: photos of humans are not accepted. Photograph wild animals!",
+      "messageCaptureRejected_development_stage": " rejected your submission: eggs, larvae, cocoons and chrysalises are not accepted. Photograph the animal once it's identifiable!",
       "messageCaptureCorrectionAccepted": " accepted your correction request: your capture is now \"{{name}}\" 🎉",
       "messageCaptureRejected_correction_declined": " didn't retain your correction request: your \"{{name}}\" capture stays unchanged, with its current photo and name.",
       "messageFriendRequest": " followed your profile",
