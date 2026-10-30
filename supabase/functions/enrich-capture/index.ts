@@ -4,7 +4,7 @@ import { matchCatalogueSpecies, isTransientDbError } from '../_shared/species-ma
 import { MORPHOLOGY_RULE, moderationVisionModels } from '../_shared/visual-identification-policy.ts'
 import { scientificOnlyOverride } from '../_shared/forced-identification.ts'
 import { shouldRecheckModerationIdentity } from '../_shared/moderation-conflict.ts'
-import { moderatorNotesPrompt } from './moderator-notes.ts'
+import { moderatorNotesPrompt, needsBreedClarification } from './moderator-notes.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -325,6 +325,10 @@ Deno.serve(async (req) => {
                     type: 'string',
                     description: 'Nom scientifique latin complet (genre + espèce).',
                   },
+                  breed_uncertain: {
+                    type: 'boolean',
+                    description: 'Vrai si les observations proposent une race domestique mais les caractères ne permettent pas de départager les races ; faux si race confirmée ou animal non domestique.',
+                  },
                   category: {
                     type: 'string',
                     enum: ['Mammifères', 'Oiseaux', 'Reptiles', 'Amphibiens', 'Poissons', 'Insectes', 'Arachnides', 'Crustacés', 'Mollusques'],
@@ -427,6 +431,9 @@ Deno.serve(async (req) => {
       return cleaned || s.trim()
     }
     if (animal?.animal_name) animal.animal_name = stripParenthetical(animal.animal_name)
+    if (needsBreedClarification(forceName, Boolean(notesPrompt), animal)) {
+      return json({ error: 'Les observations ont été prises en compte, mais plusieurs races restent possibles. Précise la race ou force un nom uniquement si tu peux la confirmer ; cette capture n’est pas déclarée comme doublon.', code: 'breed_uncertain' })
+    }
 
     // Mode forcé : le nom du modérateur/observateur prime sur toute reformulation IA.
     if (forceName) {
@@ -479,6 +486,9 @@ Deno.serve(async (req) => {
       await new Promise((r) => setTimeout(r, 800 * (attempt + 1)))
     }
 
+    if (needsBreedClarification(forceName, Boolean(notesPrompt), animal)) {
+      return json({ error: 'Les observations ont été prises en compte, mais plusieurs races restent possibles. Précise la race ou force un nom uniquement si tu peux la confirmer ; cette capture n’est pas déclarée comme doublon.', code: 'breed_uncertain' })
+    }
     if (matchErr) return json({ error: 'Les noms commun et scientifique ne désignent pas une même fiche vérifiable. Corrige les noms puis réessaie ; aucune modification enregistrée.', code: isTransientDbError(matchErr.code, matchErr.message) ? 'catalogue_lookup_failed' : 'species_identity_conflict' })
     const existing = Array.isArray(matches) ? matches[0] : matches
     // Races domestiques : même binôme latin pour des races différentes, on ne doit
