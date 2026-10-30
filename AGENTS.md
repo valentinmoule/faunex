@@ -9,22 +9,22 @@ Reserve referrals for authenticated new customers, verify completed transactions
 ## Family access derives from verified purchases
 
 Keep family membership separate from personal data and billing, include the payer in the seat limit, serialize invitations and acceptance in database functions, and authorize Premium server-side; bind family purchases to authenticated checkout intents and never treat client or sandbox status as live access. Reuse the native external-browser checkout bridge for family purchases, carrying the verified intent without bypassing payment verification.
-Bind emailed family invitations to the recipient's verified auth email in the acceptance RPC, issue them only through an authenticated owner-checked server function, and resume them after signup/profile completion; this prevents forwarded links from granting another account access.
-Store explicitly authorized complimentary family access in service-only grants checked by family_valid, never by fabricating Paddle payments or changing billing rows; the existing subscription link is only an anchor for these grants.
+Bind emailed invitations to the recipient's verified email in the acceptance RPC, issue them via an owner-checked server function, and resume after signup, so forwarded links grant nothing.
+Store complimentary family access in service-only grants checked by family_valid, never fake Paddle payments or billing rows; the subscription link is only an anchor.
 Show the family offer from my_family, independent of personal billing rows.
 Scope portal lookups to the billing environment and validate Paddle IDs; grant anchors cannot open portals.
 
 ## Partner landing pages share one presentation
 
-Use the shared partner page with audience-specific translated copy and imagery, keeping public partner routes gated out of native builds to avoid duplicated layouts and marketing screens in the native app.
+Use the shared partner page with audience-specific translated copy/imagery; gate public partner routes out of native builds.
 
 ## Full-screen overlays must escape animated page wrappers
 
-Portal fixed overlays (reward sheets, modals, lightboxes) into the open `[role="dialog"]`, otherwise `document.body`, because transformed page wrappers misplace fixed descendants.
+Portal fixed overlays into the open `[role="dialog"]`, else `document.body`; transformed wrappers misplace fixed descendants.
 
 ## iOS headers and card surfaces stay within their viewport
 
-Keep sticky headers below the native top safe area, remove page transition transforms after entry, and constrain species sheets to vertical scrolling while leaving photo carousels horizontal — WebKit otherwise hides headers or permits sideways page movement. Use a single gradient background for native iOS iridescent frames (keeping inner photo clipping and motion), because animated dual background clipping is unstable in WebKit.
+Keep sticky headers below the top safe area, drop page transition transforms after entry, and limit species sheets to vertical scroll (carousels stay horizontal); WebKit otherwise hides headers or shifts sideways. Use a single gradient background for native iOS iridescent frames (keeping inner photo clipping and motion), because animated dual background clipping is unstable in WebKit.
 
 ## Rewards are server-authoritative
 
@@ -32,7 +32,7 @@ Validate claims from trusted rules (synced with badge/group/city definitions and
 
 ## Blurred photo backdrops need a large scale
 
-Scale full-bleed `filter: blur()` photo backdrops well past the blur radius (`scale(1.9)` for 42px, `scale(2.25)` for 50px) over an opaque layer, because blur fades alpha inward.
+Scale blurred photo backdrops past the blur radius (1.9 for 42px, 2.25 for 50px) over an opaque layer; blur fades alpha inward.
 
 ## Shelving stays on the Bestiary and targets the displayed tile
 
@@ -40,7 +40,7 @@ Keep the capture view until the Bestiary is ready, then glide into its tile with
 
 ## Leaderboard movement compares with the same board 24 hours earlier
 
-Compute rank movement server-side from captures before `now() - 24 hours`, keeping scope, period and category.
+Compute rank movement server-side from captures before `now() - 24h`, same scope/period/category.
 
 ## A capture fills exactly one Bestiary tile
 
@@ -121,3 +121,7 @@ Contest RPCs enforce Paris weeks and one entry/vote. Winner-row triggers use a s
 ## Winner overlay shares the existing card interaction
 
 Use WinnerHoloEffect in detail/fullscreen, mapping package variables to HolographicCard springs without new gestures; one render path avoids mixed foil styles and preserves zoom.
+
+## Moderator-forced identities bypass catalogue identity checks
+
+Write forced names verbatim via service-only `moderation_force_apply_capture`; identity triggers tolerate conflicts only there or for admin/moderator sessions, so automatic paths stay strict.

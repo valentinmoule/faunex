@@ -151,17 +151,22 @@ Deno.serve(async (req) => {
         if (providedAnimal[k] !== undefined) payload[k] = providedAnimal[k]
       }
       if (!payload.animal_name) return json({ error: 'animal_name manquant', code: 'bad_request' }, 400)
-      try {
-        const canonical = await matchCatalogueSpecies(supabase, String(payload.animal_name), typeof payload.scientific_name === 'string' ? payload.scientific_name : null)
-        if (canonical) {
-          const entry = canonical as { name: string; scientific_name: string | null }
-          payload.animal_name = entry.name
-          payload.scientific_name = entry.scientific_name || payload.scientific_name
+      if (!forceName) {
+        try {
+          const canonical = await matchCatalogueSpecies(supabase, String(payload.animal_name), typeof payload.scientific_name === 'string' ? payload.scientific_name : null)
+          if (canonical) {
+            const entry = canonical as { name: string; scientific_name: string | null }
+            payload.animal_name = entry.name
+            payload.scientific_name = entry.scientific_name || payload.scientific_name
+          }
+        } catch {
+          return json({ error: 'La fiche existante ne peut pas être vérifiée. Corrige les noms si nécessaire puis réessaie ; aucune modification enregistrée.', code: 'catalogue_lookup_failed' })
         }
-      } catch {
-        return json({ error: 'La fiche existante ne peut pas être vérifiée. Corrige les noms si nécessaire puis réessaie ; aucune modification enregistrée.', code: 'catalogue_lookup_failed' })
       }
-      const { error: applyErr } = await supabase.from('captures').update(payload).eq('id', captureId)
+      // Mode forcé : écriture verbatim, les contrôles d'identité du catalogue sont levés pour cette seule écriture.
+      const { error: applyErr } = forceName
+        ? await supabase.rpc('moderation_force_apply_capture', { p_capture_id: captureId, p_payload: payload })
+        : await supabase.from('captures').update(payload).eq('id', captureId)
       if (applyErr) {
         console.error('apply update failed', applyErr)
         const recoverable = moderationDatabaseFailure(applyErr)

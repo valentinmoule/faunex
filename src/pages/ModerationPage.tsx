@@ -114,7 +114,7 @@ const ModerationPage = () => {
   const [captures, setCaptures] = useState<PendingCapture[]>([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState<string | null>(null);
-  const [preview, setPreview] = useState<{ capture: PendingCapture; animal: EnrichedAnimal } | null>(null);
+  const [preview, setPreview] = useState<{ capture: PendingCapture; animal: EnrichedAnimal; forceName?: boolean } | null>(null);
   const [confirming, setConfirming] = useState(false);
   /** État de la tâche de fond d'auto-modération (serveur). */
   const [jobState, setJobState] = useState<JobState | null>(null);
@@ -277,7 +277,7 @@ const ModerationPage = () => {
 
     }
 
-    setPreview({ capture, animal: enriched.animal as EnrichedAnimal });
+    setPreview({ capture, animal: enriched.animal as EnrichedAnimal, forceName: Boolean(forceName) });
   };
 
   /** Step 2 — the moderator validated the preview: publish the capture. */
@@ -306,7 +306,7 @@ const ModerationPage = () => {
 
     // La prévisualisation n'écrit rien : on applique la fiche enrichie maintenant.
     const { data: applyData, error: applyError } = await supabase.functions.invoke('enrich-capture', {
-      body: { capture_id: capture.id, apply: true, animal },
+      body: { capture_id: capture.id, apply: true, animal, force_name: Boolean(preview.forceName) },
     });
     // Doublon renvoyé en 200 (cas métier) : même traitement que l'ancien 409.
     if (applyData?.code === 'duplicate') {
