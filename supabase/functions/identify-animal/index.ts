@@ -513,22 +513,21 @@ serve(async (req) => {
     }
 
     /**
-     * Flash Lite 3.1 en première passe, Flash 3.6 en seconde passe.
+     * Flash Lite 3.1 en première passe, Flash 3.8 en seconde passe uniquement
+     * quand la première hésite (confiance faible ou espèce facilement confondue).
      * Mesure faite sur une requête identique (même photo, même prompt) :
      *   gemini-3.1-flash-lite  0.0021 crédit
      *   gemini-3.6-flash       0.0046 crédit
      *   gemini-3.7-flash       0.0053 crédit
      *   gemini-3.5-flash       0.0107 crédit  ← ancien modèle profond
-     * Le 3.6 est donc 2,3× moins cher que le 3.5 pour une génération plus
-     * récente (et il « réfléchit » moins, donc moins de jetons de sortie).
-     * Jamais de modèle Pro.
+     * La grande majorité des photos est tranchée par Lite (~2,4× moins cher
+     * que Flash 3.8) ; le modèle profond ne paie que les cas douteux, ce qui
+     * garde la précision espèce/sous-espèce là où elle compte. Jamais de Pro.
      */
-    // Compte interne : dernière génération Flash en une seule passe (plus
-    // rapide, pas de seconde passe) — volume négligeable côté coût.
+    // Seconde passe : dernier Flash, réservé aux identifications douteuses.
     const DEEP_MODEL = "google/gemini-3.8-flash";
-    // Tous les comptes : Flash 3.8 en passe unique (plus précis espèce/sous-espèce,
-    // ~2,4× le coût de Flash Lite, toujours sans modèle Pro).
-    const FAST_MODEL = DEEP_MODEL;
+    // Tous les comptes : Flash Lite en première passe (coût maîtrisé).
+    const FAST_MODEL = "google/gemini-3.1-flash-lite";
     /** Fiches d'espèces : texte seul, toujours sur le modèle le moins cher. */
     const TEXT_MODEL = "google/gemini-3.1-flash-lite";
     const FALLBACK_VISION_MODEL = "google/gemini-3.1-flash-lite";
