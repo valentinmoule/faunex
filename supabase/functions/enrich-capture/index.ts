@@ -5,6 +5,7 @@ import { MORPHOLOGY_RULE, moderationVisionModels } from '../_shared/visual-ident
 import { scientificOnlyOverride } from '../_shared/forced-identification.ts'
 import { shouldRecheckModerationIdentity } from '../_shared/moderation-conflict.ts'
 import { moderatorNotesPrompt, needsBreedClarification } from './moderator-notes.ts'
+import { moderationDatabaseFailure } from './database-error.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -163,6 +164,8 @@ Deno.serve(async (req) => {
       const { error: applyErr } = await supabase.from('captures').update(payload).eq('id', captureId)
       if (applyErr) {
         console.error('apply update failed', applyErr)
+        const recoverable = moderationDatabaseFailure(applyErr)
+        if (recoverable) return json(recoverable)
         const isUnique = /duplicate key|unique/i.test(applyErr.message || '')
         // Doublon = cas métier attendu : 200 avec code 'duplicate' (un 409 est
         // remonté comme erreur fatale par l'aperçu et masque l'écran).
@@ -207,6 +210,10 @@ Deno.serve(async (req) => {
       .eq('id', captureId)
       .maybeSingle()
 
+    if (capErr) {
+      const recoverable = moderationDatabaseFailure(capErr)
+      if (recoverable) return json(recoverable)
+    }
     if (capErr || !capture) return json({ error: 'Capture introuvable' }, 404)
     if (capture.correction_note) capture.description = capture.correction_note;
 
@@ -563,6 +570,8 @@ Deno.serve(async (req) => {
     const { error: updErr } = await supabase.from('captures').update(update).eq('id', captureId)
     if (updErr) {
       console.error('capture update failed', updErr)
+      const recoverable = moderationDatabaseFailure(updErr)
+      if (recoverable) return json(recoverable)
       const isUnique = /duplicate key|unique/i.test(updErr.message || '')
       return json({
         error: isUnique
@@ -599,6 +608,10 @@ Deno.serve(async (req) => {
 
   } catch (e) {
     console.error('enrich-capture error', e)
+    if (e && typeof e === 'object') {
+      const recoverable = moderationDatabaseFailure(e as { code?: string; message?: string })
+      if (recoverable) return json(recoverable)
+    }
     return json({ error: e instanceof Error ? e.message : 'Erreur inconnue' }, 500)
   }
 })
