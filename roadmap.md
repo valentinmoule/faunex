@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Modération : observations complémentaires saisies par le modérateur, transmises à l’IA sans remplacer les descriptions partagées.
+- [x] Modération : observations complémentaires FR/EN, transmises à l’IA sans remplacer les descriptions partagées ; 11 tests passants, saisie et transmission sur le coq vérifiées, réponse doublon conservée sans approbation.
 
 - [x] Prévisualisation IA : reprise unique des contradictions, contrôles conservés ; 19 tests passants et aperçu IA connecté vérifié sans approbation. Reprise sur contradiction réelle non observée pendant cet essai.
 
