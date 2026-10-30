@@ -114,6 +114,16 @@ const CaptureRejectedEmail = ({
                 l,
               )}
             </Text>
+          ) : reason === 'development_stage' ? (
+            <Text style={text}>
+              {pick(
+                {
+                  fr: `Ta capture de ${animalName} n'a pas été validée : Faunex n'accepte que les animaux identifiables sous leur forme adulte (ou juvénile reconnaissable). Les œufs, larves, cocons, chrysalides et autres stades de développement ne sont pas acceptés — photographie l'animal une fois qu'il est identifiable !`,
+                  en: `Your capture of ${animalName} wasn't approved: Faunex only accepts animals identifiable in their adult (or recognizable juvenile) form. Eggs, larvae, cocoons, chrysalises and other development stages are not accepted — photograph the animal once it's identifiable!`,
+                },
+                l,
+              )}
+            </Text>
           ) : (
             <Text style={text}>
               {pick(
