@@ -202,9 +202,14 @@ Deno.serve(async (req) => {
     if (capErr || !capture) return json({ error: 'Capture introuvable' }, 404)
     if (capture.correction_note) capture.description = capture.correction_note;
 
-    const scientificEntry = scientificOnly
-      ? await matchCatalogueSpecies(supabase, '', overrideScientific)
-      : null
+    let scientificEntry: unknown = null
+    if (scientificOnly) {
+      try {
+        scientificEntry = await matchCatalogueSpecies(supabase, '', overrideScientific)
+      } catch {
+        return json({ error: 'Le nom scientifique ne peut pas être vérifié pour le moment. Aucune modification enregistrée.', code: 'catalogue_lookup_failed' })
+      }
+    }
     const scientificCanonical = scientificEntry as { name?: string } | null
     const animalName = (scientificOnly ? scientificCanonical?.name || overrideScientific : overrideName || capture.animal_name || '').toString().trim()
     if (!animalName) return json({ error: 'Nom d\'animal manquant' }, 400)
