@@ -1,6 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { logDatasetEvent } from '../_shared/dataset.ts'
-import { matchCatalogueSpecies } from '../_shared/species-matching.ts'
+import { matchCatalogueSpecies, isTransientDbError } from '../_shared/species-matching.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
