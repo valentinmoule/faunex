@@ -13,12 +13,12 @@ export function isTransientDbError(code?: string, message?: string): boolean {
 }
 
 export async function matchCatalogueSpecies(client: { rpc: (name: string, args: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { code?: string; message?: string } | null }> }, name: string, scientific: string | null) {
-  for (let attempt = 0; attempt < 3; attempt++) {
+  for (let attempt = 0; attempt < 5; attempt++) {
     const result = await client.rpc('match_animal', { p_name: name, p_scientific: scientific });
     if (!result.error) return Array.isArray(result.data) ? result.data[0] ?? null : result.data;
-    if (!isTransientDbError(result.error.code, result.error.message) || attempt === 2)
+    if (!isTransientDbError(result.error.code, result.error.message) || attempt === 4)
       throw new Error(`Catalogue lookup failed: ${result.error.code ?? 'unknown'}`);
-    await new Promise(resolve => setTimeout(resolve, 700 * (attempt + 1)));
+    await new Promise(resolve => setTimeout(resolve, 800 * (attempt + 1)));
   }
   throw new Error('Catalogue lookup failed');
 }

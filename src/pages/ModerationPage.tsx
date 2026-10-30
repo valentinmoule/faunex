@@ -174,6 +174,8 @@ const ModerationPage = () => {
     nameOverride?: string,
     /** Nom scientifique saisi par le modérateur. */
     scientificOverride?: string,
+    /** Reprise automatique après un échec de vérification de fiche. */
+    isRetry = false,
   ) => {
     const candidateName = nameOverride?.trim() || capture.correction_name || capture.animal_name;
     if (isPlaceholderName(candidateName)) {
@@ -256,6 +258,12 @@ const ModerationPage = () => {
         );
       }
       console.error('enrich-capture failed', failure);
+      if (failure.code === 'catalogue_lookup_failed' && !isRetry) {
+        // Saturation passagère des connexions en base : on retente
+        // automatiquement une fois au lieu de renvoyer le modérateur.
+        await new Promise(r => setTimeout(r, 1500));
+        return prepareApprove(capture, quality, forceName, nameOverride, scientificOverride, true);
+      }
       setFailures(prev => ({ ...prev, [capture.id]: failure }));
       // Doublon : pas de toast, l'encart d'avertissement suffit (et reste lisible).
       if (failure.code !== 'duplicate') toast.error(failure.message);
