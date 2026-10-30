@@ -3755,6 +3755,7 @@ export type Database = {
         }
         Returns: string
       }
+      identity_force_allowed: { Args: never; Returns: boolean }
       in_my_family: { Args: { p_family: string }; Returns: boolean }
       is_generic_domestic_chicken: {
         Args: { p_name: string }
@@ -3815,6 +3816,10 @@ export type Database = {
           scientific_name: string
           vernacular_name: string
         }[]
+      }
+      moderation_force_apply_capture: {
+        Args: { p_capture_id: string; p_payload: Json }
+        Returns: undefined
       }
       my_advent_calendars: { Args: never; Returns: Json }
       my_category_rank: {
