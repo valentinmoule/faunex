@@ -444,8 +444,9 @@ Deno.serve(async (req) => {
       commonName: scientificOnly ? scientificCanonical?.name : stripParenthetical(animalName),
       scientificName: overrideScientific,
     })
-    if (isGenericDomesticChicken(animal.animal_name)) {
-      return json({ error: 'Ce nom désigne une poule ou un coq domestique sans préciser sa race. Saisis une race identifiable : une fiche générique reste interdite, même en mode forcé.', code: 'domestic_breed_required' })
+    // Mode forcé : le modérateur a le dernier mot, même pour un nom générique.
+    if (!forceName && isGenericDomesticChicken(animal.animal_name)) {
+      return json({ error: 'Ce nom désigne une poule ou un coq domestique sans préciser sa race. Précise la race ou force ce nom.', code: 'domestic_breed_required' })
     }
     if (needsBreedClarification(forceName, Boolean(notesPrompt), animal)) {
       return json({ error: 'Les observations ont été prises en compte, mais plusieurs races restent possibles. Précise la race ou force un nom uniquement si tu peux la confirmer ; cette capture n’est pas déclarée comme doublon.', code: 'breed_uncertain' })
@@ -495,8 +496,8 @@ Deno.serve(async (req) => {
       await new Promise((r) => setTimeout(r, 800 * (attempt + 1)))
     }
 
-    if (isGenericDomesticChicken(animal.animal_name)) {
-      return json({ error: 'Ce nom désigne une poule ou un coq domestique sans préciser sa race. Saisis une race identifiable : une fiche générique reste interdite, même en mode forcé.', code: 'domestic_breed_required' })
+    if (!forceName && isGenericDomesticChicken(animal.animal_name)) {
+      return json({ error: 'Ce nom désigne une poule ou un coq domestique sans préciser sa race. Précise la race ou force ce nom.', code: 'domestic_breed_required' })
     }
     if (needsBreedClarification(forceName, Boolean(notesPrompt), animal)) {
       return json({ error: 'Les observations ont été prises en compte, mais plusieurs races restent possibles. Précise la race ou force un nom uniquement si tu peux la confirmer ; cette capture n’est pas déclarée comme doublon.', code: 'breed_uncertain' })
