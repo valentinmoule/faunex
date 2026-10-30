@@ -178,7 +178,7 @@ const ModerationPage = () => {
     isRetry = false,
   ) => {
     const candidateName = nameOverride?.trim() || capture.correction_name || capture.animal_name;
-    if (isPlaceholderName(candidateName)) {
+    if (isPlaceholderName(candidateName) && !(forceName && scientificOverride?.trim() && !nameOverride?.trim())) {
       toast.error('Ce nom est trop incertain pour créer une espèce.');
       return;
     }
@@ -208,6 +208,7 @@ const ModerationPage = () => {
             scientific_name: (scientificOverride?.trim() || capture.correction_scientific_name || undefined),
             quality: q,
             force_name: forceName,
+            common_name_supplied: Boolean(nameOverride?.trim() || (!scientificOverride?.trim() && capture.correction_name)),
           },
         }),
         75_000,
@@ -249,7 +250,9 @@ const ModerationPage = () => {
               duplicate: enriched.duplicate ?? null,
               identifiedAs: enriched.identified_as ?? null,
             }
-          : { code: 'empty_response', message: "Aucune fiche reçue (même après une 2e tentative avec le modèle avancé). Réessaye, ou renseigne toi-même le nom de l'espèce." };
+          : enriched?.code
+            ? { code: enriched.code, message: enriched.error || 'La prévisualisation ne peut pas être créée.' }
+            : { code: 'empty_response', message: "Aucune fiche reçue (même après une 2e tentative avec le modèle avancé). Réessaye, ou renseigne toi-même le nom de l'espèce." };
       if (failure.code === 'duplicate') {
         failure.message = duplicateMessage(
           nameOverride?.trim() || capture.correction_name || capture.animal_name,
@@ -305,6 +308,11 @@ const ModerationPage = () => {
     // Doublon renvoyé en 200 (cas métier) : même traitement que l'ancien 409.
     if (applyData?.code === 'duplicate') {
       showDuplicate(applyData.duplicate ?? null, applyData.identified_as ?? null);
+      setConfirming(false);
+      return;
+    }
+    if (applyData?.code) {
+      toast.error(applyData.error || 'La fiche ne peut pas être enregistrée.');
       setConfirming(false);
       return;
     }
