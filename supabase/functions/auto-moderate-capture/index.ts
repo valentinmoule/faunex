@@ -5,7 +5,7 @@ import { AUTO_REVIEW_POLICY, completedUnderCurrentPolicy, scientificLabel } from
 import { z } from 'npm:zod@3'
 import { attestModeratedCapture } from '../_shared/economyProof.ts'
 import { matchCatalogueSpecies } from '../_shared/species-matching.ts'
-import { STRICT_SPECIES_RULES, requiresHumanSpeciesReview } from '../_shared/strict-moderation.ts'
+import { STRICT_SPECIES_RULES, requiresHumanSpeciesReview, trustObserverProposal } from '../_shared/strict-moderation.ts'
 
 async function logDatasetEvent(db: any, event: ServerDatasetEvent) {
   await writeDatasetEvent(db, { ...event, payload: { auto_review_policy: AUTO_REVIEW_POLICY } })
@@ -30,7 +30,7 @@ ${STRICT_SPECIES_RULES}
 
 - AUTHENTICITÉ : seule une VRAIE PHOTO d'animal VIVANT est valide. Invalide (is_real_photo false, name_matches false, confidence 0) : illustration, dessin, logo, mascotte, peinture, rendu 3D, image IA, capture/photo d'écran ou de papier, autocollant, tatouage, peluche, figurine, statue et tout OBJET en forme d'animal (déco, bibelot, déguisement, gonflable, gâteau, graffiti, panneau) → objet_representation ; animal MORT ou préparé (plat, poisson/fruits de mer servis ou en étal, viande, carcasse, trophée, taxidermie, écrasé, insecte épinglé, squelette, coquille vide) → animal_mort_ou_plat. Indices : matériau/couture/socle/yeux peints/posture rigide, aplats sans grain, fond uni, watermark, assiette/couverts/glace/découpe/sang.
 - Humain, plante, aucun animal, créature de fiction ou espèce éteinte → name_matches false, confidence 0.
-- Œuf, larve, chenille, cocon, chrysalide ; animal capturé ou pêché, ou image provenant d'Internet : name_matches false, confidence 0. Les juvéniles et adultes vivants observés normalement restent éligibles.
+- Œuf, larve, chenille, cocon, chrysalide ; animal capturé ou pêché, ou image provenant d'Internet : name_matches false, confidence 0. Les juvéniles et adultes vivants observés normalement restent éligibles, y compris en captivité (zoo, aquarium, terrarium, animal de compagnie, élevage) : « capturé » veut dire piégé ou tenu en main après capture, pas captif.
 - animal_name : le nom de l'observateur normalisé (orthographe, casse, race si visible), jamais une autre espèce. Nom scientifique = binôme latin réel correspondant au nom de l'observateur.
 - Rareté (France, 8 paliers) : common commune/quotidienne · uncommon peu commune/fréquente · rare plutôt rare, demande de la chance · very_rare rare/très localisée · ultra_rare menacée ou protégée · illustration_rare épique/quasi-impossible · special_rare mythique · hyper_rare légendaire, le sommet.
 
@@ -436,7 +436,18 @@ async function examine(
   const ruleBreach = notRealPhoto || (!disagreement && verdict.name_matches === false && confidence === 0)
 
   // Precise species confirmation is required; uncertainty is reviewed by a human.
-  const humanNeeded = requiresHumanSpeciesReview({ confidence, nameMatches: verdict.name_matches, disagreement, unknown, notRealPhoto, scientific: approvedSci })
+  // Confiance à l'observateur : un vrai animal vivant éligible est validé sous
+  // SON nom, même si l'IA doute ou propose autre chose ; seuls les cas hors
+  // espèce/hors règles restent humains.
+  // Sans conflit, le binôme normalisé de l'IA prime sur une saisie approximative.
+  const trusted = trustObserverProposal({ eligibleAnimal: verdict.eligible_animal, notRealPhoto, observerName: proposedName, observerScientific: sciConflict ? proposedSci : (scientificLabel(verdict.scientific_name) || proposedSci), aiScientific: sciConflict ? null : proposedSci })
+  if (trusted) {
+    // Orthographe corrigée par l'IA tant qu'elle désigne le même animal.
+    const spelled = proposedEntry || nameConflict ? proposedName : finalName
+    approvedName = spelled.charAt(0).toUpperCase() + spelled.slice(1)
+    approvedSci = trusted.scientific
+  }
+  const humanNeeded = !trusted && requiresHumanSpeciesReview({ confidence, nameMatches: verdict.name_matches, disagreement, unknown, notRealPhoto, scientific: approvedSci })
 
 
 
@@ -449,6 +460,7 @@ async function examine(
         ? `species_disagreement:${verdict.scientific_name ?? verdict.animal_name ?? 'inconnu'}`
 
         : (verdict.reason ?? (ruleBreach ? 'rule_breach' : 'needs_human'))
+    const decisionDetail = `${decisionReason} |eligible:${String(verdict.eligible_animal)}|sci:${proposedSci ?? ''}`
 
 
     // Dataset : renvoi systématique vers la modération humaine (aucun refus auto).
@@ -468,7 +480,7 @@ async function examine(
       label_scientific_name: capture.scientific_name || null,
       user_description: capture.description || null,
       location: capture.location || null,
-      decision_reason: decisionReason,
+      decision_reason: decisionDetail,
       is_ground_truth: false,
     })
 
@@ -712,6 +724,10 @@ function callGateway(
                   enum: ['photo_reelle', 'illustration', 'dessin', 'logo_icone', 'peinture', 'rendu_3d', 'image_generee_ia', 'capture_ecran', 'photo_ecran_ou_papier', 'jouet_peluche_figurine', 'objet_representation', 'animal_mort_ou_plat', 'autre'],
                   description: "Nature réelle de l'image.",
                 },
+                eligible_animal: {
+                  type: 'boolean',
+                  description: "true si la photo réelle montre un vrai animal vivant éligible (adulte ou juvénile, observé normalement), même si l'espèce exacte reste incertaine. false pour humain, plante, aucun animal, fiction, espèce éteinte, animal mort/préparé, œuf, larve, chenille, cocon, chrysalide, animal capturé/pêché ou image d'Internet.",
+                },
                 name_matches: {
                   type: 'boolean',
                   description: 'true seulement si la photo montre sans ambiguïté l\'animal nommé.',
@@ -752,7 +768,7 @@ function callGateway(
                   additionalProperties: false,
                 },
               },
-              required: ['is_real_photo', 'image_type', 'name_matches', 'confidence', 'reason', 'animal_name', 'scientific_name', 'category', 'description', 'habitat', 'diet', 'conservation', 'fun_fact', 'rarity'],
+              required: ['is_real_photo', 'image_type', 'eligible_animal', 'name_matches', 'confidence', 'reason', 'animal_name', 'scientific_name', 'category', 'description', 'habitat', 'diet', 'conservation', 'fun_fact', 'rarity'],
               additionalProperties: false,
             },
           },
