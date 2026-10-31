@@ -5,7 +5,7 @@ import { AUTO_REVIEW_POLICY, completedUnderCurrentPolicy, scientificLabel } from
 import { z } from 'npm:zod@3'
 import { attestModeratedCapture } from '../_shared/economyProof.ts'
 import { matchCatalogueSpecies } from '../_shared/species-matching.ts'
-import { STRICT_SPECIES_RULES, requiresHumanSpeciesReview } from '../_shared/strict-moderation.ts'
+import { STRICT_SPECIES_RULES, requiresHumanSpeciesReview, trustObserverProposal } from '../_shared/strict-moderation.ts'
 
 async function logDatasetEvent(db: any, event: ServerDatasetEvent) {
   await writeDatasetEvent(db, { ...event, payload: { auto_review_policy: AUTO_REVIEW_POLICY } })

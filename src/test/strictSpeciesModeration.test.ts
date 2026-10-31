@@ -56,4 +56,11 @@ describe('Photo-based identity correction', () => {
    await vi.runAllTimersAsync();expect(await promise).toEqual({name:'Criquet verdelet'});expect(recheck).toHaveBeenCalledTimes(1);
   } finally {vi.useRealTimers()}
  });
+});import { trustObserverProposal } from '../../supabase/functions/_shared/strict-moderation';
+describe('Observer trust', () => {
+ const base = { eligibleAnimal: true, notRealPhoto: false, observerName: 'Escargot lapin', observerScientific: 'Tylomelania gemmifera', aiScientific: 'Pomacea canaliculata' };
+ it('approves a living animal under the observer species', () => expect(trustObserverProposal(base)).toEqual({ scientific: 'Tylomelania gemmifera' }));
+ it('keeps non-animals in moderation', () => expect(trustObserverProposal({ ...base, eligibleAnimal: false })).toBeNull());
+ it('keeps non-photos in moderation', () => expect(trustObserverProposal({ ...base, notRealPhoto: true })).toBeNull());
+ it('keeps proposals without a species binomial in moderation', () => expect(trustObserverProposal({ ...base, observerScientific: 'Tylomelania', aiScientific: null })).toBeNull());
 });
