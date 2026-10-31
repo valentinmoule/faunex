@@ -71,3 +71,6 @@ describe('Observer trust cleanup', () => {
  it('drops a breed label from the binomial', () => expect(trustObserverProposal({ eligibleAnimal: true, notRealPhoto: false, observerName: 'Mouton Texel', observerScientific: 'Ovis aries "Texel"', aiScientific: null })).toEqual({ scientific: 'Ovis aries' }));
  it('drops stray punctuation', () => expect(trustObserverProposal({ eligibleAnimal: true, notRealPhoto: false, observerName: 'Iguane', observerScientific: 'Ctenosaura defensor)', aiScientific: null })).toEqual({ scientific: 'Ctenosaura defensor' }));
 });
+describe('Observer trust genus only', () => {
+ it('keeps a genus-only proposal in moderation', () => expect(trustObserverProposal({ eligibleAnimal: true, notRealPhoto: false, observerName: 'Gorgone', observerScientific: 'Briareum sp.', aiScientific: null })).toBeNull());
+});
