@@ -439,9 +439,12 @@ async function examine(
   // Confiance à l'observateur : un vrai animal vivant éligible est validé sous
   // SON nom, même si l'IA doute ou propose autre chose ; seuls les cas hors
   // espèce/hors règles restent humains.
-  const trusted = trustObserverProposal({ eligibleAnimal: verdict.eligible_animal, notRealPhoto, observerName: proposedName, observerScientific: proposedSci, aiScientific: sciConflict ? null : scientificLabel(verdict.scientific_name) })
+  // Sans conflit, le binôme normalisé de l'IA prime sur une saisie approximative.
+  const trusted = trustObserverProposal({ eligibleAnimal: verdict.eligible_animal, notRealPhoto, observerName: proposedName, observerScientific: sciConflict ? proposedSci : (scientificLabel(verdict.scientific_name) || proposedSci), aiScientific: sciConflict ? null : proposedSci })
   if (trusted) {
-    approvedName = proposedName
+    // Orthographe corrigée par l'IA tant qu'elle désigne le même animal.
+    const spelled = proposedEntry || nameConflict ? proposedName : finalName
+    approvedName = spelled.charAt(0).toUpperCase() + spelled.slice(1)
     approvedSci = trusted.scientific
   }
   const humanNeeded = !trusted && requiresHumanSpeciesReview({ confidence, nameMatches: verdict.name_matches, disagreement, unknown, notRealPhoto, scientific: approvedSci })
