@@ -457,6 +457,7 @@ async function examine(
         ? `species_disagreement:${verdict.scientific_name ?? verdict.animal_name ?? 'inconnu'}`
 
         : (verdict.reason ?? (ruleBreach ? 'rule_breach' : 'needs_human'))
+    const decisionDetail = `${decisionReason} |eligible:${String(verdict.eligible_animal)}|sci:${proposedSci ?? ''}`
 
 
     // Dataset : renvoi systématique vers la modération humaine (aucun refus auto).
@@ -476,7 +477,7 @@ async function examine(
       label_scientific_name: capture.scientific_name || null,
       user_description: capture.description || null,
       location: capture.location || null,
-      decision_reason: decisionReason,
+      decision_reason: decisionDetail,
       is_ground_truth: false,
     })
 
