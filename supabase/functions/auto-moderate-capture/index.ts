@@ -131,12 +131,12 @@ Deno.serve(async (req) => {
     if (pendErr) return json({ error: pendErr.message }, 500)
 
     if (batch && pending && pending.length > 0) {
-      const { data: seen } = await supabase
+      const { data: seen, error: seenError } = await supabase
         .from('ml_dataset_events')
         .select('capture_id, payload, decision_reason')
         .eq('source', 'auto-moderate-capture')
         .in('capture_id', pending.map((c: any) => c.id))
-      if (argumentsError(seen)) throw new Error('Invalid moderation history')
+      if (seenError) throw new Error('Moderation history unavailable')
       const already = new Set((seen || []).filter(completedUnderCurrentPolicy).map((r: any) => r.capture_id))
       pending = pending.filter((c: any) => !already.has(c.id)).slice(0, limit)
     }

@@ -56,7 +56,7 @@ Bundle group-specific art with biome fallbacks. Store standard/territory covers 
 
 ## One pending moderation request per user and species
 
-Lock manual submissions and keep the pending user/species unique index to prevent duplicates. Resubmit owned captures via the quota-charging RPC, preserving photo/XP; exclude corrections from auto-moderation for human review.
+Lock submissions; keep pending user/species uniqueness. Corrections use the quota RPC, preserve photo/XP and stay human-only. Auto-review verifies canonical observer names; version terminal events for one backlog retry and approve only still-pending non-corrections.
 
 ## Supabase writes must be awaited or chained to a handler
 
