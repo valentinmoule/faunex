@@ -1,6 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { logDatasetEvent } from '../_shared/dataset.ts'
-import { matchCatalogueSpecies, isTransientDbError } from '../_shared/species-matching.ts'
+import { CatalogueLookupError, matchCatalogueSpecies, isTransientDbError } from '../_shared/species-matching.ts'
 import { MORPHOLOGY_RULE, moderationVisionModels, isGenericDomesticChicken } from '../_shared/visual-identification-policy.ts'
 import { scientificOnlyOverride, applyForcedIdentity } from '../_shared/forced-identification.ts'
 import { shouldRecheckModerationIdentity } from '../_shared/moderation-conflict.ts'
@@ -159,7 +159,10 @@ Deno.serve(async (req) => {
             payload.animal_name = entry.name
             payload.scientific_name = entry.scientific_name || payload.scientific_name
           }
-        } catch {
+        } catch (error) {
+          if (error instanceof CatalogueLookupError && error.identityConflict) {
+            return json({ error: 'Les noms commun et scientifique sont contradictoires ou ambigus. Corrige les noms ou force explicitement le nom ; aucune modification enregistrée.', code: 'species_identity_conflict' })
+          }
           return json({ error: 'La fiche existante ne peut pas être vérifiée. Corrige les noms si nécessaire puis réessaie ; aucune modification enregistrée.', code: 'catalogue_lookup_failed' })
         }
       }
@@ -465,6 +468,7 @@ Deno.serve(async (req) => {
      * silencieusement pendant un recalcul de rareté et un doublon est créé. */
     let matches: any = null
     let matchErr: any = null
+    let identityRechecked = false
     for (let attempt = 0; attempt < 5; attempt++) {
       const res = await supabase.rpc('match_animal', {
         p_name: animal.animal_name || animalName,
@@ -473,7 +477,8 @@ Deno.serve(async (req) => {
       matches = res.data
       matchErr = res.error
       if (!matchErr) break
-      if (shouldRecheckModerationIdentity(forceName, matchErr, attempt > 0)) {
+      if (shouldRecheckModerationIdentity(forceName, matchErr, identityRechecked)) {
+        identityRechecked = true
         // Re-read the photo against both catalogue identities; neither the old
         // common name nor the generated Latin name alone proves the species.
         const byCommon = await matchCatalogueSpecies(supabase, animal.animal_name || animalName, null).catch(() => null)
