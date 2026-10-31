@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { identificationAccountPolicy } from "./accountPolicy.ts";
 import { imageBytes, imageDigest, issueAiProof } from '../_shared/economyProof.ts';
-import { isTransientDbError } from '../_shared/species-matching.ts';
+import { CatalogueLookupError, matchCatalogueSpecies, matchCatalogueWithIdentityRecheck } from '../_shared/species-matching.ts';
 import { MORPHOLOGY_RULE, isGenericDomesticChicken } from '../_shared/visual-identification-policy.ts';
 
 
@@ -951,27 +951,40 @@ serve(async (req) => {
     // scientifique, insensible casse/accents/tirets), on réutilise la fiche canonique
     // pour éviter les doublons type "Graphosome rayé" / "Graphosome d'Italie".
     let knownInBestiary = false;
+    let identityRechecked = false;
+    const matchIdentifiedSpecies = () => matchCatalogueWithIdentityRecheck(
+      admin,
+      () => ({ name: animalData.animal_name, scientific: animalData.scientific_name || null }),
+      async () => {
+        if (identityRechecked || budgetLeft() < 15_000) return false;
+        identityRechecked = true;
+        const [byCommon, byScientific] = await Promise.all([
+          matchCatalogueSpecies(admin, animalData.animal_name, null).catch(() => null),
+          matchCatalogueSpecies(admin, '', animalData.scientific_name || null).catch(() => null),
+        ]);
+        const correction = `${ID_PROMPT}\nTa réponse mélange des identités incompatibles ou ambiguës : ${JSON.stringify({ name: animalData.animal_name, scientific: animalData.scientific_name })}. Candidats du Bestiaire, jamais des preuves visuelles : ${JSON.stringify({ byCommon, byScientific })}. Réexamine la PHOTO et ses caractères diagnostiques. Produis un couple nom commun/scientifique cohérent, sans fusionner espèces, sous-espèces ou races distinctes. Si tu ne peux pas trancher, réponds Inconnu.`;
+        const checked = await callGateway(DEEP_MODEL, correction, 'low', imageUrl, 28_000).catch(() => null);
+        if (!checked?.ok) return false;
+        const corrected = await parseAnimal(checked, DEEP_MODEL).catch(() => null);
+        if (!corrected || corrected.is_real_photo !== true || corrected.image_type !== 'photo_reelle' ||
+          !corrected.animal_name || corrected.animal_name.toLowerCase() === 'inconnu' ||
+          !corrected.scientific_name || corrected.scientific_name.toLowerCase() === 'homo sapiens' ||
+          typeof corrected.confidence !== 'number' || corrected.confidence < 55) return false;
+        animalData = corrected;
+        return true;
+      },
+    );
+    const catalogueFailure = async (error: unknown) => {
+      await refundQuota();
+      const conflict = error instanceof CatalogueLookupError && error.identityConflict;
+      return await finish({ success: false, reason: 'unverified_species', hint: conflict
+        ? "Les noms proposés désignent des espèces différentes ou ambiguës. Propose la photo en modération pour vérifier l'espèce."
+        : "La fiche existante n'a pas pu être vérifiée. Réessaie ou propose l'animal pour vérification." },
+        conflict ? 'species_identity_conflict' : 'catalogue_lookup_failed');
+    };
     if (admin && animalData?.animal_name && animalData.animal_name.toLowerCase() !== "inconnu") {
       try {
-        /* Un timeout Postgres (57014) pendant un recalcul de rareté ne doit pas
-         * faire sauter silencieusement la déduplication : on retente avec un
-         * court backoff avant d'abandonner. */
-        let matches: any = null;
-        let matchErr: any = null;
-        for (let attempt = 0; attempt < 3; attempt++) {
-          const res = await admin.rpc("match_animal", {
-            p_name: animalData.animal_name,
-            p_scientific: animalData.scientific_name || null,
-          });
-          matches = res.data;
-          matchErr = res.error;
-          if (!matchErr) break;
-          console.error("match_animal failed", attempt, matchErr);
-          if (!isTransientDbError(matchErr.code, matchErr.message)) break;
-          await new Promise((r) => setTimeout(r, 700 * (attempt + 1)));
-        }
-        if (matchErr) throw new Error(`Catalogue lookup failed: ${matchErr.code}`);
-        const existing = Array.isArray(matches) ? matches[0] : matches;
+        const existing = await matchIdentifiedSpecies() as any;
 
         if (existing) {
           knownInBestiary = true;
@@ -982,8 +995,7 @@ serve(async (req) => {
         }
       } catch (e) {
         console.error("dedup lookup failed", e);
-        await refundQuota();
-        return await finish({ success: false, reason: "unverified_species", hint: "La fiche existante n'a pas pu être vérifiée. Réessaie ou propose l'animal pour vérification." }, "catalogue_lookup_failed");
+        return await catalogueFailure(e);
       }
     }
 
@@ -1044,24 +1056,13 @@ serve(async (req) => {
         // GBIF may correct the scientific name: check the catalogue again before
         // treating the corrected identity as a new species.
         if (admin) {
-          let rematches: any = null;
-          let rematchError: any = null;
-          for (let attempt = 0; attempt < 3; attempt++) {
-            const res = await admin.rpc("match_animal", {
-              p_name: animalData.animal_name, p_scientific: animalData.scientific_name || null,
-            });
-            rematches = res.data;
-            rematchError = res.error;
-            if (!rematchError) break;
-            console.error("match_animal rematch failed", attempt, rematchError);
-            if (!isTransientDbError(rematchError.code, rematchError.message)) break;
-            await new Promise((r) => setTimeout(r, 700 * (attempt + 1)));
+          let canonical: any;
+          try {
+            // A GBIF rematch must not replace the identity after its taxon verdict.
+            canonical = await matchCatalogueSpecies(admin, animalData.animal_name, animalData.scientific_name || null);
+          } catch (error) {
+            return await catalogueFailure(error);
           }
-          if (rematchError) {
-            await refundQuota();
-            return await finish({ success: false, reason: "unverified_species" }, "catalogue_lookup_failed");
-          }
-          const canonical = Array.isArray(rematches) ? rematches[0] : rematches;
           if (canonical) {
             knownInBestiary = true;
             animalData.animal_name = canonical.name;

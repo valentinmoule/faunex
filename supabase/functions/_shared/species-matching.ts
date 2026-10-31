@@ -12,12 +12,36 @@ export function isTransientDbError(code?: string, message?: string): boolean {
     .test(message ?? '');
 }
 
+export class CatalogueLookupError extends Error {
+  readonly identityConflict: boolean;
+  constructor(readonly code?: string, message?: string) {
+    super(`Catalogue lookup failed: ${code ?? 'unknown'} ${message ?? ''}`);
+    this.identityConflict = /SPECIES_IDENTITY_CONFLICT|AMBIGUOUS_SPECIES/.test(message ?? '');
+  }
+}
+
+/** One photo-based correction, followed by the same strict catalogue validation. */
+export async function matchCatalogueWithIdentityRecheck(
+  client: Parameters<typeof matchCatalogueSpecies>[0],
+  identity: () => { name: string; scientific: string | null },
+  recheck: () => Promise<boolean>,
+) {
+  const initial = identity();
+  try {
+    return await matchCatalogueSpecies(client, initial.name, initial.scientific);
+  } catch (error) {
+    if (!(error instanceof CatalogueLookupError) || !error.identityConflict || !await recheck()) throw error;
+    const corrected = identity();
+    return await matchCatalogueSpecies(client, corrected.name, corrected.scientific);
+  }
+}
+
 export async function matchCatalogueSpecies(client: { rpc: (name: string, args: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { code?: string; message?: string } | null }> }, name: string, scientific: string | null) {
   for (let attempt = 0; attempt < 5; attempt++) {
     const result = await client.rpc('match_animal', { p_name: name, p_scientific: scientific });
     if (!result.error) return Array.isArray(result.data) ? result.data[0] ?? null : result.data;
     if (!isTransientDbError(result.error.code, result.error.message) || attempt === 4)
-      throw new Error(`Catalogue lookup failed: ${result.error.code ?? 'unknown'}`);
+      throw new CatalogueLookupError(result.error.code, result.error.message);
     await new Promise(resolve => setTimeout(resolve, 800 * (attempt + 1)));
   }
   throw new Error('Catalogue lookup failed');

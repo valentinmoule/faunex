@@ -1,4 +1,5 @@
 # Roadmap
+- [x] Conflits d’identité : une reprise photo en identification, erreurs métier distinctes des pannes, reprise de modération indépendante des retries DB ; 36 tests passants, fonctions déployées, refus de confirmation contradictoire vérifié connecté sans écriture. Identification complète d’une photo conflictuelle non reproduite.
 - [x] Appliquer le nom forcé avant les contrôles de race et distinguer le refus d’un nom générique de l’incertitude visuelle : 13 tests passants, fonction déployée et aperçu « Poule Marans » ouvert sur la capture concernée sans approbation.
 - [x] Retirer « Poule et coq domestiques » et ses deux variantes : 3 fiches supprimées, 4 photos conservées en modération humaine ; identification et garde serveur exigent une race précise pour les nouvelles validations, 21 tests passants, fonctions déployées.
 
