@@ -1,8 +1,12 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
-import { AUTO_REVIEW_POLICY, completedUnderCurrentPolicy } from '../../supabase/functions/auto-moderate-capture/policy';
+import { AUTO_REVIEW_POLICY, completedUnderCurrentPolicy, scientificLabel } from '../../supabase/functions/auto-moderate-capture/policy';
 
 describe('Automatic review of current and future requests', () => {
+  it('removes cosmetic parentheses without dropping the subspecies', () => {
+    expect(scientificLabel(' (Acinonyx jubatus jubatus) ')).toBe('Acinonyx jubatus jubatus');
+    expect(scientificLabel('Gallus gallus domesticus')).toBe('Gallus gallus domesticus');
+  });
   it('re-examines current requests handled under an older policy', () => {
     expect(completedUnderCurrentPolicy({ payload: null, decision_reason: 'needs_human' })).toBe(false);
   });

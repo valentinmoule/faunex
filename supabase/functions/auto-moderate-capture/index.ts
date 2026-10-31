@@ -1,7 +1,8 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
 import { logDatasetEvent as writeDatasetEvent, type ServerDatasetEvent } from '../_shared/dataset.ts'
-import { AUTO_REVIEW_POLICY, completedUnderCurrentPolicy } from './policy.ts'
+import { AUTO_REVIEW_POLICY, completedUnderCurrentPolicy, scientificLabel } from './policy.ts'
+import { z } from 'npm:zod@3'
 import { attestModeratedCapture } from '../_shared/economyProof.ts'
 import { matchCatalogueSpecies } from '../_shared/species-matching.ts'
 import { STRICT_SPECIES_RULES, requiresHumanSpeciesReview } from '../_shared/strict-moderation.ts'
@@ -29,6 +30,7 @@ ${STRICT_SPECIES_RULES}
 
 - AUTHENTICITÉ : seule une VRAIE PHOTO d'animal VIVANT est valide. Invalide (is_real_photo false, name_matches false, confidence 0) : illustration, dessin, logo, mascotte, peinture, rendu 3D, image IA, capture/photo d'écran ou de papier, autocollant, tatouage, peluche, figurine, statue et tout OBJET en forme d'animal (déco, bibelot, déguisement, gonflable, gâteau, graffiti, panneau) → objet_representation ; animal MORT ou préparé (plat, poisson/fruits de mer servis ou en étal, viande, carcasse, trophée, taxidermie, écrasé, insecte épinglé, squelette, coquille vide) → animal_mort_ou_plat. Indices : matériau/couture/socle/yeux peints/posture rigide, aplats sans grain, fond uni, watermark, assiette/couverts/glace/découpe/sang.
 - Humain, plante, aucun animal, créature de fiction ou espèce éteinte → name_matches false, confidence 0.
+- Œuf, larve, chenille, cocon, chrysalide ; animal capturé ou pêché, ou image provenant d'Internet : name_matches false, confidence 0. Les juvéniles et adultes vivants observés normalement restent éligibles.
 - animal_name : le nom de l'observateur normalisé (orthographe, casse, race si visible), jamais une autre espèce. Nom scientifique = binôme latin réel correspondant au nom de l'observateur.
 - Rareté (France, 8 paliers) : common commune/quotidienne · uncommon peu commune/fréquente · rare plutôt rare, demande de la chance · very_rare rare/très localisée · ultra_rare menacée ou protégée · illustration_rare épique/quasi-impossible · special_rare mythique · hyper_rare légendaire, le sommet.
 
@@ -54,8 +56,11 @@ const isUncertainName = (value: unknown) => {
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
 
-  const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-  const supabase = createClient(Deno.env.get('SUPABASE_URL')!, serviceKey)
+  const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+  const serviceUrl = Deno.env.get('SUPABASE_URL')
+  const anonKey = Deno.env.get('SUPABASE_ANON_KEY')
+  if (!serviceKey || !serviceUrl || !anonKey) return json({ error: 'Service unavailable' }, 503)
+  const supabase = createClient(serviceUrl, serviceKey)
   let holdsLock = false
 
   try {
@@ -75,8 +80,8 @@ Deno.serve(async (req) => {
         isAdmin = true
       } else {
         const anonClient = createClient(
-          Deno.env.get('SUPABASE_URL')!,
-          Deno.env.get('SUPABASE_ANON_KEY')!,
+          serviceUrl,
+          anonKey,
           { global: { headers: { Authorization: authHeader } } }
         )
         const { data: claimsData, error: claimsError } = await anonClient.auth.getClaims(token)
@@ -87,7 +92,9 @@ Deno.serve(async (req) => {
       }
     }
 
-    const body = await req.json().catch(() => ({}))
+    const parsed = z.object({ capture_id: z.string().uuid().optional(), batch: z.boolean().optional(), limit: z.number().int().min(1).max(25).optional() }).safeParse(await req.json().catch(() => ({})))
+    if (!parsed.success) return json({ error: 'Invalid request' }, 400)
+    const body = parsed.data
     const captureId: string | undefined = body?.capture_id
     const batch: boolean = body?.batch === true
     let limit = Math.min(Math.max(Number(body?.limit) || 10, 1), 25)
@@ -124,7 +131,10 @@ Deno.serve(async (req) => {
     } else {
       if (!captureId) return json({ error: 'capture_id is required' }, 400)
       query = query.eq('id', captureId).limit(1)
-      if (!isAdmin) query = query.eq('user_id', callerId!)
+      if (!isAdmin) {
+        if (!callerId) return json({ error: 'Unauthorized' }, 401)
+        query = query.eq('user_id', callerId)
+      }
     }
 
     let { data: pending, error: pendErr } = await query
@@ -293,13 +303,13 @@ async function examine(
   // Resolve the observer's spelling before visual verification; outages and
   // conflicting identities must never become permission to invent a tile.
   let proposedName = name
-  let proposedSci = capture.scientific_name || null
+  let proposedSci = scientificLabel(capture.scientific_name)
   let proposedEntry: { id: string; name: string; scientific_name: string | null } | null = null
   try {
     proposedEntry = await matchCatalogueSpecies(supabase, name, proposedSci)
     if (proposedEntry) {
       proposedName = proposedEntry.name
-      proposedSci = proposedEntry.scientific_name || proposedSci
+      proposedSci = scientificLabel(proposedEntry.scientific_name) || proposedSci
     }
   } catch {
     await logDatasetEvent(supabase, { event_type: 'auto_moderation_deferred', source: 'auto-moderate-capture', capture_id: capture.id, user_id: capture.user_id, decision_reason: 'proposed_identity_unverified' })
@@ -410,7 +420,7 @@ async function examine(
   // RÈGLE : si l'IA n'est pas d'accord avec l'observateur, elle n'arbitre pas
   // seule — la capture part systématiquement en modération humaine.
   const userSci = norm(proposedSci)
-  const aiSci = norm(verdict.scientific_name)
+  const aiSci = norm(scientificLabel(verdict.scientific_name))
   const sciSame = !!userSci && !!aiSci && userSci === aiSci
   const sciConflict = !!userSci && !!aiSci && !sciSame
   const nameConflict = !compatibleNames(proposedName, finalName)
@@ -418,7 +428,7 @@ async function examine(
 
   // Accord : on garde toujours les noms de l'observateur (jamais ceux de l'IA).
   let approvedName = proposedEntry ? proposedName : finalName
-  let approvedSci = proposedSci || verdict.scientific_name || null
+  let approvedSci = proposedSci || scientificLabel(verdict.scientific_name)
 
   // Non-respect des règles : image non photographique, objet, animal mort,
   // humain, espèce fictive/éteinte → refus ferme + notification.
@@ -484,9 +494,10 @@ async function examine(
     if (canonical) {
       const entry = canonical as { name: string; scientific_name: string | null }
       approvedName = entry.name
-      approvedSci = entry.scientific_name || approvedSci
+      approvedSci = scientificLabel(entry.scientific_name) || approvedSci
     }
   } catch {
+    await logDatasetEvent(supabase, { event_type: 'auto_moderation_deferred', source: 'auto-moderate-capture', capture_id: capture.id, user_id: capture.user_id, decision_reason: 'catalogue_lookup_failed' })
     await releaseClaim(supabase, capture.id)
     return { capture_id: capture.id, approved: false, reason: 'needs_human', detail: 'catalogue_lookup_failed' }
   }
@@ -548,6 +559,7 @@ async function examine(
   }
   if (updErr) {
     console.error('auto-approve update failed', updErr)
+    await logDatasetEvent(supabase, { event_type: 'auto_moderation_deferred', source: 'auto-moderate-capture', capture_id: capture.id, user_id: capture.user_id, decision_reason: `approval_failed:${updErr.code ?? 'unknown'}` })
     // La capture reste 'pending_review' (modération manuelle) et redevient
     // réexaminable au prochain passage.
     await releaseClaim(supabase, capture.id)
