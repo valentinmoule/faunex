@@ -64,3 +64,6 @@ describe('Observer trust', () => {
  it('keeps non-photos in moderation', () => expect(trustObserverProposal({ ...base, notRealPhoto: true })).toBeNull());
  it('keeps proposals without a species binomial in moderation', () => expect(trustObserverProposal({ ...base, observerScientific: 'Tylomelania', aiScientific: null })).toBeNull());
 });
+describe('Observer trust casing', () => {
+ it('accepts a lowercase observer binomial', () => expect(trustObserverProposal({ eligibleAnimal: true, notRealPhoto: false, observerName: "Tortue d'Hermann", observerScientific: 'testudo hermanni hermanni', aiScientific: null })).toEqual({ scientific: 'Testudo hermanni hermanni' }));
+});
