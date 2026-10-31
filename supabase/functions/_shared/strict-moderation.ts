@@ -6,3 +6,14 @@ export function requiresHumanSpeciesReview(input: { confidence: number; nameMatc
     !Number.isFinite(input.confidence) || input.confidence < 0.9 ||
     !/^[A-Z][a-z]+\s+[a-z][a-z-]+(?:\s+[a-z][a-z-]+)?$/.test(scientific);
 }
+
+const BINOMIAL = /^[A-Z][a-z]+\s+[a-z][a-z-]+(?:\s+[a-z][a-z-]+)?$/;
+
+/** Trust the observer's species when the photo shows an eligible living animal and a real binomial is known. */
+export function trustObserverProposal(input: { eligibleAnimal: unknown; notRealPhoto: boolean; observerName: unknown; observerScientific: unknown; aiScientific: unknown }): { scientific: string } | null {
+  if (input.eligibleAnimal !== true || input.notRealPhoto) return null;
+  const name = String(input.observerName ?? '').trim();
+  if (name.length < 3 || /inconnu|unknown|\?/i.test(name)) return null;
+  const scientific = [input.observerScientific, input.aiScientific].map((v) => String(v ?? '').trim()).find((v) => BINOMIAL.test(v));
+  return scientific ? { scientific } : null;
+}

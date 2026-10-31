@@ -436,7 +436,15 @@ async function examine(
   const ruleBreach = notRealPhoto || (!disagreement && verdict.name_matches === false && confidence === 0)
 
   // Precise species confirmation is required; uncertainty is reviewed by a human.
-  const humanNeeded = requiresHumanSpeciesReview({ confidence, nameMatches: verdict.name_matches, disagreement, unknown, notRealPhoto, scientific: approvedSci })
+  // Confiance à l'observateur : un vrai animal vivant éligible est validé sous
+  // SON nom, même si l'IA doute ou propose autre chose ; seuls les cas hors
+  // espèce/hors règles restent humains.
+  const trusted = trustObserverProposal({ eligibleAnimal: verdict.eligible_animal, notRealPhoto, observerName: proposedName, observerScientific: proposedSci, aiScientific: sciConflict ? null : scientificLabel(verdict.scientific_name) })
+  if (trusted) {
+    approvedName = proposedName
+    approvedSci = trusted.scientific
+  }
+  const humanNeeded = !trusted && requiresHumanSpeciesReview({ confidence, nameMatches: verdict.name_matches, disagreement, unknown, notRealPhoto, scientific: approvedSci })
 
 
 
@@ -712,6 +720,10 @@ function callGateway(
                   enum: ['photo_reelle', 'illustration', 'dessin', 'logo_icone', 'peinture', 'rendu_3d', 'image_generee_ia', 'capture_ecran', 'photo_ecran_ou_papier', 'jouet_peluche_figurine', 'objet_representation', 'animal_mort_ou_plat', 'autre'],
                   description: "Nature réelle de l'image.",
                 },
+                eligible_animal: {
+                  type: 'boolean',
+                  description: "true si la photo réelle montre un vrai animal vivant éligible (adulte ou juvénile, observé normalement), même si l'espèce exacte reste incertaine. false pour humain, plante, aucun animal, fiction, espèce éteinte, animal mort/préparé, œuf, larve, chenille, cocon, chrysalide, animal capturé/pêché ou image d'Internet.",
+                },
                 name_matches: {
                   type: 'boolean',
                   description: 'true seulement si la photo montre sans ambiguïté l\'animal nommé.',
@@ -752,7 +764,7 @@ function callGateway(
                   additionalProperties: false,
                 },
               },
-              required: ['is_real_photo', 'image_type', 'name_matches', 'confidence', 'reason', 'animal_name', 'scientific_name', 'category', 'description', 'habitat', 'diet', 'conservation', 'fun_fact', 'rarity'],
+              required: ['is_real_photo', 'image_type', 'eligible_animal', 'name_matches', 'confidence', 'reason', 'animal_name', 'scientific_name', 'category', 'description', 'habitat', 'diet', 'conservation', 'fun_fact', 'rarity'],
               additionalProperties: false,
             },
           },
