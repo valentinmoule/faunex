@@ -14,6 +14,6 @@ export function trustObserverProposal(input: { eligibleAnimal: unknown; notRealP
   if (input.eligibleAnimal !== true || input.notRealPhoto) return null;
   const name = String(input.observerName ?? '').trim();
   if (name.length < 3 || /inconnu|unknown|\?/i.test(name)) return null;
-  const scientific = [input.observerScientific, input.aiScientific].map((v) => { const t = String(v ?? '').trim().replace(/\s+/g, ' ').toLowerCase(); return t.charAt(0).toUpperCase() + t.slice(1); }).find((v) => BINOMIAL.test(v));
+  const scientific = [input.observerScientific, input.aiScientific].map((v) => { const t = String(v ?? '').replace(/["'«»“”]+[^"'«»“”]*["'«»“”]+/g, ' ').replace(/[^A-Za-z\s-]/g, ' ').trim().replace(/\s+/g, ' ').toLowerCase(); return t.charAt(0).toUpperCase() + t.slice(1); }).find((v) => BINOMIAL.test(v));
   return scientific ? { scientific } : null;
 }

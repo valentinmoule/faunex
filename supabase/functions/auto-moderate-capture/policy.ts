@@ -1,4 +1,4 @@
-export const AUTO_REVIEW_POLICY = 'observer-trust-v2';
+export const AUTO_REVIEW_POLICY = 'observer-trust-v3';
 
 /** Cosmetic parentheses are not part of a scientific identity. */
 export function scientificLabel(value: unknown): string | null {
