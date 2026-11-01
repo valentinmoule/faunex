@@ -1,7 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { logDatasetEvent } from '../_shared/dataset.ts'
 import { CatalogueLookupError, matchCatalogueSpecies, isTransientDbError } from '../_shared/species-matching.ts'
-import { MORPHOLOGY_RULE, moderationVisionModels, isGenericDomesticChicken, chickenFallbackName } from '../_shared/visual-identification-policy.ts'
+import { MORPHOLOGY_RULE, moderationVisionModels, isGenericDomesticChicken, breedFallbackName, fallbackScientific } from '../_shared/visual-identification-policy.ts'
 import { COLLECTIBLE_VARIANT_RULE } from '../_shared/collectible-variants.ts'
 import { scientificOnlyOverride, applyForcedIdentity } from '../_shared/forced-identification.ts'
 import { shouldRecheckModerationIdentity } from '../_shared/moderation-conflict.ts'
@@ -454,13 +454,13 @@ Deno.serve(async (req) => {
       scientificName: overrideScientific,
     })
     // Mode forcé : le modérateur a le dernier mot, même pour un nom générique.
-    // Poule/coq sans race sûre : on garde la fiche générique existante.
+    // Race peu sûre : on garde la fiche générique existante.
     if (!forceName) {
-      const fallback = chickenFallbackName(animal.animal_name, animal.scientific_name,
+      const fallback = breedFallbackName(animal.animal_name, animal.scientific_name,
         animal.breed_uncertain ? 0 : (typeof animal.confidence === 'number' ? animal.confidence : null))
       if (fallback) {
         animal.animal_name = fallback
-        animal.scientific_name = 'Gallus gallus domesticus'
+        animal.scientific_name = fallbackScientific(fallback) ?? animal.scientific_name
         animal.breed_uncertain = false
       }
     }
@@ -517,13 +517,13 @@ Deno.serve(async (req) => {
       await new Promise((r) => setTimeout(r, 800 * (attempt + 1)))
     }
 
-    // Poule/coq sans race sûre : on garde la fiche générique existante.
+    // Race peu sûre : on garde la fiche générique existante.
     if (!forceName) {
-      const fallback = chickenFallbackName(animal.animal_name, animal.scientific_name,
+      const fallback = breedFallbackName(animal.animal_name, animal.scientific_name,
         animal.breed_uncertain ? 0 : (typeof animal.confidence === 'number' ? animal.confidence : null))
       if (fallback) {
         animal.animal_name = fallback
-        animal.scientific_name = 'Gallus gallus domesticus'
+        animal.scientific_name = fallbackScientific(fallback) ?? animal.scientific_name
         animal.breed_uncertain = false
       }
     }

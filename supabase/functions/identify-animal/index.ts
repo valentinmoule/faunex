@@ -3,7 +3,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { identificationAccountPolicy } from "./accountPolicy.ts";
 import { imageBytes, imageDigest, issueAiProof } from '../_shared/economyProof.ts';
 import { CatalogueLookupError, matchCatalogueSpecies, matchCatalogueWithIdentityRecheck } from '../_shared/species-matching.ts';
-import { MORPHOLOGY_RULE, isGenericDomesticChicken, chickenFallbackName, isConfidentGenericDomestic } from '../_shared/visual-identification-policy.ts';
+import { MORPHOLOGY_RULE, isGenericDomesticChicken, breedFallbackName, fallbackScientific, isConfidentGenericDomestic } from '../_shared/visual-identification-policy.ts';
 import { COLLECTIBLE_VARIANT_RULE } from '../_shared/collectible-variants.ts';
 import { cropToSubject, shouldZoomOnSubject, zoomIsBetter } from '../_shared/subject-crop.ts';
 
@@ -983,15 +983,15 @@ serve(async (req) => {
       }
     };
 
-    // Poules/coqs : race peu sûre ou libellé vague → fiche générique existante.
+    // Race/sous-espèce peu sûre (tous animaux domestiques) ou libellé vague → fiche générique existante.
     {
-      const fallback = chickenFallbackName(animalData?.animal_name, animalData?.scientific_name,
+      const fallback = breedFallbackName(animalData?.animal_name, animalData?.scientific_name,
         typeof animalData?.confidence === "number" ? animalData.confidence : null);
       if (fallback && animalData) {
         animalData.animal_name = fallback;
-        animalData.scientific_name = "Gallus gallus domesticus";
+        animalData.scientific_name = fallbackScientific(fallback) ?? animalData.scientific_name;
         animalData.scientific_rank = "subspecies";
-        animalData.category = "Oiseaux";
+        if (/^(Poule|Coq) /.test(fallback)) animalData.category = "Oiseaux";
         animalData.confidence = Math.max(Number(animalData.confidence) || 0, 80);
       }
     }
