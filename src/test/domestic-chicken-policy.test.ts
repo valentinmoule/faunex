@@ -3,8 +3,13 @@ import { isGenericDomesticChicken } from '../../supabase/functions/_shared/visua
 
 describe('domestic chicken identities', () => {
   it('rejects Poule et coq domestiques and generic variants', () => {
-    for (const name of ['Poule et coq domestiques', 'Poule domestique et coq domestique', 'Coq et poule domestiques', 'Poule domestique', 'Coq domestique', 'Poule', 'Coq']) {
+    for (const name of ['Poule et coq domestiques', 'Poule domestique et coq domestique', 'Coq et poule domestiques', 'Poule', 'Coq']) {
       expect(isGenericDomesticChicken(name)).toBe(true);
+    }
+  });
+  it('keeps the canonical Poule domestique / Coq domestique tiles', () => {
+    for (const name of ['Poule domestique', 'Coq domestique']) {
+      expect(isGenericDomesticChicken(name)).toBe(false);
     }
   });
   it('preserves named breeds and distinct wild species', () => {
