@@ -108,7 +108,7 @@ Apply shared facts after capture name canonicalization, reject scientific confli
 <!-- LOVABLE:END -->
 
 ## Capture UPDATE guard
-Compare protected fields via SECURITY DEFINER; self-querying captures in RLS recurses.
+Compare protected fields via SECURITY DEFINER; self-querying RLS recurses.
 
 ## Themed collections are data, not code
 
@@ -120,7 +120,7 @@ Contest RPCs enforce Paris weeks and one entry/vote; winner triggers use a servi
 
 ## Winner overlay shares the existing card interaction
 
-Use WinnerHoloEffect in detail/fullscreen, mapping package variables to HolographicCard springs without new gestures; one render path avoids mixed foil styles and preserves zoom.
+Use WinnerHoloEffect in detail/fullscreen via HolographicCard springs, no new gestures; one render path avoids mixed foils and keeps zoom.
 
 ## Moderator-forced identities bypass catalogue identity checks
 
