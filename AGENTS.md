@@ -24,7 +24,7 @@ Portal fixed overlays into the open `[role="dialog"]`, else `document.body`; tra
 
 ## iOS headers and card surfaces stay within their viewport
 
-Keep sticky headers below safe areas, drop entry transforms, and scroll species sheets vertically (carousels horizontally). Use one gradient for native iOS iridescent frames; dual clipping is unstable in WebKit. Constrain capture results to the viewport and measure the fixed footer for scroll clearance, so comparison photos remain reachable.
+Keep sticky headers below safe areas, drop entry transforms. Use one gradient for native iOS iridescent frames; dual clipping is unstable in WebKit. Constrain capture results to the viewport and measure the fixed footer for scroll clearance, so comparison photos remain reachable.
 
 ## Rewards are server-authoritative
 
@@ -52,7 +52,7 @@ Import badge art locally (no hosted asset routes natively).
 
 ## Collection artwork keeps explicit group assignments
 
-Bundle group-specific art with biome fallbacks. Store standard/territory covers as owner-checked, user-scoped capture references; keep custom covers separate, so personal choices never change shared art and released captures stop supplying covers.
+Bundle group art with biome fallbacks. Covers are owner-checked, user-scoped capture references, custom ones separate, so personal choices never change shared art.
 
 ## One pending moderation request per user and species
 
@@ -120,7 +120,7 @@ Contest RPCs enforce Paris weeks and one entry/vote; winner triggers use a servi
 
 ## Winner overlay shares the existing card interaction
 
-Use WinnerHoloEffect in detail/fullscreen via HolographicCard springs, no new gestures; one render path avoids mixed foils and keeps zoom.
+Use WinnerHoloEffect via HolographicCard springs; one render path avoids mixed foils.
 
 ## Moderator-forced identities bypass catalogue identity checks
 
@@ -128,4 +128,4 @@ Write forced names verbatim via service-only `moderation_force_apply_capture`; i
 
 ## Small subjects get one zoomed cheap pass
 
-Vague results on small subject boxes rerun the cheap model on a server crop (reused by the deep pass); image tokens are flat-rate. Skip deep only for consistent generic domestic answers; log per-pass results so thresholds follow measurements.
+Vague results on small subject boxes rerun the cheap model on a server crop (reused by the deep pass); image tokens are flat-rate. Skip deep only for consistent generic domestic answers; log per-pass results so thresholds follow measurements. The deep pass gets verified confusions from `identification_confusions` as text hints only; manual names suggest existing tiles.

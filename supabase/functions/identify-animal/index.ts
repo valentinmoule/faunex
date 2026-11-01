@@ -860,11 +860,26 @@ serve(async (req) => {
       // Quand la passe rapide n'a aucun résultat, une seule reprise est permise
       // après un retour explicitement temporaire du service. Une réponse rapide
       // déjà exploitable ne déclenche jamais de seconde tentative profonde.
+      // Confusions déjà corrigées par les modérateurs pour cette réponse :
+      // simple rappel textuel, jamais une preuve ; aucun appel IA en plus.
+      let confusionHint = "";
+      const firstSci = String(animalData?.scientific_name ?? "").trim();
+      if (cacheDb && /^[A-Za-z]+ [a-z]+/.test(firstSci)) {
+        try {
+          const { data: conf } = await cacheDb.rpc("identification_confusions", { _scientific: firstSci });
+          if (Array.isArray(conf) && conf.length) {
+            passes.confusions = conf.length;
+            confusionHint = `\nConfusions déjà corrigées par des modérateurs pour « ${firstSci} » : ${conf.map((c: any) => `${c.label_name} (${c.label_scientific})`).join(", ")}. Compare leurs critères diagnostiques visibles ; ne choisis l'une d'elles que si la photo le montre.`;
+          }
+        } catch (e) {
+          console.error("confusion lookup failed", e);
+        }
+      }
       const deep = await tryModel(
         DEEP_MODEL,
         animalData ? 1 : 2,
 
-        ID_PROMPT,
+        ID_PROMPT + confusionHint,
         "low",
         zoomedImage ?? imageUrl,
       );

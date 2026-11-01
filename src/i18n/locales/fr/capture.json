@@ -168,7 +168,9 @@
       "charCount": "{{count}}/500",
       "aiNote": "\n\n[Vérification demandée] L'IA proposait : {{name}}{{scientific}}{{confidence}}.",
       "aiNoteScientific": " ({{scientific}})",
-      "aiNoteConfidence": " — {{confidence}}% de confiance"
+      "aiNoteConfidence": " — {{confidence}}% de confiance",
+      "nameSuggestions": "Espèces du Bestiaire",
+      "vagueHint": "Nom trop vague : choisis l'espèce exacte si tu la reconnais."
     },
     "duplicate": {
       "warning": "⚠️ Tu as déjà cette espèce dans ton Faunex : {{name}}",

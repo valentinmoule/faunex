@@ -168,7 +168,9 @@
       "charCount": "{{count}}/500",
       "aiNote": "\n\n[Verification requested] The AI suggested: {{name}}{{scientific}}{{confidence}}.",
       "aiNoteScientific": " ({{scientific}})",
-      "aiNoteConfidence": " — {{confidence}}% confidence"
+      "aiNoteConfidence": " — {{confidence}}% confidence",
+      "nameSuggestions": "Bestiary species",
+      "vagueHint": "Name too vague: pick the exact species if you recognise it."
     },
     "duplicate": {
       "warning": "⚠️ You already have this species in your Faunex: {{name}}",

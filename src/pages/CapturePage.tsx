@@ -19,6 +19,7 @@ import { useCaptureReveal } from '@/hooks/useCaptureReveal';
 import RevealStage from '@/components/capture/RevealStage';
 import CropPhotoDialog from '@/components/capture/CropPhotoDialog';
 import { Crop as CropIcon } from 'lucide-react';
+import ManualSpeciesSuggestions from '@/components/capture/ManualSpeciesSuggestions';
 import { supabase } from '@/integrations/supabase/client';
 import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
 import RarityBadge from '@/components/RarityBadge';
@@ -1123,6 +1124,11 @@ setManualMode(false);
                 maxLength={100}
                 className="w-full px-4 py-2.5 bg-primary-foreground/10 rounded-xl text-sm text-primary-foreground placeholder:text-primary-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/30 font-body"
               />
+              <ManualSpeciesSuggestions
+                query={manualName}
+                onPick={s => { setManualName(s.name); setManualSpecies(s.scientific_name ?? ''); }}
+              />
+
               <input
                 type="text"
                 placeholder={t('capture.manual.speciesPlaceholder')}
