@@ -13,9 +13,12 @@ import {
   SpeciesFilterButton,
   SpeciesSortFilterSheet,
   applySpeciesSortFilter,
+  captureHasLocation,
+  countByLocation,
   countByPopularity,
   countByRarity,
   popularityTierOf,
+  type LocationFilter,
   type PopularityTier,
   type SpeciesSort,
 } from '@/components/SpeciesSortFilter';
@@ -267,6 +270,7 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const [mineRarityFilter, setMineRarityFilter] = useState<Rarity[]>([]);
   const [mineCategoryFilter, setMineCategoryFilter] = useState<string[]>([]);
   const [minePopularityFilter, setMinePopularityFilter] = useState<PopularityTier[]>([]);
+  const [mineLocationFilter, setMineLocationFilter] = useState<LocationFilter[]>([]);
   const [userDisplayName, setUserDisplayName] = useState('');
 
   useEffect(() => {
@@ -893,7 +897,10 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
   }, [animals]);
 
   const mineActiveFilterCount =
-    mineRarityFilter.length + mineCategoryFilter.length + minePopularityFilter.length;
+    mineRarityFilter.length +
+    mineCategoryFilter.length +
+    minePopularityFilter.length +
+    mineLocationFilter.length;
 
   /** Catégories réellement présentes dans mes captures, avec compteur. */
   const mineCategoryData = useMemo(() => {
@@ -916,6 +923,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
     () => countByPopularity(myCaptures.map((c) => ({ finders: findersByName.get(c.name.toLowerCase()) ?? 0 }))),
     [myCaptures, findersByName],
   );
+  const mineLocationCountData = useMemo(() => countByLocation(myCaptures), [myCaptures]);
 
   // Flat list of my own captures (one entry per capture), filtered + trié selon le mode choisi
   const myCapturedAnimals = useMemo(() => {
@@ -932,6 +940,11 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
       .filter(c =>
         minePopularityFilter.length === 0 ||
         minePopularityFilter.includes(popularityTierOf(findersByName.get(c.name.toLowerCase()) ?? 0)),
+      )
+      .filter(
+        (c) =>
+          mineLocationFilter.length === 0 ||
+          mineLocationFilter.includes(captureHasLocation(c) ? 'with' : 'without'),
       )
       .filter(c =>
         !q ||
@@ -963,7 +976,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
       return applyCustomCaptureOrder(list, customOrder);
     }
     return list.sort((a, b) => +new Date(b.discoveredAt || 0) - +new Date(a.discoveredAt || 0));
-  }, [favoriteIds, myCaptures, mineRarityFilter, mineCategoryFilter, minePopularityFilter, findersByName, mineSearch, mineSort, customOrder]);
+  }, [favoriteIds, myCaptures, mineRarityFilter, mineCategoryFilter, minePopularityFilter, mineLocationFilter, findersByName, mineSearch, mineSort, customOrder]);
 
 
 
@@ -1996,18 +2009,22 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                 availableCategories={mineCategoryData}
                 availableRarities={mineRarityCountData}
                 availablePopularities={minePopularityCountData}
+                availableLocations={mineLocationCountData}
                 categories={mineCategoryFilter}
                 onCategoriesChange={setMineCategoryFilter}
                 rarities={mineRarityFilter}
                 onRaritiesChange={setMineRarityFilter}
                 popularities={minePopularityFilter}
                 onPopularitiesChange={setMinePopularityFilter}
+                locations={mineLocationFilter}
+                onLocationsChange={setMineLocationFilter}
                 resultCount={myCapturedAnimals.length}
                 confirmLabel={t('bestiary.mine.count', { count: myCapturedAnimals.length })}
                 onReset={() => {
                   setMineRarityFilter([]);
                   setMineCategoryFilter([]);
                   setMinePopularityFilter([]);
+                  setMineLocationFilter([]);
                 }}
               />
             </section>
