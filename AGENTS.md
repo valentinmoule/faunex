@@ -88,11 +88,11 @@ Read private preferences with `get_my_profile`; keep public profile fields and l
 
 ## Realtime channel names must be unique per subscription
 
-Suffix channels randomly; coalesce Premium/badge reads by user/event, revalidate refreshes and ignore stale accounts.
+Suffix channels randomly; coalesce Premium/badge reads and ignore stale accounts.
 
 ## Identification account overrides are server-authoritative
 
-Resolve internal overrides from server-authenticated accounts, never request fields; preserve ordinary routing/quotas.
+Resolve overrides from server-authenticated accounts, never request fields.
 
 <!-- LOVABLE:BEGIN -->
 Verify bedbug predictions independently of confidence; failed verification returns uncertainty. Honor advanced moderation vision, keeping forced documentary names economical, because confident visual errors bypass review.
