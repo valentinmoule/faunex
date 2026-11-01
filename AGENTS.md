@@ -125,3 +125,7 @@ Use WinnerHoloEffect in detail/fullscreen, mapping package variables to Holograp
 ## Moderator-forced identities bypass catalogue identity checks
 
 Write forced names verbatim via service-only `moderation_force_apply_capture`; identity triggers tolerate conflicts only there or for admin/moderator sessions, so automatic paths stay strict.
+
+## Small subjects get one zoomed cheap pass
+
+When the first identification is vague and the subject box is small, rerun the cheap model on a server-side crop (and give the deep pass that crop), because image tokens are flat-rate and full frames hide small animals' features.
