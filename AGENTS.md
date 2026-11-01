@@ -100,7 +100,7 @@ Verify bedbug predictions independently of confidence; failed verification retur
 
 ## Custom collections are species lists, not capture lists
 
-Store species names, not capture IDs; refresh mounted hooks after writes and hide capture-only favorites for uncaptured species.
+Store species names, not capture IDs; refresh hooks after writes; hide capture-only favorites for uncaptured species.
 
 <!-- LOVABLE:BEGIN -->
 ## Canonical species facts
@@ -108,7 +108,7 @@ Apply shared facts after capture name canonicalization, reject scientific confli
 <!-- LOVABLE:END -->
 
 ## Capture UPDATE guard
-Compare protected fields via SECURITY DEFINER; self-querying captures in RLS recurses.
+Compare protected fields via SECURITY DEFINER; self-querying RLS recurses.
 
 ## Themed collections are data, not code
 
@@ -116,11 +116,11 @@ Store admin themed collections in `themed_collections` (matched by `src/lib/them
 
 ## Photo contest is server-authoritative
 
-Contest RPCs enforce Paris weeks and one entry/vote. Winner-row triggers use a service-only notifier; hourly finalization is the timed backstop. Persist email/push completion separately with stable event keys. Results respect managed unsubscribe and registered push devices. Use the shared winner cache by capture ID, never species.
+Contest RPCs enforce Paris weeks and one entry/vote; winner triggers use a service-only notifier with hourly finalization backstop. Persist email/push completion separately with stable keys, respecting unsubscribe and registered devices. Cache winners by capture ID, never species.
 
 ## Winner overlay shares the existing card interaction
 
-Use WinnerHoloEffect in detail/fullscreen, mapping package variables to HolographicCard springs without new gestures; one render path avoids mixed foil styles and preserves zoom.
+Use WinnerHoloEffect in detail/fullscreen via HolographicCard springs, no new gestures; one render path avoids mixed foils and keeps zoom.
 
 ## Moderator-forced identities bypass catalogue identity checks
 
@@ -128,4 +128,4 @@ Write forced names verbatim via service-only `moderation_force_apply_capture`; i
 
 ## Small subjects get one zoomed cheap pass
 
-Vague results on small subject boxes rerun the cheap model on a server crop (reused by the deep pass); image tokens are flat-rate.
+Vague results on small subject boxes rerun the cheap model on a server crop (reused by the deep pass); image tokens are flat-rate. Skip deep only for consistent generic domestic answers; log per-pass results so thresholds follow measurements.
