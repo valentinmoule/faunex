@@ -676,6 +676,8 @@ const SHARED_BINOMIALS = new Set([
   'sus scrofa domesticus', 'gallus gallus domesticus', 'gallus gallus',
   'oryctolagus cuniculus', 'anas platyrhynchos domesticus',
   'cavia porcellus', 'mesocricetus auratus', 'columba livia domestica',
+  // Variantes collectables du paon (bleu, blanc, nigripenne, panaché).
+  'pavo cristatus',
 ])
 
 /**
