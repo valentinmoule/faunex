@@ -1,4 +1,5 @@
 # Roadmap
+- [x] Filtre « Localisation » dans Mon Faunex : lignes avec/sans localisation (coordonnées GPS ou lieu saisi), compteurs, badge d'actifs et réinitialisation ; 6 tests passants, build OK, aperçu connecté 394×852 vérifié (141 → 2 captures sans position).
 - [x] Résultat en doublon : défilement borné au viewport et espace calculé selon le pied fixe ; deux photos entièrement visibles, défilement manuel vérifié en aperçu connecté 394×852 avec identification simulée, sans remplacement ; 5 tests passants, build OK. Téléphone natif non testé.
 - [x] Paons : quatre variantes collectables, binôme partagé protégé du renommage et des doublons scientifiques ; « Paon » fusionné sans perdre les 3 photos/XP ; 46 tests passants, fonctions déployées, quatre fiches visibles et photo blanche reconnue « Paon blanc » (98 %, cache relu) connecté. Reconnaissance de nouvelles photos nigripenne/panaché non vérifiée.
 - [ ] Soumission du Criquet des clairières : couple exact accepté par le contrôle connecté ; erreur réelle non identifiée, attente du pseudo et de la saisie exacte pour reproduire le refus sans modifier les règles.

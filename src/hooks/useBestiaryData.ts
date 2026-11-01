@@ -152,6 +152,8 @@ export const useBestiaryData = (userId: string | undefined, opts?: { light?: boo
       funFact: capture.fun_fact || '',
       discoveredAt: capture.created_at,
       location: capture.location || '',
+      latitude: capture.latitude ?? null,
+      longitude: capture.longitude ?? null,
     });
 
 const buildList = (

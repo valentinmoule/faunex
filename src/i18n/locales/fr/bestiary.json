@@ -22,6 +22,10 @@
       "trending": "Très populaire",
       "hot": "Incontournable"
     },
+    "locationFilter": {
+      "with": "Avec localisation",
+      "without": "Sans localisation"
+    },
     "allSpecies": "Toutes les espèces",
     "results": "Résultats",
     "slotLimitToast": {
@@ -117,6 +121,7 @@
       "categoriesLabel": "Catégories",
       "rarityLabel": "Rareté",
       "popularityLabel": "Popularité",
+      "locationLabel": "Localisation",
       "reset": "Réinitialiser",
       "seeSpecies": "Voir {{count}} espèce",
       "seeSpecies_one": "Voir {{count}} espèce",

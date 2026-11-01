@@ -14,6 +14,8 @@ import {
   GripVertical,
   type LucideIcon,
   Bookmark,
+  MapPin,
+  MapPinOff,
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -53,6 +55,39 @@ export const countByPopularity = <T extends { finders?: number }>(list: T[]): Pa
   const counts: Partial<Record<PopularityTier, number>> = {};
   for (const a of list) {
     const tier = popularityTierOf(a.finders ?? 0);
+    counts[tier] = (counts[tier] ?? 0) + 1;
+  }
+  return counts;
+};
+
+/** Filtre « localisation » : une capture est considérée localisée si elle a des
+ *  coordonnées GPS ou un lieu saisi à la main. */
+export type LocationFilter = 'with' | 'without';
+
+export const LOCATION_FILTER_LABELS: Record<LocationFilter, { label: string; Icon: LucideIcon }> = {
+  get with() {
+    return { label: i18n.t('bestiary.locationFilter.with'), Icon: MapPin };
+  },
+  get without() {
+    return { label: i18n.t('bestiary.locationFilter.without'), Icon: MapPinOff };
+  },
+};
+
+export const captureHasLocation = (c: {
+  location?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+}): boolean => (c.latitude != null && c.longitude != null) || (c.location || '').trim() !== '';
+
+/** Compteur de captures avec / sans localisation. */
+export const countByLocation = <
+  T extends { location?: string | null; latitude?: number | null; longitude?: number | null },
+>(
+  list: T[],
+): Partial<Record<LocationFilter, number>> => {
+  const counts: Partial<Record<LocationFilter, number>> = {};
+  for (const c of list) {
+    const tier: LocationFilter = captureHasLocation(c) ? 'with' : 'without';
     counts[tier] = (counts[tier] ?? 0) + 1;
   }
   return counts;
@@ -222,6 +257,10 @@ interface SpeciesSortFilterSheetProps {
   availableRarities?: Partial<Record<Rarity, number>>;
   /** Compteurs par palier de popularité (même règle d'affichage). */
   availablePopularities?: Partial<Record<PopularityTier, number>>;
+  /** Section localisation, affichée seulement si le filtre est fourni. */
+  locations?: LocationFilter[];
+  onLocationsChange?: (locations: LocationFilter[]) => void;
+  availableLocations?: Partial<Record<LocationFilter, number>>;
   resultCount: number;
   onReset: () => void;
   /** Libellé du bouton de validation (par défaut « Voir X espèces »). */
@@ -244,6 +283,9 @@ export const SpeciesSortFilterSheet = ({
   onCategoriesChange,
   availableRarities,
   availablePopularities,
+  locations,
+  onLocationsChange,
+  availableLocations,
   resultCount,
   onReset,
   confirmLabel,
@@ -400,6 +442,33 @@ export const SpeciesSortFilterSheet = ({
             })}
           </ListGroup>
         </section>
+
+        {locations !== undefined && onLocationsChange && (
+          <section className="mt-5">
+            <SectionLabel>{t('bestiary.filterModal.locationLabel')}</SectionLabel>
+            <ListGroup role="group">
+              {(Object.keys(LOCATION_FILTER_LABELS) as LocationFilter[]).map((tier) => {
+                const total = availableLocations?.[tier];
+                if (availableLocations && !total) return null;
+                const isActive = locations.includes(tier);
+                const { label, Icon } = LOCATION_FILTER_LABELS[tier];
+                return (
+                  <ListRow
+                    key={tier}
+                    multi
+                    checked={isActive}
+                    onToggle={() =>
+                      onLocationsChange(isActive ? locations.filter((x) => x !== tier) : [...locations, tier])
+                    }
+                    leading={<Icon className="w-[18px] h-[18px]" strokeWidth={1.75} />}
+                    label={label}
+                    trailing={total}
+                  />
+                );
+              })}
+            </ListGroup>
+          </section>
+        )}
 
         <div className="flex items-center gap-2 mt-6">
           <Button variant="outline"
