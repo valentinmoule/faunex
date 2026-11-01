@@ -856,7 +856,7 @@ serve(async (req) => {
 
         ID_PROMPT,
         "low",
-        imageUrl,
+        zoomedImage ?? imageUrl,
       );
       if (deep?.ok) {
         const deepData = await parseAnimal(deep, DEEP_MODEL);
