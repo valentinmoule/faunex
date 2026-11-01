@@ -18,9 +18,9 @@ Scope portal lookups to the billing environment and validate Paddle IDs; grant a
 
 Use the shared partner page with audience-specific translated copy/imagery; gate public partner routes out of native builds.
 
-## Full-screen overlays must escape animated page wrappers
+## Overlays sit above page chrome
 
-Portal fixed overlays into the open `[role="dialog"]`, else `document.body`; transformed wrappers misplace fixed descendants.
+Portal fixed overlays into the open `[role="dialog"]`, else `document.body`; transformed wrappers misplace fixed descendants. Keep floating page chrome below modal z-layers; the map container is its own stacking context, so a low z-index suffices.
 
 ## iOS headers and card surfaces stay within their viewport
 
