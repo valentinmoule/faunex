@@ -128,8 +128,4 @@ Write forced names verbatim via service-only `moderation_force_apply_capture`; i
 
 ## Small subjects get one zoomed cheap pass
 
-Vague results on small subject boxes rerun the cheap model on a server crop (reused by the deep pass); image tokens are flat-rate. Skip deep only for consistent generic domestic answers; log per-pass results so thresholds follow measurements.
-
-## Deep pass recalls verified confusions
-
-Feed the deep pass moderator-verified confusions for the first answer via `identification_confusions` (text only, never evidence); manual names suggest existing tiles, so learning costs no extra AI call.
+Vague results on small subject boxes rerun the cheap model on a server crop (reused by the deep pass); image tokens are flat-rate. Skip deep only for consistent generic domestic answers; log per-pass results so thresholds follow measurements. The deep pass gets verified confusions from `identification_confusions` as text hints only; manual names suggest existing tiles.
