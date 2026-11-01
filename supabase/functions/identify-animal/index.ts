@@ -3,7 +3,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { identificationAccountPolicy } from "./accountPolicy.ts";
 import { imageBytes, imageDigest, issueAiProof } from '../_shared/economyProof.ts';
 import { CatalogueLookupError, matchCatalogueSpecies, matchCatalogueWithIdentityRecheck } from '../_shared/species-matching.ts';
-import { MORPHOLOGY_RULE, isGenericDomesticChicken, chickenFallbackName } from '../_shared/visual-identification-policy.ts';
+import { MORPHOLOGY_RULE, isGenericDomesticChicken, chickenFallbackName, isConfidentGenericDomestic } from '../_shared/visual-identification-policy.ts';
 import { COLLECTIBLE_VARIANT_RULE } from '../_shared/collectible-variants.ts';
 import { cropToSubject, shouldZoomOnSubject, zoomIsBetter } from '../_shared/subject-crop.ts';
 
@@ -810,6 +810,10 @@ serve(async (req) => {
     );
 
     let animalData = response?.ok ? await parseAnimal(response, lastAttemptModel ?? FAST_MODEL) : null;
+    /** Mesure par passe, pour décider des futurs seuils sur données réelles. */
+    const passes: Record<string, unknown> = {
+      fast: animalData ? { name: animalData.animal_name, sci: animalData.scientific_name, rank: animalData.scientific_rank ?? null, conf: animalData.confidence ?? null } : null,
+    };
 
     // 1 bis) Sujet minuscule et résultat vague : une passe économique sur la
     // photo recadrée (même forfait d'image) remplace souvent la passe profonde.
@@ -822,7 +826,9 @@ serve(async (req) => {
       if (zoomedImage) {
         const zr = await tryModel(FAST_MODEL, 1, `${ID_PROMPT}\nImage recadrée sur le sujet : identifie au rang le plus précis possible.`, "low", zoomedImage);
         const zoomed = zr?.ok ? await parseAnimal(zr, FAST_MODEL) : null;
-        if (zoomed && zoomIsBetter(animalData, zoomed)) {
+        const improved = Boolean(zoomed && zoomIsBetter(animalData, zoomed));
+        passes.zoom = { name: zoomed?.animal_name ?? null, conf: zoomed?.confidence ?? null, improved };
+        if (zoomed && improved) {
           console.log("zoom improved", animalData.animal_name, "->", zoomed.animal_name);
           zoomed.subject_bbox = animalData.subject_bbox;
           zoomed.is_real_photo = animalData.is_real_photo;
@@ -845,8 +851,12 @@ serve(async (req) => {
       !animalData ||
       confidence < 55 ||
       (CONFUSABLE.test(label) && confidence < 70);
+    // Mesuré : sur « Cheval/Chien/Chèvre domestique… » cohérents, la passe
+    // profonde rendait la même fiche générique. Inutile de la payer.
+    const skipDeep = needsDeep && isConfidentGenericDomestic(animalData);
+    if (skipDeep) passes.deep_skipped = "generic_domestic";
 
-    if (needsDeep && !boostedAccount && budgetLeft() > 25_000) {
+    if (needsDeep && !skipDeep && !boostedAccount && budgetLeft() > 25_000) {
       // Quand la passe rapide n'a aucun résultat, une seule reprise est permise
       // après un retour explicitement temporaire du service. Une réponse rapide
       // déjà exploitable ne déclenche jamais de seconde tentative profonde.
@@ -860,6 +870,7 @@ serve(async (req) => {
       );
       if (deep?.ok) {
         const deepData = await parseAnimal(deep, DEEP_MODEL);
+        passes.deep = deepData ? { name: deepData.animal_name, conf: deepData.confidence ?? null } : null;
         if (deepData) {
           animalData = deepData;
           response = deep;
@@ -963,6 +974,7 @@ serve(async (req) => {
             raw_model_output: rawModelOutput,
             taxon_verdict: verdict,
             token_usage: tokenUsage,
+            passes,
             outcome,
           },
         });
