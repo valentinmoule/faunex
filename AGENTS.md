@@ -88,11 +88,11 @@ Read private preferences with `get_my_profile`; keep public profile fields and l
 
 ## Realtime channel names must be unique per subscription
 
-Suffix channels randomly; coalesce Premium/badge reads by user/event, revalidate refreshes and ignore stale accounts.
+Suffix channels randomly; coalesce Premium/badge reads and ignore stale accounts.
 
 ## Identification account overrides are server-authoritative
 
-Resolve internal overrides from server-authenticated accounts, never request fields; preserve ordinary routing/quotas.
+Resolve overrides from server-authenticated accounts, never request fields.
 
 <!-- LOVABLE:BEGIN -->
 Verify bedbug predictions independently of confidence; failed verification returns uncertainty. Honor advanced moderation vision, keeping forced documentary names economical, because confident visual errors bypass review.
@@ -100,7 +100,7 @@ Verify bedbug predictions independently of confidence; failed verification retur
 
 ## Custom collections are species lists, not capture lists
 
-Custom collections store species names, not capture IDs. Refresh mounted hooks after writes to keep sheets/Bestiary synced; hide capture-only favorites for uncaptured species.
+Store species names, not capture IDs; refresh mounted hooks after writes and hide capture-only favorites for uncaptured species.
 
 <!-- LOVABLE:BEGIN -->
 ## Canonical species facts
@@ -108,11 +108,11 @@ Apply shared facts after capture name canonicalization, reject scientific confli
 <!-- LOVABLE:END -->
 
 ## Capture UPDATE guard
-Compare protected fields via SECURITY DEFINER, never self-query captures in RLS: even admin approval recurses.
+Compare protected fields via SECURITY DEFINER; self-querying captures in RLS recurses.
 
 ## Themed collections are data, not code
 
-Store admin themed collections (species names, optional rules and dates) in `themed_collections`, matched by `src/lib/themedCollections.ts`, with covers in the public captures bucket, so they ship without a store release.
+Store admin themed collections in `themed_collections` (matched by `src/lib/themedCollections.ts`, covers in the public captures bucket) so they ship without a store release.
 
 ## Photo contest is server-authoritative
 
@@ -125,3 +125,7 @@ Use WinnerHoloEffect in detail/fullscreen, mapping package variables to Holograp
 ## Moderator-forced identities bypass catalogue identity checks
 
 Write forced names verbatim via service-only `moderation_force_apply_capture`; identity triggers tolerate conflicts only there or for admin/moderator sessions, so automatic paths stay strict.
+
+## Small subjects get one zoomed cheap pass
+
+Vague results on small subject boxes rerun the cheap model on a server crop (reused by the deep pass); image tokens are flat-rate.
