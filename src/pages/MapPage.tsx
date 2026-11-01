@@ -306,7 +306,7 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
   return (
     <main className={`relative w-full overflow-hidden bg-background ${embedded ? 'h-[calc(100dvh-190px)] min-h-[520px] rounded-2xl border border-border' : 'h-[100dvh]'}`}>
       {/* Floating glass header */}
-      <div className="absolute top-0 left-0 right-0 z-[1000] pt-[max(1rem,env(safe-area-inset-top))] px-4 pointer-events-none">
+      <div className="absolute top-0 left-0 right-0 z-20 pt-[max(1rem,env(safe-area-inset-top))] px-4 pointer-events-none">
         <div className="max-w-lg mx-auto pointer-events-auto flex flex-col items-center gap-3">
           <div className="w-full flex items-center justify-between">
             <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-card/85 backdrop-blur-xl border border-border/60 shadow-card">
@@ -366,7 +366,7 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
       </MapContainer>
 
       {captures.length === 0 && (
-        <div className="absolute inset-x-0 bottom-28 z-[1000] px-6 pointer-events-none">
+        <div className="absolute inset-x-0 bottom-28 z-20 px-6 pointer-events-none">
           <div className="max-w-sm mx-auto rounded-2xl bg-card/90 backdrop-blur-xl border border-border/60 shadow-card p-4 text-center">
             <MapPin className="w-6 h-6 text-primary mx-auto mb-2" />
             <p className="font-display font-bold text-sm text-foreground">{t('map.emptyState.title')}</p>
