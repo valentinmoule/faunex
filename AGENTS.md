@@ -128,4 +128,4 @@ Write forced names verbatim via service-only `moderation_force_apply_capture`; i
 
 ## Small subjects get one zoomed cheap pass
 
-Vague results on small subject boxes rerun the cheap model on a server crop (reused by the deep pass); image tokens are flat-rate.
+Vague results on small subject boxes rerun the cheap model on a server crop (reused by the deep pass); image tokens are flat-rate. Skip the deep pass only for name/binomial-consistent generic domestic answers, and log per-pass results so thresholds change only on measured data.
