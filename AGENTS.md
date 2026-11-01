@@ -8,7 +8,7 @@ Reserve referrals for authenticated new customers, verify completed transactions
 
 ## Family access derives from verified purchases
 
-Keep family membership separate from personal data and billing, include the payer in the seat limit, serialize invitations and acceptance in database functions, and authorize Premium server-side; bind family purchases to authenticated checkout intents and never treat client or sandbox status as live access. Reuse the native external-browser checkout bridge for family purchases, carrying the verified intent without bypassing payment verification.
+Keep family membership separate from personal data and billing, include the payer in the seat limit, serialize invitations and acceptance in database functions, and authorize Premium server-side; bind family purchases to authenticated checkout intents and never treat client or sandbox status as live access. Reuse the native external-browser checkout bridge, carrying the verified intent without bypassing payment verification.
 Bind emailed invitations to the recipient's verified email in the acceptance RPC, issue them via an owner-checked server function, and resume after signup, so forwarded links grant nothing.
 Store complimentary family access in service-only grants checked by family_valid, never fake Paddle payments or billing rows; the subscription link is only an anchor.
 Show the family offer from my_family, independent of personal billing rows.
@@ -24,11 +24,11 @@ Portal fixed overlays into the open `[role="dialog"]`, else `document.body`; tra
 
 ## iOS headers and card surfaces stay within their viewport
 
-Keep sticky headers below the top safe area, drop page transition transforms after entry, and limit species sheets to vertical scroll (carousels stay horizontal); WebKit otherwise hides headers or shifts sideways. Use a single gradient background for native iOS iridescent frames (keeping inner photo clipping and motion), because animated dual background clipping is unstable in WebKit.
+Keep sticky headers below the top safe area, drop page transition transforms after entry, and limit species sheets to vertical scroll (carousels stay horizontal); WebKit otherwise hides headers or shifts sideways. Use one gradient background for native iOS iridescent frames, because animated dual background clipping is unstable in WebKit.
 
 ## Rewards are server-authoritative
 
-Validate claims from trusted rules (synced with badge/group/city definitions and the trigger-maintained group cache), ignoring client XP while preserving caps and legacy calls. Award capture XP once after approval and catalogue triggers; lock profile updates and credit league points only through grant_xp, because retries and concurrency must not multiply rewards.
+Validate claims from trusted rules (badge/group/city definitions and the trigger-maintained group cache), ignoring client XP while preserving caps and legacy calls. Award capture XP once after approval and catalogue triggers; lock profile updates and credit league points only through grant_xp, because retries and concurrency must not multiply rewards.
 
 ## Blurred photo backdrops need a large scale
 
