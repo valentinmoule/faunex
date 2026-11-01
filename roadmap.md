@@ -56,3 +56,4 @@
 - [x] Apprendre : parcours illustré, chemin sinueux et étapes en relief inspirés de Duolingo et Chess.com.
 
 - [x] Intégrer le package holographique fourni aux cartes primées : texture PNG originale extraite de la simulation, styles repris, anciens effets retirés ; cochon vérifié en fiche et plein écran, comparaison visuelle à l’aperçu et tests de transitions passants.
+- [x] *Cicada orni* renommé « Cigale de l'orne » : 68 captures et 67 explorateurs regroupés, 85 lignes archivées, fiches et redirections « Cigale »/« Cigale grise » conservées ; recherche Bestiaire tolérante aux apostrophes droite et typographique (3 tests, 259 tests passants, build OK).

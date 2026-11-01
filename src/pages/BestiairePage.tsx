@@ -44,6 +44,7 @@ getCategoryEmoji,
   normalizeCategory,
 rarityTileBorder,
   rarityDot,
+  normalizeSpeciesSearch,
   type ZoneSub,
 } from '@/lib/bestiary';
 import { getCollectionArt, getZoneArt } from '@/lib/collectionArt';
@@ -667,9 +668,8 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const rarityCountData = useMemo(() => countByRarity(animals), [animals]);
   const popularityCountData = useMemo(() => countByPopularity(animals), [animals]);
 
-  // Normalized search query (accents & case insensitive)
-  const normalizeSearch = (v: string) =>
-    v.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+  // Normalized search query (accents, casse, apostrophes et traits d'union confondus)
+  const normalizeSearch = normalizeSpeciesSearch;
   const speciesQuery = normalizeSearch(speciesSearch);
 
   const matchesSearch = useCallback(
