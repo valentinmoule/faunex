@@ -72,16 +72,6 @@ const CapturePage = () => {
   const duplicateRef = useRef<HTMLDivElement | null>(null);
   const resultActionsRef = useRef<HTMLDivElement | null>(null);
   const [resultActionsHeight, setResultActionsHeight] = useState(208);
-  // Le pied grandit en mode doublon et avec les zones sûres du téléphone.
-  useEffect(() => {
-    const actions = resultActionsRef.current;
-    if (!actions) return;
-    const measure = () => setResultActionsHeight(Math.ceil(actions.getBoundingClientRect().height));
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(actions);
-    return () => observer.disconnect();
-  }, [animalResult, revealPhase, duplicateCapture, cropOpen]);
   // Doublon détecté : amener le comparatif à l'écran sans attendre un scroll manuel.
   useEffect(() => {
     if (!duplicateCapture) return;
@@ -138,6 +128,16 @@ const quota = useCaptureQuota(session?.user?.id);
 
   const { revealPhase, revealRarity, revealAnimal, triggerReveal, reset: resetReveal, skip: skipReveal } =
     useCaptureReveal(setAnimalResult);
+  // Le pied grandit en mode doublon et avec les zones sûres du téléphone.
+  useEffect(() => {
+    const actions = resultActionsRef.current;
+    if (!actions) return;
+    const measure = () => setResultActionsHeight(Math.ceil(actions.getBoundingClientRect().height));
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(actions);
+    return () => observer.disconnect();
+  }, [animalResult, revealPhase, duplicateCapture, cropOpen]);
   /* Popularité de l'espèce identifiée : combien de naturalistes l'ont déjà capturée. */
   const speciesFinders = useSpeciesFinders(animalResult?.animal_name, !!animalResult, animalResult?.scientific_name);
   const { saving, findDuplicate, insertCapture, replaceCapture, submitManualEntry } = useCaptureSave({
