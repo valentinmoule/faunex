@@ -116,7 +116,7 @@ Store admin themed collections in `themed_collections` (matched by `src/lib/them
 
 ## Photo contest is server-authoritative
 
-Contest RPCs enforce Paris weeks and one entry/vote. Winner-row triggers use a service-only notifier; hourly finalization is the timed backstop. Persist email/push completion separately with stable event keys. Results respect managed unsubscribe and registered push devices. Use the shared winner cache by capture ID, never species.
+Contest RPCs enforce Paris weeks and one entry/vote; winner triggers use a service-only notifier with hourly finalization backstop. Persist email/push completion separately with stable keys, respecting unsubscribe and registered devices. Cache winners by capture ID, never species.
 
 ## Winner overlay shares the existing card interaction
 
