@@ -454,13 +454,13 @@ Deno.serve(async (req) => {
       scientificName: overrideScientific,
     })
     // Mode forcé : le modérateur a le dernier mot, même pour un nom générique.
-    // Poule/coq sans race sûre : on garde la fiche générique existante.
+    // Race peu sûre : on garde la fiche générique existante.
     if (!forceName) {
       const fallback = breedFallbackName(animal.animal_name, animal.scientific_name,
         animal.breed_uncertain ? 0 : (typeof animal.confidence === 'number' ? animal.confidence : null))
       if (fallback) {
         animal.animal_name = fallback
-        animal.scientific_name = 'Gallus gallus domesticus'
+        animal.scientific_name = fallbackScientific(fallback) ?? animal.scientific_name
         animal.breed_uncertain = false
       }
     }
@@ -517,13 +517,13 @@ Deno.serve(async (req) => {
       await new Promise((r) => setTimeout(r, 800 * (attempt + 1)))
     }
 
-    // Poule/coq sans race sûre : on garde la fiche générique existante.
+    // Race peu sûre : on garde la fiche générique existante.
     if (!forceName) {
       const fallback = breedFallbackName(animal.animal_name, animal.scientific_name,
         animal.breed_uncertain ? 0 : (typeof animal.confidence === 'number' ? animal.confidence : null))
       if (fallback) {
         animal.animal_name = fallback
-        animal.scientific_name = 'Gallus gallus domesticus'
+        animal.scientific_name = fallbackScientific(fallback) ?? animal.scientific_name
         animal.breed_uncertain = false
       }
     }

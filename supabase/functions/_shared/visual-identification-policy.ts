@@ -79,3 +79,12 @@ export function breedFallbackName(name: unknown, scientific: unknown, confidence
   }
   return null;
 }
+
+const TILE_SCIENTIFIC: Record<string, string> = {
+  'Poule domestique': 'Gallus gallus domesticus', 'Coq domestique': 'Gallus gallus domesticus',
+  'Chien domestique': 'Canis familiaris', 'Chat européen': 'Felis catus', 'Cheval domestique': 'Equus caballus',
+  'Âne domestique': 'Equus asinus asinus', 'Chèvre domestique': 'Capra aegagrus hircus',
+  'Mouton domestique': 'Ovis aries', 'Vache domestique': 'Bos taurus',
+};
+/** Scientific name of the catalogue tile a breed fallback points to. */
+export const fallbackScientific = (tile: string) => TILE_SCIENTIFIC[tile] ?? null;
