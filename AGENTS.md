@@ -100,7 +100,7 @@ Verify bedbug predictions independently of confidence; failed verification retur
 
 ## Custom collections are species lists, not capture lists
 
-Custom collections store species names, not capture IDs. Refresh mounted hooks after writes to keep sheets/Bestiary synced; hide capture-only favorites for uncaptured species.
+Store species names, not capture IDs; refresh mounted hooks after writes and hide capture-only favorites for uncaptured species.
 
 <!-- LOVABLE:BEGIN -->
 ## Canonical species facts
@@ -112,7 +112,7 @@ Compare protected fields via SECURITY DEFINER; self-querying captures in RLS rec
 
 ## Themed collections are data, not code
 
-Store admin themed collections (species names, optional rules and dates) in `themed_collections`, matched by `src/lib/themedCollections.ts`, with covers in the public captures bucket, so they ship without a store release.
+Store admin themed collections in `themed_collections` (matched by `src/lib/themedCollections.ts`, covers in the public captures bucket) so they ship without a store release.
 
 ## Photo contest is server-authoritative
 
