@@ -3755,6 +3755,15 @@ export type Database = {
         }
         Returns: string
       }
+      identification_confusions: {
+        Args: { _scientific: string }
+        Returns: {
+          label_name: string
+          label_scientific: string
+          n: number
+          predicted_name: string
+        }[]
+      }
       identity_force_allowed: { Args: never; Returns: boolean }
       in_my_family: { Args: { p_family: string }; Returns: boolean }
       is_generic_domestic_chicken: {
