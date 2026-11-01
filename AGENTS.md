@@ -24,7 +24,7 @@ Portal fixed overlays into the open `[role="dialog"]`, else `document.body`; tra
 
 ## iOS headers and card surfaces stay within their viewport
 
-Keep sticky headers below the top safe area, drop page transition transforms after entry, and limit species sheets to vertical scroll (carousels stay horizontal); WebKit otherwise hides headers or shifts sideways. Use one gradient background for native iOS iridescent frames, because animated dual background clipping is unstable in WebKit.
+Keep sticky headers below safe areas, drop entry transforms, and scroll species sheets vertically (carousels horizontally). Use one gradient for native iOS iridescent frames; dual clipping is unstable in WebKit. Constrain capture results to the viewport and measure the fixed footer for scroll clearance, so comparison photos remain reachable.
 
 ## Rewards are server-authoritative
 

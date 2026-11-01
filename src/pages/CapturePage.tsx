@@ -70,14 +70,16 @@ const CapturePage = () => {
 
   const [duplicateCapture, setDuplicateCapture] = useState<{ id: string; image_url: string; animal_name: string } | null>(null);
   const duplicateRef = useRef<HTMLDivElement | null>(null);
+  const resultActionsRef = useRef<HTMLDivElement | null>(null);
+  const [resultActionsHeight, setResultActionsHeight] = useState(208);
   // Doublon détecté : amener le comparatif à l'écran sans attendre un scroll manuel.
   useEffect(() => {
     if (!duplicateCapture) return;
     const id = window.setTimeout(() => {
-      duplicateRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      duplicateRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }, 150);
     return () => window.clearTimeout(id);
-  }, [duplicateCapture]);
+  }, [duplicateCapture, resultActionsHeight]);
   const [fullscreenPhoto, setFullscreenPhoto] = useState<string | null>(null);
 const [manualMode, setManualMode] = useState(false);
   /** Repli taxonomique honnête renvoyé par le serveur (genre / famille). */
@@ -126,6 +128,16 @@ const quota = useCaptureQuota(session?.user?.id);
 
   const { revealPhase, revealRarity, revealAnimal, triggerReveal, reset: resetReveal, skip: skipReveal } =
     useCaptureReveal(setAnimalResult);
+  // Le pied grandit en mode doublon et avec les zones sûres du téléphone.
+  useEffect(() => {
+    const actions = resultActionsRef.current;
+    if (!actions) return;
+    const measure = () => setResultActionsHeight(Math.ceil(actions.getBoundingClientRect().height));
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(actions);
+    return () => observer.disconnect();
+  }, [animalResult, revealPhase, duplicateCapture, cropOpen]);
   /* Popularité de l'espèce identifiée : combien de naturalistes l'ont déjà capturée. */
   const speciesFinders = useSpeciesFinders(animalResult?.animal_name, !!animalResult, animalResult?.scientific_name);
   const { saving, findDuplicate, insertCapture, replaceCapture, submitManualEntry } = useCaptureSave({
@@ -628,7 +640,7 @@ setManualMode(false);
 
 
   return (
-    <main className={`min-h-screen bg-foreground flex flex-col ${animalResult && revealPhase === 'done' ? '' : 'pb-24'}`}>
+    <main className={`bg-foreground flex flex-col ${animalResult && revealPhase === 'done' ? 'h-dvh min-h-0 overflow-hidden' : 'min-h-screen pb-24'}`}>
       <canvas ref={canvasRef} className="hidden" />
       <input
         ref={galleryInputRef}
@@ -644,7 +656,7 @@ setManualMode(false);
       
 
       {/* Camera / photo / result */}
-      <div className="flex-1 relative flex flex-col overflow-hidden">
+      <div className="flex-1 min-h-0 relative flex flex-col overflow-hidden">
         {/* Camera or captured photo background */}
         <div
           className="absolute inset-0 touch-none"
@@ -840,7 +852,10 @@ setManualMode(false);
         {animalResult && !identifying && revealPhase === 'done' && (
           <div className="relative z-20 flex-1 flex flex-col justify-end min-h-0">
             {/* Feuille claire — même design que le corps de la fiche espèce */}
-            <div className="bg-background rounded-t-3xl px-5 pt-5 pb-52 space-y-4 animate-fade-in max-h-[88dvh] overflow-y-auto shadow-[0_-10px_30px_hsl(var(--foreground)/0.3)]">
+            <div
+              className="bg-background rounded-t-3xl px-5 pt-5 space-y-4 animate-fade-in min-h-0 max-h-[88dvh] overflow-y-auto overflow-x-hidden overscroll-contain touch-pan-y shadow-[0_-10px_30px_hsl(var(--foreground)/0.3)]"
+              style={{ paddingBottom: resultActionsHeight + 24, scrollPaddingBottom: resultActionsHeight + 24 }}
+            >
               {/* Carte holographique — même rendu que la fiche espèce */}
               {capturedPhoto && (
                 <HolographicCard
@@ -919,7 +934,7 @@ setManualMode(false);
 
         {/* Portail hors de la page animée : l'ancrage est réellement celui du viewport. */}
         {animalResult && !identifying && revealPhase === 'done' && createPortal(
-          <div className="fixed inset-x-0 bottom-0 z-[100] border-t border-border/60 bg-background px-5 pt-3 pb-[max(22px,calc(env(safe-area-inset-bottom)+16px))] shadow-[0_-8px_24px_hsl(var(--foreground)/0.12)] space-y-4">
+          <div ref={resultActionsRef} className="fixed inset-x-0 bottom-0 z-[100] border-t border-border/60 bg-background px-5 pt-3 pb-[max(22px,calc(env(safe-area-inset-bottom)+16px))] shadow-[0_-8px_24px_hsl(var(--foreground)/0.12)] space-y-4">
             {duplicateCapture ? (
               <>
                 <Button variant="default"
