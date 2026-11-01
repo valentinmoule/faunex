@@ -1,0 +1,11 @@
+import { chickenFallbackName as f, isGenericDomesticChicken as g } from "./visual-identification-policy.ts";
+const eq=(a:any,b:any,m:string)=>{ if(a!==b) throw new Error(m+": "+a); };
+eq(f("Poule","Gallus gallus domesticus",95),"Poule domestique","vague");
+eq(f("Coq","",90),"Coq domestique","coq");
+eq(f("Poule Sussex","Gallus gallus domesticus",65),"Poule domestique","low breed");
+eq(f("Poule Sussex","Gallus gallus domesticus",90),null,"sure breed");
+eq(f("Coq doré","Gallus gallus",90),null,"wild");
+eq(f("Poule d'eau","Gallinula chloropus",50),null,"moorhen");
+eq(f("Coque","Cerastoderma edule",50),null,"cockle");
+eq(g("Poule domestique"),false,"canon"); eq(g("Poule et coq domestiques"),true,"generic");
+console.log("ok");
