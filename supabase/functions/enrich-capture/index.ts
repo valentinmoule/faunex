@@ -2,6 +2,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2'
 import { logDatasetEvent } from '../_shared/dataset.ts'
 import { CatalogueLookupError, matchCatalogueSpecies, isTransientDbError } from '../_shared/species-matching.ts'
 import { MORPHOLOGY_RULE, moderationVisionModels, isGenericDomesticChicken } from '../_shared/visual-identification-policy.ts'
+import { COLLECTIBLE_VARIANT_RULE } from '../_shared/collectible-variants.ts'
 import { scientificOnlyOverride, applyForcedIdentity } from '../_shared/forced-identification.ts'
 import { shouldRecheckModerationIdentity } from '../_shared/moderation-conflict.ts'
 import { moderatorNotesPrompt, needsBreedClarification } from './moderator-notes.ts'
@@ -319,7 +320,7 @@ Deno.serve(async (req) => {
         model,
         temperature: 0,
         messages: [
-          { role: 'system', content: forceName ? FORCE_NAME_PROMPT + (scientificOnly ? '\nSi seul le nom scientifique est fourni, il définit l’espèce : renseigne son nom commun français, sans conserver un ancien nom.' : '') : SYSTEM_PROMPT + '\n' + MORPHOLOGY_RULE },
+          { role: 'system', content: forceName ? FORCE_NAME_PROMPT + (scientificOnly ? '\nSi seul le nom scientifique est fourni, il définit l’espèce : renseigne son nom commun français, sans conserver un ancien nom.' : '') : SYSTEM_PROMPT + '\n' + MORPHOLOGY_RULE + '\n' + COLLECTIBLE_VARIANT_RULE },
           { role: 'user', content },
           ...(identityCorrection ? [{ role: 'user', content: identityCorrection }] : []),
         ],

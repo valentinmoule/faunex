@@ -26,6 +26,7 @@ const SHARED_BINOMIALS = new Set([
   'anas platyrhynchos domesticus',
   'anser anser domesticus',
   'columba livia domestica',
+  'pavo cristatus',
 ]);
 
 export const normalizeScientific = (value?: string | null) =>
