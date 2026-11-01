@@ -108,7 +108,7 @@ Apply shared facts after capture name canonicalization, reject scientific confli
 <!-- LOVABLE:END -->
 
 ## Capture UPDATE guard
-Compare protected fields via SECURITY DEFINER, never self-query captures in RLS: even admin approval recurses.
+Compare protected fields via SECURITY DEFINER; self-querying captures in RLS recurses.
 
 ## Themed collections are data, not code
 
@@ -128,4 +128,4 @@ Write forced names verbatim via service-only `moderation_force_apply_capture`; i
 
 ## Small subjects get one zoomed cheap pass
 
-When the first identification is vague and the subject box is small, rerun the cheap model on a server-side crop (and give the deep pass that crop), because image tokens are flat-rate and full frames hide small animals' features.
+Vague results on small subject boxes rerun the cheap model on a server crop (reused by the deep pass); image tokens are flat-rate.
