@@ -5,6 +5,7 @@ import { imageBytes, imageDigest, issueAiProof } from '../_shared/economyProof.t
 import { CatalogueLookupError, matchCatalogueSpecies, matchCatalogueWithIdentityRecheck } from '../_shared/species-matching.ts';
 import { MORPHOLOGY_RULE, isGenericDomesticChicken } from '../_shared/visual-identification-policy.ts';
 import { COLLECTIBLE_VARIANT_RULE } from '../_shared/collectible-variants.ts';
+import { cropToSubject, shouldZoomOnSubject, zoomIsBetter } from '../_shared/subject-crop.ts';
 
 
 const corsHeaders = {
@@ -809,6 +810,28 @@ serve(async (req) => {
     );
 
     let animalData = response?.ok ? await parseAnimal(response, lastAttemptModel ?? FAST_MODEL) : null;
+
+    // 1 bis) Sujet minuscule et résultat vague : une passe économique sur la
+    // photo recadrée (même forfait d'image) remplace souvent la passe profonde.
+    let zoomedImage: string | null = null;
+    if (animalData && shouldZoomOnSubject(animalData) && budgetLeft() > 25_000) {
+      zoomedImage = await cropToSubject(imageUrl, animalData.subject_bbox).catch((e) => {
+        console.error("subject crop failed", e);
+        return null;
+      });
+      if (zoomedImage) {
+        const zr = await tryModel(FAST_MODEL, 1, `${ID_PROMPT}\nImage recadrée sur le sujet : identifie au rang le plus précis possible.`, "low", zoomedImage);
+        const zoomed = zr?.ok ? await parseAnimal(zr, FAST_MODEL) : null;
+        if (zoomed && zoomIsBetter(animalData, zoomed)) {
+          console.log("zoom improved", animalData.animal_name, "->", zoomed.animal_name);
+          zoomed.subject_bbox = animalData.subject_bbox;
+          zoomed.is_real_photo = animalData.is_real_photo;
+          zoomed.image_type = animalData.image_type;
+          animalData = zoomed;
+          response = zr;
+        }
+      }
+    }
 
 
     // 2) Second passage sur Flash (bon marché, jamais de Pro) avec l'annexe
