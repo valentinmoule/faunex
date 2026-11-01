@@ -12,7 +12,7 @@ interface Props {
 
 /** Existing Bestiary tiles matching the typed name, so manual entries reuse them. */
 const ManualSpeciesSuggestions = ({ query, onPick }: Props) => {
-  const { t } = useTranslation('capture');
+  const { t } = useTranslation();
   const [items, setItems] = useState<Suggestion[]>([]);
   const term = query.trim();
 
@@ -37,10 +37,10 @@ const ManualSpeciesSuggestions = ({ query, onPick }: Props) => {
 
   return (
     <div className="space-y-1">
-      {vague && <p className="text-primary-foreground/80 text-xs font-body">{t('manual.vagueHint')}</p>}
+      {vague && <p className="text-primary-foreground/80 text-xs font-body">{t('capture.manual.vagueHint')}</p>}
       {items.length > 0 && (
         <>
-          <p className="text-primary-foreground/60 text-[10px] uppercase tracking-wide font-body">{t('manual.nameSuggestions')}</p>
+          <p className="text-primary-foreground/60 text-[10px] uppercase tracking-wide font-body">{t('capture.manual.nameSuggestions')}</p>
           <ul className="divide-y divide-primary-foreground/10">
             {items.map(s => (
               <li key={`${s.name}-${s.scientific_name}`}>
