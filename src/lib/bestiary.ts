@@ -129,6 +129,16 @@ const SPECIES_EMOJI: Array<[string, string]> = [
   ['alligator', '🐊'],
 ];
 
+/** Normalise une recherche de fiche : accents, casse, apostrophes et traits d'union confondus. */
+export const normalizeSpeciesSearch = (v: string): string =>
+  v
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[-'’`´‘]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
 export const getSpeciesEmoji = (name: string, category: string): string => {
   const n = ' ' + name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[-'’]/g, ' ') + ' ';
   for (const [kw, emoji] of SPECIES_EMOJI) {
