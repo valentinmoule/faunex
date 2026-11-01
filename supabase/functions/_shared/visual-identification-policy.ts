@@ -31,3 +31,29 @@ export function moderationVisionModels(quality: string, forceName: boolean) {
     ? ['google/gemini-3.8-flash']
     : ['google/gemini-3.1-flash-lite', 'google/gemini-3.8-flash'];
 }
+const DOMESTIC_GENERIC: Record<string, string[]> = {
+  'chien domestique': ['canis lupus familiaris', 'canis familiaris'],
+  'chat europeen': ['felis catus', 'felis silvestris catus'],
+  'chat domestique': ['felis catus', 'felis silvestris catus'],
+  'cheval domestique': ['equus caballus', 'equus ferus caballus'],
+  'ane domestique': ['equus asinus', 'equus africanus asinus'],
+  'chevre domestique': ['capra hircus', 'capra aegagrus hircus'],
+  'mouton domestique': ['ovis aries'],
+  'vache domestique': ['bos taurus'],
+  'poule domestique': ['gallus gallus domesticus'],
+  'coq domestique': ['gallus gallus domesticus'],
+};
+
+/**
+ * Generic domestic answer whose common and scientific names agree: the deep
+ * pass measured on these returned the same generic tile, so it is skipped.
+ * Low confidence (possible wild look-alike) still goes to the deep pass.
+ */
+export function isConfidentGenericDomestic(data: any): boolean {
+  if (!data || data.is_real_photo !== true) return false;
+  const name = foldChicken(data.animal_name);
+  const sci = String(data.scientific_name ?? '').toLowerCase().replace(/\s+/g, ' ').trim();
+  const allowed = DOMESTIC_GENERIC[name];
+  const confidence = typeof data.confidence === 'number' ? data.confidence : 0;
+  return Boolean(allowed?.includes(sci)) && confidence >= 45;
+}
