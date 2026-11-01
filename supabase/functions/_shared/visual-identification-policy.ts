@@ -1,4 +1,4 @@
-export const MORPHOLOGY_RULE = `MORPHOLOGIE AVANT LE NOM : observe uniquement les caractères réellement visibles : appendices, segmentation, proportions, forme, motifs et structures distinctives. Ne compte pas les caractères masqués comme absents. Le lieu ou le nom proposé ne prouve jamais une espèce. Si le sujet est petit/flou ou les caractères spécifiques invisibles : rang supérieur sûr et confiance ≤60, jamais un binôme deviné. RACES DOMESTIQUES : cherche une race réelle grâce à ses caractères diagnostiques, jamais grâce au seul sexe ou à une couleur. Chez la poule et le coq (Gallus gallus domesticus), ne nomme une race que si ses caractères diagnostiques sont nets (confiance ≥80) ; sinon réponds exactement « Poule domestique » (ou « Coq domestique » pour un mâle adulte évident), scientific_rank subspecies, sans inventer de race. ORTHOGRAPHE : écris le nom vernaculaire français officiel, correctement orthographié, sans variante.`;
+export const MORPHOLOGY_RULE = `MORPHOLOGIE AVANT LE NOM : observe uniquement les caractères réellement visibles : appendices, segmentation, proportions, forme, motifs et structures distinctives. Ne compte pas les caractères masqués comme absents. Le lieu ou le nom proposé ne prouve jamais une espèce. Si le sujet est petit/flou ou les caractères spécifiques invisibles : rang supérieur sûr et confiance ≤60, jamais un binôme deviné. RACES DOMESTIQUES : cherche une race réelle grâce à ses caractères diagnostiques, jamais grâce au seul sexe ou à une couleur. Pour tout animal, ne nomme une race, une variété ou une sous-espèce que si ses caractères diagnostiques sont nets (confiance ≥80) ; sinon réponds au niveau de l'espèce sans inventer de rang inférieur (ex. « Cheval domestique », « Chien domestique », « Poule domestique » ou « Coq domestique » pour un mâle adulte évident). ORTHOGRAPHE : écris le nom vernaculaire français officiel, correctement orthographié, sans variante.`;
 
 const foldChicken = (value: unknown) => String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
   .toLowerCase().replace(/[^a-z]+/g, ' ').trim();
@@ -34,9 +34,8 @@ export function moderationVisionModels(quality: string, forceName: boolean) {
 const DOMESTIC_GENERIC: Record<string, string[]> = {
   'chien domestique': ['canis lupus familiaris', 'canis familiaris'],
   'chat europeen': ['felis catus', 'felis silvestris catus'],
-  'chat domestique': ['felis catus', 'felis silvestris catus'],
-  'cheval domestique': ['equus caballus', 'equus ferus caballus'],
-  'ane domestique': ['equus asinus', 'equus africanus asinus'],
+    'cheval domestique': ['equus caballus', 'equus ferus caballus'],
+  'ane domestique': ['equus asinus', 'equus africanus asinus', 'equus asinus asinus'],
   'chevre domestique': ['capra hircus', 'capra aegagrus hircus'],
   'mouton domestique': ['ovis aries'],
   'vache domestique': ['bos taurus'],
@@ -56,4 +55,27 @@ export function isConfidentGenericDomestic(data: any): boolean {
   const allowed = DOMESTIC_GENERIC[name];
   const confidence = typeof data.confidence === 'number' ? data.confidence : 0;
   return Boolean(allowed?.includes(sci)) && confidence >= 45;
+}
+
+const DOMESTIC_TILE: Record<string, string> = {
+  'chien domestique': 'Chien domestique', 'chat europeen': 'Chat européen', 'cheval domestique': 'Cheval domestique',
+  'ane domestique': 'Âne domestique', 'chevre domestique': 'Chèvre domestique', 'mouton domestique': 'Mouton domestique',
+  'vache domestique': 'Vache domestique',
+};
+
+/**
+ * General rule for every domestic species: a breed is kept only when confident
+ * (>=80); otherwise the answer collapses to the species-level generic tile.
+ */
+export function breedFallbackName(name: unknown, scientific: unknown, confidence: number | null): string | null {
+  const chicken = chickenFallbackName(name, scientific, confidence);
+  if (chicken) return chicken;
+  const n = foldChicken(name);
+  const sci = String(scientific ?? '').toLowerCase().replace(/\s+/g, ' ').trim();
+  for (const [key, scis] of Object.entries(DOMESTIC_GENERIC)) {
+    if (!DOMESTIC_TILE[key] || !scis.includes(sci)) continue;
+    if (n === key) return null;
+    return typeof confidence === 'number' && confidence < 80 ? DOMESTIC_TILE[key] : null;
+  }
+  return null;
 }
