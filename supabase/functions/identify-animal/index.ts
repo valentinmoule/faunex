@@ -4,6 +4,7 @@ import { identificationAccountPolicy } from "./accountPolicy.ts";
 import { imageBytes, imageDigest, issueAiProof } from '../_shared/economyProof.ts';
 import { CatalogueLookupError, matchCatalogueSpecies, matchCatalogueWithIdentityRecheck } from '../_shared/species-matching.ts';
 import { MORPHOLOGY_RULE, isGenericDomesticChicken } from '../_shared/visual-identification-policy.ts';
+import { COLLECTIBLE_VARIANT_RULE } from '../_shared/collectible-variants.ts';
 
 
 const corsHeaders = {
@@ -252,7 +253,7 @@ CRITÈRES DIAGNOSTIQUES (cas ambigus) :
 /** Prompt unique et stable : un seul préfixe système maximise la mise en cache
  *  des jetons d'entrée et donne les critères diagnostiques dès la passe rapide,
  *  ce qui évite des secondes passes (le vrai poste de coût). */
-const ID_PROMPT = FAST_PROMPT + DEEP_ANNEX + '\n' + MORPHOLOGY_RULE;
+const ID_PROMPT = FAST_PROMPT + DEEP_ANNEX + '\n' + MORPHOLOGY_RULE + '\n' + COLLECTIBLE_VARIANT_RULE;
 
 
 
