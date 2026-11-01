@@ -60,11 +60,11 @@ Lock submissions; keep pending user/species uniqueness. Corrections use the quot
 
 ## Supabase writes must be awaited or chained to a handler
 
-Await or chain every Supabase write with a handler: lazy builders send nothing otherwise. Chain `.then()` without awaiting before gesture-dependent payment popups, to preserve browser permission.
+Await or chain every Supabase write; lazy builders send nothing. Chain `.then()` before payment popups so the browser keeps permission.
 
 ## User-typed species names snap to existing tiles
 
-Preserve subspecies/breeds/approved variants in the strict matcher; exempt shared binomials from scientific-only naming and duplicates in SQL/client/moderation. Retry outages separately from one photo conflict recheck; revalidate the corrected pair, never a name alone.
+Preserve subspecies/breeds/approved variants in the strict matcher; exempt shared binomials from scientific-only naming and duplicates in SQL/client/moderation. Retry outages separately from one photo conflict recheck; revalidate the corrected pair, never a name alone. Fold accents/apostrophes/hyphens via `normalizeSpeciesSearch`; keyboards type straight apostrophes.
 
 ## Discoverer counts come from a trigger-maintained cache
 
