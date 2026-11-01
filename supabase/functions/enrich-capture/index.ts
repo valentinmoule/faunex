@@ -1,7 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { logDatasetEvent } from '../_shared/dataset.ts'
 import { CatalogueLookupError, matchCatalogueSpecies, isTransientDbError } from '../_shared/species-matching.ts'
-import { MORPHOLOGY_RULE, moderationVisionModels, isGenericDomesticChicken, breedFallbackName } from '../_shared/visual-identification-policy.ts'
+import { MORPHOLOGY_RULE, moderationVisionModels, isGenericDomesticChicken, breedFallbackName, fallbackScientific } from '../_shared/visual-identification-policy.ts'
 import { COLLECTIBLE_VARIANT_RULE } from '../_shared/collectible-variants.ts'
 import { scientificOnlyOverride, applyForcedIdentity } from '../_shared/forced-identification.ts'
 import { shouldRecheckModerationIdentity } from '../_shared/moderation-conflict.ts'
