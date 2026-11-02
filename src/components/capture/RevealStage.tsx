@@ -46,6 +46,7 @@ interface Props {
  */
 const RevealStage = ({ phase, rarity, animal, photo, onSkip }: Props) => {
   const { t } = useTranslation();
+  const { speciesName } = useSpeciesName();
   const rank = RARITY_RANK[rarity] ?? 0;
   const finish = revealFinish(rarity);
   const timings = revealTimings(rarity);

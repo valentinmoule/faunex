@@ -53,6 +53,11 @@ const CapturePage = () => {
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
   const [cropOpen, setCropOpen] = useState(false);
   const [animalResult, setAnimalResult] = useState<AnimalResult | null>(null);
+  const localizedFacts = useSpeciesFacts(animalResult ? {
+    name: animalResult.animal_name,
+    scientificName: animalResult.scientific_name,
+    description: animalResult.description,
+  } : null);
   const [saved, setSaved] = useState(false);
   const [preparingBestiary, setPreparingBestiary] = useState(false);
   /** Invitation Premium affichée après la dernière identification du jour. */
