@@ -158,10 +158,12 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
   const { session } = useAuth();
   const { canDeleteSpecies, canMergeSpecies } = useCatalogueModeration(session?.user.id, open);
   const [mergeSource, setMergeSource] = useState<ReportActionSource | null>(null);
-  const openSpeciesMerge = async () => {
+  const [adminAction, setAdminAction] = useState<'merge' | 'vernacular' | 'scientific'>('merge');
+  const openSpeciesMerge = async (nextAction: 'merge' | 'vernacular' | 'scientific' = 'merge') => {
     if (!card) return;
     const { data } = await supabase.from('animals').select('id,name,scientific_name').eq('name', card.name).maybeSingle();
     if (!data) { toast({ title: t('species.reportsAdmin.errors.STALE_SPECIES'), variant: 'destructive' }); return; }
+    setAdminAction(nextAction);
     setMergeSource({ id: data.id, name: data.name, scientific_name: data.scientific_name, reportIds: [] });
   };
   const [confirmSpeciesDelete, setConfirmSpeciesDelete] = useState(false);
@@ -185,16 +187,27 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
     }
   };
   const speciesDeleteItems: { label: string; icon: JSX.Element; tone: 'default' | 'destructive'; onSelect: () => void }[] = canDeleteSpecies ? [{
-    label: t('species.adminDelete.action'),
+    label: t('species.reportsAdmin.action'),
     icon: <Trash2 className="w-5 h-5 text-destructive" />,
     tone: 'destructive' as const,
     onSelect: () => setConfirmSpeciesDelete(true),
   }] : [];
+  if (speciesDeleteItems[0]) speciesDeleteItems[0].label = t('species.adminDelete.action');
   if (canMergeSpecies) speciesDeleteItems.unshift({
+    label: t('species.reportsAdmin.vernacular'),
+    icon: <Pencil className="w-5 h-5 text-primary" />,
+    tone: 'default' as const,
+    onSelect: () => { void openSpeciesMerge('vernacular'); },
+  }, {
+    label: t('species.reportsAdmin.scientific'),
+    icon: <Pencil className="w-5 h-5 text-primary" />,
+    tone: 'default' as const,
+    onSelect: () => { void openSpeciesMerge('scientific'); },
+  }, {
     label: t('species.reportsAdmin.merge'),
     icon: <Merge className="w-5 h-5 text-primary" />,
     tone: 'default' as const,
-    onSelect: () => { void openSpeciesMerge(); },
+    onSelect: () => { void openSpeciesMerge('merge'); },
   });
   // Nom commun localisé + fiche d'espèce localisée (traduite à la demande, puis cachée).
   const { speciesName } = useSpeciesName();
