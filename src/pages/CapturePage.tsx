@@ -29,6 +29,7 @@ import { useCaptureQuota, DAILY_CAPTURE_LIMIT } from '@/hooks/useCaptureQuota';
 import { useSubscription } from '@/hooks/useSubscription';
 
 import type { AnimalResult } from '@/types/capture';
+import { useSpeciesName, useSpeciesFacts } from '@/hooks/useSpeciesLocale';
 import { isPlaceholderName, cleanScientificName } from '@/lib/placeholderNames';
 
 /** Rangée d'information de l'écran de résultat — même design que la fiche espèce (DetailRow). */
@@ -45,12 +46,18 @@ const ResultInfoRow = ({ icon, label, value }: { icon: ReactNode; label: string;
 
 const CapturePage = () => {
   const { t } = useTranslation();
+  const { speciesName } = useSpeciesName();
   const { session } = useAuth();
   const navigate = useNavigate();
 
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
   const [cropOpen, setCropOpen] = useState(false);
   const [animalResult, setAnimalResult] = useState<AnimalResult | null>(null);
+  const localizedFacts = useSpeciesFacts(animalResult ? {
+    name: animalResult.animal_name,
+    scientificName: animalResult.scientific_name,
+    description: animalResult.description,
+  } : null);
   const [saved, setSaved] = useState(false);
   const [preparingBestiary, setPreparingBestiary] = useState(false);
   /** Invitation Premium affichée après la dernière identification du jour. */
@@ -877,12 +884,12 @@ setManualMode(false);
               )}
               {/* Nom + nom scientifique */}
               <div className="text-center">
-                <h2 className="text-2xl font-display font-bold text-foreground">{animalResult.animal_name}</h2>
+                <h2 className="text-2xl font-display font-bold text-foreground">{speciesName(animalResult.animal_name)}</h2>
                 <p className="text-muted-foreground text-sm italic">{animalResult.scientific_name}</p>
               </div>
 
               {/* Description — texte simple centré, comme la fiche espèce (sans boîte) */}
-              {animalResult.description && <p className="text-sm text-foreground/80 leading-relaxed text-center max-w-sm mx-auto">{animalResult.description}</p>}
+              {localizedFacts.description && <p className="text-sm text-foreground/80 leading-relaxed text-center max-w-sm mx-auto">{localizedFacts.description}</p>}
 
               {/* Infos — liste épurée façon iOS, lignes séparées comme la fiche espèce */}
               <div className="rounded-2xl border border-border bg-card divide-y divide-border/60">
