@@ -187,12 +187,11 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
     }
   };
   const speciesDeleteItems: { label: string; icon: JSX.Element; tone: 'default' | 'destructive'; onSelect: () => void }[] = canDeleteSpecies ? [{
-    label: t('species.reportsAdmin.action'),
+    label: t('species.adminDelete.action'),
     icon: <Trash2 className="w-5 h-5 text-destructive" />,
     tone: 'destructive' as const,
     onSelect: () => setConfirmSpeciesDelete(true),
   }] : [];
-  if (speciesDeleteItems[0]) speciesDeleteItems[0].label = t('species.adminDelete.action');
   if (canMergeSpecies) speciesDeleteItems.unshift({
     label: t('species.reportsAdmin.vernacular'),
     icon: <Pencil className="w-5 h-5 text-primary" />,
