@@ -14,7 +14,7 @@ describe('Reported species mutations',()=>{
   CREATE FUNCTION has_role(uuid,text) RETURNS boolean LANGUAGE sql AS $$ SELECT current_setting('test.role',true)=$2 $$;
   CREATE FUNCTION normalize_animal_label(text) RETURNS text LANGUAGE sql AS $$ SELECT lower($1) $$;
   CREATE TABLE animals(id uuid primary key,name text,scientific_name text,taxon_id uuid);
-  CREATE TABLE captures(id uuid primary key,user_id uuid,animal_name text,scientific_name text,taxon_id uuid,image_url text,status text,xp integer);
+  CREATE TABLE captures(id uuid primary key,user_id uuid,animal_name text,scientific_name text,taxon_id uuid,image_url text,status text,xp integer,created_at timestamptz default now());
   CREATE UNIQUE INDEX capture_unique ON captures(user_id,lower(animal_name)) WHERE status='approved';
   CREATE TABLE species_reports(id uuid primary key,user_id uuid,species_name text,scientific_name text,status text);
   CREATE TABLE catalogue_update_snapshots(batch_key text,relation_name text,row_key text,row_data jsonb);
@@ -32,6 +32,7 @@ describe('Reported species mutations',()=>{
   await db.exec(readFileSync('drizzle/migrations/0082_reported_species_actions.sql','utf8'));
   await db.exec(readFileSync('drizzle/migrations/0084_keep_species_reports_open_until_validation.sql','utf8'));
   await db.exec(readFileSync('drizzle/migrations/0086_merge_catalogue_before_capture_canonicalization.sql','utf8'));
+  await db.exec(readFileSync('drizzle/migrations/0099_merge_keeps_most_recent_photo.sql','utf8'));
  });
  afterAll(async()=>{await db.close()});
  beforeEach(async()=>{await db.exec(`TRUNCATE animals,captures,species_reports,catalogue_update_snapshots,species_profiles,animal_merge_map,taxa,species_natural_history,collection_taxa,animal_departments,eclats_species_redirects,ml_dataset_events,custom_collection_items,themed_collections,species_pages; SET test.role='admin';
@@ -83,11 +84,10 @@ describe('Reported species mutations',()=>{
   await call('merge');
   expect((await db.query('SELECT id,status FROM species_reports ORDER BY id')).rows).toEqual([{id:b,status:'dismissed'},{id:r,status:'pending'}]);
  });
- it('refuses merge when an owner has both photos and rolls back',async()=>{
-  await db.exec(`INSERT INTO captures VALUES('${b}','${a}','Target','Target sci',null,'other.jpg','approved',30)`);
-  await expect(call('merge')).rejects.toThrow('MERGE_CAPTURE_CONFLICT');
-  expect((await db.query('SELECT image_url FROM captures ORDER BY id')).rows).toEqual([{image_url:'photo.jpg'},{image_url:'other.jpg'}]);
-  expect((await db.query('SELECT status FROM species_reports')).rows).toEqual([{status:'pending'}]);
+ it('keeps only the most recent photo when an owner has both entries',async()=>{
+  await db.exec(`INSERT INTO captures VALUES('${b}','${a}','Target','Target sci',null,'other.jpg','approved',30,now()+interval '1 day')`);
+  await call('merge');
+  expect((await db.query("SELECT image_url,status FROM captures ORDER BY image_url")).rows).toEqual([{image_url:'other.jpg',status:'approved'},{image_url:'photo.jpg',status:'rejected'}]);
  });
  it('rejects a non-admin',async()=>{await db.exec("SET test.role='user'");await expect(call('scientific','Correct')).rejects.toMatchObject({code:'42501'})});
  it('rejects a name occupied by another entry',async()=>{await expect(call('vernacular','Target')).rejects.toThrow('NAME_EXISTS')});
