@@ -64,7 +64,7 @@ Await or chain every Supabase write; lazy builders send nothing. Chain `.then()`
 
 ## User-typed species names snap to existing tiles
 
-Preserve subspecies/breeds/approved variants in the strict matcher; exempt shared binomials from scientific-only naming and duplicates in SQL/client/moderation. Retry outages separately from one photo conflict recheck; revalidate the corrected pair, never a name alone. Fold accents/apostrophes/hyphens via `normalizeSpeciesSearch`; keyboards type straight apostrophes. SQL candidates also compare `species_core_label` (accent-safe, no articles/plurals, no leading domestic word) because typos and filler words created duplicates; distinct scientific names never merge.
+Preserve subspecies/breeds/approved variants in the strict matcher; exempt shared binomials from scientific-only naming and duplicates in SQL/client/moderation. Retry outages separately from one photo conflict recheck; revalidate the corrected pair, never a name alone. Fold accents/apostrophes/hyphens via `normalizeSpeciesSearch`; keyboards type straight apostrophes. SQL also compares `species_core_label`; distinct binomials never merge.
 
 ## Discoverer counts come from a trigger-maintained cache
 
