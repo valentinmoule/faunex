@@ -207,11 +207,11 @@ export default function PhotoContestTab() {
             {ballot.map((e) => {
               const author = e.display_name || e.username || t('social.common.anonymous');
               return (
-                <div key={e.entry_id} className="space-y-2">
+                <div key={e.entry_id} className="min-w-0 space-y-2">
                   <Tile image={e.image_url} rarity={e.rarity} name={speciesName(e.animal_name)} onOpen={() => openCapture(e.capture_id)} />
-                  <button onClick={() => navigate(`/explorer/${e.user_id}/collection`)} className="flex min-w-0 items-center gap-2">
+                  <button onClick={() => navigate(`/explorer/${e.user_id}/collection`)} className="flex w-full min-w-0 items-center gap-2">
                     <PremiumAvatar avatarUrl={e.avatar_url} name={author} size="sm" />
-                    <span className="truncate text-xs font-display font-semibold">{author}</span>
+                    <span className="min-w-0 truncate text-xs font-display font-semibold">{author}</span>
                   </button>
                   {e.is_mine ? (
                     <Button variant="secondary" size="sm" disabled className="w-full text-xs">{t('social.contest.yours')}</Button>
@@ -237,9 +237,9 @@ export default function PhotoContestTab() {
           <div className="mt-3 grid grid-cols-2 gap-3">
             {myWinners.map((w) => {
               return (
-                <div key={w.week_start} className="space-y-1.5">
+                <div key={w.week_start} className="min-w-0 space-y-1.5">
                   <Tile image={w.image_url} rarity={w.rarity} name={speciesName(w.animal_name)} frameless onOpen={() => openCapture(w.capture_id)} />
-                  <p className="text-[11px] text-muted-foreground">{t('social.contest.weekOf', { date: fmtWeek(w.week_start) })} · {t('social.contest.votes', { count: w.votes })}</p>
+                  <p className="min-w-0 truncate text-[11px] text-muted-foreground">{t('social.contest.weekOf', { date: fmtWeek(w.week_start) })} · {t('social.contest.votes', { count: w.votes })}</p>
                 </div>
               );
             })}
