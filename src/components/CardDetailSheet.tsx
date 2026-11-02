@@ -41,6 +41,8 @@ import { Button } from '@/components/ui/button';
 import SpeciesNaturalHistory from '@/components/SpeciesNaturalHistory';
 import DetailRow from '@/components/DetailRow';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import SpeciesReportActionDialog, { type ReportActionSource } from '@/components/SpeciesReportActionDialog';
+import { Merge } from 'lucide-react';
 import { useCatalogueModeration, deleteBestiarySpecies } from '@/hooks/useCatalogueModeration';
 
 interface Props {
@@ -154,7 +156,14 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
   const { data: contestWinners } = useContestWinnerCaptures();
   const isContestWinner = !!card?.id && !!contestWinners?.has(card.id);
   const { session } = useAuth();
-  const { canDeleteSpecies } = useCatalogueModeration(session?.user.id, open);
+  const { canDeleteSpecies, canMergeSpecies } = useCatalogueModeration(session?.user.id, open);
+  const [mergeSource, setMergeSource] = useState<ReportActionSource | null>(null);
+  const openSpeciesMerge = async () => {
+    if (!card) return;
+    const { data } = await supabase.from('animals').select('id,name,scientific_name').eq('name', card.name).maybeSingle();
+    if (!data) { toast({ title: t('species.reportsAdmin.errors.STALE_SPECIES'), variant: 'destructive' }); return; }
+    setMergeSource({ id: data.id, name: data.name, scientific_name: data.scientific_name, reportIds: [] });
+  };
   const [confirmSpeciesDelete, setConfirmSpeciesDelete] = useState(false);
   const [deletingSpecies, setDeletingSpecies] = useState(false);
   const speciesDeleteBusy = useRef(false);
@@ -181,6 +190,12 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
     tone: 'destructive' as const,
     onSelect: () => setConfirmSpeciesDelete(true),
   }] : [];
+  if (canMergeSpecies) speciesDeleteItems.unshift({
+    label: t('species.reportsAdmin.merge'),
+    icon: <Merge className="w-5 h-5 text-primary" />,
+    tone: 'default' as unknown as 'destructive',
+    onSelect: () => { void openSpeciesMerge(); },
+  });
   // Nom commun localisé + fiche d'espèce localisée (traduite à la demande, puis cachée).
   const { speciesName } = useSpeciesName();
   const displayName = speciesName(card?.name);
