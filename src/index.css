@@ -4033,7 +4033,9 @@ html.is-native-android body {
 }
 .collection-booster-title {
   font-family: 'Fraunces', Georgia, serif;
-  font-size: 30px;
+  /* Taille proportionnelle au sachet : le mot le plus long doit toujours
+     tenir sur une ligne, sinon « Explorateurs » se coupait en deux. */
+  font-size: clamp(15px, calc(var(--booster-w, 260px) * 0.105), 28px);
   font-weight: 700;
   font-style: italic;
   line-height: 1.05;
