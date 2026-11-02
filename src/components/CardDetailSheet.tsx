@@ -184,7 +184,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
       setDeletingSpecies(false);
     }
   };
-  const speciesDeleteItems = canDeleteSpecies ? [{
+  const speciesDeleteItems: { label: string; icon: JSX.Element; tone: 'default' | 'destructive'; onSelect: () => void }[] = canDeleteSpecies ? [{
     label: t('species.adminDelete.action'),
     icon: <Trash2 className="w-5 h-5 text-destructive" />,
     tone: 'destructive' as const,
@@ -193,7 +193,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
   if (canMergeSpecies) speciesDeleteItems.unshift({
     label: t('species.reportsAdmin.merge'),
     icon: <Merge className="w-5 h-5 text-primary" />,
-    tone: 'default' as unknown as 'destructive',
+    tone: 'default' as const,
     onSelect: () => { void openSpeciesMerge(); },
   });
   // Nom commun localisé + fiche d'espèce localisée (traduite à la demande, puis cachée).
@@ -1494,6 +1494,8 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
 
         </div>
       ), document.body)}
+
+      <SpeciesReportActionDialog source={mergeSource} action="merge" onClose={() => setMergeSource(null)} onSaved={onClose} />
 
       {/* Delete confirmation — portalled so it floats above the drawer */}
       <ConfirmDialog
