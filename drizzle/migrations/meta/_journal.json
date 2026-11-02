@@ -708,6 +708,13 @@
       "when": 1793616620227,
       "tag": "0098_species_core_label_accents",
       "breakpoints": true
+    },
+    {
+      "idx": 99,
+      "version": "7",
+      "when": 1793642700114,
+      "tag": "0099_merge_keeps_most_recent_photo",
+      "breakpoints": true
     }
   ]
 }
