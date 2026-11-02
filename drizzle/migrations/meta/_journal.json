@@ -722,6 +722,13 @@
       "when": 1793645923640,
       "tag": "0100_admin_merge_from_bestiary",
       "breakpoints": true
+    },
+    {
+      "idx": 101,
+      "version": "7",
+      "when": 1793646025672,
+      "tag": "0101_admin_rename_from_bestiary",
+      "breakpoints": true
     }
   ]
 }
