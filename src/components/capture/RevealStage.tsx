@@ -5,6 +5,7 @@ import { type Rarity, RARITY_RANK } from '@/data/mockData';
 import { rarityTileBorder } from '@/lib/bestiary';
 import { RarityBadge } from '@/components/RarityBadge';
 import type { AnimalResult } from '@/types/capture';
+import { useSpeciesName } from '@/hooks/useSpeciesLocale';
 import type { RevealPhase } from '@/hooks/useCaptureReveal';
 import { revealTimings } from '@/hooks/useCaptureReveal';
 
@@ -186,7 +187,7 @@ const RevealStage = ({ phase, rarity, animal, photo, onSkip }: Props) => {
               <div className="rv-stars">
                 <RarityBadge rarity={rarity} showLabel className="capture-result-rarity" />
               </div>
-              <h2 className="rv-name font-display">{animal.animal_name}</h2>
+              <h2 className="rv-name font-display">{speciesName(animal.animal_name)}</h2>
               <p className="rv-sci">{animal.scientific_name}</p>
             </div>
           )
