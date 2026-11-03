@@ -798,15 +798,16 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
 
   return (
     <>
-      <Drawer.Root open={open && !correctionOpen} onOpenChange={(isOpen) => !isOpen && !correctionOpen && !deleteInProgressRef.current && onClose()}>
+      <Drawer.Root open={open && !correctionOpen} onOpenChange={(isOpen) => !isOpen && !correctionOpen && !mergeSource && !confirmSpeciesDelete && !deleteInProgressRef.current && onClose()}>
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 z-[1300] bg-black/80" />
           <Drawer.Content
             onPointerDownOutside={(event) => {
-              if (confirmDelete || deleteInProgressRef.current) event.preventDefault();
+              // Les fenêtres admin (renommer/fusionner/supprimer) sont hors du tiroir : un clic dedans ne doit pas le fermer.
+              if (confirmDelete || mergeSource || confirmSpeciesDelete || deleteInProgressRef.current) event.preventDefault();
             }}
             onInteractOutside={(event) => {
-              if (confirmDelete || deleteInProgressRef.current) event.preventDefault();
+              if (confirmDelete || mergeSource || confirmSpeciesDelete || deleteInProgressRef.current) event.preventDefault();
             }}
             className={`fixed inset-x-0 bottom-0 z-[1300] rounded-t-3xl border-0 outline-none overflow-hidden bg-background ${feedView ? 'max-h-[92dvh] flex flex-col' : 'h-[92vh]'}`}
           >
