@@ -60,7 +60,7 @@ Lock submissions; keep pending user/species uniqueness. Corrections use the quot
 
 ## Supabase writes must be awaited or chained to a handler
 
-Await or chain every Supabase write; lazy builders send nothing. Chain `.then()` before payment popups so the browser keeps permission.
+Lazy builders send nothing; chain `.then()` before payment popups to keep popup permission.
 
 ## User-typed species names snap to existing tiles
 
