@@ -5,14 +5,15 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { cn } from '@/lib/utils';
 import { removeCatalogueEntry } from '@/lib/bestiaryCache';
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
 import { toast } from 'sonner';
 export type ReportAction = 'vernacular' | 'scientific' | 'merge';
 export interface ReportActionSource { id: string; name: string; scientific_name: string | null; reportIds: string[] }
 interface Candidate { id: string; name: string; scientific_name: string | null }
-export default function SpeciesReportActionDialog({ source, action, onClose, onSaved }: {
- source: ReportActionSource | null; action: ReportAction; onClose: () => void; onSaved: () => void;
+export default function SpeciesReportActionDialog({ source, action, onClose, onSaved, elevation = '' }: {
+ source: ReportActionSource | null; action: ReportAction; onClose: () => void; onSaved: () => void; elevation?: string;
 }) {
  const { t } = useTranslation();
  const { speciesName } = useSpeciesName();
@@ -59,7 +60,7 @@ export default function SpeciesReportActionDialog({ source, action, onClose, onS
   } finally { locked.current = false; setSaving(false); }
  };
  return <Dialog open={!!source} onOpenChange={open => { if (!open && !saving) onClose(); }}>
-  <DialogContent className="max-h-[85dvh] overflow-y-auto" onEscapeKeyDown={event => { if (saving) event.preventDefault(); }} onPointerDownOutside={event => { if (saving) event.preventDefault(); }}>
+  <DialogContent className={cn('max-h-[85dvh] overflow-y-auto', elevation)} overlayClassName={elevation} onEscapeKeyDown={event => { if (saving) event.preventDefault(); }} onPointerDownOutside={event => { if (saving) event.preventDefault(); }}>
    <DialogHeader><DialogTitle className="pr-6">{t(`species.reportsAdmin.${action}`)}</DialogTitle><DialogDescription>{source?.name} {source?.scientific_name && `(${source.scientific_name})`}</DialogDescription></DialogHeader>
    {action === 'merge' ? <>
     <div className="relative"><Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" /><Input aria-label={t('species.reportsAdmin.search')} placeholder={t('species.reportsAdmin.search')} value={query} disabled={saving} onChange={e => { setQuery(e.target.value); setTarget(null); }} className="pl-9" /></div>
