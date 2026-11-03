@@ -24,7 +24,7 @@ Portal fixed overlays into the open `[role="dialog"]`, else `document.body`; tra
 
 ## iOS headers and card surfaces stay within their viewport
 
-Keep sticky headers below safe areas, drop entry transforms. Use one gradient for native iOS iridescent frames; dual clipping is unstable in WebKit. Constrain capture results to the viewport and measure the fixed footer for scroll clearance, so comparison photos remain reachable.
+Sticky headers below safe areas, no entry transforms; one gradient for iOS iridescent frames (dual clipping breaks WebKit); capture results fit the viewport with measured footer clearance.
 
 ## Rewards are server-authoritative
 
