@@ -1507,7 +1507,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
         </div>
       ), document.body)}
 
-      <SpeciesReportActionDialog source={mergeSource} action="merge" onClose={() => setMergeSource(null)} onSaved={onClose} />
+      <SpeciesReportActionDialog source={mergeSource} action={adminAction} elevation="z-[1310]" onClose={() => setMergeSource(null)} onSaved={onClose} />
 
       {/* Delete confirmation — portalled so it floats above the drawer */}
       <ConfirmDialog
