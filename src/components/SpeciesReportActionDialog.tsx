@@ -26,8 +26,7 @@ export default function SpeciesReportActionDialog({ source, action, onClose, onS
  const [saving, setSaving] = useState(false);
  const [error, setError] = useState('');
  const locked = useRef(false);
- const [container, setContainer] = useState<HTMLElement | null>(null);
- useEffect(() => { if (source) setContainer(document.querySelector<HTMLElement>('[data-vaul-drawer][data-state="open"]')); }, [source]);
+ const container = source && typeof document !== 'undefined' ? document.querySelector<HTMLElement>('[data-vaul-drawer][data-state="open"]') : null;
  useEffect(() => { setValue(action === 'scientific' ? source?.scientific_name ?? '' : source?.name ?? ''); setTarget(null); setQuery(''); setResults([]); setError(''); }, [source, action]);
  useEffect(() => {
   if (!source || action !== 'merge' || query.trim().length < 2) { setResults([]); setSearching(false); return; }
