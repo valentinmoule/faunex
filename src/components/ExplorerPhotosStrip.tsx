@@ -30,6 +30,7 @@ interface Props {
   rarity: Rarity;
   excludeUserId?: string;
   isPremium: boolean;
+  staffView?: boolean;
 }
 
 /**

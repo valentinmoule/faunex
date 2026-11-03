@@ -8,6 +8,7 @@ import { ArrowLeft, Check, X, Loader2, AlertTriangle, Sparkles, Lock } from 'luc
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useStaffRole } from '@/hooks/useStaffRole';
 import { toast } from 'sonner';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -110,6 +111,7 @@ type JobState = { status: string; paused_reason: string | null; last_run_at: str
 const ModerationPage = () => {
   const { t } = useTranslation();
   const { session } = useAuth();
+  const { isAdmin } = useStaffRole(session?.user?.id);
   const navigate = useNavigate();
   const [captures, setCaptures] = useState<PendingCapture[]>([]);
   const [loading, setLoading] = useState(true);
@@ -536,23 +538,23 @@ const ModerationPage = () => {
               Auto-validation en pause
             </div>
           )}
-          <button
+          {isAdmin && <button
             onClick={() => navigate('/admin/collections')}
             className="rounded-full px-3 py-1.5 text-xs font-display font-bold text-primary hover:bg-primary/10 transition"
           >
             Collections
-          </button>
-          <Button variant="ghost" size="icon" aria-label={t('learning.admin')} onClick={() => navigate('/admin/apprendre')}><Sprout className="h-5 w-5 text-primary" /></Button>
+          </button>}
+          {isAdmin && <Button variant="ghost" size="icon" aria-label={t('learning.admin')} onClick={() => navigate('/admin/apprendre')}><Sprout className="h-5 w-5 text-primary" /></Button>}
         </div>
       </PageHeader>
 
 
       <div className="max-w-3xl mx-auto px-4 pt-4">
         <Tabs defaultValue="moderation" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-4">
+          <TabsList className={`grid w-full ${isAdmin ? 'grid-cols-3' : 'grid-cols-2'} mb-4`}>
             <TabsTrigger value="moderation">Modération</TabsTrigger>
             <TabsTrigger value="reports">Fiches signalées</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            {isAdmin && <TabsTrigger value="analytics">Analytics</TabsTrigger>}
           </TabsList>
 
           <TabsContent value="moderation">
@@ -821,14 +823,14 @@ const ModerationPage = () => {
             <div className="mt-8 p-4 rounded-xl border border-border bg-card max-w-lg mx-auto">
               <h2 className="font-display font-bold text-foreground mb-2">Bestiaire</h2>
               <p className="text-xs text-muted-foreground mb-3">Peuple le bestiaire avec des milliers d'espèces via l'IA. Chaque clic traite une catégorie.</p>
-              <BestiaryPopulator />
+              {isAdmin && <BestiaryPopulator />}
             </div>
           </TabsContent>
 
           <TabsContent value="reports"><SpeciesReportsPanel /></TabsContent>
 
           <TabsContent value="analytics">
-            <AnalyticsDashboard />
+            {isAdmin && <AnalyticsDashboard />}
           </TabsContent>
         </Tabs>
       </div>
