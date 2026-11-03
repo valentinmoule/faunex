@@ -4035,6 +4035,14 @@ export type Database = {
           translated: number
         }[]
       }
+      staff_ensure_bestiary_animal: {
+        Args: { p_name: string; p_scientific?: string }
+        Returns: {
+          id: string
+          name: string
+          scientific_name: string
+        }[]
+      }
       strip_label_parenthetical: { Args: { p_label: string }; Returns: string }
       submit_contest_photo: { Args: { p_capture_id: string }; Returns: string }
       territory_leaderboard: {
