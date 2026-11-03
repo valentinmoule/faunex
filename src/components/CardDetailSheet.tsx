@@ -41,6 +41,7 @@ import { Button } from '@/components/ui/button';
 import SpeciesNaturalHistory from '@/components/SpeciesNaturalHistory';
 import DetailRow from '@/components/DetailRow';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { removeCatalogueEntry } from '@/lib/bestiaryCache';
 import SpeciesReportActionDialog, { type ReportActionSource } from '@/components/SpeciesReportActionDialog';
 import { Merge } from 'lucide-react';
 import { useCatalogueModeration, deleteBestiarySpecies } from '@/hooks/useCatalogueModeration';
@@ -169,6 +170,21 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
     setAdminAction(nextAction);
     setMergeSource({ id: data.id, name: data.name, scientific_name: data.scientific_name, reportIds: [] });
   };
+  // La fiche (tiroir) et la fenêtre d'action se ferment en même temps : chacune
+  // pose un verrou sur la page et l'un peut rester, rendant l'app insensible aux clics.
+  const releasePageLock = () => {
+    window.setTimeout(() => {
+      if (document.querySelector('[role="dialog"][data-state="open"], [role="alertdialog"][data-state="open"]')) return;
+      document.body.style.pointerEvents = '';
+      document.body.style.removeProperty('overflow');
+      document.body.removeAttribute('data-scroll-locked');
+    }, 450);
+  };
+  const handleAdminSaved = () => {
+    if (adminAction === 'merge' && card) removeCatalogueEntry(card.name);
+    onClose();
+    releasePageLock();
+  };
   const [confirmSpeciesDelete, setConfirmSpeciesDelete] = useState(false);
   const [deletingSpecies, setDeletingSpecies] = useState(false);
   const speciesDeleteBusy = useRef(false);
@@ -181,6 +197,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
       await deleteBestiarySpecies(card.name, card.scientificName || '');
       setConfirmSpeciesDelete(false);
       onClose();
+      releasePageLock();
       toast({ title: t('species.adminDelete.success') });
     } catch {
       toast({ title: t('species.adminDelete.error'), variant: 'destructive' });
@@ -1512,7 +1529,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
         </div>
       ), document.body)}
 
-      <SpeciesReportActionDialog source={mergeSource} action={adminAction} elevation="z-[1310]" onClose={() => setMergeSource(null)} onSaved={onClose} />
+      <SpeciesReportActionDialog source={mergeSource} action={adminAction} elevation="z-[1310]" onClose={() => { setMergeSource(null); releasePageLock(); }} onSaved={handleAdminSaved} />
 
       {/* Delete confirmation — portalled so it floats above the drawer */}
       <ConfirmDialog
