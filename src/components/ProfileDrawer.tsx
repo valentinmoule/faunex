@@ -100,7 +100,7 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
       supabase.from('profiles').select('display_name, username, avatar_url, level, xp, xp_to_next, total_captures, regions_explored').eq('user_id', userId).maybeSingle(),
       supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('following_id', userId).eq('status', 'accepted'),
       supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('follower_id', userId).eq('status', 'accepted'),
-      supabase.from('user_roles').select('role').eq('user_id', userId).eq('role', 'admin').maybeSingle(),
+      supabase.from('user_roles').select('role').eq('user_id', userId).in('role', ['admin', 'moderator']),
       supabase.from('user_badges').select('*', { count: 'exact', head: true }).eq('user_id', userId),
     ]);
 
@@ -108,7 +108,7 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
     setFollowers(followersResult.count ?? 0);
     setFollowing(followingResult.count ?? 0);
     setBadgeCount(badgesResult.count ?? 0);
-    const admin = Boolean(roleResult.data);
+    const admin = (roleResult.data ?? []).length > 0;
     setIsAdmin(admin);
     if (admin) {
       const { count } = await supabase.from('captures').select('*', { count: 'exact', head: true }).eq('status', 'pending_review');

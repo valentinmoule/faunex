@@ -19,7 +19,7 @@ export function useCatalogueModeration(userId: string | undefined, enabled: bool
     });
     return () => { cancelled = true; };
   }, [userId, enabled]);
-  return { canDeleteSpecies: !!userId && allowedUser === userId, canMergeSpecies: !!userId && adminUser === userId };
+  return { canDeleteSpecies: !!userId && allowedUser === userId, canMergeSpecies: !!userId && allowedUser === userId, isAdmin: !!userId && adminUser === userId };
 }
 
 export async function deleteBestiarySpecies(name: string, scientificName: string) {
