@@ -39,11 +39,6 @@ vi.mock('@/hooks/useCustomCollections', () => ({
 vi.mock('react-router-dom', () => ({ useNavigate: () => vi.fn() }));
 vi.mock('@/hooks/use-toast', () => ({ toast: vi.fn() }));
 vi.mock('sonner', () => ({ toast: { success: mocks.toastSuccess, error: mocks.toastError, info: vi.fn(), warning: vi.fn() } }));
-vi.mock('@/data/mockData', () => ({
-  normalizeRarity: (value: string) => value,
-  RARITY_LABELS: {},
-  RARITY_FX: {},
-}));
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
     from: () => {
