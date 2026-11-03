@@ -743,6 +743,13 @@
       "when": 1793698682866,
       "tag": "0103_staff_ensure_bestiary_animal",
       "breakpoints": true
+    },
+    {
+      "idx": 104,
+      "version": "7",
+      "when": 1793698727420,
+      "tag": "0104_staff_ensure_bestiary_animal_attach_orphans",
+      "breakpoints": true
     }
   ]
 }
