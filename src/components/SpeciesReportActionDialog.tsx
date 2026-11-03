@@ -26,6 +26,8 @@ export default function SpeciesReportActionDialog({ source, action, onClose, onS
  const [saving, setSaving] = useState(false);
  const [error, setError] = useState('');
  const locked = useRef(false);
+ const [container, setContainer] = useState<HTMLElement | null>(null);
+ useEffect(() => { if (source) setContainer(document.querySelector<HTMLElement>('[data-vaul-drawer][data-state="open"]')); }, [source]);
  useEffect(() => { setValue(action === 'scientific' ? source?.scientific_name ?? '' : source?.name ?? ''); setTarget(null); setQuery(''); setResults([]); setError(''); }, [source, action]);
  useEffect(() => {
   if (!source || action !== 'merge' || query.trim().length < 2) { setResults([]); setSearching(false); return; }
@@ -59,10 +61,9 @@ export default function SpeciesReportActionDialog({ source, action, onClose, onS
    setError(t(`species.reportsAdmin.errors.${code ?? 'generic'}`));
   } finally { locked.current = false; setSaving(false); }
  };
- // Non modal : ouverte par-dessus le tiroir de fiche, deux pièges de focus se renvoyaient le focus à l'infini.
- return <Dialog modal={false} open={!!source} onOpenChange={open => { if (!open && !saving) onClose(); }}>
-  {!!source && <div aria-hidden className={cn('fixed inset-0 z-50 bg-black/80', elevation)} onClick={() => { if (!saving) onClose(); }} />}
-  <DialogContent onInteractOutside={event => event.preventDefault()} className={cn('max-h-[85dvh] overflow-y-auto', elevation)} overlayClassName={elevation} onEscapeKeyDown={event => { if (saving) event.preventDefault(); }} onPointerDownOutside={event => { if (saving) event.preventDefault(); }}>
+ // Ouverte au-dessus d'un tiroir : on la place dans la fenêtre ouverte, sinon deux pièges de focus se renvoient le focus à l'infini.
+ return <Dialog open={!!source} onOpenChange={open => { if (!open && !saving) onClose(); }}>
+  <DialogContent container={container} className={cn('max-h-[85dvh] overflow-y-auto', elevation)} overlayClassName={elevation} onEscapeKeyDown={event => { if (saving) event.preventDefault(); }} onPointerDownOutside={event => { if (saving) event.preventDefault(); }}>
    <DialogHeader><DialogTitle className="pr-6">{t(`species.reportsAdmin.${action}`)}</DialogTitle><DialogDescription>{source?.name} {source?.scientific_name && `(${source.scientific_name})`}</DialogDescription></DialogHeader>
    {action === 'merge' ? <>
     <div className="relative"><Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" /><Input aria-label={t('species.reportsAdmin.search')} placeholder={t('species.reportsAdmin.search')} value={query} disabled={saving} onChange={e => { setQuery(e.target.value); setTarget(null); }} className="pl-9" /></div>
