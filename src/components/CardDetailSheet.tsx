@@ -161,8 +161,11 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
   const [adminAction, setAdminAction] = useState<'merge' | 'vernacular' | 'scientific'>('merge');
   const openSpeciesMerge = async (nextAction: 'merge' | 'vernacular' | 'scientific' = 'merge') => {
     if (!card) return;
-    const { data } = await supabase.from('animals').select('id,name,scientific_name').eq('name', card.name).maybeSingle();
-    if (!data) { toast({ title: t('species.reportsAdmin.errors.STALE_SPECIES'), variant: 'destructive' }); return; }
+    // Certaines tuiles viennent de captures sans fiche catalogue : la fonction serveur
+    // retrouve la fiche (casse/espaces ignorés) ou la crée avant renommage/fusion.
+    const { data: rows, error } = await supabase.rpc('staff_ensure_bestiary_animal', { p_name: card.name, p_scientific: card.scientificName || undefined });
+    const data = Array.isArray(rows) ? rows[0] : rows;
+    if (error || !data) { toast({ title: t('species.reportsAdmin.errors.STALE_SPECIES'), variant: 'destructive' }); return; }
     setAdminAction(nextAction);
     setMergeSource({ id: data.id, name: data.name, scientific_name: data.scientific_name, reportIds: [] });
   };
