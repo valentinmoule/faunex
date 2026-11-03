@@ -66,6 +66,8 @@ export const useCaptureSave = ({ userId, photo, geo, takenAt = null }: SaveConte
         .from('captures')
         .select('id, image_url, animal_name')
         .eq('user_id', userId)
+        // Une capture refusée n'est pas dans le Faunex : elle ne bloque rien.
+        .in('status', ['approved', 'pending_review'])
         .ilike('animal_name', `%${pattern}%`)
         .limit(20);
       const match = (data ?? []).find((c) => (c.animal_name ?? '').trim().toLowerCase() === key);
@@ -106,6 +108,7 @@ export const useCaptureSave = ({ userId, photo, geo, takenAt = null }: SaveConte
           .from('captures')
           .select('id, image_url, animal_name')
           .eq('user_id', userId)
+          .in('status', ['approved', 'pending_review'])
           .ilike('scientific_name', candidate.trim())
           .limit(1);
         if (data && data.length > 0) return data[0];
