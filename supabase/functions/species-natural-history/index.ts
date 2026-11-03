@@ -92,8 +92,9 @@ Deno.serve(async (req) => {
     const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     if (!url || !key) return json({ error: 'configuration_error' }, 500);
     const admin = createClient(url, key);
-    const { data: auth } = await admin.auth.getUser((req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, ''));
-    if (!auth.user) return json({ error: 'unauthorized' }, 401);
+    const bearer = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
+    const { data: claimsData } = bearer ? await admin.auth.getClaims(bearer) : { data: null };
+    if (!claimsData?.claims?.sub) return json({ error: 'unauthorized' }, 401);
     const body = await req.json().catch(() => null);
     if (typeof body?.name !== 'string' || !body.name.trim() || body.name.length > 200 ||
         typeof body?.scientific_name !== 'string' || body.scientific_name.length > 200) return json({ error: 'invalid_species' }, 400);

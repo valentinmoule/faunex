@@ -32,9 +32,17 @@ export function useSpeciesNaturalHistory(name?: string, scientific?: string, ena
     retryDelay: 400,
     throwOnError: false,
     queryFn: async (): Promise<NaturalHistory | null> => {
-      const { data, error } = await supabase.functions.invoke('species-natural-history', {
+      const call = () => supabase.functions.invoke('species-natural-history', {
         body: { name, scientific_name: scientific },
       });
+      let { data, error } = await call();
+      if (error && (error as { context?: { status?: number } }).context?.status === 401) {
+        // Session expirée : on la rafraîchit et on réessaie une fois, sinon
+        // la fiche s'affiche simplement sans ces données.
+        await supabase.auth.refreshSession().catch(() => null);
+        ({ data, error } = await call());
+        if (error && (error as { context?: { status?: number } }).context?.status === 401) return null;
+      }
       if (error) {
         if (isExpectedAbsence(error)) return null;
         throw error;
