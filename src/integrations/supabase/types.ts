@@ -3776,6 +3776,7 @@ export type Database = {
         Args: { p_scientific: string }
         Returns: boolean
       }
+      is_staff: { Args: { _user_id: string }; Returns: boolean }
       league_add_points: {
         Args: { p_amount: number; p_user_id: string }
         Returns: undefined
