@@ -129,3 +129,6 @@ Write forced names verbatim via service-only `moderation_force_apply_capture`; i
 ## Small subjects get one zoomed cheap pass
 
 Vague results on small subject boxes rerun the cheap model on a server crop (reused by the deep pass); image tokens are flat-rate. Skip deep only for consistent generic domestic answers; log per-pass results so thresholds follow measurements. The deep pass gets verified confusions from `identification_confusions` as text hints only; manual names suggest existing tiles.
+## Staff roles share one server check
+
+Grant moderation and catalogue-cleaning access through `is_staff()` (admin or moderator) in RLS, RPCs and edge functions; keep analytics, collection creation, learning admin and bulk tools on `has_role(...,'admin')`, because moderators only clean entries.
