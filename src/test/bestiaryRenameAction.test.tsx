@@ -10,7 +10,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'fr' } }),
   initReactI18next: { type: '3rdParty', init: () => {} },
-  Trans: ({ children }: { children: React.ReactNode }) => children,
+  Trans: ({ children }: { children: unknown }) => children,
 }));
 vi.mock('@/contexts/AuthContext', () => ({
   useAuth: () => ({ session: { user: { id: 'admin' } } }),
