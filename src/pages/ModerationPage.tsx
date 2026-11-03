@@ -343,7 +343,12 @@ const ModerationPage = () => {
       if (isDuplicate) showDuplicate(null);
       else toast.error(`Erreur lors de l'approbation : ${error.message}`);
     } else {
-      const { error: economyError } = await supabase.functions.invoke('confirm-capture-eclats', { body: { mode: 'moderation', captureId: capture.id } });
+      let { error: economyError } = await supabase.functions.invoke('confirm-capture-eclats', { body: { mode: 'moderation', captureId: capture.id } });
+      if (economyError) {
+        // Jeton expiré : on rafraîchit la session puis on réessaie une fois.
+        await supabase.auth.refreshSession().catch(() => null);
+        ({ error: economyError } = await supabase.functions.invoke('confirm-capture-eclats', { body: { mode: 'moderation', captureId: capture.id } }));
+      }
       if (economyError) console.warn('Éclats moderation confirmation pending');
       // Notify the user that their capture was approved
       if (session?.user) {

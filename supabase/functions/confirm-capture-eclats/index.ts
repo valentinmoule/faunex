@@ -18,8 +18,12 @@ Deno.serve(async req => {
     const anon = Deno.env.get('SUPABASE_ANON_KEY');
     const token = req.headers.get('Authorization')?.match(/^Bearer\s+(.+)$/i)?.[1];
     if (!url || !key || !anon || !token) return json({ error: 'Unauthorized' }, 401);
-    const { data: auth, error: authError } = await createClient(url, anon).auth.getUser(token);
-    if (authError || !auth.user) return json({ error: 'Unauthorized' }, 401);
+    // getClaims vérifie la signature localement : plus robuste que getUser
+    // (appel réseau) pour un jeton encore valide.
+    const { data: claimsData, error: authError } = await createClient(url, anon).auth.getClaims(token);
+    const sub = claimsData?.claims?.sub;
+    if (authError || !sub) return json({ error: 'Unauthorized' }, 401);
+    const auth = { user: { id: sub as string } };
     const parsed = schema.safeParse(await req.json());
     if (!parsed.success) return json({ error: 'Invalid request' }, 400);
     const input = parsed.data;
