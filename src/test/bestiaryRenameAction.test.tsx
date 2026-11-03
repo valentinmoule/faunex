@@ -24,7 +24,7 @@ vi.mock('@/hooks/useSpeciesLocale', () => ({
   useSpeciesName: () => ({ speciesName: (name: string) => name }),
   useSpeciesFacts: () => ({ description: '', habitat: '', diet: '', funFact: '' }),
 }));
-vi.mock('@/hooks/useFavorites', () => ({ useFavorites: () => ({ isFavorite: false, toggleFavorite: vi.fn() }) }));
+vi.mock('@/hooks/useFavorites', () => ({ useFavorites: () => ({ isFavorite: () => false, toggleFavorite: vi.fn() }) }));
 vi.mock('@/hooks/useSubscription', () => ({ useSubscription: () => ({ isPremium: false }) }));
 vi.mock('@/hooks/useSpeciesFinders', () => ({ useSpeciesFinders: () => 0 }));
 vi.mock('@/hooks/useCustomCollections', () => ({
