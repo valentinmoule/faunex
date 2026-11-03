@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
@@ -76,7 +77,12 @@ const card = {
 } as any;
 
 async function openAction(label: string) {
-  render(<CardDetailSheet card={card} open onClose={vi.fn()} communityFinders={1} />);
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  render(
+    <QueryClientProvider client={client}>
+      <CardDetailSheet card={card} open onClose={vi.fn()} communityFinders={1} />
+    </QueryClientProvider>,
+  );
   fireEvent.click(await screen.findByRole('button', { name: 'common.moreActions' }));
   fireEvent.click(await screen.findByRole('button', { name: label }));
   await waitFor(() => expect(document.querySelector('[role="dialog"][data-state="open"]')).toBeTruthy());
