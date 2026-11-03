@@ -25,7 +25,7 @@ Deno.serve(async req => {
     const input = parsed.data;
     const db = createClient(url, key);
     if (input.mode === 'moderation') {
-      const { data: admin } = await db.rpc('has_role', { _user_id: auth.user.id, _role: 'admin' });
+      const { data: admin } = await db.rpc('is_staff', { _user_id: auth.user.id });
       if (admin !== true) return json({ error: 'Forbidden' }, 403);
       await attestModeratedCapture(db, input.captureId, 'human_moderation');
       return json({ success: true });

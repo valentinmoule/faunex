@@ -89,7 +89,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-const AdminRoute = ({ children }: { children: React.ReactNode }) => {
+const AdminRoute = ({ children, allowModerator = false }: { children: React.ReactNode; allowModerator?: boolean }) => {
   const { session, loading } = useAuth();
   const [isAdmin, setIsAdmin] = React.useState<boolean | null>(null);
 
@@ -100,11 +100,10 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
         .from("user_roles")
         .select("role")
         .eq("user_id", session.user.id)
-        .eq("role", "admin")
-        .maybeSingle()
-        .then(({ data }) => setIsAdmin(!!data));
+        .in("role", allowModerator ? ["admin", "moderator"] : ["admin"])
+        .then(({ data }) => setIsAdmin((data ?? []).length > 0));
     });
-  }, [session]);
+  }, [session, allowModerator]);
 
   if (loading || isAdmin === null) return <LoadingScreen />;
   if (!session) return <Navigate to="/auth" replace />;
@@ -216,7 +215,7 @@ const AppRoutes = () => {
           <Route path="/explorer/:userId/collection" element={<ProtectedRoute><FriendCollectionPage /></ProtectedRoute>} />
           <Route path="/bestiaire" element={<ProtectedRoute><BestiairePage /></ProtectedRoute>} />
           <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
-          <Route path="/moderation" element={<AdminRoute><ModerationPage /></AdminRoute>} />
+          <Route path="/moderation" element={<AdminRoute allowModerator><ModerationPage /></AdminRoute>} />
           <Route path="/admin/collections" element={<AdminRoute><AdminCollectionsPage /></AdminRoute>} />
           <Route path="/advent/:id" element={<ProtectedRoute><AdventCalendarPage /></ProtectedRoute>} />
           <Route path="/quests" element={<Navigate to="/home?tab=badges" replace />} />

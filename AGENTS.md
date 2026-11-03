@@ -16,7 +16,7 @@ Scope portal lookups to the billing environment and validate Paddle IDs; grant a
 
 ## Partner landing pages share one presentation
 
-Use the shared partner page with audience-specific translated copy/imagery; gate public partner routes out of native builds.
+One shared page with translated audience copy; no partner routes in native builds.
 
 ## Overlays sit above page chrome
 
@@ -24,7 +24,7 @@ Portal fixed overlays into the open `[role="dialog"]`, else `document.body`; tra
 
 ## iOS headers and card surfaces stay within their viewport
 
-Keep sticky headers below safe areas, drop entry transforms. Use one gradient for native iOS iridescent frames; dual clipping is unstable in WebKit. Constrain capture results to the viewport and measure the fixed footer for scroll clearance, so comparison photos remain reachable.
+Sticky headers below safe areas, no entry transforms; one gradient for iOS iridescent frames (dual clipping breaks WebKit); capture results fit the viewport with measured footer clearance.
 
 ## Rewards are server-authoritative
 
@@ -32,7 +32,7 @@ Validate claims from trusted rules (badge/group/city definitions and the trigger
 
 ## Blurred photo backdrops need a large scale
 
-Scale blurred photo backdrops past the blur radius (1.9 for 42px, 2.25 for 50px) over an opaque layer; blur fades alpha inward.
+Scale past the blur radius (1.9@42px, 2.25@50px) over an opaque layer; blur fades alpha inward.
 
 ## Shelving stays on the Bestiary and targets the displayed tile
 
@@ -60,7 +60,7 @@ Lock submissions; keep pending user/species uniqueness. Corrections use the quot
 
 ## Supabase writes must be awaited or chained to a handler
 
-Await or chain every Supabase write; lazy builders send nothing. Chain `.then()` before payment popups so the browser keeps permission.
+Lazy builders send nothing; chain `.then()` before payment popups to keep popup permission.
 
 ## User-typed species names snap to existing tiles
 
@@ -68,7 +68,7 @@ Preserve subspecies/breeds/approved variants in the strict matcher; exempt share
 
 ## Discoverer counts come from a trigger-maintained cache
 
-`species_finder_counts()` reads trigger-maintained `species_finder_cache`; clients share `fetchFinderCounts()`, because repeated full aggregates were the top database cost.
+`species_finder_counts()` reads trigger-maintained `species_finder_cache` via shared `fetchFinderCounts()`; full aggregates were the top DB cost.
 
 ## Privileged notifications validate stored events
 
@@ -129,3 +129,6 @@ Write forced names verbatim via service-only `moderation_force_apply_capture`; i
 ## Small subjects get one zoomed cheap pass
 
 Vague results on small subject boxes rerun the cheap model on a server crop (reused by the deep pass); image tokens are flat-rate. Skip deep only for consistent generic domestic answers; log per-pass results so thresholds follow measurements. The deep pass gets verified confusions from `identification_confusions` as text hints only; manual names suggest existing tiles.
+## Staff roles share one server check
+
+Moderation/catalogue cleaning checks `is_staff()` (admin or moderator) everywhere; analytics, collections, learning and bulk tools stay admin-only, since moderators only clean entries.

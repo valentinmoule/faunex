@@ -30,6 +30,7 @@ interface Props {
   rarity: Rarity;
   excludeUserId?: string;
   isPremium: boolean;
+  staffView?: boolean;
 }
 
 /**
@@ -38,7 +39,7 @@ interface Props {
  * Premium : photos de tous les explorateurs.
  * Un clic ouvre la même modale que le feed (fiche allégée, auteur inclus).
  */
-const ExplorerPhotosStrip = ({ animalName, scientificName, rarity, excludeUserId, isPremium }: Props) => {
+const ExplorerPhotosStrip = ({ animalName, scientificName, rarity, excludeUserId, isPremium, staffView = false }: Props) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [photos, setPhotos] = useState<Photo[] | null>(null);
@@ -53,7 +54,14 @@ const ExplorerPhotosStrip = ({ animalName, scientificName, rarity, excludeUserId
       type CaptureRow = { id: string; image_url: string; user_id: string; created_at: string };
       let rows: Array<CaptureRow & { locked: boolean }> = [];
 
-      if (isPremium) {
+      if (staffView) {
+        // Admins and moderators review every approved photo of the entry, shared or not, to correct it.
+        const { data } = await supabase.from('captures').select('id, image_url, user_id, created_at')
+          .eq('animal_name', animalName).eq('status', 'approved')
+          .not('user_id', 'in', `(${TEST_ACCOUNT_IDS.join(',')})`)
+          .order('created_at', { ascending: false }).limit(200);
+        rows = (data ?? []).map((row) => ({ ...row, locked: false }));
+      } else if (isPremium) {
         const { data } = await supabase.from('captures').select('id, image_url, user_id, created_at')
           .eq('animal_name', animalName).eq('status', 'approved').eq('shared', true)
           .not('user_id', 'in', `(${excluded.join(',')})`)
@@ -99,7 +107,7 @@ const ExplorerPhotosStrip = ({ animalName, scientificName, rarity, excludeUserId
       })));
     })();
     return () => { alive = false; };
-  }, [animalName, excludeUserId, isPremium]);
+  }, [animalName, excludeUserId, isPremium, staffView]);
 
   if (!photos || photos.length === 0) return null;
 

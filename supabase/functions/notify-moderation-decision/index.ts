@@ -37,10 +37,7 @@ Deno.serve(async (req) => {
         const callerId = claimsData.claims.sub as string
 
         // Only admins may trigger moderation notifications.
-        const { data: isAdmin } = await supabase.rpc('has_role', {
-          _user_id: callerId,
-          _role: 'admin',
-        })
+        const { data: isAdmin } = await supabase.rpc('is_staff', { _user_id: callerId })
         if (!isAdmin) return json({ error: 'Forbidden' }, 403)
       }
     }

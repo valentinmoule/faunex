@@ -112,7 +112,7 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     )
 
-    const { data: isAdmin } = await supabase.rpc('has_role', { _user_id: callerId, _role: 'admin' })
+    const { data: isAdmin } = await supabase.rpc('is_staff', { _user_id: callerId })
     if (!isAdmin) return json({ error: 'Forbidden' }, 403)
 
     const body = await req.json().catch(() => ({}))

@@ -1291,13 +1291,14 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
             )}
 
 
-            {!feedView && !isUncaptured && (
+            {!feedView && (!isUncaptured || canMergeSpecies) && (
               <ExplorerPhotosStrip
                 animalName={card.name}
                 scientificName={card.scientificName}
                 rarity={card.rarity}
                 excludeUserId={session?.user?.id}
                 isPremium={isPremium}
+                staffView={canMergeSpecies}
               />
             )}
 
