@@ -709,6 +709,16 @@ const ModerationPage = () => {
                             </button>
                           </div>
                         )}
+                        {capture.correction_name && (
+                          <button
+                            onClick={() => reject(capture)}
+                            disabled={processing === capture.id}
+                            className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-muted text-foreground text-xs font-display font-semibold disabled:opacity-50 hover:bg-muted/80 transition-colors"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                            Refuser la correction — garder « {capture.animal_name} »
+                          </button>
+                        )}
                         <div className="flex gap-2">
                           <button
                             onClick={() => setRejectMenuFor(rejectMenuFor === capture.id ? null : capture.id)}
