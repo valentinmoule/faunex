@@ -757,6 +757,13 @@
       "when": 1793698763811,
       "tag": "0105_staff_ensure_bestiary_animal_fix",
       "breakpoints": true
+    },
+    {
+      "idx": 106,
+      "version": "7",
+      "when": 1793698797609,
+      "tag": "0106_staff_ensure_bestiary_animal_normalized",
+      "breakpoints": true
     }
   ]
 }
