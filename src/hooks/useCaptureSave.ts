@@ -157,6 +157,8 @@ export const useCaptureSave = ({ userId, photo, geo, takenAt = null }: SaveConte
           };
           let { data: reward, error: rewardError } = await supabase.functions.invoke('confirm-capture-eclats', confirmation);
           if (rewardError) {
+            // Jeton expiré : on rafraîchit la session avant de réessayer.
+            await supabase.auth.refreshSession().catch(() => null);
             const retry = await supabase.functions.invoke('confirm-capture-eclats', confirmation);
             reward = retry.data;
             rewardError = retry.error;
