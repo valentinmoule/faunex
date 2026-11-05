@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS ml_dataset_events_moderator_approved_idx ON public.ml_dataset_events (created_at, moderator_id) WHERE event_type = 'moderation_approved' AND moderator_id IS NOT NULL;
