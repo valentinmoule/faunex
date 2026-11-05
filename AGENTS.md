@@ -133,6 +133,5 @@ Vague results on small subject boxes rerun the cheap model on a server crop (reu
 
 Moderation/catalogue cleaning checks `is_staff()` (admin or moderator) everywhere; analytics, collections, learning and bulk tools stay admin-only, since moderators only clean entries.
 
-## Moderator activity is logged server-side
-
-Staff catalogue actions log to `moderator_actions` via wrappers around the `_impl` RPCs; approvals count from `ml_dataset_events.moderator_id`, so stats never trust the client.
+## Moderator stats are server-logged
+Catalogue RPC wrappers log to `moderator_actions`; approvals use `ml_dataset_events.moderator_id`.
