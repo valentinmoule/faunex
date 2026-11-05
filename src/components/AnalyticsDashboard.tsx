@@ -277,9 +277,61 @@ const AnalyticsDashboard = () => {
               </div>
             )}
           </ChartCard>
+
+          <ModeratorStats startISO={data.range.startISO} endISO={data.range.endISO} />
         </>
       )}
     </div>
+  );
+};
+
+type ModRow = { moderator_id: string; name: string; approved: number; renamed: number; merged: number; deleted: number };
+
+const ModeratorStats = ({ startISO, endISO }: { startISO: string; endISO: string }) => {
+  const [rows, setRows] = useState<ModRow[] | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    setRows(null); setErr(null);
+    (supabase.rpc as any)('admin_moderator_stats', { _start: startISO, _end: endISO }).then(({ data, error }: any) => {
+      if (cancelled) return;
+      if (error) setErr(error.message); else setRows((data ?? []) as ModRow[]);
+    });
+    return () => { cancelled = true; };
+  }, [startISO, endISO]);
+
+  return (
+    <ChartCard title="Activité des modérateurs (période)">
+      {err && <p className="text-xs text-destructive">{err}</p>}
+      {!rows && !err && <Loader2 className="w-4 h-4 animate-spin text-primary" />}
+      {rows && (
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="text-muted-foreground text-left">
+                <th className="py-1 font-semibold">Modérateur</th>
+                <th className="py-1 text-right font-semibold">Validées</th>
+                <th className="py-1 text-right font-semibold">Renommées</th>
+                <th className="py-1 text-right font-semibold">Fusionnées</th>
+                <th className="py-1 text-right font-semibold">Supprimées</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map(r => (
+                <tr key={r.moderator_id} className="border-t border-border">
+                  <td className="py-1.5 font-display font-semibold text-foreground truncate max-w-[140px]">{r.name}</td>
+                  <td className="py-1.5 text-right text-primary font-bold">{r.approved}</td>
+                  <td className="py-1.5 text-right">{r.renamed}</td>
+                  <td className="py-1.5 text-right">{r.merged}</td>
+                  <td className="py-1.5 text-right">{r.deleted}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <p className="text-[10px] text-muted-foreground mt-2">Les modifications de fiches sont comptées à partir du 5 novembre 2026.</p>
+        </div>
+      )}
+    </ChartCard>
   );
 };
 
