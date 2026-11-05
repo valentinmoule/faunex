@@ -778,6 +778,13 @@
       "when": 1793886745902,
       "tag": "0108_moderator_activity_stats",
       "breakpoints": true
+    },
+    {
+      "idx": 109,
+      "version": "7",
+      "when": 1793887145210,
+      "tag": "0109_moderator_stats_index",
+      "breakpoints": true
     }
   ]
 }
