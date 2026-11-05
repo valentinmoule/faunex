@@ -1903,6 +1903,30 @@ export type Database = {
           },
         ]
       }
+      moderator_actions: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          moderator_id: string
+          species_name: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          moderator_id: string
+          species_name?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          moderator_id?: string
+          species_name?: string | null
+        }
+        Relationships: []
+      }
       native_push_devices: {
         Row: {
           id: string
@@ -3453,10 +3477,37 @@ export type Database = {
         Returns: Json
       }
       admin_delete_bestiary_species: {
+        Args: { p_name: string; p_scientific: string }
+        Returns: boolean
+      }
+      admin_delete_bestiary_species_impl: {
         Args: { p_name: string; p_scientific?: string }
         Returns: boolean
       }
+      admin_moderator_stats: {
+        Args: { _end: string; _start: string }
+        Returns: {
+          approved: number
+          deleted: number
+          merged: number
+          moderator_id: string
+          name: string
+          renamed: number
+        }[]
+      }
       admin_reported_species_action: {
+        Args: {
+          p_action: string
+          p_animal_id: string
+          p_expected_name: string
+          p_expected_scientific: string
+          p_report_ids: string[]
+          p_target_id: string
+          p_value: string
+        }
+        Returns: Json
+      }
+      admin_reported_species_action_impl: {
         Args: {
           p_action: string
           p_animal_id: string
