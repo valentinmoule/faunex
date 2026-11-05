@@ -771,6 +771,13 @@
       "when": 1793701178368,
       "tag": "0107_staff_free_premium",
       "breakpoints": true
+    },
+    {
+      "idx": 108,
+      "version": "7",
+      "when": 1793886745902,
+      "tag": "0108_moderator_activity_stats",
+      "breakpoints": true
     }
   ]
 }
