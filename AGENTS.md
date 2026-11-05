@@ -132,6 +132,3 @@ Vague results on small subject boxes rerun the cheap model on a server crop (reu
 ## Staff roles share one server check
 
 Moderation/catalogue cleaning checks `is_staff()` (admin or moderator) everywhere; analytics, collections, learning and bulk tools stay admin-only, since moderators only clean entries.
-
-## Moderator stats are server-logged
-Catalogue RPC wrappers log to `moderator_actions`; approvals use `ml_dataset_events.moderator_id`.
