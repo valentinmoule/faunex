@@ -151,6 +151,8 @@
       "messageCaptureRejected_human": " rejected your submission: photos of humans are not accepted. Photograph wild animals!",
       "messageCaptureRejected_development_stage": " rejected your submission: eggs, larvae, cocoons and chrysalises are not accepted. Photograph the animal once it's identifiable!",
       "messageCaptureCorrectionAccepted": " accepted your correction request: your capture is now \"{{name}}\" 🎉",
+      "messageCaptureRejected_custom": " didn't approve your \"{{name}}\" capture.",
+      "moderatorNote": "Reason: \"{{note}}\"",
       "messageCaptureRejected_correction_declined": " didn't retain your correction request: your \"{{name}}\" capture stays unchanged, with its current photo and name.",
       "messageFriendRequest": " followed your profile",
       "messageFriendAccepted": " accepted your friend request",

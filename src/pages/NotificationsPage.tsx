@@ -217,11 +217,15 @@ const NotificationsPage = () => {
                       : t('social.notifications.messageCaptureApproved'))
                 : isCaptureRejected
                 ? (() => {
-                    const ct = notif.comment_text ?? '';
-                    const prefixed = ct.match(/^(duplicate|dead_animal|internet_image|captured_animal|human|development_stage|correction_declined):(.*)$/);
+                    const raw = notif.comment_text ?? '';
+                    const sep = raw.indexOf('||');
+                    const ct = sep >= 0 ? raw.slice(0, sep) : raw;
+                    const note = sep >= 0 ? raw.slice(sep + 2) : '';
+                    const prefixed = ct.match(/^(duplicate|dead_animal|internet_image|captured_animal|human|development_stage|correction_declined|custom):(.*)$/);
                     if (prefixed) {
                       const [, motif, name] = prefixed;
-                      return t(`social.notifications.messageCaptureRejected_${motif}`, { name });
+                      const base = t(`social.notifications.messageCaptureRejected_${motif}`, { name });
+                      return note ? `${base} ${t('social.notifications.moderatorNote', { note })}` : base;
                     }
                     return ct
                       ? t('social.notifications.messageCaptureRejectedWithReason', { reason: ct })

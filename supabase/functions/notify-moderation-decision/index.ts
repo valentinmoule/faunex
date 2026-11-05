@@ -64,9 +64,14 @@ Deno.serve(async (req) => {
     }
     const userId = capture.user_id
     const animalName = capture.animal_name
-    const ALLOWED_REASONS = ['not_identifiable', 'duplicate', 'dead_animal', 'internet_image', 'captured_animal', 'human', 'development_stage', 'correction_declined']
+    const ALLOWED_REASONS = ['not_identifiable', 'duplicate', 'dead_animal', 'internet_image', 'captured_animal', 'human', 'development_stage', 'correction_declined', 'custom']
     let reason = ALLOWED_REASONS.includes(body?.reason) ? body.reason : 'not_identifiable'
     if (correction && decision === 'rejected') reason = 'correction_declined'
+    // Motif écrit librement par le modérateur (motif « custom » ou refus de correction).
+    const rawNote = typeof body?.custom_note === 'string' ? body.custom_note.replace(/\|\|/g, '|').trim().slice(0, 500) : ''
+    const customNote = decision === 'rejected' && rawNote ? rawNote : ''
+    if (reason === 'custom' && !customNote) reason = 'not_identifiable'
+    const noteSuffix = customNote ? `||${customNote}` : ''
     let duplicateName: string | null = null
     let duplicateScientific: string | null = null
     if (decision === 'rejected' && !correction) {
@@ -96,7 +101,7 @@ Deno.serve(async (req) => {
       } else if (reason !== 'not_identifiable') {
         // Marqueur « motif:… » pour que l'app affiche le message adapté.
         await supabase.from('notifications')
-          .update({ comment_text: `${reason}:${animalName}` })
+          .update({ comment_text: `${reason}:${animalName}${noteSuffix}` })
           .eq('user_id', userId).eq('type', 'capture_rejected')
           .eq('comment_text', animalName)
       }
@@ -104,7 +109,7 @@ Deno.serve(async (req) => {
       // Marqueur « correction_declined:… » : l'app affiche que la demande de
       // correction n'a pas été retenue et que la capture reste inchangée.
       await supabase.from('notifications')
-        .update({ comment_text: `correction_declined:${animalName}` })
+        .update({ comment_text: `correction_declined:${animalName}${noteSuffix}` })
         .eq('user_id', userId).eq('type', 'capture_rejected')
         .eq('comment_text', animalName)
     }
@@ -112,7 +117,7 @@ Deno.serve(async (req) => {
     // Anti-doublon : une même décision (auto-modération + relance manuelle, ou
     // deux exécutions concurrentes) ne doit produire qu'un seul e-mail et une
     // seule notification push. Verrou atomique valable 24 h.
-    const dedupeKey = `moderation-${decision}-${reason}-${captureId ?? `${userId}-${animalName}`}`
+    const dedupeKey = `moderation-${decision}-${reason}-${customNote ? 'n-' : ''}${captureId ?? `${userId}-${animalName}`}`
     const { data: claimed, error: claimErr } = await supabase.rpc('try_claim_notification', {
       p_key: dedupeKey,
       p_ttl_seconds: 86400,
@@ -148,6 +153,7 @@ Deno.serve(async (req) => {
             correction,
             duplicateName,
             duplicateScientific,
+            customNote: customNote || null,
             captureUrl: approved || correction
               ? `${APP_URL}/home${captureId ? `?capture=${captureId}` : ''}`
               : `${APP_URL}/capture`,
@@ -168,6 +174,10 @@ Deno.serve(async (req) => {
         ? correction
           ? `Ta demande de correction a été acceptée : ta capture est maintenant « ${animalName} » !`
           : `${animalName} rejoint ton bestiaire !`
+        : customNote
+          ? correction
+            ? `Ta demande de correction n'a pas été retenue : ${customNote}`
+            : `${animalName} n'a pas été validée : ${customNote}`
         : correction
           ? `Ta demande de correction n'a pas été retenue : ta capture « ${animalName} » reste inchangée, avec sa photo et son nom actuels.`
         : reason === 'duplicate'
