@@ -750,20 +750,30 @@ const ModerationPage = () => {
                         {capture.correction_name && correctionNoteFor !== capture.id && (
                           <button
                             onClick={() => setCorrectionNoteFor(capture.id)}
-                            className="w-full text-xs font-display font-semibold text-muted-foreground py-1"
-                          >
-                            Écrire un motif pour le refus de correction
-                          </button>
-                        )}
-                        {capture.correction_name && (
-                          <button
-                            onClick={() => reject(capture, 'not_identifiable', customNotes[capture.id])}
                             disabled={processing === capture.id}
                             className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-muted text-foreground text-xs font-display font-semibold disabled:opacity-50 hover:bg-muted/80 transition-colors"
                           >
                             <X className="w-3.5 h-3.5" />
                             Refuser la correction — garder « {capture.animal_name} »
                           </button>
+                        )}
+                        {capture.correction_name && correctionNoteFor === capture.id && (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => setCorrectionNoteFor(null)}
+                              disabled={processing === capture.id}
+                              className="flex-1 px-4 py-2.5 rounded-xl bg-muted text-foreground text-xs font-display font-semibold disabled:opacity-50"
+                            >
+                              Annuler
+                            </button>
+                            <button
+                              onClick={() => { reject(capture, 'not_identifiable', customNotes[capture.id]); setCorrectionNoteFor(null); }}
+                              disabled={processing === capture.id}
+                              className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-destructive/10 text-destructive text-xs font-display font-semibold disabled:opacity-50"
+                            >
+                              <X className="w-3.5 h-3.5" /> Confirmer le refus
+                            </button>
+                          </div>
                         )}
                         <div className="flex gap-2">
                           <button
