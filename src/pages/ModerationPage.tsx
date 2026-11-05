@@ -389,7 +389,7 @@ const ModerationPage = () => {
   };
 
 
-  type RejectReason = 'not_identifiable' | 'duplicate' | 'dead_animal' | 'internet_image' | 'captured_animal' | 'human' | 'development_stage';
+  type RejectReason = 'not_identifiable' | 'duplicate' | 'dead_animal' | 'internet_image' | 'captured_animal' | 'human' | 'development_stage' | 'custom';
 
   const REJECT_REASONS: { value: RejectReason; label: string }[] = [
     { value: 'not_identifiable', label: 'Espèce non identifiable' },
@@ -402,9 +402,14 @@ const ModerationPage = () => {
   ];
 
   const [rejectMenuFor, setRejectMenuFor] = useState<string | null>(null);
+  const [customNotes, setCustomNotes] = useState<Record<string, string>>({});
+  const [correctionNoteFor, setCorrectionNoteFor] = useState<string | null>(null);
 
-  const reject = async (capture: PendingCapture, reason: RejectReason = 'not_identifiable') => {
+  const reject = async (capture: PendingCapture, reason: RejectReason = 'not_identifiable', note?: string) => {
     setRejectMenuFor(null);
+    setCorrectionNoteFor(null);
+    const customNote = (note ?? '').replace(/\|\|/g, '|').trim().slice(0, 500);
+    const noteSuffix = customNote ? `||${customNote}` : '';
     setProcessing(capture.id);
     if (capture.correction_name) {
       // Correction refusée : la capture garde sa photo et son nom d'origine.
@@ -416,7 +421,7 @@ const ModerationPage = () => {
           type: 'capture_rejected',
           actor_id: session.user.id,
           capture_id: capture.id,
-          comment_text: `correction_declined:${capture.animal_name}`,
+          comment_text: `correction_declined:${capture.animal_name}${noteSuffix}`,
         });
         if (notifError) console.error('notification correction declined failed', notifError);
         await supabase.functions
@@ -428,6 +433,7 @@ const ModerationPage = () => {
               capture_id: capture.id,
               reason: 'correction_declined',
               correction: true,
+              custom_note: customNote || undefined,
             },
           })
           .then(({ error: fnError }) => {
@@ -460,6 +466,7 @@ const ModerationPage = () => {
             animal_name: capture.animal_name,
             capture_id: capture.id,
             reason,
+            custom_note: customNote || undefined,
             // Précise dans la notification quelle espèce déjà possédée fait doublon.
             duplicate_name: failures[capture.id]?.duplicate?.animal_name ?? null,
             duplicate_scientific: failures[capture.id]?.duplicate?.scientific_name ?? null,
@@ -706,6 +713,22 @@ const ModerationPage = () => {
                                 <X className="w-3.5 h-3.5 shrink-0" /> {r.label}
                               </button>
                             ))}
+                            <div className="px-1 py-2.5 space-y-2">
+                              <textarea
+                                value={customNotes[capture.id] ?? ''}
+                                onChange={e => setCustomNotes(prev => ({ ...prev, [capture.id]: e.target.value.slice(0, 500) }))}
+                                placeholder="Autre motif : écris-le toi-même…"
+                                rows={2}
+                                className="w-full px-3 py-2 rounded-xl bg-background border border-border text-xs resize-none"
+                              />
+                              <button
+                                onClick={() => reject(capture, 'custom', customNotes[capture.id])}
+                                disabled={processing === capture.id || !(customNotes[capture.id] ?? '').trim()}
+                                className="w-full flex items-center gap-2 text-left text-xs font-display font-semibold text-destructive disabled:opacity-40"
+                              >
+                                <X className="w-3.5 h-3.5 shrink-0" /> Rejeter avec ce motif
+                              </button>
+                            </div>
                             <button
                               onClick={() => setRejectMenuFor(null)}
                               className="w-full px-1 py-2.5 text-left text-xs font-display font-semibold text-muted-foreground hover:bg-muted/40 transition-colors"
@@ -714,9 +737,27 @@ const ModerationPage = () => {
                             </button>
                           </div>
                         )}
+                        {capture.correction_name && correctionNoteFor === capture.id && (
+                          <textarea
+                            value={customNotes[capture.id] ?? ''}
+                            onChange={e => setCustomNotes(prev => ({ ...prev, [capture.id]: e.target.value.slice(0, 500) }))}
+                            placeholder="Motif du refus (facultatif) : écris-le toi-même…"
+                            rows={2}
+                            autoFocus
+                            className="w-full px-3 py-2 rounded-xl bg-background border border-border text-xs resize-none"
+                          />
+                        )}
+                        {capture.correction_name && correctionNoteFor !== capture.id && (
+                          <button
+                            onClick={() => setCorrectionNoteFor(capture.id)}
+                            className="w-full text-xs font-display font-semibold text-muted-foreground py-1"
+                          >
+                            Écrire un motif pour le refus de correction
+                          </button>
+                        )}
                         {capture.correction_name && (
                           <button
-                            onClick={() => reject(capture)}
+                            onClick={() => reject(capture, 'not_identifiable', customNotes[capture.id])}
                             disabled={processing === capture.id}
                             className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-muted text-foreground text-xs font-display font-semibold disabled:opacity-50 hover:bg-muted/80 transition-colors"
                           >

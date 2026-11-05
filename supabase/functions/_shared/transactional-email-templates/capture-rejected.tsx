@@ -18,6 +18,8 @@ interface Props {
   /** Espèce déjà présente dans le bestiaire, à l'origine du doublon. */
   duplicateName?: string | null
   duplicateScientific?: string | null
+  /** Motif écrit librement par le modérateur. */
+  customNote?: string | null
   locale?: Locale | string
 }
 
@@ -29,6 +31,7 @@ const CaptureRejectedEmail = ({
   correction = false,
   duplicateName = null,
   duplicateScientific = null,
+  customNote = null,
   locale,
 }: Props) => {
   const l = resolveLocale(locale as string | undefined)
@@ -114,6 +117,16 @@ const CaptureRejectedEmail = ({
                 l,
               )}
             </Text>
+          ) : reason === 'custom' ? (
+            <Text style={text}>
+              {pick(
+                {
+                  fr: `Ta capture de ${animalName} n'a pas été validée par la modération.`,
+                  en: `Your capture of ${animalName} wasn't approved by moderation.`,
+                },
+                l,
+              )}
+            </Text>
           ) : reason === 'development_stage' ? (
             <Text style={text}>
               {pick(
@@ -135,6 +148,11 @@ const CaptureRejectedEmail = ({
               )}
             </Text>
           )}
+          {customNote ? (
+            <Text style={text}>
+              {pick({ fr: 'Message du modérateur : ', en: 'Moderator message: ' }, l)}« {customNote} »
+            </Text>
+          ) : null}
           <Button style={button} href={captureUrl}>
             {correction
               ? pick({ fr: 'Voir ma capture', en: 'View my capture' }, l)

@@ -151,6 +151,8 @@
       "messageCaptureRejected_human": " a rejeté ta soumission : les photos d'humains ne sont pas acceptées. Photographie des animaux sauvages !",
       "messageCaptureRejected_development_stage": " a rejeté ta soumission : les œufs, larves, cocons et chrysalides ne sont pas acceptés. Photographie l'animal une fois identifiable !",
       "messageCaptureCorrectionAccepted": " a accepté ta demande de correction : ta capture est maintenant « {{name}} » 🎉",
+      "messageCaptureRejected_custom": " n'a pas validé ta capture « {{name}} ».",
+      "moderatorNote": "Motif : « {{note}} »",
       "messageCaptureRejected_correction_declined": " n'a pas retenu ta demande de correction : ta capture « {{name}} » reste inchangée, avec sa photo et son nom actuels.",
       "messageFriendRequest": " s'est abonné(e) à ton profil",
       "messageFriendAccepted": " a accepté ta demande d'ami",
