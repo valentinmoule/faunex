@@ -3558,6 +3558,7 @@ export type Database = {
         }
         Returns: Json
       }
+      binomial_key: { Args: { p_scientific: string }; Returns: string }
       canonical_animal_category: {
         Args: { p_category: string; p_name?: string; p_scientific?: string }
         Returns: string
