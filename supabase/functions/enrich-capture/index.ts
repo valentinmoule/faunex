@@ -668,34 +668,7 @@ const norm = (v: string | null | undefined) =>
  * (Épagneul picard et Braque d'Auvergne = Canis lupus familiaris). Le nom
  * scientifique ne peut donc pas servir à détecter un doublon pour elles.
  */
-const SHARED_BINOMIALS = new Set([
-  'canis lupus familiaris', 'canis familiaris', 'canis lupus',
-  'felis catus', 'felis silvestris catus',
-  'equus caballus', 'equus ferus caballus', 'equus asinus',
-  'bos taurus', 'bos primigenius taurus', 'ovis aries', 'capra hircus',
-  'sus scrofa domesticus', 'gallus gallus domesticus', 'gallus gallus',
-  'oryctolagus cuniculus', 'anas platyrhynchos domesticus',
-  'cavia porcellus', 'mesocricetus auratus', 'columba livia domestica',
-  // Variantes collectables du paon (bleu, blanc, nigripenne, panaché).
-  'pavo cristatus',
-])
-
-/**
- * Un nom scientifique n'identifie une espèce que s'il est un vrai binôme
- * (genre + épithète). Beaucoup de fiches portent un rang supérieur
- * (Araneae, Coleoptera, Cicadidae…) partagé par des milliers d'espèces
- * différentes : s'en servir pour détecter un doublon créait de faux positifs.
- */
-const isSpeciesBinomial = (sci: string | null | undefined) => {
-  const s = norm(sci)
-  if (!s) return false
-  if (SHARED_BINOMIALS.has(s)) return false
-  const parts = s.split(' ').filter(Boolean)
-  if (parts.length < 2) return false
-  // Rangs supra-spécifiques : familles, sous-familles, super-familles, ordres…
-  if (/(idae|inae|oidea|aceae|iformes|ptera|morpha)$/.test(parts[0])) return false
-  return true
-}
+// Races domestiques et rangs supra-spécifiques : isSpeciesBinomial partagé.
 
 /** Retourne la capture approuvée existante de la même espèce pour cet explorateur. */
 async function findUserDuplicate(
