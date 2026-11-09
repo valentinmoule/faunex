@@ -45,6 +45,7 @@
       "saveError": "Erreur lors de la sauvegarde",
       "updateError": "Erreur lors de la mise à jour",
       "alreadyHaveSpecies": "Tu as déjà cette espèce dans ton Faunex ({{name}}).",
+      "speciesAwaitingReview": "Ta photo de {{name}} attend déjà la validation d'un modérateur. Elle apparaîtra dans ton Faunex dès qu'elle sera validée.",
       "existingPhotoKept": "Photo existante conservée",
       "analysisTimeout": "l'analyse a pris trop de temps",
       "dailyAnalysisLimit": "Tu as atteint ta limite d'analyses pour aujourd'hui.",

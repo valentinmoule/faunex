@@ -434,7 +434,10 @@ setManualMode(false);
     // attente de modération) : inutile d'envoyer un doublon aux modérateurs.
     const alreadyOwned = await findDuplicate(trimmedName, trimmedSpecies || null);
     if (alreadyOwned) {
-      toast.error(t('capture.errors.alreadyHaveSpecies', { name: alreadyOwned.animal_name }));
+      toast.error(t(
+        alreadyOwned.status === 'pending_review' ? 'capture.errors.speciesAwaitingReview' : 'capture.errors.alreadyHaveSpecies',
+        { name: alreadyOwned.animal_name },
+      ));
       return;
     }
 
@@ -562,6 +565,12 @@ setManualMode(false);
       const existing = await findDuplicate(animalResult.animal_name, animalResult.scientific_name);
       if (existing) {
         cancelPrepare();
+        // Une photo en attente de modération n'est pas encore dans le Faunex :
+        // proposer de la « remplacer » laisserait croire qu'elle y est déjà.
+        if (existing.status === 'pending_review') {
+          toast.error(t('capture.errors.speciesAwaitingReview', { name: existing.animal_name }));
+          return;
+        }
         setDuplicateCapture(existing);
         return;
       }
