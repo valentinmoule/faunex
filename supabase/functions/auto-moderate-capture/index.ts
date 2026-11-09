@@ -7,6 +7,7 @@ import { attestModeratedCapture } from '../_shared/economyProof.ts'
 import { matchCatalogueSpecies } from '../_shared/species-matching.ts'
 import { STRICT_SPECIES_RULES, requiresHumanSpeciesReview, trustObserverProposal } from '../_shared/strict-moderation.ts'
 import { COLLECTIBLE_VARIANT_RULE } from '../_shared/collectible-variants.ts'
+import { isSpeciesBinomial } from '../_shared/shared-binomials.ts'
 
 async function logDatasetEvent(db: any, event: ServerDatasetEvent) {
   await writeDatasetEvent(db, { ...event, payload: { auto_review_policy: AUTO_REVIEW_POLICY } })
@@ -449,7 +450,10 @@ async function examine(
     approvedName = spelled.charAt(0).toUpperCase() + spelled.slice(1)
     approvedSci = trusted.scientific
   }
-  const humanNeeded = !trusted && requiresHumanSpeciesReview({ confidence, nameMatches: verdict.name_matches, disagreement, unknown, notRealPhoto, scientific: approvedSci })
+  // Race/variété précisée par l'observateur sans fiche existante : jamais
+  // ramenée au nom générique de l'IA, un modérateur la reconnaît.
+  const breedClaim = !proposedEntry && !notRealPhoto && observerMoreSpecific(name, finalName)
+  const humanNeeded = breedClaim || (!trusted && requiresHumanSpeciesReview({ confidence, nameMatches: verdict.name_matches, disagreement, unknown, notRealPhoto, scientific: approvedSci }))
 
 
 
@@ -458,6 +462,8 @@ async function examine(
 
     const decisionReason = notRealPhoto
       ? `not_a_real_photo:${imageType ?? 'unknown'}`
+      : breedClaim
+        ? `observer_more_specific:${finalName}`
       : disagreement
         ? `species_disagreement:${verdict.scientific_name ?? verdict.animal_name ?? 'inconnu'}`
 
@@ -833,25 +839,15 @@ const compatibleNames = (a: string, b: string) => {
   return shared / Math.max(setA.size, setB.size) >= 0.5
 }
 
-const SHARED_BINOMIALS = new Set([
-  'canis lupus familiaris', 'canis familiaris', 'canis lupus',
-  'felis catus', 'felis silvestris catus',
-  'equus caballus', 'equus ferus caballus', 'equus asinus',
-  'bos taurus', 'bos primigenius taurus', 'ovis aries', 'capra hircus',
-  'sus scrofa domesticus', 'gallus gallus domesticus', 'gallus gallus',
-  'oryctolagus cuniculus', 'anas platyrhynchos domesticus',
-  'cavia porcellus', 'mesocricetus auratus', 'columba livia domestica',
-  'pavo cristatus',
-])
-
-const isSpeciesBinomial = (sci: string | null | undefined) => {
-  const s = norm(sci)
-  if (!s) return false
-  if (SHARED_BINOMIALS.has(s)) return false
-  const parts = s.split(' ').filter(Boolean)
-  if (parts.length < 2) return false
-  if (/(idae|inae|oidea|aceae|iformes|ptera|morpha)$/.test(parts[0])) return false
-  return true
+/**
+ * L'observateur nomme plus précisément que l'IA (« Canari arlequin portugais »
+ * contre « Canari ») : race ou variété que seul un humain peut reconnaître.
+ */
+const observerMoreSpecific = (observer: string, ai: string) => {
+  const to = new Set(nameTokens(observer))
+  const ta = new Set(nameTokens(ai))
+  if (!ta.size || to.size <= ta.size) return false
+  return [...ta].every((t) => to.has(t))
 }
 
 /**
