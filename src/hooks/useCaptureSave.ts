@@ -64,7 +64,7 @@ export const useCaptureSave = ({ userId, photo, geo, takenAt = null }: SaveConte
       const pattern = key.replace(/[\\%_]/g, (c) => `\\${c}`);
       const { data } = await supabase
         .from('captures')
-        .select('id, image_url, animal_name')
+        .select('id, image_url, animal_name, status')
         .eq('user_id', userId)
         // Une capture refusée n'est pas dans le Faunex : elle ne bloque rien.
         .in('status', ['approved', 'pending_review'])
@@ -106,7 +106,7 @@ export const useCaptureSave = ({ userId, photo, geo, takenAt = null }: SaveConte
         if (!isSpeciesBinomial(candidate)) continue;
         const { data } = await supabase
           .from('captures')
-          .select('id, image_url, animal_name')
+          .select('id, image_url, animal_name, status')
           .eq('user_id', userId)
           .in('status', ['approved', 'pending_review'])
           .ilike('scientific_name', candidate.trim())

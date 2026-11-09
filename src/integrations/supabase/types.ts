@@ -3580,6 +3580,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      capture_tile_for: {
+        Args: { p_name: string; p_scientific: string }
+        Returns: string
+      }
       captures_remaining_today: { Args: never; Returns: number }
       cast_contest_vote: { Args: { p_entry_id: string }; Returns: boolean }
       catalogue_name_for_binomial: {
