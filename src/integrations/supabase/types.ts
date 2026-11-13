@@ -3502,8 +3502,8 @@ export type Database = {
           p_expected_name: string
           p_expected_scientific: string
           p_report_ids: string[]
-          p_target_id: string
-          p_value: string
+          p_target_id?: string
+          p_value?: string
         }
         Returns: Json
       }
