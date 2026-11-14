@@ -3484,6 +3484,10 @@ export type Database = {
         Args: { p_name: string; p_scientific?: string }
         Returns: boolean
       }
+      admin_learning_stats: {
+        Args: { _end: string; _start: string }
+        Returns: Json
+      }
       admin_moderator_stats: {
         Args: { _end: string; _start: string }
         Returns: {
