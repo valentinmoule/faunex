@@ -33,12 +33,15 @@ const ShareProfilePage = () => {
     const fetchProfile = async () => {
       if (!username) { setNotFound(true); setLoading(false); return; }
 
-      const searchName = username.startsWith('@') ? username : `@${username}`;
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('user_id, display_name, username, avatar_url, level, total_captures')
-        .eq('username', searchName)
-        .single();
+      setLoading(true);
+      setNotFound(false);
+      // Lookup serveur : fonctionne aussi pour un visiteur pas encore connecté
+      // (lien partagé ouvert juste après l'installation), sans tenir compte
+      // des majuscules, et accepte les anciens liens contenant l'identifiant.
+      const { data: rows, error } = await supabase.rpc('get_shared_profile', {
+        p_handle: username,
+      });
+      const data = Array.isArray(rows) ? rows[0] : null;
 
       if (error || !data) {
         setNotFound(true);
@@ -65,7 +68,7 @@ const ShareProfilePage = () => {
       setLoading(false);
     };
     fetchProfile();
-  }, [username, session]);
+  }, [username, session?.user?.id]);
 
   const handleFollow = async () => {
     if (!session?.user || !profile) {
