@@ -278,10 +278,93 @@ const AnalyticsDashboard = () => {
             )}
           </ChartCard>
 
+          <LearningStats startISO={data.range.startISO} endISO={data.range.endISO} />
+
           <ModeratorStats startISO={data.range.startISO} endISO={data.range.endISO} />
         </>
       )}
     </div>
+  );
+};
+
+type LearningData = {
+  activeInPeriod: number; learners: number; activeLearners: number; returningLearners: number;
+  started: number; finished: number; lessonsPassed: number;
+  totalUsers: number; learnersAllTime: number;
+  learnersByWeek: { week: string; count: number }[];
+  byPath: { title: string; learners: number; started: number; finished: number }[];
+};
+
+const LearningStats = ({ startISO, endISO }: { startISO: string; endISO: string }) => {
+  const [d, setD] = useState<LearningData | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    setD(null); setErr(null);
+    (supabase.rpc as any)('admin_learning_stats', { _start: startISO, _end: endISO }).then(({ data, error }: any) => {
+      if (cancelled) return;
+      if (error) setErr(error.message); else setD(data as LearningData);
+    });
+    return () => { cancelled = true; };
+  }, [startISO, endISO]);
+
+  const pct = (k: number, n: number) => (n ? `${((k / n) * 100).toFixed(1)}%` : '—');
+  const num = (v: number) => v.toLocaleString('fr-FR');
+
+  return (
+    <ChartCard title="Académie (période)">
+      {err && <p className="text-xs text-destructive">{err}</p>}
+      {!d && !err && <Loader2 className="w-4 h-4 animate-spin text-primary" />}
+      {d && (
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <Kpi label="Taux d'usage" value={pct(d.activeLearners, d.activeInPeriod)} hint={`${num(d.activeLearners)} / ${num(d.activeInPeriod)} actifs`} />
+            <Kpi label="Explorateurs" value={num(d.learners)} hint="ont lancé ≥1 leçon" />
+            <Kpi label="Leçons lancées" value={num(d.started)} hint={d.learners ? `${(d.started / d.learners).toFixed(1)} / explorateur` : undefined} />
+            <Kpi label="Leçons terminées" value={num(d.finished)} hint={`${pct(d.finished, d.started)} des lancées`} />
+            <Kpi label="Leçons réussies" value={num(d.lessonsPassed)} hint="nouvelles validations" />
+            <Kpi label="Reviennent" value={num(d.returningLearners)} hint={`${pct(d.returningLearners, d.learners)} · ≥2 jours`} />
+            <Kpi label="Depuis le lancement" value={num(d.learnersAllTime)} hint={`${pct(d.learnersAllTime, d.totalUsers)} des inscrits`} />
+          </div>
+          {d.learnersByWeek.length > 0 && (
+            <ResponsiveContainer width="100%" height={180}>
+              <BarChart data={d.learnersByWeek}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="week" tick={{ fontSize: 10 }} />
+                <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
+                <Tooltip formatter={(v: number) => [v, 'Explorateurs']} contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 8, fontSize: 12 }} />
+                <Bar dataKey="count" fill="hsl(152, 55%, 38%)" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+          {d.byPath.length > 0 && (
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="text-muted-foreground text-left">
+                    <th className="py-1 font-semibold">Parcours</th>
+                    <th className="py-1 text-right font-semibold">Explorateurs</th>
+                    <th className="py-1 text-right font-semibold">Lancées</th>
+                    <th className="py-1 text-right font-semibold">Terminées</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {d.byPath.map((p, i) => (
+                    <tr key={i} className="border-t border-border">
+                      <td className="py-1.5 font-display font-semibold text-foreground truncate max-w-[140px]">{p.title}</td>
+                      <td className="py-1.5 text-right text-primary font-bold">{p.learners}</td>
+                      <td className="py-1.5 text-right">{p.started}</td>
+                      <td className="py-1.5 text-right">{p.finished}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          <p className="text-[10px] text-muted-foreground">Taux d'usage = explorateurs connectés sur la période ayant lancé au moins une leçon. Comptes de test exclus.</p>
+        </div>
+      )}
+    </ChartCard>
   );
 };
 
