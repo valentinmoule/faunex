@@ -3788,6 +3788,17 @@ export type Database = {
           rarity: string
         }[]
       }
+      get_shared_profile: {
+        Args: { p_handle: string }
+        Returns: {
+          avatar_url: string
+          display_name: string
+          level: number
+          total_captures: number
+          user_id: string
+          username: string
+        }[]
+      }
       grant_xp: {
         Args: { p_amount: number; p_user_id: string }
         Returns: undefined
