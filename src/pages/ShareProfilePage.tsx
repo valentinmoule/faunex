@@ -39,7 +39,7 @@ const ShareProfilePage = () => {
       // (lien partagé ouvert juste après l'installation), sans tenir compte
       // des majuscules, et accepte les anciens liens contenant l'identifiant.
       const { data: rows, error } = await supabase.rpc('get_shared_profile', {
-        p_handle: decodeURIComponent(username),
+        p_handle: username,
       });
       const data = Array.isArray(rows) ? rows[0] : null;
 
