@@ -482,8 +482,9 @@ setManualMode(false);
         return;
       }
       if (msg.includes('captures_unique_pending_per_user') || msg.includes('duplicate key')) {
-        // Une demande identique attend déjà la modération.
-        toast.error(t('capture.errors.alreadyHaveSpecies', { name: trimmedName }));
+        // Une demande identique attend déjà la modération : ce n'est pas encore
+        // dans le Faunex, dire « Tu as déjà cette espèce » laisserait croire à un bug.
+        toast.error(t('capture.errors.speciesAwaitingReview', { name: trimmedName }));
         return;
       }
       toast.error(isDailyLimitError(err) ? quotaMessage : t('capture.errors.submissionError'));
