@@ -855,6 +855,20 @@
       "when": 1794673142709,
       "tag": "0119_admin_learning_stats",
       "breakpoints": true
+    },
+    {
+      "idx": 120,
+      "version": "7",
+      "when": 1794753537481,
+      "tag": "0120_rename_species_clears_orphan_profile",
+      "breakpoints": true
+    },
+    {
+      "idx": 121,
+      "version": "7",
+      "when": 1794753596272,
+      "tag": "0121_rename_species_orphan_profile_snapshot_once",
+      "breakpoints": true
     }
   ]
 }
