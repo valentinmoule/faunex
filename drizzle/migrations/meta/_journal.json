@@ -869,6 +869,13 @@
       "when": 1794753596272,
       "tag": "0121_rename_species_orphan_profile_snapshot_once",
       "breakpoints": true
+    },
+    {
+      "idx": 122,
+      "version": "7",
+      "when": 1794852750277,
+      "tag": "0122_conservation_follows_verified_iucn",
+      "breakpoints": true
     }
   ]
 }
