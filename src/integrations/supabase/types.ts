@@ -3682,6 +3682,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      conservation_code: { Args: { p_text: string }; Returns: string }
       consume_ai_analysis:
         | { Args: { p_user: string }; Returns: number }
         | { Args: { p_request: string; p_user: string }; Returns: number }
@@ -4156,6 +4157,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      verified_iucn_status: { Args: { p_name: string }; Returns: string }
       withdraw_contest_photo: { Args: never; Returns: boolean }
     }
     Enums: {
