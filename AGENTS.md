@@ -132,3 +132,7 @@ Vague results on small subject boxes rerun the cheap model on a server crop (reu
 ## Staff roles share one server check
 
 Moderation/catalogue cleaning checks `is_staff()` (admin or moderator) everywhere; analytics, collections, learning and bulk tools stay admin-only, since moderators only clean entries.
+
+## Displayed conservation follows the verified IUCN status
+
+Triggers align species_profiles/approved captures `conservation` with `animals.iucn_status` (except NE), since that synced status drives rarity and AI text goes stale.
