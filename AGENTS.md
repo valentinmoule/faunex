@@ -107,8 +107,6 @@ Store species names, not capture IDs; refresh hooks after writes; hide capture-o
 Apply shared facts after capture name canonicalization, reject scientific conflicts, refresh facts on image-cache hits, and invalidate translations after source changes, because moderation and older clients can save stale descriptions under corrected names.
 <!-- LOVABLE:END -->
 
-## Capture UPDATE guard
-Compare protected fields via SECURITY DEFINER; self-querying RLS recurses.
 
 ## Themed collections are data, not code
 
@@ -132,7 +130,3 @@ Vague results on small subject boxes rerun the cheap model on a server crop (reu
 ## Staff roles share one server check
 
 Moderation/catalogue cleaning checks `is_staff()` (admin or moderator) everywhere; analytics, collections, learning and bulk tools stay admin-only, since moderators only clean entries.
-
-## Displayed conservation follows the verified IUCN status
-
-Triggers align species_profiles/approved captures `conservation` with `animals.iucn_status` (except NE), since that synced status drives rarity and AI text goes stale.
