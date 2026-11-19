@@ -51,6 +51,7 @@ rarityTileBorder,
   type ZoneSub,
 } from '@/lib/bestiary';
 import { getCollectionArt, getZoneArt } from '@/lib/collectionArt';
+import { findCollectionTile } from '@/lib/collectionTile';
 import { hapticTap } from '@/lib/haptics';
 
 import { MIN_BREEDS_PER_GROUP, BREED_GROUPS, getBreedGroup, getSpeciesGroup, type BreedGroup } from '@/lib/breedGroups';
@@ -799,11 +800,7 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
     const items = customCollections.itemsFor(selectedCustom.id);
     const resolved: BestiaryAnimal[] = [];
     for (const item of items) {
-      const sci = item.scientific_name?.trim().toLowerCase();
-      const target = item.animal_name.toLocaleLowerCase('fr');
-      const match =
-        (sci ? browseAnimals.find((a) => a.scientific_name?.trim().toLowerCase() === sci) : undefined) ||
-        browseAnimals.find((a) => a.name.toLocaleLowerCase('fr') === target);
+      const match = findCollectionTile(browseAnimals, item.animal_name, item.scientific_name);
       resolved.push(
         match || {
           name: item.animal_name,
@@ -823,11 +820,7 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
       const chosen = customCollections.collections.find((c) => c.id === collectionId)?.cover_image;
       if (chosen) return chosen;
       for (const item of customCollections.itemsFor(collectionId)) {
-        const target = item.animal_name.toLocaleLowerCase('fr');
-        const sci = item.scientific_name?.trim().toLowerCase();
-        const match =
-          (sci ? browseAnimals.find((a) => a.scientific_name?.trim().toLowerCase() === sci) : undefined) ||
-          browseAnimals.find((a) => a.name.toLocaleLowerCase('fr') === target);
+        const match = findCollectionTile(browseAnimals, item.animal_name, item.scientific_name);
         if (match?.captured && match.captureData?.image) return match.captureData.image;
       }
       return null;
@@ -2259,11 +2252,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                     const items = customCollections.itemsFor(c.id);
                     const total = items.length;
                     const captured = items.reduce((acc, item) => {
-                      const sci = item.scientific_name?.trim().toLowerCase();
-                      const target = item.animal_name.toLocaleLowerCase('fr');
-                      const match =
-                        (sci ? browseAnimals.find((a) => a.scientific_name?.trim().toLowerCase() === sci) : undefined) ||
-                        browseAnimals.find((a) => a.name.toLocaleLowerCase('fr') === target);
+                      const match = findCollectionTile(browseAnimals, item.animal_name, item.scientific_name);
                       return acc + (match?.captured ? 1 : 0);
                     }, 0);
                     const art = getCollectionArt(`custom:${c.id}`, c.name);
