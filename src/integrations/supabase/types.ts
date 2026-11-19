@@ -3838,6 +3838,10 @@ export type Database = {
       }
       identity_force_allowed: { Args: never; Returns: boolean }
       in_my_family: { Args: { p_family: string }; Returns: boolean }
+      is_bee_group_label: {
+        Args: { p_name: string; p_scientific: string }
+        Returns: boolean
+      }
       is_generic_domestic_chicken: {
         Args: { p_name: string }
         Returns: boolean

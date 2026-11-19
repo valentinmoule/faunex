@@ -6,3 +6,6 @@ Compare protected fields via SECURITY DEFINER; self-querying RLS recurses.
 
 ## Displayed conservation follows the verified IUCN status
 Triggers align profile/approved capture `conservation` with `animals.iucn_status` (except NE): that status drives rarity, AI text goes stale.
+
+## Bees are collectible only as species
+Keep SQL `is_bee_group_label` and TS `isBeeGroupLabel` in sync; identification, moderation and triggers refuse bee genus/family/"sp." labels, since group tiles hide distinct species.

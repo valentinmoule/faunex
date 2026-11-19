@@ -1,7 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { logDatasetEvent } from '../_shared/dataset.ts'
 import { CatalogueLookupError, matchCatalogueSpecies, isTransientDbError } from '../_shared/species-matching.ts'
-import { MORPHOLOGY_RULE, moderationVisionModels, isGenericDomesticChicken, breedFallbackName, fallbackScientific } from '../_shared/visual-identification-policy.ts'
+import { MORPHOLOGY_RULE, moderationVisionModels, isGenericDomesticChicken, breedFallbackName, fallbackScientific, isBeeGroupLabel } from '../_shared/visual-identification-policy.ts'
 import { COLLECTIBLE_VARIANT_RULE } from '../_shared/collectible-variants.ts'
 import { isSpeciesBinomial } from '../_shared/shared-binomials.ts'
 import { scientificOnlyOverride, applyForcedIdentity } from '../_shared/forced-identification.ts'
@@ -468,6 +468,10 @@ Deno.serve(async (req) => {
     if (!forceName && isGenericDomesticChicken(animal.animal_name)) {
       return json({ error: 'Ce nom désigne une poule ou un coq domestique sans préciser sa race. Précise la race ou force ce nom.', code: 'domestic_breed_required' })
     }
+    // Bees are collectible only as precise species, even when the name is forced.
+    if (isBeeGroupLabel(animal.animal_name, animal.scientific_name)) {
+      return json({ error: "Ce nom désigne un groupe d'abeilles, pas une espèce. Indique l'espèce précise (nom commun et nom scientifique) ou laisse la photo en modération.", code: 'bee_species_required' })
+    }
     if (needsBreedClarification(forceName, Boolean(notesPrompt), animal)) {
       return json({ error: 'Les observations ont été prises en compte, mais plusieurs races restent possibles. Précise la race ou force un nom uniquement si tu peux la confirmer ; cette capture n’est pas déclarée comme doublon.', code: 'breed_uncertain' })
     }
@@ -530,6 +534,10 @@ Deno.serve(async (req) => {
     }
     if (!forceName && isGenericDomesticChicken(animal.animal_name)) {
       return json({ error: 'Ce nom désigne une poule ou un coq domestique sans préciser sa race. Précise la race ou force ce nom.', code: 'domestic_breed_required' })
+    }
+    // Bees are collectible only as precise species, even when the name is forced.
+    if (isBeeGroupLabel(animal.animal_name, animal.scientific_name)) {
+      return json({ error: "Ce nom désigne un groupe d'abeilles, pas une espèce. Indique l'espèce précise (nom commun et nom scientifique) ou laisse la photo en modération.", code: 'bee_species_required' })
     }
     if (needsBreedClarification(forceName, Boolean(notesPrompt), animal)) {
       return json({ error: 'Les observations ont été prises en compte, mais plusieurs races restent possibles. Précise la race ou force un nom uniquement si tu peux la confirmer ; cette capture n’est pas déclarée comme doublon.', code: 'breed_uncertain' })

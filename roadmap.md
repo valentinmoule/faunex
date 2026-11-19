@@ -59,3 +59,6 @@
 
 - [x] Intégrer le package holographique fourni aux cartes primées : texture PNG originale extraite de la simulation, styles repris, anciens effets retirés ; cochon vérifié en fiche et plein écran, comparaison visuelle à l’aperçu et tests de transitions passants.
 - [x] *Cicada orni* renommé « Cigale de l'orne » : 68 captures et 67 explorateurs regroupés, 85 lignes archivées, fiches et redirections « Cigale »/« Cigale grise » conservées ; recherche Bestiaire tolérante aux apostrophes droite et typographique (3 tests, 259 tests passants, build OK).
+
+- [x] Abeilles et bourdons : 21 fiches de groupe supprimées ; 40 photos rangées dans leur espèce, 210 renvoyées en modération humaine ; identification, modération et base refusent désormais les noms de groupe d'abeilles (4 tests passants, fonctions déployées).
+- [ ] Autres groupes du Bestiaire : même règle « espèces uniquement », à faire plus tard à la demande de Valentin.

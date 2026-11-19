@@ -3,7 +3,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { identificationAccountPolicy } from "./accountPolicy.ts";
 import { imageBytes, imageDigest, issueAiProof } from '../_shared/economyProof.ts';
 import { CatalogueLookupError, matchCatalogueSpecies, matchCatalogueWithIdentityRecheck } from '../_shared/species-matching.ts';
-import { MORPHOLOGY_RULE, isGenericDomesticChicken, breedFallbackName, fallbackScientific, isConfidentGenericDomestic } from '../_shared/visual-identification-policy.ts';
+import { MORPHOLOGY_RULE, isGenericDomesticChicken, breedFallbackName, fallbackScientific, isConfidentGenericDomestic, isBeeGroupLabel } from '../_shared/visual-identification-policy.ts';
 import { COLLECTIBLE_VARIANT_RULE } from '../_shared/collectible-variants.ts';
 import { cropToSubject, shouldZoomOnSubject, zoomIsBetter } from '../_shared/subject-crop.ts';
 
@@ -1066,6 +1066,11 @@ serve(async (req) => {
     if (isGenericDomesticChicken(animalData?.animal_name)) {
       await refundQuota();
       return await finish({ success: false, reason: "unverified_species", hint: "La race de cette poule ou de ce coq ne peut pas être confirmée. Propose la photo en modération pour vérification." }, "unverified_species");
+    }
+
+    if (isBeeGroupLabel(animalData?.animal_name, animalData?.scientific_name)) {
+      await refundQuota();
+      return await finish({ success: false, reason: "unverified_species", hint: "L'espèce précise de cette abeille ne peut pas être confirmée sur la photo. Propose-la en modération pour vérification." }, "unverified_species");
     }
 
     /**

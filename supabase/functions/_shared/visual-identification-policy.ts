@@ -88,3 +88,15 @@ const TILE_SCIENTIFIC: Record<string, string> = {
 };
 /** Scientific name of the catalogue tile a breed fallback points to. */
 export const fallbackScientific = (tile: string) => TILE_SCIENTIFIC[tile] ?? null;
+
+/** Bee genera, tribes and families (Anthophila); kept in sync with public.is_bee_group_label. */
+const BEE_TAXA = new Set(['apis','bombus','xylocopa','ceratina','nomada','thyreus','amegilla','anthophora','eucera','tetralonia','melecta','epeolus','ammobates','habropoda','andrena','panurgus','melitturga','camptopoeum','halictus','lasioglossum','seladonia','sphecodes','agapostemon','nomia','nomioides','augochlora','augochlorella','augochloropsis','megachile','osmia','anthidium','anthidiellum','pseudoanthidium','rhodanthidium','chelostoma','heriades','hoplitis','hoplosmia','protosmia','coelioxys','stelis','dioxys','lithurgus','trachusa','colletes','hylaeus','dasypoda','melitta','macropis','tetragonisca','trigona','melipona','tetragonula','plebeia','scaptotrigona','euglossa','eulaema','centris','epicharis','melissodes','peponapis','xenoglossa','ptilothrix','diadasia','calliopsis','perdita','systropha','rophites','dufourea','anthophila','apidae','andrenidae','halictidae','megachilidae','colletidae','melittidae','stenotritidae','meliponini','bombini','apini','euglossini','anthophorini','osmiini','anthidiini']);
+/** Group-level French names, only meaningful when no scientific name is given. */
+const BEE_GENERIC_NAMES = new Set(['abeille','abeilles','abeille sauvage','abeilles sauvages','abeille solitaire','abeilles solitaires','abeille sauvage solitaire','abeille miniere','petite abeille miniere','bourdon','bourdons','bourdon noir','andrene','andrenes','halicte','halictes','halictidae','lasioglosse','lasioglossum','megachile','megachiles','osmie','osmies','collete','colletes','abeille des colletes','anthidie','abeille laineuse','nomade','abeille a bandes jaunes','abeille a bandes bleues','amegille','ceratine','cerazine','dasypode','melipone','hylee','abeille a masque','eucere','anthophore','apide','sphecode','abeille suintante metallique']);
+
+/** Bees are only collectible as precise species: genus, tribe, family or "sp." labels are groups. */
+export function isBeeGroupLabel(name: unknown, scientific: unknown): boolean {
+  const sci = String(scientific ?? '').replace(/[^A-Za-z. ]+/g, ' ').trim().toLowerCase().split(/\s+/).filter(Boolean);
+  if (sci.length) return BEE_TAXA.has(sci[0]) && (sci.length === 1 || /^spp?\.?$/.test(sci[1]));
+  return BEE_GENERIC_NAMES.has(foldChicken(name));
+}
