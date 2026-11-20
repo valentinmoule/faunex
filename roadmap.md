@@ -62,3 +62,4 @@
 
 - [x] Abeilles et bourdons : 21 fiches de groupe supprimées ; 40 photos rangées dans leur espèce, 210 renvoyées en modération humaine ; identification, modération et base refusent désormais les noms de groupe d'abeilles (4 tests passants, fonctions déployées).
 - [ ] Autres groupes du Bestiaire : même règle « espèces uniquement », à faire plus tard à la demande de Valentin.
+- [x] File de modération (207) traitée : 4 photos validées ; abeilles en mode mixte, 172 rangées sous l'espèce la plus probable, 31 refusées (inexploitables ou doublons).
