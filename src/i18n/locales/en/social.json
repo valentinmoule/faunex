@@ -261,6 +261,8 @@
         "generic": "Something went wrong."
       },
       "dayShort": "d"
-    }
+    },
+    "explorersTitle": "Explorers",
+    "searchExplorers": "Search explorers"
   }
 }

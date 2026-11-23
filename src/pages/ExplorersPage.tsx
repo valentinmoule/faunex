@@ -24,6 +24,9 @@ import { useSpeciesName } from '@/hooks/useSpeciesLocale';
 import CaptureMilestoneCard, { isMilestoneRank } from '@/components/CaptureMilestoneCard';
 import ExplorersEmptyState from '@/components/social/ExplorersEmptyState';
 import { ProfileButton } from '@/components/ProfileDrawer';
+import CaptureQuotaBadge from '@/components/CaptureQuotaBadge';
+import CurrencyBalance from '@/components/CurrencyBalance';
+import { useSubscription } from '@/hooks/useSubscription';
 import PhotoContestTab from '@/components/social/PhotoContestTab';
 import { useContestWinnerCaptures } from '@/hooks/usePhotoContest';
 import { CollectorEditionMark } from '@/components/social/CollectorEdition';
@@ -91,6 +94,7 @@ const ExplorersPage = () => {
   const { speciesName } = useSpeciesName();
 
   const { session } = useAuth();
+  const { isPremium, loading: premiumLoading } = useSubscription(session?.user?.id);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -674,30 +678,36 @@ const ExplorersPage = () => {
   // ══════════════════════════════════════════════
   return (
     <main className="min-h-screen bg-background pb-24">
-      <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
-        <div className="flex items-center justify-between max-w-lg mx-auto">
-          <h1 className="text-2xl font-display font-bold text-primary">Explorateurs</h1>
-          <div className="flex items-center gap-2">
-            <button onClick={() => setView('search')} className="relative h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted transition-colors">
-              <Search className="w-5 h-5 text-foreground" />
-              {pendingRequests.length > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-destructive text-destructive-foreground text-[9px] font-bold flex items-center justify-center">
-                  {pendingRequests.length}
-                </span>
-              )}
-            </button>
-            <button onClick={() => navigate('/notifications')} className="relative h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted transition-colors">
-              <span className="relative inline-flex">
-                <Bell className="w-5 h-5 text-foreground" />
-                {unreadCount > 0 && (
-                  <span aria-hidden className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-destructive" />
+      <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-4 py-4">
+        <div className="flex items-center justify-between gap-3 max-w-lg mx-auto">
+          {/* Accès au profil (avatar) à gauche ; compteurs, recherche et notifications à droite */}
+          <ProfileButton className="-ml-0.5" />
+          <div className="flex min-w-0 items-center gap-4">
+            <CaptureQuotaBadge userId={session?.user?.id} isPremium={isPremium} premiumLoading={premiumLoading} />
+            <CurrencyBalance />
+            <div className="-mr-1 flex items-center">
+              <button onClick={() => setView('search')} aria-label={t('social.searchExplorers')} className="relative h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted transition-colors">
+                <Search className="w-5 h-5 text-foreground" />
+                {pendingRequests.length > 0 && (
+                  <span aria-hidden className="absolute top-2 right-2 w-2 h-2 rounded-full bg-destructive" />
                 )}
-              </span>
-            </button>
-            <ProfileButton />
+              </button>
+              <button onClick={() => navigate('/notifications')} aria-label={t('social.notifications.title')} className="relative h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted transition-colors">
+                <span className="relative inline-flex">
+                  <Bell className="w-5 h-5 text-foreground" />
+                  {unreadCount > 0 && (
+                    <span aria-hidden className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-destructive" />
+                  )}
+                </span>
+              </button>
+            </div>
           </div>
         </div>
       </PageHeader>
+
+      <div className="max-w-lg mx-auto px-4 pt-4">
+        <h1 className="truncate text-3xl font-display font-extrabold tracking-tight text-primary">{t('social.explorersTitle')}</h1>
+      </div>
 
       <div className="relative z-10 max-w-lg mx-auto px-4 pt-3 pb-2">
         <div className="game-tabs flex items-center w-full" role="tablist">
