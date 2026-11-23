@@ -263,7 +263,8 @@
       "showcaseEmpty": "Aucune espèce capturée pour le moment.",
       "progress": "{{captured}}/{{total}} capturées",
       "showcaseCapturedCount_one": "{{count}} espèce capturée",
-      "showcaseCapturedCount_other": "{{count}} espèces capturées"
+      "showcaseCapturedCount_other": "{{count}} espèces capturées",
+      "storyViewCard": "Voir la carte"
     },
     "chips": {
       "label": "Trier par catégorie",

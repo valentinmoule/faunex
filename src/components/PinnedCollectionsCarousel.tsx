@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Drawer } from 'vaul';
+import { createPortal } from 'react-dom';
+import { X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { getCollectionArt } from '@/lib/collectionArt';
-import { rarityTileBorder, normalizeCategory } from '@/lib/bestiary';
+import { normalizeCategory } from '@/lib/bestiary';
 import { useContestWinnerCaptures } from '@/hooks/usePhotoContest';
 import { CollectorEditionMark } from '@/components/social/CollectorEdition';
 import { BREED_GROUPS, getSpeciesGroup } from '@/lib/breedGroups';
@@ -185,49 +186,188 @@ export const PinnedCollectionsCarousel = ({
         </div>
       </div>
 
-      <Drawer.Root open={!!openEntry} onOpenChange={(o) => !o && setOpenId(null)}>
-        <Drawer.Portal>
-          <Drawer.Overlay className="fixed inset-0 z-[1400] bg-foreground/40 backdrop-blur-sm" />
-          <Drawer.Content className="fixed inset-x-0 bottom-0 z-[1401] max-h-[85vh] rounded-t-3xl bg-background pb-[calc(1.5rem+env(safe-area-inset-bottom))] outline-none">
-            <div className="mx-auto mt-3 h-1.5 w-10 rounded-full bg-muted" />
-            <div className="px-5 pt-4 overflow-y-auto max-h-[calc(85vh-2rem)]">
-              {openEntry && (
-                <>
-                  <div className="text-center">
-                    <h2 className="font-display text-lg font-bold">{openEntry.label}</h2>
-                    <p className="text-xs text-muted-foreground">
-                      {openEntry.kind === 'custom'
-                        ? t('bestiary.customCollections.progress', { captured: openCards.length, total: openTotal })
-                        : t('bestiary.customCollections.showcaseCapturedCount', { count: openCards.length })}
-                    </p>
-                  </div>
-                  {openCards.length === 0 ? (
-                    <p className="py-10 text-center text-sm text-muted-foreground">
-                      {t('bestiary.customCollections.showcaseEmpty')}
-                    </p>
-                  ) : (
-                    <div className="mt-4 grid grid-cols-3 gap-2">
-                      {openCards.map((card) => (
-                        <button
-                          key={card.id}
-                          onClick={() => { setOpenId(null); onSelectCard(card); }}
-                          className={`game-tile relative aspect-[3/4] overflow-hidden rounded-xl ${winners?.has(card.id) ? 'tile-frame-none' : `border-[3px] ${rarityTileBorder[card.rarity] || 'tile-border-plain'}`} bg-card`}
-                        >
-                          <img src={card.image} alt={speciesName(card.name)} className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
-                          <span className="absolute inset-x-0 bottom-0 flex items-baseline gap-1 bg-gradient-to-t from-foreground/70 to-transparent px-1.5 pb-1 pt-4 text-left text-[10px] font-semibold text-background">
-                            <span className="min-w-0 truncate">{speciesName(card.name)}</span>
-                            {winners?.has(card.id) && <CollectorEditionMark className="collector-mark--tile shrink-0 text-[9px]" />}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-          </Drawer.Content>
-        </Drawer.Portal>
-      </Drawer.Root>
+      {openEntry && (
+        <CollectionStory
+          key={openId}
+          label={openEntry.label}
+          cover={openEntry.kind === 'custom' ? customCoverFor(openCustom!) : standardCoverFor(openEntry.key, openEntry.label)}
+          subtitle={openEntry.kind === 'custom'
+            ? t('bestiary.customCollections.progress', { captured: openCards.length, total: openTotal })
+            : t('bestiary.customCollections.showcaseCapturedCount', { count: openCards.length })}
+          cards={openCards}
+          winners={winners}
+          onClose={() => setOpenId(null)}
+          onNextCollection={() => {
+            const idx = entries.findIndex((e) => (e.kind === 'custom' ? `custom:${e.id}` : `std:${e.key}`) === openId);
+            const next = entries[idx + 1];
+            setOpenId(next ? (next.kind === 'custom' ? `custom:${next.id}` : `std:${next.key}`) : null);
+          }}
+          onPrevCollection={() => {
+            const idx = entries.findIndex((e) => (e.kind === 'custom' ? `custom:${e.id}` : `std:${e.key}`) === openId);
+            const prev = entries[idx - 1];
+            if (prev) setOpenId(prev.kind === 'custom' ? `custom:${prev.id}` : `std:${prev.key}`);
+          }}
+          onSelectCard={(card) => { setOpenId(null); onSelectCard(card); }}
+        />
+      )}
     </>
+  );
+};
+
+const STORY_DURATION_MS = 5000;
+
+/**
+ * Lecture plein écran d'une collection épinglée, façon stories Instagram :
+ * défilement automatique, toucher à gauche/droite pour reculer/avancer,
+ * appui long pour mettre en pause.
+ */
+const CollectionStory = ({
+  label,
+  cover,
+  subtitle,
+  cards,
+  winners,
+  onClose,
+  onNextCollection,
+  onPrevCollection,
+  onSelectCard,
+}: {
+  label: string;
+  cover: string;
+  subtitle: string;
+  cards: AnimalCard[];
+  winners?: Set<string>;
+  onClose: () => void;
+  onNextCollection: () => void;
+  onPrevCollection: () => void;
+  onSelectCard: (card: AnimalCard) => void;
+}) => {
+  const { t } = useTranslation();
+  const { speciesName } = useSpeciesName();
+  const [index, setIndex] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const pausedRef = useRef(false);
+  const pressStartRef = useRef(0);
+  const count = Math.max(cards.length, 1);
+  const card = cards[index];
+
+  const goNext = () => {
+    if (index + 1 < cards.length) { setIndex(index + 1); setProgress(0); }
+    else onNextCollection();
+  };
+  const goPrev = () => {
+    if (index > 0) { setIndex(index - 1); setProgress(0); }
+    else if (progress > 0.15 || !onPrevCollection) setProgress(0);
+    else onPrevCollection();
+  };
+  const goNextRef = useRef(goNext);
+  goNextRef.current = goNext;
+
+  useEffect(() => {
+    let raf = 0;
+    let last = performance.now();
+    const tick = (now: number) => {
+      const dt = now - last;
+      last = now;
+      if (!pausedRef.current) {
+        setProgress((p) => {
+          const np = p + dt / STORY_DURATION_MS;
+          if (np >= 1) { queueMicrotask(() => goNextRef.current()); return 1; }
+          return np;
+        });
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [index]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  const handleTap = (e: React.PointerEvent<HTMLDivElement>) => {
+    pausedRef.current = false;
+    if (performance.now() - pressStartRef.current > 300) return; // appui long = pause seulement
+    const rect = e.currentTarget.getBoundingClientRect();
+    if (e.clientX - rect.left < rect.width / 3) goPrev();
+    else goNext();
+  };
+
+  const image = card?.image ?? cover;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[1400] overflow-hidden bg-foreground text-background select-none" role="dialog" aria-modal="true" aria-label={label}>
+      <img src={image} alt="" aria-hidden className="absolute inset-0 h-full w-full scale-[1.9] object-cover opacity-70 blur-[42px]" />
+      <img
+        key={image}
+        src={image}
+        alt={card ? speciesName(card.name) : label}
+        className="absolute inset-0 h-full w-full object-contain animate-fade-in"
+        draggable={false}
+      />
+      <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-foreground/70 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-foreground/80 to-transparent" />
+
+      <div
+        className="absolute inset-0"
+        onPointerDown={() => { pausedRef.current = true; pressStartRef.current = performance.now(); }}
+        onPointerUp={handleTap}
+        onPointerCancel={() => { pausedRef.current = false; }}
+        onPointerLeave={() => { pausedRef.current = false; }}
+      />
+
+      <div className="pointer-events-none absolute inset-x-0 top-0 px-3 pt-[calc(0.75rem+env(safe-area-inset-top))]">
+        <div className="flex gap-1">
+          {Array.from({ length: count }).map((_, i) => (
+            <div key={i} className="h-[3px] flex-1 overflow-hidden rounded-full bg-background/35">
+              <div
+                className="h-full rounded-full bg-background"
+                style={{ width: `${i < index ? 100 : i === index ? progress * 100 : 0}%` }}
+              />
+            </div>
+          ))}
+        </div>
+        <div className="mt-3 flex items-center gap-2.5">
+          <img src={cover} alt="" className="h-9 w-9 rounded-full border-2 border-background object-cover" />
+          <div className="min-w-0 flex-1">
+            <p className="truncate font-display text-sm font-bold">{label}</p>
+            <p className="truncate text-[11px] text-background/80">{subtitle}</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label={t('common.close', 'Fermer')}
+            className="pointer-events-auto -mr-1 p-2 active:opacity-60"
+          >
+            <X className="h-6 w-6" />
+          </button>
+        </div>
+      </div>
+
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 px-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
+        {card ? (
+          <div className="flex items-end justify-between gap-3">
+            <div className="min-w-0">
+              <p className="truncate font-display text-xl font-bold">{speciesName(card.name)}</p>
+              {card.scientificName && <p className="truncate text-xs italic text-background/80">{card.scientificName}</p>}
+              {winners?.has(card.id) && <CollectorEditionMark className="mt-1 text-[10px]" />}
+            </div>
+            <button
+              type="button"
+              onClick={() => onSelectCard(card)}
+              className="pointer-events-auto shrink-0 rounded-full bg-background px-4 py-2 font-display text-[13px] font-bold text-foreground active:scale-95 transition-transform"
+            >
+              {t('bestiary.customCollections.storyViewCard')}
+            </button>
+          </div>
+        ) : (
+          <p className="text-center text-sm text-background/85">{t('bestiary.customCollections.showcaseEmpty')}</p>
+        )}
+      </div>
+    </div>,
+    document.body,
   );
 };
