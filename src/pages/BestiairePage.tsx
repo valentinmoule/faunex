@@ -31,6 +31,7 @@ import RarityBadge from '@/components/RarityBadge';
 import { useContestWinnerCaptures } from '@/hooks/usePhotoContest';
 import { CollectorEditionMark } from '@/components/social/CollectorEdition';
 import FindersBadge from '@/components/FindersBadge';
+import FavoriteTileHeart from '@/components/FavoriteTileHeart';
 import MyCapturesGrid from '@/components/MyCapturesGrid';
 import EmptyCaptureState from '@/components/EmptyCaptureState';
 
@@ -134,7 +135,7 @@ const tileDepthClass: Record<string, string> = {
 /** Carte d'espèce de la grille Bestiaire, mémoïsée : les lots déjà affichés
  *  ne se re-rendent pas quand les 50 suivantes arrivent. */
 const BrowseSpeciesCard = memo(
-  ({ animal, onSelect }: { animal: BestiaryAnimal; onSelect: (a: BestiaryAnimal) => void }) => {
+  ({ animal, onSelect, isFavorite = false }: { animal: BestiaryAnimal; onSelect: (a: BestiaryAnimal) => void; isFavorite?: boolean }) => {
   const { speciesName } = useSpeciesName();
   const { data: winners } = useContestWinnerCaptures();
   const displayName = speciesName(animal.name);
@@ -159,7 +160,8 @@ const BrowseSpeciesCard = memo(
             className="absolute inset-0 w-full h-full object-cover"
             loading="lazy"
           />
-          <div className="absolute top-1.5 left-1.5 z-[3]">
+          <div className="absolute top-1.5 left-1.5 z-[3] flex items-center gap-1">
+            {isFavorite && <FavoriteTileHeart />}
             <FindersBadge count={animal.finders ?? 0} />
           </div>
           <div className="absolute top-1.5 right-1.5">
@@ -179,7 +181,8 @@ const BrowseSpeciesCard = memo(
         </>
 ) : (
         <div className="species-tile-locked absolute inset-0 flex flex-col">
-          <div className="absolute top-1.5 left-1.5 z-[3]">
+          <div className="absolute top-1.5 left-1.5 z-[3] flex items-center gap-1">
+            {isFavorite && <FavoriteTileHeart />}
             <FindersBadge count={animal.finders ?? 0} />
           </div>
 
@@ -1543,7 +1546,7 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
           ) : (
 <div className="grid grid-cols-3 gap-2">
               {visibleZoneAnimals.map((animal) => (
-                <BrowseSpeciesCard key={animal.name} animal={animal} onSelect={handleSelectBrowseAnimal} />
+                <BrowseSpeciesCard isFavorite={favoriteSpeciesKeys.has(speciesFavoriteKey(animal.name))} key={animal.name} animal={animal} onSelect={handleSelectBrowseAnimal} />
               ))}
             </div>
           )}
@@ -1686,7 +1689,7 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
             <div className="grid grid-cols-3 gap-2">
               {customCollectionAnimals.map((animal) => (
                 <div key={animal.name} className="relative">
-                  <BrowseSpeciesCard animal={animal} onSelect={handleSelectBrowseAnimal} />
+                  <BrowseSpeciesCard isFavorite={favoriteSpeciesKeys.has(speciesFavoriteKey(animal.name))} animal={animal} onSelect={handleSelectBrowseAnimal} />
                   <button
                     onClick={() => customCollections.removeItem(selectedCustom.id, animal.name)}
                     aria-label={t('bestiary.customCollections.removeSpecies')}
@@ -1791,7 +1794,7 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
           <BinderGrid introKey={selectedCollection.group.key}>
             {visibleCollectionAnimals.map((animal, i) => (
               <div key={animal.name} className="binder-slot relative" data-captured={animal.captured ? 'true' : undefined}>
-                <BrowseSpeciesCard animal={animal} onSelect={handleSelectBrowseAnimal} />
+                <BrowseSpeciesCard isFavorite={favoriteSpeciesKeys.has(speciesFavoriteKey(animal.name))} animal={animal} onSelect={handleSelectBrowseAnimal} />
               </div>
             ))}
           </BinderGrid>
@@ -2002,6 +2005,7 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
               ) : (
                 <MyCapturesGrid
                   items={myCapturedAnimals}
+                  isFavorite={(c) => favoriteIds.has(c.id) || favoriteSpeciesKeys.has(speciesFavoriteKey(c.name))}
                   onSelect={setSelectedCard}
                   onReorder={handleReorder}
                 />
@@ -2142,7 +2146,7 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
                       className={isFlashing(animal.name, animal.scientific_name) ? 'shelve-slot-flash rounded-xl' : undefined}
                       style={isHidden(animal.name, animal.scientific_name) ? { visibility: 'hidden' } : undefined}
                     >
-                      <BrowseSpeciesCard animal={animal} onSelect={handleSelectBrowseAnimal} />
+                      <BrowseSpeciesCard isFavorite={favoriteSpeciesKeys.has(speciesFavoriteKey(animal.name))} animal={animal} onSelect={handleSelectBrowseAnimal} />
                     </div>
                   )}
                 />

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { AnimalCard } from '@/data/mockData';
 import RarityBadge from '@/components/RarityBadge';
+import FavoriteTileHeart from '@/components/FavoriteTileHeart';
 import { useContestWinnerCaptures } from '@/hooks/usePhotoContest';
 import { CollectorEditionMark } from '@/components/social/CollectorEdition';
 import { rarityTileBorder } from '@/lib/bestiary';
@@ -15,10 +16,12 @@ interface Props {
   onSelect: (card: AnimalCard) => void;
   /** Appelé quand l'utilisateur termine un glisser-déposer : nouvel ordre complet. */
   onReorder: (orderedIds: string[]) => void;
+  /** Cœur en haut à gauche des vignettes favorites (grille uniquement). */
+  isFavorite?: (card: AnimalCard) => boolean;
 }
 
 /** Grille "Mes captures" avec réorganisation au long press (drag & drop tactile + souris). */
-export const MyCapturesGrid = ({ items, onSelect, onReorder }: Props) => {
+export const MyCapturesGrid = ({ items, onSelect, onReorder, isFavorite }: Props) => {
   const { speciesName } = useSpeciesName();
   const { data: winners } = useContestWinnerCaptures();
   const [order, setOrder] = useState<AnimalCard[]>(items);
@@ -200,6 +203,11 @@ export const MyCapturesGrid = ({ items, onSelect, onReorder }: Props) => {
               className="absolute inset-0 w-full h-full object-cover pointer-events-none"
               loading="lazy"
             />
+            {isFavorite?.(animal) && (
+              <div className="absolute top-1.5 left-1.5 z-[3] pointer-events-none">
+                <FavoriteTileHeart />
+              </div>
+            )}
             <div className="absolute top-1.5 right-1.5 pointer-events-none">
               <RarityBadge rarity={animal.rarity} plain className="rarity-badge--grid" />
             </div>
