@@ -32,6 +32,8 @@ interface DrawerProfile {
 interface ProfileDrawerContextValue {
   openProfile: () => void;
   claimableBadges: number;
+  /** Avatar et nom de l'explorateur connecté, pour le bouton d'accès au profil. */
+  avatar: { url: string | null; name: string | null };
 }
 
 const ProfileDrawerContext = createContext<ProfileDrawerContextValue | null>(null);
@@ -44,7 +46,8 @@ export const useProfileDrawer = () => {
 
 export const ProfileButton = forwardRef<HTMLButtonElement, { className?: string }>(({ className = '' }, ref) => {
   const { t } = useTranslation();
-  const { openProfile, claimableBadges } = useProfileDrawer();
+  const { openProfile, claimableBadges, avatar } = useProfileDrawer();
+  const hasAvatar = !!(avatar.url || avatar.name);
   return (
     <Button
       ref={ref}
@@ -56,7 +59,11 @@ export const ProfileButton = forwardRef<HTMLButtonElement, { className?: string 
       className={`relative rounded-full ${className}`}
     >
       <span className="relative inline-flex">
-        <UserRound className="!size-5" />
+        {hasAvatar ? (
+          <PremiumAvatar avatarUrl={avatar.url} name={avatar.name} size="md" />
+        ) : (
+          <UserRound className="!size-5" />
+        )}
         {claimableBadges > 0 && (
           <span
             aria-hidden
@@ -89,6 +96,7 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
   // Valeurs légères pour le calcul des badges à réclamer (avant ouverture du profil).
   const [progressLevel, setProgressLevel] = useState(1);
   const [progressRegions, setProgressRegions] = useState(0);
+  const [avatar, setAvatar] = useState<{ url: string | null; name: string | null }>({ url: null, name: null });
   const [claimKey, setClaimKey] = useState(0);
   const pathname = useLocation().pathname;
   const lastPathRef = useRef(pathname);
@@ -105,6 +113,10 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
     ]);
 
     setProfile(profileResult.data as DrawerProfile | null);
+    if (profileResult.data) {
+      const p = profileResult.data as DrawerProfile;
+      setAvatar({ url: p.avatar_url ?? null, name: p.display_name || p.username || null });
+    }
     setFollowers(followersResult.count ?? 0);
     setFollowing(followingResult.count ?? 0);
     setBadgeCount(badgesResult.count ?? 0);
@@ -122,13 +134,14 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
     let cancelled = false;
     supabase
       .from('profiles')
-      .select('level, regions_explored')
+      .select('level, regions_explored, avatar_url, display_name, username')
       .eq('user_id', userId)
       .maybeSingle()
       .then(({ data }) => {
         if (cancelled || !data) return;
         setProgressLevel(data.level ?? 1);
         setProgressRegions(data.regions_explored ?? 0);
+        setAvatar({ url: data.avatar_url ?? null, name: data.display_name || data.username || null });
       });
     return () => { cancelled = true; };
   }, [userId]);
@@ -175,6 +188,7 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
       const { error } = await supabase.from('profiles').update({ avatar_url: avatarUrl }).eq('user_id', userId);
       if (error) throw error;
       setProfile(prev => prev ? { ...prev, avatar_url: avatarUrl } : prev);
+      setAvatar(prev => ({ ...prev, url: avatarUrl }));
       toast.success(t('profile.settings.success.photoUpdated'));
     } catch { toast.error(t('profile.settings.errors.uploadError')); }
     finally { setUploadingAvatar(false); }
@@ -235,7 +249,7 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
 
 
   return (
-    <ProfileDrawerContext.Provider value={{ openProfile, claimableBadges }}>
+    <ProfileDrawerContext.Provider value={{ openProfile, claimableBadges, avatar }}>
       {children}
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent

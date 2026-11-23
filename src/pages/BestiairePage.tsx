@@ -86,6 +86,7 @@ import CategoryChipRow, { CHIP_ALL, CHIP_FAVORITES } from '@/components/Category
 import { useSpeciesFavorites, speciesFavoriteKey, buildFavoriteSpeciesKeys } from '@/hooks/useSpeciesFavorites';
 import RewardCelebration from '@/components/RewardCelebration';
 import CaptureQuotaBadge from '@/components/CaptureQuotaBadge';
+import CurrencyBalance from '@/components/CurrencyBalance';
 import { ProfileButton } from '@/components/ProfileDrawer';
 import {
   COLLECTION_REWARD_PREFIX,
@@ -1840,17 +1841,16 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
         ) : (
           <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-4 py-4">
             <div className="max-w-lg mx-auto">
-              <div className="flex items-center justify-between">
-                <h1 className="min-w-0 truncate text-2xl font-display font-bold text-primary">
-                  {viewMode === 'leaderboard' ? t('social.leaderboard.ranking') : isFaunexHub ? t('bestiary.header.title') : t('bestiary.header.bestiaryTitle')}
-                </h1>
-                <div className="flex items-center gap-4">
-                  <div className="mr-2.5">
-                    <CaptureQuotaBadge userId={session?.user?.id} isPremium={isPremium} premiumLoading={premiumLoading} />
-                  </div>
+              <div className="flex items-center justify-between gap-3">
+                {/* Accès au profil (avatar) à gauche ; compteurs et notifications à droite */}
+                <ProfileButton className="-ml-0.5" />
+                <div className="flex min-w-0 items-center gap-4">
+                  <CaptureQuotaBadge userId={session?.user?.id} isPremium={isPremium} premiumLoading={premiumLoading} />
+                  <CurrencyBalance />
                   <button
                     onClick={() => navigate('/notifications')}
-                    className="relative h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted transition-colors"
+                    aria-label={t('social.notifications.title')}
+                    className="relative -mr-1 h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted transition-colors"
                   >
                     <span className="relative inline-flex">
                       <Bell className="w-5 h-5 text-foreground" />
@@ -1859,7 +1859,6 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
                       )}
                     </span>
                   </button>
-                  <ProfileButton />
                 </div>
               </div>
             </div>
@@ -1867,6 +1866,11 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
         )}
 
         <div className="max-w-lg mx-auto px-4 pt-4 space-y-6">
+          {viewMode !== 'badges' && (
+            <h1 className="-mb-4 truncate text-3xl font-display font-extrabold tracking-tight text-primary">
+              {viewMode === 'leaderboard' ? t('social.leaderboard.ranking') : isFaunexHub ? t('bestiary.header.title') : t('bestiary.header.bestiaryTitle')}
+            </h1>
+          )}
 
 
 
