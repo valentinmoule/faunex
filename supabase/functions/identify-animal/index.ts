@@ -3,7 +3,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { identificationAccountPolicy } from "./accountPolicy.ts";
 import { imageBytes, imageDigest, issueAiProof } from '../_shared/economyProof.ts';
 import { CatalogueLookupError, matchCatalogueSpecies, matchCatalogueWithIdentityRecheck } from '../_shared/species-matching.ts';
-import { MORPHOLOGY_RULE, isGenericDomesticChicken, breedFallbackName, fallbackScientific, isConfidentGenericDomestic, isBeeGroupLabel } from '../_shared/visual-identification-policy.ts';
+import { MORPHOLOGY_RULE, isGenericDomesticChicken, breedFallbackName, fallbackScientific, isConfidentGenericDomestic, isBeeGroupLabel, needsDeepPass } from '../_shared/visual-identification-policy.ts';
 import { COLLECTIBLE_VARIANT_RULE } from '../_shared/collectible-variants.ts';
 import { cropToSubject, shouldZoomOnSubject, zoomIsBetter } from '../_shared/subject-crop.ts';
 
@@ -844,13 +844,7 @@ serve(async (req) => {
     // diagnostique ET la photo pleine résolution, uniquement quand Lite échoue
     // ou hésite franchement. Effort de raisonnement modéré : au-delà, les
     // jetons de « réflexion » coûtent plus que le gain de précision observé.
-    const CONFUSABLE = /(chevreuil|biche|cerf|daim|faon|coccinelle|mesange|mésange|pouillot|pigeon|sanglier|canard|fauvette|bergeronnette|grenouille|crapaud|araignee|araignée|guepe|guêpe|syrphe|goeland|goéland|mouette|hirondelle|martinet|bourdon|abeille|corneille|corbeau|choucas|lezard|lézard|pipistrelle)/i;
-    const label = String(animalData?.animal_name || "");
-    const confidence = typeof animalData?.confidence === "number" ? animalData.confidence : -1;
-    const needsDeep =
-      !animalData ||
-      confidence < 55 ||
-      (CONFUSABLE.test(label) && confidence < 70);
+    const needsDeep = needsDeepPass(animalData);
     // Mesuré : sur « Cheval/Chien/Chèvre domestique… » cohérents, la passe
     // profonde rendait la même fiche générique. Inutile de la payer.
     const skipDeep = needsDeep && isConfidentGenericDomestic(animalData);

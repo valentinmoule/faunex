@@ -100,3 +100,25 @@ export function isBeeGroupLabel(name: unknown, scientific: unknown): boolean {
   if (sci.length) return BEE_TAXA.has(sci[0]) && (sci.length === 1 || /^spp?\.?$/.test(sci[1]));
   return BEE_GENERIC_NAMES.has(foldChicken(name));
 }
+
+const CONFUSABLE_LABEL = /(chevreuil|biche|cerf|daim|faon|coccinelle|mesange|mésange|pouillot|pigeon|sanglier|canard|fauvette|bergeronnette|grenouille|crapaud|araignee|araignée|tegenaire|tégénaire|guepe|guêpe|syrphe|goeland|goéland|mouette|hirondelle|martinet|bourdon|abeille|corneille|corbeau|choucas|lezard|lézard|pipistrelle)/i;
+
+/** Scientific name that does not pin a species (genus, family, « sp. »…). */
+export function isVagueTaxon(scientific: unknown): boolean {
+  const sci = String(scientific ?? '').trim();
+  if (!/^[A-Z][a-z]+ [a-z]+/.test(sci)) return true;
+  return /\b(sp|spp)\.?$/i.test(sci) || /\b[a-z]+(idae|inae)\b/i.test(sci);
+}
+
+/**
+ * Seconde analyse sur le modèle fort, pour tous les animaux : résultat
+ * absent, confiance moyenne, rang vague (genre/famille) ou groupe qui se
+ * confond facilement. Critères généraux, jamais une espèce ciblée.
+ */
+export function needsDeepPass(data: any): boolean {
+  if (!data) return true;
+  const confidence = typeof data.confidence === 'number' ? data.confidence : -1;
+  if (confidence < 70) return true;
+  if (isVagueTaxon(data.scientific_name) && confidence < 85) return true;
+  return CONFUSABLE_LABEL.test(String(data.animal_name ?? '')) && confidence < 80;
+}
