@@ -102,7 +102,11 @@
       "people_other": "{{count}} people"
     },
     "alsoPossible": "Also possible: {{alternatives}}",
-    "requestVerification": "This isn't the right animal",
+    "requestVerification": "Suggest another species",
+    "reveal": {
+      "shelve": "Add to my Faunex",
+      "crop": "Crop"
+    },
     "technicalFailure": {
       "title": "Analysis interrupted",
       "retry": "Retry analysis",

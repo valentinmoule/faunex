@@ -102,7 +102,11 @@
       "people_other": "{{count}} personnes"
     },
     "alsoPossible": "Aussi possible : {{alternatives}}",
-    "requestVerification": "Ce n'est pas le bon animal",
+    "requestVerification": "Proposer une autre espèce",
+    "reveal": {
+      "shelve": "Ranger dans mon Faunex",
+      "crop": "Recadrer"
+    },
     "technicalFailure": {
       "title": "Analyse interrompue",
       "retry": "Relancer l'analyse",

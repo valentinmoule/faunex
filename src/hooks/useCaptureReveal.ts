@@ -30,7 +30,8 @@ const nativeImpact = (heavy: boolean) => {
     .catch(() => {});
 };
 
-/** Orchestration de la révélation : montée (charging) → explosion (burst) → fiche (done). */
+/** Orchestration de la révélation : montée (charging) → explosion (burst), qui reste affichée
+ *  avec ses actions. La fiche (done) n'apparaît que sur demande (doublon à comparer). */
 export const useCaptureReveal = (onReveal: (animal: AnimalResult) => void) => {
   const [revealPhase, setRevealPhase] = useState<RevealPhase>('idle');
   const [revealRarity, setRevealRarity] = useState<Rarity>('common');
@@ -75,19 +76,23 @@ export const useCaptureReveal = (onReveal: (animal: AnimalResult) => void) => {
       const ticks = Math.min(2 + rank, 8);
       vibrate(Array.from({ length: ticks * 2 - 1 }, (_, i) => (i % 2 ? Math.max(60 - i * 5, 20) : 18 + i * 2)));
       timers.current.push(window.setTimeout(() => burstNow(animal, rarity), t.charge));
-      timers.current.push(window.setTimeout(() => setRevealPhase('done'), t.charge + t.burst));
     },
     [burstNow],
   );
 
-  /** Tap pour passer : on saute directement à la fiche. */
+  /** Tap pendant la montée : la carte se retourne tout de suite. */
   const skip = useCallback(() => {
     const animal = animalRef.current;
-    if (!animal) return;
+    if (!animal || revealPhase !== 'charging') return;
     clear();
-    if (revealPhase === 'charging') onReveal(animal);
-    setRevealPhase('done');
-  }, [onReveal, revealPhase]);
+    burstNow(animal, normalizeRarity(animal.rarity));
+  }, [burstNow, revealPhase]);
 
-  return { revealPhase, revealRarity, revealAnimal, triggerReveal, reset, skip };
+  /** Bascule sur la fiche détaillée (comparaison avec un doublon). */
+  const showDetails = useCallback(() => {
+    clear();
+    setRevealPhase('done');
+  }, []);
+
+  return { revealPhase, revealRarity, revealAnimal, triggerReveal, reset, skip, showDetails };
 };

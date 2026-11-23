@@ -134,8 +134,12 @@ const quota = useCaptureQuota(session?.user?.id);
     return messages[Math.floor(Math.random() * messages.length)];
   }, [t]);
 
-  const { revealPhase, revealRarity, revealAnimal, triggerReveal, reset: resetReveal, skip: skipReveal } =
+  const { revealPhase, revealRarity, revealAnimal, triggerReveal, reset: resetReveal, skip: skipReveal, showDetails: showRevealDetails } =
     useCaptureReveal(setAnimalResult);
+  // Doublon détecté au rangement : la fiche détaillée prend le relais pour comparer les photos.
+  useEffect(() => {
+    if (duplicateCapture && revealPhase === 'burst') showRevealDetails();
+  }, [duplicateCapture, revealPhase, showRevealDetails]);
   // Le pied grandit en mode doublon et avec les zones sûres du téléphone.
   useEffect(() => {
     const actions = resultActionsRef.current;
@@ -865,6 +869,50 @@ setManualMode(false);
           animal={revealAnimal}
           photo={capturedPhoto}
           onSkip={skipReveal}
+          stats={animalResult && (typeof animalResult.confidence === 'number' || speciesFinders !== undefined) ? (
+            <>
+              {typeof animalResult.confidence === 'number' && (
+                <span className="inline-flex items-center gap-1.5">
+                  <Info aria-hidden />
+                  {t('capture.confidence.sure', { confidence: animalResult.confidence })}
+                </span>
+              )}
+              {speciesFinders !== undefined && (
+                <span className="inline-flex items-center gap-1.5">
+                  <Users aria-hidden />
+                  {t('capture.detail.capturedByLabel')} {t('capture.finders.people', { count: speciesFinders })}
+                </span>
+              )}
+            </>
+          ) : null}
+          actions={animalResult && !identifying ? (
+            <>
+              <Button variant="default"
+                onClick={saveToCollection}
+                disabled={saving || preparingBestiary}
+                className="w-full h-12 text-sm"
+              >
+                {saving || preparingBestiary ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                {saving || preparingBestiary ? t('capture.actions.saving') : t('capture.reveal.shelve')}
+              </Button>
+              <Button variant="outline"
+                onClick={() => setCropOpen(true)}
+                disabled={saving || preparingBestiary}
+                className="w-full h-12 text-sm"
+              >
+                <CropIcon className="w-4 h-4" />
+                {t('capture.reveal.crop')}
+              </Button>
+              <button
+                type="button"
+                onClick={requestVerification}
+                disabled={saving || preparingBestiary}
+                className="mx-auto mt-1 text-xs font-medium text-primary-foreground/75 underline underline-offset-2 transition-colors hover:text-primary-foreground disabled:opacity-40"
+              >
+                {t('capture.requestVerification')}
+              </button>
+            </>
+          ) : null}
         />
 
         {animalResult && !identifying && revealPhase === 'done' && (
@@ -1248,7 +1296,7 @@ setManualMode(false);
 
       {/* Invitation Premium — dernière identification du jour consommée */}
       {premiumPrompt && (
-        <div className="fixed inset-0 z-[60] flex items-end justify-center bg-foreground/50 backdrop-blur-sm p-4 animate-in fade-in">
+        <div className="fixed inset-0 z-[70] flex items-end justify-center bg-foreground/50 backdrop-blur-sm p-4 animate-in fade-in">
           <div className="w-full max-w-sm rounded-3xl bg-card p-6 shadow-2xl animate-in slide-in-from-bottom">
             <div className="mx-auto mb-4 w-14 h-14 rounded-2xl bg-amber/20 flex items-center justify-center">
               <Sparkles className="w-7 h-7 text-amber" />

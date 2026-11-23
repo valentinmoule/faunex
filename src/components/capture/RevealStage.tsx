@@ -1,4 +1,4 @@
-import { memo, useMemo, type CSSProperties } from 'react';
+import { memo, useMemo, type CSSProperties, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { type Rarity, RARITY_RANK } from '@/data/mockData';
@@ -37,6 +37,11 @@ interface Props {
   animal: AnimalResult | null;
   photo: string | null;
   onSkip: () => void;
+  /** Ligne d'infos sous le nom (confiance, nombre d'explorateurs). */
+  stats?: ReactNode;
+  /** Actions affichées sous la carte une fois révélée ; l'espace est réservé dès la montée
+   *  pour que la carte ne saute pas au moment du retournement. */
+  actions?: ReactNode;
 }
 
 /**
@@ -44,7 +49,7 @@ interface Props {
  * puis se retourne dans un flash avec onde de choc, confettis et rayons.
  * Intensité proportionnelle au rang de rareté (0 → 7). Uniquement transform/opacity.
  */
-const RevealStage = ({ phase, rarity, animal, photo, onSkip }: Props) => {
+const RevealStage = ({ phase, rarity, animal, photo, onSkip, stats, actions }: Props) => {
   const { t } = useTranslation();
   const { speciesName } = useSpeciesName();
   const rank = RARITY_RANK[rarity] ?? 0;
@@ -108,7 +113,7 @@ const RevealStage = ({ phase, rarity, animal, photo, onSkip }: Props) => {
     <div
       className={`reveal-stage rv-${finish} ${phase === 'burst' && rank >= 5 ? 'rv-quake' : ''}`}
       style={vars}
-      onClick={onSkip}
+      onClick={phase === 'charging' ? onSkip : undefined}
       role="presentation"
     >
       <div className={`rv-backdrop ${phase === 'burst' ? 'is-burst' : ''}`} style={{ opacity: 0.55 + rank * 0.05 }} />
@@ -190,10 +195,17 @@ const RevealStage = ({ phase, rarity, animal, photo, onSkip }: Props) => {
               </div>
               <h2 className="rv-name font-display">{speciesName(animal.animal_name)}</h2>
               <p className="rv-sci">{animal.scientific_name}</p>
+              {stats && <div className="rv-stats">{stats}</div>}
             </div>
           )
         )}
       </div>
+
+      {actions && (
+        <div className={`rv-actions ${phase === 'burst' ? 'is-visible' : ''}`} aria-hidden={phase !== 'burst'}>
+          {actions}
+        </div>
+      )}
     </div>,
     document.body,
   );
