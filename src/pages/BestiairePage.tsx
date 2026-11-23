@@ -31,7 +31,6 @@ import CardDetailSheet from '@/components/CardDetailSheet';
 import RarityBadge from '@/components/RarityBadge';
 import { useContestWinnerCaptures } from '@/hooks/usePhotoContest';
 import { CollectorEditionMark } from '@/components/social/CollectorEdition';
-import FindersBadge from '@/components/FindersBadge';
 import FavoriteTileHeart from '@/components/FavoriteTileHeart';
 import MyCapturesGrid from '@/components/MyCapturesGrid';
 import EmptyCaptureState from '@/components/EmptyCaptureState';
@@ -137,6 +136,7 @@ const tileDepthClass: Record<string, string> = {
  *  ne se re-rendent pas quand les 50 suivantes arrivent. */
 const BrowseSpeciesCard = memo(
   ({ animal, onSelect, isFavorite = false }: { animal: BestiaryAnimal; onSelect: (a: BestiaryAnimal) => void; isFavorite?: boolean }) => {
+  const { t } = useTranslation();
   const { speciesName } = useSpeciesName();
   const { data: winners } = useContestWinnerCaptures();
   const displayName = speciesName(animal.name);
@@ -164,7 +164,11 @@ const BrowseSpeciesCard = memo(
           />
           <div className="absolute top-1.5 left-1.5 z-[3] flex items-center gap-1">
             {isFavorite && <FavoriteTileHeart />}
-            <FindersBadge count={animal.finders ?? 0} />
+            {animal.species_number != null && (
+              <span className="finders-badge">
+                <span className="finders-badge__count">{t('bestiary.speciesNumber', { number: String(animal.species_number).padStart(3, '0') })}</span>
+              </span>
+            )}
           </div>
           <div className="absolute top-1.5 right-1.5">
             <RarityBadge rarity={animal.rarity} plain className="rarity-badge--grid" />
@@ -185,7 +189,11 @@ const BrowseSpeciesCard = memo(
         <div className="species-tile-locked absolute inset-0 flex flex-col">
           <div className="absolute top-1.5 left-1.5 z-[3] flex items-center gap-1">
             {isFavorite && <FavoriteTileHeart />}
-            <FindersBadge count={animal.finders ?? 0} />
+            {animal.species_number != null && (
+              <span className="finders-badge">
+                <span className="finders-badge__count">{t('bestiary.speciesNumber', { number: String(animal.species_number).padStart(3, '0') })}</span>
+              </span>
+            )}
           </div>
 
           <div className="flex-1 flex items-center justify-center pt-6">
