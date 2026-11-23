@@ -868,7 +868,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                 >
                   {/* Pastille de rareté sur la carte */}
                   <div className="absolute top-[14px] right-[14px] z-20 pointer-events-none">
-                    <RarityBadge rarity={card.rarity} plain />
+                    <RarityBadge rarity={card.rarity} plain className="rarity-badge--card" />
                   </div>
                   {/* Numéro d'espèce en haut à gauche */}
                   <div className="absolute top-[14px] left-[14px] z-20 pointer-events-none">

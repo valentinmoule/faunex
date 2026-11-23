@@ -201,7 +201,7 @@ export const MyCapturesGrid = ({ items, onSelect, onReorder }: Props) => {
               loading="lazy"
             />
             <div className="absolute top-1.5 right-1.5 pointer-events-none">
-              <RarityBadge rarity={animal.rarity} plain />
+              <RarityBadge rarity={animal.rarity} plain className="rarity-badge--grid" />
             </div>
             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5 pt-8 pointer-events-none">
               <p className="flex items-baseline gap-1 text-xs font-display font-bold text-white leading-tight">
