@@ -48,6 +48,7 @@ const FamilyPage = lazyWithRetry(() => import("./pages/FamilyPage"));
 const FamilyInvitePage = lazyWithRetry(() => import("./pages/FamilyInvitePage"));
 const PricingPage = lazyWithRetry(() => import("./pages/PricingPage"));
 const RefundPolicyPage = lazyWithRetry(() => import("./pages/RefundPolicyPage"));
+const CaptureRulesPage = lazyWithRetry(() => import("./pages/CaptureRulesPage"));
 const PrivacyPage = lazyWithRetry(() => import("./pages/PrivacyPage"));
 const LandingPage = SHOW_MARKETING_PAGES ? lazyWithRetry(() => import("./pages/LandingPage")) : null;
 const ZooLandingPage = SHOW_MARKETING_PAGES ? lazyWithRetry(() => import("./pages/ZooLandingPage")) : null;
@@ -227,6 +228,7 @@ const AppRoutes = () => {
           <Route path="/confidentialite" element={<PrivacyPage />} />
           <Route path="/tarifs" element={<PricingPage />} />
           <Route path="/remboursement" element={<RefundPolicyPage />} />
+          <Route path="/regles-captures" element={<CaptureRulesPage />} />
           <Route path="/u/:username" element={<ShareProfilePage />} />
           {SHOW_MARKETING_PAGES && ContentIndexPage && ArticlePage && (
             <>

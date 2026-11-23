@@ -54,6 +54,7 @@ const Footer = () => {
               <li><Link to="/legal" className={linkClass}>{t('marketing.footer.legalLink')}</Link></li>
               <li><Link to="/confidentialite" className={linkClass}>{t('marketing.footer.privacy')}</Link></li>
               <li><Link to="/remboursement" className={linkClass}>{t('marketing.footer.refund')}</Link></li>
+              <li><Link to="/regles-captures" className={linkClass}>{t('marketing.footer.captureRules')}</Link></li>
             </ul>
           </div>
         </div>

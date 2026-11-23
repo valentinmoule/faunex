@@ -153,6 +153,29 @@ const CaptureRejectedEmail = ({
               {pick({ fr: 'Message du modérateur : ', en: 'Moderator message: ' }, l)}« {customNote} »
             </Text>
           ) : null}
+          {!correction ? (
+            <>
+              <Heading as="h2" style={h2}>
+                {pick({ fr: 'Pourquoi ma capture a été refusée ?', en: 'Why was my capture rejected?' }, l)}
+              </Heading>
+              <Text style={faqText}>
+                {pick({ fr: 'Les raisons les plus fréquentes :', en: 'The most common reasons:' }, l)}
+                <br />• {pick({ fr: 'un humain est visible sur la photo ;', en: 'a human is visible in the photo;' }, l)}
+                <br />• {pick({ fr: "l'animal est mort ou il s'agit d'un cadavre ;", en: 'the animal is dead or is a carcass;' }, l)}
+                <br />• {pick({ fr: "la photo est floue ou l'animal n'est pas visible assez clairement pour être identifié ;", en: 'the photo is blurry or the animal is not visible clearly enough to be identified;' }, l)}
+                <br />• {pick({ fr: "l'image provient d'Internet ou appartient à quelqu'un d'autre ;", en: 'the image comes from the Internet or belongs to someone else;' }, l)}
+                <br />• {pick({ fr: "l'animal a été capturé ou pêché par l'humain, même relâché ensuite ;", en: 'the animal was captured or fished by a human, even if released afterwards;' }, l)}
+                <br />• {pick({ fr: "il s'agit d'un stade de développement (œuf, larve, cocon, chrysalide…) ;", en: "it's a development stage (egg, larva, cocoon, chrysalis…);" }, l)}
+                <br />• {pick({ fr: 'cette espèce figure déjà dans ton bestiaire.', en: 'this species is already in your bestiary.' }, l)}
+              </Text>
+              <Text style={faqText}>
+                {pick({ fr: 'Retrouve toutes les règles ici : ', en: 'Find all the rules here: ' }, l)}
+                <a href="https://faunex.fr/regles-captures" style={faqLink}>
+                  {pick({ fr: 'Règles des captures Faunex', en: 'Faunex capture rules' }, l)}
+                </a>
+              </Text>
+            </>
+          ) : null}
           <Button style={button} href={captureUrl}>
             {correction
               ? pick({ fr: 'Voir ma capture', en: 'View my capture' }, l)
@@ -195,3 +218,6 @@ const h1 = { fontSize: '22px', fontWeight: 'bold' as const, color: 'hsl(160, 30%
 const text = { fontSize: '14px', color: 'hsl(155, 10%, 45%)', lineHeight: '1.6', margin: '0 0 25px' }
 const button = { backgroundColor: 'hsl(152, 55%, 28%)', color: 'hsl(60, 20%, 97%)', fontSize: '14px', fontWeight: '600' as const, borderRadius: '16px', padding: '12px 24px', textDecoration: 'none' }
 const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }
+const h2 = { fontSize: '16px', fontWeight: 'bold' as const, color: 'hsl(160, 30%, 8%)', margin: '0 0 10px' }
+const faqText = { fontSize: '13px', color: 'hsl(155, 10%, 45%)', lineHeight: '1.7', margin: '0 0 18px' }
+const faqLink = { color: 'hsl(152, 55%, 28%)', textDecoration: 'underline' }

@@ -24,7 +24,8 @@
       "copyright": "© {{year}} Faunex. Fait avec passion pour les amoureux de la nature.",
       "downloadAppStore": "Télécharger Faunex sur l'App Store",
       "downloadPlayStore": "Télécharger Faunex sur Google Play",
-      "speciesGuides": "Fiches espèces"
+      "speciesGuides": "Fiches espèces",
+      "captureRules": "Règles des captures"
     },
     "phoneShowcase": {
       "title": "L'app dans ta {{highlight}}.",
@@ -501,6 +502,44 @@
       "s4LegalLink": "mentions légales et conditions générales",
       "s4PricingLink": "tarifs",
       "footerDate": "Dernière mise à jour : 12 août 2026"
+    },
+    "captureRules": {
+      "meta": {
+        "title": "Règles des captures — Faunex",
+        "description": "Les règles des captures Faunex : animaux acceptés, captures refusées et bonnes pratiques pour observer la nature sans la déranger."
+      },
+      "back": "Retour",
+      "pageTitle": "Règles des captures",
+      "intro": "Pour que les observations restent authentiques et utiles à toute la communauté, quelques règles simples :",
+      "acceptedTitle": "Animaux acceptés",
+      "accepted": [
+        "Sauvages",
+        "Domestiques ou d'élevage",
+        "Dans un zoo ou un parc animalier",
+        "Dans un aquarium",
+        "Dans une ferme ou tout autre lieu où vous pouvez réellement les observer"
+      ],
+      "rejectedTitle": "Captures non acceptées",
+      "rejected": [
+        "Animaux morts ou cadavres",
+        "Images provenant d'Internet",
+        "Animaux capturés ou pêchés par l'humain, même s'ils sont ensuite relâchés",
+        "Photos appartenant à quelqu'un d'autre",
+        "Toute image qui ne correspond pas à une observation réellement faite par vous",
+        "Stade de développement (œuf, larve, cocon, chrysalide…)"
+      ],
+      "respectTitle": "Respecter la nature",
+      "respectIntro": "Nous vous demandons de faire votre maximum pour ne pas déranger les animaux ni leur environnement :",
+      "respect": [
+        "Gardez vos distances avec les animaux sauvages.",
+        "Ne poursuivez pas un animal pour obtenir une photo.",
+        "Ne touchez pas aux animaux, à leurs nids ou à leurs habitats.",
+        "Évitez de modifier leur environnement pour prendre une meilleure photo.",
+        "Respectez les espaces protégés et les règles locales."
+      ],
+      "mainRule": "La règle principale : vous devez avoir réellement observé et photographié l'animal vous-même, tout en faisant votre maximum pour ne pas perturber la nature.",
+      "mainRuleText": "Faunex encourage l'observation des animaux dans leur milieu naturel. Les photos d'animaux morts ou capturés par l'humain, notamment lors d'une partie de pêche, ne sont pas acceptées pour valider une découverte dans le bestiaire, même si l'animal a été relâché par la suite.",
+      "thanks": "Merci de jouer le jeu et de contribuer à une communauté Faunex basée sur de vraies observations."
     }
   }
 }

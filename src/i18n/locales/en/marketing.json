@@ -24,7 +24,8 @@
       "copyright": "© {{year}} Faunex. Made with passion for nature lovers.",
       "downloadAppStore": "Download Faunex on the App Store",
       "downloadPlayStore": "Download Faunex on Google Play",
-      "speciesGuides": "Species guides"
+      "speciesGuides": "Species guides",
+      "captureRules": "Capture rules"
     },
     "phoneShowcase": {
       "title": "The app in your {{highlight}}.",
@@ -501,6 +502,44 @@
       "s4LegalLink": "legal notice and terms",
       "s4PricingLink": "pricing",
       "footerDate": "Last updated: August 12, 2026"
+    },
+    "captureRules": {
+      "meta": {
+        "title": "Capture rules — Faunex",
+        "description": "Faunex capture rules: accepted animals, rejected captures and good practices to observe nature without disturbing it."
+      },
+      "back": "Back",
+      "pageTitle": "Capture rules",
+      "intro": "To keep observations authentic and useful to the whole community, a few simple rules:",
+      "acceptedTitle": "Accepted animals",
+      "accepted": [
+        "Wild animals",
+        "Domestic or farm animals",
+        "In a zoo or wildlife park",
+        "In an aquarium",
+        "On a farm or any other place where you can actually observe them"
+      ],
+      "rejectedTitle": "Captures not accepted",
+      "rejected": [
+        "Dead animals or carcasses",
+        "Images taken from the Internet",
+        "Animals captured or fished by humans, even if released afterwards",
+        "Photos belonging to someone else",
+        "Any image that does not match an observation you actually made yourself",
+        "Development stages (egg, larva, cocoon, chrysalis…)"
+      ],
+      "respectTitle": "Respecting nature",
+      "respectIntro": "We ask you to do your best not to disturb animals or their environment:",
+      "respect": [
+        "Keep your distance from wild animals.",
+        "Do not chase an animal to get a photo.",
+        "Do not touch animals, their nests or their habitats.",
+        "Avoid changing their environment to get a better photo.",
+        "Respect protected areas and local rules."
+      ],
+      "mainRule": "The main rule: you must have actually observed and photographed the animal yourself, while doing your best not to disturb nature.",
+      "mainRuleText": "Faunex encourages observing animals in their natural environment. Photos of dead animals or animals captured by humans, especially during fishing, are not accepted to validate a discovery in the bestiary, even if the animal was released afterwards.",
+      "thanks": "Thank you for playing fair and contributing to a Faunex community based on real observations."
     }
   }
 }
