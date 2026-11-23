@@ -864,6 +864,7 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
         funFact: '',
         discoveredAt: '',
         location: '',
+        speciesNumber: animal.species_number ?? null,
       });
     }
   }, []);
@@ -2569,6 +2570,7 @@ onClick={() => {
                       funFact: '',
                       discoveredAt: '',
                       location: '',
+                      speciesNumber: animal.species_number ?? null,
                     });
                   }
                 }}

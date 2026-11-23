@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import { type Rarity, RARITY_RANK } from '@/data/mockData';
 import { rarityTileBorder } from '@/lib/bestiary';
 import { RarityBadge } from '@/components/RarityBadge';
+import SpeciesNumberBadge from '@/components/SpeciesNumberBadge';
 import type { AnimalResult } from '@/types/capture';
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
 import type { RevealPhase } from '@/hooks/useCaptureReveal';
@@ -42,6 +43,10 @@ interface Props {
   /** Actions affichées sous la carte une fois révélée ; l'espace est réservé dès la montée
    *  pour que la carte ne saute pas au moment du retournement. */
   actions?: ReactNode;
+  /** Numéro d'espèce de la fiche du Bestiaire, posé en haut à gauche de la carte révélée. */
+  speciesNumber?: number | null;
+  /** Grande famille de l'espèce, affichée à côté du numéro. */
+  category?: string | null;
 }
 
 /**
@@ -49,7 +54,7 @@ interface Props {
  * puis se retourne dans un flash avec onde de choc, confettis et rayons.
  * Intensité proportionnelle au rang de rareté (0 → 7). Uniquement transform/opacity.
  */
-const RevealStage = ({ phase, rarity, animal, photo, onSkip, stats, actions }: Props) => {
+const RevealStage = ({ phase, rarity, animal, photo, onSkip, stats, actions, speciesNumber, category }: Props) => {
   const { t } = useTranslation();
   const { speciesName } = useSpeciesName();
   const rank = RARITY_RANK[rarity] ?? 0;
@@ -181,6 +186,11 @@ const RevealStage = ({ phase, rarity, animal, photo, onSkip, stats, actions }: P
                 {photo && <img src={photo} alt="" />}
                 {rank >= 3 && <span className="rv-shine" />}
               </div>
+            </div>
+          )}
+          {phase === 'burst' && (
+            <div className="absolute top-[14px] left-[14px] z-20 pointer-events-none">
+              <SpeciesNumberBadge speciesNumber={speciesNumber} category={category} />
             </div>
           )}
         </div>

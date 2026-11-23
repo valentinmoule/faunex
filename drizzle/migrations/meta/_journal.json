@@ -883,6 +883,13 @@
       "when": 1795116866093,
       "tag": "0123_bee_species_only",
       "breakpoints": true
+    },
+    {
+      "idx": 124,
+      "version": "7",
+      "when": 1795469388200,
+      "tag": "0124_species_number_on_animals",
+      "breakpoints": true
     }
   ]
 }

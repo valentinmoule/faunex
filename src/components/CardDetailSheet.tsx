@@ -14,6 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import HolographicCard from '@/components/HolographicCard';
 import RarityBadge from '@/components/RarityBadge';
+import SpeciesNumberBadge from '@/components/SpeciesNumberBadge';
 import { CollectorEditionMark } from '@/components/social/CollectorEdition';
 import { WinnerHoloEffect } from '@/components/social/WinnerHoloEffect';
 import { useContestWinnerCaptures } from '@/hooks/usePhotoContest';
@@ -869,6 +870,10 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                   <div className="absolute top-[14px] right-[14px] z-20 pointer-events-none">
                     <RarityBadge rarity={card.rarity} plain />
                   </div>
+                  {/* Numéro d'espèce en haut à gauche */}
+                  <div className="absolute top-[14px] left-[14px] z-20 pointer-events-none">
+                    <SpeciesNumberBadge speciesNumber={card.speciesNumber} category={card.category} />
+                  </div>
 
                   <div className="relative w-full h-full rounded-[1.25rem] overflow-hidden">
 
@@ -1469,6 +1474,9 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                 style={{ ['--holo-radius' as any]: '1.5rem' }}
                 overlay={<>
                   <div className="holo-fullscreen-rarity"><RarityBadge rarity={card.rarity} plain /></div>
+                  <div className="holo-fullscreen-species-number">
+                    <SpeciesNumberBadge speciesNumber={card.speciesNumber} category={card.category} />
+                  </div>
                 </>}
               >
                 <div className={`relative w-full h-full rounded-[1.5rem] overflow-hidden shadow-2xl ${isContestWinner ? 'collector-card' : `holo-frame holo-frame--fullscreen holo-frame--${normalizeRarity(card.rarity).replace(/_/g, '-')}`}`}>

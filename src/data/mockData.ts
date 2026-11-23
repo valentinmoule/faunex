@@ -28,6 +28,8 @@ export interface AnimalCard {
   location: string;
   latitude?: number | null;
   longitude?: number | null;
+  /** Numéro d'espèce fixé à la création de la fiche (N° affiché sur les cartes). */
+  speciesNumber?: number | null;
 }
 
 export interface FeedPost {

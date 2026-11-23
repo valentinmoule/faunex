@@ -23,6 +23,8 @@ import ManualSpeciesSuggestions from '@/components/capture/ManualSpeciesSuggesti
 import { supabase } from '@/integrations/supabase/client';
 import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
 import RarityBadge from '@/components/RarityBadge';
+import SpeciesNumberBadge from '@/components/SpeciesNumberBadge';
+import { useSpeciesNumber } from '@/hooks/useSpeciesNumber';
 import HolographicCard from '@/components/HolographicCard';
 import { normalizeRarity } from '@/data/mockData';
 import { useCaptureQuota, DAILY_CAPTURE_LIMIT } from '@/hooks/useCaptureQuota';
@@ -152,6 +154,11 @@ const quota = useCaptureQuota(session?.user?.id);
   }, [animalResult, revealPhase, duplicateCapture, cropOpen]);
   /* Popularité de l'espèce identifiée : combien de naturalistes l'ont déjà capturée. */
   const speciesFinders = useSpeciesFinders(animalResult?.animal_name, !!animalResult, animalResult?.scientific_name);
+  /** Numéro d'espèce de la fiche du catalogue, pour la pastille de la carte. */
+  const revealSpeciesNumber = useSpeciesNumber(
+    animalResult?.animal_name,
+    animalResult?.scientific_name,
+  );
   const { saving, findDuplicate, insertCapture, replaceCapture, submitManualEntry } = useCaptureSave({
     userId: session?.user?.id,
     photo: capturedPhoto,
@@ -868,6 +875,8 @@ setManualMode(false);
           rarity={revealRarity}
           animal={revealAnimal}
           photo={capturedPhoto}
+          speciesNumber={revealSpeciesNumber}
+          category={animalResult?.category}
           onSkip={skipReveal}
           stats={animalResult && (typeof animalResult.confidence === 'number' || speciesFinders !== undefined) ? (
             <>
@@ -933,6 +942,10 @@ setManualMode(false);
                   <div className={`relative w-full h-full rounded-[1.75rem] overflow-hidden holo-frame holo-frame--${normalizeRarity(animalResult.rarity).replace(/_/g, '-')}`}>
                     <div className="absolute top-[14px] right-[14px] z-20 pointer-events-none">
                       <RarityBadge rarity={animalResult.rarity} plain />
+                    </div>
+                    {/* Numéro d'espèce en haut à gauche */}
+                    <div className="absolute top-[14px] left-[14px] z-20 pointer-events-none">
+                      <SpeciesNumberBadge speciesNumber={revealSpeciesNumber} category={animalResult.category} />
                     </div>
                     <div className="relative w-full h-full rounded-[1.25rem] overflow-hidden">
                       <img src={capturedPhoto} alt={animalResult.animal_name} className="w-full h-full object-cover pointer-events-none select-none" draggable={false} />

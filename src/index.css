@@ -3407,6 +3407,12 @@ html.is-native-android body {
   transform: scale(1.4);
   transform-origin: top right;
 }
+/* Numéro d'espèce en haut à gauche de la photo plein écran. */
+.holo-fullscreen-species-number {
+  position: absolute;
+  top: 22px;
+  left: 22px;
+}
 /* Feed Explorateurs : la carte occupe toute la largeur, les étoiles
    suivent son échelle pour rester lisibles d'un coup d'œil. */
 .feed-card-rarity.rarity-badge--plain {
@@ -3895,7 +3901,7 @@ html.is-native-android body {
 .rv-actions { position: relative; z-index: 6; flex: 0 0 auto; width: 100%; max-width: 420px; margin: 0 auto; padding: 8px 24px max(22px, calc(env(safe-area-inset-bottom) + 14px)); display: flex; flex-direction: column; align-items: stretch; gap: 10px; opacity: 0; transform: translateY(14px); pointer-events: none; }
 .rv-actions.is-visible { pointer-events: auto; animation: rv-actions-in 460ms cubic-bezier(.34,1.4,.64,1) 900ms both; }
 @keyframes rv-actions-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-.rv-card-slot { width: 184px; height: 244px; perspective: 900px; }
+.rv-card-slot { position: relative; width: 184px; height: 244px; perspective: 900px; }
 .rv-card { width: 100%; height: 100%; border-radius: 1.15rem; padding: 7px; background: var(--rv-frame) border-box; box-shadow: 0 18px 40px -12px hsl(0 0% 0% / 0.7); will-change: transform; }
 .rv-card-back { animation: rv-card-in 420ms cubic-bezier(.34,1.56,.64,1) both, rv-wobble var(--rv-charge) cubic-bezier(.5,0,1,1) 250ms both; }
 .rv-card-back-inner, .rv-card-front-inner { position: relative; width: 100%; height: 100%; border-radius: 0.8rem; overflow: hidden; background: hsl(215 28% 12%); }

@@ -17,6 +17,8 @@ export interface BestiaryAnimal {
   captureData?: AnimalCard;
   /** Nombre d'utilisateurs distincts ayant trouvé l'espèce (captures approuvées visibles). */
   finders?: number;
+  /** Numéro d'espèce fixé à la création de la fiche (N° affiché sur les cartes). */
+  species_number?: number | null;
 }
 
 export interface ZoneSub {

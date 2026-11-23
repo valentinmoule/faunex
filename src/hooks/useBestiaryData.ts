@@ -62,7 +62,9 @@ export const useBestiaryData = (userId: string | undefined, opts?: { light?: boo
           funFact: '',
           discoveredAt: new Date(pending.ts).toISOString(),
           location: '',
+          speciesNumber: entry.species_number ?? null,
         } : undefined,
+        species_number: entry.species_number ?? null,
         finders: 0,
       } as BestiaryAnimal;
       })
@@ -156,6 +158,25 @@ export const useBestiaryData = (userId: string | undefined, opts?: { light?: boo
       longitude: capture.longitude ?? null,
     });
 
+    /**
+     * Attache à chaque carte le numéro d'espèce de sa fiche du catalogue.
+     * Les captures ne portent pas de numéro : seule la fiche en a un,
+     * retrouvé par nom commun exact (règle de la tuile unique).
+     */
+    const withSpeciesNumbers = (cards: AnimalCard[], entries: CatalogueEntry[]): AnimalCard[] => {
+      const numbers = new Map<string, number>();
+      entries.forEach((entry) => {
+        const key = (entry.name || '').trim().toLocaleLowerCase('fr');
+        if (key && typeof entry.species_number === 'number' && !numbers.has(key)) {
+          numbers.set(key, entry.species_number);
+        }
+      });
+      return cards.map((card) => {
+        const number = numbers.get((card.name || '').trim().toLocaleLowerCase('fr'));
+        return number ? { ...card, speciesNumber: number } : card;
+      });
+    };
+
 const buildList = (
       catalogue: CatalogueEntry[],
       capturesByName: Map<string, any>,
@@ -195,7 +216,10 @@ const buildList = (
           rarity: a.rarity,
           category: a.category || '',
           captured: !!capture || isPending,
-          captureData: capture ? toCard(capture) : isPending ? {
+          captureData: capture ? {
+            ...toCard(capture),
+            speciesNumber: a.species_number ?? null,
+          } : isPending ? {
             id: `pending-${pending.ts}`,
             name: pending.animalName,
             scientificName: pending.scientificName || '',
@@ -209,7 +233,9 @@ const buildList = (
             funFact: '',
             discoveredAt: new Date(pending.ts).toISOString(),
             location: '',
+            speciesNumber: a.species_number ?? null,
           } : undefined,
+          species_number: a.species_number ?? null,
           finders: findersMap?.get(a.name.toLowerCase()) || 0,
         } as BestiaryAnimal;
       });
@@ -272,6 +298,7 @@ const buildList = (
       if (cached) {
         list = buildList(cached.entries, capturesByName, findersMap);
         setAnimals(list);
+        setMyCaptures((current) => withSpeciesNumbers(current, cached.entries));
         setLoading(false);
       }
 
@@ -288,7 +315,7 @@ const buildList = (
       const fetchPage = (p: number) =>
         supabase
           .from('animals')
-          .select('name, scientific_name, rarity, category')
+          .select('name, scientific_name, rarity, category, species_number')
           .order('name')
           .order('scientific_name')
           .order('id')
@@ -312,6 +339,7 @@ const buildList = (
 
 list = buildList(catalogue, capturesByName, findersMap);
       setAnimals(list);
+      setMyCaptures((current) => withSpeciesNumbers(current, catalogue));
       setLoading(false);
       writeCatalogueCache(catalogue, count || catalogue.length);
       return list;

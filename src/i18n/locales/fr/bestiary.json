@@ -228,6 +228,7 @@
       "Amphibiens": "Amphibiens",
       "worldSuffix": "monde"
     },
+    "speciesNumber": "N° {{number}}",
     "speciesSort": {
       "default": "Ordre du catalogue"
     },

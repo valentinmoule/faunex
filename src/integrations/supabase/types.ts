@@ -161,6 +161,7 @@ export type Database = {
           observation_rarity: string | null
           rarity: string
           scientific_name: string | null
+          species_number: number | null
           taxon_id: string | null
         }
         Insert: {
@@ -173,6 +174,7 @@ export type Database = {
           observation_rarity?: string | null
           rarity?: string
           scientific_name?: string | null
+          species_number?: number | null
           taxon_id?: string | null
         }
         Update: {
@@ -185,6 +187,7 @@ export type Database = {
           observation_rarity?: string | null
           rarity?: string
           scientific_name?: string | null
+          species_number?: number | null
           taxon_id?: string | null
         }
         Relationships: [
