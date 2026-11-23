@@ -20,6 +20,7 @@ export default {
         body: ['"Manrope"', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
       },
       colors: {
+        podium: { gold: 'hsl(var(--podium-gold))', silver: 'hsl(var(--podium-silver))', bronze: 'hsl(var(--podium-bronze))' },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

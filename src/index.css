@@ -82,6 +82,9 @@
 @layer base {
   :root,
   .dark {
+    --podium-gold: 46 90% 69%;
+    --podium-silver: 255 70% 82%;
+    --podium-bronze: 135 38% 72%;
     /* ── Faunex 2.0 — light only, Apple-inspired, fresh green ── */
     --background: 150 25% 98%;
     --foreground: 165 25% 11%;

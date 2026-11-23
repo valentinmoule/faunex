@@ -102,9 +102,9 @@ const RankMovement = ({ change, compact = false }: { change?: number | null; com
 };
 
 const PODIUM = [
-  { height: 'h-16', ring: 'ring-amber/50', badge: 'bg-amber text-amber-dark', label: '1', avatar: 'lg' as const, order: 'order-2' },
-  { height: 'h-11', ring: 'ring-muted-foreground/30', badge: 'bg-muted text-foreground', label: '2', avatar: 'md' as const, order: 'order-1' },
-  { height: 'h-8', ring: 'ring-earth/40', badge: 'bg-earth text-primary-foreground', label: '3', avatar: 'md' as const, order: 'order-3' },
+  { height: 'h-32', block: 'bg-podium-gold', ring: 'ring-amber/50', badge: 'bg-amber text-amber-dark', label: '1', avatar: 'lg' as const, order: 'order-2' },
+  { height: 'h-24', block: 'bg-podium-silver', ring: 'ring-muted-foreground/30', badge: 'bg-muted text-foreground', label: '2', avatar: 'md' as const, order: 'order-1' },
+  { height: 'h-20', block: 'bg-podium-bronze', ring: 'ring-earth/40', badge: 'bg-earth text-primary-foreground', label: '3', avatar: 'md' as const, order: 'order-3' },
 ];
 
 interface LeaderboardTarget {
@@ -267,7 +267,7 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
 ) : (
             <>
             {/* Podium */}
-            <div className="mx-4 mt-4 mb-5 rounded-3xl bg-gradient-to-b from-amber/10 via-card to-card border border-border p-4">
+            <div className="mx-4 mt-4 mb-5 p-1">
               <div className="flex items-end justify-center gap-3">
                 {podiumOrdered.map((r) => {
                   const cfg = PODIUM[r.rank === 1 ? 0 : r.rank === 2 ? 1 : 2] ?? PODIUM[2];
@@ -295,9 +295,11 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
                       {r.is_me ? t('social.leaderboard.you') : r.display_name || r.username || t('social.leaderboard.defaultName')}
                     </p>
                     <RankMovement change={r.rank_change} compact />
-                    <p className="text-[10px] font-display text-muted-foreground">{t('social.leaderboard.capturesShort', { count: r.captures })}</p>
-                      </button>
-                    <div className={`w-full ${cfg.height} rounded-t-xl bg-gradient-to-t from-primary/15 to-primary/40 border-x border-t border-border`} />
+                                          </button>
+                    <div className={`w-full ${cfg.height} ${cfg.block} rounded-2xl flex flex-col items-center justify-start gap-1.5 pt-2.5`}>
+                      <span className="font-display font-black italic text-2xl leading-none text-foreground">{cfg.label}</span>
+                      <span className="rounded-full bg-card px-2.5 py-0.5 text-[11px] font-display font-bold text-foreground">{t('social.leaderboard.capturesShort', { count: r.captures })}</span>
+                    </div>
                   </div>
                 );
               })}
