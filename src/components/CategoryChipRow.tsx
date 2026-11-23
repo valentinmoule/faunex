@@ -40,7 +40,7 @@ interface Props {
   onChange: (value: string) => void;
 }
 
-const Chip = ({
+export const Chip = ({
   selected,
   label,
   onClick,

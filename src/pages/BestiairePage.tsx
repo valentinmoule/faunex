@@ -7,7 +7,7 @@ import { CollectionHero } from '@/components/CollectionHero';
 import { OverflowMenu } from '@/components/OverflowMenu';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { ArrowLeft, Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, Check, Images, Trophy, Users, Lock, FolderPlus, Pencil, Pin, PinOff } from 'lucide-react';
+import { ArrowLeft, Bell, ChevronLeft, PawPrint, Plus, Search, Trash2, X, Building2, Map as MapIcon, Compass, Layers, Loader2, Crown, Globe, Check, Images, Trophy, Users, Lock, FolderPlus, Pencil, Pin, PinOff, CalendarDays, Infinity as InfinityIcon } from 'lucide-react';
 import {
   POPULARITY_LABELS,
   SpeciesCategoryIcon,
@@ -83,7 +83,7 @@ import CollectionTile from '@/components/CollectionTile';
 import BoosterCarousel from '@/components/BoosterCarousel';
 import BinderGrid from '@/components/BinderGrid';
 import { useFavorites } from '@/hooks/useFavorites';
-import CategoryChipRow, { CHIP_ALL, CHIP_FAVORITES } from '@/components/CategoryChipRow';
+import CategoryChipRow, { CHIP_ALL, CHIP_FAVORITES, Chip as RoundChip, categoryChipImage } from '@/components/CategoryChipRow';
 import { useSpeciesFavorites, speciesFavoriteKey, buildFavoriteSpeciesKeys } from '@/hooks/useSpeciesFavorites';
 import RewardCelebration from '@/components/RewardCelebration';
 import CaptureQuotaBadge from '@/components/CaptureQuotaBadge';
@@ -2362,27 +2362,22 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
                     );
                   })}
                 </div>
-                <div className="mt-2 flex gap-2 overflow-x-auto pb-1 scrollbar-none" role="tablist" aria-label={t('social.leaderboard.ranking')}>
-                  {([
-                    ['week', t('social.leaderboard.tabWeek')],
-                    ['all', t('social.leaderboard.tabAllTime')],
-                    ...LEADERBOARD_CATEGORIES.map((category) => [category, t(`bestiary.categoryNames.${category}`, { defaultValue: category })]),
-                  ] as [string, string][]).map(([key, label]) => {
-                    const active = leaderboardFilter === key;
-                    return (
-                      <Button variant="chip" size="sm"
-                        key={key}
-                        type="button"
-                        role="tab"
-                        aria-selected={active}
-                        aria-pressed={active}
-                        onClick={() => setLeaderboardFilter(key)}
-                        className="shrink-0 px-3.5 text-xs"
-                      >
-                        {label}
-                      </Button>
-                    );
-                  })}
+                <div role="radiogroup" aria-label={t('social.leaderboard.ranking')} className="no-scrollbar -mx-3 mb-1 mt-2 flex gap-1 overflow-x-auto px-3 pt-1 pb-0.5">
+                  <RoundChip selected={leaderboardFilter === 'week'} label={t('social.leaderboard.tabWeek')} onClick={() => setLeaderboardFilter('week')}>
+                    <span className="flex h-full w-full items-center justify-center bg-chip-all">
+                      <CalendarDays className="h-7 w-7 text-foreground" strokeWidth={2.25} />
+                    </span>
+                  </RoundChip>
+                  <RoundChip selected={leaderboardFilter === 'all'} label={t('social.leaderboard.tabAllTime')} onClick={() => setLeaderboardFilter('all')}>
+                    <span className="flex h-full w-full items-center justify-center bg-chip-all">
+                      <InfinityIcon className="h-7 w-7 text-foreground" strokeWidth={2.25} />
+                    </span>
+                  </RoundChip>
+                  {LEADERBOARD_CATEGORIES.map((category) => (
+                    <RoundChip key={category} selected={leaderboardFilter === category} label={t(`bestiary.categoryNames.${category}`, { defaultValue: category })} onClick={() => setLeaderboardFilter(category)}>
+                      <img src={categoryChipImage(category)} alt="" width={64} height={64} decoding="async" className="h-full w-full object-cover" />
+                    </RoundChip>
+                  ))}
                 </div>
               </div>
               {leaderboardScope === 'explorers' && (premiumLoading || !isPremium) ? (
