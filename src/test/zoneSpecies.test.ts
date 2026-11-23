@@ -38,3 +38,14 @@ describe('espèces d\'une zone de la carte', () => {
     expect(picked.map((p) => p.name)).toEqual(['Pie bavarde']);
   });
 });
+
+import { buildZoneSearchParams } from '@/lib/zoneSpecies';
+describe('buildZoneSearchParams', () => {
+  it('keeps field observations of the last 15 years precise to 1 km', () => {
+    const p = buildZoneSearchParams('POLYGON((0 0,1 0,1 1,0 0))', new Date('2026-11-23T00:00:00Z'));
+    expect(p.get('year')).toBe('2012,2026');
+    expect(p.get('coordinateUncertaintyInMeters')).toBe('0,1000');
+    expect(p.getAll('basisOfRecord')).toEqual(['HUMAN_OBSERVATION', 'OBSERVATION', 'MACHINE_OBSERVATION']);
+    expect(p.getAll('basisOfRecord')).not.toContain('FOSSIL_SPECIMEN');
+  });
+});

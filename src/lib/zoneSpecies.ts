@@ -102,6 +102,28 @@ const resolveSpeciesKey = async (key: string, signal?: AbortSignal): Promise<str
   }
 };
 
+/** Field observations only, recent years, positions precise to 1 km. */
+export const ZONE_RECENT_YEARS = 15;
+export const ZONE_MAX_UNCERTAINTY_M = 1000;
+export const ZONE_BASIS_OF_RECORD = ['HUMAN_OBSERVATION', 'OBSERVATION', 'MACHINE_OBSERVATION'];
+
+export const buildZoneSearchParams = (wkt: string, now: Date = new Date()): URLSearchParams => {
+  const year = now.getUTCFullYear();
+  const params = new URLSearchParams({
+    geometry: wkt,
+    kingdomKey: '1',
+    hasGeospatialIssue: 'false',
+    occurrenceStatus: 'PRESENT',
+    year: `${year - ZONE_RECENT_YEARS + 1},${year}`,
+    coordinateUncertaintyInMeters: `0,${ZONE_MAX_UNCERTAINTY_M}`,
+    limit: '0',
+    facet: 'speciesKey',
+    facetLimit: '20',
+  });
+  for (const basis of ZONE_BASIS_OF_RECORD) params.append('basisOfRecord', basis);
+  return params;
+};
+
 const zoneCache = new Map<string, ZoneSpecies[]>();
 
 export const fetchZoneSpecies = async (geometries: Geometry[], signal?: AbortSignal): Promise<ZoneSpecies[]> => {
@@ -110,15 +132,7 @@ export const fetchZoneSpecies = async (geometries: Geometry[], signal?: AbortSig
   const cached = zoneCache.get(wkt);
   if (cached) return cached;
 
-  const params = new URLSearchParams({
-    geometry: wkt,
-    kingdomKey: '1',
-    hasGeospatialIssue: 'false',
-    occurrenceStatus: 'PRESENT',
-    limit: '0',
-    facet: 'speciesKey',
-    facetLimit: '20',
-  });
+  const params = buildZoneSearchParams(wkt);
   const res = await fetch(`https://api.gbif.org/v1/occurrence/search?${params}`, { signal });
   if (!res.ok) throw new Error(`gbif ${res.status}`);
   const json = await res.json();
