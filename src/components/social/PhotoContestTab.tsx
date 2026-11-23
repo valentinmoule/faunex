@@ -87,6 +87,7 @@ export default function PhotoContestTab() {
   const [pickOpen, setPickOpen] = useState(false);
   const [weekCaptures, setWeekCaptures] = useState<WeekCapture[] | null>(null);
 
+  const [view, setView] = useState<'current' | 'winners'>('current');
   const [detailCard, setDetailCard] = useState<AnimalCard | null>(null);
   const openCapture = async (captureId: string) => {
     const { data: c } = await supabase.from('captures').select('id, animal_name, scientific_name, image_url, subject_bbox, rarity, category, description, habitat, diet, conservation, fun_fact, created_at').eq('id', captureId).maybeSingle();
@@ -175,8 +176,21 @@ export default function PhotoContestTab() {
   if (loading) return <p className="py-16 text-center font-display text-muted-foreground">{t('social.common.loading')}</p>;
 
   return (
-    <div className="space-y-8 px-4 pt-4 pb-6">
-      {/* Ma participation */}
+    <div className="space-y-6 px-4 pt-2 pb-6">
+      {/* Sous-filtres : en cours / photos primées */}
+      <div className="flex items-center gap-2" role="group" aria-label={t('social.contest.tabContest')}>
+        {([
+          { key: 'current' as const, label: t('social.contest.viewCurrent') },
+          { key: 'winners' as const, label: t('social.contest.viewWinners') },
+        ]).map(({ key, label }) => (
+          <Button key={key} variant="chip" size="sm" aria-pressed={view === key} onClick={() => { hapticTap(); setView(key); }} className="shrink-0 px-4 text-xs">
+            {label}
+          </Button>
+        ))}
+      </div>
+
+      {view === 'current' ? (<>
+      {/* Concours à venir : ajouter sa photo */}
       <section className="rounded-3xl border border-border bg-gradient-to-b from-primary/10 via-card to-card p-4">
         <h2 className="text-base font-display font-bold text-foreground">{t('social.contest.myEntryTitle')}</h2>
         <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t('social.contest.myEntryHint')}</p>
@@ -229,11 +243,13 @@ export default function PhotoContestTab() {
         )}
       </section>
 
-      {/* Photos primées (tous les gagnants) */}
-      {winners.length > 0 && (
+      </>) : (
+        /* Photos primées (tous les gagnants) */
         <section>
-          <h2 className="text-lg font-display font-bold text-foreground">{t('social.contest.allWinnersTitle')}</h2>
-          <div className="mt-3 grid grid-cols-2 gap-3">
+          {winners.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">{t('social.contest.winnersEmpty')}</p>
+          ) : (
+          <div className="grid grid-cols-2 gap-3">
             {winners.map((w) => {
               const author = w.display_name || w.username || t('social.common.anonymous');
               return (
@@ -248,6 +264,7 @@ export default function PhotoContestTab() {
               );
             })}
           </div>
+          )}
         </section>
       )}
 

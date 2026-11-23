@@ -230,16 +230,16 @@
     },
     "contest": {
       "tabFeed": "Fil",
-      "tabContest": "Capture de la semaine",
+      "tabContest": "Concours",
       "voteTitle": "Capture de la semaine",
       "voteEmpty": "Aucune photo en lice cette semaine. Propose la tienne pour le prochain vote !",
       "vote": "Voter",
       "voted": "Ton vote",
       "yours": "Ta photo",
       "voteDone": "Vote enregistré !",
-      "myEntryTitle": "Ta participation",
+      "myEntryTitle": "Concours à venir",
       "myEntryHint": "Propose une photo capturée ou importée cette semaine. Le vote a lieu la semaine prochaine.",
-      "submit": "Proposer une photo",
+      "submit": "Ajouter ma photo",
       "withdraw": "Retirer",
       "submitted": "Photo proposée ! Le vote ouvre lundi.",
       "pickTitle": "Choisis ta photo",
@@ -261,7 +261,10 @@
         "not_owner": "Cette photo ne t'appartient pas.",
         "generic": "Une erreur est survenue."
       },
-      "dayShort": "j"
+      "dayShort": "j",
+      "viewCurrent": "En cours",
+      "viewWinners": "Photos primées",
+      "winnersEmpty": "Aucune photo primée pour le moment."
     },
     "explorersTitle": "Explorateurs",
     "searchExplorers": "Rechercher des explorateurs"

@@ -230,16 +230,16 @@
     },
     "contest": {
       "tabFeed": "Feed",
-      "tabContest": "Capture of the week",
+      "tabContest": "Contest",
       "voteTitle": "Capture of the week",
       "voteEmpty": "No photos in the running this week. Submit yours for the next vote!",
       "vote": "Vote",
       "voted": "Your vote",
       "yours": "Your photo",
       "voteDone": "Vote saved!",
-      "myEntryTitle": "Your entry",
+      "myEntryTitle": "Upcoming contest",
       "myEntryHint": "Submit a photo captured or imported this week. Voting happens next week.",
-      "submit": "Submit a photo",
+      "submit": "Add my photo",
       "withdraw": "Withdraw",
       "submitted": "Photo submitted! Voting opens on Monday.",
       "pickTitle": "Choose your photo",
@@ -261,7 +261,10 @@
         "not_owner": "This photo isn't yours.",
         "generic": "Something went wrong."
       },
-      "dayShort": "d"
+      "dayShort": "d",
+      "viewCurrent": "Ongoing",
+      "viewWinners": "Award-winning photos",
+      "winnersEmpty": "No award-winning photos yet."
     },
     "explorersTitle": "Explorers",
     "searchExplorers": "Search explorers"
