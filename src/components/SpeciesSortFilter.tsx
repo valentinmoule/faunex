@@ -149,11 +149,7 @@ export const SpeciesFilterButton = ({
     <button
       onClick={onClick}
       aria-label={t('bestiary.mine.sortAndFilter')}
-      className={`relative shrink-0 flex items-center justify-center w-[42px] h-[42px] rounded-xl border transition-all active:scale-[0.95] ${
-        active
-          ? 'bg-primary text-primary-foreground border-primary'
-          : 'bg-card text-foreground border-border hover:border-primary/40'
-      }`}
+      className={`relative shrink-0 flex items-center justify-center w-[42px] h-[42px] rounded-xl border transition-all active:scale-[0.95] bg-card text-foreground border-border hover:border-primary/40`}
     >
       <SlidersHorizontal className="w-4 h-4" />
       {count > 0 && (
