@@ -27,9 +27,12 @@ export function chickenFallbackName(name: unknown, scientific: unknown, confiden
 }
 
 export function moderationVisionModels(quality: string, forceName: boolean) {
-  return quality === 'high' && !forceName
+  // Analyse lancée par un modérateur (faible volume) : modèle fort d'abord,
+  // Lite en repli si le fort ne répond pas. Les noms forcés restent sur Lite.
+  if (forceName) return ['google/gemini-3.1-flash-lite', 'google/gemini-3.8-flash'];
+  return quality === 'high'
     ? ['google/gemini-3.8-flash']
-    : ['google/gemini-3.1-flash-lite', 'google/gemini-3.8-flash'];
+    : ['google/gemini-3.8-flash', 'google/gemini-3.1-flash-lite'];
 }
 const DOMESTIC_GENERIC: Record<string, string[]> = {
   'chien domestique': ['canis lupus familiaris', 'canis familiaris'],
