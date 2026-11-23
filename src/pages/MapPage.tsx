@@ -1,9 +1,14 @@
 import { useEffect, useMemo, useRef, useState, type ComponentType } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from 'react-leaflet';
+import { MapContainer, Marker, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Compass, MapPin, Bird, Fish, Bug, Turtle, Shell, Snail, Waves, PawPrint } from 'lucide-react';
+import * as maplibregl from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
+import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
+import '@maplibre/maplibre-gl-leaflet';
+import { buildFaunexMapStyle, makeTreePattern, pickZoneLayer, pointInGeometry, zoneKindOfLayer, ZONE_LAYERS, type ZoneKind } from '@/lib/faunexMap';
+import { Compass, MapPin, Hand, Bird, Fish, Bug, Turtle, Shell, Snail, Waves, PawPrint } from 'lucide-react';
 import { FrogIcon } from '@/components/icons/FrogIcon';
 import { SpiderIcon } from '@/components/icons/SpiderIcon';
 import { supabase } from '@/integrations/supabase/client';
@@ -117,6 +122,48 @@ const RecenterOnUser = ({ position }: { position: [number, number] | null }) => 
   return null;
 };
 
+maplibregl.setWorkerUrl(maplibreWorkerUrl);
+
+/** Fond vectoriel Faunex (données OpenStreetMap via OpenFreeMap) sous les vignettes Leaflet. */
+const FaunexBaseLayer = ({ onReady }: { onReady: (gl: maplibregl.Map) => void }) => {
+  const map = useMap();
+  useEffect(() => {
+    const layer = (L as any).maplibreGL({
+      style: buildFaunexMapStyle(),
+      attributionControl: false,
+    });
+    layer.addTo(map);
+    const gl: maplibregl.Map = layer.getMaplibreMap();
+    const pattern = makeTreePattern();
+    gl.on('styleimagemissing', (e) => {
+      if (e.id === 'fx-trees' && pattern && !gl.hasImage('fx-trees')) gl.addImage('fx-trees', pattern);
+    });
+    onReady(gl);
+    return () => { layer.remove(); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map]);
+  return null;
+};
+
+/** Toucher simple uniquement : un double-toucher (zoom) n'ouvre pas de zone. */
+const ZoneTapHandler = ({ onTap }: { onTap: (latlng: L.LatLng) => void }) => {
+  const timer = useRef<number | null>(null);
+  const cancel = () => { if (timer.current) { window.clearTimeout(timer.current); timer.current = null; } };
+  useMapEvents({
+    click: (e) => { cancel(); timer.current = window.setTimeout(() => { timer.current = null; onTap(e.latlng); }, 280); },
+    dblclick: cancel,
+    zoomstart: cancel,
+  });
+  useEffect(() => cancel, []);
+  return null;
+};
+
+interface SelectedZone {
+  kind: ZoneKind;
+  name: string | null;
+  items: CaptureMarker[];
+}
+
 const CenterTracker = ({ onMove, onZoom }: { onMove: (center: L.LatLng) => void; onZoom: (z: number) => void }) => {
   useMapEvents({
     moveend: (e) => onMove(e.target.getCenter()),
@@ -141,6 +188,41 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [groupItems, setGroupItems] = useState<CaptureMarker[] | null>(null);
   const [zoom, setZoom] = useState(8);
+  const glRef = useRef<maplibregl.Map | null>(null);
+  const [zone, setZone] = useState<SelectedZone | null>(null);
+  const [hintSeen, setHintSeen] = useState(false);
+
+  const setHighlight = (features: GeoJSON.Feature[]) => {
+    const src = glRef.current?.getSource('fx-selected') as maplibregl.GeoJSONSource | undefined;
+    src?.setData({ type: 'FeatureCollection', features });
+  };
+
+  // Toucher une zone (forêt, eau, prairie, parc…) : liste les captures qu'elle contient.
+  const handleZoneTap = (latlng: L.LatLng) => {
+    const gl = glRef.current;
+    if (!gl || !gl.isStyleLoaded()) return;
+    const point = gl.project([latlng.lng, latlng.lat]);
+    const layers = ZONE_LAYERS.map((l) => l.id).filter((id) => gl.getLayer(id));
+    const hit = pickZoneLayer<maplibregl.MapGeoJSONFeature>(gl.queryRenderedFeatures(point, { layers }));
+    setHintSeen(true);
+    if (!hit) {
+      setHighlight([]);
+      return;
+    }
+    // Une même zone est découpée en tuiles : on regroupe ses morceaux visibles.
+    const pieces = hit.id != null
+      ? gl.queryRenderedFeatures({ layers: [hit.layer.id] }).filter((f) => f.id === hit.id)
+      : [hit];
+    const geoms = pieces.length ? pieces : [hit];
+    const items = captures.filter((c) => geoms.some((f) => pointInGeometry(c.longitude, c.latitude, f.geometry as any)));
+    const props = hit.properties || {};
+    setHighlight(geoms.map((f) => ({ type: 'Feature', properties: {}, geometry: f.geometry })) as GeoJSON.Feature[]);
+    setZone({
+      kind: zoneKindOfLayer(hit.layer.id) ?? 'forest',
+      name: (props['name:fr'] as string) || (props.name as string) || null,
+      items,
+    });
+  };
 
 
 
@@ -339,15 +421,13 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
         center={center}
         zoom={captures.length > 0 ? 8 : 6}
         zoomControl={false}
+        attributionControl={false}
+        maxZoom={18}
         scrollWheelZoom
         className="h-full w-full z-0"
       >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-          maxZoom={19}
-          crossOrigin=""
-        />
+        <FaunexBaseLayer onReady={(gl) => { glRef.current = gl; }} />
+        <ZoneTapHandler onTap={handleZoneTap} />
 
         <RecenterOnUser position={userPos} />
         <CenterTracker onMove={(c) => { centerRef.current = c; }} onZoom={setZoom} />
@@ -376,6 +456,55 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
           </div>
         </div>
       )}
+
+      {captures.length > 0 && !hintSeen && (
+        <div className="absolute inset-x-0 bottom-28 z-20 flex justify-center px-6 pointer-events-none">
+          <div className="flex items-center gap-2 rounded-2xl bg-foreground px-4 py-2.5 text-background shadow-card">
+            <Hand className="h-4 w-4" />
+            <span className="font-display text-sm font-bold">{t('map.zones.hint')}</span>
+          </div>
+        </div>
+      )}
+
+      <a
+        href="https://www.openstreetmap.org/copyright"
+        target="_blank"
+        rel="noreferrer"
+        className="absolute bottom-24 right-2 z-20 text-[9px] text-muted-foreground/80"
+      >
+        © OpenStreetMap · OpenFreeMap
+      </a>
+
+      <Sheet open={!!zone} onOpenChange={(o) => { if (!o) { setZone(null); setHighlight([]); } }}>
+        <SheetContent side="bottom" className="max-h-[75vh] overflow-y-auto z-[1200]">
+          <SheetHeader>
+            <SheetTitle className="font-display text-left">
+              {zone?.name || t(`map.zones.kind.${zone?.kind ?? 'forest'}`)}
+            </SheetTitle>
+          </SheetHeader>
+          <p className="text-[12px] text-muted-foreground mt-1">
+            {zone?.name ? `${t(`map.zones.kind.${zone.kind}`)} · ` : ''}
+            {zone?.items.length ? t('map.zones.count', { count: zone.items.length }) : t('map.zones.empty')}
+          </p>
+          <div className="mt-4 divide-y divide-border">
+            {zone?.items.map((c) => (
+              <button
+                key={c.id}
+                onClick={() => { setZone(null); setHighlight([]); openCapture(c); }}
+                className="w-full flex items-center gap-3 py-2.5 text-left"
+              >
+                {c.image_url && (
+                  <img src={thumbUrl(c.image_url, 120)} alt={c.animal_name} loading="lazy" className="w-12 h-12 rounded-xl object-cover shrink-0" />
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="font-display font-bold text-sm text-foreground truncate">{c.animal_name}</p>
+                  <p className="text-[11px] italic text-muted-foreground truncate">{c.scientific_name}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </SheetContent>
+      </Sheet>
 
       <Sheet open={!!groupItems} onOpenChange={(o) => !o && setGroupItems(null)}>
         <SheetContent side="bottom" className="max-h-[75vh] overflow-y-auto z-[1200]">

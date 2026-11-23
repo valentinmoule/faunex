@@ -73,6 +73,21 @@
     "paymentTestMode": {
       "banner": "Les paiements effectués dans l'aperçu sont en mode test.",
       "learnMore": "En savoir plus"
+    },
+    "zones": {
+      "hint": "Touche une zone pour voir ses espèces",
+      "count_one": "{{count}} capture dans cette zone",
+      "count_other": "{{count}} captures dans cette zone",
+      "empty": "Aucune de tes captures dans cette zone pour l'instant.",
+      "kind": {
+        "forest": "Forêt",
+        "grassland": "Prairie",
+        "wetland": "Zone humide",
+        "water": "Plan d'eau",
+        "park": "Parc",
+        "sand": "Plage et dunes",
+        "farmland": "Terres agricoles"
+      }
     }
   }
 }

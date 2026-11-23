@@ -34,6 +34,10 @@ Validate claims from trusted rules (badge/group/city definitions and the trigger
 
 Scale past the blur radius (1.9@42px, 2.25@50px) over an opaque layer; blur fades alpha inward.
 
+## The map draws real OpenStreetMap data
+
+OpenFreeMap tiles via MapLibre; zones are rendered features, never drawn.
+
 ## Shelving lands in Mon Faunex and targets the displayed tile
 
 Keep the capture view until the Mon Faunex grid (`/home`) is ready, then glide into its tile, no veil or page transform. Match both names first, measure the live tile in flight, keep landing flash geometry so cards never miss their slot.

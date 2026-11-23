@@ -106,6 +106,22 @@
 
     --destructive: 4 78% 55%;
     --filter-pin: 330 70% 68%;
+    /* Carte Faunex (habillage des données OpenStreetMap) */
+    --map-land: 40 45% 92%;
+    --map-urban: 36 30% 86%;
+    --map-farmland: 44 42% 89%;
+    --map-grass: 100 40% 82%;
+    --map-forest: 105 38% 74%;
+    --map-forest-edge: 110 30% 52%;
+    --map-wetland: 160 30% 80%;
+    --map-sand: 42 60% 84%;
+    --map-water: 203 70% 80%;
+    --map-water-edge: 203 50% 52%;
+    --map-road: 0 0% 100%;
+    --map-road-edge: 36 20% 80%;
+    --map-label: 30 10% 22%;
+    --map-label-soft: 30 8% 40%;
+    --map-boundary: 30 12% 62%;
     --destructive-foreground: 0 0% 100%;
     --game-danger-base: 4 65% 39%;
 
