@@ -3900,6 +3900,7 @@ html.is-native-android body {
 .rv-stats svg { width: 14px; height: 14px; color: hsl(var(--rv-glow)); }
 .rv-actions { position: relative; z-index: 6; flex: 0 0 auto; width: 100%; max-width: 420px; margin: 0 auto; padding: 8px 24px max(22px, calc(env(safe-area-inset-bottom) + 14px)); display: flex; flex-direction: column; align-items: stretch; gap: 10px; opacity: 0; transform: translateY(14px); pointer-events: none; }
 .rv-actions.is-visible { pointer-events: auto; animation: rv-actions-in 460ms cubic-bezier(.34,1.4,.64,1) 900ms both; }
+.rv-close { position: absolute; z-index: 7; top: calc(env(safe-area-inset-top) + 16px); right: 18px; animation: rv-fade-in 360ms ease-out 900ms both; }
 @keyframes rv-actions-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 .rv-card-slot { position: relative; width: 184px; height: 244px; perspective: 900px; }
 .rv-card { width: 100%; height: 100%; border-radius: 1.15rem; padding: 7px; background: var(--rv-frame) border-box; box-shadow: 0 18px 40px -12px hsl(0 0% 0% / 0.7); will-change: transform; }

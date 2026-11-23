@@ -34,9 +34,9 @@ Validate claims from trusted rules (badge/group/city definitions and the trigger
 
 Scale past the blur radius (1.9@42px, 2.25@50px) over an opaque layer; blur fades alpha inward.
 
-## Shelving stays on the Bestiary and targets the displayed tile
+## Shelving lands in Mon Faunex and targets the displayed tile
 
-Keep the capture view until the Bestiary is ready, then glide into its tile without a veil or waiting card. Match both names before either alone, measure the live tile in flight, and retain landing flash geometry so cards never miss their slot.
+Keep the capture view until the Mon Faunex grid (`/home`) is ready, then glide into its tile, no veil or page transform. Match both names first, measure the live tile in flight, keep landing flash geometry so cards never miss their slot.
 
 ## Leaderboard movement compares with the same board 24 hours earlier
 

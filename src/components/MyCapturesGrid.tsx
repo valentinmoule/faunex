@@ -162,6 +162,9 @@ export const MyCapturesGrid = ({ items, onSelect, onReorder }: Props) => {
           <div
             key={animal.id}
             data-capture-index={index}
+            // Cible de l'animation de rangement après une nouvelle capture.
+            data-shelve-slot={animal.name.toLowerCase()}
+            data-shelve-sci={animal.scientificName?.trim().toLowerCase() || undefined}
             onPointerDown={handlePointerDown(index)}
             onClick={() => {
               if (movedRef.current) return;

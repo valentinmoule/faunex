@@ -528,10 +528,10 @@ setManualMode(false);
         setPremiumPrompt(true);
         return;
       }
-      // Le bestiaire (grille des cartes) vit désormais sur /bestiaire : on y va
-      // directement pour que l'animation de rangement de la carte s'y joue.
+      // La carte se range dans Mon Faunex (grille de mes captures) : on y va
+      // directement pour que l'animation de rangement s'y joue.
       if (window.sessionStorage.getItem('faunex:pending-shelve')) window.dispatchEvent(new Event('faunex:shelve-pending'));
-      navigate('/bestiaire');
+      navigate('/home');
     }, delay);
   };
 
@@ -878,6 +878,7 @@ setManualMode(false);
           speciesNumber={revealSpeciesNumber}
           category={animalResult?.category}
           onSkip={skipReveal}
+          onClose={animalResult && !identifying && !saving && !preparingBestiary ? () => navigate('/home') : undefined}
           stats={animalResult && (typeof animalResult.confidence === 'number' || speciesFinders !== undefined) ? (
             <>
               {typeof animalResult.confidence === 'number' && (
@@ -1330,7 +1331,7 @@ setManualMode(false);
               onClick={() => {
                 setPremiumPrompt(false);
                 window.dispatchEvent(new Event('faunex:shelve-pending'));
-                navigate('/bestiaire');
+                navigate('/home');
               }}
               className="mt-2 w-full rounded-full px-4 py-3 font-display text-sm font-semibold text-muted-foreground"
             >

@@ -24,7 +24,9 @@ const PageTransition = ({ children }: { children: ReactNode }) => {
     prev.current = location.pathname;
   }
 
-  const skip = location.pathname === '/bestiaire' && peekPendingShelve();
+  // Le rangement d'une capture se joue sur Mon Faunex : aucune transformation
+  // autour de la page, sinon la carte volante (position fixe) serait décalée.
+  const skip = (location.pathname === '/home' || location.pathname === '/bestiaire') && peekPendingShelve();
   return (
     <div
       key={location.pathname}

@@ -1,6 +1,7 @@
 import { memo, useMemo, type CSSProperties, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
+import { X } from 'lucide-react';
 import { type Rarity, RARITY_RANK } from '@/data/mockData';
 import { rarityTileBorder } from '@/lib/bestiary';
 import { RarityBadge } from '@/components/RarityBadge';
@@ -38,6 +39,8 @@ interface Props {
   animal: AnimalResult | null;
   photo: string | null;
   onSkip: () => void;
+  /** Quitter la révélation sans ranger ni corriger la capture. */
+  onClose?: () => void;
   /** Ligne d'infos sous le nom (confiance, nombre d'explorateurs). */
   stats?: ReactNode;
   /** Actions affichées sous la carte une fois révélée ; l'espace est réservé dès la montée
@@ -54,7 +57,7 @@ interface Props {
  * puis se retourne dans un flash avec onde de choc, confettis et rayons.
  * Intensité proportionnelle au rang de rareté (0 → 7). Uniquement transform/opacity.
  */
-const RevealStage = ({ phase, rarity, animal, photo, onSkip, stats, actions, speciesNumber, category }: Props) => {
+const RevealStage = ({ phase, rarity, animal, photo, onSkip, onClose, stats, actions, speciesNumber, category }: Props) => {
   const { t } = useTranslation();
   const { speciesName } = useSpeciesName();
   const rank = RARITY_RANK[rarity] ?? 0;
@@ -169,6 +172,17 @@ const RevealStage = ({ phase, rarity, animal, photo, onSkip, stats, actions, spe
             <span key={i} className="rv-twinkle" style={{ left: `${tw.x}%`, top: `${tw.y}%`, animationDelay: `${tw.delay}ms`, '--s': tw.s } as CSSProperties}>✦</span>
           ))}
         </>
+      )}
+
+      {onClose && phase === 'burst' && (
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label={t('common.close')}
+          className="rv-close inline-flex h-11 w-11 items-center justify-center rounded-full bg-primary-foreground/10 text-primary-foreground/80 backdrop-blur-sm transition-colors hover:bg-primary-foreground/20 hover:text-primary-foreground active:scale-95"
+        >
+          <X className="h-5 w-5" aria-hidden />
+        </button>
       )}
 
       <div className="rv-content">

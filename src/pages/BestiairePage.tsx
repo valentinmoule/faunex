@@ -452,17 +452,18 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
     ready: shelveScrollDone || shelveTargetIndexRef.current == null,
     resolveSlot: resolveShelveSlot,
     onPrepare: useCallback(() => {
-      // Retour sur la vue « toutes les espèces », sans filtre, pour y voir la carte
-      if (location.pathname !== '/bestiaire') navigate('/bestiaire', { replace: true });
-      setViewMode('categories');
+      // La carte se range dans Mon Faunex (mes captures), sans filtre, pour y voir sa case
+      if (location.pathname !== '/home') navigate('/home', { replace: true });
+      setViewMode('mine');
       setSelectedCategory(null);
       setSelectedCollectionKey(null);
+      setSelectedCustomId(null);
       setSelectedZoneId(null);
-      setSelectedBreedGroup(null);
-      setCategoryFilter([]);
-      setRarityFilter([]);
-      setPopularityFilter([]);
-      setSpeciesSearch('');
+      setMineSearch('');
+      setMineRarityFilter([]);
+      setMineCategoryFilter([]);
+      setMinePopularityFilter([]);
+      setMineLocationFilter([]);
     }, [location.pathname, navigate]),
   });
 
@@ -830,14 +831,15 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
 
   /** Index de la carte à rejoindre pour l'animation de rangement. */
   const shelveTargetIndex = useMemo(() => {
-    if (!pendingShelve) return null;
+    // Mon Faunex n'est pas virtualisé : la case est déjà montée, pas de défilement à attendre.
+    if (!pendingShelve || isFaunexHub) return null;
     const sci = pendingShelve.scientificName?.trim().toLowerCase();
     const target = pendingShelve.animalName.trim().toLocaleLowerCase('fr');
     let idx = browseAnimals.findIndex(a => a.name.trim().toLocaleLowerCase('fr') === target && (!sci || a.scientific_name?.trim().toLowerCase() === sci));
     if (idx < 0) idx = browseAnimals.findIndex(a => a.name.trim().toLocaleLowerCase('fr') === target);
     if (idx < 0 && sci) idx = browseAnimals.findIndex(a => a.scientific_name?.trim().toLowerCase() === sci);
     return idx >= 0 ? idx : null;
-  }, [pendingShelve, browseAnimals]);
+  }, [pendingShelve, browseAnimals, isFaunexHub]);
   shelveTargetIndexRef.current = shelveTargetIndex;
 
   // Virtualisation : seules les lignes visibles sont montées (mémoire constante).
