@@ -8,7 +8,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 import '@maplibre/maplibre-gl-leaflet';
 import { buildFaunexMapStyle, makeTreePattern, pickZoneLayer, pointInGeometry, zoneKindOfLayer, ZONE_LAYERS, type ZoneKind } from '@/lib/faunexMap';
-import { Compass, MapPin, Hand, Bird, Fish, Bug, Turtle, Shell, Snail, Waves, PawPrint } from 'lucide-react';
+import { Compass, MapPin, Bird, Fish, Bug, Turtle, Shell, Snail, Waves, PawPrint } from 'lucide-react';
 import { FrogIcon } from '@/components/icons/FrogIcon';
 import { SpiderIcon } from '@/components/icons/SpiderIcon';
 import { supabase } from '@/integrations/supabase/client';
@@ -190,7 +190,6 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
   const [zoom, setZoom] = useState(8);
   const glRef = useRef<maplibregl.Map | null>(null);
   const [zone, setZone] = useState<SelectedZone | null>(null);
-  const [hintSeen, setHintSeen] = useState(false);
 
   const setHighlight = (features: GeoJSON.Feature[]) => {
     const src = glRef.current?.getSource('fx-selected') as maplibregl.GeoJSONSource | undefined;
@@ -204,7 +203,6 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
     const point = gl.project([latlng.lng, latlng.lat]);
     const layers = ZONE_LAYERS.map((l) => l.id).filter((id) => gl.getLayer(id));
     const hit = pickZoneLayer<maplibregl.MapGeoJSONFeature>(gl.queryRenderedFeatures(point, { layers }));
-    setHintSeen(true);
     if (!hit) {
       setHighlight([]);
       return;
@@ -457,14 +455,6 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
         </div>
       )}
 
-      {captures.length > 0 && !hintSeen && (
-        <div className="absolute inset-x-0 bottom-28 z-20 flex justify-center px-6 pointer-events-none">
-          <div className="flex items-center gap-2 rounded-2xl bg-foreground px-4 py-2.5 text-background shadow-card">
-            <Hand className="h-4 w-4" />
-            <span className="font-display text-sm font-bold">{t('map.zones.hint')}</span>
-          </div>
-        </div>
-      )}
 
       <a
         href="https://www.openstreetmap.org/copyright"
