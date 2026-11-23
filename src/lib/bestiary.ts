@@ -212,7 +212,8 @@ export const normalizeCategory = (cat: string) => cat.replace(/\s*\(monde\)$/i, 
 export const categoryLabel = (cat: string): string => {
   const base = normalizeCategory(cat).trim();
   const label = i18n.t(`bestiary.categoryNames.${base}`, { defaultValue: base });
-  return cat === base ? label : `${label} (${i18n.t('bestiary.categoryNames.worldSuffix', { defaultValue: 'monde' })})`;
+  // « (monde) » n'est qu'une marque interne d'espèces hors de France : jamais affichée.
+  return label;
 };
 
 export const normalizeText = (value: string) =>
