@@ -264,6 +264,7 @@
       "exploreDesc": "Son habitat, son alimentation et ses secrets ne seront révélés qu'après votre découverte."
     },
     "share": {
+      "titleOther": "Partager cette carte",
       "title": "Partager ta carte",
       "previewAlt": "Aperçu de la carte {{name}}",
       "previewUnavailable": "Aperçu indisponible",

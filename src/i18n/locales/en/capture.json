@@ -264,6 +264,7 @@
       "exploreDesc": "Its habitat, diet and secrets will only be revealed once you've discovered it."
     },
     "share": {
+      "titleOther": "Share this card",
       "title": "Share your card",
       "previewAlt": "Preview of the {{name}} card",
       "previewUnavailable": "Preview unavailable",

@@ -10,6 +10,8 @@ interface Props {
   card: AnimalCard | null;
   open: boolean;
   onClose: () => void;
+  /** Carte d'un autre explorateur : titre neutre. */
+  isOwner?: boolean;
 }
 
 const targets: { id: ShareTarget; labelKey: string; icon: typeof Instagram; className: string }[] = [
@@ -19,7 +21,7 @@ const targets: { id: ShareTarget; labelKey: string; icon: typeof Instagram; clas
   { id: 'whatsapp', labelKey: 'capture.share.targets.whatsapp', icon: MessageCircle, className: 'bg-[hsl(142,60%,40%)] text-white' },
 ];
 
-const ShareCaptureSheet = ({ card, open, onClose }: Props) => {
+const ShareCaptureSheet = ({ card, open, onClose, isOwner = true }: Props) => {
   const { t } = useTranslation();
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [blob, setBlob] = useState<Blob | null>(null);
@@ -100,7 +102,7 @@ const ShareCaptureSheet = ({ card, open, onClose }: Props) => {
 
           <div className="px-5 pt-4 space-y-5 overflow-y-auto">
             <div className="text-center">
-              <h2 className="font-display text-lg font-bold">{t('capture.share.title')}</h2>
+              <h2 className="font-display text-lg font-bold">{t(isOwner ? 'capture.share.title' : 'capture.share.titleOther')}</h2>
               <p className="text-xs text-muted-foreground">{card.name}</p>
             </div>
 

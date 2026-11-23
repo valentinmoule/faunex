@@ -1408,7 +1408,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
         </Drawer.Portal>
       </Drawer.Root>
       <CaptureLikesSheet key={card.id} captureId={card.id} open={likesOpen} onClose={() => setLikesOpen(false)} onViewProfile={userId => { setLikesOpen(false); onClose(); navigate(`/explorer/${userId}/collection`); }} />
-      <ShareCaptureSheet card={card} open={shareOpen} onClose={() => setShareOpen(false)} />
+      <ShareCaptureSheet card={card} open={shareOpen} onClose={() => setShareOpen(false)} isOwner={isOwner} />
       {card && (
         <AddToCollectionSheet
           open={addToOpen}
