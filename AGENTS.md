@@ -130,3 +130,7 @@ Vague results on small subject boxes rerun the cheap model on a server crop (reu
 ## Staff roles share one server check
 
 Moderation/catalogue cleaning checks `is_staff()` (admin or moderator) everywhere; analytics, collections, learning and bulk tools stay admin-only, since moderators only clean entries.
+
+## Capture reveal holds the actions
+
+Burst persists; `done` only for duplicates; overlays above need z>60.
