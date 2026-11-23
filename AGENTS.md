@@ -16,7 +16,7 @@ Scope portal lookups to the billing environment and validate Paddle IDs; grant a
 
 ## Partner landing pages share one presentation
 
-One shared page with translated audience copy; no partner routes in native builds.
+One shared translated page; none in native builds.
 
 ## Overlays sit above page chrome
 
@@ -24,7 +24,7 @@ Portal fixed overlays into the open `[role="dialog"]`, else `document.body`; tra
 
 ## iOS headers and card surfaces stay within their viewport
 
-Sticky headers below safe areas, no entry transforms; one gradient for iOS iridescent frames (dual clipping breaks WebKit); capture results fit the viewport with measured footer clearance.
+Sticky headers below safe areas, no entry transforms; one gradient for iridescent frames (dual clipping breaks WebKit); capture results fit the viewport.
 
 ## Rewards are server-authoritative
 
@@ -32,19 +32,19 @@ Validate claims from trusted rules (badge/group/city definitions and the trigger
 
 ## Blurred photo backdrops need a large scale
 
-Scale past the blur radius (1.9@42px, 2.25@50px) over an opaque layer; blur fades alpha inward.
+Scale past blur radius (1.9@42px, 2.25@50px) over an opaque layer.
 
 ## The map draws real OpenStreetMap data
 
-OpenFreeMap tiles via MapLibre; zones are rendered features, never drawn.
+OpenFreeMap via MapLibre; zones are rendered features.
 
 ## Shelving lands in Mon Faunex and targets the displayed tile
 
-Keep the capture view until the Mon Faunex grid (`/home`) is ready, then glide into its tile, no veil or page transform. Match both names first, measure the live tile in flight, keep landing flash geometry so cards never miss their slot.
+Keep the capture view until the `/home` grid is ready, then glide into its tile (no veil/page transform), matching names and measuring the live tile in flight.
 
 ## Leaderboard movement compares with the same board 24 hours earlier
 
-Compute rank movement server-side from captures before `now() - 24h`, same scope/period/category.
+Server-side, from captures before `now() - 24h`, same scope/period/category.
 
 ## A capture fills exactly one Bestiary tile
 
@@ -52,7 +52,7 @@ Match captures (including pending shelves) to tiles by exact common name first; 
 
 ## Bundle badge artwork
 
-Import badge art locally (no hosted asset routes natively).
+No hosted asset routes natively.
 
 ## Collection artwork keeps explicit group assignments
 
@@ -104,13 +104,12 @@ Verify bedbug predictions independently of confidence; failed verification retur
 
 ## Custom collections are species lists, not capture lists
 
-Store species names, not capture IDs; refresh hooks after writes. Name-keyed `species_favorites` let uncaptured species be favorites.
+Store species names, not capture IDs; name-keyed `species_favorites` allow uncaptured favorites.
 
 <!-- LOVABLE:BEGIN -->
 ## Canonical species facts
 Apply shared facts after capture name canonicalization, reject scientific conflicts, refresh facts on image-cache hits, and invalidate translations after source changes, because moderation and older clients can save stale descriptions under corrected names.
 <!-- LOVABLE:END -->
-
 
 ## Themed collections are data, not code
 
@@ -122,7 +121,7 @@ Contest RPCs enforce Paris weeks and one entry/vote; winner triggers use a servi
 
 ## Winner overlay shares the existing card interaction
 
-Use WinnerHoloEffect via HolographicCard springs; one render path avoids mixed foils.
+WinnerHoloEffect via HolographicCard springs; one render path.
 
 ## Moderator-forced identities bypass catalogue identity checks
 
@@ -137,8 +136,8 @@ Moderation/catalogue cleaning checks `is_staff()` (admin or moderator) everywher
 
 ## Capture reveal holds the actions
 
-Burst persists; `done` only for duplicates; overlays above need z>60.
+Burst persists; `done` only for duplicates; overlays need z>60.
 
 ## Grid tiles load resized thumbnails
 
-Grid and avatar-sized images go through `thumbUrl`/`gridThumbUrl` (storage render, WebP); full-resolution photos only in detail and fullscreen views, because originals are ~3x heavier.
+Grids/avatars use `thumbUrl`/`gridThumbUrl`; originals (~3x heavier) only in detail/fullscreen.
