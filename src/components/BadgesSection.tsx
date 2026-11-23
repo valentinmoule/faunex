@@ -26,18 +26,44 @@ const BadgesSection = ({ userId, level, regionsExplored, refreshKey = 0, onClaim
   const [detail, setDetail] = useState<BadgeProgress | null>(null);
 
   /** Tous les badges, sans filtre ni compteur : ceux à réclamer en tête. */
+  const [family, setFamily] = useState<string>('all');
+  const families = useMemo(
+    () => BADGE_GROUP_ORDER.filter((g) => badges.some((b) => b.badge.group === g)),
+    [badges],
+  );
+
   const ordered = useMemo(() => {
-    return [...badges].sort((a, b) => {
+    return badges.filter((b) => family === 'all' || b.badge.group === family).sort((a, b) => {
       if (rank(a) !== rank(b)) return rank(a) - rank(b);
       const byGroup = BADGE_GROUP_ORDER.indexOf(a.badge.group) - BADGE_GROUP_ORDER.indexOf(b.badge.group);
       if (byGroup !== 0) return byGroup;
       return b.progress / b.badge.total - a.progress / b.badge.total;
     });
-  }, [badges]);
+  }, [badges, family]);
 
   return (
     <div id="badges" className="scroll-mt-20">
       <h3 className="text-xl font-display font-black text-foreground mb-4">{t('profile.badges.title')}</h3>
+
+      {families.length > 1 && (
+        <div role="radiogroup" aria-label={t('profile.badges.filterLabel')} className="-mx-4 mb-5 flex gap-2 overflow-x-auto no-scrollbar px-4">
+          {['all', ...families].map((g) => {
+            const selected = family === g;
+            return (
+              <button
+                key={g}
+                type="button"
+                role="radio"
+                aria-checked={selected}
+                onClick={() => setFamily(g)}
+                className={`shrink-0 rounded-full px-3.5 py-1.5 text-[13px] font-display font-bold transition-colors active:scale-95 ${selected ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'}`}
+              >
+                {g === 'all' ? t('profile.badges.filterAll') : `${BADGE_GROUP_ICONS[g as keyof typeof BADGE_GROUP_ICONS]} ${getGroupLabel(t, g as never)}`}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {loading && <p className="text-xs text-muted-foreground font-display">{t('profile.badges.loading')}</p>}
 

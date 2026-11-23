@@ -244,7 +244,9 @@
       },
       "earnedText": "Tu as gagné {{xp}} XP et décroché le badge {{name}} !",
       "shareText": "J'ai débloqué le badge « {{name}} » sur Faunex 🌿",
-      "shareAria": "Partager ce badge"
+      "shareAria": "Partager ce badge",
+      "filterAll": "Tout",
+      "filterLabel": "Filtrer les badges par famille"
     },
     "levelUp": {
       "title": "Niveau supérieur !",

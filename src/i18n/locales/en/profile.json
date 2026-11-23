@@ -244,7 +244,9 @@
       },
       "earnedText": "You earned {{xp}} XP and unlocked the {{name}} badge!",
       "shareText": "I unlocked the {{{name}}} badge on Faunex 🌿",
-      "shareAria": "Share this badge"
+      "shareAria": "Share this badge",
+      "filterAll": "All",
+      "filterLabel": "Filter badges by family"
     },
     "levelUp": {
       "title": "Level up!",
