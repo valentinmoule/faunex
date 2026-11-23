@@ -140,4 +140,4 @@ Burst persists; `done` only for duplicates; overlays need z>60.
 
 ## Grid tiles load resized thumbnails
 
-Grids/avatars use `thumbUrl`/`gridThumbUrl`; originals (~3x heavier) only in detail/fullscreen.
+Grids/feed/avatars use `thumbUrl`/`gridThumbUrl`/`avatarThumbUrl`; originals (~3x heavier) only in detail/fullscreen.

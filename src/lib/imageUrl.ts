@@ -23,3 +23,6 @@ export const thumbUrl = (url?: string | null, width = 400, quality = 65): string
 
 /** Vignette des grilles (2 colonnes, écrans haute densité) : ≈ 30 Ko en WebP au lieu de la photo complète. */
 export const gridThumbUrl = (url?: string | null): string => thumbUrl(url, 480, 70);
+
+/** Avatars (80 px max à l'écran, ×3 en haute densité) : ≈ 15 Ko au lieu de ≈ 300 Ko. */
+export const avatarThumbUrl = (url?: string | null): string => thumbUrl(url, 240, 75);

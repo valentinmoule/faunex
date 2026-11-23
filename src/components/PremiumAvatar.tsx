@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { avatarThumbUrl } from '@/lib/imageUrl';
 import { Crown } from "lucide-react";
 import { avatarFallbackStyle } from "@/lib/avatarPalette";
 
@@ -33,7 +34,7 @@ export function PremiumAvatar({
     <div className={`relative inline-flex shrink-0 rounded-full ${className}`}>
       {showImage ? (
         <img
-          src={avatarUrl!}
+          src={avatarThumbUrl(avatarUrl)}
           alt=""
           loading="lazy"
           decoding="async"

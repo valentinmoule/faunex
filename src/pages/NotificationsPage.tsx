@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { avatarThumbUrl } from '@/lib/imageUrl';
 import { avatarFallbackStyle } from '@/lib/avatarPalette';
 import { useTranslation } from 'react-i18next';
 import { PageHeader } from '@/components/PageHeader';
@@ -266,7 +267,7 @@ const NotificationsPage = () => {
                       {isModerationNotif || isBadgeEarned ? (
                         <span className="text-lg">{isBadgeEarned ? '🏆' : '🌿'}</span>
                       ) : avatarUrl ? (
-                        <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+                        <img src={avatarThumbUrl(avatarUrl)} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
                       ) : (
                         actorName.charAt(0).toUpperCase()
                       )}

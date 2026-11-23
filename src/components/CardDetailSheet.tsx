@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef, type ComponentType } from 'react';
+import { avatarThumbUrl } from '@/lib/imageUrl';
 import { avatarFallbackStyle } from '@/lib/avatarPalette';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
@@ -1097,7 +1098,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                           className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-display font-bold shrink-0 overflow-hidden"
                         >
                           {comment.profile?.avatar_url ? (
-                            <img src={comment.profile.avatar_url} alt="" className="w-full h-full object-cover" />
+                            <img src={avatarThumbUrl(comment.profile.avatar_url)} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
                           ) : (
                             (comment.profile?.display_name || '?').charAt(0).toUpperCase()
                           )}

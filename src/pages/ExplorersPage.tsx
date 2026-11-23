@@ -10,7 +10,7 @@ import ConfirmDialog from '@/components/ConfirmDialog';
 import CardDetailSheet from '@/components/CardDetailSheet';
 import { type AnimalCard, type Rarity } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
-import { thumbUrl } from '@/lib/imageUrl';
+import { thumbUrl, avatarThumbUrl } from '@/lib/imageUrl';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { followUser as followUserUtil } from '@/lib/followUtils';
@@ -725,7 +725,7 @@ const ExplorersPage = () => {
           <ExplorersEmptyState onSearch={() => { setView('search'); setSearchTab('search'); }} />
         ) : (
           <div className="divide-y divide-border">
-            {posts.map(post => {
+            {posts.map((post, postIndex) => {
               const profile = post.profiles;
               const userName = profile?.display_name || profile?.username || t('social.common.anonymous');
               const avatarUrl = profile?.avatar_url;
@@ -774,9 +774,12 @@ const ExplorersPage = () => {
                     >
                       <img
                         src={thumbUrl(post.image_url, 700)}
+                        srcSet={`${thumbUrl(post.image_url, 480)} 480w, ${thumbUrl(post.image_url, 700)} 700w`}
+                        sizes="(max-width: 512px) 100vw, 512px"
                         alt={speciesName(post.animal_name)}
                         className="absolute inset-0 w-full h-full object-cover"
-                        loading="lazy"
+                        loading={postIndex < 2 ? 'eager' : 'lazy'}
+                        fetchPriority={postIndex < 2 ? 'high' : 'auto'}
                         decoding="async"
                       />
                       <div className="absolute top-2.5 right-2.5">
@@ -822,7 +825,7 @@ const ExplorersPage = () => {
                                 style={avatarFallbackStyle(comment.profile?.display_name || comment.profile?.username)}
                                 className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-display font-bold shrink-0 overflow-hidden"
                               >
-                                {comment.profile?.avatar_url ? <img src={comment.profile.avatar_url} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" /> : (comment.profile?.display_name || comment.profile?.username || '?').charAt(0).toUpperCase()}
+                                {comment.profile?.avatar_url ? <img src={avatarThumbUrl(comment.profile.avatar_url)} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" /> : (comment.profile?.display_name || comment.profile?.username || '?').charAt(0).toUpperCase()}
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-baseline gap-1.5">

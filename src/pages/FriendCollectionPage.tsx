@@ -1,5 +1,5 @@
 import { fetchFinderCounts } from '@/lib/finderCounts';
-import { gridThumbUrl } from '@/lib/imageUrl';
+import { gridThumbUrl, avatarThumbUrl } from '@/lib/imageUrl';
 import { useState, useEffect, useCallback } from 'react';
 import { avatarFallbackStyle } from '@/lib/avatarPalette';
 import { useTranslation } from 'react-i18next';
@@ -611,7 +611,7 @@ const FriendCollectionPage = () => {
                         className="w-11 h-11 rounded-full flex items-center justify-center text-sm font-display font-bold shrink-0 overflow-hidden"
                       >
                         {friend.avatar_url ? (
-                          <img src={friend.avatar_url} alt="" className="w-full h-full object-cover" />
+                          <img src={avatarThumbUrl(friend.avatar_url)} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
                         ) : (
                           (friend.display_name || friend.username || '?').charAt(0).toUpperCase()
                         )}
