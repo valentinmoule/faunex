@@ -138,3 +138,7 @@ Moderation/catalogue cleaning checks `is_staff()` (admin or moderator) everywher
 ## Capture reveal holds the actions
 
 Burst persists; `done` only for duplicates; overlays above need z>60.
+
+## Grid tiles load resized thumbnails
+
+Grid and avatar-sized images go through `thumbUrl`/`gridThumbUrl` (storage render, WebP); full-resolution photos only in detail and fullscreen views, because originals are ~3x heavier.

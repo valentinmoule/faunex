@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { gridThumbUrl } from '@/lib/imageUrl';
 import type { AnimalCard } from '@/data/mockData';
 import RarityBadge from '@/components/RarityBadge';
 import FavoriteTileHeart from '@/components/FavoriteTileHeart';
@@ -197,8 +198,9 @@ export const MyCapturesGrid = ({ items, onSelect, onReorder, isFavorite }: Props
             }`}
           >
             <img
-              src={animal.image}
+              src={gridThumbUrl(animal.image)}
               alt={speciesName(animal.name)}
+              decoding="async"
               draggable={false}
               className="absolute inset-0 w-full h-full object-cover pointer-events-none"
               loading="lazy"

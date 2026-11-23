@@ -1,4 +1,5 @@
 import { createPortal } from 'react-dom';
+import { gridThumbUrl } from '@/lib/imageUrl';
 import { useState, useMemo, useCallback, useEffect, useRef, memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/PageHeader';
@@ -155,8 +156,9 @@ const BrowseSpeciesCard = memo(
       {animal.captured && animal.captureData ? (
         <>
           <img
-            src={animal.captureData.image}
+            src={gridThumbUrl(animal.captureData.image)}
             alt={displayName}
+            decoding="async"
             className="absolute inset-0 w-full h-full object-cover"
             loading="lazy"
           />
@@ -2593,8 +2595,9 @@ onClick={() => {
                   <div className="w-full h-full flex flex-col">
                     <div className="flex-1 overflow-hidden relative">
                       <img
-                        src={animal.captureData.image}
+                        src={gridThumbUrl(animal.captureData.image)}
                         alt={animal.name}
+                        decoding="async"
                         className="w-full h-full object-cover"
                         loading="lazy"
                       />

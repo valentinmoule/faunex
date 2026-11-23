@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { thumbUrl } from '@/lib/imageUrl';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
@@ -174,7 +175,7 @@ export const PinnedCollectionsCarousel = ({
               <span className="rounded-full bg-gradient-to-br from-primary to-amber p-[2.5px]">
                 <span className="block h-14 w-14 overflow-hidden rounded-full border-2 border-background">
                   <img
-                    src={entry.kind === 'custom' ? customCoverFor(collections.find((c) => c.id === entry.id)!) : standardCoverFor(entry.key, entry.label)}
+                    src={thumbUrl(entry.kind === 'custom' ? customCoverFor(collections.find((c) => c.id === entry.id)!) : standardCoverFor(entry.key, entry.label), 160, 70)}
                     alt=""
                     className="h-full w-full object-cover"
                     loading="lazy"
@@ -339,7 +340,7 @@ const CollectionStory = ({
           ))}
         </div>
         <div className="mt-3 flex items-center gap-2.5">
-          <img src={cover} alt="" className="h-9 w-9 rounded-full border-2 border-background object-cover" />
+          <img src={thumbUrl(cover, 120, 70)} alt="" className="h-9 w-9 rounded-full border-2 border-background object-cover" />
           <div className="min-w-0 flex-1">
             <p className="truncate font-display text-sm font-bold">{label}</p>
             <p className="truncate text-[11px] text-background/80">{card ? timeAgo(card.discoveredAt) : subtitle}</p>

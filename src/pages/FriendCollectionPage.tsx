@@ -1,4 +1,5 @@
 import { fetchFinderCounts } from '@/lib/finderCounts';
+import { gridThumbUrl } from '@/lib/imageUrl';
 import { useState, useEffect, useCallback } from 'react';
 import { avatarFallbackStyle } from '@/lib/avatarPalette';
 import { useTranslation } from 'react-i18next';
@@ -480,8 +481,9 @@ const FriendCollectionPage = () => {
                   className={`game-tile tile-grid-2 relative aspect-[3/4] rounded-xl overflow-hidden cursor-pointer ${winners?.has(card.id) ? 'tile-frame-none' : `border-[5px] ${rarityTileBorder[card.rarity] || 'tile-border-plain'}`} bg-card`}
                 >
                   <img
-                    src={card.image}
+                    src={gridThumbUrl(card.image)}
                     alt={speciesName(card.name)}
+                    decoding="async"
                     className="absolute inset-0 w-full h-full object-cover"
                     loading="lazy"
                   />

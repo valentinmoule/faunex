@@ -20,3 +20,6 @@ export const thumbUrl = (url?: string | null, width = 400, quality = 65): string
   const sep = base.includes('?') ? '&' : '?';
   return `${base}${sep}width=${width}&quality=${quality}&resize=cover`;
 };
+
+/** Vignette des grilles (2 colonnes, écrans haute densité) : ≈ 30 Ko en WebP au lieu de la photo complète. */
+export const gridThumbUrl = (url?: string | null): string => thumbUrl(url, 480, 70);
