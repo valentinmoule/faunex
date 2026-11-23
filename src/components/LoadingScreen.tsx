@@ -5,7 +5,7 @@ export default function LoadingScreen() {
   const { t } = useTranslation();
   return (
     <main className="min-h-screen bg-background flex flex-col items-center justify-center gap-3">
-      <img src="/pwa-icon-512.png" alt={t('map.loadingScreen.logoAlt')} className="w-16 h-16 animate-pulse" />
+      <img src="/logo-transparent.png" alt={t('map.loadingScreen.logoAlt')} className="h-20 w-auto animate-pulse" />
       <span className="text-muted-foreground font-display text-sm">{t('map.loadingScreen.loading')}</span>
     </main>
   );
