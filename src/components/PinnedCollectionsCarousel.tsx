@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
+import RarityBadge from '@/components/RarityBadge';
 import { supabase } from '@/integrations/supabase/client';
 import { getCollectionArt } from '@/lib/collectionArt';
 import { normalizeCategory } from '@/lib/bestiary';
@@ -298,18 +299,25 @@ const CollectionStory = ({
 
   const image = card?.image ?? cover;
 
+  const timeAgo = (date: string) => {
+    const diff = Date.now() - new Date(date).getTime();
+    const mins = Math.max(0, Math.floor(diff / 60000));
+    if (mins < 60) return t('social.common.timeAgo_min', { count: mins });
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return t('social.common.timeAgo_hour', { count: hours });
+    return t('social.common.timeAgo_day', { count: Math.floor(hours / 24) });
+  };
+
   return createPortal(
     <div className="fixed inset-0 z-[1400] overflow-hidden bg-foreground text-background select-none" role="dialog" aria-modal="true" aria-label={label}>
-      <img src={image} alt="" aria-hidden className="absolute inset-0 h-full w-full scale-[1.9] object-cover opacity-70 blur-[42px]" />
       <img
         key={image}
         src={image}
         alt={card ? speciesName(card.name) : label}
-        className="absolute inset-0 h-full w-full object-contain animate-fade-in"
+        className="absolute inset-0 h-full w-full object-cover animate-fade-in"
         draggable={false}
       />
-      <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-foreground/70 to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-foreground/80 to-transparent" />
+      <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-foreground/60 to-transparent" />
 
       <div
         className="absolute inset-0"
@@ -334,37 +342,38 @@ const CollectionStory = ({
           <img src={cover} alt="" className="h-9 w-9 rounded-full border-2 border-background object-cover" />
           <div className="min-w-0 flex-1">
             <p className="truncate font-display text-sm font-bold">{label}</p>
-            <p className="truncate text-[11px] text-background/80">{subtitle}</p>
+            <p className="truncate text-[11px] text-background/80">{card ? timeAgo(card.discoveredAt) : subtitle}</p>
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label={t('common.close', 'Fermer')}
-            className="pointer-events-auto -mr-1 p-2 active:opacity-60"
+            className="pointer-events-auto flex h-10 w-10 items-center justify-center rounded-xl bg-card text-foreground shadow-sm active:scale-95 transition-transform"
           >
-            <X className="h-6 w-6" />
+            <X className="h-5 w-5" />
           </button>
         </div>
       </div>
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 px-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
+      <div className="absolute inset-x-0 bottom-0 rounded-t-3xl bg-card px-5 pt-4 pb-[calc(1.25rem+env(safe-area-inset-bottom))] text-foreground">
         {card ? (
-          <div className="flex items-end justify-between gap-3">
+          <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
-              <p className="truncate font-display text-xl font-bold">{speciesName(card.name)}</p>
-              {card.scientificName && <p className="truncate text-xs italic text-background/80">{card.scientificName}</p>}
+              <RarityBadge rarity={card.rarity} plain showLabel />
+              <p className="mt-1 truncate font-display text-xl font-bold">{speciesName(card.name)}</p>
+              {card.scientificName && <p className="truncate text-xs italic text-muted-foreground">{card.scientificName}</p>}
               {winners?.has(card.id) && <CollectorEditionMark className="mt-1 text-[10px]" />}
             </div>
             <button
               type="button"
               onClick={() => onSelectCard(card)}
-              className="pointer-events-auto shrink-0 rounded-full bg-background px-4 py-2 font-display text-[13px] font-bold text-foreground active:scale-95 transition-transform"
+              className="shrink-0 rounded-full bg-primary px-4 py-2.5 font-display text-[13px] font-bold text-primary-foreground active:scale-95 transition-transform"
             >
               {t('bestiary.customCollections.storyViewCard')}
             </button>
           </div>
         ) : (
-          <p className="text-center text-sm text-background/85">{t('bestiary.customCollections.showcaseEmpty')}</p>
+          <p className="py-2 text-center text-sm text-muted-foreground">{t('bestiary.customCollections.showcaseEmpty')}</p>
         )}
       </div>
     </div>,
