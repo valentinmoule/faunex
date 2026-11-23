@@ -13,7 +13,8 @@
       "alpha": "Alphabetical order",
       "rarity": "Rarest first",
       "custom": "Custom",
-      "popularity": "Most popular"
+      "popularity": "Most popular",
+      "number": "By number"
     },
     "popularity": {
       "none": "Never caught",

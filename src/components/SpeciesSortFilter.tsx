@@ -104,17 +104,18 @@ export const SpeciesCategoryIcon = ({ category, className }: { category: string;
 };
 
 /** Tri des listes d'espèces du catalogue (bestiaire, catégories, collections, territoires). */
-export type SpeciesSort = 'default' | 'alpha' | 'rarity' | 'popularity';
+export type SpeciesSort = 'default' | 'alpha' | 'number' | 'rarity' | 'popularity';
 
 export const SPECIES_SORT_OPTIONS: { value: SpeciesSort; label: string }[] = [
   { value: 'default', get label() { return i18n.t('bestiary.speciesSort.default'); } },
   { value: 'alpha', get label() { return i18n.t('bestiary.mineSort.alpha'); } },
+  { value: 'number', get label() { return i18n.t('bestiary.mineSort.number'); } },
   { value: 'rarity', get label() { return i18n.t('bestiary.mineSort.rarity'); } },
   { value: 'popularity', get label() { return i18n.t('bestiary.mineSort.popularity'); } },
 ];
 
 /** Applique filtres + tri sur une liste d'espèces du catalogue. */
-export const applySpeciesSortFilter = <T extends { name: string; rarity: string; category?: string | null; finders?: number }>(
+export const applySpeciesSortFilter = <T extends { name: string; rarity: string; species_number?: number | null; category?: string | null; finders?: number }>(
   list: T[],
   opts: { sort: SpeciesSort; rarities: Rarity[]; popularities: PopularityTier[]; categories?: string[] },
 ): T[] => {
@@ -126,6 +127,8 @@ export const applySpeciesSortFilter = <T extends { name: string; rarity: string;
       (!categories || categories.length === 0 || categories.includes(normalizeCategory(a.category || ''))),
   );
   if (sort === 'alpha') return filtered.sort((a, b) => a.name.localeCompare(b.name, i18n.language));
+  if (sort === 'number')
+    return filtered.sort((a, b) => (a.species_number ?? Infinity) - (b.species_number ?? Infinity));
   if (sort === 'rarity')
     return filtered.sort(
       (a, b) => (RARITY_RANK[normalizeRarity(b.rarity)] ?? 99) - (RARITY_RANK[normalizeRarity(a.rarity)] ?? 99),

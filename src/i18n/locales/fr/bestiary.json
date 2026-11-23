@@ -13,7 +13,8 @@
       "alpha": "Ordre alphabétique",
       "rarity": "Plus rares",
       "custom": "Personnalisé",
-      "popularity": "Les plus populaires"
+      "popularity": "Les plus populaires",
+      "number": "Par numéro"
     },
     "popularity": {
       "none": "Jamais capturée",
