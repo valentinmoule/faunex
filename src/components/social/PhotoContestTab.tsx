@@ -103,7 +103,7 @@ export default function PhotoContestTab() {
     if (!userId) return;
     const [ballotRes, winnersRes, weekRes, entryRes] = await Promise.all([
       supabase.rpc('contest_ballot'),
-      supabase.rpc('contest_recent_winners', { p_limit: 6 }),
+      supabase.rpc('contest_recent_winners', { p_limit: 20 }),
       supabase.rpc('contest_week'),
       supabase.from('photo_contest_entries').select('week_start, capture_id, captures(image_url, animal_name, rarity)').eq('user_id', userId).order('week_start', { ascending: false }).limit(1),
     ]);
@@ -171,7 +171,6 @@ export default function PhotoContestTab() {
 
   const hasVoted = ballot.some((e) => e.voted_for);
   const fmtWeek = (d: string) => new Date(`${d}T12:00:00`).toLocaleDateString(i18n.language, { day: 'numeric', month: 'long' });
-  const myWinners = winners.filter((w) => w.user_id === userId);
 
   if (loading) return <p className="py-16 text-center font-display text-muted-foreground">{t('social.common.loading')}</p>;
 
@@ -230,15 +229,20 @@ export default function PhotoContestTab() {
         )}
       </section>
 
-      {/* Gagnants */}
-      {myWinners.length > 0 && (
+      {/* Photos primées (tous les gagnants) */}
+      {winners.length > 0 && (
         <section>
-          <h2 className="text-lg font-display font-bold text-foreground">{t('social.contest.winnersTitle')}</h2>
+          <h2 className="text-lg font-display font-bold text-foreground">{t('social.contest.allWinnersTitle')}</h2>
           <div className="mt-3 grid grid-cols-2 gap-3">
-            {myWinners.map((w) => {
+            {winners.map((w) => {
+              const author = w.display_name || w.username || t('social.common.anonymous');
               return (
-                <div key={w.week_start} className="min-w-0 space-y-1.5">
+                <div key={`${w.week_start}-${w.capture_id}`} className="min-w-0 space-y-1.5">
                   <Tile image={w.image_url} rarity={w.rarity} name={speciesName(w.animal_name)} frameless onOpen={() => openCapture(w.capture_id)} />
+                  <button onClick={() => navigate(`/explorer/${w.user_id}/collection`)} className="flex w-full min-w-0 items-center gap-2">
+                    <PremiumAvatar avatarUrl={w.avatar_url} name={author} size="sm" />
+                    <span className="min-w-0 truncate text-xs font-display font-semibold">{author}</span>
+                  </button>
                   <p className="min-w-0 truncate text-[11px] text-muted-foreground">{t('social.contest.weekOf', { date: fmtWeek(w.week_start) })} · {t('social.contest.votes', { count: w.votes })}</p>
                 </div>
               );

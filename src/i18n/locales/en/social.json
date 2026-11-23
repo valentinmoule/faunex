@@ -245,6 +245,7 @@
       "pickTitle": "Choose your photo",
       "pickEmpty": "No approved capture this week yet. Capture an animal to take part!",
       "winnersTitle": "My award-winning photos",
+      "allWinnersTitle": "Award-winning photos",
       "weekOf": "Week of {{date}}",
       "votes_one": "{{count}} vote",
       "votes_other": "{{count}} votes",
