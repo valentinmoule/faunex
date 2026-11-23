@@ -111,8 +111,8 @@ const buildIcon = (rarity: string, category: string, count = 1, imageUrl?: strin
         ${count > 1 ? `<span class="faunex-pin-count">${count > 99 ? '99+' : count}</span>` : ''}
       </div>
     `,
-    iconSize: [54, 54],
-    iconAnchor: [27, 27],
+    iconSize: [54, 70],
+    iconAnchor: [27, 66],
   });
 };
 

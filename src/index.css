@@ -2780,6 +2780,22 @@
   animation: pin-pulse 2.2s ease-in-out infinite;
 }
 
+/* Pointe du repère de localisation, sous la photo ronde */
+.faunex-pin-outer::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -7px;
+  width: 24px;
+  height: 24px;
+  margin-left: -12px;
+  background: var(--pin-frame, var(--pin-color));
+  border-radius: 0 0 7px 0;
+  transform: rotate(45deg);
+  z-index: -1;
+  box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.22);
+}
+
 .faunex-pin-inner {
   width: 42px;
   height: 42px;
