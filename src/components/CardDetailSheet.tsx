@@ -24,6 +24,7 @@ import { Trash2, Share2, Bookmark } from 'lucide-react';
 import OverflowMenu from '@/components/OverflowMenu';
 import { useNavigate } from 'react-router-dom';
 import { useFavorites } from '@/hooks/useFavorites';
+import { useSpeciesFavorites } from '@/hooks/useSpeciesFavorites';
 import { useCustomCollections } from '@/hooks/useCustomCollections';
 import { useSubscription } from '@/hooks/useSubscription';
 import ExplorerPhotosStrip from '@/components/ExplorerPhotosStrip';
@@ -248,6 +249,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
 
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavorites(session?.user?.id);
+  const { isSpeciesFavorite, setSpeciesFavorite } = useSpeciesFavorites(session?.user?.id);
   const { isPremium } = useSubscription(session?.user?.id);
   const customCollections = useCustomCollections(session?.user?.id);
   const [addToOpen, setAddToOpen] = useState(false);
@@ -790,6 +792,22 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
 
 
   const isUncaptured = !cardImage || card.id.startsWith('uncaptured-');
+  // Favori : marque-page d'une capture, ou espèce mise en favori (même non capturée).
+  const cardIsFavorite = isUncaptured
+    ? isSpeciesFavorite(card.name)
+    : isFavorite(card.id) || isSpeciesFavorite(card.name);
+  const toggleCardFavorite = () => {
+    if (isUncaptured) {
+      void setSpeciesFavorite(card.name, !cardIsFavorite);
+      return;
+    }
+    if (!cardIsFavorite) {
+      void toggleFavorite(card.id);
+      return;
+    }
+    if (isFavorite(card.id)) void toggleFavorite(card.id);
+    if (isSpeciesFavorite(card.name)) void setSpeciesFavorite(card.name, false);
+  };
   const normalizedRarity = normalizeRarity(card.rarity);
   const cardFx = RARITY_FX[normalizedRarity];
   const isGold = !isUncaptured && cardFx === 'gold';
@@ -936,7 +954,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                   title={t('bestiary.customCollections.addTitle')}
                   className="relative flex items-center py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
                 >
-                  <Bookmark className="w-6 h-6 transition-all text-muted-foreground group-hover:text-primary" />
+                  <Bookmark className={`w-6 h-6 transition-all ${cardIsFavorite ? 'fill-primary text-primary scale-110' : 'text-muted-foreground group-hover:text-primary'}`} />
                 </button>
                 <OverflowMenu
                   label={t('common.moreActions')}
@@ -1003,12 +1021,12 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                       hapticTap();
                       setAddToOpen(true);
                     }}
-                    aria-pressed={isFavorite(card.id)}
+                    aria-pressed={cardIsFavorite}
                     aria-label={t('capture.detail.favorite')}
                     title={t('capture.detail.favorite')}
                     className="relative flex items-center py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
                   >
-                    <Bookmark className={`w-6 h-6 transition-all ${isFavorite(card.id) ? 'fill-primary text-primary scale-110' : 'text-muted-foreground group-hover:text-primary'}`} />
+                    <Bookmark className={`w-6 h-6 transition-all ${cardIsFavorite ? 'fill-primary text-primary scale-110' : 'text-muted-foreground group-hover:text-primary'}`} />
                   </button>
                 )}
                 {onUseCollectionCover && isOwner && cardImage && (
@@ -1395,9 +1413,8 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
         <AddToCollectionSheet
           open={addToOpen}
           onClose={() => setAddToOpen(false)}
-          isFavorite={isFavorite(card.id)}
-          showFavorite={!isUncaptured}
-          onToggleFavorite={() => void toggleFavorite(card.id)}
+          isFavorite={cardIsFavorite}
+          onToggleFavorite={toggleCardFavorite}
           collections={customCollections.collections}
           memberOf={customCollections.collectionsForSpecies(card.name)}
           onToggleCollection={(collectionId) => {

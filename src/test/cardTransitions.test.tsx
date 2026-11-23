@@ -33,6 +33,7 @@ vi.mock('react-i18next', async (importOriginal) => ({
   useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'fr' } }),
 }));
 vi.mock('@/hooks/useFavorites', () => ({ useFavorites: () => ({ isFavorite: () => false, toggleFavorite: vi.fn() }) }));
+vi.mock('@/hooks/useSpeciesFavorites', () => ({ useSpeciesFavorites: () => ({ isSpeciesFavorite: () => false, setSpeciesFavorite: vi.fn() }) }));
 vi.mock('@/hooks/useSubscription', () => ({ useSubscription: () => ({ isPremium: false }) }));
 vi.mock('@/hooks/useCustomCollections', () => ({ useCustomCollections: () => ({ collections: [], collectionsForSpecies: () => new Set() }) }));
 vi.mock('@/hooks/useSpeciesFinders', () => ({ useSpeciesFinders: () => undefined }));

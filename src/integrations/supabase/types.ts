@@ -2564,6 +2564,27 @@ export type Database = {
         }
         Relationships: []
       }
+      species_favorites: {
+        Row: {
+          animal_name: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          animal_name: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          animal_name?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       species_finder_cache: {
         Row: {
           animal_key: string

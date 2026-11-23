@@ -264,6 +264,12 @@
       "progress": "{{captured}}/{{total}} capturées",
       "showcaseCapturedCount_one": "{{count}} espèce capturée",
       "showcaseCapturedCount_other": "{{count}} espèces capturées"
+    },
+    "chips": {
+      "label": "Trier par catégorie",
+      "all": "Tout",
+      "favoritesEmpty": "Aucun favori pour l'instant. Touche le marque-page d'une fiche, capturée ou non, pour l'ajouter ici.",
+      "favoritesEmptyMine": "Aucune capture en favori. Touche le marque-page d'une capture pour l'ajouter ici."
     }
   }
 }

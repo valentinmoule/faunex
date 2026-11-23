@@ -100,7 +100,7 @@ Verify bedbug predictions independently of confidence; failed verification retur
 
 ## Custom collections are species lists, not capture lists
 
-Store species names, not capture IDs; refresh hooks after writes; hide capture-only favorites for uncaptured species.
+Store species names, not capture IDs; refresh hooks after writes. Name-keyed `species_favorites` let uncaptured species be favorites.
 
 <!-- LOVABLE:BEGIN -->
 ## Canonical species facts

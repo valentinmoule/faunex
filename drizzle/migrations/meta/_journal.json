@@ -890,6 +890,13 @@
       "when": 1795469388200,
       "tag": "0124_species_number_on_animals",
       "breakpoints": true
+    },
+    {
+      "idx": 125,
+      "version": "7",
+      "when": 1795470678583,
+      "tag": "0125_species_favorites",
+      "breakpoints": true
     }
   ]
 }

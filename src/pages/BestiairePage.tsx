@@ -82,7 +82,8 @@ import CollectionTile from '@/components/CollectionTile';
 import BoosterCarousel from '@/components/BoosterCarousel';
 import BinderGrid from '@/components/BinderGrid';
 import { useFavorites } from '@/hooks/useFavorites';
-import { FAVORITES_FILTER } from '@/components/SpeciesSortFilter';
+import CategoryChipRow, { CHIP_ALL, CHIP_FAVORITES } from '@/components/CategoryChipRow';
+import { useSpeciesFavorites, speciesFavoriteKey, buildFavoriteSpeciesKeys } from '@/hooks/useSpeciesFavorites';
 import RewardCelebration from '@/components/RewardCelebration';
 import CaptureQuotaBadge from '@/components/CaptureQuotaBadge';
 import { ProfileButton } from '@/components/ProfileDrawer';
@@ -248,7 +249,12 @@ const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [zoneSearch, setZoneSearch] = useState('');
   const [collectionDetailSearch, setCollectionDetailSearch] = useState('');
 
-const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
+// Pastille de tri choisie au-dessus du Bestiaire : Tout, Favoris ou une grande catégorie.
+  const [browseChip, setBrowseChip] = useState<string>(CHIP_ALL);
+  const categoryFilter = useMemo(
+    () => (browseChip === CHIP_ALL || browseChip === CHIP_FAVORITES ? [] : [browseChip]),
+    [browseChip],
+  );
   const [popularityFilter, setPopularityFilter] = useState<PopularityTier[]>([]);
   const [filterOpen, setFilterOpen] = useState(false);
   const [browseSort, setBrowseSort] = useState<SpeciesSort>('default');
@@ -269,7 +275,8 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const [sortOpen, setSortOpen] = useState(false);
   // Filtres propres à l'onglet « Captures »
   const [mineRarityFilter, setMineRarityFilter] = useState<Rarity[]>([]);
-  const [mineCategoryFilter, setMineCategoryFilter] = useState<string[]>([]);
+  // Pastille de tri de Mon Faunex : Tout, Favoris ou une grande catégorie.
+  const [mineChip, setMineChip] = useState<string>(CHIP_ALL);
   const [minePopularityFilter, setMinePopularityFilter] = useState<PopularityTier[]>([]);
   const [mineLocationFilter, setMineLocationFilter] = useState<LocationFilter[]>([]);
   const [userDisplayName, setUserDisplayName] = useState('');
@@ -461,7 +468,7 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
       setSelectedZoneId(null);
       setMineSearch('');
       setMineRarityFilter([]);
-      setMineCategoryFilter([]);
+      setMineChip(CHIP_ALL);
       setMinePopularityFilter([]);
       setMineLocationFilter([]);
     }, [location.pathname, navigate]),
@@ -484,6 +491,13 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
 
   const { isPremium, loading: premiumLoading } = useSubscription(session?.user?.id);
   const { favoriteIds } = useFavorites(session?.user?.id);
+  const { favoriteSpecies } = useSpeciesFavorites(session?.user?.id);
+  /** Espèces favorites : fiches mises en favori + espèces d'une capture marquée. */
+  const favoriteSpeciesKeys = useMemo(
+    () => buildFavoriteSpeciesKeys(favoriteSpecies, myCaptures, favoriteIds),
+    [favoriteSpecies, favoriteIds, myCaptures],
+  );
+  const browseFavOnly = browseChip === CHIP_FAVORITES;
   const { collectionKeys: rawCollectionKeys, addCollection, removeCollection } = useSpeciesCollections(session?.user?.id);
   // Les clés thématiques (offertes à tous) ne consomment jamais un slot gratuit.
   const collectionKeys = useMemo(
@@ -670,6 +684,12 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
       .map(([name, data]) => ({ name, ...data }));
   }, [animals]);
 
+  /** Grandes catégories des pastilles du Bestiaire, de la plus fournie à la moins fournie. */
+  const browseChipCategories = useMemo(
+    () => [...categoryData].sort((a, b) => b.total - a.total).map((c) => c.name),
+    [categoryData],
+  );
+
   // Compteurs par rareté et popularité (affichés à droite dans la modale de filtres)
   const rarityCountData = useMemo(() => countByRarity(animals), [animals]);
   const popularityCountData = useMemo(() => countByPopularity(animals), [animals]);
@@ -782,12 +802,13 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const browseAnimals = useMemo(() => {
     const list = animals
       .filter(a => categoryFilter.length === 0 || categoryFilter.includes(normalizeCategory(a.category)))
+      .filter(a => !browseFavOnly || favoriteSpeciesKeys.has(speciesFavoriteKey(a.name)))
       .filter(a => rarityFilter.length === 0 || rarityFilter.includes(normalizeRarity(a.rarity)))
       .filter(a => matchesPopularity(a.finders ?? 0))
       .filter(matchesSearch);
     // Par défaut `animals` est déjà trié alphabétiquement au chargement.
     return applySpeciesSortFilter(list, { sort: browseSort, rarities: [], popularities: [] });
-  }, [animals, categoryFilter, rarityFilter, matchesPopularity, matchesSearch, browseSort]);
+  }, [animals, categoryFilter, browseFavOnly, favoriteSpeciesKeys, rarityFilter, matchesPopularity, matchesSearch, browseSort]);
 
   /** Collection personnalisée ouverte (Premium). */
   const selectedCustom = useMemo(
@@ -871,17 +892,18 @@ const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
     }
   }, []);
 
-const activeFilterCount = categoryFilter.length + rarityFilter.length + popularityFilter.length;
+const activeFilterCount = rarityFilter.length + popularityFilter.length;
 
   /** Total + capturées dans le périmètre filtré (le compteur suit les filtres actifs). */
   const browseCounts = useMemo(() => {
     const list = animals
       .filter(a => categoryFilter.length === 0 || categoryFilter.includes(normalizeCategory(a.category)))
+      .filter(a => !browseFavOnly || favoriteSpeciesKeys.has(speciesFavoriteKey(a.name)))
       .filter(a => rarityFilter.length === 0 || rarityFilter.includes(normalizeRarity(a.rarity)))
       .filter(a => matchesPopularity(a.finders ?? 0))
       .filter(matchesSearch);
     return { total: list.length, captured: list.filter(a => a.captured).length };
-  }, [animals, categoryFilter, rarityFilter, matchesPopularity, matchesSearch]);
+  }, [animals, categoryFilter, browseFavOnly, favoriteSpeciesKeys, rarityFilter, matchesPopularity, matchesSearch]);
 
   const browseTotal = browseCounts.total;
 
@@ -894,7 +916,6 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
 
   const mineActiveFilterCount =
     mineRarityFilter.length +
-    mineCategoryFilter.length +
     minePopularityFilter.length +
     mineLocationFilter.length;
 
@@ -909,9 +930,8 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
     const list = Array.from(counts.entries())
       .map(([name, total]) => ({ name, total }))
       .sort((a, b) => b.total - a.total);
-    const favCount = myCaptures.filter((c) => favoriteIds.has(c.id)).length;
-    return [{ name: FAVORITES_FILTER, total: favCount }, ...list];
-  }, [myCaptures, favoriteIds]);
+    return list.map((c) => c.name);
+  }, [myCaptures]);
 
   // Compteurs par rareté et popularité pour la modale « mes captures »
   const mineRarityCountData = useMemo(() => countByRarity(myCaptures), [myCaptures]);
@@ -927,11 +947,11 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
     const list = myCaptures
       .filter(c => mineRarityFilter.length === 0 || mineRarityFilter.includes(normalizeRarity(c.rarity)))
       .filter(c => {
-        if (mineCategoryFilter.length === 0) return true;
-        const favOnly = mineCategoryFilter.includes(FAVORITES_FILTER);
-        const cats = mineCategoryFilter.filter(x => x !== FAVORITES_FILTER);
-        if (favOnly && !favoriteIds.has(c.id)) return false;
-        return cats.length === 0 || cats.includes(normalizeCategory(c.category || ''));
+        if (mineChip === CHIP_ALL) return true;
+        if (mineChip === CHIP_FAVORITES) {
+          return favoriteIds.has(c.id) || favoriteSpeciesKeys.has(speciesFavoriteKey(c.name));
+        }
+        return normalizeCategory(c.category || '') === mineChip;
       })
       .filter(c =>
         minePopularityFilter.length === 0 ||
@@ -972,7 +992,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
       return applyCustomCaptureOrder(list, customOrder);
     }
     return list.sort((a, b) => +new Date(b.discoveredAt || 0) - +new Date(a.discoveredAt || 0));
-  }, [favoriteIds, myCaptures, mineRarityFilter, mineCategoryFilter, minePopularityFilter, mineLocationFilter, findersByName, mineSearch, mineSort, customOrder]);
+  }, [favoriteIds, favoriteSpeciesKeys, myCaptures, mineRarityFilter, mineChip, minePopularityFilter, mineLocationFilter, findersByName, mineSearch, mineSort, customOrder]);
 
 
 
@@ -1800,7 +1820,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
 
   // Category grid view
   if (!selectedCategory) {
-    const showMineControls = myCapturedAnimals.length > 0 || mineSearch.trim().length > 0 || mineActiveFilterCount > 0;
+    const showMineControls = myCapturedAnimals.length > 0 || mineSearch.trim().length > 0 || mineActiveFilterCount > 0 || mineChip !== CHIP_ALL;
     return (
       <main className={`min-h-screen bg-background ${viewMode === 'collections' ? 'overflow-hidden pb-0' : 'pb-24'}`}>
          {/* Badges & quêtes : en-tête titre + retour, comme la page Notifications */}
@@ -1883,6 +1903,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
             <section>
               {showMineControls && (
                 <>
+                  <CategoryChipRow categories={mineCategoryData} value={mineChip} onChange={setMineChip} />
                   {/* Recherche + bouton tri */}
                   <div className="flex items-center gap-2 mb-3">
                     <div className="relative flex-1">
@@ -1914,17 +1935,6 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                   {/* Chips des filtres actifs */}
                   {mineActiveFilterCount > 0 && (
                     <div className="flex flex-wrap items-center gap-1.5 mb-3">
-                      {mineCategoryFilter.map(cat => (
-                        <Button variant="chip" size="sm" aria-pressed={true}
-                          key={cat}
-                          onClick={() => setMineCategoryFilter(prev => prev.filter(c => c !== cat))}
-                          className="h-8 gap-1 px-2 text-[11px]"
-                        >
-                          <SpeciesCategoryIcon category={cat} className="w-3.5 h-3.5" />
-                          {cat === FAVORITES_FILTER ? t('bestiary.collections.favorites') : categoryLabel(cat)}
-                          <X className="w-3 h-3" />
-                        </Button>
-                      ))}
                       {mineRarityFilter.map(r => (
                         <button
                           key={r}
@@ -1950,7 +1960,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                         );
                       })}
                       <button
-                        onClick={() => { setMineCategoryFilter([]); setMineRarityFilter([]); setMinePopularityFilter([]); }}
+                        onClick={() => { setMineRarityFilter([]); setMinePopularityFilter([]); setMineLocationFilter([]); }}
                         className="px-2 py-1 rounded-full text-[11px] font-display font-semibold text-muted-foreground hover:text-foreground transition"
                       >
                         {t('bestiary.categories.clearAll')}
@@ -1968,13 +1978,15 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
               )}
 
               {myCapturedAnimals.length === 0 ? (
-                mineSearch.trim() || mineActiveFilterCount > 0 ? (
+                mineSearch.trim() || mineActiveFilterCount > 0 || mineChip !== CHIP_ALL ? (
                   <div className="text-center py-12 rounded-2xl border border-dashed border-border">
                     <p className="text-3xl mb-2">🔍</p>
                     <p className="text-xs font-display text-muted-foreground px-6">
                       {mineSearch.trim()
                         ? t('bestiary.mine.noMatchSearch', { query: mineSearch.trim() })
-                        : t('bestiary.mine.noneForFilters')}
+                        : mineChip === CHIP_FAVORITES && mineActiveFilterCount === 0
+                          ? t('bestiary.chips.favoritesEmptyMine')
+                          : t('bestiary.mine.noneForFilters')}
                     </p>
                   </div>
                 ) : (
@@ -2002,12 +2014,9 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                   label: MINE_SORT_LABELS[mode],
                 }))}
                 onSortChange={(s) => applySort(s as MineSort)}
-                availableCategories={mineCategoryData}
                 availableRarities={mineRarityCountData}
                 availablePopularities={minePopularityCountData}
                 availableLocations={mineLocationCountData}
-                categories={mineCategoryFilter}
-                onCategoriesChange={setMineCategoryFilter}
                 rarities={mineRarityFilter}
                 onRaritiesChange={setMineRarityFilter}
                 popularities={minePopularityFilter}
@@ -2018,7 +2027,6 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                 confirmLabel={t('bestiary.mine.count', { count: myCapturedAnimals.length })}
                 onReset={() => {
                   setMineRarityFilter([]);
-                  setMineCategoryFilter([]);
                   setMinePopularityFilter([]);
                   setMineLocationFilter([]);
                 }}
@@ -2041,6 +2049,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
 
           {viewMode === 'categories' && (
             <section>
+              <CategoryChipRow categories={browseChipCategories} value={browseChip} onChange={setBrowseChip} />
               {/* Recherche + bouton filtres */}
               <div className="flex items-center gap-2 mb-3">
                 <div className="relative flex-1">
@@ -2070,19 +2079,8 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
               </div>
 
 {/* Chips des filtres actifs */}
-              {(categoryFilter.length > 0 || popularityFilter.length > 0) && (
+              {popularityFilter.length > 0 && (
                 <div className="flex flex-wrap items-center gap-1.5 mb-3">
-                  {categoryFilter.map(cat => (
-                    <Button variant="chip" size="sm" aria-pressed={true}
-                      key={cat}
-                      onClick={() => setCategoryFilter(prev => prev.filter(c => c !== cat))}
-                      className="h-8 gap-1 px-2 text-[11px]"
-                    >
-<SpeciesCategoryIcon category={cat} className="w-3.5 h-3.5" />
-                      {categoryLabel(cat)}
-                      <X className="w-3 h-3" />
-                    </Button>
-                  ))}
 {popularityFilter.map(tier => {
                     const { Icon } = POPULARITY_LABELS[tier];
                     return (
@@ -2098,7 +2096,7 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                     );
                   })}
                   <button
-                    onClick={() => { setCategoryFilter([]); setPopularityFilter([]); }}
+                    onClick={() => setPopularityFilter([])}
                     className="px-2 py-1 rounded-full text-[11px] font-display font-semibold text-muted-foreground hover:text-foreground transition"
                   >
                     {t('bestiary.categories.clearAll')}
@@ -2119,7 +2117,9 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                 <div className="text-center py-12 rounded-2xl border border-dashed border-border">
                   <p className="text-3xl mb-2">🔍</p>
                   <p className="text-xs font-display text-muted-foreground px-6">
-                    {t('bestiary.categories.noMatch')}
+                    {browseFavOnly && !speciesQuery && activeFilterCount === 0
+                      ? t('bestiary.chips.favoritesEmpty')
+                      : t('bestiary.categories.noMatch')}
                   </p>
                 </div>
               ) : (
@@ -2151,18 +2151,14 @@ const activeFilterCount = categoryFilter.length + rarityFilter.length + populari
                 onOpenChange={setFilterOpen}
                 sort={browseSort}
                 onSortChange={(s) => setBrowseSort(s as SpeciesSort)}
-                availableCategories={categoryData}
                 availableRarities={rarityCountData}
                 availablePopularities={popularityCountData}
-                categories={categoryFilter}
-                onCategoriesChange={setCategoryFilter}
                 rarities={rarityFilter}
                 onRaritiesChange={setRarityFilter}
                 popularities={popularityFilter}
                 onPopularitiesChange={setPopularityFilter}
                 resultCount={browseTotal}
                 onReset={() => {
-                  setCategoryFilter([]);
                   setRarityFilter([]);
                   setPopularityFilter([]);
                 }}

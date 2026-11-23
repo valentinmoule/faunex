@@ -63,6 +63,10 @@ export default {
           light: "hsl(var(--amber-light))",
           dark: "hsl(var(--amber-dark))",
         },
+        chip: {
+          all: "hsl(var(--chip-all))",
+          favorites: "hsl(var(--chip-favorites))",
+        },
         earth: "hsl(var(--earth))",
         sky: "hsl(var(--sky))",
         rarity: {
