@@ -75,10 +75,7 @@
       "learnMore": "Learn more"
     },
     "zones": {
-      "hint": "Tap an area to see its species",
-      "count_one": "{{count}} capture in this area",
-      "count_other": "{{count}} captures in this area",
-      "empty": "None of your captures in this area yet.",
+      "empty": "No Bestiary species recorded in this area.",
       "kind": {
         "forest": "Forest",
         "grassland": "Grassland",
@@ -87,7 +84,11 @@
         "park": "Park",
         "sand": "Beach and dunes",
         "farmland": "Farmland"
-      }
+      },
+      "observed": "Species seen here",
+      "error": "Couldn't load this area's species right now.",
+      "captured": "Captured",
+      "source": "Public wildlife observations · GBIF"
     }
   }
 }

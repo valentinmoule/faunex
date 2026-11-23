@@ -7,8 +7,8 @@ import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 import '@maplibre/maplibre-gl-leaflet';
-import { buildFaunexMapStyle, makeTreePattern, pickZoneLayer, pointInGeometry, zoneKindOfLayer, ZONE_LAYERS, type ZoneKind } from '@/lib/faunexMap';
-import { Compass, MapPin, Bird, Fish, Bug, Turtle, Shell, Snail, Waves, PawPrint } from 'lucide-react';
+import { buildFaunexMapStyle, makeTreePattern, pickZoneLayer, zoneKindOfLayer, ZONE_LAYERS, type ZoneKind } from '@/lib/faunexMap';
+import { Check, Compass, MapPin, Bird, Fish, Bug, Turtle, Shell, Snail, Waves, PawPrint } from 'lucide-react';
 import { FrogIcon } from '@/components/icons/FrogIcon';
 import { SpiderIcon } from '@/components/icons/SpiderIcon';
 import { supabase } from '@/integrations/supabase/client';
@@ -22,6 +22,10 @@ import { type AnimalCard, type Rarity, RARITY_LABELS, RARITY_ORDER } from '@/dat
 import { toast } from 'sonner';
 import { getCurrentPosition, isGeolocationAvailable } from '@/lib/geo';
 import { useTranslation } from 'react-i18next';
+import { fetchZoneSpecies, type ZoneSpecies } from '@/lib/zoneSpecies';
+import { getCategoryIcon as getBestiaryCategoryIcon } from '@/lib/bestiary';
+import { RarityBadge } from '@/components/RarityBadge';
+import { useSpeciesName } from '@/hooks/useSpeciesLocale';
 
 
 interface CaptureMarker {
@@ -161,7 +165,9 @@ const ZoneTapHandler = ({ onTap }: { onTap: (latlng: L.LatLng) => void }) => {
 interface SelectedZone {
   kind: ZoneKind;
   name: string | null;
-  items: CaptureMarker[];
+  /** null = chargement en cours */
+  species: ZoneSpecies[] | null;
+  failed?: boolean;
 }
 
 const CenterTracker = ({ onMove, onZoom }: { onMove: (center: L.LatLng) => void; onZoom: (z: number) => void }) => {
@@ -190,13 +196,15 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
   const [zoom, setZoom] = useState(8);
   const glRef = useRef<maplibregl.Map | null>(null);
   const [zone, setZone] = useState<SelectedZone | null>(null);
+  const zoneRequest = useRef<AbortController | null>(null);
+  const { speciesName } = useSpeciesName();
 
   const setHighlight = (features: GeoJSON.Feature[]) => {
     const src = glRef.current?.getSource('fx-selected') as maplibregl.GeoJSONSource | undefined;
     src?.setData({ type: 'FeatureCollection', features });
   };
 
-  // Toucher une zone (forêt, eau, prairie, parc…) : liste les captures qu'elle contient.
+  // Toucher une zone (forêt, eau, prairie, parc…) : espèces réellement observées dans la zone (GBIF).
   const handleZoneTap = (latlng: L.LatLng) => {
     const gl = glRef.current;
     if (!gl || !gl.isStyleLoaded()) return;
@@ -212,15 +220,29 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
       ? gl.queryRenderedFeatures({ layers: [hit.layer.id] }).filter((f) => f.id === hit.id)
       : [hit];
     const geoms = pieces.length ? pieces : [hit];
-    const items = captures.filter((c) => geoms.some((f) => pointInGeometry(c.longitude, c.latitude, f.geometry as any)));
     const props = hit.properties || {};
     setHighlight(geoms.map((f) => ({ type: 'Feature', properties: {}, geometry: f.geometry })) as GeoJSON.Feature[]);
     setZone({
       kind: zoneKindOfLayer(hit.layer.id) ?? 'forest',
       name: (props['name:fr'] as string) || (props.name as string) || null,
-      items,
+      species: null,
     });
+    zoneRequest.current?.abort();
+    const request = new AbortController();
+    zoneRequest.current = request;
+    fetchZoneSpecies(geoms.map((f) => f.geometry as any), request.signal)
+      .then((species) => {
+        if (!request.signal.aborted) setZone((z) => (z ? { ...z, species } : z));
+      })
+      .catch(() => {
+        if (!request.signal.aborted) setZone((z) => (z ? { ...z, species: [], failed: true } : z));
+      });
   };
+
+  const capturedNames = useMemo(
+    () => new Set(captures.map((c) => (c.animal_name || '').trim().toLowerCase())),
+    [captures],
+  );
 
 
 
@@ -465,7 +487,7 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
         © OpenStreetMap · OpenFreeMap
       </a>
 
-      <Sheet open={!!zone} onOpenChange={(o) => { if (!o) { setZone(null); setHighlight([]); } }}>
+      <Sheet open={!!zone} onOpenChange={(o) => { if (!o) { zoneRequest.current?.abort(); setZone(null); setHighlight([]); } }}>
         <SheetContent side="bottom" className="max-h-[75vh] overflow-y-auto z-[1200]">
           <SheetHeader>
             <SheetTitle className="font-display text-left">
@@ -474,25 +496,51 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
           </SheetHeader>
           <p className="text-[12px] text-muted-foreground mt-1">
             {zone?.name ? `${t(`map.zones.kind.${zone.kind}`)} · ` : ''}
-            {zone?.items.length ? t('map.zones.count', { count: zone.items.length }) : t('map.zones.empty')}
+            {t('map.zones.observed')}
           </p>
           <div className="mt-4 divide-y divide-border">
-            {zone?.items.map((c) => (
-              <button
-                key={c.id}
-                onClick={() => { setZone(null); setHighlight([]); openCapture(c); }}
-                className="w-full flex items-center gap-3 py-2.5 text-left"
-              >
-                {c.image_url && (
-                  <img src={thumbUrl(c.image_url, 120)} alt={c.animal_name} loading="lazy" className="w-12 h-12 rounded-xl object-cover shrink-0" />
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="font-display font-bold text-sm text-foreground truncate">{c.animal_name}</p>
-                  <p className="text-[11px] italic text-muted-foreground truncate">{c.scientific_name}</p>
+            {zone?.species === null && [0, 1, 2].map((i) => (
+              <div key={i} className="flex items-center gap-3 py-2.5">
+                <div className="w-12 h-12 rounded-xl bg-muted animate-pulse shrink-0" />
+                <div className="flex-1 space-y-1.5">
+                  <div className="h-3.5 w-2/3 rounded bg-muted animate-pulse" />
+                  <div className="h-3 w-1/3 rounded bg-muted animate-pulse" />
                 </div>
-              </button>
+              </div>
             ))}
+            {zone?.species?.map((s) => {
+              const Icon = getBestiaryCategoryIcon(s.category || '');
+              const captured = capturedNames.has(s.name.trim().toLowerCase());
+              return (
+                <div key={s.scientific_name} className="flex items-center gap-3 py-2.5">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                    <Icon className="w-6 h-6" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-display font-bold text-sm text-foreground truncate">{speciesName(s.name)}</p>
+                    <p className="text-[11px] italic text-muted-foreground truncate">{s.scientific_name}</p>
+                  </div>
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    <RarityBadge rarity={s.rarity} plain />
+                    {captured && (
+                      <span className="flex items-center gap-0.5 text-[10px] font-semibold text-primary">
+                        <Check className="w-3 h-3" strokeWidth={3} />
+                        {t('map.zones.captured')}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
+          {zone?.species && zone.species.length === 0 && (
+            <p className="text-[13px] text-muted-foreground py-4 text-center">
+              {zone.failed ? t('map.zones.error') : t('map.zones.empty')}
+            </p>
+          )}
+          {!!zone?.species?.length && (
+            <p className="text-[10px] text-muted-foreground/80 mt-3">{t('map.zones.source')}</p>
+          )}
         </SheetContent>
       </Sheet>
 

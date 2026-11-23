@@ -36,7 +36,7 @@ Scale past blur radius (1.9@42px, 2.25@50px) over an opaque layer.
 
 ## The map draws real OpenStreetMap data
 
-OpenFreeMap via MapLibre; zones are rendered features.
+OpenFreeMap via MapLibre; zones are rendered features. Zone sheets list free GBIF observations matched to unambiguous Bestiary tiles, never AI guesses.
 
 ## Shelving lands in Mon Faunex and targets the displayed tile
 
