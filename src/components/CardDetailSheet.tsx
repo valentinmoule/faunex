@@ -955,7 +955,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                   title={t('bestiary.customCollections.addTitle')}
                   className="relative flex items-center py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
                 >
-                  <Bookmark className={`w-6 h-6 transition-all ${cardIsFavorite ? 'fill-primary text-primary scale-110' : 'text-muted-foreground group-hover:text-primary'}`} />
+                  <Bookmark className={`w-6 h-6 transition-all ${cardIsFavorite ? 'fill-chip-favorites text-chip-favorites scale-110' : 'text-muted-foreground group-hover:text-chip-favorites'}`} />
                 </button>
                 <OverflowMenu
                   label={t('common.moreActions')}
@@ -1027,7 +1027,7 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                     title={t('capture.detail.favorite')}
                     className="relative flex items-center py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
                   >
-                    <Bookmark className={`w-6 h-6 transition-all ${cardIsFavorite ? 'fill-primary text-primary scale-110' : 'text-muted-foreground group-hover:text-primary'}`} />
+                    <Bookmark className={`w-6 h-6 transition-all ${cardIsFavorite ? 'fill-chip-favorites text-chip-favorites scale-110' : 'text-muted-foreground group-hover:text-chip-favorites'}`} />
                   </button>
                 )}
                 {onUseCollectionCover && isOwner && cardImage && (
