@@ -153,7 +153,7 @@ export const SpeciesFilterButton = ({
     >
       <SlidersHorizontal className="w-4 h-4" />
       {count > 0 && (
-        <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-amber text-amber-dark text-[10px] font-bold flex items-center justify-center shadow-sm">
+        <span className="absolute -top-2 -right-2 min-w-5 h-5 px-1 rounded-md bg-[hsl(var(--filter-pin))] text-primary-foreground text-[11px] font-display font-bold flex items-center justify-center">
           {count}
         </span>
       )}
