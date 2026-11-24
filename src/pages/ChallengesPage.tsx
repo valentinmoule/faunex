@@ -77,7 +77,6 @@ export default function ChallengesPage() {
 
   return (
     <main className="min-h-screen bg-background pb-28">
-      <LeagueWeekRecap userId={session?.user?.id} />
       <PageHeader sticky autoHide onHiddenChange={setHeaderHidden} className="bg-background/80 backdrop-blur-xl border-b border-border px-4 py-4">
         <div className="mx-auto flex max-w-lg items-center justify-between gap-3">
           {/* Accès au profil (avatar) à gauche ; compteurs et notifications à droite */}
@@ -113,7 +112,7 @@ export default function ChallengesPage() {
         </div>
       </div>
       {tab !== 'challenges' ? (
-        <div className="mx-auto max-w-lg"><ExplorersLeaderboard key={tab} mode={tab === 'league' ? 'league' : 'honors'} /></div>
+        <div className="mx-auto max-w-lg">{tab === 'league' ? <LeagueWeekRecap userId={session?.user?.id}><ExplorersLeaderboard key={tab} mode={tab === 'league' ? 'league' : 'honors'} /></LeagueWeekRecap> : <ExplorersLeaderboard key={tab} mode="honors" />}</div>
       ) : (
       <div className="mx-auto max-w-lg px-4 pt-1 space-y-4">
         <h1 className="sr-only">{t('nav.challenges')}</h1>
