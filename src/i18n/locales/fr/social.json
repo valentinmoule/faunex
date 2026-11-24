@@ -271,6 +271,15 @@
       "rewardBadge": "Le badge « {{badge}} »"
     },
     "explorersTitle": "Explorateurs",
-    "searchExplorers": "Rechercher des explorateurs"
+    "searchExplorers": "Rechercher des explorateurs",
+    "stories": {
+      "you": "Vous",
+      "add": "Ajouter une story",
+      "pickTitle": "Ajouter à ta story",
+      "pickHint": "Visible 24 h par tes abonnés",
+      "publish": "Publier ({{count}})",
+      "empty": "Aucune capture validée pour l'instant",
+      "published": "Story publiée pour 24 h"
+    }
   }
 }

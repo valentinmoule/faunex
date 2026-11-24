@@ -223,7 +223,7 @@ const STORY_DURATION_MS = 5000;
  * défilement automatique, toucher à gauche/droite pour reculer/avancer,
  * appui long pour mettre en pause.
  */
-const CollectionStory = ({
+export const CollectionStory = ({
   label,
   cover,
   subtitle,
