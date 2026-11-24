@@ -55,7 +55,7 @@ export function PushPermissionPrompt() {
   if (!show) return null;
 
   return (
-    <div className="fixed bottom-24 left-4 right-4 z-50 mx-auto max-w-md animate-in slide-in-from-bottom-4">
+    <div className="fixed bottom-[calc(env(safe-area-inset-bottom)+112px)] left-4 right-4 z-50 mx-auto max-w-md animate-in slide-in-from-bottom-4">
       <div className="bg-card border border-border rounded-2xl shadow-card p-4">
         <div className="flex items-start gap-3">
           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
