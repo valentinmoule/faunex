@@ -211,8 +211,8 @@
     },
     "call": {
       "label": "Listen to its call",
-      "premiumTitle": "Unlock bird calls with Premium",
-      "premiumBody": "Listen to each bird's song and calls right from its species page with Faunex Premium.",
+      "premiumTitle": "Unlock animal calls with Premium",
+      "premiumBody": "Listen to each animal's song and calls right from its species page with Faunex Premium.",
       "premiumCta": "Discover Premium",
       "later": "Later"
     }

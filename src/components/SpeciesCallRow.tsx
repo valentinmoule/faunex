@@ -41,14 +41,14 @@ export default function SpeciesCallRow({ scientificName, category, isPremium }: 
         <span className="text-muted-foreground"><Volume2 className="h-4 w-4" /></span>
         <span className="flex-1 min-w-0">
           <span className="block text-sm text-foreground/85">{t('species.call.label')}</span>
-          {isPremium && call.attribution && <span className="block truncate text-[11px] text-muted-foreground">{call.attribution} · iNaturalist</span>}
+          {isPremium && call.attribution && <span className="block truncate text-[11px] text-muted-foreground">{call.attribution}</span>}
         </span>
         <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
           {!isPremium ? <Lock className="h-3.5 w-3.5" /> : playing ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5 translate-x-px" />}
         </span>
       </button>
       <Dialog open={upsell} onOpenChange={setUpsell}>
-        <DialogContent className="max-w-sm rounded-3xl">
+        <DialogContent className="z-[1410] max-w-sm rounded-3xl" overlayClassName="z-[1400]">
           <div className="mx-auto mb-2 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber/20">
             <Sparkles className="h-7 w-7 text-amber" />
           </div>

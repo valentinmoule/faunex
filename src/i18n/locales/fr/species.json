@@ -211,8 +211,8 @@
     },
     "call": {
       "label": "Écouter son chant",
-      "premiumTitle": "Débloque les chants avec Premium",
-      "premiumBody": "Écoute le chant et les cris de chaque oiseau directement depuis sa fiche avec Faunex Premium.",
+      "premiumTitle": "Débloque les cris avec Premium",
+      "premiumBody": "Écoute le chant et les cris de chaque animal directement depuis sa fiche avec Faunex Premium.",
       "premiumCta": "Découvrir Premium",
       "later": "Plus tard"
     }
