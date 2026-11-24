@@ -309,7 +309,7 @@
         "imageTooLarge": "Image trop lourde (max 5 Mo)",
         "imageUnreadable": "Cette image n'a pas pu être lue. Réessaie avec une autre photo.",
         "uploadError": "Erreur lors de l'upload",
-        "emptyName": "Le nom ne peut pas être vide",
+        "emptyName": "Le pseudo doit faire au moins 3 caractères",
         "saveError": "Erreur lors de la sauvegarde",
         "emailNotFound": "Erreur: email introuvable",
         "wrongOldPassword": "Ancien mot de passe incorrect",

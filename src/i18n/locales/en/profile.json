@@ -309,7 +309,7 @@
         "imageTooLarge": "Image too large (max 5 MB)",
         "imageUnreadable": "This image could not be read. Try another photo.",
         "uploadError": "Error during upload",
-        "emptyName": "Name cannot be empty",
+        "emptyName": "Username must be at least 3 characters",
         "saveError": "Error while saving",
         "emailNotFound": "Error: email not found",
         "wrongOldPassword": "Incorrect old password",

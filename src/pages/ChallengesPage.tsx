@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import ExplorersLeaderboard from '@/components/ExplorersLeaderboard';
+import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Bell, Play, Sprout, Trophy } from 'lucide-react';
@@ -26,6 +28,10 @@ export default function ChallengesPage() {
   const { session } = useAuth();
   const { isPremium, loading: premiumLoading } = useSubscription(session?.user?.id);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tab: 'challenges' | 'leaderboard' = searchParams.get('tab') === 'leaderboard' ? 'leaderboard' : 'challenges';
+  const setTab = (next: 'challenges' | 'leaderboard') => setSearchParams(next === 'leaderboard' ? { tab: next } : {}, { replace: true });
+  const [headerHidden, setHeaderHidden] = useState(false);
 
   useEffect(() => {
     if (!session?.user) return;
@@ -68,7 +74,7 @@ export default function ChallengesPage() {
 
   return (
     <main className="min-h-screen bg-background pb-28">
-      <PageHeader sticky autoHide className="bg-background/80 backdrop-blur-xl border-b border-border px-4 py-4">
+      <PageHeader sticky autoHide onHiddenChange={setHeaderHidden} className="bg-background/80 backdrop-blur-xl border-b border-border px-4 py-4">
         <div className="mx-auto flex max-w-lg items-center justify-between gap-3">
           {/* Accès au profil (avatar) à gauche ; compteurs et notifications à droite */}
           <div className="flex min-w-0 items-center gap-3"><ProfileButton className="-ml-0.5" /><HeaderLevelPill /></div>
@@ -89,11 +95,26 @@ export default function ChallengesPage() {
           </div>
         </div>
       </PageHeader>
-      <div className="mx-auto max-w-lg px-4 pt-3 space-y-4">
+      <div className={`hub-tabbar sticky z-30 mx-auto max-w-lg px-4 pt-2 pb-2 bg-gradient-to-b from-background via-background/95 to-transparent ${headerHidden ? 'top-0 hub-tabbar--hidden' : 'top-[73px]'}`}>
+        <div className="game-tabs flex items-center w-full" role="tablist">
+          {([
+            { key: 'challenges' as const, label: t('nav.challenges') },
+            { key: 'leaderboard' as const, label: t('nav.leaderboard') },
+          ]).map(({ key, label }) => (
+            <Button key={key} variant="ghost" role="tab" aria-selected={tab === key} onClick={() => setTab(key)} className="game-tab min-w-0 flex-1 h-10 px-2 text-xs">
+              <span className="truncate">{label}</span>
+            </Button>
+          ))}
+        </div>
+      </div>
+      {tab === 'leaderboard' ? (
+        <div className="mx-auto max-w-lg"><ExplorersLeaderboard /></div>
+      ) : (
+      <div className="mx-auto max-w-lg px-4 pt-1 space-y-4">
         <h1 className="sr-only">{t('nav.challenges')}</h1>
 
         <button
-          onClick={() => navigate('/explorers?tab=leaderboard')}
+          onClick={() => setTab('leaderboard')}
           className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card p-4 text-left shadow-card active:scale-[0.98] transition-transform"
         >
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber/15 text-2xl">
@@ -152,6 +173,7 @@ export default function ChallengesPage() {
 
         <QuestsInline />
       </div>
+      )}
     </main>
   );
 }

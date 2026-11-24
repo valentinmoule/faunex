@@ -26,7 +26,7 @@ const BottomNav = () => {
     if (tab.labelKey === 'nav.collection') {
       return p === '/home' && currentTabParam !== 'map' && currentTabParam !== 'leaderboard';
     }
-    if (tab.path === '/explorers') return p === '/explorers' || (p === '/home' && currentTabParam === 'leaderboard');
+    if (tab.path === '/explorers') return p === '/explorers' || false;
     if (tab.path === '/defis') return p === '/defis' || p === '/apprendre';
     return p === tab.path;
   };

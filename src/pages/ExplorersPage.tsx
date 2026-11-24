@@ -1,4 +1,3 @@
-import ExplorersLeaderboard from '@/components/ExplorersLeaderboard';
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { avatarFallbackStyle } from '@/lib/avatarPalette';
@@ -7,7 +6,7 @@ import HeaderLevelPill from '@/components/HeaderLevelPill';
 import { notifyCaptureInteraction } from '@/lib/notifyCaptureInteraction';
 import CommentMentionInput from '@/components/CommentMentionInput';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Search, Bell, Heart, MessageCircle, Send, UserPlus, UserCheck, X, Users, Clock, Check as CheckIcon, XCircle, ArrowLeft, Newspaper, Trophy, Compass, UserX, UserMinus } from 'lucide-react';
+import { Search, Bell, Heart, MessageCircle, Send, UserPlus, UserCheck, X, Users, Clock, Check as CheckIcon, XCircle, ArrowLeft, Newspaper, Compass, UserX, UserMinus } from 'lucide-react';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import CardDetailSheet from '@/components/CardDetailSheet';
 import { type AnimalCard, type Rarity } from '@/data/mockData';
@@ -101,7 +100,10 @@ const ExplorersPage = () => {
 
   // View mode: 'feed' (default) or 'search' (search/followers/following)
   const [view, setView] = useState<'feed' | 'search'>('feed');
-  const [feedTab, setFeedTab] = useState<'feed' | 'contest' | 'leaderboard'>(() => { const q = searchParams.get('tab'); return q === 'contest' || q === 'leaderboard' ? q : 'feed'; });
+  const [feedTab, setFeedTab] = useState<'feed' | 'contest'>(() => (searchParams.get('tab') === 'contest' ? 'contest' : 'feed'));
+  const [headerHidden, setHeaderHidden] = useState(false);
+  // Le classement vit désormais dans Défis : les anciens liens y sont redirigés.
+  useEffect(() => { if (searchParams.get('tab') === 'leaderboard') navigate('/defis?tab=leaderboard', { replace: true }); }, [searchParams, navigate]);
   const { data: contestWinners } = useContestWinnerCaptures();
 
   // ── Feed state ──
@@ -679,7 +681,7 @@ const ExplorersPage = () => {
   // ══════════════════════════════════════════════
   return (
     <main className="min-h-screen bg-background pb-24">
-      <PageHeader sticky autoHide className="bg-background/80 backdrop-blur-xl border-b border-border px-4 py-4">
+      <PageHeader sticky autoHide onHiddenChange={setHeaderHidden} className="bg-background/80 backdrop-blur-xl border-b border-border px-4 py-4">
         <div className="flex items-center justify-between gap-3 max-w-lg mx-auto">
           {/* Accès au profil (avatar) à gauche ; compteurs, recherche et notifications à droite */}
           <div className="flex min-w-0 items-center gap-3"><ProfileButton className="-ml-0.5" /><HeaderLevelPill /></div>
@@ -706,12 +708,11 @@ const ExplorersPage = () => {
       </PageHeader>
 
 
-      <div className="relative z-10 max-w-lg mx-auto px-4 pt-2 pb-2">
+      <div className={`hub-tabbar sticky z-30 max-w-lg mx-auto px-4 pt-2 pb-2 bg-gradient-to-b from-background via-background/95 to-transparent ${headerHidden ? 'top-0 hub-tabbar--hidden' : 'top-[73px]'}`}>
         <div className="game-tabs flex items-center w-full" role="tablist">
           {([
             { key: 'feed' as const, label: t('social.contest.tabFeed'), icon: Newspaper },
             { key: 'contest' as const, label: t('social.contest.tabContest'), icon: Compass },
-            { key: 'leaderboard' as const, label: t('nav.leaderboard'), icon: Trophy },
           ]).map(({ key, label, icon: Icon }) => {
             const active = feedTab === key;
             return (
@@ -724,9 +725,7 @@ const ExplorersPage = () => {
       </div>
 
       <div className="max-w-lg mx-auto">
-        {feedTab === 'leaderboard' ? (
-          <ExplorersLeaderboard />
-        ) : feedTab === 'contest' ? (
+        {feedTab === 'contest' ? (
           <PhotoContestTab />
         ) : feedLoading ? (
           <div className="text-center py-16"><p className="text-muted-foreground font-display">{t('social.common.loading')}</p></div>

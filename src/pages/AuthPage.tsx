@@ -21,7 +21,6 @@ const AuthPage = () => {
   const [isForgot, setIsForgot] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [displayName, setDisplayName] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [sentTo, setSentTo] = useState<string | null>(null);
@@ -82,7 +81,6 @@ const AuthPage = () => {
           email,
           password,
           options: {
-            data: { display_name: displayName },
             emailRedirectTo: signupRedirect,
           },
         });
@@ -239,18 +237,6 @@ const AuthPage = () => {
           </form>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
-            {!isLogin && (
-              <div className="space-y-2">
-                <Label htmlFor="displayName">{t('auth.labels.displayName')}</Label>
-                <Input
-                  id="displayName"
-                  placeholder={t('auth.placeholders.displayName')}
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  required={!isLogin}
-                />
-              </div>
-            )}
 
             <div className="space-y-2">
               <Label htmlFor="email">{t('auth.labels.email')}</Label>

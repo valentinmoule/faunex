@@ -47,7 +47,6 @@ const SettingsPage = () => {
   },[session?.user.id]);
 
   // Edit profile state
-  const [editName, setEditName] = useState('');
   const [editUsername, setEditUsername] = useState('');
   const [editBio, setEditBio] = useState('');
   const [saving, setSaving] = useState(false);
@@ -100,7 +99,6 @@ const SettingsPage = () => {
       if (data) {
         const d: any = data;
         setProfile({ display_name: d.display_name || '', username: d.username || '', avatar_url: d.avatar_url, bio: d.bio || null });
-        setEditName(d.display_name || '');
         setEditUsername(d.username || '');
         setEditBio(d.bio || '');
         setMarketingEmails(d.marketing_emails ?? true);
@@ -156,14 +154,19 @@ const SettingsPage = () => {
 
   const handleSaveProfile = async () => {
     if (!session?.user) return;
-    const trimmedName = editName.trim();
-    if (!trimmedName) { toast.error(t('profile.settings.errors.emptyName')); return; }
+    // Un seul identifiant : le pseudo sert aussi de nom affiché.
+    const cleanUsername = editUsername.trim().replace(/^@/, '');
+    if (cleanUsername.length < 3) { toast.error(t('profile.settings.errors.emptyName')); return; }
+    if (!/^[a-zA-Z0-9_]+$/.test(cleanUsername)) { toast.error(t('auth.completeProfile.toasts.invalidChars')); return; }
+    const trimmedName = cleanUsername;
+    const { data: taken } = await supabase.from('profiles').select('id').eq('username', `@${cleanUsername}`).neq('user_id', session.user.id).maybeSingle();
+    if (taken) { toast.error(t('auth.completeProfile.toasts.usernameTaken')); return; }
     setSaving(true);
     const trimmedBio = editBio.trim();
-    const { error } = await supabase.from('profiles').update({ display_name: trimmedName, username: editUsername.trim() || null, bio: trimmedBio || null }).eq('user_id', session.user.id);
+    const { error } = await supabase.from('profiles').update({ display_name: trimmedName, username: `@${cleanUsername}`, bio: trimmedBio || null }).eq('user_id', session.user.id);
     if (error) toast.error(t('profile.settings.errors.saveError'));
     else {
-      setProfile(prev => prev ? { ...prev, display_name: trimmedName, username: editUsername.trim(), bio: trimmedBio || null } : prev);
+      setProfile(prev => prev ? { ...prev, display_name: trimmedName, username: `@${cleanUsername}`, bio: trimmedBio || null } : prev);
       toast.success(t('profile.settings.success.profileUpdated'));
       setSection('menu');
     }
@@ -322,10 +325,6 @@ const SettingsPage = () => {
             </div>
 
             <div className="space-y-3">
-              <div>
-                <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">{t('profile.settings.displayName')}</label>
-                <input type="text" value={editName} onChange={e => setEditName(e.target.value)} maxLength={50} className="game-input w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
-              </div>
               <div>
                 <label className="text-xs font-display font-semibold text-muted-foreground mb-1 block">{t('profile.settings.username')}</label>
                 <input type="text" value={editUsername} onChange={e => setEditUsername(e.target.value)} maxLength={30} placeholder={t('profile.settings.usernamePlaceholder')} className="game-input w-full px-4 py-3 bg-muted rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-body" />
