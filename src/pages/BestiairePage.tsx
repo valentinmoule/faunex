@@ -3,6 +3,7 @@ import { gridThumbUrl } from '@/lib/imageUrl';
 import { useState, useMemo, useCallback, useEffect, useRef, memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/PageHeader';
+import HeaderLevelPill from '@/components/HeaderLevelPill';
 import { CollectionHero } from '@/components/CollectionHero';
 import { OverflowMenu } from '@/components/OverflowMenu';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
@@ -1862,11 +1863,11 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
             </div>
           </PageHeader>
         ) : (
-          <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-4 py-4">
+          <PageHeader sticky autoHide={viewMode !== 'map'} className="bg-background/80 backdrop-blur-xl border-b border-border px-4 py-4">
             <div className="max-w-lg mx-auto">
               <div className="flex items-center justify-between gap-3">
                 {/* Accès au profil (avatar) à gauche ; compteurs et notifications à droite */}
-                <ProfileButton className="-ml-0.5" />
+                <div className="flex min-w-0 items-center gap-3"><ProfileButton className="-ml-0.5" /><HeaderLevelPill /></div>
                 <div className="flex min-w-0 items-center gap-4">
                   <CaptureQuotaBadge userId={session?.user?.id} isPremium={isPremium} premiumLoading={premiumLoading} />
                   <button

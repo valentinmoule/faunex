@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { Bell, Play, Sprout } from 'lucide-react';
+import { Bell, Play, Sprout, Trophy } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
+import HeaderLevelPill from '@/components/HeaderLevelPill';
 import QuestsInline from '@/components/QuestsInline';
 import CaptureQuotaBadge from '@/components/CaptureQuotaBadge';
 import { ProfileButton } from '@/components/ProfileDrawer';
@@ -52,14 +53,25 @@ export default function ChallengesPage() {
   const total = chapter?.lessons.length ?? 0;
   const allDone = chapters.length > 0 && chapters.every(c => c.lessons.every(l => done.has(l.id)));
   const pct = total ? Math.round((chapterDone / total) * 100) : 0;
+  const league = useQuery({
+    queryKey: ['my-league', session?.user.id],
+    enabled: !!session?.user,
+    queryFn: async () => {
+      const { data } = await supabase.rpc('my_league');
+      const row = data?.[0];
+      if (!row) return null;
+      const { data: tier } = await supabase.from('league_tiers').select('label, emoji').eq('tier', row.tier).maybeSingle();
+      return { ...row, label: tier?.label ?? '', emoji: tier?.emoji ?? '🏆' };
+    },
+  }).data;
   const cta = allDone ? t('challenges.review') : done.size === 0 ? t('challenges.start') : t('challenges.continue');
 
   return (
     <main className="min-h-screen bg-background pb-28">
-      <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-4 py-4">
+      <PageHeader sticky autoHide className="bg-background/80 backdrop-blur-xl border-b border-border px-4 py-4">
         <div className="mx-auto flex max-w-lg items-center justify-between gap-3">
           {/* Accès au profil (avatar) à gauche ; compteurs et notifications à droite */}
-          <ProfileButton className="-ml-0.5" />
+          <div className="flex min-w-0 items-center gap-3"><ProfileButton className="-ml-0.5" /><HeaderLevelPill /></div>
           <div className="flex min-w-0 items-center gap-4">
             <CaptureQuotaBadge userId={session?.user?.id} isPremium={isPremium} premiumLoading={premiumLoading} />
             <button
@@ -79,6 +91,30 @@ export default function ChallengesPage() {
       </PageHeader>
       <div className="mx-auto max-w-lg px-4 pt-3 space-y-4">
         <h1 className="sr-only">{t('nav.challenges')}</h1>
+
+        <button
+          onClick={() => navigate('/explorers?tab=leaderboard')}
+          className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card p-4 text-left shadow-card active:scale-[0.98] transition-transform"
+        >
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber/15 text-2xl">
+            {league ? league.emoji : <Trophy className="h-6 w-6 text-amber" />}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[11px] font-display font-bold uppercase tracking-wide text-muted-foreground">
+              {t('challenges.league.title')}{league?.label ? ` · ${league.label}` : ''}
+            </p>
+            {league ? (
+              <>
+                <p className="text-base font-display font-extrabold text-foreground">
+                  {t('challenges.league.rank', { rank: league.rank, size: league.group_size })} · {t('challenges.league.points', { points: league.points })}
+                </p>
+                <p className="text-[12px] text-muted-foreground">{league.rank <= 3 ? t('challenges.league.podium') : t('challenges.league.toPodium')}</p>
+              </>
+            ) : (
+              <p className="text-sm font-display font-bold text-foreground">{t('challenges.league.none')}</p>
+            )}
+          </div>
+        </button>
 
         <button
           onClick={() => navigate('/apprendre')}
@@ -104,6 +140,9 @@ export default function ChallengesPage() {
                 </div>
                 <span className="text-[12px] font-display font-bold text-background">{t('challenges.progress', { done: chapterDone, total })}</span>
               </div>
+            )}
+            {chapter && !allDone && total - chapterDone > 0 && (
+              <p className="text-[12px] font-display font-semibold text-background/85">{t('challenges.chapterLeft', { count: total - chapterDone })}</p>
             )}
             <span className="game-button flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-[15px] font-display font-extrabold text-primary-foreground shadow-[0_4px_0_hsl(var(--primary-dark,var(--primary))/0.6)]">
               <Play className="h-4 w-4 fill-current" />{cta}

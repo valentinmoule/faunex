@@ -294,6 +294,7 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
   }, []);
 
   const locateMe = () => {
+    requestCompass();
     if (!isGeolocationAvailable()) {
       toast.error(t('map.errors.geoUnavailable'));
       return;
@@ -307,6 +308,42 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
       () => toast.error(t('map.errors.geoPositionError')),
     );
   };
+
+  const [heading, setHeading] = useState<number | null>(null);
+  const compassOn = useRef(false);
+  const startCompass = () => {
+    if (compassOn.current) return;
+    compassOn.current = true;
+    let last = -999;
+    const handler = (e: DeviceOrientationEvent) => {
+      const ios = (e as DeviceOrientationEvent & { webkitCompassHeading?: number }).webkitCompassHeading;
+      const h = typeof ios === 'number' ? ios : e.absolute && e.alpha != null ? 360 - e.alpha : null;
+      if (h == null) return;
+      if (Math.abs(((h - last + 540) % 360) - 180) < 4) return;
+      last = h;
+      setHeading(Math.round(h));
+    };
+    window.addEventListener('deviceorientationabsolute' as 'deviceorientation', handler as EventListener);
+    window.addEventListener('deviceorientation', handler);
+  };
+  const requestCompass = () => {
+    const DOE = (window as unknown as { DeviceOrientationEvent?: { requestPermission?: () => Promise<string> } }).DeviceOrientationEvent;
+    if (DOE?.requestPermission) {
+      DOE.requestPermission().then((r) => { if (r === 'granted') startCompass(); }).catch(() => {});
+    } else startCompass();
+  };
+  useEffect(() => {
+    // Android et navigateurs sans permission : boussole dès l'ouverture
+    const DOE = (window as unknown as { DeviceOrientationEvent?: { requestPermission?: () => Promise<string> } }).DeviceOrientationEvent;
+    if (DOE && !DOE.requestPermission) startCompass();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const userIcon = useMemo(() => L.divIcon({
+    className: 'faunex-user-pin',
+    html: `${heading != null ? `<div class="faunex-user-cone" style="transform:translate(-50%,-100%) rotate(${heading}deg)"></div>` : ''}<div class="faunex-user-dot"></div>`,
+    iconSize: [20, 20],
+    iconAnchor: [10, 10],
+  }), [heading]);
 
   const openCapture = (c: CaptureMarker) => {
     setSelectedCard({
@@ -404,10 +441,7 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
 
 
 
-  const localizedSpeciesCount = useMemo(
-    () => new Set(captures.map((c) => (c.animal_name || '').toLowerCase())).size,
-    [captures],
-  );
+
 
 
 
@@ -421,35 +455,21 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
       <div className="absolute top-0 left-0 right-0 z-20 pt-[max(1rem,env(safe-area-inset-top))] px-4 pointer-events-none">
         <div className="max-w-lg mx-auto pointer-events-auto flex flex-col items-center gap-3">
           <div className="w-full flex items-center justify-between">
-            <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-card/85 backdrop-blur-xl border border-border/60 shadow-card">
-              <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                <MapPin className="w-4.5 h-4.5 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-base font-display font-bold text-foreground leading-none">{t('map.header.title')}</h1>
-                <p className="text-[11px] text-muted-foreground mt-0.5">
-                  {t('map.header.speciesLocalized', { count: localizedSpeciesCount })}
-                </p>
-
-              </div>
-            </div>
-
+            <button
+              onClick={() => window.dispatchEvent(new Event('faunex:discover-nearby'))}
+              className="flex items-center gap-2 rounded-full bg-card/90 backdrop-blur-xl border border-border/60 shadow-card pl-3 pr-4 py-2.5 active:scale-95 transition-transform"
+            >
+              <Radar className="w-4 h-4 text-primary" />
+              <span className="text-[13px] font-display font-bold text-foreground">{t('map.nearby.cta')}</span>
+            </button>
             <button
               onClick={locateMe}
-              className="p-3 rounded-2xl bg-card/85 backdrop-blur-xl border border-border/60 shadow-card hover:bg-card transition-colors"
+              className="p-3 rounded-full bg-card/90 backdrop-blur-xl border border-border/60 shadow-card hover:bg-card transition-colors"
               aria-label={t('map.header.locateMe')}
             >
               <Compass className="w-5 h-5 text-foreground" />
             </button>
           </div>
-          <button
-            onClick={() => window.dispatchEvent(new Event('faunex:discover-nearby'))}
-            className="flex items-center gap-2 rounded-full bg-card/90 backdrop-blur-xl border border-primary/40 shadow-card px-4 py-2 active:scale-95 transition-transform"
-          >
-            <Radar className="w-4 h-4 text-primary animate-[spin_4s_linear_infinite]" />
-            <span className="text-[13px] font-display font-bold text-foreground">{t('map.nearby.title')}</span>
-          </button>
-
         </div>
       </div>
 
@@ -481,12 +501,7 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
         {userPos && (
           <Marker
             position={userPos}
-            icon={L.divIcon({
-              className: 'faunex-user-pin',
-              html: `<div class="faunex-user-dot"></div>`,
-              iconSize: [20, 20],
-              iconAnchor: [10, 10],
-            })}
+            icon={userIcon}
           />
         )}
         {markers}

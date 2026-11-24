@@ -35,7 +35,8 @@
         "silver": "⚡ Espèce ultra rare détectée près de toi",
         "rare": "🔹 Espèce rare repérée dans ta zone",
         "common": "🔹 Espèce repérée dans ta zone"
-      }
+      },
+      "cta": "Espèces proches"
     },
     "radar": {},
     "pull": {

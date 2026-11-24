@@ -35,7 +35,8 @@
         "silver": "⚡ Ultra rare species detected near you",
         "rare": "🔹 Rare species spotted in your area",
         "common": "🔹 Species spotted in your area"
-      }
+      },
+      "cta": "Nearby species"
     },
     "radar": {},
     "pull": {

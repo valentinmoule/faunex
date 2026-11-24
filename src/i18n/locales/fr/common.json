@@ -57,12 +57,25 @@
   },
   "challenges": {
     "academyTitle": "Académie",
-    "academyDesc": "Continue ton parcours nature et gagne des Graines.",
+    "academyDesc": "Continue ton parcours nature et gagne de l’XP.",
     "chapter": "Chapitre {{n}}",
     "progress": "{{done}}/{{total}} leçons",
     "continue": "Continuer",
     "start": "Commencer",
     "review": "Réviser",
-    "questsTitle": "Quêtes du moment"
+    "questsTitle": "Quêtes du moment",
+    "league": {
+      "title": "Ligue de la semaine",
+      "rank": "{{rank}}e sur {{size}}",
+      "points": "{{points}} XP cette semaine",
+      "podium": "Sur le podium, tiens bon !",
+      "toPodium": "Encore un effort pour le podium",
+      "none": "Gagne de l’XP pour rejoindre une ligue"
+    },
+    "chapterLeft": "Termine le chapitre : encore {{count}} leçon(s)"
+  },
+  "header": {
+    "level": "Niv. {{level}}",
+    "levelAria": "Niveau {{level}}, {{xp}} sur {{next}} XP"
   }
 }

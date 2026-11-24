@@ -2861,7 +2861,21 @@
 }
 
 /* User location dot */
+.faunex-user-pin { position: relative; }
+.faunex-user-cone {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 72px;
+  height: 64px;
+  transform-origin: 50% 100%;
+  background: radial-gradient(ellipse 50% 100% at 50% 100%, hsl(var(--primary) / 0.45), hsl(var(--primary) / 0) 85%);
+  clip-path: polygon(50% 100%, 0 0, 100% 0);
+  pointer-events: none;
+  transition: transform 0.25s ease-out;
+}
 .faunex-user-dot {
+  position: relative;
   width: 18px;
   height: 18px;
   border-radius: 50%;

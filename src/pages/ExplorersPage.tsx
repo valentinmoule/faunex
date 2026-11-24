@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { avatarFallbackStyle } from '@/lib/avatarPalette';
 import { PageHeader } from '@/components/PageHeader';
+import HeaderLevelPill from '@/components/HeaderLevelPill';
 import { notifyCaptureInteraction } from '@/lib/notifyCaptureInteraction';
 import CommentMentionInput from '@/components/CommentMentionInput';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -678,10 +679,10 @@ const ExplorersPage = () => {
   // ══════════════════════════════════════════════
   return (
     <main className="min-h-screen bg-background pb-24">
-      <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-4 py-4">
+      <PageHeader sticky autoHide className="bg-background/80 backdrop-blur-xl border-b border-border px-4 py-4">
         <div className="flex items-center justify-between gap-3 max-w-lg mx-auto">
           {/* Accès au profil (avatar) à gauche ; compteurs, recherche et notifications à droite */}
-          <ProfileButton className="-ml-0.5" />
+          <div className="flex min-w-0 items-center gap-3"><ProfileButton className="-ml-0.5" /><HeaderLevelPill /></div>
           <div className="flex min-w-0 items-center gap-4">
             <CaptureQuotaBadge userId={session?.user?.id} isPremium={isPremium} premiumLoading={premiumLoading} />
             <div className="-mr-1 flex items-center">
