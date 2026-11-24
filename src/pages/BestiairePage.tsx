@@ -2339,7 +2339,7 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
                     );
                   })}
 
-                  {myCollections.filter(({ group }) => !group.key.startsWith(THEME_PREFIX)).map(({ group, total, captured }) => {
+                  {myCollections.filter(({ group }) => !group.key.startsWith(THEME_PREFIX) && !group.key.startsWith('cat:')).map(({ group, total, captured }) => {
                     const art = getCollectionArt(group.key, group.label);
                     const rewardId = `${COLLECTION_REWARD_PREFIX}${group.key}`;
                     const xp = collectionRewardXp(total);
