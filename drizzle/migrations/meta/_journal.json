@@ -911,6 +911,20 @@
       "when": 1795478545450,
       "tag": "0127_gbif_rarity_thresholds",
       "breakpoints": true
+    },
+    {
+      "idx": 128,
+      "version": "7",
+      "when": 1795478915617,
+      "tag": "0128_hide_test_account_from_contest",
+      "breakpoints": true
+    },
+    {
+      "idx": 129,
+      "version": "7",
+      "when": 1795478942516,
+      "tag": "0129_hide_test_account_winner_cards",
+      "breakpoints": true
     }
   ]
 }
