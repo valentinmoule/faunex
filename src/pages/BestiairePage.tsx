@@ -1,5 +1,6 @@
 import { createPortal } from 'react-dom';
 import { gridThumbUrl } from '@/lib/imageUrl';
+import QuestsInline from '@/components/QuestsInline';
 import { useState, useMemo, useCallback, useEffect, useRef, memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/PageHeader';
@@ -2075,6 +2076,9 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
           {viewMode === 'map' && (
             <section className="-mx-1">
               <MapPage embedded />
+              <div className="mt-6 px-1">
+                <QuestsInline />
+              </div>
             </section>
           )}
 
