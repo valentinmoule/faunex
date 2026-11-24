@@ -143,7 +143,9 @@
       "rewardClaimed": "+{{xp}} XP gagnés",
       "rewardHint": "+{{xp}} XP à la fin",
       "celebrationTag": "Collection complète !",
-      "celebrationDesc": "Tu as récolté {{xp}} XP. Continue d'explorer pour compléter d'autres collections !"
+      "celebrationDesc": "Tu as récolté {{xp}} XP. Continue d'explorer pour compléter d'autres collections !",
+      "unlockAtLevel": "Niveau {{level}}",
+      "lockedToast": "Atteins le niveau {{level}} pour ouvrir « {{title}} »."
     },
     "seo": {
       "title": "mon faunex — Toutes les espèces à découvrir · Faunex",

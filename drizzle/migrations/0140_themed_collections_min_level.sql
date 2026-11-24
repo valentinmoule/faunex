@@ -1,0 +1,1 @@
+ALTER TABLE public.themed_collections ADD COLUMN IF NOT EXISTS min_level integer NOT NULL DEFAULT 1;

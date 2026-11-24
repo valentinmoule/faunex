@@ -995,6 +995,13 @@
       "when": 1795559815794,
       "tag": "0139_weekly_and_daily_quest",
       "breakpoints": true
+    },
+    {
+      "idx": 140,
+      "version": "7",
+      "when": 1795563359314,
+      "tag": "0140_themed_collections_min_level",
+      "breakpoints": true
     }
   ]
 }

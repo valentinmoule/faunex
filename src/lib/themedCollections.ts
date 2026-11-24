@@ -19,6 +19,7 @@ export interface ThemedCollection {
   calendar_year?: number | null;
   calendar_days?: import('./advent').AdventChallenge[];
   final_badge_xp?: number;
+  min_level?: number;
 }
 
 export const THEME_PREFIX = 'theme:';
@@ -60,3 +61,6 @@ export const themeMatcher = (c: ThemedCollection) => {
 
 export const themeTitle = (c: ThemedCollection, lang: string) =>
   lang.startsWith('en') && c.title_en ? c.title_en : c.title;
+
+/** A booster opens once the explorer reaches its required level. */
+export const isBoosterUnlocked = (minLevel: number | null | undefined, level: number) => level >= Math.max(1, minLevel ?? 1);

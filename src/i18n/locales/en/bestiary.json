@@ -143,7 +143,9 @@
       "rewardClaimed": "+{{xp}} XP earned",
       "rewardHint": "+{{xp}} XP when complete",
       "celebrationTag": "Collection complete!",
-      "celebrationDesc": "You earned {{xp}} XP. Keep exploring to complete more collections!"
+      "celebrationDesc": "You earned {{xp}} XP. Keep exploring to complete more collections!",
+      "unlockAtLevel": "Level {{level}}",
+      "lockedToast": "Reach level {{level}} to open “{{title}}”."
     },
     "seo": {
       "title": "my faunex — Every species to discover · Faunex",

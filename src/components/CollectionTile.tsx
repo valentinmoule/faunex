@@ -1,4 +1,4 @@
-import { Check, Gift, Sparkles } from 'lucide-react';
+import { Check, Gift, Lock, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { useBoosterTint } from '@/lib/dominantColor';
@@ -20,6 +20,8 @@ export interface CollectionTileProps {
   claiming?: boolean;
   onOpen: () => void;
   onClaim: () => void;
+  /** Niveau requis si le booster est encore scellé. */
+  lockedLevel?: number;
 }
 
 const CollectionTile = ({
@@ -32,6 +34,7 @@ const CollectionTile = ({
   claiming,
   onOpen,
   onClaim,
+  lockedLevel,
 }: CollectionTileProps) => {
   const { t } = useTranslation();
   const readyToClaim = complete && !claimed;
@@ -62,7 +65,7 @@ const CollectionTile = ({
           aria-hidden="true"
           loading="lazy"
           draggable={false}
-          className="absolute inset-0 h-full w-full object-cover"
+          className={`absolute inset-0 h-full w-full object-cover ${lockedLevel ? 'grayscale-[0.7] brightness-[0.55] blur-[1.5px]' : ''}`}
         />
         <div className="collection-booster-print absolute inset-0" />
 
@@ -77,6 +80,13 @@ const CollectionTile = ({
             {claimed ? <Check className="h-3 w-3" /> : <Sparkles className="h-3 w-3" />}
             {t('bestiary.collections.completed')}
           </span>
+        )}
+
+        {lockedLevel && (
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 text-center">
+            <span className="booster-lock-seal flex h-12 w-12 items-center justify-center rounded-full"><Lock className="!h-5 !w-5" strokeWidth={2.4} /></span>
+            <span className="rounded-full bg-background/90 px-2.5 py-1 text-[10px] font-display font-extrabold uppercase tracking-wide text-foreground">{t('bestiary.collections.unlockAtLevel', { level: lockedLevel })}</span>
+          </div>
         )}
 
         {/* Titre et compteur posés à plat sur le sachet, sans bandeau */}
@@ -101,7 +111,7 @@ const CollectionTile = ({
         <div className="collection-booster-gloss pointer-events-none absolute inset-0" />
       </Button>
 
-      {readyToClaim && (
+      {readyToClaim && !lockedLevel && (
         <div className="absolute bottom-0 left-1/2 z-10 -translate-x-1/2 translate-y-1/2">
           <Button
             variant="collection"

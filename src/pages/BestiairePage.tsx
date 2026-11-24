@@ -70,10 +70,11 @@ import { useCollectionCovers } from '@/hooks/useCollectionCovers';
 import { useThemedCollections } from '@/hooks/useThemedCollections';
 import { useAdventCalendars } from '@/hooks/useAdventCalendars';
 import adventCover from '@/assets/collections/advent-2026.jpg';
-import { THEME_PREFIX, themeMatcher, themeTitle } from '@/lib/themedCollections';
+import { isBoosterUnlocked, THEME_PREFIX, themeMatcher, themeTitle } from '@/lib/themedCollections';
 import CategoryLeaderboard, { LeaderboardResetBadge } from '@/components/CategoryLeaderboard';
 import { useSubscription } from '@/hooks/useSubscription';
 import { toast } from 'sonner';
+import { useQuery as useLevelQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import i18n from '@/i18n';
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
@@ -653,9 +654,23 @@ const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
           total,
           captured,
           cover: c.cover_url,
+          minLevel: c.min_level ?? 1,
         };
       }),
     [themedCollections, animals, i18n.language],
+  );
+
+  const levelUid = session?.user?.id;
+  const { data: levelRow } = useLevelQuery({
+    queryKey: ['header-level', levelUid],
+    enabled: !!levelUid,
+    staleTime: 60_000,
+    queryFn: async () => (await supabase.from('profiles').select('level, xp, xp_to_next').eq('user_id', levelUid!).maybeSingle()).data,
+  });
+  const explorerLevel = levelRow?.level ?? 1;
+  const boosterEntries = useMemo(
+    () => [...themedEntries].sort((a, b) => a.minLevel - b.minLevel),
+    [themedEntries],
   );
 
   /** Every species group that actually has species in the bestiary, with progress. */
@@ -2238,129 +2253,38 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
                 </form>
               )}
 
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">{t('bestiary.collections.title')}</h2>
-                <button
-                  onClick={openAddSlotModal}
-                  className="flex items-center gap-1 text-xs font-display font-semibold text-primary px-2 py-1 rounded-lg hover:bg-primary/10 transition"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  {t('bestiary.collections.add')}
-                </button>
-              </div>
-
-              {subscribedZones.length === 0 && myCollections.length === 0 && customCollections.collections.length === 0 && themedEntries.length === 0 && visibleAdvent.length === 0 ? (
-                <button
-                  onClick={openAddSlotModal}
-                  className="w-full rounded-2xl border border-dashed border-border p-6 text-center transition active:scale-[0.98] hover:border-primary/40"
-                >
-                  <div className="inline-flex w-12 h-12 rounded-2xl bg-primary/15 items-center justify-center mb-2">
-                    <Layers className="w-6 h-6 text-primary" strokeWidth={2} />
-                  </div>
-                  <h3 className="font-display font-bold text-sm text-foreground">{t('bestiary.collections.emptyTitle')}</h3>
-                  <p className="text-[11px] text-muted-foreground font-display leading-relaxed mt-1 px-2">
-                    {t('bestiary.collections.emptyDesc')}
-                  </p>
-                </button>
-              ) : (
-                <BoosterCarousel>
-                  {visibleAdvent.map(c => {
-                    const open = () => navigate(`/advent/${c.id}`);
-                    return <CollectionTile key={c.id} title={themeTitle(c, i18n.language)} image={c.cover_url || adventCover} overlay={getCollectionArt('advent').overlay} captured={new Set(advent.submissions.filter(s => s.collection_id === c.id && s.approved_at).map(s => s.day)).size} total={24} complete={false} claimed={false} onClaim={open} onOpen={open} />;
-                  })}
-                  {/* Collections thématiques créées par Faunex, visibles par tous */}
-                  {themedEntries.map(({ group, total, captured, cover }) => {
-                    const art = getCollectionArt(group.key, group.label);
-                    const rewardId = `${COLLECTION_REWARD_PREFIX}${group.key}`;
-                    const xp = collectionRewardXp(total);
-                    return (
-                      <CollectionTile
-                        key={group.key}
-                        title={group.label}
-                        image={personalCoverImage(group.key) || cover || art.image}
-                        overlay={art.overlay}
-                        captured={captured}
-                        total={total}
-                        complete={total > 0 && captured >= total}
-                        claimed={isClaimed(rewardId)}
-                        claiming={claimingReward === rewardId}
-                        onOpen={() => setSelectedCollectionKey(group.key)}
-                        onClaim={() => handleClaimCollectionReward(rewardId, xp, group.label)}
-                      />
-                    );
-                  })}
-                  {/* Collections personnalisées (Premium) — même écusson, en tête de la grille */}
-                  {customCollections.collections.map((c) => {
-                    const items = customCollections.itemsFor(c.id);
-                    const total = items.length;
-                    const captured = items.reduce((acc, item) => {
-                      const match = findCollectionTile(browseAnimals, item.animal_name, item.scientific_name);
-                      return acc + (match?.captured ? 1 : 0);
-                    }, 0);
-                    const art = getCollectionArt(`custom:${c.id}`, c.name);
-                    return (
-                      <CollectionTile
-                        key={c.id}
-                        title={c.name}
-                        image={customCover(c.id) || art.image}
-                        overlay={art.overlay}
-                        captured={captured}
-                        total={total}
-                        complete={false}
-                        claimed={false}
-                        onOpen={() => setSelectedCustomId(c.id)}
-                        onClaim={() => {}}
-                      />
-                    );
-                  })}
-
-                  {subscribedZones.map((zone) => {
-                    const d = getDepartement(zone.departmentCode);
-                    const p = zoneProgress[zone.id] || { total: 0, captured: 0 };
-                    const isCity = zone.kind === 'city';
-                    const title = isCity ? (zone.cityName || t('bestiary.picker.defaultCityName')) : (d?.name || zone.departmentCode);
-                    const art = getZoneArt(zone.kind);
-                    const rewardId = `${ZONE_REWARD_PREFIX}${zone.id}`;
-                    const xp = collectionRewardXp(p.total);
-                    return (
-                      <CollectionTile
-                        key={zone.id}
-                        title={title}
-                        image={personalCoverImage(`zone:${zone.id}`) || art.image}
-                        overlay={art.overlay}
-                        captured={p.captured}
-                        total={p.total}
-                        complete={p.total > 0 && p.captured >= p.total}
-                        claimed={isClaimed(rewardId)}
-                        claiming={claimingReward === rewardId}
-                        onOpen={() => setSelectedZoneId(zone.id)}
-                        onClaim={() => handleClaimCollectionReward(rewardId, xp, title)}
-                      />
-                    );
-                  })}
-
-                  {myCollections.filter(({ group }) => !group.key.startsWith(THEME_PREFIX) && !group.key.startsWith('cat:')).map(({ group, total, captured }) => {
-                    const art = getCollectionArt(group.key, group.label);
-                    const rewardId = `${COLLECTION_REWARD_PREFIX}${group.key}`;
-                    const xp = collectionRewardXp(total);
-                    return (
-                      <CollectionTile
-                        key={group.key}
-                        title={group.label}
-                        image={personalCoverImage(group.key) || art.image}
-                        overlay={art.overlay}
-                        captured={captured}
-                        total={total}
-                        complete={total > 0 && captured >= total}
-                        claimed={isClaimed(rewardId)}
-                        claiming={claimingReward === rewardId}
-                        onOpen={() => setSelectedCollectionKey(group.key)}
-                        onClaim={() => handleClaimCollectionReward(rewardId, xp, group.label)}
-                      />
-                    );
-                  })}
-                </BoosterCarousel>
-              )}
+              <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">{t('bestiary.collections.title')}</h2>
+              <BoosterCarousel>
+                {visibleAdvent.map(c => {
+                  const open = () => navigate(`/advent/${c.id}`);
+                  return <CollectionTile key={c.id} title={themeTitle(c, i18n.language)} image={c.cover_url || adventCover} overlay={getCollectionArt('advent').overlay} captured={new Set(advent.submissions.filter(s => s.collection_id === c.id && s.approved_at).map(s => s.day)).size} total={24} complete={false} claimed={false} onClaim={open} onOpen={open} />;
+                })}
+                {/* Boosters Faunex débloqués au fil des niveaux ; les scellés restent visibles */}
+                {boosterEntries.map(({ group, total, captured, cover, minLevel }) => {
+                  const art = getCollectionArt(group.key, group.label);
+                  const rewardId = `${COLLECTION_REWARD_PREFIX}${group.key}`;
+                  const xp = collectionRewardXp(total);
+                  const locked = !isBoosterUnlocked(minLevel, explorerLevel);
+                  return (
+                    <CollectionTile
+                      key={group.key}
+                      title={group.label}
+                      image={cover || art.image}
+                      overlay={art.overlay}
+                      captured={captured}
+                      total={total}
+                      complete={!locked && total > 0 && captured >= total}
+                      claimed={isClaimed(rewardId)}
+                      claiming={claimingReward === rewardId}
+                      lockedLevel={locked ? minLevel : undefined}
+                      onOpen={() => locked
+                        ? toast(t('bestiary.collections.lockedToast', { level: minLevel, title: group.label }))
+                        : setSelectedCollectionKey(group.key)}
+                      onClaim={() => handleClaimCollectionReward(rewardId, xp, group.label)}
+                    />
+                  );
+                })}
+              </BoosterCarousel>
             </section>
           )}
 

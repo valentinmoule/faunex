@@ -3145,6 +3145,7 @@ export type Database = {
           event_kind: string
           final_badge_xp: number
           id: string
+          min_level: number
           published: boolean
           rule_categories: string[]
           rule_keywords: string[]
@@ -3166,6 +3167,7 @@ export type Database = {
           event_kind?: string
           final_badge_xp?: number
           id?: string
+          min_level?: number
           published?: boolean
           rule_categories?: string[]
           rule_keywords?: string[]
@@ -3187,6 +3189,7 @@ export type Database = {
           event_kind?: string
           final_badge_xp?: number
           id?: string
+          min_level?: number
           published?: boolean
           rule_categories?: string[]
           rule_keywords?: string[]

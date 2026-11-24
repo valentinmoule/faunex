@@ -141,3 +141,7 @@ Burst persists; `done` only for duplicates; overlays need z>60.
 ## Grid tiles load resized thumbnails
 
 Grids/feed/avatars use `imageUrl.ts` thumbnail helpers; originals only in detail/fullscreen.
+
+## Collections are level-gated boosters
+
+The Collections tab shows only admin `themed_collections` (plus Advent), sorted by `min_level` and sealed until `profiles.level` reaches it; users cannot add collections there, so boosters stay a progression reward.
