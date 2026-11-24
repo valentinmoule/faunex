@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { CalendarDays, Crown, Infinity as InfinityIcon, Lock } from 'lucide-react';
+import { CalendarDays, Crown, Infinity as InfinityIcon, Lock, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CategoryLeaderboard, { LeaderboardResetBadge } from '@/components/CategoryLeaderboard';
 import { Chip as RoundChip, categoryChipImage } from '@/components/CategoryChipRow';
@@ -21,17 +21,15 @@ export default function ExplorersLeaderboard() {
 
   return (
     <section className="px-4">
-      <div className="game-tabs grid grid-cols-2 w-full mt-1" role="tablist">
-        {([['global', t('social.leaderboard.tabGlobal')], ['explorers', t('social.leaderboard.tabExplorers')]] as const).map(([key, label]) => (
-          <Button variant="ghost" role="tab" aria-selected={scope === key} key={key} onClick={() => setScope(key)} className="game-tab min-w-0 flex-1 h-10 gap-1.5 px-2 text-xs">
-            {key === 'explorers' && !isPremium && <Lock className="w-3.5 h-3.5" />}
-            <span className="truncate">{label}</span>
-          </Button>
-        ))}
-      </div>
       <div role="radiogroup" aria-label={t('social.leaderboard.ranking')} className="no-scrollbar -mx-3 mb-1 mt-2 flex gap-1 overflow-x-auto px-3 pt-1 pb-0.5">
         <RoundChip selected={filter === 'week'} label={t('social.leaderboard.tabWeek')} onClick={() => setFilter('week')}>
           <span className="flex h-full w-full items-center justify-center bg-chip-all"><CalendarDays className="h-7 w-7 text-foreground" strokeWidth={2.25} /></span>
+        </RoundChip>
+        <RoundChip selected={scope === 'explorers'} label={t('social.leaderboard.chipFollowing')} onClick={() => setScope(scope === 'explorers' ? 'global' : 'explorers')}>
+          <span className="relative flex h-full w-full items-center justify-center bg-chip-all">
+            <Users className="h-7 w-7 text-foreground" strokeWidth={2.25} />
+            {!isPremium && <Lock className="absolute bottom-2 right-2 h-3.5 w-3.5 text-muted-foreground" />}
+          </span>
         </RoundChip>
         <RoundChip selected={filter === 'all'} label={t('social.leaderboard.tabAllTime')} onClick={() => setFilter('all')}>
           <span className="flex h-full w-full items-center justify-center bg-chip-all"><InfinityIcon className="h-7 w-7 text-foreground" strokeWidth={2.25} /></span>
@@ -70,6 +68,7 @@ export default function ExplorersLeaderboard() {
             period={filter === 'week' ? 'week' : 'all'}
             scope={scope === 'explorers' ? 'follows' : 'global'}
             showResetBadge={false}
+            metric={filter === 'week' || filter === 'all' ? 'xp' : 'captures'}
           />
         </>
       )}

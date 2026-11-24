@@ -192,11 +192,19 @@ const PullToDiscover = () => {
     };
   }, [enabled, loading, open, runDiscovery]);
 
+  // Le bouton « Autour de moi » du Terrain lance la même exploration.
+  useEffect(() => {
+    if (!session?.user) return;
+    const onRequest = () => { if (!loading) void runDiscovery(); };
+    window.addEventListener('faunex:discover-nearby', onRequest);
+    return () => window.removeEventListener('faunex:discover-nearby', onRequest);
+  }, [session?.user, loading, runDiscovery]);
+
   const progress = Math.min(1, pull / THRESHOLD);
   const ready = progress >= 1;
   const visible = pull > 2 || loading;
 
-  if (!enabled) return null;
+  if (!session?.user) return null;
 
   return (
     <>

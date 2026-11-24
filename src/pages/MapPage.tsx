@@ -8,7 +8,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 import '@maplibre/maplibre-gl-leaflet';
 import { buildFaunexMapStyle, makeTreePattern, pickZoneLayer, zoneKindOfLayer, ZONE_LAYERS, type ZoneKind } from '@/lib/faunexMap';
-import { Check, Compass, MapPin, Bird, Fish, Bug, Turtle, Shell, Snail, Waves, PawPrint } from 'lucide-react';
+import { Check, Compass, Radar, MapPin, Bird, Fish, Bug, Turtle, Shell, Snail, Waves, PawPrint } from 'lucide-react';
 import { FrogIcon } from '@/components/icons/FrogIcon';
 import { SpiderIcon } from '@/components/icons/SpiderIcon';
 import { supabase } from '@/integrations/supabase/client';
@@ -442,6 +442,13 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
               <Compass className="w-5 h-5 text-foreground" />
             </button>
           </div>
+          <button
+            onClick={() => window.dispatchEvent(new Event('faunex:discover-nearby'))}
+            className="flex items-center gap-2 rounded-full bg-card/90 backdrop-blur-xl border border-primary/40 shadow-card px-4 py-2 active:scale-95 transition-transform"
+          >
+            <Radar className="w-4 h-4 text-primary animate-[spin_4s_linear_infinite]" />
+            <span className="text-[13px] font-display font-bold text-foreground">{t('map.nearby.title')}</span>
+          </button>
 
         </div>
       </div>

@@ -57,6 +57,12 @@
   },
   "challenges": {
     "academyTitle": "Academy",
-    "academyDesc": "Continue your nature path and earn Seeds."
+    "academyDesc": "Continue your nature path and earn Seeds.",
+    "chapter": "Chapter {{n}}",
+    "progress": "{{done}}/{{total}} lessons",
+    "continue": "Continue",
+    "start": "Start",
+    "review": "Review",
+    "questsTitle": "Current quests"
   }
 }

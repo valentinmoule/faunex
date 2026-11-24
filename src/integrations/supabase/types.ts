@@ -4258,6 +4258,19 @@ export type Database = {
       }
       verified_iucn_status: { Args: { p_name: string }; Returns: string }
       withdraw_contest_photo: { Args: never; Returns: boolean }
+      xp_leaderboard: {
+        Args: { p_limit?: number; p_period?: string; p_scope?: string }
+        Returns: {
+          avatar_url: string
+          display_name: string
+          is_me: boolean
+          rank: number
+          total_players: number
+          user_id: string
+          username: string
+          xp: number
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"

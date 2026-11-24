@@ -57,6 +57,12 @@
   },
   "challenges": {
     "academyTitle": "Académie",
-    "academyDesc": "Continue ton parcours nature et gagne des Graines."
+    "academyDesc": "Continue ton parcours nature et gagne des Graines.",
+    "chapter": "Chapitre {{n}}",
+    "progress": "{{done}}/{{total}} leçons",
+    "continue": "Continuer",
+    "start": "Commencer",
+    "review": "Réviser",
+    "questsTitle": "Quêtes du moment"
   }
 }

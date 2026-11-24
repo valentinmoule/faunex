@@ -120,6 +120,8 @@ interface LeaderboardTarget {
   scope?: 'global' | 'follows';
   /** Masque la pastille « Réinitialisation » quand l'appelant l'affiche déjà dans son en-tête. */
   showResetBadge?: boolean;
+  /** Mesure : nombre de captures (défaut) ou XP gagnée (général uniquement). */
+  metric?: 'captures' | 'xp';
 }
 
 
@@ -127,7 +129,7 @@ interface LeaderboardTarget {
  *  réaffiche instantanément la dernière liste connue, rafraîchie en arrière-plan. */
 const boardCache = new Map<string, { rows: Row[]; mine: MyRank | null }>();
 
-const CategoryLeaderboard = ({ category, territory, inline, period = 'week', scope: forcedScope, showResetBadge = true }: LeaderboardTarget) => {
+const CategoryLeaderboard = ({ category, territory, inline, period = 'week', scope: forcedScope, showResetBadge = true, metric = 'captures' }: LeaderboardTarget) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -161,7 +163,8 @@ const CategoryLeaderboard = ({ category, territory, inline, period = 'week', sco
     }
   }, [isPremium, premiumLoading, scope, forcedScope]);
 
-  const cacheKey = `${isTerritory ? 'terr' : 'cat'}:${value}:${scope}:${period}`;
+  const useXp = metric === 'xp' && !isTerritory;
+  const cacheKey = `${isTerritory ? 'terr' : useXp ? 'xp' : 'cat'}:${value}:${scope}:${period}`;
 
   useEffect(() => {
     let cancelled = false;
@@ -174,6 +177,17 @@ const CategoryLeaderboard = ({ category, territory, inline, period = 'week', sco
       setReady(false);
     }
     const load = async () => {
+      if (useXp) {
+        const { data } = await supabase.rpc('xp_leaderboard', { p_limit: 20, p_scope: scope, p_period: period });
+        const all = ((data as unknown as Array<Row & { xp: number; total_players: number }> | null) || []).map(r => ({ ...r, rank: Number(r.rank), captures: Number(r.xp), rank_change: null }));
+        const meRow = all.find(r => r.is_me);
+        const nextRows = all.filter(r => r.rank <= 20).slice(0, 20);
+        const nextMine = meRow ? { rank: meRow.rank, captures: meRow.captures, total_players: Number(meRow.total_players), rank_change: null } : null;
+        boardCache.set(cacheKey, { rows: nextRows, mine: nextMine });
+        if (cancelled) return;
+        setRows(nextRows); setMine(nextMine); setReady(true);
+        return;
+      }
       const [top, me] = isTerritory
         ? await Promise.all([
             supabase.rpc('territory_leaderboard', { p_department: value, p_limit: 20, p_scope: scope } as never),
@@ -194,7 +208,7 @@ const CategoryLeaderboard = ({ category, territory, inline, period = 'week', sco
     };
     load();
     return () => { cancelled = true; };
-  }, [isTerritory, value, scope, period, cacheKey]);
+  }, [isTerritory, value, scope, period, cacheKey, useXp]);
 
 if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
 
@@ -298,7 +312,7 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
                                           </button>
                     <div className={`w-full ${cfg.height} ${cfg.block} rounded-2xl flex flex-col items-center justify-start gap-1.5 pt-2.5`}>
                       <span className="font-display font-black italic text-2xl leading-none text-foreground">{cfg.label}</span>
-                      <span className="rounded-full bg-card px-2.5 py-0.5 text-[11px] font-display font-bold text-foreground">{t('social.leaderboard.capturesShort', { count: r.captures })}</span>
+                      <span className="rounded-full bg-card px-2.5 py-0.5 text-[11px] font-display font-bold text-foreground">{t(useXp ? 'social.leaderboard.xpShort' : 'social.leaderboard.capturesShort', { count: r.captures })}</span>
                     </div>
                   </div>
                 );
@@ -324,7 +338,7 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
                   {r.is_me ? t('social.leaderboard.you') : r.display_name || r.username || t('social.leaderboard.defaultName')}
                 </p>
                 <RankMovement change={r.rank_change} />
-                <span className="text-[13px] font-display font-bold text-foreground shrink-0">{r.captures}</span>
+                <span className="text-[13px] font-display font-bold text-foreground shrink-0">{useXp ? t('social.leaderboard.xpShort', { count: r.captures }) : r.captures}</span>
                 </button>
               </li>
             ))}
@@ -341,7 +355,7 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
                   </div>
                   <p className="flex-1 min-w-0 truncate text-[13px] font-display font-bold text-primary">{t('social.leaderboard.you')}</p>
                   <RankMovement change={mine.rank_change} />
-                  <span className="text-[13px] font-display font-bold text-foreground shrink-0">{mine.captures}</span>
+                  <span className="text-[13px] font-display font-bold text-foreground shrink-0">{useXp ? t('social.leaderboard.xpShort', { count: mine.captures }) : mine.captures}</span>
                 </div>
               </li>
             )}
