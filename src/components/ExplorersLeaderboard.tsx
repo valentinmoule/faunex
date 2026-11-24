@@ -84,7 +84,7 @@ export default function ExplorersLeaderboard() {
         <>
           <div className="flex h-[34px] items-center justify-between gap-3 px-1 pt-1">
             <h2 className="min-w-0 truncate text-[15px] font-display font-bold text-foreground">
-              {filter === 'week' ? t('social.leaderboard.titleWeek') : filter === 'all' ? t('social.leaderboard.titleAllTime') : t(`bestiary.categoryNames.${filter}`, { defaultValue: filter })}
+              {filter === 'week' && scope !== 'explorers' ? t('social.leaderboard.league.title') : filter === 'week' ? t('social.leaderboard.titleWeek') : filter === 'all' ? t('social.leaderboard.titleAllTime') : t(`bestiary.categoryNames.${filter}`, { defaultValue: filter })}
             </h2>
             {filter === 'week' && <LeaderboardResetBadge className="shrink-0" />}
           </div>
@@ -95,7 +95,7 @@ export default function ExplorersLeaderboard() {
             period={filter === 'week' ? 'week' : 'all'}
             scope={scope === 'explorers' ? 'follows' : 'global'}
             showResetBadge={false}
-            metric={filter === 'week' || filter === 'all' ? 'xp' : 'captures'}
+            metric={filter === 'week' && scope !== 'explorers' ? 'league' : filter === 'week' || filter === 'all' ? 'xp' : 'captures'}
           />
         </>
       )}

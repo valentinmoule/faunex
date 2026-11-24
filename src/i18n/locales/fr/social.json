@@ -222,7 +222,24 @@
       "noMovement": "Position inchangée depuis hier",
       "tabWeek": "Semaine",
       "tabAllTime": "Tout temps",
-      "tabExplorers": "Explorateurs"
+      "tabExplorers": "Explorateurs",
+      "league": {
+        "title": "Ma ligue de la semaine",
+        "name": "Ligue {{tier}}",
+        "rules": "Poule de {{size}} explorateurs · le top 5 monte, les 5 derniers descendent dimanche soir",
+        "rulesTop": "Ligue la plus haute · reste dans le top pour t'y maintenir",
+        "promoLine": "Zone de montée au-dessus",
+        "demoteLine": "Zone de descente",
+        "tiers": {
+          "0": "Débutant",
+          "1": "Bronze",
+          "2": "Argent",
+          "3": "Or",
+          "4": "Platine",
+          "5": "Diamant",
+          "6": "Élite"
+        }
+      }
     },
     "discordInvite": {
       "closeAriaLabel": "Fermer l'invitation Discord",

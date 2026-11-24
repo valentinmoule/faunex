@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -21,6 +21,8 @@ interface Row {
   captures: number;
   is_me: boolean;
   rank_change?: number | null;
+  /** Nombre de captures affiché en rappel à côté de l'XP. */
+  captureCount?: number;
 }
 
 interface MyRank {
@@ -28,7 +30,18 @@ interface MyRank {
   captures: number;
   total_players: number;
   rank_change?: number | null;
+  captureCount?: number;
 }
+
+/** Infos de la poule de ligue de la semaine. */
+interface LeagueInfo { tier: number; size: number }
+
+/** Zones d'une poule : top 5 montent (sauf Élite), 5 derniers descendent si ≥ 10 joueurs (sauf Débutant). */
+export const leagueZone = (rank: number, points: number, tier: number, size: number): 'up' | 'down' | 'stay' => {
+  if (rank <= 5 && tier < 6 && points > 0) return 'up';
+  if (size >= 10 && tier > 0 && rank > size - 5) return 'down';
+  return 'stay';
+};
 
 /** Milliseconds until next Sunday 00:00 (week runs Sunday → Sunday). */
 const msUntilReset = () => {
@@ -101,6 +114,8 @@ const RankMovement = ({ change, compact = false }: { change?: number | null; com
   );
 };
 
+export const LEAGUE_EMOJI = ['🌱', '🥉', '🥈', '🥇', '💎', '💠', '👑'];
+
 const PODIUM = [
   { height: 'h-32', block: 'bg-podium-gold', ring: 'ring-amber/50', badge: 'bg-amber text-amber-dark', label: '1', avatar: 'lg' as const, order: 'order-2' },
   { height: 'h-24', block: 'bg-podium-silver', ring: 'ring-muted-foreground/30', badge: 'bg-muted text-foreground', label: '2', avatar: 'md' as const, order: 'order-1' },
@@ -121,7 +136,7 @@ interface LeaderboardTarget {
   /** Masque la pastille « Réinitialisation » quand l'appelant l'affiche déjà dans son en-tête. */
   showResetBadge?: boolean;
   /** Mesure : nombre de captures (défaut) ou XP gagnée (général uniquement). */
-  metric?: 'captures' | 'xp';
+  metric?: 'captures' | 'xp' | 'league';
 }
 
 
@@ -163,8 +178,10 @@ const CategoryLeaderboard = ({ category, territory, inline, period = 'week', sco
     }
   }, [isPremium, premiumLoading, scope, forcedScope]);
 
-  const useXp = metric === 'xp' && !isTerritory;
-  const cacheKey = `${isTerritory ? 'terr' : useXp ? 'xp' : 'cat'}:${value}:${scope}:${period}`;
+  const isLeague = metric === 'league' && !isTerritory;
+  const useXp = (metric === 'xp' || isLeague) && !isTerritory;
+  const cacheKey = `${isTerritory ? 'terr' : isLeague ? 'league' : useXp ? 'xp' : 'cat'}:${value}:${scope}:${period}`;
+  const [league, setLeague] = useState<LeagueInfo | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -177,12 +194,21 @@ const CategoryLeaderboard = ({ category, territory, inline, period = 'week', sco
       setReady(false);
     }
     const load = async () => {
+      if (isLeague) {
+        const { data } = await supabase.rpc('league_board');
+        const list = (data as unknown as Array<{ rank: number; user_id: string; display_name: string | null; username: string | null; avatar_url: string | null; points: number; captures: number; is_me: boolean; tier: number; group_size: number }> | null) || [];
+        const nextRows: Row[] = list.map(r => ({ rank: Number(r.rank), user_id: r.user_id, display_name: r.display_name, username: r.username, avatar_url: r.avatar_url, captures: Number(r.points), captureCount: Number(r.captures), is_me: r.is_me, rank_change: null }));
+        if (cancelled) return;
+        setLeague(list[0] ? { tier: Number(list[0].tier), size: Number(list[0].group_size) } : null);
+        setRows(nextRows); setMine(null); setReady(true);
+        return;
+      }
       if (useXp) {
-        const { data } = await supabase.rpc('xp_leaderboard', { p_limit: 20, p_scope: scope, p_period: period });
-        const all = ((data as unknown as Array<Row & { xp: number; total_players: number }> | null) || []).map(r => ({ ...r, rank: Number(r.rank), captures: Number(r.xp), rank_change: null }));
+        const { data } = await supabase.rpc('xp_leaderboard_v2', { p_limit: 20, p_scope: scope, p_period: period });
+        const all = ((data as unknown as Array<Row & { xp: number; captures: number; total_players: number }> | null) || []).map(r => ({ ...r, rank: Number(r.rank), captures: Number(r.xp), captureCount: Number(r.captures), rank_change: null }));
         const meRow = all.find(r => r.is_me);
         const nextRows = all.filter(r => r.rank <= 20).slice(0, 20);
-        const nextMine = meRow ? { rank: meRow.rank, captures: meRow.captures, total_players: Number(meRow.total_players), rank_change: null } : null;
+        const nextMine = meRow ? { rank: meRow.rank, captures: meRow.captures, captureCount: meRow.captureCount, total_players: Number(meRow.total_players), rank_change: null } : null;
         boardCache.set(cacheKey, { rows: nextRows, mine: nextMine });
         if (cancelled) return;
         setRows(nextRows); setMine(nextMine); setReady(true);
@@ -208,7 +234,7 @@ const CategoryLeaderboard = ({ category, territory, inline, period = 'week', sco
     };
     load();
     return () => { cancelled = true; };
-  }, [isTerritory, value, scope, period, cacheKey, useXp]);
+  }, [isTerritory, value, scope, period, cacheKey, useXp, isLeague]);
 
 if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
 
@@ -280,6 +306,15 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
             </p>
 ) : (
             <>
+            {isLeague && league && (
+              <div className="mx-1 mt-2 flex items-center gap-3 rounded-2xl bg-muted/60 px-4 py-3">
+                <span className="text-3xl leading-none" aria-hidden>{LEAGUE_EMOJI[league.tier] ?? '🌱'}</span>
+                <div className="min-w-0">
+                  <p className="text-[15px] font-display font-extrabold text-foreground">{t('social.leaderboard.league.name', { tier: t(`social.leaderboard.league.tiers.${league.tier}`) })}</p>
+                  <p className="text-[12px] font-display text-muted-foreground">{t(league.tier >= 6 ? 'social.leaderboard.league.rulesTop' : 'social.leaderboard.league.rules', { size: league.size })}</p>
+                </div>
+              </div>
+            )}
             {/* Podium */}
             <div className="mx-4 mt-4 mb-5 p-1">
               <div className="flex items-end justify-center gap-3">
@@ -313,6 +348,7 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
                     <div className={`w-full ${cfg.height} ${cfg.block} rounded-2xl flex flex-col items-center justify-start gap-1.5 pt-2.5`}>
                       <span className="font-display font-black italic text-2xl leading-none text-foreground">{cfg.label}</span>
                       <span className="rounded-full bg-card px-2.5 py-0.5 text-[11px] font-display font-bold text-foreground">{t(useXp ? 'social.leaderboard.xpShort' : 'social.leaderboard.capturesShort', { count: r.captures })}</span>
+                      {useXp && r.captureCount !== undefined && <span className="text-[10px] font-display font-semibold text-foreground/70">{t('social.leaderboard.capturesShort', { count: r.captureCount })}</span>}
                     </div>
                   </div>
                 );
@@ -322,8 +358,20 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
 
 
           <ul className="divide-y divide-border">
-            {rest.map((r) => (
-              <li key={r.user_id} className={r.is_me ? 'bg-primary/5' : ''}>
+            {rest.map((r, i) => {
+              const zone = isLeague && league ? leagueZone(r.rank, r.captures, league.tier, league.size) : null;
+              const prevZone = isLeague && league && i > 0 ? leagueZone(rest[i - 1].rank, rest[i - 1].captures, league.tier, league.size) : null;
+              const showDownLabel = zone === 'down' && prevZone !== 'down';
+              const showUpEnd = isLeague && league && i > 0 && prevZone === 'up' && zone !== 'up';
+              return (
+              <Fragment key={r.user_id}>
+              {showUpEnd && (
+                <li className="flex items-center gap-2 px-5 py-1.5 text-[11px] font-display font-bold text-primary"><ArrowUp className="h-3 w-3" strokeWidth={2.6} />{t('social.leaderboard.league.promoLine')}</li>
+              )}
+              {showDownLabel && (
+                <li className="flex items-center gap-2 px-5 py-1.5 text-[11px] font-display font-bold text-destructive"><ArrowDown className="h-3 w-3" strokeWidth={2.6} />{t('social.leaderboard.league.demoteLine')}</li>
+              )}
+              <li className={`${r.is_me ? 'bg-primary/5' : ''} ${zone === 'up' ? 'border-l-[3px] border-l-primary' : zone === 'down' ? 'border-l-[3px] border-l-destructive' : ''}`}>
                 <button
                   type="button"
                   onClick={() => { if (!r.is_me) navigate(`/explorer/${r.user_id}/collection`); }}
@@ -338,10 +386,15 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
                   {r.is_me ? t('social.leaderboard.you') : r.display_name || r.username || t('social.leaderboard.defaultName')}
                 </p>
                 <RankMovement change={r.rank_change} />
-                <span className="text-[13px] font-display font-bold text-foreground shrink-0">{useXp ? t('social.leaderboard.xpShort', { count: r.captures }) : r.captures}</span>
+                <span className="flex shrink-0 flex-col items-end leading-tight">
+                  <span className="text-[13px] font-display font-bold text-foreground">{useXp ? t('social.leaderboard.xpShort', { count: r.captures }) : r.captures}</span>
+                  {useXp && r.captureCount !== undefined && <span className="text-[10px] font-display text-muted-foreground">{t('social.leaderboard.capturesShort', { count: r.captureCount })}</span>}
+                </span>
                 </button>
               </li>
-            ))}
+              </Fragment>
+              );
+            })}
             {/* L'utilisateur absent du top visible est ajouté à la fin de la liste. */}
             {mine && !rows.some(r => r.is_me) && (
               <li className="bg-primary/5">
@@ -355,7 +408,10 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
                   </div>
                   <p className="flex-1 min-w-0 truncate text-[13px] font-display font-bold text-primary">{t('social.leaderboard.you')}</p>
                   <RankMovement change={mine.rank_change} />
-                  <span className="text-[13px] font-display font-bold text-foreground shrink-0">{useXp ? t('social.leaderboard.xpShort', { count: mine.captures }) : mine.captures}</span>
+                  <span className="flex shrink-0 flex-col items-end leading-tight">
+                    <span className="text-[13px] font-display font-bold text-foreground">{useXp ? t('social.leaderboard.xpShort', { count: mine.captures }) : mine.captures}</span>
+                    {useXp && mine.captureCount !== undefined && <span className="text-[10px] font-display text-muted-foreground">{t('social.leaderboard.capturesShort', { count: mine.captureCount })}</span>}
+                  </span>
                 </div>
               </li>
             )}

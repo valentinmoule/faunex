@@ -953,6 +953,13 @@
       "when": 1795550300952,
       "tag": "0133_learning_rewards_xp",
       "breakpoints": true
+    },
+    {
+      "idx": 134,
+      "version": "7",
+      "when": 1795552187198,
+      "tag": "0134_league_board_and_capture_counts",
+      "breakpoints": true
     }
   ]
 }

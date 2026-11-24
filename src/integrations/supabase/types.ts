@@ -3947,6 +3947,21 @@ export type Database = {
         Args: { p_amount: number; p_user_id: string }
         Returns: undefined
       }
+      league_board: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          captures: number
+          display_name: string
+          group_size: number
+          is_me: boolean
+          points: number
+          rank: number
+          tier: number
+          user_id: string
+          username: string
+        }[]
+      }
       league_join: { Args: { p_user_id: string }; Returns: string }
       league_standings: {
         Args: never
@@ -4262,6 +4277,20 @@ export type Database = {
         Args: { p_limit?: number; p_period?: string; p_scope?: string }
         Returns: {
           avatar_url: string
+          display_name: string
+          is_me: boolean
+          rank: number
+          total_players: number
+          user_id: string
+          username: string
+          xp: number
+        }[]
+      }
+      xp_leaderboard_v2: {
+        Args: { p_limit?: number; p_period?: string; p_scope?: string }
+        Returns: {
+          avatar_url: string
+          captures: number
           display_name: string
           is_me: boolean
           rank: number
