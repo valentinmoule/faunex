@@ -192,22 +192,22 @@ export default function PhotoContestTab() {
 
       {/* Concours à venir : ajouter sa photo et récompenses */}
       {view === 'upcoming' ? (
-      <section className="rounded-3xl border border-border bg-gradient-to-b from-primary/10 via-card to-card p-4">
-        <h2 className="text-base font-display font-bold text-foreground">{t('social.contest.myEntryTitle')}</h2>
-        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t('social.contest.myEntryHint')}</p>
-        <p className="mt-4 text-sm font-display font-bold text-foreground">{t('social.contest.rewardsTitle')}</p>
-        <ul className="mt-2 space-y-2">
-          <li className="flex items-start gap-2.5 text-sm text-foreground">
-            <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
-            <span>{t('social.contest.rewardEffect')}</span>
-          </li>
-          <li className="flex items-start gap-2.5 text-sm text-foreground">
-            <Award className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
-            <span>{t('social.contest.rewardBadge', { badge: t('social.contest.badge') })}</span>
-          </li>
-        </ul>
+      <section>
+        <h2 className="text-xl font-display font-extrabold tracking-tight text-foreground">{t('social.contest.myEntryTitle')}</h2>
+        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{t('social.contest.myEntryHint')}</p>
+        <p className="mt-5 text-[11px] font-display font-bold uppercase tracking-wider text-muted-foreground">{t('social.contest.rewardsTitle')}</p>
+        <div className="mt-2 grid grid-cols-2 gap-3">
+          <div className="flex flex-col gap-3 rounded-3xl bg-secondary/60 p-4">
+            <Sparkles className="h-7 w-7 text-primary" strokeWidth={2.2} aria-hidden />
+            <span className="font-display text-sm font-bold leading-snug text-foreground">{t('social.contest.rewardEffect')}</span>
+          </div>
+          <div className="flex flex-col gap-3 rounded-3xl bg-accent/40 p-4">
+            <Award className="h-7 w-7 text-primary" strokeWidth={2.2} aria-hidden />
+            <span className="font-display text-sm font-bold leading-snug text-foreground">{t('social.contest.rewardBadge', { badge: t('social.contest.badge') })}</span>
+          </div>
+        </div>
         {myEntry ? (
-          <div className="mt-3 flex items-center gap-3">
+          <div className="mt-5 flex items-center gap-3">
             <div className="w-24 shrink-0"><Tile image={myEntry.image_url} rarity={myEntry.rarity} name={speciesName(myEntry.animal_name)} onOpen={() => openCapture(myEntry.capture_id)} /></div>
             <div className="min-w-0 space-y-2">
               <p className="text-sm text-muted-foreground">{t('social.contest.submitted')}</p>
@@ -215,7 +215,7 @@ export default function PhotoContestTab() {
             </div>
           </div>
         ) : (
-          <Button className="mt-4 w-full" onClick={openPicker}>{t('social.contest.submit')}</Button>
+          <Button className="mt-5 w-full" onClick={openPicker}>{t('social.contest.submit')}</Button>
         )}
       </section>
       ) : view === 'current' ? (<>
