@@ -574,7 +574,8 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
       </a>
 
       <Sheet open={!!zone} onOpenChange={(o) => { if (!o) { zoneRequest.current?.abort(); setZone(null); setHighlight([]); } }}>
-        <SheetContent side="bottom" className="max-h-[75vh] overflow-y-auto z-[1200]">
+        <SheetContent side="bottom" className="max-h-[75vh] overflow-y-auto z-[1200] rounded-t-[28px] duration-500 data-[state=open]:ease-[cubic-bezier(0.22,1,0.36,1)]">
+          <div className="mx-auto -mt-2 mb-2 h-1.5 w-10 rounded-full bg-muted" aria-hidden />
           <SheetHeader>
             <SheetTitle className="font-display text-left">
               {zone?.name || t(`map.zones.kind.${zone?.kind ?? 'forest'}`)}
@@ -599,7 +600,7 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
               </div>
             );
           })()}
-          <div className="mt-4 divide-y divide-border">
+          <div className="mt-4">
             {zone?.species === null && [0, 1, 2].map((i) => (
               <div key={i} className="flex items-center gap-3 py-2.5">
                 <div className="w-12 h-12 rounded-xl bg-muted animate-pulse shrink-0" />
@@ -609,30 +610,47 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
                 </div>
               </div>
             ))}
-            {zone?.species?.map((s) => {
-              const Icon = getBestiaryCategoryIcon(s.category || '');
-              const captured = capturedNames.has(s.name.trim().toLowerCase());
-              return (
-                <div key={s.scientific_name} className="flex items-center gap-3 py-2.5">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${captured ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground/60'}`}>
-                    <Icon className="w-6 h-6" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-display font-bold text-sm text-foreground truncate">{speciesName(s.name)}</p>
-                    <p className="text-[11px] italic text-muted-foreground truncate">{s.scientific_name}</p>
-                  </div>
-                  <div className="flex flex-col items-end gap-1 shrink-0">
-                    <RarityBadge rarity={s.rarity} plain />
-                    {captured && (
-                      <span className="flex items-center gap-0.5 text-[10px] font-semibold text-primary">
-                        <Check className="w-3 h-3" strokeWidth={3} />
-                        {t('map.zones.captured')}
-                      </span>
-                    )}
-                  </div>
+            {zone?.species && (() => {
+              const isGot = (n: string) => capturedNames.has(n.trim().toLowerCase());
+              const groups = [
+                { key: 'todo', label: t('map.zones.toFind'), items: zone.species.filter((s) => !isGot(s.name)) },
+                { key: 'got', label: t('map.zones.alreadyCaptured'), items: zone.species.filter((s) => isGot(s.name)) },
+              ].filter((g) => g.items.length);
+              let i = 0;
+              return groups.map((g) => (
+                <div key={g.key} className="pt-3 first:pt-0">
+                  <p className="text-[11px] font-display font-bold uppercase tracking-[0.08em] text-muted-foreground mb-1">
+                    {g.label} · {g.items.length}
+                  </p>
+                  {g.items.map((s) => {
+                    const Icon = getBestiaryCategoryIcon(s.category || '');
+                    const captured = g.key === 'got';
+                    const delay = 60 * i++;
+                    return (
+                      <div
+                        key={s.scientific_name}
+                        className="flex items-center gap-3 py-2.5 animate-in fade-in slide-in-from-bottom-2 fill-mode-both duration-500"
+                        style={{ animationDelay: `${delay}ms` }}
+                      >
+                        <div className={`relative w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${captured ? 'bg-primary/12 text-primary' : 'bg-muted text-muted-foreground/70'}`}>
+                          <Icon className="w-6 h-6" />
+                          {captured && (
+                            <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center ring-2 ring-background">
+                              <Check className="w-3 h-3" strokeWidth={3.5} />
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className={`font-display font-bold text-sm truncate ${captured ? 'text-foreground' : 'text-foreground/85'}`}>{speciesName(s.name)}</p>
+                          <p className="text-[11px] italic text-muted-foreground truncate">{s.scientific_name}</p>
+                        </div>
+                        <RarityBadge rarity={s.rarity} plain className="shrink-0" />
+                      </div>
+                    );
+                  })}
                 </div>
-              );
-            })}
+              ));
+            })()}
           </div>
           {zone?.species && zone.species.length === 0 && (
             <p className="text-[13px] text-muted-foreground py-4 text-center">

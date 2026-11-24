@@ -90,7 +90,9 @@
       "error": "Couldn't load this area's species right now.",
       "captured": "Captured",
       "source": "Public wildlife observations · GBIF",
-      "progress": "{{got}}/{{total}} captured here"
+      "progress": "{{got}}/{{total}} captured here",
+      "toFind": "To find here",
+      "alreadyCaptured": "Already captured"
     },
     "controls": {
       "myCaptures": "My captures · {{count}}",
