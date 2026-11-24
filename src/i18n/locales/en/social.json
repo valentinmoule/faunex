@@ -271,15 +271,6 @@
       "rewardBadge": "The “{{badge}}” badge"
     },
     "explorersTitle": "Explorers",
-    "searchExplorers": "Search explorers",
-    "stories": {
-      "you": "You",
-      "add": "Add a story",
-      "pickTitle": "Add to your story",
-      "pickHint": "Visible to your followers for 24 h",
-      "publish": "Publish ({{count}})",
-      "empty": "No approved captures yet",
-      "published": "Story published for 24 h"
-    }
+    "searchExplorers": "Search explorers"
   }
 }

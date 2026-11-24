@@ -13,7 +13,6 @@ import { type AnimalCard, type Rarity } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
 import { thumbUrl, avatarThumbUrl } from '@/lib/imageUrl';
 import { useAuth } from '@/contexts/AuthContext';
-import StoriesBar from '@/components/social/StoriesBar';
 import { toast } from 'sonner';
 import { followUser as followUserUtil } from '@/lib/followUtils';
 import { PremiumAvatar } from '@/components/PremiumAvatar';
@@ -729,9 +728,6 @@ const ExplorersPage = () => {
       </div>
 
       <div className="max-w-lg mx-auto">
-        {feedTab === 'feed' && session?.user?.id && feedFollowingIds && (
-          <StoriesBar userId={session.user.id} followingIds={feedFollowingIds} onSelectCard={setSelectedCard} />
-        )}
         {feedTab === 'leaderboard' ? (
           <ExplorersLeaderboard />
         ) : feedTab === 'contest' ? (

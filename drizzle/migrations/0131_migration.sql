@@ -1,0 +1,1 @@
+COMMENT ON TABLE public.stories IS 'DEPRECATED: stories feature removed from the app; drop once the published app no longer reads it.';
