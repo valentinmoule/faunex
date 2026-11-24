@@ -221,7 +221,7 @@
       "modeHonors": "Hall of fame",
       "tabLeague": "League",
       "league": {
-        "joinTitle": "Make a capture to join this week's league",
+        "joinTitle": "Make a capture or finish a lesson to join this week's league",
         "daysLeft": "Ends in {{time}}",
         "title": "My league this week",
         "name": "{{tier}} League",
@@ -237,7 +237,10 @@
           "4": "Platinum",
           "5": "Diamond",
           "6": "Elite"
-        }
+        },
+        "joinDesc": "You'll be placed in a group of 20 active explorers. The top 5 move up a division on Sunday night.",
+        "joinCapture": "Make a capture",
+        "joinLesson": "Finish a lesson"
       }
     },
     "discordInvite": {

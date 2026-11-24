@@ -221,7 +221,7 @@
       "modeHonors": "Palmarès",
       "tabLeague": "Ligue",
       "league": {
-        "joinTitle": "Prends une capture pour entrer dans la ligue de la semaine",
+        "joinTitle": "Fais une capture ou termine une leçon pour rejoindre la ligue de la semaine",
         "daysLeft": "Fin dans {{time}}",
         "title": "Ma ligue de la semaine",
         "name": "Ligue {{tier}}",
@@ -237,7 +237,10 @@
           "4": "Platine",
           "5": "Diamant",
           "6": "Élite"
-        }
+        },
+        "joinDesc": "Tu seras placé dans une poule de 20 explorateurs actifs. Le top 5 monte en division supérieure dimanche soir.",
+        "joinCapture": "Faire une capture",
+        "joinLesson": "Terminer une leçon"
       }
     },
     "discordInvite": {

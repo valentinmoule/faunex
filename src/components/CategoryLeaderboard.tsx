@@ -218,6 +218,7 @@ const CategoryLeaderboard = ({ category, territory, inline, period = 'week', sco
   const useXp = (metric === 'xp' || isLeague) && !isTerritory;
   const cacheKey = `${isTerritory ? 'terr' : isLeague ? 'league' : useXp ? 'xp' : 'cat'}:${value}:${scope}:${period}`;
   const [league, setLeague] = useState<LeagueInfo | null>(null);
+  const [upcomingTier, setUpcomingTier] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -234,6 +235,10 @@ const CategoryLeaderboard = ({ category, territory, inline, period = 'week', sco
         const { data } = await supabase.rpc('league_board');
         const list = (data as unknown as Array<{ rank: number; user_id: string; display_name: string | null; username: string | null; avatar_url: string | null; points: number; captures: number; is_me: boolean; tier: number; group_size: number }> | null) || [];
         const nextRows: Row[] = list.map(r => ({ rank: Number(r.rank), user_id: r.user_id, display_name: r.display_name, username: r.username, avatar_url: r.avatar_url, captures: Number(r.points), captureCount: Number(r.captures), is_me: r.is_me, rank_change: null }));
+        if (!list.length) {
+          const { data: tierData } = await supabase.rpc('my_league_upcoming_tier');
+          if (!cancelled) setUpcomingTier(Number(tierData ?? 0));
+        }
         if (cancelled) return;
         setLeague(list[0] ? { tier: Number(list[0].tier), size: Number(list[0].group_size) } : null);
         setRows(nextRows); setMine(null); setReady(true);
@@ -333,9 +338,16 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
               </button>
             </div>
           ) : rows.length === 0 && isLeague && ready ? (
-            <div className="px-6 py-8 text-center">
-              <LeagueHeader tier={0} size={0} />
-              <p className="mt-6 text-[15px] font-display font-bold text-foreground">{t('social.leaderboard.league.joinTitle')}</p>
+            <div className="pb-8 text-center">
+              <LeagueHeader tier={upcomingTier} size={0} />
+              <div className="mx-auto mt-6 max-w-xs px-2">
+                <p className="text-[18px] font-display font-extrabold leading-snug text-foreground">{t('social.leaderboard.league.joinTitle')}</p>
+                <p className="mt-2 text-[13px] font-display text-muted-foreground leading-relaxed">{t('social.leaderboard.league.joinDesc')}</p>
+                <div className="mt-6 flex flex-col gap-3">
+                  <button type="button" onClick={() => navigate('/capture')} className="h-12 rounded-2xl bg-primary text-[14px] font-display font-extrabold uppercase tracking-wide text-primary-foreground shadow-[0_4px_0_hsl(var(--primary-dark,var(--primary))/0.6)] active:translate-y-[3px] active:shadow-none transition-all">{t('social.leaderboard.league.joinCapture')}</button>
+                  <button type="button" onClick={() => navigate('/apprendre')} className="h-12 rounded-2xl border-2 border-border bg-card text-[14px] font-display font-extrabold uppercase tracking-wide text-foreground shadow-[0_4px_0_hsl(var(--border))] active:translate-y-[3px] active:shadow-none transition-all">{t('social.leaderboard.league.joinLesson')}</button>
+                </div>
+              </div>
             </div>
           ) : rows.length === 0 ? (
             <p className="px-5 py-10 text-center text-[13px] font-display text-muted-foreground">

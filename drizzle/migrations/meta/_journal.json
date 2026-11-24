@@ -967,6 +967,13 @@
       "when": 1795552580255,
       "tag": "0135_display_name_follows_username",
       "breakpoints": true
+    },
+    {
+      "idx": 136,
+      "version": "7",
+      "when": 1795556302441,
+      "tag": "0136_league_join_on_first_xp",
+      "breakpoints": true
     }
   ]
 }

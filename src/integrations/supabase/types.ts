@@ -3962,6 +3962,7 @@ export type Database = {
           username: string
         }[]
       }
+      league_current_group: { Args: { p_user_id: string }; Returns: string }
       league_join: { Args: { p_user_id: string }; Returns: string }
       league_standings: {
         Args: never
@@ -4045,6 +4046,7 @@ export type Database = {
           week_start: string
         }[]
       }
+      my_league_upcoming_tier: { Args: never; Returns: number }
       my_premium_access: { Args: never; Returns: boolean }
       my_referral_code: { Args: never; Returns: string }
       my_species_progress: {
