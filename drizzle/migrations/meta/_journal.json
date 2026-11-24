@@ -974,6 +974,13 @@
       "when": 1795556302441,
       "tag": "0136_league_join_on_first_xp",
       "breakpoints": true
+    },
+    {
+      "idx": 137,
+      "version": "7",
+      "when": 1795558957030,
+      "tag": "0137_weekly_quest_chest",
+      "breakpoints": true
     }
   ]
 }

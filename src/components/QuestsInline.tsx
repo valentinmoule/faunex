@@ -52,6 +52,9 @@ const QuestsInline = () => {
   const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState<string | null>(null);
   const [celebrating, setCelebrating] = useState<string | null>(null);
+  const [chestClaimed, setChestClaimed] = useState(false);
+  const [chestBusy, setChestBusy] = useState(false);
+  const CHEST_XP = 50;
 
   const fetchQuests = async () => {
     if (!session?.user) return;
@@ -63,6 +66,8 @@ const QuestsInline = () => {
       .eq('quest_date', weekStart)
       .order('created_at');
     if (!error && data) setQuests(data as Quest[]);
+    const { data: chest } = await supabase.from('weekly_chest_claims').select('week_start').eq('user_id', session.user.id).eq('week_start', weekStart).maybeSingle();
+    setChestClaimed(!!chest);
     if (!error && (!data || data.length === 0)) {
       await supabase.rpc('ensure_weekly_quests');
       const { data: retry } = await supabase
@@ -133,6 +138,17 @@ const QuestsInline = () => {
     window.setTimeout(() => setCelebrating((c) => (c === questId ? null : c)), 1400);
   };
 
+  const openChest = async () => {
+    setChestBusy(true);
+    const { data, error } = await supabase.rpc('claim_weekly_chest', { p_week: startOfWeekISO() });
+    setChestBusy(false);
+    if (error || !data) { toast.error(t('profile.quests.claimError')); return; }
+    setChestClaimed(true);
+    setCelebrating('chest');
+    window.setTimeout(() => setCelebrating((c) => (c === 'chest' ? null : c)), 1400);
+    toast.success(t('profile.quests.xpEarned', { xp: data }));
+  };
+
   const claimedCount = quests.filter((q) => q.claimed).length;
   const totalXp = quests.reduce((sum, q) => sum + q.xp_reward, 0);
   const earnedXp = quests.filter((q) => q.claimed).reduce((sum, q) => sum + q.xp_reward, 0);
@@ -158,7 +174,7 @@ const QuestsInline = () => {
               {perfect ? t('profile.quests.perfectTitle') : t('profile.quests.weekTitle')}
             </h3>
             <p className="mt-1 text-[12px] font-display font-semibold text-muted-foreground">
-              {perfect ? t('profile.quests.perfectBody') : t('profile.quests.xpLeft', { xp: totalXp - earnedXp })}
+              {chestClaimed ? t('profile.quests.perfectBody') : perfect ? t('profile.quests.chestReady', { xp: CHEST_XP }) : t('profile.quests.chestGoal', { xp: CHEST_XP })}
             </p>
           </div>
           <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-card px-2.5 py-1 text-[11px] font-display font-extrabold text-foreground shadow-card">
@@ -181,15 +197,30 @@ const QuestsInline = () => {
                   </span>
                 );
               })}
-              <span data-open={perfect} className="quest-chest flex h-14 w-14 items-center justify-center rounded-2xl" aria-label={t('profile.quests.chest')}>
-                <Gift className="h-7 w-7" strokeWidth={2.2} />
+              <span data-open={perfect && !chestClaimed} className="quest-chest relative flex h-14 w-14 items-center justify-center rounded-2xl" aria-label={t('profile.quests.chest')}>
+                {chestClaimed ? <Check className="h-7 w-7" strokeWidth={3} /> : <Gift className="h-7 w-7" strokeWidth={2.2} />}
+                <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-amber px-1.5 py-0.5 text-[10px] font-display font-black text-primary-foreground">+{CHEST_XP} XP</span>
               </span>
             </div>
           </div>
         )}
         <p className="relative mt-4 text-[12px] font-display font-bold text-foreground">
-          {t('profile.quests.completedCount', { completed: claimedCount, total: quests.length })} · {earnedXp}/{totalXp} XP
+          {t('profile.quests.completedCount', { completed: claimedCount, total: quests.length })} · {earnedXp + (chestClaimed ? CHEST_XP : 0)}/{totalXp + CHEST_XP} XP
         </p>
+        {perfect && !chestClaimed && (
+          <Button size="sm" variant="ghost" onClick={openChest} disabled={chestBusy} className="game-button quest-claim-pulse relative mt-3 h-11 w-full text-sm font-display">
+            {chestBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Gift className="h-4 w-4" />}
+            {t('profile.quests.openChest', { xp: CHEST_XP })}
+          </Button>
+        )}
+        {celebrating === 'chest' && (
+          <div aria-hidden className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <span key={i} className="quest-spark absolute h-2.5 w-2.5 rounded-full bg-amber" style={{ '--a': `${i * 30}deg` } as CSSProperties} />
+            ))}
+            <span className="quest-xp-float font-display text-3xl font-black text-primary">+{CHEST_XP} XP</span>
+          </div>
+        )}
       </div>
 
       {loading ? (

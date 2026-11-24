@@ -3333,6 +3333,27 @@ export type Database = {
         }
         Relationships: []
       }
+      weekly_chest_claims: {
+        Row: {
+          created_at: string
+          user_id: string
+          week_start: string
+          xp: number
+        }
+        Insert: {
+          created_at?: string
+          user_id: string
+          week_start: string
+          xp: number
+        }
+        Update: {
+          created_at?: string
+          user_id?: string
+          week_start?: string
+          xp?: number
+        }
+        Relationships: []
+      }
       weekly_quest_draw: {
         Row: {
           created_at: string
@@ -3747,6 +3768,7 @@ export type Database = {
       }
       claim_nearby_search: { Args: { p_user: string }; Returns: boolean }
       claim_quest_reward: { Args: { p_quest_id: string }; Returns: boolean }
+      claim_weekly_chest: { Args: { p_week: string }; Returns: number }
       collection_rule_taxa: {
         Args: { p_rule_id: string }
         Returns: {

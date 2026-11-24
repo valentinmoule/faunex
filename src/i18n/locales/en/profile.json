@@ -79,7 +79,10 @@
       "xpLeft": "{{xp}} XP left to claim before Monday",
       "endsInDays": "{{d}}d {{h}}h",
       "endsInHours": "{{h}}h",
-      "chest": "Weekly chest"
+      "chest": "Weekly chest",
+      "chestGoal": "Claim every quest to open the chest: +{{xp}} XP",
+      "chestReady": "The chest is ready: +{{xp}} XP awaits!",
+      "openChest": "Open the chest · +{{xp}} XP"
     },
     "badges": {
       "title": "Badges",
