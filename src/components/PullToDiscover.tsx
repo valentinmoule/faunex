@@ -92,6 +92,7 @@ const PullToDiscover = () => {
       return;
     }
     const allowed = await consume();
+    window.dispatchEvent(new Event('faunex:nearby-quota'));
     if (!allowed) {
       toast.error(t('map.pull.limitReachedTitle'), {
         description: t('map.pull.limitReachedDescription'),

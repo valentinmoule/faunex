@@ -8,7 +8,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 import '@maplibre/maplibre-gl-leaflet';
 import { buildFaunexMapStyle, makeTreePattern, pickZoneLayer, zoneKindOfLayer, ZONE_LAYERS, type ZoneKind } from '@/lib/faunexMap';
-import { Check, Compass, Radar, MapPin, Bird, Fish, Bug, Turtle, Shell, Snail, Waves, PawPrint } from 'lucide-react';
+import { Check, Compass, Radar, Crown, Eye, EyeOff, Hand, MapPin, Bird, Fish, Bug, Turtle, Shell, Snail, Waves, PawPrint } from 'lucide-react';
 import { FrogIcon } from '@/components/icons/FrogIcon';
 import { SpiderIcon } from '@/components/icons/SpiderIcon';
 import { supabase } from '@/integrations/supabase/client';
@@ -26,6 +26,8 @@ import { fetchZoneSpecies, type ZoneSpecies } from '@/lib/zoneSpecies';
 import { getCategoryIcon as getBestiaryCategoryIcon } from '@/lib/bestiary';
 import { RarityBadge } from '@/components/RarityBadge';
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
+import { useNearbyQuota } from '@/hooks/useNearbyQuota';
+import { hapticTap } from '@/lib/haptics';
 
 
 interface CaptureMarker {
@@ -208,6 +210,15 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
   const [zone, setZone] = useState<SelectedZone | null>(null);
   const zoneRequest = useRef<AbortController | null>(null);
   const { speciesName } = useSpeciesName();
+  const quota = useNearbyQuota(session?.user?.id);
+  const [showCaptures, setShowCaptures] = useState(true);
+  const [hintSeen, setHintSeen] = useState(() => { try { return localStorage.getItem('faunex.map.zoneHint') === '1'; } catch { return false; } });
+  const dismissHint = () => { setHintSeen(true); try { localStorage.setItem('faunex.map.zoneHint', '1'); } catch { /* ignore */ } };
+  useEffect(() => {
+    const onQuota = () => { window.setTimeout(() => void quota.refresh(), 600); };
+    window.addEventListener('faunex:nearby-quota', onQuota);
+    return () => window.removeEventListener('faunex:nearby-quota', onQuota);
+  }, [quota.refresh]);
 
   const setHighlight = (features: GeoJSON.Feature[]) => {
     const src = glRef.current?.getSource('fx-selected') as maplibregl.GeoJSONSource | undefined;
@@ -231,6 +242,7 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
       : [hit];
     const geoms = pieces.length ? pieces : [hit];
     const props = hit.properties || {};
+    dismissHint();
     setHighlight(geoms.map((f) => ({ type: 'Feature', properties: {}, geometry: f.geometry })) as GeoJSON.Feature[]);
     setZone({
       kind: zoneKindOfLayer(hit.layer.id) ?? 'forest',
@@ -450,27 +462,59 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
   if (loading) return <LoadingScreen />;
 
   return (
-    <main className={`relative w-full overflow-hidden bg-background ${embedded ? 'h-[calc(100dvh-190px)] min-h-[520px] rounded-2xl border border-border' : 'h-[100dvh]'}`}>
-      {/* Floating glass header */}
-      <div className="absolute top-0 left-0 right-0 z-20 pt-[max(1rem,env(safe-area-inset-top))] px-4 pointer-events-none">
-        <div className="max-w-lg mx-auto pointer-events-auto flex flex-col items-center gap-3">
-          <div className="w-full flex items-center justify-between">
+    <main className={`w-full overflow-hidden bg-background ${embedded ? 'fixed inset-0 z-0' : 'relative h-[100dvh]'}`}>
+      {/* Contrôles flottants sous l'en-tête */}
+      <div className={`absolute left-0 right-0 z-20 px-4 pointer-events-none ${embedded ? 'top-[calc(env(safe-area-inset-top)+80px)]' : 'top-[max(1rem,env(safe-area-inset-top))]'}`}>
+        <div className="max-w-lg mx-auto flex items-start justify-between gap-2">
+          <button
+            onClick={() => { hapticTap(); setShowCaptures((v) => !v); }}
+            aria-pressed={showCaptures}
+            className={`pointer-events-auto press flex items-center gap-1.5 rounded-full backdrop-blur-xl border shadow-card pl-3 pr-3.5 py-2 text-[12.5px] font-display font-bold transition-colors ${showCaptures ? 'bg-card/90 border-border/60 text-foreground' : 'bg-muted/90 border-border/60 text-muted-foreground'}`}
+          >
+            {showCaptures ? <Eye className="w-4 h-4 text-primary" /> : <EyeOff className="w-4 h-4" />}
+            {t('map.controls.myCaptures', { count: captures.length })}
+          </button>
+          <button
+            onClick={locateMe}
+            className="pointer-events-auto press p-2.5 rounded-full bg-card/90 backdrop-blur-xl border border-border/60 shadow-card"
+            aria-label={t('map.header.locateMe')}
+          >
+            <Compass className="w-5 h-5 text-foreground" />
+          </button>
+        </div>
+        {!hintSeen && (
+          <div className="max-w-lg mx-auto mt-2 flex justify-center">
             <button
-              onClick={() => window.dispatchEvent(new Event('faunex:discover-nearby'))}
-              className="flex items-center gap-2 rounded-full bg-card/90 backdrop-blur-xl border border-border/60 shadow-card pl-3 pr-4 py-2.5 active:scale-95 transition-transform"
+              onClick={dismissHint}
+              className="pointer-events-auto flex items-center gap-2 rounded-full bg-foreground/80 backdrop-blur-xl px-3.5 py-2 text-[12px] font-medium text-background shadow-card animate-fade-in"
             >
-              <Radar className="w-4 h-4 text-primary" />
-              <span className="text-[13px] font-display font-bold text-foreground">{t('map.nearby.cta')}</span>
-            </button>
-            <button
-              onClick={locateMe}
-              className="p-3 rounded-full bg-card/90 backdrop-blur-xl border border-border/60 shadow-card hover:bg-card transition-colors"
-              aria-label={t('map.header.locateMe')}
-            >
-              <Compass className="w-5 h-5 text-foreground" />
+              <Hand className="w-3.5 h-3.5" />
+              {t('map.controls.zoneHint')}
             </button>
           </div>
-        </div>
+        )}
+      </div>
+
+      {/* Capsule radar au-dessus de la barre de navigation */}
+      <div className="absolute inset-x-0 z-20 px-4 pointer-events-none bottom-[calc(env(safe-area-inset-bottom)+84px)]">
+        <button
+          onClick={() => { hapticTap(); window.dispatchEvent(new Event('faunex:discover-nearby')); }}
+          className="pointer-events-auto press mx-auto flex w-full max-w-sm items-center gap-3 rounded-full bg-card/95 backdrop-blur-xl border border-primary/30 shadow-card pl-2 pr-2 py-2"
+        >
+          <span className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+            <span className="absolute inset-0 rounded-full bg-primary/40 animate-ping" />
+            <Radar className="relative w-5 h-5" />
+          </span>
+          <span className="flex-1 min-w-0 text-left">
+            <span className="block text-[14px] font-display font-bold text-foreground leading-tight truncate">{t('map.controls.scanTitle')}</span>
+            <span className="block text-[11px] text-muted-foreground leading-tight truncate">{t('map.controls.scanSubtitle')}</span>
+          </span>
+          {quota.remaining !== null && (
+            <span className={`shrink-0 flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-display font-bold ${quota.exhausted ? 'bg-muted text-muted-foreground' : 'bg-primary/12 text-primary'}`}>
+              {quota.unlimited ? (<><Crown className="w-3 h-3" />{t('map.controls.unlimited')}</>) : t('map.controls.remaining', { count: Math.max(0, quota.remaining) })}
+            </span>
+          )}
+        </button>
       </div>
 
       {/* Fullscreen map */}
@@ -504,11 +548,11 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
             icon={userIcon}
           />
         )}
-        {markers}
+        {showCaptures && markers}
       </MapContainer>
 
-      {captures.length === 0 && (
-        <div className="absolute inset-x-0 bottom-28 z-20 px-6 pointer-events-none">
+      {captures.length === 0 && hintSeen && (
+        <div className="absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+160px)] z-20 px-6 pointer-events-none">
           <div className="max-w-sm mx-auto rounded-2xl bg-card/90 backdrop-blur-xl border border-border/60 shadow-card p-4 text-center">
             <MapPin className="w-6 h-6 text-primary mx-auto mb-2" />
             <p className="font-display font-bold text-sm text-foreground">{t('map.emptyState.title')}</p>
@@ -524,7 +568,7 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
         href="https://www.openstreetmap.org/copyright"
         target="_blank"
         rel="noreferrer"
-        className="absolute bottom-24 right-2 z-20 text-[9px] text-muted-foreground/80"
+        className="absolute bottom-[calc(env(safe-area-inset-bottom)+66px)] right-2 z-20 text-[9px] text-muted-foreground/80"
       >
         © OpenStreetMap · OpenFreeMap
       </a>
@@ -540,6 +584,21 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
             {zone?.name ? `${t(`map.zones.kind.${zone.kind}`)} · ` : ''}
             {t('map.zones.observed')}
           </p>
+          {!!zone?.species?.length && (() => {
+            const total = zone.species.length;
+            const got = zone.species.filter((s) => capturedNames.has(s.name.trim().toLowerCase())).length;
+            return (
+              <div className="mt-3">
+                <div className="flex items-center justify-between text-[12px] font-display font-bold">
+                  <span className="text-foreground">{t('map.zones.progress', { got, total })}</span>
+                  <span className="text-primary">{Math.round((got / total) * 100)} %</span>
+                </div>
+                <div className="mt-1.5 h-2 rounded-full bg-muted overflow-hidden">
+                  <div className="h-full rounded-full bg-primary transition-all duration-700" style={{ width: `${(got / total) * 100}%` }} />
+                </div>
+              </div>
+            );
+          })()}
           <div className="mt-4 divide-y divide-border">
             {zone?.species === null && [0, 1, 2].map((i) => (
               <div key={i} className="flex items-center gap-3 py-2.5">
@@ -555,7 +614,7 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
               const captured = capturedNames.has(s.name.trim().toLowerCase());
               return (
                 <div key={s.scientific_name} className="flex items-center gap-3 py-2.5">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${captured ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground/60'}`}>
                     <Icon className="w-6 h-6" />
                   </div>
                   <div className="flex-1 min-w-0">

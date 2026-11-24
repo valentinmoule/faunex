@@ -89,7 +89,18 @@
       "observed": "Espèces observées ici",
       "error": "Impossible de charger les espèces de cette zone pour le moment.",
       "captured": "Capturée",
-      "source": "Observations naturalistes publiques · GBIF"
+      "source": "Observations naturalistes publiques · GBIF",
+      "progress": "{{got}}/{{total}} capturées ici"
+    },
+    "controls": {
+      "myCaptures": "Mes captures · {{count}}",
+      "zoneHint": "Touche une forêt, un parc ou un lac pour voir sa faune",
+      "scanTitle": "Scanner les alentours",
+      "scanSubtitle": "Espèces à trouver autour de ta position",
+      "remaining": "{{count}} restants",
+      "remaining_one": "{{count}} restant",
+      "remaining_other": "{{count}} restants",
+      "unlimited": "Illimité"
     }
   }
 }
