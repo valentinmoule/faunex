@@ -44,6 +44,7 @@ import { Button } from '@/components/ui/button';
 import SpeciesNaturalHistory from '@/components/SpeciesNaturalHistory';
 import SpeciesCallRow from '@/components/SpeciesCallRow';
 import DetailRow from '@/components/DetailRow';
+import { FieldEntry, FieldSection, FieldStatStrip, IucnScale } from '@/components/species/FieldNotes';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { removeCatalogueEntry } from '@/lib/bestiaryCache';
 import SpeciesReportActionDialog, { type ReportActionSource } from '@/components/SpeciesReportActionDialog';
@@ -1158,30 +1159,13 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
 
             {/* Infos — liste épurée façon iOS */}
             {feedView ? null : isUncaptured ? (
-              <div className="space-y-2.5">
+              <div className="space-y-4">
+                <FieldStatStrip items={[
+                  { label: t('capture.detail.rarityLabel'), value: <RarityBadge rarity={card.rarity} plain className="detail-rarity-line" /> },
+                  { label: t('capture.detail.categoryLabel'), value: categoryLabel(card.category) },
+                  ...(finders !== undefined && finders > 0 ? [{ label: t('capture.detail.capturedByLabel'), value: t('capture.finders.people', { count: finders }) }] : []),
+                ]} />
                 <div className="rounded-2xl border border-border bg-card divide-y divide-border/60">
-                  <DetailRow
-                    icon={<Sparkles className="w-4 h-4" />}
-                    label={t('capture.detail.rarityLabel')}
-                    value={<RarityBadge rarity={card.rarity} plain showLabel className="detail-rarity-line" />}
-                  />
-                  {(() => {
-                    const CatIcon = getCategoryIcon(card.category);
-                    return (
-                      <DetailRow
-                        icon={<CatIcon className="w-4 h-4" />}
-                        label={t('capture.detail.categoryLabel')}
-                        value={categoryLabel(card.category)}
-                      />
-                    );
-                  })()}
-                  {finders !== undefined && finders > 0 && (
-                    <DetailRow
-                      icon={<Users className="w-4 h-4" />}
-                      label={t('capture.detail.capturedByLabel')}
-                      value={t('capture.finders.people', { count: finders })}
-                    />
-                  )}
                   <SpeciesCallRow scientificName={card.scientificName} category={card.category} isPremium={isPremium} />
 {session && <SpeciesNaturalHistory name={card.name} scientificName={card.scientificName} />}
                 </div>
@@ -1195,35 +1179,31 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                 </div>
               </div>
             ) : (
-              <div className="rounded-2xl border border-border bg-card divide-y divide-border/60">
-                <DetailRow
-                  icon={<Sparkles className="w-4 h-4" />}
-                  label={t('capture.detail.rarityLabel')}
-                  value={<RarityBadge rarity={card.rarity} plain showLabel className="detail-rarity-line" />}
-                />
-                {(() => {
-                  const CatIcon = getCategoryIcon(card.category);
-                  return (
-                    <DetailRow
-                      icon={<CatIcon className="w-4 h-4" />}
-                      label={t('capture.detail.categoryLabel')}
-                      value={categoryLabel(card.category)}
-                    />
-                  );
-                })()}
-                {finders !== undefined && finders > 0 && (
-                  <DetailRow
-                    icon={<Users className="w-4 h-4" />}
-                    label={t('capture.detail.capturedByLabel')}
-                    value={t('capture.finders.people', { count: finders })}
-                  />
+              <div className="space-y-6">
+                <FieldStatStrip items={[
+                  { label: t('capture.detail.rarityLabel'), value: <RarityBadge rarity={card.rarity} plain className="detail-rarity-line" /> },
+                  { label: t('capture.detail.categoryLabel'), value: categoryLabel(card.category) },
+                  ...(finders !== undefined && finders > 0 ? [{ label: t('capture.detail.capturedByLabel'), value: t('capture.finders.people', { count: finders }) }] : []),
+                ]} />
+                {(facts.habitat || facts.diet) && (
+                  <FieldSection title={t('capture.detail.sections.ecology')}>
+                    <div className="space-y-4">
+                      {facts.habitat && <FieldEntry label={t('capture.detail.habitat')}>{facts.habitat}</FieldEntry>}
+                      {facts.diet && <FieldEntry label={t('capture.detail.diet')}>{facts.diet}</FieldEntry>}
+                    </div>
+                  </FieldSection>
                 )}
-
-                <DetailRow icon={<MapPin className="w-4 h-4" />} label={t('capture.detail.habitat')} value={facts.habitat} />
-                <DetailRow icon={<UtensilsCrossed className="w-4 h-4" />} label={t('capture.detail.diet')} value={facts.diet} />
-                <DetailRow icon={<Shield className="w-4 h-4" />} label={t('capture.detail.conservation')} value={card.conservation} />
-                <SpeciesCallRow scientificName={card.scientificName} category={card.category} isPremium={isPremium} />
-{session && <SpeciesNaturalHistory name={card.name} scientificName={card.scientificName} />}
+                <FieldSection title={t('capture.detail.sections.conservation')}>
+                  <IucnScale status={card.conservation} />
+                </FieldSection>
+                <FieldSection title={t('capture.detail.sections.sounds')}>
+                  <div className="divide-y divide-border/60">
+                    <SpeciesCallRow scientificName={card.scientificName} category={card.category} isPremium={isPremium} />
+                    {session && <SpeciesNaturalHistory name={card.name} scientificName={card.scientificName} />}
+                  </div>
+                </FieldSection>
+                <FieldSection title={t('capture.detail.sections.observation')}>
+              <div className="divide-y divide-border/60">
                 {captureDate && (
                   <DetailRow
                     icon={<Calendar className="w-4 h-4" />}
@@ -1288,6 +1268,8 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                     ) : undefined}
                   />
                 )}
+              </div>
+                </FieldSection>
               </div>
             )}
 

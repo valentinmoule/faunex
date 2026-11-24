@@ -4217,3 +4217,14 @@ html.is-native-android body {
 .quest-xp-float { animation: quest-xp-float 1.3s cubic-bezier(.2,.9,.3,1) forwards; text-shadow: 0 3px 0 hsl(var(--card)); }
 @keyframes quest-xp-float { 0% { transform: translateY(10px) scale(.6); opacity: 0; } 25% { transform: translateY(-6px) scale(1.15); opacity: 1; } 100% { transform: translateY(-40px) scale(1); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .quest-chest[data-open=true], .quest-node[data-state=ready], .quest-spark, .quest-xp-float { animation: none; } }
+
+/* Fiche espèce : carnet de terrain */
+.field-stats { padding: 4px 0; }
+.field-entry { border-left: 3px solid hsl(var(--primary) / .35); }
+.field-section-title { display: flex; align-items: center; gap: 10px; }
+.field-section-title::after { content: ""; flex: 1; height: 1px; background: repeating-linear-gradient(90deg, hsl(var(--border)) 0 6px, transparent 6px 10px); }
+.iucn-step { background: hsl(var(--muted)); color: hsl(var(--muted-foreground)); transition: transform .3s; }
+.iucn-step[data-active=true] { color: hsl(var(--card)); transform: translateY(-3px) scale(1.06); }
+.iucn-step[data-active=true][data-code=LC], .iucn-step[data-active=true][data-code=NT] { background: hsl(var(--primary)); box-shadow: 0 3px 0 hsl(var(--learning-green-base)); }
+.iucn-step[data-active=true][data-code=VU] { background: hsl(var(--amber)); box-shadow: 0 3px 0 hsl(var(--amber-dark)); }
+.iucn-step[data-active=true]:is([data-code=EN], [data-code=CR], [data-code=EW], [data-code=EX]) { background: hsl(var(--destructive)); box-shadow: 0 3px 0 hsl(var(--game-danger-base)); }

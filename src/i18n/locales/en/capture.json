@@ -261,7 +261,23 @@
       "timeAgoHour": "{{count}}h",
       "timeAgoDay": "{{count}}d",
       "exploreTitle": "Explore nature and photograph this animal to unlock its full sheet.",
-      "exploreDesc": "Its habitat, diet and secrets will only be revealed once you've discovered it."
+      "exploreDesc": "Its habitat, diet and secrets will only be revealed once you've discovered it.",
+      "sections": {
+        "ecology": "Ecology",
+        "conservation": "Conservation",
+        "sounds": "Sounds & classification",
+        "observation": "My observation"
+      },
+      "iucn": {
+        "LC": "Least concern",
+        "NT": "Near threatened",
+        "VU": "Vulnerable",
+        "EN": "Endangered",
+        "CR": "Critically endangered",
+        "EW": "Extinct in the wild",
+        "EX": "Extinct",
+        "DD": "Data deficient"
+      }
     },
     "share": {
       "titleOther": "Share this card",

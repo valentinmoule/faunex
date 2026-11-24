@@ -261,7 +261,23 @@
       "timeAgoHour": "{{count}}h",
       "timeAgoDay": "{{count}}j",
       "exploreTitle": "Explorez la nature et photographiez cet animal pour débloquer sa fiche complète.",
-      "exploreDesc": "Son habitat, son alimentation et ses secrets ne seront révélés qu'après votre découverte."
+      "exploreDesc": "Son habitat, son alimentation et ses secrets ne seront révélés qu'après votre découverte.",
+      "sections": {
+        "ecology": "Écologie",
+        "conservation": "Conservation",
+        "sounds": "Sons et classification",
+        "observation": "Mon observation"
+      },
+      "iucn": {
+        "LC": "Préoccupation mineure",
+        "NT": "Quasi menacée",
+        "VU": "Vulnérable",
+        "EN": "En danger",
+        "CR": "En danger critique",
+        "EW": "Éteinte à l'état sauvage",
+        "EX": "Éteinte",
+        "DD": "Données insuffisantes"
+      }
     },
     "share": {
       "titleOther": "Partager cette carte",
