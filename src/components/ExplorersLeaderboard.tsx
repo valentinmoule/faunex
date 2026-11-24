@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { CalendarDays, Crown, Infinity as InfinityIcon, Lock, Users } from 'lucide-react';
+import { Crown, Infinity as InfinityIcon, Lock, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import CategoryLeaderboard, { LeaderboardResetBadge } from '@/components/CategoryLeaderboard';
+import CategoryLeaderboard from '@/components/CategoryLeaderboard';
 import { Chip as RoundChip, categoryChipImage } from '@/components/CategoryChipRow';
 import LeaderboardFollowsEmptyState from '@/components/social/LeaderboardFollowsEmptyState';
 import { useAuth } from '@/contexts/AuthContext';
@@ -18,9 +18,9 @@ export default function ExplorersLeaderboard() {
   const navigate = useNavigate();
   const { session } = useAuth();
   const { isPremium, loading: premiumLoading } = useSubscription(session?.user?.id);
-  const [scope, setScope] = useState<'global' | 'explorers'>('global');
-  const [filter, setFilter] = useState<'week' | 'all' | string>('week');
-
+  const [mode, setMode] = useState<'league' | 'honors'>('league');
+  const [filter, setFilter] = useState<'follows' | 'all' | string>('all');
+  const scope: 'global' | 'explorers' = mode === 'honors' && filter === 'follows' ? 'explorers' : 'global';
   // Combien d'explorateurs je suis : détermine l'état vide du classement « Abonnements ».
   const userId = session?.user?.id;
   const [followingCount, setFollowingCount] = useState<number | null>(null);
@@ -46,11 +46,17 @@ export default function ExplorersLeaderboard() {
 
   return (
     <section className="px-4">
+      <div role="tablist" className="mt-2 grid grid-cols-2 gap-1 rounded-full bg-muted p-1">
+        {(['league', 'honors'] as const).map((m) => (
+          <button key={m} type="button" role="tab" aria-selected={mode === m} onClick={() => setMode(m)}
+            className={`h-9 rounded-full text-[13px] font-display font-bold transition-colors ${mode === m ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'}`}>
+            {t(m === 'league' ? 'social.leaderboard.modeLeague' : 'social.leaderboard.modeHonors')}
+          </button>
+        ))}
+      </div>
+      {mode === 'honors' && (
       <div role="radiogroup" aria-label={t('social.leaderboard.ranking')} className="no-scrollbar -mx-3 mb-1 mt-2 flex gap-1 overflow-x-auto px-3 pt-1 pb-0.5">
-        <RoundChip selected={filter === 'week'} label={t('social.leaderboard.tabWeek')} onClick={() => setFilter('week')}>
-          <span className="flex h-full w-full items-center justify-center bg-chip-all"><CalendarDays className="h-7 w-7 text-foreground" strokeWidth={2.25} /></span>
-        </RoundChip>
-        <RoundChip selected={scope === 'explorers'} label={t('social.leaderboard.chipFollowing')} onClick={() => setScope(scope === 'explorers' ? 'global' : 'explorers')}>
+        <RoundChip selected={filter === 'follows'} label={t('social.leaderboard.chipFollowing')} onClick={() => setFilter('follows')}>
           <span className="relative flex h-full w-full items-center justify-center bg-chip-all">
             <Users className="h-7 w-7 text-foreground" strokeWidth={2.25} />
             {!isPremium && <Lock className="absolute bottom-2 right-2 h-3.5 w-3.5 text-muted-foreground" />}
@@ -65,6 +71,7 @@ export default function ExplorersLeaderboard() {
           </RoundChip>
         ))}
       </div>
+      )}
       {scope === 'explorers' && (premiumLoading || !isPremium) ? (
         premiumLoading ? (
           <p className="px-5 py-10 text-center text-[13px] font-display text-muted-foreground">{t('social.common.loading')}</p>
@@ -82,20 +89,21 @@ export default function ExplorersLeaderboard() {
         <LeaderboardFollowsEmptyState />
       ) : (
         <>
-          <div className="flex h-[34px] items-center justify-between gap-3 px-1 pt-1">
-            <h2 className="min-w-0 truncate text-[15px] font-display font-bold text-foreground">
-              {filter === 'week' && scope !== 'explorers' ? t('social.leaderboard.league.title') : filter === 'week' ? t('social.leaderboard.titleWeek') : filter === 'all' ? t('social.leaderboard.titleAllTime') : t(`bestiary.categoryNames.${filter}`, { defaultValue: filter })}
-            </h2>
-            {filter === 'week' && <LeaderboardResetBadge className="shrink-0" />}
-          </div>
+          {mode === 'honors' && (
+            <div className="flex h-[34px] items-center px-1 pt-1">
+              <h2 className="min-w-0 truncate text-[15px] font-display font-bold text-foreground">
+                {filter === 'follows' ? t('social.leaderboard.titleFollows') : filter === 'all' ? t('social.leaderboard.titleAllTime') : t(`bestiary.categoryNames.${filter}`, { defaultValue: filter })}
+              </h2>
+            </div>
+          )}
           <CategoryLeaderboard
-            key={`${scope}-${filter}`}
-            category={filter === 'week' || filter === 'all' ? 'all' : filter}
+            key={`${mode}-${filter}`}
+            category={mode === 'league' || filter === 'follows' || filter === 'all' ? 'all' : filter}
             inline
-            period={filter === 'week' ? 'week' : 'all'}
+            period={mode === 'league' ? 'week' : 'all'}
             scope={scope === 'explorers' ? 'follows' : 'global'}
             showResetBadge={false}
-            metric={filter === 'week' && scope !== 'explorers' ? 'league' : filter === 'week' || filter === 'all' ? 'xp' : 'captures'}
+            metric={mode === 'league' ? 'league' : filter === 'follows' || filter === 'all' ? 'xp' : 'captures'}
           />
         </>
       )}

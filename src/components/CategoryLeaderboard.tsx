@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -62,6 +62,43 @@ const formatTimeLeft = (ms: number, t: (key: string, opts?: any) => string) => {
 
 /** Pastille « Réinitialisation dans … » du classement hebdomadaire. Utilisable
  *  seule (dans l'en-tête d'une page) ou au-dessus d'un classement. */
+
+/** En-tête de ligue façon Duolingo : trophées des paliers, palier actuel au centre, compte à rebours. */
+const LeagueHeader = ({ tier, size }: { tier: number; size: number }) => {
+  const { t } = useTranslation();
+  const [timeLeft, setTimeLeft] = useState(msUntilReset);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const id = setInterval(() => setTimeLeft(msUntilReset()), 60_000);
+    return () => clearInterval(id);
+  }, []);
+  useEffect(() => {
+    const box = ref.current;
+    const el = box?.querySelector<HTMLElement>('[data-current="true"]');
+    if (box && el) box.scrollLeft = el.offsetLeft - box.clientWidth / 2 + el.clientWidth / 2;
+  }, [tier]);
+  return (
+    <div className="mt-2">
+      <div className="px-1">
+        <p className="text-[22px] font-display font-extrabold leading-tight text-foreground">{t('social.leaderboard.league.name', { tier: t(`social.leaderboard.league.tiers.${tier}`) })}</p>
+        <p className="mt-0.5 text-[12px] font-display font-bold uppercase tracking-wide text-muted-foreground">{t('social.leaderboard.league.daysLeft', { time: formatTimeLeft(timeLeft, t) })}</p>
+      </div>
+      <div ref={ref} className="no-scrollbar -mx-4 mt-3 flex items-end gap-5 overflow-x-auto px-[38%] pb-3">
+        {LEAGUE_EMOJI.map((emoji, i) => (
+          <div key={i} data-current={i === tier} className="flex shrink-0 flex-col items-center">
+            <span className={`relative leading-none transition-all ${i === tier ? 'text-[64px] drop-shadow-md' : 'text-[36px]'} ${i > tier ? 'opacity-30 grayscale' : ''}`} aria-hidden>
+              {emoji}
+              {i > tier && <Lock className="absolute bottom-0 right-0 h-4 w-4 text-foreground" />}
+            </span>
+          </div>
+        ))}
+      </div>
+      {size > 0 && <p className="px-1 text-[12px] font-display text-muted-foreground">{t(tier >= 6 ? 'social.leaderboard.league.rulesTop' : 'social.leaderboard.league.rules', { size })}</p>}
+      <div className="mt-3 h-px bg-border" />
+    </div>
+  );
+};
+
 export const LeaderboardResetBadge = ({ className = '' }: { className?: string }) => {
   const { t } = useTranslation();
   const [timeLeft, setTimeLeft] = useState(msUntilReset);
@@ -296,6 +333,11 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
                 {t('social.leaderboard.lockedCta')}
               </button>
             </div>
+          ) : rows.length === 0 && isLeague && ready ? (
+            <div className="px-6 py-8 text-center">
+              <LeagueHeader tier={0} size={0} />
+              <p className="mt-6 text-[15px] font-display font-bold text-foreground">{t('social.leaderboard.league.joinTitle')}</p>
+            </div>
           ) : rows.length === 0 ? (
             <p className="px-5 py-10 text-center text-[13px] font-display text-muted-foreground">
               {ready
@@ -306,15 +348,7 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
             </p>
 ) : (
             <>
-            {isLeague && league && (
-              <div className="mx-1 mt-2 flex items-center gap-3 rounded-2xl bg-muted/60 px-4 py-3">
-                <span className="text-3xl leading-none" aria-hidden>{LEAGUE_EMOJI[league.tier] ?? '🌱'}</span>
-                <div className="min-w-0">
-                  <p className="text-[15px] font-display font-extrabold text-foreground">{t('social.leaderboard.league.name', { tier: t(`social.leaderboard.league.tiers.${league.tier}`) })}</p>
-                  <p className="text-[12px] font-display text-muted-foreground">{t(league.tier >= 6 ? 'social.leaderboard.league.rulesTop' : 'social.leaderboard.league.rules', { size: league.size })}</p>
-                </div>
-              </div>
-            )}
+            {isLeague && league && <LeagueHeader tier={league.tier} size={league.size} />}
             {/* Podium */}
             <div className="mx-4 mt-4 mb-5 p-1">
               <div className="flex items-end justify-center gap-3">
@@ -366,10 +400,10 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
               return (
               <Fragment key={r.user_id}>
               {showUpEnd && (
-                <li className="flex items-center gap-2 px-5 py-1.5 text-[11px] font-display font-bold text-primary"><ArrowUp className="h-3 w-3" strokeWidth={2.6} />{t('social.leaderboard.league.promoLine')}</li>
+                <li className="flex items-center justify-center gap-2 py-3 text-[13px] font-display font-extrabold uppercase tracking-wide text-primary"><ArrowUp className="h-4 w-4" strokeWidth={3} />{t('social.leaderboard.league.promoLine')}<ArrowUp className="h-4 w-4" strokeWidth={3} /></li>
               )}
               {showDownLabel && (
-                <li className="flex items-center gap-2 px-5 py-1.5 text-[11px] font-display font-bold text-destructive"><ArrowDown className="h-3 w-3" strokeWidth={2.6} />{t('social.leaderboard.league.demoteLine')}</li>
+                <li className="flex items-center justify-center gap-2 py-3 text-[13px] font-display font-extrabold uppercase tracking-wide text-destructive"><ArrowDown className="h-4 w-4" strokeWidth={3} />{t('social.leaderboard.league.demoteLine')}<ArrowDown className="h-4 w-4" strokeWidth={3} /></li>
               )}
               <li className={`${r.is_me ? 'bg-primary/5' : ''} ${zone === 'up' ? 'border-l-[3px] border-l-primary' : zone === 'down' ? 'border-l-[3px] border-l-destructive' : ''}`}>
                 <button
