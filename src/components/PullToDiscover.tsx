@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { Loader2, Radar, Sparkles, MapPin } from 'lucide-react';
+import { Loader2, Radar, Sparkles, MapPin, Check, Star, Lightbulb, Users } from 'lucide-react';
+import { thumbUrl } from '@/lib/imageUrl';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNearbyQuota, DAILY_NEARBY_LIMIT } from '@/hooks/useNearbyQuota';
@@ -68,6 +69,38 @@ const PullToDiscover = () => {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [result, setResult] = useState<{ location: string; animals: DiscoveredAnimal[] } | null>(null);
+  const [status, setStatus] = useState<Record<string, { mine: boolean; recent: number; photo?: string }>>({});
+
+  // Statut personnel + observations communautaires des 15 derniers jours.
+  useEffect(() => {
+    const uid = session?.user?.id;
+    const names = (result?.animals || []).map((a) => a.name).filter(Boolean);
+    if (!uid || names.length === 0) { setStatus({}); return; }
+    let cancelled = false;
+    const since = new Date(Date.now() - 15 * 86400000).toISOString();
+    Promise.all([
+      supabase.from('captures').select('animal_name').eq('user_id', uid).eq('status', 'approved').in('animal_name', names),
+      supabase.from('captures').select('animal_name,user_id,image_url,created_at').eq('status', 'approved').eq('shared', true)
+        .in('animal_name', names).gte('created_at', since).order('created_at', { ascending: false }).limit(200),
+    ]).then(([mine, recent]) => {
+      if (cancelled) return;
+      const next: Record<string, { mine: boolean; recent: number; photo?: string }> = {};
+      names.forEach((n) => { next[n.toLowerCase()] = { mine: false, recent: 0 }; });
+      (mine.data || []).forEach((r: any) => { const k = r.animal_name?.toLowerCase(); if (next[k]) next[k].mine = true; });
+      const seen = new Map<string, Set<string>>();
+      (recent.data || []).forEach((r: any) => {
+        const k = r.animal_name?.toLowerCase();
+        if (!next[k]) return;
+        if (!next[k].photo && r.image_url) next[k].photo = r.image_url;
+        if (r.user_id === uid) return;
+        const set = seen.get(k) || new Set<string>();
+        set.add(r.user_id); seen.set(k, set);
+        next[k].recent = set.size;
+      });
+      setStatus(next);
+    });
+    return () => { cancelled = true; };
+  }, [result, session?.user?.id]);
 
   const startY = useRef(0);
   const startX = useRef(0);
@@ -278,25 +311,59 @@ const PullToDiscover = () => {
             <MapPin className="w-3.5 h-3.5" /> {t('map.pull.sheetSubtitle')}
           </p>
           <div className="mt-4 space-y-3">
-            {result?.animals.map((a, i) => (
-              <div
-                key={i}
-                className="p-4 rounded-2xl border border-border bg-card"
-                style={{ borderColor: RARITY_COLORS[a.rarity] ? `${RARITY_COLORS[a.rarity]}55` : undefined }}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-display font-bold text-foreground">{a.name}</p>
-                    <p className="text-xs italic text-muted-foreground">{a.scientific_name}</p>
-                    <p className="text-xs mt-2 text-foreground/80">{a.description}</p>
-                    <p className="text-[11px] mt-2 text-muted-foreground">
-                      <span className="font-semibold">{t('map.pull.tipLabel')}&nbsp;:</span> {a.tip}
-                    </p>
+            {result?.animals.map((a, i) => {
+              const st = status[a.name?.toLowerCase()] || { mine: false, recent: 0 };
+              const tint = RARITY_COLORS[a.rarity] || 'hsl(var(--border))';
+              return (
+                <button
+                  type="button"
+                  key={i}
+                  onClick={() => { setOpen(false); navigate(`/home?tab=categories&q=${encodeURIComponent(a.name)}`); }}
+                  className="mission-plate w-full text-left p-3.5 rounded-[22px] border bg-card active:scale-[0.98] transition-transform animate-fade-in"
+                  style={{ borderColor: `${tint}40`, animationDelay: `${i * 70}ms`, animationFillMode: 'both' }}
+                >
+                  <div className="flex gap-3">
+                    <div className="relative w-[72px] h-[72px] shrink-0 rounded-2xl overflow-hidden bg-muted flex items-center justify-center">
+                      {st.photo ? (
+                        <img src={thumbUrl(st.photo, 200)} alt="" loading="lazy" className="w-full h-full object-cover" />
+                      ) : (
+                        <Sparkles className="w-6 h-6 text-muted-foreground/50" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className={cn(
+                          'inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.08em]',
+                          st.mine ? 'text-primary' : 'text-accent-foreground',
+                        )}>
+                          {st.mine ? <Check className="w-3 h-3" strokeWidth={3} /> : <Star className="w-3 h-3" />}
+                          {st.mine ? t('map.pull.inMyFaunex') : t('map.pull.newSpecies')}
+                        </span>
+                        <RarityBadge rarity={a.rarity} plain className="ml-auto" />
+                      </div>
+                      <p className="font-display font-bold text-[15px] text-foreground leading-tight mt-1 truncate">{a.name}</p>
+                      <p className="text-[11.5px] italic text-muted-foreground truncate">{a.scientific_name}</p>
+                      {st.recent > 0 && (
+                        <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary px-2 py-0.5 text-[10.5px] font-semibold">
+                          <span className="relative flex w-1.5 h-1.5"><span className="absolute inset-0 rounded-full bg-primary animate-ping opacity-60" /><span className="relative w-1.5 h-1.5 rounded-full bg-primary" /></span>
+                          <Users className="w-3 h-3" />
+                          {t('map.pull.recentlySeen', { count: st.recent })}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <RarityBadge rarity={a.rarity} showLabel className="shrink-0" />
-                </div>
-              </div>
-            ))}
+                  {a.description && <p className="text-[12.5px] mt-2.5 text-foreground/80 leading-snug">{a.description}</p>}
+                  {a.tip && (
+                    <div className="mt-2.5 flex gap-2 rounded-xl bg-muted/60 px-3 py-2">
+                      <Lightbulb className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
+                      <p className="text-[11.5px] text-muted-foreground leading-snug">
+                        <span className="font-semibold text-foreground">{t('map.pull.tipLabel')}&nbsp;:</span> {a.tip}
+                      </p>
+                    </div>
+                  )}
+                </button>
+              );
+            })}
             {result && result.animals.length === 0 && (
               <p className="text-sm text-muted-foreground text-center py-6">
                 {t('map.pull.noAnimalsFound')}

@@ -55,8 +55,12 @@
       "defaultLocation": "Around you",
       "sheetTitle": "Species to discover",
       "sheetSubtitle": "Species potentially observable here",
-      "tipLabel": "Tip",
-      "noAnimalsFound": "No species found for this area."
+      "tipLabel": "Spotting tip",
+      "noAnimalsFound": "No species found for this area.",
+      "inMyFaunex": "In my Faunex",
+      "newSpecies": "New species",
+      "recentlySeen_one": "Seen by {{count}} explorer in the last 15 days",
+      "recentlySeen_other": "Seen by {{count}} explorers in the last 15 days"
     },
     "pushPrompt": {
       "successToast": "Notifications enabled 🦊",
