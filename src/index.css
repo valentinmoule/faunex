@@ -2990,6 +2990,13 @@ html.is-native-ios .page-header-sticky::before {
   background: hsl(var(--background));
   pointer-events: none;
 }
+/* Barre d'onglets collée sous l'en-tête : elle monte quand l'en-tête se replie. */
+.hub-tabbar {
+  transition: top 300ms ease-out;
+}
+html.is-native-ios .hub-tabbar--hidden {
+  top: env(safe-area-inset-top, 0px);
+}
 /* Une seule couche de dégradé évite le clip de bordure instable de WebKit
    pendant le mouvement irisé ; la photo garde son propre rayon intérieur. */
 html.is-native-ios .holo-frame:is(.holo-frame--special-rare, .holo-frame--hyper-rare),

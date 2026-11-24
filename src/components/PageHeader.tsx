@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import { type ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import { useHideOnScroll } from '@/hooks/useHideOnScroll';
 
 interface PageHeaderProps {
@@ -8,10 +8,17 @@ interface PageHeaderProps {
   sticky?: boolean;
   /** Replie l'en-tête au défilement vers le bas, le réaffiche à la remontée. */
   autoHide?: boolean;
+  /** Signalée à chaque changement d'état : les barres collées sous l'en-tête suivent le mouvement. */
+  onHiddenChange?: (hidden: boolean) => void;
 }
 
-export function PageHeader({ children, className, sticky = false, autoHide = false }: PageHeaderProps) {
+export function PageHeader({ children, className, sticky = false, autoHide = false, onHiddenChange }: PageHeaderProps) {
   const hidden = useHideOnScroll(sticky && autoHide);
+  const notify = useRef(onHiddenChange);
+  notify.current = onHiddenChange;
+  useEffect(() => {
+    notify.current?.(hidden);
+  }, [hidden]);
   return (
     <header
       className={cn(

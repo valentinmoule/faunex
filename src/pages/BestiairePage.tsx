@@ -244,6 +244,8 @@ const BestiairePage = () => {
   const ALL_TABS: ViewMode[] = ['mine', 'map', 'badges', 'categories', 'collections', 'leaderboard'];
   const initialView: ViewMode = requestedTab && ALL_TABS.includes(requestedTab as ViewMode) ? requestedTab as ViewMode : 'mine';
   const [viewMode, setViewMode] = useState<ViewMode>(initialView);
+  // L'en-tête replié libère sa place : les barres d'onglets collées montent avec lui.
+  const [headerHidden, setHeaderHidden] = useState(false);
   const [leaderboardScope, setLeaderboardScope] = useState<'global' | 'explorers'>('global');
   const [leaderboardFilter, setLeaderboardFilter] = useState<'week' | 'all' | string>('week');
   const [rarityFilter, setRarityFilter] = useState<Rarity[]>([]);
@@ -1863,7 +1865,7 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
             </div>
           </PageHeader>
         ) : (
-          <PageHeader sticky autoHide={viewMode !== 'map'} className="bg-background/80 backdrop-blur-xl border-b border-border px-4 py-4">
+          <PageHeader sticky autoHide={viewMode !== 'map'} onHiddenChange={setHeaderHidden} className="bg-background/80 backdrop-blur-xl border-b border-border px-4 py-4">
             <div className="max-w-lg mx-auto">
               <div className="flex items-center justify-between gap-3">
                 {/* Accès au profil (avatar) à gauche ; compteurs et notifications à droite */}
@@ -1899,7 +1901,7 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
 
           {/* View toggle — floating gamified tab bar */}
           {viewMode !== 'leaderboard' && viewMode !== 'badges' && viewMode !== 'map' && (
-          <div className={`sticky top-[73px] z-30 -mx-4 px-4 pt-1.5 pb-2 ${viewMode === 'mine' && !showMineControls ? '' : 'bg-gradient-to-b from-background via-background/95 to-transparent'}`}>
+          <div className={`hub-tabbar sticky z-30 -mx-4 px-4 pt-1.5 pb-2 ${headerHidden ? 'top-0 hub-tabbar--hidden' : 'top-[73px]'} ${viewMode === 'mine' && !showMineControls ? '' : 'bg-gradient-to-b from-background via-background/95 to-transparent'}`}>
             <div className="game-tabs flex items-center w-full" role="tablist">
               {([
                 { key: 'mine' as const, label: t('bestiary.tabs.mine'), icon: Images },
@@ -2353,7 +2355,7 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
 
           {viewMode === 'leaderboard' && (
             <section>
-              <div className="sticky top-[73px] z-30 -mx-4 px-4 pt-1.5 pb-2 bg-gradient-to-b from-background via-background/95 to-transparent">
+              <div className={`hub-tabbar sticky z-30 -mx-4 px-4 pt-1.5 pb-2 ${headerHidden ? 'top-0 hub-tabbar--hidden' : 'top-[73px]'} bg-gradient-to-b from-background via-background/95 to-transparent`}>
                 <div className="game-tabs grid grid-cols-2 w-full" role="tablist">
                   {([['global', t('social.leaderboard.tabGlobal'), Globe], ['explorers', t('social.leaderboard.tabExplorers'), Users]] as const).map(([key, label, Icon]) => {
                     const active = leaderboardScope === key;
