@@ -1,10 +1,15 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { Play, Sprout } from 'lucide-react';
+import { Bell, Play, Sprout } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import QuestsInline from '@/components/QuestsInline';
+import CaptureQuotaBadge from '@/components/CaptureQuotaBadge';
+import { ProfileButton } from '@/components/ProfileDrawer';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSubscription } from '@/hooks/useSubscription';
+import { supabase } from '@/integrations/supabase/client';
 import { learningStatus, learningText } from '@/lib/learning';
 import sideForest from '@/assets/learning/side-forest.webp';
 import sideGarden from '@/assets/learning/side-garden.webp';
@@ -18,6 +23,22 @@ export default function ChallengesPage() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { session } = useAuth();
+  const { isPremium, loading: premiumLoading } = useSubscription(session?.user?.id);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (!session?.user) return;
+    supabase.from('notifications').select('*', { count: 'exact', head: true }).eq('user_id', session.user.id).eq('read', false)
+      .then(({ count }) => setUnreadCount(count || 0));
+    const channel = supabase
+      .channel(`notif-count-challenges-${Math.random().toString(36).slice(2)}`)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${session.user.id}` }, () => {
+        supabase.from('notifications').select('*', { count: 'exact', head: true }).eq('user_id', session.user.id).eq('read', false).then(({ count }) => setUnreadCount(count || 0));
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [session]);
+
   const status = useQuery({ queryKey: ['learning', session?.user.id], queryFn: learningStatus, enabled: !!session?.user });
   const data = status.data;
   const pathId = session?.user.id ? localStorage.getItem(`learning-path:${session.user.id}`) : null;
@@ -35,8 +56,26 @@ export default function ChallengesPage() {
 
   return (
     <main className="min-h-screen bg-background pb-28">
-      <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
-        <div className="mx-auto flex max-w-lg items-center justify-end gap-4"></div>
+      <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-4 py-4">
+        <div className="mx-auto flex max-w-lg items-center justify-between gap-3">
+          {/* Accès au profil (avatar) à gauche ; compteurs et notifications à droite */}
+          <ProfileButton className="-ml-0.5" />
+          <div className="flex min-w-0 items-center gap-4">
+            <CaptureQuotaBadge userId={session?.user?.id} isPremium={isPremium} premiumLoading={premiumLoading} />
+            <button
+              onClick={() => navigate('/notifications')}
+              aria-label={t('social.notifications.title')}
+              className="relative -mr-1 h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted transition-colors"
+            >
+              <span className="relative inline-flex">
+                <Bell className="w-5 h-5 text-foreground" />
+                {unreadCount > 0 && (
+                  <span aria-hidden className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-destructive" />
+                )}
+              </span>
+            </button>
+          </div>
+        </div>
       </PageHeader>
       <div className="mx-auto max-w-lg px-4 pt-3 space-y-4">
         <h1 className="sr-only">{t('nav.challenges')}</h1>
