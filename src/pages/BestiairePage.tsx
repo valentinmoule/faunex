@@ -1869,7 +1869,7 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
             <div className="max-w-lg mx-auto">
               <div className="flex items-center justify-between gap-3">
                 {/* Accès au profil (avatar) à gauche ; compteurs et notifications à droite */}
-                <div className="flex min-w-0 items-center gap-3"><ProfileButton className="-ml-0.5" /><HeaderLevelPill /></div>
+                <div className="flex min-w-0 items-center gap-3"><HeaderLevelPill /></div>
                 <div className="flex min-w-0 items-center gap-4">
                   <CaptureQuotaBadge userId={session?.user?.id} isPremium={isPremium} premiumLoading={premiumLoading} />
                   <button

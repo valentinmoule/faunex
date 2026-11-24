@@ -684,7 +684,7 @@ const ExplorersPage = () => {
       <PageHeader sticky autoHide onHiddenChange={setHeaderHidden} className="bg-background/80 backdrop-blur-xl border-b border-border px-4 py-4">
         <div className="flex items-center justify-between gap-3 max-w-lg mx-auto">
           {/* Accès au profil (avatar) à gauche ; compteurs, recherche et notifications à droite */}
-          <div className="flex min-w-0 items-center gap-3"><ProfileButton className="-ml-0.5" /><HeaderLevelPill /></div>
+          <div className="flex min-w-0 items-center gap-3"><HeaderLevelPill /></div>
           <div className="flex min-w-0 items-center gap-4">
             <CaptureQuotaBadge userId={session?.user?.id} isPremium={isPremium} premiumLoading={premiumLoading} />
             <div className="-mr-1 flex items-center">
