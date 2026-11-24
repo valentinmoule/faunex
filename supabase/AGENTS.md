@@ -9,3 +9,6 @@ Triggers align profile/approved capture `conservation` with `animals.iucn_status
 
 ## Bees are collectible only as species
 Keep SQL `is_bee_group_label` and TS `isBeeGroupLabel` in sync; identification, moderation and triggers refuse bee genus/family/"sp." labels, since group tiles hide distinct species.
+
+## Observation rarity is ranked from GBIF field records
+`rarity_tier_for_observations` ranks `animals.gbif_observations` per base category (cap Épique); only raise tiles, keep IUCN/domestic rules in `hybrid_rarity`, since demotions devalue collections.

@@ -154,6 +154,8 @@ export type Database = {
         Row: {
           category: string
           created_at: string
+          gbif_observations: number | null
+          gbif_observations_at: string | null
           id: string
           iucn_status: string | null
           name: string
@@ -167,6 +169,8 @@ export type Database = {
         Insert: {
           category: string
           created_at?: string
+          gbif_observations?: number | null
+          gbif_observations_at?: string | null
           id?: string
           iucn_status?: string | null
           name: string
@@ -180,6 +184,8 @@ export type Database = {
         Update: {
           category?: string
           created_at?: string
+          gbif_observations?: number | null
+          gbif_observations_at?: string | null
           id?: string
           iucn_status?: string | null
           name?: string
@@ -2400,6 +2406,27 @@ export type Database = {
         }
         Relationships: []
       }
+      rarity_rebalance_backup: {
+        Row: {
+          animal_id: string
+          observation_rarity: string | null
+          rarity: string
+          saved_at: string
+        }
+        Insert: {
+          animal_id: string
+          observation_rarity?: string | null
+          rarity: string
+          saved_at?: string
+        }
+        Update: {
+          animal_id?: string
+          observation_rarity?: string | null
+          rarity?: string
+          saved_at?: string
+        }
+        Relationships: []
+      }
       rarity_recompute_queue: {
         Row: {
           created_at: string
@@ -4002,7 +4029,12 @@ export type Database = {
       progress_taxon: { Args: { p_taxon_id: string }; Returns: string }
       rarity_floor_for_iucn: { Args: { p_status: string }; Returns: number }
       rarity_from_rank: { Args: { p_rank: number }; Returns: string }
+      rarity_pool_category: { Args: { p_category: string }; Returns: string }
       rarity_rank: { Args: { p_rarity: string }; Returns: number }
+      rarity_tier_for_observations: {
+        Args: { p_category: string; p_count: number }
+        Returns: string
+      }
       recompute_profile_counters: {
         Args: { p_user_id: string }
         Returns: undefined

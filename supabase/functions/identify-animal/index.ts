@@ -96,6 +96,27 @@ const iucnCategoryFor = async (usageKey: unknown): Promise<string | null> => {
   }
 };
 
+/** Observations de terrain GBIF d'un taxon résolu (gratuit, sans IA). Sert
+ *  à classer la rareté d'une nouvelle fiche par rapport à sa grande famille. */
+const observationCountFor = async (usageKey: unknown): Promise<number | null> => {
+  if (typeof usageKey !== "number" && typeof usageKey !== "string") return null;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 4_000);
+  try {
+    const res = await fetch(
+      `https://api.gbif.org/v1/occurrence/search?taxonKey=${encodeURIComponent(String(usageKey))}&basisOfRecord=HUMAN_OBSERVATION&occurrenceStatus=PRESENT&limit=0`,
+      { signal: ctrl.signal },
+    );
+    if (!res.ok) return null;
+    const body = await res.json();
+    return typeof body?.count === "number" ? body.count : null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+};
+
 const RANK_FR: Record<string, string> = {
   GENUS: "genre",
   FAMILY: "famille",
@@ -1146,7 +1167,25 @@ serve(async (req) => {
         // appliqué comme plancher de rareté. Une espèce menacée ne naît jamais
         // « commune », sans jamais abaisser l'estimation du modèle.
         if (isSpecies) {
-          const iucn = await iucnCategoryFor((verdict.gbif as { usageKey?: unknown })?.usageKey);
+          const usageKey = (verdict.gbif as { usageKey?: unknown })?.usageKey;
+          const [iucn, observations] = await Promise.all([
+            iucnCategoryFor(usageKey),
+            !knownInBestiary && admin ? observationCountFor(usageKey) : Promise.resolve(null),
+          ]);
+          // Nouvelle fiche : la fréquence d'observation GBIF relève la rareté
+          // estimée (jamais à la baisse), comme pour le reste du catalogue.
+          if (observations && admin) {
+            const { data: tier } = await admin.rpc("rarity_tier_for_observations", {
+              p_category: animalData.category ?? "",
+              p_count: observations,
+            });
+            if (
+              typeof tier === "string" &&
+              RARITY_ORDER.indexOf(String(animalData.rarity ?? "common")) < RARITY_ORDER.indexOf(tier)
+            ) {
+              animalData.rarity = tier;
+            }
+          }
           if (iucn) {
             animalData.iucn_status = iucn;
             const floor = IUCN_RARITY_FLOOR[iucn];

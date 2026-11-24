@@ -897,6 +897,20 @@
       "when": 1795470678583,
       "tag": "0125_species_favorites",
       "breakpoints": true
+    },
+    {
+      "idx": 126,
+      "version": "7",
+      "when": 1795475570408,
+      "tag": "0126_gbif_observation_rarity",
+      "breakpoints": true
+    },
+    {
+      "idx": 127,
+      "version": "7",
+      "when": 1795478545450,
+      "tag": "0127_gbif_rarity_thresholds",
+      "breakpoints": true
     }
   ]
 }
