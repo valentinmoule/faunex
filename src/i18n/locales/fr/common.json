@@ -72,7 +72,24 @@
       "toPodium": "Encore un effort pour le podium",
       "none": "Gagne de l’XP pour rejoindre une ligue"
     },
-    "chapterLeft": "Termine le chapitre : encore {{count}} leçon(s)"
+    "chapterLeft": "Termine le chapitre : encore {{count}} leçon(s)",
+    "recap": {
+      "kicker": "Fin de la semaine",
+      "rank": "N° {{rank}} · {{points}} XP",
+      "continue": "Continuer",
+      "promoted": {
+        "title": "Promotion !",
+        "body": "Bravo ! Tu montes en Ligue {{tier}} cette semaine."
+      },
+      "stayed": {
+        "title": "Tu te maintiens",
+        "body": "Tu restes en Ligue {{tier}}. Finis dans le top 5 pour monter la semaine prochaine."
+      },
+      "demoted": {
+        "title": "Relégation",
+        "body": "Tu redescends de la Ligue {{from}} à la Ligue {{tier}}. Quelques captures suffisent pour remonter !"
+      }
+    }
   },
   "header": {
     "level": "Niv. {{level}}",

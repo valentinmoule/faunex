@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Bell, Play, Sprout, Trophy } from 'lucide-react';
 import LeagueTrophy from '@/components/league/LeagueTrophy';
+import LeagueWeekRecap from '@/components/league/LeagueWeekRecap';
 import { PageHeader } from '@/components/PageHeader';
 import HeaderLevelPill from '@/components/HeaderLevelPill';
 import QuestsInline from '@/components/QuestsInline';
@@ -76,6 +77,7 @@ export default function ChallengesPage() {
 
   return (
     <main className="min-h-screen bg-background pb-28">
+      <LeagueWeekRecap userId={session?.user?.id} />
       <PageHeader sticky autoHide onHiddenChange={setHeaderHidden} className="bg-background/80 backdrop-blur-xl border-b border-border px-4 py-4">
         <div className="mx-auto flex max-w-lg items-center justify-between gap-3">
           {/* Accès au profil (avatar) à gauche ; compteurs et notifications à droite */}

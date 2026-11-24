@@ -72,7 +72,24 @@
       "toPodium": "Keep pushing for the podium",
       "none": "Earn XP to join a league"
     },
-    "chapterLeft": "Finish the chapter: {{count}} lesson(s) left"
+    "chapterLeft": "Finish the chapter: {{count}} lesson(s) left",
+    "recap": {
+      "kicker": "Week complete",
+      "rank": "#{{rank}} · {{points}} XP",
+      "continue": "Continue",
+      "promoted": {
+        "title": "Promoted!",
+        "body": "Well done! You move up to the {{tier}} League this week."
+      },
+      "stayed": {
+        "title": "You held your spot",
+        "body": "You stay in the {{tier}} League. Finish in the top 5 to move up next week."
+      },
+      "demoted": {
+        "title": "Relegated",
+        "body": "You drop from the {{from}} League to the {{tier}} League. A few captures are enough to climb back!"
+      }
+    }
   },
   "header": {
     "level": "Lvl {{level}}",
