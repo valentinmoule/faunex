@@ -26,7 +26,7 @@ import i18n from '@/i18n';
 import { useTranslation } from 'react-i18next';
 
 /** Filtre de popularité communautaire : combien de naturalistes ont capturé l'espèce.
- *  Seuils alignés sur FindersBadge pour une cohérence badge ↔ filtre. */
+ *  Seuils de popularité partagés par le filtre. */
 export type PopularityTier = 'none' | 'rare' | 'common' | 'trending' | 'hot';
 
 export const POPULARITY_LABELS: Record<PopularityTier, { label: string; Icon: LucideIcon }> = {

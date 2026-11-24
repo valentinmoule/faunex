@@ -8,7 +8,6 @@ const mocks = vi.hoisted(() => ({ start: vi.fn(), limit: 10 }));
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'fr' } }) }));
 vi.mock('@/contexts/AuthContext', () => ({ useAuth: () => ({ session: { user: { id: 'user' } } }) }));
 vi.mock('@/hooks/useSubscription', () => ({ useSubscription: () => ({ isPremium: true, loading: false }) }));
-vi.mock('@/components/CurrencyBalance', () => ({ default: () => null }));
 vi.mock('@/components/CaptureQuotaBadge', () => ({ default: () => null }));
 vi.mock('@/components/LearningPlayer', () => ({ default: () => <div data-testid="revision" /> }));
 vi.mock('@/lib/learning', () => ({
