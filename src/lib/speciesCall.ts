@@ -1,4 +1,4 @@
-// Bird calls come from iNaturalist research-grade observations with a
+// Animal calls (all taxa) come from iNaturalist research-grade observations with a
 // Creative Commons sound licence: free, no key, attribution displayed.
 export interface SpeciesCall { url: string; attribution: string }
 
@@ -25,9 +25,28 @@ export function fetchSpeciesCall(scientificName: string): Promise<SpeciesCall | 
         const best = sounds.find((s: { file_url: string }) => /\.mp3|\.m4a/i.test(s.file_url)) ?? sounds[0];
         return best ? { url: best.file_url, attribution: best.attribution ?? '' } : null;
       })
+      .then((c) => c ?? fetchGbifCall(scientificName.trim()))
       .catch(() => { cache.delete(key); return null; }));
   }
   return cache.get(key)!;
 }
 
+// GBIF aggregates sound archives (xeno-canto, Tierstimmenarchiv, museums…): free, no key.
+function fetchGbifCall(name: string): Promise<SpeciesCall | null> {
+  const params = new URLSearchParams({ scientificName: name, mediaType: 'Sound', limit: '20' });
+  return fetch(`https://api.gbif.org/v1/occurrence/search?${params}`)
+    .then((r) => (r.ok ? r.json() : null))
+    .then((d) => {
+      type M = { type?: string; format?: string; identifier?: string; creator?: string; rightsHolder?: string; license?: string; publisher?: string };
+      const media: M[] = (d?.results ?? []).flatMap((o: { media?: M[] }) => o.media ?? [])
+        .filter((m: M) => m.identifier?.startsWith('https://') && (m.type === 'Sound' || /^audio\//.test(m.format ?? '')));
+      const best = media.find((m) => /mp3|mpeg|mp4|m4a/i.test(`${m.format} ${m.identifier}`)) ?? media[0];
+      if (!best) return null;
+      const who = best.creator || best.rightsHolder || best.publisher || '';
+      return { url: best.identifier!, attribution: who ? `© ${who}` : '' };
+    })
+    .catch(() => null);
+}
+
+/** @deprecated calls are now offered for every animal group. */
 export const isBirdCategory = (category?: string) => /oiseau|bird/i.test(category ?? '');

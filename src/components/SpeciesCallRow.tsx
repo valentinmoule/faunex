@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Lock, Pause, Play, Volume2, Sparkles } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { fetchSpeciesCall, isBirdCategory, type SpeciesCall } from '@/lib/speciesCall';
+import { fetchSpeciesCall, type SpeciesCall } from '@/lib/speciesCall';
 
 // Visible to everyone; playback is Premium-only, others get an upsell modal.
 export default function SpeciesCallRow({ scientificName, category, isPremium }: { scientificName?: string; category?: string; isPremium: boolean }) {
@@ -13,7 +13,7 @@ export default function SpeciesCallRow({ scientificName, category, isPremium }: 
   const [playing, setPlaying] = useState(false);
   const [upsell, setUpsell] = useState(false);
   const audio = useRef<HTMLAudioElement | null>(null);
-  const bird = isBirdCategory(category);
+  const bird = true; void category;
 
   useEffect(() => {
     setCall(null);
