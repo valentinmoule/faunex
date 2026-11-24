@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { ArrowDown, ArrowUp, ChevronRight, Crown, Lock, Minus, Trophy } from 'lucide-react';
+import LeagueTrophy from '@/components/league/LeagueTrophy';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { PremiumAvatar } from '@/components/PremiumAvatar';
 import { avatarFallbackStyle } from '@/lib/avatarPalette';
@@ -80,20 +81,18 @@ const LeagueHeader = ({ tier, size }: { tier: number; size: number }) => {
   return (
     <div className="mt-2">
       <div className="px-1">
-        <p className="text-[22px] font-display font-extrabold leading-tight text-foreground">{t('social.leaderboard.league.name', { tier: t(`social.leaderboard.league.tiers.${tier}`) })}</p>
-        <p className="mt-0.5 text-[12px] font-display font-bold uppercase tracking-wide text-muted-foreground">{t('social.leaderboard.league.daysLeft', { time: formatTimeLeft(timeLeft, t) })}</p>
+        <p className="text-center text-[24px] font-display font-extrabold leading-tight text-foreground">{t('social.leaderboard.league.name', { tier: t(`social.leaderboard.league.tiers.${tier}`) })}</p>
+        <p className="mx-auto mt-1 w-fit rounded-full bg-amber/15 px-3 py-1 text-[11px] font-display font-extrabold uppercase tracking-wide text-amber-dark">{t('social.leaderboard.league.daysLeft', { time: formatTimeLeft(timeLeft, t) })}</p>
       </div>
-      <div ref={ref} className="no-scrollbar -mx-4 mt-3 flex items-end gap-5 overflow-x-auto px-[38%] pb-3">
-        {LEAGUE_EMOJI.map((emoji, i) => (
-          <div key={i} data-current={i === tier} className="flex shrink-0 flex-col items-center">
-            <span className={`relative leading-none transition-all ${i === tier ? 'text-[64px] drop-shadow-md' : 'text-[36px]'} ${i > tier ? 'opacity-30 grayscale' : ''}`} aria-hidden>
-              {emoji}
-              {i > tier && <Lock className="absolute bottom-0 right-0 h-4 w-4 text-foreground" />}
-            </span>
+      <div ref={ref} className="no-scrollbar -mx-4 mt-2 flex items-end gap-3 overflow-x-auto px-[36%] pb-2 pt-3">
+        {LEAGUE_EMOJI.map((_, i) => (
+          <div key={i} data-current={i === tier} className={`flex shrink-0 flex-col items-center ${i === tier ? 'league-trophy-current' : ''}`}>
+            <LeagueTrophy tier={i} size={i === tier ? 92 : 50} locked={i > tier} className={i < tier ? 'opacity-90' : ''} />
+            {i === tier && <span className="mt-1 text-[11px] font-display font-extrabold uppercase tracking-wide text-foreground">{t(`social.leaderboard.league.tiers.${i}`)}</span>}
           </div>
         ))}
       </div>
-      {size > 0 && <p className="px-1 text-[12px] font-display text-muted-foreground">{t(tier >= 6 ? 'social.leaderboard.league.rulesTop' : 'social.leaderboard.league.rules', { size })}</p>}
+      {size > 0 && <p className="px-1 text-center text-[12px] font-display text-muted-foreground">{t(tier >= 6 ? 'social.leaderboard.league.rulesTop' : 'social.leaderboard.league.rules', { size })}</p>}
       <div className="mt-3 h-px bg-border" />
     </div>
   );
@@ -400,10 +399,10 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
               return (
               <Fragment key={r.user_id}>
               {showUpEnd && (
-                <li className="flex items-center justify-center gap-2 py-3 text-[13px] font-display font-extrabold uppercase tracking-wide text-primary"><ArrowUp className="h-4 w-4" strokeWidth={3} />{t('social.leaderboard.league.promoLine')}<ArrowUp className="h-4 w-4" strokeWidth={3} /></li>
+                <li className="league-zone league-zone--up"><ArrowUp className="h-4 w-4" strokeWidth={3} />{t('social.leaderboard.league.promoLine')}<ArrowUp className="h-4 w-4" strokeWidth={3} /></li>
               )}
               {showDownLabel && (
-                <li className="flex items-center justify-center gap-2 py-3 text-[13px] font-display font-extrabold uppercase tracking-wide text-destructive"><ArrowDown className="h-4 w-4" strokeWidth={3} />{t('social.leaderboard.league.demoteLine')}<ArrowDown className="h-4 w-4" strokeWidth={3} /></li>
+                <li className="league-zone league-zone--down"><ArrowDown className="h-4 w-4" strokeWidth={3} />{t('social.leaderboard.league.demoteLine')}<ArrowDown className="h-4 w-4" strokeWidth={3} /></li>
               )}
               <li className={`${r.is_me ? 'bg-primary/5' : ''} ${zone === 'up' ? 'border-l-[3px] border-l-primary' : zone === 'down' ? 'border-l-[3px] border-l-destructive' : ''}`}>
                 <button

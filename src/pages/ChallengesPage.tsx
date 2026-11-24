@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Bell, Play, Sprout, Trophy } from 'lucide-react';
+import LeagueTrophy from '@/components/league/LeagueTrophy';
 import { PageHeader } from '@/components/PageHeader';
 import HeaderLevelPill from '@/components/HeaderLevelPill';
 import QuestsInline from '@/components/QuestsInline';
@@ -120,7 +121,7 @@ export default function ChallengesPage() {
           className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card p-4 text-left shadow-card active:scale-[0.98] transition-transform"
         >
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber/15 text-2xl">
-            {league ? league.emoji : <Trophy className="h-6 w-6 text-amber" />}
+            {league ? <LeagueTrophy tier={league.tier} size={44} /> : <Trophy className="h-6 w-6 text-amber" />}
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-[11px] font-display font-bold uppercase tracking-wide text-muted-foreground">
