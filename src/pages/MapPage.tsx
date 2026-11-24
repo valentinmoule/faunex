@@ -464,7 +464,7 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
   return (
     <main className={`w-full overflow-hidden bg-background ${embedded ? 'fixed inset-0 z-0' : 'relative h-[100dvh]'}`}>
       {/* Contrôles flottants sous l'en-tête */}
-      <div className={`absolute left-0 right-0 z-20 px-4 pointer-events-none ${embedded ? 'top-[calc(env(safe-area-inset-top)+80px)]' : 'top-[max(1rem,env(safe-area-inset-top))]'}`}>
+      <div className={`absolute left-0 right-0 z-20 px-4 pointer-events-none ${embedded ? 'top-[calc(env(safe-area-inset-top)+92px)]' : 'top-[max(1rem,env(safe-area-inset-top))]'}`}>
         <div className="max-w-lg mx-auto flex items-start justify-between gap-2">
           <button
             onClick={() => { hapticTap(); setShowCaptures((v) => !v); }}
@@ -496,7 +496,7 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
       </div>
 
       {/* Capsule radar au-dessus de la barre de navigation */}
-      <div className="absolute inset-x-0 z-20 px-4 pointer-events-none bottom-[calc(env(safe-area-inset-bottom)+84px)]">
+      <div className="absolute inset-x-0 z-20 px-4 pointer-events-none bottom-[calc(env(safe-area-inset-bottom)+112px)]">
         <button
           onClick={() => { hapticTap(); window.dispatchEvent(new Event('faunex:discover-nearby')); }}
           className="pointer-events-auto press mx-auto flex w-full max-w-sm items-center gap-3 rounded-full bg-card/95 backdrop-blur-xl border border-primary/30 shadow-card pl-2 pr-2 py-2"
@@ -552,7 +552,7 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
       </MapContainer>
 
       {captures.length === 0 && hintSeen && (
-        <div className="absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+160px)] z-20 px-6 pointer-events-none">
+        <div className="absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+188px)] z-20 px-6 pointer-events-none">
           <div className="max-w-sm mx-auto rounded-2xl bg-card/90 backdrop-blur-xl border border-border/60 shadow-card p-4 text-center">
             <MapPin className="w-6 h-6 text-primary mx-auto mb-2" />
             <p className="font-display font-bold text-sm text-foreground">{t('map.emptyState.title')}</p>
