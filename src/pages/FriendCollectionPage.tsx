@@ -79,7 +79,7 @@ const FriendCollectionPage = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
   const { speciesName } = useSpeciesName();
-  const [sort, setSort] = useState<SpeciesSort>('default');
+  const [sort, setSort] = useState<SpeciesSort>('number');
   const [rarityFilter, setRarityFilter] = useState<Rarity[]>([]);
   const [popularityFilter, setPopularityFilter] = useState<PopularityTier[]>([]);
   const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
@@ -304,7 +304,7 @@ const FriendCollectionPage = () => {
   })();
 
   const resetFilters = () => {
-    setSort('default');
+    setSort('number');
     setRarityFilter([]);
     setPopularityFilter([]);
     setCategoryFilter([]);
@@ -459,7 +459,7 @@ const FriendCollectionPage = () => {
             </div>
             <SpeciesFilterButton
               onClick={() => setFilterOpen(true)}
-              active={sort !== 'default' || activeFilterCount > 0}
+              active={sort !== 'number' || activeFilterCount > 0}
               count={activeFilterCount}
             />
           </div>

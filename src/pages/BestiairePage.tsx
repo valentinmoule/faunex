@@ -273,16 +273,16 @@ const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   );
   const [popularityFilter, setPopularityFilter] = useState<PopularityTier[]>([]);
   const [filterOpen, setFilterOpen] = useState(false);
-  const [browseSort, setBrowseSort] = useState<SpeciesSort>('default');
+  const [browseSort, setBrowseSort] = useState<SpeciesSort>('number');
   // Tri + filtres de la vue catégorie (détail)
-  const [detailSort, setDetailSort] = useState<SpeciesSort>('default');
+  const [detailSort, setDetailSort] = useState<SpeciesSort>('number');
   const [detailFilterOpen, setDetailFilterOpen] = useState(false);
   // Tri + filtres des vues territoire et collection
-  const [zoneSort, setZoneSort] = useState<SpeciesSort>('default');
+  const [zoneSort, setZoneSort] = useState<SpeciesSort>('number');
   const [zoneRarityFilter, setZoneRarityFilter] = useState<Rarity[]>([]);
   const [zonePopularityFilter, setZonePopularityFilter] = useState<PopularityTier[]>([]);
   const [zoneFilterOpen, setZoneFilterOpen] = useState(false);
-  const [collectionSort, setCollectionSort] = useState<SpeciesSort>('default');
+  const [collectionSort, setCollectionSort] = useState<SpeciesSort>('number');
   const [collectionRarityFilter, setCollectionRarityFilter] = useState<Rarity[]>([]);
   const [collectionPopularityFilter, setCollectionPopularityFilter] = useState<PopularityTier[]>([]);
   const [collectionFilterOpen, setCollectionFilterOpen] = useState(false);
@@ -1544,7 +1544,7 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
             </div>
             <SpeciesFilterButton
               onClick={() => setZoneFilterOpen(true)}
-              active={zoneSort !== 'default' || zoneRarityFilter.length > 0 || zonePopularityFilter.length > 0}
+              active={zoneSort !== 'number' || zoneRarityFilter.length > 0 || zonePopularityFilter.length > 0}
               count={zoneRarityFilter.length + zonePopularityFilter.length}
             />
           </div>
@@ -1800,7 +1800,7 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
             </div>
             <SpeciesFilterButton
               onClick={() => setCollectionFilterOpen(true)}
-              active={collectionSort !== 'default' || collectionRarityFilter.length > 0 || collectionPopularityFilter.length > 0}
+              active={collectionSort !== 'number' || collectionRarityFilter.length > 0 || collectionPopularityFilter.length > 0}
               count={collectionRarityFilter.length + collectionPopularityFilter.length}
             />
           </div>
@@ -2102,7 +2102,7 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
                 </div>
 <SpeciesFilterButton
                   onClick={() => setFilterOpen(true)}
-                  active={activeFilterCount > 0 || browseSort !== 'default'}
+                  active={activeFilterCount > 0 || browseSort !== 'number'}
                   count={activeFilterCount}
                 />
               </div>
@@ -2523,7 +2523,7 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
           </div>
           <SpeciesFilterButton
             onClick={() => setDetailFilterOpen(true)}
-            active={detailSort !== 'default' || rarityFilter.length > 0 || popularityFilter.length > 0}
+            active={detailSort !== 'number' || rarityFilter.length > 0 || popularityFilter.length > 0}
             count={rarityFilter.length + popularityFilter.length}
           />
         </div>

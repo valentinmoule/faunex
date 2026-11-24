@@ -231,9 +231,6 @@
       "worldSuffix": "monde"
     },
     "speciesNumber": "N° {{number}}",
-    "speciesSort": {
-      "default": "Ordre du catalogue"
-    },
     "customCollections": {
       "addTitle": "Ajouter",
       "favorites": "Favoris",

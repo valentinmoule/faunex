@@ -104,12 +104,11 @@ export const SpeciesCategoryIcon = ({ category, className }: { category: string;
 };
 
 /** Tri des listes d'espèces du catalogue (bestiaire, catégories, collections, territoires). */
-export type SpeciesSort = 'default' | 'alpha' | 'number' | 'rarity' | 'popularity';
+export type SpeciesSort = 'alpha' | 'number' | 'rarity' | 'popularity';
 
 export const SPECIES_SORT_OPTIONS: { value: SpeciesSort; label: string }[] = [
-  { value: 'default', get label() { return i18n.t('bestiary.speciesSort.default'); } },
-  { value: 'alpha', get label() { return i18n.t('bestiary.mineSort.alpha'); } },
   { value: 'number', get label() { return i18n.t('bestiary.mineSort.number'); } },
+  { value: 'alpha', get label() { return i18n.t('bestiary.mineSort.alpha'); } },
   { value: 'rarity', get label() { return i18n.t('bestiary.mineSort.rarity'); } },
   { value: 'popularity', get label() { return i18n.t('bestiary.mineSort.popularity'); } },
 ];
@@ -166,7 +165,6 @@ export const SpeciesFilterButton = ({
 
 /** Icône de chaque mode de tri (une ligne par option dans le drawer). */
 const SORT_ICONS: Record<string, LucideIcon> = {
-  default: Sparkles,
   recent: Clock,
   alpha: ArrowDownAZ,
   rarity: Star,
