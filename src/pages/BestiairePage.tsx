@@ -1887,7 +1887,7 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
           </PageHeader>
         )}
 
-        <div className="max-w-lg mx-auto px-4 pt-4 space-y-6">
+        <div className="max-w-lg mx-auto px-4 pt-2 space-y-4">
           {viewMode !== 'badges' && (
             <h1 className="sr-only">
               {viewMode === 'leaderboard' ? t('social.leaderboard.ranking') : viewMode === 'map' ? t('nav.terrain') : t('bestiary.header.title')}
@@ -1898,7 +1898,7 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
 
           {/* View toggle — floating gamified tab bar */}
           {viewMode !== 'leaderboard' && viewMode !== 'badges' && viewMode !== 'map' && (
-          <div className={`sticky top-[73px] z-30 -mx-4 px-4 pt-3 pb-2 ${viewMode === 'mine' && !showMineControls ? '' : 'bg-gradient-to-b from-background via-background/95 to-transparent'}`}>
+          <div className={`sticky top-[73px] z-30 -mx-4 px-4 pt-1.5 pb-2 ${viewMode === 'mine' && !showMineControls ? '' : 'bg-gradient-to-b from-background via-background/95 to-transparent'}`}>
             <div className="game-tabs flex items-center w-full" role="tablist">
               {([
                 { key: 'mine' as const, label: t('bestiary.tabs.mine'), icon: Images },
@@ -2352,7 +2352,7 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
 
           {viewMode === 'leaderboard' && (
             <section>
-              <div className="sticky top-[73px] z-30 -mx-4 px-4 pt-3 pb-2 bg-gradient-to-b from-background via-background/95 to-transparent">
+              <div className="sticky top-[73px] z-30 -mx-4 px-4 pt-1.5 pb-2 bg-gradient-to-b from-background via-background/95 to-transparent">
                 <div className="game-tabs grid grid-cols-2 w-full" role="tablist">
                   {([['global', t('social.leaderboard.tabGlobal'), Globe], ['explorers', t('social.leaderboard.tabExplorers'), Users]] as const).map(([key, label, Icon]) => {
                     const active = leaderboardScope === key;

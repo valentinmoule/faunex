@@ -38,7 +38,7 @@ export default function ChallengesPage() {
       <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
         <div className="mx-auto flex max-w-lg items-center justify-end gap-4"></div>
       </PageHeader>
-      <div className="mx-auto max-w-lg px-4 pt-4 space-y-6">
+      <div className="mx-auto max-w-lg px-4 pt-3 space-y-4">
         <h1 className="sr-only">{t('nav.challenges')}</h1>
 
         <button
