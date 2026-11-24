@@ -28,6 +28,23 @@ export function pickBest(cands: Candidate[]): Candidate | null {
   return ok[0] ?? null;
 }
 
+// "Chant" only fits animals that actually sing: birds, stridulating insects,
+// frogs and toads. Mammals have cries, everything else just has sounds.
+const SONG_GROUPS = new Set(['oiseaux', 'insectes', 'amphibiens']);
+const CRY_GROUPS = new Set(['mammiferes']);
+
+export function callLabelKey(category?: string): 'labelSong' | 'labelCries' | 'labelSounds' {
+  const group = (category ?? '')
+    .replace(/\s*\(monde\)\s*/i, '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim();
+  if (SONG_GROUPS.has(group)) return 'labelSong';
+  if (CRY_GROUPS.has(group)) return 'labelCries';
+  return 'labelSounds';
+}
+
 type INatSound = { file_url?: string; attribution?: string; license_code?: string; file_content_type?: string };
 type INatObs = { sounds?: INatSound[]; user?: { name?: string; login?: string } };
 

@@ -210,7 +210,9 @@
       "send": "Envoyer le signalement"
     },
     "call": {
-      "label": "Écouter son chant",
+      "labelSong": "Écouter son chant",
+      "labelCries": "Écouter ses cris",
+      "labelSounds": "Écouter ses sons",
       "premiumTitle": "Débloque les cris avec Premium",
       "premiumBody": "Écoute le chant et les cris de chaque animal directement depuis sa fiche avec Faunex Premium.",
       "premiumCta": "Découvrir Premium",

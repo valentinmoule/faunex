@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Lock, Pause, Play, Volume2, Sparkles } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { fetchSpeciesCall, type SpeciesCall } from '@/lib/speciesCall';
+import { callLabelKey, fetchSpeciesCall, type SpeciesCall } from '@/lib/speciesCall';
 
 // Visible to everyone; playback is Premium-only, others get an upsell modal.
 export default function SpeciesCallRow({ scientificName, category, isPremium }: { scientificName?: string; category?: string; isPremium: boolean }) {
@@ -13,17 +13,17 @@ export default function SpeciesCallRow({ scientificName, category, isPremium }: 
   const [playing, setPlaying] = useState(false);
   const [upsell, setUpsell] = useState(false);
   const audio = useRef<HTMLAudioElement | null>(null);
-  const bird = true; void category;
+  const labelKey = callLabelKey(category);
 
   useEffect(() => {
     setCall(null);
-    if (!bird || !scientificName) return;
+    if (!scientificName) return;
     let alive = true;
     fetchSpeciesCall(scientificName).then((c) => alive && setCall(c));
     return () => { alive = false; audio.current?.pause(); audio.current = null; setPlaying(false); };
-  }, [bird, scientificName]);
+  }, [scientificName]);
 
-  if (!bird || !call) return null;
+  if (!call) return null;
 
   const toggle = () => {
     if (!isPremium) { setUpsell(true); return; }
@@ -40,7 +40,7 @@ export default function SpeciesCallRow({ scientificName, category, isPremium }: 
       <button type="button" onClick={toggle} className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/40">
         <span className="text-muted-foreground"><Volume2 className="h-4 w-4" /></span>
         <span className="flex-1 min-w-0">
-          <span className="block text-sm text-foreground/85">{t('species.call.label')}</span>
+          <span className="block text-sm text-foreground/85">{t(`species.call.${labelKey}`)}</span>
           {isPremium && call.attribution && <span className="block truncate text-[11px] text-muted-foreground">{call.attribution}</span>}
         </span>
         <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">

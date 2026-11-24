@@ -210,7 +210,9 @@
       "send": "Send report"
     },
     "call": {
-      "label": "Listen to its call",
+      "labelSong": "Listen to its song",
+      "labelCries": "Listen to its calls",
+      "labelSounds": "Listen to its sounds",
       "premiumTitle": "Unlock animal calls with Premium",
       "premiumBody": "Listen to each animal's song and calls right from its species page with Faunex Premium.",
       "premiumCta": "Discover Premium",
