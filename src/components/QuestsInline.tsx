@@ -12,6 +12,7 @@ import { shareOrigin } from '@/lib/authRedirect';
 import { Button } from '@/components/ui/button';
 import { shareContent } from '@/lib/share';
 import XpPill from '@/components/XpPill';
+import { useNavigate } from 'react-router-dom';
 
 interface Quest {
   id: string;
@@ -46,6 +47,7 @@ const QUEST_TINTS: Record<string, string> = {
 const QuestsInline = () => {
   const { t } = useTranslation();
   const { session } = useAuth();
+  const navigate = useNavigate();
   const [quests, setQuests] = useState<Quest[]>([]);
   const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState<string | null>(null);
@@ -246,6 +248,12 @@ const QuestsInline = () => {
                 {quest.quest_type === 'share_app' && !done && !quest.claimed && (
                   <Button size="sm" variant="ghost" onClick={() => handleShareApp(quest.id)} className="game-button game-button-outline mt-3 h-11 w-full text-sm font-display">
                     <Share2 className="h-4 w-4" />{t('profile.quests.share')}
+                  </Button>
+                )}
+                {!done && !quest.claimed && quest.quest_type !== 'share_app' && (
+                  <Button size="sm" variant="ghost" onClick={() => navigate(quest.quest_type === 'new_zone' ? '/home?tab=map' : '/capture')} className="game-button game-button-outline mt-3 h-11 w-full text-sm font-display">
+                    {quest.quest_type === 'new_zone' ? <MapPin className="h-4 w-4" /> : <Camera className="h-4 w-4" />}
+                    {t(quest.quest_type === 'new_zone' ? 'profile.quests.goExplore' : 'profile.quests.goCapture')}
                   </Button>
                 )}
                 {ready && (

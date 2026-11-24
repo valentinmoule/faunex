@@ -4,8 +4,7 @@ import ExplorersLeaderboard from '@/components/ExplorersLeaderboard';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { Bell, Play, Sprout, Trophy } from 'lucide-react';
-import LeagueTrophy from '@/components/league/LeagueTrophy';
+import { Bell, Play, Sprout } from 'lucide-react';
 import LeagueWeekRecap from '@/components/league/LeagueWeekRecap';
 import { PageHeader } from '@/components/PageHeader';
 import HeaderLevelPill from '@/components/HeaderLevelPill';
@@ -62,17 +61,6 @@ export default function ChallengesPage() {
   const total = chapter?.lessons.length ?? 0;
   const allDone = chapters.length > 0 && chapters.every(c => c.lessons.every(l => done.has(l.id)));
   const pct = total ? Math.round((chapterDone / total) * 100) : 0;
-  const league = useQuery({
-    queryKey: ['my-league', session?.user.id],
-    enabled: !!session?.user,
-    queryFn: async () => {
-      const { data } = await supabase.rpc('my_league');
-      const row = data?.[0];
-      if (!row) return null;
-      const { data: tier } = await supabase.from('league_tiers').select('label, emoji').eq('tier', row.tier).maybeSingle();
-      return { ...row, label: tier?.label ?? '', emoji: tier?.emoji ?? '🏆' };
-    },
-  }).data;
   const cta = allDone ? t('challenges.review') : done.size === 0 ? t('challenges.start') : t('challenges.continue');
 
   return (
@@ -117,37 +105,15 @@ export default function ChallengesPage() {
       <div className="mx-auto max-w-lg px-4 pt-1 space-y-4">
         <h1 className="sr-only">{t('nav.challenges')}</h1>
 
-        <button
-          onClick={() => setTab('league')}
-          className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card p-4 text-left shadow-card active:scale-[0.98] transition-transform"
-        >
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber/15 text-2xl">
-            {league ? <LeagueTrophy tier={league.tier} size={44} /> : <Trophy className="h-6 w-6 text-amber" />}
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-display font-bold uppercase tracking-wide text-muted-foreground">
-              {t('challenges.league.title')}{league?.label ? ` · ${league.label}` : ''}
-            </p>
-            {league ? (
-              <>
-                <p className="text-base font-display font-extrabold text-foreground">
-                  {t('challenges.league.rank', { rank: league.rank, size: league.group_size })} · {t('challenges.league.points', { points: league.points })}
-                </p>
-                <p className="text-[12px] text-muted-foreground">{league.rank <= 3 ? t('challenges.league.podium') : t('challenges.league.toPodium')}</p>
-              </>
-            ) : (
-              <p className="text-sm font-display font-bold text-foreground">{t('challenges.league.none')}</p>
-            )}
-          </div>
-        </button>
+        <QuestsInline />
 
         <button
           onClick={() => navigate('/apprendre')}
-          className="relative block w-full overflow-hidden rounded-3xl border border-border text-left shadow-card active:scale-[0.98] transition-transform"
+          className="relative block w-full overflow-hidden rounded-3xl text-left surface-pebble active:scale-[0.98] transition-transform"
         >
           <img src={worlds[chapterIndex % worlds.length]} alt="" className="absolute inset-0 h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/30 to-transparent" />
-          <div className="relative flex min-h-[220px] flex-col justify-end gap-3 p-5">
+          <div className="absolute inset-0 bg-gradient-to-t from-foreground/55 via-foreground/10 to-transparent" />
+          <div className="relative flex min-h-[180px] flex-col justify-end gap-3 p-5">
             <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-card/90 px-3 py-1 text-[11px] font-display font-bold uppercase tracking-wider text-primary">
               <Sprout className="h-3.5 w-3.5" />{t('challenges.academyTitle')}
             </span>
@@ -174,8 +140,6 @@ export default function ChallengesPage() {
             </span>
           </div>
         </button>
-
-        <QuestsInline />
       </div>
       )}
     </main>

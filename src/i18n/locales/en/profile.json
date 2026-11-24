@@ -58,6 +58,8 @@
       "emptySubtitle": "Quests refresh every Monday. Come back soon!",
       "share": "Share",
       "claim": "Claim",
+      "goCapture": "Hunt",
+      "goExplore": "Explore",
       "xpEarned": "+{{xp}} XP earned! 🎉",
       "claimError": "Error while claiming",
       "linkCopied": "Link copied!",

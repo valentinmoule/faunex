@@ -58,6 +58,8 @@
       "emptySubtitle": "Les quêtes se renouvellent chaque lundi. Reviens vite !",
       "share": "Partager",
       "claim": "Récolter",
+      "goCapture": "Chasser",
+      "goExplore": "Explorer",
       "xpEarned": "+{{xp}} XP récoltés ! 🎉",
       "claimError": "Erreur lors de la réclamation",
       "linkCopied": "Lien copié !",
