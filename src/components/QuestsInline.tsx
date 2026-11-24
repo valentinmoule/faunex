@@ -52,9 +52,6 @@ const QuestsInline = () => {
   const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState<string | null>(null);
   const [celebrating, setCelebrating] = useState<string | null>(null);
-  const [chestClaimed, setChestClaimed] = useState(false);
-  const [chestBusy, setChestBusy] = useState(false);
-  const CHEST_XP = 50;
 
   const fetchQuests = async () => {
     if (!session?.user) return;
@@ -66,8 +63,6 @@ const QuestsInline = () => {
       .eq('quest_date', weekStart)
       .order('created_at');
     if (!error && data) setQuests(data as Quest[]);
-    const { data: chest } = await supabase.from('weekly_chest_claims').select('week_start').eq('user_id', session.user.id).eq('week_start', weekStart).maybeSingle();
-    setChestClaimed(!!chest);
     if (!error && (!data || data.length === 0)) {
       await supabase.rpc('ensure_weekly_quests');
       const { data: retry } = await supabase
@@ -138,21 +133,7 @@ const QuestsInline = () => {
     window.setTimeout(() => setCelebrating((c) => (c === questId ? null : c)), 1400);
   };
 
-  const openChest = async () => {
-    setChestBusy(true);
-    const { data, error } = await supabase.rpc('claim_weekly_chest', { p_week: startOfWeekISO() });
-    setChestBusy(false);
-    if (error || !data) { toast.error(t('profile.quests.claimError')); return; }
-    setChestClaimed(true);
-    setCelebrating('chest');
-    window.setTimeout(() => setCelebrating((c) => (c === 'chest' ? null : c)), 1400);
-    toast.success(t('profile.quests.xpEarned', { xp: data }));
-  };
 
-  const claimedCount = quests.filter((q) => q.claimed).length;
-  const totalXp = quests.reduce((sum, q) => sum + q.xp_reward, 0);
-  const earnedXp = quests.filter((q) => q.claimed).reduce((sum, q) => sum + q.xp_reward, 0);
-  const perfect = quests.length > 0 && claimedCount === quests.length;
   const rank = (q: Quest) => (q.completed && !q.claimed ? 0 : q.claimed ? 2 : 1);
   const sorted = [...quests].sort((a, b) => rank(a) - rank(b));
 
@@ -162,71 +143,17 @@ const QuestsInline = () => {
   const daysLeft = Math.floor(msLeft / 86_400_000);
   const hoursLeft = Math.max(1, Math.floor((msLeft % 86_400_000) / 3_600_000));
   const endsIn = daysLeft > 0 ? t('profile.quests.endsInDays', { d: daysLeft, h: hoursLeft }) : t('profile.quests.endsInHours', { h: hoursLeft });
+  const nextIn = daysLeft >= 1 ? t('profile.quests.availableIn', { count: daysLeft + 1 }) : t('profile.quests.availableTomorrow');
 
   return (
-    <section aria-labelledby="weekly-quests-title" className="space-y-4">
-      {/* Objectif de la semaine : chemin de quêtes jusqu'au coffre */}
-      <div className="quest-hero relative overflow-hidden rounded-3xl p-5">
-        <div className="relative flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <p className="text-[11px] font-display font-extrabold uppercase tracking-wider text-primary">{t('profile.quests.heroKicker')}</p>
-            <h3 id="weekly-quests-title" className="mt-0.5 text-xl font-display font-black leading-tight text-foreground">
-              {perfect ? t('profile.quests.perfectTitle') : t('profile.quests.weekTitle')}
-            </h3>
-            <p className="mt-1 text-[12px] font-display font-semibold text-muted-foreground">
-              {chestClaimed ? t('profile.quests.perfectBody') : perfect ? t('profile.quests.chestReady', { xp: CHEST_XP }) : t('profile.quests.chestGoal', { xp: CHEST_XP })}
-            </p>
-          </div>
-          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-card px-2.5 py-1 text-[11px] font-display font-extrabold text-foreground shadow-card">
-            <Clock className="h-3.5 w-3.5 text-primary" />{endsIn}
-          </span>
-        </div>
-
-        {quests.length > 0 && (
-          <div className="relative mt-5 flex items-center">
-            <div aria-hidden className="absolute left-5 right-6 top-1/2 h-2 -translate-y-1/2 rounded-full bg-muted">
-              <div className="quest-progress-fill h-full rounded-full bg-primary" style={{ width: `${(claimedCount / quests.length) * 100}%` }} />
-            </div>
-            <div className="relative flex w-full items-center justify-between">
-              {quests.map((q) => {
-                const Icon = QUEST_ICONS[q.quest_type] ?? Target;
-                const state = q.claimed ? 'claimed' : q.completed ? 'ready' : 'todo';
-                return (
-                  <span key={q.id} data-state={state} className="quest-node flex h-10 w-10 items-center justify-center rounded-full">
-                    {q.claimed ? <Check className="h-5 w-5" strokeWidth={3} /> : <Icon className="h-[18px] w-[18px]" strokeWidth={2.4} />}
-                  </span>
-                );
-              })}
-              <span data-open={perfect && !chestClaimed} className="quest-chest relative flex h-14 w-14 items-center justify-center rounded-2xl" aria-label={t('profile.quests.chest')}>
-                {chestClaimed ? <Check className="h-7 w-7" strokeWidth={3} /> : <Gift className="h-7 w-7" strokeWidth={2.2} />}
-                <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-amber px-1.5 py-0.5 text-[10px] font-display font-black text-primary-foreground">+{CHEST_XP} XP</span>
-              </span>
-            </div>
-          </div>
-        )}
-        <p className="relative mt-4 text-[12px] font-display font-bold text-foreground">
-          {t('profile.quests.completedCount', { completed: claimedCount, total: quests.length })} · {earnedXp + (chestClaimed ? CHEST_XP : 0)}/{totalXp + CHEST_XP} XP
-        </p>
-        {perfect && !chestClaimed && (
-          <Button size="sm" variant="ghost" onClick={openChest} disabled={chestBusy} className="game-button quest-claim-pulse relative mt-3 h-11 w-full text-sm font-display">
-            {chestBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Gift className="h-4 w-4" />}
-            {t('profile.quests.openChest', { xp: CHEST_XP })}
-          </Button>
-        )}
-        {celebrating === 'chest' && (
-          <div aria-hidden className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
-            {Array.from({ length: 12 }).map((_, i) => (
-              <span key={i} className="quest-spark absolute h-2.5 w-2.5 rounded-full bg-amber" style={{ '--a': `${i * 30}deg` } as CSSProperties} />
-            ))}
-            <span className="quest-xp-float font-display text-3xl font-black text-primary">+{CHEST_XP} XP</span>
-          </div>
-        )}
+    <section aria-labelledby="weekly-quests-title" className="space-y-3">
+      <div className="flex items-end justify-between px-1">
+        <h3 id="weekly-quests-title" className="text-[11px] font-display font-extrabold uppercase tracking-[0.08em] text-muted-foreground">{t('profile.quests.weekTitle')}</h3>
+        <span className="inline-flex items-center gap-1 text-[11px] font-display font-extrabold text-muted-foreground"><Clock className="h-3.5 w-3.5" />{endsIn}</span>
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center py-8">
-          <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />
-        </div>
+        <div className="flex items-center justify-center py-8"><Loader2 className="w-5 h-5 text-muted-foreground animate-spin" /></div>
       ) : quests.length === 0 ? (
         <div className="text-center py-8 text-xs text-muted-foreground">{t('profile.quests.emptyShort')}</div>
       ) : (
@@ -237,12 +164,7 @@ const QuestsInline = () => {
             const done = quest.completed;
             const ready = done && !quest.claimed;
             return (
-              <div
-                key={quest.id}
-                data-ready={ready}
-                className={`quest-card quest-card-enter relative rounded-3xl bg-card p-4 ${quest.claimed ? 'opacity-60' : ''}`}
-                style={{ animationDelay: `${index * 80}ms` }}
-              >
+              <div key={quest.id} data-ready={ready} className={`mission-plate quest-card-enter overflow-hidden rounded-3xl p-4 ${quest.claimed ? 'opacity-60' : ''}`} style={{ animationDelay: `${index * 80}ms` }}>
                 {celebrating === quest.id && (
                   <div aria-hidden className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
                     {Array.from({ length: 10 }).map((_, i) => (
@@ -251,38 +173,32 @@ const QuestsInline = () => {
                     <span className="quest-xp-float font-display text-2xl font-black text-primary">+{quest.xp_reward} XP</span>
                   </div>
                 )}
-                <div className="flex items-center gap-4">
+                <div className="relative flex items-center gap-3">
+                  <span className="mission-seal flex h-11 w-11 shrink-0 items-center justify-center rounded-full" style={{ '--seal': QUEST_TINTS[quest.quest_type] ?? 'var(--primary)' } as CSSProperties}>
+                    {quest.claimed ? <Check className="h-5 w-5" strokeWidth={3} /> : <QuestIcon className="h-5 w-5" strokeWidth={2.3} />}
+                  </span>
                   <div className="min-w-0 flex-1">
-                    <p className="flex items-center gap-1.5 text-[10px] font-display font-bold uppercase tracking-[0.08em] text-muted-foreground">
-                      <QuestIcon className="h-3.5 w-3.5" strokeWidth={2.4} style={{ color: QUEST_TINTS[quest.quest_type] ?? 'hsl(var(--primary))' }} />
-                      {quest.description}
-                    </p>
-                    <p className="mt-1 truncate text-[16px] font-display font-black leading-tight text-foreground">{quest.title}</p>
-                    <div className="quest-bar relative mt-2.5 h-5 overflow-hidden rounded-full bg-muted">
-                      <div
-                        className={`quest-progress-fill quest-bar-fill h-full rounded-full ${done ? 'bg-primary' : 'bg-amber'}`}
-                        style={{ width: `${quest.claimed ? 100 : Math.max(pct, 6)}%`, animationDelay: `${index * 80 + 150}ms` }}
-                      />
-                      <span className="absolute inset-0 flex items-center justify-center text-[11px] font-display font-black tabular-nums text-foreground">
-                        {Math.min(quest.progress, quest.target)}/{quest.target}
-                      </span>
+                    <p className="truncate text-[10px] font-display font-bold uppercase tracking-[0.08em] text-muted-foreground">{quest.description}</p>
+                    <p className="mt-0.5 truncate text-[15px] font-display font-black leading-tight text-foreground">{quest.title}</p>
+                    <div className="mt-2 flex items-center gap-2">
+                      <div className="mission-gauge h-2.5 flex-1 overflow-hidden rounded-full">
+                        <div className="mission-gauge-fill h-full rounded-full" style={{ width: `${quest.claimed ? 100 : Math.max(pct, 4)}%` }} />
+                      </div>
+                      <span className="text-[11px] font-display font-black tabular-nums text-foreground">{Math.min(quest.progress, quest.target)}/{quest.target}</span>
                     </div>
                   </div>
-                  <div className="flex w-14 shrink-0 flex-col items-center gap-1">
-                    <span data-open={ready} className="quest-chest flex h-12 w-12 items-center justify-center rounded-2xl">
-                      {quest.claimed ? <Check className="h-6 w-6" strokeWidth={3} /> : <Gift className="h-6 w-6" strokeWidth={2.2} />}
-                    </span>
+                  <div className="flex w-14 shrink-0 flex-col items-center gap-0.5">
+                    <RelicChest state={quest.claimed ? 'open' : ready ? 'ready' : 'idle'} />
                     <span className="text-[10px] font-display font-black text-amber">+{quest.xp_reward} XP</span>
                   </div>
                 </div>
-
                 {quest.quest_type === 'share_app' && !done && !quest.claimed && (
-                  <Button size="sm" variant="ghost" onClick={() => handleShareApp(quest.id)} className="game-button game-button-outline mt-3 h-11 w-full text-sm font-display">
+                  <Button size="sm" variant="ghost" onClick={() => handleShareApp(quest.id)} className="game-button game-button-outline relative mt-3 h-10 w-full text-sm font-display">
                     <Share2 className="h-4 w-4" />{t('profile.quests.share')}
                   </Button>
                 )}
                 {ready && (
-                  <Button size="sm" variant="ghost" onClick={() => claimWithCelebration(quest.id)} disabled={claiming === quest.id} className="game-button quest-claim-pulse mt-3 h-11 w-full text-sm font-display">
+                  <Button size="sm" variant="ghost" onClick={() => claimWithCelebration(quest.id)} disabled={claiming === quest.id} className="game-button quest-claim-pulse relative mt-3 h-10 w-full text-sm font-display">
                     {claiming === quest.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Gift className="h-4 w-4" />}
                     {t('profile.quests.claim')}
                   </Button>
@@ -292,8 +208,50 @@ const QuestsInline = () => {
           })}
         </div>
       )}
+
+      {/* À venir : donne une raison de revenir la semaine prochaine */}
+      <div className="px-1 pt-2">
+        <p className="text-[11px] font-display font-extrabold uppercase tracking-[0.08em] text-muted-foreground">{t('profile.quests.upcoming')}</p>
+        {[0].map((i) => (
+          <div key={i} className="mt-2 flex items-center gap-3 py-1.5">
+            <div className="min-w-0 flex-1">
+              <p className="text-[14px] font-display font-bold text-muted-foreground">{nextIn}</p>
+              <div className="mission-gauge mt-1.5 h-2.5 rounded-full" />
+            </div>
+            <div className="flex w-14 justify-center"><RelicChest state="locked" /></div>
+          </div>
+        ))}
+      </div>
     </section>
   );
 };
+
+/** Coffre d'expédition sculpté : cuir, renforts dorés, gemme verte. */
+function RelicChest({ state }: { state: 'idle' | 'ready' | 'open' | 'locked' }) {
+  const open = state === 'open';
+  return (
+    <svg data-state={state} className="relic-chest h-11 w-12" viewBox="0 0 48 44" aria-hidden>
+      <defs>
+        <linearGradient id={`rc-wood-${state}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="hsl(28 55% 46%)" /><stop offset="1" stopColor="hsl(24 52% 32%)" />
+        </linearGradient>
+        <linearGradient id={`rc-gold-${state}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="hsl(var(--amber-light))" /><stop offset="1" stopColor="hsl(var(--amber-dark))" />
+        </linearGradient>
+      </defs>
+      <rect x="5" y="20" width="38" height="20" rx="4" fill={`url(#rc-wood-${state})`} />
+      {open
+        ? <path d="M6 20 L10 8 Q24 2 38 8 L42 20 Z" fill={`url(#rc-wood-${state})`} opacity=".85" />
+        : <path d="M5 21 V15 Q5 6 24 6 Q43 6 43 15 V21 Z" fill={`url(#rc-wood-${state})`} />}
+      <rect x="5" y="19" width="38" height="4" rx="1.5" fill={`url(#rc-gold-${state})`} />
+      <rect x="11" y={open ? 9 : 6} width="4" height={open ? 31 : 34} rx="1.5" fill={`url(#rc-gold-${state})`} />
+      <rect x="33" y={open ? 9 : 6} width="4" height={open ? 31 : 34} rx="1.5" fill={`url(#rc-gold-${state})`} />
+      <rect x="19" y="17" width="10" height="11" rx="2.5" fill={`url(#rc-gold-${state})`} />
+      <path d="M24 19.5 L27 22.5 L24 25.5 L21 22.5 Z" fill={state === 'locked' ? 'hsl(var(--muted-foreground))' : 'hsl(var(--primary))'} />
+      {open && <path d="M18 31 L22 35 L30 27" fill="none" stroke="hsl(var(--card))" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />}
+      <path d="M8 14 Q24 9 40 14" fill="none" stroke="hsl(var(--card) / .35)" strokeWidth="1.2" strokeLinecap="round" />
+    </svg>
+  );
+}
 
 export default QuestsInline;

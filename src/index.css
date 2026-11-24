@@ -4224,6 +4224,22 @@ html.is-native-android body {
 @keyframes quest-xp-float { 0% { transform: translateY(10px) scale(.6); opacity: 0; } 25% { transform: translateY(-6px) scale(1.15); opacity: 1; } 100% { transform: translateY(-40px) scale(1); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .quest-chest[data-open=true], .quest-node[data-state=ready], .quest-spark, .quest-xp-float { animation: none; } }
 
+/* Défis : plaques de mission (DA collector) */
+.mission-plate { position: relative; background: linear-gradient(180deg, hsl(var(--card)), hsl(var(--background))); border: 1px solid hsl(var(--border) / .7); box-shadow: inset 0 1px .5px hsl(var(--card) / .95), 0 12px 28px -18px hsl(var(--foreground) / .35); }
+.mission-plate[data-ready=true] { border-color: hsl(var(--amber) / .6); box-shadow: inset 0 1px .5px hsl(var(--card) / .95), 0 0 0 3px hsl(var(--amber) / .14), 0 14px 30px -14px hsl(var(--amber) / .55); }
+.mission-plate[data-ready=true]::after { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; background: linear-gradient(115deg, transparent 35%, hsl(var(--amber-light, var(--amber)) / .22) 50%, transparent 65%); background-size: 250% 100%; animation: mission-sheen 3.2s ease-in-out infinite; }
+@keyframes mission-sheen { from { background-position: 120% 0; } to { background-position: -120% 0; } }
+.mission-seal { background: radial-gradient(circle at 35% 30%, hsl(var(--card)), hsl(var(--seal) / .18) 70%); color: hsl(var(--seal)); box-shadow: inset 0 1px 0 hsl(var(--card)), inset 0 0 0 1.5px hsl(var(--seal) / .35), 0 3px 8px -4px hsl(var(--seal) / .6); }
+.mission-gauge { background: hsl(var(--muted)); box-shadow: inset 0 1px 2px hsl(var(--foreground) / .12); }
+.mission-gauge-fill { position: relative; overflow: hidden; background: linear-gradient(90deg, hsl(var(--primary) / .85), hsl(var(--primary))); box-shadow: 0 0 10px hsl(var(--primary) / .45); transition: width .8s cubic-bezier(.34,1.56,.64,1); }
+.mission-gauge-fill::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, hsl(var(--card) / .55), transparent); transform: translateX(-100%); animation: mission-shimmer 2.6s ease-in-out infinite; }
+@keyframes mission-shimmer { 60%, 100% { transform: translateX(100%); } }
+.relic-chest { filter: drop-shadow(0 4px 6px hsl(var(--foreground) / .22)); transition: transform .3s; }
+.relic-chest[data-state=ready] { filter: drop-shadow(0 0 12px hsl(var(--amber) / .7)); animation: relic-float 2.4s ease-in-out infinite; }
+.relic-chest[data-state=locked] { opacity: .45; filter: grayscale(1); }
+@keyframes relic-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@media (prefers-reduced-motion: reduce) { .mission-plate::after, .mission-gauge-fill::after, .relic-chest { animation: none !important; } }
+
 /* Fiche espèce : carnet de terrain */
 .field-stats { padding: 4px 0; }
 .field-entry { border-left: 3px solid hsl(var(--primary) / .35); }

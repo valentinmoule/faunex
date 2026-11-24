@@ -981,6 +981,13 @@
       "when": 1795558957030,
       "tag": "0137_weekly_quest_chest",
       "breakpoints": true
+    },
+    {
+      "idx": 138,
+      "version": "7",
+      "when": 1795559508397,
+      "tag": "0138_two_weekly_quests",
+      "breakpoints": true
     }
   ]
 }

@@ -73,6 +73,9 @@
         "cta": "Découvrir mes quêtes",
         "later": "Plus tard"
       },
+      "upcoming": "À venir",
+      "availableIn": "Disponible dans {{count}} jours",
+      "availableTomorrow": "Disponible demain",
       "heroKicker": "Objectif de la semaine",
       "perfectTitle": "Semaine parfaite !",
       "perfectBody": "Toutes les quêtes sont récoltées. Reviens lundi pour de nouveaux défis.",

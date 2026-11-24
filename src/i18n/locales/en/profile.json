@@ -73,6 +73,9 @@
         "cta": "Discover my quests",
         "later": "Later"
       },
+      "upcoming": "Coming up",
+      "availableIn": "Available in {{count}} days",
+      "availableTomorrow": "Available tomorrow",
       "heroKicker": "Weekly goal",
       "perfectTitle": "Perfect week!",
       "perfectBody": "Every quest is claimed. Come back Monday for new challenges.",
