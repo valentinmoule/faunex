@@ -3483,9 +3483,11 @@ html.is-native-android body {
   align-items: center;
 }
 .rarity-badge.detail-rarity-line .rarity-badge__symbols {
-  transform: scale(1.3);
-  transform-origin: left center;
-  margin-right: 3px;
+  /* Agrandies en taille réelle (pas de transform) pour que le label
+     garde son espacement quel que soit le nombre d'étoiles. */
+  height: 18px;
+  width: auto;
+  margin-right: 2px;
 }
 .rarity-badge.detail-rarity-line .rarity-svg__sym {
   stroke-width: 1.5px;
