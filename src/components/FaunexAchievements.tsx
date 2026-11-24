@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import BadgesSection from '@/components/BadgesSection';
-import QuestsInline from '@/components/QuestsInline';
 import XpParticles from '@/components/XpParticles';
 
 interface ProgressProfile {
@@ -41,7 +40,6 @@ const FaunexAchievements = () => {
   return (
     <div className="space-y-7">
       <XpParticles active={showXpParticles} onComplete={() => setShowXpParticles(false)} />
-      <QuestsInline />
       <BadgesSection
         userId={session.user.id}
         level={profile.level}
