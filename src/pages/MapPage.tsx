@@ -118,10 +118,10 @@ const buildIcon = (rarity: string, category: string, count = 1, imageUrl?: strin
 
 
 
-const RecenterOnUser = ({ position }: { position: [number, number] | null }) => {
+const RecenterOnUser = ({ position, animate }: { position: [number, number] | null; animate: boolean }) => {
   const map = useMap();
   useEffect(() => {
-    if (position) map.setView(position, 8, { animate: true });
+    if (position) map.setView(position, animate ? Math.max(map.getZoom(), 8) : map.getZoom(), { animate });
   }, [position, map]);
   return null;
 };
@@ -189,7 +189,17 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
   const [loading, setLoading] = useState(true);
   const [captures, setCaptures] = useState<CaptureMarker[]>([]);
   const [userPos, setUserPos] = useState<[number, number] | null>(null);
-  const [center, setCenter] = useState<[number, number]>([46.6, 2.4]);
+  // Démarre là où la carte était, sans glisser depuis la France vers la position.
+  const [initialView] = useState<{ c: [number, number]; z: number }>(() => {
+    try {
+      const v = JSON.parse(localStorage.getItem('faunex.map.view') || 'null');
+      if (v && Array.isArray(v.c) && typeof v.z === 'number') return v;
+    } catch { /* ignore */ }
+    return { c: [46.6, 2.4], z: 6 };
+  });
+  const [center, setCenter] = useState<[number, number]>(initialView.c);
+  const hasSavedView = useRef(initialView.z !== 6 || initialView.c[0] !== 46.6);
+  const [animateRecenter, setAnimateRecenter] = useState(false);
   const centerRef = useRef<L.LatLng | null>(null);
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [groupItems, setGroupItems] = useState<CaptureMarker[] | null>(null);
@@ -263,7 +273,7 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
 
       if (!error && data) {
         setCaptures(data as CaptureMarker[]);
-        if (data.length > 0) {
+        if (data.length > 0 && !hasSavedView.current) {
           setCenter([data[0].latitude!, data[0].longitude!]);
         }
       }
@@ -275,8 +285,8 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
     void getCurrentPosition(
       (pos) => {
         const p: [number, number] = [pos.coords.latitude, pos.coords.longitude];
+        setAnimateRecenter(false);
         setUserPos(p);
-        setCenter(p);
       },
       () => {},
       { enableHighAccuracy: false, timeout: 8000 },
@@ -291,8 +301,8 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
     void getCurrentPosition(
       (pos) => {
         const p: [number, number] = [pos.coords.latitude, pos.coords.longitude];
-        setUserPos(p);
-        setCenter(p);
+        setAnimateRecenter(true);
+        setUserPos([p[0], p[1]]);
       },
       () => toast.error(t('map.errors.geoPositionError')),
     );
@@ -439,7 +449,7 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
       {/* Fullscreen map */}
       <MapContainer
         center={center}
-        zoom={captures.length > 0 ? 8 : 6}
+        zoom={initialView.z}
         zoomControl={false}
         attributionControl={false}
         maxZoom={18}
@@ -449,8 +459,18 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
         <FaunexBaseLayer onReady={(gl) => { glRef.current = gl; }} />
         <ZoneTapHandler onTap={handleZoneTap} />
 
-        <RecenterOnUser position={userPos} />
-        <CenterTracker onMove={(c) => { centerRef.current = c; }} onZoom={setZoom} />
+        <RecenterOnUser position={userPos} animate={animateRecenter} />
+        <CenterTracker
+          onMove={(c) => {
+            centerRef.current = c;
+            try { localStorage.setItem('faunex.map.view', JSON.stringify({ c: [c.lat, c.lng], z: zoom })); } catch { /* ignore */ }
+          }}
+          onZoom={(z) => {
+            setZoom(z);
+            const c = centerRef.current;
+            if (c) try { localStorage.setItem('faunex.map.view', JSON.stringify({ c: [c.lat, c.lng], z })); } catch { /* ignore */ }
+          }}
+        />
         {userPos && (
           <Marker
             position={userPos}
