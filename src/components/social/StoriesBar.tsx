@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { CollectionStory } from '@/components/PinnedCollectionsCarousel';
+import { avatarFallbackStyle } from '@/lib/avatarPalette';
 import { avatarThumbUrl, thumbUrl } from '@/lib/imageUrl';
 import type { AnimalCard } from '@/data/mockData';
 import type { Rarity } from '@/data/mockData';
@@ -78,13 +79,13 @@ export default function StoriesBar({ userId, followingIds, onSelectCard }: { use
   const ordered = myStory ? [myStory, ...others] : others;
   const open = openIdx !== null ? ordered[openIdx] : null;
 
-  const Bubble = ({ avatar, name, active, onClick, plus }: { avatar: string | null; name: string; active: boolean; onClick: () => void; plus?: boolean }) => (
+  const Bubble = ({ avatar, name, seed, active, onClick, plus }: { avatar: string | null; name: string; seed: string; active: boolean; onClick: () => void; plus?: boolean }) => (
     <div className="flex w-[72px] shrink-0 flex-col items-center gap-1.5">
       <div className="relative">
         <button type="button" onClick={onClick} className={`rounded-full p-[3px] ${active ? 'bg-gradient-to-tr from-accent via-primary to-secondary' : 'bg-border'}`}>
           <span className="block rounded-full bg-background p-[2px]">
-            <span className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-muted font-display text-xl font-bold text-muted-foreground">
-              {avatar ? <img src={avatarThumbUrl(avatar)} alt="" className="h-full w-full object-cover" /> : (name || '?').charAt(0).toUpperCase()}
+            <span className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full font-display text-xl font-bold" style={avatar ? undefined : avatarFallbackStyle(seed)}>
+              {avatar ? <img src={avatarThumbUrl(avatar)} alt="" className="h-full w-full object-cover" /> : (seed || '?').charAt(0).toUpperCase()}
             </span>
           </span>
         </button>
@@ -102,10 +103,10 @@ export default function StoriesBar({ userId, followingIds, onSelectCard }: { use
   return (
     <>
       <div className="no-scrollbar flex gap-2 overflow-x-auto px-4 py-3">
-        <Bubble avatar={me.avatar} name={t('social.stories.you')} active={!!myStory} plus
+        <Bubble avatar={me.avatar} name={t('social.stories.you')} seed={me.name} active={!!myStory} plus
           onClick={() => (myStory ? setOpenIdx(0) : openPicker())} />
         {others.map((u) => (
-          <Bubble key={u.userId} avatar={u.avatar} name={u.name} active onClick={() => setOpenIdx(ordered.indexOf(u))} />
+          <Bubble key={u.userId} avatar={u.avatar} name={u.name} seed={u.name} active onClick={() => setOpenIdx(ordered.indexOf(u))} />
         ))}
       </div>
 
