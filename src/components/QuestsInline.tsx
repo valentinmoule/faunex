@@ -1,7 +1,6 @@
 import { useEffect, useState, type CSSProperties } from 'react';
 import {
-  Target, Gift, Check, Loader2, Share2, Camera, Compass, MapPin,
-  Sparkles, Clock, type LucideIcon,
+  Gift, Loader2, Share2, Clock,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -26,23 +25,8 @@ interface Quest {
   claimed: boolean;
   xp_reward: number;
   quest_date: string;
+  period: string | null;
 }
-
-const QUEST_ICONS: Record<string, LucideIcon> = {
-  capture_rarity: Sparkles,
-  capture_count: Camera,
-  capture_different: Compass,
-  new_zone: MapPin,
-  share_app: Share2,
-};
-
-const QUEST_TINTS: Record<string, string> = {
-  capture_rarity: 'var(--rarity-ultra-rare)',
-  capture_count: 'var(--primary)',
-  capture_different: 'var(--sky)',
-  new_zone: 'var(--amber)',
-  share_app: 'var(--rarity-rare)',
-};
 
 const QuestsInline = () => {
   const { t } = useTranslation();
@@ -55,23 +39,13 @@ const QuestsInline = () => {
 
   const fetchQuests = async () => {
     if (!session?.user) return;
-    const weekStart = startOfWeekISO();
+    await supabase.rpc('ensure_weekly_quests');
     const { data, error } = await supabase
-      .from('weekly_quests')
-      .select('*')
+      .from('weekly_quests').select('*')
       .eq('user_id', session.user.id)
-      .eq('quest_date', weekStart)
+      .gte('quest_date', startOfWeekISO())
       .order('created_at');
     if (!error && data) setQuests(data as Quest[]);
-    if (!error && (!data || data.length === 0)) {
-      await supabase.rpc('ensure_weekly_quests');
-      const { data: retry } = await supabase
-        .from('weekly_quests').select('*')
-        .eq('user_id', session.user.id)
-        .eq('quest_date', weekStart)
-        .order('created_at');
-      if (retry) setQuests(retry as Quest[]);
-    }
     setLoading(false);
   };
 
@@ -134,8 +108,7 @@ const QuestsInline = () => {
   };
 
 
-  const rank = (q: Quest) => (q.completed && !q.claimed ? 0 : q.claimed ? 2 : 1);
-  const sorted = [...quests].sort((a, b) => rank(a) - rank(b));
+  const sorted = [...quests].sort((a, b) => (a.period === 'day' ? 1 : 0) - (b.period === 'day' ? 1 : 0));
 
   // Fin de semaine : lundi suivant 00:00 (heure locale)
   const [y, m, d] = startOfWeekISO().split('-').map(Number);
@@ -143,14 +116,14 @@ const QuestsInline = () => {
   const daysLeft = Math.floor(msLeft / 86_400_000);
   const hoursLeft = Math.max(1, Math.floor((msLeft % 86_400_000) / 3_600_000));
   const endsIn = daysLeft > 0 ? t('profile.quests.endsInDays', { d: daysLeft, h: hoursLeft }) : t('profile.quests.endsInHours', { h: hoursLeft });
-  const nextIn = daysLeft >= 1 ? t('profile.quests.availableIn', { count: daysLeft + 1 }) : t('profile.quests.availableTomorrow');
+  const now = new Date();
+  const msDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).getTime() - now.getTime();
+  const dayH = Math.floor(msDay / 3_600_000);
+  const dayLeft = dayH > 0 ? t('profile.quests.endsInHours', { h: dayH }) : t('profile.quests.endsInMinutes', { m: Math.max(1, Math.floor(msDay / 60_000)) });
 
   return (
     <section aria-labelledby="weekly-quests-title" className="space-y-3">
-      <div className="flex items-end justify-between px-1">
-        <h3 id="weekly-quests-title" className="text-[11px] font-display font-extrabold uppercase tracking-[0.08em] text-muted-foreground">{t('profile.quests.weekTitle')}</h3>
-        <span className="inline-flex items-center gap-1 text-[11px] font-display font-extrabold text-muted-foreground"><Clock className="h-3.5 w-3.5" />{endsIn}</span>
-      </div>
+      <h3 id="weekly-quests-title" className="sr-only">{t('profile.quests.weekTitle')}</h3>
 
       {loading ? (
         <div className="flex items-center justify-center py-8"><Loader2 className="w-5 h-5 text-muted-foreground animate-spin" /></div>
@@ -160,7 +133,6 @@ const QuestsInline = () => {
         <div className="space-y-3">
           {sorted.map((quest, index) => {
             const pct = Math.min((quest.progress / quest.target) * 100, 100);
-            const QuestIcon = QUEST_ICONS[quest.quest_type] ?? Target;
             const done = quest.completed;
             const ready = done && !quest.claimed;
             return (
@@ -174,12 +146,12 @@ const QuestsInline = () => {
                   </div>
                 )}
                 <div className="relative flex items-center gap-3">
-                  <span className="mission-seal flex h-11 w-11 shrink-0 items-center justify-center rounded-full" style={{ '--seal': QUEST_TINTS[quest.quest_type] ?? 'var(--primary)' } as CSSProperties}>
-                    {quest.claimed ? <Check className="h-5 w-5" strokeWidth={3} /> : <QuestIcon className="h-5 w-5" strokeWidth={2.3} />}
-                  </span>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-[10px] font-display font-bold uppercase tracking-[0.08em] text-muted-foreground">{quest.description}</p>
-                    <p className="mt-0.5 truncate text-[15px] font-display font-black leading-tight text-foreground">{quest.title}</p>
+                    <div className="flex items-center justify-between gap-2 text-[10px] font-display font-extrabold uppercase tracking-[0.08em] text-muted-foreground">
+                      <span>{quest.period === 'day' ? t('profile.quests.dailyKicker') : t('profile.quests.weeklyKicker')}</span>
+                      <span className="inline-flex items-center gap-1"><Clock className="h-3 w-3" />{quest.period === 'day' ? dayLeft : endsIn}</span>
+                    </div>
+                    <p className="mt-1 text-[15px] font-display font-black leading-tight text-foreground">{quest.description}</p>
                     <div className="mt-2 flex items-center gap-2">
                       <div className="mission-gauge h-2.5 flex-1 overflow-hidden rounded-full">
                         <div className="mission-gauge-fill h-full rounded-full" style={{ width: `${quest.claimed ? 100 : Math.max(pct, 4)}%` }} />
@@ -209,19 +181,6 @@ const QuestsInline = () => {
         </div>
       )}
 
-      {/* À venir : donne une raison de revenir la semaine prochaine */}
-      <div className="px-1 pt-2">
-        <p className="text-[11px] font-display font-extrabold uppercase tracking-[0.08em] text-muted-foreground">{t('profile.quests.upcoming')}</p>
-        {[0].map((i) => (
-          <div key={i} className="mt-2 flex items-center gap-3 py-1.5">
-            <div className="min-w-0 flex-1">
-              <p className="text-[14px] font-display font-bold text-muted-foreground">{nextIn}</p>
-              <div className="mission-gauge mt-1.5 h-2.5 rounded-full" />
-            </div>
-            <div className="flex w-14 justify-center"><RelicChest state="locked" /></div>
-          </div>
-        ))}
-      </div>
     </section>
   );
 };

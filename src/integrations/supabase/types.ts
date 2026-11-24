@@ -2370,6 +2370,7 @@ export type Database = {
           difficulty: number
           icon: string
           id: string
+          period: string
           quest_type: string
           target: number
           title: string
@@ -2384,6 +2385,7 @@ export type Database = {
           difficulty?: number
           icon: string
           id?: string
+          period?: string
           quest_type: string
           target: number
           title: string
@@ -2398,6 +2400,7 @@ export type Database = {
           difficulty?: number
           icon?: string
           id?: string
+          period?: string
           quest_type?: string
           target?: number
           title?: string
@@ -3548,6 +3551,7 @@ export type Database = {
           description: string | null
           icon: string | null
           id: string | null
+          period: string | null
           progress: number | null
           quest_date: string | null
           quest_type: string | null

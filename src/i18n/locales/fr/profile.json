@@ -73,6 +73,9 @@
         "cta": "Découvrir mes quêtes",
         "later": "Plus tard"
       },
+      "weeklyKicker": "Quête de la semaine",
+      "dailyKicker": "Quête du jour",
+      "endsInMinutes": "{{m}} min",
       "upcoming": "À venir",
       "availableIn": "Disponible dans {{count}} jours",
       "availableTomorrow": "Disponible demain",

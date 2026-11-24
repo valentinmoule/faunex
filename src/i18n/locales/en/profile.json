@@ -73,6 +73,9 @@
         "cta": "Discover my quests",
         "later": "Later"
       },
+      "weeklyKicker": "Weekly quest",
+      "dailyKicker": "Daily quest",
+      "endsInMinutes": "{{m}} min",
       "upcoming": "Coming up",
       "availableIn": "Available in {{count}} days",
       "availableTomorrow": "Available tomorrow",
