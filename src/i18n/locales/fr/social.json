@@ -226,6 +226,7 @@
       "modeLeague": "Ligue hebdo",
       "modeHonors": "Palmarès",
       "titleFollows": "Toi et tes abonnements",
+      "tabLeague": "Ligue",
       "league": {
         "joinTitle": "Prends une capture pour entrer dans la ligue de la semaine",
         "daysLeft": "Fin dans {{time}}",

@@ -226,6 +226,7 @@
       "modeLeague": "Weekly league",
       "modeHonors": "Hall of fame",
       "titleFollows": "You and who you follow",
+      "tabLeague": "League",
       "league": {
         "joinTitle": "Make a capture to join this week's league",
         "daysLeft": "Ends in {{time}}",

@@ -13,12 +13,11 @@ import { supabase } from '@/integrations/supabase/client';
 const LEADERBOARD_CATEGORIES = ['Mammifères', 'Oiseaux', 'Insectes', 'Poissons', 'Reptiles', 'Amphibiens', 'Arachnides', 'Mollusques', 'Crustacés'];
 
 /** Classement affiché directement dans Explorateurs (sans changer de page). */
-export default function ExplorersLeaderboard() {
+export default function ExplorersLeaderboard({ mode = 'league' }: { mode?: 'league' | 'honors' }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { session } = useAuth();
   const { isPremium, loading: premiumLoading } = useSubscription(session?.user?.id);
-  const [mode, setMode] = useState<'league' | 'honors'>('league');
   const [filter, setFilter] = useState<'follows' | 'all' | string>('all');
   const scope: 'global' | 'explorers' = mode === 'honors' && filter === 'follows' ? 'explorers' : 'global';
   // Combien d'explorateurs je suis : détermine l'état vide du classement « Abonnements ».
@@ -46,14 +45,6 @@ export default function ExplorersLeaderboard() {
 
   return (
     <section className="px-4">
-      <div role="tablist" className="mt-2 grid grid-cols-2 gap-1 rounded-full bg-muted p-1">
-        {(['league', 'honors'] as const).map((m) => (
-          <button key={m} type="button" role="tab" aria-selected={mode === m} onClick={() => setMode(m)}
-            className={`h-9 rounded-full text-[13px] font-display font-bold transition-colors ${mode === m ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'}`}>
-            {t(m === 'league' ? 'social.leaderboard.modeLeague' : 'social.leaderboard.modeHonors')}
-          </button>
-        ))}
-      </div>
       {mode === 'honors' && (
       <div role="radiogroup" aria-label={t('social.leaderboard.ranking')} className="no-scrollbar -mx-3 mb-1 mt-2 flex gap-1 overflow-x-auto px-3 pt-1 pb-0.5">
         <RoundChip selected={filter === 'follows'} label={t('social.leaderboard.chipFollowing')} onClick={() => setFilter('follows')}>

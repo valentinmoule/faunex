@@ -29,8 +29,9 @@ export default function ChallengesPage() {
   const { isPremium, loading: premiumLoading } = useSubscription(session?.user?.id);
   const [unreadCount, setUnreadCount] = useState(0);
   const [searchParams, setSearchParams] = useSearchParams();
-  const tab: 'challenges' | 'leaderboard' = searchParams.get('tab') === 'leaderboard' ? 'leaderboard' : 'challenges';
-  const setTab = (next: 'challenges' | 'leaderboard') => setSearchParams(next === 'leaderboard' ? { tab: next } : {}, { replace: true });
+  const rawTab = searchParams.get('tab');
+  const tab: 'challenges' | 'league' | 'leaderboard' = rawTab === 'league' || rawTab === 'leaderboard' ? rawTab : 'challenges';
+  const setTab = (next: 'challenges' | 'league' | 'leaderboard') => setSearchParams(next === 'challenges' ? {} : { tab: next }, { replace: true });
   const [headerHidden, setHeaderHidden] = useState(false);
 
   useEffect(() => {
@@ -99,6 +100,7 @@ export default function ChallengesPage() {
         <div className="game-tabs flex items-center w-full" role="tablist">
           {([
             { key: 'challenges' as const, label: t('nav.challenges') },
+            { key: 'league' as const, label: t('social.leaderboard.tabLeague') },
             { key: 'leaderboard' as const, label: t('nav.leaderboard') },
           ]).map(({ key, label }) => (
             <Button key={key} variant="ghost" role="tab" aria-selected={tab === key} onClick={() => setTab(key)} className="game-tab min-w-0 flex-1 h-10 px-2 text-xs">
@@ -107,14 +109,14 @@ export default function ChallengesPage() {
           ))}
         </div>
       </div>
-      {tab === 'leaderboard' ? (
-        <div className="mx-auto max-w-lg"><ExplorersLeaderboard /></div>
+      {tab !== 'challenges' ? (
+        <div className="mx-auto max-w-lg"><ExplorersLeaderboard key={tab} mode={tab === 'league' ? 'league' : 'honors'} /></div>
       ) : (
       <div className="mx-auto max-w-lg px-4 pt-1 space-y-4">
         <h1 className="sr-only">{t('nav.challenges')}</h1>
 
         <button
-          onClick={() => setTab('leaderboard')}
+          onClick={() => setTab('league')}
           className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card p-4 text-left shadow-card active:scale-[0.98] transition-transform"
         >
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber/15 text-2xl">
