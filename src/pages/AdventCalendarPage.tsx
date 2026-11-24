@@ -26,7 +26,7 @@ export default function AdventCalendarPage() {
     const cd = adventCountdown(calendar.calendar_year, now);
     const units = [{ v: cd.days, l: t('advent.countdownDays') }, { v: cd.hours, l: t('advent.countdownHours') }, { v: cd.minutes, l: t('advent.countdownMinutes') }];
     return <main className="min-h-screen bg-background pb-28">
-      <PageHeader sticky className="bg-background/90 px-5 pb-3 backdrop-blur-xl"><div className="mx-auto flex max-w-lg items-center gap-3"><Button variant="ghost" size="icon" aria-label={t('bestiary.common.back')} onClick={() => navigate('/bestiaire?tab=collections')}><ArrowLeft /></Button><span className="font-display text-sm font-bold">{t('advent.title')}</span></div></PageHeader>
+      <PageHeader sticky className="bg-background/90 px-5 pb-3 backdrop-blur-xl"><div className="mx-auto flex max-w-lg items-center gap-3"><Button variant="ghost" size="icon" aria-label={t('bestiary.common.back')} onClick={() => navigate('/home?tab=collections')}><ArrowLeft /></Button><span className="font-display text-sm font-bold">{t('advent.title')}</span></div></PageHeader>
       <div className="mx-auto max-w-lg px-5">
         <div className="relative mt-2 h-64 overflow-hidden rounded-lg"><img src={calendar.cover_url || cover} width={1024} height={1536} alt="" className="h-full w-full object-cover object-center" /><div className="absolute inset-x-0 bottom-0 bg-background/90 px-4 py-3"><h1 className="font-display text-xl font-bold">{i18n.language.startsWith('en') ? calendar.title_en || calendar.title : calendar.title}</h1><p className="mt-1 text-xs text-muted-foreground">{t('advent.period', { year: calendar.calendar_year })}</p></div></div>
         <section className="py-6 text-center">

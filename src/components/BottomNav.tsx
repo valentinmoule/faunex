@@ -24,9 +24,9 @@ const BottomNav = () => {
     const p = location.pathname;
     if (tab.labelKey === 'nav.terrain') return p === '/home' && currentTabParam === 'map';
     if (tab.labelKey === 'nav.collection') {
-      return (p === '/home' && currentTabParam !== 'map') || (p === '/bestiaire' && currentTabParam !== 'leaderboard');
+      return p === '/home' && currentTabParam !== 'map' && currentTabParam !== 'leaderboard';
     }
-    if (tab.path === '/explorers') return p === '/explorers' || (p === '/bestiaire' && currentTabParam === 'leaderboard');
+    if (tab.path === '/explorers') return p === '/explorers' || (p === '/home' && currentTabParam === 'leaderboard');
     if (tab.path === '/defis') return p === '/defis' || p === '/apprendre';
     return p === tab.path;
   };

@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { peekPendingShelve } from '@/lib/shelveAnimation';
 
 // Ordre des onglets de la barre de navigation (gauche → droite).
-const TAB_ORDER = ['/home', '/bestiaire', '/capture', '/explorers', '/leaderboard', '/profile'];
+const TAB_ORDER = ['/home', '/capture', '/explorers', '/defis', '/profile'];
 const tabIndex = (path: string) => TAB_ORDER.findIndex((p) => path === p || path.startsWith(p + '/'));
 
 /**
@@ -26,7 +26,7 @@ const PageTransition = ({ children }: { children: ReactNode }) => {
 
   // Le rangement d'une capture se joue sur Mon Faunex : aucune transformation
   // autour de la page, sinon la carte volante (position fixe) serait décalée.
-  const skip = (location.pathname === '/home' || location.pathname === '/bestiaire') && peekPendingShelve();
+  const skip = location.pathname === '/home' && peekPendingShelve();
   return (
     <div
       key={location.pathname}

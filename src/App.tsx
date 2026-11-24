@@ -216,7 +216,7 @@ const AppRoutes = () => {
           <Route path="/feed" element={<Navigate to="/explorers" replace />} />
           <Route path="/explorers" element={<ProtectedRoute><ExplorersPage /></ProtectedRoute>} />
           <Route path="/explorer/:userId/collection" element={<ProtectedRoute><FriendCollectionPage /></ProtectedRoute>} />
-          <Route path="/bestiaire" element={<ProtectedRoute><BestiairePage /></ProtectedRoute>} />
+          <Route path="/bestiaire" element={<CollectionRedirect />} />
           <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
           <Route path="/moderation" element={<AdminRoute allowModerator><ModerationPage /></AdminRoute>} />
           <Route path="/admin/collections" element={<AdminRoute><AdminCollectionsPage /></AdminRoute>} />

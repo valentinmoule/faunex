@@ -229,7 +229,10 @@ const BestiairePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const isFaunexHub = location.pathname === '/home';
+  // Collection vit entièrement sur /home : l'onglet actif (Captures,
+  // Bestiaire, Collections) dépend du paramètre d'adresse, pas de la route,
+  // pour que la bascule entre onglets ne recharge jamais la page.
+
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedBreedGroup, setSelectedBreedGroup] = useState<string | null>(null);
@@ -238,9 +241,8 @@ const BestiairePage = () => {
   /** Catégories d'animaux proposées dans l'onglet Classement. */
   const LEADERBOARD_CATEGORIES = ['Mammifères', 'Oiseaux', 'Insectes', 'Poissons', 'Reptiles', 'Amphibiens', 'Arachnides', 'Mollusques', 'Crustacés'];
   const requestedTab = searchParams.get('tab');
-  const initialView: ViewMode = isFaunexHub
-    ? requestedTab === 'map' || requestedTab === 'badges' ? requestedTab : 'mine'
-    : requestedTab === 'collections' || requestedTab === 'leaderboard' ? requestedTab : 'categories';
+  const ALL_TABS: ViewMode[] = ['mine', 'map', 'badges', 'categories', 'collections', 'leaderboard'];
+  const initialView: ViewMode = requestedTab && ALL_TABS.includes(requestedTab as ViewMode) ? requestedTab as ViewMode : 'mine';
   const [viewMode, setViewMode] = useState<ViewMode>(initialView);
   const [leaderboardScope, setLeaderboardScope] = useState<'global' | 'explorers'>('global');
   const [leaderboardFilter, setLeaderboardFilter] = useState<'week' | 'all' | string>('week');
@@ -297,11 +299,8 @@ const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [userDisplayName, setUserDisplayName] = useState('');
 
   useEffect(() => {
-    const allowed: ViewMode[] = isFaunexHub
-      ? ['mine', 'map', 'badges']
-      : ['categories', 'collections', 'leaderboard'];
     const tab = searchParams.get('tab') as ViewMode | null;
-    setViewMode(tab && allowed.includes(tab) ? tab : allowed[0]);
+    setViewMode(tab && ALL_TABS.includes(tab) ? tab : 'mine');
     // Ferme les vues détail (catégorie, territoire, collection) quand on
     // change d'onglet depuis la barre de navigation.
     setSelectedCategory(null);
@@ -309,7 +308,7 @@ const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
     setSelectedCustomId(null);
     setSelectedZoneId(null);
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-  }, [isFaunexHub, searchParams]);
+  }, [searchParams]);
 
   const changeView = useCallback((next: ViewMode) => {
     setViewMode(next);
@@ -317,28 +316,23 @@ const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
     setSelectedCollectionKey(null);
     setSelectedCustomId(null);
     setSelectedZoneId(null);
-    const defaults = isFaunexHub ? 'mine' : 'categories';
-    setSearchParams(next === defaults ? {} : { tab: next }, { replace: true });
-  }, [isFaunexHub, setSearchParams]);
+    setSearchParams(next === 'mine' ? {} : { tab: next }, { replace: true });
+  }, [setSearchParams]);
 
-  // Onglets Collection : Captures vit sur /home, Bestiaire et Collections sur /bestiaire
+  // Onglets Collection : tout vit sur /home, la bascule change juste la vue
   const switchHubTab = useCallback((next: 'mine' | 'categories' | 'collections') => {
-    if (next === 'mine' && !isFaunexHub) { navigate('/home'); return; }
-    if (next !== 'mine' && isFaunexHub) { navigate(next === 'collections' ? '/bestiaire?tab=collections' : '/bestiaire'); return; }
     changeView(next);
-  }, [isFaunexHub, navigate, changeView]);
+  }, [changeView]);
 
   // Suit l'onglet demandé dans l'adresse (barre du bas : Collection ↔ Terrain)
   useEffect(() => {
-    const want: ViewMode = isFaunexHub
-      ? requestedTab === 'map' || requestedTab === 'badges' ? requestedTab : 'mine'
-      : requestedTab === 'collections' || requestedTab === 'leaderboard' ? requestedTab : 'categories';
+    const want: ViewMode = requestedTab && ALL_TABS.includes(requestedTab as ViewMode) ? requestedTab as ViewMode : 'mine';
     setViewMode((cur) => {
       if (cur === want) return cur;
       setSelectedCategory(null); setSelectedCollectionKey(null); setSelectedCustomId(null); setSelectedZoneId(null);
       return want;
     });
-  }, [isFaunexHub, requestedTab]);
+  }, [requestedTab]);
 
   // Charge le prénom affiché dans l'empty state d'accueil
   useEffect(() => {
@@ -412,7 +406,7 @@ const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const shelvingAtMount = useRef(
     typeof window !== 'undefined' && !!sessionStorage.getItem('faunex:pending-shelve'),
   );
-  const loading = catalogueLoading || (viewMode !== 'leaderboard' && !capturesLoaded && (isFaunexHub || !shelvingAtMount.current));
+  const loading = catalogueLoading || (viewMode !== 'leaderboard' && !capturesLoaded);
 
   const uid = session?.user?.id;
 
@@ -494,7 +488,6 @@ const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
     resolveSlot: resolveShelveSlot,
     onPrepare: useCallback(() => {
       // La carte se range dans Mon Faunex (mes captures), sans filtre, pour y voir sa case
-      if (location.pathname !== '/home') navigate('/home', { replace: true });
       setViewMode('mine');
       setSelectedCategory(null);
       setSelectedCollectionKey(null);
@@ -505,7 +498,7 @@ const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
       setMineChip(CHIP_ALL);
       setMinePopularityFilter([]);
       setMineLocationFilter([]);
-    }, [location.pathname, navigate]),
+    }, []),
   });
 
 
@@ -887,14 +880,14 @@ const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   /** Index de la carte à rejoindre pour l'animation de rangement. */
   const shelveTargetIndex = useMemo(() => {
     // Mon Faunex n'est pas virtualisé : la case est déjà montée, pas de défilement à attendre.
-    if (!pendingShelve || isFaunexHub) return null;
+    if (!pendingShelve) return null;
     const sci = pendingShelve.scientificName?.trim().toLowerCase();
     const target = pendingShelve.animalName.trim().toLocaleLowerCase('fr');
     let idx = browseAnimals.findIndex(a => a.name.trim().toLocaleLowerCase('fr') === target && (!sci || a.scientific_name?.trim().toLowerCase() === sci));
     if (idx < 0) idx = browseAnimals.findIndex(a => a.name.trim().toLocaleLowerCase('fr') === target);
     if (idx < 0 && sci) idx = browseAnimals.findIndex(a => a.scientific_name?.trim().toLowerCase() === sci);
     return idx >= 0 ? idx : null;
-  }, [pendingShelve, browseAnimals, isFaunexHub]);
+  }, [pendingShelve, browseAnimals]);
   shelveTargetIndexRef.current = shelveTargetIndex;
 
   // Virtualisation : seules les lignes visibles sont montées (mémoire constante).
@@ -1904,7 +1897,7 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
         <div className="max-w-lg mx-auto px-4 pt-4 space-y-6">
           {viewMode !== 'badges' && (
             <h1 className="-mb-4 truncate text-3xl font-display font-extrabold tracking-tight text-primary">
-              {viewMode === 'leaderboard' ? t('social.leaderboard.ranking') : viewMode === 'map' ? t('nav.terrain') : isFaunexHub ? t('bestiary.header.title') : t('bestiary.header.bestiaryTitle')}
+              {viewMode === 'leaderboard' ? t('social.leaderboard.ranking') : viewMode === 'map' ? t('nav.terrain') : t('bestiary.header.title')}
             </h1>
           )}
 
