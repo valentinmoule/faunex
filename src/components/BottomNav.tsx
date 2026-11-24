@@ -1,16 +1,17 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Camera, Users, PawPrint, Map as MapIcon, Target } from 'lucide-react';
+import { CollectionIcon, TerrainIcon, CaptureIcon, ExplorersIcon, ChallengesIcon, type NavIconProps } from '@/components/nav/NavIcons';
+import type { ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
 import { hapticTap } from '@/lib/haptics';
 
-type NavTab = { path: string; labelKey: string; icon: typeof PawPrint; tab?: string };
+type NavTab = { path: string; labelKey: string; icon: ComponentType<NavIconProps>; tab?: string };
 
 const tabs: NavTab[] = [
-  { path: '/home', labelKey: 'nav.collection', icon: PawPrint },
-  { path: '/home', labelKey: 'nav.terrain', icon: MapIcon, tab: 'map' },
-  { path: '/capture', labelKey: 'nav.capture', icon: Camera },
-  { path: '/explorers', labelKey: 'nav.explorers', icon: Users },
-  { path: '/defis', labelKey: 'nav.challenges', icon: Target },
+  { path: '/home', labelKey: 'nav.collection', icon: CollectionIcon },
+  { path: '/home', labelKey: 'nav.terrain', icon: TerrainIcon, tab: 'map' },
+  { path: '/capture', labelKey: 'nav.capture', icon: CaptureIcon },
+  { path: '/explorers', labelKey: 'nav.explorers', icon: ExplorersIcon },
+  { path: '/defis', labelKey: 'nav.challenges', icon: ChallengesIcon },
 ];
 
 const BottomNav = () => {
@@ -55,7 +56,7 @@ const BottomNav = () => {
                 className="flex flex-col items-center justify-center -mt-[43px] press"
               >
                 <div className="capture-halo w-[54px] h-[54px] rounded-[20px] bg-gradient-to-b from-forest-light to-primary flex items-center justify-center shadow-[0_2px_4px_hsla(165,25%,11%,0.08),0_12px_28px_-10px_hsl(var(--primary)/0.65)] ring-4 ring-card">
-                  <Icon className="w-6 h-6 text-primary-foreground" strokeWidth={2.2} />
+                  <Icon active className="w-7 h-7 text-primary-foreground" />
                 </div>
               </button>
             );
@@ -69,10 +70,10 @@ const BottomNav = () => {
             >
               <Icon
                 key={`${tab.labelKey}-${active ? 'on' : 'off'}`}
-                className={`w-[22px] h-[22px] transition-colors duration-200 ${
+                active={active}
+                className={`w-[26px] h-[26px] transition-colors duration-200 ${
                   active ? 'text-primary tab-pop' : 'text-muted-foreground'
                 }`}
-                strokeWidth={active ? 2.4 : 1.9}
               />
               <span
                 className={`text-[10px] font-display tracking-tight transition-colors duration-200 ${
