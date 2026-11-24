@@ -257,6 +257,8 @@
   * {
     @apply border-border;
   }
+  /* Icônes système alignées sur le trait « carnet » de la barre de navigation. */
+  svg.lucide { stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; }
   html {
     -webkit-text-size-adjust: 100%;
   }

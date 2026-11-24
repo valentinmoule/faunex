@@ -75,3 +75,26 @@ export function ChallengesIcon({ active, ...p }: NavIconProps) {
     </svg>
   );
 }
+
+/** Tout : empreinte de patte pleine, style carnet. */
+export function PawIcon({ active, ...p }: NavIconProps) {
+  return (
+    <svg {...base(active)} {...p}>
+      <path d="M14 13.2c-3.6 0-7 4.3-7 7.1 0 1.9 1.5 2.7 3.2 2.7 1.5 0 2.4-.8 3.8-.8s2.3.8 3.8.8c1.7 0 3.2-.8 3.2-2.7 0-2.8-3.4-7.1-7-7.1Z" fill="currentColor" fillOpacity={0.9} />
+      <ellipse cx="9" cy="8.6" rx="2" ry="2.6" fill="currentColor" stroke="none" />
+      <ellipse cx="19" cy="8.6" rx="2" ry="2.6" fill="currentColor" stroke="none" />
+      <ellipse cx="5" cy="13.4" rx="1.8" ry="2.3" fill="currentColor" stroke="none" />
+      <ellipse cx="23" cy="13.4" rx="1.8" ry="2.3" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+/** Favoris : marque-page avec feuille. */
+export function BookmarkLeafIcon({ active, ...p }: NavIconProps) {
+  return (
+    <svg {...base(active)} {...p}>
+      <path d="M7.5 4.5h13a1 1 0 0 1 1 1v18l-7.5-4.6-7.5 4.6v-18a1 1 0 0 1 1-1Z" fill="currentColor" />
+      <path d="M11 14.5c0-3 1.8-5 5-5 0 3-1.8 5-5 5Zm0 0 2.7-2.7" stroke="hsl(var(--card))" strokeWidth="1.6" />
+    </svg>
+  );
+}

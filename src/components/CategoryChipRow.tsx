@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Bookmark, PawPrint } from 'lucide-react';
+import { PawIcon, BookmarkLeafIcon } from '@/components/nav/NavIcons';
 import { categoryLabel, normalizeCategory } from '@/lib/bestiary';
 import { hapticTap } from '@/lib/haptics';
 import mammiferes from '@/assets/category-chips/mammiferes.webp';
@@ -56,7 +56,7 @@ export const Chip = ({
     role="radio"
     aria-checked={selected}
     onClick={onClick}
-    className="group shrink-0 flex w-[82px] flex-col items-center gap-1.5 active:scale-95 transition-transform"
+    className="group shrink-0 flex w-[82px] flex-col items-center gap-1.5 press"
   >
     <span
       className={`flex h-16 w-16 items-center justify-center overflow-hidden rounded-full ring-offset-2 ring-offset-background transition-shadow ${
@@ -91,7 +91,7 @@ const CategoryChipRow = ({ categories, value, onChange }: Props) => {
     >
       <Chip selected={value === CHIP_ALL} label={t('bestiary.chips.all')} onClick={() => select(CHIP_ALL)}>
         <span className="flex h-full w-full items-center justify-center bg-chip-all">
-          <PawPrint className="h-7 w-7 text-foreground" strokeWidth={2.25} />
+          <PawIcon className="h-8 w-8 text-foreground" />
         </span>
       </Chip>
       <Chip
@@ -100,7 +100,7 @@ const CategoryChipRow = ({ categories, value, onChange }: Props) => {
         onClick={() => select(CHIP_FAVORITES)}
       >
         <span className="flex h-full w-full items-center justify-center bg-chip-favorites">
-          <Bookmark className="h-7 w-7 fill-foreground text-foreground" strokeWidth={2} />
+          <BookmarkLeafIcon className="h-8 w-8 text-foreground" />
         </span>
       </Chip>
       {categories.map((cat) => (
