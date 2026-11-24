@@ -70,7 +70,14 @@
         "subtitle": "De nouvelles quêtes t'attendent pour 7 jours !<br />Complète-les pour gagner de l'XP et monter de niveau.",
         "cta": "Découvrir mes quêtes",
         "later": "Plus tard"
-      }
+      },
+      "heroKicker": "Objectif de la semaine",
+      "perfectTitle": "Semaine parfaite !",
+      "perfectBody": "Toutes les quêtes sont récoltées. Reviens lundi pour de nouveaux défis.",
+      "xpLeft": "Encore {{xp}} XP à récolter avant lundi",
+      "endsInDays": "{{d}} j {{h}} h",
+      "endsInHours": "{{h}} h",
+      "chest": "Coffre de la semaine"
     },
     "badges": {
       "title": "Badges",

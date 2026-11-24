@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import {
   Target, Gift, Check, Loader2, Share2, Camera, Compass, MapPin,
-  Sparkles, type LucideIcon,
+  Sparkles, Clock, type LucideIcon,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -35,12 +35,21 @@ const QUEST_ICONS: Record<string, LucideIcon> = {
   share_app: Share2,
 };
 
+const QUEST_TINTS: Record<string, string> = {
+  capture_rarity: 'var(--rarity-ultra-rare)',
+  capture_count: 'var(--primary)',
+  capture_different: 'var(--sky)',
+  new_zone: 'var(--amber)',
+  share_app: 'var(--rarity-rare)',
+};
+
 const QuestsInline = () => {
   const { t } = useTranslation();
   const { session } = useAuth();
   const [quests, setQuests] = useState<Quest[]>([]);
   const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState<string | null>(null);
+  const [celebrating, setCelebrating] = useState<string | null>(null);
 
   const fetchQuests = async () => {
     if (!session?.user) return;
@@ -116,21 +125,69 @@ const QuestsInline = () => {
 
   
 
-  // Motif répété (empreinte + feuille) utilisé en fond de carte
-  const patternSvg = encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 20c0-4 3-7 6-7s6 3 6 7-3 6-6 6-6-2-6-6z"/><circle cx="7" cy="12" r="2"/><circle cx="13" cy="8" r="2"/><circle cx="20" cy="9" r="2"/><path d="M40 28c-6 0-10 4-10 10 6 0 10-4 10-10z"/><path d="M30 38c4-4 6-6 10-10"/></svg>`,
-  );
-  const patternStyle = {
-    backgroundImage: `url("data:image/svg+xml,${patternSvg}")`,
-    backgroundSize: '48px 48px',
-  } as const;
+  const claimWithCelebration = async (questId: string) => {
+    await claimReward(questId);
+    setCelebrating(questId);
+    window.setTimeout(() => setCelebrating((c) => (c === questId ? null : c)), 1400);
+  };
+
+  const claimedCount = quests.filter((q) => q.claimed).length;
+  const totalXp = quests.reduce((sum, q) => sum + q.xp_reward, 0);
+  const earnedXp = quests.filter((q) => q.claimed).reduce((sum, q) => sum + q.xp_reward, 0);
+  const perfect = quests.length > 0 && claimedCount === quests.length;
+  const rank = (q: Quest) => (q.completed && !q.claimed ? 0 : q.claimed ? 2 : 1);
+  const sorted = [...quests].sort((a, b) => rank(a) - rank(b));
+
+  // Fin de semaine : lundi suivant 00:00 (heure locale)
+  const [y, m, d] = startOfWeekISO().split('-').map(Number);
+  const msLeft = new Date(y, m - 1, d + 7).getTime() - Date.now();
+  const daysLeft = Math.floor(msLeft / 86_400_000);
+  const hoursLeft = Math.max(1, Math.floor((msLeft % 86_400_000) / 3_600_000));
+  const endsIn = daysLeft > 0 ? t('profile.quests.endsInDays', { d: daysLeft, h: hoursLeft }) : t('profile.quests.endsInHours', { h: hoursLeft });
 
   return (
-    <section aria-labelledby="weekly-quests-title">
-      <div className="mb-4 px-1">
-        <h3 id="weekly-quests-title" className="text-xl font-display font-black text-foreground">
-          {t('profile.quests.weekTitle')}
-        </h3>
+    <section aria-labelledby="weekly-quests-title" className="space-y-4">
+      {/* Objectif de la semaine : chemin de quêtes jusqu'au coffre */}
+      <div className="quest-hero relative overflow-hidden rounded-3xl p-5">
+        <div className="relative flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-[11px] font-display font-extrabold uppercase tracking-wider text-primary">{t('profile.quests.heroKicker')}</p>
+            <h3 id="weekly-quests-title" className="mt-0.5 text-xl font-display font-black leading-tight text-foreground">
+              {perfect ? t('profile.quests.perfectTitle') : t('profile.quests.weekTitle')}
+            </h3>
+            <p className="mt-1 text-[12px] font-display font-semibold text-muted-foreground">
+              {perfect ? t('profile.quests.perfectBody') : t('profile.quests.xpLeft', { xp: totalXp - earnedXp })}
+            </p>
+          </div>
+          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-card px-2.5 py-1 text-[11px] font-display font-extrabold text-foreground shadow-card">
+            <Clock className="h-3.5 w-3.5 text-primary" />{endsIn}
+          </span>
+        </div>
+
+        {quests.length > 0 && (
+          <div className="relative mt-5 flex items-center">
+            <div aria-hidden className="absolute left-5 right-6 top-1/2 h-2 -translate-y-1/2 rounded-full bg-muted">
+              <div className="quest-progress-fill h-full rounded-full bg-primary" style={{ width: `${(claimedCount / quests.length) * 100}%` }} />
+            </div>
+            <div className="relative flex w-full items-center justify-between">
+              {quests.map((q) => {
+                const Icon = QUEST_ICONS[q.quest_type] ?? Target;
+                const state = q.claimed ? 'claimed' : q.completed ? 'ready' : 'todo';
+                return (
+                  <span key={q.id} data-state={state} className="quest-node flex h-10 w-10 items-center justify-center rounded-full">
+                    {q.claimed ? <Check className="h-5 w-5" strokeWidth={3} /> : <Icon className="h-[18px] w-[18px]" strokeWidth={2.4} />}
+                  </span>
+                );
+              })}
+              <span data-open={perfect} className="quest-chest flex h-14 w-14 items-center justify-center rounded-2xl" aria-label={t('profile.quests.chest')}>
+                <Gift className="h-7 w-7" strokeWidth={2.2} />
+              </span>
+            </div>
+          </div>
+        )}
+        <p className="relative mt-4 text-[12px] font-display font-bold text-foreground">
+          {t('profile.quests.completedCount', { completed: claimedCount, total: quests.length })} · {earnedXp}/{totalXp} XP
+        </p>
       </div>
 
       {loading ? (
@@ -141,89 +198,62 @@ const QuestsInline = () => {
         <div className="text-center py-8 text-xs text-muted-foreground">{t('profile.quests.emptyShort')}</div>
       ) : (
         <div className="space-y-3">
-          {quests.map((quest, index) => {
+          {sorted.map((quest, index) => {
             const pct = Math.min((quest.progress / quest.target) * 100, 100);
             const QuestIcon = QUEST_ICONS[quest.quest_type] ?? Target;
             const done = quest.completed;
+            const ready = done && !quest.claimed;
             return (
               <div
                 key={quest.id}
-                className={`quest-card-enter relative overflow-hidden rounded-2xl border bg-card p-4 shadow-card transition-all duration-300 ${
-                  quest.claimed
-                    ? 'border-border/70 opacity-70'
-                    : done
-                    ? 'border-primary/35'
-                    : 'border-border'
-                }`}
+                data-ready={ready}
+                className={`quest-card quest-card-enter relative rounded-3xl bg-card p-4 ${quest.claimed ? 'opacity-60' : ''}`}
                 style={{ animationDelay: `${index * 80}ms` }}
               >
-                {/* motif de fond répété */}
-                <div
-                  aria-hidden
-                  className={`pointer-events-none absolute inset-0 ${done && !quest.claimed ? 'text-primary opacity-[0.09]' : 'text-muted-foreground opacity-[0.05]'}`}
-                  style={patternStyle}
-                />
-                {done && !quest.claimed && (
-                  <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent" />
-                )}
-
-                <div className="relative">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border ${
-                        done ? 'border-primary/25 bg-primary/12 text-primary' : 'border-border bg-muted/60 text-foreground/70'
-                      }`}
-                    >
-                      <QuestIcon className="h-5 w-5" strokeWidth={2.1} />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="truncate text-sm font-display font-black leading-tight text-foreground">
-                          {quest.title}
-                        </p>
-                        {/* Pastille XP masquée une fois la quête réclamée */}
-                        {!quest.claimed && <XpPill xp={quest.xp_reward} state="reward" />}
-                      </div>
-                      <p className="mt-0.5 line-clamp-2 text-xs leading-snug text-muted-foreground">
-                        {quest.description}
-                      </p>
-                    </div>
+                {celebrating === quest.id && (
+                  <div aria-hidden className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
+                    {Array.from({ length: 10 }).map((_, i) => (
+                      <span key={i} className="quest-spark absolute h-2 w-2 rounded-full bg-amber" style={{ '--a': `${i * 36}deg` } as CSSProperties} />
+                    ))}
+                    <span className="quest-xp-float font-display text-2xl font-black text-primary">+{quest.xp_reward} XP</span>
                   </div>
-
-                  <div className="mt-3.5 flex items-center gap-3">
-                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
-                      <div
-                        className={`quest-progress-fill h-full rounded-full ${done ? 'bg-primary' : 'bg-amber'}`}
-                        style={{ width: `${pct}%`, animationDelay: `${index * 80 + 150}ms` }}
-                      />
+                )}
+                <div className="flex items-center gap-3">
+                  <div className="quest-tile flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl" style={{ '--tile': QUEST_TINTS[quest.quest_type] ?? 'var(--primary)' } as CSSProperties}>
+                    {quest.claimed ? <Check className="h-6 w-6" strokeWidth={3} /> : <QuestIcon className="h-6 w-6" strokeWidth={2.3} />}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="truncate text-[15px] font-display font-black leading-tight text-foreground">{quest.title}</p>
+                      {!quest.claimed && <XpPill xp={quest.xp_reward} state="reward" />}
                     </div>
-                    <span className={`shrink-0 text-[10px] font-display font-black tabular-nums ${done ? 'text-primary' : 'text-muted-foreground'}`}>
+                    <p className="mt-0.5 line-clamp-2 text-xs leading-snug text-muted-foreground">{quest.description}</p>
+                  </div>
+                </div>
+
+                {!quest.claimed && (
+                  <div className="quest-bar relative mt-3.5 h-5 overflow-hidden rounded-full bg-muted">
+                    <div
+                      className={`quest-progress-fill quest-bar-fill h-full rounded-full ${done ? 'bg-primary' : 'bg-amber'}`}
+                      style={{ width: `${Math.max(pct, 6)}%`, animationDelay: `${index * 80 + 150}ms` }}
+                    />
+                    <span className="absolute inset-0 flex items-center justify-center text-[11px] font-display font-black tabular-nums text-foreground">
                       {quest.progress}/{quest.target}
                     </span>
                   </div>
+                )}
 
-                  {(quest.claimed || (done && !quest.claimed) || (quest.quest_type === 'share_app' && !done)) && (
-                    <div className="mt-3 flex justify-end">
-                      {quest.quest_type === 'share_app' && !done && !quest.claimed && (
-                        <Button size="sm" variant="outline" onClick={() => handleShareApp(quest.id)} className="h-8 rounded-xl px-3 text-xs font-display font-bold">
-                          <Share2 className="h-3.5 w-3.5" />
-                          {t('profile.quests.share')}
-                        </Button>
-                      )}
-                      {done && !quest.claimed && (
-                        <Button size="sm" onClick={() => claimReward(quest.id)} disabled={claiming === quest.id} className="h-8 rounded-xl px-3 text-xs font-display font-bold">
-                          {claiming === quest.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Gift className="h-3.5 w-3.5" />}
-                          {t('profile.quests.claim')}
-                        </Button>
-                      )}
-                      {quest.claimed && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-display font-bold text-primary">
-                          <Check className="h-3.5 w-3.5" /> {t('profile.badges.unlockedTag')}
-                        </span>
-                      )}
-                    </div>
-                  )}
-                </div>
+                {quest.quest_type === 'share_app' && !done && !quest.claimed && (
+                  <Button size="sm" variant="ghost" onClick={() => handleShareApp(quest.id)} className="game-button game-button-outline mt-3 h-11 w-full text-sm font-display">
+                    <Share2 className="h-4 w-4" />{t('profile.quests.share')}
+                  </Button>
+                )}
+                {ready && (
+                  <Button size="sm" variant="ghost" onClick={() => claimWithCelebration(quest.id)} disabled={claiming === quest.id} className="game-button quest-claim-pulse mt-3 h-11 w-full text-sm font-display">
+                    {claiming === quest.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Gift className="h-4 w-4" />}
+                    {t('profile.quests.claim')}
+                  </Button>
+                )}
               </div>
             );
           })}

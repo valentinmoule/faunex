@@ -70,7 +70,14 @@
         "subtitle": "New quests await you for 7 days!<br />Complete them to earn XP and level up.",
         "cta": "Discover my quests",
         "later": "Later"
-      }
+      },
+      "heroKicker": "Weekly goal",
+      "perfectTitle": "Perfect week!",
+      "perfectBody": "Every quest is claimed. Come back Monday for new challenges.",
+      "xpLeft": "{{xp}} XP left to claim before Monday",
+      "endsInDays": "{{d}}d {{h}}h",
+      "endsInHours": "{{h}}h",
+      "chest": "Weekly chest"
     },
     "badges": {
       "title": "Badges",
