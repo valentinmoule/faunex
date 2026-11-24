@@ -8,6 +8,7 @@ import { CollectorEditionMark } from '@/components/social/CollectorEdition';
 import { rarityTileBorder } from '@/lib/bestiary';
 import { hapticTap } from '@/lib/haptics';
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
+import { useScrollDepth } from '@/hooks/useScrollDepth';
 
 const LONG_PRESS_MS = 400;
 const MOVE_TOLERANCE = 10;
@@ -28,6 +29,9 @@ export const MyCapturesGrid = ({ items, onSelect, onReorder, isFavorite }: Props
   const [order, setOrder] = useState<AnimalCard[]>(items);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [ghost, setGhost] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const gridRef = useRef<HTMLDivElement>(null);
+  // Effet de profondeur au défilement, coupé pendant la réorganisation.
+  useScrollDepth(gridRef, dragIndex === null);
 
   const timerRef = useRef<number | null>(null);
   const startRef = useRef<{ x: number; y: number } | null>(null);
@@ -155,6 +159,7 @@ export const MyCapturesGrid = ({ items, onSelect, onReorder, isFavorite }: Props
 
   return (
     <div
+      ref={gridRef}
       className="grid grid-cols-2 gap-2 select-none"
       onContextMenu={(e) => {
         if (dragIndex !== null) e.preventDefault();
@@ -163,8 +168,8 @@ export const MyCapturesGrid = ({ items, onSelect, onReorder, isFavorite }: Props
       {order.map((animal, index) => {
         const isDragging = dragIndex === index;
         return (
+          <div key={animal.id} data-depth-item>
           <div
-            key={animal.id}
             data-capture-index={index}
             // Cible de l'animation de rangement après une nouvelle capture.
             data-shelve-slot={animal.name.toLowerCase()}
@@ -224,6 +229,7 @@ export const MyCapturesGrid = ({ items, onSelect, onReorder, isFavorite }: Props
                 </p>
               )}
             </div>
+          </div>
           </div>
         );
       })}

@@ -1,4 +1,5 @@
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import { useScrollDepth } from '@/hooks/useScrollDepth';
 
 interface VirtualSpeciesGridProps<T> {
   items: T[];
@@ -37,6 +38,7 @@ export function VirtualSpeciesGrid<T>({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [width, setWidth] = useState(0);
   const [range, setRange] = useState({ start: 0, end: columns * 12 });
+  useScrollDepth(containerRef);
 
   // Largeur du conteneur → hauteur de ligne
   useEffect(() => {
@@ -130,7 +132,7 @@ export function VirtualSpeciesGrid<T>({
         }}
       >
         {slice.map((item, i) => (
-          <div key={getKey(item, range.start + i)}>{renderItem(item, range.start + i)}</div>
+          <div key={getKey(item, range.start + i)} data-depth-item>{renderItem(item, range.start + i)}</div>
         ))}
       </div>
     </div>
