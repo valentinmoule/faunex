@@ -251,40 +251,34 @@ const QuestsInline = () => {
                     <span className="quest-xp-float font-display text-2xl font-black text-primary">+{quest.xp_reward} XP</span>
                   </div>
                 )}
-                <div className="flex items-center gap-3">
-                  <div className="quest-tile flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl" style={{ '--tile': QUEST_TINTS[quest.quest_type] ?? 'var(--primary)' } as CSSProperties}>
-                    {quest.claimed ? <Check className="h-6 w-6" strokeWidth={3} /> : <QuestIcon className="h-6 w-6" strokeWidth={2.3} />}
-                  </div>
+                <div className="flex items-center gap-4">
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="truncate text-[15px] font-display font-black leading-tight text-foreground">{quest.title}</p>
-                      {!quest.claimed && <XpPill xp={quest.xp_reward} state="reward" />}
+                    <p className="flex items-center gap-1.5 text-[10px] font-display font-bold uppercase tracking-[0.08em] text-muted-foreground">
+                      <QuestIcon className="h-3.5 w-3.5" strokeWidth={2.4} style={{ color: QUEST_TINTS[quest.quest_type] ?? 'hsl(var(--primary))' }} />
+                      {quest.description}
+                    </p>
+                    <p className="mt-1 truncate text-[16px] font-display font-black leading-tight text-foreground">{quest.title}</p>
+                    <div className="quest-bar relative mt-2.5 h-5 overflow-hidden rounded-full bg-muted">
+                      <div
+                        className={`quest-progress-fill quest-bar-fill h-full rounded-full ${done ? 'bg-primary' : 'bg-amber'}`}
+                        style={{ width: `${quest.claimed ? 100 : Math.max(pct, 6)}%`, animationDelay: `${index * 80 + 150}ms` }}
+                      />
+                      <span className="absolute inset-0 flex items-center justify-center text-[11px] font-display font-black tabular-nums text-foreground">
+                        {Math.min(quest.progress, quest.target)}/{quest.target}
+                      </span>
                     </div>
-                    <p className="mt-0.5 line-clamp-2 text-xs leading-snug text-muted-foreground">{quest.description}</p>
+                  </div>
+                  <div className="flex w-14 shrink-0 flex-col items-center gap-1">
+                    <span data-open={ready} className="quest-chest flex h-12 w-12 items-center justify-center rounded-2xl">
+                      {quest.claimed ? <Check className="h-6 w-6" strokeWidth={3} /> : <Gift className="h-6 w-6" strokeWidth={2.2} />}
+                    </span>
+                    <span className="text-[10px] font-display font-black text-amber">+{quest.xp_reward} XP</span>
                   </div>
                 </div>
-
-                {!quest.claimed && (
-                  <div className="quest-bar relative mt-3.5 h-5 overflow-hidden rounded-full bg-muted">
-                    <div
-                      className={`quest-progress-fill quest-bar-fill h-full rounded-full ${done ? 'bg-primary' : 'bg-amber'}`}
-                      style={{ width: `${Math.max(pct, 6)}%`, animationDelay: `${index * 80 + 150}ms` }}
-                    />
-                    <span className="absolute inset-0 flex items-center justify-center text-[11px] font-display font-black tabular-nums text-foreground">
-                      {quest.progress}/{quest.target}
-                    </span>
-                  </div>
-                )}
 
                 {quest.quest_type === 'share_app' && !done && !quest.claimed && (
                   <Button size="sm" variant="ghost" onClick={() => handleShareApp(quest.id)} className="game-button game-button-outline mt-3 h-11 w-full text-sm font-display">
                     <Share2 className="h-4 w-4" />{t('profile.quests.share')}
-                  </Button>
-                )}
-                {!done && !quest.claimed && quest.quest_type !== 'share_app' && (
-                  <Button size="sm" variant="ghost" onClick={() => navigate(quest.quest_type === 'new_zone' ? '/home?tab=map' : '/capture')} className="game-button game-button-outline mt-3 h-11 w-full text-sm font-display">
-                    {quest.quest_type === 'new_zone' ? <MapPin className="h-4 w-4" /> : <Camera className="h-4 w-4" />}
-                    {t(quest.quest_type === 'new_zone' ? 'profile.quests.goExplore' : 'profile.quests.goCapture')}
                   </Button>
                 )}
                 {ready && (
