@@ -108,37 +108,37 @@ export default function ChallengesPage() {
         <QuestsInline />
 
         <button
+          type="button"
           onClick={() => navigate('/apprendre')}
-          className="relative block w-full overflow-hidden rounded-3xl text-left surface-pebble active:scale-[0.98] transition-transform"
+          className="mission-plate quest-card-enter block w-full overflow-hidden rounded-3xl p-4 text-left active:scale-[0.98] transition-transform"
+          style={{ animationDelay: '160ms' }}
         >
-          <img src={worlds[chapterIndex % worlds.length]} alt="" className="absolute inset-0 h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-foreground/55 via-foreground/10 to-transparent" />
-          <div className="relative flex min-h-[180px] flex-col justify-end gap-3 p-5">
-            <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-card/90 px-3 py-1 text-[11px] font-display font-bold uppercase tracking-wider text-primary">
-              <Sprout className="h-3.5 w-3.5" />{t('challenges.academyTitle')}
-            </span>
-            <div>
-              {chapter && <p className="text-[12px] font-display font-bold text-background/80">{t('challenges.chapter', { n: chapterIndex + 1 })}</p>}
-              <p className="text-2xl font-display font-extrabold leading-tight text-background">
-                {chapter ? learningText(chapter as unknown as Record<string, unknown>, 'title', en) : t('learning.title')}
-              </p>
-              {!chapter && <p className="text-[13px] text-background/80">{t('challenges.academyDesc')}</p>}
-            </div>
-            {chapter && (
-              <div className="flex items-center gap-3">
-                <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-background/30">
-                  <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${pct}%` }} />
-                </div>
-                <span className="text-[12px] font-display font-bold text-background">{t('challenges.progress', { done: chapterDone, total })}</span>
+          <div className="flex items-center gap-3">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center justify-between gap-2 text-[10px] font-display font-extrabold uppercase tracking-[0.08em] text-muted-foreground">
+                <span className="inline-flex items-center gap-1 text-primary"><Sprout className="h-3 w-3" />{t('challenges.trainingEyebrow')}</span>
+                {chapter && <span>{t('challenges.chapter', { n: chapterIndex + 1 })}</span>}
               </div>
-            )}
-            {chapter && !allDone && total - chapterDone > 0 && (
-              <p className="text-[12px] font-display font-semibold text-background/85">{t('challenges.chapterLeft', { count: total - chapterDone })}</p>
-            )}
-            <span className="game-button flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-[15px] font-display font-extrabold text-primary-foreground shadow-[0_4px_0_hsl(var(--primary-dark,var(--primary))/0.6)]">
-              <Play className="h-4 w-4 fill-current" />{cta}
-            </span>
+              <p className="mt-1 text-[15px] font-display font-black leading-tight text-foreground">
+                {chapter ? learningText(chapter as unknown as Record<string, unknown>, 'title', en) : t('challenges.academyDesc')}
+              </p>
+              {chapter && (
+                <div className="mt-2 flex items-center gap-2">
+                  <div className="mission-gauge h-2.5 flex-1 overflow-hidden rounded-full">
+                    <div className="mission-gauge-fill h-full rounded-full" style={{ width: `${Math.max(pct, 4)}%` }} />
+                  </div>
+                  <span className="text-[11px] font-display font-black tabular-nums text-foreground">{chapterDone}/{total}</span>
+                </div>
+              )}
+            </div>
+            <div className="flex w-14 shrink-0 flex-col items-center gap-1">
+              <img src={worlds[chapterIndex % worlds.length]} alt="" className="h-11 w-11 rounded-2xl object-cover" />
+              <span className="text-[10px] font-display font-black text-amber">+5 XP</span>
+            </div>
           </div>
+          <span className="game-button relative mt-3 flex h-10 w-full items-center justify-center gap-2 text-sm font-display">
+            <Play className="h-4 w-4 fill-current" />{cta}
+          </span>
         </button>
       </div>
       )}

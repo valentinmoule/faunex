@@ -89,7 +89,8 @@
         "title": "Relegated",
         "body": "You drop from the {{from}} League to the {{tier}} League. A few captures are enough to climb back!"
       }
-    }
+    },
+    "trainingEyebrow": "Nature training"
   },
   "header": {
     "level": "Lvl {{level}}",

@@ -89,7 +89,8 @@
         "title": "Relégation",
         "body": "Tu redescends de la Ligue {{from}} à la Ligue {{tier}}. Quelques captures suffisent pour remonter !"
       }
-    }
+    },
+    "trainingEyebrow": "Entraînement nature"
   },
   "header": {
     "level": "Niv. {{level}}",
