@@ -5,7 +5,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { notifyCaptureInteraction } from '@/lib/notifyCaptureInteraction';
 import CommentMentionInput from '@/components/CommentMentionInput';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Search, Bell, Heart, MessageCircle, Send, UserPlus, UserCheck, X, Users, Clock, Check as CheckIcon, XCircle, ArrowLeft, Newspaper, Trophy, UserX, UserMinus } from 'lucide-react';
+import { Search, Bell, Heart, MessageCircle, Send, UserPlus, UserCheck, X, Users, Clock, Check as CheckIcon, XCircle, ArrowLeft, Newspaper, Trophy, Compass, UserX, UserMinus } from 'lucide-react';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import CardDetailSheet from '@/components/CardDetailSheet';
 import { type AnimalCard, type Rarity } from '@/data/mockData';
@@ -714,7 +714,7 @@ const ExplorersPage = () => {
         <div className="game-tabs flex items-center w-full" role="tablist">
           {([
             { key: 'feed' as const, label: t('social.contest.tabFeed'), icon: Newspaper },
-            { key: 'contest' as const, label: t('social.contest.tabContest'), icon: Trophy },
+            { key: 'contest' as const, label: t('social.contest.tabContest'), icon: Compass },
           ]).map(({ key, label, icon: Icon }) => {
             const active = feedTab === key;
             return (
