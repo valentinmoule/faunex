@@ -94,7 +94,6 @@ export function BookmarkLeafIcon({ active, ...p }: NavIconProps) {
   return (
     <svg {...base(active)} {...p}>
       <path d="M7.5 4.5h13a1 1 0 0 1 1 1v18l-7.5-4.6-7.5 4.6v-18a1 1 0 0 1 1-1Z" fill="currentColor" />
-      <path d="M11 14.5c0-3 1.8-5 5-5 0 3-1.8 5-5 5Zm0 0 2.7-2.7" stroke="hsl(var(--card))" strokeWidth="1.6" />
     </svg>
   );
 }
