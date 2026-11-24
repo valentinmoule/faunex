@@ -59,8 +59,8 @@
       "noAnimalsFound": "Aucune espèce trouvée pour cette zone.",
       "inMyFaunex": "Dans mon Faunex",
       "newSpecies": "Nouvelle espèce",
-      "recentlySeen_one": "Vu par {{count}} explorateur ces 15 derniers jours",
-      "recentlySeen_other": "Vu par {{count}} explorateurs ces 15 derniers jours"
+      "recentlySeen_one": "Vu récemment · {{count}}",
+      "recentlySeen_other": "Vu récemment · {{count}}"
     },
     "pushPrompt": {
       "successToast": "Notifications activées 🦊",

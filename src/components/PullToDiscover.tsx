@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { Loader2, Radar, Sparkles, MapPin, Check, Star, Lightbulb, Users } from 'lucide-react';
+import { Loader2, Radar, Sparkles, Check, Star, Lightbulb, Users } from 'lucide-react';
 import { thumbUrl } from '@/lib/imageUrl';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 import { useSwipeDownClose } from '@/lib/useSwipeDownClose';
 import { RarityBadge } from '@/components/RarityBadge';
 import { useTranslation } from 'react-i18next';
+import { normalizeSpeciesSearch } from '@/lib/bestiary';
 
 const ENABLED_ROUTES = ['/home', '/explorers', '/profile'];
 
@@ -79,14 +80,25 @@ const PullToDiscover = () => {
     let cancelled = false;
     const since = new Date(Date.now() - 15 * 86400000).toISOString();
     Promise.all([
-      supabase.from('captures').select('animal_name').eq('user_id', uid).eq('status', 'approved').in('animal_name', names),
+      supabase.from('captures').select('animal_name,scientific_name').eq('user_id', uid).eq('status', 'approved').limit(5000),
       supabase.from('captures').select('animal_name,user_id,image_url,created_at').eq('status', 'approved').eq('shared', true)
         .in('animal_name', names).gte('created_at', since).order('created_at', { ascending: false }).limit(200),
     ]).then(([mine, recent]) => {
       if (cancelled) return;
       const next: Record<string, { mine: boolean; recent: number; photo?: string }> = {};
       names.forEach((n) => { next[n.toLowerCase()] = { mine: false, recent: 0 }; });
-      (mine.data || []).forEach((r: any) => { const k = r.animal_name?.toLowerCase(); if (next[k]) next[k].mine = true; });
+      // Comparaison tolérante (accents, apostrophes, casse) sur le nom commun ou scientifique.
+      const myNames = new Set<string>();
+      const mySci = new Set<string>();
+      (mine.data || []).forEach((r: any) => {
+        if (r.animal_name) myNames.add(normalizeSpeciesSearch(r.animal_name));
+        if (r.scientific_name) mySci.add(normalizeSpeciesSearch(r.scientific_name));
+      });
+      (result?.animals || []).forEach((a) => {
+        const k = a.name?.toLowerCase();
+        if (!k || !next[k]) return;
+        if (myNames.has(normalizeSpeciesSearch(a.name)) || (a.scientific_name && mySci.has(normalizeSpeciesSearch(a.scientific_name)))) next[k].mine = true;
+      });
       const seen = new Map<string, Set<string>>();
       (recent.data || []).forEach((r: any) => {
         const k = r.animal_name?.toLowerCase();
@@ -298,19 +310,17 @@ const PullToDiscover = () => {
         <SheetContent
           ref={swipeClose.ref}
           side="bottom"
-          className="max-h-[85vh] overflow-y-auto z-[1500]"
+          className="max-h-[85vh] overflow-y-auto overscroll-contain z-[1500] rounded-t-[28px] px-4 pt-3 pb-6"
           style={swipeClose.style}
         >
-          <SheetHeader>
-            <SheetTitle className="flex items-center gap-2 font-display">
-              <Sparkles className="w-5 h-5 text-primary" />
+          <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-border" aria-hidden />
+          <SheetHeader className="text-left pr-12">
+            <SheetTitle className="font-display text-[17px] leading-snug">
               {result?.location || t('map.pull.sheetTitle')}
             </SheetTitle>
           </SheetHeader>
-          <p className="text-[12px] text-muted-foreground mt-1 flex items-center gap-1">
-            <MapPin className="w-3.5 h-3.5" /> {t('map.pull.sheetSubtitle')}
-          </p>
-          <div className="mt-4 space-y-3">
+          <p className="text-[12px] text-muted-foreground mt-0.5">{t('map.pull.sheetSubtitle')}</p>
+          <div className="mt-3 space-y-2.5">
             {result?.animals.map((a, i) => {
               const st = status[a.name?.toLowerCase()] || { mine: false, recent: 0 };
               const tint = RARITY_COLORS[a.rarity] || 'hsl(var(--border))';
@@ -319,11 +329,11 @@ const PullToDiscover = () => {
                   type="button"
                   key={i}
                   onClick={() => { setOpen(false); navigate(`/home?tab=categories&q=${encodeURIComponent(a.name)}`); }}
-                  className="mission-plate w-full text-left p-3.5 rounded-[22px] border bg-card active:scale-[0.98] transition-transform animate-fade-in"
+                  className="mission-plate w-full text-left p-3 rounded-[22px] border bg-card active:scale-[0.98] transition-transform animate-fade-in"
                   style={{ borderColor: `${tint}40`, animationDelay: `${i * 70}ms`, animationFillMode: 'both' }}
                 >
                   <div className="flex gap-3">
-                    <div className="relative w-[72px] h-[72px] shrink-0 rounded-2xl overflow-hidden bg-muted flex items-center justify-center">
+                    <div className="relative w-16 h-16 shrink-0 rounded-2xl overflow-hidden bg-muted flex items-center justify-center">
                       {st.photo ? (
                         <img src={thumbUrl(st.photo, 200)} alt="" loading="lazy" className="w-full h-full object-cover" />
                       ) : (
@@ -344,7 +354,7 @@ const PullToDiscover = () => {
                       <p className="font-display font-bold text-[15px] text-foreground leading-tight mt-1 truncate">{a.name}</p>
                       <p className="text-[11.5px] italic text-muted-foreground truncate">{a.scientific_name}</p>
                       {st.recent > 0 && (
-                        <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary px-2 py-0.5 text-[10.5px] font-semibold">
+                        <span className="mt-1 inline-flex whitespace-nowrap items-center gap-1 rounded-full bg-primary/10 text-primary px-2 py-0.5 text-[10.5px] font-semibold">
                           <span className="relative flex w-1.5 h-1.5"><span className="absolute inset-0 rounded-full bg-primary animate-ping opacity-60" /><span className="relative w-1.5 h-1.5 rounded-full bg-primary" /></span>
                           <Users className="w-3 h-3" />
                           {t('map.pull.recentlySeen', { count: st.recent })}
@@ -352,13 +362,10 @@ const PullToDiscover = () => {
                       )}
                     </div>
                   </div>
-                  {a.description && <p className="text-[12.5px] mt-2.5 text-foreground/80 leading-snug">{a.description}</p>}
                   {a.tip && (
-                    <div className="mt-2.5 flex gap-2 rounded-xl bg-muted/60 px-3 py-2">
+                    <div className="mt-2 flex gap-1.5">
                       <Lightbulb className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
-                      <p className="text-[11.5px] text-muted-foreground leading-snug">
-                        <span className="font-semibold text-foreground">{t('map.pull.tipLabel')}&nbsp;:</span> {a.tip}
-                      </p>
+                      <p className="text-[12px] text-foreground/75 leading-snug line-clamp-2">{a.tip}</p>
                     </div>
                   )}
                 </button>
