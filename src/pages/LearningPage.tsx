@@ -5,7 +5,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Check, Lock, Sprout, Loader2, Star, Play, RotateCcw, Target, X } from 'lucide-react';
-import CurrencyBalance from '@/components/CurrencyBalance';
 import CaptureQuotaBadge from '@/components/CaptureQuotaBadge';
 import { PageHeader } from '@/components/PageHeader';
 import { Button } from '@/components/ui/button';
@@ -65,7 +64,7 @@ export default function LearningPage() {
   function refresh() { void client.invalidateQueries({ queryKey: ['learning', session?.user.id] }); void client.invalidateQueries({ queryKey: walletKey(session?.user.id) }); }
   if (attempt) return <LearningPlayer key={attempt.id} initial={attempt} onClose={() => { setAttempt(null); refresh(); }} onFinished={refresh} onRetry={() => { const id = attempt.lesson.id; setAttempt(null); void open(id); }} />;
   return <main className="learning-world min-h-screen bg-background pb-[50svh]">
-    <PageHeader sticky className="border-b border-border bg-background px-4 py-4"><div className="mx-auto flex max-w-lg items-center gap-3"><Button variant="ghost" size="icon" onClick={() => navigate('/defis')} aria-label={t('common.back')}><ArrowLeft className="h-5 w-5" /></Button><h1 className="min-w-0 truncate font-display text-2xl font-bold">{t('learning.title')}</h1><div className="ml-auto flex items-center gap-4"><CurrencyBalance /><CaptureQuotaBadge userId={session?.user?.id} isPremium={isPremium} premiumLoading={premiumLoading} /></div></div></PageHeader>
+    <PageHeader sticky className="border-b border-border bg-background px-4 py-4"><div className="mx-auto flex max-w-lg items-center gap-3"><Button variant="ghost" size="icon" onClick={() => navigate('/defis')} aria-label={t('common.back')}><ArrowLeft className="h-5 w-5" /></Button><h1 className="min-w-0 truncate font-display text-2xl font-bold">{t('learning.title')}</h1><div className="ml-auto flex items-center gap-4"><CaptureQuotaBadge userId={session?.user?.id} isPremium={isPremium} premiumLoading={premiumLoading} /></div></div></PageHeader>
     <div className="mx-auto max-w-lg px-4 pt-4">
       {status.isPending && <Loader2 className="mx-auto h-6 w-6 animate-spin text-primary" />}
       {status.isError && <><p role="alert" className="text-destructive">{t('learning.error')}</p><Button variant="ghost" onClick={() => void status.refetch()}>{t('learning.retry')}</Button></>}

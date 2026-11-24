@@ -87,7 +87,6 @@ import CategoryChipRow, { CHIP_ALL, CHIP_FAVORITES, Chip as RoundChip, categoryC
 import { useSpeciesFavorites, speciesFavoriteKey, buildFavoriteSpeciesKeys } from '@/hooks/useSpeciesFavorites';
 import RewardCelebration from '@/components/RewardCelebration';
 import CaptureQuotaBadge from '@/components/CaptureQuotaBadge';
-import CurrencyBalance from '@/components/CurrencyBalance';
 import { ProfileButton } from '@/components/ProfileDrawer';
 import {
   COLLECTION_REWARD_PREFIX,
@@ -1870,7 +1869,6 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
                 <ProfileButton className="-ml-0.5" />
                 <div className="flex min-w-0 items-center gap-4">
                   <CaptureQuotaBadge userId={session?.user?.id} isPremium={isPremium} premiumLoading={premiumLoading} />
-                  <CurrencyBalance />
                   <button
                     onClick={() => navigate('/notifications')}
                     aria-label={t('social.notifications.title')}
@@ -1891,7 +1889,7 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
 
         <div className="max-w-lg mx-auto px-4 pt-4 space-y-6">
           {viewMode !== 'badges' && (
-            <h1 className="-mb-4 truncate text-3xl font-display font-extrabold tracking-tight text-primary">
+            <h1 className="sr-only">
               {viewMode === 'leaderboard' ? t('social.leaderboard.ranking') : viewMode === 'map' ? t('nav.terrain') : t('bestiary.header.title')}
             </h1>
           )}

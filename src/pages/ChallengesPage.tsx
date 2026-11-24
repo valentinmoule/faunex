@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Play, Sprout } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
-import CurrencyBalance from '@/components/CurrencyBalance';
 import QuestsInline from '@/components/QuestsInline';
 import { useAuth } from '@/contexts/AuthContext';
 import { learningStatus, learningText } from '@/lib/learning';
@@ -37,10 +36,10 @@ export default function ChallengesPage() {
   return (
     <main className="min-h-screen bg-background pb-28">
       <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
-        <div className="mx-auto flex max-w-lg items-center justify-end gap-4"><CurrencyBalance /></div>
+        <div className="mx-auto flex max-w-lg items-center justify-end gap-4"></div>
       </PageHeader>
       <div className="mx-auto max-w-lg px-4 pt-4 space-y-6">
-        <h1 className="truncate text-3xl font-display font-extrabold tracking-tight text-primary">{t('nav.challenges')}</h1>
+        <h1 className="sr-only">{t('nav.challenges')}</h1>
 
         <button
           onClick={() => navigate('/apprendre')}

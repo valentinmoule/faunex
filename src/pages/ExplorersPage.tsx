@@ -26,7 +26,6 @@ import CaptureMilestoneCard, { isMilestoneRank } from '@/components/CaptureMiles
 import ExplorersEmptyState from '@/components/social/ExplorersEmptyState';
 import { ProfileButton } from '@/components/ProfileDrawer';
 import CaptureQuotaBadge from '@/components/CaptureQuotaBadge';
-import CurrencyBalance from '@/components/CurrencyBalance';
 import { useSubscription } from '@/hooks/useSubscription';
 import PhotoContestTab from '@/components/social/PhotoContestTab';
 import { useContestWinnerCaptures } from '@/hooks/usePhotoContest';
@@ -685,7 +684,6 @@ const ExplorersPage = () => {
           <ProfileButton className="-ml-0.5" />
           <div className="flex min-w-0 items-center gap-4">
             <CaptureQuotaBadge userId={session?.user?.id} isPremium={isPremium} premiumLoading={premiumLoading} />
-            <CurrencyBalance />
             <div className="-mr-1 flex items-center">
               <button onClick={() => setView('search')} aria-label={t('social.searchExplorers')} className="relative h-10 w-10 rounded-full flex items-center justify-center hover:bg-muted transition-colors">
                 <Search className="w-5 h-5 text-foreground" />
@@ -706,9 +704,6 @@ const ExplorersPage = () => {
         </div>
       </PageHeader>
 
-      <div className="max-w-lg mx-auto px-4 pt-4">
-        <h1 className="truncate text-3xl font-display font-extrabold tracking-tight text-primary">{t('social.explorersTitle')}</h1>
-      </div>
 
       <div className="relative z-10 max-w-lg mx-auto px-4 pt-3 pb-2">
         <div className="game-tabs flex items-center w-full" role="tablist">

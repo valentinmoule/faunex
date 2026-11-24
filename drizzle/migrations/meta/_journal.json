@@ -946,6 +946,13 @@
       "when": 1795549907889,
       "tag": "0132_xp_leaderboards",
       "breakpoints": true
+    },
+    {
+      "idx": 133,
+      "version": "7",
+      "when": 1795550300952,
+      "tag": "0133_learning_rewards_xp",
+      "breakpoints": true
     }
   ]
 }
