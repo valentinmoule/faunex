@@ -1926,7 +1926,6 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
                     onClick={() => switchHubTab(key)}
                     className="game-tab min-w-0 flex-1 h-10 gap-1.5 px-2 text-xs"
                   >
-                    <Icon className={`w-3.5 h-3.5 transition-transform ${active ? 'scale-110' : ''}`} />
                     <span className="truncate">{label}</span>
                   </Button>
                 );
@@ -2373,7 +2372,7 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
                         onClick={() => setLeaderboardScope(key)}
                         className="game-tab min-w-0 flex-1 h-10 gap-1.5 px-2 text-xs"
                       >
-                        {locked ? <Lock className={`w-3.5 h-3.5 ${active ? 'scale-110' : ''}`} /> : <Icon className={`w-3.5 h-3.5 transition-transform ${active ? 'scale-110' : ''}`} />}
+                        {locked && <Lock className="w-3.5 h-3.5" />}
                         <span className="truncate">{label}</span>
                       </Button>
                     );
