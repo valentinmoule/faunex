@@ -1,0 +1,78 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { CalendarDays, Crown, Infinity as InfinityIcon, Lock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import CategoryLeaderboard, { LeaderboardResetBadge } from '@/components/CategoryLeaderboard';
+import { Chip as RoundChip, categoryChipImage } from '@/components/CategoryChipRow';
+import { useAuth } from '@/contexts/AuthContext';
+import { useSubscription } from '@/hooks/useSubscription';
+
+const LEADERBOARD_CATEGORIES = ['Mammifères', 'Oiseaux', 'Insectes', 'Poissons', 'Reptiles', 'Amphibiens', 'Arachnides', 'Mollusques', 'Crustacés'];
+
+/** Classement affiché directement dans Explorateurs (sans changer de page). */
+export default function ExplorersLeaderboard() {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { session } = useAuth();
+  const { isPremium, loading: premiumLoading } = useSubscription(session?.user?.id);
+  const [scope, setScope] = useState<'global' | 'explorers'>('global');
+  const [filter, setFilter] = useState<'week' | 'all' | string>('week');
+
+  return (
+    <section className="px-4">
+      <div className="game-tabs grid grid-cols-2 w-full mt-1" role="tablist">
+        {([['global', t('social.leaderboard.tabGlobal')], ['explorers', t('social.leaderboard.tabExplorers')]] as const).map(([key, label]) => (
+          <Button variant="ghost" role="tab" aria-selected={scope === key} key={key} onClick={() => setScope(key)} className="game-tab min-w-0 flex-1 h-10 gap-1.5 px-2 text-xs">
+            {key === 'explorers' && !isPremium && <Lock className="w-3.5 h-3.5" />}
+            <span className="truncate">{label}</span>
+          </Button>
+        ))}
+      </div>
+      <div role="radiogroup" aria-label={t('social.leaderboard.ranking')} className="no-scrollbar -mx-3 mb-1 mt-2 flex gap-1 overflow-x-auto px-3 pt-1 pb-0.5">
+        <RoundChip selected={filter === 'week'} label={t('social.leaderboard.tabWeek')} onClick={() => setFilter('week')}>
+          <span className="flex h-full w-full items-center justify-center bg-chip-all"><CalendarDays className="h-7 w-7 text-foreground" strokeWidth={2.25} /></span>
+        </RoundChip>
+        <RoundChip selected={filter === 'all'} label={t('social.leaderboard.tabAllTime')} onClick={() => setFilter('all')}>
+          <span className="flex h-full w-full items-center justify-center bg-chip-all"><InfinityIcon className="h-7 w-7 text-foreground" strokeWidth={2.25} /></span>
+        </RoundChip>
+        {LEADERBOARD_CATEGORIES.map((category) => (
+          <RoundChip key={category} selected={filter === category} label={t(`bestiary.categoryNames.${category}`, { defaultValue: category })} onClick={() => setFilter(category)}>
+            <img src={categoryChipImage(category)} alt="" width={64} height={64} decoding="async" className="h-full w-full object-cover" />
+          </RoundChip>
+        ))}
+      </div>
+      {scope === 'explorers' && (premiumLoading || !isPremium) ? (
+        premiumLoading ? (
+          <p className="px-5 py-10 text-center text-[13px] font-display text-muted-foreground">{t('social.common.loading')}</p>
+        ) : (
+          <div className="px-5 py-10 text-center">
+            <div className="mx-auto w-14 h-14 rounded-full bg-gradient-to-b from-amber/25 to-amber/5 border border-amber/30 flex items-center justify-center mb-3">
+              <Crown className="w-6 h-6 text-amber" />
+            </div>
+            <p className="text-[14px] font-display font-bold text-foreground">{t('social.leaderboard.lockedTitle')}</p>
+            <p className="mt-1 text-[12px] font-display text-muted-foreground leading-relaxed">{t('social.leaderboard.lockedDesc')}</p>
+            <Button onClick={() => navigate('/premium')} className="h-12 w-full max-w-xs text-sm">{t('social.leaderboard.lockedCta')}</Button>
+          </div>
+        )
+      ) : (
+        <>
+          <div className="flex h-[34px] items-center justify-between gap-3 px-1 pt-1">
+            <h2 className="min-w-0 truncate text-[15px] font-display font-bold text-foreground">
+              {filter === 'week' ? t('social.leaderboard.titleWeek') : filter === 'all' ? t('social.leaderboard.titleAllTime') : t(`bestiary.categoryNames.${filter}`, { defaultValue: filter })}
+            </h2>
+            {filter === 'week' && <LeaderboardResetBadge className="shrink-0" />}
+          </div>
+          <CategoryLeaderboard
+            key={`${scope}-${filter}`}
+            category={filter === 'week' || filter === 'all' ? 'all' : filter}
+            inline
+            period={filter === 'week' ? 'week' : 'all'}
+            scope={scope === 'explorers' ? 'follows' : 'global'}
+            showResetBadge={false}
+          />
+        </>
+      )}
+    </section>
+  );
+}

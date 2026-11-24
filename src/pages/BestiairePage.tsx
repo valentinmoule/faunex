@@ -259,7 +259,7 @@ const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [pickerTab, setPickerTab] = useState<'department' | 'city'>('department');
   const [deptSearch, setDeptSearch] = useState('');
   const [collectionSearch, setCollectionSearch] = useState('');
-  const [speciesSearch, setSpeciesSearch] = useState('');
+  const [speciesSearch, setSpeciesSearch] = useState(() => searchParams.get('q') ?? '');
   const [mineSearch, setMineSearch] = useState('');
   const [zoneSearch, setZoneSearch] = useState('');
   const [collectionDetailSearch, setCollectionDetailSearch] = useState('');
@@ -2025,6 +2025,11 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
                           ? t('bestiary.chips.favoritesEmptyMine')
                           : t('bestiary.mine.noneForFilters')}
                     </p>
+                    {mineSearch.trim() && (
+                      <button onClick={() => navigate(`/bestiaire?q=${encodeURIComponent(mineSearch.trim())}`)} className="mt-3 text-xs font-display font-bold text-primary">
+                        {t('bestiary.mine.searchInBestiary', { query: mineSearch.trim() })}
+                      </button>
+                    )}
                   </div>
                 ) : (
                   <EmptyCaptureState

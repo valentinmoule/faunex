@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Camera, Users, PawPrint, Map as MapIcon, Sprout } from 'lucide-react';
+import { Camera, Users, PawPrint, Map as MapIcon, Target } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { hapticTap } from '@/lib/haptics';
 
@@ -10,7 +10,7 @@ const tabs: NavTab[] = [
   { path: '/home', labelKey: 'nav.terrain', icon: MapIcon, tab: 'map' },
   { path: '/capture', labelKey: 'nav.capture', icon: Camera },
   { path: '/explorers', labelKey: 'nav.explorers', icon: Users },
-  { path: '/apprendre', labelKey: 'nav.learn', icon: Sprout },
+  { path: '/defis', labelKey: 'nav.challenges', icon: Target },
 ];
 
 const BottomNav = () => {
@@ -27,6 +27,7 @@ const BottomNav = () => {
       return (p === '/home' && currentTabParam !== 'map') || (p === '/bestiaire' && currentTabParam !== 'leaderboard');
     }
     if (tab.path === '/explorers') return p === '/explorers' || (p === '/bestiaire' && currentTabParam === 'leaderboard');
+    if (tab.path === '/defis') return p === '/defis' || p === '/apprendre';
     return p === tab.path;
   };
 

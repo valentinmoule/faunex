@@ -9,7 +9,8 @@
     "profile": "Profil",
     "collection": "Collection",
     "terrain": "Terrain",
-    "learn": "Apprendre"
+    "learn": "Apprendre",
+    "challenges": "Défis"
   },
   "common": {
     "save": "Enregistrer",
@@ -53,5 +54,9 @@
     "deleteMyAccount": "Supprimer mon compte",
     "signedOut": "Déconnecté",
     "notifications": "Notifications"
+  },
+  "challenges": {
+    "academyTitle": "Académie",
+    "academyDesc": "Continue ton parcours nature et gagne des Graines."
   }
 }

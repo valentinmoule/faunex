@@ -1,3 +1,4 @@
+import ExplorersLeaderboard from '@/components/ExplorersLeaderboard';
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { avatarFallbackStyle } from '@/lib/avatarPalette';
@@ -101,7 +102,7 @@ const ExplorersPage = () => {
 
   // View mode: 'feed' (default) or 'search' (search/followers/following)
   const [view, setView] = useState<'feed' | 'search'>('feed');
-  const [feedTab, setFeedTab] = useState<'feed' | 'contest'>(() => (searchParams.get('tab') === 'contest' ? 'contest' : 'feed'));
+  const [feedTab, setFeedTab] = useState<'feed' | 'contest' | 'leaderboard'>(() => { const q = searchParams.get('tab'); return q === 'contest' || q === 'leaderboard' ? q : 'feed'; });
   const { data: contestWinners } = useContestWinnerCaptures();
 
   // ── Feed state ──
@@ -719,7 +720,7 @@ const ExplorersPage = () => {
           ]).map(({ key, label, icon: Icon }) => {
             const active = feedTab === key;
             return (
-              <Button key={key} variant="ghost" role="tab" aria-selected={active} onClick={() => (key === 'leaderboard' ? navigate('/bestiaire?tab=leaderboard') : setFeedTab(key))} className="game-tab min-w-0 flex-1 h-10 gap-1.5 px-2 text-xs">
+              <Button key={key} variant="ghost" role="tab" aria-selected={active} onClick={() => setFeedTab(key)} className="game-tab min-w-0 flex-1 h-10 gap-1.5 px-2 text-xs">
                 <span className="truncate">{label}</span>
               </Button>
             );
@@ -731,7 +732,9 @@ const ExplorersPage = () => {
         {feedTab === 'feed' && session?.user?.id && feedFollowingIds && (
           <StoriesBar userId={session.user.id} followingIds={feedFollowingIds} onSelectCard={setSelectedCard} />
         )}
-        {feedTab === 'contest' ? (
+        {feedTab === 'leaderboard' ? (
+          <ExplorersLeaderboard />
+        ) : feedTab === 'contest' ? (
           <PhotoContestTab />
         ) : feedLoading ? (
           <div className="text-center py-16"><p className="text-muted-foreground font-display">{t('social.common.loading')}</p></div>

@@ -101,7 +101,8 @@
       "sortAndFilter": "Sort & filters",
       "sortFilterModalTitle": "Sort and filter",
       "sortLabel": "Sort by",
-      "noneForFilters": "No catch matches the selected filters."
+      "noneForFilters": "No catch matches the selected filters.",
+      "searchInBestiary": "Search “{{query}}” in the Bestiary"
     },
     "emptyCapture": {
       "greeting": "Hello {{name}}!",
