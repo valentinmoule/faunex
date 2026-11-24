@@ -271,7 +271,7 @@ export const SpeciesSortFilterSheet = ({
   open,
   onOpenChange,
   sort,
-  sortOptions,
+  sortOptions = SPECIES_SORT_OPTIONS,
   onSortChange,
   rarities,
   onRaritiesChange,

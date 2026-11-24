@@ -402,7 +402,7 @@ const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
     if (!uid) return;
     try {
       const savedSort = localStorage.getItem(sortStorageKey(uid));
-      if (savedSort === 'recent' || savedSort === 'alpha' || savedSort === 'rarity' || savedSort === 'popularity' || savedSort === 'custom') {
+      if (savedSort === 'recent' || savedSort === 'alpha' || savedSort === 'number' || savedSort === 'rarity' || savedSort === 'popularity' || savedSort === 'custom') {
         setMineSort(savedSort);
       }
       const savedOrder = localStorage.getItem(orderStorageKey(uid));
