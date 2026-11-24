@@ -205,16 +205,10 @@
       "lockedCta": "Discover Faunex Premium",
       "emptyFollows": "No captures this week among the explorers you follow.",
       "emptyGlobal": "No captures this week.",
-      "noFollows": {
-        "title": "You're not following anyone",
-        "line1": "Follow explorers to see their captures and their level in this ranking.",
-        "cta": "Find explorers"
-      },
       "you": "You",
       "defaultName": "Explorer",
       "capturesShort": "{{count}} capt.",
       "xpShort": "{{count}} XP",
-      "chipFollowing": "Following",
       "movedUp": "Up {{count}} place since yesterday",
       "movedUp_other": "Up {{count}} places since yesterday",
       "movedDown": "Down {{count}} place since yesterday",
@@ -225,7 +219,6 @@
       "tabExplorers": "Explorers",
       "modeLeague": "Weekly league",
       "modeHonors": "Hall of fame",
-      "titleFollows": "You and who you follow",
       "tabLeague": "League",
       "league": {
         "joinTitle": "Make a capture to join this week's league",
