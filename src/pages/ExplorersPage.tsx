@@ -715,10 +715,11 @@ const ExplorersPage = () => {
           {([
             { key: 'feed' as const, label: t('social.contest.tabFeed'), icon: Newspaper },
             { key: 'contest' as const, label: t('social.contest.tabContest'), icon: Compass },
+            { key: 'leaderboard' as const, label: t('nav.leaderboard'), icon: Trophy },
           ]).map(({ key, label, icon: Icon }) => {
             const active = feedTab === key;
             return (
-              <Button key={key} variant="ghost" role="tab" aria-selected={active} onClick={() => setFeedTab(key)} className="game-tab min-w-0 flex-1 h-10 gap-1.5 px-2 text-xs">
+              <Button key={key} variant="ghost" role="tab" aria-selected={active} onClick={() => (key === 'leaderboard' ? navigate('/bestiaire?tab=leaderboard') : setFeedTab(key))} className="game-tab min-w-0 flex-1 h-10 gap-1.5 px-2 text-xs">
                 <Icon className={`w-3.5 h-3.5 transition-transform ${active ? 'scale-110' : ''}`} />
                 <span className="truncate">{label}</span>
               </Button>

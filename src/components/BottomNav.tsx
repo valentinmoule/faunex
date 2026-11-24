@@ -1,16 +1,16 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Camera, Users, PawPrint, BookOpen, Trophy } from 'lucide-react';
+import { Camera, Users, PawPrint, Map as MapIcon, Sprout } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { hapticTap } from '@/lib/haptics';
 
 type NavTab = { path: string; labelKey: string; icon: typeof PawPrint; tab?: string };
 
 const tabs: NavTab[] = [
-  { path: '/home', labelKey: 'nav.faunex', icon: PawPrint },
-  { path: '/bestiaire', labelKey: 'nav.bestiary', icon: BookOpen },
+  { path: '/home', labelKey: 'nav.collection', icon: PawPrint },
+  { path: '/home', labelKey: 'nav.terrain', icon: MapIcon, tab: 'map' },
   { path: '/capture', labelKey: 'nav.capture', icon: Camera },
   { path: '/explorers', labelKey: 'nav.explorers', icon: Users },
-  { path: '/bestiaire', labelKey: 'nav.leaderboard', icon: Trophy, tab: 'leaderboard' },
+  { path: '/apprendre', labelKey: 'nav.learn', icon: Sprout },
 ];
 
 const BottomNav = () => {
@@ -21,14 +21,13 @@ const BottomNav = () => {
   const currentTabParam = new URLSearchParams(location.search).get('tab');
 
   const isActive = (tab: (typeof tabs)[number]) => {
-    if (tab.tab) {
-      return location.pathname === tab.path && currentTabParam === tab.tab;
+    const p = location.pathname;
+    if (tab.labelKey === 'nav.terrain') return p === '/home' && currentTabParam === 'map';
+    if (tab.labelKey === 'nav.collection') {
+      return (p === '/home' && currentTabParam !== 'map') || (p === '/bestiaire' && currentTabParam !== 'leaderboard');
     }
-    // L'onglet Bestiaire est actif partout sur /bestiaire sauf sur la vue classement
-    if (tab.path === '/bestiaire') {
-      return location.pathname === '/bestiaire' && currentTabParam !== 'leaderboard';
-    }
-    return location.pathname === tab.path;
+    if (tab.path === '/explorers') return p === '/explorers' || (p === '/bestiaire' && currentTabParam === 'leaderboard');
+    return p === tab.path;
   };
 
   const go = (tab: (typeof tabs)[number]) => {

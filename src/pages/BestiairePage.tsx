@@ -321,6 +321,25 @@ const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
     setSearchParams(next === defaults ? {} : { tab: next }, { replace: true });
   }, [isFaunexHub, setSearchParams]);
 
+  // Onglets Collection : Captures vit sur /home, Bestiaire et Collections sur /bestiaire
+  const switchHubTab = useCallback((next: 'mine' | 'categories' | 'collections') => {
+    if (next === 'mine' && !isFaunexHub) { navigate('/home'); return; }
+    if (next !== 'mine' && isFaunexHub) { navigate(next === 'collections' ? '/bestiaire?tab=collections' : '/bestiaire'); return; }
+    changeView(next);
+  }, [isFaunexHub, navigate, changeView]);
+
+  // Suit l'onglet demandé dans l'adresse (barre du bas : Collection ↔ Terrain)
+  useEffect(() => {
+    const want: ViewMode = isFaunexHub
+      ? requestedTab === 'map' || requestedTab === 'badges' ? requestedTab : 'mine'
+      : requestedTab === 'collections' || requestedTab === 'leaderboard' ? requestedTab : 'categories';
+    setViewMode((cur) => {
+      if (cur === want) return cur;
+      setSelectedCategory(null); setSelectedCollectionKey(null); setSelectedCustomId(null); setSelectedZoneId(null);
+      return want;
+    });
+  }, [isFaunexHub, requestedTab]);
+
   // Charge le prénom affiché dans l'empty state d'accueil
   useEffect(() => {
     if (!session?.user?.id) return;
@@ -1885,20 +1904,18 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
         <div className="max-w-lg mx-auto px-4 pt-4 space-y-6">
           {viewMode !== 'badges' && (
             <h1 className="-mb-4 truncate text-3xl font-display font-extrabold tracking-tight text-primary">
-              {viewMode === 'leaderboard' ? t('social.leaderboard.ranking') : isFaunexHub ? t('bestiary.header.title') : t('bestiary.header.bestiaryTitle')}
+              {viewMode === 'leaderboard' ? t('social.leaderboard.ranking') : viewMode === 'map' ? t('nav.terrain') : isFaunexHub ? t('bestiary.header.title') : t('bestiary.header.bestiaryTitle')}
             </h1>
           )}
 
 
 
           {/* View toggle — floating gamified tab bar */}
-          {viewMode !== 'leaderboard' && viewMode !== 'badges' && (
+          {viewMode !== 'leaderboard' && viewMode !== 'badges' && viewMode !== 'map' && (
           <div className={`sticky top-[73px] z-30 -mx-4 px-4 pt-3 pb-2 ${viewMode === 'mine' && !showMineControls ? '' : 'bg-gradient-to-b from-background via-background/95 to-transparent'}`}>
             <div className="game-tabs flex items-center w-full" role="tablist">
-              {(isFaunexHub ? [
+              {([
                 { key: 'mine' as const, label: t('bestiary.tabs.mine'), icon: Images },
-                { key: 'map' as const, label: t('bestiary.tabs.map'), icon: MapIcon },
-              ] : [
                 { key: 'categories' as const, label: t('bestiary.tabs.categories'), icon: PawPrint },
                 { key: 'collections' as const, label: t('bestiary.tabs.collections'), icon: Layers },
               ]).map(({ key, label, icon: Icon }) => {
@@ -1906,7 +1923,7 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
                 return (
                   <Button variant="ghost" role="tab" aria-selected={active}
                     key={key}
-                    onClick={() => changeView(key)}
+                    onClick={() => switchHubTab(key)}
                     className="game-tab min-w-0 flex-1 h-10 gap-1.5 px-2 text-xs"
                   >
                     <Icon className={`w-3.5 h-3.5 transition-transform ${active ? 'scale-110' : ''}`} />

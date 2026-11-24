@@ -6,7 +6,10 @@
     "capture": "Capture",
     "explorers": "Explorers",
     "leaderboard": "Leaderboard",
-    "profile": "Profile"
+    "profile": "Profile",
+    "collection": "Collection",
+    "terrain": "Explore",
+    "learn": "Learn"
   },
   "common": {
     "save": "Save",

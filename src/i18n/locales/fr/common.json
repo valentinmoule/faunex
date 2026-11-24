@@ -6,7 +6,10 @@
     "capture": "Capture",
     "explorers": "Explorateurs",
     "leaderboard": "Classement",
-    "profile": "Profil"
+    "profile": "Profil",
+    "collection": "Collection",
+    "terrain": "Terrain",
+    "learn": "Apprendre"
   },
   "common": {
     "save": "Enregistrer",
