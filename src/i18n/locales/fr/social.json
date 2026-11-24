@@ -264,7 +264,11 @@
       "dayShort": "j",
       "viewCurrent": "En cours",
       "viewWinners": "Photos primées",
-      "winnersEmpty": "Aucune photo primée pour le moment."
+      "winnersEmpty": "Aucune photo primée pour le moment.",
+      "viewUpcoming": "À venir",
+      "rewardsTitle": "À gagner",
+      "rewardEffect": "Un effet spécial collector sur ta photo gagnante",
+      "rewardBadge": "Le badge « {{badge}} »"
     },
     "explorersTitle": "Explorateurs",
     "searchExplorers": "Rechercher des explorateurs"
