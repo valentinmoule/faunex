@@ -205,6 +205,11 @@
       "lockedCta": "Découvrir Faunex Premium",
       "emptyFollows": "Aucune capture cette semaine parmi les explorateurs que tu suis.",
       "emptyGlobal": "Aucune capture cette semaine.",
+      "noFollows": {
+        "title": "Tu ne suis personne",
+        "line1": "Suis des explorateurs pour voir leurs captures et leur niveau dans ce classement.",
+        "cta": "Chercher des explorateurs"
+      },
       "you": "Toi",
       "defaultName": "Explorateur",
       "capturesShort": "{{count}} capt.",

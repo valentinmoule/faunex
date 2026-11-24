@@ -1,12 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { CalendarDays, Crown, Infinity as InfinityIcon, Lock, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CategoryLeaderboard, { LeaderboardResetBadge } from '@/components/CategoryLeaderboard';
 import { Chip as RoundChip, categoryChipImage } from '@/components/CategoryChipRow';
+import LeaderboardFollowsEmptyState from '@/components/social/LeaderboardFollowsEmptyState';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/hooks/useSubscription';
+import { supabase } from '@/integrations/supabase/client';
 
 const LEADERBOARD_CATEGORIES = ['Mammifères', 'Oiseaux', 'Insectes', 'Poissons', 'Reptiles', 'Amphibiens', 'Arachnides', 'Mollusques', 'Crustacés'];
 
@@ -18,6 +20,29 @@ export default function ExplorersLeaderboard() {
   const { isPremium, loading: premiumLoading } = useSubscription(session?.user?.id);
   const [scope, setScope] = useState<'global' | 'explorers'>('global');
   const [filter, setFilter] = useState<'week' | 'all' | string>('week');
+
+  // Combien d'explorateurs je suis : détermine l'état vide du classement « Abonnements ».
+  const userId = session?.user?.id;
+  const [followingCount, setFollowingCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!userId) {
+      setFollowingCount(null);
+      return;
+    }
+    let cancelled = false;
+    supabase
+      .from('explorer_follows')
+      .select('*', { count: 'exact', head: true })
+      .eq('follower_id', userId)
+      .eq('status', 'accepted')
+      .then(({ count }) => {
+        if (!cancelled) setFollowingCount(count ?? 0);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [userId]);
 
   return (
     <section className="px-4">
@@ -53,6 +78,8 @@ export default function ExplorersLeaderboard() {
             <Button onClick={() => navigate('/premium')} className="h-12 w-full max-w-xs text-sm">{t('social.leaderboard.lockedCta')}</Button>
           </div>
         )
+      ) : scope === 'explorers' && followingCount === 0 ? (
+        <LeaderboardFollowsEmptyState />
       ) : (
         <>
           <div className="flex h-[34px] items-center justify-between gap-3 px-1 pt-1">

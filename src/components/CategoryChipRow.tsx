@@ -56,7 +56,7 @@ export const Chip = ({
     role="radio"
     aria-checked={selected}
     onClick={onClick}
-    className="group shrink-0 flex w-[70px] flex-col items-center gap-1.5 active:scale-95 transition-transform"
+    className="group shrink-0 flex w-[82px] flex-col items-center gap-1.5 active:scale-95 transition-transform"
   >
     <span
       className={`flex h-16 w-16 items-center justify-center overflow-hidden rounded-full ring-offset-2 ring-offset-background transition-shadow ${
@@ -66,7 +66,7 @@ export const Chip = ({
       {children}
     </span>
     <span
-      className={`max-w-full truncate text-[12px] font-display leading-tight ${
+      className={`line-clamp-2 max-w-full break-normal text-center text-[12px] font-display leading-tight ${
         selected ? 'font-bold text-foreground' : 'font-semibold text-foreground/80'
       }`}
     >
