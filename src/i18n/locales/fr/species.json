@@ -208,6 +208,13 @@
       "typeDoesNotExist": "Cette espèce n’existe pas",
       "missingNotePlaceholder": "Ex. Ce nom ne correspond à aucune espèce connue",
       "send": "Envoyer le signalement"
+    },
+    "call": {
+      "label": "Écouter son chant",
+      "premiumTitle": "Débloque les chants avec Premium",
+      "premiumBody": "Écoute le chant et les cris de chaque oiseau directement depuis sa fiche avec Faunex Premium.",
+      "premiumCta": "Découvrir Premium",
+      "later": "Plus tard"
     }
   }
 }

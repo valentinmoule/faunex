@@ -42,6 +42,7 @@ import CaptureLikesSheet from '@/components/CaptureLikesSheet';
 import CommentMentionInput from '@/components/CommentMentionInput';
 import { Button } from '@/components/ui/button';
 import SpeciesNaturalHistory from '@/components/SpeciesNaturalHistory';
+import SpeciesCallRow from '@/components/SpeciesCallRow';
 import DetailRow from '@/components/DetailRow';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { removeCatalogueEntry } from '@/lib/bestiaryCache';
@@ -1181,7 +1182,8 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                       value={t('capture.finders.people', { count: finders })}
                     />
                   )}
-                  {session && <SpeciesNaturalHistory name={card.name} scientificName={card.scientificName} />}
+                  <SpeciesCallRow scientificName={card.scientificName} category={card.category} isPremium={isPremium} />
+{session && <SpeciesNaturalHistory name={card.name} scientificName={card.scientificName} />}
                 </div>
 
 
@@ -1220,7 +1222,8 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
                 <DetailRow icon={<MapPin className="w-4 h-4" />} label={t('capture.detail.habitat')} value={facts.habitat} />
                 <DetailRow icon={<UtensilsCrossed className="w-4 h-4" />} label={t('capture.detail.diet')} value={facts.diet} />
                 <DetailRow icon={<Shield className="w-4 h-4" />} label={t('capture.detail.conservation')} value={card.conservation} />
-                {session && <SpeciesNaturalHistory name={card.name} scientificName={card.scientificName} />}
+                <SpeciesCallRow scientificName={card.scientificName} category={card.category} isPremium={isPremium} />
+{session && <SpeciesNaturalHistory name={card.name} scientificName={card.scientificName} />}
                 {captureDate && (
                   <DetailRow
                     icon={<Calendar className="w-4 h-4" />}

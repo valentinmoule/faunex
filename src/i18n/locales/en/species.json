@@ -208,6 +208,13 @@
       "typeDoesNotExist": "This species doesn't exist",
       "missingNotePlaceholder": "e.g. This name doesn't match any known species",
       "send": "Send report"
+    },
+    "call": {
+      "label": "Listen to its call",
+      "premiumTitle": "Unlock bird calls with Premium",
+      "premiumBody": "Listen to each bird's song and calls right from its species page with Faunex Premium.",
+      "premiumCta": "Discover Premium",
+      "later": "Later"
     }
   }
 }
