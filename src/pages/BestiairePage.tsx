@@ -119,6 +119,7 @@ const MINE_SORT_LABELS: Record<MineSort, string> = {
 // Ordre de rareté décroissant : mythique en premier
 const RARITY_SORT_ORDER: Record<string, number> = RARITY_RANK;
 
+let appEntryHandled = false;
 const sortStorageKey = (uid: string) => `faunex:mine-sort:${uid}`;
 const orderStorageKey = (uid: string) => `faunex:mine-order:${uid}`;
 
@@ -240,6 +241,16 @@ const BestiairePage = () => {
 
   /** Catégories d'animaux proposées dans l'onglet Classement. */
   const LEADERBOARD_CATEGORIES = ['Mammifères', 'Oiseaux', 'Insectes', 'Poissons', 'Reptiles', 'Amphibiens', 'Arachnides', 'Mollusques', 'Crustacés'];
+  // À l'ouverture de l'app, Mon Faunex arrive toujours sur « Captures » :
+  // un onglet Bestiaire/Collections resté dans l'adresse n'est pas restauré.
+  if (!appEntryHandled) {
+    appEntryHandled = true;
+    const tab = searchParams.get('tab');
+    if ((tab === 'categories' || tab === 'collections') && !searchParams.get('q')) {
+      searchParams.delete('tab');
+      window.history.replaceState(window.history.state, '', `${location.pathname}${searchParams.toString() ? `?${searchParams}` : ''}`);
+    }
+  }
   const requestedTab = searchParams.get('tab');
   const ALL_TABS: ViewMode[] = ['mine', 'map', 'badges', 'categories', 'collections', 'leaderboard'];
   const initialView: ViewMode = requestedTab && ALL_TABS.includes(requestedTab as ViewMode) ? requestedTab as ViewMode : 'mine';
