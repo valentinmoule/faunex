@@ -124,8 +124,8 @@ const PullToDiscover = () => {
   const closeSheet = useCallback(() => setOpen(false), []);
   const swipeClose = useSwipeDownClose(closeSheet);
 
-  const runDiscovery = useCallback(async () => {
-    if (!('geolocation' in navigator)) {
+  const runDiscovery = useCallback(async (target?: { latitude: number; longitude: number }) => {
+    if (!target && !('geolocation' in navigator)) {
       toast.error(t('map.pull.geoUnavailable'));
       return;
     }
@@ -147,8 +147,7 @@ const PullToDiscover = () => {
     }
     setLoading(true);
     if ('vibrate' in navigator) navigator.vibrate?.(18);
-    void getCurrentPosition(
-      async (pos) => {
+    const search = async (pos: { coords: { latitude: number; longitude: number } }) => {
         try {
           const { data, error } = await supabase.functions.invoke('nearby-animals', {
             body: { latitude: pos.coords.latitude, longitude: pos.coords.longitude },
@@ -165,7 +164,10 @@ const PullToDiscover = () => {
         } finally {
           setLoading(false);
         }
-      },
+    };
+    if (target) { void search({ coords: target }); return; }
+    void getCurrentPosition(
+      search,
       () => {
         setLoading(false);
         toast.error(t('map.pull.geoPositionError'));
@@ -241,7 +243,7 @@ const PullToDiscover = () => {
   // Le bouton « Autour de moi » du Terrain lance la même exploration.
   useEffect(() => {
     if (!session?.user) return;
-    const onRequest = () => { if (!loading) void runDiscovery(); };
+    const onRequest = (e: Event) => { if (!loading) void runDiscovery((e as CustomEvent).detail); };
     window.addEventListener('faunex:discover-nearby', onRequest);
     return () => window.removeEventListener('faunex:discover-nearby', onRequest);
   }, [session?.user, loading, runDiscovery]);

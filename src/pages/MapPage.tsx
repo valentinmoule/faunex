@@ -203,6 +203,9 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
   const hasSavedView = useRef(initialView.z !== 6 || initialView.c[0] !== 46.6);
   const [animateRecenter, setAnimateRecenter] = useState(false);
   const centerRef = useRef<L.LatLng | null>(null);
+  const [scanHere, setScanHere] = useState(false);
+  const userPosRef = useRef<[number, number] | null>(null);
+  userPosRef.current = userPos;
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const [groupItems, setGroupItems] = useState<CaptureMarker[] | null>(null);
   const [zoom, setZoom] = useState(8);
@@ -482,23 +485,16 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
             <Compass className="w-5 h-5 text-foreground" />
           </button>
         </div>
-        {!hintSeen && (
-          <div className="max-w-lg mx-auto mt-2 flex justify-center">
-            <button
-              onClick={dismissHint}
-              className="pointer-events-auto flex items-center gap-2 rounded-full bg-foreground/80 backdrop-blur-xl px-3.5 py-2 text-[12px] font-medium text-background shadow-card animate-fade-in"
-            >
-              <Hand className="w-3.5 h-3.5" />
-              {t('map.controls.zoneHint')}
-            </button>
-          </div>
-        )}
       </div>
 
       {/* Capsule radar au-dessus de la barre de navigation */}
       <div className="absolute inset-x-0 z-20 px-4 pointer-events-none bottom-[calc(env(safe-area-inset-bottom)+112px)]">
         <button
-          onClick={() => { hapticTap(); window.dispatchEvent(new Event('faunex:discover-nearby')); }}
+          onClick={() => {
+            hapticTap();
+            const c = centerRef.current;
+            window.dispatchEvent(new CustomEvent('faunex:discover-nearby', { detail: scanHere && c ? { latitude: c.lat, longitude: c.lng } : undefined }));
+          }}
           className="pointer-events-auto press mx-auto flex w-full max-w-sm items-center gap-3 rounded-full bg-card/95 backdrop-blur-xl border border-primary/30 shadow-card pl-2 pr-2 py-2"
         >
           <span className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
@@ -506,8 +502,8 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
             <Radar className="relative w-5 h-5" />
           </span>
           <span className="flex-1 min-w-0 text-left">
-            <span className="block text-[14px] font-display font-bold text-foreground leading-tight truncate">{t('map.controls.scanTitle')}</span>
-            <span className="block text-[11px] text-muted-foreground leading-tight truncate">{t('map.controls.scanSubtitle')}</span>
+            <span className="block text-[14px] font-display font-bold text-foreground leading-tight truncate">{t(scanHere ? 'map.controls.scanAreaTitle' : 'map.controls.scanTitle')}</span>
+            <span className="block text-[11px] text-muted-foreground leading-tight truncate">{t(scanHere ? 'map.controls.scanAreaSubtitle' : 'map.controls.scanSubtitle')}</span>
           </span>
           {quota.remaining !== null && (
             <span className={`shrink-0 flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-display font-bold ${quota.exhausted ? 'bg-muted text-muted-foreground' : 'bg-primary/12 text-primary'}`}>
@@ -528,12 +524,12 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
         className="h-full w-full z-0"
       >
         <FaunexBaseLayer onReady={(gl) => { glRef.current = gl; }} />
-        <ZoneTapHandler onTap={handleZoneTap} />
 
         <RecenterOnUser position={userPos} animate={animateRecenter} />
         <CenterTracker
           onMove={(c) => {
             centerRef.current = c;
+            setScanHere(!userPosRef.current || c.distanceTo(L.latLng(userPosRef.current[0], userPosRef.current[1])) > 1500);
             try { localStorage.setItem('faunex.map.view', JSON.stringify({ c: [c.lat, c.lng], z: zoom })); } catch { /* ignore */ }
           }}
           onZoom={(z) => {
@@ -551,7 +547,7 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
         {showCaptures && markers}
       </MapContainer>
 
-      {captures.length === 0 && hintSeen && (
+      {captures.length === 0 && (
         <div className="absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+188px)] z-20 px-6 pointer-events-none">
           <div className="max-w-sm mx-auto rounded-2xl bg-card/90 backdrop-blur-xl border border-border/60 shadow-card p-4 text-center">
             <MapPin className="w-6 h-6 text-primary mx-auto mb-2" />

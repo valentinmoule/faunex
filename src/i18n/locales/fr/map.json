@@ -101,6 +101,8 @@
     "controls": {
       "myCaptures": "Mes captures · {{count}}",
       "zoneHint": "Touche une forêt, un parc ou un lac pour voir sa faune",
+      "scanAreaTitle": "Scanner cette zone",
+      "scanAreaSubtitle": "Espèces à trouver au centre de la carte",
       "scanTitle": "Scanner les alentours",
       "scanSubtitle": "Espèces à trouver autour de ta position",
       "remaining": "{{count}} restants",

@@ -101,6 +101,8 @@
     "controls": {
       "myCaptures": "My captures · {{count}}",
       "zoneHint": "Tap a forest, park or lake to see its wildlife",
+      "scanAreaTitle": "Scan this area",
+      "scanAreaSubtitle": "Species to find at the map's centre",
       "scanTitle": "Scan your surroundings",
       "scanSubtitle": "Species to find around you",
       "remaining": "{{count}} left",
