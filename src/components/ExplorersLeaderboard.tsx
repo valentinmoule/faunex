@@ -1,8 +1,9 @@
+import CategoryChipIcon from '@/components/CategoryChipIcon';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Infinity as InfinityIcon } from 'lucide-react';
 import CategoryLeaderboard from '@/components/CategoryLeaderboard';
-import { Chip as RoundChip, categoryChipImage } from '@/components/CategoryChipRow';
+import { Chip as RoundChip } from '@/components/CategoryChipRow';
 
 const LEADERBOARD_CATEGORIES = ['Mammifères', 'Oiseaux', 'Insectes', 'Poissons', 'Reptiles', 'Amphibiens', 'Arachnides', 'Mollusques', 'Crustacés'];
 
@@ -20,7 +21,7 @@ export default function ExplorersLeaderboard({ mode = 'league' }: { mode?: 'leag
         </RoundChip>
         {LEADERBOARD_CATEGORIES.map((category) => (
           <RoundChip key={category} selected={filter === category} label={t(`bestiary.categoryNames.${category}`, { defaultValue: category })} onClick={() => setFilter(category)}>
-            <img src={categoryChipImage(category)} alt="" width={64} height={64} decoding="async" className="h-full w-full object-cover" />
+            <CategoryChipIcon category={category} />
           </RoundChip>
         ))}
       </div>

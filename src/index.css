@@ -152,6 +152,16 @@
     /* Pastilles rondes « Tout » / « Favoris » du tri par catégorie */
     --chip-all: 46 93% 68%;
     --chip-favorites: 330 72% 78%;
+    --chip-mammal: 28 80% 76%;
+    --chip-bird: 199 80% 78%;
+    --chip-insect: 4 80% 80%;
+    --chip-reptile: 88 55% 70%;
+    --chip-amphibian: 150 50% 72%;
+    --chip-fish: 215 75% 80%;
+    --chip-arachnid: 265 50% 82%;
+    --chip-crustacean: 14 85% 78%;
+    --chip-mollusc: 40 70% 78%;
+    --chip-other: 145 14% 85%;
     --earth: 25 24% 40%;
     --sky: 205 88% 55%;
     --learning-green: 152 72% 41%;

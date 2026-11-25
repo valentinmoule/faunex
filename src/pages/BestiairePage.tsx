@@ -1,3 +1,4 @@
+import CategoryChipIcon from '@/components/CategoryChipIcon';
 import { createPortal } from 'react-dom';
 import { gridThumbUrl } from '@/lib/imageUrl';
 import { useState, useMemo, useCallback, useEffect, useRef, memo } from 'react';
@@ -86,7 +87,7 @@ import CollectionTile from '@/components/CollectionTile';
 import BoosterCarousel from '@/components/BoosterCarousel';
 import BinderGrid from '@/components/BinderGrid';
 import { useFavorites } from '@/hooks/useFavorites';
-import CategoryChipRow, { CHIP_ALL, CHIP_FAVORITES, Chip as RoundChip, categoryChipImage } from '@/components/CategoryChipRow';
+import CategoryChipRow, { CHIP_ALL, CHIP_FAVORITES, Chip as RoundChip } from '@/components/CategoryChipRow';
 import { useSpeciesFavorites, speciesFavoriteKey, buildFavoriteSpeciesKeys } from '@/hooks/useSpeciesFavorites';
 import RewardCelebration from '@/components/RewardCelebration';
 import CaptureQuotaBadge from '@/components/CaptureQuotaBadge';
@@ -2344,7 +2345,7 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
                   </RoundChip>
                   {LEADERBOARD_CATEGORIES.map((category) => (
                     <RoundChip key={category} selected={leaderboardFilter === category} label={t(`bestiary.categoryNames.${category}`, { defaultValue: category })} onClick={() => setLeaderboardFilter(category)}>
-                      <img src={categoryChipImage(category)} alt="" width={64} height={64} decoding="async" className="h-full w-full object-cover" />
+                      <CategoryChipIcon category={category} />
                     </RoundChip>
                   ))}
                 </div>

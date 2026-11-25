@@ -3,35 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { PawIcon, BookmarkLeafIcon } from '@/components/nav/NavIcons';
 import { categoryLabel, normalizeCategory } from '@/lib/bestiary';
 import { hapticTap } from '@/lib/haptics';
-import mammiferes from '@/assets/category-chips/mammiferes.webp';
-import oiseaux from '@/assets/category-chips/oiseaux.webp';
-import insectes from '@/assets/category-chips/insectes.webp';
-import reptiles from '@/assets/category-chips/reptiles.webp';
-import amphibiens from '@/assets/category-chips/amphibiens.webp';
-import poissons from '@/assets/category-chips/poissons.webp';
-import arachnides from '@/assets/category-chips/arachnides.webp';
-import crustaces from '@/assets/category-chips/crustaces.webp';
-import mollusques from '@/assets/category-chips/mollusques.webp';
-import autres from '@/assets/category-chips/autres.webp';
+import CategoryChipIcon from '@/components/CategoryChipIcon';
 
 /** Sélection « toutes les espèces ». */
 export const CHIP_ALL = 'all';
 /** Sélection « favoris » (même valeur que l'ancien filtre). */
 export const CHIP_FAVORITES = '__favorites';
-
-const CHIP_IMAGES: Record<string, string> = {
-  Mammifères: mammiferes,
-  Oiseaux: oiseaux,
-  Insectes: insectes,
-  Reptiles: reptiles,
-  Amphibiens: amphibiens,
-  Poissons: poissons,
-  Arachnides: arachnides,
-  Crustacés: crustaces,
-  Mollusques: mollusques,
-};
-
-export const categoryChipImage = (category: string) => CHIP_IMAGES[normalizeCategory(category)] ?? autres;
 
 interface Props {
   /** Catégories normalisées à proposer, dans l'ordre d'affichage. */
@@ -105,14 +82,7 @@ const CategoryChipRow = ({ categories, value, onChange }: Props) => {
       </Chip>
       {categories.map((cat) => (
         <Chip key={cat} selected={value === cat} label={categoryLabel(cat)} onClick={() => select(cat)}>
-          <img
-            src={categoryChipImage(cat)}
-            alt=""
-            width={64}
-            height={64}
-            decoding="async"
-            className="h-full w-full object-cover"
-          />
+          <CategoryChipIcon category={cat} />
         </Chip>
       ))}
     </div>

@@ -156,4 +156,4 @@ Approved captures may repeat a species; grids show the latest per species and th
 
 ## Reward and category art matches the mascot
 
-Quest chests, league trophies, badges and category chips are bundled plush-felt WebP renders made from the mascot reference, not hand-drawn SVG; locked states derive from CSS grayscale so one asset serves every state.
+Quest chests, league trophies and badges are bundled plush-felt WebP renders made from the mascot reference, not hand-drawn SVG; locked states derive from CSS grayscale so one asset serves every state. Species category chips stay line icons on tinted circles (`CategoryChipIcon`), by user choice.
