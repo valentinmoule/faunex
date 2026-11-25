@@ -1776,6 +1776,7 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
           title={selectedCollection.group.label}
           captured={selectedCollection.captured}
           total={selectedCollection.total}
+          xp={selectedCollection.group.key.startsWith(THEME_PREFIX) ? collectionRewardXp(selectedCollection.total) : undefined}
           onBack={() => setSelectedCollectionKey(null)}
           actions={
             <OverflowMenu

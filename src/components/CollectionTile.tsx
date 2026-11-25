@@ -8,7 +8,7 @@ import BoosterLettering from '@/components/BoosterLettering';
  * Collection présentée comme un vrai booster de cartes à collectionner :
  * illustration pleine largeur, scellages métalliques striés et crantés,
  * titre et compteur posés à plat, et ombre portée douce.
- * L'XP n'est jamais affiché ici — il est révélé à la réclamation.
+ * L'XP de complétion est affiché dans la barre d'enjeu du cartouche.
  */
 export interface CollectionTileProps {
   title: string;
@@ -76,6 +76,10 @@ const CollectionTile = ({
         {/* Scellage haut : aluminium serti + bord cranté */}
         <div className="collection-booster-seal absolute inset-x-0 top-0 h-[7%]" />
         <div className="collection-booster-crimp absolute inset-x-0 top-[7%]" />
+        {/* Encoche de suspension découpée dans l'aluminium */}
+        <span aria-hidden="true" className="collection-booster-hang absolute left-1/2 top-[1.6%] h-[3.2%] w-[16%] -translate-x-1/2 rounded-full" />
+        {/* Sceau de marque discret sous le scellage */}
+        <span aria-hidden="true" className="collection-booster-brand absolute left-1/2 top-[9.5%] -translate-x-1/2 rounded-full px-2 py-0.5 font-display text-[8px] font-extrabold uppercase tracking-[0.32em]">Faunex</span>
 
 
 
@@ -94,13 +98,15 @@ const CollectionTile = ({
         )}
 
         {/* Titre et compteur posés à plat sur le sachet, sans bandeau */}
-        <div className="absolute inset-x-[3%] bottom-[9%] z-10 text-center">
+        {/* Cartouche de set : titre en relief + barre d'enjeu */}
+        <div className="collection-booster-cartouche absolute inset-x-[5%] bottom-[8%] z-10 rounded-[10px] px-1.5 pb-1.5 pt-1 text-center">
           <BoosterLettering title={title} image={image} />
-          <span className="collection-booster-count block font-display text-xs font-medium tabular-nums">
-            {captured}
-            <span className="opacity-70">/ {total}</span>
-            {xp ? <span className="collection-booster-xp ml-1.5 inline-flex rounded-full px-1.5 py-px text-[10px] font-bold">{claimed ? '✓ ' : ''}+{xp} XP</span> : null}
-          </span>
+          <div className="collection-booster-stake mt-1 flex items-center justify-between gap-1 rounded-full py-0.5 pl-2 pr-0.5">
+            <span className="collection-booster-count font-display text-[11px] font-bold tabular-nums">
+              {captured}<span className="opacity-70"> / {total}</span>
+            </span>
+            {xp ? <span className="collection-booster-xp inline-flex items-center rounded-full px-1.5 py-px font-display text-[10px] font-extrabold">{claimed ? '✓ ' : ''}+{xp} XP</span> : null}
+          </div>
         </div>
 
         {/* Scellage bas : aluminium serti + bord cranté */}

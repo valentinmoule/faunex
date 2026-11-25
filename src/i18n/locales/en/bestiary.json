@@ -144,6 +144,7 @@
       "rewardHint": "+{{xp}} XP when complete",
       "celebrationTag": "Collection complete!",
       "celebrationDesc": "You earned {{xp}} XP. Keep exploring to complete more collections!",
+      "completeReward": "Complete it: +{{xp}} XP",
       "unlockAtLevel": "Level {{level}}",
       "lockedToast": "Reach level {{level}} to open “{{title}}”."
     },

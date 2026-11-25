@@ -15,6 +15,8 @@ interface CollectionHeroProps {
   removeLabel?: string;
   /** Remplace le bouton corbeille par un bouton d'actions défilantes (⋯). */
   actions?: ReactNode;
+  /** XP remporté en complétant la collection. */
+  xp?: number;
 }
 
 export function CollectionHero({
@@ -29,6 +31,7 @@ export function CollectionHero({
   onRemove,
   removeLabel,
   actions,
+  xp,
 }: CollectionHeroProps) {
   const { t } = useTranslation();
   const pct = total > 0 ? Math.round((captured / total) * 100) : 0;
@@ -80,6 +83,11 @@ export function CollectionHero({
           <span className="text-xs font-display font-semibold text-white/90">
             {captured}/{total} · {pct}%
           </span>
+          {xp ? (
+            <span className="ml-2 inline-flex rounded-full bg-amber px-2 py-0.5 text-[11px] font-display font-extrabold text-foreground">
+              {t('bestiary.collections.completeReward', { xp })}
+            </span>
+          ) : null}
         </div>
       </div>
     </header>
