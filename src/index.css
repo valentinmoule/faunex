@@ -4407,6 +4407,7 @@ html.is-native-android body {
 .learning-drawer-wrong { background: linear-gradient(hsl(var(--destructive) / .1), hsl(var(--destructive) / .1)), hsl(var(--background)); border-color: hsl(var(--destructive) / .3); }
 .game-button.learning-button-wrong { --control-fill: var(--destructive); --control-base: var(--game-danger-base); --control-ink: var(--destructive-foreground); }
 .learning-fox { animation: learning-fade-in .3s ease-out both; }
+.learning-fox, .learning-fox-jump, .learning-fox-shrug, .learning-fox-flex { filter: url(#learning-fur); }
 .learning-fox-jump { animation: learning-fade-in .3s ease-out both; }
 .learning-fox-shrug { animation: learning-fade-in .3s ease-out both; }
 .learning-fox-flex { animation: learning-fade-in .3s ease-out both; }
