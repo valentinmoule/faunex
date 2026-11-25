@@ -22,11 +22,11 @@ import { hasActiveFamily, readFamily, type FamilyInfo } from '@/lib/family';
 import { hasPersonalPremium } from '@/lib/premiumAccess';
 
 const BENEFITS = [
+  { icon: ScanLine, key: 'identification' },
   { icon: Radar, key: 'radar' },
   { icon: BookOpen, key: 'journal' },
   { icon: Target, key: 'quest' },
   { icon: GraduationCap, key: 'learning' },
-  { icon: ScanLine, key: 'identification' },
   { icon: Crop, key: 'crop' },
 ] as const;
 
