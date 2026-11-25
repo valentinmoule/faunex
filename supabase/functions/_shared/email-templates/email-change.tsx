@@ -40,7 +40,7 @@ export const EmailChangeEmail = ({
       <Preview>{pick({ fr: "Confirme ton changement d'email Faunex", en: 'Confirm your Faunex email change' }, l)}</Preview>
       <Body style={main}>
         <Container style={container}>
-          <Img src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo-v2.png" width="48" height="48" alt="Faunex" style={logo} />
+          <Img src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo-v3.png" width="48" height="48" alt="Faunex" style={logo} />
           <Heading style={h1}>{pick({ fr: "Changement d'email 📧", en: 'Email change 📧' }, l)}</Heading>
           <Text style={text}>
             {pick({ fr: 'Tu as demandé à changer ton adresse email Faunex de', en: 'You requested to change your Faunex email address from' }, l)}{' '}

@@ -39,7 +39,7 @@ export const SignupEmail = ({
       <Preview>{pick({ fr: 'Confirme ton email pour rejoindre Faunex 🌿', en: 'Confirm your email to join Faunex 🌿' }, l)}</Preview>
       <Body style={main}>
         <Container style={container}>
-          <Img src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo-v2.png" width="48" height="48" alt="Faunex" style={logo} />
+          <Img src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo-v3.png" width="48" height="48" alt="Faunex" style={logo} />
           <Heading style={h1}>{pick({ fr: 'Bienvenue, explorateur ! 🦊', en: 'Welcome, explorer! 🦊' }, l)}</Heading>
           <Text style={text}>
             {pick({ fr: 'Merci de rejoindre', en: 'Thanks for joining' }, l)}{' '}

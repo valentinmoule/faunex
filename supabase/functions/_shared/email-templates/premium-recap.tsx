@@ -23,7 +23,7 @@ export const PremiumRecapEmail = ({ displayName, siteUrl, captures, species, xp,
       <Preview>{pick({ fr: `Ton mois Premium en chiffres 🦊`, en: `Your Premium month in numbers 🦊` }, l)}</Preview>
       <Body style={main}>
         <Container style={container}>
-          <Img src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo-v2.png" width="48" height="48" alt="Faunex" style={{ marginBottom: '20px' }} />
+          <Img src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo-v3.png" width="48" height="48" alt="Faunex" style={{ marginBottom: '20px' }} />
           <Heading style={h1}>{pick({ fr: `${displayName}, ton mois Premium 🌿`, en: `${displayName}, your Premium month 🌿` }, l)}</Heading>
           <Text style={highlight}>
             {pick({
