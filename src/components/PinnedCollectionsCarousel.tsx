@@ -11,6 +11,7 @@ import { useContestWinnerCaptures } from '@/hooks/usePhotoContest';
 import { CollectorEditionMark } from '@/components/social/CollectorEdition';
 import { BREED_GROUPS, getSpeciesGroup } from '@/lib/breedGroups';
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
+import { THEME_PREFIX, themeMatcher, themeTitle, type ThemedCollection } from '@/lib/themedCollections';
 import type { AnimalCard } from '@/data/mockData';
 
 interface PinnedCollection {
@@ -48,7 +49,8 @@ export const PinnedCollectionsCarousel = ({
   captures: AnimalCard[];
   onSelectCard: (card: AnimalCard) => void;
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const [themes, setThemes] = useState<ThemedCollection[]>([]);
   const { speciesName } = useSpeciesName();
   const { data: winners } = useContestWinnerCaptures();
   const [collections, setCollections] = useState<PinnedCollection[]>([]);
@@ -61,17 +63,14 @@ export const PinnedCollectionsCarousel = ({
     if (!userId) return;
     let cancelled = false;
     (async () => {
-      const [{ data: cols }, { data: std }, { data: covers }] = await Promise.all([
-        supabase
-          .from('custom_collections')
-          .select('id, name, cover_image, pinned_at')
-          .eq('user_id', userId)
-          .not('pinned_at', 'is', null)
-          .order('pinned_at', { ascending: true }),
+      // Seules les collections thématiques actuelles peuvent figurer en vitrine :
+      // les anciennes collections personnalisées ou standards épinglées sont ignorées.
+      const [{ data: std }, { data: covers }] = await Promise.all([
         supabase
           .from('pinned_profile_collections')
           .select('collection_key, pinned_at')
           .eq('user_id', userId)
+          .like('collection_key', `${THEME_PREFIX}%`)
           .order('pinned_at', { ascending: true }),
         supabase
           .from('user_collection_covers')
@@ -79,8 +78,17 @@ export const PinnedCollectionsCarousel = ({
           .eq('user_id', userId),
       ]);
       if (cancelled) return;
-      setCollections((cols as PinnedCollection[]) || []);
-      setStandardPins((std as PinnedStandard[]) || []);
+      const ids = ((std as PinnedStandard[]) || []).map((p) => p.collection_key.slice(THEME_PREFIX.length));
+      const { data: themeRows } = ids.length
+        ? await supabase.from('themed_collections').select('*').in('id', ids).eq('published', true)
+        : { data: [] };
+      if (cancelled) return;
+      const live = (themeRows as unknown as ThemedCollection[]) || [];
+      const liveKeys = new Set(live.map((c) => `${THEME_PREFIX}${c.id}`));
+      const cols: PinnedCollection[] = [];
+      setThemes(live);
+      setCollections(cols);
+      setStandardPins(((std as PinnedStandard[]) || []).filter((p) => liveKeys.has(p.collection_key)));
       setCoverRefs(Object.fromEntries((covers || []).map((c) => [c.collection_key, c.capture_id])));
 
       if (!cols?.length) {
@@ -114,16 +122,27 @@ export const PinnedCollectionsCarousel = ({
   const capturedCardsFor = (id: string) =>
     itemsFor(id).map((i) => capturesByName.get(i.animal_name)).filter((c): c is AnimalCard => !!c);
 
-  const standardLabel = (key: string) =>
-    key.startsWith('cat:') ? key.slice(4) : BREED_GROUPS.find((g) => g.key === key)?.label || key;
+  const themeFor = (key: string) => themes.find((c) => `${THEME_PREFIX}${c.id}` === key);
+
+  const standardLabel = (key: string) => {
+    const theme = themeFor(key);
+    if (theme) return themeTitle(theme, i18n.language);
+    return key.startsWith('cat:') ? key.slice(4) : BREED_GROUPS.find((g) => g.key === key)?.label || key;
+  };
 
   /** Captures de l'explorateur qui appartiennent à cette collection standard. */
-  const standardCardsFor = (key: string) =>
-    captures.filter((c) =>
+  const standardCardsFor = (key: string) => {
+    const theme = themeFor(key);
+    if (theme) {
+      const match = themeMatcher(theme);
+      return captures.filter((c) => match({ name: c.name, scientific_name: c.scientificName, category: c.category, rarity: c.rarity }));
+    }
+    return captures.filter((c) =>
       key.startsWith('cat:')
         ? normalizeCategory(c.category) === key.slice(4)
         : getSpeciesGroup(c.name, c.scientificName, c.category)?.key === key,
     );
+  };
 
   const entries = useMemo<ShowcaseEntry[]>(() => {
     const list: ShowcaseEntry[] = [
@@ -132,7 +151,7 @@ export const PinnedCollectionsCarousel = ({
     ];
     return list.sort((a, b) => a.pinnedAt.localeCompare(b.pinnedAt));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [collections, standardPins]);
+  }, [collections, standardPins, themes, i18n.language]);
 
   const customCoverFor = (col: PinnedCollection) => {
     if (col.cover_image) return col.cover_image;
@@ -142,12 +161,13 @@ export const PinnedCollectionsCarousel = ({
   };
 
   const standardCoverFor = (key: string, label: string) => {
+    const themeCover = themeFor(key)?.cover_url;
     const ref = coverRefs[key];
     if (ref) {
       const capture = capturesById.get(ref);
       if (capture) return capture.image;
     }
-    return getCollectionArt(key, label).image;
+    return themeCover || getCollectionArt(key, label).image;
   };
 
   if (entries.length === 0) return null;

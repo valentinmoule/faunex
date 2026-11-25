@@ -1849,7 +1849,7 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
             <OverflowMenu
               label={t('bestiary.customCollections.actions')}
               items={[
-                {
+                ...(selectedCollection.group.key.startsWith(THEME_PREFIX) ? [{
                   label: t(pinnedStandard.isPinned(selectedCollection.group.key) ? 'bestiary.customCollections.unpin' : 'bestiary.customCollections.pin'),
                   icon: pinnedStandard.isPinned(selectedCollection.group.key)
                     ? <PinOff className="w-4 h-4 shrink-0" aria-hidden="true" />
@@ -1858,7 +1858,7 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
                     hapticTap();
                     void pinnedStandard.togglePin(selectedCollection.group.key);
                   },
-                },
+                }] : []),
                 ...(selectedCollection.group.key.startsWith(THEME_PREFIX) ? [] : [{
                   label: t('bestiary.collectionHero.remove'),
                   icon: <Trash2 className="w-4 h-4 shrink-0" aria-hidden="true" />,
