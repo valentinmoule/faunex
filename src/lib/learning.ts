@@ -1,6 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 
-export type LearningQuestion = { type: 'mcq' | 'boolean' | 'visual'; prompt: string; prompt_en: string; options: string[]; options_en: string[]; correct?: number; explanation?: string; explanation_en?: string; image?: string; credit?: string };
+export type LearningQuestion = { type: 'mcq' | 'boolean' | 'visual' | 'duel' | 'intruder' | 'audio'; prompt: string; prompt_en: string; options: string[]; options_en: string[]; correct?: number; explanation?: string; explanation_en?: string; image?: string; images?: string[]; audio?: string; credit?: string };
 export type LearningLesson = { id: string; title: string; title_en: string; intro: string; intro_en: string; special?: boolean; questions?: LearningQuestion[] };
 export type LearningChapter = { title: string; title_en: string; lessons: LearningLesson[] };
 export type LearningPath = { id: string; title: string; title_en: string; chapters: LearningChapter[] };
@@ -28,4 +28,9 @@ export async function finishLesson(attempt: string): Promise<LearningAttempt> {
   const { data, error } = await supabase.rpc('learning_finish', { p_attempt: attempt });
   if (error) throw error;
   return data as unknown as LearningAttempt;
+}
+/** Stars and rank for a finished lesson: 3 = flawless, 2 = one mistake, 1 = two mistakes, 0 otherwise. */
+export function quizStars(score: number, total: number): 0 | 1 | 2 | 3 {
+  const missed = total - score;
+  return missed <= 0 ? 3 : missed === 1 ? 2 : missed === 2 ? 1 : 0;
 }

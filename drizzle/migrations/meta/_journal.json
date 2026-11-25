@@ -1023,6 +1023,20 @@
       "when": 1795608492810,
       "tag": "0143_advent_claimable_completion",
       "breakpoints": true
+    },
+    {
+      "idx": 144,
+      "version": "7",
+      "when": 1795609921735,
+      "tag": "0144_learning_quiz_formats",
+      "breakpoints": true
+    },
+    {
+      "idx": 145,
+      "version": "7",
+      "when": 1795610063565,
+      "tag": "0145_learning_pilot_chapter_content",
+      "breakpoints": true
     }
   ]
 }

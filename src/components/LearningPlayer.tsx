@@ -1,59 +1,120 @@
-import { useState } from 'react';
-import { Check, X, ArrowLeft, Sprout, Loader2 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Check, X, ArrowLeft, Loader2, Play, Pause, Star, Share2, Flame, Lightbulb } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { PageHeader } from '@/components/PageHeader';
-import { answerLesson, finishLesson, learningText, type LearningAttempt } from '@/lib/learning';
+import { answerLesson, finishLesson, learningText, quizStars, type LearningAttempt, type LearningQuestion } from '@/lib/learning';
+
+function SoundPlayer({ src }: { src: string }) {
+  const { t } = useTranslation();
+  const audio = useRef<HTMLAudioElement>(null);
+  const [playing, setPlaying] = useState(false);
+  useEffect(() => () => audio.current?.pause(), []);
+  const toggle = () => { const a = audio.current; if (!a) return; if (a.paused) void a.play(); else a.pause(); };
+  return <div className="mt-6 flex flex-col items-center rounded-3xl bg-muted/60 px-5 py-8">
+    <audio ref={audio} src={src} preload="auto" onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onEnded={() => setPlaying(false)} />
+    <button type="button" onClick={toggle} aria-label={t(playing ? 'learning.pause' : 'learning.play')} className="game-button flex h-20 w-20 items-center justify-center rounded-full">{playing ? <Pause className="h-8 w-8" /> : <Play className="ml-1 h-8 w-8" />}</button>
+    <div aria-hidden className="mt-5 flex h-8 items-end gap-1">{Array.from({ length: 18 }, (_, i) => <span key={i} className={`learning-wave w-1.5 rounded-full bg-primary ${playing ? 'learning-wave-on' : ''}`} style={{ height: `${30 + ((i * 37) % 70)}%`, animationDelay: `${(i % 6) * 90}ms` }} />)}</div>
+    <p className="mt-3 text-sm font-semibold text-muted-foreground">{t('learning.listen')}</p>
+  </div>;
+}
 
 export default function LearningPlayer({ initial, onClose, onFinished, onRetry, preview = false }: { initial: LearningAttempt; onClose: () => void; onFinished: () => void; onRetry: () => void; preview?: boolean }) {
   const { t, i18n } = useTranslation();
   const english = i18n.language.startsWith('en');
   const [attempt, setAttempt] = useState(initial);
   const [index, setIndex] = useState(Math.min(initial.answers.length, initial.lesson.questions.length - 1));
-  const [intro, setIntro] = useState(initial.answers.length === 0);
   const [choice, setChoice] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const question = attempt.lesson.questions[index];
+  const [copied, setCopied] = useState(false);
+  const questions = attempt.lesson.questions;
+  const question = questions[index] as LearningQuestion | undefined;
   const checked = index < attempt.answers.length;
   const selected = checked ? attempt.answers[index] : choice;
   const correct = checked && selected === question?.correct;
   const options = english && question?.options_en.length ? question.options_en : question?.options ?? [];
   const text = (item: object, key: string) => learningText(item as Record<string, unknown>, key, english);
-  async function verify() {
-    if (choice === null) return;
+  // Current streak of correct answers, known only for already checked questions.
+  let streak = 0;
+  for (let i = attempt.answers.length - 1; i >= 0 && attempt.answers[i] === questions[i]?.correct; i--) streak++;
+  const pictures = question && (question.type === 'duel' || question.type === 'intruder') && question.images?.length === options.length ? question.images : null;
+
+  async function pick(i: number) {
+    if (checked || busy) return;
+    setChoice(i);
     setBusy(true); setError('');
     try {
-      if (preview) setAttempt({ ...attempt, answers: [...attempt.answers, choice] });
-      else setAttempt(await answerLesson(attempt.id, index, choice));
-    } catch { setError(t('learning.error')); } finally { setBusy(false); }
+      if (preview) setAttempt({ ...attempt, answers: [...attempt.answers, i], lesson: attempt.lesson });
+      else setAttempt(await answerLesson(attempt.id, index, i));
+      navigator.vibrate?.(i === question?.correct || question?.correct === undefined ? 15 : [30, 40, 30]);
+    } catch { setError(t('learning.error')); setChoice(null); } finally { setBusy(false); }
   }
   async function next() {
-    if (index < attempt.lesson.questions.length - 1) { setIndex(index + 1); setChoice(null); return; }
+    if (index < questions.length - 1) { setIndex(index + 1); setChoice(null); window.scrollTo({ top: 0 }); return; }
     setBusy(true); setError('');
     try {
       if (preview) {
-        const score = attempt.answers.filter((answer, i) => answer === attempt.lesson.questions[i].correct).length;
-        setAttempt({ ...attempt, finished: true, result: { score, total: attempt.lesson.questions.length, passed: score * 100 >= attempt.lesson.questions.length * 80, reward: 0, balance_delta: 0 } });
+        const score = attempt.answers.filter((answer, i) => answer === questions[i].correct).length;
+        setAttempt({ ...attempt, finished: true, result: { score, total: questions.length, passed: score * 100 >= questions.length * 80, reward: 0, balance_delta: 0 } });
       } else { setAttempt(await finishLesson(attempt.id)); onFinished(); }
     } catch (e) { setError(String((e as { message?: string }).message).includes('DAILY_LIMIT') ? t('learning.quota') : t('learning.error')); } finally { setBusy(false); }
   }
   const result = attempt.result;
+  const stars = result ? quizStars(result.score, result.total) : 0;
+  async function share() {
+    if (!result) return;
+    const message = t('learning.shareText', { title: text(attempt.lesson, 'title'), score: result.score, total: result.total, stars: '⭐'.repeat(stars) || '🦊', rank: t(`learning.rank${stars}`) });
+    try {
+      if (navigator.share) await navigator.share({ text: message });
+      else { await navigator.clipboard.writeText(message); setCopied(true); }
+    } catch { /* partage annulé */ }
+  }
+  const state = (i: number) => checked ? (question?.correct === i ? 'right' : selected === i ? 'wrong' : 'idle') : selected === i ? 'picked' : 'idle';
+
   return <main className="min-h-screen bg-background pb-12">
-    <PageHeader sticky className="border-b border-border bg-background px-5 py-4"><div className="mx-auto flex max-w-lg items-center gap-3"><Button variant="ghost" size="icon" onClick={onClose} aria-label={t('common.back')}><ArrowLeft className="h-5 w-5" /></Button><h1 className="min-w-0 font-display text-lg font-bold">{preview ? t('learning.preview') : text(attempt.lesson, 'title')}</h1></div></PageHeader>
+    <PageHeader sticky className="border-b border-border bg-background px-5 py-3"><div className="mx-auto flex max-w-lg items-center gap-3">
+      <Button variant="ghost" size="icon" onClick={onClose} aria-label={t('common.back')}><ArrowLeft className="h-5 w-5" /></Button>
+      {attempt.finished ? <h1 className="min-w-0 truncate font-display text-lg font-bold">{preview ? t('learning.preview') : text(attempt.lesson, 'title')}</h1>
+        : <><Progress value={(attempt.answers.length) / questions.length * 100} className="h-3 flex-1" aria-label={t('learning.question', { number: index + 1, total: questions.length })} />
+          <span className={`flex min-w-12 items-center justify-end gap-1 font-display text-sm font-bold ${streak >= 2 ? 'text-accent-foreground' : 'text-muted-foreground'}`}>{streak >= 2 ? <><Flame className="h-4 w-4 text-destructive" />{t('learning.combo', { count: streak })}</> : `${index + 1}/${questions.length}`}</span></>}
+    </div></PageHeader>
     <div className="mx-auto max-w-lg px-5 py-6">
       {attempt.finished && result ? <>
-        <div className="py-6 text-center"><Sprout className="mx-auto mb-5 h-20 w-20 text-primary" /><h2 className="font-display text-2xl font-bold">{t(result.passed ? result.reward > 0 ? 'learning.success' : 'learning.revisionSuccess' : 'learning.failure')}</h2><p className="mt-3 text-muted-foreground">{t('learning.score', result)}</p>{result.reward > 0 && <p className="mt-5 flex items-center justify-center gap-2 font-display text-xl font-bold text-primary">{t('learning.reward', { amount: result.reward })}</p>}</div>
-        {!result.passed && <ul className="mb-6 divide-y divide-border">{attempt.lesson.questions.map((q, i) => attempt.answers[i] !== q.correct && <li key={i} className="py-4"><p className="font-semibold">{text(q, 'prompt')}</p><p className="mt-2 text-primary">{(english ? q.options_en : q.options)[q.correct ?? 0]}</p><p className="mt-2 text-sm text-muted-foreground">{text(q, 'explanation')}</p></li>)}</ul>}
-        {!result.passed && <Button className="mb-3 w-full" onClick={onRetry}>{t('learning.retry')}</Button>}<Button variant={result.passed ? 'default' : 'outline'} className="w-full" onClick={onClose}>{t('learning.backPath')}</Button>
-      </> : intro ? <section className="py-8"><Sprout className="mb-6 h-16 w-16 text-primary" /><h2 className="font-display text-2xl font-bold">{text(attempt.lesson, 'title')}</h2><p className="mt-5 whitespace-pre-line leading-relaxed text-muted-foreground">{text(attempt.lesson, 'intro')}</p><Button className="mt-8 w-full" onClick={() => setIntro(false)}>{t('learning.start')}</Button></section> : question ? <>
-        <Progress value={index / attempt.lesson.questions.length * 100} className="h-2" /><p className="mt-3 text-sm text-muted-foreground">{t('learning.question', { number: index + 1, total: attempt.lesson.questions.length })}</p>
-        {question.type === 'visual' && question.image && <figure className="mt-6"><img src={question.image} alt="" className="aspect-[4/3] w-full rounded-lg object-cover" /><figcaption className="mt-1 break-words text-xs text-muted-foreground">{question.credit}</figcaption></figure>}
-        <h2 className="mb-6 mt-6 font-display text-xl font-bold">{text(question, 'prompt')}</h2>
-        <div role="radiogroup" aria-label={text(question, 'prompt')} className="space-y-3">{options.map((option, i) => <Button key={i} role="radio" aria-checked={selected === i} data-correct={checked ? question.correct === i : undefined} variant="outline" disabled={checked || busy} onClick={() => setChoice(i)} className="learning-answer h-auto min-h-14 w-full justify-start whitespace-normal rounded-lg px-4 py-4 text-left"><span className="mr-3 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-current text-xs">{checked && selected === i && question.correct !== i ? <X className="h-4 w-4" /> : selected === i || (checked && question.correct === i) ? <Check className="h-4 w-4" /> : String.fromCharCode(65 + i)}</span><span>{option}</span></Button>)}</div>
-        {checked && <div role="status" className="mt-6 border-t border-border pt-5"><p className={`flex items-center gap-2 font-bold ${correct ? 'text-primary' : 'text-destructive'}`}>{correct ? <Check className="h-5 w-5" /> : <X className="h-5 w-5" />}{t(correct ? 'learning.correct' : 'learning.incorrect')}</p><p className="mt-2 leading-relaxed text-muted-foreground">{text(question, 'explanation')}</p></div>}
-        <Button className="mt-6 w-full" disabled={busy || (!checked && choice === null)} onClick={checked ? next : verify}>{busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{t(checked ? index === attempt.lesson.questions.length - 1 ? 'learning.finish' : 'learning.next' : 'learning.verify')}</Button>
+        <section className="py-6 text-center">
+          <div className="flex items-end justify-center gap-2" aria-label={`${stars}/3`}>{[0, 1, 2].map(i => <Star key={i} style={{ animationDelay: `${i * 160}ms` }} className={`learning-star ${i === 1 ? 'h-16 w-16' : 'mb-1 h-12 w-12'} ${i < stars ? 'fill-[hsl(var(--amber))] text-[hsl(var(--amber-dark))]' : 'fill-muted text-muted'}`} />)}</div>
+          <p className="mt-6 text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">{t('learning.score', result)}</p>
+          <h2 className="mt-2 font-display text-3xl font-bold">{t(`learning.rank${stars}`)}</h2>
+          <p className="mt-2 text-muted-foreground">{t(`learning.rankLine${stars}`)}</p>
+          {result.reward > 0 && <p className="mt-5 font-display text-xl font-bold text-primary">{t('learning.reward', { amount: result.reward })}</p>}
+        </section>
+        {!result.passed && <ul className="mb-6 divide-y divide-border">{questions.map((q, i) => attempt.answers[i] !== q.correct && <li key={i} className="py-4"><p className="font-semibold">{text(q, 'prompt')}</p><p className="mt-2 font-semibold text-primary">{(english ? q.options_en : q.options)[q.correct ?? 0]}</p><p className="mt-2 text-sm text-muted-foreground">{text(q, 'explanation')}</p></li>)}</ul>}
+        {!preview && <Button variant="outline" className="mb-3 w-full" onClick={() => void share()}><Share2 className="mr-2 h-4 w-4" />{copied ? t('learning.copied') : t('learning.share')}</Button>}
+        {!result.passed && <Button className="mb-3 w-full" onClick={onRetry}>{t('learning.retry')}</Button>}
+        <Button variant={result.passed ? 'default' : 'outline'} className="w-full" onClick={onClose}>{t('learning.backPath')}</Button>
+      </> : question ? <>
+        {index === 0 && !checked && <p className="mb-4 text-sm font-semibold text-muted-foreground">{text(attempt.lesson, 'intro')}</p>}
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">{t(`learning.${question.type}`)}</p>
+        <h2 className="mt-2 font-display text-2xl font-bold leading-tight">{text(question, 'prompt')}</h2>
+        {question.type === 'visual' && question.image && <img src={question.image} alt="" className="mt-5 aspect-[4/3] w-full rounded-2xl object-cover" />}
+        {question.type === 'audio' && question.audio && <SoundPlayer key={question.audio} src={question.audio} />}
+        {pictures ? <div role="radiogroup" aria-label={text(question, 'prompt')} className={`mt-6 grid gap-3 ${pictures.length === 2 ? 'grid-cols-2' : 'grid-cols-2'}`}>
+          {pictures.map((src, i) => <button key={i} type="button" role="radio" aria-checked={selected === i} aria-label={options[i]} disabled={checked || busy} onClick={() => void pick(i)} data-state={state(i)} className="learning-photo group relative overflow-hidden rounded-2xl text-left">
+            <img src={src} alt="" className={`w-full object-cover ${pictures.length === 2 ? 'aspect-[3/4]' : 'aspect-square'}`} />
+            {(question.type === 'intruder' || checked) && <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-foreground/80 to-transparent px-3 pb-2 pt-6 text-sm font-bold text-background">{question.type === 'intruder' ? options[i] : ''}</span>}
+            {state(i) === 'right' && <span className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground"><Check className="h-5 w-5" /></span>}
+            {state(i) === 'wrong' && <span className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-destructive text-destructive-foreground"><X className="h-5 w-5" /></span>}
+          </button>)}
+        </div> : <div role="radiogroup" aria-label={text(question, 'prompt')} className={`mt-6 ${question.type === 'boolean' ? 'grid grid-cols-2 gap-3' : 'space-y-3'}`}>{options.map((option, i) => <Button key={i} role="radio" aria-checked={selected === i} data-correct={checked ? question.correct === i : undefined} variant="outline" disabled={checked || busy} onClick={() => void pick(i)} className={`learning-answer h-auto min-h-14 w-full whitespace-normal rounded-2xl px-4 py-4 ${question.type === 'boolean' ? 'justify-center text-lg font-bold' : 'justify-start text-left'}`}>{question.type !== 'boolean' && <span className="mr-3 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-current text-xs">{state(i) === 'wrong' ? <X className="h-4 w-4" /> : state(i) === 'right' ? <Check className="h-4 w-4" /> : String.fromCharCode(65 + i)}</span>}<span>{option}</span></Button>)}</div>}
+        {question.credit && <p className="mt-2 break-words text-[10px] leading-snug text-muted-foreground">{question.credit}</p>}
+        {busy && !checked && <Loader2 className="mx-auto mt-5 h-5 w-5 animate-spin text-muted-foreground" />}
+        {checked && <div role="status" className={`learning-verdict mt-6 rounded-3xl p-5 ${correct ? 'bg-primary/10' : 'bg-destructive/10'}`}>
+          <p className={`flex items-center gap-2 font-display text-lg font-bold ${correct ? 'text-primary' : 'text-destructive'}`}>{correct ? <Check className="h-5 w-5" /> : <X className="h-5 w-5" />}{t(correct ? 'learning.correct' : 'learning.incorrect')}</p>
+          <p className="mt-3 flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground"><Lightbulb className="h-3.5 w-3.5" />{t('learning.didYouKnow')}</p>
+          <p className="mt-1 leading-relaxed text-foreground">{text(question, 'explanation')}</p>
+          <Button className="mt-5 w-full" disabled={busy} onClick={() => void next()}>{busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{t(index === questions.length - 1 ? 'learning.finish' : 'learning.next')}</Button>
+        </div>}
       </> : null}
       {error && <p role="alert" className="mt-4 text-sm text-destructive">{error}</p>}
     </div>

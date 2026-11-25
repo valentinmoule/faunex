@@ -4393,3 +4393,21 @@ html.is-native-android body {
 .reward-xp-count { animation: reward-count-pop .5s 1.4s cubic-bezier(.3,1.6,.5,1) both; }
 @keyframes reward-count-pop { 0% { transform: scale(1); } 50% { transform: scale(1.18); } 100% { transform: scale(1); } }
 @media (prefers-reduced-motion: reduce) { .reward-xp-spark, .reward-xp-count { animation: none; } }
+
+/* Académie : quiz */
+.learning-photo { box-shadow: 0 0 0 3px transparent, 0 4px 0 hsl(var(--border)); transition: transform .15s ease, box-shadow .2s ease, filter .2s ease; }
+.learning-photo:active:not(:disabled) { transform: translateY(2px) scale(.98); }
+.learning-photo[data-state=picked] { box-shadow: 0 0 0 3px hsl(var(--primary)); }
+.learning-photo[data-state=right] { box-shadow: 0 0 0 4px hsl(var(--primary)); animation: learning-pop .35s ease; }
+.learning-photo[data-state=wrong] { box-shadow: 0 0 0 4px hsl(var(--destructive)); animation: learning-shake .4s ease; }
+.learning-photo[data-state=idle]:disabled { filter: saturate(.5) opacity(.7); }
+.learning-verdict { animation: learning-rise .3s cubic-bezier(.2,.9,.3,1.2); }
+.learning-star { animation: learning-star-in .5s cubic-bezier(.2,.9,.3,1.4) both; }
+.learning-wave { transform-origin: bottom; transform: scaleY(.35); transition: transform .3s; }
+.learning-wave-on { animation: learning-wave .7s ease-in-out infinite alternate; }
+@keyframes learning-pop { 50% { transform: scale(1.04); } }
+@keyframes learning-shake { 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
+@keyframes learning-rise { from { opacity: 0; transform: translateY(14px); } }
+@keyframes learning-star-in { from { opacity: 0; transform: scale(.3) rotate(-30deg); } }
+@keyframes learning-wave { from { transform: scaleY(.3); } to { transform: scaleY(1); } }
+@media (prefers-reduced-motion: reduce) { .learning-photo, .learning-verdict, .learning-star, .learning-wave-on { animation: none; } }
