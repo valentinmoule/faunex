@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import premiumFox from '@/assets/learning/fox-happy-anim-l2.webp';
 import { createPortal } from 'react-dom';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Check, Loader2, Crown, UserRound, Users, ScanLine, Radar, BookOpen, Target, GraduationCap, Crop } from 'lucide-react';
@@ -221,7 +222,7 @@ const PremiumPage = () => {
       <main className="mx-auto max-w-3xl px-5 pt-[calc(env(safe-area-inset-top)+4rem)] pb-24">
         <section className="relative overflow-hidden rounded-3xl bg-secondary px-6 pb-7 pt-6 text-center">
           <div className="pointer-events-none absolute inset-x-0 -top-24 mx-auto size-72 rounded-full bg-primary/15 blur-3xl" aria-hidden />
-          <img src="/mascot.webp" alt="" className="relative mx-auto size-36 object-contain drop-shadow-xl" />
+          <img src={premiumFox} alt="" className="fox-fur relative mx-auto size-36 object-contain drop-shadow-xl" />
           <span className="relative mt-2 inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground"><Crown className="size-3.5" aria-hidden />{t('profile.premium.badge')}</span>
           <h2 className="relative mt-3 font-display text-3xl font-bold leading-tight">{t('profile.premium.presentation.perks.heroTitle')}</h2>
           <p className="relative mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">{t('profile.premium.presentation.perks.heroText')}</p>
