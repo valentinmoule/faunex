@@ -14,6 +14,34 @@ describe('Placement de la carte rangée', () => {
     sessionStorage.clear();
   });
 
+  it('attend la grille puis démarre une seule fois quand elle est prête', async () => {
+    setPendingShelve({ animalName: 'Renard roux', scientificName: 'Vulpes vulpes', category: 'Mammifère', rarity: 'common', imageUrl: '', xpGained: 0 });
+    const slot = document.createElement('div');
+    slot.getBoundingClientRect = () => ({ left: 100, top: 150, width: 160, height: 200, right: 260, bottom: 350, x: 100, y: 150, toJSON: () => ({}) });
+    document.body.appendChild(slot);
+    const animate = vi.fn(() => ({ finished: Promise.resolve(), cancel: vi.fn() }) as unknown as Animation);
+    Object.defineProperty(HTMLElement.prototype, 'animate', { configurable: true, value: animate });
+    vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => window.setTimeout(() => callback(performance.now()), 0));
+    const resolveSlot = vi.fn(() => slot);
+    const Stage = ({ ready }: { ready: boolean }) => {
+      const { flight, cardRef } = useShelveAnimation({ loading: false, ready, resolveSlot });
+      return flight ? <div ref={cardRef} /> : null;
+    };
+    const view = render(<Stage ready={false} />);
+    await act(async () => { await new Promise(resolve => setTimeout(resolve, 100)); });
+    expect(resolveSlot).not.toHaveBeenCalled();
+    expect(sessionStorage.getItem('faunex:pending-shelve')).not.toBeNull();
+    view.rerender(<Stage ready />);
+    await waitFor(() => expect(animate).toHaveBeenCalledWith(
+      expect.any(Array), expect.objectContaining({ duration: 480 }),
+    ));
+    await waitFor(() => expect(slot.style.visibility).toBe(''));
+    expect(sessionStorage.getItem('faunex:pending-shelve')).toBeNull();
+    expect(animate.mock.calls.filter(call => (call as unknown[])[1] && ((call as unknown[])[1] as KeyframeAnimationOptions).duration === 480)).toHaveLength(1);
+    view.unmount();
+    slot.remove();
+  });
+
   it('garde la case masquée pendant le vol et la réaffiche à l’atterrissage avant de retirer la volante', async () => {
     setPendingShelve({ animalName: 'Renard roux', scientificName: 'Vulpes vulpes', category: 'Mammifère', rarity: 'common', imageUrl: '', xpGained: 50 });
     const slot = document.createElement('div');

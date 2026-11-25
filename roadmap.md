@@ -1,4 +1,5 @@
 # Roadmap
+- [x] Rangement : attente de défilement virtuel retirée de Mes captures ; panne reproduite puis un vol et un atterrissage vérifiés connecté avec une photo existante, sans analyse ni écriture ; 5 tests passants. Nouvelle capture réelle et appareil natif non testés.
 - [x] Boosters : lettrages vectoriels par thème intégrés à l’illustration (relief, motifs, couleurs, typographies), rotation 3D et reflet selon le défilement ; douze titres FR/EN vérifiés sans dépassement, ouverture connectée sur téléphone/ordinateur, réduction des animations respectée. Neuf tests de déblocage passants.
 - [x] Boosters : douze illustrations animées modernes, six nouvelles expéditions de huit espèces aux niveaux 12/16/20/25/30/40 ; noms vérifiés, neuf tests de déblocage passants, douze images et ouverture du Jardin vérifiées connecté sur téléphone/ordinateur. Effets des sachets et progression existante conservés.
 - [x] Filtre « Localisation » dans Mon Faunex : lignes avec/sans localisation (coordonnées GPS ou lieu saisi), compteurs, badge d'actifs et réinitialisation ; 6 tests passants, build OK, aperçu connecté 394×852 vérifié (141 → 2 captures sans position).

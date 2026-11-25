@@ -505,7 +505,9 @@ const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
 
   const { pendingShelve, flight, xpReward, cardRef: shelveCardRef, labelRef: shelveLabelRef, isFlashing, isHidden } = useShelveAnimation({
     loading,
-    ready: shelveScrollDone || shelveTargetIndexRef.current == null,
+    // Mes captures monte toutes ses tuiles : seul le Bestiaire virtualisé
+    // doit attendre son callback de défilement.
+    ready: viewMode === 'mine' || shelveScrollDone || shelveTargetIndexRef.current == null,
     resolveSlot: resolveShelveSlot,
     onPrepare: useCallback(() => {
       // La carte se range dans Mon Faunex (mes captures), sans filtre, pour y voir sa case

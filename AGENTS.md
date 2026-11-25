@@ -41,6 +41,7 @@ OpenFreeMap via MapLibre; zones are rendered features. Zone sheets: GBIF species
 ## Shelving lands in Mon Faunex and targets the displayed tile
 
 Keep the capture view until the `/home` grid is ready, then glide into its tile (no veil/page transform), matching names and measuring the live tile in flight.
+Non-virtual capture grids must not await virtual scroll callbacks, because those never fire there.
 
 ## Leaderboard movement compares with the same board 24 hours earlier
 
