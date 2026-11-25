@@ -8,8 +8,7 @@ import foxThink from '@/assets/learning/fox-think-anim.webp';
 import foxHappy from '@/assets/learning/fox-happy-once.webp';
 import foxOops from '@/assets/learning/fox-oops-once.webp';
 import foxCombo from '@/assets/learning/fox-combo-anim.webp';
-import foxComboLoop from '@/assets/learning/fox-combo-loop.webp';
-import foxHappyLoop from '@/assets/learning/fox-happy-loop.webp';
+import foxWinLoop from '@/assets/learning/fox-win-loop.webp';
 import { answerLesson, finishLesson, learningText, quizStars, type LearningAttempt, type LearningQuestion } from '@/lib/learning';
 
 function SoundPlayer({ src }: { src: string }) {
@@ -98,7 +97,7 @@ export default function LearningPlayer({ initial, onClose, onFinished, onRetry, 
     <div className="mx-auto max-w-lg px-5 py-6">
       {attempt.finished && result ? <>
         <section className="flex min-h-[calc(100dvh-12rem)] flex-col items-center justify-center text-center">
-          <img src={stars >= 2 ? foxComboLoop : foxHappyLoop} alt="" width={176} height={176} className="learning-fox h-44 w-44 object-contain" />
+          <img src={foxWinLoop} alt="" width={176} height={176} className="learning-fox h-44 w-44 object-contain" />
           <div className="mt-2 flex items-end justify-center gap-1.5" aria-label={`${stars}/3`}>{[0, 1, 2].map(i => <Star key={i} style={{ animationDelay: `${i * 160}ms` }} className={`learning-star ${i === 1 ? 'h-10 w-10' : 'mb-0.5 h-8 w-8'} ${i < stars ? 'fill-[hsl(var(--amber))] text-[hsl(var(--amber-dark))]' : 'fill-muted text-muted'}`} />)}</div>
           <h2 className="mt-4 font-display text-3xl font-black text-primary">{t(`learning.rank${stars}`)}</h2>
           <p className="mt-2 text-muted-foreground">{t(`learning.rankLine${stars}`)}</p>
