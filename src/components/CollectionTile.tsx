@@ -23,6 +23,8 @@ export interface CollectionTileProps {
   onClaim: () => void;
   /** Niveau requis si le booster est encore scellé. */
   lockedLevel?: number;
+  /** XP remporté à la complétion du booster. */
+  xp?: number;
 }
 
 const CollectionTile = ({
@@ -36,6 +38,7 @@ const CollectionTile = ({
   onOpen,
   onClaim,
   lockedLevel,
+  xp,
 }: CollectionTileProps) => {
   const { t } = useTranslation();
   const readyToClaim = complete && !claimed;
@@ -52,7 +55,7 @@ const CollectionTile = ({
     : undefined;
 
   return (
-    <div className={`collection-booster relative w-full rounded-[7px] ${gold ? 'collection-booster-gold' : ''}`} style={tintStyle}>
+    <div className={`collection-booster relative w-full rounded-[7px] ${lockedLevel ? 'collection-booster-locked' : ''} ${gold ? 'collection-booster-gold' : ''}`} style={tintStyle}>
       <Button
         variant="ghost"
         onClick={onOpen}
@@ -66,7 +69,7 @@ const CollectionTile = ({
           aria-hidden="true"
           loading="lazy"
           draggable={false}
-          className={`absolute inset-0 h-full w-full object-cover ${lockedLevel ? 'grayscale-[0.7] brightness-[0.55] blur-[1.5px]' : ''}`}
+          className={`absolute inset-0 h-full w-full object-cover `}
         />
         <div className="collection-booster-print absolute inset-0" />
 
@@ -96,6 +99,7 @@ const CollectionTile = ({
           <span className="collection-booster-count block font-display text-xs font-medium tabular-nums">
             {captured}
             <span className="opacity-70">/ {total}</span>
+            {xp ? <span className="collection-booster-xp ml-1.5 inline-flex rounded-full px-1.5 py-px text-[10px] font-bold">{claimed ? '✓ ' : ''}+{xp} XP</span> : null}
           </span>
         </div>
 

@@ -2277,6 +2277,7 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
                       claimed={isClaimed(rewardId)}
                       claiming={claimingReward === rewardId}
                       lockedLevel={locked ? minLevel : undefined}
+                      xp={xp}
                       onOpen={() => locked
                         ? toast(t('bestiary.collections.lockedToast', { level: minLevel, title: group.label }))
                         : setSelectedCollectionKey(group.key)}

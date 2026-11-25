@@ -4132,6 +4132,11 @@ html.is-native-android body {
   background: linear-gradient(112deg, transparent 15%, hsl(var(--booster-paper) / .13) var(--booster-light-position, 50%), transparent 85%);
 }
 .booster-carousel-item { transform-origin: center center; }
+/* Booster scellé : sachet entier désaturé, comme un bouton désactivé */
+.collection-booster-locked { filter: grayscale(1) opacity(.55) var(--booster-contour-shadow); }
+/* Titre imprimé dans l'illustration : ombre portée et lumière fondues dans l'image */
+.collection-booster .booster-lettering { mix-blend-mode: normal; filter: drop-shadow(0 2px 0 hsl(var(--booster-ink) / .55)) drop-shadow(0 6px 14px hsl(var(--booster-ink) / .6)); }
+.collection-booster-xp { background: hsl(var(--amber)); color: hsl(var(--booster-ink)); }
 .booster-lettering {
   --lettering-accent: 43 95% 72%;
   --lettering-outline: 155 46% 14%;
