@@ -16,9 +16,9 @@ export function isBillingActive(sub?: Pick<SubscriptionRow, 'status' | 'current_
 }
 
 /**
- * Personal Premium only: own subscription (never the family billing row) or an
- * unexpired referral bonus. Family membership must not light up the personal card.
+ * Personal Premium only: own subscription (never the family billing row) or a
+ * verified personal entitlement. Family membership must not light up this card.
  */
-export function hasPersonalPremium(sub?: SubscriptionRow | null, bonusDays = 0): boolean {
-  return bonusDays > 0 || (isBillingActive(sub) && !isFamilyBilling(sub?.price_id));
+export function hasPersonalPremium(sub?: SubscriptionRow | null, personalEntitlementActive = false): boolean {
+  return personalEntitlementActive || (isBillingActive(sub) && !isFamilyBilling(sub?.price_id));
 }

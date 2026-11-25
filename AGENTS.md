@@ -2,9 +2,9 @@
 
 Rules for working on this codebase.
 
-## Referral rewards follow verified annual payments
+## Legacy Premium entitlements remain read-only
 
-Reserve referrals for authenticated new customers, verify completed transactions by reading Paddle, and grant both rewards atomically once; persist absolute billing targets before delaying renewals without proration so retries cannot multiply benefits. Keep separate entitlements for accounts without an active renewal because cancellation must stay intact.
+The referral program is retired; never recreate its code, checkout, or reward flows. Preserve archived entitlements so previously earned Premium access and family validity expire naturally without new rewards.
 
 ## Family access derives from verified purchases
 

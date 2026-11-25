@@ -1,4 +1,5 @@
 # Roadmap
+- [x] Parrainage retiré des interfaces, paiements, webhooks, RPC et tests ; historique conservé, droits Premium archivés inchangés, 14 tests passants et pages Premium/Famille vérifiées connecté sur téléphone.
 - [x] Sécurité : profils privés visibles uniquement par le titulaire, les abonnés acceptés et l’équipe dans captures, jalons et classements ; follows publics/privés et commentaires avec mentions vérifiés en transaction annulée.
 - [x] Sécurité : preuves IA obligatoires pour les nouveaux XP de captures, XP follows/amis idempotents, 4 emplacements gratuits partagés entre zones et collections, Premium et collections personnalisées vérifiés ; XP et données existants conservés.
 - [x] Sécurité : cinq expéditeurs push limités aux services officiels, jetons natifs privés et non transférables, génération collector réservée au serveur ; appels anonymes refusés. Invitations Famille conservées avec 5 envois/jour et cooldown destinataire, parcours d’acceptation vérifié.

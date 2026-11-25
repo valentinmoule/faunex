@@ -22,7 +22,7 @@ export default function FamilyPage() {
   const {t,i18n}=useTranslation(); const navigate=useNavigate(); const {user}=useAuth();
   const [family,setFamily]=useState<FamilyInfo|null>(null); const [loading,setLoading]=useState(true);
   const [busy,setBusy]=useState(false); const [failed,setFailed]=useState(false); const [email,setEmail]=useState('');
-  const [remove,setRemove]=useState<string|null>(null); const [code,setCode]=useState('');
+  const [remove,setRemove]=useState<string|null>(null);
   const [avatars,setAvatars]=useState<Record<string,string|null>>({});
   const {openCheckout}=usePaddleCheckout(); const {refresh}=useSubscription(user?.id);
   const [params,setParams]=useSearchParams(); const autoOpened=useRef(false);
@@ -31,10 +31,10 @@ export default function FamilyPage() {
     autoOpened.current=true;
     const plan=params.get('plan')==='monthly'?'monthly':'yearly';
     const familyIntentId=params.get('familyIntent');
-    const uid=params.get('uid'); const referralId=params.get('referral');
+    const uid=params.get('uid');
     setParams({}, {replace:true});
     if(!familyIntentId || uid!==user.id){toast.error(t('family.error'));return;}
-    void openCheckout({priceId:plan==='yearly'?'faunex_premium_family_yearly':'faunex_premium_family_monthly',plan,customerEmail:user.email,customData:{userId:user.id,familyIntentId,...(plan==='yearly'&&referralId?{referralId}:{})},successUrl:`${window.location.origin}/family?checkout=success`}).catch(()=>toast.error(t('family.error')));
+    void openCheckout({priceId:plan==='yearly'?'faunex_premium_family_yearly':'faunex_premium_family_monthly',plan,customerEmail:user.email,customData:{userId:user.id,familyIntentId},successUrl:`${window.location.origin}/family?checkout=success`}).catch(()=>toast.error(t('family.error')));
   },[params,user,setParams,openCheckout,t]);
   const error=(message?:string)=>toast.error(t(`family.errors.${message}`,{defaultValue:t('family.error')}));
   const load=async()=>{
@@ -65,15 +65,13 @@ export default function FamilyPage() {
   });
   const subscribe=(plan:'monthly'|'yearly')=>action(async()=>{
     if(!user)return;
-    let referralId:string|undefined;
-    if(plan==='yearly'&&code.trim()){const {data,error:e}=await supabase.rpc('reserve_referral',{p_code:code,p_env:getPaddleEnvironment()});if(e)throw e;referralId=data;}
     const {data,error:e}=await supabase.functions.invoke('family-checkout',{body:{plan,environment:getPaddleEnvironment()}});
     if(e || !data?.intentId) {
       const response=e && 'context' in e ? e.context : null;
       const detail=response instanceof Response ? await response.json().catch(()=>null) : null;
       throw new Error(detail?.error ?? data?.error ?? 'error');
     }
-    await openCheckout({priceId:data.priceId,plan,customerEmail:user.email,customData:{userId:user.id,familyIntentId:data.intentId,...(referralId?{referralId}:{})},successUrl:`${window.location.origin}/family?checkout=success`});
+    await openCheckout({priceId:data.priceId,plan,customerEmail:user.email,customData:{userId:user.id,familyIntentId:data.intentId},successUrl:`${window.location.origin}/family?checkout=success`});
   });
   const owner=family?.owner_id===user?.id;
   return <div className="min-h-screen bg-background pb-28">
@@ -82,7 +80,7 @@ export default function FamilyPage() {
     <main className="max-w-lg mx-auto px-5 pt-6 space-y-6">
       {loading?<Loader2 className="size-6 animate-spin text-primary"/>:failed?<Button variant="outline" onClick={()=>void load()}>{t('family.retry')}</Button>:!family?<>
         <Users className="size-8 text-primary"/><h2 className="text-2xl font-display font-bold">{t('family.offer')}</h2><p className="text-muted-foreground">{t('family.intro')}</p><p className="text-sm text-muted-foreground">{t('family.empty')}</p>
-        <Input value={code} onChange={e=>setCode(e.target.value)} aria-label={t('family.referral')} placeholder={t('family.referral')}/><div className="divide-y divide-border">{(['yearly','monthly'] as const).map(plan=><div key={plan} className="flex items-center justify-between gap-3 py-4"><span className="font-semibold">{t(`family.${plan}`)}</span><Button disabled={busy} onClick={()=>void subscribe(plan)}>{busy?<Loader2 className="size-4 animate-spin"/>:t('family.subscribe')}</Button></div>)}</div>
+        <div className="divide-y divide-border">{(['yearly','monthly'] as const).map(plan=><div key={plan} className="flex items-center justify-between gap-3 py-4"><span className="font-semibold">{t(`family.${plan}`)}</span><Button disabled={busy} onClick={()=>void subscribe(plan)}>{busy?<Loader2 className="size-4 animate-spin"/>:t('family.subscribe')}</Button></div>)}</div>
       </>:<>
         <div className="flex items-center gap-2"><Users className="size-5 text-primary"/><span className={family.active?'text-primary font-semibold':'text-muted-foreground'}>{t(family.active?'family.active':'family.expired')}</span></div>
         <h2 className="font-display font-semibold">{t('family.members',{count:family.members.length})}</h2>

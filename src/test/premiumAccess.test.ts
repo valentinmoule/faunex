@@ -34,9 +34,9 @@ describe('hasPersonalPremium', () => {
     expect(hasPersonalPremium({ id: '1', status: 'active', price_id: 'faunex_premium_family_yearly', product_id: 'faunex_premium_family', current_period_end: future, cancel_at_period_end: false })).toBe(false);
   });
 
-  it('is false without any billing row and true with referral bonus days', () => {
-    expect(hasPersonalPremium(null, 0)).toBe(false);
-    expect(hasPersonalPremium(null, 30)).toBe(true);
+  it('is false without any billing row and true with a verified personal entitlement', () => {
+    expect(hasPersonalPremium(null, false)).toBe(false);
+    expect(hasPersonalPremium(null, true)).toBe(true);
   });
 
   it('is false when the personal subscription already expired', () => {

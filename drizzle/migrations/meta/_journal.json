@@ -1114,6 +1114,13 @@
       "when": 1795642908460,
       "tag": "0156_harden_social_privacy_rewards_and_quotas",
       "breakpoints": true
+    },
+    {
+      "idx": 157,
+      "version": "7",
+      "when": 1795643553435,
+      "tag": "0157_retire_referral_program",
+      "breakpoints": true
     }
   ]
 }

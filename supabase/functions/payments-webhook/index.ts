@@ -1,6 +1,5 @@
 import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2';
 import { verifyWebhook, EventName, type PaddleEnv } from '../_shared/paddle.ts';
-import { confirmReferral } from './referrals.ts';
 import { syncVerifiedFamily } from './family.ts';
 import { isFamilyPrice } from '../_shared/family-policy.ts';
 
@@ -161,9 +160,6 @@ async function handleTransactionCompleted(data: any, env: PaddleEnv) {
     .eq('environment', env);
 
   if (error) throw error;
-  if (data?.customData?.referralId) {
-    await confirmReferral(getSupabase(), data.id, env);
-  }
 }
 
 async function handleWebhook(req: Request, env: PaddleEnv) {

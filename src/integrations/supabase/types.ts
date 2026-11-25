@@ -3866,18 +3866,6 @@ export type Database = {
         }[]
       }
       complete_share_quest: { Args: { p_quest_id: string }; Returns: boolean }
-      confirm_paid_referral: {
-        Args: {
-          p_customer: string
-          p_env: string
-          p_paid_end: string
-          p_paid_start: string
-          p_referral: string
-          p_subscription: string
-          p_transaction: string
-        }
-        Returns: undefined
-      }
       conservation_code: { Args: { p_text: string }; Returns: string }
       consume_ai_analysis:
         | { Args: { p_user: string }; Returns: number }
@@ -4158,7 +4146,6 @@ export type Database = {
       }
       my_league_upcoming_tier: { Args: never; Returns: number }
       my_premium_access: { Args: never; Returns: boolean }
-      my_referral_code: { Args: never; Returns: string }
       my_species_progress: {
         Args: never
         Returns: {
@@ -4277,10 +4264,6 @@ export type Database = {
       request_contest_winner_notification: {
         Args: { p_week: string }
         Returns: number
-      }
-      reserve_referral: {
-        Args: { p_code: string; p_env: string }
-        Returns: string
       }
       resolve_species_identity: {
         Args: { p_name: string; p_scientific: string }

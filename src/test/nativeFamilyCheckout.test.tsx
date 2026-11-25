@@ -8,11 +8,12 @@ import {usePaddleCheckout} from '@/hooks/usePaddleCheckout';
 describe('Native Paddle checkout',()=>{
   it('opens family annual checkout externally with its verified intent',async()=>{
     const {result}=renderHook(()=>usePaddleCheckout());
-    await act(async()=>result.current.openCheckout({priceId:'faunex_premium_family_yearly',plan:'yearly',customData:{userId:'account',familyIntentId:'verified-intent',referralId:'referral'}}));
+    await act(async()=>result.current.openCheckout({priceId:'faunex_premium_family_yearly',plan:'yearly',customData:{userId:'account',familyIntentId:'verified-intent'}}));
     const url=new URL(open.mock.calls.at(-1)?.[0].url);
     expect(url.origin).toBe('https://faunex.fr');expect(url.pathname).toBe('/family');
     expect(url.searchParams.get('plan')).toBe('yearly');expect(url.searchParams.get('familyIntent')).toBe('verified-intent');
-    expect(url.searchParams.get('uid')).toBe('account');expect(url.searchParams.get('referral')).toBe('referral');
+    expect(url.searchParams.get('uid')).toBe('account');
+    expect(url.searchParams.has('referral')).toBe(false);
   });
   it('keeps the Solo external checkout unchanged',async()=>{
     const {result}=renderHook(()=>usePaddleCheckout());

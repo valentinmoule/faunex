@@ -16,9 +16,6 @@ import { Browser } from '@capacitor/browser';
 import { useTranslation } from 'react-i18next';
 import { useAppLocale } from '@/hooks/useAppLocale';
 import { CancelSurveySheet } from '@/components/CancelSurveySheet';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { PremiumReferral } from '@/components/PremiumReferral';
 import { getPaddleEnvironment } from '@/lib/paddle';
 import { hasActiveFamily, readFamily, type FamilyInfo } from '@/lib/family';
 import { hasPersonalPremium } from '@/lib/premiumAccess';
@@ -61,10 +58,6 @@ const PremiumPage = () => {
   const { openCheckout, loading: checkoutLoading } = usePaddleCheckout();
   const [plan, setPlan] = useState<'monthly' | 'yearly'>('yearly');
   const [surveyOpen, setSurveyOpen] = useState(false);
-  const [referralCode, setReferralCode] = useState('');
-  const [referralBusy, setReferralBusy] = useState(false);
-  const [referralStep, setReferralStep] = useState(false);
-  const [bonusDays, setBonusDays] = useState(0);
   const [family, setFamily] = useState<FamilyInfo | null>(null);
   const familyActive = hasActiveFamily(family);
   useEffect(() => {
@@ -78,13 +71,7 @@ const PremiumPage = () => {
     });
     return () => { cancelled = true; };
   }, [session?.user.id, subscription]);
-  useEffect(() => {
-    if (!session?.user.id) return;
-    supabase.from('referral_rewards').select('days').eq('user_id', session.user.id)
-      .eq('environment', getPaddleEnvironment()).gt('ends_at', new Date().toISOString())
-      .then(({ data }) => setBonusDays((data ?? []).reduce((sum, item) => sum + item.days, 0)));
-  }, [session?.user.id, subscription]);
-  const personalActive = hasPersonalPremium(subscription, bonusDays);
+  const personalActive = hasPersonalPremium(subscription, isPremium && !familyActive);
   const PLANS = usePlans(t);
   const selected = PLANS[plan];
   const renewalLabel = (iso?: string | null, cancels?: boolean | null) => (iso
@@ -111,13 +98,11 @@ const PremiumPage = () => {
     const wanted = params.get('plan') === 'monthly' ? 'monthly' : 'yearly';
     const uid = params.get('uid') || session?.user?.id;
     const email = params.get('email') || session?.user?.email || undefined;
-    const referralId = params.get('referral');
     setPlan(wanted);
     params.delete('checkout');
     params.delete('plan');
     params.delete('email');
     params.delete('uid');
-    params.delete('referral');
     setParams(params, { replace: true });
     if (!uid) {
       navigate('/auth');
@@ -127,7 +112,7 @@ const PremiumPage = () => {
       priceId: wanted === 'monthly' ? PREMIUM_MONTHLY_PRICE_ID : PREMIUM_YEARLY_PRICE_ID,
       plan: wanted,
       customerEmail: email,
-      customData: { userId: uid, ...(referralId && wanted === 'yearly' ? { referralId } : {}) },
+      customData: { userId: uid },
       successUrl: `${window.location.origin}/premium?checkout=success`,
     }).catch((e) => {
       console.error(e);
@@ -136,42 +121,22 @@ const PremiumPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoCheckout]);
 
-  const referralEligible = !loading && !subscription && !isPremium && plan === 'yearly';
-  const startSubscribe = () => {
-    if (!session?.user) { navigate('/auth'); return; }
-    if (referralEligible) { setReferralStep(true); return; }
-    void handleSubscribe();
-  };
-  const handleSubscribe = async () => {
+  const startSubscribe = async () => {
     if (!session?.user) {
       navigate('/auth');
       return;
     }
     try {
-      setReferralBusy(true);
-      let referralId: string | undefined;
-      if (plan === 'yearly' && referralCode.trim()) {
-        const { data, error } = await supabase.rpc('reserve_referral', { p_code: referralCode, p_env: getPaddleEnvironment() });
-        if (error) {
-          const reason = ['self_referral', 'existing_customer', 'referral_already_set'].find(key => error.message.includes(key)) ?? 'invalid_code';
-          toast.error(t(`profile.premium.referral.errors.${reason}`));
-          return;
-        }
-        referralId = data;
-      }
-      setReferralStep(false);
       await openCheckout({
         priceId: selected.priceId,
         plan,
         customerEmail: session.user.email ?? undefined,
-        customData: { userId: session.user.id, ...(referralId ? { referralId } : {}) },
+        customData: { userId: session.user.id },
         successUrl: `${window.location.origin}/premium?checkout=success`,
       });
     } catch (e) {
       console.error(e);
       toast.error(t('profile.premium.checkoutError'));
-    } finally {
-      setReferralBusy(false);
     }
   };
 
@@ -268,8 +233,8 @@ const PremiumPage = () => {
                   <p className="mt-1 text-xs text-muted-foreground">{personalRenewal ?? t('profile.premium.noEndDate')}</p>
                 </div>
               ) : (
-                <Button onClick={startSubscribe} disabled={checkoutLoading || referralBusy || loading || isPremium} className="mt-auto h-auto min-h-12 w-full whitespace-normal py-3">
-                  {checkoutLoading || referralBusy ? <Loader2 className="size-4 animate-spin" /> : t('profile.premium.presentation.choosePersonal')}
+                <Button onClick={() => void startSubscribe()} disabled={checkoutLoading || loading || isPremium} className="mt-auto h-auto min-h-12 w-full whitespace-normal py-3">
+                  {checkoutLoading ? <Loader2 className="size-4 animate-spin" /> : t('profile.premium.presentation.choosePersonal')}
                 </Button>
               )}
             </article>
@@ -311,8 +276,6 @@ const PremiumPage = () => {
           </ul>
         </section>
 
-        {session?.user && <PremiumReferral userId={session.user.id} />}
-        {bonusDays > 0 && <p className="mb-5 text-sm font-medium text-primary">{t('profile.premium.referral.bonus', { days: bonusDays })}</p>}
       </main>
 
       {isPremium && subscription && createPortal(
@@ -329,19 +292,6 @@ const PremiumPage = () => {
         </div>,
         document.body
       )}
-      <Dialog open={referralStep} onOpenChange={setReferralStep}>
-        <DialogContent className="max-w-sm rounded-3xl">
-          <DialogHeader>
-            <DialogTitle className="font-display">{t('profile.premium.referral.stepTitle')}</DialogTitle>
-            <DialogDescription>{t('profile.premium.referral.stepText')}</DialogDescription>
-          </DialogHeader>
-          <label htmlFor="referral-code" className="text-sm font-medium">{t('profile.premium.referral.inputLabel')}</label>
-          <Input id="referral-code" value={referralCode} onChange={event => setReferralCode(event.target.value.toUpperCase())} maxLength={12} autoCapitalize="characters" autoComplete="off" placeholder={t('profile.premium.referral.placeholder')} />
-          <Button onClick={() => void handleSubscribe()} disabled={checkoutLoading || referralBusy} className="h-12 w-full">
-            {checkoutLoading || referralBusy ? <Loader2 className="size-4 animate-spin" /> : t('profile.premium.referral.continue')}
-          </Button>
-        </DialogContent>
-      </Dialog>
       {session?.user && (
         <CancelSurveySheet open={surveyOpen} onOpenChange={setSurveyOpen} userId={session.user.id} onContinue={handleManage} />
       )}
