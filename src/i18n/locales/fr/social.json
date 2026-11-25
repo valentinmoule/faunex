@@ -302,7 +302,10 @@
       "change": "Changer",
       "pickInline": "Choisis une photo de ta semaine",
       "votesCount_one": "{{count}} vote",
-      "votesCount_other": "{{count}} votes"
+      "votesCount_other": "{{count}} votes",
+      "pitchTitle": "Ta photo à l'affiche ?",
+      "pitchBadge": "Le badge exclusif « Capture de la semaine »",
+      "pitchCta": "Capturer un animal"
     },
     "explorersTitle": "Explorateurs",
     "searchExplorers": "Rechercher des explorateurs"

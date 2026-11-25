@@ -278,38 +278,51 @@ export default function PhotoContestTab() {
         </>)}
       </section>
 
-      {/* Ma participation : sélection directe en un tap */}
-      <section className="mx-4 rounded-3xl bg-secondary/60 p-4">
-        <div className="flex items-center justify-between gap-2">
-          <h2 className="text-base font-display font-bold text-foreground">{t('social.contest.myEntryTitle')}</h2>
-          {myEntry && <span className="rounded-full bg-primary px-2.5 py-1 text-[11px] font-display font-bold text-primary-foreground">{t('social.contest.inTheRunning')}</span>}
-        </div>
-        {myEntry && (
-          <div className="mt-3 flex items-center gap-3">
-            <div className="w-20 shrink-0"><Tile image={myEntry.image_url} rarity={myEntry.rarity} name={speciesName(myEntry.animal_name)} onOpen={() => openCapture(myEntry.capture_id)} /></div>
-            <div className="min-w-0 flex-1 space-y-2">
-              <p className="truncate text-sm font-display font-semibold text-foreground">{speciesName(myEntry.animal_name)}</p>
-              <div className="flex gap-2">
-                <Button variant="secondary" size="sm" onClick={() => setChanging((v) => !v)} disabled={busy}>{t('social.contest.change')}</Button>
-                <Button variant="ghost" size="sm" onClick={withdraw} disabled={busy}>{t('social.contest.withdraw')}</Button>
+      {/* Ma participation : affiche du prochain concours */}
+      <section className="relative mx-4 overflow-hidden rounded-3xl bg-primary text-primary-foreground shadow-lg">
+        {winners[0]?.image_url && (
+          <img src={thumbUrl(winners[0].image_url)} alt="" aria-hidden className="absolute inset-0 h-full w-full scale-150 object-cover opacity-30 blur-2xl" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/70 via-primary/85 to-primary" aria-hidden />
+        <Trophy className="absolute -right-6 -top-6 h-36 w-36 rotate-12 text-accent/25" aria-hidden />
+        <div className="relative p-5">
+          <div className="flex items-center justify-between gap-2">
+            <span className="rounded-full bg-primary-foreground/15 px-2.5 py-1 text-[11px] font-display font-bold uppercase tracking-wide">{t('social.contest.myEntryTitle')}</span>
+            {myEntry && <span className="rounded-full bg-accent px-2.5 py-1 text-[11px] font-display font-bold text-accent-foreground">{t('social.contest.inTheRunning')}</span>}
+          </div>
+          {!myEntry && (<>
+            <h2 className="mt-3 text-2xl font-display font-extrabold leading-tight">{t('social.contest.pitchTitle')}</h2>
+            <p className="mt-1.5 text-sm leading-relaxed text-primary-foreground/85">{t('social.contest.myEntryHint')}</p>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <div className="rounded-2xl bg-primary-foreground/12 p-3 backdrop-blur-sm">
+                <Sparkles className="h-6 w-6 text-accent" aria-hidden />
+                <p className="mt-1.5 text-xs font-display font-semibold leading-snug">{t('social.contest.rewardEffect')}</p>
+              </div>
+              <div className="rounded-2xl bg-primary-foreground/12 p-3 backdrop-blur-sm">
+                <Award className="h-6 w-6 text-accent" aria-hidden />
+                <p className="mt-1.5 text-xs font-display font-semibold leading-snug">{t('social.contest.pitchBadge')}</p>
               </div>
             </div>
-          </div>
-        )}
-        {!myEntry && (<>
-          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{t('social.contest.myEntryHint')}</p>
-          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs font-display font-semibold text-foreground">
-            <span className="flex items-center gap-1"><Sparkles className="h-4 w-4 text-primary" aria-hidden />{t('social.contest.rewardEffect')}</span>
-            <span className="flex items-center gap-1"><Award className="h-4 w-4 text-primary" aria-hidden />{t('social.contest.badge')}</span>
-          </div>
-        </>)}
+          </>)}
+          {myEntry && (
+            <div className="mt-4 flex items-center gap-3">
+              <div className="w-24 shrink-0 rotate-[-3deg] drop-shadow-xl"><Tile image={myEntry.image_url} rarity={myEntry.rarity} name={speciesName(myEntry.animal_name)} onOpen={() => openCapture(myEntry.capture_id)} /></div>
+              <div className="min-w-0 flex-1 space-y-2">
+                <p className="truncate text-lg font-display font-extrabold">{speciesName(myEntry.animal_name)}</p>
+                <div className="flex gap-2">
+                  <Button variant="secondary" size="sm" onClick={() => setChanging((v) => !v)} disabled={busy}>{t('social.contest.change')}</Button>
+                  <Button variant="ghost" size="sm" onClick={withdraw} disabled={busy} className="text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground">{t('social.contest.withdraw')}</Button>
+                </div>
+              </div>
+            </div>
+          )}
         {showPicker && (
           weekCaptures === null ? (
-            <p className="py-4 text-center text-sm text-muted-foreground">{t('social.common.loading')}</p>
+            <p className="py-4 text-center text-sm text-primary-foreground/80">{t('social.common.loading')}</p>
           ) : eligible.length === 0 ? (
-            <p className="mt-3 text-sm text-muted-foreground">{t('social.contest.pickEmpty')}</p>
+            <Button size="lg" variant="secondary" onClick={() => navigate('/capture')} className="game-button mt-4 w-full text-base">{t('social.contest.pitchCta')}</Button>
           ) : (<>
-            <p className="mt-4 text-xs font-display font-semibold text-muted-foreground">{t('social.contest.pickInline')}</p>
+            <p className="mt-4 text-xs font-display font-bold uppercase tracking-wide text-primary-foreground/80">{t('social.contest.pickInline')}</p>
             <div className="no-scrollbar -mx-4 mt-2 flex gap-2 overflow-x-auto px-4 pb-1">
               {eligible.map((c) => (
                 <button key={c.id} disabled={busy} onClick={() => { hapticTap(); myEntry ? replaceWith(c.id) : submit(c.id); }} className="w-24 shrink-0 text-left transition-transform active:scale-[0.96]">
@@ -319,6 +332,7 @@ export default function PhotoContestTab() {
             </div>
           </>)
         )}
+        </div>
       </section>
 
       {/* Panthéon des primées */}

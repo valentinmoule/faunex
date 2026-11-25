@@ -302,7 +302,10 @@
       "change": "Change",
       "pickInline": "Pick a photo from your week",
       "votesCount_one": "{{count}} vote",
-      "votesCount_other": "{{count}} votes"
+      "votesCount_other": "{{count}} votes",
+      "pitchTitle": "Your photo in the spotlight?",
+      "pitchBadge": "The exclusive “Capture of the week” badge",
+      "pitchCta": "Capture an animal"
     },
     "explorersTitle": "Explorers",
     "searchExplorers": "Search explorers"
