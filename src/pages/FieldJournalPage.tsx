@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Crown, Flame, Loader2, TrendingDown, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Crown, Lock, Flame, Loader2, TrendingDown, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/PageHeader';
 import { supabase } from '@/integrations/supabase/client';
@@ -18,6 +18,15 @@ const RARITY_VARS: Record<string, string> = {
   common: 'hsl(220 9% 60%)', uncommon: 'hsl(152 62% 36%)', rare: 'hsl(210 92% 50%)', very_rare: 'hsl(265 72% 55%)',
   ultra_rare: 'hsl(220 18% 62%)', illustration_rare: 'hsl(43 95% 52%)', special_rare: 'hsl(33 96% 50%)', hyper_rare: 'hsl(24 98% 50%)',
 };
+
+/** Données d'exemple floutées pour les comptes gratuits sans captures. */
+const SAMPLE: JournalCapture[] = Array.from({ length: 48 }, (_, i) => ({
+  animal_name: ['Rouge-gorge familier', 'Mésange bleue', 'Écureuil roux', 'Lézard des murailles', 'Paon-du-jour', 'Héron cendré'][i % 6] + (i > 5 ? ` ${i}` : ''),
+  category: ['Oiseaux', 'Oiseaux', 'Mammifères', 'Reptiles', 'Insectes', 'Oiseaux'][i % 6],
+  rarity: RARITY_RANK[i % 4],
+  location: ['Bois de Vincennes', 'Parc de Sceaux', 'Forêt de Fontainebleau'][i % 3],
+  created_at: new Date(Date.now() - (i * 3 + (i % 2)) * 86_400_000).toISOString(),
+}));
 
 const Delta = ({ now, before }: { now: number; before: number }) => {
   if (now === before) return null;
@@ -51,8 +60,9 @@ const FieldJournalPage = () => {
     },
   });
 
-  const s = useMemo(() => computeJournalStats(q.data ?? []), [q.data]);
   const locked = !premiumLoading && !isPremium;
+  const rows = locked && (q.data?.length ?? 0) === 0 ? SAMPLE : (q.data ?? []);
+  const s = useMemo(() => computeJournalStats(rows), [rows]);
   const lang = i18n.language;
   const fmtMonth = (k: string, opts: Intl.DateTimeFormatOptions = { month: 'long' }) => { const [y, m] = k.split('-').map(Number); return new Date(y, m - 1, 1).toLocaleDateString(lang, opts); };
   const fmtDay = (k: string) => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d).toLocaleDateString(lang, { day: 'numeric', month: 'long', year: 'numeric' }); };
@@ -76,8 +86,20 @@ const FieldJournalPage = () => {
         <p className="px-6 py-16 text-center text-sm text-muted-foreground">{t('premiumFeatures.journal.empty')}</p>
       ) : (
         <div className="relative mx-auto max-w-lg space-y-5 px-4 pt-5">
+          {locked && (
+            <section className="relative overflow-hidden rounded-3xl bg-card p-5 shadow-card">
+              <div aria-hidden className="pointer-events-none absolute -left-16 -top-16 h-56 w-56 rounded-full bg-amber/30 blur-3xl" />
+              <div aria-hidden className="pointer-events-none absolute -bottom-20 -right-10 h-48 w-48 rounded-full bg-primary/20 blur-3xl" />
+              <div className="relative">
+                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-foreground/10 text-foreground"><Lock className="h-5 w-5" /></span>
+                <p className="mt-4 font-display text-2xl font-black leading-tight">{t('premiumFeatures.journal.lockedTitle')}</p>
+                <p className="mt-2 text-sm text-muted-foreground">{t('premiumFeatures.journal.lockedBody')}</p>
+                <Button onClick={() => navigate('/premium')} className="game-button mt-4 h-12 w-full font-display"><Crown className="h-4 w-4" />{t('premiumFeatures.journal.cta')}</Button>
+              </div>
+            </section>
+          )}
           {/* Héros : totaux à vie */}
-          <section className="mission-plate rounded-3xl p-5">
+          <section className={`mission-plate rounded-3xl p-5 ${locked && rows === SAMPLE ? 'pointer-events-none select-none blur-[5px]' : ''}`}>
             <p className="text-[11px] font-display font-bold uppercase tracking-[0.14em] text-primary">{t('premiumFeatures.journal.lifetime')}</p>
             <div className="mt-2 flex items-end gap-2">
               <p className="font-display text-5xl font-black leading-none tabular-nums text-foreground">{s.species}</p>
@@ -93,7 +115,7 @@ const FieldJournalPage = () => {
             </div>
           </section>
 
-          <div className={locked ? 'pointer-events-none select-none blur-[6px]' : ''} aria-hidden={locked}>
+          <div className={locked ? 'pointer-events-none select-none blur-[5px] opacity-80' : ''} aria-hidden={locked}>
             {/* Ce mois-ci */}
             <section className="space-y-2">
               <div className="flex items-baseline justify-between">
@@ -226,14 +248,6 @@ const FieldJournalPage = () => {
             )}
           </div>
 
-          {locked && (
-            <div className="absolute inset-x-4 top-[300px] rounded-3xl bg-card p-5 text-center shadow-card">
-              <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber/15 text-amber"><Crown className="h-6 w-6" /></span>
-              <p className="mt-3 font-display text-lg font-bold">{t('premiumFeatures.journal.lockedTitle')}</p>
-              <p className="mt-1 text-sm text-muted-foreground">{t('premiumFeatures.journal.lockedBody')}</p>
-              <Button onClick={() => navigate('/premium')} className="game-button mt-4 h-12 w-full font-display">{t('premiumFeatures.journal.cta')}</Button>
-            </div>
-          )}
         </div>
       )}
     </div>
