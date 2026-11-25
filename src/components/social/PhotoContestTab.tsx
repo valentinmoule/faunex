@@ -343,7 +343,7 @@ export default function PhotoContestTab() {
                     <PremiumAvatar avatarUrl={w.avatar_url} name={author} size="sm" />
                     <span className="min-w-0 text-left">
                       <span className="block truncate text-xs font-display font-semibold text-foreground">{author}</span>
-                      <span className="block truncate text-[11px] text-muted-foreground">{t('social.contest.weekOf', { date: fmtWeek(w.week_start) })} · {t('social.contest.votesCount', { count: w.votes })}</span>
+                      <span className="block truncate text-[11px] text-muted-foreground">{new Date(`${w.week_start}T12:00:00`).toLocaleDateString(i18n.language, { day: 'numeric', month: 'short', year: 'numeric' })} · {t('social.contest.votesCount', { count: w.votes })}</span>
                     </span>
                   </button>
                 </div>
