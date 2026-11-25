@@ -4149,6 +4149,8 @@ html.is-native-android body {
 }
 .booster-lettering--gold { --f1: 50 100% 92%; --f2: 45 96% 62%; --f3: 36 88% 42%; --f4: 46 100% 70%; --f5: 30 80% 34%; }
 .booster-lettering--silver { --f1: 0 0% 100%; --f2: 210 20% 82%; --f3: 215 14% 52%; --f4: 205 30% 90%; --f5: 220 18% 40%; }
+/* Avent : foil aurore boréale (vert → turquoise → magenta → violet) */
+.booster-lettering--aurora { --f1: 155 90% 88%; --f2: 165 92% 62%; --f3: 186 95% 58%; --f4: 300 92% 72%; --f5: 272 85% 52%; }
 .booster-lettering .foil-a { stop-color: hsl(var(--f1)); }
 .booster-lettering .foil-b { stop-color: hsl(var(--f2)); }
 .booster-lettering .foil-c { stop-color: hsl(var(--f3)); }
@@ -4156,9 +4158,14 @@ html.is-native-android body {
 .booster-lettering .foil-e { stop-color: hsl(var(--f5)); }
 .booster-lettering--gold .booster-lettering-kicker, .booster-lettering--gold .booster-lettering-motif { fill: hsl(var(--f1)); color: hsl(var(--f2)); }
 .booster-lettering--silver .booster-lettering-kicker, .booster-lettering--silver .booster-lettering-motif { fill: hsl(var(--f1)); color: hsl(var(--f2)); }
+.booster-lettering--aurora .booster-lettering-kicker, .booster-lettering--aurora .booster-lettering-motif { fill: hsl(var(--f1)); color: hsl(var(--f2)); }
 .booster-lettering-shine { animation: booster-foil-sweep 3.6s ease-in-out infinite; mix-blend-mode: screen; }
 @keyframes booster-foil-sweep { 0%, 55% { transform: translateX(0); } 100% { transform: translateX(380px); } }
 @media (prefers-reduced-motion: reduce) { .booster-lettering-shine { animation: none; opacity: 0; } }
+/* Avent : bande irisée d'aurore qui ondule lentement dans les lettres */
+.booster-lettering-aura { mix-blend-mode: screen; opacity: .8; animation: booster-aurora-sweep 7s ease-in-out infinite; }
+@keyframes booster-aurora-sweep { 0% { transform: translateX(-130px); } 50% { transform: translateX(250px); } 100% { transform: translateX(-130px); } }
+@media (prefers-reduced-motion: reduce) { .booster-lettering-aura { animation: none; transform: translateX(60px); } }
 .booster-lettering-highlight { stop-color: hsl(var(--booster-paper)); }
 .booster-lettering-paper { stop-color: hsl(var(--booster-paper)); }
 .booster-lettering-accent { stop-color: hsl(var(--lettering-accent)); }
@@ -4190,7 +4197,7 @@ html.is-native-android body {
 .booster-lettering--jungle .booster-lettering-main { text-transform: uppercase; font-style: italic; }
 .booster-lettering--polaire { --lettering-accent: 194 100% 82%; --lettering-outline: 207 44% 24%; }
 .booster-lettering--polaire .booster-lettering-main { text-transform: uppercase; }
-.booster-lettering--advent { --lettering-accent: 43 95% 70%; --lettering-outline: 352 70% 16%; }
+.booster-lettering--advent { --lettering-accent: 165 90% 70%; --lettering-outline: 250 55% 14%; }
 .booster-lettering--advent .booster-lettering-main { font-family: 'Fraunces', Georgia, serif; font-style: italic; font-weight: 900; }
 .booster-lettering--advent .booster-lettering-kicker { letter-spacing: .14em; }
 @media (prefers-reduced-motion: reduce) {

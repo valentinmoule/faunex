@@ -12,7 +12,7 @@ export default function BoosterLettering({ title, image }: { title: string; imag
   const main = adventMatch ? adventMatch[2] : words.slice(split).join(' ') || top;
   const tail = adventMatch?.[3] ?? '';
   const fontSize = Math.min(45, 255 / Math.max(main.length * .65, 1));
-  const metal = ['nuit', 'sommets', 'polaire', 'rivages', 'mares', 'ciel'].includes(theme) ? 'silver' : 'gold';
+  const metal = theme === 'advent' ? 'aurora' : ['nuit', 'sommets', 'polaire', 'rivages', 'mares', 'ciel'].includes(theme) ? 'silver' : 'gold';
   useEffect(() => {
     let cancelled = false;
     const fit = () => {
@@ -51,6 +51,13 @@ export default function BoosterLettering({ title, image }: { title: string; imag
           <stop offset="0.5" stopOpacity="0.95" className="foil-a" />
           <stop offset="1" stopOpacity="0" className="foil-a" />
         </linearGradient>
+        <linearGradient id={`${id}-aura`} x1="0" y1="0" x2="1" y2="0.6">
+          <stop offset="0" stopColor="hsl(160 95% 60%)" stopOpacity="0" />
+          <stop offset="0.28" stopColor="hsl(165 95% 62%)" stopOpacity=".85" />
+          <stop offset="0.5" stopColor="hsl(186 95% 66%)" stopOpacity=".9" />
+          <stop offset="0.72" stopColor="hsl(300 90% 70%)" stopOpacity=".85" />
+          <stop offset="1" stopColor="hsl(272 88% 62%)" stopOpacity="0" />
+        </linearGradient>
         <clipPath id={`${id}-clip`}>
           <text x="150" y="94" textAnchor="middle" className="booster-lettering-main" fontSize={fontSize}>{main}</text>
         </clipPath>
@@ -61,6 +68,7 @@ export default function BoosterLettering({ title, image }: { title: string; imag
         {tail && <text x="150" y="126" className="booster-lettering-kicker" fontSize={Math.min(17, 240 / Math.max(tail.length * .65, 1))}>{tail}</text>}
       </g>
       <g clipPath={`url(#${id}-clip)`} aria-hidden="true">
+        {metal === 'aurora' && <rect className="booster-lettering-aura" x="-160" y="40" width="320" height="70" fill={`url(#${id}-aura)`} />}
         <rect className="booster-lettering-shine" x="-60" y="40" width="70" height="70" fill={`url(#${id}-shine)`} />
       </g>
     </svg>
