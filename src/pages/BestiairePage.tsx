@@ -92,6 +92,9 @@ import { useSpeciesFavorites, speciesFavoriteKey, buildFavoriteSpeciesKeys } fro
 import RewardCelebration from '@/components/RewardCelebration';
 import CaptureQuotaBadge from '@/components/CaptureQuotaBadge';
 import { ProfileButton } from '@/components/ProfileDrawer';
+import OnboardingTour from '@/components/onboarding/OnboardingTour';
+import OnboardingCard from '@/components/onboarding/OnboardingCard';
+import { isOnboardingDone, markOnboardingDone, isNewAccount } from '@/lib/onboarding';
 import {
   COLLECTION_REWARD_PREFIX,
   ZONE_REWARD_PREFIX,
@@ -228,6 +231,19 @@ BrowseSpeciesCard.displayName = 'BrowseSpeciesCard';
 const BestiairePage = () => {
   const { data: winners } = useContestWinnerCaptures();
   const { session } = useAuth();
+  const onboardingUserId = session?.user?.id;
+  const [onboardingPending, setOnboardingPending] = useState(false);
+  const [onboardingOpen, setOnboardingOpen] = useState(false);
+  useEffect(() => {
+    if (!onboardingUserId || isOnboardingDone(onboardingUserId)) { setOnboardingPending(false); return; }
+    setOnboardingPending(true);
+    if (isNewAccount(session?.user?.created_at)) setOnboardingOpen(true);
+  }, [onboardingUserId, session?.user?.created_at]);
+  const finishOnboarding = useCallback(() => {
+    if (onboardingUserId) markOnboardingDone(onboardingUserId);
+    setOnboardingOpen(false);
+    setOnboardingPending(false);
+  }, [onboardingUserId]);
   const { t } = useTranslation();
   const { speciesName: shelveSpeciesName } = useSpeciesName();
   const navigate = useNavigate();
@@ -2006,6 +2022,10 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
 
           {viewMode === 'mine' && (
             <section>
+              {onboardingPending && !onboardingOpen && (
+                <OnboardingCard onOpen={() => setOnboardingOpen(true)} onDismiss={finishOnboarding} />
+              )}
+              <OnboardingTour open={onboardingOpen} onClose={finishOnboarding} />
               {showMineControls && (
                 <>
                   <CategoryChipRow categories={mineCategoryData} value={mineChip} onChange={setMineChip} />

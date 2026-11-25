@@ -1,0 +1,17 @@
+{ "onboarding": {
+  "label": "Discover Faunex", "skip": "Skip", "next": "Next", "start": "Let's go!",
+  "concept": { "eyebrow": "The idea", "title": "Your encounters become cards", "text": "Photograph an animal, the AI identifies it and you earn its card: real rarity, fun facts, songs and calls. Fill your Bestiary one species at a time." },
+  "rules": { "eyebrow": "The rules", "title": "Wild, alive and respected", "text": "A few simple rules so every card is worth something.",
+    "items": [
+      { "ok": true, "title": "Living animals", "text": "Wild, in a park or domestic: photograph a real animal you saw yourself." },
+      { "ok": true, "title": "One photo, one species", "text": "Several photos of the same species share one card; only the first earns full XP." },
+      { "ok": false, "title": "No screens, eggs or dead animals", "text": "Screen photos, plush toys, eggs, larvae or dead animals are rejected." },
+      { "ok": false, "title": "Never disturb", "text": "Keep your distance and leave nests and habitats untouched." }
+    ] },
+  "features": { "eyebrow": "Discover", "title": "Explore, vote and level up", "text": "Three ways to enjoy the adventure beyond the photo.",
+    "radar": { "title": "Zone radar", "text": "On the map, scan an area to see recently spotted species and those waiting to be found." },
+    "contest": { "title": "Photo contest", "text": "Every week, enter your best shot and vote for the community: +5 XP per vote." },
+    "boosters": { "title": "Boosters and leagues", "text": "Level up to unlock new collections and climb your weekly league." } },
+  "ready": { "eyebrow": "Ready?", "title": "The wild is waiting", "text": "Head out, keep your eyes open and capture your first species. Your Bestiary starts now." },
+  "card": { "eyebrow": "New", "title": "Faunex has changed a lot", "text": "Rules, radar, contest, boosters: the tour in 30 seconds.", "cta": "Discover", "dismiss": "Hide" }
+} }

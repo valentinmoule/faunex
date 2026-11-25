@@ -1,0 +1,17 @@
+{ "onboarding": {
+  "label": "Découvrir Faunex", "skip": "Passer", "next": "Suivant", "start": "C'est parti !",
+  "concept": { "eyebrow": "Le concept", "title": "Tes rencontres deviennent des cartes", "text": "Photographie un animal, l'IA l'identifie et tu gagnes sa carte : rareté réelle, anecdotes, chants et cris. Remplis ton Bestiaire, une espèce à la fois." },
+  "rules": { "eyebrow": "Les règles", "title": "Sauvage, vivant et respecté", "text": "Quelques règles simples pour que chaque carte ait de la valeur.",
+    "items": [
+      { "ok": true, "title": "Des animaux vivants", "text": "Sauvages, en parc ou domestiques : photographie un vrai animal, de tes propres yeux." },
+      { "ok": true, "title": "Une photo, une espèce", "text": "Plusieurs photos d'une même espèce vont dans la même fiche ; seule la première rapporte toute l'XP." },
+      { "ok": false, "title": "Pas d'écran, d'œuf ni d'animal mort", "text": "Photos d'écran, peluches, œufs, larves ou animaux morts sont refusés." },
+      { "ok": false, "title": "Ne dérange jamais", "text": "Garde tes distances, ne touche ni aux nids ni aux habitats." }
+    ] },
+  "features": { "eyebrow": "À découvrir", "title": "Explore, vote et progresse", "text": "Trois façons de vivre l'aventure au-delà de la photo.",
+    "radar": { "title": "Le radar de zone", "text": "Sur la carte, scanne une zone pour voir les espèces vues récemment et celles à trouver ici." },
+    "contest": { "title": "Le concours photo", "text": "Chaque semaine, propose ta plus belle prise et vote pour la communauté : +5 XP par vote." },
+    "boosters": { "title": "Boosters et ligues", "text": "Monte de niveau pour ouvrir de nouvelles collections et grimpe dans ta ligue hebdo." } },
+  "ready": { "eyebrow": "Prêt ?", "title": "Le monde sauvage t'attend", "text": "Sors, ouvre l'œil et capture ta première espèce. Ton Bestiaire commence maintenant." },
+  "card": { "eyebrow": "Nouveau", "title": "Faunex a bien changé", "text": "Règles, radar, concours, boosters : le tour en 30 secondes.", "cta": "Découvrir", "dismiss": "Masquer" }
+} }
