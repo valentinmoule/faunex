@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Check, Loader2, Crown, UserRound, Users, ScanLine, Radar, BookOpen, Target, GraduationCap, Crop } from 'lucide-react';
 import { toast } from 'sonner';
-import { PageHeader } from '@/components/PageHeader';
 import { PaymentTestModeBanner } from '@/components/PaymentTestModeBanner';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
@@ -206,20 +205,20 @@ const PremiumPage = () => {
   return (
     <div className="min-h-screen bg-background pb-40">
       <PaymentTestModeBanner />
-      <PageHeader sticky className="bg-background/80 backdrop-blur-xl border-b border-border px-5 py-4">
-        <div className="flex items-center gap-3 max-w-lg mx-auto">
-          <Button variant="ghost" size="icon"
-            onClick={() => navigate(-1)}
-            aria-label={t('profile.premium.backAria')}
-            className="p-1.5 rounded-full hover:bg-muted transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5 text-foreground" />
-          </Button>
-          <h1 className="text-xl font-display font-bold text-foreground">{t('profile.premium.badge')}</h1>
-        </div>
-      </PageHeader>
+      {/* Bouton retour flottant : hors en-tête, mais jamais sous l'encoche iOS. */}
+      <div className="pointer-events-none fixed inset-x-0 top-0 z-40 px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)]">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate(-1)}
+          aria-label={t('profile.premium.backAria')}
+          className="pointer-events-auto size-11 rounded-full border border-border bg-background/80 shadow-sm backdrop-blur-xl hover:bg-muted"
+        >
+          <ArrowLeft className="size-5 text-foreground" />
+        </Button>
+      </div>
 
-      <main className="mx-auto max-w-3xl px-5 pt-6 pb-24">
+      <main className="mx-auto max-w-3xl px-5 pt-[calc(env(safe-area-inset-top)+4rem)] pb-24">
         <section className="relative overflow-hidden rounded-3xl bg-secondary px-6 pb-7 pt-6 text-center">
           <div className="pointer-events-none absolute inset-x-0 -top-24 mx-auto size-72 rounded-full bg-primary/15 blur-3xl" aria-hidden />
           <img src="/mascot.webp" alt="" className="relative mx-auto size-36 object-contain drop-shadow-xl" />
