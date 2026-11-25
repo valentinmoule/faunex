@@ -15,6 +15,10 @@ import { useNavigate } from 'react-router-dom';
 import chestClosedArt from '@/assets/quests/chest-closed.webp';
 import { useSubscription } from '@/hooks/useSubscription';
 import chestOpenArt from '@/assets/quests/chest-open.webp';
+import RewardBurst from '@/components/rewards/RewardBurst';
+import { useQueryClient } from '@tanstack/react-query';
+import { pendingRewardsKey } from '@/hooks/usePendingQuestRewards';
+import { hapticSuccess } from '@/lib/haptics';
 
 interface Quest {
   id: string;
@@ -39,6 +43,8 @@ const QuestsInline = () => {
   const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState<string | null>(null);
   const [celebrating, setCelebrating] = useState<string | null>(null);
+  const [burstXp, setBurstXp] = useState<number | null>(null);
+  const queryClient = useQueryClient();
   const { isPremium, loading: premiumLoading } = useSubscription(session?.user?.id);
   const [premiumPreview, setPremiumPreview] = useState<{ description: string; target: number; xp_reward: number } | null>(null);
 
@@ -87,6 +93,10 @@ const QuestsInline = () => {
       if (data) {
         const quest = quests.find((q) => q.id === questId);
         setQuests((prev) => prev.map((q) => (q.id === questId ? { ...q, claimed: true } : q)));
+        queryClient.invalidateQueries({ queryKey: pendingRewardsKey(session?.user?.id) });
+        hapticSuccess();
+        setBurstXp(quest?.xp_reward ?? 0);
+        window.setTimeout(() => setBurstXp(null), 1900);
       }
     } catch (e) {
       console.error(e);
@@ -139,6 +149,7 @@ const QuestsInline = () => {
 
   return (
     <section aria-labelledby="weekly-quests-title" className="space-y-3">
+      {burstXp !== null && <RewardBurst xp={burstXp} />}
       <h3 id="weekly-quests-title" className="sr-only">{t('profile.quests.weekTitle')}</h3>
 
       {loading ? (

@@ -15,6 +15,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/hooks/useSubscription';
 import { supabase } from '@/integrations/supabase/client';
 import { learningStatus, learningText } from '@/lib/learning';
+import { usePendingQuestRewards } from '@/hooks/usePendingQuestRewards';
 import foxThink from '@/assets/learning/fox-think-anim.webp';
 
 
@@ -30,6 +31,7 @@ export default function ChallengesPage() {
   const tab: 'challenges' | 'league' | 'leaderboard' = rawTab === 'league' || rawTab === 'leaderboard' ? rawTab : 'challenges';
   const setTab = (next: 'challenges' | 'league' | 'leaderboard') => setSearchParams(next === 'challenges' ? {} : { tab: next }, { replace: true });
   const [headerHidden, setHeaderHidden] = useState(false);
+  const pendingRewards = usePendingQuestRewards();
 
   useEffect(() => {
     if (!session?.user) return;
@@ -90,7 +92,8 @@ export default function ChallengesPage() {
             { key: 'leaderboard' as const, label: t('nav.leaderboard') },
           ]).map(({ key, label }) => (
             <Button key={key} variant="ghost" role="tab" aria-selected={tab === key} onClick={() => setTab(key)} className="game-tab min-w-0 flex-1 h-10 px-2 text-xs">
-              <span className="truncate">{label}</span>
+              <span className="relative truncate">{label}</span>
+              {key === 'challenges' && pendingRewards > 0 && <span aria-hidden className="ml-1 h-2 w-2 shrink-0 rounded-full bg-destructive" />}
             </Button>
           ))}
         </div>

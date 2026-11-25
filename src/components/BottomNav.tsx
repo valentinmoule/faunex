@@ -3,6 +3,7 @@ import { CollectionIcon, TerrainIcon, CaptureIcon, ExplorersIcon, ChallengesIcon
 import type { ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
 import { hapticTap } from '@/lib/haptics';
+import { usePendingQuestRewards } from '@/hooks/usePendingQuestRewards';
 
 type NavTab = { path: string; labelKey: string; icon: ComponentType<NavIconProps>; tab?: string };
 
@@ -18,6 +19,7 @@ const BottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const pendingRewards = usePendingQuestRewards();
 
   const currentTabParam = new URLSearchParams(location.search).get('tab');
 
@@ -68,6 +70,9 @@ const BottomNav = () => {
               onClick={() => go(tab)}
               className="relative flex flex-col items-center justify-center gap-1 py-2 px-3 press"
             >
+              {tab.path === '/defis' && pendingRewards > 0 && (
+                <span aria-hidden className="absolute top-1.5 right-3.5 z-10 h-2 w-2 rounded-full bg-destructive ring-2 ring-card" />
+              )}
               <Icon
                 key={`${tab.labelKey}-${active ? 'on' : 'off'}`}
                 active={active}
