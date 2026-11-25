@@ -71,7 +71,6 @@ const QuestsInline = () => {
       if (data) {
         const quest = quests.find((q) => q.id === questId);
         setQuests((prev) => prev.map((q) => (q.id === questId ? { ...q, claimed: true } : q)));
-        toast.success(t('profile.quests.xpEarned', { xp: quest?.xp_reward || 0 }));
       }
     } catch (e) {
       console.error(e);

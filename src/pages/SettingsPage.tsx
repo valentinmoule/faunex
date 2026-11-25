@@ -267,7 +267,6 @@ const SettingsPage = () => {
             <MenuItem icon={<MessageCircle className="w-5 h-5" />} label={t('settings.discord')} onClick={async () => {
               try {
                 if (await joinDiscordCommunity()) {
-                  toast.success(t('social.discordInvite.toastBadgeUnlocked', { xp: COMMUNITY_BADGE_XP }));
                 }
               } catch {
                 // Opening Discord remains available even when the reward request fails.

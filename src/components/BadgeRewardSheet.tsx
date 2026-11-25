@@ -86,7 +86,6 @@ const BadgeRewardSheet = ({ entry, onClose, onClaimed }: Props) => {
     }
     setClaimed(true);
     if (navigator.vibrate) navigator.vibrate([40, 30, 80]);
-    toast.success(t('profile.reward.toast', { xp: badge.xp }));
     onClaimed(entry);
     window.setTimeout(onClose, reduced ? 200 : 1200);
   };

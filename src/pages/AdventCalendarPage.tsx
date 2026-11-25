@@ -50,7 +50,7 @@ export default function AdventCalendarPage() {
     const { data, error } = await supabase.rpc('claim_advent_day', { p_collection: calendar.id, p_day: challenge.day });
     setClaiming(false);
     if (error || data === null) { toast.error(t('advent.error')); return; }
-    toast.success(t('profile.reward.toast', { xp: data })); await reload();
+    await reload();
   };
   const badge = { id: `advent_${calendar.id}`, name: t('advent.badge', { year: calendar.calendar_year }), description: t('advent.badgeDescription'), group: 'collections' as const, icon: '🎄', xp: calendar.final_badge_xp, total: 24 };
   return <main className="min-h-screen bg-background pb-28">
