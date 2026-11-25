@@ -1058,6 +1058,13 @@
       "when": 1795619017914,
       "tag": "0148_nearby_sightings_limit_10",
       "breakpoints": true
+    },
+    {
+      "idx": 149,
+      "version": "7",
+      "when": 1795624705695,
+      "tag": "0149_progressive_level_curve",
+      "breakpoints": true
     }
   ]
 }

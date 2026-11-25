@@ -4395,6 +4395,7 @@ export type Database = {
           xp: number
         }[]
       }
+      xp_needed_for_level: { Args: { p_level: number }; Returns: number }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
