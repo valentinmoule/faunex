@@ -41,7 +41,6 @@ vi.mock('@/lib/haptics', () => ({ hapticTap: vi.fn(), hapticDiscovery: vi.fn() }
 vi.mock('@/hooks/useAppLocale', () => ({ useSyncAccountLocale: () => undefined }));
 vi.mock('@/components/ExplorerPhotosStrip', () => ({ default: () => null }));
 vi.mock('@/components/ShareCaptureSheet', () => ({ default: () => null }));
-vi.mock('@/components/AddToCollectionSheet', () => ({ default: () => null }));
 vi.mock('@/components/HolographicCard', () => ({ default: ({ children }: { children: React.ReactNode }) => <div>{children}</div> }));
 vi.mock('@/components/RarityBadge', () => ({ default: () => null }));
 vi.mock('@/components/PremiumAvatar', () => ({ PremiumAvatar: () => null }));

@@ -26,11 +26,9 @@ import OverflowMenu from '@/components/OverflowMenu';
 import { useNavigate } from 'react-router-dom';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useSpeciesFavorites } from '@/hooks/useSpeciesFavorites';
-import { useCustomCollections } from '@/hooks/useCustomCollections';
 import { useSubscription } from '@/hooks/useSubscription';
 import ExplorerPhotosStrip from '@/components/ExplorerPhotosStrip';
 import ShareCaptureSheet from '@/components/ShareCaptureSheet';
-import AddToCollectionSheet from '@/components/AddToCollectionSheet';
 import { useSpeciesFinders } from '@/hooks/useSpeciesFinders';
 import { useSpeciesFacts, useSpeciesName } from '@/hooks/useSpeciesLocale';
 import { PremiumAvatar } from '@/components/PremiumAvatar';
@@ -263,8 +261,6 @@ const CardDetailSheetInner = ({ card, open, onClose, communityFinders, onDeleted
   const { isFavorite, toggleFavorite } = useFavorites(session?.user?.id);
   const { isSpeciesFavorite, setSpeciesFavorite } = useSpeciesFavorites(session?.user?.id);
   const { isPremium } = useSubscription(session?.user?.id);
-  const customCollections = useCustomCollections(session?.user?.id);
-  const [addToOpen, setAddToOpen] = useState(false);
   const [savingCover, setSavingCover] = useState(false);
   const [correctionOpen, setCorrectionOpen] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
@@ -338,7 +334,6 @@ const CardDetailSheetInner = ({ card, open, onClose, communityFinders, onDeleted
   // over the next opened card.
   useEffect(() => {
     if (open) return;
-    setAddToOpen(false);
     setShareOpen(false);
     setCorrectionOpen(false);
     setLikesOpen(false);
@@ -349,7 +344,6 @@ const CardDetailSheetInner = ({ card, open, onClose, communityFinders, onDeleted
     if (!card || !open) return;
     hapticTap();
     setShowComments(false);
-    setAddToOpen(false);
     setShareOpen(false);
     setNewComment('');
     setImageFullscreen(false);
@@ -993,9 +987,10 @@ const CardDetailSheetInner = ({ card, open, onClose, communityFinders, onDeleted
             {isUncaptured && session && (
               <div className="flex items-center justify-center gap-5">
                 <button
-                  onClick={() => { hapticTap(); setAddToOpen(true); }}
-                  aria-label={t('bestiary.customCollections.addTitle')}
-                  title={t('bestiary.customCollections.addTitle')}
+                  onClick={() => { hapticTap(); toggleCardFavorite(); }}
+                  aria-pressed={cardIsFavorite}
+                  aria-label={t('capture.detail.favorite')}
+                  title={t('capture.detail.favorite')}
                   className="relative flex items-center py-2.5 before:absolute before:-inset-2.5 before:content-[''] group"
                 >
                   <Bookmark className={`w-6 h-6 transition-all ${cardIsFavorite ? 'fill-chip-favorites text-chip-favorites scale-110' : 'text-muted-foreground group-hover:text-chip-favorites'}`} />
@@ -1063,7 +1058,7 @@ const CardDetailSheetInner = ({ card, open, onClose, communityFinders, onDeleted
                   <button
                     onClick={() => {
                       hapticTap();
-                      setAddToOpen(true);
+                      toggleCardFavorite();
                     }}
                     aria-pressed={cardIsFavorite}
                     aria-label={t('capture.detail.favorite')}
@@ -1436,34 +1431,6 @@ const CardDetailSheetInner = ({ card, open, onClose, communityFinders, onDeleted
       </Drawer.Root>
       <CaptureLikesSheet key={card.id} captureId={card.id} open={likesOpen} onClose={() => setLikesOpen(false)} onViewProfile={userId => { setLikesOpen(false); onClose(); navigate(`/explorer/${userId}/collection`); }} />
       <ShareCaptureSheet card={card} open={shareOpen} onClose={() => setShareOpen(false)} isOwner={isOwner} />
-      {card && (
-        <AddToCollectionSheet
-          open={addToOpen}
-          onClose={() => setAddToOpen(false)}
-          isFavorite={cardIsFavorite}
-          onToggleFavorite={toggleCardFavorite}
-          collections={customCollections.collections}
-          memberOf={customCollections.collectionsForSpecies(card.name)}
-          onToggleCollection={(collectionId) => {
-            if (customCollections.collectionsForSpecies(card.name).has(collectionId)) {
-              void customCollections.removeItem(collectionId, card.name);
-            } else {
-              void customCollections.addItem(collectionId, card.name, card.scientificName);
-            }
-          }}
-          onCreateCollection={async (name) => {
-            const created = await customCollections.createCollection(name);
-            if (!created) return false;
-            await customCollections.addItem(created.id, card.name, card.scientificName);
-            return true;
-          }}
-          isPremium={isPremium}
-          onGoPremium={() => {
-            setAddToOpen(false);
-            navigate('/premium');
-          }}
-        />
-      )}
 
       {/* Fullscreen image - portalled to body so it stacks above the drawer */}
       {imageFullscreen && cardImage && createPortal((

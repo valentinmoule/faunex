@@ -1279,29 +1279,6 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
               </div>
             </button>
 
-            <button
-              onClick={() => {
-                setShowDeptPicker(false);
-                setPickerMode('hub');
-                if (!isPremium) { navigate('/premium'); return; }
-                setCreatingCustom(true);
-              }}
-              className="w-full rounded-2xl border border-border bg-card p-5 text-left transition active:scale-[0.98] hover:border-primary/30"
-            >
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center shrink-0">
-                  {isPremium
-                    ? <FolderPlus className="w-6 h-6 text-foreground" strokeWidth={2} />
-                    : <Crown className="w-6 h-6 text-amber-500" strokeWidth={2} />}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-display font-bold text-base text-foreground">{t('bestiary.picker.addCustomTitle')}</h3>
-                  <p className="text-[11px] text-muted-foreground font-display leading-relaxed mt-0.5">
-                    {t('bestiary.picker.addCustomDesc')}
-                  </p>
-                </div>
-              </div>
-            </button>
           </div>
         )}
 
@@ -2299,32 +2276,6 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
 
           {viewMode === 'collections' && (
             <section className="flex h-[calc(100dvh-243px-env(safe-area-inset-bottom))] flex-col gap-4 overflow-hidden">
-              {/* Formulaire de création de collection personnalisée (ouvert depuis le hub « Ajouter ») */}
-              {creatingCustom && (
-                <form
-                  className="flex items-center gap-2"
-                  onSubmit={async (e) => {
-                    e.preventDefault();
-                    const created = await customCollections.createCollection(newCustomName);
-                    if (created) { setNewCustomName(''); setCreatingCustom(false); setSelectedCustomId(created.id); }
-                  }}
-                >
-                  <input
-                    autoFocus
-                    value={newCustomName}
-                    onChange={(e) => setNewCustomName(e.target.value)}
-                    maxLength={40}
-                    placeholder={t('bestiary.customCollections.namePlaceholder')}
-                    className="flex-1 min-w-0 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
-                  />
-                  <button type="submit" className="p-2 rounded-full bg-primary text-primary-foreground" aria-label={t('bestiary.customCollections.create')}>
-                    <Check className="w-4 h-4" />
-                  </button>
-                  <button type="button" onClick={() => setCreatingCustom(false)} className="p-2 rounded-full border border-border" aria-label={t('bestiary.customCollections.cancel')}>
-                    <X className="w-4 h-4" />
-                  </button>
-                </form>
-              )}
 
               <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">{t('bestiary.collections.title')}</h2>
               <BoosterCarousel>
