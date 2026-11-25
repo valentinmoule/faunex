@@ -166,7 +166,3 @@ The Premium weekly quest (`quest_templates.period = 'premium'`) is assigned and 
 ## Advent days have kinds and catch-up
 
 Days are photo/gift/quiz/badge; photos approve the matching earliest unfinished photo day until Dec 24, quiz answers live only in service-only `advent_quiz_answers`, and instant cases go through `claim_advent_day`, so rewards stay server-checked.
-
-## Onboarding is shown once per account
-
-Accounts created after the tour's launch open it automatically on Mon Faunex; older accounts get a dismissible card there. Finishing, skipping or dismissing marks it done, so it never reappears.
