@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Check, Sparkles, Trophy, Vote } from 'lucide-react';
+import { Check, Sparkles, Vote } from 'lucide-react';
 import contestFox from '@/assets/learning/fox-contest.webp';
 import contestBadge from '@/assets/badges/native/photo_of_week.webp';
 import { supabase } from '@/integrations/supabase/client';
@@ -339,7 +339,7 @@ export default function PhotoContestTab() {
       {/* Panthéon des primées */}
       {winners.length > 0 && (
         <section>
-          <h2 className="flex items-center gap-2 px-4 text-base font-display font-bold text-foreground"><Trophy className="h-4 w-4 text-accent" aria-hidden />{t('social.contest.allWinnersTitle')}</h2>
+          <h2 className="px-4 text-base font-display font-bold text-foreground">{t('social.contest.allWinnersTitle')}</h2>
           <div className="no-scrollbar mt-3 flex snap-x gap-3 overflow-x-auto scroll-px-4 px-4 pb-2">
             {winners.map((w) => {
               const author = w.display_name || w.username || t('social.common.anonymous');
