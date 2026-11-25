@@ -115,8 +115,6 @@ export default function LearningPlayer({ initial, onClose, onFinished, onRetry, 
         </section>
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background px-5 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3">
           <div className="mx-auto flex max-w-lg gap-3">
-            {!preview && <Button variant="outline" size="icon" className="h-12 w-12 shrink-0" onClick={() => void share()} aria-label={copied ? t('learning.copied') : t('learning.share')}><Share2 className="h-5 w-5" /></Button>}
-            {!result.passed && <Button variant="outline" className="h-12 flex-1" onClick={onRetry}>{t('learning.retry')}</Button>}
             <Button className="h-12 flex-1" onClick={onClose}>{result.reward > 0 ? t('learning.claimXp') : t('learning.next')}</Button>
           </div>
         </div>
