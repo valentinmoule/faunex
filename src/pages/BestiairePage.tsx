@@ -2277,7 +2277,6 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
           {viewMode === 'collections' && (
             <section className="flex h-[calc(100dvh-243px-env(safe-area-inset-bottom))] flex-col gap-4 overflow-hidden">
 
-              <h2 className="text-sm font-display font-bold text-foreground uppercase tracking-wide">{t('bestiary.collections.title')}</h2>
               <BoosterCarousel>
                 {visibleAdvent.map(c => {
                   const open = () => navigate(`/advent/${c.id}`);
