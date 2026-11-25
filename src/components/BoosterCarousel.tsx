@@ -1,6 +1,4 @@
-import { Children, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Button } from '@/components/ui/button';
+import { Children, useCallback, useEffect, useRef, type ReactNode } from 'react';
 
 /**
  * Dernière position du carrousel (index du sachet centré), conservée au
@@ -13,10 +11,8 @@ let rememberedActive = 0;
  * réduits de chaque côté ; défilement au doigt avec aimantation.
  */
 const BoosterCarousel = ({ children }: { children: ReactNode }) => {
-  const { t } = useTranslation();
   const ref = useRef<HTMLDivElement>(null);
   const items = Children.toArray(children);
-  const [active, setActive] = useState(() => Math.min(rememberedActive, items.length - 1));
   const activeRef = useRef(Math.min(rememberedActive, items.length - 1));
 
   const update = useCallback(() => {
@@ -38,7 +34,6 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
       if (dist < bestDist) { bestDist = dist; best = i; }
     });
     activeRef.current = best;
-    setActive(best);
   }, []);
 
   useEffect(() => {
@@ -168,23 +163,6 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
           </div>
         ))}
       </div>
-      {items.length > 1 && (
-        <div className="relative flex shrink-0 flex-nowrap justify-center px-3 pb-5">
-          {items.map((_, i) => (
-            <Button
-              key={i}
-              variant="ghost"
-              size="icon"
-              className="h-6 min-w-0 max-w-6 shrink-0 grow basis-0 rounded-full p-0 hover:bg-transparent"
-              aria-label={t('bestiary.collections.goToBooster', { number: i + 1 })}
-              aria-current={i === active ? 'true' : undefined}
-              onClick={() => scrollToItem(i)}
-            >
-              <span className={`h-1.5 max-w-full rounded-full transition-all ${i === active ? 'w-5 bg-primary' : 'w-1.5 bg-border'}`} />
-            </Button>
-          ))}
-        </div>
-      )}
     </div>
   );
 };
