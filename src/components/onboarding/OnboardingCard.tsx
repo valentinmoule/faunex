@@ -10,7 +10,7 @@ const OnboardingCard = ({ onOpen, onDismiss }: Props) => {
     <div className="relative mb-4 overflow-hidden rounded-3xl">
       <img src={meadow} alt="" className="absolute inset-0 h-full w-full object-cover" />
       <div className="absolute inset-0 bg-gradient-to-r from-foreground/80 via-foreground/55 to-foreground/10" />
-      <button onClick={onDismiss} aria-label={t('onboarding.card.dismiss')} className="absolute right-3 top-3 rounded-full p-1 text-primary-foreground/80">
+      <button onClick={onDismiss} aria-label={t('onboarding.card.dismiss')} type="button" className="absolute right-1.5 top-1.5 z-10 flex h-10 w-10 items-center justify-center rounded-full text-primary-foreground/80">
         <X className="h-4 w-4" />
       </button>
       <div className="relative p-5 pr-10">
