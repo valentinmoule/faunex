@@ -1,3 +1,4 @@
+import { categoryLineIcon } from '@/components/icons/CategoryIcons';
 import { useState, useEffect, useCallback, useMemo, useRef, type ComponentType } from 'react';
 import { avatarThumbUrl } from '@/lib/imageUrl';
 import { avatarFallbackStyle } from '@/lib/avatarPalette';
@@ -118,20 +119,7 @@ const rarityText: Record<Rarity, string> = {
   special_rare: 'text-rarity-gold',
   hyper_rare: 'text-rarity-gold',
 };
-const getCategoryIcon = (category: string): ComponentType<{ className?: string; strokeWidth?: string | number }> => {
-  const cat = category.toLowerCase();
-  if (cat.includes('oiseau')) return Bird;
-  if (cat.includes('poisson') || cat.includes('vie marine')) return Fish;
-  if (cat.includes('arachnide')) return SpiderIcon;
-  if (cat.includes('insecte')) return Bug;
-  if (cat.includes('reptile')) return Turtle;
-  if (cat.includes('amphibien')) return FrogIcon;
-  if (cat.includes('crustacé')) return Shell;
-  if (cat.includes('mollusque')) return Snail;
-  if (cat.includes('mammifère') && cat.includes('marin')) return Waves;
-  if (cat.includes('mammifère')) return PawPrint;
-  return PawPrint;
-};
+const getCategoryIcon = categoryLineIcon;
 
 const LockedField = ({ icon, label }: { icon: React.ReactNode; label: string }) => {
   const { t } = useTranslation();

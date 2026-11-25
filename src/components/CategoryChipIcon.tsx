@@ -1,30 +1,11 @@
-import type { ComponentType, SVGProps } from "react";
-import { Bird, Bug, Fish, Rabbit, Search, Snail } from 'lucide-react';
+import { categoryLineIcon } from '@/components/icons/CategoryIcons';
 import { normalizeCategory } from '@/lib/bestiary';
 
-type P = SVGProps<SVGSVGElement>;
-const base = { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' } as const;
-
-const Lizard = (p: P) => <svg {...base} {...p}><path d="M12 3c1.7 0 2.5 1.3 2.5 2.8 0 1.6-1 2.6-1 4.2v3.5c0 2 1.2 3.2 2.8 4.2 1.5 1 2.2 2.3 1.2 3.3" /><path d="M12 3c-1.7 0-2.5 1.3-2.5 2.8 0 1.6 1 2.6 1 4.2v4" /><path d="M10.5 9 7 7.5M13.5 9 17 7.5M10.5 14 7 16M13.5 14 17 15.5" /></svg>;
-const Frog = (p: P) => <svg {...base} {...p}><circle cx="8" cy="7" r="2.5" /><circle cx="16" cy="7" r="2.5" /><path d="M5.6 8.2C4 9.7 3 11.8 3 14c0 3.3 4 6 9 6s9-2.7 9-6c0-2.2-1-4.3-2.6-5.8" /><path d="M9 14.5c1.8 1.2 4.2 1.2 6 0" /></svg>;
-const Spider = (p: P) => <svg {...base} {...p}><circle cx="12" cy="9" r="2.5" /><ellipse cx="12" cy="15.5" rx="3" ry="4" /><path d="M9.5 8 6 4 3 5M14.5 8 18 4l3 1M9.3 12 4 10l-2 2M14.7 12 20 10l2 2M9.2 15H4l-2 3M14.8 15H20l2 3M9.7 18 6 21M14.3 18l3.7 3" /></svg>;
-const Crab = (p: P) => <svg {...base} {...p}><path d="M5 13c0 3 3.1 5 7 5s7-2 7-5-3.1-4-7-4-7 1-7 4Z" /><path d="M7 10 5 6.5M17 10l2-3.5" /><path d="M5 6.5C3 6 2.5 4 3.5 3c.5 1 1.5 1.3 2.5 1M19 6.5c2-.5 2.5-2.5 1.5-3.5-.5 1-1.5 1.3-2.5 1" /><path d="M6 16 3 18M18 16l3 2M7.5 17.5 6 21M16.5 17.5 18 21" /></svg>;
-
-const ICONS: Record<string, { Icon: ComponentType<P>; tone: string }> = {
-  Mammifères: { Icon: Rabbit, tone: '--chip-mammal' },
-  Oiseaux: { Icon: Bird, tone: '--chip-bird' },
-  Insectes: { Icon: Bug, tone: '--chip-insect' },
-  Reptiles: { Icon: Lizard, tone: '--chip-reptile' },
-  Amphibiens: { Icon: Frog, tone: '--chip-amphibian' },
-  Poissons: { Icon: Fish, tone: '--chip-fish' },
-  Arachnides: { Icon: Spider, tone: '--chip-arachnid' },
-  Crustacés: { Icon: Crab, tone: '--chip-crustacean' },
-  Mollusques: { Icon: Snail, tone: '--chip-mollusc' },
-};
+const TONES: Record<string, string> = { Mammifères: '--chip-mammal', Oiseaux: '--chip-bird', Insectes: '--chip-insect', Reptiles: '--chip-reptile', Amphibiens: '--chip-amphibian', Poissons: '--chip-fish', Arachnides: '--chip-arachnid', Crustacés: '--chip-crustacean', Mollusques: '--chip-mollusc' };
 
 /** Pastille ronde à icône pour une grande catégorie d'espèces (remplit son conteneur). */
 export default function CategoryChipIcon({ category }: { category: string }) {
-  const { Icon, tone } = ICONS[normalizeCategory(category)] ?? { Icon: Search, tone: '--chip-other' };
+  const Icon = categoryLineIcon(category); const tone = TONES[normalizeCategory(category)] ?? '--chip-other';
   return <span className="flex h-full w-full items-center justify-center" style={{ backgroundColor: `hsl(var(${tone}))` }}>
     <Icon className="h-8 w-8 text-foreground" strokeWidth={2} aria-hidden />
   </span>;

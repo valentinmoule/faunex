@@ -1,8 +1,6 @@
 import type { ComponentType } from 'react';
 import i18n from '@/i18n';
-import { PawPrint, Bird, Fish, Bug, Turtle, Shell, Snail, Waves } from 'lucide-react';
-import { FrogIcon } from '@/components/icons/FrogIcon';
-import { SpiderIcon } from '@/components/icons/SpiderIcon';
+import { categoryLineIcon } from '@/components/icons/CategoryIcons';
 import type { AnimalCard } from '@/data/mockData';
 import { RARITY_RANK } from '@/data/mockData';
 import { buildEmblematicSet } from '@/lib/emblematicSpecies';
@@ -30,22 +28,7 @@ export interface ZoneSub {
   isHome: boolean;
 }
 
-export const getCategoryIcon = (
-  category: string
-): ComponentType<{ className?: string; strokeWidth?: string | number }> => {
-  const cat = category.toLowerCase();
-  if (cat.includes('oiseau')) return Bird;
-  if (cat.includes('poisson') || cat.includes('vie marine')) return Fish;
-  if (cat.includes('insecte')) return Bug;
-  if (cat.includes('reptile')) return Turtle;
-  if (cat.includes('amphibien')) return FrogIcon;
-  if (cat.includes('arachnide')) return SpiderIcon;
-  if (cat.includes('crustacé')) return Shell;
-  if (cat.includes('mollusque')) return Snail;
-  if (cat.includes('mammifère') && cat.includes('marin')) return Waves;
-  if (cat.includes('mammifère')) return PawPrint;
-  return PawPrint;
-};
+export const getCategoryIcon = (category: string): ComponentType<{ className?: string; strokeWidth?: string | number }> => categoryLineIcon(category);
 
 export const getCategoryEmoji = (category: string): string => {
   const cat = category.toLowerCase();
