@@ -4129,7 +4129,55 @@ html.is-native-android body {
   box-shadow: inset 0 0 0 1px hsl(var(--booster-ink) / .22);
 }
 .collection-booster-gloss {
-  background: linear-gradient(112deg, transparent 20%, hsl(var(--booster-paper) / .04) 48%, transparent 76%);
+  background: linear-gradient(112deg, transparent 15%, hsl(var(--booster-paper) / .13) var(--booster-light-position, 50%), transparent 85%);
+}
+.booster-carousel-item { transform-origin: center center; }
+.booster-lettering {
+  --lettering-accent: 43 95% 72%;
+  --lettering-outline: 155 46% 14%;
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  letter-spacing: 0;
+  filter: drop-shadow(0 3px 0 hsl(var(--lettering-outline))) drop-shadow(0 6px 5px hsl(var(--booster-ink) / .45));
+}
+.booster-lettering-highlight { stop-color: hsl(var(--booster-paper)); }
+.booster-lettering-paper { stop-color: hsl(var(--booster-paper)); }
+.booster-lettering-accent { stop-color: hsl(var(--lettering-accent)); }
+.booster-lettering-motif { color: hsl(var(--lettering-accent)); opacity: .9; }
+.booster-lettering-type { paint-order: stroke fill; stroke: hsl(var(--lettering-outline)); stroke-width: 2.4; stroke-linejoin: round; }
+.booster-lettering-kicker { font-family: 'Manrope', sans-serif; font-weight: 800; fill: hsl(var(--booster-paper)); text-transform: uppercase; }
+.booster-lettering-main { font-family: 'Sora', sans-serif; font-weight: 800; letter-spacing: 0; }
+.booster-lettering--jardin { --lettering-accent: 80 82% 73%; }
+.booster-lettering--jardin .booster-lettering-main { font-family: 'Fraunces', Georgia, serif; font-style: italic; }
+.booster-lettering--nuit { --lettering-accent: 265 89% 82%; --lettering-outline: 260 45% 20%; }
+.booster-lettering--nuit .booster-lettering-main { font-family: 'Fraunces', Georgia, serif; text-transform: uppercase; }
+.booster-lettering--mares { --lettering-accent: 170 81% 72%; --lettering-outline: 173 64% 15%; }
+.booster-lettering--mares .booster-lettering-main { font-style: italic; }
+.booster-lettering--foret { --lettering-accent: 83 63% 74%; }
+.booster-lettering--foret .booster-lettering-main { font-family: 'Fraunces', Georgia, serif; text-transform: uppercase; }
+.booster-lettering--ciel { --lettering-accent: 47 100% 77%; --lettering-outline: 203 62% 22%; }
+.booster-lettering--ciel .booster-lettering-type { transform: rotate(-4deg); transform-origin: 150px 80px; }
+.booster-lettering--ciel .booster-lettering-main { font-style: italic; text-transform: uppercase; }
+.booster-lettering--sommets { --lettering-accent: 197 90% 79%; --lettering-outline: 204 47% 20%; }
+.booster-lettering--sommets .booster-lettering-main { text-transform: uppercase; }
+.booster-lettering--papillons { --lettering-accent: 323 83% 84%; --lettering-outline: 293 45% 24%; }
+.booster-lettering--papillons .booster-lettering-main { font-family: 'Fraunces', Georgia, serif; font-style: italic; }
+.booster-lettering--rivages { --lettering-accent: 185 80% 83%; --lettering-outline: 202 61% 19%; }
+.booster-lettering--rivages .booster-lettering-type { transform: rotate(-3deg); transform-origin: 150px 80px; }
+.booster-lettering--rivages .booster-lettering-main { font-style: italic; }
+.booster-lettering--recifs { --lettering-accent: 18 100% 80%; --lettering-outline: 196 72% 18%; }
+.booster-lettering--recifs .booster-lettering-main { font-family: 'Fraunces', Georgia, serif; font-weight: 900; }
+.booster-lettering--savane { --lettering-accent: 39 100% 68%; --lettering-outline: 23 56% 20%; }
+.booster-lettering--savane .booster-lettering-main { text-transform: uppercase; font-family: 'Fraunces', Georgia, serif; font-weight: 900; }
+.booster-lettering--jungle { --lettering-accent: 141 78% 70%; --lettering-outline: 158 59% 13%; }
+.booster-lettering--jungle .booster-lettering-main { text-transform: uppercase; font-style: italic; }
+.booster-lettering--polaire { --lettering-accent: 194 100% 82%; --lettering-outline: 207 44% 24%; }
+.booster-lettering--polaire .booster-lettering-main { text-transform: uppercase; }
+.booster-lettering--advent .booster-lettering-main { font-family: 'Fraunces', Georgia, serif; font-style: italic; }
+@media (prefers-reduced-motion: reduce) {
+  .booster-carousel-item { transform: none !important; transition: none; }
 }
 .collection-booster-title {
   font-family: 'Fraunces', Georgia, serif;

@@ -2,6 +2,7 @@ import { Check, Gift, Lock, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { useBoosterTint } from '@/lib/dominantColor';
+import BoosterLettering from '@/components/BoosterLettering';
 
 /**
  * Collection présentée comme un vrai booster de cartes à collectionner :
@@ -90,11 +91,9 @@ const CollectionTile = ({
         )}
 
         {/* Titre et compteur posés à plat sur le sachet, sans bandeau */}
-        <div className="absolute inset-x-[10%] bottom-[9%] z-10 text-center">
-          <span className="collection-booster-title block">
-            {title}
-          </span>
-          <span className="collection-booster-count mt-3 block font-display text-xs font-medium tabular-nums">
+        <div className="absolute inset-x-[3%] bottom-[9%] z-10 text-center">
+          <BoosterLettering title={title} image={image} />
+          <span className="collection-booster-count block font-display text-xs font-medium tabular-nums">
             {captured}
             <span className="opacity-70">/ {total}</span>
           </span>

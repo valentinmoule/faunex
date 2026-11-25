@@ -23,6 +23,7 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
     const el = ref.current;
     if (!el) return;
     const center = el.scrollLeft + el.clientWidth / 2;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let best = 0;
     let bestDist = Infinity;
     Array.from(el.children).forEach((child, i) => {
@@ -30,8 +31,10 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
       const mid = node.offsetLeft + node.offsetWidth / 2;
       const dist = Math.abs(mid - center);
       const ratio = Math.min(dist / node.offsetWidth, 1);
-      node.style.transform = `scale(${1 - ratio * 0.16})`;
-      node.style.opacity = String(1 - ratio * 0.35);
+      const side = Math.max(-1, Math.min(1, (mid - center) / node.offsetWidth));
+      node.style.transform = reducedMotion ? 'none' : `perspective(1000px) translateY(${ratio * 5}px) rotateY(${-side * 14}deg) rotateZ(${side * 1.8}deg) scale(${1 - ratio * 0.13})`;
+      node.style.setProperty('--booster-light-position', `${50 - side * 24}%`);
+      node.style.opacity = String(1 - ratio * 0.18);
       if (dist < bestDist) { bestDist = dist; best = i; }
     });
     activeRef.current = best;
@@ -119,7 +122,7 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
       const mid = n.offsetLeft + n.offsetWidth / 2;
       if (Math.abs(mid - center) < bestDist) { bestDist = Math.abs(mid - center); target = mid - el.clientWidth / 2; }
     });
-    el.scrollTo({ left: target, behavior: 'smooth' });
+    el.scrollTo({ left: target, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
     window.setTimeout(() => { if (ref.current) ref.current.style.scrollSnapType = ''; }, 400);
   };
 
@@ -159,7 +162,7 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
                 scrollToItem(i);
               }
             }}
-            className="w-[var(--booster-w)] shrink-0 snap-center transition-[transform,opacity] duration-150 ease-out will-change-transform"
+            className="booster-carousel-item w-[var(--booster-w)] shrink-0 snap-center transition-[transform,opacity] duration-100 ease-out will-change-transform"
           >
             {child}
           </div>

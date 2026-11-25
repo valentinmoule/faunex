@@ -145,3 +145,7 @@ Grids/feed/avatars use `imageUrl.ts` thumbnail helpers; originals only in detail
 ## Collections are level-gated boosters
 
 The Collections tab shows only admin `themed_collections` (plus Advent), sorted by `min_level` and sealed until `profiles.level` reaches it; users cannot add collections there, so boosters stay a progression reward.
+
+## Booster lettering remains translated artwork
+
+Render themed lettering as vector overlays separate from cover photos so FR/EN titles stay live; carousel depth uses lightweight CSS transforms and respects reduced motion instead of adding a WebGL renderer.
