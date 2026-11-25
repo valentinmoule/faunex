@@ -246,10 +246,13 @@ export default function PhotoContestTab() {
                       <p className="truncate text-lg font-display font-extrabold leading-tight text-background">{speciesName(e.animal_name)}</p>
                       <button
                         onClick={(ev) => { ev.stopPropagation(); navigate(`/explorer/${e.user_id}/collection`); }}
-                        className="mt-2 flex max-w-full items-center gap-2 rounded-full bg-background/20 py-1 pl-1 pr-3 backdrop-blur-md"
+                        className="mt-2.5 flex w-full min-w-0 items-center gap-2.5 border-t border-background/25 pt-2.5 text-left"
                       >
                         <PremiumAvatar avatarUrl={e.avatar_url} name={author} size="sm" />
-                        <span className="min-w-0 truncate text-sm font-display font-semibold text-background">{author}</span>
+                        <span className="min-w-0">
+                          <span className="block text-[10px] font-display font-bold uppercase tracking-[0.16em] text-background/60">{t('social.contest.takenBy')}</span>
+                          <span className="block truncate text-sm font-display font-semibold leading-tight text-background">{author}</span>
+                        </span>
                       </button>
                     </div>
                   </div>
