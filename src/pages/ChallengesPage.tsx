@@ -16,7 +16,7 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { supabase } from '@/integrations/supabase/client';
 import { learningStatus, learningText } from '@/lib/learning';
 import { usePendingQuestRewards } from '@/hooks/usePendingQuestRewards';
-import foxThink from '@/assets/learning/fox-think-anim.webp';
+import foxThink from '@/assets/learning/fox-think-loop.webp';
 
 
 /** Onglet « Défis » : Académie mise en avant, puis les quêtes. */
