@@ -4,6 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { PageHeader } from '@/components/PageHeader';
+import foxThink from '@/assets/learning/fox-think.webp';
+import foxHappy from '@/assets/learning/fox-happy.webp';
+import foxOops from '@/assets/learning/fox-oops.webp';
+import foxCombo from '@/assets/learning/fox-combo.webp';
 import { answerLesson, finishLesson, learningText, quizStars, type LearningAttempt, type LearningQuestion } from '@/lib/learning';
 
 function SoundPlayer({ src }: { src: string }) {
@@ -29,6 +33,8 @@ export default function LearningPlayer({ initial, onClose, onFinished, onRetry, 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  const [milestone, setMilestone] = useState<number | null>(null);
+  const shownMilestones = useRef(new Set<number>());
   const questions = attempt.lesson.questions;
   const question = questions[index] as LearningQuestion | undefined;
   const checked = index < attempt.answers.length;
@@ -51,8 +57,12 @@ export default function LearningPlayer({ initial, onClose, onFinished, onRetry, 
       navigator.vibrate?.(i === question?.correct || question?.correct === undefined ? 15 : [30, 40, 30]);
     } catch { setError(t('learning.error')); setChoice(null); } finally { setBusy(false); }
   }
+  function advance() { setMilestone(null); setIndex(index + 1); setChoice(null); window.scrollTo({ top: 0 }); }
   async function next() {
-    if (index < questions.length - 1) { setIndex(index + 1); setChoice(null); window.scrollTo({ top: 0 }); return; }
+    if (index < questions.length - 1) {
+      if (correct && (streak === 3 || streak === 5) && !shownMilestones.current.has(streak)) { shownMilestones.current.add(streak); setMilestone(streak); navigator.vibrate?.([20, 40, 20, 40, 60]); return; }
+      advance(); return;
+    }
     setBusy(true); setError('');
     try {
       if (preview) {
@@ -73,7 +83,7 @@ export default function LearningPlayer({ initial, onClose, onFinished, onRetry, 
   }
   const state = (i: number) => checked ? (question?.correct === i ? 'right' : selected === i ? 'wrong' : 'idle') : selected === i ? 'picked' : 'idle';
 
-  return <main className="min-h-screen bg-background pb-12">
+  return <main className={`min-h-screen bg-background ${checked && !attempt.finished ? 'pb-72' : 'pb-12'}`}>
     <PageHeader sticky className="border-b border-border bg-background px-5 py-3"><div className="mx-auto flex max-w-lg items-center gap-3">
       <Button variant="ghost" size="icon" onClick={onClose} aria-label={t('common.back')}><ArrowLeft className="h-5 w-5" /></Button>
       {attempt.finished ? <h1 className="min-w-0 truncate font-display text-lg font-bold">{preview ? t('learning.preview') : text(attempt.lesson, 'title')}</h1>
@@ -95,7 +105,10 @@ export default function LearningPlayer({ initial, onClose, onFinished, onRetry, 
         <Button variant={result.passed ? 'default' : 'outline'} className="w-full" onClick={onClose}>{t('learning.backPath')}</Button>
       </> : question ? <>
         {index === 0 && !checked && <p className="mb-4 text-sm font-semibold text-muted-foreground">{text(attempt.lesson, 'intro')}</p>}
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">{t(`learning.${question.type}`)}</p>
+        <div className="flex items-center gap-3">
+          <img key={index} src={foxThink} alt="" width={64} height={64} className="learning-fox h-16 w-16 shrink-0 object-contain" />
+          <p className="learning-bubble rounded-2xl border-2 border-border bg-card px-3 py-2 text-xs font-bold uppercase tracking-[0.16em] text-primary">{t(`learning.${question.type}`)}</p>
+        </div>
         <h2 className="mt-2 font-display text-2xl font-bold leading-tight">{text(question, 'prompt')}</h2>
         {question.type === 'visual' && question.image && <img src={question.image} alt="" className="mt-5 aspect-[4/3] w-full rounded-2xl object-cover" />}
         {question.type === 'audio' && question.audio && <SoundPlayer key={question.audio} src={question.audio} />}
@@ -109,11 +122,24 @@ export default function LearningPlayer({ initial, onClose, onFinished, onRetry, 
         </div> : <div role="radiogroup" aria-label={text(question, 'prompt')} className={`mt-6 ${question.type === 'boolean' ? 'grid grid-cols-2 gap-3' : 'space-y-3'}`}>{options.map((option, i) => <Button key={i} role="radio" aria-checked={selected === i} data-correct={checked ? question.correct === i : undefined} variant="outline" disabled={checked || busy} onClick={() => void pick(i)} className={`learning-answer h-auto min-h-14 w-full whitespace-normal rounded-2xl px-4 py-4 ${question.type === 'boolean' ? 'justify-center text-lg font-bold' : 'justify-start text-left'}`}>{question.type !== 'boolean' && <span className="mr-3 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-current text-xs">{state(i) === 'wrong' ? <X className="h-4 w-4" /> : state(i) === 'right' ? <Check className="h-4 w-4" /> : String.fromCharCode(65 + i)}</span>}<span>{option}</span></Button>)}</div>}
         {question.credit && <p className="mt-2 break-words text-[10px] leading-snug text-muted-foreground">{question.credit}</p>}
         {busy && !checked && <Loader2 className="mx-auto mt-5 h-5 w-5 animate-spin text-muted-foreground" />}
-        {checked && <div role="status" className={`learning-verdict mt-6 rounded-3xl p-5 ${correct ? 'bg-primary/10' : 'bg-destructive/10'}`}>
-          <p className={`flex items-center gap-2 font-display text-lg font-bold ${correct ? 'text-primary' : 'text-destructive'}`}>{correct ? <Check className="h-5 w-5" /> : <X className="h-5 w-5" />}{t(correct ? 'learning.correct' : 'learning.incorrect')}</p>
-          <p className="mt-3 flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground"><Lightbulb className="h-3.5 w-3.5" />{t('learning.didYouKnow')}</p>
-          <p className="mt-1 leading-relaxed text-foreground">{text(question, 'explanation')}</p>
-          <Button className="mt-5 w-full" disabled={busy} onClick={() => void next()}>{busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{t(index === questions.length - 1 ? 'learning.finish' : 'learning.next')}</Button>
+        {checked && correct && <div key={`sticker-${index}`} aria-hidden className="learning-sticker pointer-events-none fixed inset-x-0 top-1/3 z-[70] flex justify-center"><span className="rounded-2xl border-4 border-card bg-[hsl(var(--amber))] px-5 py-2 font-display text-2xl font-black uppercase text-foreground shadow-lg">{streak >= 2 ? t('learning.combo', { count: streak }) : t('learning.perfect')}</span></div>}
+        {checked && <div role="status" className={`learning-drawer fixed inset-x-0 bottom-0 z-[60] border-t-2 px-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pt-4 ${correct ? 'learning-drawer-right' : 'learning-drawer-wrong'}`}>
+          <div className="mx-auto flex max-w-lg gap-3">
+            <img src={correct ? foxHappy : foxOops} alt="" width={80} height={80} className="learning-fox-pop -mt-12 h-20 w-20 shrink-0 object-contain" />
+            <div className="min-w-0 flex-1">
+              <p className={`flex items-center gap-2 font-display text-xl font-black ${correct ? 'text-primary' : 'text-destructive'}`}>{correct ? <Check className="h-6 w-6" /> : <X className="h-6 w-6" />}{t(correct ? 'learning.correct' : 'learning.incorrect')}</p>
+              {!correct && question.correct !== undefined && <p className="mt-1 text-sm font-bold text-destructive">{t('learning.answerWas', { answer: options[question.correct] })}</p>}
+              <p className="mt-1 line-clamp-4 text-sm leading-snug text-foreground"><Lightbulb className="mr-1 inline h-3.5 w-3.5 text-[hsl(var(--amber-dark))]" />{text(question, 'explanation')}</p>
+            </div>
+          </div>
+          <Button className={`game-button mx-auto mt-4 flex h-14 w-full max-w-lg text-base uppercase ${correct ? '' : 'learning-button-wrong'}`} disabled={busy} onClick={() => void next()}>{busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{t(index === questions.length - 1 ? 'learning.finish' : 'learning.next')}</Button>
+        </div>}
+        {milestone && <div role="dialog" aria-modal="true" aria-label={t('learning.milestone', { count: milestone })} className="learning-milestone fixed inset-0 z-[80] flex flex-col items-center justify-center bg-foreground px-6 text-center">
+          <span aria-hidden className="learning-bolt" />
+          <img src={foxCombo} alt="" width={240} height={240} className="learning-fox-pop relative h-60 w-60 object-contain" />
+          <h2 className="relative mt-4 font-display text-4xl font-black text-[hsl(var(--amber))]">{t('learning.milestone', { count: milestone })}</h2>
+          <p className="relative mt-2 text-background/80">{t('learning.milestoneLine')}</p>
+          <Button className="game-button relative mt-8 h-14 w-full max-w-sm text-base uppercase" onClick={advance}>{t('learning.next')}</Button>
         </div>}
       </> : null}
       {error && <p role="alert" className="mt-4 text-sm text-destructive">{error}</p>}

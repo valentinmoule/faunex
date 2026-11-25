@@ -4402,6 +4402,22 @@ html.is-native-android body {
 .learning-photo[data-state=wrong] { box-shadow: 0 0 0 4px hsl(var(--destructive)); animation: learning-shake .4s ease; }
 .learning-photo[data-state=idle]:disabled { filter: saturate(.5) opacity(.7); }
 .learning-verdict { animation: learning-rise .3s cubic-bezier(.2,.9,.3,1.2); }
+.learning-drawer { animation: learning-drawer-up .32s cubic-bezier(.2,.9,.3,1.1); box-shadow: 0 -10px 30px hsl(var(--foreground) / .08); }
+.learning-drawer-right { background: linear-gradient(hsl(var(--primary) / .14), hsl(var(--primary) / .14)), hsl(var(--background)); border-color: hsl(var(--primary) / .35); }
+.learning-drawer-wrong { background: linear-gradient(hsl(var(--destructive) / .1), hsl(var(--destructive) / .1)), hsl(var(--background)); border-color: hsl(var(--destructive) / .3); }
+.game-button.learning-button-wrong { --control-fill: var(--destructive); --control-base: var(--game-danger-base); --control-ink: var(--destructive-foreground); }
+.learning-fox { animation: learning-fox-bob 2.4s ease-in-out infinite; }
+.learning-bubble { position: relative; animation: learning-rise .3s ease both; }
+.learning-fox-pop { animation: learning-fox-in .5s cubic-bezier(.2,.9,.3,1.5) both; }
+.learning-sticker span { display: inline-block; animation: learning-sticker 1.3s cubic-bezier(.2,.9,.3,1.4) forwards; transform: rotate(-6deg); }
+.learning-milestone { animation: learning-fade .25s ease; overflow: hidden; }
+.learning-bolt { position: absolute; inset: -20%; background: conic-gradient(from 0deg, transparent 0 10%, hsl(var(--amber) / .18) 12% 16%, transparent 18% 35%, hsl(var(--primary) / .2) 37% 41%, transparent 43% 60%, hsl(var(--amber) / .18) 62% 66%, transparent 68% 85%, hsl(var(--primary) / .2) 87% 91%, transparent 93%); animation: learning-spin 14s linear infinite; }
+@keyframes learning-drawer-up { from { transform: translateY(100%); } }
+@keyframes learning-fox-bob { 50% { transform: translateY(-4px) rotate(-2deg); } }
+@keyframes learning-fox-in { from { opacity: 0; transform: scale(.4) translateY(30px) rotate(-12deg); } }
+@keyframes learning-sticker { 0% { opacity: 0; transform: scale(.3) rotate(-20deg); } 25% { opacity: 1; transform: scale(1.15) rotate(-6deg); } 40% { transform: scale(1) rotate(-6deg); } 80% { opacity: 1; transform: scale(1) translateY(0) rotate(-6deg); } 100% { opacity: 0; transform: scale(.9) translateY(-40px) rotate(-6deg); } }
+@keyframes learning-fade { from { opacity: 0; } }
+@keyframes learning-spin { to { transform: rotate(360deg); } }
 .learning-star { animation: learning-star-in .5s cubic-bezier(.2,.9,.3,1.4) both; }
 .learning-wave { transform-origin: bottom; transform: scaleY(.35); transition: transform .3s; }
 .learning-wave-on { animation: learning-wave .7s ease-in-out infinite alternate; }
@@ -4410,4 +4426,5 @@ html.is-native-android body {
 @keyframes learning-rise { from { opacity: 0; transform: translateY(14px); } }
 @keyframes learning-star-in { from { opacity: 0; transform: scale(.3) rotate(-30deg); } }
 @keyframes learning-wave { from { transform: scaleY(.3); } to { transform: scaleY(1); } }
-@media (prefers-reduced-motion: reduce) { .learning-photo, .learning-verdict, .learning-star, .learning-wave-on { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .learning-drawer, .learning-fox, .learning-fox-pop, .learning-bolt, .learning-milestone, .learning-bubble, .learning-photo, .learning-verdict, .learning-star, .learning-wave-on { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .learning-sticker { display: none; } }
