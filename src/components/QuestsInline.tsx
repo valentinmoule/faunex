@@ -134,7 +134,7 @@ const QuestsInline = () => {
 
 
   const rank = (p: string | null) => (p === 'day' ? 2 : p === 'premium' ? 1 : 0);
-  const sorted = [...quests].sort((a, b) => rank(a.period) - rank(b.period));
+  const sorted = quests.filter((q) => !q.claimed).sort((a, b) => rank(a.period) - rank(b.period));
 
   // Fin de semaine : lundi suivant 00:00 (heure locale)
   const [y, m, d] = startOfWeekISO().split('-').map(Number);
@@ -154,7 +154,7 @@ const QuestsInline = () => {
 
       {loading ? (
         <div className="flex items-center justify-center py-8"><Loader2 className="w-5 h-5 text-muted-foreground animate-spin" /></div>
-      ) : quests.length === 0 ? (
+      ) : sorted.length === 0 ? (
         <div className="text-center py-8 text-xs text-muted-foreground">{t('profile.quests.emptyShort')}</div>
       ) : (
         <div className="space-y-3">
