@@ -21,11 +21,18 @@
       "daysAgo_one": "{{count}} day ago",
       "daysAgo_other": "{{count}} days ago",
       "scanning": "Scanning the area…",
-      "found_one": "{{count}} rare species detected",
-      "found_other": "{{count}} rare species detected",
+      "found_one": "{{count}} species spotted",
+      "found_other": "{{count}} species spotted",
       "missing": "Missing from your Faunex",
       "fromYou": "From you",
-      "seen": "Spotted"
+      "seen": "Spotted",
+      "seenBy_one": "Seen by {{count}} explorer",
+      "seenBy_other": "Seen by {{count}} explorers",
+      "lockedCard": "Hidden species",
+      "unlockMore_one": "Reveal {{count}} species with Premium",
+      "unlockMore_other": "Reveal {{count}} species with Premium",
+      "potentialTitle": "Potential species",
+      "potentialBody": "What probably lives here this season"
     },
     "journal": {
       "menu": "Field journal",

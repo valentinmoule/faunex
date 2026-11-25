@@ -211,21 +211,29 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
   const [rareSel, setRareSel] = useState(0);
   const [rarePulse, setRarePulse] = useState(0);
   const [rareOrigin, setRareOrigin] = useState<[number, number] | null>(null);
+  const runPotentialScan = () => {
+    const c = centerRef.current;
+    setRareOpen(false);
+    window.dispatchEvent(new CustomEvent('faunex:discover-nearby', { detail: scanHere && c ? { latitude: c.lat, longitude: c.lng } : undefined }));
+  };
   const startRareScan = async () => {
     hapticTap();
     setRareOpen(true); setRareItems([]); setRareSel(0); setRareState('scanning');
-    let pos = userPosRef.current;
+    let pos: [number, number] | null = scanHere && centerRef.current ? [centerRef.current.lat, centerRef.current.lng] : userPosRef.current;
     if (!pos && isGeolocationAvailable()) {
       pos = await new Promise<[number, number] | null>((res) => { void getCurrentPosition((p) => res([p.coords.latitude, p.coords.longitude]), () => res(null), { timeout: 8000 }); });
       if (pos) setUserPos(pos);
     }
     if (!pos) { setRareState('nolocation'); return; }
     setRareOrigin(pos); setRarePulse((k) => k + 1);
-    if (!isPremium) { window.setTimeout(() => setRareState('ready'), 2200); return; }
     const started = Date.now();
-    const { data } = await supabase.rpc('rare_sightings_near', { p_lat: pos[0], p_lng: pos[1], p_radius_km: 10 });
-    const list = ((data ?? []) as RareSighting[]).sort((a, b) => a.distance_km - b.distance_km);
-    window.setTimeout(() => { setRareItems(list); setRareState('ready'); setRarePulse((k) => k + 1); }, Math.max(0, 1600 - (Date.now() - started)));
+    const { data } = await supabase.rpc('nearby_sightings', { p_lat: pos[0], p_lng: pos[1], p_radius_km: 10 });
+    const list = (data ?? []) as RareSighting[];
+    window.setTimeout(() => {
+      // Zone sans observation récente : on bascule sur les espèces potentielles.
+      if (list.length === 0) { runPotentialScan(); return; }
+      setRareItems(list); setRareState('ready');
+    }, Math.max(0, 1800 - (Date.now() - started)));
   };
   const [showCaptures, setShowCaptures] = useState(true);
   const [hintSeen, setHintSeen] = useState(() => { try { return localStorage.getItem('faunex.map.zoneHint') === '1'; } catch { return false; } });
@@ -492,13 +500,6 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
           </button>
           <div className="flex items-center gap-2">
           <button
-            onClick={startRareScan}
-            className="pointer-events-auto press flex items-center gap-1.5 rounded-full bg-card/90 backdrop-blur-xl border border-amber/40 shadow-card pl-3 pr-3.5 py-2 text-[12.5px] font-display font-bold text-foreground"
-          >
-            <Crown className="w-4 h-4 text-amber" />
-            {t('premiumFeatures.radar.button')}
-          </button>
-          <button
             onClick={locateMe}
             className="pointer-events-auto press p-2.5 rounded-full bg-card/90 backdrop-blur-xl border border-border/60 shadow-card"
             aria-label={t('map.header.locateMe')}
@@ -512,11 +513,7 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
       {/* Capsule radar au-dessus de la barre de navigation */}
       <div className={`absolute inset-x-0 z-20 px-4 pointer-events-none bottom-[calc(env(safe-area-inset-bottom)+112px)] ${rareOpen ? 'hidden' : ''}`}>
         <button
-          onClick={() => {
-            hapticTap();
-            const c = centerRef.current;
-            window.dispatchEvent(new CustomEvent('faunex:discover-nearby', { detail: scanHere && c ? { latitude: c.lat, longitude: c.lng } : undefined }));
-          }}
+          onClick={() => { void startRareScan(); }}
           className="pointer-events-auto press mx-auto flex w-full max-w-sm items-center gap-3 rounded-full bg-card/95 backdrop-blur-xl border border-primary/30 shadow-card pl-2 pr-2 py-2"
         >
           <span className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
@@ -537,7 +534,7 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
 
       {rareOpen && (
         <div className="absolute inset-x-0 z-30 pointer-events-none bottom-[calc(env(safe-area-inset-bottom)+104px)] animate-in slide-in-from-bottom-6 fade-in duration-300">
-          <RareRadarDeck state={rareState} items={rareItems} isPremium={isPremium} selected={rareSel} onSelect={setRareSel} onClose={() => setRareOpen(false)} />
+          <RareRadarDeck state={rareState} items={rareItems} isPremium={isPremium} selected={rareSel} onSelect={setRareSel} onClose={() => setRareOpen(false)} onPotential={runPotentialScan} />
         </div>
       )}
 

@@ -4121,6 +4121,21 @@ export type Database = {
         }[]
       }
       nearby_searches_remaining_today: { Args: never; Returns: number }
+      nearby_sightings: {
+        Args: { p_lat: number; p_lng: number; p_radius_km?: number }
+        Returns: {
+          animal_name: string
+          category: string
+          distance_km: number
+          lat: number
+          lng: number
+          locked: boolean
+          rarity: string
+          scientific_name: string
+          seen_at: string
+          sightings: number
+        }[]
+      }
       normalize_animal_label: { Args: { p_label: string }; Returns: string }
       pause_background_job: {
         Args: { p_job_key: string; p_reason: string }

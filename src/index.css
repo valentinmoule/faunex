@@ -4480,3 +4480,5 @@ html.is-native-android body {
 @keyframes rare-pin-in { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @keyframes rare-pin-halo { 0% { transform: translate(-50%, -50%) scale(1); opacity: .4; } 100% { transform: translate(-50%, -50%) scale(2.1); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .rare-sonar-ring, .rare-sonar-sweep, .rare-pin-halo { animation: none; opacity: 0; } .rare-pin-body { animation: none; } }
+.rare-pin-body.is-static { animation: none; }
+.rare-pin-body.is-locked .rare-pin-disc { background: hsl(var(--muted)); filter: saturate(.7); }

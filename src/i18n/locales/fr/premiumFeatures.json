@@ -21,11 +21,18 @@
       "daysAgo_one": "il y a {{count}} jour",
       "daysAgo_other": "il y a {{count}} jours",
       "scanning": "Scan des alentours…",
-      "found_one": "{{count}} espèce rare détectée",
-      "found_other": "{{count}} espèces rares détectées",
+      "found_one": "{{count}} espèce repérée",
+      "found_other": "{{count}} espèces repérées",
       "missing": "Manquante à ton Faunex",
       "fromYou": "De toi",
-      "seen": "Signalée"
+      "seen": "Signalée",
+      "seenBy_one": "Vue par {{count}} explorateur",
+      "seenBy_other": "Vue par {{count}} explorateurs",
+      "lockedCard": "Espèce masquée",
+      "unlockMore_one": "Révéler {{count}} espèce avec Premium",
+      "unlockMore_other": "Révéler {{count}} espèces avec Premium",
+      "potentialTitle": "Espèces potentielles",
+      "potentialBody": "Ce qui vit probablement ici en cette saison"
     },
     "journal": {
       "menu": "Carnet de terrain",

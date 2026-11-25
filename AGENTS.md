@@ -160,4 +160,4 @@ Quest chests, league trophies and badges are bundled plush-felt WebP renders mad
 
 ## Premium extras are server-gated
 
-The Premium weekly quest (`quest_templates.period = 'premium'`) is assigned and claimable only when `is_premium`, previewed to others via `premium_quest_preview`, and excluded from the weekly chest; `rare_sightings_near` returns nothing for non-Premium callers and rounds coordinates, because client checks alone cannot protect paid features or observer privacy.
+The Premium weekly quest (`quest_templates.period = 'premium'`) is assigned and claimable only when `is_premium`, previewed to others via `premium_quest_preview`, and excluded from the weekly chest; the map radar `nearby_sightings` masks names beyond the first result for non-Premium callers and rounds coordinates, because client checks alone cannot protect paid features or observer privacy.
