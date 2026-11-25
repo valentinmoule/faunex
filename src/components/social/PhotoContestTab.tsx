@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Check, Vote } from 'lucide-react';
-import contestFox from '@/assets/learning/fox-photo-anim.webp';
+import contestFox from '@/assets/learning/fox-photo-anim-l2.webp';
 import contestFoxStill from '@/assets/learning/fox-photo-still.webp';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';

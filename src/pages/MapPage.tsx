@@ -1,5 +1,5 @@
 import { categoryLineIcon } from '@/components/icons/CategoryIcons';
-import foxCompass from '@/assets/fox-compass-anim.webp';
+import foxCompass from '@/assets/fox-compass-anim-l2.webp';
 import { useEffect, useMemo, useRef, useState, type ComponentType } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MapContainer, Marker, useMap, useMapEvents } from 'react-leaflet';

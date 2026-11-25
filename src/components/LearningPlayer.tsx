@@ -5,10 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { PageHeader } from '@/components/PageHeader';
 import foxThink from '@/assets/learning/fox-think-loop.webp';
-import foxHappy from '@/assets/learning/fox-happy-once.webp';
-import foxOops from '@/assets/learning/fox-oops-once.webp';
-import foxCombo from '@/assets/learning/fox-combo-anim.webp';
-import foxWinLoop from '@/assets/learning/fox-win-loop.webp';
+import foxHappy from '@/assets/learning/fox-happy-once-l2.webp';
+import foxOops from '@/assets/learning/fox-oops-once-l2.webp';
+import foxCombo from '@/assets/learning/fox-combo-anim-l2.webp';
+import foxWinLoop from '@/assets/learning/fox-win-loop-l2.webp';
 import { answerLesson, finishLesson, learningText, quizStars, type LearningAttempt, type LearningQuestion } from '@/lib/learning';
 
 function SoundPlayer({ src }: { src: string }) {
