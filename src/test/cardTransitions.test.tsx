@@ -83,6 +83,11 @@ beforeEach(() => {
 afterEach(() => { vi.useRealTimers(); vi.clearAllMocks(); });
 
 describe('Actions sur une photo précise', () => {
+  const openMenuItem = async (name: string) => {
+    const buttons = await screen.findAllByRole('button', { name: 'common.moreActions' });
+    fireEvent.keyDown(buttons[buttons.length - 1], { key: 'Enter' });
+    fireEvent.click(await screen.findByRole('menuitem', { name }));
+  };
   const renderPhotos = () => {
     mocks.photos.push(
       { id: card.id, image_url: '/new.jpg', created_at: '2026-11-25', location: 'Paris' },
@@ -100,7 +105,7 @@ describe('Actions sur une photo précise', () => {
     const view = renderPhotos();
     await screen.findAllByRole('tab');
     fireEvent.click(screen.getAllByRole('tab')[1]);
-    fireEvent.click(await screen.findByRole('button', { name: 'capture.photoActions.release' }));
+    await openMenuItem('capture.detail.deleteCapture');
     fireEvent.click(screen.getByRole('button', { name: 'capture.detail.deleteBtn' }));
     await waitFor(() => expect(mocks.deleteCapture).toHaveBeenCalledExactlyOnceWith('id', 'older-photo'));
     expect(view.onDeleted).toHaveBeenCalledExactlyOnceWith('older-photo');
@@ -111,7 +116,7 @@ describe('Actions sur une photo précise', () => {
     const view = renderPhotos();
     await screen.findAllByRole('tab');
     fireEvent.click(screen.getAllByRole('tab')[1]);
-    fireEvent.click(await screen.findByRole('button', { name: 'capture.photoActions.report' }));
+    await openMenuItem('capture.correction.title');
     fireEvent.change(screen.getByLabelText('capture.correction.name'), { target: { value: 'Renard arctique' } });
     fireEvent.click(screen.getByRole('button', { name: 'capture.actions.requestVerificationBtn' }));
     await waitFor(() => expect(mocks.rpc).toHaveBeenCalledWith('request_capture_correction', {
@@ -124,14 +129,14 @@ describe('Actions sur une photo précise', () => {
     const view = renderPhotos();
     await screen.findAllByRole('tab');
     fireEvent.click(screen.getAllByRole('tab')[1]);
-    fireEvent.click(await screen.findByRole('button', { name: 'capture.photoActions.crop' }));
+    await openMenuItem('capture.crop.action');
     expect(mocks.cropPhoto).toHaveBeenLastCalledWith('/old.jpg');
     fireEvent.click(screen.getByRole('button', { name: 'Apply test crop' }));
     await waitFor(() => expect(mocks.saveCrop).toHaveBeenCalledExactlyOnceWith('older-photo', 'cropped-data'));
     act(() => publishCaptureImageUpdate({ captureId: 'older-photo', userId: 'owner', imageUrl: '/cropped.jpg' }));
     fireEvent.click(screen.getAllByRole('tab')[0]);
     fireEvent.click(screen.getAllByRole('tab')[1]);
-    fireEvent.click(await screen.findByRole('button', { name: 'capture.photoActions.crop' }));
+    await openMenuItem('capture.crop.action');
     expect(mocks.cropPhoto).toHaveBeenLastCalledWith('/cropped.jpg');
     view.unmount();
   });
