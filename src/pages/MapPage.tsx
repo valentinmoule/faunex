@@ -520,10 +520,13 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
         <button
           onClick={() => { void startRareScan(); }}
           aria-label={t(scanHere ? 'map.controls.scanAreaTitle' : 'map.controls.scanTitle')}
-          className="pointer-events-auto press mx-auto flex flex-col items-center"
+          className="pointer-events-auto press mx-auto flex w-full max-w-sm items-center gap-3 rounded-full bg-card/95 backdrop-blur-xl border border-primary/30 shadow-card pl-2 pr-4 py-2"
         >
-          <img src={foxCompass} alt="" width={112} height={112} className="h-28 w-28 object-contain drop-shadow-lg" />
-          <span className="-mt-2 rounded-full bg-card/95 backdrop-blur-xl border border-primary/30 shadow-card px-4 py-1.5 text-[13px] font-display font-bold text-foreground">{t(scanHere ? 'map.controls.scanAreaTitle' : 'map.controls.scanTitle')}</span>
+          <img src={foxCompass} alt="" width={48} height={48} className="h-12 w-12 shrink-0 object-contain" />
+          <span className="flex-1 min-w-0 text-left">
+            <span className="block text-[14px] font-display font-bold text-foreground leading-tight truncate">{t(scanHere ? 'map.controls.scanAreaTitle' : 'map.controls.scanTitle')}</span>
+            <span className="block text-[11px] text-muted-foreground leading-tight truncate">{t(scanHere ? 'map.controls.scanAreaSubtitle' : 'map.controls.scanSubtitle')}</span>
+          </span>
         </button>
       </div>
 
