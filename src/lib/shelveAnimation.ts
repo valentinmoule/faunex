@@ -22,6 +22,9 @@ export interface PendingShelve {
   ts: number;
 }
 
+/** XP d'une nouvelle photo d'une espèce déjà possédée (serveur `xp_on_capture`). */
+export const REOBSERVATION_XP = 15;
+
 /** Même barème que le déclencheur serveur `xp_on_capture`. */
 export const captureXpForRarity = (rarity: Rarity): number => {
   switch (rarity) {

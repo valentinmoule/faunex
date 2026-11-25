@@ -194,6 +194,8 @@
       "submitForValidation": "Submit for validation"
     },
     "detail": {
+      "photoN": "Photo {{n}} of {{total}}",
+      "photos": "{{count}} photos",
       "undiscoveredTitle": "Undiscovered",
       "favorite": "Favorite",
       "favoritePremium": "Favorites are a Premium feature",

@@ -149,3 +149,7 @@ The Collections tab shows only admin `themed_collections` (plus Advent), sorted 
 ## Booster lettering remains translated artwork
 
 Render themed lettering as vector overlays separate from cover photos so FR/EN titles stay live; carousel depth uses lightweight CSS transforms and respects reduced motion instead of adding a WebGL renderer.
+
+## Several photos per species, one tile
+
+Approved captures may repeat a species; grids show the latest per species and the detail sheet pages through the owner's photos with per-photo date/place/note. Only the first approved photo of a species earns full rarity XP (`xp_on_capture`), later ones a flat amount, so re-shooting cannot be farmed.

@@ -65,6 +65,14 @@ interface Props {
   onUseCollectionCover?: () => Promise<void>;
   /** Auteur de la capture (mode feed) — en-tête avatar + nom. */
   author?: { id: string; name: string; avatarUrl?: string | null } | null;
+  /** Navigation entre les photos d'une même espèce (fournie par le wrapper). */
+  photoNav?: PhotoNav;
+}
+
+interface PhotoNav {
+  index: number;
+  total: number;
+  onSelect: (index: number) => void;
 }
 
 interface Comment {
@@ -157,7 +165,8 @@ const DELETE_SPARKLES = [
   { x: '88%', y: '58%', size: 10, delay: 140 },
 ];
 
-const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, feedView = false, author, onUseCollectionCover }: Props) => {
+const CardDetailSheetInner = ({ card, open, onClose, communityFinders, onDeleted, feedView = false, author, onUseCollectionCover, photoNav }: Props) => {
+  const swipeStart = useRef<{ x: number; y: number } | null>(null);
   const { t, i18n } = useTranslation();
   const { data: contestWinners } = useContestWinnerCaptures();
   const isContestWinner = !!card?.id && !!contestWinners?.has(card.id);
@@ -872,7 +881,19 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
             )}
             
             
-            <div className="relative z-10 pt-14 px-6 pb-0">
+            <div
+              className="relative z-10 pt-14 px-6 pb-0"
+              onTouchStart={photoNav && photoNav.total > 1 ? (e) => { const t0 = e.touches[0]; swipeStart.current = { x: t0.clientX, y: t0.clientY }; } : undefined}
+              onTouchEnd={photoNav && photoNav.total > 1 ? (e) => {
+                const start = swipeStart.current; swipeStart.current = null;
+                if (!start) return;
+                const t1 = e.changedTouches[0];
+                const dx = t1.clientX - start.x; const dy = t1.clientY - start.y;
+                if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy) * 1.3) return;
+                const next = photoNav.index + (dx < 0 ? 1 : -1);
+                if (next >= 0 && next < photoNav.total) { hapticTap(); photoNav.onSelect(next); }
+              } : undefined}
+            >
               <HolographicCard
                 rarity={card.rarity}
                 appearAnimation={detailAppearClass}
@@ -942,7 +963,27 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
               </HolographicCard>
             </div>
 
-            <div className="relative z-10 text-center px-6 pt-2 pb-14" />
+            {photoNav && photoNav.total > 1 ? (
+              <div className="relative z-10 flex flex-col items-center gap-1.5 px-6 pt-3 pb-10">
+                <div className="flex items-center gap-1.5" role="tablist" aria-label={t('capture.detail.photos', { count: photoNav.total })}>
+                  {Array.from({ length: photoNav.total }).map((_, i) => (
+                    <button
+                      key={i}
+                      role="tab"
+                      aria-selected={i === photoNav.index}
+                      aria-label={t('capture.detail.photoN', { n: i + 1, total: photoNav.total })}
+                      onClick={() => photoNav.onSelect(i)}
+                      className={`h-2 rounded-full transition-all duration-300 ${i === photoNav.index ? 'w-5 bg-primary' : 'w-2 bg-foreground/25'}`}
+                    />
+                  ))}
+                </div>
+                <span className="text-[11px] font-display font-semibold text-muted-foreground">
+                  {t('capture.detail.photoN', { n: photoNav.index + 1, total: photoNav.total })}
+                </span>
+              </div>
+            ) : (
+              <div className="relative z-10 text-center px-6 pt-2 pb-14" />
+            )}
 
           </div>
 
@@ -1614,6 +1655,85 @@ const CardDetailSheet = ({ card, open, onClose, communityFinders, onDeleted, fee
       {correctionOpen && <CaptureCorrectionDialog captureId={isOwner ? card.id : undefined} speciesName={card.name} speciesScientific={card.scientificName} open={correctionOpen} onClose={() => setCorrectionOpen(false)} onSubmitted={() => { setCorrectionOpen(false); if (isOwner) { onClose(); onDeleted?.(card.id); } }} />}
     </>
 
+  );
+};
+
+interface SpeciesPhoto {
+  id: string;
+  image_url: string;
+  location: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  created_at: string;
+  subject_bbox: unknown;
+}
+
+/** Fiche d'espèce : regroupe toutes les photos validées de l'explorateur pour
+ *  cette espèce et laisse naviguer entre elles ; date, lieu et note suivent la
+ *  photo affichée car chaque capture garde son propre contexte. */
+const CardDetailSheet = (props: Props) => {
+  const { card, open, feedView, onDeleted } = props;
+  const { session } = useAuth();
+  const [photos, setPhotos] = useState<SpeciesPhoto[]>([]);
+  const [index, setIndex] = useState(0);
+  const userId = session?.user?.id;
+  const cardId = card?.id;
+  const cardName = card?.name;
+
+  useEffect(() => {
+    setPhotos([]);
+    setIndex(0);
+    if (!open || feedView || !userId || !cardId || !cardName || cardId.startsWith('uncaptured-') || !card?.image) return;
+    let cancelled = false;
+    supabase
+      .from('captures')
+      .select('id, image_url, location, latitude, longitude, created_at, subject_bbox')
+      .eq('user_id', userId)
+      .eq('status', 'approved')
+      .ilike('animal_name', cardName.trim().replace(/[%_\\]/g, (m) => `\\${m}`))
+      .order('created_at', { ascending: false })
+      .then(({ data }) => {
+        if (cancelled || !data) return;
+        const list = data as SpeciesPhoto[];
+        const start = list.findIndex((p) => p.id === cardId);
+        if (start < 0) return; // Pas la capture de l'explorateur : fiche simple.
+        setPhotos(list);
+        setIndex(start);
+      });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, feedView, userId, cardId, cardName]);
+
+  const active = photos.length > 1 ? photos[index] : null;
+  const activeCard = card && active && active.id !== card.id
+    ? {
+        ...card,
+        id: active.id,
+        image: active.image_url,
+        location: active.location || '',
+        latitude: active.latitude,
+        longitude: active.longitude,
+        discoveredAt: active.created_at,
+        subjectBox: (active.subject_bbox as AnimalCard['subjectBox']) ?? undefined,
+      }
+    : card;
+
+  const handleDeleted = (captureId: string) => {
+    onDeleted?.(captureId);
+    setPhotos((list) => {
+      const next = list.filter((p) => p.id !== captureId);
+      setIndex((i) => Math.min(i, Math.max(0, next.length - 1)));
+      return next;
+    });
+  };
+
+  return (
+    <CardDetailSheetInner
+      {...props}
+      card={activeCard}
+      onDeleted={handleDeleted}
+      photoNav={photos.length > 1 ? { index, total: photos.length, onSelect: setIndex } : undefined}
+    />
   );
 };
 

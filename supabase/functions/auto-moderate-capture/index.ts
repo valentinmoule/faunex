@@ -275,7 +275,8 @@ async function examine(
 
   // Doublon : seul un VRAI doublon (même binôme scientifique) est refusé
   // automatiquement. Une simple homonymie de nom commun part en modération.
-  const dup = await findUserDuplicate(supabase, capture.user_id, capture.id, name, capture.scientific_name)
+  // Plusieurs photos d'une même espèce sont autorisées : plus de refus de doublon.
+  const dup = null as Awaited<ReturnType<typeof findUserDuplicate>> | null
   if (dup) {
     await releaseClaim(supabase, capture.id)
     const trueDuplicate = dup.match_via === 'scientific'
@@ -523,9 +524,7 @@ async function examine(
     return { capture_id: capture.id, approved: false, reason: 'needs_human', detail: 'catalogue_lookup_failed' }
   }
   // Le nom validé peut différer légèrement : on re-vérifie le doublon.
-  const dup2 = await findUserDuplicate(
-    supabase, capture.user_id, capture.id, approvedName, approvedSci,
-  )
+  const dup2 = null as Awaited<ReturnType<typeof findUserDuplicate>> | null
   if (dup2) {
     await releaseClaim(supabase, capture.id)
     const trueDuplicate2 = dup2.match_via === 'scientific'

@@ -132,7 +132,8 @@ Deno.serve(async (req) => {
         : null
     // 'high' fait basculer sur un modèle plus performant quand le modèle léger échoue.
     const quality: string = body?.quality === 'high' ? 'high' : 'standard'
-    const skipDuplicateCheck: boolean = body?.skip_duplicate_check === true
+    // Plusieurs photos d'une même espèce sont autorisées : plus de contrôle de doublon.
+    const skipDuplicateCheck: boolean = true || body?.skip_duplicate_check === true
     // apply=true : écriture réelle de la fiche (confirmation du modérateur).
     const apply: boolean = body?.apply === true
     // force_name=true : le nom de l'observateur fait autorité. L'IA ne fait aucune

@@ -994,7 +994,18 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
   // Flat list of my own captures (one entry per capture), filtered + trié selon le mode choisi
   const myCapturedAnimals = useMemo(() => {
     const q = normalizeSearch(mineSearch);
-    const list = myCaptures
+    // Une tuile par espèce : la photo la plus récente représente la fiche,
+    // les autres photos se parcourent dans la fiche détaillée.
+    const seenSpecies = new Set<string>();
+    const onePerSpecies = [...myCaptures]
+      .sort((a, b) => +new Date(b.discoveredAt || 0) - +new Date(a.discoveredAt || 0))
+      .filter((c) => {
+        const key = c.name.trim().toLowerCase();
+        if (seenSpecies.has(key)) return false;
+        seenSpecies.add(key);
+        return true;
+      });
+    const list = onePerSpecies
       .filter(c => mineRarityFilter.length === 0 || mineRarityFilter.includes(normalizeRarity(c.rarity)))
       .filter(c => {
         if (mineChip === CHIP_ALL) return true;

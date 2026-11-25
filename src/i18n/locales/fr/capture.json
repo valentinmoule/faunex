@@ -194,6 +194,8 @@
       "submitForValidation": "Soumettre pour validation"
     },
     "detail": {
+      "photoN": "Photo {{n}} sur {{total}}",
+      "photos": "{{count}} photos",
       "undiscoveredTitle": "Non découvert",
       "favorite": "Favori",
       "favoritePremium": "Les favoris sont réservés aux membres Premium",

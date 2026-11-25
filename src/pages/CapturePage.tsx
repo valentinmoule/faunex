@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { Camera, Zap, MapPin, SwitchCamera, X, Loader2, Plus, RefreshCw, PenLine, ZoomIn, Focus, Crosshair, ArrowLeft, Clock, Info, Sparkles, ShieldQuestion, Users, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
-import { captureXpForRarity, setPendingShelve } from '@/lib/shelveAnimation';
+import { captureXpForRarity, REOBSERVATION_XP, setPendingShelve } from '@/lib/shelveAnimation';
 import { prepareSourceImage, prepareSourceFile } from '@/lib/imageProcessing';
 import { isHeicFile, readExifCameraInfo, exifDateToIso } from '@/lib/exif';
 import { IS_NATIVE_APP } from '@/lib/platform';
@@ -444,7 +444,7 @@ setManualMode(false);
     // L'espèce est peut-être déjà dans le Faunex de l'utilisateur (ou déjà en
     // attente de modération) : inutile d'envoyer un doublon aux modérateurs.
     const alreadyOwned = await findDuplicate(trimmedName, trimmedSpecies || null);
-    if (alreadyOwned) {
+    if (alreadyOwned && alreadyOwned.status === 'pending_review') {
       toast.error(t(
         alreadyOwned.status === 'pending_review' ? 'capture.errors.speciesAwaitingReview' : 'capture.errors.alreadyHaveSpecies',
         { name: alreadyOwned.animal_name },
@@ -575,7 +575,7 @@ setManualMode(false);
     let consumed = false;
     try {
       const existing = await findDuplicate(animalResult.animal_name, animalResult.scientific_name);
-      if (existing) {
+      if (existing?.status === 'pending_review') {
         cancelPrepare();
         // Une photo en attente de modération n'est pas encore dans le Faunex :
         // proposer de la « remplacer » laisserait croire qu'elle y est déjà.
@@ -583,9 +583,9 @@ setManualMode(false);
           toast.error(t('capture.errors.speciesAwaitingReview', { name: existing.animal_name }));
           return;
         }
-        setDuplicateCapture(existing);
-        return;
       }
+      // Espèce déjà possédée : la photo s'ajoute à sa fiche (XP d'observation réduit).
+      const isReobservation = Boolean(existing);
       if (!(await consumeSlot())) { cancelPrepare(); return; }
       consumed = true;
       const imageUrl = await insertCapture(animalResult);
@@ -597,7 +597,7 @@ setManualMode(false);
         return;
       }
       consumed = false;
-      finishSave(animalResult, imageUrl, captureXpForRarity(animalResult.rarity));
+      finishSave(animalResult, imageUrl, isReobservation ? REOBSERVATION_XP : captureXpForRarity(animalResult.rarity));
     } catch (err) {
       cancelPrepare();
       console.error(err);
