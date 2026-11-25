@@ -4,16 +4,16 @@ import { Marker, Circle, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Crown, Loader2, Navigation, Sparkles, Users, X, Lock } from 'lucide-react';
+import { Crown, Lightbulb, Loader2, Navigation, Sparkles, Users, X, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { RarityBadge } from '@/components/RarityBadge';
 import { categoryLineIcon } from '@/components/icons/CategoryIcons';
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
 
-export interface RareSighting {
-  animal_name: string | null; scientific_name: string | null; category: string | null; rarity: string;
-  lat: number; lng: number; distance_km: number; seen_at: string; sightings: number; locked: boolean;
-}
+import type { RadarItem } from '@/lib/radarSources';
+
+export type RareSighting = RadarItem;
+const onMap = (s: RareSighting) => s.kind !== 'potential' && Number.isFinite(s.lat) && Number.isFinite(s.lng);
 
 const RARITY_COLORS: Record<string, string> = {
   common: 'hsl(220 10% 58%)', uncommon: 'hsl(220 12% 45%)',
@@ -66,32 +66,34 @@ export function RareRadarLayer({ origin, items, selected, onSelect, pulseKey }: 
   const shown = useRef<{ key: number; set: Set<string> }>({ key: -1, set: new Set() });
   if (shown.current.key !== pulseKey) shown.current = { key: pulseKey, set: new Set() };
   useEffect(() => {
-    if (!origin || fitted.current === pulseKey) return;
-    fitted.current = pulseKey;
-    const pts = items.map((s) => L.latLng(s.lat, s.lng));
+    // Recadre au lancement du scan puis une fois les résultats arrivés.
+    const fitKey = pulseKey * 1000 + items.length;
+    if (!origin || fitted.current === fitKey) return;
+    fitted.current = fitKey;
+    const pts = items.filter(onMap).map((s) => L.latLng(s.lat, s.lng));
     if (pts.length) map.flyToBounds(L.latLngBounds([L.latLng(origin[0], origin[1]), ...pts]).pad(0.25), { duration: 1.1, maxZoom: 14, paddingBottomRight: [0, 160] });
     else map.flyTo(origin, Math.min(map.getZoom(), 13), { duration: 0.8 });
   }, [origin, items, pulseKey, map]);
   useEffect(() => {
     const s = items[selected];
-    if (s && fitted.current === pulseKey) map.panTo([s.lat, s.lng], { animate: true, duration: 0.6 });
+    if (s && onMap(s) && fitted.current === pulseKey * 1000 + items.length) map.panTo([s.lat, s.lng], { animate: true, duration: 0.6 });
   }, [selected]); // eslint-disable-line react-hooks/exhaustive-deps
   // Icônes figées : recréées seulement quand la sélection ou le scan change.
   const icons = useMemo(() => items.map((s, i) => {
     const k = keyOf(s, i);
     const first = !shown.current.set.has(k);
     shown.current.set.add(k);
-    return pinIcon(s, i, i === selected, ago(s.seen_at), first);
+    return onMap(s) ? pinIcon(s, i, i === selected, ago(s.seen_at), first) : null;
   }), [items, selected, pulseKey]); // eslint-disable-line react-hooks/exhaustive-deps
   const sonar = useMemo(() => <Marker key={`sonar-${pulseKey}`} position={origin ?? [0, 0]} icon={sonarIcon} interactive={false} />, [pulseKey]); // eslint-disable-line react-hooks/exhaustive-deps
   if (!origin) return null;
   return (
     <>
       {sonar}
-      {items.map((s, i) => (
+      {items.map((s, i) => icons[i] && (
         <span key={`${keyOf(s, i)}-${pulseKey}`}>
           {i === selected && !s.locked && <Circle center={[s.lat, s.lng]} radius={600} pathOptions={{ color: rarityColor(s.rarity), weight: 1.5, dashArray: '4 6', fillOpacity: 0.08 }} />}
-          <Marker position={[s.lat, s.lng]} icon={icons[i]} zIndexOffset={i === selected ? 1000 : 0} eventHandlers={{ click: () => onSelect(i) }} />
+          <Marker position={[s.lat, s.lng]} icon={icons[i]!} zIndexOffset={i === selected ? 1000 : 0} eventHandlers={{ click: () => onSelect(i) }} />
         </span>
       ))}
     </>
@@ -99,9 +101,9 @@ export function RareRadarLayer({ origin, items, selected, onSelect, pulseKey }: 
 }
 
 /** Bandeau du bas : espèces les plus vues autour, Premium tout révélé, gratuit en silhouettes. */
-export function RareRadarDeck({ state, items, isPremium, selected, onSelect, onClose, onPotential }: {
+export function RareRadarDeck({ state, items, isPremium, selected, onSelect, onClose }: {
   state: 'scanning' | 'ready' | 'nolocation'; items: RareSighting[]; isPremium: boolean; selected: number;
-  onSelect: (i: number) => void; onClose: () => void; onPotential: () => void;
+  onSelect: (i: number) => void; onClose: () => void;
 }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -134,36 +136,42 @@ export function RareRadarDeck({ state, items, isPremium, selected, onSelect, onC
     </div>
   );
 
-  const potentialCard = (
-    <button key="potential" type="button" onClick={onPotential}
-      className="mission-plate flex w-[80vw] max-w-[320px] shrink-0 snap-center flex-col items-center justify-center rounded-3xl p-4 text-center">
-      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/12 text-primary"><Sparkles className="h-6 w-6" /></span>
-      <p className="mt-2 font-display text-[15px] font-bold text-foreground">{t('premiumFeatures.radar.potentialTitle')}</p>
-      <p className="mt-0.5 text-[12px] text-muted-foreground">{t('premiumFeatures.radar.potentialBody')}</p>
-    </button>
-  );
-
   let body: React.ReactNode;
   if (state === 'scanning') body = <div className="mission-plate mx-auto flex max-w-sm items-center justify-center gap-2 rounded-3xl p-5 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" />{t('premiumFeatures.radar.scanning')}</div>;
   else if (state === 'nolocation') body = <div className="mission-plate mx-auto max-w-sm rounded-3xl p-5 text-center text-sm text-muted-foreground">{t('premiumFeatures.radar.noLocation')}</div>;
+  else if (items.length === 0) body = <div className="mission-plate mx-auto max-w-sm rounded-3xl p-5 text-center text-sm text-muted-foreground">{t('premiumFeatures.radar.emptyAll')}</div>;
   else body = (
     <>
       <div ref={track} onScroll={onScroll} className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-[10vw] pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {items.map((s, i) => {
           const color = rarityColor(s.rarity);
+          const potential = s.kind === 'potential';
+          const open = () => {
+            if (s.locked) { navigate('/premium'); return; }
+            if (i !== selected) { onSelect(i); return; }
+            if (s.animal_name) navigate(`/home?tab=categories&q=${encodeURIComponent(s.animal_name)}`);
+          };
           const Icon = categoryLineIcon(s.category ?? '');
           return (
-            <button key={keyOf(s, i)} type="button" onClick={() => (s.locked ? navigate('/premium') : onSelect(i))}
+            <button key={`${s.kind}-${keyOf(s, i)}`} type="button" onClick={open}
               className={`mission-plate relative w-[80vw] max-w-[320px] shrink-0 snap-center overflow-hidden rounded-3xl p-4 text-left transition-transform duration-300 ${i === selected ? 'scale-100' : 'scale-[0.94] opacity-80'}`}>
               <div className={s.locked ? 'pointer-events-none select-none blur-[6px]' : ''} aria-hidden={s.locked}>
                 <div className="flex items-start gap-3">
                   <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 bg-card" style={{ borderColor: color, color }}><Icon className="h-6 w-6" strokeWidth={2} /></span>
                   <div className="min-w-0 flex-1">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-primary/12 px-2 py-0.5 text-[10.5px] font-display font-bold text-primary"><Users className="h-3 w-3" />{t('premiumFeatures.radar.seenBy', { count: s.sightings })}</span>
+                    {potential
+                      ? <span className="inline-flex items-center gap-1 rounded-full bg-amber/12 px-2 py-0.5 text-[10.5px] font-display font-bold text-amber"><Sparkles className="h-3 w-3" />{t('premiumFeatures.radar.potentialTag')}</span>
+                      : <span className="inline-flex items-center gap-1 rounded-full bg-primary/12 px-2 py-0.5 text-[10.5px] font-display font-bold text-primary"><Users className="h-3 w-3" />{t('premiumFeatures.radar.seenBy', { count: s.sightings })}</span>}
                     <p className="mt-1 truncate font-display text-[16px] font-bold leading-tight text-foreground">{s.locked ? '••••••••' : speciesName(s.animal_name ?? '')}</p>
                     <RarityBadge rarity={s.rarity} plain />
                   </div>
                 </div>
+                {potential ? (
+                  <div className="mt-3 rounded-2xl bg-primary/10 px-3 py-2">
+                    <p className="flex items-center gap-1 text-[10.5px] font-display font-bold uppercase tracking-wide text-primary"><Lightbulb className="h-3 w-3" />{t('premiumFeatures.radar.howToSpot')}</p>
+                    <p className="mt-0.5 line-clamp-2 text-[12.5px] leading-snug text-foreground">{s.tip || t('premiumFeatures.radar.potentialBody')}</p>
+                  </div>
+                ) : (
                 <div className="mt-3 grid grid-cols-2 gap-2">
                   <div className="rounded-2xl bg-primary/10 px-3 py-2">
                     <p className="flex items-center gap-1 text-[10.5px] font-display font-bold uppercase tracking-wide text-primary"><Navigation className="h-3 w-3" />{t('premiumFeatures.radar.fromYou')}</p>
@@ -174,6 +182,7 @@ export function RareRadarDeck({ state, items, isPremium, selected, onSelect, onC
                     <p className="font-display text-xl font-black text-foreground">{ago(s.seen_at)}</p>
                   </div>
                 </div>
+                )}
               </div>
               {s.locked && (
                 <span className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-card/40 text-center">
@@ -184,7 +193,6 @@ export function RareRadarDeck({ state, items, isPremium, selected, onSelect, onC
             </button>
           );
         })}
-        {potentialCard}
       </div>
       {!isPremium && lockedCount > 0 && (
         <div className="mx-auto mt-2 max-w-sm px-4">

@@ -32,7 +32,10 @@
       "unlockMore_one": "Reveal {{count}} species with Premium",
       "unlockMore_other": "Reveal {{count}} species with Premium",
       "potentialTitle": "Potential species",
-      "potentialBody": "What probably lives here this season"
+      "potentialBody": "What probably lives here this season",
+      "potentialTag": "Likely here",
+      "howToSpot": "How to spot it",
+      "emptyAll": "No species spotted here for now."
     },
     "journal": {
       "menu": "Field journal",

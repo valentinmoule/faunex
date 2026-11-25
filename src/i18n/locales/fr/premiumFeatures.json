@@ -32,7 +32,10 @@
       "unlockMore_one": "Révéler {{count}} espèce avec Premium",
       "unlockMore_other": "Révéler {{count}} espèces avec Premium",
       "potentialTitle": "Espèces potentielles",
-      "potentialBody": "Ce qui vit probablement ici en cette saison"
+      "potentialBody": "Ce qui vit probablement ici en cette saison",
+      "potentialTag": "Potentielle ici",
+      "howToSpot": "Pour l'observer",
+      "emptyAll": "Aucune espèce repérée ici pour le moment."
     },
     "journal": {
       "menu": "Carnet de terrain",

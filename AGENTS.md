@@ -166,3 +166,7 @@ The Premium weekly quest (`quest_templates.period = 'premium'`) is assigned and 
 ## Advent days have kinds and catch-up
 
 Days are photo/gift/quiz/badge; photos approve the matching earliest unfinished photo day until Dec 24, quiz answers live only in service-only `advent_quiz_answers`, and instant cases go through `claim_advent_day`, so rewards stay server-checked.
+
+## The zone scan is one deck with two sources
+
+One scan loads recent sightings and potential species together into one swipeable deck; never send potentials to a second sheet, since mixed mechanics and double loaders confuse users.

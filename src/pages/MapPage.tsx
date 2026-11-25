@@ -18,6 +18,7 @@ import { fetchAllRows } from '@/lib/fetchAll';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/hooks/useSubscription';
 import { RareRadarLayer, RareRadarDeck, type RareSighting } from '@/components/premium/RareRadar';
+import { mergeRadarSources, type PotentialSpecies } from '@/lib/radarSources';
 import LoadingScreen from '@/components/LoadingScreen';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import CardDetailSheet from '@/components/CardDetailSheet';
@@ -220,10 +221,14 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
     ro.observe(el);
     return () => ro.disconnect();
   }, [rareOpen]);
-  const runPotentialScan = () => {
-    const c = centerRef.current;
-    setRareOpen(false);
-    window.dispatchEvent(new CustomEvent('faunex:discover-nearby', { detail: scanHere && c ? { latitude: c.lat, longitude: c.lng } : undefined }));
+  // Un seul scan, deux sources : observations récentes des explorateurs + espèces potentielles de la zone.
+  const fetchPotentials = async (pos: [number, number]): Promise<PotentialSpecies[]> => {
+    const allowed = await quota.consume();
+    window.dispatchEvent(new Event('faunex:nearby-quota'));
+    if (!allowed) return [];
+    const { data, error } = await supabase.functions.invoke('nearby-animals', { body: { latitude: pos[0], longitude: pos[1] } });
+    if (error) { console.error(error); return []; }
+    return ((data as { animals?: PotentialSpecies[] } | null)?.animals) ?? [];
   };
   const startRareScan = async () => {
     hapticTap();
@@ -236,12 +241,12 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
     if (!pos) { setRareState('nolocation'); return; }
     setRareOrigin(pos); setRarePulse((k) => k + 1);
     const started = Date.now();
-    const { data } = await supabase.rpc('nearby_sightings', { p_lat: pos[0], p_lng: pos[1], p_radius_km: 10 });
-    const list = (data ?? []) as RareSighting[];
+    const [sightings, potentials] = await Promise.all([
+      supabase.rpc('nearby_sightings', { p_lat: pos[0], p_lng: pos[1], p_radius_km: 10 }).then(({ data }) => (data ?? []) as Omit<RareSighting, 'kind'>[]),
+      fetchPotentials(pos).catch(() => [] as PotentialSpecies[]),
+    ]);
     window.setTimeout(() => {
-      // Zone sans observation récente : on bascule sur les espèces potentielles.
-      if (list.length === 0) { runPotentialScan(); return; }
-      setRareItems(list); setRareState('ready');
+      setRareItems(mergeRadarSources(sightings, potentials)); setRareState('ready');
     }, Math.max(0, 1800 - (Date.now() - started)));
   };
   const [showCaptures, setShowCaptures] = useState(true);
@@ -543,7 +548,7 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
 
       {rareOpen && (
         <div ref={deckRef} className="absolute inset-x-0 bottom-0 z-30 rounded-t-[28px] border-t border-border/60 bg-background pt-3 pb-[calc(env(safe-area-inset-bottom)+96px)] shadow-card animate-in slide-in-from-bottom-6 fade-in duration-300">
-          <RareRadarDeck state={rareState} items={rareItems} isPremium={isPremium} selected={rareSel} onSelect={setRareSel} onClose={() => setRareOpen(false)} onPotential={runPotentialScan} />
+          <RareRadarDeck state={rareState} items={rareItems} isPremium={isPremium} selected={rareSel} onSelect={setRareSel} onClose={() => setRareOpen(false)} />
         </div>
       )}
 
