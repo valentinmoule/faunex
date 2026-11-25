@@ -125,7 +125,7 @@ export default function LearningPlayer({ initial, onClose, onFinished, onRetry, 
         {checked && correct && <div key={`sticker-${index}`} aria-hidden className="learning-sticker pointer-events-none fixed inset-x-0 top-1/3 z-[70] flex justify-center"><span className="rounded-2xl border-4 border-card bg-[hsl(var(--amber))] px-5 py-2 font-display text-2xl font-black uppercase text-foreground shadow-lg">{streak >= 2 ? t('learning.combo', { count: streak }) : t('learning.perfect')}</span></div>}
         {checked && <div role="status" className={`learning-drawer fixed inset-x-0 bottom-0 z-[60] border-t-2 px-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pt-4 ${correct ? 'learning-drawer-right' : 'learning-drawer-wrong'}`}>
           <div className="mx-auto flex max-w-lg gap-3">
-            <img src={correct ? foxHappy : foxOops} alt="" width={80} height={80} className="learning-fox-pop -mt-12 h-20 w-20 shrink-0 object-contain" />
+            <img src={correct ? foxHappy : foxOops} alt="" width={80} height={80} className={`${correct ? 'learning-fox-jump' : 'learning-fox-shrug'} -mt-12 h-20 w-20 shrink-0 object-contain`} />
             <div className="min-w-0 flex-1">
               <p className={`flex items-center gap-2 font-display text-xl font-black ${correct ? 'text-primary' : 'text-destructive'}`}>{correct ? <Check className="h-6 w-6" /> : <X className="h-6 w-6" />}{t(correct ? 'learning.correct' : 'learning.incorrect')}</p>
               {!correct && question.correct !== undefined && <p className="mt-1 text-sm font-bold text-destructive">{t('learning.answerWas', { answer: options[question.correct] })}</p>}
@@ -136,7 +136,7 @@ export default function LearningPlayer({ initial, onClose, onFinished, onRetry, 
         </div>}
         {milestone && <div role="dialog" aria-modal="true" aria-label={t('learning.milestone', { count: milestone })} className="learning-milestone fixed inset-0 z-[80] flex flex-col items-center justify-center bg-foreground px-6 text-center">
           <span aria-hidden className="learning-bolt" />
-          <img src={foxCombo} alt="" width={240} height={240} className="learning-fox-pop relative h-60 w-60 object-contain" />
+          <img src={foxCombo} alt="" width={240} height={240} className="learning-fox-flex relative h-60 w-60 object-contain" />
           <h2 className="relative mt-4 font-display text-4xl font-black text-[hsl(var(--amber))]">{t('learning.milestone', { count: milestone })}</h2>
           <p className="relative mt-2 text-background/80">{t('learning.milestoneLine')}</p>
           <Button className="game-button relative mt-8 h-14 w-full max-w-sm text-base uppercase" onClick={advance}>{t('learning.next')}</Button>

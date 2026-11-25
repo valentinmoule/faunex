@@ -4406,7 +4406,14 @@ html.is-native-android body {
 .learning-drawer-right { background: linear-gradient(hsl(var(--primary) / .14), hsl(var(--primary) / .14)), hsl(var(--background)); border-color: hsl(var(--primary) / .35); }
 .learning-drawer-wrong { background: linear-gradient(hsl(var(--destructive) / .1), hsl(var(--destructive) / .1)), hsl(var(--background)); border-color: hsl(var(--destructive) / .3); }
 .game-button.learning-button-wrong { --control-fill: var(--destructive); --control-base: var(--game-danger-base); --control-ink: var(--destructive-foreground); }
-.learning-fox { animation: learning-fox-bob 2.4s ease-in-out infinite; }
+.learning-fox { transform-origin: 50% 100%; animation: learning-fox-in .6s cubic-bezier(.2,.9,.3,1.5) both, learning-jelly-idle 2.6s ease-in-out .6s infinite; }
+.learning-fox-jump { transform-origin: 50% 100%; animation: learning-jelly-jump .9s cubic-bezier(.3,.7,.4,1.3) both; }
+.learning-fox-shrug { transform-origin: 50% 100%; animation: learning-jelly-shrug 1s ease-out both; }
+.learning-fox-flex { transform-origin: 50% 100%; animation: learning-fox-in .5s cubic-bezier(.2,.9,.3,1.5) both, learning-jelly-flex 1.4s ease-in-out .5s infinite; }
+@keyframes learning-jelly-idle { 0%,100% { transform: scale(1,1); } 30% { transform: scale(1.04,.96); } 60% { transform: scale(.97,1.03) translateY(-2px); } }
+@keyframes learning-jelly-jump { 0% { opacity: 0; transform: scale(1.2,.6) translateY(20px); } 25% { opacity: 1; transform: scale(1.25,.75); } 50% { transform: scale(.85,1.2) translateY(-26px); } 70% { transform: scale(1.12,.88); } 85% { transform: scale(.96,1.05); } 100% { transform: none; } }
+@keyframes learning-jelly-shrug { 0% { opacity: 0; transform: scale(.8,1.1) translateY(14px); } 30% { opacity: 1; transform: scale(1.1,.9) rotate(-6deg); } 50% { transform: scale(.95,1.05) rotate(5deg); } 70% { transform: scale(1.04,.97) rotate(-3deg); } 100% { transform: none; } }
+@keyframes learning-jelly-flex { 0%,100% { transform: scale(1,1); } 20% { transform: scale(1.08,.92); } 40% { transform: scale(.94,1.08) translateY(-8px); } 60% { transform: scale(1.04,.97); } }
 .learning-bubble { position: relative; animation: learning-rise .3s ease both; }
 .learning-fox-pop { animation: learning-fox-in .5s cubic-bezier(.2,.9,.3,1.5) both; }
 .learning-sticker span { display: inline-block; animation: learning-sticker 1.3s cubic-bezier(.2,.9,.3,1.4) forwards; transform: rotate(-6deg); }
@@ -4426,5 +4433,5 @@ html.is-native-android body {
 @keyframes learning-rise { from { opacity: 0; transform: translateY(14px); } }
 @keyframes learning-star-in { from { opacity: 0; transform: scale(.3) rotate(-30deg); } }
 @keyframes learning-wave { from { transform: scaleY(.3); } to { transform: scaleY(1); } }
-@media (prefers-reduced-motion: reduce) { .learning-drawer, .learning-fox, .learning-fox-pop, .learning-bolt, .learning-milestone, .learning-bubble, .learning-photo, .learning-verdict, .learning-star, .learning-wave-on { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .learning-drawer, .learning-fox, .learning-fox-jump, .learning-fox-shrug, .learning-fox-flex, .learning-fox-pop, .learning-bolt, .learning-milestone, .learning-bubble, .learning-photo, .learning-verdict, .learning-star, .learning-wave-on { animation: none; } }
 @media (prefers-reduced-motion: reduce) { .learning-sticker { display: none; } }
