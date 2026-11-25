@@ -50,7 +50,7 @@ export default function LeagueWeekRecap({ userId, children }: { userId?: string;
           {t(`challenges.recap.${outcome}.body`, { tier: tierName(data.next_tier), from: tierName(data.tier) })}
         </p>
       </div>
-      <button onClick={close} className="w-full max-w-sm rounded-2xl bg-primary py-4 text-[16px] font-display font-extrabold uppercase tracking-wide text-primary-foreground shadow-[0_4px_0_hsl(var(--primary)/0.55)] transition-transform active:translate-y-1 active:shadow-none">
+      <button onClick={close} className="game-button flex h-14 w-full max-w-sm items-center justify-center text-[16px]">
         {t('challenges.recap.continue')}
       </button>
     </section>

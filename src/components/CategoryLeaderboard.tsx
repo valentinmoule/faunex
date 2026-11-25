@@ -294,7 +294,7 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
 
 
 {!forcedScope && (
-<div className="mx-4 mt-3 grid grid-cols-2 gap-1 rounded-2xl bg-muted p-1">
+<div className="game-tabs mx-4 mt-3 flex items-center" role="tablist">
             {([['global', t('social.leaderboard.tabGlobal')], ['follows', t('social.leaderboard.tabFollows')]] as const).map(([key, label]) => (
               <button
                 key={key}
@@ -306,9 +306,9 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
                   setLockedTab(false);
                   setScope(key);
                 }}
-                className={`rounded-xl py-1.5 text-[12px] font-display font-bold transition-colors flex items-center justify-center gap-1 ${
-                  (lockedTab ? key === 'follows' : scope === key) ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'
-                }`}
+                role="tab"
+                aria-selected={(lockedTab ? key === 'follows' : scope === key)}
+                className="game-tab flex min-w-0 flex-1 items-center justify-center gap-1 h-10 px-2 text-xs"
               >
                 {label}
                 {key === 'follows' && !isPremium && <Lock className="w-3 h-3" />}
@@ -332,7 +332,7 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
                   setOpen(false);
                   navigate('/premium');
                 }}
-                className="mt-4 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-[13px] font-display font-bold shadow-lg active:scale-[0.98] transition-transform"
+                className="game-button mt-4 inline-flex h-11 items-center justify-center px-6 text-[13px]"
               >
                 {t('social.leaderboard.lockedCta')}
               </button>
@@ -344,8 +344,8 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
                 <p className="text-[18px] font-display font-extrabold leading-snug text-foreground">{t('social.leaderboard.league.joinTitle')}</p>
                 <p className="mt-2 text-[13px] font-display text-muted-foreground leading-relaxed">{t('social.leaderboard.league.joinDesc')}</p>
                 <div className="mt-6 flex flex-col gap-3">
-                  <button type="button" onClick={() => navigate('/capture')} className="h-12 rounded-2xl bg-primary text-[14px] font-display font-extrabold uppercase tracking-wide text-primary-foreground shadow-[0_4px_0_hsl(var(--primary-dark,var(--primary))/0.6)] active:translate-y-[3px] active:shadow-none transition-all">{t('social.leaderboard.league.joinCapture')}</button>
-                  <button type="button" onClick={() => navigate('/apprendre')} className="h-12 rounded-2xl border-2 border-border bg-card text-[14px] font-display font-extrabold uppercase tracking-wide text-foreground shadow-[0_4px_0_hsl(var(--border))] active:translate-y-[3px] active:shadow-none transition-all">{t('social.leaderboard.league.joinLesson')}</button>
+                  <button type="button" onClick={() => navigate('/capture')} className="game-button h-12 w-full text-[14px]">{t('social.leaderboard.league.joinCapture')}</button>
+                  <button type="button" onClick={() => navigate('/apprendre')} className="game-button game-button-outline h-12 w-full text-[14px]">{t('social.leaderboard.league.joinLesson')}</button>
                 </div>
               </div>
             </div>
