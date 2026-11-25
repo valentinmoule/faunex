@@ -60,7 +60,7 @@ export default function LearningPage() {
     observer.observe(node);
     return () => observer.disconnect();
   }, [path?.id, arrivalId, attempt]);
-  async function open(id: string) { if (!path) return; if (quota && !completed.has(id)) { setQuotaOpen(true); return; } setBusy(true); setError(''); try { setAttempt(await startLesson(path.id, id)); } catch (e) { const message = String((e as { message?: string }).message); if (message.includes('DAILY_LIMIT')) { setQuotaOpen(true); refresh(); } else setError(t(message.includes('LESSON_LOCKED') ? 'learning.locked' : 'learning.error')); } finally { setBusy(false); } }
+  async function open(id: string) { if (!path || completed.has(id)) return; if (quota && !completed.has(id)) { setQuotaOpen(true); return; } setBusy(true); setError(''); try { setAttempt(await startLesson(path.id, id)); } catch (e) { const message = String((e as { message?: string }).message); if (message.includes('DAILY_LIMIT')) { setQuotaOpen(true); refresh(); } else setError(t(message.includes('LESSON_LOCKED') ? 'learning.locked' : 'learning.error')); } finally { setBusy(false); } }
   function refresh() { void client.invalidateQueries({ queryKey: ['learning', session?.user.id] }); void client.invalidateQueries({ queryKey: walletKey(session?.user.id) }); }
   if (attempt) return <LearningPlayer key={attempt.id} initial={attempt} onClose={() => { setAttempt(null); refresh(); }} onFinished={refresh} onRetry={() => { const id = attempt.lesson.id; setAttempt(null); void open(id); }} />;
   return <main className="learning-world min-h-screen bg-background pb-[50svh]">
@@ -81,7 +81,7 @@ export default function LearningPage() {
               {li < chapter.lessons.length - 1 && <svg aria-hidden="true" viewBox="0 0 300 224" preserveAspectRatio="none" className={`learning-trail pointer-events-none absolute left-1/2 top-12 h-56 w-[300px] max-w-none -translate-x-1/2 ${li % 2 ? '-scale-x-100' : ''}`}><path d="M 94 0 C 94 100, 206 100, 206 224" /></svg>}
               <div className={`relative z-10 flex w-40 flex-col items-center ${offset}`}>
                 {active && !quota && <span className="learning-callout absolute -top-9 whitespace-nowrap px-3 py-1.5 text-xs font-extrabold">{t('learning.current')}</span>}
-                <Button variant="ghost" size="icon" disabled={busy || locked} aria-label={`${text(lesson, 'title')} · ${t(done ? 'learning.done' : locked ? 'learning.locked' : 'learning.current')}`} onClick={() => void open(lesson.id)} className={`learning-node h-24 w-24 ${done ? 'learning-node-done' : active ? 'learning-node-active' : 'learning-node-locked'}`}>
+                <Button variant="ghost" size="icon" disabled={busy || locked || done} aria-label={`${text(lesson, 'title')} · ${t(done ? 'learning.done' : locked ? 'learning.locked' : 'learning.current')}`} onClick={() => void open(lesson.id)} className={`learning-node h-24 w-24 ${done ? 'learning-node-done' : active ? 'learning-node-active' : 'learning-node-locked'}`}>
                   <span className="learning-node-face">{busy && active ? <Loader2 className="h-9 w-9 animate-spin" /> : done ? <Check className="h-10 w-10" strokeWidth={4} /> : locked ? <Lock className="h-7 w-7" /> : <Star className="h-10 w-10" fill="currentColor" />}<span className="learning-step-number">{position + 1}</span></span>
                 </Button>
                 <p className={`learning-stop-title mt-6 px-2 text-center text-sm font-extrabold ${locked ? 'text-muted-foreground' : 'text-foreground'}`}>{text(lesson, 'title')}</p>
@@ -97,7 +97,7 @@ export default function LearningPage() {
     {path && farFromStep && createPortal(<button type="button" className="learning-jump font-display" onClick={() => currentNode.current?.scrollIntoView({ block: 'center', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })}>
       <Target className="h-4 w-4" /><span>{t('learning.backToStep')}</span>
     </button>, document.body)}
-    {path && target && (offerPremium || !quota) && createPortal(<div className="learning-footer">
+    {path && target && !reviewing && (offerPremium || !quota) && createPortal(<div className="learning-footer">
       <button type="button" className={`learning-cta${offerPremium ? ' learning-cta-premium' : ''}`} disabled={busy} onClick={() => (offerPremium ? navigate('/premium') : void open(target.id))}>
         <span className="learning-cta-icon">{busy ? <Loader2 className="h-5 w-5 animate-spin" /> : offerPremium ? <Star className="h-5 w-5" fill="currentColor" /> : reviewing ? <RotateCcw className="h-5 w-5" /> : <Play className="h-5 w-5" fill="currentColor" />}</span>
         <span className="min-w-0 flex-1"><span className="learning-cta-kicker">{offerPremium ? t('learning.quota') : reviewing ? t('learning.review') : t('learning.start')}</span><span className="learning-cta-title font-display text-base font-extrabold">{offerPremium ? t('learning.premium') : text(target, 'title')}</span></span>

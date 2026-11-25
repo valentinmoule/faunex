@@ -95,20 +95,29 @@ export default function LearningPlayer({ initial, onClose, onFinished, onRetry, 
     </div></PageHeader>
     <div className="mx-auto max-w-lg px-5 py-6">
       {attempt.finished && result ? <>
-        <section className="py-6 text-center">
-          <div className="flex items-end justify-center gap-2" aria-label={`${stars}/3`}>{[0, 1, 2].map(i => <Star key={i} style={{ animationDelay: `${i * 160}ms` }} className={`learning-star ${i === 1 ? 'h-16 w-16' : 'mb-1 h-12 w-12'} ${i < stars ? 'fill-[hsl(var(--amber))] text-[hsl(var(--amber-dark))]' : 'fill-muted text-muted'}`} />)}</div>
-          <p className="mt-6 text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">{t('learning.score', result)}</p>
-          <h2 className="mt-2 font-display text-3xl font-bold">{t(`learning.rank${stars}`)}</h2>
+        <section className="flex min-h-[calc(100dvh-12rem)] flex-col items-center justify-center text-center">
+          <img src={stars >= 2 ? foxCombo : foxHappy} alt="" width={176} height={176} className="learning-fox h-44 w-44 object-contain" />
+          <div className="mt-2 flex items-end justify-center gap-1.5" aria-label={`${stars}/3`}>{[0, 1, 2].map(i => <Star key={i} style={{ animationDelay: `${i * 160}ms` }} className={`learning-star ${i === 1 ? 'h-10 w-10' : 'mb-0.5 h-8 w-8'} ${i < stars ? 'fill-[hsl(var(--amber))] text-[hsl(var(--amber-dark))]' : 'fill-muted text-muted'}`} />)}</div>
+          <h2 className="mt-4 font-display text-3xl font-black text-primary">{t(`learning.rank${stars}`)}</h2>
           <p className="mt-2 text-muted-foreground">{t(`learning.rankLine${stars}`)}</p>
-          <div className="mt-6 grid grid-cols-2 gap-3">
-            <div className="rounded-2xl border-2 border-[hsl(var(--amber))] bg-card"><p className="bg-[hsl(var(--amber))] py-1 text-[11px] font-black uppercase tracking-wider text-foreground rounded-t-xl">{t('learning.xpEarned')}</p><p className="py-3 font-display text-2xl font-black text-[hsl(var(--amber-dark))]">{result.reward}</p></div>
-            <div className="rounded-2xl border-2 border-primary bg-card"><p className="bg-primary py-1 text-[11px] font-black uppercase tracking-wider text-primary-foreground rounded-t-xl">{t('learning.bestCombo')}</p><p className="py-3 font-display text-2xl font-black text-primary">×{bestStreak}</p></div>
+          <div className="mt-8 grid w-full grid-cols-3 gap-3">
+            {[
+              { label: t('learning.xpEarned'), value: String(result.reward), tone: 'amber' },
+              { label: t('learning.bestCombo'), value: `×${bestStreak}`, tone: 'primary' },
+              { label: t('learning.accuracy'), value: `${Math.round(result.score * 100 / Math.max(1, result.total))} %`, tone: 'accent' },
+            ].map(card => <div key={card.label} className={`overflow-hidden rounded-2xl border-2 bg-card ${card.tone === 'amber' ? 'border-[hsl(var(--amber))]' : card.tone === 'primary' ? 'border-primary' : 'border-accent'}`}>
+              <p className={`py-1 text-[10px] font-black uppercase tracking-wider ${card.tone === 'amber' ? 'bg-[hsl(var(--amber))] text-foreground' : card.tone === 'primary' ? 'bg-primary text-primary-foreground' : 'bg-accent text-accent-foreground'}`}>{card.label}</p>
+              <p className={`py-3 font-display text-2xl font-black ${card.tone === 'amber' ? 'text-[hsl(var(--amber-dark))]' : card.tone === 'primary' ? 'text-primary' : 'text-accent-foreground'}`}>{card.value}</p>
+            </div>)}
           </div>
         </section>
-        {!result.passed && <ul className="mb-6 divide-y divide-border">{questions.map((q, i) => attempt.answers[i] !== q.correct && <li key={i} className="py-4"><p className="font-semibold">{text(q, 'prompt')}</p><p className="mt-2 font-semibold text-primary">{(english ? q.options_en : q.options)[q.correct ?? 0]}</p><p className="mt-2 text-sm text-muted-foreground">{text(q, 'explanation')}</p></li>)}</ul>}
-        {!preview && <Button variant="outline" className="mb-3 w-full" onClick={() => void share()}><Share2 className="mr-2 h-4 w-4" />{copied ? t('learning.copied') : t('learning.share')}</Button>}
-        {!result.passed && <Button className="mb-3 w-full" onClick={onRetry}>{t('learning.retry')}</Button>}
-        <Button variant={result.passed ? 'default' : 'outline'} className="w-full" onClick={onClose}>{result.reward > 0 ? t('learning.claimXp') : t('learning.backPath')}</Button>
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background px-5 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3">
+          <div className="mx-auto flex max-w-lg gap-3">
+            {!preview && <Button variant="outline" size="icon" className="h-12 w-12 shrink-0" onClick={() => void share()} aria-label={copied ? t('learning.copied') : t('learning.share')}><Share2 className="h-5 w-5" /></Button>}
+            {!result.passed && <Button variant="outline" className="h-12 flex-1" onClick={onRetry}>{t('learning.retry')}</Button>}
+            <Button className="h-12 flex-1" onClick={onClose}>{result.reward > 0 ? t('learning.claimXp') : t('learning.next')}</Button>
+          </div>
+        </div>
       </> : question ? <>
         {index === 0 && !checked && <p className="mb-4 text-sm font-semibold text-muted-foreground">{text(attempt.lesson, 'intro')}</p>}
         <div className="flex items-center gap-3">

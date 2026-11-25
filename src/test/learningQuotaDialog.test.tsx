@@ -37,13 +37,13 @@ describe('Daily learning limit dialog', () => {
     await waitFor(() => expect(screen.getByRole('dialog')).toHaveAttribute('data-state', 'open'));
     expect(mocks.start).not.toHaveBeenCalled();
   });
-  it('still starts a completed step as revision at the daily limit', async () => {
-    mocks.start.mockResolvedValue({ id: 'revision', lesson: { id: 'done' } });
+  it('never replays a completed step', async () => {
+    mocks.start.mockClear();
     mount(); await screen.findByRole('dialog');
     fireEvent.click(screen.getByRole('button', { name: 'common.close' }));
     await waitFor(() => expect(screen.getByRole('dialog')).toHaveAttribute('data-state', 'closed'));
     fireEvent.click(screen.getByRole('button', { name: 'Déjà faite · learning.done', hidden: true }));
-    await screen.findByTestId('revision');
-    expect(mocks.start).toHaveBeenCalledWith('path', 'done');
+    expect(screen.getByRole('button', { name: 'Déjà faite · learning.done', hidden: true })).toBeDisabled();
+    expect(mocks.start).not.toHaveBeenCalled();
   });
 });
