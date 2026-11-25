@@ -1,6 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import webpush from 'npm:web-push@3.6.7'
 import { sendNativePush } from '../_shared/native-push.ts'
+import { isTrustedWebPushEndpoint } from '../_shared/web-push-endpoint.ts'
 import { sendAppEmail } from '../_shared/transactional-email-templates/send-app-email.ts'
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
 import { z } from 'npm:zod@3'
@@ -128,6 +129,11 @@ async function sendPushToUser(supabase: any, userId: string, payload: { title: s
   let success = 0
   let failure = 0
   for (const sub of subs) {
+    if (!isTrustedWebPushEndpoint(sub.endpoint)) {
+      failure++
+      console.error('push endpoint rejected')
+      continue
+    }
     try {
       await webpush.sendNotification(
         { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },

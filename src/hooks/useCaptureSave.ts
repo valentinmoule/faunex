@@ -152,6 +152,7 @@ export const useCaptureSave = ({ userId, photo, geo, takenAt = null }: SaveConte
           latitude: geo.coords?.lat || null,
           longitude: geo.coords?.lng || null,
           subject_bbox: animal.subject_bbox ?? null,
+          economy_validation_id: animal.economy_validation_id ?? null,
         }).select('id').single();
         if (error) throw error;
         if (inserted && animal.economy_validation_id && animal.analyzed_image) {

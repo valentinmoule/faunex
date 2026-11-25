@@ -5,7 +5,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-cron-secret",
 };
 
 const BATCH_SIZE = 2;
@@ -14,10 +14,25 @@ const CUTOUT_PROMPT =
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (req.method !== "POST") {
+    return new Response(JSON.stringify({ error: "method_not_allowed" }), {
+      status: 405,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
 
   const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  const cronSecret = Deno.env.get("CRON_SECRET");
+  const trustedCall = (cronSecret && req.headers.get("x-cron-secret") === cronSecret)
+    || (serviceKey && req.headers.get("Authorization") === `Bearer ${serviceKey}`);
+  if (!trustedCall) {
+    return new Response(JSON.stringify({ error: "unauthorized" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
   if (!LOVABLE_API_KEY || !supabaseUrl || !serviceKey) {
     return new Response(JSON.stringify({ error: "missing configuration" }), {
       status: 500,

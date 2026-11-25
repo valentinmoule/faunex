@@ -108,7 +108,7 @@ describe('Actions sur une photo précise', () => {
     await openMenuItem('capture.detail.deleteCapture');
     fireEvent.click(screen.getByRole('button', { name: 'capture.detail.deleteBtn' }));
     await waitFor(() => expect(mocks.deleteCapture).toHaveBeenCalledExactlyOnceWith('id', 'older-photo'));
-    expect(view.onDeleted).toHaveBeenCalledExactlyOnceWith('older-photo');
+    expect(view.onDeleted).toHaveBeenCalledExactlyOnceWith('older-photo', expect.objectContaining({ id: 'capture-1', image: '/new.jpg' }));
     view.unmount();
   });
 
@@ -158,7 +158,7 @@ describe('Suppression de capture', () => {
     fireEvent.click(await screen.findByRole('menuitem', { name: 'capture.detail.deleteCapture' }));
     fireEvent.click(screen.getByRole('button', { name: 'capture.detail.deleteBtn' }));
     await waitFor(() => expect(onClose).toHaveBeenCalledOnce());
-    expect(onDeleted).toHaveBeenCalledExactlyOnceWith(card.id);
+    expect(onDeleted).toHaveBeenCalledExactlyOnceWith(card.id, undefined);
     rerender(sheet(null, false));
     const ghost = document.querySelector('.delete-vanish-card');
     expect(ghost).toBeInTheDocument();

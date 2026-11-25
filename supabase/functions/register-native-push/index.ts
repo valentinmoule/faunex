@@ -19,8 +19,11 @@ Deno.serve(async req => {
     const admin = createClient(url, service)
     const result = body.action === 'remove'
       ? await admin.from('native_push_devices').delete().eq('user_id', data.user.id).eq('token', body.token)
-      : await admin.from('native_push_devices').upsert({ user_id: data.user.id, token: body.token, platform: body.platform, updated_at: new Date().toISOString() }, { onConflict: 'token' })
-    if (result.error) return json({ error: 'registration_failed' }, 503)
+      : await admin.rpc('register_native_push_device', { p_user: data.user.id, p_token: body.token, p_platform: body.platform })
+    if (result.error) {
+      if (result.error.message.includes('token_registered_elsewhere')) return json({ error: 'token_registered_elsewhere' }, 409)
+      return json({ error: 'registration_failed' }, 503)
+    }
     return json({ success: true })
   } catch { return json({ error: 'registration_failed' }, 500) }
 })

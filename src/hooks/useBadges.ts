@@ -109,7 +109,7 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
         supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('following_id', userId),
         supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('follower_id', userId),
         fetchCatalogue(),
-        supabase.rpc('is_premium', { p_user_id: userId }),
+        supabase.rpc('my_premium_access'),
         supabase.rpc('advent_badge_progress', { p_user: userId }),
         supabase.from('photo_contest_winners').select('week_start', { count: 'exact', head: true }).eq('user_id', userId),
         supabase.from('learning_completions').select('lesson_id', { count: 'exact', head: true }).eq('user_id', userId),

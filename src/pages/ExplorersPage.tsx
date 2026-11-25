@@ -437,7 +437,7 @@ const ExplorersPage = () => {
     if (!session?.user || !newComment.trim() || submittingComment) return;
     setSubmittingComment(true);
     const { data: savedComment, error } = await supabase.from('feed_comments').insert({ user_id: session.user.id, capture_id: captureId, content: newComment.trim() }).select('id').single();
-    if (!error) { notifyCaptureInteraction(captureId, session.user.id, 'comment', newComment.trim(), savedComment?.id); setNewComment(''); setCommentCounts(prev => ({ ...prev, [captureId]: (prev[captureId] || 0) + 1 })); await loadComments(captureId); }
+    if (!error) { notifyCaptureInteraction(captureId, session.user.id, 'comment', savedComment?.id); setNewComment(''); setCommentCounts(prev => ({ ...prev, [captureId]: (prev[captureId] || 0) + 1 })); await loadComments(captureId); }
     setSubmittingComment(false);
   }, [session, newComment, loadComments, submittingComment]);
 

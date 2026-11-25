@@ -2651,6 +2651,21 @@ export type Database = {
         }
         Relationships: []
       }
+      social_reward_grants: {
+        Row: {
+          created_at: string
+          reward_key: string
+        }
+        Insert: {
+          created_at?: string
+          reward_key: string
+        }
+        Update: {
+          created_at?: string
+          reward_key?: string
+        }
+        Relationships: []
+      }
       species_favorites: {
         Row: {
           animal_name: string
@@ -4034,6 +4049,10 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      is_valid_web_push_endpoint: {
+        Args: { p_endpoint: string }
+        Returns: boolean
+      }
       league_add_points: {
         Args: { p_amount: number; p_user_id: string }
         Returns: undefined
@@ -4237,6 +4256,10 @@ export type Database = {
         Returns: boolean
       }
       refund_capture_attempt: { Args: never; Returns: number }
+      register_native_push_device: {
+        Args: { p_platform: string; p_token: string; p_user: string }
+        Returns: undefined
+      }
       release_background_job: {
         Args: { p_error?: string; p_job_key: string; p_resume?: boolean }
         Returns: undefined

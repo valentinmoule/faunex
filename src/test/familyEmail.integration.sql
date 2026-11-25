@@ -1,6 +1,6 @@
 BEGIN;
 DO $$
-DECLARE payer uuid; guest uuid; guest_email text; other_user uuid; sub uuid; fam uuid; invitation jsonb; refused boolean;
+DECLARE payer uuid; guest uuid; guest_email text; other_user uuid; sub uuid; fam uuid; invitation jsonb; rate_invitation jsonb; refused boolean;
 BEGIN
  SELECT u.id,u.email INTO guest,guest_email FROM auth.users u JOIN public.profiles p ON p.user_id=u.id WHERE u.email_confirmed_at IS NOT NULL AND NOT EXISTS(SELECT 1 FROM public.family_memberships WHERE user_id=u.id AND left_at IS NULL) LIMIT 1;
  SELECT user_id INTO payer FROM public.profiles WHERE user_id<>guest AND NOT EXISTS(SELECT 1 FROM public.family_memberships WHERE user_id=profiles.user_id AND left_at IS NULL) LIMIT 1;
@@ -12,6 +12,11 @@ BEGIN
  IF (SELECT recipient_email FROM public.family_invitations WHERE id=(invitation->>'id')::uuid)<>lower(guest_email) THEN RAISE EXCEPTION 'email_normalization_failed'; END IF;
  refused:=false; BEGIN PERFORM public.create_family_email_invitation(guest,'new@example.com'); EXCEPTION WHEN OTHERS THEN refused:=SQLERRM='owner_required'; END; IF NOT refused THEN RAISE EXCEPTION 'guest_can_invite'; END IF;
  refused:=false; BEGIN PERFORM public.create_family_email_invitation(payer,guest_email); EXCEPTION WHEN OTHERS THEN refused:=SQLERRM='invitation_pending'; END; IF NOT refused THEN RAISE EXCEPTION 'duplicate_email_allowed'; END IF;
+ FOR i IN 1..4 LOOP
+  rate_invitation:=public.create_family_email_invitation(payer,'family-rate-'||i||'@example.com');
+  UPDATE public.family_invitations SET revoked_at=now() WHERE id=(rate_invitation->>'id')::uuid;
+ END LOOP;
+ refused:=false; BEGIN PERFORM public.create_family_email_invitation(payer,'family-rate-sixth@example.com'); EXCEPTION WHEN OTHERS THEN refused:=SQLERRM='invite_rate_limit'; END; IF NOT refused THEN RAISE EXCEPTION 'sixth_daily_invite_allowed'; END IF;
  PERFORM set_config('request.jwt.claim.sub',other_user::text,true);
  refused:=false; BEGIN PERFORM public.accept_family_invitation(invitation->>'token'); EXCEPTION WHEN OTHERS THEN refused:=SQLERRM='invitation_email_mismatch'; END; IF NOT refused THEN RAISE EXCEPTION 'wrong_email_accepted'; END IF;
  IF (SELECT accepted_at FROM public.family_invitations WHERE id=(invitation->>'id')::uuid) IS NOT NULL THEN RAISE EXCEPTION 'wrong_account_consumed_invite'; END IF;

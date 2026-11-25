@@ -4,6 +4,7 @@ import { z } from 'npm:zod@3'
 import webpush from 'npm:web-push@3.6.7'
 import { sendTemplateEmail } from '../_shared/transactional-email-templates/send-email.ts'
 import { sendNativePush } from '../_shared/native-push.ts'
+import { isTrustedWebPushEndpoint } from '../_shared/web-push-endpoint.ts'
 import { nativeEmailPayload } from '../_shared/native-push-policy.ts'
 import { notifyWinner, type Winner } from './policy.ts'
 
@@ -81,6 +82,11 @@ async function sendWebPush(db: any, userId: string, payload: { title: string; bo
   if (error) throw error
   let failure = 0
   for (const sub of subscriptions || []) {
+    if (!isTrustedWebPushEndpoint(sub.endpoint)) {
+      failure++
+      console.error('Winner web push endpoint rejected')
+      continue
+    }
     try {
       await webpush.sendNotification({ endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } }, JSON.stringify(payload))
     } catch (error: any) {

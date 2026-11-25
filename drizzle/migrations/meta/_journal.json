@@ -1107,6 +1107,13 @@
       "when": 1795642573597,
       "tag": "0155_fix_academy_badge_prefix_match",
       "breakpoints": true
+    },
+    {
+      "idx": 156,
+      "version": "7",
+      "when": 1795642908460,
+      "tag": "0156_harden_social_privacy_rewards_and_quotas",
+      "breakpoints": true
     }
   ]
 }

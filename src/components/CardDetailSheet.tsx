@@ -664,7 +664,7 @@ const CardDetailSheetInner = ({ card, open, onClose, communityFinders, onDeleted
       content: newComment.trim(),
     }).select('id').single();
     if (!error) {
-      notifyCaptureInteraction(card.id, session.user.id, 'comment', newComment.trim(), savedComment?.id);
+      notifyCaptureInteraction(card.id, session.user.id, 'comment', savedComment?.id);
       setNewComment('');
       // Refetch comments
       const { data } = await supabase.from('feed_comments').select('*').eq('capture_id', card.id).order('created_at', { ascending: true });

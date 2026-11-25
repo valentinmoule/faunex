@@ -1,5 +1,6 @@
 import webpush from 'npm:web-push@3.6.7';
 import { createClient } from 'npm:@supabase/supabase-js@2';
+import { isTrustedWebPushEndpoint } from '../_shared/web-push-endpoint.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -133,6 +134,11 @@ Deno.serve(async (req) => {
       let failure = 0;
 
       for (const sub of userSubs) {
+        if (!isTrustedWebPushEndpoint(sub.endpoint)) {
+          failure++;
+          console.error('push endpoint rejected');
+          continue;
+        }
         try {
           await webpush.sendNotification(
             { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },

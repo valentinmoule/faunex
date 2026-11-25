@@ -1,4 +1,8 @@
 # Roadmap
+- [x] Sécurité : profils privés visibles uniquement par le titulaire, les abonnés acceptés et l’équipe dans captures, jalons et classements ; follows publics/privés et commentaires avec mentions vérifiés en transaction annulée.
+- [x] Sécurité : preuves IA obligatoires pour les nouveaux XP de captures, XP follows/amis idempotents, 4 emplacements gratuits partagés entre zones et collections, Premium et collections personnalisées vérifiés ; XP et données existants conservés.
+- [x] Sécurité : cinq expéditeurs push limités aux services officiels, jetons natifs privés et non transférables, génération collector réservée au serveur ; appels anonymes refusés. Invitations Famille conservées avec 5 envois/jour et cooldown destinataire, parcours d’acceptation vérifié.
+- [x] Sécurité : 12 alertes corrigées et closes, lectures publiques voulues classées ; deux alertes d’invitation Famille laissées actives car elles décrivent la fonctionnalité elle-même. 36 tests ciblés puis 54 tests série passent, build OK ; scan rapide sans nouvelle exposition privée.
 - [x] Actions sur la photo sélectionnée : boutons individuels, cibles figées pour correction/recadrage, aperçu de confirmation, cache de recadrage et remplacement par la dernière photo restante ; 15 tests passants, aucune capture réelle modifiée.
 - [ ] Vérification connectée des trois actions sur une espèce à plusieurs photos — bloquée par la saturation des connexions du service.
 - [x] Navigation gauche/droite entre les fiches de Mes captures, ordre et filtres conservés ; glissement tactile, flèches et limite vérifiés connecté, 9 tests passants.
