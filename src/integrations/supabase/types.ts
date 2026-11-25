@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      advent_completion_rewards: {
+        Row: {
+          collection_id: string
+          granted_at: string
+          user_id: string
+          xp: number
+        }
+        Insert: {
+          collection_id: string
+          granted_at?: string
+          user_id: string
+          xp: number
+        }
+        Update: {
+          collection_id?: string
+          granted_at?: string
+          user_id?: string
+          xp?: number
+        }
+        Relationships: []
+      }
       advent_submissions: {
         Row: {
           approved_at: string | null

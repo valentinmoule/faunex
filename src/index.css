@@ -4369,3 +4369,12 @@ html.is-native-android body {
 }
 @keyframes booster-snow { from { background-position: 0 -60%; } to { background-position: 0 100%; } }
 @media (prefers-reduced-motion: reduce) { .collection-booster-snow { animation: none; } }
+/* Avent : feuille holographique irisée qui suit le mouvement */
+.collection-booster-event::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 3;
+  background: linear-gradient(115deg, transparent 20%, hsl(170 90% 70% / .28) 35%, hsl(300 90% 72% / .3) 48%, hsl(48 100% 75% / .28) 60%, transparent 75%);
+  background-size: 250% 250%; mix-blend-mode: color-dodge;
+  animation: advent-holo 6s ease-in-out infinite alternate;
+}
+@keyframes advent-holo { from { background-position: 0% 0%; } to { background-position: 100% 100%; } }
+@media (prefers-reduced-motion: reduce) { .collection-booster-event::after { animation: none; background-position: 50% 50%; } }
