@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, type ComponentType } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef, type ComponentType } from 'react';
 import { avatarThumbUrl } from '@/lib/imageUrl';
 import { avatarFallbackStyle } from '@/lib/avatarPalette';
 import { useTranslation } from 'react-i18next';
@@ -1705,7 +1705,8 @@ const CardDetailSheet = (props: Props) => {
   }, [open, feedView, userId, cardId, cardName]);
 
   const active = photos.length > 1 ? photos[index] : null;
-  const activeCard = card && active && active.id !== card.id
+  // Mémorisé : une nouvelle référence relancerait le chargement de la fiche à chaque rendu.
+  const activeCard = useMemo(() => card && active && active.id !== card.id
     ? {
         ...card,
         id: active.id,
@@ -1716,7 +1717,7 @@ const CardDetailSheet = (props: Props) => {
         discoveredAt: active.created_at,
         subjectBox: (active.subject_bbox as AnimalCard['subjectBox']) ?? undefined,
       }
-    : card;
+    : card, [card, active]);
 
   const handleDeleted = (captureId: string) => {
     onDeleted?.(captureId);

@@ -11,7 +11,7 @@ const mocks = vi.hoisted(() => {
   const feedQuery = { eq: vi.fn(), limit: vi.fn(async () => ({ data: [] })) };
   feedQuery.eq.mockImplementation(() => feedQuery);
   const captureQuery = {
-    select: vi.fn(() => ({ eq: vi.fn(() => ({ maybeSingle: vi.fn(async () => ({ data: { user_id: 'owner' } })) })) })),
+    select: vi.fn(() => { const chain: Record<string, unknown> = { maybeSingle: vi.fn(async () => ({ data: { user_id: 'owner' } })), then: (resolve: (v: unknown) => unknown) => Promise.resolve({ data: [] }).then(resolve) }; for (const k of ['eq', 'ilike', 'order']) chain[k] = vi.fn(() => chain); return chain; }),
     delete: vi.fn(() => ({ eq: deleteCapture })),
   };
   return { deleteCapture, captureQuery, feedQuery };
