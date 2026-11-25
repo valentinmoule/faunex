@@ -1051,6 +1051,13 @@
       "when": 1795618613922,
       "tag": "0147_nearby_sightings_radar",
       "breakpoints": true
+    },
+    {
+      "idx": 148,
+      "version": "7",
+      "when": 1795619017914,
+      "tag": "0148_nearby_sightings_limit_10",
+      "breakpoints": true
     }
   ]
 }

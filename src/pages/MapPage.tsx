@@ -211,6 +211,15 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
   const [rareSel, setRareSel] = useState(0);
   const [rarePulse, setRarePulse] = useState(0);
   const [rareOrigin, setRareOrigin] = useState<[number, number] | null>(null);
+  const deckRef = useRef<HTMLDivElement>(null);
+  const [deckH, setDeckH] = useState(0);
+  useEffect(() => {
+    const el = deckRef.current;
+    if (!rareOpen || !el) { setDeckH(0); return; }
+    const ro = new ResizeObserver(() => setDeckH(el.offsetHeight - 28));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [rareOpen]);
   const runPotentialScan = () => {
     const c = centerRef.current;
     setRareOpen(false);
@@ -533,12 +542,13 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
       </div>
 
       {rareOpen && (
-        <div className="absolute inset-x-0 z-30 pointer-events-none bottom-[calc(env(safe-area-inset-bottom)+104px)] animate-in slide-in-from-bottom-6 fade-in duration-300">
+        <div ref={deckRef} className="absolute inset-x-0 bottom-0 z-30 rounded-t-[28px] border-t border-border/60 bg-background pt-3 pb-[calc(env(safe-area-inset-bottom)+96px)] shadow-card animate-in slide-in-from-bottom-6 fade-in duration-300">
           <RareRadarDeck state={rareState} items={rareItems} isPremium={isPremium} selected={rareSel} onSelect={setRareSel} onClose={() => setRareOpen(false)} onPotential={runPotentialScan} />
         </div>
       )}
 
       {/* Fullscreen map */}
+      <div className="absolute inset-x-0 top-0 transition-[bottom] duration-300" style={{ bottom: rareOpen ? deckH : 0 }}>
       <MapContainer
         center={center}
         zoom={initialView.z}
@@ -571,7 +581,9 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
         )}
         {showCaptures && !rareOpen && markers}
         {rareOpen && rareState !== 'nolocation' && <RareRadarLayer origin={rareOrigin} items={rareItems} selected={rareSel} onSelect={setRareSel} pulseKey={rarePulse} />}
+        <MapResizer dep={rareOpen ? deckH : 0} />
       </MapContainer>
+      </div>
 
       {captures.length === 0 && (
         <div className="absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+188px)] z-20 px-6 pointer-events-none">
@@ -744,5 +756,12 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
 
   );
 };
+
+// Recalcule la taille de la carte quand le plateau du scanner s'ouvre ou se ferme.
+function MapResizer({ dep }: { dep: number }) {
+  const map = useMap();
+  useEffect(() => { const id = window.setTimeout(() => map.invalidateSize({ pan: false }), 320); return () => window.clearTimeout(id); }, [dep, map]);
+  return null;
+}
 
 export default MapPage;
