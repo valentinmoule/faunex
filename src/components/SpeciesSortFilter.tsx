@@ -100,7 +100,7 @@ export const FAVORITES_FILTER = '__favorites';
 export const SpeciesCategoryIcon = ({ category, className }: { category: string; className?: string }) => {
   if (category === FAVORITES_FILTER) return <Bookmark className={className} />;
   const Icon = getCategoryIcon(category);
-  return <Icon className={className} strokeWidth={1.5} />;
+  return <Icon className={className} strokeWidth={2} />;
 };
 
 /** Tri des listes d'espèces du catalogue (bestiaire, catégories, collections, territoires). */

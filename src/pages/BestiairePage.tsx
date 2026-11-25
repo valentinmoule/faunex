@@ -202,7 +202,7 @@ const BrowseSpeciesCard = memo(
           </div>
 
           <div className="flex-1 flex items-center justify-center pt-6">
-            <SpeciesCategoryIcon category={animal.category} className="w-9 h-9 text-muted-foreground/60" />
+            <SpeciesCategoryIcon category={animal.category} className="w-9 h-9 text-muted-foreground opacity-60" />
           </div>
 
           <div className="species-tile-locked__label px-2 pb-2 pt-1.5 text-center">
