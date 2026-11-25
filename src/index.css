@@ -4373,12 +4373,11 @@ html.is-native-android body {
 .collection-booster-event::after {
   content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 3;
   background:
-    linear-gradient(170deg, transparent 10%, hsl(160 95% 60% / .2) 28%, transparent 42%, hsl(300 95% 68% / .18) 58%, transparent 72%, hsl(185 95% 65% / .16) 86%, transparent),
-    repeating-linear-gradient(100deg, hsl(0 0% 100% / 0) 0 6px, hsl(0 0% 100% / .05) 6px 8px);
-  background-size: 100% 300%, auto; mix-blend-mode: color-dodge;
+    linear-gradient(170deg, transparent 10%, hsl(160 95% 60% / .2) 28%, transparent 42%, hsl(300 95% 68% / .18) 58%, transparent 72%, hsl(185 95% 65% / .16) 86%, transparent);
+  background-size: 100% 300%; mix-blend-mode: color-dodge;
   animation: advent-holo 6s ease-in-out infinite alternate;
 }
-@keyframes advent-holo { from { background-position: 0% 0%, 0 0; } to { background-position: 0% 100%, 40px 0; } }
+@keyframes advent-holo { from { background-position: 0% 0%; } to { background-position: 0% 100%; } }
 @media (prefers-reduced-motion: reduce) { .collection-booster-event::after { animation: none; background-position: 50% 50%; } }
 
 /* Récolte d'XP : étincelles et compteur qui grossit en fin de course */
