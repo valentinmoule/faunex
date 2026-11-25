@@ -8,6 +8,7 @@ import reef from '@/assets/collections/reef.jpg';
 import foxPhoto from '@/assets/learning/fox-photo-anim-l2.webp';
 import foxHappy from '@/assets/learning/fox-win-loop-l2.webp';
 import foxLoupe from '@/assets/learning/fox-loupe-loop.webp';
+import foxCompass from '@/assets/fox-compass-anim-l2.webp';
 
 interface Props { open: boolean; onClose: () => void }
 
@@ -16,6 +17,7 @@ const BACKDROPS = [forest, meadow, reef, forest];
 const FOXES: Partial<Record<(typeof STEPS)[number], string>> = {
   concept: foxPhoto,
   rules: foxLoupe,
+  features: foxCompass,
   ready: foxHappy,
 };
 
