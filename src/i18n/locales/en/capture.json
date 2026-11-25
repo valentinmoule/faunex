@@ -279,7 +279,8 @@
         "EW": "Extinct in the wild",
         "EX": "Extinct",
         "DD": "Data deficient"
-      }
+      },
+      "moreData": "Classification & measurements"
     },
     "share": {
       "titleOther": "Share this card",

@@ -46,7 +46,8 @@ import { FieldEntry, FieldSection, FieldStatStrip, IucnScale } from '@/component
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { removeCatalogueEntry } from '@/lib/bestiaryCache';
 import SpeciesReportActionDialog, { type ReportActionSource } from '@/components/SpeciesReportActionDialog';
-import { Merge } from 'lucide-react';
+import { Merge, Volume2, GitBranch } from 'lucide-react';
+import { callLabelKey } from '@/lib/speciesCall';
 import { useCatalogueModeration, deleteBestiarySpecies } from '@/hooks/useCatalogueModeration';
 
 interface Props {
@@ -1201,15 +1202,13 @@ const CardDetailSheetInner = ({ card, open, onClose, communityFinders, onDeleted
                   { label: t('capture.detail.categoryLabel'), value: categoryLabel(card.category) },
                   ...(finders !== undefined && finders > 0 ? [{ label: t('capture.detail.capturedByLabel'), value: t('capture.finders.people', { count: finders }) }] : []),
                 ]} />
-                <div className="rounded-2xl border border-border bg-card divide-y divide-border/60">
-                  <SpeciesCallRow scientificName={card.scientificName} category={card.category} isPremium={isPremium} />
-{session && <SpeciesNaturalHistory name={card.name} scientificName={card.scientificName} />}
-                </div>
 
 
                 <div className="grid grid-cols-2 gap-2.5">
                   <LockedField icon={<MapPin className="w-4 h-4" />} label={t('capture.detail.habitat')} />
                   <LockedField icon={<UtensilsCrossed className="w-4 h-4" />} label={t('capture.detail.diet')} />
+                  <LockedField icon={<Volume2 className="w-4 h-4" />} label={t(`species.call.${callLabelKey(card.category)}`)} />
+                  <LockedField icon={<GitBranch className="w-4 h-4" />} label={t('capture.detail.moreData')} />
                   <LockedField icon={<Shield className="w-4 h-4" />} label={t('capture.detail.conservation')} />
                   <LockedField icon={<Leaf className="w-4 h-4" />} label={t('capture.detail.location')} />
                 </div>

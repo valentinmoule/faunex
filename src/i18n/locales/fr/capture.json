@@ -279,7 +279,8 @@
         "EW": "Éteinte à l'état sauvage",
         "EX": "Éteinte",
         "DD": "Données insuffisantes"
-      }
+      },
+      "moreData": "Classification et mensurations"
     },
     "share": {
       "titleOther": "Partager cette carte",
