@@ -6,7 +6,7 @@ import forest from '@/assets/collections/forest.jpg';
 import meadow from '@/assets/collections/meadow.jpg';
 import reef from '@/assets/collections/reef.jpg';
 import foxPhoto from '@/assets/learning/fox-photo-anim-l2.webp';
-import foxHappy from '@/assets/learning/fox-happy-anim-l2.webp';
+import foxHappy from '@/assets/learning/fox-win-loop-l2.webp';
 
 interface Props { open: boolean; onClose: () => void }
 
