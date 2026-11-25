@@ -112,9 +112,9 @@ export const useBestiaryData = (userId: string | undefined, opts?: { light?: boo
 
   const captureStateRef = useRef({ animals, myCaptures });
   captureStateRef.current = { animals, myCaptures };
-  const removeCaptureLocally = useCallback((captureId: string) => {
+  const removeCaptureLocally = useCallback((captureId: string, replacement?: AnimalCard) => {
     const current = captureStateRef.current;
-    const next = removeCollectionPhoto(current.animals, current.myCaptures, captureId);
+    const next = removeCollectionPhoto(current.animals, current.myCaptures, captureId, replacement);
     captureStateRef.current = { animals: next.animals, myCaptures: next.captures };
     setMyCaptures(next.captures);
     setAnimals(next.animals);

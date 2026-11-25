@@ -2,8 +2,9 @@ import type { AnimalCard } from '@/data/mockData';
 import type { BestiaryAnimal } from '@/lib/bestiary';
 
 /** Removing one photo keeps its species captured while another photo remains. */
-export function removeCollectionPhoto(animals: BestiaryAnimal[], captures: AnimalCard[], captureId: string) {
-  const remaining = captures.filter(capture => capture.id !== captureId);
+export function removeCollectionPhoto(animals: BestiaryAnimal[], captures: AnimalCard[], captureId: string, replacement?: AnimalCard) {
+  const filtered = captures.filter(capture => capture.id !== captureId);
+  const remaining = replacement && !filtered.some(c => c.id === replacement.id) ? [...filtered, replacement] : filtered;
   const latest = new Map<string, AnimalCard>();
   for (const capture of remaining) {
     const key = capture.name.trim().toLocaleLowerCase('fr');

@@ -61,7 +61,7 @@ interface Props {
   /** Nombre de naturalistes ayant capturé l'espèce (fiche "non découverte" du bestiaire). */
   communityFinders?: number;
   /** Called after the user deleted their own capture, so the parent list can drop it. */
-  onDeleted?: (captureId: string) => void;
+  onDeleted?: (captureId: string, replacement?: AnimalCard) => void;
   /** Mode feed : fiche allégée d'une capture d'explorateur — pas de description, ni d'infos. */
   feedView?: boolean;
   /** Set this own capture as the cover of the currently opened custom collection. */
@@ -545,6 +545,12 @@ const CardDetailSheetInner = ({ card, open, onClose, communityFinders, onDeleted
       return;
     }
 
+    // Plusieurs photos : on reste sur la fiche, la photo suivante prend la place.
+    if (photoNav && photoNav.total > 1) {
+      onDeleted?.(snapshot.id);
+      deleteInProgressRef.current = false;
+      return;
+    }
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     // La fiche se ferme d'abord, puis la carte disparaît avec des scintillements.
     onClose();
@@ -571,7 +577,7 @@ const CardDetailSheetInner = ({ card, open, onClose, communityFinders, onDeleted
     finishDeleteRef.current = finish;
     // Fallback if animationend is unavailable (background tab or interrupted animation).
     deleteTimerRef.current = window.setTimeout(finish, 700);
-  }, [card, displayName, onDeleted, onClose]);
+  }, [card, displayName, onDeleted, onClose, photoNav]);
 
   // Escape closes the delete confirmation
   useEffect(() => {
@@ -1721,12 +1727,22 @@ const CardDetailSheet = (props: Props) => {
     : card, [card, active]);
 
   const handleDeleted = (captureId: string) => {
-    onDeleted?.(captureId);
-    setPhotos((list) => {
-      const next = list.filter((p) => p.id !== captureId);
-      setIndex((i) => Math.min(i, Math.max(0, next.length - 1)));
-      return next;
-    });
+    const next = photos.filter((p) => p.id !== captureId);
+    // La tuile garde l'espèce : elle affiche la photo la plus récente restante.
+    const latest = next[0];
+    const replacement = card && latest ? {
+      ...card,
+      id: latest.id,
+      image: latest.image_url,
+      location: latest.location || '',
+      latitude: latest.latitude,
+      longitude: latest.longitude,
+      discoveredAt: latest.created_at,
+      subjectBox: (latest.subject_bbox as AnimalCard['subjectBox']) ?? undefined,
+    } : undefined;
+    onDeleted?.(captureId, replacement);
+    setIndex((i) => Math.min(i, Math.max(0, next.length - 1)));
+    setPhotos(next);
   };
 
   return (

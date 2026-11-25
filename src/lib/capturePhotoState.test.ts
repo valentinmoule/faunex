@@ -30,3 +30,14 @@ describe('Actions on one species photo', () => {
     expect(result.animals[1]).toBe(otherAnimal);
   });
 });
+describe('removeCollectionPhoto avec photo restante', () => {
+  it('garde la tuile capturée avec la photo restante fournie', async () => {
+    const { removeCollectionPhoto } = await import('./capturePhotoState');
+    const a = { id: 'a', name: 'Renard roux', image: 'a.jpg', discoveredAt: '2026-11-20' } as any;
+    const b = { id: 'b', name: 'Renard roux', image: 'b.jpg', discoveredAt: '2026-11-10' } as any;
+    const animals = [{ name: 'Renard roux', captured: true, captureData: a }] as any;
+    const next = removeCollectionPhoto(animals, [a], 'a', b);
+    expect(next.animals[0].captured).toBe(true);
+    expect(next.animals[0].captureData.id).toBe('b');
+  });
+});
