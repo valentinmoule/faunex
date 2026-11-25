@@ -1,3 +1,4 @@
+import { notifyXpChanged } from '@/lib/xpEvents';
 // ============= Full file contents =============
 
 import { useCallback, useEffect, useState } from 'react';
@@ -176,7 +177,7 @@ export default function PhotoContestTab() {
     hapticSuccess();
     setXpPop(true);
     setTimeout(() => setXpPop(false), 1900);
-    queryClient.invalidateQueries({ queryKey: ['header-level'] });
+    notifyXpChanged();
     queryClient.invalidateQueries({ queryKey: ['profile'] });
     setBallot((prev) => prev.map((e) => (e.entry_id === entryId ? { ...e, voted_for: true } : e)));
   };

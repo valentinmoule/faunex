@@ -1,3 +1,4 @@
+import { notifyXpChanged } from '@/lib/xpEvents';
 import { useEffect, useState, type CSSProperties } from 'react';
 import {
   Gift, Loader2, Share2, Clock, Crown, Lock,
@@ -94,6 +95,7 @@ const QuestsInline = () => {
         const quest = quests.find((q) => q.id === questId);
         setQuests((prev) => prev.map((q) => (q.id === questId ? { ...q, claimed: true } : q)));
         queryClient.invalidateQueries({ queryKey: pendingRewardsKey(session?.user?.id) });
+        notifyXpChanged();
         hapticSuccess();
         setBurstXp(quest?.xp_reward ?? 0);
         window.setTimeout(() => setBurstXp(null), 1900);

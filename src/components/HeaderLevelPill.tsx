@@ -1,4 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { XP_CHANGED } from '@/lib/xpEvents';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -9,6 +11,12 @@ export default function HeaderLevelPill() {
   const { t } = useTranslation();
   const { session } = useAuth();
   const uid = session?.user?.id;
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    const refresh = () => queryClient.invalidateQueries({ queryKey: ['header-level'] });
+    window.addEventListener(XP_CHANGED, refresh);
+    return () => window.removeEventListener(XP_CHANGED, refresh);
+  }, [queryClient]);
   const { data } = useQuery({
     queryKey: ['header-level', uid],
     enabled: !!uid,

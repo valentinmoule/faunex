@@ -1,3 +1,4 @@
+import { notifyXpChanged } from '@/lib/xpEvents';
 import { supabase } from '@/integrations/supabase/client';
 
 export const COMMUNITY_BADGE_ID = 'community_member';
@@ -12,5 +13,6 @@ export async function joinDiscordCommunity(): Promise<boolean> {
     p_xp_reward: COMMUNITY_BADGE_XP,
   });
   if (error) throw error;
+  if (data === true) notifyXpChanged();
   return data === true;
 }

@@ -1,3 +1,5 @@
+import { hapticSuccess } from '@/lib/haptics';
+import { notifyXpChanged } from '@/lib/xpEvents';
 /**
  * Écran de récompense d'un badge : illustration en grand, nom, description,
  * XP dans un tag, et un bouton à presser pour récupérer le badge.
@@ -85,7 +87,8 @@ const BadgeRewardSheet = ({ entry, onClose, onClaimed }: Props) => {
       return;
     }
     setClaimed(true);
-    if (navigator.vibrate) navigator.vibrate([40, 30, 80]);
+    notifyXpChanged();
+    hapticSuccess();
     onClaimed(entry);
     window.setTimeout(onClose, reduced ? 200 : 1200);
   };

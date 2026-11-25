@@ -1,3 +1,4 @@
+import { notifyXpChanged } from '@/lib/xpEvents';
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -54,6 +55,7 @@ export const useCollectionRewards = (userId?: string) => {
       });
       setClaiming(null);
       if (error || !data) return 0;
+      notifyXpChanged();
       setClaimedIds((prev) => (prev.includes(rewardId) ? prev : [...prev, rewardId]));
       return xp;
     },

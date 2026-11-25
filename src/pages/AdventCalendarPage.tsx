@@ -1,3 +1,4 @@
+import { notifyXpChanged } from '@/lib/xpEvents';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Award, Camera, Check, Gift, HelpCircle, Lock, Loader2, Snowflake } from 'lucide-react';
@@ -56,6 +57,7 @@ export default function AdventCalendarPage() {
     if (data === -1) { setWrong(answer ?? null); toast.error(t('advent.quizWrong')); return; }
     if (error || data === null) { toast.error(t('advent.error')); return; }
     await reload();
+    notifyXpChanged();
     if (adventKind(challenge) === 'badge') setReward(true);
     else if (data > 0) { setBurst(data); window.setTimeout(() => setBurst(null), 1900); }
   };
