@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button';
 import { useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
@@ -117,13 +118,10 @@ const OnboardingTour = ({ open, onClose }: Props) => {
       </div>
 
       <div className="shrink-0 px-6 pb-[calc(env(safe-area-inset-bottom)+20px)] pt-4">
-        <button
-          onClick={next}
-          className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-primary font-display text-base font-bold text-primary-foreground shadow-[0_4px_0_hsl(var(--primary)/0.45)] transition-transform active:translate-y-0.5"
-        >
+        <Button size="lg" onClick={next} className="w-full">
           {last ? t('onboarding.start') : t('onboarding.next')}
-          {!last && <ArrowRight className="h-5 w-5" />}
-        </button>
+          {!last && <ArrowRight />}
+        </Button>
       </div>
     </div>,
     document.body,
