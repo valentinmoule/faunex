@@ -184,13 +184,13 @@ export function RareRadarDeck({ state, items, isPremium, userId, selected, onSel
                   : <div className={`flex h-full w-full items-center justify-center ${s.locked ? 'blur-[5px]' : ''}`} style={{ background: `color-mix(in srgb, ${color} 14%, transparent)`, color }}>
                       <Icon className="h-12 w-12 opacity-70" strokeWidth={1.6} />
                     </div>}
-                {s.locked && <span className="absolute inset-0 flex items-center justify-center bg-card/30"><span className="flex h-10 w-10 items-center justify-center rounded-full bg-card/90 text-amber shadow-card"><Lock className="h-5 w-5" /></span></span>}
-                {photo && <span className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground"><Check className="h-3 w-3" strokeWidth={3} /></span>}
-                <span className="absolute inset-x-0 bottom-0 flex justify-center bg-gradient-to-t from-card/95 to-transparent pb-1 pt-4"><RarityBadge rarity={s.rarity} plain /></span>
+                {s.locked && <span className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-gradient-to-b from-card/10 via-card/40 to-card/70 backdrop-blur-[2px]"><span className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-amber to-amber/70 text-primary-foreground shadow-card ring-2 ring-card"><Crown className="h-5 w-5" strokeWidth={2.2} /></span><span className="rounded-full bg-card/90 px-2 py-0.5 font-display text-[10px] font-bold uppercase tracking-wide text-amber shadow-sm">Premium</span></span>}
+                {photo && <span className="absolute left-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground"><Check className="h-3 w-3" strokeWidth={3} /></span>}
+                <span className="absolute right-1.5 top-1.5 z-10 drop-shadow-sm"><RarityBadge rarity={s.rarity} plain /></span>
               </div>
-              <p className="mt-1.5 truncate font-display text-[13.5px] font-bold leading-tight text-foreground">{s.locked ? '••••••' : speciesName(s.animal_name ?? '')}</p>
+              <p className="mt-1.5 truncate font-display text-[13.5px] font-bold leading-tight text-foreground">{s.locked ? <span className="block h-3.5 w-4/5 rounded-full bg-muted" /> : speciesName(s.animal_name ?? '')}</p>
               <p className="mt-0.5 flex items-center gap-1 truncate text-[11px] font-display font-semibold">
-                {s.locked ? <span className="flex items-center gap-1 text-amber"><Crown className="h-3 w-3" />Premium</span>
+                {s.locked ? <span className="flex items-center gap-1 text-muted-foreground"><Lock className="h-3 w-3" />{t('premiumFeatures.radar.lockedCard')}</span>
                   : potential ? <span className="flex items-center gap-1 text-amber"><Sparkles className="h-3 w-3 shrink-0" />{t('premiumFeatures.radar.potentialTag')}</span>
                   : <span className="flex items-center gap-1 text-primary"><Users className="h-3 w-3 shrink-0" />{t('premiumFeatures.radar.seenBy', { count: s.sightings })}</span>}
               </p>
