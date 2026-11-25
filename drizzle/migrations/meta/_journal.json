@@ -1121,6 +1121,13 @@
       "when": 1795643553435,
       "tag": "0157_retire_referral_program",
       "breakpoints": true
+    },
+    {
+      "idx": 158,
+      "version": "7",
+      "when": 1795644001930,
+      "tag": "0158_only_themed_profile_pins",
+      "breakpoints": true
     }
   ]
 }

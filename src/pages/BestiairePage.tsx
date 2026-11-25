@@ -1712,16 +1712,6 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
               label={t('bestiary.customCollections.actions')}
               items={[
                 {
-                  label: t(selectedCustom.pinned_at ? 'bestiary.customCollections.unpin' : 'bestiary.customCollections.pin'),
-                  icon: selectedCustom.pinned_at
-                    ? <PinOff className="w-4 h-4 shrink-0" aria-hidden="true" />
-                    : <Pin className="w-4 h-4 shrink-0" aria-hidden="true" />,
-                  onSelect: () => {
-                    hapticTap();
-                    void customCollections.togglePin(selectedCustom.id);
-                  },
-                },
-                {
                   label: t('bestiary.customCollections.rename'),
                   icon: <Pencil className="w-4 h-4 shrink-0" aria-hidden="true" />,
                   onSelect: () => {
