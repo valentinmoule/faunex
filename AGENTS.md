@@ -85,7 +85,7 @@ Register FCM devices with server auth, remove before logout, and dispatch verifi
 
 ## The zone radar is unlimited and server-masked
 
-The radar deck holds at most 10 cards (sightings first, then potentials); `nearby-animals` caches AI potentials per rounded zone and month, and masks every card beyond the first for non-Premium callers, because unlimited scans must stay cheap and paid results must not leak.
+Max 10 cards, sightings first; `nearby-animals` caches potentials per zone/month and masks all but the first card for non-Premium, so scans stay cheap and paid results never leak.
 
 ## Private preferences use the owner RPC
 
