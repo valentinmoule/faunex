@@ -10,10 +10,6 @@
       "geoUnavailable": "Geolocation unavailable",
       "geoPositionError": "Couldn't get your position"
     },
-    "emptyState": {
-      "title": "No geolocated captures",
-      "description": "Your captures will show up here if you allow location when taking the photo. Imported photos without GPS data can't be placed on the map."
-    },
     "groupSheet": {
       "defaultTitle": "This spot",
       "count_one": "{{count}} capture at this spot",

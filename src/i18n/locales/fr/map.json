@@ -10,10 +10,6 @@
       "geoUnavailable": "Géolocalisation indisponible",
       "geoPositionError": "Impossible d'obtenir ta position"
     },
-    "emptyState": {
-      "title": "Aucune capture géolocalisée",
-      "description": "Tes captures apparaîtront ici si tu autorises la localisation au moment de la photo. Les photos importées sans données GPS ne peuvent pas être placées sur la carte."
-    },
     "groupSheet": {
       "defaultTitle": "Cette position",
       "count_one": "{{count}} capture à cet endroit",

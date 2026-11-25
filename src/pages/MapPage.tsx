@@ -575,17 +575,6 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
       </MapContainer>
       </div>
 
-      {captures.length === 0 && (
-        <div className="absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+188px)] z-20 px-6 pointer-events-none">
-          <div className="max-w-sm mx-auto rounded-2xl bg-card/90 backdrop-blur-xl border border-border/60 shadow-card p-4 text-center">
-            <MapPin className="w-6 h-6 text-primary mx-auto mb-2" />
-            <p className="font-display font-bold text-sm text-foreground">{t('map.emptyState.title')}</p>
-            <p className="text-[12px] text-muted-foreground mt-1">
-              {t('map.emptyState.description')}
-            </p>
-          </div>
-        </div>
-      )}
 
 
       <a
