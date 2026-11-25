@@ -1,4 +1,6 @@
 # Roadmap
+- [x] Actions sur la photo sélectionnée : boutons individuels, cibles figées pour correction/recadrage, aperçu de confirmation, cache de recadrage et remplacement par la dernière photo restante ; 15 tests passants, aucune capture réelle modifiée.
+- [ ] Vérification connectée des trois actions sur une espèce à plusieurs photos — bloquée par la saturation des connexions du service.
 - [x] Navigation gauche/droite entre les fiches de Mes captures, ordre et filtres conservés ; glissement tactile, flèches et limite vérifiés connecté, 9 tests passants.
 - [x] Rangement : attente de défilement virtuel retirée de Mes captures ; panne reproduite puis un vol et un atterrissage vérifiés connecté avec une photo existante, sans analyse ni écriture ; 5 tests passants. Nouvelle capture réelle et appareil natif non testés.
 - [x] Boosters : lettrages vectoriels par thème intégrés à l’illustration (relief, motifs, couleurs, typographies), rotation 3D et reflet selon le défilement ; douze titres FR/EN vérifiés sans dépassement, ouverture connectée sur téléphone/ordinateur, réduction des animations respectée. Neuf tests de déblocage passants.

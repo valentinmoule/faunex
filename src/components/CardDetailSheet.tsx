@@ -52,6 +52,7 @@ import { callLabelKey } from '@/lib/speciesCall';
 import { useCatalogueModeration, deleteBestiarySpecies } from '@/hooks/useCatalogueModeration';
 import { adjacentCaptureIndex, captureNavigationIndex, captureSwipeStep } from '@/lib/captureNavigation';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { subscribeCaptureImageUpdates } from '@/lib/captureImageUpdates';
 
 interface Props {
   card: AnimalCard | null;
@@ -264,10 +265,22 @@ const CardDetailSheetInner = ({ card, open, onClose, communityFinders, onDeleted
   const { isPremium } = useSubscription(session?.user?.id);
   const [savingCover, setSavingCover] = useState(false);
   const [correctionOpen, setCorrectionOpen] = useState(false);
+  const [correctionTarget, setCorrectionTarget] = useState<{ id?: string; name: string; scientificName?: string; image?: string } | null>(null);
   const [isOwner, setIsOwner] = useState(false);
-  const [cropOpen, setCropOpen] = useState(false);
+  const [cropTarget, setCropTarget] = useState<{ id: string; image: string } | null>(null);
   const [imageOverride, setImageOverride] = useState<{ id: string; url: string } | null>(null);
   const cardImage = card && imageOverride?.id === card.id ? imageOverride.url : card?.image;
+  const openPhotoCorrection = () => {
+    if (!card) return;
+    setCorrectionTarget({ id: isOwner ? card.id : undefined, name: card.name, scientificName: card.scientificName, image: isOwner ? cardImage : undefined });
+    hapticTap();
+    setCorrectionOpen(true);
+  };
+  const openPhotoCrop = () => {
+    if (!card || !cardImage || !isOwner) return;
+    hapticTap();
+    setCropTarget({ id: card.id, image: cardImage });
+  };
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteAnimating, setDeleteAnimating] = useState(false);
@@ -1010,6 +1023,20 @@ const CardDetailSheetInner = ({ card, open, onClose, communityFinders, onDeleted
                 <span className="text-[11px] font-display font-semibold text-muted-foreground">
                   {t('capture.detail.photoN', { n: photoNav.index + 1, total: photoNav.total })}
                 </span>
+                {isOwner && (
+                  <div className="flex items-center justify-center gap-4">
+                    <Button variant="ghost" size="icon" aria-label={t('capture.photoActions.report')} title={t('capture.photoActions.report')} onClick={openPhotoCorrection}>
+                      <ScanSearch className="h-5 w-5" />
+                    </Button>
+                    <Button variant="ghost" size="icon" aria-label={t('capture.photoActions.crop')} title={t('capture.photoActions.crop')} onClick={openPhotoCrop}>
+                      <CropIcon className="h-5 w-5" />
+                    </Button>
+                    <Button variant="ghost" size="icon" aria-label={t('capture.photoActions.release')} title={t('capture.photoActions.release')}
+                      onClick={() => { hapticTap(); setConfirmDelete(true); }}>
+                      <Trash2 className="h-5 w-5 text-primary" />
+                    </Button>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="relative z-10 text-center px-6 pt-2 pb-14" />
@@ -1038,7 +1065,7 @@ const CardDetailSheetInner = ({ card, open, onClose, communityFinders, onDeleted
                   items={[{
                     label: t('species.report.action'),
                     icon: <ScanSearch className="w-5 h-5 text-muted-foreground" />,
-                    onSelect: () => { hapticTap(); setCorrectionOpen(true); },
+                    onSelect: openPhotoCorrection,
                   }, ...speciesDeleteItems]}
                 />
               </div>
@@ -1135,18 +1162,17 @@ const CardDetailSheetInner = ({ card, open, onClose, communityFinders, onDeleted
                       ...(session ? [{
                         label: t(isOwner ? 'capture.correction.title' : 'species.report.action'),
                         icon: <ScanSearch className="w-5 h-5 text-muted-foreground" />,
-                        onSelect: () => { hapticTap(); setCorrectionOpen(true); },
+                        onSelect: openPhotoCorrection,
                       }] : []),
                       ...(isOwner && cardImage ? [{
                         label: t('capture.crop.action'),
                         icon: <CropIcon className="w-5 h-5 text-muted-foreground" />,
-                        onSelect: () => { hapticTap(); setCropOpen(true); },
+                        onSelect: openPhotoCrop,
                       }] : []),
                       ...(isOwner ? [
                         {
                           label: t('capture.detail.deleteCapture'),
-                          icon: <Trash2 className="w-5 h-5 text-destructive" />,
-                          tone: 'destructive' as const,
+                          icon: <Trash2 className="w-5 h-5 text-primary" />,
                           onSelect: () => { hapticTap(); setConfirmDelete(true); },
                         },
                       ] : []),
@@ -1612,8 +1638,11 @@ const CardDetailSheetInner = ({ card, open, onClose, communityFinders, onDeleted
               {t('capture.detail.deleteDialogTitle', { name: displayName })}
             </h4>
             <p id="delete-capture-desc" className="mt-1.5 text-sm leading-snug text-muted-foreground">
-              {t('capture.detail.deleteDialogDesc', { name: displayName })}
+              {t(photoNav && photoNav.total > 1 ? 'capture.photoActions.releaseDescription' : 'capture.detail.deleteDialogDesc', { name: displayName })}
             </p>
+            {photoNav && photoNav.total > 1 && cardImage && (
+              <img src={cardImage} alt={displayName} className="mx-auto mt-3 h-24 w-20 rounded-lg object-cover" />
+            )}
             <div className="mt-5 grid grid-cols-2 gap-2.5">
               <button
                 type="button"
@@ -1637,15 +1666,16 @@ const CardDetailSheetInner = ({ card, open, onClose, communityFinders, onDeleted
       ), document.body)}
 
       {vanishOverlay}
-      {cropOpen && cardImage && (
+      {cropTarget && (
         <CropPhotoDialog
-          photo={cardImage}
-          onCancel={() => setCropOpen(false)}
+          photo={cropTarget.image}
+          onCancel={() => setCropTarget(null)}
           onDone={async (cropped) => {
-            const ok = await saveCroppedCaptureImage(card.id, cropped);
-            setCropOpen(false);
+            const target = cropTarget;
+            const ok = await saveCroppedCaptureImage(target.id, cropped);
+            setCropTarget(null);
             if (ok) {
-              setImageOverride({ id: card.id, url: ok });
+              setImageOverride({ id: target.id, url: ok });
               toast({ title: t('capture.crop.saved') });
             } else {
               toast({ title: t('capture.crop.saveError'), variant: 'destructive' });
@@ -1653,7 +1683,7 @@ const CardDetailSheetInner = ({ card, open, onClose, communityFinders, onDeleted
           }}
         />
       )}
-      {correctionOpen && <CaptureCorrectionDialog captureId={isOwner ? card.id : undefined} speciesName={card.name} speciesScientific={card.scientificName} open={correctionOpen} onClose={() => setCorrectionOpen(false)} onSubmitted={() => { setCorrectionOpen(false); if (isOwner) { onClose(); onDeleted?.(card.id); } }} />}
+      {correctionOpen && correctionTarget && <CaptureCorrectionDialog captureId={correctionTarget.id} photoUrl={correctionTarget.image} speciesName={correctionTarget.name} speciesScientific={correctionTarget.scientificName} open={correctionOpen} onClose={() => setCorrectionOpen(false)} onSubmitted={() => { setCorrectionOpen(false); if (correctionTarget.id) { onClose(); onDeleted?.(correctionTarget.id); } }} />}
     </>
 
   );
@@ -1687,6 +1717,10 @@ const CardDetailSheet = (props: Props) => {
   const userId = session?.user?.id;
   const cardId = card?.id;
   const cardName = card?.name;
+  useEffect(() => subscribeCaptureImageUpdates(update => {
+    if (update.userId !== userId) return;
+    setPhotos(current => current.map(photo => photo.id === update.captureId ? { ...photo, image_url: update.imageUrl, subject_bbox: null } : photo));
+  }), [userId]);
 
   useEffect(() => {
     setPhotos([]);
@@ -1715,7 +1749,7 @@ const CardDetailSheet = (props: Props) => {
   // Never attach the previous species' photo while the new list is loading.
   const active = photos.length > 1 && photos.some(photo => photo.id === cardId) ? photos[index] : null;
   // Mémorisé : une nouvelle référence relancerait le chargement de la fiche à chaque rendu.
-  const activeCard = useMemo(() => card && active && active.id !== card.id
+  const activeCard = useMemo(() => card && active
     ? {
         ...card,
         id: active.id,

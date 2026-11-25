@@ -8,6 +8,7 @@ import { readCatalogueCache, writeCatalogueCache, subscribeCatalogueDeletion, ty
 import type { AnimalCard } from '@/data/mockData';
 import { peekPendingShelve } from '@/lib/shelveAnimation';
 import { subscribeCaptureImageUpdates, updateCaptureImage } from '@/lib/captureImageUpdates';
+import { removeCollectionPhoto } from '@/lib/capturePhotoState';
 
 /** Loads the bestiary catalogue, the user's captures, notifications count and zone subscriptions.
  *  Pass `light: true` (e.g. on the leaderboard tab) to only load the notification count —
@@ -109,13 +110,18 @@ export const useBestiaryData = (userId: string | undefined, opts?: { light?: boo
     sessionSnapshot = { userId, animals, myCaptures, subscribedZones };
   }, [userId, capturesLoaded, light, animals, myCaptures, subscribedZones]);
 
+  const captureStateRef = useRef({ animals, myCaptures });
+  captureStateRef.current = { animals, myCaptures };
   const removeCaptureLocally = useCallback((captureId: string) => {
-    setMyCaptures((current) => current.filter((capture) => capture.id !== captureId));
-    setAnimals((current) => current.map((animal) => {
-      if (animal.captureData?.id !== captureId) return animal;
-      return { ...animal, captured: false, captureData: undefined };
-    }));
-  }, []);
+    const current = captureStateRef.current;
+    const next = removeCollectionPhoto(current.animals, current.myCaptures, captureId);
+    captureStateRef.current = { animals: next.animals, myCaptures: next.captures };
+    setMyCaptures(next.captures);
+    setAnimals(next.animals);
+    if (sessionSnapshot?.userId === userId) {
+      sessionSnapshot = { ...sessionSnapshot, animals: next.animals, myCaptures: next.captures };
+    }
+  }, [userId]);
 
   const animalsRef = useRef<BestiaryAnimal[]>([]);
   animalsRef.current = animals;

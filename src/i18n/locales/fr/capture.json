@@ -105,6 +105,12 @@
       "previous": "Capture précédente",
       "next": "Capture suivante"
     },
+    "photoActions": {
+      "release": "Libérer cette capture",
+      "report": "Signaler cette photo",
+      "crop": "Recadrer cette photo",
+      "releaseDescription": "Seule la photo affichée sera libérée. Tes autres photos de cette espèce resteront dans ton Faunex. Cette action est définitive."
+    },
     "alsoPossible": "Aussi possible : {{alternatives}}",
     "requestVerification": "Proposer une autre espèce",
     "reveal": {

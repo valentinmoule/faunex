@@ -17,8 +17,9 @@ type ReportType = 'wrong_species' | 'does_not_exist';
  *   un motif : espèce incorrecte (il propose alors le bon nom) ou fiche qui ne
  *   correspond à aucune espèce réelle.
  */
-export function CaptureCorrectionDialog({ captureId, speciesName, speciesScientific, open, onClose, onSubmitted }: {
+export function CaptureCorrectionDialog({ captureId, photoUrl, speciesName, speciesScientific, open, onClose, onSubmitted }: {
   captureId?: string;
+  photoUrl?: string;
   speciesName: string;
   speciesScientific?: string | null;
   open: boolean;
@@ -61,7 +62,8 @@ export function CaptureCorrectionDialog({ captureId, speciesName, speciesScienti
         onSubmitted();
         return;
       }
-      const result = await requestCaptureCorrection(captureId!, name, scientific, note);
+      if (!captureId) return;
+      const result = await requestCaptureCorrection(captureId, name, scientific, note);
       if (result.success || result.reason === 'already_pending') {
         toast({ title: t(result.success ? 'capture.toasts.verificationRequested' : 'capture.correction.alreadyPending') });
         onSubmitted();
@@ -85,6 +87,7 @@ export function CaptureCorrectionDialog({ captureId, speciesName, speciesScienti
           <div className="mx-auto mt-3 h-1.5 w-10 rounded-full bg-muted" />
 
           <div className="px-5 pt-4 space-y-5 overflow-y-auto">
+            {captureId && photoUrl && <img src={photoUrl} alt={speciesName} className="mx-auto h-28 w-24 rounded-lg object-cover" />}
             <div className="flex flex-col items-center gap-3 text-center">
               <span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
                 <ScanSearch className="h-7 w-7 text-primary" />

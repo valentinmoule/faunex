@@ -105,6 +105,12 @@
       "previous": "Previous capture",
       "next": "Next capture"
     },
+    "photoActions": {
+      "release": "Release this capture",
+      "report": "Report this photo",
+      "crop": "Crop this photo",
+      "releaseDescription": "Only the displayed photo will be released. Your other photos of this species will remain in your Faunex. This action is permanent."
+    },
     "alsoPossible": "Also possible: {{alternatives}}",
     "requestVerification": "Suggest another species",
     "reveal": {

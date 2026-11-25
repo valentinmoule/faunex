@@ -5,20 +5,30 @@ import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { AnimalCard } from '@/data/mockData';
 import { setPendingShelve } from '@/lib/shelveAnimation';
+import { publishCaptureImageUpdate } from '@/lib/captureImageUpdates';
 
 const mocks = vi.hoisted(() => {
   const deleteCapture = vi.fn();
+  const rpc = vi.fn(async () => ({ data: false, error: null }));
+  const saveCrop = vi.fn(async () => '/cropped.jpg');
+  const cropPhoto = vi.fn();
+  const photos: Array<Record<string, unknown>> = [];
   const feedQuery = { eq: vi.fn(), limit: vi.fn(async () => ({ data: [] })) };
   feedQuery.eq.mockImplementation(() => feedQuery);
   const captureQuery = {
-    select: vi.fn(() => { const chain: Record<string, unknown> = { maybeSingle: vi.fn(async () => ({ data: { user_id: 'owner' } })), then: (resolve: (v: unknown) => unknown) => Promise.resolve({ data: [] }).then(resolve) }; for (const k of ['eq', 'ilike', 'order']) chain[k] = vi.fn(() => chain); return chain; }),
+    select: vi.fn(() => { const chain: Record<string, unknown> = { maybeSingle: vi.fn(async () => ({ data: { user_id: 'owner' } })), then: (resolve: (v: unknown) => unknown) => Promise.resolve({ data: photos }).then(resolve) }; for (const k of ['eq', 'ilike', 'order']) chain[k] = vi.fn(() => chain); return chain; }),
     delete: vi.fn(() => ({ eq: deleteCapture })),
   };
-  return { deleteCapture, captureQuery, feedQuery };
+  return { deleteCapture, captureQuery, feedQuery, rpc, saveCrop, cropPhoto, photos };
 });
 const bestiaryGate = vi.hoisted(() => ({ pending: null as Promise<void> | null }));
 
-vi.mock('@/integrations/supabase/client', () => ({ supabase: { rpc: async () => ({ data: false, error: null }), from: (table: string) => table === 'captures' ? mocks.captureQuery : { select: () => mocks.feedQuery }, functions: { invoke: async () => ({ data: null, error: null }) } } }));
+vi.mock('@/integrations/supabase/client', () => ({ supabase: { rpc: mocks.rpc, from: (table: string) => table === 'captures' ? mocks.captureQuery : { select: () => mocks.feedQuery }, functions: { invoke: async () => ({ data: null, error: null }) } } }));
+vi.mock('@/lib/captureCrop', () => ({ saveCroppedCaptureImage: mocks.saveCrop }));
+vi.mock('@/components/capture/CropPhotoDialog', () => ({ default: ({ photo, onDone }: { photo: string; onDone: (url: string) => void }) => {
+  mocks.cropPhoto(photo);
+  return <button onClick={() => onDone('cropped-data')}>Apply test crop</button>;
+} }));
 vi.mock('@/contexts/AuthContext', () => ({
   useAuth: () => authState,
   AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
@@ -98,10 +108,66 @@ describe('Navigation dans Mes captures', () => {
 });
 
 beforeEach(() => {
+  mocks.photos.length = 0;
   mocks.deleteCapture.mockResolvedValue({ error: null });
   sessionStorage.clear();
 });
 afterEach(() => { vi.useRealTimers(); vi.clearAllMocks(); });
+
+describe('Actions sur une photo précise', () => {
+  const renderPhotos = () => {
+    mocks.photos.push(
+      { id: card.id, image_url: '/new.jpg', created_at: '2026-11-25', location: 'Paris' },
+      { id: 'older-photo', image_url: '/old.jpg', created_at: '2026-11-24', location: 'Lyon' },
+    );
+    const onDeleted = vi.fn();
+    const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const view = render(<QueryClientProvider client={qc}><MemoryRouter>
+      <CardDetailSheet card={card} open onClose={vi.fn()} onDeleted={onDeleted} />
+    </MemoryRouter></QueryClientProvider>);
+    return { ...view, onDeleted };
+  };
+
+  it('libère uniquement la deuxième photo sélectionnée', async () => {
+    const view = renderPhotos();
+    await screen.findAllByRole('tab');
+    fireEvent.click(screen.getAllByRole('tab')[1]);
+    fireEvent.click(await screen.findByRole('button', { name: 'capture.photoActions.release' }));
+    fireEvent.click(screen.getByRole('button', { name: 'capture.detail.deleteBtn' }));
+    await waitFor(() => expect(mocks.deleteCapture).toHaveBeenCalledExactlyOnceWith('id', 'older-photo'));
+    expect(view.onDeleted).toHaveBeenCalledExactlyOnceWith('older-photo');
+    view.unmount();
+  });
+
+  it('envoie la correction de la photo sélectionnée et non celle de couverture', async () => {
+    const view = renderPhotos();
+    await screen.findAllByRole('tab');
+    fireEvent.click(screen.getAllByRole('tab')[1]);
+    fireEvent.click(await screen.findByRole('button', { name: 'capture.photoActions.report' }));
+    fireEvent.change(screen.getByLabelText('capture.correction.name'), { target: { value: 'Renard arctique' } });
+    fireEvent.click(screen.getByRole('button', { name: 'capture.actions.requestVerificationBtn' }));
+    await waitFor(() => expect(mocks.rpc).toHaveBeenCalledWith('request_capture_correction', {
+      p_capture: 'older-photo', p_name: 'Renard arctique', p_scientific: undefined, p_note: undefined,
+    }));
+    view.unmount();
+  });
+
+  it('recadre la photo sélectionnée et garde sa nouvelle image après changement de photo', async () => {
+    const view = renderPhotos();
+    await screen.findAllByRole('tab');
+    fireEvent.click(screen.getAllByRole('tab')[1]);
+    fireEvent.click(await screen.findByRole('button', { name: 'capture.photoActions.crop' }));
+    expect(mocks.cropPhoto).toHaveBeenLastCalledWith('/old.jpg');
+    fireEvent.click(screen.getByRole('button', { name: 'Apply test crop' }));
+    await waitFor(() => expect(mocks.saveCrop).toHaveBeenCalledExactlyOnceWith('older-photo', 'cropped-data'));
+    act(() => publishCaptureImageUpdate({ captureId: 'older-photo', userId: 'owner', imageUrl: '/cropped.jpg' }));
+    fireEvent.click(screen.getAllByRole('tab')[0]);
+    fireEvent.click(screen.getAllByRole('tab')[1]);
+    fireEvent.click(await screen.findByRole('button', { name: 'capture.photoActions.crop' }));
+    expect(mocks.cropPhoto).toHaveBeenLastCalledWith('/cropped.jpg');
+    view.unmount();
+  });
+});
 
 describe('Suppression de capture', () => {
   it('retire la vraie tuile sous le snapshot animé pour éviter toute réapparition à la fin', async () => {
