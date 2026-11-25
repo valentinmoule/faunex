@@ -1,6 +1,3 @@
-import communityMemberArt from '@/assets/badges/community_member.png';
-import premiumMemberArt from '@/assets/badges/premium_member.png';
-import photoOfWeekArt from '@/assets/badges/photo_of_week.png';
 import adventArt from '@/assets/badges/advent.png';
 
 const bundledBadgeModules = import.meta.glob<string>('../assets/badges/native/*.webp', {
@@ -19,9 +16,6 @@ const bundledBadgeArt = Object.fromEntries(
 /** Badge artwork bundled with the app so native builds never depend on hosted asset routes. */
 export const BADGE_ART: Record<string, string> = {
   ...bundledBadgeArt,
-  'community_member': communityMemberArt,
-  'premium_member': premiumMemberArt,
-  'photo_of_week': photoOfWeekArt,
 };
 
 export const getBadgeArt = (badgeId: string) =>

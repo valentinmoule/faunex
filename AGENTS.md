@@ -153,3 +153,7 @@ Render themed lettering as vector overlays separate from cover photos so FR/EN t
 ## Several photos per species, one tile
 
 Approved captures may repeat a species; grids show the latest per species and the detail sheet pages through the owner's photos with per-photo date/place/note. Only the first approved photo of a species earns full rarity XP (`xp_on_capture`), later ones a flat amount, so re-shooting cannot be farmed.
+
+## Reward and category art matches the mascot
+
+Quest chests, league trophies, badges and category chips are bundled plush-felt WebP renders made from the mascot reference, not hand-drawn SVG; locked states derive from CSS grayscale so one asset serves every state.

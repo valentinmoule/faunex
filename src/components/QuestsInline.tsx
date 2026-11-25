@@ -12,6 +12,8 @@ import { Button } from '@/components/ui/button';
 import { shareContent } from '@/lib/share';
 import XpPill from '@/components/XpPill';
 import { useNavigate } from 'react-router-dom';
+import chestClosedArt from '@/assets/quests/chest-closed.webp';
+import chestOpenArt from '@/assets/quests/chest-open.webp';
 
 interface Quest {
   id: string;
@@ -184,31 +186,18 @@ const QuestsInline = () => {
   );
 };
 
-/** Coffre d'expédition sculpté : cuir, renforts dorés, gemme verte. */
+/** Coffre d'expédition en cuir feutré, même facture que la mascotte. */
 function RelicChest({ state }: { state: 'idle' | 'ready' | 'open' | 'locked' }) {
-  const open = state === 'open';
   return (
-    <svg data-state={state} className="relic-chest h-11 w-12" viewBox="0 0 48 44" aria-hidden>
-      <defs>
-        <linearGradient id={`rc-wood-${state}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="hsl(28 55% 46%)" /><stop offset="1" stopColor="hsl(24 52% 32%)" />
-        </linearGradient>
-        <linearGradient id={`rc-gold-${state}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="hsl(var(--amber-light))" /><stop offset="1" stopColor="hsl(var(--amber-dark))" />
-        </linearGradient>
-      </defs>
-      <rect x="5" y="20" width="38" height="20" rx="4" fill={`url(#rc-wood-${state})`} />
-      {open
-        ? <path d="M6 20 L10 8 Q24 2 38 8 L42 20 Z" fill={`url(#rc-wood-${state})`} opacity=".85" />
-        : <path d="M5 21 V15 Q5 6 24 6 Q43 6 43 15 V21 Z" fill={`url(#rc-wood-${state})`} />}
-      <rect x="5" y="19" width="38" height="4" rx="1.5" fill={`url(#rc-gold-${state})`} />
-      <rect x="11" y={open ? 9 : 6} width="4" height={open ? 31 : 34} rx="1.5" fill={`url(#rc-gold-${state})`} />
-      <rect x="33" y={open ? 9 : 6} width="4" height={open ? 31 : 34} rx="1.5" fill={`url(#rc-gold-${state})`} />
-      <rect x="19" y="17" width="10" height="11" rx="2.5" fill={`url(#rc-gold-${state})`} />
-      <path d="M24 19.5 L27 22.5 L24 25.5 L21 22.5 Z" fill={state === 'locked' ? 'hsl(var(--muted-foreground))' : 'hsl(var(--primary))'} />
-      {open && <path d="M18 31 L22 35 L30 27" fill="none" stroke="hsl(var(--card))" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />}
-      <path d="M8 14 Q24 9 40 14" fill="none" stroke="hsl(var(--card) / .35)" strokeWidth="1.2" strokeLinecap="round" />
-    </svg>
+    <img
+      src={state === 'open' ? chestOpenArt : chestClosedArt}
+      data-state={state}
+      alt=""
+      aria-hidden
+      width={48}
+      height={48}
+      className="relic-chest h-12 w-12 object-contain"
+    />
   );
 }
 
