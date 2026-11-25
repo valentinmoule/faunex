@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Camera, Check, Gift, Lock, Loader2, Snowflake } from 'lucide-react';
+import { ArrowLeft, Award, Camera, Check, Gift, HelpCircle, Lock, Loader2, Snowflake } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,7 +9,10 @@ import { PageHeader } from '@/components/PageHeader';
 import BadgeRewardSheet from '@/components/BadgeRewardSheet';
 import BadgeMedallion from '@/components/BadgeMedallion';
 import { useAdventCalendars } from '@/hooks/useAdventCalendars';
-import { adventCountdown, adventState, canOpenAdvent } from '@/lib/advent';
+import { adventCountdown, adventKind, adventState, canOpenAdvent, type AdventKind } from '@/lib/advent';
+import RewardBurst from '@/components/rewards/RewardBurst';
+
+const KIND_ICON: Record<AdventKind, typeof Gift> = { photo: Camera, gift: Gift, quiz: HelpCircle, badge: Award };
 import cover from '@/assets/collections/advent-2026-v2.jpg';
 
 export default function AdventCalendarPage() {
@@ -18,6 +21,7 @@ export default function AdventCalendarPage() {
   const calendar = collections.find(c => c.id === id);
   const own = submissions.filter(s => s.collection_id === id);
   const [selected, setSelected] = useState<number | null>(null);
+  const [burst, setBurst] = useState<number | null>(null); const [wrong, setWrong] = useState<number | null>(null);
   const [claiming, setClaiming] = useState(false); const [reward, setReward] = useState(false); const [badgeClaimed, setBadgeClaimed] = useState(false);
   useEffect(() => { if (!id) return; void supabase.from('user_badges').select('badge_id').eq('badge_id', `advent_${id}`).then(({ data }) => setBadgeClaimed(Boolean(data?.length))); }, [id]);
   if (!loaded) return <div className="flex min-h-screen items-center justify-center"><Loader2 className="size-6 animate-spin text-primary" /></div>;
@@ -45,12 +49,15 @@ export default function AdventCalendarPage() {
   const count = new Set(own.filter(s => s.approved_at).map(s => s.day)).size;
   const challenge = calendar.calendar_days.find(d => d.day === selected);
   const state = challenge ? adventState(calendar.calendar_year, challenge.day, now, own) : null;
-  const claim = async () => {
-    if (!challenge || claiming) return; setClaiming(true);
-    const { data, error } = await supabase.rpc('claim_advent_day', { p_collection: calendar.id, p_day: challenge.day });
+  const claim = async (answer?: number) => {
+    if (!challenge || claiming) return; setClaiming(true); setWrong(null);
+    const { data, error } = await supabase.rpc('claim_advent_day', { p_collection: calendar.id, p_day: challenge.day, ...(answer !== undefined ? { p_answer: answer } : {}) });
     setClaiming(false);
+    if (data === -1) { setWrong(answer ?? null); toast.error(t('advent.quizWrong')); return; }
     if (error || data === null) { toast.error(t('advent.error')); return; }
     await reload();
+    if (adventKind(challenge) === 'badge') setReward(true);
+    else if (data > 0) { setBurst(data); window.setTimeout(() => setBurst(null), 1900); }
   };
   const badge = { id: `advent_${calendar.id}`, name: t('advent.badge', { year: calendar.calendar_year }), description: t('advent.badgeDescription'), group: 'collections' as const, icon: '🎄', xp: calendar.final_badge_xp, total: 24 };
   return <main className="min-h-screen bg-background pb-28">
@@ -59,11 +66,26 @@ export default function AdventCalendarPage() {
       <div className="relative mt-2 h-52 overflow-hidden rounded-lg"><img src={cover} width={1024} height={1536} alt="" className="h-full w-full object-cover object-center" /><div className="absolute inset-x-0 bottom-0 bg-background/90 px-4 py-3"><h1 className="font-display text-xl font-bold">{i18n.language.startsWith('en') ? calendar.title_en || calendar.title : calendar.title}</h1><p className="mt-1 text-xs text-muted-foreground">{t('advent.period', { year: calendar.calendar_year })}</p></div></div>
       <div className="flex items-center justify-between py-5"><p className="font-display text-sm font-semibold">{t('advent.progress', { count })}</p><Snowflake className="size-5 text-primary" /></div>
       <div className="grid grid-cols-4 gap-2">
-        {calendar.calendar_days.map(d => { const s = adventState(calendar.calendar_year, d.day, now, own); const done = s === 'complete' || s === 'claimed'; return <Button key={d.day} variant="outline" aria-label={t('advent.day', { day: d.day })} onClick={() => setSelected(d.day)} className={`relative h-auto aspect-[4/5] min-w-0 flex-col gap-2 rounded-lg px-1 ${s === 'today' ? 'border-primary bg-primary/10' : done ? 'border-primary/40 bg-secondary' : 'bg-card'}`}><span className="font-display text-xl font-bold">{d.day}</span>{done ? <Check className="text-primary" /> : s === 'locked' ? <Lock className="text-muted-foreground/50" /> : s === 'pending' ? <Loader2 className="text-muted-foreground" /> : <Gift className={s === 'today' ? 'text-primary' : 'text-muted-foreground/50'} />}</Button>; })}
+        {calendar.calendar_days.map(d => { const s = adventState(calendar.calendar_year, d.day, now, own); const done = s === 'complete' || s === 'claimed'; return <Button key={d.day} variant="outline" aria-label={t('advent.day', { day: d.day })} onClick={() => setSelected(d.day)} className={`relative h-auto aspect-[4/5] min-w-0 flex-col gap-2 rounded-lg px-1 ${s === 'today' ? 'border-primary bg-primary/10' : s === 'catchup' ? 'border-primary/50 border-dashed' : done ? 'border-primary/40 bg-secondary' : 'bg-card'}`}><span className="font-display text-xl font-bold">{d.day}</span>{(() => { const Icon = KIND_ICON[adventKind(d)]; return done ? <Check className="text-primary" /> : s === 'locked' ? <Lock className="text-muted-foreground/50" /> : s === 'pending' ? <Loader2 className="text-muted-foreground" /> : <Icon className={s === 'today' || s === 'catchup' ? 'text-primary' : 'text-muted-foreground/50'} />; })()}</Button>; })}
       </div>
-      {challenge && <section className="border-b border-border py-6 text-center" aria-live="polite"><p className="text-xs font-semibold text-primary">{t('advent.day', { day: challenge.day })} · {t(`advent.${state}`, { day: challenge.day })}</p><h2 className="mt-2 font-display text-lg font-bold">{state === 'locked' ? t('advent.locked', { day: challenge.day }) : i18n.language.startsWith('en') ? challenge.title_en || challenge.title : challenge.title}</h2>{state === 'today' && <Button className="mt-4" onClick={() => navigate('/capture')}><Camera />{t('advent.capture')}</Button>}{state === 'complete' && <Button className="mt-4" disabled={claiming} onClick={claim}>{claiming ? <Loader2 className="animate-spin" /> : <Gift />}{t('advent.claim', { xp: challenge.xp })}</Button>}</section>}
+      {challenge && (() => {
+        const kind = adventKind(challenge); const en = i18n.language.startsWith('en');
+        const open = state === 'today' || state === 'catchup';
+        const options = (en ? challenge.options_en : challenge.options) ?? challenge.options ?? [];
+        const canBadge = new Set(own.filter(s => s.approved_at && s.day !== challenge.day).map(s => s.day)).size >= 23;
+        return <section className="border-b border-border py-6 text-center" aria-live="polite">
+          <p className="text-xs font-semibold text-primary">{t('advent.day', { day: challenge.day })} · {t(`advent.${state}`, { day: challenge.day })}</p>
+          <h2 className="mt-2 font-display text-lg font-bold">{state === 'locked' ? t('advent.locked', { day: challenge.day }) : en ? challenge.title_en || challenge.title : challenge.title}</h2>
+          {open && kind === 'photo' && <><p className="mt-1 text-xs text-muted-foreground">{state === 'catchup' ? t('advent.catchupHint') : t('advent.photoHint')}</p><Button className="mt-4" onClick={() => navigate('/capture')}><Camera />{t('advent.capture')}</Button></>}
+          {open && kind === 'gift' && <Button className="mt-4" disabled={claiming} onClick={() => claim()}>{claiming ? <Loader2 className="animate-spin" /> : <Gift />}{t('advent.openGift', { xp: challenge.xp })}</Button>}
+          {open && kind === 'quiz' && <div className="mt-4 grid gap-2 text-left">{options.map((o, i) => <Button key={i} variant="outline" disabled={claiming} onClick={() => claim(i)} className={`h-auto justify-start whitespace-normal py-3 text-left ${wrong === i ? 'border-destructive text-destructive' : ''}`}>{o}</Button>)}<p className="text-center text-xs text-muted-foreground">{t('advent.quizHint', { xp: challenge.xp })}</p></div>}
+          {open && kind === 'badge' && (canBadge ? <Button className="mt-4" disabled={claiming} onClick={() => claim()}>{claiming ? <Loader2 className="animate-spin" /> : <Award />}{t('advent.unlockBadge')}</Button> : <p className="mt-2 text-sm text-muted-foreground">{t('advent.badgeNeeds', { count: Math.max(0, 23 - new Set(own.filter(s => s.approved_at && s.day !== challenge.day).map(s => s.day)).size) })}</p>)}
+          {state === 'complete' && <Button className="mt-4" disabled={claiming} onClick={() => claim()}>{claiming ? <Loader2 className="animate-spin" /> : <Gift />}{t('advent.claim', { xp: challenge.xp })}</Button>}
+        </section>;
+      })()}
       <section className="flex flex-col items-center py-8 text-center"><BadgeMedallion badgeId={badge.id} group="collections" state={badgeClaimed ? 'claimed' : count === 24 ? 'claimable' : 'locked'} size={120} /><h2 className="mt-3 font-display font-bold">{badge.name}</h2><p className="mt-1 text-xs text-muted-foreground">{t('advent.badgeDescription')}</p>{count === 24 && !badgeClaimed && <Button className="mt-4" onClick={() => setReward(true)}><Gift />{t('advent.claim', { xp: badge.xp })}</Button>}</section>
     </div>
+    {burst !== null && <RewardBurst xp={burst} />}
     {reward && <BadgeRewardSheet entry={{ badge, progress: count, earned: count === 24, claimed: badgeClaimed }} onClose={() => setReward(false)} onClaimed={() => setBadgeClaimed(true)} />}
   </main>;
 }

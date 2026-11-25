@@ -161,3 +161,7 @@ Quest chests, league trophies and badges are bundled plush-felt WebP renders mad
 ## Premium extras are server-gated
 
 The Premium weekly quest (`quest_templates.period = 'premium'`) is assigned and claimable only when `is_premium`, previewed to others via `premium_quest_preview`, and excluded from the weekly chest; the map radar `nearby_sightings` masks names beyond the first result for non-Premium callers and rounds coordinates, because client checks alone cannot protect paid features or observer privacy.
+
+## Advent days have kinds and catch-up
+
+Days are photo/gift/quiz/badge; photos approve the matching earliest unfinished photo day until Dec 24, quiz answers live only in service-only `advent_quiz_answers`, and instant cases go through `claim_advent_day`, so rewards stay server-checked.

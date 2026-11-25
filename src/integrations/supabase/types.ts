@@ -35,6 +35,24 @@ export type Database = {
         }
         Relationships: []
       }
+      advent_quiz_answers: {
+        Row: {
+          answer: number
+          collection_id: string
+          day: number
+        }
+        Insert: {
+          answer: number
+          collection_id: string
+          day: number
+        }
+        Update: {
+          answer?: number
+          collection_id?: string
+          day?: number
+        }
+        Relationships: []
+      }
       advent_submissions: {
         Row: {
           approved_at: string | null
@@ -3667,6 +3685,7 @@ export type Database = {
         Returns: Json
       }
       advent_badge_progress: { Args: { p_user: string }; Returns: Json }
+      advent_day_kind: { Args: { d: Json }; Returns: string }
       advent_day_start: {
         Args: { p_day: number; p_year: number }
         Returns: string
@@ -3782,7 +3801,7 @@ export type Database = {
         Returns: number
       }
       claim_advent_day: {
-        Args: { p_collection: string; p_day: number }
+        Args: { p_answer?: number; p_collection: string; p_day: number }
         Returns: number
       }
       claim_badge: {

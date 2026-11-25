@@ -13,9 +13,11 @@ describe('Advent calendar rules', () => {
     expect(adventState(2026, 1, new Date('2026-11-30T22:59:59Z'), [])).toBe('locked');
     expect(adventState(2026, 1, new Date('2026-11-30T23:00:00Z'), [])).toBe('today');
   });
-  it('allows no catch-up after midnight', () => {
+  it('allows catch-up of past days until the end of December 24', () => {
     expect(adventState(2026, 1, new Date('2026-12-01T22:59:59Z'), [])).toBe('today');
-    expect(adventState(2026, 1, new Date('2026-12-01T23:00:00Z'), [])).toBe('missed');
+    expect(adventState(2026, 1, new Date('2026-12-01T23:00:00Z'), [])).toBe('catchup');
+    expect(adventState(2026, 3, new Date('2026-12-24T22:59:59Z'), [])).toBe('catchup');
+    expect(adventState(2026, 3, new Date('2026-12-24T23:00:00Z'), [])).toBe('missed');
   });
   it('closes the last day after December 24', () => {
     expect(adventState(2026, 24, new Date('2026-12-24T22:59:59Z'), [])).toBe('today');
@@ -28,12 +30,14 @@ describe('Advent calendar rules', () => {
     expect(adventState(2026, 1, new Date('2027-01-01T00:00:00Z'), [submission({ approved_at: '2026-12-29' })])).toBe('complete');
     expect(adventState(2026, 1, new Date('2027-01-01T00:00:00Z'), [submission({ approved_at: '2026-12-29', claimed_at: '2026-12-30' })])).toBe('claimed');
   });
-  it('defines 24 daily 50 XP rewards with a mammal on day 1', () => {
+  it('mixes 15 winter photo challenges, 4 gifts of 20 XP, 4 quizzes and the badge on the 24th', () => {
     const days = defaultAdventDays();
     expect(days).toHaveLength(24);
-    expect(days.map(d => d.day)).toEqual(Array.from({ length: 24 }, (_, i) => i + 1));
-    expect(days[0].categories).toEqual(['Mammifères']);
-    expect(days.every(d => d.xp === 50)).toBe(true);
-    expect(days.reduce((n, d) => n + d.xp, 300)).toBe(1500);
+    expect(days.filter(d => d.kind === 'photo')).toHaveLength(15);
+    expect(days.filter(d => d.kind === 'gift').map(d => d.xp)).toEqual([20, 20, 20, 20]);
+    expect(days.filter(d => d.kind === 'quiz')).toHaveLength(4);
+    expect(days[23].kind).toBe('badge');
+    const winter = new Set(days.flatMap(d => d.categories));
+    expect([...winter].every(c => c === 'Oiseaux' || c === 'Mammifères')).toBe(true);
   });
 });
