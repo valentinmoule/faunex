@@ -8,9 +8,11 @@ export interface RadarItem {
   tip?: string;
 }
 
-export interface PotentialSpecies { name: string; scientific_name?: string; category?: string; rarity?: string; tip?: string }
+export interface PotentialSpecies { name: string | null; locked?: boolean; scientific_name?: string; category?: string; rarity?: string; tip?: string }
 
-/** Fusionne les deux sources en un seul deck : observations d'abord, puis potentielles non déjà listées. */
+export const RADAR_LIMIT = 10;
+
+/** Fusionne les deux sources en un seul deck de 10 cartes max : observations d'abord, puis potentielles non déjà listées. */
 export function mergeRadarSources(sightings: Omit<RadarItem, 'kind'>[], potentials: PotentialSpecies[]): RadarItem[] {
   const out: RadarItem[] = sightings.map((s) => ({ ...s, kind: 'sighting' }));
   const seen = new Set<string>();
@@ -19,15 +21,19 @@ export function mergeRadarSources(sightings: Omit<RadarItem, 'kind'>[], potentia
     if (s.scientific_name) seen.add(normalizeSpeciesSearch(s.scientific_name));
   });
   potentials.forEach((p) => {
-    if (!p?.name) return;
+    if (!p) return;
+    if (!p.name) {
+      if (p.locked) out.push({ kind: 'potential', animal_name: null, scientific_name: null, category: p.category ?? null, rarity: p.rarity || 'common', lat: NaN, lng: NaN, distance_km: NaN, seen_at: '', sightings: 0, locked: true });
+      return;
+    }
     const n = normalizeSpeciesSearch(p.name);
     const sn = p.scientific_name ? normalizeSpeciesSearch(p.scientific_name) : '';
     if (seen.has(n) || (sn && seen.has(sn))) return;
     seen.add(n); if (sn) seen.add(sn);
     out.push({
       kind: 'potential', animal_name: p.name, scientific_name: p.scientific_name ?? null, category: p.category ?? null,
-      rarity: p.rarity || 'common', lat: NaN, lng: NaN, distance_km: NaN, seen_at: '', sightings: 0, locked: false, tip: p.tip,
+      rarity: p.rarity || 'common', lat: NaN, lng: NaN, distance_km: NaN, seen_at: '', sightings: 0, locked: !!p.locked, tip: p.tip,
     });
   });
-  return out;
+  return out.slice(0, RADAR_LIMIT);
 }

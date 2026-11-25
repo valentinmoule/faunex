@@ -1,14 +1,17 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { Marker, Circle, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Crown, Lightbulb, Loader2, Navigation, Sparkles, Users, X, Lock } from 'lucide-react';
+import { Crown, Loader2, Sparkles, Users, X, Lock, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { RarityBadge } from '@/components/RarityBadge';
 import { categoryLineIcon } from '@/components/icons/CategoryIcons';
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
+import { supabase } from '@/integrations/supabase/client';
+import { gridThumbUrl } from '@/lib/imageUrl';
+import { normalizeSpeciesSearch } from '@/lib/bestiary';
 
 import type { RadarItem } from '@/lib/radarSources';
 
@@ -101,8 +104,8 @@ export function RareRadarLayer({ origin, items, selected, onSelect, pulseKey }: 
 }
 
 /** Bandeau du bas : espèces les plus vues autour, Premium tout révélé, gratuit en silhouettes. */
-export function RareRadarDeck({ state, items, isPremium, selected, onSelect, onClose }: {
-  state: 'scanning' | 'ready' | 'nolocation'; items: RareSighting[]; isPremium: boolean; selected: number;
+export function RareRadarDeck({ state, items, isPremium, userId, selected, onSelect, onClose }: {
+  state: 'scanning' | 'ready' | 'nolocation'; items: RareSighting[]; isPremium: boolean; userId?: string; selected: number;
   onSelect: (i: number) => void; onClose: () => void;
 }) {
   const { t } = useTranslation();
@@ -111,6 +114,22 @@ export function RareRadarDeck({ state, items, isPremium, selected, onSelect, onC
   const { speciesName } = useSpeciesName();
   const track = useRef<HTMLDivElement>(null);
   const lockedCount = items.filter((s) => s.locked).length;
+  // Espèces déjà capturées : la carte montre ma photo, comme dans le Bestiaire.
+  const [owned, setOwned] = useState<Record<string, string>>({});
+  useEffect(() => {
+    const names = items.map((s) => s.animal_name).filter((n): n is string => !!n);
+    if (!userId || names.length === 0) { setOwned({}); return; }
+    let live = true;
+    void supabase.from('captures').select('animal_name, image_url, created_at').eq('user_id', userId).eq('status', 'approved')
+      .in('animal_name', names).order('created_at', { ascending: false })
+      .then(({ data }) => {
+        if (!live) return;
+        const m: Record<string, string> = {};
+        (data ?? []).forEach((c) => { const k = normalizeSpeciesSearch(c.animal_name ?? ''); if (k && c.image_url && !m[k]) m[k] = c.image_url; });
+        setOwned(m);
+      });
+    return () => { live = false; };
+  }, [items, userId]);
   useEffect(() => {
     const el = track.current?.children[selected] as HTMLElement | undefined;
     el?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
@@ -142,7 +161,7 @@ export function RareRadarDeck({ state, items, isPremium, selected, onSelect, onC
   else if (items.length === 0) body = <div className="mission-plate mx-auto max-w-sm rounded-3xl p-5 text-center text-sm text-muted-foreground">{t('premiumFeatures.radar.emptyAll')}</div>;
   else body = (
     <>
-      <div ref={track} onScroll={onScroll} className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-[10vw] pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div ref={track} onScroll={onScroll} className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-[31vw] pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {items.map((s, i) => {
           const color = rarityColor(s.rarity);
           const potential = s.kind === 'potential';
@@ -152,44 +171,30 @@ export function RareRadarDeck({ state, items, isPremium, selected, onSelect, onC
             if (s.animal_name) navigate(`/home?tab=categories&q=${encodeURIComponent(s.animal_name)}`);
           };
           const Icon = categoryLineIcon(s.category ?? '');
+          const photo = !s.locked && s.animal_name ? owned[normalizeSpeciesSearch(s.animal_name)] : undefined;
+          const meta = s.locked ? t('premiumFeatures.radar.lockedCard')
+            : potential ? (s.tip || t('premiumFeatures.radar.potentialBody'))
+            : `${fmtKm(s.distance_km)} · ${ago(s.seen_at)}`;
           return (
             <button key={`${s.kind}-${keyOf(s, i)}`} type="button" onClick={open}
-              className={`mission-plate relative w-[80vw] max-w-[320px] shrink-0 snap-center overflow-hidden rounded-3xl p-4 text-left transition-transform duration-300 ${i === selected ? 'scale-100' : 'scale-[0.94] opacity-80'}`}>
-              <div className={s.locked ? 'pointer-events-none select-none blur-[6px]' : ''} aria-hidden={s.locked}>
-                <div className="flex items-start gap-3">
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 bg-card" style={{ borderColor: color, color }}><Icon className="h-6 w-6" strokeWidth={2} /></span>
-                  <div className="min-w-0 flex-1">
-                    {potential
-                      ? <span className="inline-flex items-center gap-1 rounded-full bg-amber/12 px-2 py-0.5 text-[10.5px] font-display font-bold text-amber"><Sparkles className="h-3 w-3" />{t('premiumFeatures.radar.potentialTag')}</span>
-                      : <span className="inline-flex items-center gap-1 rounded-full bg-primary/12 px-2 py-0.5 text-[10.5px] font-display font-bold text-primary"><Users className="h-3 w-3" />{t('premiumFeatures.radar.seenBy', { count: s.sightings })}</span>}
-                    <p className="mt-1 truncate font-display text-[16px] font-bold leading-tight text-foreground">{s.locked ? '••••••••' : speciesName(s.animal_name ?? '')}</p>
-                    <RarityBadge rarity={s.rarity} plain />
-                  </div>
-                </div>
-                {potential ? (
-                  <div className="mt-3 rounded-2xl bg-primary/10 px-3 py-2">
-                    <p className="flex items-center gap-1 text-[10.5px] font-display font-bold uppercase tracking-wide text-primary"><Lightbulb className="h-3 w-3" />{t('premiumFeatures.radar.howToSpot')}</p>
-                    <p className="mt-0.5 line-clamp-2 text-[12.5px] leading-snug text-foreground">{s.tip || t('premiumFeatures.radar.potentialBody')}</p>
-                  </div>
-                ) : (
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  <div className="rounded-2xl bg-primary/10 px-3 py-2">
-                    <p className="flex items-center gap-1 text-[10.5px] font-display font-bold uppercase tracking-wide text-primary"><Navigation className="h-3 w-3" />{t('premiumFeatures.radar.fromYou')}</p>
-                    <p className="font-display text-xl font-black tabular-nums text-foreground">{fmtKm(s.distance_km)}</p>
-                  </div>
-                  <div className="rounded-2xl bg-amber/12 px-3 py-2">
-                    <p className="text-[10.5px] font-display font-bold uppercase tracking-wide text-amber">{t('premiumFeatures.radar.seen')}</p>
-                    <p className="font-display text-xl font-black text-foreground">{ago(s.seen_at)}</p>
-                  </div>
-                </div>
-                )}
+              className={`relative w-[38vw] max-w-[150px] shrink-0 snap-center text-left transition-transform duration-300 ${i === selected ? 'scale-100' : 'scale-[0.92] opacity-80'}`}>
+              <div className="relative aspect-[3/4] overflow-hidden rounded-2xl border-[3px] bg-card shadow-card" style={{ borderColor: color }}>
+                {photo
+                  ? <img src={gridThumbUrl(photo)} alt="" loading="lazy" className="h-full w-full object-cover" />
+                  : <div className={`flex h-full w-full items-center justify-center ${s.locked ? 'blur-[5px]' : ''}`} style={{ background: `color-mix(in srgb, ${color} 14%, transparent)`, color }}>
+                      <Icon className="h-12 w-12 opacity-70" strokeWidth={1.6} />
+                    </div>}
+                {s.locked && <span className="absolute inset-0 flex items-center justify-center bg-card/30"><span className="flex h-10 w-10 items-center justify-center rounded-full bg-card/90 text-amber shadow-card"><Lock className="h-5 w-5" /></span></span>}
+                {photo && <span className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground"><Check className="h-3 w-3" strokeWidth={3} /></span>}
+                <span className="absolute inset-x-0 bottom-0 flex justify-center bg-gradient-to-t from-card/95 to-transparent pb-1 pt-4"><RarityBadge rarity={s.rarity} plain /></span>
               </div>
-              {s.locked && (
-                <span className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-card/40 text-center">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-amber/15 text-amber"><Crown className="h-5 w-5" /></span>
-                  <span className="font-display text-[14px] font-bold text-foreground">{t('premiumFeatures.radar.lockedCard')}</span>
-                </span>
-              )}
+              <p className="mt-1.5 truncate font-display text-[13.5px] font-bold leading-tight text-foreground">{s.locked ? '••••••' : speciesName(s.animal_name ?? '')}</p>
+              <p className="mt-0.5 flex items-center gap-1 truncate text-[11px] font-display font-semibold">
+                {s.locked ? <span className="flex items-center gap-1 text-amber"><Crown className="h-3 w-3" />Premium</span>
+                  : potential ? <span className="flex items-center gap-1 text-amber"><Sparkles className="h-3 w-3 shrink-0" />{t('premiumFeatures.radar.potentialTag')}</span>
+                  : <span className="flex items-center gap-1 text-primary"><Users className="h-3 w-3 shrink-0" />{t('premiumFeatures.radar.seenBy', { count: s.sightings })}</span>}
+              </p>
+              {!s.locked && <p className="mt-0.5 line-clamp-2 text-[11px] leading-snug text-muted-foreground">{meta}</p>}
             </button>
           );
         })}

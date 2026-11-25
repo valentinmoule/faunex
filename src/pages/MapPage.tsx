@@ -30,7 +30,6 @@ import { fetchZoneSpecies, type ZoneSpecies } from '@/lib/zoneSpecies';
 import { getCategoryIcon as getBestiaryCategoryIcon } from '@/lib/bestiary';
 import { RarityBadge } from '@/components/RarityBadge';
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
-import { useNearbyQuota } from '@/hooks/useNearbyQuota';
 import { hapticTap } from '@/lib/haptics';
 
 
@@ -204,7 +203,6 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
   const [zone, setZone] = useState<SelectedZone | null>(null);
   const zoneRequest = useRef<AbortController | null>(null);
   const { speciesName } = useSpeciesName();
-  const quota = useNearbyQuota(session?.user?.id);
   const { isPremium } = useSubscription(session?.user?.id);
   const [rareOpen, setRareOpen] = useState(false);
   const [rareItems, setRareItems] = useState<RareSighting[]>([]);
@@ -223,9 +221,6 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
   }, [rareOpen]);
   // Un seul scan, deux sources : observations récentes des explorateurs + espèces potentielles de la zone.
   const fetchPotentials = async (pos: [number, number]): Promise<PotentialSpecies[]> => {
-    const allowed = await quota.consume();
-    window.dispatchEvent(new Event('faunex:nearby-quota'));
-    if (!allowed) return [];
     const { data, error } = await supabase.functions.invoke('nearby-animals', { body: { latitude: pos[0], longitude: pos[1] } });
     if (error) { console.error(error); return []; }
     return ((data as { animals?: PotentialSpecies[] } | null)?.animals) ?? [];
@@ -252,11 +247,6 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
   const [showCaptures, setShowCaptures] = useState(true);
   const [hintSeen, setHintSeen] = useState(() => { try { return localStorage.getItem('faunex.map.zoneHint') === '1'; } catch { return false; } });
   const dismissHint = () => { setHintSeen(true); try { localStorage.setItem('faunex.map.zoneHint', '1'); } catch { /* ignore */ } };
-  useEffect(() => {
-    const onQuota = () => { window.setTimeout(() => void quota.refresh(), 600); };
-    window.addEventListener('faunex:nearby-quota', onQuota);
-    return () => window.removeEventListener('faunex:nearby-quota', onQuota);
-  }, [quota.refresh]);
 
   const setHighlight = (features: GeoJSON.Feature[]) => {
     const src = glRef.current?.getSource('fx-selected') as maplibregl.GeoJSONSource | undefined;
@@ -538,17 +528,12 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
             <span className="block text-[14px] font-display font-bold text-foreground leading-tight truncate">{t(scanHere ? 'map.controls.scanAreaTitle' : 'map.controls.scanTitle')}</span>
             <span className="block text-[11px] text-muted-foreground leading-tight truncate">{t(scanHere ? 'map.controls.scanAreaSubtitle' : 'map.controls.scanSubtitle')}</span>
           </span>
-          {quota.remaining !== null && (
-            <span className={`shrink-0 flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-display font-bold ${quota.exhausted ? 'bg-muted text-muted-foreground' : 'bg-primary/12 text-primary'}`}>
-              {quota.unlimited ? (<><Crown className="w-3 h-3" />{t('map.controls.unlimited')}</>) : t('map.controls.remaining', { count: Math.max(0, quota.remaining) })}
-            </span>
-          )}
         </button>
       </div>
 
       {rareOpen && (
         <div ref={deckRef} className="absolute inset-x-0 bottom-0 z-30 rounded-t-[28px] border-t border-border/60 bg-background pt-3 pb-[calc(env(safe-area-inset-bottom)+96px)] shadow-card animate-in slide-in-from-bottom-6 fade-in duration-300">
-          <RareRadarDeck state={rareState} items={rareItems} isPremium={isPremium} selected={rareSel} onSelect={setRareSel} onClose={() => setRareOpen(false)} />
+          <RareRadarDeck state={rareState} items={rareItems} isPremium={isPremium} userId={session?.user?.id} selected={rareSel} onSelect={setRareSel} onClose={() => setRareOpen(false)} />
         </div>
       )}
 

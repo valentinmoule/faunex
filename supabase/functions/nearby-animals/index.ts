@@ -31,22 +31,33 @@ serve(async (req) => {
       });
     }
 
-    // Consume the already-reserved search, including on older native clients.
-    const { data: allowed, error: quotaError } = await admin.rpc('claim_nearby_search', { p_user: identity.user.id });
-    if (quotaError || !allowed) return new Response(JSON.stringify({ error: 'DAILY_NEARBY_LIMIT_REACHED' }), {
-      status: quotaError ? 503 : 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    // Radar illimité : résultats partagés par zone (~11 km, mois courant) pour limiter les appels IA.
+    const zoneKey = `${latitude.toFixed(1)}:${longitude.toFixed(1)}:${new Date().toISOString().slice(0, 7)}`;
+    const userClient = createClient(serviceUrl, Deno.env.get('SUPABASE_ANON_KEY') ?? serviceKey, { global: { headers: { Authorization: `Bearer ${token}` } } });
+    const [{ data: prem }, { data: sightings }, { data: cached }] = await Promise.all([
+      admin.rpc('is_premium', { p_user_id: identity.user.id }),
+      userClient.rpc('nearby_sightings', { p_lat: latitude, p_lng: longitude, p_radius_km: 10 }),
+      admin.from('nearby_potentials_cache').select('payload, created_at').eq('zone_key', zoneKey).maybeSingle(),
+    ]);
+    const gate = (r: { animals?: Record<string, unknown>[] }) => {
+      // Gratuit : une seule carte visible au total ; si une observation l'occupe déjà, tout est masqué.
+      const unlocked = prem ? Infinity : ((sightings?.length ?? 0) > 0 ? 0 : 1);
+      const animals = (r.animals ?? []).slice(0, 10).map((a, i) => i < unlocked ? { ...a, locked: false }
+        : { name: null, scientific_name: null, description: null, tip: null, category: a.category, rarity: a.rarity, locked: true });
+      return new Response(JSON.stringify({ success: true, location_name: r.location_name, animals }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    };
+    if (cached?.payload) return gate(cached.payload as { animals?: Record<string, unknown>[] });
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    const systemPrompt = `Tu es un expert naturaliste et zoologue. L'utilisateur te donne des coordonnées GPS. Tu dois retourner une liste de exactement 3 animaux sauvages qu'on peut réellement observer dans cette zone géographique, en tenant compte de la saison actuelle (${new Date().toLocaleDateString('fr-FR', { month: 'long' })}).
+    const systemPrompt = `Tu es un expert naturaliste et zoologue. L'utilisateur te donne des coordonnées GPS. Tu dois retourner une liste de exactement 10 animaux sauvages qu'on peut réellement observer dans cette zone géographique, en tenant compte de la saison actuelle (${new Date().toLocaleDateString('fr-FR', { month: 'long' })}).
 
 RÈGLES DE SÉLECTION :
-- Retourne exactement 3 espèces.
+- Retourne exactement 10 espèces, triées des plus faciles aux plus rares.
 - Si une espèce rare, menacée, protégée ou difficile à observer existe RÉELLEMENT dans cette zone (même si l'observation est peu fréquente), inclus-la avec la rareté appropriée (rare, very_rare, ultra_rare ou au-delà).
 - Ne JAMAIS inventer une espèce qui n'est pas présente dans cette région. La précision géographique est primordiale.
-- Si aucune espèce rare n'est réaliste pour cette zone, retourne 3 espèces communes. Ne force jamais une rareté élevée.
+- Si aucune espèce rare n'est réaliste pour cette zone, retourne des espèces communes. Ne force jamais une rareté élevée.
 - Échelle de rareté (8 paliers) : common = commune, facile à voir · uncommon = peu commune, fréquente · rare = plutôt rare, demande de la chance · very_rare = rare, très localisée · ultra_rare = très difficile / espèce protégée · illustration_rare = épique, en danger critique · special_rare = mythique · hyper_rare = légendaire, extrêmement rare.
 
 PRIORITÉ :
@@ -135,9 +146,8 @@ Sois réaliste et précis selon la géographie et l'écosystème local.`;
 
     const result = JSON.parse(toolCall.function.arguments);
 
-    return new Response(JSON.stringify({ success: true, ...result }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    await admin.from('nearby_potentials_cache').upsert({ zone_key: zoneKey, payload: result, created_at: new Date().toISOString() });
+    return gate(result);
   } catch (e) {
     console.error("nearby-animals error:", e);
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Erreur inconnue" }), {

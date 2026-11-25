@@ -83,9 +83,9 @@ Derive recipients/content from stored events, deduplicate per recipient, and enf
 
 Register FCM devices with server auth, remove before logout, and dispatch verified deduplicated events respecting private preferences. Keep FCM separate from web VAPID. Bundle Firebase config only natively, never service-account keys.
 
-## Nearby endpoints consume reserved searches
+## The zone radar is unlimited and server-masked
 
-Reserve and consume nearby searches under one per-user database lock, including older client reservations, because endpoint auth alone does not enforce quotas.
+The radar deck holds at most 10 cards (sightings first, then potentials); `nearby-animals` caches AI potentials per rounded zone and month, and masks every card beyond the first for non-Premium callers, because unlimited scans must stay cheap and paid results must not leak.
 
 ## Private preferences use the owner RPC
 

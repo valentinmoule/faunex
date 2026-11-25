@@ -23,4 +23,13 @@ describe('mergeRadarSources', () => {
     expect(r).toHaveLength(1);
     expect(r[0]).toMatchObject({ kind: 'potential', tip: 'À l\'aube', rarity: 'common' });
   });
+  it('plafonne le deck à 10 cartes, toutes sources confondues', () => {
+    const sights = Array.from({ length: 6 }, (_, i) => sighting(`Oiseau ${i}`));
+    const pots = Array.from({ length: 10 }, (_, i) => ({ name: `Potentielle ${i}` }));
+    expect(mergeRadarSources(sights, pots)).toHaveLength(10);
+  });
+  it('garde verrouillées les espèces potentielles masquées par le serveur', () => {
+    const r = mergeRadarSources([sighting('Faucon pèlerin')], [{ name: null, locked: true, rarity: 'rare' }]);
+    expect(r[1]).toMatchObject({ kind: 'potential', locked: true, animal_name: null });
+  });
 });

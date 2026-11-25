@@ -1999,6 +1999,24 @@ export type Database = {
         }
         Relationships: []
       }
+      nearby_potentials_cache: {
+        Row: {
+          created_at: string
+          payload: Json
+          zone_key: string
+        }
+        Insert: {
+          created_at?: string
+          payload: Json
+          zone_key: string
+        }
+        Update: {
+          created_at?: string
+          payload?: Json
+          zone_key?: string
+        }
+        Relationships: []
+      }
       nearby_search_attempts: {
         Row: {
           consumed_at: string | null
