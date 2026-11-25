@@ -5,8 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { PageHeader } from '@/components/PageHeader';
 import foxThink from '@/assets/learning/fox-think-anim.webp';
-import foxHappy from '@/assets/learning/fox-happy-anim.webp';
-import foxOops from '@/assets/learning/fox-oops-anim.webp';
+import foxHappy from '@/assets/learning/fox-happy-once.webp';
+import foxOops from '@/assets/learning/fox-oops-once.webp';
 import foxCombo from '@/assets/learning/fox-combo-anim.webp';
 import { answerLesson, finishLesson, learningText, quizStars, type LearningAttempt, type LearningQuestion } from '@/lib/learning';
 
@@ -140,7 +140,7 @@ export default function LearningPlayer({ initial, onClose, onFinished, onRetry, 
         {checked && correct && <div key={`sticker-${index}`} aria-hidden className="learning-sticker pointer-events-none fixed inset-x-0 top-1/3 z-[70] flex justify-center"><span className="rounded-2xl border-4 border-card bg-[hsl(var(--amber))] px-5 py-2 font-display text-2xl font-black uppercase text-foreground shadow-lg">{streak >= 2 ? t('learning.combo', { count: streak }) : t('learning.perfect')}<small className="mt-0.5 block text-center text-base font-black text-primary">{t('learning.answerXp')}</small></span></div>}
         {checked && <div role="status" className={`learning-drawer fixed inset-x-0 bottom-0 z-[60] border-t-2 px-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pt-4 ${correct ? 'learning-drawer-right' : 'learning-drawer-wrong'}`}>
           <div className="mx-auto flex max-w-lg gap-3">
-            <img src={correct ? foxHappy : foxOops} alt="" width={80} height={80} className={`${correct ? 'learning-fox-jump' : 'learning-fox-shrug'} -mt-12 h-20 w-20 shrink-0 object-contain`} />
+            <img key={`fox-${index}`} src={`${correct ? foxHappy : foxOops}#${index}`} alt="" width={80} height={80} className={`${correct ? 'learning-fox-jump' : 'learning-fox-shrug'} -mt-12 h-20 w-20 shrink-0 object-contain`} />
             <div className="min-w-0 flex-1">
               <p className={`flex items-center gap-2 font-display text-xl font-black ${correct ? 'text-primary' : 'text-destructive'}`}>{correct ? <Check className="h-6 w-6" /> : <X className="h-6 w-6" />}{t(correct ? 'learning.correct' : 'learning.incorrect')}</p>
               {!correct && question.correct !== undefined && <p className="mt-1 text-sm font-bold text-destructive">{t('learning.answerWas', { answer: options[question.correct] })}</p>}
