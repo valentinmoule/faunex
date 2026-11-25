@@ -53,7 +53,7 @@ const pinIcon = (s: RareSighting, i: number, selected: boolean, label: string, a
     html: `<div class="rare-pin-body${selected ? ' is-selected' : ''}${s.locked ? ' is-locked' : ''}${animate ? '' : ' is-static'}" style="--rare:${color};animation-delay:${500 + i * 140}ms">
       <span class="rare-pin-halo"></span>
       <span class="rare-pin-disc">${inner}</span>
-      <span class="rare-pin-age">${label}</span></div>`,
+      ${label ? `<span class="rare-pin-age">${label}</span>` : ""}</div>`,
     iconSize: [52, 64],
     iconAnchor: [26, 30],
   });
@@ -86,7 +86,7 @@ export function RareRadarLayer({ origin, items, selected, onSelect, pulseKey }: 
     const k = keyOf(s, i);
     const first = !shown.current.set.has(k);
     shown.current.set.add(k);
-    return onMap(s) ? pinIcon(s, i, i === selected, ago(s.seen_at), first) : null;
+    return onMap(s) ? pinIcon(s, i, i === selected, s.locked ? "" : ago(s.seen_at), first) : null;
   }), [items, selected, pulseKey]); // eslint-disable-line react-hooks/exhaustive-deps
   const sonar = useMemo(() => <Marker key={`sonar-${pulseKey}`} position={origin ?? [0, 0]} icon={sonarIcon} interactive={false} />, [pulseKey]); // eslint-disable-line react-hooks/exhaustive-deps
   if (!origin) return null;
