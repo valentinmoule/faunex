@@ -4,10 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { PageHeader } from '@/components/PageHeader';
-import foxThink from '@/assets/learning/fox-think.webp';
-import foxHappy from '@/assets/learning/fox-happy.webp';
-import foxOops from '@/assets/learning/fox-oops.webp';
-import foxCombo from '@/assets/learning/fox-combo.webp';
+import foxThink from '@/assets/learning/fox-think-anim.webp';
+import foxHappy from '@/assets/learning/fox-happy-anim.webp';
+import foxOops from '@/assets/learning/fox-oops-anim.webp';
+import foxCombo from '@/assets/learning/fox-combo-anim.webp';
 import { answerLesson, finishLesson, learningText, quizStars, type LearningAttempt, type LearningQuestion } from '@/lib/learning';
 
 function SoundPlayer({ src }: { src: string }) {
