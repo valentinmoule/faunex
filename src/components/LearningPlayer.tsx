@@ -28,6 +28,7 @@ export default function LearningPlayer({ initial, onClose, onFinished, onRetry, 
   const { t, i18n } = useTranslation();
   const english = i18n.language.startsWith('en');
   const [attempt, setAttempt] = useState(initial);
+  const [leaving, setLeaving] = useState(false);
   const [index, setIndex] = useState(Math.min(initial.answers.length, initial.lesson.questions.length - 1));
   const [choice, setChoice] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
@@ -72,6 +73,8 @@ export default function LearningPlayer({ initial, onClose, onFinished, onRetry, 
     } catch (e) { setError(String((e as { message?: string }).message).includes('DAILY_LIMIT') ? t('learning.quota') : t('learning.error')); } finally { setBusy(false); }
   }
   const result = attempt.result;
+  let bestStreak = 0; for (let i = 0, run = 0; i < attempt.answers.length; i++) { run = attempt.answers[i] === questions[i]?.correct ? run + 1 : 0; bestStreak = Math.max(bestStreak, run); }
+  const remaining = questions.length - attempt.answers.length;
   const stars = result ? quizStars(result.score, result.total) : 0;
   async function share() {
     if (!result) return;
@@ -85,7 +88,7 @@ export default function LearningPlayer({ initial, onClose, onFinished, onRetry, 
 
   return <main className={`min-h-screen bg-background ${checked && !attempt.finished ? 'pb-72' : 'pb-12'}`}>
     <PageHeader sticky className="border-b border-border bg-background px-5 py-3"><div className="mx-auto flex max-w-lg items-center gap-3">
-      <Button variant="ghost" size="icon" onClick={onClose} aria-label={t('common.back')}><ArrowLeft className="h-5 w-5" /></Button>
+      <Button variant="ghost" size="icon" onClick={() => !attempt.finished && attempt.answers.length > 0 ? setLeaving(true) : onClose()} aria-label={t('common.back')}><ArrowLeft className="h-5 w-5" /></Button>
       {attempt.finished ? <h1 className="min-w-0 truncate font-display text-lg font-bold">{preview ? t('learning.preview') : text(attempt.lesson, 'title')}</h1>
         : <><Progress value={(attempt.answers.length) / questions.length * 100} className="h-3 flex-1" aria-label={t('learning.question', { number: index + 1, total: questions.length })} />
           <span className={`flex min-w-12 items-center justify-end gap-1 font-display text-sm font-bold ${streak >= 2 ? 'text-accent-foreground' : 'text-muted-foreground'}`}>{streak >= 2 ? <><Flame className="h-4 w-4 text-destructive" />{t('learning.combo', { count: streak })}</> : `${index + 1}/${questions.length}`}</span></>}
@@ -97,12 +100,15 @@ export default function LearningPlayer({ initial, onClose, onFinished, onRetry, 
           <p className="mt-6 text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">{t('learning.score', result)}</p>
           <h2 className="mt-2 font-display text-3xl font-bold">{t(`learning.rank${stars}`)}</h2>
           <p className="mt-2 text-muted-foreground">{t(`learning.rankLine${stars}`)}</p>
-          {result.reward > 0 && <p className="mt-5 font-display text-xl font-bold text-primary">{t('learning.reward', { amount: result.reward })}</p>}
+          <div className="mt-6 grid grid-cols-2 gap-3">
+            <div className="rounded-2xl border-2 border-[hsl(var(--amber))] bg-card"><p className="bg-[hsl(var(--amber))] py-1 text-[11px] font-black uppercase tracking-wider text-foreground rounded-t-xl">{t('learning.xpEarned')}</p><p className="py-3 font-display text-2xl font-black text-[hsl(var(--amber-dark))]">{result.reward}</p></div>
+            <div className="rounded-2xl border-2 border-primary bg-card"><p className="bg-primary py-1 text-[11px] font-black uppercase tracking-wider text-primary-foreground rounded-t-xl">{t('learning.bestCombo')}</p><p className="py-3 font-display text-2xl font-black text-primary">×{bestStreak}</p></div>
+          </div>
         </section>
         {!result.passed && <ul className="mb-6 divide-y divide-border">{questions.map((q, i) => attempt.answers[i] !== q.correct && <li key={i} className="py-4"><p className="font-semibold">{text(q, 'prompt')}</p><p className="mt-2 font-semibold text-primary">{(english ? q.options_en : q.options)[q.correct ?? 0]}</p><p className="mt-2 text-sm text-muted-foreground">{text(q, 'explanation')}</p></li>)}</ul>}
         {!preview && <Button variant="outline" className="mb-3 w-full" onClick={() => void share()}><Share2 className="mr-2 h-4 w-4" />{copied ? t('learning.copied') : t('learning.share')}</Button>}
         {!result.passed && <Button className="mb-3 w-full" onClick={onRetry}>{t('learning.retry')}</Button>}
-        <Button variant={result.passed ? 'default' : 'outline'} className="w-full" onClick={onClose}>{t('learning.backPath')}</Button>
+        <Button variant={result.passed ? 'default' : 'outline'} className="w-full" onClick={onClose}>{result.reward > 0 ? t('learning.claimXp') : t('learning.backPath')}</Button>
       </> : question ? <>
         {index === 0 && !checked && <p className="mb-4 text-sm font-semibold text-muted-foreground">{text(attempt.lesson, 'intro')}</p>}
         <div className="flex items-center gap-3">
@@ -145,5 +151,15 @@ export default function LearningPlayer({ initial, onClose, onFinished, onRetry, 
       </> : null}
       {error && <p role="alert" className="mt-4 text-sm text-destructive">{error}</p>}
     </div>
+    {leaving && <div className="fixed inset-0 z-[80] flex items-end bg-foreground/40" onClick={() => setLeaving(false)}>
+      <div role="dialog" aria-modal="true" className="learning-drawer w-full rounded-t-3xl bg-card px-6 pb-8 pt-3 text-center" onClick={e => e.stopPropagation()}>
+        <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-border" />
+        <img src={foxOops} alt="" width={128} height={128} className="mx-auto h-32 w-32 object-contain" />
+        <p className="mt-3 font-display text-xl font-bold">{t('learning.leaveTitle', { count: remaining })}</p>
+        <p className="mt-1 text-sm text-muted-foreground">{t('learning.leaveLine')}</p>
+        <span role="button" tabIndex={0} onClick={() => setLeaving(false)} className="game-button mt-5 flex h-12 w-full items-center justify-center font-display">{t('learning.next')}</span>
+        <Button variant="ghost" className="mt-2 w-full font-display font-black uppercase text-destructive" onClick={onClose}>{t('learning.quit')}</Button>
+      </div>
+    </div>}
   </main>;
 }
