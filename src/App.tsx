@@ -10,7 +10,6 @@ import LevelUpCelebration from "./components/LevelUpCelebration";
 import LoadingScreen from "./components/LoadingScreen";
 import BottomNav from "./components/BottomNav";
 import ScrollToTop from "./components/ScrollToTop";
-import PullToDiscover from "./components/PullToDiscover";
 import { PushPermissionPrompt } from "./components/PushPermissionPrompt";
 import { isFirstLogin, markFirstLoginDone } from "./lib/firstLogin";
 import PageTransition from "./components/PageTransition";
@@ -265,7 +264,6 @@ const AppRoutes = () => {
       </Suspense>
       {!isCapturePage && !isModerationPage && !isPremiumPage && !isPublicPage && location.pathname !== '/eclats' && <BottomNav />}
 
-      <PullToDiscover />
       {!isPremiumPage && location.pathname !== '/apprendre' && !location.pathname.startsWith('/admin/apprendre') && (
         <>
           <PushPermissionPrompt />

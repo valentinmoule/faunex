@@ -212,7 +212,6 @@ vi.mock('@/pages/BestiairePage', () => ({ default: () => {
   return <div>Bestiaire ready</div>;
 } }));
 vi.mock('@/components/BottomNav', () => ({ default: () => null }));
-vi.mock('@/components/PullToDiscover', () => ({ default: () => null }));
 vi.mock('@/components/PushPermissionPrompt', () => ({ PushPermissionPrompt: () => null }));
 vi.mock('@/components/LevelUpCelebration', () => ({ default: () => null }));
 vi.mock('@/components/ProfileDrawer', () => ({ ProfileDrawerProvider: ({ children }: { children: React.ReactNode }) => <>{children}</> }));
