@@ -17,7 +17,7 @@ import { thumbUrl } from '@/lib/imageUrl';
 import { fetchAllRows } from '@/lib/fetchAll';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/hooks/useSubscription';
-import RareSightingsSheet from '@/components/premium/RareSightingsSheet';
+import { RareRadarLayer, RareRadarDeck, type RareSighting } from '@/components/premium/RareRadar';
 import LoadingScreen from '@/components/LoadingScreen';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import CardDetailSheet from '@/components/CardDetailSheet';
@@ -206,6 +206,27 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
   const quota = useNearbyQuota(session?.user?.id);
   const { isPremium } = useSubscription(session?.user?.id);
   const [rareOpen, setRareOpen] = useState(false);
+  const [rareItems, setRareItems] = useState<RareSighting[]>([]);
+  const [rareState, setRareState] = useState<'scanning' | 'ready' | 'nolocation'>('scanning');
+  const [rareSel, setRareSel] = useState(0);
+  const [rarePulse, setRarePulse] = useState(0);
+  const [rareOrigin, setRareOrigin] = useState<[number, number] | null>(null);
+  const startRareScan = async () => {
+    hapticTap();
+    setRareOpen(true); setRareItems([]); setRareSel(0); setRareState('scanning');
+    let pos = userPosRef.current;
+    if (!pos && isGeolocationAvailable()) {
+      pos = await new Promise<[number, number] | null>((res) => { void getCurrentPosition((p) => res([p.coords.latitude, p.coords.longitude]), () => res(null), { timeout: 8000 }); });
+      if (pos) setUserPos(pos);
+    }
+    if (!pos) { setRareState('nolocation'); return; }
+    setRareOrigin(pos); setRarePulse((k) => k + 1);
+    if (!isPremium) { window.setTimeout(() => setRareState('ready'), 2200); return; }
+    const started = Date.now();
+    const { data } = await supabase.rpc('rare_sightings_near', { p_lat: pos[0], p_lng: pos[1], p_radius_km: 10 });
+    const list = ((data ?? []) as RareSighting[]).sort((a, b) => a.distance_km - b.distance_km);
+    window.setTimeout(() => { setRareItems(list); setRareState('ready'); setRarePulse((k) => k + 1); }, Math.max(0, 1600 - (Date.now() - started)));
+  };
   const [showCaptures, setShowCaptures] = useState(true);
   const [hintSeen, setHintSeen] = useState(() => { try { return localStorage.getItem('faunex.map.zoneHint') === '1'; } catch { return false; } });
   const dismissHint = () => { setHintSeen(true); try { localStorage.setItem('faunex.map.zoneHint', '1'); } catch { /* ignore */ } };
@@ -471,7 +492,7 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
           </button>
           <div className="flex items-center gap-2">
           <button
-            onClick={() => { hapticTap(); setRareOpen(true); }}
+            onClick={startRareScan}
             className="pointer-events-auto press flex items-center gap-1.5 rounded-full bg-card/90 backdrop-blur-xl border border-amber/40 shadow-card pl-3 pr-3.5 py-2 text-[12.5px] font-display font-bold text-foreground"
           >
             <Crown className="w-4 h-4 text-amber" />
@@ -489,7 +510,7 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
       </div>
 
       {/* Capsule radar au-dessus de la barre de navigation */}
-      <div className="absolute inset-x-0 z-20 px-4 pointer-events-none bottom-[calc(env(safe-area-inset-bottom)+112px)]">
+      <div className={`absolute inset-x-0 z-20 px-4 pointer-events-none bottom-[calc(env(safe-area-inset-bottom)+112px)] ${rareOpen ? 'hidden' : ''}`}>
         <button
           onClick={() => {
             hapticTap();
@@ -514,7 +535,11 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
         </button>
       </div>
 
-      <RareSightingsSheet open={rareOpen} onOpenChange={setRareOpen} isPremium={isPremium} position={userPos ?? (centerRef.current ? [centerRef.current.lat, centerRef.current.lng] : null)} onShow={() => setRareOpen(false)} />
+      {rareOpen && (
+        <div className="absolute inset-x-0 z-30 pointer-events-none bottom-[calc(env(safe-area-inset-bottom)+104px)] animate-in slide-in-from-bottom-6 fade-in duration-300">
+          <RareRadarDeck state={rareState} items={rareItems} isPremium={isPremium} selected={rareSel} onSelect={setRareSel} onClose={() => setRareOpen(false)} />
+        </div>
+      )}
 
       {/* Fullscreen map */}
       <MapContainer
@@ -547,7 +572,8 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
             icon={userIcon}
           />
         )}
-        {showCaptures && markers}
+        {showCaptures && !rareOpen && markers}
+        {rareOpen && rareState !== 'nolocation' && <RareRadarLayer origin={rareOrigin} items={rareItems} selected={rareSel} onSelect={setRareSel} pulseKey={rarePulse} />}
       </MapContainer>
 
       {captures.length === 0 && (

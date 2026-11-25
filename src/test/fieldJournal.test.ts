@@ -15,3 +15,20 @@ describe('field journal stats', () => {
     expect(s.places).toBe(2);
   });
 });
+
+describe('field journal dashboard', () => {
+  it('finds the record day by distinct species', () => {
+    const s = computeJournalStats([c('2026-11-01', 'Renard'), c('2026-11-02', 'Renard'), c('2026-11-02', 'Mésange'), c('2026-11-02', 'mésange')], new Date(2026, 10, 25));
+    expect(s.bestDay).toEqual({ date: '2026-11-02', species: 2 });
+  });
+  it('counts new species only in the month they were first seen', () => {
+    const s = computeJournalStats([c('2026-10-05', 'Renard'), c('2026-11-02', 'Renard'), c('2026-11-03', 'Mésange')], new Date(2026, 10, 25));
+    expect(s.thisMonth.newSpecies).toBe(1);
+    expect(s.thisMonth.captures).toBe(2);
+    expect(s.lastMonth.newSpecies).toBe(1);
+  });
+  it('keeps the current streak only when it reaches today or yesterday', () => {
+    expect(computeJournalStats([c('2026-11-23'), c('2026-11-24')], new Date(2026, 10, 25)).currentStreak).toBe(2);
+    expect(computeJournalStats([c('2026-11-20'), c('2026-11-21')], new Date(2026, 10, 25)).currentStreak).toBe(0);
+  });
+});

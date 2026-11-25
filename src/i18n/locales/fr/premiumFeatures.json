@@ -17,7 +17,15 @@
       "showOnMap": "Voir sur la carte",
       "lockedTitle": "Ne rate plus aucune espèce rare",
       "lockedBody": "Avec Premium, découvre en direct les espèces rares observées près de toi et que tu n'as pas encore capturées.",
-      "cta": "Passer à Premium"
+      "cta": "Passer à Premium",
+      "daysAgo_one": "il y a {{count}} jour",
+      "daysAgo_other": "il y a {{count}} jours",
+      "scanning": "Scan des alentours…",
+      "found_one": "{{count}} espèce rare détectée",
+      "found_other": "{{count}} espèces rares détectées",
+      "missing": "Manquante à ton Faunex",
+      "fromYou": "De toi",
+      "seen": "Signalée"
     },
     "journal": {
       "menu": "Carnet de terrain",
@@ -27,7 +35,7 @@
       "species": "Espèces",
       "places": "Lieux",
       "activeDays": "Jours d'expédition",
-      "activity": "Activité des 12 dernières semaines",
+      "activity": "Activité des 6 derniers mois",
       "byCategory": "Par catégorie",
       "byRarity": "Par rareté",
       "topPlaces": "Tes lieux favoris",
@@ -40,8 +48,24 @@
       "less": "Moins",
       "more": "Plus",
       "lockedTitle": "Ton carnet de terrain complet",
-      "lockedBody": "Activité, catégories, raretés et lieux favoris : Premium révèle toutes tes statistiques d'explorateur.",
-      "cta": "Débloquer avec Premium"
+      "lockedBody": "Tendances du mois, records, activité, biodiversité et lieux favoris : Premium révèle tout ton tableau de bord d'explorateur.",
+      "cta": "Débloquer avec Premium",
+      "lifetime": "Depuis tes débuts",
+      "speciesFound_one": "espèce découverte",
+      "speciesFound_other": "espèces découvertes",
+      "vsLast": "vs {{month}}",
+      "newSpecies": "Nouvelles espèces",
+      "outings": "Sorties",
+      "records": "Tes records",
+      "rarest": "Ta trouvaille la plus rare",
+      "currentStreak": "Série en cours",
+      "recordStreak_one": "Record : {{count}} jour",
+      "recordStreak_other": "Record : {{count}} jours",
+      "bestDay": "Journée record",
+      "speciesN_one": "{{count}} espèce",
+      "speciesN_other": "{{count}} espèces",
+      "capturesN_one": "{{count}} capture",
+      "capturesN_other": "{{count}} captures"
     }
   }
 }

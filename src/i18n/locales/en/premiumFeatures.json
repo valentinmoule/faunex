@@ -17,7 +17,15 @@
       "showOnMap": "Show on map",
       "lockedTitle": "Never miss a rare species",
       "lockedBody": "With Premium, see live which rare species were spotted near you that you haven't captured yet.",
-      "cta": "Go Premium"
+      "cta": "Go Premium",
+      "daysAgo_one": "{{count}} day ago",
+      "daysAgo_other": "{{count}} days ago",
+      "scanning": "Scanning the area…",
+      "found_one": "{{count}} rare species detected",
+      "found_other": "{{count}} rare species detected",
+      "missing": "Missing from your Faunex",
+      "fromYou": "From you",
+      "seen": "Spotted"
     },
     "journal": {
       "menu": "Field journal",
@@ -27,7 +35,7 @@
       "species": "Species",
       "places": "Places",
       "activeDays": "Expedition days",
-      "activity": "Activity over the last 12 weeks",
+      "activity": "Activity over the last 6 months",
       "byCategory": "By category",
       "byRarity": "By rarity",
       "topPlaces": "Your favourite places",
@@ -40,8 +48,24 @@
       "less": "Less",
       "more": "More",
       "lockedTitle": "Your complete field journal",
-      "lockedBody": "Activity, categories, rarities and favourite places: Premium reveals all your explorer stats.",
-      "cta": "Unlock with Premium"
+      "lockedBody": "Monthly trends, records, activity, biodiversity and favourite spots: Premium unlocks your full explorer dashboard.",
+      "cta": "Unlock with Premium",
+      "lifetime": "Since you started",
+      "speciesFound_one": "species discovered",
+      "speciesFound_other": "species discovered",
+      "vsLast": "vs {{month}}",
+      "newSpecies": "New species",
+      "outings": "Outings",
+      "records": "Your records",
+      "rarest": "Your rarest find",
+      "currentStreak": "Current streak",
+      "recordStreak_one": "Record: {{count}} day",
+      "recordStreak_other": "Record: {{count}} days",
+      "bestDay": "Record day",
+      "speciesN_one": "{{count}} species",
+      "speciesN_other": "{{count}} species",
+      "capturesN_one": "{{count}} capture",
+      "capturesN_other": "{{count}} captures"
     }
   }
 }
