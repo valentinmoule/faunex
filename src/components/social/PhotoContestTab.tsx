@@ -6,10 +6,9 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Check, Sparkles, Vote } from 'lucide-react';
-import contestFox from '@/assets/learning/fox-happy-anim.webp';
-import contestFoxStill from '@/assets/learning/fox-happy-still.webp';
-import contestBadge from '@/assets/badges/native/photo_of_week.webp';
+import { Check, Vote } from 'lucide-react';
+import contestFox from '@/assets/learning/fox-photo-anim.webp';
+import contestFoxStill from '@/assets/learning/fox-photo-still.webp';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -299,16 +298,10 @@ export default function PhotoContestTab() {
             <h2 className="mt-3 text-2xl font-display font-extrabold leading-tight">{t('social.contest.pitchTitle')}</h2>
             <div className="mt-2 flex items-center gap-2">
               <p className="min-w-0 flex-1 text-sm leading-relaxed text-primary-foreground/90">{t('social.contest.pitchSubtitle')}</p>
-              <div className="contest-mascot relative h-32 w-32 shrink-0" aria-hidden="true">
-                <picture>
-                  <source media="(prefers-reduced-motion: reduce)" srcSet={contestFoxStill} />
-                  <img src={contestFox} alt="" width={104} height={104} className="absolute bottom-0 left-0 h-[104px] w-[104px] object-contain" />
-                </picture>
-                <div className="contest-mascot-badge absolute right-0 top-0 h-12 w-12">
-                  <img src={contestBadge} alt="" width={48} height={48} className="h-full w-full object-contain" />
-                  <Sparkles className="contest-mascot-spark absolute -right-1 -top-1 h-4 w-4 text-accent" />
-                </div>
-              </div>
+              <picture aria-hidden="true">
+                <source media="(prefers-reduced-motion: reduce)" srcSet={contestFoxStill} />
+                <img src={contestFox} alt="" width={120} height={120} className="fox-fur -my-2 h-[120px] w-[120px] shrink-0 object-contain drop-shadow-lg" />
+              </picture>
             </div>
           </>)}
           {myEntry && (
