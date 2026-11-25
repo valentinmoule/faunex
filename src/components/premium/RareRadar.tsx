@@ -147,10 +147,9 @@ export function RareRadarDeck({ state, items, isPremium, userId, selected, onSel
 
   const header = (
     <div className="mx-auto mb-2 flex max-w-lg items-center justify-between px-4">
-      <span className="flex items-center gap-2 rounded-full bg-card/95 px-3 py-1.5 text-[12px] font-display font-bold text-foreground shadow-card backdrop-blur-xl">
-        <span className="relative flex h-2 w-2"><span className="absolute inset-0 animate-ping rounded-full bg-primary" /><span className="relative h-2 w-2 rounded-full bg-primary" /></span>
+      <h3 className="font-display text-[17px] font-bold text-foreground [text-shadow:0_1px_6px_hsl(var(--background))]">
         {state === 'scanning' ? t('premiumFeatures.radar.scanning') : t('premiumFeatures.radar.found', { count: items.length })}
-      </span>
+      </h3>
       <button onClick={onClose} aria-label={t('common.close')} className="press pointer-events-auto rounded-full bg-card/95 p-2 shadow-card backdrop-blur-xl"><X className="h-4 w-4" /></button>
     </div>
   );
