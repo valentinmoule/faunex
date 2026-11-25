@@ -379,7 +379,10 @@
           "existing_customer": "Referrals are only available to new Premium customers.",
           "referral_already_set": "Another referrer is already linked to your account.",
           "invalid_code": "This referral code is not valid."
-        }
+        },
+        "stepTitle": "Do you have a referral code?",
+        "stepText": "With a friend’s code, you each get 30 days of Premium.",
+        "continue": "Continue to payment"
       },
       "badge": "Faunex Premium",
       "title": "Support Faunex and unlock the best of the app.",

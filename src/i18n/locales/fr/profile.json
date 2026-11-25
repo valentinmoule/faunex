@@ -379,7 +379,10 @@
           "existing_customer": "Le parrainage est réservé aux nouveaux clients Premium.",
           "referral_already_set": "Un autre parrain est déjà associé à ton compte.",
           "invalid_code": "Ce code de parrainage n’est pas valide."
-        }
+        },
+        "stepTitle": "As-tu un code de parrainage ?",
+        "stepText": "Avec le code d’un proche, vous gagnez chacun 30 jours de Premium.",
+        "continue": "Continuer vers le paiement"
       },
       "badge": "Faunex Premium",
       "title": "Soutenez Faunex et débloquez le meilleur de l'application.",

@@ -3,12 +3,9 @@ import { Copy, Gift, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 
-export function PremiumReferral({ userId, eligible, code, onCodeChange }: {
-  userId: string; eligible: boolean; code: string; onCodeChange: (value: string) => void;
-}) {
+export function PremiumReferral({ userId }: { userId: string }) {
   const { t } = useTranslation();
   const [ownCode, setOwnCode] = useState('');
   const [failed, setFailed] = useState(false);
@@ -30,10 +27,6 @@ export function PremiumReferral({ userId, eligible, code, onCodeChange }: {
           catch { toast.error(t('profile.premium.referral.copyError')); }
         }}><Copy className="h-5 w-5" /></Button>}
       </div>
-      {eligible && <div className="space-y-2">
-        <label htmlFor="referral-code" className="text-sm font-medium">{t('profile.premium.referral.inputLabel')}</label>
-        <Input id="referral-code" value={code} onChange={event => onCodeChange(event.target.value.toUpperCase())} maxLength={12} autoCapitalize="characters" autoComplete="off" placeholder={t('profile.premium.referral.placeholder')} />
-      </div>}
     </section>
   );
 }

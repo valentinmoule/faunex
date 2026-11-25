@@ -16,6 +16,8 @@ import { Browser } from '@capacitor/browser';
 import { useTranslation } from 'react-i18next';
 import { useAppLocale } from '@/hooks/useAppLocale';
 import { CancelSurveySheet } from '@/components/CancelSurveySheet';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { PremiumReferral } from '@/components/PremiumReferral';
 import { getPaddleEnvironment } from '@/lib/paddle';
 import { hasActiveFamily, readFamily, type FamilyInfo } from '@/lib/family';
@@ -61,6 +63,7 @@ const PremiumPage = () => {
   const [surveyOpen, setSurveyOpen] = useState(false);
   const [referralCode, setReferralCode] = useState('');
   const [referralBusy, setReferralBusy] = useState(false);
+  const [referralStep, setReferralStep] = useState(false);
   const [bonusDays, setBonusDays] = useState(0);
   const [family, setFamily] = useState<FamilyInfo | null>(null);
   const familyActive = hasActiveFamily(family);
@@ -133,6 +136,12 @@ const PremiumPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoCheckout]);
 
+  const referralEligible = !loading && !subscription && !isPremium && plan === 'yearly';
+  const startSubscribe = () => {
+    if (!session?.user) { navigate('/auth'); return; }
+    if (referralEligible) { setReferralStep(true); return; }
+    void handleSubscribe();
+  };
   const handleSubscribe = async () => {
     if (!session?.user) {
       navigate('/auth');
@@ -150,6 +159,7 @@ const PremiumPage = () => {
         }
         referralId = data;
       }
+      setReferralStep(false);
       await openCheckout({
         priceId: selected.priceId,
         plan,
@@ -258,7 +268,7 @@ const PremiumPage = () => {
                   <p className="mt-1 text-xs text-muted-foreground">{personalRenewal ?? t('profile.premium.noEndDate')}</p>
                 </div>
               ) : (
-                <Button onClick={handleSubscribe} disabled={checkoutLoading || referralBusy || loading || isPremium} className="mt-auto h-auto min-h-12 w-full whitespace-normal py-3">
+                <Button onClick={startSubscribe} disabled={checkoutLoading || referralBusy || loading || isPremium} className="mt-auto h-auto min-h-12 w-full whitespace-normal py-3">
                   {checkoutLoading || referralBusy ? <Loader2 className="size-4 animate-spin" /> : t('profile.premium.presentation.choosePersonal')}
                 </Button>
               )}
@@ -301,7 +311,7 @@ const PremiumPage = () => {
           </ul>
         </section>
 
-        {session?.user && <PremiumReferral userId={session.user.id} eligible={!loading && !subscription && !isPremium && plan === 'yearly'} code={referralCode} onCodeChange={setReferralCode} />}
+        {session?.user && <PremiumReferral userId={session.user.id} />}
         {bonusDays > 0 && <p className="mb-5 text-sm font-medium text-primary">{t('profile.premium.referral.bonus', { days: bonusDays })}</p>}
       </main>
 
@@ -319,6 +329,19 @@ const PremiumPage = () => {
         </div>,
         document.body
       )}
+      <Dialog open={referralStep} onOpenChange={setReferralStep}>
+        <DialogContent className="max-w-sm rounded-3xl">
+          <DialogHeader>
+            <DialogTitle className="font-display">{t('profile.premium.referral.stepTitle')}</DialogTitle>
+            <DialogDescription>{t('profile.premium.referral.stepText')}</DialogDescription>
+          </DialogHeader>
+          <label htmlFor="referral-code" className="text-sm font-medium">{t('profile.premium.referral.inputLabel')}</label>
+          <Input id="referral-code" value={referralCode} onChange={event => setReferralCode(event.target.value.toUpperCase())} maxLength={12} autoCapitalize="characters" autoComplete="off" placeholder={t('profile.premium.referral.placeholder')} />
+          <Button onClick={() => void handleSubscribe()} disabled={checkoutLoading || referralBusy} className="h-12 w-full">
+            {checkoutLoading || referralBusy ? <Loader2 className="size-4 animate-spin" /> : t('profile.premium.referral.continue')}
+          </Button>
+        </DialogContent>
+      </Dialog>
       {session?.user && (
         <CancelSurveySheet open={surveyOpen} onOpenChange={setSurveyOpen} userId={session.user.id} onContinue={handleManage} />
       )}
