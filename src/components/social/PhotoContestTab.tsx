@@ -231,6 +231,15 @@ export default function PhotoContestTab() {
               const active = i === deckIdx;
               return (
                 <article key={e.entry_id} className={`w-[86%] shrink-0 snap-center transition-[transform,opacity] duration-300 ${active ? 'scale-100 opacity-100' : 'scale-[0.94] opacity-70'}`}>
+                  <div className="mb-2.5 flex min-w-0 items-center gap-2.5">
+                    <button onClick={() => navigate(`/explorer/${e.user_id}/collection`)}>
+                      <PremiumAvatar avatarUrl={e.avatar_url} name={author} size="md" />
+                    </button>
+                    <div className="min-w-0">
+                      <button onClick={() => navigate(`/explorer/${e.user_id}/collection`)} className="block truncate text-sm font-display font-semibold text-foreground hover:underline">{author}</button>
+                      <span className="block text-[11px] text-muted-foreground">{t('social.contest.takenBy')}</span>
+                    </div>
+                  </div>
                   <div
                     role="button"
                     onClick={() => { hapticTap(); openCapture(e.capture_id); }}
@@ -246,16 +255,6 @@ export default function PhotoContestTab() {
                     )}
                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-foreground/85 via-foreground/40 to-transparent p-4 pt-16">
                       <p className="truncate text-lg font-display font-extrabold leading-tight text-background">{speciesName(e.animal_name)}</p>
-                      <button
-                        onClick={(ev) => { ev.stopPropagation(); navigate(`/explorer/${e.user_id}/collection`); }}
-                        className="mt-2.5 flex w-full min-w-0 items-center gap-2.5 border-t border-background/25 pt-2.5 text-left"
-                      >
-                        <PremiumAvatar avatarUrl={e.avatar_url} name={author} size="sm" />
-                        <span className="min-w-0">
-                          <span className="block text-[10px] font-display font-bold uppercase tracking-[0.16em] text-background/60">{t('social.contest.takenBy')}</span>
-                          <span className="block truncate text-sm font-display font-semibold leading-tight text-background">{author}</span>
-                        </span>
-                      </button>
                     </div>
                   </div>
                   <div className="mt-3">
