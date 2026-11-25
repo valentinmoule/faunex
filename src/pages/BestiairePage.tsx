@@ -2022,7 +2022,7 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
 
           {viewMode === 'mine' && (
             <section>
-              {onboardingPending && !onboardingOpen && (
+              {onboardingPending && !onboardingOpen && myCapturedAnimals.length > 0 && (
                 <OnboardingCard onOpen={() => setOnboardingOpen(true)} onDismiss={finishOnboarding} />
               )}
               <OnboardingTour open={onboardingOpen} onClose={finishOnboarding} />
@@ -2123,6 +2123,9 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
                   <EmptyCaptureState
                     userName={userDisplayName}
                     onCapture={() => navigate('/capture')}
+                    header={onboardingPending && !onboardingOpen ? (
+                      <OnboardingCard onOpen={() => setOnboardingOpen(true)} onDismiss={finishOnboarding} />
+                    ) : undefined}
                   />
                 )
               ) : (

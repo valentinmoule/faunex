@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Camera } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { hapticTap } from '@/lib/haptics';
@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 interface EmptyCaptureStateProps {
   userName?: string;
   onCapture: () => void;
+  /** Contenu affiché au-dessus du message, sans décaler son centrage. */
+  header?: ReactNode;
 }
 
 
@@ -43,7 +45,7 @@ const useTypewriter = (lines: string[], speed = 22, pause = 240) => {
   return { visible, done, activeLine };
 };
 
-export const EmptyCaptureState = ({ userName, onCapture }: EmptyCaptureStateProps) => {
+export const EmptyCaptureState = ({ userName, onCapture, header }: EmptyCaptureStateProps) => {
   const { t } = useTranslation();
   const name = userName || t('bestiary.emptyCapture.explorer');
   const lines = [
@@ -56,6 +58,7 @@ export const EmptyCaptureState = ({ userName, onCapture }: EmptyCaptureStateProp
   return (
     <div className="relative flex flex-col items-center justify-center min-h-[80svh] px-4 text-center">
       <SwirlCardsBackdrop />
+      {header && <div className="absolute inset-x-0 top-0 z-20 text-left">{header}</div>}
       <div className="relative z-10 w-full max-w-sm px-2 py-4">
         <div className="space-y-2.5 mb-8 min-h-[6.5rem]" aria-live="polite" aria-atomic="false">
           <p className="text-[1.6rem] font-display font-bold text-foreground leading-tight tracking-tight">
