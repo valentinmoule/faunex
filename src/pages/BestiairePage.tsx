@@ -2401,9 +2401,7 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
 
 
         </div>
-        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={removeCaptureLocally}
-          captures={viewMode === 'mine' ? myCapturedAnimals : undefined}
-          onCaptureSelect={(card) => { setSelectedCard(card); setSelectedFinders(undefined); }} />
+        <CardDetailSheet card={selectedCard} open={!!selectedCard} onClose={() => setSelectedCard(null)} communityFinders={selectedFinders} onDeleted={removeCaptureLocally} />
         {flyingCardOverlay}
         {xpRewardOverlay}
         {deptPickerSheet}

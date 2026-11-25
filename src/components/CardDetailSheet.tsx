@@ -50,7 +50,7 @@ import SpeciesReportActionDialog, { type ReportActionSource } from '@/components
 import { Merge, Volume2, GitBranch } from 'lucide-react';
 import { callLabelKey } from '@/lib/speciesCall';
 import { useCatalogueModeration, deleteBestiarySpecies } from '@/hooks/useCatalogueModeration';
-import { adjacentCaptureIndex, captureNavigationIndex, captureSwipeStep } from '@/lib/captureNavigation';
+import { adjacentCaptureIndex, captureSwipeStep } from '@/lib/captureNavigation';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { subscribeCaptureImageUpdates } from '@/lib/captureImageUpdates';
 
@@ -71,9 +71,6 @@ interface Props {
   /** Navigation entre les photos d'une même espèce (fournie par le wrapper). */
   photoNav?: PhotoNav;
   /** Captures visibles dans la grille, dans leur ordre de tri. */
-  captures?: AnimalCard[];
-  onCaptureSelect?: (card: AnimalCard) => void;
-  captureNav?: PhotoNav;
 }
 
 interface PhotoNav {
@@ -159,10 +156,10 @@ const DELETE_SPARKLES = [
   { x: '88%', y: '58%', size: 10, delay: 140 },
 ];
 
-const CardDetailSheetInner = ({ card, open, onClose, communityFinders, onDeleted, feedView = false, author, onUseCollectionCover, photoNav, captureNav }: Props) => {
+const CardDetailSheetInner = ({ card, open, onClose, communityFinders, onDeleted, feedView = false, author, onUseCollectionCover, photoNav }: Props) => {
   const swipeStart = useRef<{ x: number; y: number } | null>(null);
   const swiped = useRef(false);
-  const swipeNav = captureNav ?? photoNav;
+  const swipeNav = photoNav;
   const detailScrollRef = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
     if (detailScrollRef.current) detailScrollRef.current.scrollTop = 0;
@@ -988,24 +985,6 @@ const CardDetailSheetInner = ({ card, open, onClose, communityFinders, onDeleted
               </HolographicCard>
             </div>
 
-            {captureNav && captureNav.total > 1 && (
-              <div className="relative z-10 flex items-center justify-center gap-4 px-6 pt-3">
-                <Button variant="ghost" size="icon" disabled={captureNav.index === 0}
-                  aria-label={t('capture.captureNavigation.previous')} title={t('capture.captureNavigation.previous')}
-                  onClick={() => { hapticTap(); captureNav.onSelect(captureNav.index - 1); }}>
-                  <ChevronLeft className="h-5 w-5" />
-                </Button>
-                <span className="text-xs font-display font-semibold text-muted-foreground tabular-nums" aria-live="polite">
-                  {captureNav.index + 1} / {captureNav.total}
-                </span>
-                <Button variant="ghost" size="icon" disabled={captureNav.index === captureNav.total - 1}
-                  aria-label={t('capture.captureNavigation.next')} title={t('capture.captureNavigation.next')}
-                  onClick={() => { hapticTap(); captureNav.onSelect(captureNav.index + 1); }}>
-                  <ChevronRight className="h-5 w-5" />
-                </Button>
-              </div>
-            )}
-
             {photoNav && photoNav.total > 1 ? (
               <div className="relative z-10 flex flex-col items-center gap-1.5 px-6 pt-3 pb-10">
                 <div className="flex items-center gap-1.5" role="tablist" aria-label={t('capture.detail.photos', { count: photoNav.total })}>
@@ -1703,14 +1682,7 @@ interface SpeciesPhoto {
  *  cette espèce et laisse naviguer entre elles ; date, lieu et note suivent la
  *  photo affichée car chaque capture garde son propre contexte. */
 const CardDetailSheet = (props: Props) => {
-  const { card, open, feedView, onDeleted, captures, onCaptureSelect } = props;
-  const captureIndex = captures ? captureNavigationIndex(captures, card) : -1;
-  const captureNav: PhotoNav | undefined = captures && onCaptureSelect && captureIndex >= 0 && captures.length > 1
-    ? { index: captureIndex, total: captures.length, onSelect: next => {
-        const selected = captures[next];
-        if (selected) onCaptureSelect(selected);
-      } }
-    : undefined;
+  const { card, open, feedView, onDeleted } = props;
   const { session } = useAuth();
   const [photos, setPhotos] = useState<SpeciesPhoto[]>([]);
   const [index, setIndex] = useState(0);
@@ -1776,7 +1748,6 @@ const CardDetailSheet = (props: Props) => {
       {...props}
       card={activeCard}
       onDeleted={handleDeleted}
-      captureNav={captureNav}
       photoNav={photos.length > 1 ? { index, total: photos.length, onSelect: setIndex } : undefined}
     />
   );
