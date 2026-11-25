@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Trophy } from 'lucide-react';
 
@@ -47,6 +47,21 @@ const RewardCelebration = ({ title, xp, onClose }: RewardCelebrationProps) => {
     []
   );
 
+  // Compteur d'XP qui défile de 0 à la récompense.
+  const [shown, setShown] = useState(0);
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setShown(xp); return; }
+    let raf = 0; const start = performance.now() + 350; const dur = 1100;
+    const tick = (now: number) => {
+      const p = Math.min(1, Math.max(0, (now - start) / dur));
+      setShown(Math.round(xp * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [xp]);
+  const sparks = useMemo(() => Array.from({ length: 14 }, (_, i) => ({ id: i, x: (i / 13 - 0.5) * 220, d: 0.3 + (i % 5) * 0.12 })), []);
+
   useEffect(() => {
     if (navigator.vibrate) navigator.vibrate([60, 40, 60, 40, 120]);
   }, []);
@@ -88,6 +103,13 @@ const RewardCelebration = ({ title, xp, onClose }: RewardCelebrationProps) => {
           <Trophy className="w-3 h-3" /> +{xp} XP
         </span>
 
+        {/* Étincelles d'XP qui jaillissent du médaillon */}
+        <div className="pointer-events-none absolute left-1/2 top-[90px]">
+          {sparks.map((s) => (
+            <span key={s.id} className="reward-xp-spark" style={{ '--spark-x': `${s.x}px`, animationDelay: `${s.d}s` } as React.CSSProperties} />
+          ))}
+        </div>
+
         {/* Médaillon hexagonal doré avec anneaux pulsants */}
         <div className="relative mx-auto mb-4 w-[120px] h-[120px] flex items-center justify-center">
           <span className="absolute inset-0 rounded-full border-2 border-amber/40 celebration-ring" />
@@ -112,7 +134,8 @@ const RewardCelebration = ({ title, xp, onClose }: RewardCelebrationProps) => {
           </div>
         </div>
 
-        <p className="font-display text-[10px] font-bold uppercase tracking-[0.18em] text-amber">
+        <p className="reward-xp-count font-display text-4xl font-black tabular-nums text-amber">+{shown} XP</p>
+        <p className="mt-2 font-display text-[10px] font-bold uppercase tracking-[0.18em] text-amber">
           {t('bestiary.collections.celebrationTag', { defaultValue: 'Collection complète !' })}
         </p>
         <h4 className="mt-1 font-display text-lg font-black text-foreground">{title}</h4>

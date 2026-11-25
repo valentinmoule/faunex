@@ -3777,6 +3777,10 @@ export type Database = {
           username: string
         }[]
       }
+      claim_advent_completion: {
+        Args: { p_collection_id: string }
+        Returns: number
+      }
       claim_advent_day: {
         Args: { p_collection: string; p_day: number }
         Returns: number

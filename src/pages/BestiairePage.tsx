@@ -554,6 +554,17 @@ const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   const { isClaimed, claimReward, claiming: claimingReward } = useCollectionRewards(session?.user?.id);
   const [celebratedReward, setCelebratedReward] = useState<{ title: string; xp: number } | null>(null);
 
+  const [claimingAdvent, setClaimingAdvent] = useState<string | null>(null);
+  const claimAdvent = useCallback(async (id: string, title: string) => {
+    if (claimingAdvent) return;
+    setClaimingAdvent(id);
+    const { data, error } = await supabase.rpc('claim_advent_completion', { p_collection_id: id });
+    setClaimingAdvent(null);
+    if (error) { toast.error(t('advent.error')); return; }
+    setAdventClaimed(prev => [...(prev || []), id]);
+    if ((data as number) > 0) setCelebratedReward({ title, xp: data as number });
+  }, [claimingAdvent, t]);
+
   /** Récompense XP d'une collection/zone terminée (une seule fois). */
   const handleClaimCollectionReward = useCallback(
     async (rewardId: string, xp: number, title: string) => {
@@ -638,7 +649,21 @@ const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   /** Collections thématiques Faunex (gérées depuis l'admin, sans mise à jour de l'app). */
   const { collections: themedCollections } = useThemedCollections();
   const advent = useAdventCalendars();
-  const visibleAdvent = advent.collections.filter(c => c.published && (!c.starts_at || new Date(c.starts_at) <= advent.now));
+  const adventUid = session?.user?.id;
+  const [adventClaimed, setAdventClaimed] = useState<string[] | null>(null);
+  useEffect(() => {
+    if (!adventUid) return;
+    supabase.from('advent_completion_rewards').select('collection_id').eq('user_id', adventUid)
+      .then(({ data }) => setAdventClaimed((data || []).map(r => r.collection_id)));
+  }, [adventUid]);
+  const adventDays = (id: string) => new Set(advent.submissions.filter(s => s.collection_id === id && s.approved_at).map(s => s.day)).size;
+  // Récompense récupérée → le sachet disparaît ; événement terminé → il disparaît pour ceux qui ne l'ont pas fini.
+  const visibleAdvent = adventClaimed === null ? [] : advent.collections.filter(c => {
+    if (!c.published || (c.starts_at && new Date(c.starts_at) > advent.now)) return false;
+    if (adventClaimed.includes(c.id)) return false;
+    const end = c.ends_at ? new Date(c.ends_at) : new Date(Date.UTC((c.calendar_year ?? advent.now.getUTCFullYear()) + 1, 0, 1, -1));
+    return advent.now < end || adventDays(c.id) >= 24;
+  });
   const themedEntries = useMemo(
     () =>
       themedCollections.map((c) => {
@@ -673,6 +698,30 @@ const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
     () => [...themedEntries].sort((a, b) => a.minLevel - b.minLevel),
     [themedEntries],
   );
+
+  // Pastille de l'onglet Collections : booster débloqué jamais vu, ou récompense à récupérer.
+  const seenKey = levelUid ? `faunex:seen-boosters:${levelUid}` : null;
+  const [seenBoosters, setSeenBoosters] = useState<string[] | null>(null);
+  const unlockedKeys = useMemo(
+    () => levelRow ? boosterEntries.filter(b => isBoosterUnlocked(b.minLevel, explorerLevel)).map(b => b.group.key) : [],
+    [boosterEntries, explorerLevel, levelRow],
+  );
+  useEffect(() => {
+    if (!seenKey || !levelRow || !themedCollections.length) return;
+    const raw = localStorage.getItem(seenKey);
+    if (raw === null) { localStorage.setItem(seenKey, JSON.stringify(unlockedKeys)); setSeenBoosters(unlockedKeys); return; }
+    try { setSeenBoosters(JSON.parse(raw)); } catch { setSeenBoosters(unlockedKeys); }
+  }, [seenKey, levelRow, themedCollections.length]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (viewMode !== 'collections' || !seenKey || !seenBoosters) return;
+    if (unlockedKeys.every(k => seenBoosters.includes(k))) return;
+    const next = Array.from(new Set([...seenBoosters, ...unlockedKeys]));
+    localStorage.setItem(seenKey, JSON.stringify(next)); setSeenBoosters(next);
+  }, [viewMode, seenKey, seenBoosters, unlockedKeys]);
+  const collectionsDot = (seenBoosters !== null && unlockedKeys.some(k => !seenBoosters.includes(k)))
+    || boosterEntries.some(b => isBoosterUnlocked(b.minLevel, explorerLevel) && b.total > 0 && b.captured >= b.total && !isClaimed(`${COLLECTION_REWARD_PREFIX}${b.group.key}`))
+    || visibleAdvent.some(c => adventDays(c.id) >= 24);
+
 
   /** Every species group that actually has species in the bestiary, with progress. */
   const availableCollections = useMemo(() => {
@@ -1954,7 +2003,8 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
                     onClick={() => switchHubTab(key)}
                     className="game-tab min-w-0 flex-1 h-10 gap-1.5 px-2 text-xs"
                   >
-                    <span className="truncate">{label}</span>
+                    <span className="relative truncate">{label}</span>
+                    {key === 'collections' && collectionsDot && <span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-destructive" />}
                   </Button>
                 );
               })}
@@ -2270,7 +2320,7 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
               <BoosterCarousel>
                 {visibleAdvent.map(c => {
                   const open = () => navigate(`/advent/${c.id}`);
-                  return <CollectionTile key={c.id} title={themeTitle(c, i18n.language)} event image={adventCover} overlay={getCollectionArt('advent').overlay} captured={new Set(advent.submissions.filter(s => s.collection_id === c.id && s.approved_at).map(s => s.day)).size} total={24} complete={false} claimed={false} xp={ADVENT_COMPLETION_XP} onClaim={open} onOpen={open} />;
+                  return <CollectionTile key={c.id} title={themeTitle(c, i18n.language)} event image={adventCover} overlay={getCollectionArt('advent').overlay} captured={adventDays(c.id)} total={24} complete={adventDays(c.id) >= 24} claimed={false} claiming={claimingAdvent === c.id} xp={ADVENT_COMPLETION_XP} onClaim={() => claimAdvent(c.id, themeTitle(c, i18n.language))} onOpen={open} />;
                 })}
                 {/* Boosters Faunex débloqués au fil des niveaux ; les scellés restent visibles */}
                 {boosterEntries.map(({ group, total, captured, cover, minLevel }) => {

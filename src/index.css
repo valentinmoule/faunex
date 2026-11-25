@@ -4380,3 +4380,10 @@ html.is-native-android body {
 }
 @keyframes advent-holo { from { background-position: 0% 0%, 0 0; } to { background-position: 0% 100%, 40px 0; } }
 @media (prefers-reduced-motion: reduce) { .collection-booster-event::after { animation: none; background-position: 50% 50%; } }
+
+/* Récolte d'XP : étincelles et compteur qui grossit en fin de course */
+.reward-xp-spark { position: absolute; width: 7px; height: 7px; border-radius: 9999px; background: hsl(var(--amber)); box-shadow: 0 0 10px hsl(var(--amber)); opacity: 0; animation: reward-spark 1.3s cubic-bezier(.2,.7,.3,1) forwards; }
+@keyframes reward-spark { 0% { opacity: 0; transform: translate(0,0) scale(.4); } 20% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--spark-x), -160px) scale(1.1); } }
+.reward-xp-count { animation: reward-count-pop .5s 1.4s cubic-bezier(.3,1.6,.5,1) both; }
+@keyframes reward-count-pop { 0% { transform: scale(1); } 50% { transform: scale(1.18); } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .reward-xp-spark, .reward-xp-count { animation: none; } }
