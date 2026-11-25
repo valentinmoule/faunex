@@ -1128,6 +1128,13 @@
       "when": 1795644001930,
       "tag": "0158_only_themed_profile_pins",
       "breakpoints": true
+    },
+    {
+      "idx": 159,
+      "version": "7",
+      "when": 1795649997627,
+      "tag": "0159_unique_species_capture_rewards_and_rankings",
+      "breakpoints": true
     }
   ]
 }

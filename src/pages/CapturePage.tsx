@@ -584,7 +584,7 @@ setManualMode(false);
           return;
         }
       }
-      // Espèce déjà possédée : la photo s'ajoute à sa fiche (XP d'observation réduit).
+      // Espèce déjà possédée : la photo s'ajoute à sa fiche sans gagner d'XP.
       const isReobservation = Boolean(existing);
       if (!(await consumeSlot())) { cancelPrepare(); return; }
       consumed = true;
