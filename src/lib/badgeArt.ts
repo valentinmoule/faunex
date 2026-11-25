@@ -1,4 +1,4 @@
-import adventArt from '@/assets/badges/advent.png';
+import adventArt from '@/assets/badges/native/advent.webp';
 
 const bundledBadgeModules = import.meta.glob<string>('../assets/badges/native/*.webp', {
   eager: true,

@@ -31,6 +31,7 @@ import { fetchAllRows } from '@/lib/fetchAll';
 import { applyCustomCaptureOrder, parseCaptureOrder } from '@/lib/captureOrder';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import BadgeMedallion from '@/components/BadgeMedallion';
 import { followUser as followUserUtil } from '@/lib/followUtils';
 import { subscribeCaptureImageUpdates, updateCaptureImage } from '@/lib/captureImageUpdates';
 
@@ -536,8 +537,8 @@ const FriendCollectionPage = () => {
                       className="relative rounded-xl p-2.5 text-center bg-gradient-to-b from-amber/10 via-amber/5 to-card border border-amber/30 shadow-[0_0_12px_hsla(42,85%,55%,0.1)] game-card-appear"
                       style={{ animationDelay: `${i * 60}ms` }}
                     >
-                      <div className="mx-auto w-10 h-10 rounded-lg bg-amber/15 border border-amber/30 flex items-center justify-center mb-1.5">
-                        <span className="text-xl badge-icon-float">{badge.icon}</span>
+                      <div className="mx-auto mb-1.5 flex justify-center">
+                        <BadgeMedallion badgeId={badge.id} group={(badge as { group?: import("@/lib/badges").BadgeGroup }).group ?? "progression"} fallbackEmoji={badge.icon} state="claimed" size={44} />
                       </div>
                       <p className="text-[10px] font-display font-black leading-tight text-foreground">{t(`social.friendCollection.badges.${badge.id}_name`)}</p>
                     </div>
