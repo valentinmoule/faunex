@@ -1,5 +1,4 @@
 import { categoryLineIcon } from '@/components/icons/CategoryIcons';
-import foxCompass from '@/assets/fox-compass-anim-l2.webp';
 import { useEffect, useMemo, useRef, useState, type ComponentType } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MapContainer, Marker, useMap, useMapEvents } from 'react-leaflet';
@@ -520,9 +519,12 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
         <button
           onClick={() => { void startRareScan(); }}
           aria-label={t(scanHere ? 'map.controls.scanAreaTitle' : 'map.controls.scanTitle')}
-          className="pointer-events-auto press mx-auto flex w-full max-w-sm items-center gap-3 rounded-full bg-card/95 backdrop-blur-xl border border-primary/30 shadow-card pl-2 pr-4 py-2"
+          className="pointer-events-auto press mx-auto flex w-full max-w-sm items-center gap-3 rounded-full bg-card/95 backdrop-blur-xl border border-primary/30 shadow-card pl-2 pr-2 py-2"
         >
-          <img src={foxCompass} alt="" width={48} height={48} className="h-12 w-12 shrink-0 object-contain" />
+          <span className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+            <span className="absolute inset-0 rounded-full bg-primary/40 animate-ping" />
+            <Radar className="relative w-5 h-5" />
+          </span>
           <span className="flex-1 min-w-0 text-left">
             <span className="block text-[14px] font-display font-bold text-foreground leading-tight truncate">{t(scanHere ? 'map.controls.scanAreaTitle' : 'map.controls.scanTitle')}</span>
             <span className="block text-[11px] text-muted-foreground leading-tight truncate">{t(scanHere ? 'map.controls.scanAreaSubtitle' : 'map.controls.scanSubtitle')}</span>
