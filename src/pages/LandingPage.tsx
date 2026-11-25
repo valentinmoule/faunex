@@ -257,7 +257,7 @@ const LandingPage = () => {
             <span>{t('marketing.landing.hero.badge')}</span>
           </div>
 
-          <img src="/pwa-icon-512.png" alt={t('marketing.landing.hero.logoAlt')} width="56" height="56" fetchPriority="high" className="w-14 h-14 mx-auto mb-3" />
+          <img src="/mascot.webp" alt={t('marketing.landing.hero.logoAlt')} width="56" height="56" fetchPriority="high" className="w-14 h-14 mx-auto mb-3" />
 
           <h1 className="font-display font-black tracking-tight leading-[1.02] text-4xl sm:text-6xl">
             <span className="block">{t('marketing.landing.hero.titleLine1')}</span>

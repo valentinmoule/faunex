@@ -34,7 +34,7 @@ export default function PartnerLandingPage({ audience }: { audience: 'zoo' | 'as
       <header className="border-b border-border">
         <div className="mx-auto max-w-6xl px-5 py-4 flex flex-wrap items-center justify-between gap-4">
           <Link to="/" className="flex items-center gap-2 font-display font-bold text-xl">
-            <img src="/pwa-icon-192.png" alt="" width={32} height={32} />Faunex
+            <img src="/mascot.webp" alt="" width={32} height={32} />Faunex
           </Link>
           <nav aria-label={t('partners.nav.label')} className="flex items-center gap-1">
             {(['zoo', 'associations'] as const).map((entry) => (

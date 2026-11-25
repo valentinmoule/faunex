@@ -199,7 +199,7 @@ const AuthPage = () => {
       <div className="w-full max-w-sm space-y-8">
         {/* Logo */}
         <div className="text-center space-y-2">
-          <img src="/pwa-icon-512.png" alt={t('auth.logoAlt')} className="w-24 h-24 mx-auto" />
+          <img src="/mascot.webp" alt={t('auth.logoAlt')} className="w-24 h-24 mx-auto" />
           <h1 className="text-3xl font-display font-bold text-foreground">
             {isForgot ? t('auth.titles.forgot') : isLogin ? t('auth.titles.login') : t('auth.titles.signup')}
           </h1>

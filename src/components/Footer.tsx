@@ -16,7 +16,7 @@ const Footer = () => {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-3">
-              <img src="/pwa-icon-192.png" alt={t('marketing.footer.logoAlt')} className="w-8 h-8 rounded-xl" />
+              <img src="/mascot.webp" alt={t('marketing.footer.logoAlt')} className="w-8 h-8 object-contain" />
               <span className="font-display font-black text-lg text-foreground">Faunex</span>
             </div>
             <p className="text-sm text-muted-foreground font-body leading-relaxed max-w-xs">
