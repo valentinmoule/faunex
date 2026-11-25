@@ -167,11 +167,16 @@ export default function PhotoContestTab() {
     setBusy(true);
     const { error } = await supabase.rpc('cast_contest_vote', { p_entry_id: entryId });
     setBusy(false);
-    if (error) { toast.error(t(contestErrorKey(error.message))); return; }
+    if (error) {
+      toast.error(t(contestErrorKey(error.message)));
+      if (/already_voted|voting_closed/.test(error.message)) load();
+      return;
+    }
     toast.success(t('social.contest.voteDone'));
     hapticSuccess();
     setXpPop(true);
     setTimeout(() => setXpPop(false), 1900);
+    queryClient.invalidateQueries({ queryKey: ['header-level'] });
     queryClient.invalidateQueries({ queryKey: ['profile'] });
     setBallot((prev) => prev.map((e) => (e.entry_id === entryId ? { ...e, voted_for: true } : e)));
   };

@@ -18,6 +18,9 @@ export function hapticTap() {
 export function hapticSuccess() {
   try {
     if (canVibrate()) navigator.vibrate([30, 40, 50]);
+    void import('@capacitor/haptics')
+      .then(({ Haptics, NotificationType }) => Haptics.notification({ type: NotificationType.Success }))
+      .catch(() => {});
   } catch {
     /* unsupported */
   }
