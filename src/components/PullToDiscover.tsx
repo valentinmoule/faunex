@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { Loader2, Radar, Sparkles, Check, Star, Lightbulb, Users } from 'lucide-react';
+import { Loader2, Radar, Check, Lightbulb } from 'lucide-react';
 import { thumbUrl } from '@/lib/imageUrl';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -12,23 +12,13 @@ import { cn } from '@/lib/utils';
 import { useSwipeDownClose } from '@/lib/useSwipeDownClose';
 import { RarityBadge } from '@/components/RarityBadge';
 import { useTranslation } from 'react-i18next';
-import { normalizeSpeciesSearch } from '@/lib/bestiary';
+import { normalizeSpeciesSearch, getCategoryIcon } from '@/lib/bestiary';
+import { useSpeciesName } from '@/hooks/useSpeciesLocale';
 
 const ENABLED_ROUTES = ['/home', '/explorers', '/profile'];
 
 const THRESHOLD = 88;
 const MAX_PULL = 150;
-
-const RARITY_COLORS: Record<string, string> = {
-  common: '#94a3b8',
-  rare: '#3b82f6',
-  uncommon: '#3f4a5c',
-  very_rare: '#1c2333',
-  ultra_rare: '#94a3b8',
-  illustration_rare: '#eab308',
-  special_rare: '#f59e0b',
-  hyper_rare: '#d97706',
-};
 
 interface DiscoveredAnimal {
   name: string;
@@ -53,6 +43,7 @@ const isAtTop = (target: EventTarget | null) => {
 
 const PullToDiscover = () => {
   const { t } = useTranslation();
+  const { speciesName } = useSpeciesName();
   const { session } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -322,59 +313,69 @@ const PullToDiscover = () => {
             </SheetTitle>
           </SheetHeader>
           <p className="text-[12px] text-muted-foreground mt-0.5">{t('map.pull.sheetSubtitle')}</p>
-          <div className="mt-3 space-y-2.5">
-            {result?.animals.map((a, i) => {
-              const st = status[a.name?.toLowerCase()] || { mine: false, recent: 0 };
-              const tint = RARITY_COLORS[a.rarity] || 'hsl(var(--border))';
-              return (
-                <button
-                  type="button"
-                  key={i}
-                  onClick={() => { setOpen(false); navigate(`/home?tab=categories&q=${encodeURIComponent(a.name)}`); }}
-                  className="mission-plate w-full text-left p-3 rounded-[22px] border bg-card active:scale-[0.98] transition-transform animate-fade-in"
-                  style={{ borderColor: `${tint}40`, animationDelay: `${i * 70}ms`, animationFillMode: 'both' }}
-                >
-                  <div className="flex gap-3">
-                    <div className="relative w-16 h-16 shrink-0 rounded-2xl overflow-hidden bg-muted flex items-center justify-center">
-                      {st.photo ? (
-                        <img src={thumbUrl(st.photo, 200)} alt="" loading="lazy" className="w-full h-full object-cover" />
-                      ) : (
-                        <Sparkles className="w-6 h-6 text-muted-foreground/50" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className={cn(
-                          'inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.08em]',
-                          st.mine ? 'text-primary' : 'text-accent-foreground',
-                        )}>
-                          {st.mine ? <Check className="w-3 h-3" strokeWidth={3} /> : <Star className="w-3 h-3" />}
-                          {st.mine ? t('map.pull.inMyFaunex') : t('map.pull.newSpecies')}
-                        </span>
-                        <RarityBadge rarity={a.rarity} plain className="ml-auto" />
-                      </div>
-                      <p className="font-display font-bold text-[15px] text-foreground leading-tight mt-1 truncate">{a.name}</p>
-                      <p className="text-[11.5px] italic text-muted-foreground truncate">{a.scientific_name}</p>
-                      {st.recent > 0 && (
-                        <span className="mt-1 inline-flex whitespace-nowrap items-center gap-1 rounded-full bg-primary/10 text-primary px-2 py-0.5 text-[10.5px] font-semibold">
-                          <span className="relative flex w-1.5 h-1.5"><span className="absolute inset-0 rounded-full bg-primary animate-ping opacity-60" /><span className="relative w-1.5 h-1.5 rounded-full bg-primary" /></span>
-                          <Users className="w-3 h-3" />
-                          {t('map.pull.recentlySeen', { count: st.recent })}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  {a.tip && (
-                    <div className="mt-2 flex gap-1.5">
-                      <Lightbulb className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
-                      <p className="text-[12px] text-foreground/75 leading-snug line-clamp-2">{a.tip}</p>
-                    </div>
-                  )}
-                </button>
-              );
-            })}
+          <div className="mt-3">
+            {!!result?.animals.length && (() => {
+              const isMine = (a: DiscoveredAnimal) => !!status[a.name?.toLowerCase() ?? '']?.mine;
+              const groups = [
+                { key: 'todo', label: t('map.zones.toFind'), items: result.animals.filter((a) => !isMine(a)) },
+                { key: 'got', label: t('map.zones.alreadyCaptured'), items: result.animals.filter((a) => isMine(a)) },
+              ].filter((g) => g.items.length);
+              let i = 0;
+              return groups.map((g) => (
+                <div key={g.key} className="pt-3 first:pt-0">
+                  <p className="text-[11px] font-display font-bold uppercase tracking-[0.08em] text-muted-foreground mb-1">
+                    {g.label} · {g.items.length}
+                  </p>
+                  {g.items.map((a) => {
+                    const st = status[a.name?.toLowerCase() ?? ''] || { mine: false, recent: 0 };
+                    const Icon = getCategoryIcon(a.category || '');
+                    const captured = g.key === 'got';
+                    const delay = 60 * i++;
+                    return (
+                      <button
+                        type="button"
+                        key={`${a.name}-${a.scientific_name}`}
+                        onClick={() => { setOpen(false); navigate(`/home?tab=categories&q=${encodeURIComponent(a.name)}`); }}
+                        className="flex w-full items-center gap-3 py-2.5 text-left animate-in fade-in slide-in-from-bottom-2 fill-mode-both duration-500 active:opacity-70"
+                        style={{ animationDelay: `${delay}ms` }}
+                      >
+                        <div className={`relative w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 overflow-hidden ${captured ? 'bg-primary/12 text-primary' : 'bg-muted text-muted-foreground/70'}`}>
+                          {st.photo ? (
+                            <img src={thumbUrl(st.photo, 160)} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
+                          ) : (
+                            <Icon className="w-6 h-6" />
+                          )}
+                          {captured && (
+                            <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center ring-2 ring-background">
+                              <Check className="w-3 h-3" strokeWidth={3.5} />
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className={`font-display font-bold text-sm truncate ${captured ? 'text-foreground' : 'text-foreground/85'}`}>{speciesName(a.name)}</p>
+                          <p className="text-[11px] italic text-muted-foreground truncate">{a.scientific_name}</p>
+                          {st.recent > 0 && (
+                            <p className="mt-0.5 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                              <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                              {t('map.pull.recentlySeen', { count: st.recent })}
+                            </p>
+                          )}
+                          {!!a.tip && (
+                            <p className="mt-0.5 flex items-start gap-1.5 text-[11px] text-muted-foreground">
+                              <Lightbulb className="w-3 h-3 shrink-0 mt-[2px] text-primary/70" />
+                              <span className="line-clamp-1">{a.tip}</span>
+                            </p>
+                          )}
+                        </div>
+                        <RarityBadge rarity={a.rarity} plain className="shrink-0" />
+                      </button>
+                    );
+                  })}
+                </div>
+              ));
+            })()}
             {result && result.animals.length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-6">
+              <p className="text-[13px] text-muted-foreground py-4 text-center">
                 {t('map.pull.noAnimalsFound')}
               </p>
             )}
