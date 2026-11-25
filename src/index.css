@@ -4339,3 +4339,31 @@ html.is-native-android body {
   background: hsl(var(--booster-ink) / .55);
   box-shadow: inset 0 1px 2px hsl(var(--booster-ink) / .6), 0 1px 0 hsl(var(--booster-paper) / .25);
 }
+/* Booster éphémère (Avent) : aluminium rouge rubis et or, neige scintillante */
+.collection-booster-event {
+  --booster-crimp: hsl(43 90% 58%);
+  --booster-foil-v: linear-gradient(180deg, hsl(45 95% 78%), hsl(355 75% 42%) 45%, hsl(350 80% 24%));
+  --booster-foil-v-bottom: linear-gradient(0deg, hsl(45 95% 78%), hsl(355 75% 42%) 45%, hsl(350 80% 24%));
+}
+.collection-booster-event .collection-booster-brand {
+  color: hsl(350 80% 22%);
+  background: linear-gradient(110deg, hsl(43 90% 58%), hsl(48 100% 82%) 50%, hsl(40 85% 52%));
+  box-shadow: 0 2px 8px hsl(350 80% 20% / .45), inset 0 1px hsl(0 0% 100% / .6);
+  letter-spacing: .18em;
+}
+.collection-booster-event .collection-booster-cartouche {
+  background: linear-gradient(180deg, hsl(350 70% 22% / .35), hsl(350 75% 16% / .78));
+  box-shadow: inset 0 0 0 1.5px hsl(43 90% 62% / .85), inset 0 1px 0 hsl(48 100% 85% / .6), 0 4px 14px hsl(350 80% 12% / .5);
+}
+.collection-booster-snow {
+  background-image:
+    radial-gradient(1.5px 1.5px at 12% 20%, hsl(0 0% 100% / .9), transparent),
+    radial-gradient(2px 2px at 78% 14%, hsl(48 100% 85% / .9), transparent),
+    radial-gradient(1.5px 1.5px at 40% 36%, hsl(0 0% 100% / .8), transparent),
+    radial-gradient(2px 2px at 88% 52%, hsl(0 0% 100% / .85), transparent),
+    radial-gradient(1.5px 1.5px at 22% 62%, hsl(48 100% 85% / .8), transparent);
+  background-size: 100% 60%;
+  animation: booster-snow 9s linear infinite;
+}
+@keyframes booster-snow { from { background-position: 0 -60%; } to { background-position: 0 100%; } }
+@media (prefers-reduced-motion: reduce) { .collection-booster-snow { animation: none; } }

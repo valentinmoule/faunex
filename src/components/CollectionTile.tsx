@@ -25,6 +25,8 @@ export interface CollectionTileProps {
   lockedLevel?: number;
   /** XP remporté à la complétion du booster. */
   xp?: number;
+  /** Booster éphémère d'événement : packaging spécial rouge et or. */
+  event?: boolean;
 }
 
 const CollectionTile = ({
@@ -39,6 +41,7 @@ const CollectionTile = ({
   onClaim,
   lockedLevel,
   xp,
+  event,
 }: CollectionTileProps) => {
   const { t } = useTranslation();
   const readyToClaim = complete && !claimed;
@@ -46,7 +49,7 @@ const CollectionTile = ({
   const tint = useBoosterTint(image);
   // Scellages métalliques teintés par la couleur dominante de l'illustration
   // (le doré de complétion reste prioritaire).
-  const tintStyle = !gold && tint
+  const tintStyle = !gold && !event && tint
     ? ({
         '--booster-crimp': `hsl(${tint.base})`,
         '--booster-foil-v': `linear-gradient(180deg, hsl(${tint.light}), hsl(${tint.base}) 50%, hsl(${tint.dark}))`,
@@ -55,7 +58,7 @@ const CollectionTile = ({
     : undefined;
 
   return (
-    <div className={`collection-booster relative w-full rounded-[7px] ${lockedLevel ? 'collection-booster-locked' : ''} ${gold ? 'collection-booster-gold' : ''}`} style={tintStyle}>
+    <div className={`collection-booster relative w-full rounded-[7px] ${lockedLevel ? 'collection-booster-locked' : ''} ${gold ? 'collection-booster-gold' : ''} ${event ? 'collection-booster-event' : ''}`} style={tintStyle}>
       <Button
         variant="ghost"
         onClick={onOpen}
@@ -79,7 +82,8 @@ const CollectionTile = ({
         {/* Encoche de suspension découpée dans l'aluminium */}
         <span aria-hidden="true" className="collection-booster-hang absolute left-1/2 top-[1.6%] h-[3.2%] w-[16%] -translate-x-1/2 rounded-full" />
         {/* Sceau de marque discret sous le scellage */}
-        <span aria-hidden="true" className="collection-booster-brand absolute left-1/2 top-[9.5%] -translate-x-1/2 rounded-full px-2 py-0.5 font-display text-[8px] font-extrabold uppercase tracking-[0.32em]">Faunex</span>
+        <span aria-hidden="true" className="collection-booster-brand absolute left-1/2 top-[9.5%] -translate-x-1/2 rounded-full px-2 py-0.5 font-display text-[8px] font-extrabold uppercase tracking-[0.32em]">{event ? t('bestiary.collections.limitedEdition') : 'Faunex'}</span>
+        {event && <span aria-hidden="true" className="collection-booster-snow pointer-events-none absolute inset-0" />}
 
 
 

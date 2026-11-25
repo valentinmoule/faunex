@@ -144,6 +144,7 @@
       "rewardHint": "+{{xp}} XP à la fin",
       "celebrationTag": "Collection complète !",
       "celebrationDesc": "Tu as récolté {{xp}} XP. Continue d'explorer pour compléter d'autres collections !",
+      "limitedEdition": "Édition limitée",
       "completeReward": "Complète-la : +{{xp}} XP",
       "unlockAtLevel": "Niveau {{level}}",
       "lockedToast": "Atteins le niveau {{level}} pour ouvrir « {{title}} »."

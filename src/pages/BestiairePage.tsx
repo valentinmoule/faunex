@@ -69,7 +69,7 @@ import { usePinnedProfileCollections } from '@/hooks/usePinnedProfileCollections
 import { useCollectionCovers } from '@/hooks/useCollectionCovers';
 import { useThemedCollections } from '@/hooks/useThemedCollections';
 import { useAdventCalendars } from '@/hooks/useAdventCalendars';
-import adventCover from '@/assets/collections/advent-2026.jpg';
+import adventCover from '@/assets/collections/advent-2026-special.jpg';
 import { isBoosterUnlocked, THEME_PREFIX, themeMatcher, themeTitle } from '@/lib/themedCollections';
 import CategoryLeaderboard, { LeaderboardResetBadge } from '@/components/CategoryLeaderboard';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -2258,7 +2258,7 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
               <BoosterCarousel>
                 {visibleAdvent.map(c => {
                   const open = () => navigate(`/advent/${c.id}`);
-                  return <CollectionTile key={c.id} title={themeTitle(c, i18n.language)} image={c.cover_url || adventCover} overlay={getCollectionArt('advent').overlay} captured={new Set(advent.submissions.filter(s => s.collection_id === c.id && s.approved_at).map(s => s.day)).size} total={24} complete={false} claimed={false} onClaim={open} onOpen={open} />;
+                  return <CollectionTile key={c.id} title={themeTitle(c, i18n.language)} event image={adventCover} overlay={getCollectionArt('advent').overlay} captured={new Set(advent.submissions.filter(s => s.collection_id === c.id && s.approved_at).map(s => s.day)).size} total={24} complete={false} claimed={false} onClaim={open} onOpen={open} />;
                 })}
                 {/* Boosters Faunex débloqués au fil des niveaux ; les scellés restent visibles */}
                 {boosterEntries.map(({ group, total, captured, cover, minLevel }) => {
