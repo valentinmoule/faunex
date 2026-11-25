@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Check, Loader2, Crown, UserRound, Users, ScanLine, MapPin, Images, FolderHeart, Trophy, BadgeCheck, GraduationCap, Crop } from 'lucide-react';
+import { ArrowLeft, Check, Loader2, Crown, UserRound, Users, ScanLine, Radar, BookOpen, Target, GraduationCap, Crop } from 'lucide-react';
 import { toast } from 'sonner';
 import { PageHeader } from '@/components/PageHeader';
 import { PaymentTestModeBanner } from '@/components/PaymentTestModeBanner';
@@ -22,14 +22,12 @@ import { hasActiveFamily, readFamily, type FamilyInfo } from '@/lib/family';
 import { hasPersonalPremium } from '@/lib/premiumAccess';
 
 const BENEFITS = [
-  { icon: ScanLine, key: 'identification' },
-  { icon: MapPin, key: 'exploration' },
+  { icon: Radar, key: 'radar' },
+  { icon: BookOpen, key: 'journal' },
+  { icon: Target, key: 'quest' },
   { icon: GraduationCap, key: 'learning' },
-  { icon: FolderHeart, key: 'collections' },
-  { icon: Images, key: 'photos' },
+  { icon: ScanLine, key: 'identification' },
   { icon: Crop, key: 'crop' },
-  { icon: Trophy, key: 'ranking' },
-  { icon: BadgeCheck, key: 'badge' },
 ] as const;
 
 const usePlans = (t: (key: string) => string) => ({
@@ -212,16 +210,12 @@ const PremiumPage = () => {
       </PageHeader>
 
       <main className="mx-auto max-w-3xl px-5 pt-6 pb-24">
-        <section>
-          <Crown className="h-6 w-6 text-primary" aria-hidden />
-          <h2 className="mt-3 font-display text-2xl font-bold leading-tight">
-            {t('profile.premium.title')}
-          </h2>
-          <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
-            {t('profile.premium.description')}
-          </p>
-
-
+        <section className="relative overflow-hidden rounded-3xl bg-secondary px-6 pb-7 pt-6 text-center">
+          <div className="pointer-events-none absolute inset-x-0 -top-24 mx-auto size-72 rounded-full bg-primary/15 blur-3xl" aria-hidden />
+          <img src="/mascot.webp" alt="" className="relative mx-auto size-36 object-contain drop-shadow-xl" />
+          <span className="relative mt-2 inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground"><Crown className="size-3.5" aria-hidden />{t('profile.premium.badge')}</span>
+          <h2 className="relative mt-3 font-display text-3xl font-bold leading-tight">{t('profile.premium.presentation.perks.heroTitle')}</h2>
+          <p className="relative mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">{t('profile.premium.presentation.perks.heroText')}</p>
         </section>
 
         <section className="mt-8" aria-labelledby="premium-plans">
@@ -247,7 +241,7 @@ const PremiumPage = () => {
             </div>
           </div>
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
-            <article className="flex flex-col rounded-lg border border-border bg-card p-5 sm:p-6">
+            <article className="flex flex-col rounded-3xl border border-border bg-card shadow-sm p-5 sm:p-6">
               <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground"><UserRound className="size-4" aria-hidden />{t('profile.premium.badge')}</div>
               <h3 className="mt-3 font-display text-2xl font-bold text-primary">{t('profile.premium.presentation.personal')}</h3>
               <p className="mt-3 flex flex-wrap items-baseline gap-1.5">
@@ -269,7 +263,7 @@ const PremiumPage = () => {
                 </Button>
               )}
             </article>
-            <article className="flex flex-col rounded-lg border border-primary/25 bg-secondary p-5 sm:p-6">
+            <article className="flex flex-col rounded-3xl border-2 border-primary/40 bg-secondary shadow-sm p-5 sm:p-6">
               <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground"><Users className="size-4" aria-hidden />{t('profile.premium.badge')}</div>
               <h3 className="mt-3 font-display text-2xl font-bold text-primary">{t('profile.premium.presentation.family')}</h3>
               <p className="mt-3 flex flex-wrap items-baseline gap-1.5">
@@ -293,9 +287,17 @@ const PremiumPage = () => {
         </section>
 
         <section className="mt-9 border-t border-border pt-7" aria-labelledby="premium-benefits">
-          <h2 id="premium-benefits" className="font-display text-xl font-bold">{t('profile.premium.presentation.why')}</h2>
-          <ul className="mt-5 space-y-5">
-            {BENEFITS.map(({ icon: Icon, key }) => <li key={key} className="flex items-center gap-4"><Icon className="size-6 shrink-0 text-primary" strokeWidth={1.75} aria-hidden /><span className="text-sm leading-relaxed">{t(`profile.premium.presentation.benefits.${key}`)}</span></li>)}
+          <h2 id="premium-benefits" className="font-display text-xl font-bold">{t('profile.premium.presentation.perks.whyTitle')}</h2>
+          <ul className="mt-5 grid gap-5 sm:grid-cols-2">
+            {BENEFITS.map(({ icon: Icon, key }) => (
+              <li key={key} className="flex items-start gap-4">
+                <span className="flex size-8 shrink-0 items-center justify-center"><Icon className="size-6 text-primary" strokeWidth={2} aria-hidden /></span>
+                <div>
+                  <p className="font-display text-sm font-bold">{t(`profile.premium.presentation.perks.items.${key}.0`)}</p>
+                  <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">{t(`profile.premium.presentation.perks.items.${key}.1`)}</p>
+                </div>
+              </li>
+            ))}
           </ul>
         </section>
 

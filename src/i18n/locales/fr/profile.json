@@ -412,6 +412,37 @@
           "crop": "Recadre la photo de tes captures",
           "ranking": "Accède au classement des explorateurs",
           "badge": "Affiche ton badge Premium sur ton profil"
+        },
+        "perks": {
+          "heroTitle": "Explore sans limites",
+          "heroText": "Le radar complet, ton carnet de terrain détaillé et plus d’analyses chaque jour. Et tu soutiens un projet nature indépendant.",
+          "whyTitle": "Pourquoi s’abonner à Premium ?",
+          "items": {
+            "radar": [
+              "Radar de zone révélé",
+              "Les 10 espèces de chaque scan, toutes visibles."
+            ],
+            "journal": [
+              "Carnet de terrain complet",
+              "Statistiques, records et analyse par rareté."
+            ],
+            "quest": [
+              "Quête hebdo exclusive",
+              "Un défi bonus chaque semaine pour gagner plus d’XP."
+            ],
+            "learning": [
+              "Académie boostée",
+              "10 leçons par jour au lieu de 3."
+            ],
+            "identification": [
+              "60 analyses par jour",
+              "Au lieu de 15, pour ne rater aucune rencontre."
+            ],
+            "crop": [
+              "Recadrage et badge doré",
+              "Recadre tes photos et affiche ton statut Premium."
+            ]
+          }
         }
       },
       "feature": "Fonctionnalité",
