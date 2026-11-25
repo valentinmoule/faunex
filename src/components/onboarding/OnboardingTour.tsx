@@ -6,10 +6,7 @@ import { Check, X, Radar, Trophy, Layers, ArrowRight } from 'lucide-react';
 import forest from '@/assets/collections/forest.jpg';
 import meadow from '@/assets/collections/meadow.jpg';
 import reef from '@/assets/collections/reef.jpg';
-import foxPhoto from '@/assets/learning/fox-photo-anim-l2.webp';
-import foxHappy from '@/assets/learning/fox-win-loop-l2.webp';
-import foxLoupe from '@/assets/learning/fox-loupe-loop.webp';
-import foxCompass from '@/assets/fox-compass-shake-v2.webp';
+import { foxPhoto, foxJump as foxHappy, foxBinoculars as foxLoupe, foxCompass } from '@/assets/mascot';
 
 interface Props { open: boolean; onClose: () => void }
 

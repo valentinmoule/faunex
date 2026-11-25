@@ -4,12 +4,13 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { PageHeader } from '@/components/PageHeader';
-import foxThink from '@/assets/learning/fox-loupe-loop.webp';
-import foxHappy from '@/assets/learning/fox-happy-once-l2.webp';
-import foxOops from '@/assets/learning/fox-oops-once-l2.webp';
-import foxCombo from '@/assets/learning/fox-combo-anim-l2.webp';
-import foxWinLoop from '@/assets/learning/fox-win-loop-l2.webp';
+import { foxBinoculars as foxThink, foxJump, foxScratch } from '@/assets/mascot';
 import { answerLesson, finishLesson, learningText, quizStars, type LearningAttempt, type LearningQuestion } from '@/lib/learning';
+
+const foxHappy = foxJump;
+const foxOops = foxScratch;
+const foxCombo = foxJump;
+const foxWinLoop = foxJump;
 
 function SoundPlayer({ src }: { src: string }) {
   const { t } = useTranslation();

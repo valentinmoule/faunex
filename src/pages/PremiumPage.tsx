@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import premiumFox from '@/assets/learning/fox-win-loop-l2.webp';
+import { foxJump as premiumFox } from '@/assets/mascot';
 import { createPortal } from 'react-dom';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Check, Loader2, Crown, UserRound, Users, ScanLine, Radar, BookOpen, Target, GraduationCap, Crop } from 'lucide-react';
