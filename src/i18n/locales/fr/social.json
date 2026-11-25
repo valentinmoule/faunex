@@ -296,7 +296,13 @@
       "rewardEffect": "Un effet spécial collector sur ta photo gagnante",
       "rewardBadge": "Le badge « {{badge}} »",
       "juryHint": "Fais défiler les photos comme un jury, puis vote pour ta préférée : +5 XP.",
-      "juryDone": "Merci pour ton vote ! Résultat lundi."
+      "juryDone": "Merci pour ton vote ! Résultat lundi.",
+      "juryCounter": "Photo {{n}} sur {{total}}",
+      "inTheRunning": "En lice pour lundi prochain",
+      "change": "Changer",
+      "pickInline": "Choisis une photo de ta semaine",
+      "votesCount_one": "{{count}} vote",
+      "votesCount_other": "{{count}} votes"
     },
     "explorersTitle": "Explorateurs",
     "searchExplorers": "Rechercher des explorateurs"
