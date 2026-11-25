@@ -69,7 +69,7 @@ import { usePinnedProfileCollections } from '@/hooks/usePinnedProfileCollections
 import { useCollectionCovers } from '@/hooks/useCollectionCovers';
 import { useThemedCollections } from '@/hooks/useThemedCollections';
 import { useAdventCalendars } from '@/hooks/useAdventCalendars';
-import adventCover from '@/assets/collections/advent-2026-special.jpg';
+import adventCover from '@/assets/collections/advent-2026-v2.jpg';
 import { isBoosterUnlocked, THEME_PREFIX, themeMatcher, themeTitle } from '@/lib/themedCollections';
 import CategoryLeaderboard, { LeaderboardResetBadge } from '@/components/CategoryLeaderboard';
 import { useSubscription } from '@/hooks/useSubscription';

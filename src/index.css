@@ -4190,7 +4190,9 @@ html.is-native-android body {
 .booster-lettering--jungle .booster-lettering-main { text-transform: uppercase; font-style: italic; }
 .booster-lettering--polaire { --lettering-accent: 194 100% 82%; --lettering-outline: 207 44% 24%; }
 .booster-lettering--polaire .booster-lettering-main { text-transform: uppercase; }
-.booster-lettering--advent .booster-lettering-main { font-family: 'Fraunces', Georgia, serif; font-style: italic; }
+.booster-lettering--advent { --lettering-accent: 43 95% 70%; --lettering-outline: 352 70% 16%; }
+.booster-lettering--advent .booster-lettering-main { font-family: 'Fraunces', Georgia, serif; font-style: italic; font-weight: 900; }
+.booster-lettering--advent .booster-lettering-kicker { letter-spacing: .14em; }
 @media (prefers-reduced-motion: reduce) {
   .booster-carousel-item { transform: none !important; transition: none; }
 }

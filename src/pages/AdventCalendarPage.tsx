@@ -10,7 +10,7 @@ import BadgeRewardSheet from '@/components/BadgeRewardSheet';
 import BadgeMedallion from '@/components/BadgeMedallion';
 import { useAdventCalendars } from '@/hooks/useAdventCalendars';
 import { adventCountdown, adventState, canOpenAdvent } from '@/lib/advent';
-import cover from '@/assets/collections/advent-2026.jpg';
+import cover from '@/assets/collections/advent-2026-v2.jpg';
 
 export default function AdventCalendarPage() {
   const { id } = useParams(); const navigate = useNavigate(); const { t, i18n } = useTranslation();

@@ -7,8 +7,10 @@ export default function BoosterLettering({ title, image }: { title: string; imag
   const theme = image.match(/boosters-modern(?:%2F|\/)([a-z]+)(?:-v\d+)?\./i)?.[1] ?? 'advent';
   const words = title.trim().split(/\s+/);
   const split = words.length > 2 ? words.length - 2 : Math.max(1, words.length - 1);
-  const top = words.slice(0, split).join(' ');
-  const main = words.slice(split).join(' ') || top;
+  const adventMatch = theme === 'advent' ? title.match(/^(.*?)\s*((?:de l[’']|of )?(?:the )?Ad?vent)\s*(.*)$/i) : null;
+  const top = adventMatch ? adventMatch[1] : words.slice(0, split).join(' ');
+  const main = adventMatch ? adventMatch[2] : words.slice(split).join(' ') || top;
+  const tail = adventMatch?.[3] ?? '';
   const fontSize = Math.min(45, 255 / Math.max(main.length * .65, 1));
   const metal = ['nuit', 'sommets', 'polaire', 'rivages', 'mares', 'ciel'].includes(theme) ? 'silver' : 'gold';
   useEffect(() => {
@@ -54,8 +56,9 @@ export default function BoosterLettering({ title, image }: { title: string; imag
         </clipPath>
       </defs>
       <g className="booster-lettering-type" textAnchor="middle">
-        <text x="150" y="49" className="booster-lettering-kicker" fontSize={Math.min(19, 240 / Math.max(top.length * .65, 1))}>{words.length > 1 ? top : ''}</text>
+        <text x="150" y="49" className="booster-lettering-kicker" fontSize={Math.min(19, 240 / Math.max(top.length * .65, 1))}>{adventMatch || words.length > 1 ? top : ''}</text>
         <text x="150" y="94" className="booster-lettering-main" fontSize={fontSize} fill={`url(#${id}-foil)`}>{main}</text>
+        {tail && <text x="150" y="126" className="booster-lettering-kicker" fontSize={Math.min(17, 240 / Math.max(tail.length * .65, 1))}>{tail}</text>}
       </g>
       <g clipPath={`url(#${id}-clip)`} aria-hidden="true">
         <rect className="booster-lettering-shine" x="-60" y="40" width="70" height="70" fill={`url(#${id}-shine)`} />

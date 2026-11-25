@@ -10,7 +10,7 @@ import { defaultAdventDays, ADVENT_CATEGORIES, type AdventChallenge } from '@/li
 import type { ThemedCollection } from '@/lib/themedCollections';
 import type { Json } from '@/integrations/supabase/types';
 import { dataUrlToBytes, prepareSourceFile, resizeDataUrl } from '@/lib/imageProcessing';
-import cover from '@/assets/collections/advent-2026.jpg';
+import cover from '@/assets/collections/advent-2026-v2.jpg';
 
 export default function AdventCalendarEditor({ initial, onClose }: { initial?: ThemedCollection; onClose: () => void }) {
   const { t } = useTranslation(); const navigate = useNavigate();
