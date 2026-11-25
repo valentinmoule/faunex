@@ -305,6 +305,7 @@
       "votesCount_one": "{{count}} vote",
       "votesCount_other": "{{count}} votes",
       "pitchTitle": "Your photo in the spotlight?",
+      "pitchSubtitle": "Enter your photo of the week. Voting starts Monday: win an exclusive badge and a collector effect!",
       "pitchBadge": "The exclusive “Capture of the week” badge",
       "pitchCta": "Capture an animal"
     },

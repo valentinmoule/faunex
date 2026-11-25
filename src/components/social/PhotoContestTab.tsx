@@ -6,7 +6,9 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Award, Check, Sparkles, Trophy, Vote } from 'lucide-react';
+import { Check, Sparkles, Trophy, Vote } from 'lucide-react';
+import contestFox from '@/assets/learning/fox-contest.webp';
+import contestBadge from '@/assets/badges/native/photo_of_week.webp';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -287,7 +289,6 @@ export default function PhotoContestTab() {
           <img src={thumbUrl(winners[0].image_url)} alt="" aria-hidden className="absolute inset-0 h-full w-full scale-150 object-cover opacity-30 blur-2xl" />
         )}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/70 via-primary/85 to-primary" aria-hidden />
-        <Trophy className="absolute -right-6 -top-6 h-36 w-36 rotate-12 text-accent/25" aria-hidden />
         <div className="relative p-5">
           <div className="flex items-center justify-between gap-2">
             <span className="rounded-full bg-primary-foreground/15 px-2.5 py-1 text-[11px] font-display font-bold uppercase tracking-wide">{t('social.contest.myEntryTitle')}</span>
@@ -295,15 +296,12 @@ export default function PhotoContestTab() {
           </div>
           {!myEntry && (<>
             <h2 className="mt-3 text-2xl font-display font-extrabold leading-tight">{t('social.contest.pitchTitle')}</h2>
-            <p className="mt-1.5 text-sm leading-relaxed text-primary-foreground/85">{t('social.contest.myEntryHint')}</p>
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              <div className="rounded-2xl bg-primary-foreground/12 p-3 backdrop-blur-sm">
-                <Sparkles className="h-6 w-6 text-accent" aria-hidden />
-                <p className="mt-1.5 text-xs font-display font-semibold leading-snug">{t('social.contest.rewardEffect')}</p>
-              </div>
-              <div className="rounded-2xl bg-primary-foreground/12 p-3 backdrop-blur-sm">
-                <Award className="h-6 w-6 text-accent" aria-hidden />
-                <p className="mt-1.5 text-xs font-display font-semibold leading-snug">{t('social.contest.pitchBadge')}</p>
+            <div className="mt-2 flex items-center gap-2">
+              <p className="min-w-0 flex-1 text-sm leading-relaxed text-primary-foreground/90">{t('social.contest.pitchSubtitle')}</p>
+              <div className="contest-mascot relative h-28 w-28 shrink-0" aria-hidden="true">
+                <img src={contestFox} alt="" width={112} height={112} className="contest-mascot-fox absolute inset-0 h-full w-full object-contain" />
+                <img src={contestBadge} alt="" width={52} height={52} className="contest-mascot-badge absolute right-0 top-9 h-[52px] w-[52px] object-contain" />
+                <Sparkles className="contest-mascot-spark absolute right-0 top-4 h-5 w-5 text-accent" />
               </div>
             </div>
           </>)}

@@ -305,6 +305,7 @@
       "votesCount_one": "{{count}} vote",
       "votesCount_other": "{{count}} votes",
       "pitchTitle": "Ta photo à l'affiche ?",
+      "pitchSubtitle": "Propose ta photo de la semaine. Vote dès lundi : badge exclusif et effet collector à gagner !",
       "pitchBadge": "Le badge exclusif « Capture de la semaine »",
       "pitchCta": "Capturer un animal"
     },

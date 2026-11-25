@@ -28,6 +28,27 @@
 @keyframes seed-float { 0%, 100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-8px) rotate(3deg); } }
 .seed-float { animation: seed-float 3.2s ease-in-out infinite; transform-origin: 50% 80%; }
 @media (prefers-reduced-motion: reduce) { .seed-float { animation: none; } }
+.contest-mascot-fox { animation: contest-badge-presenter 4.8s ease-in-out infinite; transform-origin: 50% 90%; }
+.contest-mascot-badge { animation: contest-badge-offer 4.8s ease-in-out infinite; filter: drop-shadow(0 3px 4px hsl(var(--foreground) / .2)); }
+.contest-mascot-spark { animation: contest-badge-glint 4.8s ease-in-out infinite; }
+@keyframes contest-badge-presenter {
+  0%, 15%, 85%, 100% { transform: translateY(0) rotate(0); }
+  32%, 60% { transform: translateY(-4px) rotate(-5deg); }
+  44% { transform: translateY(-6px) rotate(-3deg); }
+}
+@keyframes contest-badge-offer {
+  0%, 15%, 85%, 100% { transform: translate(-14px, 10px) rotate(-15deg) scale(.85); }
+  32%, 60% { transform: translate(0, -8px) rotate(8deg) scale(1.1); }
+  44% { transform: translate(0, -10px) rotate(-3deg) scale(1.15); }
+}
+@keyframes contest-badge-glint {
+  0%, 24%, 70%, 100% { opacity: 0; transform: scale(.5); }
+  38%, 52% { opacity: 1; transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .contest-mascot-fox, .contest-mascot-badge, .contest-mascot-spark { animation: none; }
+  .contest-mascot-spark { display: none; }
+}
 .learning-world { background: hsl(var(--learning-ground)); }
 .learning-chapter { --chapter-color: var(--learning-green); --chapter-base: var(--learning-green-base); }
 .learning-chapter-sky { --chapter-color: var(--learning-sky); --chapter-base: var(--learning-sky-base); }
