@@ -257,7 +257,7 @@ export default function PhotoContestTab() {
                       <Button size="lg" disabled className="w-full gap-2"><Check className="h-5 w-5" />{t('social.contest.voted')}</Button>
                     ) : (
                       <Button size="lg" disabled={hasVoted || busy} variant={hasVoted ? 'secondary' : 'default'} onClick={() => vote(e.entry_id)} className="game-button w-full gap-2 text-base">
-                        <Vote className="h-5 w-5" />{t('social.contest.vote')}{!hasVoted && <span className="rounded-full bg-primary-foreground/20 px-2 py-0.5 text-xs">+5 XP</span>}
+                        <Vote className="h-5 w-5" />{t('social.contest.vote')}
                       </Button>
                     )}
                   </div>
