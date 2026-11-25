@@ -7,11 +7,17 @@ import meadow from '@/assets/collections/meadow.jpg';
 import reef from '@/assets/collections/reef.jpg';
 import foxPhoto from '@/assets/learning/fox-photo-anim-l2.webp';
 import foxHappy from '@/assets/learning/fox-win-loop-l2.webp';
+import foxLoupe from '@/assets/learning/fox-loupe-loop.webp';
 
 interface Props { open: boolean; onClose: () => void }
 
 const STEPS = ['concept', 'rules', 'features', 'ready'] as const;
 const BACKDROPS = [forest, meadow, reef, forest];
+const FOXES: Partial<Record<(typeof STEPS)[number], string>> = {
+  concept: foxPhoto,
+  rules: foxLoupe,
+  ready: foxHappy,
+};
 
 const OnboardingTour = ({ open, onClose }: Props) => {
   const { t } = useTranslation();
@@ -61,10 +67,10 @@ const OnboardingTour = ({ open, onClose }: Props) => {
             </button>
           )}
         </div>
-        {(key === 'concept' || key === 'ready') && (
+        {FOXES[key] && (
           <img
             key={`fox-${step}`}
-            src={key === 'concept' ? foxPhoto : foxHappy}
+            src={FOXES[key]}
             alt=""
             className="absolute bottom-0 left-1/2 h-44 w-44 -translate-x-1/2 object-contain drop-shadow-xl animate-scale-in"
           />
