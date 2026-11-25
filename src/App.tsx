@@ -28,6 +28,7 @@ const CapturePage = lazyWithRetry(() => import("./pages/CapturePage"));
 const EclatsPage = lazyWithRetry(() => import('./pages/EclatsPage'));
 const LearningPage = lazyWithRetry(() => import('./pages/LearningPage'));
 import ChallengesPage from './pages/ChallengesPage';
+const FieldJournalPage = lazyWithRetry(() => import('./pages/FieldJournalPage'));
 const AdminLearningPage = lazyWithRetry(() => import('./pages/AdminLearningPage'));
 const ExplorersPage = lazyWithRetry(() => import("./pages/ExplorersPage"));
 const AuthPage = lazyWithRetry(() => import("./pages/AuthPage"));
@@ -213,6 +214,7 @@ const AppRoutes = () => {
           <Route path="/eclats" element={<ProtectedRoute><EclatsPage /></ProtectedRoute>} />
           <Route path="/defis" element={<ProtectedRoute><ChallengesPage /></ProtectedRoute>} />
           <Route path="/apprendre" element={<ProtectedRoute><LearningPage /></ProtectedRoute>} />
+          <Route path="/carnet" element={<ProtectedRoute><FieldJournalPage /></ProtectedRoute>} />
           <Route path="/admin/apprendre" element={<AdminRoute><AdminLearningPage /></AdminRoute>} />
           <Route path="/collection" element={<CollectionRedirect />} />
           <Route path="/capture" element={<ProtectedRoute><CapturePage /></ProtectedRoute>} />

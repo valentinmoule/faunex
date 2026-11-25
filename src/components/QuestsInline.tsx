@@ -1,6 +1,6 @@
 import { useEffect, useState, type CSSProperties } from 'react';
 import {
-  Gift, Loader2, Share2, Clock,
+  Gift, Loader2, Share2, Clock, Crown, Lock,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -13,6 +13,7 @@ import { shareContent } from '@/lib/share';
 import XpPill from '@/components/XpPill';
 import { useNavigate } from 'react-router-dom';
 import chestClosedArt from '@/assets/quests/chest-closed.webp';
+import { useSubscription } from '@/hooks/useSubscription';
 import chestOpenArt from '@/assets/quests/chest-open.webp';
 
 interface Quest {
@@ -38,6 +39,19 @@ const QuestsInline = () => {
   const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState<string | null>(null);
   const [celebrating, setCelebrating] = useState<string | null>(null);
+  const { isPremium, loading: premiumLoading } = useSubscription(session?.user?.id);
+  const [premiumPreview, setPremiumPreview] = useState<{ description: string; target: number; xp_reward: number } | null>(null);
+
+  useEffect(() => {
+    if (!session?.user || premiumLoading || isPremium) return;
+    supabase.rpc('premium_quest_preview').then(({ data }) => {
+      const row = Array.isArray(data) ? data[0] : null;
+      if (row) setPremiumPreview(row);
+    });
+  }, [session, isPremium, premiumLoading]);
+
+  useEffect(() => { if (isPremium) void fetchQuests(); // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPremium]);
 
   const fetchQuests = async () => {
     if (!session?.user) return;
@@ -109,7 +123,8 @@ const QuestsInline = () => {
   };
 
 
-  const sorted = [...quests].sort((a, b) => (a.period === 'day' ? 1 : 0) - (b.period === 'day' ? 1 : 0));
+  const rank = (p: string | null) => (p === 'day' ? 2 : p === 'premium' ? 1 : 0);
+  const sorted = [...quests].sort((a, b) => rank(a.period) - rank(b.period));
 
   // Fin de semaine : lundi suivant 00:00 (heure locale)
   const [y, m, d] = startOfWeekISO().split('-').map(Number);
@@ -149,7 +164,7 @@ const QuestsInline = () => {
                 <div className="relative flex items-center gap-3">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2 text-[10px] font-display font-extrabold uppercase tracking-[0.08em] text-muted-foreground">
-                      <span>{quest.period === 'day' ? t('profile.quests.dailyKicker') : t('profile.quests.weeklyKicker')}</span>
+                      {quest.period === 'premium' ? <span className="inline-flex items-center gap-1 text-amber"><Crown className="h-3 w-3" />{t('premiumFeatures.quest.kicker')}</span> : <span>{quest.period === 'day' ? t('profile.quests.dailyKicker') : t('profile.quests.weeklyKicker')}</span>}
                       <span className="inline-flex items-center gap-1"><Clock className="h-3 w-3" />{quest.period === 'day' ? dayLeft : endsIn}</span>
                     </div>
                     <p className="mt-1 text-[15px] font-display font-black leading-tight text-foreground">{quest.description}</p>
@@ -179,6 +194,30 @@ const QuestsInline = () => {
               </div>
             );
           })}
+          {!isPremium && premiumPreview && (
+            <div className="mission-plate quest-card-enter overflow-hidden rounded-3xl p-4" style={{ animationDelay: `${sorted.length * 80}ms` }}>
+              <div className="relative flex items-center gap-3">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2 text-[10px] font-display font-extrabold uppercase tracking-[0.08em] text-muted-foreground">
+                    <span className="inline-flex items-center gap-1 text-amber"><Crown className="h-3 w-3" />{t('premiumFeatures.quest.kicker')}</span>
+                    <span className="inline-flex items-center gap-1"><Clock className="h-3 w-3" />{endsIn}</span>
+                  </div>
+                  <p className="mt-1 text-[15px] font-display font-black leading-tight text-foreground">{premiumPreview.description}</p>
+                  <div className="mt-2 flex items-center gap-2">
+                    <div className="mission-gauge h-2.5 flex-1 overflow-hidden rounded-full" />
+                    <span className="inline-flex items-center gap-1 text-[11px] font-display font-black text-muted-foreground"><Lock className="h-3 w-3" />0/{premiumPreview.target}</span>
+                  </div>
+                </div>
+                <div className="flex w-14 shrink-0 flex-col items-center gap-0.5 grayscale">
+                  <RelicChest state="locked" />
+                  <span className="text-[10px] font-display font-black text-muted-foreground">+{premiumPreview.xp_reward} XP</span>
+                </div>
+              </div>
+              <Button size="sm" variant="ghost" onClick={() => navigate('/premium')} className="game-button game-button-outline relative mt-3 h-10 w-full text-sm font-display">
+                <Crown className="h-4 w-4 text-amber" />{t('premiumFeatures.quest.unlock')}
+              </Button>
+            </div>
+          )}
         </div>
       )}
 

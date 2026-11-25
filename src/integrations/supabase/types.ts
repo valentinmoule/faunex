@@ -4126,6 +4126,17 @@ export type Database = {
         Args: { p_job_key: string; p_reason: string }
         Returns: undefined
       }
+      premium_quest_preview: {
+        Args: never
+        Returns: {
+          description: string
+          quest_type: string
+          target: number
+          title: string
+          xp_reward: number
+        }[]
+      }
+      premium_quest_template: { Args: { p_week?: string }; Returns: string }
       premium_user_ids: {
         Args: { p_user_ids: string[] }
         Returns: {
@@ -4137,6 +4148,19 @@ export type Database = {
         Returns: boolean
       }
       progress_taxon: { Args: { p_taxon_id: string }; Returns: string }
+      rare_sightings_near: {
+        Args: { p_lat: number; p_lng: number; p_radius_km?: number }
+        Returns: {
+          animal_name: string
+          category: string
+          distance_km: number
+          lat: number
+          lng: number
+          rarity: string
+          scientific_name: string
+          seen_at: string
+        }[]
+      }
       rarity_floor_for_iucn: { Args: { p_status: string }; Returns: number }
       rarity_from_rank: { Args: { p_rank: number }; Returns: string }
       rarity_pool_category: { Args: { p_category: string }; Returns: string }

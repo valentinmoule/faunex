@@ -16,6 +16,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { thumbUrl } from '@/lib/imageUrl';
 import { fetchAllRows } from '@/lib/fetchAll';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSubscription } from '@/hooks/useSubscription';
+import RareSightingsSheet from '@/components/premium/RareSightingsSheet';
 import LoadingScreen from '@/components/LoadingScreen';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import CardDetailSheet from '@/components/CardDetailSheet';
@@ -202,6 +204,8 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
   const zoneRequest = useRef<AbortController | null>(null);
   const { speciesName } = useSpeciesName();
   const quota = useNearbyQuota(session?.user?.id);
+  const { isPremium } = useSubscription(session?.user?.id);
+  const [rareOpen, setRareOpen] = useState(false);
   const [showCaptures, setShowCaptures] = useState(true);
   const [hintSeen, setHintSeen] = useState(() => { try { return localStorage.getItem('faunex.map.zoneHint') === '1'; } catch { return false; } });
   const dismissHint = () => { setHintSeen(true); try { localStorage.setItem('faunex.map.zoneHint', '1'); } catch { /* ignore */ } };
@@ -465,6 +469,14 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
             {showCaptures ? <Eye className="w-4 h-4 text-primary" /> : <EyeOff className="w-4 h-4" />}
             {t('map.controls.myCaptures', { count: captures.length })}
           </button>
+          <div className="flex items-center gap-2">
+          <button
+            onClick={() => { hapticTap(); setRareOpen(true); }}
+            className="pointer-events-auto press flex items-center gap-1.5 rounded-full bg-card/90 backdrop-blur-xl border border-amber/40 shadow-card pl-3 pr-3.5 py-2 text-[12.5px] font-display font-bold text-foreground"
+          >
+            <Crown className="w-4 h-4 text-amber" />
+            {t('premiumFeatures.radar.button')}
+          </button>
           <button
             onClick={locateMe}
             className="pointer-events-auto press p-2.5 rounded-full bg-card/90 backdrop-blur-xl border border-border/60 shadow-card"
@@ -472,6 +484,7 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
           >
             <Compass className="w-5 h-5 text-foreground" />
           </button>
+          </div>
         </div>
       </div>
 
@@ -500,6 +513,8 @@ const MapPage = ({ embedded = false }: MapPageProps) => {
           )}
         </button>
       </div>
+
+      <RareSightingsSheet open={rareOpen} onOpenChange={setRareOpen} isPremium={isPremium} position={userPos ?? (centerRef.current ? [centerRef.current.lat, centerRef.current.lng] : null)} onShow={() => setRareOpen(false)} />
 
       {/* Fullscreen map */}
       <MapContainer

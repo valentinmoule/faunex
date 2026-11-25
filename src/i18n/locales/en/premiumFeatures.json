@@ -1,0 +1,47 @@
+{
+  "premiumFeatures": {
+    "quest": {
+      "kicker": "Premium quest",
+      "locked": "For Premium members only",
+      "unlock": "Unlock with Premium"
+    },
+    "radar": {
+      "button": "Rare species",
+      "title": "Rare species radar",
+      "subtitle": "Spotted by explorers within 10 km over the last 3 days, and not in your Faunex yet.",
+      "empty": "No rare species spotted nearby in the last 3 days.",
+      "noLocation": "Turn on your location to see rare species around you.",
+      "distance": "{{km}} km away",
+      "hoursAgo": "{{h}} h ago",
+      "minutesAgo": "{{m}} min ago",
+      "showOnMap": "Show on map",
+      "lockedTitle": "Never miss a rare species",
+      "lockedBody": "With Premium, see live which rare species were spotted near you that you haven't captured yet.",
+      "cta": "Go Premium"
+    },
+    "journal": {
+      "menu": "Field journal",
+      "title": "Field journal",
+      "subtitle": "All your explorations, in numbers.",
+      "captures": "Captures",
+      "species": "Species",
+      "places": "Places",
+      "activeDays": "Expedition days",
+      "activity": "Activity over the last 12 weeks",
+      "byCategory": "By category",
+      "byRarity": "By rarity",
+      "topPlaces": "Your favourite places",
+      "bestMonth": "Best month",
+      "streak": "Longest streak",
+      "streakDays": "{{count}} day",
+      "streakDays_other": "{{count}} days",
+      "first": "First capture",
+      "empty": "Your journal will fill up with your first capture.",
+      "less": "Less",
+      "more": "More",
+      "lockedTitle": "Your complete field journal",
+      "lockedBody": "Activity, categories, rarities and favourite places: Premium reveals all your explorer stats.",
+      "cta": "Unlock with Premium"
+    }
+  }
+}

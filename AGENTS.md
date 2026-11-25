@@ -157,3 +157,7 @@ Approved captures may repeat a species; grids show the latest per species and th
 ## Reward and category art matches the mascot
 
 Quest chests, league trophies and badges are bundled plush-felt WebP renders made from the mascot reference, not hand-drawn SVG; locked states derive from CSS grayscale so one asset serves every state. Species category chips stay line icons on tinted circles (`CategoryChipIcon`), by user choice.
+
+## Premium extras are server-gated
+
+The Premium weekly quest (`quest_templates.period = 'premium'`) is assigned and claimable only when `is_premium`, previewed to others via `premium_quest_preview`, and excluded from the weekly chest; `rare_sightings_near` returns nothing for non-Premium callers and rounds coordinates, because client checks alone cannot protect paid features or observer privacy.

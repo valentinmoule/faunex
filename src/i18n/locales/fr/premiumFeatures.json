@@ -1,0 +1,47 @@
+{
+  "premiumFeatures": {
+    "quest": {
+      "kicker": "Quête Premium",
+      "locked": "Réservée aux membres Premium",
+      "unlock": "Débloquer avec Premium"
+    },
+    "radar": {
+      "button": "Espèces rares",
+      "title": "Radar des espèces rares",
+      "subtitle": "Repérées par les explorateurs à moins de 10 km ces 3 derniers jours, et pas encore dans ton Faunex.",
+      "empty": "Aucune espèce rare repérée près d'ici ces 3 derniers jours.",
+      "noLocation": "Active ta position pour voir les espèces rares autour de toi.",
+      "distance": "à {{km}} km",
+      "hoursAgo": "il y a {{h}} h",
+      "minutesAgo": "il y a {{m}} min",
+      "showOnMap": "Voir sur la carte",
+      "lockedTitle": "Ne rate plus aucune espèce rare",
+      "lockedBody": "Avec Premium, découvre en direct les espèces rares observées près de toi et que tu n'as pas encore capturées.",
+      "cta": "Passer à Premium"
+    },
+    "journal": {
+      "menu": "Carnet de terrain",
+      "title": "Carnet de terrain",
+      "subtitle": "Toutes tes explorations, en chiffres.",
+      "captures": "Captures",
+      "species": "Espèces",
+      "places": "Lieux",
+      "activeDays": "Jours d'expédition",
+      "activity": "Activité des 12 dernières semaines",
+      "byCategory": "Par catégorie",
+      "byRarity": "Par rareté",
+      "topPlaces": "Tes lieux favoris",
+      "bestMonth": "Meilleur mois",
+      "streak": "Plus longue série",
+      "streakDays": "{{count}} jour",
+      "streakDays_other": "{{count}} jours",
+      "first": "Première capture",
+      "empty": "Ton carnet se remplira dès ta première capture.",
+      "less": "Moins",
+      "more": "Plus",
+      "lockedTitle": "Ton carnet de terrain complet",
+      "lockedBody": "Activité, catégories, raretés et lieux favoris : Premium révèle toutes tes statistiques d'explorateur.",
+      "cta": "Débloquer avec Premium"
+    }
+  }
+}
