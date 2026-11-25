@@ -15,12 +15,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/hooks/useSubscription';
 import { supabase } from '@/integrations/supabase/client';
 import { learningStatus, learningText } from '@/lib/learning';
-import sideForest from '@/assets/learning/side-forest.webp';
-import sideGarden from '@/assets/learning/side-garden.webp';
-import sidePond from '@/assets/learning/side-pond.webp';
-import sideMountain from '@/assets/learning/side-mountain.webp';
+import foxThink from '@/assets/learning/fox-think-anim.webp';
 
-const worlds = [sideGarden, sideForest, sidePond, sideMountain];
 
 /** Onglet « Défis » : Académie mise en avant, puis les quêtes. */
 export default function ChallengesPage() {
@@ -132,7 +128,7 @@ export default function ChallengesPage() {
               )}
             </div>
             <div className="flex w-14 shrink-0 flex-col items-center gap-1">
-              <img src={worlds[chapterIndex % worlds.length]} alt="" className="h-11 w-11 rounded-2xl object-cover" />
+              <img src={foxThink} alt="" width={56} height={56} className="h-14 w-14 object-contain" />
               <span className="text-[10px] font-display font-black text-amber">+5 XP</span>
             </div>
           </div>
