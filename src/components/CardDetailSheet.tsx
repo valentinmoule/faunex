@@ -1,5 +1,5 @@
 import { categoryLineIcon } from '@/components/icons/CategoryIcons';
-import { useState, useEffect, useCallback, useMemo, useRef, type ComponentType } from 'react';
+import { useState, useEffect, useLayoutEffect, useCallback, useMemo, useRef, type ComponentType } from 'react';
 import { avatarThumbUrl } from '@/lib/imageUrl';
 import { avatarFallbackStyle } from '@/lib/avatarPalette';
 import { useTranslation } from 'react-i18next';
@@ -50,6 +50,8 @@ import SpeciesReportActionDialog, { type ReportActionSource } from '@/components
 import { Merge, Volume2, GitBranch } from 'lucide-react';
 import { callLabelKey } from '@/lib/speciesCall';
 import { useCatalogueModeration, deleteBestiarySpecies } from '@/hooks/useCatalogueModeration';
+import { adjacentCaptureIndex, captureNavigationIndex, captureSwipeStep } from '@/lib/captureNavigation';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface Props {
   card: AnimalCard | null;
@@ -67,6 +69,10 @@ interface Props {
   author?: { id: string; name: string; avatarUrl?: string | null } | null;
   /** Navigation entre les photos d'une même espèce (fournie par le wrapper). */
   photoNav?: PhotoNav;
+  /** Captures visibles dans la grille, dans leur ordre de tri. */
+  captures?: AnimalCard[];
+  onCaptureSelect?: (card: AnimalCard) => void;
+  captureNav?: PhotoNav;
 }
 
 interface PhotoNav {
@@ -152,8 +158,14 @@ const DELETE_SPARKLES = [
   { x: '88%', y: '58%', size: 10, delay: 140 },
 ];
 
-const CardDetailSheetInner = ({ card, open, onClose, communityFinders, onDeleted, feedView = false, author, onUseCollectionCover, photoNav }: Props) => {
+const CardDetailSheetInner = ({ card, open, onClose, communityFinders, onDeleted, feedView = false, author, onUseCollectionCover, photoNav, captureNav }: Props) => {
   const swipeStart = useRef<{ x: number; y: number } | null>(null);
+  const swiped = useRef(false);
+  const swipeNav = captureNav ?? photoNav;
+  const detailScrollRef = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    if (detailScrollRef.current) detailScrollRef.current.scrollTop = 0;
+  }, [card?.id]);
   const { t, i18n } = useTranslation();
   const { data: contestWinners } = useContestWinnerCaptures();
   const isContestWinner = !!card?.id && !!contestWinners?.has(card.id);
@@ -850,7 +862,7 @@ const CardDetailSheetInner = ({ card, open, onClose, communityFinders, onDeleted
             >
               <span className="text-white text-lg font-light leading-none">✕</span>
             </button>
-            <div className={`detail-sheet-scroll w-full min-w-0 overflow-x-hidden overflow-y-auto ${feedView ? 'flex-1 min-h-0' : 'h-full'}`}>
+            <div ref={detailScrollRef} className={`detail-sheet-scroll w-full min-w-0 overflow-x-hidden overflow-y-auto ${feedView ? 'flex-1 min-h-0' : 'h-full'}`}>
           <div className={`relative overflow-hidden ${photoBackdrop ? '' : heroClass}`} style={{ zIndex: 0 }}>
             {photoBackdrop && (
               <>
@@ -866,21 +878,38 @@ const CardDetailSheetInner = ({ card, open, onClose, communityFinders, onDeleted
             
             <div
               className="relative z-10 pt-14 px-6 pb-0"
-              onTouchStart={photoNav && photoNav.total > 1 ? (e) => { const t0 = e.touches[0]; swipeStart.current = { x: t0.clientX, y: t0.clientY }; } : undefined}
-              onTouchEnd={photoNav && photoNav.total > 1 ? (e) => {
+              onTouchStart={swipeNav && swipeNav.total > 1 ? (e) => {
+                swiped.current = false;
+                const touch = e.touches.length === 1 ? e.touches[0] : undefined;
+                swipeStart.current = touch ? { x: touch.clientX, y: touch.clientY } : null;
+              } : undefined}
+              onTouchMove={swipeNav && swipeNav.total > 1 ? (e) => {
+                if (e.touches.length !== 1) swipeStart.current = null;
+                const start = swipeStart.current;
+                const touch = e.touches[0];
+                if (start && touch && captureSwipeStep(touch.clientX - start.x, touch.clientY - start.y)) swiped.current = true;
+              } : undefined}
+              onTouchCancel={() => { swipeStart.current = null; }}
+              onTouchEnd={swipeNav && swipeNav.total > 1 ? (e) => {
                 const start = swipeStart.current; swipeStart.current = null;
                 if (!start) return;
                 const t1 = e.changedTouches[0];
-                const dx = t1.clientX - start.x; const dy = t1.clientY - start.y;
-                if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy) * 1.3) return;
-                const next = photoNav.index + (dx < 0 ? 1 : -1);
-                if (next >= 0 && next < photoNav.total) { hapticTap(); photoNav.onSelect(next); }
+                if (!t1) return;
+                const step = captureSwipeStep(t1.clientX - start.x, t1.clientY - start.y);
+                if (!step) return;
+                swiped.current = true;
+                const next = adjacentCaptureIndex(swipeNav.index, swipeNav.total, step);
+                if (next !== null) { hapticTap(); swipeNav.onSelect(next); }
               } : undefined}
             >
               <HolographicCard
+                key={card.id}
                 rarity={card.rarity}
                 appearAnimation={detailAppearClass}
-                onTap={cardImage ? openFullscreenImage : undefined}
+                onTap={cardImage ? () => {
+                  if (swiped.current) { swiped.current = false; return; }
+                  openFullscreenImage();
+                } : undefined}
                 subjectBox={card.subjectBox}
                 noHolo={isUncaptured}
                 className={`relative mx-auto max-w-[280px] aspect-[4/5] rounded-[1.75rem] ${cardImage ? 'cursor-pointer' : ''} ${isContestWinner ? 'holo-collector' : ''}`}
@@ -945,6 +974,24 @@ const CardDetailSheetInner = ({ card, open, onClose, communityFinders, onDeleted
                 </div>
               </HolographicCard>
             </div>
+
+            {captureNav && captureNav.total > 1 && (
+              <div className="relative z-10 flex items-center justify-center gap-4 px-6 pt-3">
+                <Button variant="ghost" size="icon" disabled={captureNav.index === 0}
+                  aria-label={t('capture.captureNavigation.previous')} title={t('capture.captureNavigation.previous')}
+                  onClick={() => { hapticTap(); captureNav.onSelect(captureNav.index - 1); }}>
+                  <ChevronLeft className="h-5 w-5" />
+                </Button>
+                <span className="text-xs font-display font-semibold text-muted-foreground tabular-nums" aria-live="polite">
+                  {captureNav.index + 1} / {captureNav.total}
+                </span>
+                <Button variant="ghost" size="icon" disabled={captureNav.index === captureNav.total - 1}
+                  aria-label={t('capture.captureNavigation.next')} title={t('capture.captureNavigation.next')}
+                  onClick={() => { hapticTap(); captureNav.onSelect(captureNav.index + 1); }}>
+                  <ChevronRight className="h-5 w-5" />
+                </Button>
+              </div>
+            )}
 
             {photoNav && photoNav.total > 1 ? (
               <div className="relative z-10 flex flex-col items-center gap-1.5 px-6 pt-3 pb-10">
@@ -1626,7 +1673,14 @@ interface SpeciesPhoto {
  *  cette espèce et laisse naviguer entre elles ; date, lieu et note suivent la
  *  photo affichée car chaque capture garde son propre contexte. */
 const CardDetailSheet = (props: Props) => {
-  const { card, open, feedView, onDeleted } = props;
+  const { card, open, feedView, onDeleted, captures, onCaptureSelect } = props;
+  const captureIndex = captures ? captureNavigationIndex(captures, card) : -1;
+  const captureNav: PhotoNav | undefined = captures && onCaptureSelect && captureIndex >= 0 && captures.length > 1
+    ? { index: captureIndex, total: captures.length, onSelect: next => {
+        const selected = captures[next];
+        if (selected) onCaptureSelect(selected);
+      } }
+    : undefined;
   const { session } = useAuth();
   const [photos, setPhotos] = useState<SpeciesPhoto[]>([]);
   const [index, setIndex] = useState(0);
@@ -1658,7 +1712,8 @@ const CardDetailSheet = (props: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, feedView, userId, cardId, cardName]);
 
-  const active = photos.length > 1 ? photos[index] : null;
+  // Never attach the previous species' photo while the new list is loading.
+  const active = photos.length > 1 && photos.some(photo => photo.id === cardId) ? photos[index] : null;
   // Mémorisé : une nouvelle référence relancerait le chargement de la fiche à chaque rendu.
   const activeCard = useMemo(() => card && active && active.id !== card.id
     ? {
@@ -1687,6 +1742,7 @@ const CardDetailSheet = (props: Props) => {
       {...props}
       card={activeCard}
       onDeleted={handleDeleted}
+      captureNav={captureNav}
       photoNav={photos.length > 1 ? { index, total: photos.length, onSelect: setIndex } : undefined}
     />
   );

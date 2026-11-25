@@ -1,4 +1,5 @@
 # Roadmap
+- [x] Navigation gauche/droite entre les fiches de Mes captures, ordre et filtres conservés ; glissement tactile, flèches et limite vérifiés connecté, 9 tests passants.
 - [x] Rangement : attente de défilement virtuel retirée de Mes captures ; panne reproduite puis un vol et un atterrissage vérifiés connecté avec une photo existante, sans analyse ni écriture ; 5 tests passants. Nouvelle capture réelle et appareil natif non testés.
 - [x] Boosters : lettrages vectoriels par thème intégrés à l’illustration (relief, motifs, couleurs, typographies), rotation 3D et reflet selon le défilement ; douze titres FR/EN vérifiés sans dépassement, ouverture connectée sur téléphone/ordinateur, réduction des animations respectée. Neuf tests de déblocage passants.
 - [x] Boosters : douze illustrations animées modernes, six nouvelles expéditions de huit espèces aux niveaux 12/16/20/25/30/40 ; noms vérifiés, neuf tests de déblocage passants, douze images et ouverture du Jardin vérifiées connecté sur téléphone/ordinateur. Effets des sachets et progression existante conservés.

@@ -101,6 +101,10 @@
       "people_one": "{{count}} personne",
       "people_other": "{{count}} personnes"
     },
+    "captureNavigation": {
+      "previous": "Capture précédente",
+      "next": "Capture suivante"
+    },
     "alsoPossible": "Aussi possible : {{alternatives}}",
     "requestVerification": "Proposer une autre espèce",
     "reveal": {

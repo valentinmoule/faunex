@@ -65,6 +65,38 @@ const card: AnimalCard = {
   conservation: '', funFact: '', discoveredAt: '2026-09-27', location: '',
 };
 
+describe('Navigation dans Mes captures', () => {
+  it('change de capture par glissement horizontal sans fermer la fiche', async () => {
+    const nextCard = { ...card, id: 'capture-2', name: 'Lapin domestique', scientificName: 'Oryctolagus cuniculus' };
+    const onCaptureSelect = vi.fn();
+    const onClose = vi.fn();
+    const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const sheet = (selected: AnimalCard) => <QueryClientProvider client={qc}>
+      <MemoryRouter><CardDetailSheet card={selected} open onClose={onClose}
+        captures={[card, nextCard]} onCaptureSelect={onCaptureSelect} /></MemoryRouter>
+    </QueryClientProvider>;
+    const view = render(sheet(card));
+    const target = view.container.querySelector('h3');
+    if (!target) throw new Error('Capture not rendered');
+    fireEvent.touchStart(target, { touches: [{ clientX: 250, clientY: 200 }] });
+    fireEvent.touchEnd(target, { changedTouches: [{ clientX: 140, clientY: 205 }] });
+    expect(onCaptureSelect).toHaveBeenLastCalledWith(nextCard);
+    expect(onClose).not.toHaveBeenCalled();
+    onCaptureSelect.mockClear();
+    view.rerender(sheet(nextCard));
+    const nextTarget = view.container.querySelector('h3');
+    if (!nextTarget) throw new Error('Next capture not rendered');
+    fireEvent.touchStart(nextTarget, { touches: [{ clientX: 140, clientY: 200 }] });
+    fireEvent.touchEnd(nextTarget, { changedTouches: [{ clientX: 250, clientY: 205 }] });
+    expect(onCaptureSelect).toHaveBeenLastCalledWith(card);
+    onCaptureSelect.mockClear();
+    fireEvent.touchStart(nextTarget, { touches: [{ clientX: 140, clientY: 200 }] });
+    fireEvent.touchEnd(nextTarget, { changedTouches: [{ clientX: 145, clientY: 350 }] });
+    expect(onCaptureSelect).not.toHaveBeenCalled();
+    view.unmount();
+  });
+});
+
 beforeEach(() => {
   mocks.deleteCapture.mockResolvedValue({ error: null });
   sessionStorage.clear();
