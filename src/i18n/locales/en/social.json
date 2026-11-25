@@ -294,7 +294,9 @@
       "viewUpcoming": "Upcoming",
       "rewardsTitle": "Prizes",
       "rewardEffect": "A special collector effect on your winning photo",
-      "rewardBadge": "The “{{badge}}” badge"
+      "rewardBadge": "The “{{badge}}” badge",
+      "juryHint": "Swipe through the photos like a jury, then vote for your favourite: +5 XP.",
+      "juryDone": "Thanks for voting! Results on Monday."
     },
     "explorersTitle": "Explorers",
     "searchExplorers": "Search explorers"

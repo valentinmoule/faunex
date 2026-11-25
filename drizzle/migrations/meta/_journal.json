@@ -1072,6 +1072,13 @@
       "when": 1795627075481,
       "tag": "0150_advent_mixed_days_catchup",
       "breakpoints": true
+    },
+    {
+      "idx": 151,
+      "version": "7",
+      "when": 1795627546112,
+      "tag": "0151_contest_vote_xp",
+      "breakpoints": true
     }
   ]
 }

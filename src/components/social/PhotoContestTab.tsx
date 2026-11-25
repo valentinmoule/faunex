@@ -15,7 +15,8 @@ import RarityBadge from '@/components/RarityBadge';
 import TimeLeftBadge from '@/components/TimeLeftBadge';
 import { thumbUrl } from '@/lib/imageUrl';
 import { rarityTileBorder } from '@/lib/bestiary';
-import { hapticTap } from '@/lib/haptics';
+import { hapticTap, hapticSuccess } from '@/lib/haptics';
+import RewardBurst from '@/components/rewards/RewardBurst';
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
 import type { AnimalCard, Rarity } from '@/data/mockData';
 import CardDetailSheet from '@/components/CardDetailSheet';
@@ -87,7 +88,8 @@ export default function PhotoContestTab() {
   const [pickOpen, setPickOpen] = useState(false);
   const [weekCaptures, setWeekCaptures] = useState<WeekCapture[] | null>(null);
 
-  const [view, setView] = useState<'current' | 'upcoming' | 'winners'>('current');
+  const [deckIdx, setDeckIdx] = useState(0);
+  const [xpPop, setXpPop] = useState(false);
   const [detailCard, setDetailCard] = useState<AnimalCard | null>(null);
   const openCapture = async (captureId: string) => {
     const { data: c } = await supabase.from('captures').select('id, animal_name, scientific_name, image_url, subject_bbox, rarity, category, description, habitat, diet, conservation, fun_fact, created_at').eq('id', captureId).maybeSingle();
@@ -167,6 +169,10 @@ export default function PhotoContestTab() {
     setBusy(false);
     if (error) { toast.error(t(contestErrorKey(error.message))); return; }
     toast.success(t('social.contest.voteDone'));
+    hapticSuccess();
+    setXpPop(true);
+    setTimeout(() => setXpPop(false), 1900);
+    queryClient.invalidateQueries({ queryKey: ['profile'] });
     setBallot((prev) => prev.map((e) => (e.entry_id === entryId ? { ...e, voted_for: true } : e)));
   };
 
@@ -175,110 +181,98 @@ export default function PhotoContestTab() {
 
   if (loading) return <p className="py-16 text-center font-display text-muted-foreground">{t('social.common.loading')}</p>;
 
-  return (
-    <div className="space-y-6 px-4 pt-2 pb-6">
-      {/* Sous-filtres : en cours / à venir / photos primées */}
-      <div className="no-scrollbar -mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1.5" role="group" aria-label={t('social.contest.tabContest')}>
-        {([
-          { key: 'current' as const, label: t('social.contest.viewCurrent') },
-          { key: 'upcoming' as const, label: t('social.contest.viewUpcoming') },
-          { key: 'winners' as const, label: t('social.contest.viewWinners') },
-        ]).map(({ key, label }) => (
-          <Button key={key} variant="chip" size="sm" aria-pressed={view === key} onClick={() => { hapticTap(); setView(key); }} className="shrink-0 px-4 text-xs">
-            {label}
-          </Button>
-        ))}
-      </div>
+  const onDeckScroll = (el: HTMLDivElement) => {
+    const i = Math.round(el.scrollLeft / Math.max(1, el.clientWidth * 0.84));
+    if (i !== deckIdx) setDeckIdx(i);
+  };
 
-      {/* Concours à venir : ajouter sa photo et récompenses */}
-      {view === 'upcoming' ? (
+  return (
+    <div className="space-y-7 pt-2 pb-8">
+      {/* Jury : deck horizontal carte par carte */}
       <section>
-        <h2 className="text-xl font-display font-extrabold tracking-tight text-foreground">{t('social.contest.myEntryTitle')}</h2>
-        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{t('social.contest.myEntryHint')}</p>
-        <p className="mt-5 text-[11px] font-display font-bold uppercase tracking-wider text-muted-foreground">{t('social.contest.rewardsTitle')}</p>
-        <div className="mt-2 grid grid-cols-2 gap-3">
-          <div className="flex flex-col gap-3 rounded-3xl bg-secondary/60 p-4">
-            <Sparkles className="h-7 w-7 text-primary" strokeWidth={2.2} aria-hidden />
-            <span className="font-display text-sm font-bold leading-snug text-foreground">{t('social.contest.rewardEffect')}</span>
-          </div>
-          <div className="flex flex-col gap-3 rounded-3xl bg-accent/40 p-4">
-            <Award className="h-7 w-7 text-primary" strokeWidth={2.2} aria-hidden />
-            <span className="font-display text-sm font-bold leading-snug text-foreground">{t('social.contest.rewardBadge', { badge: t('social.contest.badge') })}</span>
-          </div>
+        <div className="flex items-center justify-between gap-2 px-4">
+          <h2 className="min-w-0 truncate text-xl font-display font-extrabold tracking-tight text-foreground">{t('social.contest.voteTitle')}</h2>
+          <VoteCountdown className="shrink-0" />
         </div>
+        <p className="mt-1 px-4 text-sm text-muted-foreground">{hasVoted ? t('social.contest.juryDone') : t('social.contest.juryHint')}</p>
+        {ballot.length === 0 ? (
+          <p className="px-4 py-8 text-center text-sm text-muted-foreground">{t('social.contest.voteEmpty')}</p>
+        ) : (<>
+          <div onScroll={(ev) => onDeckScroll(ev.currentTarget)} className="no-scrollbar mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-px-[8%] px-[8%] pb-2">
+            {ballot.map((e) => {
+              const author = e.display_name || e.username || t('social.common.anonymous');
+              return (
+                <article key={e.entry_id} className="w-[84%] shrink-0 snap-center">
+                  <div className="relative">
+                    <Tile image={e.image_url} rarity={e.rarity} name={speciesName(e.animal_name)} onOpen={() => openCapture(e.capture_id)} />
+                    {e.voted_for && (
+                      <span className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs font-display font-bold text-primary-foreground shadow-lg"><Check className="h-3.5 w-3.5" />{t('social.contest.voted')}</span>
+                    )}
+                  </div>
+                  <div className="mt-3 flex items-center gap-2">
+                    <button onClick={() => navigate(`/explorer/${e.user_id}/collection`)} className="flex min-w-0 flex-1 items-center gap-2">
+                      <PremiumAvatar avatarUrl={e.avatar_url} name={author} size="sm" />
+                      <span className="min-w-0 truncate text-sm font-display font-semibold">{author}</span>
+                    </button>
+                    {e.is_mine ? (
+                      <Button variant="secondary" size="sm" disabled>{t('social.contest.yours')}</Button>
+                    ) : e.voted_for ? (
+                      <Button size="sm" disabled className="gap-1"><Check className="h-4 w-4" />{t('social.contest.voted')}</Button>
+                    ) : (
+                      <Button size="sm" disabled={hasVoted || busy} variant={hasVoted ? 'secondary' : 'default'} onClick={() => vote(e.entry_id)} className="game-button gap-1 px-5">
+                        {t('social.contest.vote')}{!hasVoted && <span className="text-xs opacity-90">+5 XP</span>}
+                      </Button>
+                    )}
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+          <div className="mt-2 flex items-center justify-center gap-1.5" aria-hidden>
+            {ballot.length <= 12 ? ballot.map((e, i) => (
+              <span key={e.entry_id} className={`h-1.5 rounded-full transition-all ${i === deckIdx ? 'w-5 bg-primary' : 'w-1.5 bg-muted'}`} />
+            )) : <span className="text-xs font-display font-semibold text-muted-foreground">{Math.min(deckIdx + 1, ballot.length)} / {ballot.length}</span>}
+          </div>
+        </>)}
+      </section>
+
+      {/* Ma participation au prochain vote */}
+      <section className="mx-4 rounded-3xl bg-secondary/60 p-4">
+        <h2 className="text-base font-display font-bold text-foreground">{t('social.contest.myEntryTitle')}</h2>
         {myEntry ? (
-          <div className="mt-5 flex items-center gap-3">
-            <div className="w-24 shrink-0"><Tile image={myEntry.image_url} rarity={myEntry.rarity} name={speciesName(myEntry.animal_name)} onOpen={() => openCapture(myEntry.capture_id)} /></div>
+          <div className="mt-3 flex items-center gap-3">
+            <div className="w-20 shrink-0"><Tile image={myEntry.image_url} rarity={myEntry.rarity} name={speciesName(myEntry.animal_name)} onOpen={() => openCapture(myEntry.capture_id)} /></div>
             <div className="min-w-0 space-y-2">
               <p className="text-sm text-muted-foreground">{t('social.contest.submitted')}</p>
               <Button variant="secondary" size="sm" onClick={withdraw} disabled={busy}>{t('social.contest.withdraw')}</Button>
             </div>
           </div>
-        ) : (
-          <Button className="mt-5 w-full" onClick={openPicker}>{t('social.contest.submit')}</Button>
-        )}
-      </section>
-      ) : view === 'current' ? (<>
-      {/* Vote */}
-      <section>
-        <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-2 px-1 pt-1">
-          <h2 className="min-w-0 truncate text-lg font-display font-bold text-foreground">{t('social.contest.voteTitle')}</h2>
-          <VoteCountdown className="shrink-0" />
-        </div>
-        {ballot.length === 0 ? (
-          <p className="py-8 text-center text-sm text-muted-foreground">{t('social.contest.voteEmpty')}</p>
-        ) : (
-          <div className="mt-3 grid grid-cols-2 gap-3">
-            {ballot.map((e) => {
-              const author = e.display_name || e.username || t('social.common.anonymous');
-              return (
-                <div key={e.entry_id} className="min-w-0 space-y-2">
-                  <Tile image={e.image_url} rarity={e.rarity} name={speciesName(e.animal_name)} onOpen={() => openCapture(e.capture_id)} />
-                  <button onClick={() => navigate(`/explorer/${e.user_id}/collection`)} className="flex w-full min-w-0 items-center gap-2">
-                    <PremiumAvatar avatarUrl={e.avatar_url} name={author} size="sm" />
-                    <span className="min-w-0 truncate text-xs font-display font-semibold">{author}</span>
-                  </button>
-                  {e.is_mine ? (
-                    <Button variant="secondary" size="sm" disabled className="w-full text-xs">{t('social.contest.yours')}</Button>
-                  ) : e.voted_for ? (
-                    <Button size="sm" disabled className="w-full gap-1 text-xs"><Check className="h-3.5 w-3.5" />{t('social.contest.voted')}</Button>
-                  ) : (
-                    <Button size="sm" variant={hasVoted ? 'secondary' : 'default'} disabled={hasVoted || busy} onClick={() => vote(e.entry_id)} className="w-full text-xs">
-                      {t('social.contest.vote')}
-                    </Button>
-                  )}
-                  <p className="text-center text-[11px] text-muted-foreground">{t('social.contest.votes', { count: e.vote_count })}</p>
-                </div>
-              );
-            })}
+        ) : (<>
+          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{t('social.contest.myEntryHint')}</p>
+          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs font-display font-semibold text-foreground">
+            <span className="flex items-center gap-1"><Sparkles className="h-4 w-4 text-primary" aria-hidden />{t('social.contest.rewardEffect')}</span>
+            <span className="flex items-center gap-1"><Award className="h-4 w-4 text-primary" aria-hidden />{t('social.contest.badge')}</span>
           </div>
-        )}
+          <Button className="mt-4 w-full" onClick={openPicker}>{t('social.contest.submit')}</Button>
+        </>)}
       </section>
 
-      </>) : (
-        /* Photos primées (tous les gagnants) */
+      {/* Galerie des primées */}
+      {winners.length > 0 && (
         <section>
-          {winners.length === 0 ? (
-            <p className="py-8 text-center text-sm text-muted-foreground">{t('social.contest.winnersEmpty')}</p>
-          ) : (
-          <div className="grid grid-cols-2 gap-3">
-            {winners.map((w) => {
-              const author = w.display_name || w.username || t('social.common.anonymous');
-              return (
-                <div key={`${w.week_start}-${w.capture_id}`} className="min-w-0 space-y-1.5">
-                  <Tile image={w.image_url} rarity={w.rarity} name={speciesName(w.animal_name)} frameless onOpen={() => openCapture(w.capture_id)} />
-                  <button onClick={() => navigate(`/explorer/${w.user_id}/collection`)} className="flex w-full min-w-0 items-center gap-2">
-                    <PremiumAvatar avatarUrl={w.avatar_url} name={author} size="sm" />
-                    <span className="min-w-0 truncate text-xs font-display font-semibold">{author}</span>
-                  </button>
-                  <p className="min-w-0 truncate text-[11px] text-muted-foreground">{t('social.contest.weekOf', { date: fmtWeek(w.week_start) })} · {t('social.contest.votes', { count: w.votes })}</p>
-                </div>
-              );
-            })}
+          <h2 className="px-4 text-base font-display font-bold text-foreground">{t('social.contest.allWinnersTitle')}</h2>
+          <div className="no-scrollbar mt-3 flex gap-3 overflow-x-auto px-4 pb-1">
+            {winners.map((w) => (
+              <div key={`${w.week_start}-${w.capture_id}`} className="w-32 shrink-0 space-y-1">
+                <Tile image={w.image_url} rarity={w.rarity} name={speciesName(w.animal_name)} frameless onOpen={() => openCapture(w.capture_id)} />
+                <p className="truncate text-[11px] text-muted-foreground">{t('social.contest.weekOf', { date: fmtWeek(w.week_start) })}</p>
+              </div>
+            ))}
           </div>
-          )}
         </section>
       )}
+
+      {xpPop && <RewardBurst xp={5} />}
 
       <Drawer.Root open={pickOpen} onOpenChange={(o) => !o && setPickOpen(false)}>
         <Drawer.Portal>
