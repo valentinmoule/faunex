@@ -216,11 +216,6 @@ export default function PhotoContestTab() {
         </div>
         <div className="mt-1 flex items-center justify-between gap-2 px-4">
           <p className="min-w-0 text-sm text-muted-foreground">{hasVoted ? t('social.contest.juryDone') : t('social.contest.juryHint')}</p>
-          {ballot.length > 0 && (
-            <span className="shrink-0 rounded-full bg-secondary px-2.5 py-1 text-xs font-display font-bold text-foreground tabular-nums">
-              {t('social.contest.juryCounter', { n: Math.min(deckIdx + 1, ballot.length), total: ballot.length })}
-            </span>
-          )}
         </div>
         {ballot.length === 0 ? (
           <p className="px-4 py-8 text-center text-sm text-muted-foreground">{t('social.contest.voteEmpty')}</p>
