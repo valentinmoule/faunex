@@ -33,7 +33,7 @@ const CaptureApprovedEmail = ({
       <Body style={main}>
         <Container style={container}>
           <Img
-            src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png"
+            src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo-v2.png"
             width="48" height="48" alt="Faunex" style={logo}
           />
           <Heading style={h1}>{correction

@@ -28,7 +28,7 @@ export const ReauthenticationEmail = ({ token, locale }: ReauthenticationEmailPr
       <Preview>{pick({ fr: 'Ton code de vérification Faunex', en: 'Your Faunex verification code' }, l)}</Preview>
       <Body style={main}>
         <Container style={container}>
-          <Img src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo.png" width="48" height="48" alt="Faunex" style={logo} />
+          <Img src="https://pakwuooxumrghsbwczwx.supabase.co/storage/v1/object/public/avatars/email-assets/faunex-logo-v2.png" width="48" height="48" alt="Faunex" style={logo} />
           <Heading style={h1}>{pick({ fr: "Vérification d'identité 🔐", en: 'Identity verification 🔐' }, l)}</Heading>
           <Text style={text}>{pick({ fr: 'Utilise le code ci-dessous pour confirmer ton identité :', en: 'Use the code below to confirm your identity:' }, l)}</Text>
           <Text style={codeStyle}>{token}</Text>
