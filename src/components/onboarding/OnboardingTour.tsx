@@ -49,7 +49,7 @@ const OnboardingTour = ({ open, onClose }: Props) => {
       <div className="relative h-[46vh] shrink-0 overflow-hidden">
         <img key={step} src={BACKDROPS[step]} alt="" className="absolute inset-0 h-full w-full object-cover animate-fade-in" />
         <div className="absolute inset-0 bg-gradient-to-b from-foreground/10 via-transparent to-background" />
-        <div className="absolute inset-x-0 top-0 flex items-center gap-3 px-5 pt-[calc(env(safe-area-inset-top)+14px)]">
+        <div className="absolute inset-x-0 top-0 z-10 flex items-center gap-3 px-5 pt-[calc(env(safe-area-inset-top)+14px)]">
           <div className="flex flex-1 gap-1.5">
             {STEPS.map((s, i) => (
               <span key={s} className={`h-1 flex-1 rounded-full transition-colors duration-300 ${i <= step ? 'bg-primary-foreground' : 'bg-primary-foreground/40'}`} />
