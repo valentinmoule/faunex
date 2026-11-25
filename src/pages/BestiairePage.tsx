@@ -325,6 +325,16 @@ const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
   }, [searchParams]);
 
+  // Une recherche passée dans l'adresse (bouton « Chercher dans le Bestiaire »,
+  // lien partagé) doit remplir la barre du Bestiaire même sans rechargement.
+  const appliedQuery = useRef(searchParams.get('q') ?? '');
+  useEffect(() => {
+    const q = searchParams.get('q') ?? '';
+    if (q === appliedQuery.current) return;
+    appliedQuery.current = q;
+    setSpeciesSearch(q);
+  }, [searchParams]);
+
   const changeView = useCallback((next: ViewMode) => {
     setViewMode(next);
     setSelectedCategory(null);
@@ -2104,7 +2114,7 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
                           : t('bestiary.mine.noneForFilters')}
                     </p>
                     {mineSearch.trim() && (
-                      <button onClick={() => navigate(`/bestiaire?q=${encodeURIComponent(mineSearch.trim())}`)} className="mt-3 text-xs font-display font-bold text-primary">
+                      <button onClick={() => navigate(`/home?tab=categories&q=${encodeURIComponent(mineSearch.trim())}`)} className="mt-3 text-xs font-display font-bold text-primary">
                         {t('bestiary.mine.searchInBestiary', { query: mineSearch.trim() })}
                       </button>
                     )}

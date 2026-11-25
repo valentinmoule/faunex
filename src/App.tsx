@@ -143,7 +143,11 @@ const LandingRoute = ({ children }: { children: React.ReactNode }) => {
 // paramètres (ex. ?capture=… des liens de notifications et de partage).
 const CollectionRedirect = () => {
   const location = useLocation();
-  return <Navigate to={`/home${location.search}`} replace />;
+  // Une recherche d'espèce doit ouvrir les résultats du Bestiaire, pas Mon Faunex.
+  const params = new URLSearchParams(location.search);
+  if (params.get('q') && !params.get('tab')) params.set('tab', 'categories');
+  const search = params.toString();
+  return <Navigate to={`/home${search ? `?${search}` : ''}`} replace />;
 };
 
 // Marque la première connexion comme gérée après un court délai :
