@@ -128,7 +128,7 @@ export default function ChallengesPage() {
               )}
             </div>
             <div className="flex w-14 shrink-0 flex-col items-center gap-1">
-              <img src={foxThink} alt="" width={56} height={56} className="h-14 w-14 object-contain" />
+              <img src={foxThink} alt="" width={56} height={56} className="fox-fur h-14 w-14 object-contain" />
               <span className="text-[10px] font-display font-black text-amber">+5 XP</span>
             </div>
           </div>
