@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { Check, X, ArrowLeft, Loader2, Play, Pause, Star, Share2, Flame, Lightbulb } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
@@ -142,9 +142,13 @@ export default function LearningPlayer({ initial, onClose, onFinished, onRetry, 
         </div>}
         {milestone && <div role="dialog" aria-modal="true" aria-label={t('learning.milestone', { count: milestone })} className="learning-milestone fixed inset-0 z-[80] flex flex-col items-center justify-center bg-foreground px-6 text-center">
           <span aria-hidden className="learning-bolt" />
+          <span aria-hidden className="learning-glow" />
+          <span aria-hidden className="learning-ring" />
+          <span aria-hidden className="learning-ring learning-ring-2" />
+          <span aria-hidden className="learning-sparks">{Array.from({ length: 14 }, (_, i) => <i key={i} style={{ '--i': i } as CSSProperties} />)}</span>
           <img src={foxCombo} alt="" width={240} height={240} className="learning-fox-flex relative h-60 w-60 object-contain" />
-          <h2 className="relative mt-4 font-display text-4xl font-black text-[hsl(var(--amber))]">{t('learning.milestone', { count: milestone })}</h2>
-          <p className="relative mt-2 text-background/80">{t('learning.milestoneLine')}</p>
+          <h2 className="learning-milestone-title relative mt-4 font-display text-4xl font-black text-[hsl(var(--amber))]">{t('learning.milestone', { count: milestone })}</h2>
+          <p className="learning-milestone-line relative mt-2 text-background/80">{t('learning.milestoneLine')}</p>
           <Button className="game-button relative mt-8 h-14 w-full max-w-sm text-base uppercase" onClick={advance}>{t('learning.next')}</Button>
         </div>}
       </> : null}
