@@ -1002,20 +1002,6 @@ const CardDetailSheetInner = ({ card, open, onClose, communityFinders, onDeleted
                 <span className="text-[11px] font-display font-semibold text-muted-foreground">
                   {t('capture.detail.photoN', { n: photoNav.index + 1, total: photoNav.total })}
                 </span>
-                {isOwner && (
-                  <div className="flex items-center justify-center gap-4">
-                    <Button variant="ghost" size="icon" aria-label={t('capture.photoActions.report')} title={t('capture.photoActions.report')} onClick={openPhotoCorrection}>
-                      <ScanSearch className="h-5 w-5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" aria-label={t('capture.photoActions.crop')} title={t('capture.photoActions.crop')} onClick={openPhotoCrop}>
-                      <CropIcon className="h-5 w-5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" aria-label={t('capture.photoActions.release')} title={t('capture.photoActions.release')}
-                      onClick={() => { hapticTap(); setConfirmDelete(true); }}>
-                      <Trash2 className="h-5 w-5 text-primary" />
-                    </Button>
-                  </div>
-                )}
               </div>
             ) : (
               <div className="relative z-10 text-center px-6 pt-2 pb-14" />
