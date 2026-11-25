@@ -4142,11 +4142,23 @@ html.is-native-android body {
   letter-spacing: 0;
   filter: drop-shadow(0 3px 0 hsl(var(--lettering-outline))) drop-shadow(0 6px 5px hsl(var(--booster-ink) / .45));
 }
+.booster-lettering--gold { --f1: 50 100% 92%; --f2: 45 96% 62%; --f3: 36 88% 42%; --f4: 46 100% 70%; --f5: 30 80% 34%; }
+.booster-lettering--silver { --f1: 0 0% 100%; --f2: 210 20% 82%; --f3: 215 14% 52%; --f4: 205 30% 90%; --f5: 220 18% 40%; }
+.booster-lettering .foil-a { stop-color: hsl(var(--f1)); }
+.booster-lettering .foil-b { stop-color: hsl(var(--f2)); }
+.booster-lettering .foil-c { stop-color: hsl(var(--f3)); }
+.booster-lettering .foil-d { stop-color: hsl(var(--f4)); }
+.booster-lettering .foil-e { stop-color: hsl(var(--f5)); }
+.booster-lettering--gold .booster-lettering-kicker, .booster-lettering--gold .booster-lettering-motif { fill: hsl(var(--f1)); color: hsl(var(--f2)); }
+.booster-lettering--silver .booster-lettering-kicker, .booster-lettering--silver .booster-lettering-motif { fill: hsl(var(--f1)); color: hsl(var(--f2)); }
+.booster-lettering-shine { animation: booster-foil-sweep 3.6s ease-in-out infinite; mix-blend-mode: screen; }
+@keyframes booster-foil-sweep { 0%, 55% { transform: translateX(0); } 100% { transform: translateX(380px); } }
+@media (prefers-reduced-motion: reduce) { .booster-lettering-shine { animation: none; opacity: 0; } }
 .booster-lettering-highlight { stop-color: hsl(var(--booster-paper)); }
 .booster-lettering-paper { stop-color: hsl(var(--booster-paper)); }
 .booster-lettering-accent { stop-color: hsl(var(--lettering-accent)); }
 .booster-lettering-motif { color: hsl(var(--lettering-accent)); opacity: .9; }
-.booster-lettering-type { paint-order: stroke fill; stroke: hsl(var(--lettering-outline)); stroke-width: 2.4; stroke-linejoin: round; }
+.booster-lettering-type { paint-order: stroke fill; stroke: hsl(var(--lettering-outline)); stroke-width: 3.2; stroke-linejoin: round; }
 .booster-lettering-kicker { font-family: 'Manrope', sans-serif; font-weight: 800; fill: hsl(var(--booster-paper)); text-transform: uppercase; }
 .booster-lettering-main { font-family: 'Sora', sans-serif; font-weight: 800; letter-spacing: 0; }
 .booster-lettering--jardin { --lettering-accent: 80 82% 73%; }
@@ -4158,14 +4170,12 @@ html.is-native-android body {
 .booster-lettering--foret { --lettering-accent: 83 63% 74%; }
 .booster-lettering--foret .booster-lettering-main { font-family: 'Fraunces', Georgia, serif; text-transform: uppercase; }
 .booster-lettering--ciel { --lettering-accent: 47 100% 77%; --lettering-outline: 203 62% 22%; }
-.booster-lettering--ciel .booster-lettering-type { transform: rotate(-4deg); transform-origin: 150px 80px; }
 .booster-lettering--ciel .booster-lettering-main { font-style: italic; text-transform: uppercase; }
 .booster-lettering--sommets { --lettering-accent: 197 90% 79%; --lettering-outline: 204 47% 20%; }
 .booster-lettering--sommets .booster-lettering-main { text-transform: uppercase; }
 .booster-lettering--papillons { --lettering-accent: 323 83% 84%; --lettering-outline: 293 45% 24%; }
 .booster-lettering--papillons .booster-lettering-main { font-family: 'Fraunces', Georgia, serif; font-style: italic; }
 .booster-lettering--rivages { --lettering-accent: 185 80% 83%; --lettering-outline: 202 61% 19%; }
-.booster-lettering--rivages .booster-lettering-type { transform: rotate(-3deg); transform-origin: 150px 80px; }
 .booster-lettering--rivages .booster-lettering-main { font-style: italic; }
 .booster-lettering--recifs { --lettering-accent: 18 100% 80%; --lettering-outline: 196 72% 18%; }
 .booster-lettering--recifs .booster-lettering-main { font-family: 'Fraunces', Georgia, serif; font-weight: 900; }
