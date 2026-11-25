@@ -156,6 +156,14 @@
           "name": "Early bird",
           "description": "Capture an animal between 5am and 8am"
         },
+        "academy_5": {
+          "name": "Curious naturalist",
+          "description": "Complete 5 Academy lessons"
+        },
+        "academy_25": {
+          "name": "Nature scholar",
+          "description": "Complete 25 Academy lessons"
+        },
         "birds_5": {
           "name": "Ornithologist",
           "description": "Capture 5 birds"

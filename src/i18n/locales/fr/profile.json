@@ -156,6 +156,14 @@
           "name": "Lève-tôt",
           "description": "Capturer un animal entre 5h et 8h"
         },
+        "academy_5": {
+          "name": "Curieux du vivant",
+          "description": "Terminer 5 leçons dans l’Académie"
+        },
+        "academy_25": {
+          "name": "Naturaliste érudit",
+          "description": "Terminer 25 leçons dans l’Académie"
+        },
         "birds_5": {
           "name": "Ornithologue",
           "description": "Capturer 5 oiseaux"

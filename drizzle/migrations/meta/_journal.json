@@ -1093,6 +1093,20 @@
       "when": 1795634841170,
       "tag": "0153_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 154,
+      "version": "7",
+      "when": 1795642292305,
+      "tag": "0154_add_academy_badge_eligibility",
+      "breakpoints": true
+    },
+    {
+      "idx": 155,
+      "version": "7",
+      "when": 1795642573597,
+      "tag": "0155_fix_academy_badge_prefix_match",
+      "breakpoints": true
     }
   ]
 }

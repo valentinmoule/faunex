@@ -74,6 +74,8 @@ export const STATIC_BADGE_SEEDS: StaticBadgeSeed[] = [
   { id: 'geo_10', icon: '📍', total: 10, group: 'progression', xp: 200 },
   { id: 'night_owl', icon: '🌙', total: 1, group: 'progression', xp: 150 },
   { id: 'early_bird', icon: '🌅', total: 1, group: 'progression', xp: 150 },
+  { id: 'academy_5', icon: '📖', total: 5, group: 'progression', xp: 100 },
+  { id: 'academy_25', icon: '🎓', total: 25, group: 'progression', xp: 300 },
 
   // ---- Espèces (catégories) ----
   { id: 'birds_5', icon: '🐦', total: 5, group: 'especes', xp: 100 },
@@ -135,6 +137,12 @@ export const rank1Badge = (t: TFunction, category: string, emoji: string): Badge
   total: 1,
   group: 'classement',
   xp: 500,
+});
+
+/** Academy badges count each completed lesson once (the database primary key also deduplicates them). */
+export const academyBadgeProgress = (completedLessons: number): Record<'academy_5' | 'academy_25', number> => ({
+  academy_5: Math.min(Math.max(0, completedLessons), 5),
+  academy_25: Math.min(Math.max(0, completedLessons), 25),
 });
 
 export const badgeXp = (badge: BadgeDef) => badge.xp;

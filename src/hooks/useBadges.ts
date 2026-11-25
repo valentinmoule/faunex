@@ -6,6 +6,7 @@ import { getSpeciesGroup, BREED_GROUPS, MIN_BREEDS_PER_GROUP } from '@/lib/breed
 import { getCategoryEmoji, normalizeCategory } from '@/lib/bestiary';
 import {
   STATIC_BADGE_SEEDS,
+  academyBadgeProgress,
   translateBadge,
   collectionBadge,
   rank1Badge,
@@ -94,7 +95,7 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
         setLoading(true);
       }
 
-      const [capturesRes, claimedRes, followersRes, followingRes, catalogue, premiumRes, adventRes, contestWinsRes] = await readProgress(`${userId}:${refreshKey}`, () => Promise.all([
+      const [capturesRes, claimedRes, followersRes, followingRes, catalogue, premiumRes, adventRes, contestWinsRes, learningRes] = await readProgress(`${userId}:${refreshKey}`, () => Promise.all([
         fetchAllRows<any>((from, to) =>
           supabase
             .from('captures')
@@ -111,6 +112,7 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
         supabase.rpc('is_premium', { p_user_id: userId }),
         supabase.rpc('advent_badge_progress', { p_user: userId }),
         supabase.from('photo_contest_winners').select('week_start', { count: 'exact', head: true }).eq('user_id', userId),
+        supabase.from('learning_completions').select('lesson_id', { count: 'exact', head: true }).eq('user_id', userId),
       ]));
 
       if (cancelled) return;
@@ -215,6 +217,7 @@ export const useBadges = (userId: string | undefined, level: number, regionsExpl
         geo_10: Math.min(geoCount, 10),
         night_owl: nightOwl ? 1 : 0,
         early_bird: earlyBird ? 1 : 0,
+        ...academyBadgeProgress(learningRes.count || 0),
         birds_5: Math.min(catCount(captures, 'oiseau'), 5),
         mammals_5: Math.min(catCount(captures, 'mammif'), 5),
         insects_5: Math.min(catCount(captures, 'insecte'), 5),
