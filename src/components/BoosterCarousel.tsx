@@ -84,8 +84,11 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
   // Glisser à la souris (Chrome desktop) : le défilement natif ne répond qu'au tactile.
   const drag = useRef<{ x: number; left: number; moved: boolean } | null>(null);
   const suppressClick = useRef(false);
+  // Type de pointeur à l'origine du dernier appui : souris ou doigt.
+  const lastPointer = useRef<PointerEvent['pointerType'] | ''>('');
 
   const onPointerDown = (e: React.PointerEvent) => {
+    lastPointer.current = e.pointerType;
     if (e.pointerType !== 'mouse' || e.button !== 0 || !ref.current) return;
     drag.current = { x: e.clientX, left: ref.current.scrollLeft, moved: false };
   };
@@ -150,12 +153,17 @@ const BoosterCarousel = ({ children }: { children: ReactNode }) => {
           <div
             key={i}
             onClickCapture={(e) => {
-              if (i !== activeRef.current) {
-                e.preventDefault();
-                e.stopPropagation();
-                suppressClick.current = false;
-                scrollToItem(i);
+              if (i === activeRef.current) return;
+              // À la souris, un clic ouvre la collection visée ; le recentrage
+              // reste réservé au tactile, où il sert à faire défiler.
+              if (lastPointer.current !== 'touch') {
+                activeRef.current = i;
+                return;
               }
+              e.preventDefault();
+              e.stopPropagation();
+              suppressClick.current = false;
+              scrollToItem(i);
             }}
             className="booster-carousel-item w-[var(--booster-w)] shrink-0 snap-center transition-[transform,opacity] duration-100 ease-out will-change-transform"
           >

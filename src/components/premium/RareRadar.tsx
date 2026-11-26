@@ -113,6 +113,8 @@ export function RareRadarDeck({ state, items, isPremium, userId, selected, onSel
   const ago = useAgo();
   const { speciesName } = useSpeciesName();
   const track = useRef<HTMLDivElement>(null);
+  // Type de pointeur du dernier appui : souris ou doigt.
+  const lastPointer = useRef<PointerEvent['pointerType'] | ''>('');
   const lockedCount = items.filter((s) => s.locked).length;
   // Espèces déjà capturées : la carte montre ma photo, comme dans le Bestiaire.
   const [owned, setOwned] = useState<Record<string, string>>({});
@@ -160,13 +162,14 @@ export function RareRadarDeck({ state, items, isPremium, userId, selected, onSel
   else if (items.length === 0) body = <div className="mission-plate mx-auto max-w-sm rounded-3xl p-5 text-center text-sm text-muted-foreground">{t('premiumFeatures.radar.emptyAll')}</div>;
   else body = (
     <>
-      <div ref={track} onScroll={onScroll} className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-[31vw] pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div ref={track} onScroll={onScroll} onPointerDown={(e) => { lastPointer.current = e.pointerType; }} className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-[31vw] pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {items.map((s, i) => {
           const color = rarityColor(s.rarity);
           const potential = s.kind === 'potential';
           const open = () => {
             if (s.locked) { navigate('/premium'); return; }
-            if (i !== selected) { onSelect(i); return; }
+            // À la souris, un clic ouvre la fiche ; le recentrage reste tactile.
+            if (i !== selected && lastPointer.current === 'touch') { onSelect(i); return; }
             if (s.animal_name) navigate(`/home?tab=categories&q=${encodeURIComponent(s.animal_name)}`);
           };
           const Icon = categoryLineIcon(s.category ?? '');
