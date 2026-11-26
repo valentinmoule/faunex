@@ -1135,6 +1135,13 @@
       "when": 1795649997627,
       "tag": "0159_unique_species_capture_rewards_and_rankings",
       "breakpoints": true
+    },
+    {
+      "idx": 160,
+      "version": "7",
+      "when": 1795691251683,
+      "tag": "0160_species_identity_accepts_higher_rank_scientific",
+      "breakpoints": true
     }
   ]
 }

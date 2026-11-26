@@ -21,7 +21,8 @@ describe('Unified species identity matching',()=>{
   await db.exec(readFileSync('drizzle/migrations/0019_plural_tolerant_species_match.sql','utf8').split('CREATE OR REPLACE FUNCTION public.resolve_species_identity_plural')[0]);
   await db.exec(sql());
   await db.exec(readFileSync('drizzle/migrations/0085_fast_exact_species_resolution.sql','utf8'));
-  await db.exec(`INSERT INTO animals(name,scientific_name) VALUES ('Gypaète barbu','Gypaetus barbatus'),('Criquet des ajoncs','Chorthippus binotatus'),('Criquet verdelet','Omocestus viridulus'),('Labrador','Canis lupus familiaris'),('Berger allemand','Canis lupus familiaris'),('Oiseau alpha',NULL),('Oiseau alpho',NULL);
+  await db.exec(readFileSync('drizzle/migrations/0160_species_identity_accepts_higher_rank_scientific.sql','utf8'));
+  await db.exec(`INSERT INTO animals(name,scientific_name) VALUES ('Gypaète barbu','Gypaetus barbatus'),('Ver de terre commun','Lumbricus terrestris'),('Criquet des ajoncs','Chorthippus binotatus'),('Criquet verdelet','Omocestus viridulus'),('Labrador','Canis lupus familiaris'),('Berger allemand','Canis lupus familiaris'),('Oiseau alpha',NULL),('Oiseau alpho',NULL);
    INSERT INTO taxa(id,vernacular_name,status) VALUES(gen_random_uuid(),'Oiseau alpho','validated');
    CREATE TRIGGER enforce_name BEFORE INSERT ON captures FOR EACH ROW EXECUTE FUNCTION enforce_canonical_animal_name();`);
  });
@@ -30,6 +31,7 @@ describe('Unified species identity matching',()=>{
  it('uses the safe scientific identity for a synonym',async()=>expect((await match('Vautour barbu','Gypaetus barbatus')).rows).toEqual([{name:'Gypaète barbu'}]));
  it('does not match different scientific species by similar common names',async()=>expect((await match('Criquet des ajonc','Omocestus viridulus')).rows).toEqual([{name:'Criquet verdelet'}]));
  it('rejects an exact common name with a contradictory scientific identity',async()=>{await expect(match('Criquet des ajoncs','Omocestus viridulus')).rejects.toThrow('SPECIES_IDENTITY_CONFLICT')});
+ it('snaps an exact tile name given only a family to that tile',async()=>expect((await match('Ver de terre commun','Lumbricidae')).rows).toEqual([{name:'Ver de terre commun'}]));
  it('never resolves a shared binomial to a random domestic breed',async()=>expect((await match('Caniche','Canis lupus familiaris')).rows).toEqual([]));
  it('corrects an unambiguous typo within a breed',async()=>expect((await match('Labrado','Canis lupus familiaris')).rows).toEqual([{name:'Labrador'}]));
  it('refuses equally close candidates instead of creating another tile',async()=>{await expect(match('Oiseau alphi')).rejects.toThrow('AMBIGUOUS_SPECIES')});
