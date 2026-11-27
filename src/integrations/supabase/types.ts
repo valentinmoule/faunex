@@ -4032,6 +4032,10 @@ export type Database = {
       }
       is_premium: { Args: { p_user_id: string }; Returns: boolean }
       is_profile_private: { Args: { _user_id: string }; Returns: boolean }
+      is_reclassification_group_label: {
+        Args: { p_name: string; p_scientific: string }
+        Returns: boolean
+      }
       is_shared_domestic_binomial: {
         Args: { p_scientific: string }
         Returns: boolean
@@ -4230,6 +4234,10 @@ export type Database = {
       rarity_tier_for_observations: {
         Args: { p_category: string; p_count: number }
         Returns: string
+      }
+      reclassify_exact_generic_capture: {
+        Args: { p_capture_id: string; p_target_id: string }
+        Returns: Json
       }
       recompute_profile_counters: {
         Args: { p_user_id: string }

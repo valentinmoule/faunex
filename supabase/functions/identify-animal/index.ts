@@ -6,6 +6,7 @@ import { CatalogueLookupError, matchCatalogueSpecies, matchCatalogueWithIdentity
 import { MORPHOLOGY_RULE, isGenericDomesticChicken, breedFallbackName, fallbackScientific, isConfidentGenericDomestic, isBeeGroupLabel, needsDeepPass } from '../_shared/visual-identification-policy.ts';
 import { COLLECTIBLE_VARIANT_RULE } from '../_shared/collectible-variants.ts';
 import { cropToSubject, shouldZoomOnSubject, zoomIsBetter } from '../_shared/subject-crop.ts';
+import { isReclassificationGroupLabel, RECLASSIFICATION_SPECIES_RULE } from '../_shared/generic-capture-groups.ts';
 
 
 const corsHeaders = {
@@ -275,7 +276,7 @@ CRITÈRES DIAGNOSTIQUES (cas ambigus) :
 /** Prompt unique et stable : un seul préfixe système maximise la mise en cache
  *  des jetons d'entrée et donne les critères diagnostiques dès la passe rapide,
  *  ce qui évite des secondes passes (le vrai poste de coût). */
-const ID_PROMPT = FAST_PROMPT + DEEP_ANNEX + '\n' + MORPHOLOGY_RULE + '\n' + COLLECTIBLE_VARIANT_RULE;
+const ID_PROMPT = FAST_PROMPT + DEEP_ANNEX + '\n' + MORPHOLOGY_RULE + '\n' + COLLECTIBLE_VARIANT_RULE + '\n' + RECLASSIFICATION_SPECIES_RULE;
 
 
 
@@ -1086,6 +1087,11 @@ serve(async (req) => {
     if (isBeeGroupLabel(animalData?.animal_name, animalData?.scientific_name)) {
       await refundQuota();
       return await finish({ success: false, reason: "unverified_species", hint: "L'espèce précise de cette abeille ne peut pas être confirmée sur la photo. Propose-la en modération pour vérification." }, "unverified_species");
+    }
+
+    if (isReclassificationGroupLabel(animalData?.animal_name, animalData?.scientific_name)) {
+      await refundQuota();
+      return await finish({ success: false, reason: "unverified_species", hint: "L'espèce précise ne peut pas être confirmée sur la photo. Propose-la en modération pour vérification." }, "unverified_species");
     }
 
     /**

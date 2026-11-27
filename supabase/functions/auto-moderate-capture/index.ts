@@ -8,7 +8,7 @@ import { matchCatalogueSpecies } from '../_shared/species-matching.ts'
 import { STRICT_SPECIES_RULES, requiresHumanSpeciesReview, trustObserverProposal } from '../_shared/strict-moderation.ts'
 import { COLLECTIBLE_VARIANT_RULE } from '../_shared/collectible-variants.ts'
 import { isSpeciesBinomial } from '../_shared/shared-binomials.ts'
-import { isBeeGroupLabel } from '../_shared/visual-identification-policy.ts'
+import { isNonCollectibleGroupLabel } from '../_shared/generic-capture-groups.ts'
 
 async function logDatasetEvent(db: any, event: ServerDatasetEvent) {
   await writeDatasetEvent(db, { ...event, payload: { auto_review_policy: AUTO_REVIEW_POLICY } })
@@ -455,7 +455,7 @@ async function examine(
   // Race/variété précisée par l'observateur sans fiche existante : jamais
   // ramenée au nom générique de l'IA, un modérateur la reconnaît.
   const breedClaim = !proposedEntry && !notRealPhoto && observerMoreSpecific(name, finalName)
-  const humanNeeded = breedClaim || isBeeGroupLabel(approvedName, approvedSci) || (!trusted && requiresHumanSpeciesReview({ confidence, nameMatches: verdict.name_matches, disagreement, unknown, notRealPhoto, scientific: approvedSci }))
+  const humanNeeded = breedClaim || isNonCollectibleGroupLabel(approvedName, approvedSci) || (!trusted && requiresHumanSpeciesReview({ confidence, nameMatches: verdict.name_matches, disagreement, unknown, notRealPhoto, scientific: approvedSci }))
 
 
 

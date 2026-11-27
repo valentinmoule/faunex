@@ -8,6 +8,7 @@ import { scientificOnlyOverride, applyForcedIdentity } from '../_shared/forced-i
 import { shouldRecheckModerationIdentity } from '../_shared/moderation-conflict.ts'
 import { moderatorNotesPrompt, needsBreedClarification } from './moderator-notes.ts'
 import { moderationDatabaseFailure } from './database-error.ts'
+import { isReclassificationGroupLabel, RECLASSIFICATION_SPECIES_RULE } from '../_shared/generic-capture-groups.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -169,6 +170,11 @@ Deno.serve(async (req) => {
           return json({ error: 'La fiche existante ne peut pas être vérifiée. Corrige les noms si nécessaire puis réessaie ; aucune modification enregistrée.', code: 'catalogue_lookup_failed' })
         }
       }
+      // Check the resolved identity: an exact real tile can safely supply a
+      // missing/higher-rank scientific name without becoming a group capture.
+      if (!forceName && isReclassificationGroupLabel(payload.animal_name, payload.scientific_name)) {
+        return json({ error: "Ce nom désigne un groupe, pas une espèce précise. Laisse la photo en modération tant que l'espèce ne peut pas être confirmée.", code: 'species_required' })
+      }
       // Mode forcé : écriture verbatim, les contrôles d'identité du catalogue sont levés pour cette seule écriture.
       const { error: applyErr } = forceName
         ? await supabase.rpc('moderation_force_apply_capture', { p_capture_id: captureId, p_payload: payload })
@@ -322,7 +328,7 @@ Deno.serve(async (req) => {
         model,
         temperature: 0,
         messages: [
-          { role: 'system', content: forceName ? FORCE_NAME_PROMPT + (scientificOnly ? '\nSi seul le nom scientifique est fourni, il définit l’espèce : renseigne son nom commun français, sans conserver un ancien nom.' : '') : SYSTEM_PROMPT + '\n' + MORPHOLOGY_RULE + '\n' + COLLECTIBLE_VARIANT_RULE },
+          { role: 'system', content: forceName ? FORCE_NAME_PROMPT + (scientificOnly ? '\nSi seul le nom scientifique est fourni, il définit l’espèce : renseigne son nom commun français, sans conserver un ancien nom.' : '') : SYSTEM_PROMPT + '\n' + MORPHOLOGY_RULE + '\n' + COLLECTIBLE_VARIANT_RULE + '\n' + RECLASSIFICATION_SPECIES_RULE },
           { role: 'user', content },
           ...(identityCorrection ? [{ role: 'user', content: identityCorrection }] : []),
         ],
@@ -539,6 +545,9 @@ Deno.serve(async (req) => {
     // Bees are collectible only as precise species, even when the name is forced.
     if (isBeeGroupLabel(animal.animal_name, animal.scientific_name)) {
       return json({ error: "Ce nom désigne un groupe d'abeilles, pas une espèce. Indique l'espèce précise (nom commun et nom scientifique) ou laisse la photo en modération.", code: 'bee_species_required' })
+    }
+    if (!forceName && isReclassificationGroupLabel(animal.animal_name, animal.scientific_name)) {
+      return json({ error: "Ce nom désigne un groupe, pas une espèce précise. Laisse la photo en modération tant que l'espèce ne peut pas être confirmée.", code: 'species_required' })
     }
     if (needsBreedClarification(forceName, Boolean(notesPrompt), animal)) {
       return json({ error: 'Les observations ont été prises en compte, mais plusieurs races restent possibles. Précise la race ou force un nom uniquement si tu peux la confirmer ; cette capture n’est pas déclarée comme doublon.', code: 'breed_uncertain' })
