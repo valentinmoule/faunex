@@ -4205,6 +4205,10 @@ export type Database = {
         Args: { p_target: string; p_text: string }
         Returns: boolean
       }
+      profile_total_xp: {
+        Args: { p_level: number; p_xp: number }
+        Returns: number
+      }
       progress_taxon: { Args: { p_taxon_id: string }; Returns: string }
       rare_sightings_near: {
         Args: { p_lat: number; p_lng: number; p_radius_km?: number }

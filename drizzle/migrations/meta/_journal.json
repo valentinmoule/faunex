@@ -1149,6 +1149,13 @@
       "when": 1795720366486,
       "tag": "0161_themed_collection_rewards_claimable",
       "breakpoints": true
+    },
+    {
+      "idx": 162,
+      "version": "7",
+      "when": 1795785067170,
+      "tag": "0162_xp_leaderboard_total_xp",
+      "breakpoints": true
     }
   ]
 }
