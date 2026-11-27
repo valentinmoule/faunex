@@ -30,6 +30,7 @@
     "@capacitor/ios": "8.4.3",
     "@capacitor/share": "^8.0.3",
     "@capacitor/status-bar": "^8.0.4",
+    "@lovable.dev/ai-gateway": "^0.1.15",
     "@lovable.dev/cloud-auth-js": "^1.2.1",
     "@lovable.dev/mcp-js": "^3.1.1",
     "@maplibre/maplibre-gl-leaflet": "^0.1.4",

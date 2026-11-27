@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { identificationAccountPolicy } from "./accountPolicy.ts";
+import { identificationAccountPolicy, IDENTIFICATION_PRIMARY_MODEL } from "./accountPolicy.ts";
+import { generateChatCompletion, GatewayError } from "npm:@lovable.dev/ai-gateway@0.1.15";
 import { imageBytes, imageDigest, issueAiProof } from '../_shared/economyProof.ts';
 import { CatalogueLookupError, matchCatalogueSpecies, matchCatalogueWithIdentityRecheck } from '../_shared/species-matching.ts';
 import { MORPHOLOGY_RULE, isGenericDomesticChicken, breedFallbackName, fallbackScientific, isConfidentGenericDomestic, isBeeGroupLabel, needsDeepPass } from '../_shared/visual-identification-policy.ts';
@@ -537,23 +538,10 @@ serve(async (req) => {
       }
     }
 
-    /**
-     * Flash Lite 3.1 en première passe, Flash 3.8 en seconde passe uniquement
-     * quand la première hésite (confiance faible ou espèce facilement confondue).
-     * Mesure faite sur une requête identique (même photo, même prompt) :
-     *   gemini-3.1-flash-lite  0.0021 crédit
-     *   gemini-3.6-flash       0.0046 crédit
-     *   gemini-3.7-flash       0.0053 crédit
-     *   gemini-3.5-flash       0.0107 crédit  ← ancien modèle profond
-     * La grande majorité des photos est tranchée par Lite (~2,4× moins cher
-     * que Flash 3.8) ; le modèle profond ne paie que les cas douteux, ce qui
-     * garde la précision espèce/sous-espèce là où elle compte. Jamais de Pro.
-     */
-    // Seconde passe : dernier Flash, réservé aux identifications douteuses.
-    const DEEP_MODEL = "google/gemini-3.8-flash";
-    // Tous les comptes : Flash Lite en première passe (coût maîtrisé).
-    // Comptes boostés (accountPolicy) : meilleur Flash dès la première passe.
-    const FAST_MODEL = boostedAccount ? DEEP_MODEL : "google/gemini-3.1-flash-lite";
+    // Saison hivernale : Flash dès la première passe pour tous les comptes.
+    // Le routage boosté évite de repayer le même modèle en seconde passe.
+    const DEEP_MODEL = IDENTIFICATION_PRIMARY_MODEL;
+    const FAST_MODEL = IDENTIFICATION_PRIMARY_MODEL;
     /** Fiches d'espèces : texte seul, toujours sur le modèle le moins cher. */
     const TEXT_MODEL = "google/gemini-3.1-flash-lite";
     const FALLBACK_VISION_MODEL = "google/gemini-3.1-flash-lite";
@@ -569,21 +557,14 @@ serve(async (req) => {
     const budgetLeft = () => AI_PHASE_BUDGET_MS - (Date.now() - aiPhaseStartedAt);
 
     const callGateway = async (
-      model: string,
+      model: typeof IDENTIFICATION_PRIMARY_MODEL | "google/gemini-3.1-flash-lite",
       prompt: string,
       effort: "low" | "high" = "low",
       image: string = fastImageUrl,
       timeoutMs: number = 45_000,
     ) => {
-      return await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-
-      signal: AbortSignal.timeout(Math.max(10_000, Math.min(timeoutMs, budgetLeft()))),
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+      try {
+      const completion = await generateChatCompletion({
         model,
         temperature: 0,
         // Les modèles Gemini 3 « réfléchissent » par défaut : ces jetons de
@@ -592,13 +573,8 @@ serve(async (req) => {
         // schéma imposé) ; la passe profonde, elle, garde un budget élevé
         // pour trancher les confusions difficiles.
         reasoning_effort: effort,
-        // Réponse bornée : le schéma est court, un plafond évite les sorties
-        // (et les jetons de raisonnement) qui partent en dérive. Les jetons de
-        // sortie sont le premier poste de coût. Mesuré sur photo réelle :
-        // 360 jetons en effort low, ~1040 en high (dont 800 de « réflexion »),
-        // d'où un plafond low serré et un plafond high assez large pour ne
-        // jamais tronquer la fiche.
-        ...(demoAccount ? {} : { max_tokens: effort === "high" ? 1400 : 500 }),
+        // Pas de plafond optionnel sur le modèle amélioré ; repli Lite inchangé.
+        ...(model === "google/gemini-3.1-flash-lite" && !demoAccount ? { max_tokens: effort === "high" ? 1400 : 500 } : {}),
         messages: [
           { role: "system", content: prompt },
 
@@ -678,8 +654,20 @@ serve(async (req) => {
         ],
 
         tool_choice: { type: "function", function: { name: "identify_animal" } },
-      }),
+      }, {
+        signal: AbortSignal.timeout(Math.max(10_000, Math.min(timeoutMs, budgetLeft()))),
       });
+      return new Response(JSON.stringify(completion), { headers: { "Content-Type": "application/json" } });
+      } catch (error) {
+        if (!(error instanceof GatewayError)) throw error;
+        console.error("identification gateway failure", error.code, error.httpStatus, error.outcome, error.ids);
+        // Le SDK a déjà effectué les reprises sûres. Ne jamais relancer une
+        // génération dont l'issue est inconnue ou refusée par le fournisseur.
+        return new Response(JSON.stringify({ error: "Identification service unavailable", code: error.code }), {
+          status: error.httpStatus && error.httpStatus >= 400 && error.httpStatus <= 599 ? error.httpStatus : 500,
+          headers: { "X-Identification-Final-Error": "true" },
+        });
+      }
     };
 
     /**
@@ -690,12 +678,12 @@ serve(async (req) => {
      */
     let lastAttemptModel: string | null = null;
     const tryModel = async (
-      model: string,
+      model: typeof IDENTIFICATION_PRIMARY_MODEL | "google/gemini-3.1-flash-lite",
       attempts: number,
       prompt: string,
       effort: "low" | "high" = "low",
       image: string = fastImageUrl,
-      fallbackModel?: string,
+      fallbackModel?: typeof IDENTIFICATION_PRIMARY_MODEL | "google/gemini-3.1-flash-lite",
     ) => {
       for (let i = 0; i < attempts; i++) {
         // Plus assez de budget pour un appel utile : on rend la main plutôt
@@ -709,7 +697,7 @@ serve(async (req) => {
           const cap = i < attempts - 1 ? 28_000 : 45_000;
           const r = await callGateway(attemptModel, prompt, effort, image, cap);
           lastAttemptModel = attemptModel;
-          const retryable = r.status === 429 || r.status >= 500;
+          const retryable = r.headers.get("X-Identification-Final-Error") !== "true" && (r.status === 429 || r.status >= 500);
           if (retryable && i < attempts - 1 && budgetLeft() > 20_000) {
             const retryAfter = Number(r.headers.get("Retry-After"));
             const delayMs = Number.isFinite(retryAfter) && retryAfter > 0
@@ -727,9 +715,8 @@ serve(async (req) => {
             `${Date.now() - startedAt}ms`,
             netErr,
           );
-          // Délai dépassé ou coupure : reprise immédiate (modèle de repli plus
-          // rapide si fourni) tant qu'il reste du budget utile.
-          if (i < attempts - 1 && budgetLeft() > 15_000) continue;
+          // Une erreur locale ou une issue inconnue ne justifie pas un nouvel
+          // appel facturé ; les erreurs de transport sont traitées par le SDK.
           return null;
         }
       }
@@ -813,9 +800,7 @@ serve(async (req) => {
 
 
 
-    // 1) Passe économique (Flash Lite) sur la vignette basse résolution :
-    //    elle couvre la très grande majorité des animaux pour ~3× moins de
-    //    jetons d'image.
+    // 1) Identification Flash pour tous, avec les mêmes critères naturalistes.
     let response = await tryModel(
       FAST_MODEL,
       2,
