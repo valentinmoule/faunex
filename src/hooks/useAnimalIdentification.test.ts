@@ -4,7 +4,7 @@ import { useAnimalIdentification } from './useAnimalIdentification';
 
 const { invoke } = vi.hoisted(() => ({ invoke: vi.fn() }));
 vi.mock('@/integrations/supabase/client', () => ({ supabase: { functions: { invoke }, auth: { getSession: async () => ({ data: { session: null } }) } } }));
-vi.mock('@/i18n', () => ({ default: { t: (key: string) => key } }));
+vi.mock('@/i18n', () => ({ default: { t: (key: string) => key, language: 'fr' } }));
 vi.mock('@/lib/imageProcessing', () => ({
   compressForAI: async (value: string) => value,
   dataUrlBytes: () => 100,
@@ -48,5 +48,22 @@ describe('human identification rejection', () => {
       expect(await result.current.identify('old-human')).toMatchObject({ status: 'rejected', kind: 'human' });
     });
     expect(invoke).toHaveBeenCalled();
+  });
+
+  it.each([false, true])('never retries or caches a Premium quota refusal (daily=%s)', async (daily) => {
+    const refusal = { success: false, reason: 'daily_limit', premium_safety_pause: true,
+      premium_daily_limit: daily, retry_at: '2026-11-27T21:00:00Z' };
+    invoke.mockResolvedValueOnce({ data: { reason: 'cache_miss' }, error: null });
+    invoke.mockResolvedValue({ data: refusal, error: null });
+    const { result, unmount } = renderHook(() => useAnimalIdentification());
+    await act(async () => {
+      expect((await result.current.identify(`quota-${daily}`)).status).toBe('error');
+    });
+    expect(invoke).toHaveBeenCalledTimes(2);
+    await act(async () => {
+      expect((await result.current.identify(`quota-${daily}`)).status).toBe('error');
+    });
+    expect(invoke).toHaveBeenCalledTimes(3);
+    unmount();
   });
 });

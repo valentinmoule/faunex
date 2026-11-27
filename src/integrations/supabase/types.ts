@@ -3728,6 +3728,10 @@ export type Database = {
         Returns: boolean
       }
       ai_analyses_remaining_today: { Args: never; Returns: number }
+      ai_quota_status_for: {
+        Args: { p_now: string; p_user: string }
+        Returns: Json
+      }
       ai_usage_stats: {
         Args: { p_days?: number }
         Returns: {
@@ -3934,6 +3938,7 @@ export type Database = {
       ensure_weekly_quests_for: { Args: { p_user_id: string }; Returns: number }
       family_checkout_guard: { Args: { p_user: string }; Returns: undefined }
       family_valid: { Args: { p_family: string }; Returns: boolean }
+      get_ai_analysis_status: { Args: never; Returns: Json }
       get_my_profile: {
         Args: never
         Returns: {

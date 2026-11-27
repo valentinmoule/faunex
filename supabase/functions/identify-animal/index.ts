@@ -491,7 +491,12 @@ serve(async (req) => {
             console.error("ai quota check failed", quotaError);
             return jsonResponse({ error: 'Analysis temporarily unavailable' }, 503);
           } else if (typeof remaining === "number" && remaining < 0) {
-            const premiumCap = remaining === -2;
+            const premiumCap = remaining === -2 || remaining === -3;
+            const dailyPremiumCap = remaining === -3;
+            const { data: quotaStatus } = await cacheDb.rpc('ai_quota_status_for', {
+              p_user: userId,
+              p_now: new Date().toISOString(),
+            });
             console.log("ai quota exhausted", userId, premiumCap ? "premium" : "free");
             // Statut 200 volontaire : le client doit pouvoir afficher le
             // message tel quel (invoke() masque le corps des réponses 4xx).
@@ -499,8 +504,12 @@ serve(async (req) => {
               success: false,
               reason: "daily_limit",
               premium_safety_pause: premiumCap,
-              message: premiumCap
-                ? "Pause de sécurité pour protéger le service contre les abus. Réessaie un peu plus tard."
+              premium_daily_limit: dailyPremiumCap,
+              retry_at: quotaStatus?.retry_at ?? null,
+              message: dailyPremiumCap
+                ? "Pause de sécurité pour protéger le service contre les abus. Tu pourras reprendre demain."
+                : premiumCap
+                ? "Pause de sécurité pour protéger le service contre les abus. Tu pourras reprendre après une heure de pause."
                 : "Tu as atteint ta limite de 4 analyses pour aujourd'hui. Reviens demain, ou passe en Faunex Premium pour des analyses illimitées.",
             });
 

@@ -33,8 +33,11 @@
       "locationPlaceholder": "Localisation…",
       "premiumLater": "Plus tard",
       "premiumCapTitle": "Ralentissons un peu 🌿",
-      "premiumCapBody": "Après un grand nombre d'analyses, une pause de sécurité protège le service contre les abus. Tu pourras reprendre tes découvertes un peu plus tard.",
-      "premiumCapToast": "Pause de sécurité pour protéger le service contre les abus. Réessaie un peu plus tard."
+      "premiumCapBody": "Après un grand nombre d'analyses aujourd'hui, une pause de sécurité protège le service contre les abus. Tu pourras reprendre tes découvertes demain.",
+      "premiumCapToast": "Pause de sécurité pour protéger le service contre les abus. Tu pourras reprendre demain.",
+      "premiumPauseBody": "Après un grand nombre d'analyses aujourd'hui, une pause de sécurité protège le service contre les abus. Tu pourras reprendre tes découvertes à {{time}}.",
+      "premiumPauseToast": "Pause de sécurité pour protéger le service contre les abus. Tu pourras reprendre à {{time}}.",
+      "premiumPauseFallback": "Pause de sécurité pour protéger le service contre les abus. Réessaie un peu plus tard."
     },
     "errors": {
       "cameraReset": "La caméra se réinitialise, réessaie dans un instant",

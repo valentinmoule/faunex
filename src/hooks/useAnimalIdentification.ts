@@ -245,8 +245,14 @@ export const useAnimalIdentification = () => {
           return {
             status: 'error',
             message:
-              data?.premium_safety_pause === true
+              data?.premium_daily_limit === true
                 ? i18n.t('capture.quota.premiumCapToast')
+                : data?.premium_safety_pause === true && typeof data?.retry_at === 'string'
+                ? i18n.t('capture.quota.premiumPauseToast', {
+                    time: new Date(data.retry_at).toLocaleTimeString(i18n.language, { hour: '2-digit', minute: '2-digit' }),
+                  })
+                : data?.premium_safety_pause === true
+                ? i18n.t('capture.quota.premiumPauseFallback')
                 : typeof data?.message === 'string'
                 ? data.message
                 : i18n.t('capture.errors.dailyAnalysisLimit'),

@@ -47,7 +47,7 @@ const ResultInfoRow = ({ icon, label, value }: { icon: ReactNode; label: string;
 
 
 const CapturePage = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { speciesName } = useSpeciesName();
   const { session } = useAuth();
   const navigate = useNavigate();
@@ -166,10 +166,16 @@ const quota = useCaptureQuota(session?.user?.id);
     takenAt: photoTakenAt,
   });
 
-  /** Premium : plafond de sécurité (200 analyses / jour) et non la limite gratuite de 4. */
+  /** Premium : pause temporaire puis protection quotidienne, sans seuil visible. */
   const { isPremium, loading: premiumLoading } = useSubscription(session?.user?.id);
+  const premiumPause = quota.reason === 'premium_pause';
+  const resumeTime = quota.retryAt
+    ? new Date(quota.retryAt).toLocaleTimeString(i18n.language, { hour: '2-digit', minute: '2-digit' })
+    : '';
   const quotaMessage = isPremium
-    ? t('capture.quota.premiumCapToast')
+    ? premiumPause
+      ? t('capture.quota.premiumPauseToast', { time: resumeTime })
+      : t('capture.quota.premiumCapToast')
     : t('capture.quota.limitReached', { limit: DAILY_CAPTURE_LIMIT });
 
 
@@ -193,7 +199,7 @@ const quota = useCaptureQuota(session?.user?.id);
     exifCoords?: { lat: number; lng: number } | null,
     exifTakenAt?: string | null,
   ) => {
-    // The daily slot is only consumed when the capture is added to the Faunex.
+    // L'identification débite l'analyse ; le rangement reste toujours autorisé.
     if (quota.exhausted) {
       toast.error(quotaMessage);
       return;
@@ -830,7 +836,11 @@ setManualMode(false);
                     {isPremium ? t('capture.quota.premiumCapTitle') : t('capture.quota.bannerTitle')}
                   </p>
                   <p className="text-primary-foreground/80 text-xs mt-1 leading-relaxed">
-                    {isPremium ? t('capture.quota.premiumCapBody') : t('capture.quota.bannerBody')}
+                    {isPremium
+                      ? premiumPause
+                        ? t('capture.quota.premiumPauseBody', { time: resumeTime })
+                        : t('capture.quota.premiumCapBody')
+                      : t('capture.quota.bannerBody')}
                   </p>
                   {!isPremium && (
                     <button

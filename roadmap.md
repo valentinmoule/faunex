@@ -1,4 +1,5 @@
 # Roadmap
+- [x] Premium : pause réelle 1 h après la 200ᵉ analyse quotidienne, reprise jusqu’à 400, blocage jusqu’au lendemain ; seuils masqués, gratuit 4/jour. 30 tests passent ; pause, reprise et blocage relus connecté, refus serveur vérifiés sans appel IA, lignes fictives retirées.
 - [x] Message de protection Premium FR/EN sans chiffre, symbole infini conservé ; plafond actuel inchangé.
 - [x] Valentin confirme 200 analyses par jour : pas de reprise garantie après une heure, message de pause sans chiffre ni délai.
 - [x] Identification hivernale : Gemini 3.8 Flash dès la première passe pour tous, cache/quota et textes Lite inchangés ; 17 tests passants, analyse réelle du Koala affichée à 99 %, modèle confirmé dans les journaux, aucune capture ajoutée ; build OK.

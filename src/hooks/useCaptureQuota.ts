@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 export const DAILY_CAPTURE_LIMIT = 4;
@@ -14,16 +14,24 @@ export const DAILY_CAPTURE_LIMIT = 4;
  */
 export const useCaptureQuota = (userId?: string) => {
   const [remaining, setRemaining] = useState<number | null>(null);
+  const [reason, setReason] = useState('available');
+  const [retryAt, setRetryAt] = useState<string | null>(null);
+  const currentUser = useRef(userId);
+  currentUser.current = userId;
 
   /** Relit le quota et renvoie la valeur fraîche (null si indisponible). */
   const fetchRemaining = useCallback(async () => {
-    const { data, error } = await supabase.rpc('ai_analyses_remaining_today');
-    if (!error && typeof data === 'number') {
-      setRemaining(data);
-      return data;
+    if (!userId) return null;
+    const { data, error } = await supabase.rpc('get_ai_analysis_status');
+    if (currentUser.current !== userId) return null;
+    if (!error && data && typeof data === 'object' && !Array.isArray(data) && typeof data.remaining === 'number') {
+      setRemaining(data.remaining);
+      setReason(typeof data.reason === 'string' ? data.reason : 'available');
+      setRetryAt(typeof data.retry_at === 'string' ? data.retry_at : null);
+      return data.remaining;
     }
     return null;
-  }, []);
+  }, [userId]);
 
   const refresh = useCallback(async () => {
     if (!userId) return;
@@ -31,7 +39,30 @@ export const useCaptureQuota = (userId?: string) => {
   }, [userId, fetchRemaining]);
 
   useEffect(() => {
-    refresh();
+    setRemaining(null);
+    setReason('available');
+    setRetryAt(null);
+    void refresh();
+  }, [refresh]);
+
+  // Relire à l'heure exacte du déblocage, même si la caméra est restée ouverte.
+  useEffect(() => {
+    if (!retryAt) return;
+    const delay = Date.parse(retryAt) - Date.now();
+    if (!Number.isFinite(delay)) return;
+    const timer = window.setTimeout(() => { void refresh(); }, Math.max(0, delay) + 250);
+    return () => window.clearTimeout(timer);
+  }, [retryAt, refresh]);
+
+  useEffect(() => {
+    const onVisible = () => { if (document.visibilityState === 'visible') void refresh(); };
+    const onFocus = () => { void refresh(); };
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('focus', onFocus);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('focus', onFocus);
+    };
   }, [refresh]);
 
   /**
@@ -50,6 +81,8 @@ export const useCaptureQuota = (userId?: string) => {
 
   return {
     remaining,
+    reason,
+    retryAt,
     unlimited: remaining !== null && remaining > DAILY_CAPTURE_LIMIT,
     exhausted: remaining !== null && remaining <= 0,
     refresh,
