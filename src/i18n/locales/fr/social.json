@@ -209,6 +209,7 @@
       "defaultName": "Explorateur",
       "capturesShort": "{{count}} capt.",
       "xpShort": "{{count}} XP",
+      "xpFormatted": "{{value}} XP",
       "movedUp": "Monté de {{count}} place depuis hier",
       "movedUp_other": "Monté de {{count}} places depuis hier",
       "movedDown": "Descendu de {{count}} place depuis hier",

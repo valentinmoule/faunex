@@ -12,6 +12,7 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSwipeDownClose } from '@/lib/useSwipeDownClose';
 import TimeLeftBadge from '@/components/TimeLeftBadge';
+import { formatLeaderboardXp } from '@/lib/formatLeaderboardXp';
 
 interface Row {
   rank: number;
@@ -181,7 +182,7 @@ interface LeaderboardTarget {
 const boardCache = new Map<string, { rows: Row[]; mine: MyRank | null }>();
 
 const CategoryLeaderboard = ({ category, territory, inline, period = 'week', scope: forcedScope, showResetBadge = true, metric = 'captures' }: LeaderboardTarget) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { isPremium, loading: premiumLoading } = useSubscription(user?.id);
@@ -216,6 +217,9 @@ const CategoryLeaderboard = ({ category, territory, inline, period = 'week', sco
 
   const isLeague = metric === 'league' && !isTerritory;
   const useXp = (metric === 'xp' || isLeague) && !isTerritory;
+  const xpLabel = (xp: number) => period === 'all' && !isLeague
+    ? t('social.leaderboard.xpFormatted', { value: formatLeaderboardXp(xp, i18n.resolvedLanguage || i18n.language) })
+    : t('social.leaderboard.xpShort', { count: xp });
   const cacheKey = `${isTerritory ? 'terr' : isLeague ? 'league' : useXp ? 'xp' : 'cat'}:${value}:${scope}:${period}`;
   const [league, setLeague] = useState<LeagueInfo | null>(null);
   const [upcomingTier, setUpcomingTier] = useState(0);
@@ -392,7 +396,7 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
                                           </button>
                     <div className={`w-full ${cfg.height} ${cfg.block} rounded-2xl flex flex-col items-center justify-start gap-1.5 pt-2.5`}>
                       <span className="font-display font-black italic text-2xl leading-none text-foreground">{cfg.label}</span>
-                      <span className="rounded-full bg-card px-2.5 py-0.5 text-[11px] font-display font-bold text-foreground">{t(useXp ? 'social.leaderboard.xpShort' : 'social.leaderboard.capturesShort', { count: r.captures })}</span>
+                      <span className="rounded-full bg-card px-2.5 py-0.5 text-[11px] font-display font-bold text-foreground">{useXp ? xpLabel(r.captures) : t('social.leaderboard.capturesShort', { count: r.captures })}</span>
                       {useXp && r.captureCount !== undefined && <span className="text-[10px] font-display font-semibold text-foreground/70">{t('social.leaderboard.capturesShort', { count: r.captureCount })}</span>}
                     </div>
                   </div>
@@ -432,7 +436,7 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
                 </p>
                 <RankMovement change={r.rank_change} />
                 <span className="flex shrink-0 flex-col items-end leading-tight">
-                  <span className="text-[13px] font-display font-bold text-foreground">{useXp ? t('social.leaderboard.xpShort', { count: r.captures }) : r.captures}</span>
+                  <span className="text-[13px] font-display font-bold text-foreground">{useXp ? xpLabel(r.captures) : r.captures}</span>
                   {useXp && r.captureCount !== undefined && <span className="text-[10px] font-display text-muted-foreground">{t('social.leaderboard.capturesShort', { count: r.captureCount })}</span>}
                 </span>
                 </button>
@@ -454,7 +458,7 @@ if (!inline && rows.length === 0 && scope === 'global' && !open) return null;
                   <p className="flex-1 min-w-0 truncate text-[13px] font-display font-bold text-primary">{t('social.leaderboard.you')}</p>
                   <RankMovement change={mine.rank_change} />
                   <span className="flex shrink-0 flex-col items-end leading-tight">
-                    <span className="text-[13px] font-display font-bold text-foreground">{useXp ? t('social.leaderboard.xpShort', { count: mine.captures }) : mine.captures}</span>
+                    <span className="text-[13px] font-display font-bold text-foreground">{useXp ? xpLabel(mine.captures) : mine.captures}</span>
                     {useXp && mine.captureCount !== undefined && <span className="text-[10px] font-display text-muted-foreground">{t('social.leaderboard.capturesShort', { count: mine.captureCount })}</span>}
                   </span>
                 </div>
