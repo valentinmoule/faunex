@@ -32,9 +32,9 @@
       "remaining": "{{remaining}}/{{limit}}",
       "locationPlaceholder": "Localisation…",
       "premiumLater": "Plus tard",
-      "premiumCapTitle": "Plafond Premium atteint 🌿",
-      "premiumCapBody": "Ton abonnement Premium te donne des captures illimitées, mais un plafond de sécurité de 200 identifications par 24 h protège le service. Réessaie un peu plus tard.",
-      "premiumCapToast": "Plafond de sécurité Premium atteint (200 identifications / 24 h). Réessaie un peu plus tard."
+      "premiumCapTitle": "Ralentissons un peu 🌿",
+      "premiumCapBody": "Après un grand nombre d'analyses, une pause de sécurité protège le service contre les abus. Tu pourras reprendre tes découvertes un peu plus tard.",
+      "premiumCapToast": "Pause de sécurité pour protéger le service contre les abus. Réessaie un peu plus tard."
     },
     "errors": {
       "cameraReset": "La caméra se réinitialise, réessaie dans un instant",

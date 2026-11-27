@@ -498,8 +498,9 @@ serve(async (req) => {
             return jsonResponse({
               success: false,
               reason: "daily_limit",
+              premium_safety_pause: premiumCap,
               message: premiumCap
-                ? "Tu as atteint le plafond de sécurité de 200 analyses sur les dernières 24 h (protection anti-abus de ton abonnement Premium). Réessaie un peu plus tard."
+                ? "Pause de sécurité pour protéger le service contre les abus. Réessaie un peu plus tard."
                 : "Tu as atteint ta limite de 4 analyses pour aujourd'hui. Reviens demain, ou passe en Faunex Premium pour des analyses illimitées.",
             });
 

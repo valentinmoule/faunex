@@ -245,7 +245,9 @@ export const useAnimalIdentification = () => {
           return {
             status: 'error',
             message:
-              typeof data?.message === 'string'
+              data?.premium_safety_pause === true
+                ? i18n.t('capture.quota.premiumCapToast')
+                : typeof data?.message === 'string'
                 ? data.message
                 : i18n.t('capture.errors.dailyAnalysisLimit'),
           };

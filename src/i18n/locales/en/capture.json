@@ -32,9 +32,9 @@
       "remaining": "{{remaining}}/{{limit}}",
       "locationPlaceholder": "Locating…",
       "premiumLater": "Maybe later",
-      "premiumCapTitle": "Premium cap reached 🌿",
-      "premiumCapBody": "Your Premium plan gives you unlimited captures, but a safety cap of 200 identifications per 24 h protects the service. Try again a bit later.",
-      "premiumCapToast": "Premium safety cap reached (200 identifications / 24 h). Try again a bit later."
+      "premiumCapTitle": "Let's slow down a little 🌿",
+      "premiumCapBody": "After a large number of analyses, a safety pause protects the service from abuse. You'll be able to resume your discoveries a little later.",
+      "premiumCapToast": "Safety pause to protect the service from abuse. Try again a little later."
     },
     "errors": {
       "cameraReset": "The camera is resetting, try again in a moment",

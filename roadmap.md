@@ -1,4 +1,6 @@
 # Roadmap
+- [x] Message de protection Premium FR/EN sans chiffre, symbole infini conservé ; plafond actuel inchangé.
+- [x] Valentin confirme 200 analyses par jour : pas de reprise garantie après une heure, message de pause sans chiffre ni délai.
 - [x] Identification hivernale : Gemini 3.8 Flash dès la première passe pour tous, cache/quota et textes Lite inchangés ; 17 tests passants, analyse réelle du Koala affichée à 99 %, modèle confirmé dans les journaux, aucune capture ajoutée ; build OK.
 - [x] Mouches : lot corrigé, sept fiches génériques retirées, 291 photos sauvegardées/reclassées, XP/niveau de 281 explorateurs inchangés ; intégrité relue, deux Calliphora distincts conservés, 20 tests passants.
 - [ ] Mouches : Moucheron, Bibio et autres familles attendent une identification diagnostique ou un choix cohérent de référence ; les choix précédents Musca pour Nematocera et Bibio→Bibio marci ne sont pas justifiés. Audit corrigé documenté dans scripts/catalogue/flies-cleanup-2026-11-27.md.
