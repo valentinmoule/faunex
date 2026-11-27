@@ -4239,6 +4239,10 @@ export type Database = {
         Args: { p_capture_id: string; p_target_id: string }
         Returns: Json
       }
+      reclassify_generic_capture_to_reference: {
+        Args: { p_batch: string; p_capture_id: string; p_target_id: string }
+        Returns: Json
+      }
       recompute_profile_counters: {
         Args: { p_user_id: string }
         Returns: undefined

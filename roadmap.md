@@ -79,3 +79,7 @@
 - [x] Abeilles et bourdons : 21 fiches de groupe supprimées ; 40 photos rangées dans leur espèce, 210 renvoyées en modération humaine ; identification, modération et base refusent désormais les noms de groupe d'abeilles (4 tests passants, fonctions déployées).
 - [ ] Autres groupes du Bestiaire : même règle « espèces uniquement », à faire plus tard à la demande de Valentin.
 - [x] File de modération (207) traitée : 4 photos validées ; abeilles en mode mixte, 172 rangées sous l'espèce la plus probable, 31 refusées (inexploitables ou doublons).
+
+## Nettoyage des fiches génériques (2026-11-27)
+- Fait : 2 932 photos de 10 fiches (Fourmi, Fourmi ailée, Araignée, Araignée commune, Mouche, Mouche commune, Araignée sauteuse, Moustique, Araignée-loup, Criquet) déplacées vers l'espèce de référence ; fiches supprimées. Lot `generic-reference-2026-11-27`.
+- À faire : ~1 074 autres fiches génériques (~9 300 photos : Mouche papillon, Noctuelle, Charançon, Coléoptère…), par lots.
