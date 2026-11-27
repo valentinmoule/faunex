@@ -1,4 +1,5 @@
 # Roadmap
+- [x] Stades de développement : 8 fiches renommées vers leur espèce, libellé Mi corrigé sans fusion avec Acronicta ; 87 photos et progression de 83 explorateurs inchangées, cas indéterminés conservés. Trois tests et quatre recherches connectées vérifiés, aucune erreur navigateur.
 - [x] Photos répétées : 0 XP, compteurs des classements par espèces uniques à la première capture approuvée ; 11 tests passants, test réel annulé sans gain ni changement de compteur, affichage connecté vérifié (141 espèces ; 51 photos d’un autre compte = 50 espèces), aucune erreur navigateur. Règles serveur immédiates ; anciennes animations +15 XP corrigées à la prochaine version des stores.
 - [x] Parrainage retiré des interfaces, paiements, webhooks, RPC et tests ; historique conservé, droits Premium archivés inchangés, 14 tests passants et pages Premium/Famille vérifiées connecté sur téléphone.
 - [x] Sécurité : profils privés visibles uniquement par le titulaire, les abonnés acceptés et l’équipe dans captures, jalons et classements ; follows publics/privés et commentaires avec mentions vérifiés en transaction annulée.
