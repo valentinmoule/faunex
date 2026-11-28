@@ -88,18 +88,51 @@ describe('Actions sur une photo précise', () => {
     fireEvent.keyDown(buttons[buttons.length - 1], { key: 'Enter' });
     fireEvent.click(await screen.findByRole('menuitem', { name }));
   };
-  const renderPhotos = () => {
+  const renderPhotos = (extraPhoto = false) => {
     mocks.photos.push(
       { id: card.id, image_url: '/new.jpg', created_at: '2026-11-25', location: 'Paris' },
       { id: 'older-photo', image_url: '/old.jpg', created_at: '2026-11-24', location: 'Lyon' },
     );
+    if (extraPhoto) mocks.photos.push({ id: 'oldest-photo', image_url: '/oldest.jpg', created_at: '2026-11-23', location: 'Bordeaux' });
     const onDeleted = vi.fn();
+    const onClose = vi.fn();
     const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     const view = render(<QueryClientProvider client={qc}><MemoryRouter>
-      <CardDetailSheet card={card} open onClose={vi.fn()} onDeleted={onDeleted} />
+      <CardDetailSheet card={card} open onClose={onClose} onDeleted={onDeleted} />
     </MemoryRouter></QueryClientProvider>);
-    return { ...view, onDeleted };
+    return { ...view, onDeleted, onClose };
   };
+
+  it('affiche la photo restante après libération de la couverture puis libère la bonne dernière capture', async () => {
+    const view = renderPhotos();
+    await screen.findAllByRole('tab');
+    await openMenuItem('capture.detail.deleteCapture');
+    fireEvent.click(screen.getByRole('button', { name: 'capture.detail.deleteBtn' }));
+    await waitFor(() => expect(view.onDeleted).toHaveBeenCalledExactlyOnceWith('capture-1', expect.objectContaining({ id: 'older-photo', image: '/old.jpg' })));
+    expect(view.onClose).not.toHaveBeenCalled();
+    await openMenuItem('capture.crop.action');
+    expect(mocks.cropPhoto).toHaveBeenLastCalledWith('/old.jpg');
+    await openMenuItem('capture.detail.deleteCapture');
+    fireEvent.click(screen.getByRole('button', { name: 'capture.detail.deleteBtn' }));
+    await waitFor(() => expect(mocks.deleteCapture).toHaveBeenLastCalledWith('id', 'older-photo'));
+    expect(view.onClose).toHaveBeenCalledOnce();
+    view.unmount();
+  });
+
+  it('garde les photos restantes accessibles après libération de la couverture sur trois photos', async () => {
+    const view = renderPhotos(true);
+    await screen.findAllByRole('tab');
+    await openMenuItem('capture.detail.deleteCapture');
+    fireEvent.click(screen.getByRole('button', { name: 'capture.detail.deleteBtn' }));
+    await waitFor(() => expect(view.onDeleted).toHaveBeenCalledOnce());
+    expect(view.onClose).not.toHaveBeenCalled();
+    await openMenuItem('capture.crop.action');
+    expect(mocks.cropPhoto).toHaveBeenLastCalledWith('/old.jpg');
+    fireEvent.click(screen.getAllByRole('tab')[1]);
+    await openMenuItem('capture.crop.action');
+    expect(mocks.cropPhoto).toHaveBeenLastCalledWith('/oldest.jpg');
+    view.unmount();
+  });
 
   it('libère uniquement la deuxième photo sélectionnée', async () => {
     const view = renderPhotos();

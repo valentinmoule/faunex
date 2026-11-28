@@ -1677,10 +1677,12 @@ const CardDetailSheet = (props: Props) => {
   const { card, open, feedView, onDeleted } = props;
   const { session } = useAuth();
   const [photos, setPhotos] = useState<SpeciesPhoto[]>([]);
+  const [loadedPhotoSource, setLoadedPhotoSource] = useState<string | null>(null);
   const [index, setIndex] = useState(0);
   const userId = session?.user?.id;
   const cardId = card?.id;
   const cardName = card?.name;
+  const photoSource = JSON.stringify([userId, cardId, cardName]);
   useEffect(() => subscribeCaptureImageUpdates(update => {
     if (update.userId !== userId) return;
     setPhotos(current => current.map(photo => photo.id === update.captureId ? { ...photo, image_url: update.imageUrl, subject_bbox: null } : photo));
@@ -1688,6 +1690,7 @@ const CardDetailSheet = (props: Props) => {
 
   useEffect(() => {
     setPhotos([]);
+    setLoadedPhotoSource(null);
     setIndex(0);
     if (!open || feedView || !userId || !cardId || !cardName || cardId.startsWith('uncaptured-') || !card?.image) return;
     let cancelled = false;
@@ -1704,6 +1707,7 @@ const CardDetailSheet = (props: Props) => {
         const start = list.findIndex((p) => p.id === cardId);
         if (start < 0) return; // Pas la capture de l'explorateur : fiche simple.
         setPhotos(list);
+        setLoadedPhotoSource(photoSource);
         setIndex(start);
       });
     return () => { cancelled = true; };
@@ -1711,7 +1715,8 @@ const CardDetailSheet = (props: Props) => {
   }, [open, feedView, userId, cardId, cardName]);
 
   // Never attach the previous species' photo while the new list is loading.
-  const active = photos.length > 1 && photos.some(photo => photo.id === cardId) ? photos[index] : null;
+  // The loaded list belongs to this sheet even after its opening photo is released.
+  const active = open && !feedView && loadedPhotoSource === photoSource ? photos[index] : null;
   // Mémorisé : une nouvelle référence relancerait le chargement de la fiche à chaque rendu.
   const activeCard = useMemo(() => card && active
     ? {
@@ -1750,7 +1755,7 @@ const CardDetailSheet = (props: Props) => {
       {...props}
       card={activeCard}
       onDeleted={handleDeleted}
-      photoNav={photos.length > 1 ? { index, total: photos.length, onSelect: setIndex } : undefined}
+      photoNav={active && photos.length > 1 ? { index, total: photos.length, onSelect: setIndex } : undefined}
     />
   );
 };
