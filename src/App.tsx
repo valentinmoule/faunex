@@ -19,28 +19,31 @@ import { ProfileDrawerProvider } from "./components/ProfileDrawer";
 import AppErrorBoundary from "./components/AppErrorBoundary";
 import { lazyWithRetry } from "./lib/lazyWithRetry";
 import EclatsActivity from './components/EclatsActivity';
+import NavigationSkeleton from './components/NavigationSkeleton';
+import { useHeaderSync } from './hooks/useHeaderData';
+import { loadTab } from './lib/routePreload';
 
 
 // Lazy-loaded routes for smaller initial bundle
 
-const CapturePage = lazyWithRetry(() => import("./pages/CapturePage"));
+const CapturePage = lazyWithRetry(() => loadTab("/capture"));
 const EclatsPage = lazyWithRetry(() => import('./pages/EclatsPage'));
-const LearningPage = lazyWithRetry(() => import('./pages/LearningPage'));
-import ChallengesPage from './pages/ChallengesPage';
+const LearningPage = lazyWithRetry(() => loadTab("/apprendre"));
+const ChallengesPage = lazyWithRetry(() => loadTab('/defis'));
 const FieldJournalPage = lazyWithRetry(() => import('./pages/FieldJournalPage'));
 const AdminLearningPage = lazyWithRetry(() => import('./pages/AdminLearningPage'));
-const ExplorersPage = lazyWithRetry(() => import("./pages/ExplorersPage"));
+const ExplorersPage = lazyWithRetry(() => loadTab("/explorers"));
 const AuthPage = lazyWithRetry(() => import("./pages/AuthPage"));
 const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
 const FriendCollectionPage = lazyWithRetry(() => import("./pages/FriendCollectionPage"));
-const BestiairePage = lazyWithRetry(() => import("./pages/BestiairePage"));
-const NotificationsPage = lazyWithRetry(() => import("./pages/NotificationsPage"));
+const BestiairePage = lazyWithRetry(() => loadTab("/home"));
+const NotificationsPage = lazyWithRetry(() => loadTab("/notifications"));
 const ModerationPage = lazyWithRetry(() => import("./pages/ModerationPage"));
 const AdminCollectionsPage = lazyWithRetry(() => import("./pages/AdminCollectionsPage"));
 const AdventCalendarPage = lazyWithRetry(() => import("./pages/AdventCalendarPage"));
 const LegalPage = lazyWithRetry(() => import("./pages/LegalPage"));
 const ShareProfilePage = lazyWithRetry(() => import("./pages/ShareProfilePage"));
-const SettingsPage = lazyWithRetry(() => import("./pages/SettingsPage"));
+const SettingsPage = lazyWithRetry(() => loadTab("/settings"));
 const ResetPasswordPage = lazyWithRetry(() => import("./pages/ResetPasswordPage"));
 const NativeAuthCallbackPage = lazyWithRetry(() => import("./pages/NativeAuthCallbackPage"));
 const NativeAuthBridgePage = lazyWithRetry(() => import("./pages/NativeAuthBridgePage"));
@@ -167,6 +170,8 @@ const FirstLoginMarker = () => {
 const AppRoutes = () => {
   const location = useLocation();
   useSyncAccountLocale();
+  const { session } = useAuth();
+  useHeaderSync(session?.user?.id);
   const isCapturePage = location.pathname === '/capture' || location.pathname === '/apprendre';
   const isModerationPage = location.pathname === '/moderation' || location.pathname.startsWith('/admin/');
   const isPremiumPage = location.pathname === '/premium';
@@ -190,7 +195,7 @@ const AppRoutes = () => {
   return (
     <>
       <EclatsActivity />
-      <Suspense fallback={<LoadingScreen />}>
+      <Suspense fallback={isPublicPage ? <LoadingScreen /> : <NavigationSkeleton />}>
         <PageTransition>
         <Routes>
           <Route

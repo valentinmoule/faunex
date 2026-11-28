@@ -49,6 +49,7 @@ vi.mock('@/hooks/useCustomCollections', () => ({ useCustomCollections: () => ({ 
 vi.mock('@/hooks/useSpeciesFinders', () => ({ useSpeciesFinders: () => undefined }));
 vi.mock('@/lib/haptics', () => ({ hapticTap: vi.fn(), hapticDiscovery: vi.fn() }));
 vi.mock('@/hooks/useAppLocale', () => ({ useSyncAccountLocale: () => undefined }));
+vi.mock('@/hooks/useHeaderData', () => ({ useHeaderSync: () => undefined }));
 vi.mock('@/components/ExplorerPhotosStrip', () => ({ default: () => null }));
 vi.mock('@/components/ShareCaptureSheet', () => ({ default: () => null }));
 vi.mock('@/components/HolographicCard', () => ({ default: ({ children }: { children: React.ReactNode }) => <div>{children}</div> }));

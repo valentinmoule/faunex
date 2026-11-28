@@ -17,7 +17,9 @@ import chestClosedArt from '@/assets/quests/chest-closed.webp';
 import { useSubscription } from '@/hooks/useSubscription';
 import chestOpenArt from '@/assets/quests/chest-open.webp';
 import RewardBurst from '@/components/rewards/RewardBurst';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { XP_CHANGED } from '@/lib/xpEvents';
+import { ContentSkeleton } from '@/components/NavigationSkeleton';
 import { pendingRewardsKey } from '@/hooks/usePendingQuestRewards';
 import { hapticSuccess } from '@/lib/haptics';
 
@@ -40,51 +42,50 @@ const QuestsInline = () => {
   const { t } = useTranslation();
   const { session } = useAuth();
   const navigate = useNavigate();
-  const [quests, setQuests] = useState<Quest[]>([]);
-  const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState<string | null>(null);
   const [celebrating, setCelebrating] = useState<string | null>(null);
   const [burstXp, setBurstXp] = useState<number | null>(null);
   const queryClient = useQueryClient();
   const { isPremium, loading: premiumLoading } = useSubscription(session?.user?.id);
-  const [premiumPreview, setPremiumPreview] = useState<{ description: string; target: number; xp_reward: number } | null>(null);
+  const uid = session?.user?.id;
+  const today = new Date().toLocaleDateString('sv-SE');
+  const questsKey = ['inline-quests', uid, startOfWeekISO(), today, isPremium] as const;
+  const questQuery = useQuery({
+    queryKey: questsKey, enabled: !!uid && !premiumLoading, staleTime: 5 * 60_000, refetchOnWindowFocus: true,
+    queryFn: async () => {
+      if (!uid) return [];
+      const ensured = await supabase.rpc('ensure_weekly_quests');
+      if (ensured.error) throw ensured.error;
+      const { data, error } = await supabase.from('weekly_quests').select('*').eq('user_id', uid).gte('quest_date', startOfWeekISO()).order('created_at');
+      if (error) throw error;
+      return (data ?? []) as Quest[];
+    },
+  });
+  const quests = questQuery.data ?? [];
+  const loading = questQuery.isPending;
+  const setQuests = (update: (previous: Quest[]) => Quest[]) => queryClient.setQueryData<Quest[]>(questsKey, previous => update(previous ?? []));
+  const { data: premiumPreview } = useQuery({
+    queryKey: ['premium-quest-preview', uid, startOfWeekISO()], enabled: !!uid && !premiumLoading && !isPremium, staleTime: 5 * 60_000,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('premium_quest_preview');
+      if (error) throw error;
+      return Array.isArray(data) ? data[0] ?? null : null;
+    },
+  });
 
   useEffect(() => {
-    if (!session?.user || premiumLoading || isPremium) return;
-    supabase.rpc('premium_quest_preview').then(({ data }) => {
-      const row = Array.isArray(data) ? data[0] : null;
-      if (row) setPremiumPreview(row);
-    });
-  }, [session, isPremium, premiumLoading]);
-
-  useEffect(() => { if (isPremium) void fetchQuests(); // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPremium]);
-
-  const fetchQuests = async () => {
-    if (!session?.user) return;
-    await supabase.rpc('ensure_weekly_quests');
-    const { data, error } = await supabase
-      .from('weekly_quests').select('*')
-      .eq('user_id', session.user.id)
-      .gte('quest_date', startOfWeekISO())
-      .order('created_at');
-    if (!error && data) setQuests(data as Quest[]);
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchQuests();
-    if (!session?.user) return;
+    if (!uid) return;
+    const refresh = () => { void queryClient.invalidateQueries({ queryKey: ['inline-quests', uid] }); };
+    window.addEventListener(XP_CHANGED, refresh);
     const channel = supabase
       .channel(`daily-quests-inline-${Math.random().toString(36).slice(2)}`)
       .on('postgres_changes', {
-        event: 'UPDATE', schema: 'public', table: 'daily_quests',
-        filter: `user_id=eq.${session.user.id}`,
-      }, () => fetchQuests())
+        event: '*', schema: 'public', table: 'weekly_quests',
+        filter: `user_id=eq.${uid}`,
+      }, refresh)
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session]);
+    return () => { void supabase.removeChannel(channel); window.removeEventListener(XP_CHANGED, refresh); };
+  }, [uid, queryClient]);
 
   const claimReward = async (questId: string) => {
     setClaiming(questId);
@@ -155,7 +156,9 @@ const QuestsInline = () => {
       <h3 id="weekly-quests-title" className="sr-only">{t('profile.quests.weekTitle')}</h3>
 
       {loading ? (
-        <div className="flex items-center justify-center py-8"><Loader2 className="w-5 h-5 text-muted-foreground animate-spin" /></div>
+        <ContentSkeleton />
+      ) : questQuery.isError && !questQuery.data ? (
+        <div className="py-8 text-center"><Button variant="ghost" onClick={() => { void questQuery.refetch(); }}>{t('social.common.genericError')}</Button></div>
       ) : sorted.length === 0 ? (
         <div className="text-center py-8 text-xs text-muted-foreground">{t('profile.quests.emptyShort')}</div>
       ) : (

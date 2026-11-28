@@ -1,7 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 export const DAILY_CAPTURE_LIMIT = 4;
+export const captureQuotaKey = (userId?: string) => ['capture-quota', userId] as const;
+type QuotaStatus = { remaining: number; reason: string; retryAt: string | null };
 
 /**
  * Quota quotidien d'identifications.
@@ -13,37 +16,34 @@ export const DAILY_CAPTURE_LIMIT = 4;
  * « 1/4 » tout en étant bloqué par le serveur.
  */
 export const useCaptureQuota = (userId?: string) => {
-  const [remaining, setRemaining] = useState<number | null>(null);
-  const [reason, setReason] = useState('available');
-  const [retryAt, setRetryAt] = useState<string | null>(null);
+  const queryClient = useQueryClient();
   const currentUser = useRef(userId);
   currentUser.current = userId;
+  const readStatus = useCallback(async (): Promise<QuotaStatus> => {
+    if (!userId) throw new Error('No account');
+    const { data, error } = await supabase.rpc('get_ai_analysis_status');
+    if (error) throw error;
+    if (!data || typeof data !== 'object' || Array.isArray(data) || typeof data.remaining !== 'number') throw new Error('Invalid quota status');
+    return { remaining: data.remaining, reason: typeof data.reason === 'string' ? data.reason : 'available', retryAt: typeof data.retry_at === 'string' ? data.retry_at : null };
+  }, [userId]);
+  const { data } = useQuery({ queryKey: captureQuotaKey(userId), queryFn: readStatus, enabled: !!userId, staleTime: 30_000 });
+  const remaining = data?.remaining ?? null;
+  const reason = data?.reason ?? 'available';
+  const retryAt = data?.retryAt ?? null;
 
   /** Relit le quota et renvoie la valeur fraîche (null si indisponible). */
   const fetchRemaining = useCallback(async () => {
     if (!userId) return null;
-    const { data, error } = await supabase.rpc('get_ai_analysis_status');
-    if (currentUser.current !== userId) return null;
-    if (!error && data && typeof data === 'object' && !Array.isArray(data) && typeof data.remaining === 'number') {
-      setRemaining(data.remaining);
-      setReason(typeof data.reason === 'string' ? data.reason : 'available');
-      setRetryAt(typeof data.retry_at === 'string' ? data.retry_at : null);
-      return data.remaining;
-    }
-    return null;
-  }, [userId]);
+    try {
+      const status = await queryClient.fetchQuery({ queryKey: captureQuotaKey(userId), queryFn: readStatus, staleTime: 0 });
+      return currentUser.current === userId ? status.remaining : null;
+    } catch { return null; }
+  }, [userId, queryClient, readStatus]);
 
   const refresh = useCallback(async () => {
     if (!userId) return;
     await fetchRemaining();
   }, [userId, fetchRemaining]);
-
-  useEffect(() => {
-    setRemaining(null);
-    setReason('available');
-    setRetryAt(null);
-    void refresh();
-  }, [refresh]);
 
   // Relire à l'heure exacte du déblocage, même si la caméra est restée ouverte.
   useEffect(() => {

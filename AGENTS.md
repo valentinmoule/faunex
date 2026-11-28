@@ -110,6 +110,9 @@ Store species names, not capture IDs; name-keyed `species_favorites` allow uncap
 <!-- LOVABLE:BEGIN -->
 ## Canonical species facts
 Apply shared facts after capture name canonicalization, reject scientific conflicts, refresh facts on image-cache hits, and invalidate translations after source changes, because moderation and older clients can save stale descriptions under corrected names.
+
+## Account-scoped navigation cache
+Use account-keyed TanStack Query caches for header profile/notifications/quota, explorer feed/follows and inline quests; invalidate mutations and rewards immediately, with header subscriptions mounted once in the shell, because revisits must not blank content or leak another account's data. Intent/idle preloading shares retryable promises with lazy tab imports; only first loads show neutral skeletons.
 <!-- LOVABLE:END -->
 
 ## Themed collections are data, not code

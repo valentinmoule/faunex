@@ -17,6 +17,8 @@ import { useBadges } from '@/hooks/useBadges';
 import { shareContent } from '@/lib/share';
 import { shareOrigin } from '@/lib/authRedirect';
 import { openStoreListing } from '@/lib/store';
+import { useHeaderProfile, headerProfileKey } from '@/hooks/useHeaderData';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface DrawerProfile {
   display_name: string | null;
@@ -83,7 +85,11 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
   const navigate = useNavigate();
   const location = useLocation();
   const userId = session?.user?.id;
+  const currentUser = useRef(userId);
+  currentUser.current = userId;
   const { isPremium } = useSubscription(userId);
+  const sharedProfile = useHeaderProfile(userId);
+  const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState<DrawerProfile | null>(null);
@@ -105,14 +111,15 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
     if (!userId) return;
     setLoading(true);
     const [profileResult, followersResult, followingResult, roleResult, badgesResult] = await Promise.all([
-      supabase.from('profiles').select('display_name, username, avatar_url, level, xp, xp_to_next, total_captures, regions_explored').eq('user_id', userId).maybeSingle(),
+      sharedProfile.refetch(),
       supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('following_id', userId).eq('status', 'accepted'),
       supabase.from('explorer_follows').select('*', { count: 'exact', head: true }).eq('follower_id', userId).eq('status', 'accepted'),
       supabase.from('user_roles').select('role').eq('user_id', userId).in('role', ['admin', 'moderator']),
       supabase.from('user_badges').select('*', { count: 'exact', head: true }).eq('user_id', userId),
     ]);
 
-    setProfile(profileResult.data as DrawerProfile | null);
+    if (currentUser.current !== userId) return;
+    setProfile((profileResult.data as DrawerProfile | undefined) ?? null);
     if (profileResult.data) {
       const p = profileResult.data as DrawerProfile;
       setAvatar({ url: p.avatar_url ?? null, name: p.display_name || p.username || null });
@@ -124,27 +131,19 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
     setIsAdmin(admin);
     if (admin) {
       const { count } = await supabase.from('captures').select('*', { count: 'exact', head: true }).eq('status', 'pending_review');
+      if (currentUser.current !== userId) return;
       setPendingCount(count ?? 0);
     }
     setLoading(false);
-  }, [userId]);
+  }, [userId, sharedProfile.refetch]);
 
   useEffect(() => {
-    if (!userId) return;
-    let cancelled = false;
-    supabase
-      .from('profiles')
-      .select('level, regions_explored, avatar_url, display_name, username')
-      .eq('user_id', userId)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (cancelled || !data) return;
-        setProgressLevel(data.level ?? 1);
-        setProgressRegions(data.regions_explored ?? 0);
-        setAvatar({ url: data.avatar_url ?? null, name: data.display_name || data.username || null });
-      });
-    return () => { cancelled = true; };
-  }, [userId]);
+    const data = sharedProfile.data;
+    setProgressLevel(data?.level ?? 1);
+    setProgressRegions(data?.regions_explored ?? 0);
+    setAvatar({ url: data?.avatar_url ?? null, name: data?.display_name || data?.username || null });
+    setProfile(data ?? null);
+  }, [userId, sharedProfile.data]);
 
   // La pastille se recalcule en changeant d'écran, au plus une fois toutes les
   // 2 minutes, pour ne pas retélécharger tout l'historique à chaque navigation.
@@ -189,6 +188,7 @@ export const ProfileDrawerProvider = ({ children }: { children: ReactNode }) => 
       if (error) throw error;
       setProfile(prev => prev ? { ...prev, avatar_url: avatarUrl } : prev);
       setAvatar(prev => ({ ...prev, url: avatarUrl }));
+      void queryClient.invalidateQueries({ queryKey: headerProfileKey(userId) });
       toast.success(t('profile.settings.success.photoUpdated'));
     } catch { toast.error(t('profile.settings.errors.uploadError')); }
     finally { setUploadingAvatar(false); }

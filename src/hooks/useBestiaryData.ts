@@ -9,6 +9,7 @@ import type { AnimalCard } from '@/data/mockData';
 import { peekPendingShelve } from '@/lib/shelveAnimation';
 import { subscribeCaptureImageUpdates, updateCaptureImage } from '@/lib/captureImageUpdates';
 import { removeCollectionPhoto } from '@/lib/capturePhotoState';
+import { useUnreadNotifications } from '@/hooks/useHeaderData';
 
 /** Loads the bestiary catalogue, the user's captures, notifications count and zone subscriptions.
  *  Pass `light: true` (e.g. on the leaderboard tab) to only load the notification count —
@@ -73,7 +74,7 @@ export const useBestiaryData = (userId: string | undefined, opts?: { light?: boo
   });
   const [loading, setLoading] = useState(() => !cachedAtMount.current && !snapAtMount.current);
   const [capturesLoaded, setCapturesLoaded] = useState(() => !!snapAtMount.current);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const unreadCount = useUnreadNotifications(userId);
   const [subscribedZones, setSubscribedZones] = useState<ZoneSub[]>(() => snapAtMount.current?.subscribedZones || []);
   const [animalsByDept, setAnimalsByDept] = useState<Record<string, Set<string>>>({});
   /** Raw approved captures of the user — the single source of truth for "how many captures". */
@@ -352,15 +353,6 @@ list = buildList(catalogue, capturesByName, findersMap);
     };
 
 
-    const fetchUnread = async () => {
-      const { count } = await supabase
-        .from('notifications')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId)
-        .eq('read', false);
-      setUnreadCount(count || 0);
-    };
-
     const fetchSubs = async (sourceAnimals: BestiaryAnimal[]) => {
       const { data } = await supabase
         .from('user_department_subscriptions')
@@ -383,11 +375,9 @@ list = buildList(catalogue, capturesByName, findersMap);
 
     if (light) {
       setLoading(false);
-      fetchUnread();
       return;
     }
     fetchData().then((list) => fetchSubs(list || []));
-    fetchUnread();
   }, [userId, loadDeptAnimals, light]);
 
   // Backfill department fauna once the catalogue is available

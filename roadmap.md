@@ -1,4 +1,5 @@
 # Roadmap
+- [x] Navigation : préchargement tactile/de fond, cache Explorateurs/Défis et profil/notifications/quota partagés, premiers chargements discrets ; 34 tests passent. Retours connecté vérifiés à 835×813 et 394×852 : aucun rechargement du fil/abonnements/quêtes/Académie, aucune erreur ni débordement ; vérifications Premium et revalidation Mon Faunex restent actives. App native non testée.
 - [x] Premium : pause réelle 1 h après la 200ᵉ analyse quotidienne, reprise jusqu’à 400, blocage jusqu’au lendemain ; seuils masqués, gratuit 4/jour. 30 tests passent ; pause, reprise et blocage relus connecté, refus serveur vérifiés sans appel IA, lignes fictives retirées.
 - [x] Message de protection Premium FR/EN sans chiffre, symbole infini conservé ; plafond actuel inchangé.
 - [x] Valentin confirme 200 analyses par jour : pas de reprise garantie après une heure, message de pause sans chiffre ni délai.

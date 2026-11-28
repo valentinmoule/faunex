@@ -37,7 +37,8 @@ import FavoriteTileHeart from '@/components/FavoriteTileHeart';
 import MyCapturesGrid from '@/components/MyCapturesGrid';
 import EmptyCaptureState from '@/components/EmptyCaptureState';
 
-import LoadingScreen from '@/components/LoadingScreen';
+import NavigationSkeleton from '@/components/NavigationSkeleton';
+import { useHeaderProfile } from '@/hooks/useHeaderData';
 import { DEPARTEMENTS, getDepartement } from '@/data/departements';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { useSwipeDownClose } from '@/lib/useSwipeDownClose';
@@ -76,7 +77,6 @@ import { isBoosterUnlocked, THEME_PREFIX, themeMatcher, themeTitle } from '@/lib
 import CategoryLeaderboard, { LeaderboardResetBadge } from '@/components/CategoryLeaderboard';
 import { useSubscription } from '@/hooks/useSubscription';
 import { toast } from 'sonner';
-import { useQuery as useLevelQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import i18n from '@/i18n';
 import { useSpeciesName } from '@/hooks/useSpeciesLocale';
@@ -716,12 +716,7 @@ const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
   );
 
   const levelUid = session?.user?.id;
-  const { data: levelRow } = useLevelQuery({
-    queryKey: ['header-level', levelUid],
-    enabled: !!levelUid,
-    staleTime: 60_000,
-    queryFn: async () => (await supabase.from('profiles').select('level, xp, xp_to_next').eq('user_id', levelUid!).maybeSingle()).data,
-  });
+  const { data: levelRow } = useHeaderProfile(levelUid);
   const explorerLevel = levelRow?.level ?? 1;
   const boosterEntries = useMemo(
     () => [...themedEntries].sort((a, b) => a.minLevel - b.minLevel),
@@ -1588,7 +1583,7 @@ const activeFilterCount = rarityFilter.length + popularityFilter.length;
   // Après un ajout de capture, on garde le même chargement plein écran que
   // l'écran de résultat (pas d'écran logo intermédiaire) pour une transition fluide.
   if (loading) {
-    return <LoadingScreen />;
+    return <NavigationSkeleton />;
   }
 
   // Zone detail view

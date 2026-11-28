@@ -4,6 +4,7 @@ import type { ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
 import { hapticTap } from '@/lib/haptics';
 import { usePendingQuestRewards } from '@/hooks/usePendingQuestRewards';
+import { prefetchRoute } from '@/lib/routePreload';
 
 type NavTab = { path: string; labelKey: string; icon: ComponentType<NavIconProps>; tab?: string };
 
@@ -53,6 +54,9 @@ const BottomNav = () => {
             return (
               <button
                 key={tab.labelKey}
+                onPointerDown={() => prefetchRoute(tab.path)}
+                onMouseEnter={() => prefetchRoute(tab.path)}
+                onFocus={() => prefetchRoute(tab.path)}
                 onClick={() => go(tab)}
                 aria-label={t(tab.labelKey)}
                 className="flex flex-col items-center justify-center -mt-[43px] press"
@@ -67,7 +71,10 @@ const BottomNav = () => {
           return (
             <button
               key={tab.labelKey}
-              onClick={() => go(tab)}
+              onPointerDown={() => prefetchRoute(tab.path)}
+                onMouseEnter={() => prefetchRoute(tab.path)}
+                onFocus={() => prefetchRoute(tab.path)}
+                onClick={() => go(tab)}
               className="relative flex flex-col items-center justify-center gap-1 py-2 px-3 press"
             >
               {tab.path === '/defis' && pendingRewards > 0 && (

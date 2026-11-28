@@ -30,33 +30,10 @@ import { useSubscription } from '@/hooks/useSubscription';
 import PhotoContestTab from '@/components/social/PhotoContestTab';
 import { useContestWinnerCaptures } from '@/hooks/usePhotoContest';
 import { CollectorEditionMark } from '@/components/social/CollectorEdition';
+import { useExplorerData, type FeedCapture, type SearchUser } from '@/hooks/useExplorerData';
+import { useUnreadNotifications } from '@/hooks/useHeaderData';
+import { ContentSkeleton } from '@/components/NavigationSkeleton';
 
-
-// ── Feed types ──
-interface FeedCapture {
-  id: string;
-  image_url: string;
-  subject_bbox?: { x: number; y: number; w: number; h: number } | null;
-  animal_name: string;
-  scientific_name: string;
-  category: string;
-  description: string;
-  habitat: string;
-  diet: string;
-  conservation: string;
-  fun_fact: string;
-  rarity: string;
-  caption: string | null;
-  created_at: string;
-  user_id: string;
-  likes_count: number;
-  comments_count: number;
-  profiles: {
-    display_name: string | null;
-    username: string | null;
-    avatar_url: string | null;
-  } | null;
-}
 
 interface Comment {
   id: string;
@@ -70,21 +47,6 @@ interface Comment {
   };
 }
 
-// ── Search types ──
-interface SearchUser {
-  user_id: string;
-  display_name: string | null;
-  username: string | null;
-  avatar_url: string | null;
-  level: number;
-  total_captures: number;
-}
-
-interface FollowProfile {
-  user_id: string;
-  profile?: SearchUser;
-}
-
 // Comptes techniques masqués de la liste des explorateurs (review App Store)
 /** Comptes internes (tests de rareté, comptes de développement) jamais proposés dans la recherche d'explorateurs. */
 const HIDDEN_USER_IDS = ['f7910e92-39a6-4703-b31d-bf1e245e2a4e', 'ac0df155-7422-4073-bfc1-14e2a71960bc', 'c62717cb-255a-4491-a5a0-132880e703be', '2d72654b-0a59-4f18-89d4-8ce2bfc7e129'];
@@ -94,6 +56,9 @@ const ExplorersPage = () => {
   const { speciesName } = useSpeciesName();
 
   const { session } = useAuth();
+  const userId = session?.user?.id;
+  const unreadCount = useUnreadNotifications(userId);
+  const { posts, likedPosts, likeCounts, commentCounts, milestoneRanks, feedLoading, feedLoadingMore, feedHasMore, feedOffset, feedFollowingIds, following, followers, followingIds, pendingIds, pendingRequests, followsLoading, fetchFeedPage, fetchFollows, setLikedPosts, setLikeCounts, setCommentCounts, setFollowing, setFollowers, setFollowingIds, setPendingIds, feedError, retryFeed } = useExplorerData(userId);
   const { isPremium, loading: premiumLoading } = useSubscription(session?.user?.id);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -107,19 +72,8 @@ const ExplorersPage = () => {
   const { data: contestWinners } = useContestWinnerCaptures();
 
   // ── Feed state ──
-  const FEED_PAGE_SIZE = 25;
-  const [posts, setPosts] = useState<FeedCapture[]>([]);
   const [selectedCard, setSelectedCard] = useState<AnimalCard | null>(null);
-  const [feedLoading, setFeedLoading] = useState(true);
-  const [feedLoadingMore, setFeedLoadingMore] = useState(false);
-  const [feedHasMore, setFeedHasMore] = useState(true);
-  const [feedOffset, setFeedOffset] = useState(0);
-  const [feedFollowingIds, setFeedFollowingIds] = useState<string[] | null>(null);
   const feedSentinelRef = useRef<HTMLDivElement | null>(null);
-  const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
-  const [likeCounts, setLikeCounts] = useState<Record<string, number>>({});
-  const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
-  const [milestoneRanks, setMilestoneRanks] = useState<Record<string, number>>({});
   const [openComments, setOpenComments] = useState<string | null>(null);
 
 
@@ -127,8 +81,6 @@ const ExplorersPage = () => {
   const [newComment, setNewComment] = useState('');
   const [loadingComments, setLoadingComments] = useState(false);
   const [submittingComment, setSubmittingComment] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [userProfile, setUserProfile] = useState<{ avatar_url: string | null; display_name: string | null } | null>(null);
 
 
   // ── Search state ──
@@ -136,17 +88,9 @@ const ExplorersPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchUser[]>([]);
   const [searching, setSearching] = useState(false);
-  const [following, setFollowing] = useState<FollowProfile[]>([]);
-  const [followers, setFollowers] = useState<FollowProfile[]>([]);
-  const [followingIds, setFollowingIds] = useState<Set<string>>(new Set());
-  const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
-  const [pendingRequests, setPendingRequests] = useState<FollowProfile[]>([]);
-  const [followsLoading, setFollowsLoading] = useState(true);
   // Action en attente de confirmation (retirer un abonné / se désabonner).
   const [confirmAction, setConfirmAction] = useState<{ kind: 'unfollow' | 'remove_follower'; id: string; name: string } | null>(null);
   const [confirmBusy, setConfirmBusy] = useState(false);
-
-  const userId = session?.user?.id;
 
   // ── Premium status ──
   const feedUserIds = useMemo(() => [...new Set(posts.map(p => p.user_id))], [posts]);
@@ -163,120 +107,6 @@ const ExplorersPage = () => {
 
   const searchPremiumIds = usePremiumUsers(searchUserIds);
 
-  // ── Header data ──
-  useEffect(() => {
-    if (!session?.user) return;
-    const fetchData = async () => {
-      const [{ count }, { data: profile }] = await Promise.all([
-        supabase.from('notifications').select('*', { count: 'exact', head: true }).eq('user_id', session.user.id).eq('read', false),
-        supabase.from('profiles').select('avatar_url, display_name').eq('user_id', session.user.id).maybeSingle(),
-      ]);
-      setUnreadCount(count || 0);
-      setUserProfile(profile);
-    };
-    fetchData();
-
-    const channel = supabase
-      .channel(`notif-count-explorers-${Math.random().toString(36).slice(2)}`)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${session.user.id}` }, () => {
-        supabase.from('notifications').select('*', { count: 'exact', head: true }).eq('user_id', session.user.id).eq('read', false).then(({ count }) => setUnreadCount(count || 0));
-      })
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
-  }, [session]);
-
-  // ── Feed data (paginated, infinite scroll) ──
-  const fetchFeedPage = useCallback(async (followingIds: string[], offset: number, replace: boolean) => {
-    if (!session?.user) return;
-    const uid = session.user.id;
-    if (followingIds.length === 0) {
-      setPosts([]); setLikedPosts(new Set()); setLikeCounts({}); setCommentCounts({});
-      setFeedHasMore(false); setFeedLoading(false); setFeedLoadingMore(false);
-      return;
-    }
-    if (replace) setFeedLoading(true); else setFeedLoadingMore(true);
-
-    const from = offset;
-    const to = offset + FEED_PAGE_SIZE - 1;
-    const { data, error } = await supabase
-      .from('captures')
-      .select('*')
-      .eq('status', 'approved')
-      .eq('shared', true)
-      .in('user_id', followingIds)
-      .order('created_at', { ascending: false })
-      .range(from, to);
-
-    if (!error && data) {
-      const uids = [...new Set(data.map((c: any) => c.user_id))];
-      const captureIds = data.map((c: any) => c.id);
-
-      const [profilesRes, likesRes, likeCountsRes, commentCountsRes] = await Promise.all([
-        uids.length > 0 ? supabase.from('profiles').select('user_id, display_name, username, avatar_url').in('user_id', uids) : { data: [] },
-        captureIds.length > 0 ? supabase.from('feed_likes').select('capture_id').eq('user_id', uid).in('capture_id', captureIds) : { data: [] },
-        captureIds.length > 0 ? supabase.from('feed_likes').select('capture_id').in('capture_id', captureIds) : { data: [] },
-        captureIds.length > 0 ? supabase.from('feed_comments').select('capture_id').in('capture_id', captureIds) : { data: [] },
-      ]);
-
-      const profileMap = new Map(((profilesRes as any).data || []).map((p: any) => [p.user_id, p]));
-      const newLiked = new Set<string>(((likesRes as any).data || []).map((l: any) => l.capture_id as string));
-      setLikedPosts(prev => replace ? newLiked : new Set<string>([...Array.from(prev), ...Array.from(newLiked)]));
-
-
-      setLikeCounts(prev => {
-        const next = replace ? {} : { ...prev };
-        ((likeCountsRes as any).data || []).forEach((l: any) => { next[l.capture_id] = (next[l.capture_id] || 0) + 1; });
-        return next;
-      });
-      setCommentCounts(prev => {
-        const next = replace ? {} : { ...prev };
-        ((commentCountsRes as any).data || []).forEach((c: any) => { next[c.capture_id] = (next[c.capture_id] || 0) + 1; });
-        return next;
-      });
-
-      const newPosts = (data.map((c: any) => ({ ...c, profiles: profileMap.get(c.user_id) || null })) as FeedCapture[]);
-      setPosts(prev => replace ? newPosts : [...prev, ...newPosts]);
-      setFeedOffset(offset + data.length);
-      if (data.length < FEED_PAGE_SIZE) setFeedHasMore(false);
-
-      // Jalons de collection (1re, 10e, 25e, 50e, 100e capture de l'explorateur)
-      if (captureIds.length > 0) {
-        supabase
-          .rpc('capture_milestones', { capture_ids: captureIds })
-          .then(({ data: ranks }) => {
-            if (!ranks) return;
-            setMilestoneRanks(prev => {
-              const next = replace ? {} : { ...prev };
-              (ranks as any[]).forEach(r => { next[r.capture_id] = r.capture_rank; });
-              return next;
-            });
-          });
-      } else if (replace) {
-        setMilestoneRanks({});
-      }
-    }
-
-    setFeedLoading(false);
-    setFeedLoadingMore(false);
-  }, [session]);
-
-  useEffect(() => {
-    if (!session?.user) return;
-    const init = async () => {
-      const { data: followsData } = await supabase
-        .from('explorer_follows')
-        .select('following_id')
-        .eq('follower_id', session.user.id)
-        .eq('status', 'accepted');
-      const ids = (followsData || []).map(f => f.following_id);
-      setFeedFollowingIds(ids);
-      setFeedOffset(0);
-      setFeedHasMore(true);
-      fetchFeedPage(ids, 0, true);
-    };
-    init();
-  }, [session, fetchFeedPage]);
-
   // Infinite scroll sentinel for feed
   useEffect(() => {
     if (view !== 'feed' || feedLoading || !feedHasMore || feedFollowingIds === null) return;
@@ -284,47 +114,12 @@ const ExplorersPage = () => {
     if (!el) return;
     const obs = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting && !feedLoadingMore) {
-        fetchFeedPage(feedFollowingIds, feedOffset, false);
+        void fetchFeedPage(feedFollowingIds, feedOffset);
       }
     }, { rootMargin: '300px' });
     obs.observe(el);
     return () => obs.disconnect();
   }, [view, feedLoading, feedHasMore, feedFollowingIds, feedOffset, feedLoadingMore, fetchFeedPage]);
-
-  // ── Follows data ──
-  const fetchFollows = useCallback(async () => {
-    if (!userId) return;
-
-    setFollowsLoading(true);
-    const [{ data: followingData }, { data: followersData }, { data: pendingData }] = await Promise.all([
-      supabase.from('explorer_follows').select('following_id').eq('follower_id', userId).eq('status', 'accepted'),
-      supabase.from('explorer_follows').select('follower_id').eq('following_id', userId).eq('status', 'accepted'),
-      supabase.from('explorer_follows').select('follower_id').eq('following_id', userId).eq('status', 'pending'),
-    ]);
-    const { data: myPendingData } = await supabase.from('explorer_follows').select('following_id').eq('follower_id', userId).eq('status', 'pending');
-
-    const followingUserIds = (followingData || []).map(f => f.following_id);
-    const followerUserIds = (followersData || []).map(f => f.follower_id);
-    const pendingUserIds = (pendingData || []).map(f => f.follower_id);
-    const myPendingUserIds = (myPendingData || []).map(f => f.following_id);
-    const allIds = [...new Set([...followingUserIds, ...followerUserIds, ...pendingUserIds, ...myPendingUserIds])];
-
-    setFollowingIds(new Set(followingUserIds));
-    setPendingIds(new Set(myPendingUserIds));
-
-    if (allIds.length > 0) {
-      const { data: profiles } = await supabase.from('profiles').select('user_id, display_name, username, avatar_url, level, total_captures').in('user_id', allIds);
-      const profileMap = new Map((profiles || []).map(p => [p.user_id, p]));
-      setFollowing(followingUserIds.map(id => ({ user_id: id, profile: profileMap.get(id) as SearchUser | undefined })));
-      setFollowers(followerUserIds.map(id => ({ user_id: id, profile: profileMap.get(id) as SearchUser | undefined })));
-      setPendingRequests(pendingUserIds.map(id => ({ user_id: id, profile: profileMap.get(id) as SearchUser | undefined })));
-    } else {
-      setFollowing([]); setFollowers([]); setPendingRequests([]);
-    }
-    setFollowsLoading(false);
-  }, [userId]);
-
-  useEffect(() => { fetchFollows(); }, [fetchFollows]);
 
   // ── Search (min 3 caractères) ──
   const doSearch = async () => {
@@ -728,7 +523,9 @@ const ExplorersPage = () => {
         {feedTab === 'contest' ? (
           <PhotoContestTab />
         ) : feedLoading ? (
-          <div className="text-center py-16"><p className="text-muted-foreground font-display">{t('social.common.loading')}</p></div>
+          <ContentSkeleton feed />
+        ) : feedError ? (
+          <div className="py-8 text-center"><Button variant="ghost" onClick={() => { void retryFeed(); }}>{t('social.common.genericError')}</Button></div>
         ) : posts.length === 0 ? (
           <ExplorersEmptyState onSearch={() => { setView('search'); setSearchTab('search'); }} />
         ) : (

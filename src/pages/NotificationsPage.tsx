@@ -7,6 +7,8 @@ import { ArrowLeft, Heart, MessageCircle, UserPlus, UserCheck, CheckCircle, XCir
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useQueryClient } from '@tanstack/react-query';
+import { unreadNotificationsKey } from '@/hooks/useHeaderData';
 
 interface Notification {
   id: string;
@@ -30,6 +32,7 @@ interface Notification {
 const NotificationsPage = () => {
   const { t } = useTranslation();
   const { session } = useAuth();
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
@@ -78,6 +81,7 @@ const NotificationsPage = () => {
             .from('notifications')
             .update({ read: true })
             .in('id', unreadIds);
+          void queryClient.invalidateQueries({ queryKey: unreadNotificationsKey(session.user.id) });
         }
       } else {
         setNotifications([]);
@@ -107,7 +111,7 @@ const NotificationsPage = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [session]);
+  }, [session, queryClient]);
 
   const markAllAsRead = async () => {
     if (!session?.user) return;
@@ -119,6 +123,7 @@ const NotificationsPage = () => {
       .eq('read', false);
     if (!error) {
       setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+      void queryClient.invalidateQueries({ queryKey: unreadNotificationsKey(session.user.id) });
     }
     setMarkingAll(false);
   };

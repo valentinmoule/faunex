@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import ExplorersLeaderboard from '@/components/ExplorersLeaderboard';
 import { Button } from '@/components/ui/button';
@@ -10,13 +10,12 @@ import { PageHeader } from '@/components/PageHeader';
 import HeaderLevelPill from '@/components/HeaderLevelPill';
 import QuestsInline from '@/components/QuestsInline';
 import CaptureQuotaBadge from '@/components/CaptureQuotaBadge';
-import { ProfileButton } from '@/components/ProfileDrawer';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/hooks/useSubscription';
-import { supabase } from '@/integrations/supabase/client';
 import { learningStatus, learningText } from '@/lib/learning';
 import { usePendingQuestRewards } from '@/hooks/usePendingQuestRewards';
 import { foxBinoculars as foxThink } from '@/assets/mascot';
+import { useUnreadNotifications } from '@/hooks/useHeaderData';
 
 
 /** Onglet « Défis » : Académie mise en avant, puis les quêtes. */
@@ -25,7 +24,7 @@ export default function ChallengesPage() {
   const navigate = useNavigate();
   const { session } = useAuth();
   const { isPremium, loading: premiumLoading } = useSubscription(session?.user?.id);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const unreadCount = useUnreadNotifications(session?.user?.id);
   const [searchParams, setSearchParams] = useSearchParams();
   const rawTab = searchParams.get('tab');
   const tab: 'challenges' | 'league' | 'leaderboard' = rawTab === 'league' || rawTab === 'leaderboard' ? rawTab : 'challenges';
@@ -33,20 +32,7 @@ export default function ChallengesPage() {
   const [headerHidden, setHeaderHidden] = useState(false);
   const pendingRewards = usePendingQuestRewards();
 
-  useEffect(() => {
-    if (!session?.user) return;
-    supabase.from('notifications').select('*', { count: 'exact', head: true }).eq('user_id', session.user.id).eq('read', false)
-      .then(({ count }) => setUnreadCount(count || 0));
-    const channel = supabase
-      .channel(`notif-count-challenges-${Math.random().toString(36).slice(2)}`)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${session.user.id}` }, () => {
-        supabase.from('notifications').select('*', { count: 'exact', head: true }).eq('user_id', session.user.id).eq('read', false).then(({ count }) => setUnreadCount(count || 0));
-      })
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
-  }, [session]);
-
-  const status = useQuery({ queryKey: ['learning', session?.user.id], queryFn: learningStatus, enabled: !!session?.user });
+  const status = useQuery({ queryKey: ['learning', session?.user.id], queryFn: learningStatus, enabled: !!session?.user, staleTime: 5 * 60_000 });
   const data = status.data;
   const pathId = session?.user.id ? localStorage.getItem(`learning-path:${session.user.id}`) : null;
   const path = data?.paths.find(p => p.id === pathId) ?? data?.paths[0];

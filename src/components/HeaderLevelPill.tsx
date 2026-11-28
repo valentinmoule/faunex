@@ -1,8 +1,5 @@
-import { useEffect } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { XP_CHANGED } from '@/lib/xpEvents';
 import { useTranslation } from 'react-i18next';
-import { supabase } from '@/integrations/supabase/client';
+import { useHeaderProfile } from '@/hooks/useHeaderData';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProfileButton } from '@/components/ProfileDrawer';
 
@@ -11,21 +8,7 @@ export default function HeaderLevelPill() {
   const { t } = useTranslation();
   const { session } = useAuth();
   const uid = session?.user?.id;
-  const queryClient = useQueryClient();
-  useEffect(() => {
-    const refresh = () => queryClient.invalidateQueries({ queryKey: ['header-level'] });
-    window.addEventListener(XP_CHANGED, refresh);
-    return () => window.removeEventListener(XP_CHANGED, refresh);
-  }, [queryClient]);
-  const { data } = useQuery({
-    queryKey: ['header-level', uid],
-    enabled: !!uid,
-    staleTime: 60_000,
-    queryFn: async () => {
-      const { data } = await supabase.from('profiles').select('level, xp, xp_to_next').eq('user_id', uid!).maybeSingle();
-      return data;
-    },
-  });
+  const { data } = useHeaderProfile(uid);
   if (!data) return <ProfileButton className="-ml-0.5" />;
   const level = data.level ?? 1;
   const xp = data.xp ?? 0;
